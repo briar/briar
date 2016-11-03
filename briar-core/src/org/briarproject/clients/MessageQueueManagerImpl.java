@@ -132,7 +132,7 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 		private long outgoingPosition, incomingPosition;
 		private final TreeMap<Long, MessageId> pending;
 
-		QueueState(long outgoingPosition, long incomingPosition,
+		private QueueState(long outgoingPosition, long incomingPosition,
 				TreeMap<Long, MessageId> pending) {
 			this.outgoingPosition = outgoingPosition;
 			this.incomingPosition = incomingPosition;
@@ -166,7 +166,7 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 
 		private final QueueMessageValidator delegate;
 
-		DelegatingMessageValidator(QueueMessageValidator delegate) {
+		private DelegatingMessageValidator(QueueMessageValidator delegate) {
 			this.delegate = delegate;
 		}
 
@@ -193,8 +193,8 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 		}
 
 		@Override
-		public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
-				throws DbException {
+		public boolean incomingMessage(Transaction txn, Message m,
+				Metadata meta) throws DbException, InvalidMessageException {
 			long queuePosition = ByteUtils.readUint64(m.getRaw(),
 					MESSAGE_HEADER_LENGTH);
 			QueueState queueState = loadQueueState(txn, m.getGroupId());

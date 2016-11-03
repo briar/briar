@@ -48,7 +48,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -74,9 +73,6 @@ import static org.briarproject.blogs.BlogPostValidator.authorToBdfDictionary;
 
 class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		AddContactHook, RemoveContactHook, Client {
-
-	private static final Logger LOG =
-			Logger.getLogger(BlogManagerImpl.class.getName());
 
 	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
 			"dafbe56f0c8971365cea4bb5f08ec9a6" +

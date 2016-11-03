@@ -32,7 +32,6 @@ import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.clients.ConversationClientImpl;
 import org.briarproject.util.StringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -206,7 +205,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	 */
 	@Override
 	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary message) throws DbException {
+			BdfDictionary message) throws DbException, FormatException {
 
 		// Get message data and type
 		GroupId groupId = m.getGroupId();
@@ -220,19 +219,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			} catch (FormatException e) {
 				stateExists = false;
 			}
-			BdfDictionary state;
-			try {
-				if (stateExists) throw new FormatException();
-				state = introduceeManager.initialize(txn, groupId, message);
-			} catch (FormatException e) {
-				if (LOG.isLoggable(WARNING)) {
-					LOG.warning(
-							"Could not initialize introducee state, deleting...");
-					LOG.log(WARNING, e.toString(), e);
-				}
-				deleteMessage(txn, m.getId());
-				return false;
-			}
+			if (stateExists) throw new FormatException();
+			BdfDictionary state =
+					introduceeManager.initialize(txn, groupId, message);
 			try {
 				introduceeManager.incomingMessage(txn, state, message);
 				trackIncomingMessage(txn, m);
@@ -240,21 +229,15 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				introduceeManager.abort(txn, state);
 			} catch (FormatException e) {
+				// FIXME necessary?
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				introduceeManager.abort(txn, state);
 			}
 		}
 		// our role can be anything
 		else if (type == TYPE_RESPONSE || type == TYPE_ACK || type == TYPE_ABORT) {
-			BdfDictionary state;
-			try {
-				state = getSessionState(txn, groupId,
-						message.getRaw(SESSION_ID));
-			} catch (FormatException e) {
-				LOG.warning("Could not find state for message, deleting...");
-				deleteMessage(txn, m.getId());
-				return false;
-			}
+			BdfDictionary state =
+					getSessionState(txn, groupId, message.getRaw(SESSION_ID));
 
 			long role = state.getLong(ROLE, -1L);
 			try {
@@ -263,18 +246,15 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				} else if (role == ROLE_INTRODUCEE) {
 					introduceeManager.incomingMessage(txn, state, message);
 				} else {
-					if(LOG.isLoggable(WARNING)) {
-						LOG.warning("Unknown role '" + role +
-								"'. Deleting message...");
-						deleteMessage(txn, m.getId());
-					}
+					throw new AssertionError("Unknown role '" + role + "'");
 				}
 				if (type == TYPE_RESPONSE) trackIncomingMessage(txn, m);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				if (role == ROLE_INTRODUCER) introducerManager.abort(txn, state);
 				else introduceeManager.abort(txn, state);
-			} catch (IOException e) {
+			} catch (FormatException e) {
+				// FIXME necessary?
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				if (role == ROLE_INTRODUCER) introducerManager.abort(txn, state);
 				else introduceeManager.abort(txn, state);

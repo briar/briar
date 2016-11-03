@@ -48,8 +48,17 @@ public interface MessageQueueManager {
 		/**
 		 * Called once for each incoming message that passes validation.
 		 * Messages are passed to the hook in order.
+		 *
+		 * @throws DbException should only be used for real database errors
+		 * @throws InvalidMessageException for any non-database error
+		 * that occurs while handling remotely created data.
+		 * This includes errors that occur while handling locally created data
+		 * in a context controlled by remotely created data
+		 * (for example, parsing the metadata of a dependency
+		 * of an incoming message).
+		 * Never rethrow DbException as InvalidMessageException
 		 */
 		void incomingMessage(Transaction txn, QueueMessage q, Metadata meta)
-				throws DbException;
+				throws DbException, InvalidMessageException;
 	}
 }

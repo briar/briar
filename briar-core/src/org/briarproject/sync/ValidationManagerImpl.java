@@ -360,16 +360,18 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		boolean shareMsg = false;
 		IncomingMessageHook hook = hooks.get(c);
 		if (hook != null) {
-			shareMsg = hook.incomingMessage(txn, m, meta);
+			try {
+				shareMsg = hook.incomingMessage(txn, m, meta);
+			} catch (InvalidMessageException e) {
+				// message is invalid, mark it as such and delete it
+				db.setMessageState(txn, m.getId(), INVALID);
+				db.deleteMessageMetadata(txn, m.getId());
+				db.deleteMessage(txn, m.getId());
+				return new DeliveryResult(false, false);
+			}
 		}
-		// TODO: Find a better way for clients to signal validity, #643
-		if (db.getRawMessage(txn, m.getId()) == null) {
-			db.setMessageState(txn, m.getId(), INVALID);
-			return new DeliveryResult(false, false);
-		} else {
-			db.setMessageState(txn, m.getId(), DELIVERED);
-			return new DeliveryResult(true, shareMsg);
-		}
+		db.setMessageState(txn, m.getId(), DELIVERED);
+		return new DeliveryResult(true, shareMsg);
 	}
 
 	private Queue<MessageId> getPendingDependents(Transaction txn, MessageId m)
