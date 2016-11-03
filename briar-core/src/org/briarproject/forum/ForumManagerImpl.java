@@ -104,7 +104,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		Transaction txn = db.startTransaction(false);
 		try {
 			db.addGroup(txn, f.getGroup());
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -118,7 +118,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			for (RemoveForumHook hook : removeHooks)
 				hook.removingForum(txn, f);
 			db.removeGroup(txn, f.getGroup());
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -160,7 +160,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			meta.put(MSG_KEY_READ, true);
 			clientHelper.addLocalMessage(txn, p.getMessage(), meta, true);
 			trackOutgoingMessage(txn, p.getMessage());
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -176,7 +176,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		Transaction txn = db.startTransaction(true);
 		try {
 			forum = getForum(txn, g);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -200,7 +200,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			Transaction txn = db.startTransaction(true);
 			try {
 				groups = db.getGroups(txn, CLIENT_ID);
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -252,7 +252,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 				headers.add(getForumPostHeader(txn, entry.getKey(), meta,
 						statuses));
 			}
-			txn.setComplete();
+			db.commitTransaction(txn);
 			return headers;
 		} catch (FormatException e) {
 			throw new DbException(e);

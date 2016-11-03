@@ -140,7 +140,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 								+ " took " + duration + " ms");
 					}
 				}
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}

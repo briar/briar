@@ -122,7 +122,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 			meta.put("read", true);
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
 			trackOutgoingMessage(txn, m.getMessage());
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -157,7 +157,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 		Transaction txn = db.startTransaction(true);
 		try {
 			contact = db.getContact(txn, c);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -175,7 +175,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 			g = getContactGroup(db.getContact(txn, c)).getId();
 			metadata = clientHelper.getMessageMetadataAsDictionary(txn, g);
 			statuses = db.getMessageStatus(txn, c, g);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {

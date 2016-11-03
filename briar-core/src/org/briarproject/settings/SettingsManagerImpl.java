@@ -24,7 +24,7 @@ class SettingsManagerImpl implements SettingsManager {
 		Transaction txn = db.startTransaction(true);
 		try {
 			s = db.getSettings(txn, namespace);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -36,7 +36,7 @@ class SettingsManagerImpl implements SettingsManager {
 		Transaction txn = db.startTransaction(false);
 		try {
 			db.mergeSettings(txn, s, namespace);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}

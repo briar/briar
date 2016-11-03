@@ -179,8 +179,7 @@ public class IntroducerManagerTest extends BriarTestCase {
 				.makeIntroduction(txn, introducee1, introducee2, null, time);
 
 		context.assertIsSatisfied();
-
-		assertFalse(txn.isComplete());
+		assertFalse(txn.isCommitted());
 	}
 
 	private ClientId getClientId() {

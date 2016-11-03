@@ -139,21 +139,28 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public void endTransaction(Transaction transaction) throws DbException {
+	public void commitTransaction(Transaction transaction) throws DbException {
+		T txn = txnClass.cast(transaction.unbox());
+		if (transaction.isCommitted()) throw new IllegalStateException();
+		transaction.setCommitted();
+		db.commitTransaction(txn);
+	}
+
+	@Override
+	public void endTransaction(Transaction transaction) {
 		try {
 			T txn = txnClass.cast(transaction.unbox());
-			if (transaction.isComplete()) db.commitTransaction(txn);
-			else db.abortTransaction(txn);
+			if (!transaction.isCommitted()) db.abortTransaction(txn);
 		} finally {
 			if (transaction.isReadOnly()) lock.readLock().unlock();
 			else lock.writeLock().unlock();
 		}
-		if (transaction.isComplete())
+		if (transaction.isCommitted())
 			for (Event e : transaction.getEvents()) eventBus.broadcast(e);
 	}
 
 	private T unbox(Transaction transaction) {
-		if (transaction.isComplete()) throw new IllegalStateException();
+		if (transaction.isCommitted()) throw new IllegalStateException();
 		return txnClass.cast(transaction.unbox());
 	}
 

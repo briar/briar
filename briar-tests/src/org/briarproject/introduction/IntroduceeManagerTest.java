@@ -199,8 +199,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		introduceeManager.incomingMessage(txn, state, msg);
 
 		context.assertIsSatisfied();
-
-		assertFalse(txn.isComplete());
+		assertFalse(txn.isCommitted());
 	}
 
 	@Test
@@ -234,8 +233,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		introduceeManager.incomingMessage(txn, state, msg);
 
 		context.assertIsSatisfied();
-
-		assertFalse(txn.isComplete());
+		assertFalse(txn.isCommitted());
 	}
 
 	@Test
@@ -297,7 +295,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 			assertTrue(e.getCause() instanceof GeneralSecurityException);
 		}
 		context.assertIsSatisfied();
-		assertFalse(txn.isComplete());
+		assertFalse(txn.isCommitted());
 	}
 
 	@Test
@@ -448,6 +446,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		BdfDictionary result = introduceeManager.initialize(txn, groupId, msg);
 
 		context.assertIsSatisfied();
+		assertFalse(txn.isCommitted());
 		return result;
 	}
 

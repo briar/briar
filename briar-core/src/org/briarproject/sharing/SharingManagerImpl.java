@@ -300,7 +300,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			long time = update.toSend.get(0).getTime();
 			trackMessage(txn, localState.getGroupId(), time, true);
 
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException();
 		} finally {
@@ -317,7 +317,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			// find session state based on shareable
 			IS localState = getSessionStateForResponse(txn, f, c);
 			respondToInvitation(txn, localState, accept);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {
@@ -333,7 +333,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		try {
 			IS localState = (IS) getSessionState(txn, id, true);
 			respondToInvitation(txn, localState, accept);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {
@@ -427,7 +427,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
-			txn.setComplete();
+			db.commitTransaction(txn);
 			return list;
 		} catch (FormatException e) {
 			throw new DbException(e);
@@ -468,7 +468,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 						new SharingInvitationItem(s, subscribed, newS);
 				invitations.add(invitation);
 			}
-			txn.setComplete();
+			db.commitTransaction(txn);
 			return Collections.unmodifiableCollection(invitations);
 		} catch (FormatException e) {
 			throw new DbException(e);
@@ -514,7 +514,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		Transaction txn = db.startTransaction(true);
 		try {
 			subscribers = getSharedBy(txn, g);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -547,7 +547,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 					if (listContains(txn, contactGroup, g, SHARED_BY_US))
 						shared.add(c);
 				}
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -563,7 +563,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		Transaction txn = db.startTransaction(true);
 		try {
 			canBeShared = canBeShared(txn, g, c);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}

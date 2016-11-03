@@ -15,7 +15,7 @@ public class Transaction {
 	private final boolean readOnly;
 
 	private List<Event> events = null;
-	private boolean complete = false;
+	private boolean committed = false;
 
 	public Transaction(Object txn, boolean readOnly) {
 		this.txn = txn;
@@ -55,18 +55,18 @@ public class Transaction {
 	}
 
 	/**
-	 * Returns true if the transaction is ready to be committed.
+	 * Returns true if the transaction has been committed.
 	 */
-	public boolean isComplete() {
-		return complete;
+	public boolean isCommitted() {
+		return committed;
 	}
 
 	/**
-	 * Marks the transaction as ready to be committed. This method must not be
-	 * called more than once.
+	 * Marks the transaction as committed. This method should only be called
+	 * by the DatabaseComponent. It must not be called more than once.
 	 */
-	public void setComplete() {
-		if (complete) throw new IllegalStateException();
-		complete = true;
+	public void setCommitted() {
+		if (committed) throw new IllegalStateException();
+		committed = true;
 	}
 }

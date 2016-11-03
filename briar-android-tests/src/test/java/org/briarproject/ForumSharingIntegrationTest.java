@@ -509,7 +509,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			Transaction txn = db.startTransaction(false);
 			try {
 				queue.sendMessage(txn, group, time, body, new Metadata());
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -580,7 +580,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			DatabaseComponent db1 = t1.getDatabaseComponent();
 			Transaction txn = db1.startTransaction(false);
 			db1.addGroup(txn, forum0.getGroup());
-			txn.setComplete();
+			db1.commitTransaction(txn);
 			db1.endTransaction(txn);
 
 			// send invitation
@@ -707,7 +707,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			Transaction txn = db.startTransaction(false);
 			try {
 				queue.sendMessage(txn, group, time, body, new Metadata());
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -736,7 +736,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			DatabaseComponent db2 = t2.getDatabaseComponent();
 			Transaction txn = db2.startTransaction(false);
 			db2.addGroup(txn, forum0.getGroup());
-			txn.setComplete();
+			db2.commitTransaction(txn);
 			db2.endTransaction(txn);
 
 			// add listeners

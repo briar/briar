@@ -101,7 +101,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		Transaction txn = db.startTransaction(true);
 		try {
 			local = getLocalProperties(txn);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -145,7 +145,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 							latest.messageId);
 					p = parseProperties(message);
 				}
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -176,7 +176,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 						remote.put(c.getId(), parseProperties(message));
 					}
 				}
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -222,7 +222,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 								true, true);
 					}
 				}
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}

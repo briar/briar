@@ -143,7 +143,7 @@ class TransportKeyManager {
 					Transaction txn = db.startTransaction(false);
 					try {
 						rotateKeys(txn);
-						txn.setComplete();
+						db.commitTransaction(txn);
 					} finally {
 						db.endTransaction(txn);
 					}

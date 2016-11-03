@@ -117,7 +117,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 				Transaction txn = db.startTransaction(false);
 				try {
 					a = db.generateAck(txn, contactId, MAX_MESSAGE_IDS);
-					txn.setComplete();
+					db.commitTransaction(txn);
 				} finally {
 					db.endTransaction(txn);
 				}
@@ -160,7 +160,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 				try {
 					b = db.generateBatch(txn, contactId,
 							MAX_PACKET_PAYLOAD_LENGTH, maxLatency);
-					txn.setComplete();
+					db.commitTransaction(txn);
 				} finally {
 					db.endTransaction(txn);
 				}

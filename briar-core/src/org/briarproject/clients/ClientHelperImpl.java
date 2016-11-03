@@ -67,7 +67,7 @@ class ClientHelperImpl implements ClientHelper {
 		Transaction txn = db.startTransaction(false);
 		try {
 			addLocalMessage(txn, m, metadata, shared);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -99,7 +99,7 @@ class ClientHelperImpl implements ClientHelper {
 		Transaction txn = db.startTransaction(true);
 		try {
 			list = getMessageAsList(txn, m);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -122,7 +122,7 @@ class ClientHelperImpl implements ClientHelper {
 		Transaction txn = db.startTransaction(true);
 		try {
 			dictionary = getGroupMetadataAsDictionary(txn, g);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -143,7 +143,7 @@ class ClientHelperImpl implements ClientHelper {
 		Transaction txn = db.startTransaction(true);
 		try {
 			dictionary = getMessageMetadataAsDictionary(txn, m);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -164,7 +164,7 @@ class ClientHelperImpl implements ClientHelper {
 		Transaction txn = db.startTransaction(true);
 		try {
 			map = getMessageMetadataAsDictionary(txn, g);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -190,7 +190,7 @@ class ClientHelperImpl implements ClientHelper {
 		Transaction txn = db.startTransaction(true);
 		try {
 			map = getMessageMetadataAsDictionary(txn, g, query);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -216,7 +216,7 @@ class ClientHelperImpl implements ClientHelper {
 		Transaction txn = db.startTransaction(false);
 		try {
 			mergeGroupMetadata(txn, g, metadata);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -234,7 +234,7 @@ class ClientHelperImpl implements ClientHelper {
 		Transaction txn = db.startTransaction(false);
 		try {
 			mergeMessageMetadata(txn, m, metadata);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}

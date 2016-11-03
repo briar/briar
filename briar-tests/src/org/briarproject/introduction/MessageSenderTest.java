@@ -22,7 +22,6 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertFalse;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.api.introduction.IntroductionConstants.MAC;
@@ -30,6 +29,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.SESSION_ID
 import static org.briarproject.api.introduction.IntroductionConstants.SIGNATURE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
+import static org.junit.Assert.assertFalse;
 
 public class MessageSenderTest extends BriarTestCase {
 
@@ -94,7 +94,7 @@ public class MessageSenderTest extends BriarTestCase {
 		messageSender.sendMessage(txn, msg);
 
 		context.assertIsSatisfied();
-		assertFalse(txn.isComplete());
+		assertFalse(txn.isCommitted());
 	}
 
 }

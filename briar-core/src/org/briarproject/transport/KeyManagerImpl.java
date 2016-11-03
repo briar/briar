@@ -89,7 +89,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 					managers.put(e.getKey(), m);
 					m.start(txn);
 				}
-				txn.setComplete();
+				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
 			}
@@ -123,7 +123,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		Transaction txn = db.startTransaction(false);
 		try {
 			ctx = m.getStreamContext(txn, c);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -142,7 +142,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		Transaction txn = db.startTransaction(false);
 		try {
 			ctx = m.getStreamContext(txn, tag);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}

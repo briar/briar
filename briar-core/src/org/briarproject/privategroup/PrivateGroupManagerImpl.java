@@ -108,7 +108,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			clientHelper.mergeGroupMetadata(txn, group.getId(), meta);
 			announceNewMember(txn, newMemberMsg);
 			joinPrivateGroup(txn, joinMsg);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {
@@ -145,7 +145,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			}
 			Group group = db.getGroup(txn, g);
 			db.removeGroup(txn, group);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -157,7 +157,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		Transaction txn = db.startTransaction(true);
 		try {
 			previousMsgId = getPreviousMsgId(txn, g);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {
@@ -216,7 +216,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			setPreviousMsgId(txn, m.getMessage().getGroupId(),
 					m.getMessage().getId());
 			trackOutgoingMessage(txn, m.getMessage());
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {
@@ -242,7 +242,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		Transaction txn = db.startTransaction(true);
 		try {
 			privateGroup = getPrivateGroup(txn, g);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -266,7 +266,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		Transaction txn = db.startTransaction(true);
 		try {
 			groups = db.getGroups(txn, getClientId());
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -333,7 +333,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 				headers.add(getGroupMessageHeader(txn, g, entry.getKey(), meta,
 						statuses));
 			}
-			txn.setComplete();
+			db.commitTransaction(txn);
 			return headers;
 		} catch (FormatException e) {
 			throw new DbException(e);
@@ -387,7 +387,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 				}
 				members.add(new GroupMember(a, status, shared));
 			}
-			txn.setComplete();
+			db.commitTransaction(txn);
 			return members;
 		} finally {
 			db.endTransaction(txn);

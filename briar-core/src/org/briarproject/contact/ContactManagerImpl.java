@@ -65,7 +65,7 @@ class ContactManagerImpl implements ContactManager {
 		try {
 			c = addContact(txn, remote, local, master, timestamp, alice,
 					verified, active);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -78,7 +78,7 @@ class ContactManagerImpl implements ContactManager {
 		Transaction txn = db.startTransaction(true);
 		try {
 			contact = db.getContact(txn, c);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -91,7 +91,7 @@ class ContactManagerImpl implements ContactManager {
 		Transaction txn = db.startTransaction(true);
 		try {
 			contacts = db.getContacts(txn);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -105,7 +105,7 @@ class ContactManagerImpl implements ContactManager {
 		Transaction txn = db.startTransaction(false);
 		try {
 			removeContact(txn, c);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -130,7 +130,7 @@ class ContactManagerImpl implements ContactManager {
 		Transaction txn = db.startTransaction(true);
 		try {
 			exists = contactExists(txn, remoteAuthorId, localAuthorId);
-			txn.setComplete();
+			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}

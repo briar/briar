@@ -198,12 +198,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 					blog2.getAuthor().getId());
 			will(returnValue(false));
 			oneOf(db).removeGroup(txn, blog1.getGroup());
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
 		blogManager.removeBlog(blog1);
 		context.assertIsSatisfied();
-		assertTrue(txn.isComplete());
 	}
 
 	@Test
@@ -227,12 +227,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 			oneOf(identityManager)
 					.getAuthorStatus(txn, blog1.getAuthor().getId());
 			will(returnValue(VERIFIED));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
 		blogManager.addLocalPost(post);
 		context.assertIsSatisfied();
-		assertTrue(txn.isComplete());
 
 		assertEquals(1, txn.getEvents().size());
 		assertTrue(txn.getEvents().get(0) instanceof BlogPostAddedEvent);
@@ -256,11 +256,11 @@ public class BlogManagerImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(identityManager).getLocalAuthor(txn);
 			will(returnValue(blog1.getAuthor()));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 		assertFalse(blogManager.canBeRemoved(blog1.getId()));
 		context.assertIsSatisfied();
-		assertTrue(txn.isComplete());
 
 		// check that blogs of contacts can not be removed
 		final Transaction txn2 = new Transaction(null, true);
@@ -271,11 +271,11 @@ public class BlogManagerImplTest extends BriarTestCase {
 			oneOf(contactManager).contactExists(txn2, blog1.getAuthor().getId(),
 					blog2.getAuthor().getId());
 			will(returnValue(true));
+			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 		}});
 		assertFalse(blogManager.canBeRemoved(blog1.getId()));
 		context.assertIsSatisfied();
-		assertTrue(txn2.isComplete());
 
 		// check that blogs can be removed if they don't belong to a contact
 		final Transaction txn3 = new Transaction(null, true);
@@ -286,11 +286,11 @@ public class BlogManagerImplTest extends BriarTestCase {
 			oneOf(contactManager).contactExists(txn3, blog1.getAuthor().getId(),
 					blog2.getAuthor().getId());
 			will(returnValue(false));
+			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 		}});
 		assertTrue(blogManager.canBeRemoved(blog1.getId()));
 		context.assertIsSatisfied();
-		assertTrue(txn3.isComplete());
 	}
 
 	private void checkGetBlogExpectations(final Transaction txn,

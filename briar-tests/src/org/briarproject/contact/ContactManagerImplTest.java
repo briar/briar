@@ -59,6 +59,7 @@ public class ContactManagerImplTest extends BriarTestCase {
 					.addContact(txn, contactId, master, timestamp, alice);
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -76,6 +77,7 @@ public class ContactManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -94,6 +96,7 @@ public class ContactManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -110,6 +113,7 @@ public class ContactManagerImplTest extends BriarTestCase {
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
 			oneOf(db).removeContact(txn, contactId);
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -136,6 +140,7 @@ public class ContactManagerImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(db).containsContact(txn, remote.getId(), local);
 			will(returnValue(true));
+			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
 
