@@ -315,7 +315,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 	}
 
 	@Test
-	public void testWrongJoinMessages() throws Exception {
+	public void testWrongJoinMessages1() throws Exception {
 		addDefaultIdentities();
 		addDefaultContacts();
 		listenToEvents();
@@ -377,15 +377,24 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 	}
 
 	@Test
-	public void testWrongJoinMessageSignature() throws Exception {
+	public void testWrongJoinMessages2() throws Exception {
 		addDefaultIdentities();
 		addDefaultContacts();
 		listenToEvents();
 
-		// author0 joins privateGroup0 properly
+		// author0 joins privateGroup0 with wrong member's join message
 		long joinTime = clock.currentTimeMillis();
+		long inviteTime = joinTime - 1;
+		Group invitationGroup = contactGroupFactory
+				.createContactGroup(groupInvitationManager.getClientId(),
+						author0.getId(), author0.getId());
+		BdfList toSign = BdfList.of(0, inviteTime, invitationGroup.getId(),
+				privateGroup0.getId());
+		byte[] creatorSignature =
+				clientHelper.sign(toSign, author0.getPrivateKey());
 		GroupMessage joinMsg0 = groupMessageFactory
-				.createJoinMessage(privateGroup0.getId(), joinTime, author0);
+				.createJoinMessage(privateGroup0.getId(), joinTime, author0,
+						inviteTime, creatorSignature);
 		groupManager0.addPrivateGroup(privateGroup0, joinMsg0);
 		assertEquals(joinMsg0.getMessage().getId(),
 				groupManager0.getPreviousMsgId(groupId0));
@@ -395,19 +404,18 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		t0.getDatabaseComponent()
 				.setVisibleToContact(txn0, contactId1, privateGroup0.getId(),
 						true);
-		txn0.setComplete();
+		t0.getDatabaseComponent().commitTransaction(txn0);
 		t0.getDatabaseComponent().endTransaction(txn0);
 
-		// author1 joins privateGroup0 with wrong timestamp
+		// author1 joins privateGroup0 with wrong own signature
 		joinTime = clock.currentTimeMillis();
-		long inviteTime = joinTime - 1;
-		Group invitationGroup = contactGroupFactory
+		inviteTime = joinTime - 1;
+		invitationGroup = contactGroupFactory
 				.createContactGroup(groupInvitationManager.getClientId(),
 						author0.getId(), author1.getId());
-		BdfList toSign = BdfList.of(0, inviteTime, invitationGroup.getId(),
+		toSign = BdfList.of(0, inviteTime, invitationGroup.getId(),
 				privateGroup0.getId());
-		byte[] creatorSignature =
-				clientHelper.sign(toSign, author1.getPrivateKey());
+		creatorSignature = clientHelper.sign(toSign, author1.getPrivateKey());
 		GroupMessage joinMsg1 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author1,
 						inviteTime, creatorSignature);
@@ -420,15 +428,15 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		t1.getDatabaseComponent()
 				.setVisibleToContact(txn1, contactId0, privateGroup0.getId(),
 						true);
-		txn1.setComplete();
+		t1.getDatabaseComponent().commitTransaction(txn1);
 		t1.getDatabaseComponent().endTransaction(txn1);
 
 		// sync join messages
 		sync0To1();
-		deliveryWaiter.await(TIMEOUT, 1);
+		validationWaiter.await(TIMEOUT, 1);
 
 		// assert that 0 never joined the group from 1's perspective
-		assertEquals(2, groupManager1.getHeaders(groupId0).size());
+		assertEquals(1, groupManager1.getHeaders(groupId0).size());
 
 		sync1To0();
 		validationWaiter.await(TIMEOUT, 1);

@@ -102,11 +102,14 @@ class GroupMessageValidator extends BdfMessageValidator {
 		PrivateGroup pg = groupFactory.parsePrivateGroup(g);
 
 		// invite is null if the member is the creator of the private group
-		BdfList invite = body.getList(3, null);
+		BdfList invite = body.getOptionalList(3);
 		if (invite == null) {
 			if (!member.equals(pg.getAuthor()))
 				throw new InvalidMessageException();
 		} else {
+			if (member.equals(pg.getAuthor()))
+				throw new InvalidMessageException();
+
 			// Otherwise invite is a list with two elements
 			checkSize(invite, 2);
 
@@ -164,7 +167,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 			Author member)
 			throws InvalidMessageException, FormatException {
 
-		// The content is a BDF list with six elements
+		// The content is a BDF list with seven elements
 		checkSize(body, 7);
 
 		// parent_id (raw or null)
