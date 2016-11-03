@@ -337,7 +337,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				status.setText(R.string.waiting_for_contact);
+				status.setText(R.string.waiting_for_contact_to_scan);
 			}
 		});
 	}
