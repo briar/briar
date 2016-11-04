@@ -35,6 +35,12 @@ public class TransportModule {
 	}
 
 	@Provides
+	TransportKeyManagerFactory provideTransportKeyManagerFactory(
+			TransportKeyManagerFactoryImpl transportKeyManagerFactory) {
+		return transportKeyManagerFactory;
+	}
+
+	@Provides
 	@Singleton
 	KeyManager provideKeyManager(LifecycleManager lifecycleManager,
 			EventBus eventBus, KeyManagerImpl keyManager) {

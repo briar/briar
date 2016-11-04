@@ -3,7 +3,6 @@ package org.briarproject.transport;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
@@ -18,7 +17,6 @@ import org.briarproject.api.lifecycle.ServiceException;
 import org.briarproject.api.plugins.PluginConfig;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
-import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
 
@@ -27,7 +25,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -41,26 +38,21 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			Logger.getLogger(KeyManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
-	private final CryptoComponent crypto;
 	private final Executor dbExecutor;
-	private final ScheduledExecutorService scheduler;
 	private final PluginConfig pluginConfig;
-	private final Clock clock;
+	private final TransportKeyManagerFactory transportKeyManagerFactory;
 	private final Map<ContactId, Boolean> activeContacts;
 	private final ConcurrentHashMap<TransportId, TransportKeyManager> managers;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	@Inject
-	KeyManagerImpl(DatabaseComponent db, CryptoComponent crypto,
-			@DatabaseExecutor Executor dbExecutor,
-			ScheduledExecutorService scheduler, PluginConfig pluginConfig,
-			Clock clock) {
+	KeyManagerImpl(DatabaseComponent db, @DatabaseExecutor Executor dbExecutor,
+			PluginConfig pluginConfig,
+			TransportKeyManagerFactory transportKeyManagerFactory) {
 		this.db = db;
-		this.crypto = crypto;
 		this.dbExecutor = dbExecutor;
-		this.scheduler = scheduler;
 		this.pluginConfig = pluginConfig;
-		this.clock = clock;
+		this.transportKeyManagerFactory = transportKeyManagerFactory;
 		// Use a ConcurrentHashMap as a thread-safe set
 		activeContacts = new ConcurrentHashMap<ContactId, Boolean>();
 		managers = new ConcurrentHashMap<TransportId, TransportKeyManager>();
@@ -83,9 +75,9 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 				for (Entry<TransportId, Integer> e : transports.entrySet())
 					db.addTransport(txn, e.getKey(), e.getValue());
 				for (Entry<TransportId, Integer> e : transports.entrySet()) {
-					TransportKeyManager m = new TransportKeyManager(db, crypto,
-							dbExecutor, scheduler, clock, e.getKey(),
-							e.getValue());
+					TransportKeyManager m = transportKeyManagerFactory
+							.createTransportKeyManager(e.getKey(),
+									e.getValue());
 					managers.put(e.getKey(), m);
 					m.start(txn);
 				}
