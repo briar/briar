@@ -392,6 +392,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 				privateGroup0.getId());
 		byte[] creatorSignature =
 				clientHelper.sign(toSign, author0.getPrivateKey());
+		// join message should not include invite time and creator's signature
 		GroupMessage joinMsg0 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author0,
 						inviteTime, creatorSignature);
@@ -407,7 +408,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		t0.getDatabaseComponent().commitTransaction(txn0);
 		t0.getDatabaseComponent().endTransaction(txn0);
 
-		// author1 joins privateGroup0 with wrong own signature
+		// author1 joins privateGroup0 with wrong signature in join message
 		joinTime = clock.currentTimeMillis();
 		inviteTime = joinTime - 1;
 		invitationGroup = contactGroupFactory
@@ -415,6 +416,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 						author0.getId(), author1.getId());
 		toSign = BdfList.of(0, inviteTime, invitationGroup.getId(),
 				privateGroup0.getId());
+		// signature uses joiner's key, not creator's key
 		creatorSignature = clientHelper.sign(toSign, author1.getPrivateKey());
 		GroupMessage joinMsg1 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author1,
@@ -531,7 +533,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		t0.getDatabaseComponent()
 				.setVisibleToContact(txn0, contactId1, privateGroup0.getId(),
 						true);
-		t0.getDatabaseComponent().commitTransaction(txn0);;
+		t0.getDatabaseComponent().commitTransaction(txn0);
 		t0.getDatabaseComponent().endTransaction(txn0);
 
 		// author1 joins privateGroup0
