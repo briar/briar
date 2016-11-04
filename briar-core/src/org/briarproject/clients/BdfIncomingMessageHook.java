@@ -153,8 +153,9 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
 				// update unread counter in group metadata
 				GroupCount c = getGroupCount(txn, g);
 				BdfDictionary d = new BdfDictionary();
-				d.put(GROUP_KEY_UNREAD_COUNT,
-						c.getUnreadCount() + (read ? -1 : 1));
+				int count = c.getUnreadCount() + (read ? -1 : 1);
+				if (count < 0) throw new DbException();
+				d.put(GROUP_KEY_UNREAD_COUNT, count);
 				clientHelper.mergeGroupMetadata(txn, g, d);
 			}
 			db.commitTransaction(txn);
