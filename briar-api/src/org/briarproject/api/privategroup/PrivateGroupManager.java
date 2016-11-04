@@ -21,12 +21,10 @@ public interface PrivateGroupManager extends MessageTracker {
 	 * Adds a new private group and joins it.
 	 *
 	 * @param group        The private group to add
-	 * @param newMemberMsg The creator's message announcing herself as
-	 *                     first new member
 	 * @param joinMsg      The creator's own join message
 	 */
-	void addPrivateGroup(PrivateGroup group, GroupMessage newMemberMsg,
-			GroupMessage joinMsg) throws DbException;
+	void addPrivateGroup(PrivateGroup group, GroupMessage joinMsg)
+			throws DbException;
 
 	/** Removes a dissolved private group. */
 	void removePrivateGroup(GroupId g) throws DbException;

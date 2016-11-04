@@ -10,33 +10,29 @@ import org.jetbrains.annotations.Nullable;
 public interface GroupMessageFactory {
 
 	/**
-	 * Creates a new member announcement that contains the joiner's identity
-	 * and is signed by the creator.
-	 * <p>
-	 * When a new member accepts an invitation to the group,
-	 * the creator sends this new member announcement to the group.
-	 *
-	 * @param groupId   The ID of the group the new member joined
-	 * @param timestamp The current timestamp
-	 * @param creator   The creator of the group with {@param groupId}
-	 * @param member    The new member that has just accepted an invitation
-	 */
-	@CryptoExecutor
-	GroupMessage createNewMemberMessage(GroupId groupId, long timestamp,
-			LocalAuthor creator, Author member);
-
-	/**
-	 * Creates a join announcement message
-	 * that depends on a previous new member announcement.
+	 * Creates a join announcement message for the creator of a group.
 	 *
 	 * @param groupId     The ID of the Group that is being joined
-	 * @param timestamp   Must be equal to the timestamp of the new member message
-	 * @param member      Our own LocalAuthor
-	 * @param newMemberId The MessageId of the new member message
+	 * @param timestamp   Must be greater than the timestamp of the invitation message
+	 * @param creator     The creator's LocalAuthor
 	 */
 	@CryptoExecutor
 	GroupMessage createJoinMessage(GroupId groupId, long timestamp,
-			LocalAuthor member, MessageId newMemberId);
+			LocalAuthor creator);
+
+	/**
+	 * Creates a join announcement message for a joining member.
+	 *
+	 * @param groupId          The ID of the Group that is being joined
+	 * @param timestamp        Must be greater than the timestamp of the
+	 *                         invitation message
+	 * @param member           The member's LocalAuthor
+	 * @param inviteTimestamp  The timestamp of the group invitation message
+	 * @param creatorSignature The creator's signature from the group invitation
+	 */
+	@CryptoExecutor
+	GroupMessage createJoinMessage(GroupId groupId, long timestamp,
+			LocalAuthor member, long inviteTimestamp, byte[] creatorSignature);
 
 	/**
 	 * Creates a group message

@@ -1,6 +1,7 @@
 package org.briarproject.privategroup;
 
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.identity.AuthorFactory;
@@ -58,14 +59,16 @@ public class PrivateGroupModule {
 	@Provides
 	@Singleton
 	GroupMessageValidator provideGroupMessageValidator(
+			ContactGroupFactory contactGroupFactory,
 			PrivateGroupFactory groupFactory,
 			ValidationManager validationManager, ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder, Clock clock,
-			AuthorFactory authorFactory) {
+			AuthorFactory authorFactory,
+			GroupInvitationManager groupInvitationManager) {
 
 		GroupMessageValidator validator = new GroupMessageValidator(
-				groupFactory, clientHelper, metadataEncoder, clock,
-				authorFactory);
+				contactGroupFactory, groupFactory, clientHelper,
+				metadataEncoder, clock, authorFactory, groupInvitationManager);
 		validationManager.registerMessageValidator(
 				PrivateGroupManagerImpl.CLIENT_ID, validator);
 

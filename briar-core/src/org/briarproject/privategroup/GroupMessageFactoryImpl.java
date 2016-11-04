@@ -3,7 +3,6 @@ package org.briarproject.privategroup;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfList;
-import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.privategroup.GroupMessage;
@@ -18,7 +17,6 @@ import java.security.GeneralSecurityException;
 import javax.inject.Inject;
 
 import static org.briarproject.api.privategroup.MessageType.JOIN;
-import static org.briarproject.api.privategroup.MessageType.NEW_MEMBER;
 import static org.briarproject.api.privategroup.MessageType.POST;
 
 @NotNullByDefault
@@ -32,45 +30,34 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 	}
 
 	@Override
-	public GroupMessage createNewMemberMessage(GroupId groupId, long timestamp,
-			LocalAuthor creator, Author member) {
-		try {
-			// Generate the signature
-			int type = NEW_MEMBER.getInt();
-			BdfList toSign = BdfList.of(groupId, timestamp, type,
-					member.getName(), member.getPublicKey());
-			byte[] signature =
-					clientHelper.sign(toSign, creator.getPrivateKey());
+	public GroupMessage createJoinMessage(GroupId groupId, long timestamp,
+			LocalAuthor creator) {
 
-			// Compose the message
-			BdfList body =
-					BdfList.of(type, member.getName(),
-							member.getPublicKey(), signature);
-			Message m = clientHelper.createMessage(groupId, timestamp, body);
-
-			return new GroupMessage(m, null, member);
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		} catch (FormatException e) {
-			throw new RuntimeException(e);
-		}
+		return createJoinMessage(groupId, timestamp, creator, null);
 	}
 
 	@Override
 	public GroupMessage createJoinMessage(GroupId groupId, long timestamp,
-			LocalAuthor member, MessageId newMemberId) {
+			LocalAuthor member, long inviteTimestamp, byte[] creatorSignature) {
+
+		BdfList invite = BdfList.of(inviteTimestamp, creatorSignature);
+		return createJoinMessage(groupId, timestamp, member, invite);
+	}
+
+	private GroupMessage createJoinMessage(GroupId groupId, long timestamp,
+			LocalAuthor member, @Nullable BdfList invite) {
 		try {
 			// Generate the signature
 			int type = JOIN.getInt();
 			BdfList toSign = BdfList.of(groupId, timestamp, type,
-					member.getName(), member.getPublicKey(), newMemberId);
-			byte[] signature =
+					member.getName(), member.getPublicKey(), invite);
+			byte[] memberSignature =
 					clientHelper.sign(toSign, member.getPrivateKey());
 
 			// Compose the message
 			BdfList body =
 					BdfList.of(type, member.getName(),
-							member.getPublicKey(), newMemberId, signature);
+							member.getPublicKey(), invite, memberSignature);
 			Message m = clientHelper.createMessage(groupId, timestamp, body);
 
 			return new GroupMessage(m, null, member);

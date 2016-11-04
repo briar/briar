@@ -1,9 +1,8 @@
 package org.briarproject.api.privategroup;
 
 public enum MessageType {
-	NEW_MEMBER(0),
-	JOIN(1),
-	POST(2);
+	JOIN(0),
+	POST(1);
 
 	int value;
 

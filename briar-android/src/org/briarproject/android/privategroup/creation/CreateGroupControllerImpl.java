@@ -82,29 +82,24 @@ public class CreateGroupControllerImpl extends DbControllerImpl
 				LOG.info("Creating group...");
 				PrivateGroup group =
 						groupFactory.createPrivateGroup(name, author);
-				LOG.info("Creating new member announcement...");
-				GroupMessage newMemberMsg = groupMessageFactory
-						.createNewMemberMessage(group.getId(),
-								clock.currentTimeMillis(), author, author);
 				LOG.info("Creating new join announcement...");
 				GroupMessage joinMsg = groupMessageFactory
 						.createJoinMessage(group.getId(),
-								newMemberMsg.getMessage().getTimestamp(),
-								author, newMemberMsg.getMessage().getId());
-				storeGroup(group, newMemberMsg, joinMsg, handler);
+								clock.currentTimeMillis(), author);
+				storeGroup(group, joinMsg, handler);
 			}
 		});
 	}
 
 	private void storeGroup(final PrivateGroup group,
-			final GroupMessage newMemberMsg, final GroupMessage joinMsg,
+			final GroupMessage joinMsg,
 			final ResultExceptionHandler<GroupId, DbException> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				LOG.info("Adding group to database...");
 				try {
-					groupManager.addPrivateGroup(group, newMemberMsg, joinMsg);
+					groupManager.addPrivateGroup(group, joinMsg);
 					handler.onResult(group.getId());
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
