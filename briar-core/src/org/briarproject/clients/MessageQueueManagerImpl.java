@@ -227,16 +227,20 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 				// Save the queue state before passing control to the delegate
 				saveQueueState(txn, m.getGroupId(), queueState);
 				// Deliver the messages to the delegate
-				delegate.incomingMessage(txn, q, meta);
-				for (MessageId id : consecutive) {
-					byte[] raw = db.getRawMessage(txn, id);
-					meta = db.getMessageMetadata(txn, id);
-					q = queueMessageFactory.createMessage(id, raw);
-					if (LOG.isLoggable(INFO)) {
-						LOG.info("Delivering pending message with position "
-								+ q.getQueuePosition());
-					}
+				try {
 					delegate.incomingMessage(txn, q, meta);
+					for (MessageId id : consecutive) {
+						byte[] raw = db.getRawMessage(txn, id);
+						meta = db.getMessageMetadata(txn, id);
+						q = queueMessageFactory.createMessage(id, raw);
+						if (LOG.isLoggable(INFO)) {
+							LOG.info("Delivering pending message with position "
+									+ q.getQueuePosition());
+						}
+						delegate.incomingMessage(txn, q, meta);
+					}
+				} catch (FormatException e) {
+					throw new InvalidMessageException(e);
 				}
 			}
 			// message queues are only useful for groups with two members

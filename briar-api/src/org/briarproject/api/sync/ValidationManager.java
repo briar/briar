@@ -57,7 +57,10 @@ public interface ValidationManager {
 		 * Called once for each incoming message that passes validation.
 		 *
 		 * @return whether or not this message should be shared
-		 * @throws DbException should only be used for real database errors
+		 * @throws DbException Should only be used for real database errors.
+		 * If this is thrown, delivery will be attempted again at next startup,
+		 * whereas if an InvalidMessageException is thrown,
+		 * the message will be permanently invalidated.
 		 * @throws InvalidMessageException for any non-database error
 		 * that occurs while handling remotely created data.
 		 * This includes errors that occur while handling locally created data
@@ -66,7 +69,7 @@ public interface ValidationManager {
 		 * of an incoming message).
 		 * Throwing this will delete the incoming message and its metadata
 		 * marking it as invalid in the database.
-		 * Never rethrow DbException as InvalidMessageException
+		 * Never rethrow DbException as InvalidMessageException!
 		 */
 		boolean incomingMessage(Transaction txn, Message m, Metadata meta)
 				throws DbException, InvalidMessageException;

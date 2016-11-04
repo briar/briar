@@ -246,7 +246,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				} else if (role == ROLE_INTRODUCEE) {
 					introduceeManager.incomingMessage(txn, state, message);
 				} else {
-					throw new AssertionError("Unknown role '" + role + "'");
+					if (LOG.isLoggable(WARNING))
+						LOG.warning("Unknown role '" + role + "'");
+					throw new DbException();
 				}
 				if (type == TYPE_RESPONSE) trackIncomingMessage(txn, m);
 			} catch (DbException e) {

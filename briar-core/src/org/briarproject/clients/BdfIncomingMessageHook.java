@@ -62,26 +62,26 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
 	@Override
 	public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
 			throws DbException, InvalidMessageException {
-		return incomingMessage(txn, m, meta, MESSAGE_HEADER_LENGTH);
+		try {
+			return incomingMessage(txn, m, meta, MESSAGE_HEADER_LENGTH);
+		} catch (FormatException e) {
+			throw new InvalidMessageException(e);
+		}
 	}
 
 	@Override
 	public void incomingMessage(Transaction txn, QueueMessage q, Metadata meta)
-			throws DbException, InvalidMessageException {
+			throws DbException, FormatException {
 		incomingMessage(txn, q, meta, QUEUE_MESSAGE_HEADER_LENGTH);
 	}
 
 	private boolean incomingMessage(Transaction txn, Message m, Metadata meta,
-			int headerLength) throws DbException, InvalidMessageException {
-		try {
-			byte[] raw = m.getRaw();
-			BdfList body = clientHelper.toList(raw, headerLength,
-					raw.length - headerLength);
-			BdfDictionary metaDictionary = metadataParser.parse(meta);
-			return incomingMessage(txn, m, body, metaDictionary);
-		} catch (FormatException e) {
-			throw new InvalidMessageException(e);
-		}
+			int headerLength) throws DbException, FormatException {
+		byte[] raw = m.getRaw();
+		BdfList body = clientHelper.toList(raw, headerLength,
+				raw.length - headerLength);
+		BdfDictionary metaDictionary = metadataParser.parse(meta);
+		return incomingMessage(txn, m, body, metaDictionary);
 	}
 
 	protected void trackIncomingMessage(Transaction txn, Message m)
