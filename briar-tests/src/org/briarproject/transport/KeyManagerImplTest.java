@@ -14,8 +14,6 @@ import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.plugins.PluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.TransportKeyManager;
-import org.briarproject.api.transport.TransportKeyManagerFactory;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.concurrent.DeterministicExecutor;
@@ -29,6 +27,7 @@ import java.util.Collections;
 import static org.briarproject.TestUtils.getRandomBytes;
 import static org.briarproject.TestUtils.getRandomId;
 import static org.briarproject.TestUtils.getSecretKey;
+import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertEquals;
 
 public class KeyManagerImplTest extends BriarTestCase {
@@ -46,10 +45,11 @@ public class KeyManagerImplTest extends BriarTestCase {
 	private final ContactId contactId = new ContactId(42);
 	private final ContactId inactiveContactId = new ContactId(43);
 	private final TransportId transportId = new TransportId("tId");
+	private final TransportId unknownTransportId = new TransportId("id");
 	private final StreamContext streamContext =
 			new StreamContext(contactId, transportId, getSecretKey(),
 					getSecretKey(), 1);
-	private final byte[] tag = getRandomBytes(42);
+	private final byte[] tag = getRandomBytes(TAG_LENGTH);
 
 	public KeyManagerImplTest() {
 		keyManager = new KeyManagerImpl(db, executor, pluginConfig,
@@ -114,12 +114,19 @@ public class KeyManagerImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testGetStreamContextForContact() throws Exception {
+	public void testGetStreamContextForInactiveContact() throws Exception {
 		assertEquals(null,
 				keyManager.getStreamContext(inactiveContactId, transportId));
-		assertEquals(null, keyManager
-				.getStreamContext(inactiveContactId, new TransportId("id")));
+	}
 
+	@Test
+	public void testGetStreamContextForUnknownTransport() throws Exception {
+		assertEquals(null, keyManager
+				.getStreamContext(contactId, unknownTransportId));
+	}
+
+	@Test
+	public void testGetStreamContextForContact() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));
@@ -135,10 +142,14 @@ public class KeyManagerImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testGetStreamContextForTag() throws Exception {
-		assertEquals(null, keyManager
-				.getStreamContext(new TransportId("id"), tag));
+	public void testGetStreamContextForTagAndUnknownTransport()
+			throws Exception {
+		assertEquals(null,
+				keyManager.getStreamContext(unknownTransportId, tag));
+	}
 
+	@Test
+	public void testGetStreamContextForTag() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));

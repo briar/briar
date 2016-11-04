@@ -10,7 +10,6 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.TransportKeyManager;
 import org.briarproject.api.transport.TransportKeys;
 import org.briarproject.transport.ReorderingWindow.Change;
 
@@ -64,6 +63,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		keys = new HashMap<ContactId, MutableTransportKeys>();
 	}
 
+	@Override
 	public void start(Transaction txn) throws DbException {
 		long now = clock.currentTimeMillis();
 		lock.lock();
@@ -156,6 +156,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		});
 	}
 
+	@Override
 	public void addContact(Transaction txn, ContactId c, SecretKey master,
 			long timestamp, boolean alice) throws DbException {
 		lock.lock();
@@ -177,6 +178,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		}
 	}
 
+	@Override
 	public void removeContact(ContactId c) {
 		lock.lock();
 		try {
@@ -192,6 +194,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		}
 	}
 
+	@Override
 	public StreamContext getStreamContext(Transaction txn, ContactId c)
 			throws DbException {
 		lock.lock();
@@ -214,6 +217,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		}
 	}
 
+	@Override
 	public StreamContext getStreamContext(Transaction txn, byte[] tag)
 			throws DbException {
 		lock.lock();

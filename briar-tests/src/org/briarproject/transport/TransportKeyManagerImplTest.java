@@ -13,7 +13,6 @@ import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
 import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.TransportKeyManager;
 import org.briarproject.api.transport.TransportKeys;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -41,7 +40,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class TransportKeyManagerTest extends BriarTestCase {
+public class TransportKeyManagerImplTest extends BriarTestCase {
 
 	private final TransportId transportId = new TransportId("id");
 	private final long maxLatency = 30 * 1000; // 30 seconds

@@ -1,8 +1,8 @@
-package org.briarproject.api.transport;
+package org.briarproject.transport;
 
 import org.briarproject.api.TransportId;
 
-public interface TransportKeyManagerFactory {
+interface TransportKeyManagerFactory {
 
 	TransportKeyManager createTransportKeyManager(TransportId transportId,
 			long maxLatency);

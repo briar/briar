@@ -1,11 +1,12 @@
-package org.briarproject.api.transport;
+package org.briarproject.transport;
 
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.transport.StreamContext;
 
-public interface TransportKeyManager {
+interface TransportKeyManager {
 
 	void start(Transaction txn) throws DbException;
 

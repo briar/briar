@@ -19,8 +19,6 @@ import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.transport.KeyManager;
 import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.TransportKeyManager;
-import org.briarproject.api.transport.TransportKeyManagerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
