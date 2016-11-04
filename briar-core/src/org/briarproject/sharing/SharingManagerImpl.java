@@ -205,30 +205,25 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 				// this is what we would expect under normal circumstances
 				stateExists = false;
 			}
-			try {
-				// check if we already have a state with that sessionId
-				if (stateExists) throw new FormatException();
+			// check if we already have a state with that sessionId
+			if (stateExists) throw new FormatException();
 
-				// check if shareable can be shared
-				I invitation = (I) msg;
-				S f = getSFactory().parse(invitation);
-				ContactId contactId = getContactId(txn, m.getGroupId());
-				Contact contact = db.getContact(txn, contactId);
-				if (!canBeShared(txn, f.getId(), contact))
-					checkForRaceCondition(txn, f, contact);
+			// check if shareable can be shared
+			I invitation = (I) msg;
+			S f = getSFactory().parse(invitation);
+			ContactId contactId = getContactId(txn, m.getGroupId());
+			Contact contact = db.getContact(txn, contactId);
+			if (!canBeShared(txn, f.getId(), contact))
+				checkForRaceCondition(txn, f, contact);
 
-				// initialize state and process invitation
-				IS state = initializeInviteeState(txn, contactId, invitation,
-						m.getId());
-				InviteeEngine<IS, IR> engine =
-						new InviteeEngine<IS, IR>(getIRFactory(), clock);
-				processInviteeStateUpdate(txn, m.getId(),
-						engine.onMessageReceived(state, msg));
-				trackIncomingMessage(txn, m);
-			} catch (FormatException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				deleteMessage(txn, m.getId());
-			}
+			// initialize state and process invitation
+			IS state = initializeInviteeState(txn, contactId, invitation,
+					m.getId());
+			InviteeEngine<IS, IR> engine =
+					new InviteeEngine<IS, IR>(getIRFactory(), clock);
+			processInviteeStateUpdate(txn, m.getId(),
+					engine.onMessageReceived(state, msg));
+			trackIncomingMessage(txn, m);
 		} else if (msg.getType() == SHARE_MSG_TYPE_ACCEPT ||
 				msg.getType() == SHARE_MSG_TYPE_DECLINE) {
 			// we are a sharer who just received a response
@@ -262,7 +257,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			}
 		} else {
 			// message has passed validator, so that should never happen
-			throw new RuntimeException("Illegal Sharing Message");
+			throw new AssertionError("Illegal Sharing Message");
 		}
 		// don't share message as other party already has it
 		return false;

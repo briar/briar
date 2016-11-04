@@ -14,6 +14,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
@@ -39,33 +40,48 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
 		this.metadataParser = metadataParser;
 	}
 
+	/**
+	 * Called once for each incoming message that passes validation.
+	 *
+	 * @throws DbException Should only be used for real database errors.
+	 * Do not rethrow
+	 * @throws FormatException Use this for any non-database error
+	 * that occurs while handling remotely created data.
+	 * This includes errors that occur while handling locally created data
+	 * in a context controlled by remotely created data
+	 * (for example, parsing the metadata of a dependency
+	 * of an incoming message).
+	 * Throwing this will delete the incoming message and its metadata
+	 * marking it as invalid in the database.
+	 * Never rethrow DbException as FormatException
+	 */
 	protected abstract boolean incomingMessage(Transaction txn, Message m,
 			BdfList body, BdfDictionary meta) throws DbException,
 			FormatException;
 
 	@Override
 	public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
-			throws DbException {
-		return incomingMessage(txn, m, meta, MESSAGE_HEADER_LENGTH);
+			throws DbException, InvalidMessageException {
+		try {
+			return incomingMessage(txn, m, meta, MESSAGE_HEADER_LENGTH);
+		} catch (FormatException e) {
+			throw new InvalidMessageException(e);
+		}
 	}
 
 	@Override
 	public void incomingMessage(Transaction txn, QueueMessage q, Metadata meta)
-			throws DbException {
+			throws DbException, FormatException {
 		incomingMessage(txn, q, meta, QUEUE_MESSAGE_HEADER_LENGTH);
 	}
 
 	private boolean incomingMessage(Transaction txn, Message m, Metadata meta,
-			int headerLength) throws DbException {
-		try {
-			byte[] raw = m.getRaw();
-			BdfList body = clientHelper.toList(raw, headerLength,
-					raw.length - headerLength);
-			BdfDictionary metaDictionary = metadataParser.parse(meta);
-			return incomingMessage(txn, m, body, metaDictionary);
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
+			int headerLength) throws DbException, FormatException {
+		byte[] raw = m.getRaw();
+		BdfList body = clientHelper.toList(raw, headerLength,
+				raw.length - headerLength);
+		BdfDictionary metaDictionary = metadataParser.parse(meta);
+		return incomingMessage(txn, m, body, metaDictionary);
 	}
 
 	protected void trackIncomingMessage(Transaction txn, Message m)

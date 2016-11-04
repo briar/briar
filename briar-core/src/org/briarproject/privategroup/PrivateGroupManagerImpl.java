@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -65,8 +64,6 @@ import static org.briarproject.privategroup.Constants.KEY_TYPE;
 public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		PrivateGroupManager {
 
-	private static final Logger LOG =
-			Logger.getLogger(PrivateGroupManagerImpl.class.getName());
 	static final ClientId CLIENT_ID = new ClientId(
 			StringUtils.fromHexString("5072697661746547726f75704d616e61"
 					+ "67657220627920546f727374656e2047"));
@@ -198,7 +195,8 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		try {
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(KEY_TYPE, POST.getInt());
-			if (m.getParent() != null) meta.put(KEY_PARENT_MSG_ID, m.getParent());
+			if (m.getParent() != null)
+				meta.put(KEY_PARENT_MSG_ID, m.getParent());
 			addMessageMetadata(meta, m, true);
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
 			setPreviousMsgId(txn, m.getMessage().getGroupId(),
@@ -429,44 +427,29 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 					MessageId parentId = new MessageId(parentIdBytes);
 					BdfDictionary parentMeta = clientHelper
 							.getMessageMetadataAsDictionary(txn, parentId);
-					if (timestamp <= parentMeta.getLong(KEY_TIMESTAMP)) {
-						// FIXME throw new InvalidMessageException() (#643)
-						db.deleteMessage(txn, m.getId());
-						return false;
-					}
+					if (timestamp <= parentMeta.getLong(KEY_TIMESTAMP))
+						throw new FormatException();
 					MessageType parentType = MessageType
 							.valueOf(parentMeta.getLong(KEY_TYPE).intValue());
-					if (parentType != POST) {
-						// FIXME throw new InvalidMessageException() (#643)
-						db.deleteMessage(txn, m.getId());
-						return false;
-					}
+					if (parentType != POST)
+						throw new FormatException();
 				}
 				// and the member's previous message
 				byte[] previousMsgIdBytes = meta.getRaw(KEY_PREVIOUS_MSG_ID);
 				MessageId previousMsgId = new MessageId(previousMsgIdBytes);
 				BdfDictionary previousMeta = clientHelper
 						.getMessageMetadataAsDictionary(txn, previousMsgId);
-				if (timestamp <= previousMeta.getLong(KEY_TIMESTAMP)) {
-					// FIXME throw new InvalidMessageException() (#643)
-					db.deleteMessage(txn, m.getId());
-					return false;
-				}
+				if (timestamp <= previousMeta.getLong(KEY_TIMESTAMP))
+					throw new FormatException();
 				// previous message must be from same member
 				if (!Arrays.equals(meta.getRaw(KEY_MEMBER_ID),
-						previousMeta.getRaw(KEY_MEMBER_ID))) {
-					// FIXME throw new InvalidMessageException() (#643)
-					db.deleteMessage(txn, m.getId());
-					return false;
-				}
+						previousMeta.getRaw(KEY_MEMBER_ID)))
+					throw new FormatException();
 				// previous message must be a POST or JOIN
 				MessageType previousType = MessageType
 						.valueOf(previousMeta.getLong(KEY_TYPE).intValue());
-				if (previousType != JOIN && previousType != POST) {
-					// FIXME throw new InvalidMessageException() (#643)
-					db.deleteMessage(txn, m.getId());
-					return false;
-				}
+				if (previousType != JOIN && previousType != POST)
+					throw new FormatException();
 				trackIncomingMessage(txn, m);
 				return true;
 			default:

@@ -1,5 +1,6 @@
 package org.briarproject.api.clients;
 
+import org.briarproject.api.FormatException;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.Transaction;
@@ -48,8 +49,20 @@ public interface MessageQueueManager {
 		/**
 		 * Called once for each incoming message that passes validation.
 		 * Messages are passed to the hook in order.
+		 *
+		 * @throws DbException Should only be used for real database errors.
+		 * If this is thrown, delivery will be attempted again at next startup,
+		 * whereas if an FormatException is thrown,
+		 * the message will be permanently invalidated.
+		 * @throws FormatException for any non-database error
+		 * that occurs while handling remotely created data.
+		 * This includes errors that occur while handling locally created data
+		 * in a context controlled by remotely created data
+		 * (for example, parsing the metadata of a dependency
+		 * of an incoming message).
+		 * Never rethrow DbException as FormatException!
 		 */
 		void incomingMessage(Transaction txn, QueueMessage q, Metadata meta)
-				throws DbException;
+				throws DbException, FormatException;
 	}
 }

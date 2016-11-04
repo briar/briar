@@ -132,7 +132,7 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 		private long outgoingPosition, incomingPosition;
 		private final TreeMap<Long, MessageId> pending;
 
-		QueueState(long outgoingPosition, long incomingPosition,
+		private QueueState(long outgoingPosition, long incomingPosition,
 				TreeMap<Long, MessageId> pending) {
 			this.outgoingPosition = outgoingPosition;
 			this.incomingPosition = incomingPosition;
@@ -166,7 +166,7 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 
 		private final QueueMessageValidator delegate;
 
-		DelegatingMessageValidator(QueueMessageValidator delegate) {
+		private DelegatingMessageValidator(QueueMessageValidator delegate) {
 			this.delegate = delegate;
 		}
 
@@ -193,8 +193,8 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 		}
 
 		@Override
-		public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
-				throws DbException {
+		public boolean incomingMessage(Transaction txn, Message m,
+				Metadata meta) throws DbException, InvalidMessageException {
 			long queuePosition = ByteUtils.readUint64(m.getRaw(),
 					MESSAGE_HEADER_LENGTH);
 			QueueState queueState = loadQueueState(txn, m.getGroupId());
@@ -227,16 +227,20 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 				// Save the queue state before passing control to the delegate
 				saveQueueState(txn, m.getGroupId(), queueState);
 				// Deliver the messages to the delegate
-				delegate.incomingMessage(txn, q, meta);
-				for (MessageId id : consecutive) {
-					byte[] raw = db.getRawMessage(txn, id);
-					meta = db.getMessageMetadata(txn, id);
-					q = queueMessageFactory.createMessage(id, raw);
-					if (LOG.isLoggable(INFO)) {
-						LOG.info("Delivering pending message with position "
-								+ q.getQueuePosition());
-					}
+				try {
 					delegate.incomingMessage(txn, q, meta);
+					for (MessageId id : consecutive) {
+						byte[] raw = db.getRawMessage(txn, id);
+						meta = db.getMessageMetadata(txn, id);
+						q = queueMessageFactory.createMessage(id, raw);
+						if (LOG.isLoggable(INFO)) {
+							LOG.info("Delivering pending message with position "
+									+ q.getQueuePosition());
+						}
+						delegate.incomingMessage(txn, q, meta);
+					}
+				} catch (FormatException e) {
+					throw new InvalidMessageException(e);
 				}
 			}
 			// message queues are only useful for groups with two members

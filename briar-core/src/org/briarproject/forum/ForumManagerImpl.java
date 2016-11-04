@@ -148,14 +148,12 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
 			if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
-			if (p.getAuthor() != null) {
-				Author a = p.getAuthor();
-				BdfDictionary authorMeta = new BdfDictionary();
-				authorMeta.put(KEY_ID, a.getId());
-				authorMeta.put(KEY_NAME, a.getName());
-				authorMeta.put(KEY_PUBLIC_NAME, a.getPublicKey());
-				meta.put(KEY_AUTHOR, authorMeta);
-			}
+			Author a = p.getAuthor();
+			BdfDictionary authorMeta = new BdfDictionary();
+			authorMeta.put(KEY_ID, a.getId());
+			authorMeta.put(KEY_NAME, a.getName());
+			authorMeta.put(KEY_PUBLIC_NAME, a.getPublicKey());
+			meta.put(KEY_AUTHOR, authorMeta);
 			meta.put(KEY_LOCAL, true);
 			meta.put(MSG_KEY_READ, true);
 			clientHelper.addLocalMessage(txn, p.getMessage(), meta, true);

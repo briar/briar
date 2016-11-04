@@ -110,8 +110,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver the first message
 			oneOf(hook).incomingMessage(txn2, message, metadata);
 			will(returnValue(false));
-			oneOf(db).getRawMessage(txn2, messageId);
-			will(returnValue(raw));
 			oneOf(db).setMessageState(txn2, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn2, messageId);
@@ -215,8 +213,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn2, message, metadata);
 			will(returnValue(false));
-			oneOf(db).getRawMessage(txn2, messageId);
-			will(returnValue(raw));
 			oneOf(db).setMessageState(txn2, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn2, messageId);
@@ -240,8 +236,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver the dependent
 			oneOf(hook).incomingMessage(txn3, message2, metadata);
 			will(returnValue(false));
-			oneOf(db).getRawMessage(txn3, messageId2);
-			will(returnValue(raw));
 			oneOf(db).setMessageState(txn3, messageId2, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn3, messageId2);
@@ -366,8 +360,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
 			will(returnValue(true));
-			oneOf(db).getRawMessage(txn1, messageId);
-			will(returnValue(raw));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
@@ -589,8 +581,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
 			will(returnValue(false));
-			oneOf(db).getRawMessage(txn1, messageId);
-			will(returnValue(raw));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
@@ -707,8 +697,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
 			will(returnValue(false));
-			oneOf(db).getRawMessage(txn1, messageId);
-			will(returnValue(raw));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
@@ -953,8 +941,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
 			will(returnValue(false));
-			oneOf(db).getRawMessage(txn1, messageId);
-			will(returnValue(raw));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// The message has two pending dependents: 1 and 2
 			oneOf(db).getMessageDependents(txn1, messageId);
@@ -978,8 +964,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver message 1
 			oneOf(hook).incomingMessage(txn2, message1, metadata);
 			will(returnValue(false));
-			oneOf(db).getRawMessage(txn2, messageId1);
-			will(returnValue(raw));
 			oneOf(db).setMessageState(txn2, messageId1, DELIVERED);
 			// Message 1 has one pending dependent: 3
 			oneOf(db).getMessageDependents(txn2, messageId1);
@@ -1003,8 +987,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver message 2
 			oneOf(hook).incomingMessage(txn3, message2, metadata);
 			will(returnValue(false));
-			oneOf(db).getRawMessage(txn3, messageId2);
-			will(returnValue(raw));
 			oneOf(db).setMessageState(txn3, messageId2, DELIVERED);
 			// Message 2 has one pending dependent: 3 (same dependent as 1)
 			oneOf(db).getMessageDependents(txn3, messageId2);
@@ -1027,8 +1009,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(metadata));
 			// Deliver message 3
 			oneOf(hook).incomingMessage(txn4, message3, metadata);
-			oneOf(db).getRawMessage(txn4, messageId3);
-			will(returnValue(raw));
 			oneOf(db).setMessageState(txn4, messageId3, DELIVERED);
 			// Message 3 has one pending dependent: 4
 			oneOf(db).getMessageDependents(txn4, messageId3);
@@ -1059,8 +1039,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver message 4
 			oneOf(hook).incomingMessage(txn6, message4, metadata);
 			will(returnValue(false));
-			oneOf(db).getRawMessage(txn6, messageId4);
-			will(returnValue(raw));
 			oneOf(db).setMessageState(txn6, messageId4, DELIVERED);
 			// Message 4 has no pending dependents
 			oneOf(db).getMessageDependents(txn6, messageId4);
@@ -1111,8 +1089,6 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
 			will(returnValue(false));
-			oneOf(db).getRawMessage(txn1, messageId);
-			will(returnValue(raw));
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
