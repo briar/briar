@@ -57,6 +57,7 @@ import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 public class ShowQrCodeFragment extends BaseEventFragment
@@ -244,8 +245,10 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	@UiThread
 	private void qrCodeScanned(String content) {
 		try {
-			Payload remotePayload = payloadParser.parse(
-					Base64.decode(content, 0));
+			byte[] encoded = Base64.decode(content, 0);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Remote payload is " + encoded.length + " bytes");
+			Payload remotePayload = payloadParser.parse(encoded);
 			cameraView.setVisibility(INVISIBLE);
 			statusView.setVisibility(VISIBLE);
 			status.setText(R.string.connecting_to_device);
@@ -293,9 +296,10 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 			@Override
 			protected Bitmap doInBackground(Void... params) {
-				String input =
-						Base64.encodeToString(payloadEncoder.encode(payload),
-								0);
+				byte[] encoded = payloadEncoder.encode(payload);
+				if (LOG.isLoggable(INFO))
+					LOG.info("Local payload is " + encoded.length + " bytes");
+				String input = Base64.encodeToString(encoded, 0);
 				return QrCodeUtils.createQrCode(dm, input);
 			}
 
