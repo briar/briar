@@ -12,7 +12,6 @@ import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.privategroup.MessageType;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
-import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
@@ -30,6 +29,7 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH
 import static org.briarproject.api.privategroup.MessageType.JOIN;
 import static org.briarproject.api.privategroup.MessageType.POST;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
+import static org.briarproject.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
 import static org.briarproject.privategroup.Constants.KEY_MEMBER_ID;
 import static org.briarproject.privategroup.Constants.KEY_MEMBER_NAME;
 import static org.briarproject.privategroup.Constants.KEY_MEMBER_PUBLIC_KEY;
@@ -44,18 +44,15 @@ class GroupMessageValidator extends BdfMessageValidator {
 	private final ContactGroupFactory contactGroupFactory;
 	private final PrivateGroupFactory groupFactory;
 	private final AuthorFactory authorFactory;
-	private final GroupInvitationManager groupInvitationManager; // TODO remove
 
 	GroupMessageValidator(ContactGroupFactory contactGroupFactory,
 			PrivateGroupFactory groupFactory,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
-			Clock clock, AuthorFactory authorFactory,
-			GroupInvitationManager groupInvitationManager) {
+			Clock clock, AuthorFactory authorFactory) {
 		super(clientHelper, metadataEncoder, clock);
 		this.contactGroupFactory = contactGroupFactory;
 		this.groupFactory = groupFactory;
 		this.authorFactory = authorFactory;
-		this.groupInvitationManager = groupInvitationManager;
 	}
 
 	@Override
@@ -125,8 +122,8 @@ class GroupMessageValidator extends BdfMessageValidator {
 
 			// derive invitation group
 			Group invitationGroup = contactGroupFactory
-					.createContactGroup(groupInvitationManager.getClientId(),
-							pg.getAuthor().getId(), member.getId());
+					.createContactGroup(CLIENT_ID, pg.getAuthor().getId(),
+							member.getId());
 
 			// signature with the creator's private key
 			// over a list with four elements:

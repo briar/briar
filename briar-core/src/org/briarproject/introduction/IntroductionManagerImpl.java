@@ -23,14 +23,12 @@ import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.introduction.IntroductionResponse;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.clients.ConversationClientImpl;
-import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,10 +77,6 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		implements IntroductionManager, Client, AddContactHook,
 		RemoveContactHook {
 
-	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
-			"23b1897c198a90ae75b976ac023d0f32"
-					+ "80ca67b12f2346b2c23a34f34e2434c3"));
-
 	private static final Logger LOG =
 			Logger.getLogger(IntroductionManagerImpl.class.getName());
 
@@ -100,11 +94,6 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		this.introducerManager = introducerManager;
 		this.introduceeManager = introduceeManager;
 		this.introductionGroupFactory = introductionGroupFactory;
-	}
-
-	@Override
-	public ClientId getClientId() {
-		return CLIENT_ID;
 	}
 
 	@Override

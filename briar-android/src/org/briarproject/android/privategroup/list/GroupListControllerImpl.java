@@ -33,6 +33,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.privategroup.PrivateGroupManager.CLIENT_ID;
 
 public class GroupListControllerImpl extends DbControllerImpl
 		implements GroupListController, EventListener {
@@ -92,14 +93,14 @@ public class GroupListControllerImpl extends DbControllerImpl
 		} else if (e instanceof GroupAddedEvent) {
 			GroupAddedEvent g = (GroupAddedEvent) e;
 			ClientId id = g.getGroup().getClientId();
-			if (id.equals(groupManager.getClientId())) {
+			if (id.equals(CLIENT_ID)) {
 				LOG.info("Private group added");
 				onGroupAdded(g.getGroup().getId());
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
 			ClientId id = g.getGroup().getClientId();
-			if (id.equals(groupManager.getClientId())) {
+			if (id.equals(CLIENT_ID)) {
 				LOG.info("Private group removed");
 				onGroupRemoved(g.getGroup().getId());
 			}

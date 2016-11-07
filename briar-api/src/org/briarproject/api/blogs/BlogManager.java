@@ -13,8 +13,8 @@ import java.util.Collection;
 
 public interface BlogManager {
 
-	/** Returns the unique ID of the blog client. */
-	ClientId getClientId();
+	/** Unique ID of the blog client. */
+	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.blogs");
 
 	/** Returns true if a blog can be removed. */
 	boolean canBeRemoved(GroupId g) throws DbException;

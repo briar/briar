@@ -86,11 +86,6 @@ public class BlogManagerImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testClientId() {
-		assertEquals(CLIENT_ID, blogManager.getClientId());
-	}
-
-	@Test
 	public void testCreateLocalState() throws DbException {
 		final Transaction txn = new Transaction(null, false);
 

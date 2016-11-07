@@ -11,8 +11,8 @@ import java.util.Collection;
 
 public interface MessagingManager extends MessageTracker {
 
-	/** Returns the unique ID of the messaging client. */
-	ClientId getClientId();
+	/** The unique ID of the messaging client. */
+	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.messaging");
 
 	/** Stores a local private message. */
 	void addLocalMessage(PrivateMessage m) throws DbException;

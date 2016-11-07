@@ -60,6 +60,7 @@ import javax.inject.Inject;
 import static org.briarproject.TestPluginsModule.MAX_LATENCY;
 import static org.briarproject.TestUtils.getRandomBytes;
 import static org.briarproject.api.identity.Author.Status.VERIFIED;
+import static org.briarproject.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
@@ -341,8 +342,8 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		joinTime = clock.currentTimeMillis();
 		long inviteTime = joinTime;
 		Group invitationGroup = contactGroupFactory
-				.createContactGroup(groupInvitationManager.getClientId(),
-						author0.getId(), author1.getId());
+				.createContactGroup(CLIENT_ID, author0.getId(),
+						author1.getId());
 		BdfList toSign = BdfList.of(0, inviteTime, invitationGroup.getId(),
 				privateGroup0.getId());
 		byte[] creatorSignature =
@@ -386,8 +387,8 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		long joinTime = clock.currentTimeMillis();
 		long inviteTime = joinTime - 1;
 		Group invitationGroup = contactGroupFactory
-				.createContactGroup(groupInvitationManager.getClientId(),
-						author0.getId(), author0.getId());
+				.createContactGroup(CLIENT_ID, author0.getId(),
+						author0.getId());
 		BdfList toSign = BdfList.of(0, inviteTime, invitationGroup.getId(),
 				privateGroup0.getId());
 		byte[] creatorSignature =
@@ -412,8 +413,8 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		joinTime = clock.currentTimeMillis();
 		inviteTime = joinTime - 1;
 		invitationGroup = contactGroupFactory
-				.createContactGroup(groupInvitationManager.getClientId(),
-						author0.getId(), author1.getId());
+				.createContactGroup(CLIENT_ID, author0.getId(),
+						author1.getId());
 		toSign = BdfList.of(0, inviteTime, invitationGroup.getId(),
 				privateGroup0.getId());
 		// signature uses joiner's key, not creator's key
@@ -540,8 +541,8 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		joinTime = clock.currentTimeMillis();
 		long inviteTime = joinTime - 1;
 		Group invitationGroup = contactGroupFactory
-				.createContactGroup(groupInvitationManager.getClientId(),
-						author0.getId(), author1.getId());
+				.createContactGroup(CLIENT_ID, author0.getId(),
+						author1.getId());
 		BdfList toSign = BdfList.of(0, inviteTime, invitationGroup.getId(),
 				privateGroup0.getId());
 		byte[] creatorSignature =

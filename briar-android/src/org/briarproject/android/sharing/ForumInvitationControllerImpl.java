@@ -20,6 +20,7 @@ import java.util.concurrent.Executor;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.forum.ForumManager.CLIENT_ID;
 
 public class ForumInvitationControllerImpl
 		extends InvitationControllerImpl<SharingInvitationItem>
@@ -50,7 +51,7 @@ public class ForumInvitationControllerImpl
 
 	@Override
 	protected ClientId getShareableClientId() {
-		return forumManager.getClientId();
+		return CLIENT_ID;
 	}
 
 	@Override

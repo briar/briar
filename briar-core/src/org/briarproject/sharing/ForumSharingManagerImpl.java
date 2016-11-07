@@ -27,7 +27,6 @@ import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
-import org.briarproject.util.StringUtils;
 
 import java.security.SecureRandom;
 
@@ -41,10 +40,6 @@ import static org.briarproject.api.sharing.SharingConstants.RESPONSE_ID;
 class ForumSharingManagerImpl extends
 		SharingManagerImpl<Forum, ForumInvitation, ForumInviteeSessionState, ForumSharerSessionState, ForumInvitationReceivedEvent, ForumInvitationResponseReceivedEvent>
 		implements ForumSharingManager, ForumManager.RemoveForumHook {
-
-	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
-			"cd11a5d04dccd9e2931d6fc3df456313"
-					+ "63bb3e9d9d0e9405fccdb051f41f5449"));
 
 	private final SFactory sFactory;
 	private final IFactory iFactory;
@@ -75,7 +70,7 @@ class ForumSharingManagerImpl extends
 	}
 
 	@Override
-	public ClientId getClientId() {
+	protected ClientId getClientId() {
 		return CLIENT_ID;
 	}
 

@@ -81,7 +81,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	public H2DatabaseTest() throws Exception {
 		groupId = new GroupId(TestUtils.getRandomId());
-		clientId = new ClientId(TestUtils.getRandomId());
+		clientId = new ClientId(TestUtils.getRandomString(5));
 		byte[] descriptor = new byte[0];
 		group = new Group(groupId, clientId, descriptor);
 		AuthorId authorId = new AuthorId(TestUtils.getRandomId());
@@ -601,7 +601,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		List<Group> groups = new ArrayList<>();
 		for (int i = 0; i < 100; i++) {
 			GroupId id = new GroupId(TestUtils.getRandomId());
-			ClientId clientId = new ClientId(TestUtils.getRandomId());
+			ClientId clientId = new ClientId(TestUtils.getRandomString(5));
 			byte[] descriptor = new byte[0];
 			groups.add(new Group(id, clientId, descriptor));
 		}

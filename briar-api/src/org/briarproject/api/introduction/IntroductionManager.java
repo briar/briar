@@ -12,8 +12,8 @@ import java.util.Collection;
 
 public interface IntroductionManager extends MessageTracker {
 
-	/** Returns the unique ID of the introduction client. */
-	ClientId getClientId();
+	/** The unique ID of the introduction client. */
+	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.introduction");
 
 	/**
 	 * sends two initial introduction messages

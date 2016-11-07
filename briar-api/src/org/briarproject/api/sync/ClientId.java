@@ -1,18 +1,39 @@
 package org.briarproject.api.sync;
 
-import org.briarproject.api.UniqueId;
+import org.briarproject.api.nullsafety.NotNullByDefault;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
- * Type-safe wrapper for a byte array that uniquely identifies a sync client.
+ * Wrapper for a name-spaced string that uniquely identifies a sync client.
  */
-public class ClientId extends UniqueId {
+@Immutable
+@NotNullByDefault
+public class ClientId implements Comparable<ClientId> {
 
-	public ClientId(byte[] id) {
-		super(id);
+	private final String id;
+
+	public ClientId(String id) {
+		this.id = id;
+	}
+
+	public String getString() {
+		return id;
+	}
+
+	@Override
+	public int compareTo(ClientId clientId) {
+		return id.compareTo(clientId.getString());
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof ClientId && super.equals(o);
+		return o instanceof ClientId && id.equals(((ClientId) o).id);
 	}
+
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
+
 }

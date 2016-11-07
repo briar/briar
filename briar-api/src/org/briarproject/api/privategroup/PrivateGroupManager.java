@@ -14,8 +14,8 @@ import java.util.Collection;
 @NotNullByDefault
 public interface PrivateGroupManager extends MessageTracker {
 
-	/** Returns the unique ID of the private group client. */
-	ClientId getClientId();
+	/** The unique ID of the private group client. */
+	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.privategroup");
 
 	/**
 	 * Adds a new private group and joins it.

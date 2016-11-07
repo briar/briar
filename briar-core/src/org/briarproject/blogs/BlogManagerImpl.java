@@ -27,13 +27,11 @@ import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.clients.BdfIncomingMessageHook;
-import org.briarproject.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.security.GeneralSecurityException;
@@ -74,10 +72,6 @@ import static org.briarproject.blogs.BlogPostValidator.authorToBdfDictionary;
 class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		AddContactHook, RemoveContactHook, Client {
 
-	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
-			"dafbe56f0c8971365cea4bb5f08ec9a6" +
-					"1d686e058b943997b6ff259ba423f613"));
-
 	private final IdentityManager identityManager;
 	private final ContactManager contactManager;
 	private final BlogFactory blogFactory;
@@ -96,11 +90,6 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		this.blogFactory = blogFactory;
 		this.blogPostFactory = blogPostFactory;
 		removeHooks = new CopyOnWriteArrayList<RemoveBlogHook>();
-	}
-
-	@Override
-	public ClientId getClientId() {
-		return CLIENT_ID;
 	}
 
 	@Override

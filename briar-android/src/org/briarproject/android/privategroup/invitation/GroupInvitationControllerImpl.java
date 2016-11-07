@@ -21,6 +21,7 @@ import java.util.concurrent.Executor;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.privategroup.PrivateGroupManager.CLIENT_ID;
 
 public class GroupInvitationControllerImpl
 		extends InvitationControllerImpl<GroupInvitationItem>
@@ -51,7 +52,7 @@ public class GroupInvitationControllerImpl
 
 	@Override
 	protected ClientId getShareableClientId() {
-		return privateGroupManager.getClientId();
+		return CLIENT_ID;
 	}
 
 	@Override

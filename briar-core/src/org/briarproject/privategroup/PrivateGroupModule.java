@@ -38,7 +38,7 @@ public class PrivateGroupModule {
 			ValidationManager validationManager) {
 
 		validationManager
-				.registerIncomingMessageHook(groupManager.getClientId(),
+				.registerIncomingMessageHook(PrivateGroupManager.CLIENT_ID,
 						groupManager);
 
 		return groupManager;
@@ -68,9 +68,9 @@ public class PrivateGroupModule {
 
 		GroupMessageValidator validator = new GroupMessageValidator(
 				contactGroupFactory, groupFactory, clientHelper,
-				metadataEncoder, clock, authorFactory, groupInvitationManager);
+				metadataEncoder, clock, authorFactory);
 		validationManager.registerMessageValidator(
-				PrivateGroupManagerImpl.CLIENT_ID, validator);
+				PrivateGroupManager.CLIENT_ID, validator);
 
 		return validator;
 	}
@@ -84,7 +84,7 @@ public class PrivateGroupModule {
 			ValidationManager validationManager) {
 
 		validationManager.registerIncomingMessageHook(
-				groupInvitationManager.getClientId(), groupInvitationManager);
+				GroupInvitationManager.CLIENT_ID, groupInvitationManager);
 		lifecycleManager.registerClient(groupInvitationManager);
 		contactManager.registerAddContactHook(groupInvitationManager);
 		contactManager.registerRemoveContactHook(groupInvitationManager);

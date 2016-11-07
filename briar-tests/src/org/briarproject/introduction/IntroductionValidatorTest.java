@@ -59,7 +59,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 
 	public IntroductionValidatorTest() {
 		GroupId groupId = new GroupId(TestUtils.getRandomId());
-		ClientId clientId = new ClientId(TestUtils.getRandomId());
+		ClientId clientId = new ClientId(TestUtils.getRandomString(5));
 		byte[] descriptor = TestUtils.getRandomBytes(12);
 		group = new Group(groupId, clientId, descriptor);
 

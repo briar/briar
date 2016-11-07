@@ -23,13 +23,11 @@ import org.briarproject.api.privategroup.MessageType;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.privategroup.PrivateGroupManager;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.clients.BdfIncomingMessageHook;
-import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,10 +62,6 @@ import static org.briarproject.privategroup.Constants.KEY_TYPE;
 public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		PrivateGroupManager {
 
-	static final ClientId CLIENT_ID = new ClientId(
-			StringUtils.fromHexString("5072697661746547726f75704d616e61"
-					+ "67657220627920546f727374656e2047"));
-
 	private final PrivateGroupFactory privateGroupFactory;
 	private final IdentityManager identityManager;
 	private final List<PrivateGroupHook> hooks;
@@ -82,11 +76,6 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		this.privateGroupFactory = privateGroupFactory;
 		this.identityManager = identityManager;
 		hooks = new CopyOnWriteArrayList<PrivateGroupHook>();
-	}
-
-	@Override
-	public ClientId getClientId() {
-		return CLIENT_ID;
 	}
 
 	@Override
@@ -251,7 +240,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		Collection<Group> groups;
 		Transaction txn = db.startTransaction(true);
 		try {
-			groups = db.getGroups(txn, getClientId());
+			groups = db.getGroups(txn, CLIENT_ID);
 			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
