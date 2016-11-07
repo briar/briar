@@ -59,7 +59,7 @@ public class GroupControllerImpl extends
 	@Override
 	public void onActivityStart() {
 		super.onActivityStart();
-		// TODO: Add new notification manager methods for private groups
+		notificationManager.clearGroupMessageNotification(getGroupId());
 	}
 
 	@Override

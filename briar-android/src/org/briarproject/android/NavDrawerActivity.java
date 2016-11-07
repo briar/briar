@@ -46,6 +46,7 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		OnNavigationItemSelectedListener {
 
 	static final String INTENT_CONTACTS = "intent_contacts";
+	static final String INTENT_GROUPS = "intent_groups";
 	static final String INTENT_FORUMS = "intent_forums";
 	static final String INTENT_BLOGS = "intent_blogs";
 
@@ -70,10 +71,10 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 		exitIfStartupFailed(intent);
-		// FIXME why was the stack cleared here?
-		// This prevents state from being restored properly
-//		clearBackStack();
-		if (intent.getBooleanExtra(INTENT_FORUMS, false)) {
+		// TODO don't create new instances if they are on the stack (#606)
+		if (intent.getBooleanExtra(INTENT_GROUPS, false)) {
+			startFragment(GroupListFragment.newInstance());
+		} else if (intent.getBooleanExtra(INTENT_FORUMS, false)) {
 			startFragment(ForumListFragment.newInstance());
 		} else if (intent.getBooleanExtra(INTENT_CONTACTS, false)) {
 			startFragment(ContactListFragment.newInstance());

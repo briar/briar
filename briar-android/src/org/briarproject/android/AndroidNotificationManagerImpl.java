@@ -18,6 +18,7 @@ import org.briarproject.android.api.AndroidExecutor;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.ForumActivity;
+import org.briarproject.android.privategroup.conversation.GroupActivity;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
@@ -25,6 +26,7 @@ import org.briarproject.api.event.BlogPostAddedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.ForumPostReceivedEvent;
+import org.briarproject.api.event.GroupMessageAddedEvent;
 import org.briarproject.api.event.IntroductionRequestReceivedEvent;
 import org.briarproject.api.event.IntroductionResponseReceivedEvent;
 import org.briarproject.api.event.IntroductionSucceededEvent;
@@ -64,8 +66,10 @@ import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.NavDrawerActivity.INTENT_BLOGS;
 import static org.briarproject.android.NavDrawerActivity.INTENT_CONTACTS;
 import static org.briarproject.android.NavDrawerActivity.INTENT_FORUMS;
+import static org.briarproject.android.NavDrawerActivity.INTENT_GROUPS;
 import static org.briarproject.android.contact.ConversationActivity.CONTACT_ID;
 import static org.briarproject.android.fragment.SettingsFragment.PREF_NOTIFY_BLOG;
+import static org.briarproject.android.fragment.SettingsFragment.PREF_NOTIFY_GROUP;
 import static org.briarproject.android.fragment.SettingsFragment.SETTINGS_NAMESPACE;
 
 class AndroidNotificationManagerImpl implements AndroidNotificationManager,
@@ -73,13 +77,16 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	// Notification IDs
 	private static final int PRIVATE_MESSAGE_NOTIFICATION_ID = 3;
-	private static final int FORUM_POST_NOTIFICATION_ID = 4;
-	private static final int BLOG_POST_NOTIFICATION_ID = 5;
-	private static final int INTRODUCTION_SUCCESS_NOTIFICATION_ID = 6;
+	private static final int GROUP_MESSAGE_NOTIFICATION_ID = 4;
+	private static final int FORUM_POST_NOTIFICATION_ID = 5;
+	private static final int BLOG_POST_NOTIFICATION_ID = 6;
+	private static final int INTRODUCTION_SUCCESS_NOTIFICATION_ID = 7;
 
 	// Content URIs to differentiate between pending intents
 	private static final String CONTACT_URI =
 			"content://org.briarproject/contact";
+	private static final String GROUP_URI =
+			"content://org.briarproject/group";
 	private static final String FORUM_URI =
 			"content://org.briarproject/forum";
 	private static final String BLOG_URI =
@@ -88,6 +95,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	// Actions for intents that are broadcast when notifications are dismissed
 	private static final String CLEAR_PRIVATE_MESSAGE_ACTION =
 			"org.briarproject.briar.CLEAR_PRIVATE_MESSAGE_NOTIFICATION";
+	private static final String CLEAR_GROUP_ACTION =
+			"org.briarproject.briar.CLEAR_GROUP_NOTIFICATION";
 	private static final String CLEAR_FORUM_ACTION =
 			"org.briarproject.briar.CLEAR_FORUM_NOTIFICATION";
 	private static final String CLEAR_BLOG_ACTION =
@@ -107,15 +116,17 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	// The following must only be accessed on the main UI thread
 	private final Map<ContactId, Integer> contactCounts = new HashMap<>();
+	private final Map<GroupId, Integer> groupCounts = new HashMap<>();
 	private final Map<GroupId, Integer> forumCounts = new HashMap<>();
 	private final Map<GroupId, Integer> blogCounts = new HashMap<>();
-	private int contactTotal = 0, forumTotal = 0, blogTotal = 0;
+	private int contactTotal = 0, groupTotal = 0, forumTotal = 0, blogTotal = 0;
 	private int introductionTotal = 0;
 	private int nextRequestId = 0;
 	private ContactId blockedContact = null;
 	private GroupId blockedGroup = null;
-	private boolean blockContacts = false, blockForums = false;
-	private boolean blockBlogs = false, blockIntroductions = false;
+	private boolean blockContacts = false, blockGroups = false;
+	private boolean blockForums = false, blockBlogs = false;
+	private boolean blockIntroductions = false;
 
 	private volatile Settings settings = new Settings();
 
@@ -144,6 +155,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			public Void call() {
 				IntentFilter filter = new IntentFilter();
 				filter.addAction(CLEAR_PRIVATE_MESSAGE_ACTION);
+				filter.addAction(CLEAR_GROUP_ACTION);
 				filter.addAction(CLEAR_FORUM_ACTION);
 				filter.addAction(CLEAR_BLOG_ACTION);
 				filter.addAction(CLEAR_INTRODUCTION_ACTION);
@@ -165,6 +177,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			@Override
 			public Void call() {
 				clearContactNotification();
+				clearGroupMessageNotification();
 				clearForumPostNotification();
 				clearBlogPostNotification();
 				clearIntroductionSuccessNotification();
@@ -186,6 +199,15 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
 		nm.cancel(PRIVATE_MESSAGE_NOTIFICATION_ID);
+	}
+
+	@UiThread
+	private void clearGroupMessageNotification() {
+		groupCounts.clear();
+		groupTotal = 0;
+		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
+		NotificationManager nm = (NotificationManager) o;
+		nm.cancel(GROUP_MESSAGE_NOTIFICATION_ID);
 	}
 
 	@UiThread
@@ -222,6 +244,9 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		} else if (e instanceof PrivateMessageReceivedEvent) {
 			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
 			showContactNotification(p.getContactId());
+		} else if (e instanceof GroupMessageAddedEvent) {
+			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
+			showGroupMessageNotification(g.getGroupId());
 		} else if (e instanceof ForumPostReceivedEvent) {
 			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
 			showForumPostNotification(f.getGroupId());
@@ -363,6 +388,101 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			public void run() {
 				clearContactNotification();
 				clearIntroductionSuccessNotification();
+			}
+		});
+	}
+
+	@UiThread
+	private void showGroupMessageNotification(final GroupId g) {
+		androidExecutor.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (blockGroups) return;
+				if (g.equals(blockedGroup)) return;
+				Integer count = groupCounts.get(g);
+				if (count == null) groupCounts.put(g, 1);
+				else groupCounts.put(g, count + 1);
+				groupTotal++;
+				updateGroupMessageNotification();
+			}
+		});
+	}
+
+	@Override
+	public void clearGroupMessageNotification(final GroupId g) {
+		androidExecutor.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Integer count = groupCounts.remove(g);
+				if (count == null) return; // Already cleared
+				groupTotal -= count;
+				updateGroupMessageNotification();
+			}
+		});
+	}
+
+	@UiThread
+	private void updateGroupMessageNotification() {
+		if (groupTotal == 0) {
+			clearGroupMessageNotification();
+		} else if (settings.getBoolean(PREF_NOTIFY_GROUP, true)) {
+			NotificationCompat.Builder b =
+					new NotificationCompat.Builder(appContext);
+			b.setSmallIcon(R.drawable.message_notification_icon);
+			b.setContentTitle(appContext.getText(R.string.app_name));
+			b.setContentText(appContext.getResources().getQuantityString(
+					R.plurals.group_message_notification_text, groupTotal,
+					groupTotal));
+			String ringtoneUri = settings.get("notifyRingtoneUri");
+			if (!StringUtils.isNullOrEmpty(ringtoneUri))
+				b.setSound(Uri.parse(ringtoneUri));
+			b.setDefaults(getDefaults());
+			b.setOnlyAlertOnce(true);
+			b.setAutoCancel(true);
+			// Clear the counters if the notification is dismissed
+			Intent clear = new Intent(CLEAR_GROUP_ACTION);
+			PendingIntent delete = PendingIntent.getBroadcast(appContext, 0,
+					clear, 0);
+			b.setDeleteIntent(delete);
+			if (groupCounts.size() == 1) {
+				// Touching the notification shows the relevant group
+				Intent i = new Intent(appContext, GroupActivity.class);
+				GroupId g = groupCounts.keySet().iterator().next();
+				i.putExtra(GROUP_ID, g.getBytes());
+				String idHex = StringUtils.toHexString(g.getBytes());
+				i.setData(Uri.parse(GROUP_URI + "/" + idHex));
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				TaskStackBuilder t = TaskStackBuilder.create(appContext);
+				t.addParentStack(GroupActivity.class);
+				t.addNextIntent(i);
+				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+			} else {
+				// Touching the notification shows the group list
+				Intent i = new Intent(appContext, NavDrawerActivity.class);
+				i.putExtra(INTENT_GROUPS, true);
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i.setData(Uri.parse(GROUP_URI));
+				TaskStackBuilder t = TaskStackBuilder.create(appContext);
+				t.addParentStack(NavDrawerActivity.class);
+				t.addNextIntent(i);
+				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
+			}
+			if (Build.VERSION.SDK_INT >= 21) {
+				b.setCategory(CATEGORY_SOCIAL);
+				b.setVisibility(VISIBILITY_SECRET);
+			}
+			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
+			NotificationManager nm = (NotificationManager) o;
+			nm.notify(GROUP_MESSAGE_NOTIFICATION_ID, b.build());
+		}
+	}
+
+	@Override
+	public void clearAllGroupMessageNotifications() {
+		androidExecutor.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				clearGroupMessageNotification();
 			}
 		});
 	}
@@ -655,6 +775,26 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@Override
+	public void blockAllGroupMessageNotifications() {
+		androidExecutor.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				blockGroups = true;
+			}
+		});
+	}
+
+	@Override
+	public void unblockAllGroupMessageNotifications() {
+		androidExecutor.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				blockGroups = false;
+			}
+		});
+	}
+
+	@Override
 	public void blockAllForumPostNotifications() {
 		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
@@ -704,6 +844,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				public void run() {
 					if (CLEAR_PRIVATE_MESSAGE_ACTION.equals(action)) {
 						clearContactNotification();
+					} else if (CLEAR_GROUP_ACTION.equals(action)) {
+						clearGroupMessageNotification();
 					} else if (CLEAR_FORUM_ACTION.equals(action)) {
 						clearForumPostNotification();
 					} else if (CLEAR_BLOG_ACTION.equals(action)) {
