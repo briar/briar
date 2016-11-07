@@ -155,7 +155,7 @@
 		<item quantity="other">%d messages</item>
 	</plurals>
 	<string name="groups_group_is_empty">This group is empty</string>
-	<string name="groups_group_is_dissolved">This group is dissolved</string>
+	<string name="groups_group_is_dissolved">This group has been dissolved</string>
 	<string name="groups_remove">Remove</string>
 	<string name="groups_create_group_title">Create Private Group</string>
 	<string name="groups_no_messages">This group is empty.\n\nYou can use the pen icon at the top to compose the first message.</string>
@@ -168,11 +168,16 @@
 	<string name="groups_message_received">Message received</string>
 	<string name="groups_member_list">Member List</string>
 	<string name="groups_invite_members">Invite Members</string>
+	<string name="groups_member_joined">joined the group.</string>
 	<string name="groups_leave">Leave Group</string>
 	<string name="groups_leave_dialog_title">Confirm Leaving Group</string>
 	<string name="groups_leave_dialog_message">Are you sure that you want to leave this group?</string>
 	<string name="groups_dissolve">Dissolve Group</string>
-	<string name="groups_member_joined">joined the group.</string>
+	<string name="groups_dissolve_dialog_title">Confirm Dissolving Group</string>
+	<string name="groups_dissolve_dialog_message">Are you sure that you want to dissolve this group?\n\nAll other members will not be able to continue their conversation and might not receive the latest messages.</string>
+	<string name="groups_dissolve_button">Dissolve</string>
+	<string name="groups_dissolved_dialog_title">Group Has Been Dissolved</string>
+	<string name="groups_dissolved_dialog_message">The creator of this group has dissolved it.\n\nYou can no longer write messages to the group and might not receive all posts that have been written.</string>
 
 	<!-- Private Group Invitations -->
 	<string name="groups_invitations_title">Group Invitations</string>
@@ -188,9 +193,6 @@
 	<string name="groups_invitations_response_declined_sent">You declined the group invitation from %s.</string>
 	<string name="groups_invitations_response_accepted_received">%s accepted your group invitation.</string>
 	<string name="groups_invitations_response_declined_received">%s declined your group invitation.</string>
-	<string name="groups_dissolve_dialog_title">Confirm Dissolving Group</string>
-	<string name="groups_dissolve_dialog_message">Are you sure that you want to dissolve this group?\n\nAll other members will not be able to continue their conversation and might not receive the latest messages.</string>
-	<string name="groups_dissolve_button">Dissolve</string>
 
 	<!-- Forums -->
 	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>

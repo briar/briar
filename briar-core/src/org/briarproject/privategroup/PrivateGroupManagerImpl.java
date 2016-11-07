@@ -10,6 +10,8 @@ import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.GroupDissolvedEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.identity.AuthorId;
@@ -176,6 +178,8 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+		Event e = new GroupDissolvedEvent(g);
+		txn.attach(e);
 	}
 
 	@Override

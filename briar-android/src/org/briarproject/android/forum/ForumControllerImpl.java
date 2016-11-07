@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.android.threaded.ThreadListController.ThreadListListener;
 import org.briarproject.android.threaded.ThreadListControllerImpl;
 import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.crypto.CryptoExecutor;
@@ -32,7 +33,7 @@ import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
 
 public class ForumControllerImpl
-		extends ThreadListControllerImpl<Forum, ForumItem, ForumPostHeader, ForumPost>
+		extends ThreadListControllerImpl<Forum, ForumItem, ForumPostHeader, ForumPost, ThreadListListener<ForumPostHeader>>
 		implements ForumController {
 
 	private static final Logger LOG =

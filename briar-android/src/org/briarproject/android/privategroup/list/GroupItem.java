@@ -70,4 +70,8 @@ class GroupItem {
 		return dissolved;
 	}
 
+	void setDissolved() {
+		dissolved = true;
+	}
+
 }
