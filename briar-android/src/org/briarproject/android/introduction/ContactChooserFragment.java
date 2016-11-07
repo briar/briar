@@ -23,7 +23,6 @@ import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.messaging.ConversationManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
-import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,9 +52,9 @@ public class ContactChooserFragment extends BaseFragment {
 	volatile ConnectionRegistry connectionRegistry;
 
 	public static ContactChooserFragment newInstance() {
-		
+
 		Bundle args = new Bundle();
-		
+
 		ContactChooserFragment fragment = new ContactChooserFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -132,14 +131,12 @@ public class ContactChooserFragment extends BaseFragment {
 							c1 = c;
 						} else {
 							ContactId id = c.getId();
-							GroupId groupId =
-									conversationManager.getConversationId(id);
 							GroupCount count =
 									conversationManager.getGroupCount(id);
 							boolean connected =
 									connectionRegistry.isConnected(c.getId());
 							contacts.add(new ContactListItem(c, connected,
-									groupId, count));
+									count));
 						}
 					}
 					displayContacts(contacts);

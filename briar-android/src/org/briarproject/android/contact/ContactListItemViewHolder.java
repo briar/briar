@@ -7,13 +7,13 @@ import android.widget.TextView;
 
 import org.briarproject.R;
 import org.briarproject.android.contact.BaseContactListAdapter.OnContactClickListener;
+import org.briarproject.android.util.AndroidUtils;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.nullsafety.NotNullByDefault;
-import org.briarproject.api.sync.GroupId;
 import org.jetbrains.annotations.Nullable;
 
 import static android.support.v4.view.ViewCompat.setTransitionName;
 import static org.briarproject.android.util.AndroidUtils.formatDate;
-import static org.briarproject.util.StringUtils.toHexString;
 
 @UiThread
 @NotNullByDefault
@@ -23,7 +23,7 @@ class ContactListItemViewHolder extends ContactItemViewHolder<ContactListItem> {
 	private final TextView unread;
 	private final TextView date;
 
-	public ContactListItemViewHolder(View v) {
+	ContactListItemViewHolder(View v) {
 		super(v);
 		bulb = (ImageView) v.findViewById(R.id.bulbView);
 		unread = (TextView) v.findViewById(R.id.unreadCountView);
@@ -59,16 +59,9 @@ class ContactListItemViewHolder extends ContactItemViewHolder<ContactListItem> {
 			bulb.setImageResource(R.drawable.contact_disconnected);
 		}
 
-		setTransitionName(avatar, getAvatarTransitionName(item.getGroupId()));
-		setTransitionName(bulb, getBulbTransitionName(item.getGroupId()));
-	}
-
-	private String getAvatarTransitionName(GroupId g) {
-		return "avatar" + toHexString(g.getBytes());
-	}
-
-	private String getBulbTransitionName(GroupId g) {
-		return "bulb" + toHexString(g.getBytes());
+		ContactId c = item.getContact().getId();
+		setTransitionName(avatar, AndroidUtils.getAvatarTransitionName(c));
+		setTransitionName(bulb, AndroidUtils.getBulbTransitionName(c));
 	}
 
 }

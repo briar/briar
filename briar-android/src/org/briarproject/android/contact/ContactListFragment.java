@@ -48,7 +48,6 @@ import org.briarproject.api.messaging.PrivateMessageHeader;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sharing.InvitationRequest;
 import org.briarproject.api.sharing.InvitationResponse;
-import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +59,7 @@ import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAn
 import static android.support.v4.view.ViewCompat.getTransitionName;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.BriarActivity.GROUP_ID;
+import static org.briarproject.android.contact.ConversationActivity.CONTACT_ID;
 
 public class ContactListFragment extends BaseFragment implements EventListener {
 
@@ -111,10 +110,10 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 				new OnContactClickListener<ContactListItem>() {
 					@Override
 					public void onItemClick(View view, ContactListItem item) {
-						GroupId groupId = item.getGroupId();
 						Intent i = new Intent(getActivity(),
 								ConversationActivity.class);
-						i.putExtra(GROUP_ID, groupId.getBytes());
+						ContactId contactId = item.getContact().getId();
+						i.putExtra(CONTACT_ID, contactId.getInt());
 
 						// work-around for android bug #224270
 						if (Build.VERSION.SDK_INT >= 23) {
@@ -200,14 +199,12 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 					for (Contact c : contactManager.getActiveContacts()) {
 						try {
 							ContactId id = c.getId();
-							GroupId groupId =
-									conversationManager.getConversationId(id);
 							GroupCount count =
 									conversationManager.getGroupCount(id);
 							boolean connected =
 									connectionRegistry.isConnected(c.getId());
 							contacts.add(new ContactListItem(c, connected,
-									groupId, count));
+									count));
 						} catch (NoSuchContactException e) {
 							// Continue
 						}

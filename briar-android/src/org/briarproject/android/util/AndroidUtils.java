@@ -23,6 +23,7 @@ import android.widget.TextView;
 import org.briarproject.R;
 import org.briarproject.android.view.ArticleMovementMethod;
 import org.briarproject.android.widget.LinkDialogFragment;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.util.IoUtils;
 import org.briarproject.util.StringUtils;
 
@@ -173,4 +174,11 @@ public class AndroidUtils {
 		v.setMovementMethod(ArticleMovementMethod.getInstance());
 	}
 
+	public static String getAvatarTransitionName(ContactId c) {
+		return "avatar" + c.getInt();
+	}
+
+	public static String getBulbTransitionName(ContactId c) {
+		return "bulb" + c.getInt();
+	}
 }

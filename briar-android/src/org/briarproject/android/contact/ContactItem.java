@@ -10,6 +10,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 public class ContactItem {
 
 	private final Contact contact;
+
 	private boolean connected;
 
 	public ContactItem(Contact contact, boolean connected) {

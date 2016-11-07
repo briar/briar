@@ -30,6 +30,7 @@ import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.contact.ConversationAdapter.RequestListener;
 import org.briarproject.android.introduction.IntroductionActivity;
+import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.android.view.TextInputView;
 import org.briarproject.android.view.TextInputView.TextInputListener;
@@ -57,6 +58,7 @@ import org.briarproject.api.event.MessagesAckedEvent;
 import org.briarproject.api.event.MessagesSentEvent;
 import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.forum.ForumSharingManager;
+import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
@@ -73,6 +75,7 @@ import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sharing.InvitationRequest;
 import org.briarproject.api.sharing.InvitationResponse;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -105,6 +108,8 @@ import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESS
 
 public class ConversationActivity extends BriarActivity
 		implements EventListener, RequestListener, TextInputListener {
+
+	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
@@ -150,10 +155,10 @@ public class ConversationActivity extends BriarActivity
 	@Inject
 	volatile GroupInvitationManager groupInvitationManager;
 
-	private volatile GroupId groupId = null;
-	private volatile ContactId contactId = null;
-	private volatile String contactName = null;
-	private volatile byte[] contactIdenticonKey = null;
+	private volatile ContactId contactId;
+	private volatile String contactName;
+	private volatile AuthorId contactAuthorId;
+	private volatile GroupId messagingGroupId;
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
@@ -161,9 +166,9 @@ public class ConversationActivity extends BriarActivity
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
-		if (b == null) throw new IllegalStateException();
-		groupId = new GroupId(b);
+		int id = i.getIntExtra(CONTACT_ID, -1);
+		if (id == -1) throw new IllegalStateException();
+		contactId = new ContactId(id);
 
 		setContentView(R.layout.activity_conversation);
 
@@ -185,9 +190,10 @@ public class ConversationActivity extends BriarActivity
 			ab.setDisplayShowTitleEnabled(false);
 		}
 
-		String hexGroupId = StringUtils.toHexString(b);
-		ViewCompat.setTransitionName(toolbarAvatar, "avatar" + hexGroupId);
-		ViewCompat.setTransitionName(toolbarStatus, "bulb" + hexGroupId);
+		ViewCompat.setTransitionName(toolbarAvatar,
+				AndroidUtils.getAvatarTransitionName(contactId));
+		ViewCompat.setTransitionName(toolbarStatus,
+				AndroidUtils.getBulbTransitionName(contactId));
 
 		adapter = new ConversationAdapter(this, this);
 		list = (BriarRecyclerView) findViewById(R.id.conversationView);
@@ -220,8 +226,8 @@ public class ConversationActivity extends BriarActivity
 	public void onStart() {
 		super.onStart();
 		eventBus.addListener(this);
-		notificationManager.blockNotification(groupId);
-		notificationManager.clearPrivateMessageNotification(groupId);
+		notificationManager.blockContactNotification(contactId);
+		notificationManager.clearContactNotification(contactId);
 		loadContactDetails();
 		loadMessages();
 		list.startPeriodicUpdate();
@@ -231,7 +237,7 @@ public class ConversationActivity extends BriarActivity
 	public void onStop() {
 		super.onStop();
 		eventBus.removeListener(this);
-		notificationManager.unblockNotification(groupId);
+		notificationManager.unblockContactNotification(contactId);
 		list.stopPeriodicUpdate();
 		if (isFinishing()) markMessagesRead();
 	}
@@ -287,13 +293,10 @@ public class ConversationActivity extends BriarActivity
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					if (contactId == null)
-						contactId = messagingManager.getContactId(groupId);
-					if (contactName == null || contactIdenticonKey == null) {
+					if (contactName == null || contactAuthorId == null) {
 						Contact contact = contactManager.getContact(contactId);
 						contactName = contact.getAuthor().getName();
-						contactIdenticonKey =
-								contact.getAuthor().getId().getBytes();
+						contactAuthorId = contact.getAuthor().getId();
 					}
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
@@ -314,7 +317,7 @@ public class ConversationActivity extends BriarActivity
 			@Override
 			public void run() {
 				toolbarAvatar.setImageDrawable(
-						new IdenticonDrawable(contactIdenticonKey));
+						new IdenticonDrawable(contactAuthorId.getBytes()));
 				toolbarTitle.setText(contactName);
 
 				if (connectionRegistry.isConnected(contactId)) {
@@ -341,8 +344,6 @@ public class ConversationActivity extends BriarActivity
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
-					if (contactId == null)
-						contactId = messagingManager.getContactId(groupId);
 					Collection<PrivateMessageHeader> headers =
 							messagingManager.getMessageHeaders(contactId);
 					Collection<IntroductionMessage> introductions =
@@ -419,12 +420,10 @@ public class ConversationActivity extends BriarActivity
 			ConversationItem item;
 			if (m instanceof IntroductionRequest) {
 				IntroductionRequest i = (IntroductionRequest) m;
-				item = ConversationItem
-						.from(ConversationActivity.this, contactName, i);
+				item = ConversationItem.from(this, contactName, i);
 			} else {
 				IntroductionResponse i = (IntroductionResponse) m;
-				item = ConversationItem
-						.from(ConversationActivity.this, contactName, i);
+				item = ConversationItem.from(this, contactName, i);
 			}
 			items.add(item);
 		}
@@ -432,12 +431,10 @@ public class ConversationActivity extends BriarActivity
 			ConversationItem item;
 			if (i instanceof InvitationRequest) {
 				InvitationRequest r = (InvitationRequest) i;
-				item = ConversationItem
-						.from(ConversationActivity.this, contactName, r);
+				item = ConversationItem.from(this, contactName, r);
 			} else {
 				InvitationResponse r = (InvitationResponse) i;
-				item = ConversationItem
-						.from(ConversationActivity.this, contactName, r);
+				item = ConversationItem.from(this, contactName, r);
 			}
 			items.add(item);
 		}
@@ -540,7 +537,7 @@ public class ConversationActivity extends BriarActivity
 			}
 		} else if (e instanceof PrivateMessageReceivedEvent) {
 			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
-			if (p.getGroupId().equals(groupId)) {
+			if (p.getContactId().equals(contactId)) {
 				LOG.info("Message received, adding");
 				PrivateMessageHeader h = p.getMessageHeader();
 				addConversationItem(ConversationItem.from(h));
@@ -640,7 +637,8 @@ public class ConversationActivity extends BriarActivity
 		text = StringUtils.truncateUtf8(text, MAX_PRIVATE_MESSAGE_BODY_LENGTH);
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
-		createMessage(text, timestamp);
+		if (messagingGroupId == null) loadGroupId(text, timestamp);
+		else createMessage(text, timestamp);
 		textInputView.setText("");
 	}
 
@@ -650,13 +648,30 @@ public class ConversationActivity extends BriarActivity
 		return item == null ? 0 : item.getTime() + 1;
 	}
 
+	private void loadGroupId(final String body, final long timestamp) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					messagingGroupId =
+							messagingManager.getConversationId(contactId);
+					createMessage(body, timestamp);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+
+			}
+		});
+	}
+
 	private void createMessage(final String body, final long timestamp) {
 		cryptoExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					storeMessage(privateMessageFactory.createPrivateMessage(
-							groupId, timestamp, body), body);
+							messagingGroupId, timestamp, body), body);
 				} catch (FormatException e) {
 					throw new RuntimeException(e);
 				}
@@ -674,14 +689,13 @@ public class ConversationActivity extends BriarActivity
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");
-					MessageId id = m.getMessage().getId();
-					PrivateMessageHeader h =
-							new PrivateMessageHeader(id, groupId,
-									m.getMessage().getTimestamp(), true, false,
-									false, false);
+					Message message = m.getMessage();
+					PrivateMessageHeader h = new PrivateMessageHeader(
+							message.getId(), message.getGroupId(),
+							message.getTimestamp(), true, false, false, false);
 					ConversationItem item = ConversationItem.from(h);
 					item.setBody(body);
-					bodyCache.put(id, body);
+					bodyCache.put(message.getId(), body);
 					addConversationItem(item);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -714,10 +728,6 @@ public class ConversationActivity extends BriarActivity
 			@Override
 			public void run() {
 				try {
-					// make sure contactId is initialised
-					if (contactId == null)
-						contactId = messagingManager.getContactId(groupId);
-					// remove contact with that ID
 					contactManager.removeContact(contactId);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -847,7 +857,7 @@ public class ConversationActivity extends BriarActivity
 					switch (item.getRequestType()) {
 						case INTRODUCTION:
 							respondToIntroductionRequest(item.getSessionId(),
-								accept, timestamp);
+									accept, timestamp);
 							break;
 						case FORUM:
 							respondToForumRequest(item.getSessionId(), accept);
