@@ -126,7 +126,7 @@ public class GroupListFragment extends BaseFragment implements
 	@Override
 	public void onGroupRemoveClick(GroupItem item) {
 		controller.removeGroup(item.getId(),
-				new UiResultExceptionHandler<Void, DbException>(listener) {
+				new UiResultExceptionHandler<Void, DbException>(this) {
 					@Override
 					public void onResultUi(Void result) {
 						// handled by GroupRemovedEvent and onGroupRemoved()
@@ -173,7 +173,7 @@ public class GroupListFragment extends BaseFragment implements
 		final int revision = adapter.getRevision();
 		controller.loadGroups(
 				new UiResultExceptionHandler<Collection<GroupItem>, DbException>(
-						listener) {
+						this) {
 					@Override
 					public void onResultUi(Collection<GroupItem> groups) {
 						if (revision == adapter.getRevision()) {

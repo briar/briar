@@ -226,7 +226,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 	private void displayContacts(final int revision,
 			final List<ContactListItem> contacts) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (revision == adapter.getRevision()) {
@@ -292,7 +292,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	private void updateItem(final ContactId c, final BaseMessageHeader h) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				adapter.incrementRevision();
@@ -308,7 +308,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	private void removeItem(final ContactId c) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				adapter.incrementRevision();
@@ -320,7 +320,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	private void setConnected(final ContactId c, final boolean connected) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				adapter.incrementRevision();

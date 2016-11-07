@@ -272,7 +272,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			KeyAgreementAbortedEvent event = (KeyAgreementAbortedEvent) e;
 			keyAgreementAborted(event.didRemoteAbort());
 		} else if (e instanceof KeyAgreementFinishedEvent) {
-			listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+			runOnUiThreadUnlessDestroyed(new Runnable() {
 				@Override
 				public void run() {
 					mainProgressContainer.setVisibility(VISIBLE);
@@ -313,7 +313,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void setQrCode(final Payload localPayload) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				generateBitmapQR(localPayload);
@@ -322,7 +322,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void keyAgreementFailed() {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				reset();
@@ -334,7 +334,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void keyAgreementWaiting() {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				status.setText(R.string.waiting_for_contact_to_scan);
@@ -343,7 +343,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void keyAgreementStarted() {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				mainProgressContainer.setVisibility(VISIBLE);
@@ -353,7 +353,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void keyAgreementAborted(final boolean remoteAborted) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				reset();
@@ -370,7 +370,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	@Override
 	public void handleResult(final Result result) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				LOG.info("Got result from decoder");

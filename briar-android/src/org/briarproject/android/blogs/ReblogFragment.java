@@ -93,7 +93,7 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 		// TODO: Load blog post when fragment is created. #631
 		feedController.loadBlogPost(blogId, postId,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
-						listener) {
+						this) {
 					@Override
 					public void onResultUi(BlogPostItem result) {
 						item = result;
@@ -130,7 +130,7 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 	public void onSendClick(String text) {
 		String comment = getComment();
 		feedController.repeatPost(item, comment,
-				new UiResultExceptionHandler<Void, DbException>(listener) {
+				new UiResultExceptionHandler<Void, DbException>(this) {
 					@Override
 					public void onResultUi(Void result) {
 						// do nothing, this fragment is gone already

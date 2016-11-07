@@ -114,7 +114,7 @@ public class FeedFragment extends BaseFragment implements
 
 	private void loadPersonalBlog() {
 		feedController.loadPersonalBlog(
-				new UiResultExceptionHandler<Blog, DbException>(listener) {
+				new UiResultExceptionHandler<Blog, DbException>(this) {
 					@Override
 					public void onResultUi(Blog b) {
 						personalBlog = b;
@@ -131,7 +131,7 @@ public class FeedFragment extends BaseFragment implements
 		final int revision = adapter.getRevision();
 		feedController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
-						listener) {
+						this) {
 					@Override
 					public void onResultUi(Collection<BlogPostItem> posts) {
 						if (revision == adapter.getRevision()) {
@@ -194,7 +194,7 @@ public class FeedFragment extends BaseFragment implements
 	public void onBlogPostAdded(BlogPostHeader header, final boolean local) {
 		feedController.loadBlogPost(header,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
-						listener) {
+						this) {
 					@Override
 					public void onResultUi(BlogPostItem post) {
 						adapter.incrementRevision();

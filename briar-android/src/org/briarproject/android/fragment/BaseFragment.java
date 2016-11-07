@@ -1,7 +1,9 @@
 package org.briarproject.android.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
@@ -33,7 +35,6 @@ public abstract class BaseFragment extends Fragment
 		setHasOptionsMenu(true);
 	}
 
-
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -54,10 +55,11 @@ public abstract class BaseFragment extends Fragment
 
 	@UiThread
 	protected void finish() {
-		getActivity().supportFinishAfterTransition();
+		if (!isDetached())
+			getActivity().supportFinishAfterTransition();
 	}
 
-	public interface BaseFragmentListener extends DestroyableContext {
+	public interface BaseFragmentListener {
 
 		@Deprecated
 		void runOnDbThread(Runnable runnable);
@@ -72,8 +74,21 @@ public abstract class BaseFragment extends Fragment
 		void onFragmentCreated(String tag);
 	}
 
+	@CallSuper
 	@Override
-	public void runOnUiThreadUnlessDestroyed(Runnable r) {
-		listener.runOnUiThreadUnlessDestroyed(r);
+	public void runOnUiThreadUnlessDestroyed(final Runnable r) {
+		final Activity activity = getActivity();
+		if (activity != null) {
+			activity.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					// Note that we don't have to check if the activity has
+					// been destroyed as the Fragment has not been detached yet
+					if (!isDetached() && !activity.isFinishing()) {
+						r.run();
+					}
+				}
+			});
+		}
 	}
 }
