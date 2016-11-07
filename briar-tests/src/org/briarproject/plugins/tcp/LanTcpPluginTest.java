@@ -2,9 +2,9 @@ package org.briarproject.plugins.tcp;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
-import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -27,11 +27,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.briarproject.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -193,18 +193,15 @@ public class LanTcpPluginTest extends BriarTestCase {
 		FutureTask<KeyAgreementConnection> f = new FutureTask<>(c);
 		new Thread(f).start();
 		// The plugin should have bound a socket and stored the port number
-		TransportDescriptor d = kal.getDescriptor();
-		TransportProperties p = d.getProperties();
-		String ipPort = p.get("ipPort");
-		assertNotNull(ipPort);
-		String[] split = ipPort.split(":");
-		assertEquals(2, split.length);
-		String addrString = split[0], portString = split[1];
-		InetAddress addr = InetAddress.getByName(addrString);
+		BdfList descriptor = kal.getDescriptor();
+		assertEquals(3, descriptor.size());
+		assertEquals(TRANSPORT_ID_LAN, descriptor.getLong(0).longValue());
+		byte[] address = descriptor.getRaw(1);
+		InetAddress addr = InetAddress.getByAddress(address);
 		assertTrue(addr instanceof Inet4Address);
 		assertFalse(addr.isLoopbackAddress());
 		assertTrue(addr.isLinkLocalAddress() || addr.isSiteLocalAddress());
-		int port = Integer.parseInt(portString);
+		int port = descriptor.getLong(2).intValue();
 		assertTrue(port > 0 && port < 65536);
 		// The plugin should be listening on the port
 		InetSocketAddress socketAddr = new InetSocketAddress(addr, port);
@@ -240,7 +237,6 @@ public class LanTcpPluginTest extends BriarTestCase {
 		// Listen on the same interface as the plugin
 		final ServerSocket ss = new ServerSocket();
 		ss.bind(new InetSocketAddress(addrString, 0), 10);
-		int port = ss.getLocalPort();
 		final CountDownLatch latch = new CountDownLatch(1);
 		final AtomicBoolean error = new AtomicBoolean(false);
 		new Thread() {
@@ -255,12 +251,15 @@ public class LanTcpPluginTest extends BriarTestCase {
 			}
 		}.start();
 		// Tell the plugin about the port
-		TransportProperties p = new TransportProperties();
-		p.put("ipPort", addrString + ":" + port);
-		TransportDescriptor desc = new TransportDescriptor(plugin.getId(), p);
+		BdfList descriptor = new BdfList();
+		descriptor.add(TRANSPORT_ID_LAN);
+		InetSocketAddress local =
+				(InetSocketAddress) ss.getLocalSocketAddress();
+		descriptor.add(local.getAddress().getAddress());
+		descriptor.add(local.getPort());
 		// Connect to the port
 		DuplexTransportConnection d =
-				plugin.createKeyAgreementConnection(null, desc, 5000);
+				plugin.createKeyAgreementConnection(null, descriptor, 5000);
 		assertNotNull(d);
 		// Check that the connection was accepted
 		assertTrue(latch.await(5, SECONDS));
@@ -291,61 +290,76 @@ public class LanTcpPluginTest extends BriarTestCase {
 		private final CountDownLatch connectionsLatch = new CountDownLatch(1);
 		private final TransportProperties local = new TransportProperties();
 
+		@Override
 		public Settings getSettings() {
 			return new Settings();
 		}
 
+		@Override
 		public TransportProperties getLocalProperties() {
 			return local;
 		}
 
+		@Override
 		public Map<ContactId, TransportProperties> getRemoteProperties() {
 			return remote;
 		}
 
+		@Override
 		public void mergeSettings(Settings s) {
 		}
 
+		@Override
 		public void mergeLocalProperties(TransportProperties p) {
 			local.putAll(p);
 			propertiesLatch.countDown();
 		}
 
+		@Override
 		public int showChoice(String[] options, String... message) {
 			return -1;
 		}
 
+		@Override
 		public boolean showConfirmationMessage(String... message) {
 			return false;
 		}
 
+		@Override
 		public void showMessage(String... message) {
 		}
 
+		@Override
 		public void incomingConnectionCreated(DuplexTransportConnection d) {
 			connectionsLatch.countDown();
 		}
 
+		@Override
 		public void outgoingConnectionCreated(ContactId c,
 				DuplexTransportConnection d) {
 		}
 
+		@Override
 		public void transportEnabled() {
 		}
 
+		@Override
 		public void transportDisabled() {
 		}
 	}
 
 	private static class TestBackoff implements Backoff {
 
+		@Override
 		public int getPollingInterval() {
 			return 60 * 1000;
 		}
 
+		@Override
 		public void increment() {
 		}
 
+		@Override
 		public void reset() {
 		}
 	}

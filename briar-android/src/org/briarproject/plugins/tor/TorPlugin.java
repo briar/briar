@@ -19,11 +19,11 @@ import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
-import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.TorConstants;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
@@ -574,7 +574,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, TransportDescriptor d, long timeout) {
+			byte[] commitment, BdfList descriptor, long timeout) {
 		throw new UnsupportedOperationException();
 	}
 

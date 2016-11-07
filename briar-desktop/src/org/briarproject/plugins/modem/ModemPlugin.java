@@ -3,8 +3,8 @@ package org.briarproject.plugins.modem;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
-import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.duplex.AbstractDuplexTransportConnection;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -114,7 +114,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		throw new UnsupportedOperationException();
 	}
 
-	boolean resetModem() {
+	private boolean resetModem() {
 		if (!running) return false;
 		for (String portName : serialPortList.getPortNames()) {
 			if (LOG.isLoggable(INFO))
@@ -184,7 +184,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, TransportDescriptor d, long timeout) {
+			byte[] commitment, BdfList descriptor, long timeout) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -1,5 +1,7 @@
 package org.briarproject.api.keyagreement;
 
+import org.briarproject.api.data.BdfList;
+
 import java.util.concurrent.Callable;
 
 /**
@@ -7,9 +9,9 @@ import java.util.concurrent.Callable;
  */
 public abstract class KeyAgreementListener {
 
-	private final TransportDescriptor descriptor;
+	private final BdfList descriptor;
 
-	public KeyAgreementListener(TransportDescriptor descriptor) {
+	public KeyAgreementListener(BdfList descriptor) {
 		this.descriptor = descriptor;
 	}
 
@@ -17,7 +19,7 @@ public abstract class KeyAgreementListener {
 	 * Returns the descriptor that a remote peer can use to connect to this
 	 * listener.
 	 */
-	public TransportDescriptor getDescriptor() {
+	public BdfList getDescriptor() {
 		return descriptor;
 	}
 

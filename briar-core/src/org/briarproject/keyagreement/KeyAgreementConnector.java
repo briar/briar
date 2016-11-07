@@ -1,11 +1,13 @@
 package org.briarproject.keyagreement;
 
+import org.briarproject.api.TransportId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
 import org.briarproject.api.keyagreement.Payload;
-import org.briarproject.api.keyagreement.TransportDescriptor;
+import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -14,7 +16,10 @@ import org.briarproject.api.system.Clock;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -68,14 +73,13 @@ class KeyAgreementConnector {
 		byte[] commitment = crypto.deriveKeyCommitment(
 				localKeyPair.getPublic().getEncoded());
 		// Start all listeners and collect their descriptors
-		List<TransportDescriptor> descriptors =
-				new ArrayList<TransportDescriptor>();
+		Map<TransportId, BdfList> descriptors =
+				new HashMap<TransportId, BdfList>();
 		for (DuplexPlugin plugin : pluginManager.getKeyAgreementPlugins()) {
-			KeyAgreementListener l = plugin.createKeyAgreementListener(
-					commitment);
+			KeyAgreementListener l =
+					plugin.createKeyAgreementListener(commitment);
 			if (l != null) {
-				TransportDescriptor d = l.getDescriptor();
-				descriptors.add(d);
+				descriptors.put(plugin.getId(), l.getDescriptor());
 				pending.add(connect.submit(new ReadableTask(l.listen())));
 				listeners.add(l);
 			}
@@ -100,13 +104,16 @@ class KeyAgreementConnector {
 
 		// Start connecting over supported transports
 		LOG.info("Starting outgoing BQP connections");
-		for (TransportDescriptor d : remotePayload.getTransportDescriptors()) {
-			DuplexPlugin plugin = (DuplexPlugin) pluginManager.getPlugin(
-					d.getIdentifier());
-			if (plugin != null)
+		Map<TransportId, BdfList> descriptors =
+				remotePayload.getTransportDescriptors();
+		for (Entry<TransportId, BdfList> e : descriptors.entrySet()) {
+			Plugin p = pluginManager.getPlugin(e.getKey());
+			if (p instanceof DuplexPlugin) {
+				DuplexPlugin plugin = (DuplexPlugin) p;
 				pending.add(connect.submit(new ReadableTask(
 						new ConnectorTask(plugin, remotePayload.getCommitment(),
-								d, end))));
+								e.getValue(), end))));
+			}
 		}
 
 		// Get chosen connection
@@ -170,12 +177,12 @@ class KeyAgreementConnector {
 	private class ConnectorTask implements Callable<KeyAgreementConnection> {
 
 		private final byte[] commitment;
-		private final TransportDescriptor descriptor;
+		private final BdfList descriptor;
 		private final long end;
 		private final DuplexPlugin plugin;
 
 		private ConnectorTask(DuplexPlugin plugin, byte[] commitment,
-				TransportDescriptor descriptor, long end) {
+				BdfList descriptor, long end) {
 			this.plugin = plugin;
 			this.commitment = commitment;
 			this.descriptor = descriptor;

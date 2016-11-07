@@ -2,8 +2,8 @@ package org.briarproject.plugins.tcp;
 
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
-import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -298,7 +298,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, TransportDescriptor d, long timeout) {
+			byte[] commitment, BdfList descriptor, long timeout) {
 		throw new UnsupportedOperationException();
 	}
 

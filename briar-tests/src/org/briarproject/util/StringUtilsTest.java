@@ -173,4 +173,55 @@ public class StringUtilsTest extends BriarTestCase {
 	public void testTruncateUtf8EmptyInput() {
 		assertEquals("", StringUtils.truncateUtf8("", 123));
 	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testMacToBytesRejectsShortMac() {
+		StringUtils.macToBytes("00:00:00:00:00");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testMacToBytesRejectsLongMac() {
+		StringUtils.macToBytes("00:00:00:00:00:00:00");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testMacToBytesRejectsInvalidCharacter() {
+		StringUtils.macToBytes("00:00:00:00:00:0g");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testMacToBytesRejectsInvalidFormat() {
+		StringUtils.macToBytes("0:000:00:00:00:00");
+	}
+
+	@Test
+	public void testMacToBytesUpperCase() {
+		byte[] expected = new byte[] {0x0A, 0x1B, 0x2C, 0x3D, 0x4E, 0x5F};
+		String mac = "0A:1B:2C:3D:4E:5F";
+		assertArrayEquals(expected, StringUtils.macToBytes(mac));
+	}
+
+	@Test
+	public void testMacToBytesLowerCase() {
+		byte[] expected = new byte[] {0x0A, 0x1B, 0x2C, 0x3D, 0x4E, 0x5F};
+		String mac = "0a:1b:2c:3d:4e:5f";
+		assertArrayEquals(expected, StringUtils.macToBytes(mac));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testMacToStringRejectsShortMac() {
+		StringUtils.macToString(new byte[5]);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testMacToStringRejectsLongMac() {
+		StringUtils.macToString(new byte[7]);
+	}
+
+	@Test
+	public void testMacToString() {
+		byte[] mac = new byte[] {0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f};
+		String expected = "0A:1B:2C:3D:4E:5F";
+		assertEquals(expected, StringUtils.macToString(mac));
+	}
 }

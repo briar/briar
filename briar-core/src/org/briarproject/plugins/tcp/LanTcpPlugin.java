@@ -1,10 +1,11 @@
 package org.briarproject.plugins.tcp;
 
+import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
-import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -19,6 +20,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -27,8 +29,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
+
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
+import static org.briarproject.util.ByteUtils.MAX_16_BIT_UNSIGNED;
 import static org.briarproject.util.PrivacyUtils.scrubSocketAddress;
 
 class LanTcpPlugin extends TcpPlugin {
@@ -40,7 +46,6 @@ class LanTcpPlugin extends TcpPlugin {
 
 	private static final int MAX_ADDRESSES = 5;
 	private static final String PROP_IP_PORTS = "ipPorts";
-	private static final String PROP_IP_PORT = "ipPort";
 	private static final String SEPARATOR = ",";
 
 	LanTcpPlugin(Executor ioExecutor, Backoff backoff,
@@ -186,22 +191,26 @@ class LanTcpPlugin extends TcpPlugin {
 			LOG.info("Could not bind server socket for key agreement");
 			return null;
 		}
-		TransportProperties p = new TransportProperties();
-		SocketAddress local = ss.getLocalSocketAddress();
-		p.put(PROP_IP_PORT, getIpPortString((InetSocketAddress) local));
-		TransportDescriptor d = new TransportDescriptor(ID, p);
-		return new LanKeyAgreementListener(d, ss);
+		BdfList descriptor = new BdfList();
+		descriptor.add(TRANSPORT_ID_LAN);
+		InetSocketAddress local =
+				(InetSocketAddress) ss.getLocalSocketAddress();
+		descriptor.add(local.getAddress().getAddress());
+		descriptor.add(local.getPort());
+		return new LanKeyAgreementListener(descriptor, ss);
 	}
 
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, TransportDescriptor d, long timeout) {
+			byte[] commitment, BdfList descriptor, long timeout) {
 		if (!isRunning()) return null;
-		if (!ID.equals(d.getIdentifier())) return null;
-		TransportProperties p = d.getProperties();
-		if (p == null) return null;
-		String ipPort = p.get(PROP_IP_PORT);
-		InetSocketAddress remote = parseSocketAddress(ipPort);
+		InetSocketAddress remote;
+		try {
+			remote = parseSocketAddress(descriptor);
+		} catch (FormatException e) {
+			LOG.info("Invalid IP/port in key agreement descriptor");
+			return null;
+		}
 		if (remote == null) return null;
 		if (!isConnectable(remote)) {
 			if (LOG.isLoggable(INFO)) {
@@ -228,11 +237,27 @@ class LanTcpPlugin extends TcpPlugin {
 		}
 	}
 
+	@Nullable
+	private InetSocketAddress parseSocketAddress(BdfList descriptor)
+			throws FormatException {
+		if (descriptor.size() < 3) return null;
+		byte[] address = descriptor.getRaw(1);
+		int port = descriptor.getLong(2).intValue();
+		if (port < 1 || port > MAX_16_BIT_UNSIGNED) throw new FormatException();
+		try {
+			InetAddress addr = InetAddress.getByAddress(address);
+			return new InetSocketAddress(addr, port);
+		} catch (UnknownHostException e) {
+			// Invalid address length
+			throw new FormatException();
+		}
+	}
+
 	private class LanKeyAgreementListener extends KeyAgreementListener {
 
 		private final ServerSocket ss;
 
-		public LanKeyAgreementListener(TransportDescriptor descriptor,
+		private LanKeyAgreementListener(BdfList descriptor,
 				ServerSocket ss) {
 			super(descriptor);
 			this.ss = ss;

@@ -9,6 +9,7 @@ import org.briarproject.api.event.TransportEnabledEvent;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.lifecycle.Service;
 import org.briarproject.api.lifecycle.ServiceException;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginCallback;
@@ -42,11 +43,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
+@ThreadSafe
+@NotNullByDefault
 class PluginManagerImpl implements PluginManager, Service {
 
 	private static final Logger LOG =

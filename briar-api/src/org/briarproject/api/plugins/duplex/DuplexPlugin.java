@@ -2,8 +2,8 @@ package org.briarproject.api.plugins.duplex;
 
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
-import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.Plugin;
 
 /** An interface for transport plugins that support duplex communication. */
@@ -40,5 +40,5 @@ public interface DuplexPlugin extends Plugin {
 	 * Returns null if no connection can be established within the given time.
 	 */
 	DuplexTransportConnection createKeyAgreementConnection(
-			byte[] remoteCommitment, TransportDescriptor d, long timeout);
+			byte[] remoteCommitment, BdfList descriptor, long timeout);
 }
