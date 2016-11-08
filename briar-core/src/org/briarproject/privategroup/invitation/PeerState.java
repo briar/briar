@@ -5,7 +5,7 @@ import org.briarproject.api.FormatException;
 enum PeerState implements State {
 
 	START(0), AWAIT_MEMBER(1), NEITHER_JOINED(2), LOCAL_JOINED(3),
-	REMOTE_JOINED(4), BOTH_JOINED(5), ERROR(6);
+	BOTH_JOINED(4), LOCAL_LEFT(5), ERROR(6);
 
 	private final int value;
 

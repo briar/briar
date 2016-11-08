@@ -21,8 +21,8 @@ import static org.briarproject.privategroup.invitation.PeerState.AWAIT_MEMBER;
 import static org.briarproject.privategroup.invitation.PeerState.BOTH_JOINED;
 import static org.briarproject.privategroup.invitation.PeerState.ERROR;
 import static org.briarproject.privategroup.invitation.PeerState.LOCAL_JOINED;
+import static org.briarproject.privategroup.invitation.PeerState.LOCAL_LEFT;
 import static org.briarproject.privategroup.invitation.PeerState.NEITHER_JOINED;
-import static org.briarproject.privategroup.invitation.PeerState.REMOTE_JOINED;
 import static org.briarproject.privategroup.invitation.PeerState.START;
 
 @Immutable
@@ -58,9 +58,9 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 			case ERROR:
 				throw new ProtocolStateException(); // Invalid in these states
 			case NEITHER_JOINED:
-				return onLocalJoinFirst(txn, s);
-			case REMOTE_JOINED:
-				return onLocalJoinSecond(txn, s);
+				return onLocalJoinFromNeitherJoined(txn, s);
+			case LOCAL_LEFT:
+				return onLocalJoinFromLocalLeft(txn, s);
 			default:
 				throw new AssertionError();
 		}
@@ -73,13 +73,13 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 			case START:
 			case AWAIT_MEMBER:
 			case NEITHER_JOINED:
-			case REMOTE_JOINED:
+			case LOCAL_LEFT:
 			case ERROR:
 				return s; // Ignored in these states
 			case LOCAL_JOINED:
-				return onLocalLeaveSecond(txn, s);
+				return onLocalLeaveFromLocalJoined(txn, s);
 			case BOTH_JOINED:
-				return onLocalLeaveFirst(txn, s);
+				return onLocalLeaveFromBothJoined(txn, s);
 			default:
 				throw new AssertionError();
 		}
@@ -90,14 +90,16 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 			throws DbException {
 		switch (s.getState()) {
 			case START:
+				return onMemberAddedFromStart(s);
 			case AWAIT_MEMBER:
-				return onRemoteMemberAdded(s);
+				return onMemberAddedFromAwaitMember(txn, s);
 			case NEITHER_JOINED:
 			case LOCAL_JOINED:
-			case REMOTE_JOINED:
 			case BOTH_JOINED:
-			case ERROR:
+			case LOCAL_LEFT:
 				throw new ProtocolStateException(); // Invalid in these states
+			case ERROR:
+				return s; // Ignored in this state
 			default:
 				throw new AssertionError();
 		}
@@ -114,14 +116,15 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 			JoinMessage m) throws DbException, FormatException {
 		switch (s.getState()) {
 			case AWAIT_MEMBER:
-			case REMOTE_JOINED:
 			case BOTH_JOINED:
+			case LOCAL_LEFT:
 				return abort(txn, s); // Invalid in these states
 			case START:
+				return onRemoteJoinFromStart(txn, s, m);
 			case NEITHER_JOINED:
-				return onRemoteJoinFirst(txn, s, m);
+				return onRemoteJoinFromNeitherJoined(txn, s, m);
 			case LOCAL_JOINED:
-				return onRemoteJoinSecond(txn, s, m);
+				return onRemoteJoinFromLocalJoined(txn, s, m);
 			case ERROR:
 				return s; // Ignored in this state
 			default:
@@ -136,12 +139,13 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 			case START:
 			case NEITHER_JOINED:
 			case LOCAL_JOINED:
-				return abort(txn, s);
+				return abort(txn, s); // Invalid in these states
 			case AWAIT_MEMBER:
-			case REMOTE_JOINED:
-				return onRemoteLeaveSecond(txn, s, m);
+				return onRemoteLeaveFromAwaitMember(txn, s, m);
+			case LOCAL_LEFT:
+				return onRemoteLeaveFromLocalLeft(txn, s, m);
 			case BOTH_JOINED:
-				return onRemoteLeaveFirst(txn, s, m);
+				return onRemoteLeaveFromBothJoined(txn, s, m);
 			case ERROR:
 				return s; // Ignored in this state
 			default:
@@ -155,8 +159,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 		return abort(txn, s);
 	}
 
-	private PeerSession onLocalJoinFirst(Transaction txn, PeerSession s)
-			throws DbException {
+	private PeerSession onLocalJoinFromNeitherJoined(Transaction txn,
+			PeerSession s) throws DbException {
 		// Send a JOIN message
 		Message sent = sendJoinMessage(txn, s, false);
 		// Move to the LOCAL_JOINED state
@@ -165,7 +169,7 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 				LOCAL_JOINED);
 	}
 
-	private PeerSession onLocalJoinSecond(Transaction txn, PeerSession s)
+	private PeerSession onLocalJoinFromLocalLeft(Transaction txn, PeerSession s)
 			throws DbException {
 		// Send a JOIN message
 		Message sent = sendJoinMessage(txn, s, false);
@@ -181,8 +185,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 				BOTH_JOINED);
 	}
 
-	private PeerSession onLocalLeaveFirst(Transaction txn, PeerSession s)
-			throws DbException {
+	private PeerSession onLocalLeaveFromBothJoined(Transaction txn,
+			PeerSession s) throws DbException {
 		// Send a LEAVE message
 		Message sent = sendLeaveMessage(txn, s, false);
 		try {
@@ -191,14 +195,14 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group metadata
 		}
-		// Move to the REMOTE_JOINED state
+		// Move to the LOCAL_LEFT state
 		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
-				REMOTE_JOINED);
+				LOCAL_LEFT);
 	}
 
-	private PeerSession onLocalLeaveSecond(Transaction txn, PeerSession s)
-			throws DbException {
+	private PeerSession onLocalLeaveFromLocalJoined(Transaction txn,
+			PeerSession s) throws DbException {
 		// Send a LEAVE message
 		Message sent = sendLeaveMessage(txn, s, false);
 		// Move to the NEITHER_JOINED state
@@ -207,28 +211,56 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 				NEITHER_JOINED);
 	}
 
-	private PeerSession onRemoteMemberAdded(PeerSession s) {
-		// Move to the NEITHER_JOINED or REMOTE_JOINED state
-		PeerState next = s.getState() == START ? NEITHER_JOINED : REMOTE_JOINED;
+	private PeerSession onMemberAddedFromStart(PeerSession s) {
+		// Move to the NEITHER_JOINED state
 		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), s.getLastRemoteMessageId(),
-				s.getLocalTimestamp(), next);
+				s.getLocalTimestamp(), NEITHER_JOINED);
 	}
 
-	private PeerSession onRemoteJoinFirst(Transaction txn, PeerSession s,
-			JoinMessage m) throws DbException, FormatException {
+	private PeerSession onMemberAddedFromAwaitMember(Transaction txn,
+			PeerSession s) throws DbException {
+		// Send a JOIN message
+		Message sent = sendJoinMessage(txn, s, false);
+		try {
+			// Start syncing the private group with the contact
+			syncPrivateGroupWithContact(txn, s, true);
+		} catch (FormatException e) {
+			throw new DbException(e); // Invalid group metadata
+		}
+		// Move to the BOTH_JOINED state
+		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
+				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
+				BOTH_JOINED);
+	}
+
+	private PeerSession onRemoteJoinFromStart(Transaction txn,
+			PeerSession s, JoinMessage m) throws DbException, FormatException {
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
-		// Move to the AWAIT_MEMBER or REMOTE_JOINED state
-		PeerState next = s.getState() == START ? AWAIT_MEMBER : REMOTE_JOINED;
+		// Move to the AWAIT_MEMBER state
 		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
-				next);
+				AWAIT_MEMBER);
 	}
 
-	private PeerSession onRemoteJoinSecond(Transaction txn, PeerSession s,
-			JoinMessage m) throws DbException, FormatException {
+	private PeerSession onRemoteJoinFromNeitherJoined(Transaction txn,
+			PeerSession s, JoinMessage m) throws DbException, FormatException {
+		// The dependency, if any, must be the last remote message
+		if (!isValidDependency(s, m.getPreviousMessageId()))
+			return abort(txn, s);
+		// Send a JOIN message
+		Message sent = sendJoinMessage(txn, s, false);
+		// Start syncing the private group with the contact
+		syncPrivateGroupWithContact(txn, s, true);
+		// Move to the BOTH_JOINED state
+		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
+				sent.getId(), m.getId(), sent.getTimestamp(), BOTH_JOINED);
+	}
+
+	private PeerSession onRemoteJoinFromLocalJoined(Transaction txn,
+			PeerSession s, JoinMessage m) throws DbException, FormatException {
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
@@ -240,20 +272,30 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 				BOTH_JOINED);
 	}
 
-	private PeerSession onRemoteLeaveSecond(Transaction txn, PeerSession s,
-			LeaveMessage m) throws DbException, FormatException {
+	private PeerSession onRemoteLeaveFromAwaitMember(Transaction txn,
+			PeerSession s, LeaveMessage m) throws DbException, FormatException {
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
-		// Move to the START or NEITHER_JOINED state
-		PeerState next = s.getState() == AWAIT_MEMBER ? START : NEITHER_JOINED;
+		// Move to the START state
 		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
-				next);
+				START);
 	}
 
-	private PeerSession onRemoteLeaveFirst(Transaction txn, PeerSession s,
-			LeaveMessage m) throws DbException, FormatException {
+	private PeerSession onRemoteLeaveFromLocalLeft(Transaction txn,
+			PeerSession s, LeaveMessage m) throws DbException, FormatException {
+		// The dependency, if any, must be the last remote message
+		if (!isValidDependency(s, m.getPreviousMessageId()))
+			return abort(txn, s);
+		// Move to the NEITHER_JOINED state
+		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
+				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
+				NEITHER_JOINED);
+	}
+
+	private PeerSession onRemoteLeaveFromBothJoined(Transaction txn,
+			PeerSession s, LeaveMessage m) throws DbException, FormatException {
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
