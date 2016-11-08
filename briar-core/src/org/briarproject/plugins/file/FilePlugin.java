@@ -1,6 +1,7 @@
 package org.briarproject.plugins.file;
 
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.plugins.TransportConnectionReader;
 import org.briarproject.api.plugins.TransportConnectionWriter;
 import org.briarproject.api.plugins.simplex.SimplexPlugin;
@@ -17,10 +18,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
+
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.transport.TransportConstants.MIN_STREAM_LENGTH;
 
-public abstract class FilePlugin implements SimplexPlugin {
+@NotNullByDefault
+abstract class FilePlugin implements SimplexPlugin {
 
 	private static final Logger LOG =
 			Logger.getLogger(FilePlugin.class.getName());
@@ -32,6 +36,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 
 	protected volatile boolean running = false;
 
+	@Nullable
 	protected abstract File chooseOutputDirectory();
 	protected abstract Collection<File> findFilesByName(String filename);
 	protected abstract void writerFinished(File f);
@@ -82,6 +87,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 		return filename.toLowerCase(Locale.US).matches("[a-z]{8}\\.dat");
 	}
 
+	@Nullable
 	private TransportConnectionWriter createWriter(String filename) {
 		if (!running) return null;
 		File dir = chooseOutputDirectory();

@@ -1,11 +1,14 @@
 package org.briarproject.plugins.bluetooth;
 
+import org.briarproject.api.FormatException;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
+import org.briarproject.api.data.BdfList;
 import org.briarproject.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
-import org.briarproject.api.keyagreement.TransportDescriptor;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -33,6 +36,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
@@ -44,7 +48,10 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static javax.bluetooth.DiscoveryAgent.GIAC;
+import static org.briarproject.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_BLUETOOTH;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 class BluetoothPlugin implements DuplexPlugin {
 
 	// Share an ID with the Android Bluetooth plugin
@@ -161,7 +168,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		return uuid;
 	}
 
-	private void tryToClose(StreamConnectionNotifier ss) {
+	private void tryToClose(@Nullable StreamConnectionNotifier ss) {
 		try {
 			if (ss != null) ss.close();
 		} catch (IOException e) {
@@ -330,7 +337,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	private void closeSockets(final List<Future<StreamConnection>> futures,
-			final StreamConnection chosen) {
+			@Nullable final StreamConnection chosen) {
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -382,21 +389,24 @@ class BluetoothPlugin implements DuplexPlugin {
 			tryToClose(ss);
 			return null;
 		}
-		TransportProperties p = new TransportProperties();
-		p.put(PROP_ADDRESS, localDevice.getBluetoothAddress());
-		TransportDescriptor d = new TransportDescriptor(ID, p);
-		return new BluetoothKeyAgreementListener(d, ss);
+		BdfList descriptor = new BdfList();
+		descriptor.add(TRANSPORT_ID_BLUETOOTH);
+		String address = localDevice.getBluetoothAddress();
+		descriptor.add(StringUtils.macToBytes(address));
+		return new BluetoothKeyAgreementListener(descriptor, ss);
 	}
 
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, TransportDescriptor d, long timeout) {
+			byte[] commitment, BdfList descriptor, long timeout) {
 		if (!isRunning()) return null;
-		if (!ID.equals(d.getIdentifier())) return null;
-		TransportProperties p = d.getProperties();
-		if (p == null) return null;
-		String address = p.get(PROP_ADDRESS);
-		if (StringUtils.isNullOrEmpty(address)) return null;
+		String address;
+		try {
+			address = parseAddress(descriptor);
+		} catch (FormatException e) {
+			LOG.info("Invalid address in key agreement descriptor");
+			return null;
+		}
 		// No truncation necessary because COMMIT_LENGTH = 16
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		if (LOG.isLoggable(INFO))
@@ -405,6 +415,12 @@ class BluetoothPlugin implements DuplexPlugin {
 		StreamConnection s = connect(url);
 		if (s == null) return null;
 		return new BluetoothTransportConnection(this, s);
+	}
+
+	private String parseAddress(BdfList descriptor) throws FormatException {
+		byte[] mac = descriptor.getRaw(1);
+		if (mac.length != 6) throw new FormatException();
+		return StringUtils.macToString(mac);
 	}
 
 	private void makeDeviceDiscoverable() {
@@ -491,7 +507,7 @@ class BluetoothPlugin implements DuplexPlugin {
 
 		private final StreamConnectionNotifier ss;
 
-		BluetoothKeyAgreementListener(TransportDescriptor descriptor,
+		BluetoothKeyAgreementListener(BdfList descriptor,
 				StreamConnectionNotifier ss) {
 			super(descriptor);
 			this.ss = ss;

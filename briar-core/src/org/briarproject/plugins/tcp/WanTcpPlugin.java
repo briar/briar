@@ -2,6 +2,8 @@ package org.briarproject.plugins.tcp;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.properties.TransportProperties;
@@ -14,6 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 class WanTcpPlugin extends TcpPlugin {
 
 	static final TransportId ID = new TransportId("wan");
