@@ -16,11 +16,11 @@ import org.briarproject.api.nullsafety.NotNullByDefault;
 class ConversationAdapter
 		extends BriarAdapter<ConversationItem, ConversationItemViewHolder> {
 
-	private RequestListener listener;
+	private ConversationListener listener;
 
-	ConversationAdapter(Context ctx, RequestListener requestListener) {
+	ConversationAdapter(Context ctx, ConversationListener conversationListener) {
 		super(ctx, ConversationItem.class);
-		listener = requestListener;
+		listener = conversationListener;
 	}
 
 	@LayoutRes
@@ -59,6 +59,7 @@ class ConversationAdapter
 		} else {
 			ui.bind(item);
 		}
+		listener.onItemVisible(item);
 	}
 
 	@Override
@@ -132,7 +133,10 @@ class ConversationAdapter
 
 	@UiThread
 	@NotNullByDefault
-	interface RequestListener {
+	interface ConversationListener {
+
+		void onItemVisible(ConversationItem item);
+
 		void respondToRequest(ConversationRequestItem item, boolean accept);
 	}
 

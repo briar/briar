@@ -28,7 +28,7 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.api.AndroidNotificationManager;
-import org.briarproject.android.contact.ConversationAdapter.RequestListener;
+import org.briarproject.android.contact.ConversationAdapter.ConversationListener;
 import org.briarproject.android.introduction.IntroductionActivity;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.view.BriarRecyclerView;
@@ -67,6 +67,8 @@ import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageFactory;
 import org.briarproject.api.messaging.PrivateMessageHeader;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.api.settings.Settings;
@@ -82,7 +84,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -106,8 +107,10 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.fragment.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class ConversationActivity extends BriarActivity
-		implements EventListener, RequestListener, TextInputListener {
+		implements EventListener, ConversationListener, TextInputListener {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
@@ -239,7 +242,6 @@ public class ConversationActivity extends BriarActivity
 		eventBus.removeListener(this);
 		notificationManager.unblockContactNotification(contactId);
 		list.stopPeriodicUpdate();
-		if (isFinishing()) markMessagesRead();
 	}
 
 	@Override
@@ -488,41 +490,6 @@ public class ConversationActivity extends BriarActivity
 				adapter.add(item);
 				// Scroll to the bottom
 				list.scrollToPosition(adapter.getItemCount() - 1);
-			}
-		});
-	}
-
-	private void markMessagesRead() {
-		Map<MessageId, GroupId> unread = new HashMap<>();
-		SparseArray<ConversationItem> list = adapter.getIncomingMessages();
-		for (int i = 0; i < list.size(); i++) {
-			ConversationItem item = list.valueAt(i);
-			if (!item.isRead())
-				unread.put(item.getId(), item.getGroupId());
-		}
-		if (unread.isEmpty()) return;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Marking " + unread.size() + " messages read");
-		markMessagesRead(unread);
-	}
-
-	private void markMessagesRead(final Map<MessageId, GroupId> unread) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					for (Map.Entry<MessageId, GroupId> e : unread.entrySet()) {
-						messagingManager.setReadFlag(e.getValue(), e.getKey(),
-								true);
-					}
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Marking read took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
 			}
 		});
 	}
@@ -832,6 +799,29 @@ public class ConversationActivity extends BriarActivity
 					Settings settings = new Settings();
 					settings.putBoolean(SHOW_ONBOARDING_INTRODUCTION, false);
 					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
+	}
+
+	@Override
+	public void onItemVisible(ConversationItem item) {
+		if (!item.isRead()) markMessageRead(item.getGroupId(), item.getId());
+	}
+
+	private void markMessageRead(final GroupId g, final MessageId m) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					long now = System.currentTimeMillis();
+					messagingManager.setReadFlag(g, m, true);
+					long duration = System.currentTimeMillis() - now;
+					if (LOG.isLoggable(INFO))
+						LOG.info("Marking read took " + duration + " ms");
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

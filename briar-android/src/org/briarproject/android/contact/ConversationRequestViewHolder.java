@@ -6,7 +6,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import org.briarproject.R;
-import org.briarproject.android.contact.ConversationAdapter.RequestListener;
+import org.briarproject.android.contact.ConversationAdapter.ConversationListener;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 
 import static android.view.View.GONE;
@@ -26,7 +26,7 @@ class ConversationRequestViewHolder extends ConversationNoticeInViewHolder {
 	}
 
 	void bind(ConversationItem conversationItem,
-			final RequestListener listener) {
+			final ConversationListener listener) {
 		super.bind(conversationItem);
 
 		final ConversationRequestItem item =
