@@ -1,7 +1,6 @@
 package org.briarproject.android.privategroup.creation;
 
 import android.os.Bundle;
-import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
@@ -16,7 +15,6 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
-import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_MSG_LENGTH;
 
 public abstract class BaseGroupInviteActivity
@@ -68,9 +66,6 @@ public abstract class BaseGroupInviteActivity
 				new UiResultExceptionHandler<Void, DbException>(this) {
 					@Override
 					public void onResultUi(Void result) {
-						Toast.makeText(BaseGroupInviteActivity.this,
-								"Inviting members is not yet implemented",
-								LENGTH_SHORT).show();
 						setResult(RESULT_OK);
 						supportFinishAfterTransition();
 					}

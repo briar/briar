@@ -2,6 +2,7 @@ package org.briarproject.privategroup;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
@@ -87,6 +88,17 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
+			addPrivateGroup(txn, group, joinMsg);
+			db.commitTransaction(txn);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	@Override
+	public void addPrivateGroup(Transaction txn, PrivateGroup group,
+			GroupMessage joinMsg) throws DbException {
+		try {
 			db.addGroup(txn, group.getGroup());
 			BdfDictionary meta = BdfDictionary.of(
 					new BdfEntry(KEY_MEMBERS, new BdfList()),
@@ -94,11 +106,8 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			);
 			clientHelper.mergeGroupMetadata(txn, group.getId(), meta);
 			joinPrivateGroup(txn, joinMsg);
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
@@ -285,7 +294,9 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		try {
 			// type(0), member_name(1), member_public_key(2), parent_id(3),
 			// previous_message_id(4), content(5), signature(6)
-			return clientHelper.getMessageAsList(m).getString(5);
+			BdfList body = clientHelper.getMessageAsList(m);
+			if (body == null) throw new DbException();
+			return body.getString(5);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -370,10 +381,10 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 				Status status = identityManager.getAuthorStatus(txn, a.getId());
 				boolean shared = false;
 				if (status == VERIFIED || status == UNVERIFIED) {
-					Collection<ContactId> contacts =
-							db.getContacts(txn, a.getId());
+					Collection<Contact> contacts =
+							db.getContactsByAuthorId(txn, a.getId());
 					if (contacts.size() != 1) throw new DbException();
-					ContactId c = contacts.iterator().next();
+					ContactId c = contacts.iterator().next().getId();
 					shared = db.isVisibleToContact(txn, c, g);
 				}
 				members.add(new GroupMember(a, status, shared));
@@ -489,6 +500,9 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 				new BdfEntry(KEY_MEMBER_PUBLIC_KEY, a.getPublicKey())
 		));
 		clientHelper.mergeGroupMetadata(txn, g, meta);
+		for (PrivateGroupHook hook : hooks) {
+			hook.addingMember(txn, g, a);
+		}
 	}
 
 	private Author getAuthor(BdfDictionary meta) throws FormatException {

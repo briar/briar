@@ -13,10 +13,8 @@ public class GroupInvitationItem extends InvitationItem<PrivateGroup> {
 
 	private final Contact creator;
 
-	public GroupInvitationItem(PrivateGroup shareable, boolean subscribed,
-			Contact creator) {
-		super(shareable, subscribed);
-
+	public GroupInvitationItem(PrivateGroup privateGroup, Contact creator) {
+		super(privateGroup, false);
 		this.creator = creator;
 	}
 

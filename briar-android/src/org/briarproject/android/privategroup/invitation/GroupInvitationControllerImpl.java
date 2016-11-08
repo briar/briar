@@ -2,12 +2,13 @@ package org.briarproject.android.privategroup.invitation;
 
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.sharing.InvitationControllerImpl;
-import org.briarproject.api.contact.Contact;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.GroupInvitationReceivedEvent;
+import org.briarproject.api.event.GroupInvitationRequestReceivedEvent;
+import org.briarproject.api.event.GroupInvitationResponseReceivedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupManager;
@@ -44,8 +45,11 @@ public class GroupInvitationControllerImpl
 	public void eventOccurred(Event e) {
 		super.eventOccurred(e);
 
-		if (e instanceof GroupInvitationReceivedEvent) {
-			LOG.info("Group invitation received, reloading");
+		if (e instanceof GroupInvitationRequestReceivedEvent) {
+			LOG.info("Group invitation request received, reloading");
+			listener.loadInvitations(false);
+		} else if (e instanceof GroupInvitationResponseReceivedEvent) {
+			LOG.info("Group invitation response received, reloading");
 			listener.loadInvitations(false);
 		}
 	}
@@ -70,8 +74,8 @@ public class GroupInvitationControllerImpl
 			public void run() {
 				try {
 					PrivateGroup g = item.getShareable();
-					Contact c = item.getCreator();
-					groupInvitationManager.respondToInvitation(g, c, accept);
+					ContactId c = item.getCreator().getId();
+					groupInvitationManager.respondToInvitation(c, g, accept);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

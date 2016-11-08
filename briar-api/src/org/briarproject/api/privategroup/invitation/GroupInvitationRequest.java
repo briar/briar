@@ -8,8 +8,8 @@ import org.briarproject.api.sharing.InvitationRequest;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 
 @Immutable
 @NotNullByDefault
@@ -19,8 +19,8 @@ public class GroupInvitationRequest extends InvitationRequest {
 	private final Author creator;
 
 	public GroupInvitationRequest(MessageId id, SessionId sessionId,
-			GroupId groupId, Author creator, ContactId contactId,
-			String groupName, String message, boolean available, long time,
+			GroupId groupId, ContactId contactId, @Nullable String message,
+			String groupName, Author creator, boolean available, long time,
 			boolean local, boolean sent, boolean seen, boolean read) {
 		super(id, sessionId, groupId, contactId, message, available, time,
 				local, sent, seen, read);
