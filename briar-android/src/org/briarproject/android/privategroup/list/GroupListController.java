@@ -39,10 +39,17 @@ public interface GroupListController extends DbController {
 		void onGroupMessageAdded(GroupMessageHeader header);
 
 		@UiThread
+		void onGroupInvitationReceived();
+
+		@UiThread
 		void onGroupAdded(GroupId groupId);
 
 		@UiThread
 		void onGroupRemoved(GroupId groupId);
+
+		@UiThread
+		void onGroupDissolved(GroupId groupId);
+
 	}
 
 }

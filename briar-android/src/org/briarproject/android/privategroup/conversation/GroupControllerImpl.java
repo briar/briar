@@ -4,12 +4,14 @@ import android.support.annotation.Nullable;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.android.privategroup.conversation.GroupController.GroupListener;
 import org.briarproject.android.threaded.ThreadListControllerImpl;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.GroupDissolvedEvent;
 import org.briarproject.api.event.GroupMessageAddedEvent;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
@@ -34,7 +36,7 @@ import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
 
 public class GroupControllerImpl extends
-		ThreadListControllerImpl<PrivateGroup, GroupMessageItem, GroupMessageHeader, GroupMessage>
+		ThreadListControllerImpl<PrivateGroup, GroupMessageItem, GroupMessageHeader, GroupMessage, GroupListener>
 		implements GroupController {
 
 	private static final Logger LOG =
@@ -75,6 +77,16 @@ public class GroupControllerImpl extends
 					@Override
 					public void run() {
 						listener.onHeaderReceived(h);
+					}
+				});
+			}
+		} else if (e instanceof GroupDissolvedEvent) {
+			GroupDissolvedEvent g = (GroupDissolvedEvent) e;
+			if (getGroupId().equals(g.getGroupId())) {
+				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+					@Override
+					public void run() {
+						listener.onGroupDissolved();
 					}
 				});
 			}

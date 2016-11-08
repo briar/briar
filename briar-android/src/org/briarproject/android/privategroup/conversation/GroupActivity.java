@@ -18,8 +18,9 @@ import android.view.MenuItem;
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
-import org.briarproject.android.privategroup.memberlist.GroupMemberListActivity;
+import org.briarproject.android.privategroup.conversation.GroupController.GroupListener;
 import org.briarproject.android.privategroup.creation.GroupInviteActivity;
+import org.briarproject.android.privategroup.memberlist.GroupMemberListActivity;
 import org.briarproject.android.threaded.ThreadListActivity;
 import org.briarproject.android.threaded.ThreadListController;
 import org.briarproject.api.db.DbException;
@@ -29,11 +30,12 @@ import org.briarproject.api.privategroup.PrivateGroup;
 import javax.inject.Inject;
 
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
+import static android.view.View.GONE;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
 
 public class GroupActivity extends
 		ThreadListActivity<PrivateGroup, GroupMessageItem, GroupMessageHeader>
-		implements OnClickListener {
+		implements GroupListener, OnClickListener {
 
 	private final static int REQUEST_INVITE = 2;
 
@@ -200,6 +202,12 @@ public class GroupActivity extends
 		if (writeMenuItem != null) writeMenuItem.setVisible(enabled);
 		textInput.setSendButtonEnabled(enabled);
 		list.getRecyclerView().setAlpha(enabled ? 1f : 0.5f);
+
+		if (!enabled) {
+			textInput.setVisibility(GONE);
+			if (textInput.isKeyboardOpen()) textInput.hideSoftKeyboard();
+			if (textInput.isEmojiDrawerOpen()) textInput.hideEmojiDrawer();
+		}
 	}
 
 	private void showMenuItems() {
@@ -252,6 +260,17 @@ public class GroupActivity extends
 						finish();
 					}
 				});
+	}
+
+	@Override
+	public void onGroupDissolved() {
+		setGroupEnabled(false);
+		AlertDialog.Builder builder =
+			new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		builder.setTitle(getString(R.string.groups_dissolved_dialog_title));
+		builder.setMessage(getString(R.string.groups_dissolved_dialog_message));
+		builder.setNeutralButton(R.string.ok, null);
+		builder.show();
 	}
 
 }

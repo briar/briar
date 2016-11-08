@@ -13,6 +13,8 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.GroupAddedEvent;
+import org.briarproject.api.event.GroupDissolvedEvent;
+import org.briarproject.api.event.GroupInvitationReceivedEvent;
 import org.briarproject.api.event.GroupMessageAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
@@ -89,6 +91,10 @@ public class GroupListControllerImpl extends DbControllerImpl
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
 			LOG.info("Private group message added");
 			onGroupMessageAdded(g.getHeader());
+		} else if (e instanceof GroupInvitationReceivedEvent) {
+			GroupInvitationReceivedEvent g = (GroupInvitationReceivedEvent) e;
+			LOG.info("Private group invitation received");
+			onGroupInvitationReceived();
 		} else if (e instanceof GroupAddedEvent) {
 			GroupAddedEvent g = (GroupAddedEvent) e;
 			ClientId id = g.getGroup().getClientId();
@@ -103,6 +109,10 @@ public class GroupListControllerImpl extends DbControllerImpl
 				LOG.info("Private group removed");
 				onGroupRemoved(g.getGroup().getId());
 			}
+		} else if (e instanceof GroupDissolvedEvent) {
+			GroupDissolvedEvent g = (GroupDissolvedEvent) e;
+			LOG.info("Private group dissolved");
+			onGroupDissolved(g.getGroupId());
 		}
 	}
 
@@ -111,6 +121,15 @@ public class GroupListControllerImpl extends DbControllerImpl
 			@Override
 			public void run() {
 				listener.onGroupMessageAdded(h);
+			}
+		});
+	}
+
+	private void onGroupInvitationReceived() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
+			public void run() {
+				listener.onGroupInvitationReceived();
 			}
 		});
 	}
@@ -129,6 +148,15 @@ public class GroupListControllerImpl extends DbControllerImpl
 			@Override
 			public void run() {
 				listener.onGroupRemoved(g);
+			}
+		});
+	}
+
+	private void onGroupDissolved(final GroupId g) {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
+			public void run() {
+				listener.onGroupDissolved(g);
 			}
 		});
 	}

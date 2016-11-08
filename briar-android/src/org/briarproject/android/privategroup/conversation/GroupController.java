@@ -1,5 +1,7 @@
 package org.briarproject.android.privategroup.conversation;
 
+import android.support.annotation.UiThread;
+
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.threaded.ThreadListController;
 import org.briarproject.api.db.DbException;
@@ -15,5 +17,10 @@ public interface GroupController
 
 	void isDissolved(
 			ResultExceptionHandler<Boolean, DbException> handler);
+
+	interface GroupListener extends ThreadListListener<GroupMessageHeader> {
+		@UiThread
+		void onGroupDissolved();
+	}
 
 }

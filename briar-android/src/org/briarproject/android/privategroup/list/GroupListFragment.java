@@ -151,6 +151,11 @@ public class GroupListFragment extends BaseFragment implements
 		}
 	}
 
+	@Override
+	public void onGroupInvitationReceived() {
+		loadAvailableGroups();
+	}
+
 	@UiThread
 	@Override
 	public void onGroupAdded(GroupId groupId) {
@@ -162,6 +167,17 @@ public class GroupListFragment extends BaseFragment implements
 	public void onGroupRemoved(GroupId groupId) {
 		adapter.incrementRevision();
 		adapter.removeItem(groupId);
+	}
+
+	@Override
+	public void onGroupDissolved(GroupId groupId) {
+		adapter.incrementRevision();
+		int position = adapter.findItemPosition(groupId);
+		GroupItem item = adapter.getItemAt(position);
+		if (item != null) {
+			item.setDissolved();
+			adapter.updateItemAt(position, item);
+		}
 	}
 
 	@Override

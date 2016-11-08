@@ -6,6 +6,7 @@ import android.support.annotation.CallSuper;
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.DbControllerImpl;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.android.threaded.ThreadListController.ThreadListListener;
 import org.briarproject.api.clients.ThreadedMessage;
 import org.briarproject.api.clients.NamedGroup;
 import org.briarproject.api.clients.PostHeader;
@@ -34,7 +35,7 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends ThreadItem, H extends PostHeader, M extends ThreadedMessage>
+public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends ThreadItem, H extends PostHeader, M extends ThreadedMessage, L extends ThreadListListener<H>>
 		extends DbControllerImpl
 		implements ThreadListController<G, I, H>, EventListener {
 
@@ -49,7 +50,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected final AndroidNotificationManager notificationManager;
 	protected final Executor cryptoExecutor;
 	protected final Clock clock;
-	protected volatile ThreadListListener<H> listener;
+	protected volatile L listener;
 
 	protected ThreadListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
@@ -72,7 +73,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onActivityCreate(Activity activity) {
-		listener = (ThreadListListener<H>) activity;
+		listener = (L) activity;
 	}
 
 	@CallSuper
