@@ -41,10 +41,10 @@ abstract class AbstractProtocolEngine<S extends Session>
 	protected final DatabaseComponent db;
 	protected final ClientHelper clientHelper;
 	protected final PrivateGroupManager privateGroupManager;
+	protected final PrivateGroupFactory privateGroupFactory;
 
-	private final IdentityManager identityManager;
-	private final PrivateGroupFactory privateGroupFactory;
 	private final GroupMessageFactory groupMessageFactory;
+	private final IdentityManager identityManager;
 	private final MessageParser messageParser;
 	private final MessageEncoder messageEncoder;
 	private final Clock clock;

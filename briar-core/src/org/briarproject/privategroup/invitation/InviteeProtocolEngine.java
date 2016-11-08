@@ -3,16 +3,20 @@ package org.briarproject.privategroup.invitation;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.ProtocolStateException;
+import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.event.GroupInvitationRequestReceivedEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.privategroup.GroupMessageFactory;
+import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.privategroup.PrivateGroupManager;
+import org.briarproject.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
@@ -196,6 +200,11 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		// Mark the invite message visible in the UI and available to answer
 		markMessageVisibleInUi(txn, m.getId(), true);
 		markMessageAvailableToAnswer(txn, m.getId(), true);
+		// Broadcast an event
+		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
+				m.getGroupName(), m.getCreator(), m.getSalt());
+		txn.attach(new GroupInvitationRequestReceivedEvent(privateGroup,
+				contactId, createInvitationRequest(m, contactId)));
 		// Move to the INVITED state
 		return new InviteeSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -238,5 +247,14 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		return new InviteeSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
 				s.getInviteTimestamp(), ERROR);
+	}
+
+	private GroupInvitationRequest createInvitationRequest(InviteMessage m,
+			ContactId c) {
+		SessionId sessionId = new SessionId(m.getPrivateGroupId().getBytes());
+		return new GroupInvitationRequest(m.getId(), sessionId,
+				m.getContactGroupId(), c, m.getMessage(), m.getGroupName(),
+				m.getCreator(), true, m.getTimestamp(), false, false, true,
+				false);
 	}
 }

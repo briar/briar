@@ -3,14 +3,18 @@ package org.briarproject.privategroup.invitation;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.ProtocolStateException;
+import org.briarproject.api.clients.SessionId;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.event.GroupInvitationResponseReceivedEvent;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.privategroup.GroupMessageFactory;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.privategroup.PrivateGroupManager;
+import org.briarproject.api.privategroup.invitation.GroupInvitationResponse;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.system.Clock;
 
@@ -35,7 +39,7 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			IdentityManager identityManager, MessageParser messageParser,
 			MessageEncoder messageEncoder, Clock clock) {
 		super(db, clientHelper, privateGroupManager, privateGroupFactory,
-				groupMessageFactory, identityManager,messageParser,
+				groupMessageFactory, identityManager, messageParser,
 				messageEncoder, clock);
 	}
 
@@ -170,10 +174,14 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
-		// Mark the response visible
+		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getId(), true);
 		// Start syncing the private group with the contact
 		syncPrivateGroupWithContact(txn, s, true);
+		// Broadcast an event
+		ContactId contactId = getContactId(txn, m.getContactGroupId());
+		txn.attach(new GroupInvitationResponseReceivedEvent(contactId,
+				createInvitationResponse(m, contactId, true)));
 		// Move to the INVITEE_JOINED state
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -187,8 +195,12 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
-		// Mark the response visible
+		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getId(), true);
+		// Broadcast an event
+		ContactId contactId = getContactId(txn, m.getContactGroupId());
+		txn.attach(new GroupInvitationResponseReceivedEvent(contactId,
+				createInvitationResponse(m, contactId, false)));
 		// Move to the START state
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -223,5 +235,13 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
 				s.getInviteTimestamp(), ERROR);
+	}
+
+	private GroupInvitationResponse createInvitationResponse(
+			GroupInvitationMessage m, ContactId c, boolean accept) {
+		SessionId sessionId = new SessionId(m.getPrivateGroupId().getBytes());
+		return new GroupInvitationResponse(m.getId(), sessionId,
+				m.getContactGroupId(), c, accept, m.getTimestamp(), false,
+				false, true, false);
 	}
 }

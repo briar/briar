@@ -7,7 +7,8 @@ import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
-import org.briarproject.api.event.GroupInvitationReceivedEvent;
+import org.briarproject.api.event.GroupInvitationRequestReceivedEvent;
+import org.briarproject.api.event.GroupInvitationResponseReceivedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupManager;
@@ -44,8 +45,11 @@ public class GroupInvitationControllerImpl
 	public void eventOccurred(Event e) {
 		super.eventOccurred(e);
 
-		if (e instanceof GroupInvitationReceivedEvent) {
-			LOG.info("Group invitation received, reloading");
+		if (e instanceof GroupInvitationRequestReceivedEvent) {
+			LOG.info("Group invitation request received, reloading");
+			listener.loadInvitations(false);
+		} else if (e instanceof GroupInvitationResponseReceivedEvent) {
+			LOG.info("Group invitation response received, reloading");
 			listener.loadInvitations(false);
 		}
 	}
