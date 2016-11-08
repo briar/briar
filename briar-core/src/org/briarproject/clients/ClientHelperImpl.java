@@ -19,6 +19,7 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
@@ -37,7 +38,14 @@ import javax.inject.Inject;
 
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
+@NotNullByDefault
 class ClientHelperImpl implements ClientHelper {
+
+	/**
+	 * Length in bytes of the random salt used for creating local messages for
+	 * storing metadata.
+	 */
+	private static final int SALT_LENGTH = 32;
 
 	private final DatabaseComponent db;
 	private final MessageFactory messageFactory;
@@ -45,20 +53,20 @@ class ClientHelperImpl implements ClientHelper {
 	private final BdfWriterFactory bdfWriterFactory;
 	private final MetadataParser metadataParser;
 	private final MetadataEncoder metadataEncoder;
-	private final CryptoComponent cryptoComponent;
+	private final CryptoComponent crypto;
 
 	@Inject
 	ClientHelperImpl(DatabaseComponent db, MessageFactory messageFactory,
 			BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, MetadataParser metadataParser,
-			MetadataEncoder metadataEncoder, CryptoComponent cryptoComponent) {
+			MetadataEncoder metadataEncoder, CryptoComponent crypto) {
 		this.db = db;
 		this.messageFactory = messageFactory;
 		this.bdfReaderFactory = bdfReaderFactory;
 		this.bdfWriterFactory = bdfWriterFactory;
 		this.metadataParser = metadataParser;
 		this.metadataEncoder = metadataEncoder;
-		this.cryptoComponent = cryptoComponent;
+		this.crypto = crypto;
 	}
 
 	@Override
@@ -81,15 +89,36 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public Message createMessage(GroupId g, long timestamp, BdfDictionary body)
+	public Message createMessage(GroupId g, long timestamp, BdfList body)
 			throws FormatException {
 		return messageFactory.createMessage(g, timestamp, toByteArray(body));
 	}
 
 	@Override
-	public Message createMessage(GroupId g, long timestamp, BdfList body)
-			throws FormatException {
-		return messageFactory.createMessage(g, timestamp, toByteArray(body));
+	public Message createMessageForStoringMetadata(GroupId g) {
+		byte[] salt = new byte[SALT_LENGTH];
+		crypto.getSecureRandom().nextBytes(salt);
+		return messageFactory.createMessage(g, 0, salt);
+	}
+
+	@Override
+	public Message getMessage(MessageId m) throws DbException {
+		Message message;
+		Transaction txn = db.startTransaction(true);
+		try {
+			message = getMessage(txn, m);
+			db.commitTransaction(txn);
+		} finally {
+			db.endTransaction(txn);
+		}
+		return message;
+	}
+
+	@Override
+	public Message getMessage(Transaction txn, MessageId m) throws DbException {
+		byte[] raw = db.getRawMessage(txn, m);
+		if (raw == null) return null;
+		return messageFactory.createMessage(m, raw);
 	}
 
 	@Override
@@ -311,12 +340,18 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
+	public BdfList toList(Message m) throws FormatException {
+		byte[] raw = m.getRaw();
+		return toList(raw, MESSAGE_HEADER_LENGTH,
+				raw.length - MESSAGE_HEADER_LENGTH);
+	}
+
+	@Override
 	public byte[] sign(BdfList toSign, byte[] privateKey)
 			throws FormatException, GeneralSecurityException {
-		Signature signature = cryptoComponent.getSignature();
-		KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
-		PrivateKey key =
-				keyParser.parsePrivateKey(privateKey);
+		Signature signature = crypto.getSignature();
+		KeyParser keyParser = crypto.getSignatureKeyParser();
+		PrivateKey key = keyParser.parsePrivateKey(privateKey);
 		signature.initSign(key);
 		signature.update(toByteArray(toSign));
 		return signature.sign();
@@ -326,10 +361,10 @@ class ClientHelperImpl implements ClientHelper {
 	public void verifySignature(byte[] sig, byte[] publicKey, BdfList signed)
 			throws FormatException, GeneralSecurityException {
 		// Parse the public key
-		KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
+		KeyParser keyParser = crypto.getSignatureKeyParser();
 		PublicKey key = keyParser.parsePublicKey(publicKey);
 		// Verify the signature
-		Signature signature = cryptoComponent.getSignature();
+		Signature signature = crypto.getSignature();
 		signature.initVerify(key);
 		signature.update(toByteArray(signed));
 		if (!signature.verify(sig)) {

@@ -6,6 +6,8 @@ import org.briarproject.api.FormatException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import javax.annotation.Nullable;
+
 public class BdfDictionary extends ConcurrentSkipListMap<String, Object> {
 
 	public static final Object NULL_VALUE = new Object();
@@ -39,6 +41,7 @@ public class BdfDictionary extends ConcurrentSkipListMap<String, Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public Boolean getOptionalBoolean(String key) throws FormatException {
 		Object o = get(key);
 		if (o == null || o == NULL_VALUE) return null;
@@ -61,6 +64,7 @@ public class BdfDictionary extends ConcurrentSkipListMap<String, Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public Long getOptionalLong(String key) throws FormatException {
 		Object o = get(key);
 		if (o == null || o == NULL_VALUE) return null;
@@ -87,6 +91,7 @@ public class BdfDictionary extends ConcurrentSkipListMap<String, Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public Double getOptionalDouble(String key) throws FormatException {
 		Object o = get(key);
 		if (o == null || o == NULL_VALUE) return null;
@@ -108,6 +113,7 @@ public class BdfDictionary extends ConcurrentSkipListMap<String, Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public String getOptionalString(String key) throws FormatException {
 		Object o = get(key);
 		if (o == null || o == NULL_VALUE) return null;
@@ -128,6 +134,7 @@ public class BdfDictionary extends ConcurrentSkipListMap<String, Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public byte[] getOptionalRaw(String key) throws FormatException {
 		Object o = get(key);
 		if (o == null || o == NULL_VALUE) return null;
@@ -149,6 +156,7 @@ public class BdfDictionary extends ConcurrentSkipListMap<String, Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public BdfList getOptionalList(String key) throws FormatException {
 		Object o = get(key);
 		if (o == null || o == NULL_VALUE) return null;
@@ -168,6 +176,7 @@ public class BdfDictionary extends ConcurrentSkipListMap<String, Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public BdfDictionary getOptionalDictionary(String key)
 			throws FormatException {
 		Object o = get(key);

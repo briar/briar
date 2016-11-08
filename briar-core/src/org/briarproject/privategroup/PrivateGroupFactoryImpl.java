@@ -5,20 +5,23 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.util.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.security.SecureRandom;
 
+import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 
+@Immutable
+@NotNullByDefault
 class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 
 	private final GroupFactory groupFactory;
@@ -37,7 +40,6 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 		this.random = random;
 	}
 
-	@NotNull
 	@Override
 	public PrivateGroup createPrivateGroup(String name, Author author) {
 		int length = StringUtils.toUtf8(name).length;
@@ -50,7 +52,6 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 		return createPrivateGroup(name, author, salt);
 	}
 
-	@NotNull
 	@Override
 	public PrivateGroup createPrivateGroup(String name, Author author,
 			byte[] salt) {

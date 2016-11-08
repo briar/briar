@@ -5,14 +5,17 @@ import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 
 import java.security.GeneralSecurityException;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
+@NotNullByDefault
 public interface ClientHelper {
 
 	void addLocalMessage(Message m, BdfDictionary metadata, boolean shared)
@@ -21,14 +24,21 @@ public interface ClientHelper {
 	void addLocalMessage(Transaction txn, Message m, BdfDictionary metadata,
 			boolean shared) throws DbException, FormatException;
 
-	Message createMessage(GroupId g, long timestamp, BdfDictionary body)
-			throws FormatException;
-
 	Message createMessage(GroupId g, long timestamp, BdfList body)
 			throws FormatException;
 
+	Message createMessageForStoringMetadata(GroupId g);
+
+	@Nullable
+	Message getMessage(MessageId m) throws DbException;
+
+	@Nullable
+	Message getMessage(Transaction txn, MessageId m) throws DbException;
+
+	@Nullable
 	BdfList getMessageAsList(MessageId m) throws DbException, FormatException;
 
+	@Nullable
 	BdfList getMessageAsList(Transaction txn, MessageId m) throws DbException,
 			FormatException;
 
@@ -79,6 +89,8 @@ public interface ClientHelper {
 	BdfList toList(byte[] b, int off, int len) throws FormatException;
 
 	BdfList toList(byte[] b) throws FormatException;
+
+	BdfList toList(Message m) throws FormatException;
 
 	byte[] sign(BdfList toSign, byte[] privateKey)
 			throws FormatException, GeneralSecurityException;

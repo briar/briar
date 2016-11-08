@@ -1,23 +1,27 @@
 package org.briarproject.api.sync;
 
 import org.briarproject.api.db.Metadata;
-import org.jetbrains.annotations.NotNull;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
 import java.util.Collections;
 
-public class MessageContext extends BaseMessageContext {
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+@NotNullByDefault
+public class MessageContext {
 
 	private final Metadata metadata;
+	private final Collection<MessageId> dependencies;
 
-	public MessageContext(@NotNull Metadata metadata,
-			@NotNull Collection<MessageId> dependencies) {
-
-		super(dependencies);
+	public MessageContext(Metadata metadata,
+			Collection<MessageId> dependencies) {
 		this.metadata = metadata;
+		this.dependencies = dependencies;
 	}
 
-	public MessageContext(@NotNull Metadata metadata) {
+	public MessageContext(Metadata metadata) {
 		this(metadata, Collections.<MessageId>emptyList());
 	}
 
@@ -25,4 +29,7 @@ public class MessageContext extends BaseMessageContext {
 		return metadata;
 	}
 
+	public Collection<MessageId> getDependencies() {
+		return dependencies;
+	}
 }

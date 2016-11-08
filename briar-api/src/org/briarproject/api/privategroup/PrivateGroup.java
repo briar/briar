@@ -5,7 +5,6 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sharing.Shareable;
 import org.briarproject.api.sync.Group;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -15,8 +14,7 @@ public class PrivateGroup extends NamedGroup implements Shareable {
 
 	private final Author author;
 
-	public PrivateGroup(@NotNull Group group, @NotNull String name,
-			@NotNull Author author, @NotNull byte[] salt) {
+	public PrivateGroup(Group group, String name, Author author, byte[] salt) {
 		super(group, name, salt);
 		this.author = author;
 	}

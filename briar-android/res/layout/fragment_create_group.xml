@@ -12,6 +12,8 @@
 		android:layout_height="0dp"
 		android:layout_weight="1"
 		android:gravity="bottom"
+		android:maxLines="1"
+		android:inputType="text|textCapSentences"
 		android:hint="@string/groups_create_group_hint"/>
 
 	<Button

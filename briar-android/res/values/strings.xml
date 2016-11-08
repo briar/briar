@@ -181,7 +181,7 @@
 
 	<!-- Private Group Invitations -->
 	<string name="groups_invitations_title">Group Invitations</string>
-	<string name="groups_invitations_invitation_sent">You have invited %1$s to your group "%2$s".</string>
+	<string name="groups_invitations_invitation_sent">You have invited %1$s to join the group "%2$s".</string>
 	<string name="groups_invitations_invitation_received">%1$s has invited you to join the group "%2$s".</string>
 	<string name="groups_invitations_joined">Joined group</string>
 	<string name="groups_invitations_declined">Group invitation declined</string>
@@ -191,8 +191,8 @@
 	</plurals>
 	<string name="groups_invitations_response_accepted_sent">You accepted the group invitation from %s.</string>
 	<string name="groups_invitations_response_declined_sent">You declined the group invitation from %s.</string>
-	<string name="groups_invitations_response_accepted_received">%s accepted your group invitation.</string>
-	<string name="groups_invitations_response_declined_received">%s declined your group invitation.</string>
+	<string name="groups_invitations_response_accepted_received">%s accepted the group invitation.</string>
+	<string name="groups_invitations_response_declined_received">%s declined the group invitation.</string>
 
 	<!-- Forums -->
 	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>
