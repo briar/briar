@@ -18,6 +18,8 @@ import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -25,6 +27,7 @@ import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.util.StringUtils;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.SecureRandom;
@@ -63,6 +66,8 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_BLUETOOTH;
 import static org.briarproject.util.PrivacyUtils.scrubMacAddress;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 class DroidtoothPlugin implements DuplexPlugin {
 
 	// Share an ID with the J2SE Bluetooth plugin
@@ -221,7 +226,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return UUID.fromString(uuid);
 	}
 
-	private void tryToClose(BluetoothServerSocket ss) {
+	private void tryToClose(@Nullable BluetoothServerSocket ss) {
 		try {
 			if (ss != null) ss.close();
 		} catch (IOException e) {
@@ -344,9 +349,9 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 	}
 
-	private void tryToClose(BluetoothSocket s) {
+	private void tryToClose(@Nullable Closeable c) {
 		try {
-			if (s != null) s.close();
+			if (c != null) c.close();
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
@@ -424,7 +429,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	private void closeSockets(final List<Future<BluetoothSocket>> futures,
-			final BluetoothSocket chosen) {
+			@Nullable final BluetoothSocket chosen) {
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -458,6 +463,9 @@ class DroidtoothPlugin implements DuplexPlugin {
 	@Override
 	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
 		if (!isRunning()) return null;
+		// There's no point listening if we can't discover our own address
+		String address = AndroidUtils.getBluetoothAddress(appContext, adapter);
+		if (address.isEmpty()) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
 		UUID uuid = UUID.nameUUIDFromBytes(commitment);
 		if (LOG.isLoggable(INFO)) LOG.info("Key agreement UUID " + uuid);
@@ -472,8 +480,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 		BdfList descriptor = new BdfList();
 		descriptor.add(TRANSPORT_ID_BLUETOOTH);
-		String address = AndroidUtils.getBluetoothAddress(appContext, adapter);
-		if (!address.isEmpty()) descriptor.add(StringUtils.macToBytes(address));
+		descriptor.add(StringUtils.macToBytes(address));
 		return new BluetoothKeyAgreementListener(descriptor, ss);
 	}
 
@@ -488,7 +495,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 			LOG.info("Invalid address in key agreement descriptor");
 			return null;
 		}
-		if (address == null) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
 		UUID uuid = UUID.nameUUIDFromBytes(commitment);
 		if (LOG.isLoggable(INFO))
@@ -498,9 +504,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return new DroidtoothTransportConnection(this, s);
 	}
 
-	@Nullable
 	private String parseAddress(BdfList descriptor) throws FormatException {
-		if (descriptor.size() < 2) return null;
 		byte[] mac = descriptor.getRaw(1);
 		if (mac.length != 6) throw new FormatException();
 		return StringUtils.macToString(mac);

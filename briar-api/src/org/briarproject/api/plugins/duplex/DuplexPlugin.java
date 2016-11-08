@@ -4,19 +4,28 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.plugins.Plugin;
 
-/** An interface for transport plugins that support duplex communication. */
+import javax.annotation.Nullable;
+
+/**
+ * An interface for transport plugins that support duplex communication.
+ */
+@NotNullByDefault
 public interface DuplexPlugin extends Plugin {
 
 	/**
 	 * Attempts to create and return a connection to the given contact using
 	 * the current transport and configuration properties. Returns null if a
-	 * connection could not be created.
+	 * connection cannot be created.
 	 */
+	@Nullable
 	DuplexTransportConnection createConnection(ContactId c);
 
-	/** Returns true if the plugin supports exchanging invitations. */
+	/**
+	 * Returns true if the plugin supports exchanging invitations.
+	 */
 	boolean supportsInvitations();
 
 	/**
@@ -24,21 +33,27 @@ public interface DuplexPlugin extends Plugin {
 	 * peer. Returns null if no connection can be established within the given
 	 * time.
 	 */
+	@Nullable
 	DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout, boolean alice);
 
-	/** Returns true if the plugin supports short-range key agreement. */
+	/**
+	 * Returns true if the plugin supports short-range key agreement.
+	 */
 	boolean supportsKeyAgreement();
 
 	/**
-	 * Returns a listener that can be used to perform key agreement.
+	 * Attempts to create and return a listener that can be used to perform key
+	 * agreement. Returns null if a listener cannot be created.
 	 */
+	@Nullable
 	KeyAgreementListener createKeyAgreementListener(byte[] localCommitment);
 
 	/**
 	 * Attempts to connect to the remote peer specified in the given descriptor.
 	 * Returns null if no connection can be established within the given time.
 	 */
+	@Nullable
 	DuplexTransportConnection createKeyAgreementConnection(
 			byte[] remoteCommitment, BdfList descriptor, long timeout);
 }

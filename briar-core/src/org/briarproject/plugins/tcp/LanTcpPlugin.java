@@ -6,6 +6,7 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -29,14 +30,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
-
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
 import static org.briarproject.util.ByteUtils.MAX_16_BIT_UNSIGNED;
 import static org.briarproject.util.PrivacyUtils.scrubSocketAddress;
 
+@NotNullByDefault
 class LanTcpPlugin extends TcpPlugin {
 
 	static final TransportId ID = new TransportId("lan");
@@ -211,7 +211,6 @@ class LanTcpPlugin extends TcpPlugin {
 			LOG.info("Invalid IP/port in key agreement descriptor");
 			return null;
 		}
-		if (remote == null) return null;
 		if (!isConnectable(remote)) {
 			if (LOG.isLoggable(INFO)) {
 				SocketAddress local = socket.getLocalSocketAddress();
@@ -237,10 +236,8 @@ class LanTcpPlugin extends TcpPlugin {
 		}
 	}
 
-	@Nullable
 	private InetSocketAddress parseSocketAddress(BdfList descriptor)
 			throws FormatException {
-		if (descriptor.size() < 3) return null;
 		byte[] address = descriptor.getRaw(1);
 		int port = descriptor.getLong(2).intValue();
 		if (port < 1 || port > MAX_16_BIT_UNSIGNED) throw new FormatException();

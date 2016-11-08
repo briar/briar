@@ -2,6 +2,7 @@ package org.briarproject.plugins.file;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
 
 import java.io.File;
@@ -15,6 +16,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 
+@NotNullByDefault
 class RemovableDrivePlugin extends FilePlugin
 implements RemovableDriveMonitor.Callback {
 

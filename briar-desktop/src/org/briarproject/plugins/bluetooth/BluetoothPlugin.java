@@ -7,6 +7,8 @@ import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -48,6 +50,8 @@ import static java.util.logging.Level.WARNING;
 import static javax.bluetooth.DiscoveryAgent.GIAC;
 import static org.briarproject.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_BLUETOOTH;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 class BluetoothPlugin implements DuplexPlugin {
 
 	// Share an ID with the Android Bluetooth plugin
@@ -164,7 +168,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		return uuid;
 	}
 
-	private void tryToClose(StreamConnectionNotifier ss) {
+	private void tryToClose(@Nullable StreamConnectionNotifier ss) {
 		try {
 			if (ss != null) ss.close();
 		} catch (IOException e) {
@@ -333,7 +337,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	private void closeSockets(final List<Future<StreamConnection>> futures,
-			final StreamConnection chosen) {
+			@Nullable final StreamConnection chosen) {
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -388,7 +392,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		BdfList descriptor = new BdfList();
 		descriptor.add(TRANSPORT_ID_BLUETOOTH);
 		String address = localDevice.getBluetoothAddress();
-		if (!address.isEmpty()) descriptor.add(StringUtils.macToBytes(address));
+		descriptor.add(StringUtils.macToBytes(address));
 		return new BluetoothKeyAgreementListener(descriptor, ss);
 	}
 
@@ -403,7 +407,6 @@ class BluetoothPlugin implements DuplexPlugin {
 			LOG.info("Invalid address in key agreement descriptor");
 			return null;
 		}
-		if (address == null) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		if (LOG.isLoggable(INFO))
@@ -414,9 +417,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		return new BluetoothTransportConnection(this, s);
 	}
 
-	@Nullable
 	private String parseAddress(BdfList descriptor) throws FormatException {
-		if (descriptor.size() < 2) return null;
 		byte[] mac = descriptor.getRaw(1);
 		if (mac.length != 6) throw new FormatException();
 		return StringUtils.macToString(mac);

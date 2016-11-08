@@ -24,6 +24,7 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.SettingsUpdatedEvent;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.TorConstants;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
@@ -60,6 +61,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
+import javax.annotation.Nullable;
 import javax.net.SocketFactory;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
@@ -76,6 +78,7 @@ import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 import static org.briarproject.api.plugins.TorConstants.CONTROL_PORT;
 import static org.briarproject.util.PrivacyUtils.scrubOnion;
 
+@NotNullByDefault
 class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private static final String PROP_ONION = "onion";
@@ -104,9 +107,13 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	private volatile boolean running = false;
+	@Nullable
 	private volatile ServerSocket socket = null;
+	@Nullable
 	private volatile Socket controlSocket = null;
+	@Nullable
 	private volatile TorControlConnection controlConnection = null;
+	@Nullable
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	TorPlugin(Executor ioExecutor, Context appContext,
@@ -289,7 +296,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		return appContext.getResources().getAssets().open("torrc");
 	}
 
-	private void tryToClose(Closeable c) {
+	private void tryToClose(@Nullable Closeable c) {
 		try {
 			if (c != null) c.close();
 		} catch (IOException e) {
@@ -297,7 +304,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
-	private void tryToClose(Socket s) {
+	private void tryToClose(@Nullable Socket s) {
 		try {
 			if (s != null) s.close();
 		} catch (IOException e) {
@@ -385,7 +392,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		});
 	}
 
-	private void tryToClose(ServerSocket ss) {
+	private void tryToClose(@Nullable ServerSocket ss) {
 		try {
 			if (ss != null) ss.close();
 		} catch (IOException e) {

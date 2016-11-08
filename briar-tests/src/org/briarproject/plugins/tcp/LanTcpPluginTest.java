@@ -31,6 +31,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.briarproject.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
 import static org.briarproject.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -188,7 +189,9 @@ public class LanTcpPluginTest extends BriarTestCase {
 				0, 0);
 		plugin.start();
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
-		KeyAgreementListener kal = plugin.createKeyAgreementListener(null);
+		KeyAgreementListener kal =
+				plugin.createKeyAgreementListener(new byte[COMMIT_LENGTH]);
+		assertNotNull(kal);
 		Callable<KeyAgreementConnection> c = kal.listen();
 		FutureTask<KeyAgreementConnection> f = new FutureTask<>(c);
 		new Thread(f).start();
@@ -258,8 +261,8 @@ public class LanTcpPluginTest extends BriarTestCase {
 		descriptor.add(local.getAddress().getAddress());
 		descriptor.add(local.getPort());
 		// Connect to the port
-		DuplexTransportConnection d =
-				plugin.createKeyAgreementConnection(null, descriptor, 5000);
+		DuplexTransportConnection d = plugin.createKeyAgreementConnection(
+				new byte[COMMIT_LENGTH], descriptor, 5000);
 		assertNotNull(d);
 		// Check that the connection was accepted
 		assertTrue(latch.await(5, SECONDS));

@@ -4,6 +4,8 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
@@ -28,10 +30,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.util.PrivacyUtils.scrubSocketAddress;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 abstract class TcpPlugin implements DuplexPlugin {
 
 	private static final Pattern DOTTED_QUAD =
@@ -141,7 +147,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		});
 	}
 
-	protected void tryToClose(ServerSocket ss) {
+	protected void tryToClose(@Nullable ServerSocket ss) {
 		try {
 			if (ss != null) ss.close();
 		} catch (IOException e) {
@@ -252,6 +258,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		return null;
 	}
 
+	@Nullable
 	protected InetSocketAddress parseSocketAddress(String ipPort) {
 		if (StringUtils.isNullOrEmpty(ipPort)) return null;
 		String[] split = ipPort.split(":");

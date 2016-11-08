@@ -7,16 +7,20 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.plugins.Backoff;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
+
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 
+@NotNullByDefault
 class AndroidLanTcpPlugin extends LanTcpPlugin {
 
 	private static final Logger LOG =
@@ -24,6 +28,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 
 	private final Context appContext;
 
+	@Nullable
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	AndroidLanTcpPlugin(Executor ioExecutor, Backoff backoff,

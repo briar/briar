@@ -2,28 +2,42 @@ package org.briarproject.api.plugins;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.util.Collection;
 
+@NotNullByDefault
 public interface Plugin {
 
-	/** Returns the plugin's transport identifier. */
+	/**
+	 * Returns the plugin's transport identifier.
+	 */
 	TransportId getId();
 
-	/** Returns the transport's maximum latency in milliseconds. */
+	/**
+	 * Returns the transport's maximum latency in milliseconds.
+	 */
 	int getMaxLatency();
 
-	/** Returns the transport's maximum idle time in milliseconds. */
+	/**
+	 * Returns the transport's maximum idle time in milliseconds.
+	 */
 	int getMaxIdleTime();
 
-	/** Starts the plugin and returns true if it started successfully. */
+	/**
+	 * Starts the plugin and returns true if it started successfully.
+	 */
 	boolean start() throws IOException;
 
-	/** Stops the plugin. */
+	/**
+	 * Stops the plugin.
+	 */
 	void stop() throws IOException;
 
-	/** Returns true if the plugin is running. */
+	/**
+	 * Returns true if the plugin is running.
+	 */
 	boolean isRunning();
 
 	/**
