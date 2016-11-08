@@ -35,7 +35,7 @@ public class GroupActivity extends
 		ThreadListActivity<PrivateGroup, GroupMessageItem, GroupMessageHeader>
 		implements OnClickListener {
 
-	private final static int REQUEST_INVITE = 1;
+	private final static int REQUEST_INVITE = 2;
 
 	@Inject
 	GroupController controller;

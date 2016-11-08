@@ -6,6 +6,7 @@ import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -60,6 +61,18 @@ public abstract class BaseMessageFragment extends BaseFragment
 	public void onStart() {
 		super.onStart();
 		message.showSoftKeyboard();
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				if (message.isKeyboardOpen()) message.hideSoftKeyboard();
+				listener.onBackPressed();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override

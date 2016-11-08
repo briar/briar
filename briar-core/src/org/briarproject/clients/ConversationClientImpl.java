@@ -7,7 +7,6 @@ import org.briarproject.api.data.MetadataParser;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
-import org.briarproject.api.messaging.ConversationManager;
 import org.briarproject.api.messaging.ConversationManager.ConversationClient;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;

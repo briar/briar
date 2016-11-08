@@ -145,12 +145,11 @@
 		<activity
 			android:name=".android.privategroup.creation.GroupInviteActivity"
 			android:label="@string/groups_invite_members"
-			android:parentActivityName=".android.NavDrawerActivity"
+			android:parentActivityName=".android.privategroup.conversation.GroupActivity"
 			android:windowSoftInputMode="adjustResize|stateHidden">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".android.privategroup.conversation.GroupActivity"
-				/>
+				android:value=".android.privategroup.conversation.GroupActivity"/>
 		</activity>
 
 		<activity
