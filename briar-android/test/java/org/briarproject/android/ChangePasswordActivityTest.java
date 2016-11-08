@@ -46,6 +46,8 @@ import static org.mockito.Mockito.when;
 		application = TestBriarApplication.class)
 public class ChangePasswordActivityTest {
 
+	private static final int TIMEOUT_MS = 10 * 1000;
+
 	private TestChangePasswordActivity changePasswordActivity;
 	private TextInputLayout passwordConfirmationWrapper;
 	private EditText currentPassword;
@@ -68,21 +70,16 @@ public class ChangePasswordActivityTest {
 				Robolectric.setupActivity(TestChangePasswordActivity.class);
 		passwordConfirmationWrapper = (TextInputLayout) changePasswordActivity
 				.findViewById(R.id.new_password_confirm_wrapper);
-		currentPassword =
-				(EditText) changePasswordActivity
-						.findViewById(R.id.current_password_entry);
-		newPassword =
-				(EditText) changePasswordActivity
-						.findViewById(R.id.new_password_entry);
-		newPasswordConfirmation =
-				(EditText) changePasswordActivity
-						.findViewById(R.id.new_password_confirm);
-		strengthMeter =
-				(StrengthMeter) changePasswordActivity
-						.findViewById(R.id.strength_meter);
-		changePasswordButton =
-				(Button) changePasswordActivity
-						.findViewById(R.id.change_password);
+		currentPassword = (EditText) changePasswordActivity
+				.findViewById(R.id.current_password_entry);
+		newPassword = (EditText) changePasswordActivity
+				.findViewById(R.id.new_password_entry);
+		newPasswordConfirmation = (EditText) changePasswordActivity
+				.findViewById(R.id.new_password_confirm);
+		strengthMeter = (StrengthMeter) changePasswordActivity
+				.findViewById(R.id.strength_meter);
+		changePasswordButton = (Button) changePasswordActivity
+				.findViewById(R.id.change_password);
 	}
 
 	private void testStrengthMeter(String pass, float strength, int color) {
@@ -148,27 +145,23 @@ public class ChangePasswordActivityTest {
 		// mock a resulthandler
 		ResultHandler<Void> resultHandler =
 				(ResultHandler<Void>) mock(ResultHandler.class);
-		setupController
-				.storeAuthorInfo("nick", "some.old.pass", resultHandler);
+		setupController.storeAuthorInfo("nick", "some.old.pass", resultHandler);
 		// blocking verification call with timeout that waits until the mocked
 		// result gets called with handle 0L, the expected value
-		verify(resultHandler, timeout(2000).times(1))
-				.onResult(null);
-		SharedPreferences prefs =
-				changePasswordActivity
-						.getSharedPreferences("db", Context.MODE_PRIVATE);
+		verify(resultHandler, timeout(TIMEOUT_MS).times(1)).onResult(null);
+		SharedPreferences prefs = changePasswordActivity
+				.getSharedPreferences("db", Context.MODE_PRIVATE);
 		// Confirm database key
 		assertTrue(prefs.contains("key"));
 		String oldKey = prefs.getString("key", null);
 		// mock a resulthandler
 		ResultHandler<Boolean> resultHandler2 =
 				(ResultHandler<Boolean>) mock(ResultHandler.class);
-		passwordController
-				.changePassword("some.old.pass", "some.strong.pass",
-						resultHandler2);
+		passwordController.changePassword("some.old.pass", "some.strong.pass",
+				resultHandler2);
 		// blocking verification call with timeout that waits until the mocked
 		// result gets called with handle 0L, the expected value
-		verify(resultHandler2, timeout(2000).times(1)).onResult(true);
+		verify(resultHandler2, timeout(TIMEOUT_MS).times(1)).onResult(true);
 		// Confirm database key
 		assertTrue(prefs.contains("key"));
 		assertNotEquals(oldKey, prefs.getString("key", null));

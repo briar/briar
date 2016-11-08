@@ -50,6 +50,8 @@ import static org.robolectric.Shadows.shadowOf;
 		application = TestBriarApplication.class)
 public class SetupActivityTest {
 
+	private static final int TIMEOUT_MS = 10 * 1000;
+
 	private TestSetupActivity setupActivity;
 	private TextInputLayout nicknameEntryWrapper;
 	private TextInputLayout passwordConfirmationWrapper;
@@ -157,11 +159,10 @@ public class SetupActivityTest {
 		// mock a resulthandler
 		ResultHandler<Void> resultHandler =
 				(ResultHandler<Void>) mock(ResultHandler.class);
-		controller
-				.storeAuthorInfo("nick", "some.strong.pass", resultHandler);
+		controller.storeAuthorInfo("nick", "some.strong.pass", resultHandler);
 		// blocking verification call with timeout that waits until the mocked
 		// result gets called with handle 0L, the expected value
-		verify(resultHandler, timeout(2000).times(1)).onResult(null);
+		verify(resultHandler, timeout(TIMEOUT_MS).times(1)).onResult(null);
 		SharedPreferences prefs =
 				setupActivity.getSharedPreferences("db", Context.MODE_PRIVATE);
 		// Confirm database key
