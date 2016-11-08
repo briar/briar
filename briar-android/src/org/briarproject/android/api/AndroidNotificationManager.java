@@ -13,6 +13,10 @@ public interface AndroidNotificationManager {
 
 	void clearAllContactNotifications();
 
+	void clearGroupMessageNotification(GroupId g);
+
+	void clearAllGroupMessageNotifications();
+
 	void clearForumPostNotification(GroupId g);
 
 	void clearAllForumPostNotifications();
@@ -32,6 +36,10 @@ public interface AndroidNotificationManager {
 	void blockAllContactNotifications();
 
 	void unblockAllContactNotifications();
+
+	void blockAllGroupMessageNotifications();
+
+	void unblockAllGroupMessageNotifications();
 
 	void blockAllForumPostNotifications();
 

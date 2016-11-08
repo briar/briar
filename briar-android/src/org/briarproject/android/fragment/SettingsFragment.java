@@ -50,6 +50,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private static final int REQUEST_RINGTONE = 2;
 	public static final String SETTINGS_NAMESPACE = "android-ui";
+	public static final String PREF_NOTIFY_GROUP = "notifyGroupMessages";
 	public static final String PREF_NOTIFY_BLOG = "notifyBlogPosts";
 
 	private static final Logger LOG =
@@ -60,6 +61,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private ListPreference enableBluetooth;
 	private ListPreference torOverMobile;
 	private CheckBoxPreference notifyPrivateMessages;
+	private CheckBoxPreference notifyGroupMessages;
 	private CheckBoxPreference notifyForumPosts;
 	private CheckBoxPreference notifyBlogPosts;
 	private CheckBoxPreference notifyVibration;
@@ -91,6 +93,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				(ListPreference) findPreference("pref_key_tor_mobile");
 		notifyPrivateMessages = (CheckBoxPreference) findPreference(
 				"pref_key_notify_private_messages");
+		notifyGroupMessages = (CheckBoxPreference) findPreference(
+				"pref_key_notify_group_messages");
 		notifyForumPosts = (CheckBoxPreference) findPreference(
 				"pref_key_notify_forum_posts");
 		notifyBlogPosts = (CheckBoxPreference) findPreference(
@@ -102,6 +106,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		enableBluetooth.setOnPreferenceChangeListener(this);
 		torOverMobile.setOnPreferenceChangeListener(this);
 		notifyPrivateMessages.setOnPreferenceChangeListener(this);
+		notifyGroupMessages.setOnPreferenceChangeListener(this);
 		notifyForumPosts.setOnPreferenceChangeListener(this);
 		notifyBlogPosts.setOnPreferenceChangeListener(this);
 		notifyVibration.setOnPreferenceChangeListener(this);
@@ -199,6 +204,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				notifyPrivateMessages.setChecked(settings.getBoolean(
 						"notifyPrivateMessages", true));
 
+				notifyGroupMessages.setChecked(settings.getBoolean(
+						PREF_NOTIFY_GROUP, true));
+
 				notifyForumPosts.setChecked(settings.getBoolean(
 						"notifyForumPosts", true));
 
@@ -246,6 +254,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		} else if (preference == notifyPrivateMessages) {
 			Settings s = new Settings();
 			s.putBoolean("notifyPrivateMessages", (Boolean) o);
+			storeSettings(s);
+		} else if (preference == notifyGroupMessages) {
+			Settings s = new Settings();
+			s.putBoolean(PREF_NOTIFY_GROUP, (Boolean) o);
 			storeSettings(s);
 		} else if (preference == notifyForumPosts) {
 			Settings s = new Settings();

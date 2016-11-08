@@ -2,6 +2,7 @@ package org.briarproject.android.privategroup.list;
 
 import android.support.annotation.CallSuper;
 
+import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.DbControllerImpl;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.clients.MessageTracker.GroupCount;
@@ -41,6 +42,7 @@ public class GroupListControllerImpl extends DbControllerImpl
 
 	private final PrivateGroupManager groupManager;
 	private final GroupInvitationManager groupInvitationManager;
+	private final AndroidNotificationManager notificationManager;
 	private final EventBus eventBus;
 
 	protected volatile GroupListListener listener;
@@ -48,10 +50,12 @@ public class GroupListControllerImpl extends DbControllerImpl
 	@Inject
 	GroupListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, PrivateGroupManager groupManager,
-			GroupInvitationManager groupInvitationManager, EventBus eventBus) {
+			GroupInvitationManager groupInvitationManager,
+			AndroidNotificationManager notificationManager, EventBus eventBus) {
 		super(dbExecutor, lifecycleManager);
 		this.groupManager = groupManager;
 		this.groupInvitationManager = groupInvitationManager;
+		this.notificationManager = notificationManager;
 		this.eventBus = eventBus;
 	}
 
@@ -67,13 +71,15 @@ public class GroupListControllerImpl extends DbControllerImpl
 			throw new IllegalStateException(
 					"GroupListListener needs to be attached");
 		eventBus.addListener(this);
-		// TODO: Add new notification manager methods for private groups
+		notificationManager.blockAllGroupMessageNotifications();
+		notificationManager.clearAllGroupMessageNotifications();
 	}
 
 	@Override
 	@CallSuper
 	public void onStop() {
 		eventBus.removeListener(this);
+		notificationManager.unblockAllGroupMessageNotifications();
 	}
 
 	@Override

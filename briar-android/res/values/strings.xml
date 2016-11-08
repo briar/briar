@@ -52,6 +52,10 @@
 		<item quantity="one">New private message.</item>
 		<item quantity="other">%d new private messages.</item>
 	</plurals>
+	<plurals name="group_message_notification_text">
+		<item quantity="one">New group message.</item>
+		<item quantity="other">%d new group messages.</item>
+	</plurals>
 	<plurals name="forum_post_notification_text">
 		<item quantity="one">New forum post.</item>
 		<item quantity="other">%d new forum posts.</item>
@@ -328,6 +332,7 @@
 	<!-- Settings Notifications -->
 	<string name="notification_settings_title">Notifications</string>
 	<string name="notify_private_messages_setting">Show alerts for private messages</string>
+	<string name="notify_group_messages_setting">Show alerts for group messages</string>
 	<string name="notify_forum_posts_setting">Show alerts for forum posts</string>
 	<string name="notify_blog_posts_setting">Show alerts for blog posts</string>
 	<string name="notify_vibration_setting">Vibrate</string>
