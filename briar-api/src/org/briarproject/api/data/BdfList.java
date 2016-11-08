@@ -2,6 +2,7 @@ package org.briarproject.api.data;
 
 import org.briarproject.api.Bytes;
 import org.briarproject.api.FormatException;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +41,7 @@ public class BdfList extends Vector<Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public Boolean getOptionalBoolean(int index) throws FormatException {
 		if (!isInRange(index)) throw new FormatException();
 		Object o = get(index);
@@ -65,6 +67,7 @@ public class BdfList extends Vector<Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public Long getOptionalLong(int index) throws FormatException {
 		if (!isInRange(index)) throw new FormatException();
 		Object o = get(index);
@@ -94,6 +97,7 @@ public class BdfList extends Vector<Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public Double getOptionalDouble(int index) throws FormatException {
 		if (!isInRange(index)) throw new FormatException();
 		Object o = get(index);
@@ -118,6 +122,7 @@ public class BdfList extends Vector<Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public String getOptionalString(int index) throws FormatException {
 		if (!isInRange(index)) throw new FormatException();
 		Object o = get(index);
@@ -141,6 +146,7 @@ public class BdfList extends Vector<Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public byte[] getOptionalRaw(int index) throws FormatException {
 		if (!isInRange(index)) throw new FormatException();
 		Object o = get(index);
@@ -165,6 +171,7 @@ public class BdfList extends Vector<Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public BdfList getOptionalList(int index) throws FormatException {
 		if (!isInRange(index)) throw new FormatException();
 		Object o = get(index);
@@ -187,6 +194,7 @@ public class BdfList extends Vector<Object> {
 		throw new FormatException();
 	}
 
+	@Nullable
 	public BdfDictionary getOptionalDictionary(int index)
 			throws FormatException {
 		if (!isInRange(index)) throw new FormatException();

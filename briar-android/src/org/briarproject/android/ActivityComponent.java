@@ -80,9 +80,13 @@ public interface ActivityComponent {
 	void inject(BlogInvitationActivity activity);
 
 	void inject(CreateGroupActivity activity);
+
 	void inject(GroupActivity activity);
+
 	void inject(GroupInviteActivity activity);
+
 	void inject(GroupInvitationActivity activity);
+
 	void inject(GroupMemberListActivity activity);
 
 	void inject(CreateForumActivity activity);
@@ -104,9 +108,11 @@ public interface ActivityComponent {
 	void inject(BlogFragment fragment);
 
 	void inject(BlogPostFragment fragment);
+
 	void inject(FeedPostFragment fragment);
 
 	void inject(BlogPostPagerFragment fragment);
+
 	void inject(FeedPostPagerFragment fragment);
 
 	void inject(ReblogFragment fragment);
@@ -124,21 +130,34 @@ public interface ActivityComponent {
 	void inject(RssFeedManageActivity activity);
 
 	void inject(EmojiProvider emojiProvider);
+
 	void inject(RecentEmojiPageModel recentEmojiPageModel);
 
 	// Fragments
 	void inject(ContactListFragment fragment);
+
 	void inject(CreateGroupFragment fragment);
+
 	void inject(CreateGroupMessageFragment fragment);
+
 	void inject(GroupListFragment fragment);
+
 	void inject(ForumListFragment fragment);
+
 	void inject(FeedFragment fragment);
+
 	void inject(IntroFragment fragment);
+
 	void inject(ShowQrCodeFragment fragment);
+
 	void inject(ContactChooserFragment fragment);
+
 	void inject(ContactSelectorFragment fragment);
+
 	void inject(ShareForumMessageFragment fragment);
+
 	void inject(ShareBlogMessageFragment fragment);
+
 	void inject(IntroductionMessageFragment fragment);
 
 }

@@ -3,10 +3,12 @@ package org.briarproject.api.privategroup;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.jetbrains.annotations.Nullable;
 
+@NotNullByDefault
 public interface GroupMessageFactory {
 
 	/**

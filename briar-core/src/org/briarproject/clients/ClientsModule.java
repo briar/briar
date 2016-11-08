@@ -1,8 +1,8 @@
 package org.briarproject.clients;
 
 import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.ContactGroupFactory;
+import org.briarproject.api.clients.MessageQueueManager;
 import org.briarproject.api.clients.QueueMessageFactory;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.BdfReaderFactory;
@@ -33,7 +33,7 @@ public class ClientsModule {
 	}
 
 	@Provides
-	ContactGroupFactory providePrivateGroupFactory(GroupFactory groupFactory,
+	ContactGroupFactory provideContactGroupFactory(GroupFactory groupFactory,
 			ClientHelper clientHelper) {
 		return new ContactGroupFactoryImpl(groupFactory, clientHelper);
 	}

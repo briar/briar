@@ -274,7 +274,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				MessageContext context = v.validateMessage(m, g);
 				storeMessageContextAsync(m, g.getClientId(), context);
 			} catch (InvalidMessageException e) {
-				if (LOG.isLoggable(INFO)) LOG.info(e.toString());
+				if (LOG.isLoggable(INFO))
+					LOG.log(INFO, e.toString(), e);
 				Queue<MessageId> invalidate = new LinkedList<MessageId>();
 				invalidate.add(m.getId());
 				invalidateNextMessageAsync(invalidate);
