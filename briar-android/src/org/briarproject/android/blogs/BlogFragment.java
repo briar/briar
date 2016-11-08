@@ -47,7 +47,7 @@ import static org.briarproject.android.blogs.BlogActivity.REQUEST_WRITE_POST;
 public class BlogFragment extends BaseFragment implements
 		OnBlogPostAddedListener {
 
-	public final static String TAG = BlogFragment.class.getName();
+	private final static String TAG = BlogFragment.class.getName();
 
 	@Inject
 	BlogController blogController;
@@ -178,7 +178,7 @@ public class BlogFragment extends BaseFragment implements
 	public void onBlogPostAdded(BlogPostHeader header, final boolean local) {
 		blogController.loadBlogPost(header,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
-						listener) {
+						this) {
 					@Override
 					public void onResultUi(BlogPostItem post) {
 						adapter.add(post);
@@ -201,10 +201,10 @@ public class BlogFragment extends BaseFragment implements
 		);
 	}
 
-	void loadBlogPosts(final boolean reload) {
+	private void loadBlogPosts(final boolean reload) {
 		blogController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
-						listener) {
+						this) {
 					@Override
 					public void onResultUi(Collection<BlogPostItem> posts) {
 						if (posts.isEmpty()) {
@@ -225,7 +225,7 @@ public class BlogFragment extends BaseFragment implements
 
 	private void loadBlog() {
 		blogController.loadBlog(
-				new UiResultExceptionHandler<BlogItem, DbException>(listener) {
+				new UiResultExceptionHandler<BlogItem, DbException>(this) {
 					@Override
 					public void onResultUi(BlogItem blog) {
 						setToolbarTitle(blog.getBlog().getAuthor());
@@ -299,7 +299,7 @@ public class BlogFragment extends BaseFragment implements
 
 	private void deleteBlog() {
 		blogController.deleteBlog(
-				new UiResultExceptionHandler<Void, DbException>(listener) {
+				new UiResultExceptionHandler<Void, DbException>(this) {
 					@Override
 					public void onResultUi(Void result) {
 						Toast.makeText(getActivity(),

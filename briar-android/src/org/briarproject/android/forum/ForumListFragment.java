@@ -178,7 +178,7 @@ public class ForumListFragment extends BaseEventFragment implements
 
 	private void displayForums(final int revision,
 			final Collection<ForumListItem> forums) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (revision == adapter.getRevision()) {
@@ -214,7 +214,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	private void displayAvailableForums(final int availableCount) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (availableCount == 0) {
@@ -257,7 +257,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	private void updateItem(final GroupId g, final ForumPostHeader m) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				adapter.incrementRevision();
@@ -272,7 +272,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	private void removeForum(final GroupId g) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				adapter.incrementRevision();

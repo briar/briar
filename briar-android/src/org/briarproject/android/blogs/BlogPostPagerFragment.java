@@ -45,7 +45,7 @@ public class BlogPostPagerFragment extends BasePostPagerFragment {
 	void loadBlogPosts(final MessageId select) {
 		blogController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
-						listener) {
+						this) {
 					@Override
 					public void onResultUi(Collection<BlogPostItem> posts) {
 						onBlogPostsLoaded(select, posts);
@@ -62,7 +62,7 @@ public class BlogPostPagerFragment extends BasePostPagerFragment {
 	void loadBlogPost(BlogPostHeader header) {
 		blogController.loadBlogPost(header,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
-						listener) {
+						this) {
 					@Override
 					public void onResultUi(BlogPostItem post) {
 						addPost(post);
