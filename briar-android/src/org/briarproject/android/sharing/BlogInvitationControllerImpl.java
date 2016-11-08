@@ -20,6 +20,7 @@ import java.util.concurrent.Executor;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.blogs.BlogManager.CLIENT_ID;
 
 public class BlogInvitationControllerImpl
 		extends InvitationControllerImpl<SharingInvitationItem>
@@ -49,7 +50,7 @@ public class BlogInvitationControllerImpl
 
 	@Override
 	protected ClientId getShareableClientId() {
-		return blogManager.getClientId();
+		return CLIENT_ID;
 	}
 
 	@Override

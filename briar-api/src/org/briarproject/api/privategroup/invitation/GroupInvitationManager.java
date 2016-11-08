@@ -14,8 +14,9 @@ import java.util.Collection;
 
 public interface GroupInvitationManager extends MessageTracker {
 
-	/** Returns the unique ID of the private group invitation client. */
-	ClientId getClientId();
+	/** The unique ID of the private group invitation client. */
+	ClientId CLIENT_ID =
+			new ClientId("org.briarproject.briar.privategroup.invitation");
 
 	/**
 	 * Sends an invitation to share the given forum with the given contact

@@ -16,13 +16,11 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.properties.TransportProperties;
 import org.briarproject.api.properties.TransportPropertyManager;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
-import org.briarproject.util.StringUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,10 +31,6 @@ import javax.inject.Inject;
 
 class TransportPropertyManagerImpl implements TransportPropertyManager,
 		Client, AddContactHook, RemoveContactHook {
-
-	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
-			"673ea091673561e28f70122f6a8ea8f4"
-					+ "97c3624b86fa07f785bb15f09fb87b4b"));
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;

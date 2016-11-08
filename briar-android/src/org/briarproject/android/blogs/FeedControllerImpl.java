@@ -25,6 +25,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.blogs.BlogManager.CLIENT_ID;
 
 public class FeedControllerImpl extends BaseControllerImpl
 		implements FeedController {
@@ -62,7 +63,7 @@ public class FeedControllerImpl extends BaseControllerImpl
 			onBlogPostAdded(b.getHeader(), b.isLocal());
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
-			if (g.getGroup().getClientId().equals(blogManager.getClientId())) {
+			if (g.getGroup().getClientId().equals(CLIENT_ID)) {
 				LOG.info("Blog removed");
 				onBlogRemoved();
 			}

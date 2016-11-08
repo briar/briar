@@ -4,10 +4,14 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.sync.ClientId;
 
 import java.util.Map;
 
 public interface TransportPropertyManager {
+
+	/** The unique ID of the transport property client. */
+	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.properties");
 
 	/**
 	 * Stores the given properties received while adding a contact - they will

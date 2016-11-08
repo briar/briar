@@ -25,10 +25,11 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.InvitationRequestReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.sharing.SharingInvitationItem;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sharing.Shareable;
+import org.briarproject.api.sharing.SharingInvitationItem;
 import org.briarproject.api.sharing.SharingManager;
+import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
@@ -114,6 +115,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		this.clock = clock;
 		localGroup = contactGroupFactory.createLocalGroup(getClientId());
 	}
+
+	protected abstract ClientId getClientId();
 
 	protected abstract InvitationMessage createInvitationRequest(MessageId id,
 			I msg, ContactId contactId, boolean available, long time,

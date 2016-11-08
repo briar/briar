@@ -61,7 +61,8 @@ public class MessageSenderTest extends BriarTestCase {
 		final Transaction txn = new Transaction(null, false);
 		final Group privateGroup =
 				new Group(new GroupId(TestUtils.getRandomId()),
-						new ClientId(TestUtils.getRandomId()), new byte[0]);
+						new ClientId(TestUtils.getRandomString(5)),
+						new byte[0]);
 		final SessionId sessionId = new SessionId(TestUtils.getRandomId());
 		byte[] mac = TestUtils.getRandomBytes(42);
 		byte[] sig = TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH);

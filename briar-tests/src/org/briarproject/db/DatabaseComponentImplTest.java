@@ -90,7 +90,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 	private final Contact contact;
 
 	public DatabaseComponentImplTest() {
-		clientId = new ClientId(TestUtils.getRandomId());
+		clientId = new ClientId(TestUtils.getRandomString(5));
 		groupId = new GroupId(TestUtils.getRandomId());
 		byte[] descriptor = new byte[0];
 		group = new Group(groupId, clientId, descriptor);

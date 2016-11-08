@@ -20,13 +20,11 @@ import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.clients.BdfIncomingMessageHook;
-import org.briarproject.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.security.GeneralSecurityException;
@@ -55,10 +53,6 @@ import static org.briarproject.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
 class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
-
-	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
-			"859a7be50dca035b64bd6902fb797097"
-					+ "795af837abbf8c16d750b3c2ccc186ea"));
 
 	private final IdentityManager identityManager;
 	private final ForumFactory forumFactory;
@@ -90,11 +84,6 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 		// share message
 		return true;
-	}
-
-	@Override
-	public ClientId getClientId() {
-		return CLIENT_ID;
 	}
 
 	@Override

@@ -67,8 +67,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 27;
-	private static final int MIN_SCHEMA_VERSION = 27;
+	private static final int SCHEMA_VERSION = 28;
+	private static final int MIN_SCHEMA_VERSION = 28;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -103,7 +103,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_GROUPS =
 			"CREATE TABLE groups"
 					+ " (groupId HASH NOT NULL,"
-					+ " clientId HASH NOT NULL,"
+					+ " clientId VARCHAR NOT NULL,"
 					+ " descriptor BINARY NOT NULL,"
 					+ " PRIMARY KEY (groupId))";
 
@@ -504,7 +504,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getId().getBytes());
-			ps.setBytes(2, g.getClientId().getBytes());
+			ps.setString(2, g.getClientId().getString());
 			ps.setBytes(3, g.getDescriptor());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
@@ -1091,7 +1091,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
 			if (!rs.next()) throw new DbStateException();
-			ClientId clientId = new ClientId(rs.getBytes(1));
+			ClientId clientId = new ClientId(rs.getString(1));
 			byte[] descriptor = rs.getBytes(2);
 			rs.close();
 			ps.close();
@@ -1111,7 +1111,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT groupId, descriptor FROM groups"
 					+ " WHERE clientId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, c.getBytes());
+			ps.setString(1, c.getString());
 			rs = ps.executeQuery();
 			List<Group> groups = new ArrayList<Group>();
 			while (rs.next()) {
@@ -1678,7 +1678,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE state = ? AND clientId = ? AND raw IS NOT NULL";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, state.getValue());
-			ps.setBytes(2, c.getBytes());
+			ps.setString(2, c.getString());
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
@@ -1707,7 +1707,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE m.shared = FALSE AND m1.shared = TRUE"
 					+ " AND g.clientId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, c.getBytes());
+			ps.setString(1, c.getString());
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));

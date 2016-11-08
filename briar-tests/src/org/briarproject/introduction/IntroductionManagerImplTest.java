@@ -82,7 +82,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		introducee2 =
 				new Contact(contactId2, author2, localAuthorId2, true, true);
 
-		ClientId clientId = new ClientId(TestUtils.getRandomId());
+		ClientId clientId = new ClientId(TestUtils.getRandomString(5));
 		introductionGroup1 = new Group(new GroupId(TestUtils.getRandomId()),
 				clientId, new byte[0]);
 		introductionGroup2 = new Group(new GroupId(TestUtils.getRandomId()),

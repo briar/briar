@@ -57,6 +57,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static org.briarproject.TestPluginsModule.MAX_LATENCY;
+import static org.briarproject.api.blogs.BlogSharingManager.CLIENT_ID;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.junit.Assert.assertEquals;
@@ -189,9 +190,8 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 		assertEquals(2, blogManager1.getBlogs().size());
 
 		// get sharing group and assert group message count
-		GroupId g = contactGroupFactory
-				.createContactGroup(blogSharingManager0.getClientId(),
-						contact1).getId();
+		GroupId g = contactGroupFactory.createContactGroup(CLIENT_ID, contact1)
+				.getId();
 		assertGroupCount(blogSharingManager0, g, 1, 0);
 
 		// sync first request message

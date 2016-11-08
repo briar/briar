@@ -18,14 +18,12 @@ import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageHeader;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.MessageStatus;
 import org.briarproject.clients.ConversationClientImpl;
-import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,10 +35,6 @@ import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
 class MessagingManagerImpl extends ConversationClientImpl
 		implements MessagingManager, Client, AddContactHook, RemoveContactHook {
-
-	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
-			"6bcdc006c0910b0f44e40644c3b31f1a"
-					+ "8bf9a6d6021d40d219c86b731b903070"));
 
 	private final ContactGroupFactory contactGroupFactory;
 
@@ -85,11 +79,6 @@ class MessagingManagerImpl extends ConversationClientImpl
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
 		db.removeGroup(txn, getContactGroup(c));
-	}
-
-	@Override
-	public ClientId getClientId() {
-		return CLIENT_ID;
 	}
 
 	@Override

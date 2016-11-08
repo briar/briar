@@ -68,6 +68,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.TestPluginsModule.MAX_LATENCY;
 import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
+import static org.briarproject.api.forum.ForumSharingManager.CLIENT_ID;
 import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
@@ -495,8 +496,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			MessageQueueManager queue = t0.getMessageQueueManager();
 			Contact c1 = contactManager0.getContact(contactId1);
 			ContactGroupFactory groupFactory = t0.getContactGroupFactory();
-			Group group = groupFactory
-					.createContactGroup(forumSharingManager0.getClientId(), c1);
+			Group group = groupFactory.createContactGroup(CLIENT_ID, c1);
 			long time = clock.currentTimeMillis();
 			BdfList bodyList = BdfList.of(SHARE_MSG_TYPE_INVITATION,
 					sessionId.getBytes(),
@@ -691,8 +691,7 @@ public class ForumSharingIntegrationTest extends BriarTestCase {
 			MessageQueueManager queue = t0.getMessageQueueManager();
 			Contact c1 = contactManager0.getContact(contactId1);
 			ContactGroupFactory groupFactory = t0.getContactGroupFactory();
-			Group group = groupFactory
-					.createContactGroup(forumSharingManager0.getClientId(), c1);
+			Group group = groupFactory.createContactGroup(CLIENT_ID, c1);
 			long time = clock.currentTimeMillis();
 
 			// construct a new message re-using the old SessionId

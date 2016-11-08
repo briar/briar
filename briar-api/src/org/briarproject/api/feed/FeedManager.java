@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface FeedManager {
 
-	/** Returns the unique ID of the client. */
-	ClientId getClientId();
+	/** The unique ID of the RSS feed client. */
+	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.feed");
 
 	/** Adds a RSS feed. */
 	void addFeed(String url, GroupId g) throws DbException, IOException;

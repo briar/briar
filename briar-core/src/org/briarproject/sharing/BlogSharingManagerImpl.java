@@ -33,7 +33,6 @@ import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
-import org.briarproject.util.StringUtils;
 
 import java.security.SecureRandom;
 
@@ -47,10 +46,6 @@ import static org.briarproject.api.sharing.SharingConstants.RESPONSE_ID;
 class BlogSharingManagerImpl extends
 		SharingManagerImpl<Blog, BlogInvitation, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationReceivedEvent, BlogInvitationResponseReceivedEvent>
 		implements BlogSharingManager, RemoveBlogHook {
-
-	static final ClientId CLIENT_ID = new ClientId(StringUtils.fromHexString(
-			"bee438b5de0b3a685badc4e49d76e72d"
-					+ "21e01c4b569a775112756bdae267a028"));
 
 	private final IdentityManager identityManager;
 	private final BlogManager blogManager;
@@ -84,7 +79,7 @@ class BlogSharingManagerImpl extends
 	}
 
 	@Override
-	public ClientId getClientId() {
+	protected ClientId getClientId() {
 		return CLIENT_ID;
 	}
 

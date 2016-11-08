@@ -15,6 +15,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
+import static org.briarproject.api.introduction.IntroductionManager.CLIENT_ID;
 import static org.briarproject.api.sync.ValidationManager.MessageValidator;
 
 @Module
@@ -28,16 +29,14 @@ public class IntroductionModule {
 	@Provides
 	@Singleton
 	MessageValidator provideValidator(MessageQueueManager messageQueueManager,
-			IntroductionManager introductionManager,
 			MetadataEncoder metadataEncoder, ClientHelper clientHelper,
 			Clock clock) {
 
 		IntroductionValidator introductionValidator = new IntroductionValidator(
 				clientHelper, metadataEncoder, clock);
 
-		messageQueueManager.registerMessageValidator(
-				introductionManager.getClientId(),
-				introductionValidator);
+		messageQueueManager
+				.registerMessageValidator(CLIENT_ID, introductionValidator);
 
 		return introductionValidator;
 	}
@@ -54,9 +53,8 @@ public class IntroductionModule {
 		lifecycleManager.registerClient(introductionManager);
 		contactManager.registerAddContactHook(introductionManager);
 		contactManager.registerRemoveContactHook(introductionManager);
-		messageQueueManager.registerIncomingMessageHook(
-				introductionManager.getClientId(),
-				introductionManager);
+		messageQueueManager
+				.registerIncomingMessageHook(CLIENT_ID, introductionManager);
 		conversationManager.registerConversationClient(introductionManager);
 
 		return introductionManager;

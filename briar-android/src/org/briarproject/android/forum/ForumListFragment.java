@@ -44,6 +44,7 @@ import javax.inject.Inject;
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.forum.ForumManager.CLIENT_ID;
 
 public class ForumListFragment extends BaseEventFragment implements
 		OnClickListener {
@@ -236,13 +237,13 @@ public class ForumListFragment extends BaseEventFragment implements
 			loadAvailableForums();
 		} else if (e instanceof GroupAddedEvent) {
 			GroupAddedEvent g = (GroupAddedEvent) e;
-			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
+			if (g.getGroup().getClientId().equals(CLIENT_ID)) {
 				LOG.info("Forum added, reloading forums");
 				loadForums();
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
-			if (g.getGroup().getClientId().equals(forumManager.getClientId())) {
+			if (g.getGroup().getClientId().equals(CLIENT_ID)) {
 				LOG.info("Forum removed, removing from list");
 				removeForum(g.getGroup().getId());
 			}

@@ -74,7 +74,7 @@ public class SyncIntegrationTest extends BriarTestCase {
 		headerKey = TestUtils.getSecretKey();
 		streamNumber = 123;
 		// Create a group
-		ClientId clientId = new ClientId(TestUtils.getRandomId());
+		ClientId clientId = new ClientId(TestUtils.getRandomString(5));
 		byte[] descriptor = new byte[0];
 		Group group = groupFactory.createGroup(clientId, descriptor);
 		// Add two messages to the group

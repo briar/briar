@@ -19,12 +19,10 @@ import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.invitation.GroupInvitationItem;
 import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.api.sharing.InvitationMessage;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.clients.ConversationClientImpl;
-import org.briarproject.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,11 +36,6 @@ public class GroupInvitationManagerImpl extends ConversationClientImpl
 		ContactManager.AddContactHook, ContactManager.RemoveContactHook,
 		ConversationManager.ConversationClient {
 
-	private static final ClientId CLIENT_ID =
-			new ClientId(StringUtils.fromHexString(
-					"B55231ABFC4A10666CD93D649B1D7F4F"
-							+ "016E65B87BB4C04F4E35613713DBCD13"));
-
 	private final ContactGroupFactory contactGroupFactory;
 	private final Group localGroup;
 
@@ -52,12 +45,7 @@ public class GroupInvitationManagerImpl extends ConversationClientImpl
 			ContactGroupFactory contactGroupFactory) {
 		super(db, clientHelper, metadataParser);
 		this.contactGroupFactory = contactGroupFactory;
-		localGroup = contactGroupFactory.createLocalGroup(getClientId());
-	}
-
-	@Override
-	public ClientId getClientId() {
-		return CLIENT_ID;
+		localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID);
 	}
 
 	@Override
@@ -94,7 +82,7 @@ public class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	@Override
 	protected Group getContactGroup(Contact c) {
-		return contactGroupFactory.createContactGroup(getClientId(), c);
+		return contactGroupFactory.createContactGroup(CLIENT_ID, c);
 	}
 
 	@Override

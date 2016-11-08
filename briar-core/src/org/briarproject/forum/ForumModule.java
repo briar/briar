@@ -32,9 +32,8 @@ public class ForumModule {
 	ForumManager provideForumManager(ForumManagerImpl forumManager,
 			ValidationManager validationManager) {
 
-		validationManager
-				.registerIncomingMessageHook(forumManager.getClientId(),
-						forumManager);
+		validationManager.registerIncomingMessageHook(ForumManager.CLIENT_ID,
+				forumManager);
 
 		return forumManager;
 	}

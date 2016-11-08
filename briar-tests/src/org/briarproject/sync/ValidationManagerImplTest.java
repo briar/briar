@@ -39,7 +39,8 @@ import static org.briarproject.api.sync.ValidationManager.State.UNKNOWN;
 
 public class ValidationManagerImplTest extends BriarTestCase {
 
-	private final ClientId clientId = new ClientId(TestUtils.getRandomId());
+	private final ClientId clientId =
+			new ClientId(TestUtils.getRandomString(5));
 	private final MessageId messageId = new MessageId(TestUtils.getRandomId());
 	private final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 	private final MessageId messageId2 = new MessageId(TestUtils.getRandomId());

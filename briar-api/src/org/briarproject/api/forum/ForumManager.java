@@ -14,8 +14,8 @@ import java.util.Collection;
 
 public interface ForumManager extends MessageTracker {
 
-	/** Returns the unique ID of the forum client. */
-	ClientId getClientId();
+	/** The unique ID of the forum client. */
+	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.forum");
 
 	/** Subscribes to a forum. */
 	Forum addForum(String name) throws DbException;

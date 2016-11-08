@@ -30,7 +30,6 @@ import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.IoExecutor;
 import org.briarproject.api.plugins.TorConstants;
-import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.system.Clock;
@@ -73,11 +72,6 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	private static final Logger LOG =
 			Logger.getLogger(FeedManagerImpl.class.getName());
 
-	private static final ClientId CLIENT_ID =
-			new ClientId(StringUtils.fromHexString(
-					"466565644d616e6167657202fb797097"
-							+ "255af837abbf8c16e250b3c2ccc286eb"));
-
 	private static final int CONNECT_TIMEOUT = 60 * 1000; // Milliseconds
 
 	private final ScheduledExecutorService feedExecutor;
@@ -112,11 +106,6 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		this.identityManager = identityManager;
 		this.blogManager = blogManager;
 		this.torSocketFactory = torSocketFactory;
-	}
-
-	@Override
-	public ClientId getClientId() {
-		return CLIENT_ID;
 	}
 
 	@Override
@@ -510,7 +499,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	}
 
 	private Group getLocalGroup() {
-		return contactGroupFactory.createLocalGroup(getClientId());
+		return contactGroupFactory.createLocalGroup(CLIENT_ID);
 	}
 
 }
