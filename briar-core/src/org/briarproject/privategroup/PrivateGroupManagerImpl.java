@@ -12,6 +12,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.GroupDissolvedEvent;
+import org.briarproject.api.event.GroupMessageAddedEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.identity.AuthorId;
@@ -36,6 +37,7 @@ import org.briarproject.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -197,15 +199,22 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
+			// store message and metadata
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(KEY_TYPE, POST.getInt());
 			if (m.getParent() != null)
 				meta.put(KEY_PARENT_MSG_ID, m.getParent());
 			addMessageMetadata(meta, m, true);
+			GroupId g = m.getMessage().getGroupId();
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
-			setPreviousMsgId(txn, m.getMessage().getGroupId(),
-					m.getMessage().getId());
+
+			// track message
+			setPreviousMsgId(txn, g, m.getMessage().getId());
 			trackOutgoingMessage(txn, m.getMessage());
+
+			// broadcast event
+			attachGroupMessageAddedEvent(txn, m.getMessage(), meta, true);
+
 			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
@@ -355,6 +364,13 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 				status, read);
 	}
 
+	private GroupMessageHeader getGroupMessageHeader(Transaction txn, GroupId g,
+			MessageId id, BdfDictionary meta)
+			throws DbException, FormatException {
+		return getGroupMessageHeader(txn, g, id, meta,
+				Collections.<AuthorId, Status>emptyMap());
+	}
+
 	@Override
 	public Collection<GroupMember> getMembers(GroupId g) throws DbException {
 		Transaction txn = db.startTransaction(true);
@@ -423,6 +439,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			case JOIN:
 				addMember(txn, m.getGroupId(), getAuthor(meta));
 				trackIncomingMessage(txn, m);
+				attachGroupMessageAddedEvent(txn, m, meta, false);
 				return true;
 			case POST:
 				// timestamp must be greater than the timestamps of parent post
@@ -455,11 +472,21 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 				if (previousType != JOIN && previousType != POST)
 					throw new FormatException();
 				trackIncomingMessage(txn, m);
+				attachGroupMessageAddedEvent(txn, m, meta, false);
 				return true;
 			default:
 				// the validator should only let valid types pass
 				throw new RuntimeException("Unknown MessageType");
 		}
+	}
+
+	private void attachGroupMessageAddedEvent(Transaction txn, Message m,
+			BdfDictionary meta, boolean local)
+			throws DbException, FormatException {
+		GroupMessageHeader h =
+				getGroupMessageHeader(txn, m.getGroupId(), m.getId(), meta);
+		Event e = new GroupMessageAddedEvent(m.getGroupId(), h, local);
+		txn.attach(e);
 	}
 
 	private void addMember(Transaction txn, GroupId g, Author a)
