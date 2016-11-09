@@ -53,8 +53,10 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	@UiThread
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
-		Size size = camera.getParameters().getPreviewSize();
-		new DecoderTask(data, size.width, size.height).execute();
+		if (camera == this.camera) {
+			Size size = camera.getParameters().getPreviewSize();
+			new DecoderTask(data, size.width, size.height).execute();
+		}
 	}
 
 	private class DecoderTask extends AsyncTask<Void, Void, Void> {
