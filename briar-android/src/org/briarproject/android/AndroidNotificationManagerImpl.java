@@ -246,7 +246,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			showContactNotification(p.getContactId());
 		} else if (e instanceof GroupMessageAddedEvent) {
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
-			showGroupMessageNotification(g.getGroupId());
+			if (!g.isLocal()) showGroupMessageNotification(g.getGroupId());
 		} else if (e instanceof ForumPostReceivedEvent) {
 			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
 			showForumPostNotification(f.getGroupId());
