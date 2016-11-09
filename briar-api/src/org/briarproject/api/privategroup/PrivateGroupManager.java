@@ -22,22 +22,24 @@ public interface PrivateGroupManager extends MessageTracker {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.privategroup");
 
 	/**
-	 * Adds a new private group and joins it as the creator.
+	 * Adds a new private group and joins it.
 	 *
 	 * @param group        The private group to add
 	 * @param joinMsg      The creators's join message
+	 * @param creator      True if the group is added by its creator
 	 */
-	void addPrivateGroup(PrivateGroup group, GroupMessage joinMsg)
-			throws DbException;
+	void addPrivateGroup(PrivateGroup group, GroupMessage joinMsg,
+			boolean creator) throws DbException;
 
 	/**
-	 * Adds a new private group and joins it as a member.
+	 * Adds a new private group and joins it.
 	 *
 	 * @param group        The private group to add
 	 * @param joinMsg      The new member's join message
+	 * @param creator      True if the group is added by its creator
 	 */
 	void addPrivateGroup(Transaction txn, PrivateGroup group,
-			GroupMessage joinMsg) throws DbException;
+			GroupMessage joinMsg, boolean creator) throws DbException;
 
 	/**
 	 * Removes a dissolved private group.
@@ -45,7 +47,7 @@ public interface PrivateGroupManager extends MessageTracker {
 	void removePrivateGroup(GroupId g) throws DbException;
 
 	/**
-	 * Gets the MessageId of your previous message sent to the group
+	 * Gets the MessageId of the user's previous message sent to the group
 	 */
 	MessageId getPreviousMsgId(GroupId g) throws DbException;
 
@@ -107,7 +109,7 @@ public interface PrivateGroupManager extends MessageTracker {
 
 	/**
 	 * This method needs to be called when a contact relationship
-	 * has been revealed between you and the Author with AuthorId a
+	 * has been revealed between the user and the Author with AuthorId a
 	 * in the Group identified by the GroupId g.
 	 *
 	 * @param byContact true if the remote contact has revealed

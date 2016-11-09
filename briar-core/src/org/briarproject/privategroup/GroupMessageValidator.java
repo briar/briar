@@ -29,14 +29,14 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH
 import static org.briarproject.api.privategroup.MessageType.JOIN;
 import static org.briarproject.api.privategroup.MessageType.POST;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
-import static org.briarproject.privategroup.Constants.KEY_MEMBER_ID;
-import static org.briarproject.privategroup.Constants.KEY_MEMBER_NAME;
-import static org.briarproject.privategroup.Constants.KEY_MEMBER_PUBLIC_KEY;
-import static org.briarproject.privategroup.Constants.KEY_PARENT_MSG_ID;
-import static org.briarproject.privategroup.Constants.KEY_PREVIOUS_MSG_ID;
-import static org.briarproject.privategroup.Constants.KEY_READ;
-import static org.briarproject.privategroup.Constants.KEY_TIMESTAMP;
-import static org.briarproject.privategroup.Constants.KEY_TYPE;
+import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_ID;
+import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_NAME;
+import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_PUBLIC_KEY;
+import static org.briarproject.privategroup.GroupConstants.KEY_PARENT_MSG_ID;
+import static org.briarproject.privategroup.GroupConstants.KEY_PREVIOUS_MSG_ID;
+import static org.briarproject.privategroup.GroupConstants.KEY_READ;
+import static org.briarproject.privategroup.GroupConstants.KEY_TIMESTAMP;
+import static org.briarproject.privategroup.GroupConstants.KEY_TYPE;
 
 class GroupMessageValidator extends BdfMessageValidator {
 

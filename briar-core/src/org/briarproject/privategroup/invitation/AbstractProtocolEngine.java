@@ -183,7 +183,8 @@ abstract class AbstractProtocolEngine<S extends Session>
 		GroupMessage joinMessage = groupMessageFactory.createJoinMessage(
 				privateGroup.getId(), timestamp, member, invite.getTimestamp(),
 				invite.getSignature());
-		privateGroupManager.addPrivateGroup(txn, privateGroup, joinMessage);
+		privateGroupManager
+				.addPrivateGroup(txn, privateGroup, joinMessage, false);
 	}
 
 	long getLocalTimestamp(S session) {

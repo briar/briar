@@ -18,6 +18,7 @@ import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.nullsafety.NotNullByDefault;
+import org.briarproject.api.privategroup.ContactRelationshipRevealedEvent;
 import org.briarproject.api.privategroup.GroupMember;
 import org.briarproject.api.privategroup.GroupMessage;
 import org.briarproject.api.privategroup.GroupMessageHeader;
@@ -52,21 +53,21 @@ import static org.briarproject.api.privategroup.MessageType.JOIN;
 import static org.briarproject.api.privategroup.MessageType.POST;
 import static org.briarproject.api.privategroup.Visibility.INVISIBLE;
 import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_CONTACT;
-import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_YOU;
+import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_US;
 import static org.briarproject.api.privategroup.Visibility.VISIBLE;
-import static org.briarproject.privategroup.Constants.GROUP_KEY_CREATOR_ID;
-import static org.briarproject.privategroup.Constants.GROUP_KEY_DISSOLVED;
-import static org.briarproject.privategroup.Constants.GROUP_KEY_MEMBERS;
-import static org.briarproject.privategroup.Constants.GROUP_KEY_OUR_GROUP;
-import static org.briarproject.privategroup.Constants.GROUP_KEY_VISIBILITY;
-import static org.briarproject.privategroup.Constants.KEY_MEMBER_ID;
-import static org.briarproject.privategroup.Constants.KEY_MEMBER_NAME;
-import static org.briarproject.privategroup.Constants.KEY_MEMBER_PUBLIC_KEY;
-import static org.briarproject.privategroup.Constants.KEY_PARENT_MSG_ID;
-import static org.briarproject.privategroup.Constants.KEY_PREVIOUS_MSG_ID;
-import static org.briarproject.privategroup.Constants.KEY_READ;
-import static org.briarproject.privategroup.Constants.KEY_TIMESTAMP;
-import static org.briarproject.privategroup.Constants.KEY_TYPE;
+import static org.briarproject.privategroup.GroupConstants.GROUP_KEY_CREATOR_ID;
+import static org.briarproject.privategroup.GroupConstants.GROUP_KEY_DISSOLVED;
+import static org.briarproject.privategroup.GroupConstants.GROUP_KEY_MEMBERS;
+import static org.briarproject.privategroup.GroupConstants.GROUP_KEY_OUR_GROUP;
+import static org.briarproject.privategroup.GroupConstants.GROUP_KEY_VISIBILITY;
+import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_ID;
+import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_NAME;
+import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_PUBLIC_KEY;
+import static org.briarproject.privategroup.GroupConstants.KEY_PARENT_MSG_ID;
+import static org.briarproject.privategroup.GroupConstants.KEY_PREVIOUS_MSG_ID;
+import static org.briarproject.privategroup.GroupConstants.KEY_READ;
+import static org.briarproject.privategroup.GroupConstants.KEY_TIMESTAMP;
+import static org.briarproject.privategroup.GroupConstants.KEY_TYPE;
 
 @NotNullByDefault
 public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
@@ -89,11 +90,11 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 	}
 
 	@Override
-	public void addPrivateGroup(PrivateGroup group, GroupMessage joinMsg)
-			throws DbException {
+	public void addPrivateGroup(PrivateGroup group, GroupMessage joinMsg,
+			boolean creator) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
-			addPrivateGroup(txn, group, joinMsg, true);
+			addPrivateGroup(txn, group, joinMsg, creator);
 			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
@@ -102,11 +103,6 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 
 	@Override
 	public void addPrivateGroup(Transaction txn, PrivateGroup group,
-			GroupMessage joinMsg) throws DbException {
-		addPrivateGroup(txn, group, joinMsg, false);
-	}
-
-	private void addPrivateGroup(Transaction txn, PrivateGroup group,
 			GroupMessage joinMsg, boolean creator) throws DbException {
 		try {
 			db.addGroup(txn, group.getGroup());
@@ -420,8 +416,8 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			BdfList list = meta.getList(GROUP_KEY_MEMBERS);
 			Map<Author, Visibility> members =
 					new HashMap<Author, Visibility>(list.size());
-			for (Object o : list) {
-				BdfDictionary d = (BdfDictionary) o;
+			for (int i = 0 ; i < list.size(); i++) {
+				BdfDictionary d = list.getDictionary(i);
 				Author member = getAuthor(d);
 				Visibility v = getVisibility(d);
 				members.put(member, v);
@@ -446,21 +442,22 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			boolean byContact) throws FormatException, DbException {
 		BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn, g);
 		BdfList members = meta.getList(GROUP_KEY_MEMBERS);
+		Visibility v = INVISIBLE;
 		boolean foundMember = false;
-		for (Object o : members) {
-			BdfDictionary d = (BdfDictionary) o;
+		for (int i = 0 ; i < members.size(); i++) {
+			BdfDictionary d = members.getDictionary(i);
 			AuthorId memberId = new AuthorId(d.getRaw(KEY_MEMBER_ID));
 			if (a.equals(memberId)) {
 				foundMember = true;
 				Visibility vOld = getVisibility(d);
 				if (vOld != INVISIBLE) throw new ProtocolStateException();
-				Visibility vNew =
-						byContact ? REVEALED_BY_CONTACT : REVEALED_BY_YOU;
-				d.put(GROUP_KEY_VISIBILITY, vNew.getInt());
+				v = byContact ? REVEALED_BY_CONTACT : REVEALED_BY_US;
+				d.put(GROUP_KEY_VISIBILITY, v.getInt());
 			}
 		}
 		if (!foundMember) throw new ProtocolStateException();
 		clientHelper.mergeGroupMetadata(txn, g, meta);
+		txn.attach(new ContactRelationshipRevealedEvent(g, v));
 	}
 
 	@Override

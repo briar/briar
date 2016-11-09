@@ -2,7 +2,7 @@ package org.briarproject.privategroup;
 
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
-interface Constants {
+interface GroupConstants {
 
 	// Database keys
 	String KEY_TYPE = "type";

@@ -63,7 +63,7 @@ import static org.briarproject.TestUtils.getRandomBytes;
 import static org.briarproject.api.identity.Author.Status.VERIFIED;
 import static org.briarproject.api.privategroup.Visibility.INVISIBLE;
 import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_CONTACT;
-import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_YOU;
+import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_US;
 import static org.briarproject.api.privategroup.Visibility.VISIBLE;
 import static org.briarproject.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
@@ -344,7 +344,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		GroupMessage joinMsg0 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author0,
 						joinTime, getRandomBytes(12));
-		groupManager0.addPrivateGroup(privateGroup0, joinMsg0);
+		groupManager0.addPrivateGroup(privateGroup0, joinMsg0, true);
 		assertEquals(joinMsg0.getMessage().getId(),
 				groupManager0.getPreviousMsgId(groupId0));
 
@@ -367,7 +367,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		GroupMessage joinMsg1 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author1,
 						inviteTime, creatorSignature);
-		groupManager1.addPrivateGroup(privateGroup0, joinMsg1);
+		groupManager1.addPrivateGroup(privateGroup0, joinMsg1, false);
 		assertEquals(joinMsg1.getMessage().getId(),
 				groupManager1.getPreviousMsgId(groupId0));
 
@@ -411,7 +411,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		GroupMessage joinMsg0 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author0,
 						inviteTime, creatorSignature);
-		groupManager0.addPrivateGroup(privateGroup0, joinMsg0);
+		groupManager0.addPrivateGroup(privateGroup0, joinMsg0, true);
 		assertEquals(joinMsg0.getMessage().getId(),
 				groupManager0.getPreviousMsgId(groupId0));
 
@@ -434,7 +434,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		GroupMessage joinMsg1 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author1,
 						inviteTime, creatorSignature);
-		groupManager1.addPrivateGroup(privateGroup0, joinMsg1);
+		groupManager1.addPrivateGroup(privateGroup0, joinMsg1, false);
 		assertEquals(joinMsg1.getMessage().getId(),
 				groupManager1.getPreviousMsgId(groupId0));
 
@@ -475,7 +475,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 
 		Collection<GroupMember> members1 = groupManager1.getMembers(groupId0);
 		assertEquals(2, members1.size());
-		for (GroupMember m : members0) {
+		for (GroupMember m : members1) {
 			if (m.getAuthor().equals(author1)) {
 				assertEquals(VISIBLE, m.getVisibility());
 			} else {
@@ -538,7 +538,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 				.createJoinMessage(privateGroup0.getId(), joinTime, author2,
 						inviteTime, creatorSignature);
 		Transaction txn2 = db2.startTransaction(false);
-		groupManager2.addPrivateGroup(txn2, privateGroup0, joinMsg2);
+		groupManager2.addPrivateGroup(txn2, privateGroup0, joinMsg2, false);
 
 		// make group visible to 0
 		db2.setVisibleToContact(txn2, contactId01, privateGroup0.getId(), true);
@@ -589,7 +589,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		members1 = groupManager1.getMembers(groupId0);
 		for (GroupMember m : members1) {
 			if (m.getAuthor().equals(author2)) {
-				assertEquals(REVEALED_BY_YOU, m.getVisibility());
+				assertEquals(REVEALED_BY_US, m.getVisibility());
 			}
 		}
 		members2 = groupManager2.getMembers(groupId0);
@@ -607,7 +607,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 				JoinMessageHeader j = (JoinMessageHeader) h;
 				if (h.getAuthor().equals(author2))
 					// 1 revealed the relationship to 2
-					assertEquals(REVEALED_BY_YOU, j.getVisibility());
+					assertEquals(REVEALED_BY_US, j.getVisibility());
 				else
 					// 1's other relationship (to 1 and creator) are visible
 					assertEquals(VISIBLE, j.getVisibility());
@@ -633,16 +633,16 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		defaultInit();
 
 		// group is not dissolved initially
-		assertFalse(groupManager0.isDissolved(groupId0));
+		assertFalse(groupManager1.isDissolved(groupId0));
 
 		// creator dissolves group
-		Transaction txn0 = db0.startTransaction(false);
-		groupManager0.markGroupDissolved(txn0, groupId0);
-		db0.commitTransaction(txn0);
-		db0.endTransaction(txn0);
+		Transaction txn1 = db1.startTransaction(false);
+		groupManager1.markGroupDissolved(txn1, groupId0);
+		db1.commitTransaction(txn1);
+		db1.endTransaction(txn1);
 
 		// group is dissolved now
-		assertTrue(groupManager0.isDissolved(groupId0));
+		assertTrue(groupManager1.isDissolved(groupId0));
 	}
 
 	@After
@@ -737,7 +737,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		long joinTime = clock.currentTimeMillis();
 		GroupMessage joinMsg0 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author0);
-		groupManager0.addPrivateGroup(privateGroup0, joinMsg0);
+		groupManager0.addPrivateGroup(privateGroup0, joinMsg0, true);
 		assertEquals(joinMsg0.getMessage().getId(),
 				groupManager0.getPreviousMsgId(groupId0));
 
@@ -760,10 +760,10 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		GroupMessage joinMsg1 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author1,
 						inviteTime, creatorSignature);
-		Transaction txn1 = db1.startTransaction(false);
-		groupManager1.addPrivateGroup(txn1, privateGroup0, joinMsg1);
+		groupManager1.addPrivateGroup(privateGroup0, joinMsg1, false);
 
 		// make group visible to 0
+		Transaction txn1 = db1.startTransaction(false);
 		db1.setVisibleToContact(txn1, contactId01, privateGroup0.getId(), true);
 		db1.commitTransaction(txn1);
 		db1.endTransaction(txn1);

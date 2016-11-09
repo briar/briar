@@ -25,9 +25,7 @@ public class PrivateGroup extends NamedGroup implements Shareable {
 
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof PrivateGroup &&
-				creator.equals(((PrivateGroup) o).getCreator()) &&
-				super.equals(o);
+		return o instanceof PrivateGroup &&	super.equals(o);
 	}
 
 }
