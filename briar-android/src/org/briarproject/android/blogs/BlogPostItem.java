@@ -9,7 +9,9 @@ import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
-// This class is not thread-safe
+import javax.annotation.concurrent.NotThreadSafe;
+
+@NotThreadSafe
 public class BlogPostItem implements Comparable<BlogPostItem> {
 
 	private final BlogPostHeader header;

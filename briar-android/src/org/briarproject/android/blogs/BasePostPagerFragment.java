@@ -13,10 +13,12 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import org.briarproject.R;
-import org.briarproject.android.blogs.BaseController.OnBlogPostAddedListener;
+import org.briarproject.android.blogs.BaseController.BlogListener;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.api.blogs.BlogPostHeader;
-import org.briarproject.api.db.DbException;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.ArrayList;
@@ -28,8 +30,11 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.android.blogs.BasePostPagerFragment.BlogPostPagerAdapter.INVALID_POSITION;
 
+@UiThread
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 abstract class BasePostPagerFragment extends BaseFragment
-		implements OnBlogPostAddedListener {
+		implements BlogListener {
 
 	static final String POST_ID = "briar.POST_ID";
 
@@ -40,8 +45,8 @@ abstract class BasePostPagerFragment extends BaseFragment
 
 	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle state) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container, @Nullable Bundle state) {
 
 		Bundle args;
 		if (state == null) args = getArguments();
@@ -65,6 +70,10 @@ abstract class BasePostPagerFragment extends BaseFragment
 	@Override
 	public void onStart() {
 		super.onStart();
+		loadBlogPosts();
+	}
+
+	protected void loadBlogPosts() {
 		if (postId == null) {
 			MessageId selected = getSelectedPost();
 			if (selected != null) loadBlogPosts(selected);
@@ -86,23 +95,23 @@ abstract class BasePostPagerFragment extends BaseFragment
 		loadBlogPost(header);
 	}
 
-	abstract void loadBlogPosts(final MessageId select);
+	abstract Fragment createFragment(GroupId g, MessageId m);
+
+	abstract void loadBlogPosts(MessageId select);
 
 	abstract void loadBlogPost(BlogPostHeader header);
 
-	@UiThread
 	protected void onBlogPostsLoaded(MessageId select,
 			Collection<BlogPostItem> posts) {
-
 		postId = null;
 		postPagerAdapter.setPosts(posts);
 		selectPost(select);
 	}
 
-	@UiThread
-	protected void onBlogPostsLoadedException(DbException exception) {
-		// TODO: Decide how to handle errors in the UI
-		finish();
+	protected void onBlogPostLoaded(BlogPostItem post) {
+		MessageId selected = getSelectedPost();
+		postPagerAdapter.addPost(post);
+		if (selected != null) selectPost(selected);
 	}
 
 	@Nullable
@@ -121,16 +130,11 @@ abstract class BasePostPagerFragment extends BaseFragment
 		}
 	}
 
-	protected void addPost(BlogPostItem post) {
-		MessageId selected = getSelectedPost();
-		postPagerAdapter.addPost(post);
-		if (selected != null) selectPost(selected);
-	}
-
 	@UiThread
-	static class BlogPostPagerAdapter extends FragmentStatePagerAdapter {
+	class BlogPostPagerAdapter extends FragmentStatePagerAdapter {
 
 		static final int INVALID_POSITION = -1;
+
 		private final List<BlogPostItem> posts = new ArrayList<>();
 
 		private BlogPostPagerAdapter(FragmentManager fm) {
@@ -145,7 +149,7 @@ abstract class BasePostPagerFragment extends BaseFragment
 		@Override
 		public Fragment getItem(int position) {
 			BlogPostItem post = posts.get(position);
-			return FeedPostFragment.newInstance(post.getGroupId(), post.getId());
+			return createFragment(post.getGroupId(), post.getId());
 		}
 
 		private BlogPostItem getPost(int position) {
@@ -174,10 +178,5 @@ abstract class BasePostPagerFragment extends BaseFragment
 			}
 			return INVALID_POSITION;
 		}
-	}
-
-	@Override
-	public void onBlogRemoved() {
-		finish();
 	}
 }

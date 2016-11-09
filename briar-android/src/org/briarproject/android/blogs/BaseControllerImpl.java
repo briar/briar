@@ -46,7 +46,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	private final Map<MessageId, BlogPostHeader> headerCache =
 			new ConcurrentHashMap<>();
 
-	private volatile OnBlogPostAddedListener listener;
+	private volatile BlogListener listener;
 
 	BaseControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus,
@@ -73,7 +73,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void setOnBlogPostAddedListener(OnBlogPostAddedListener listener) {
+	public void setBlogListener(BlogListener listener) {
 		this.listener = listener;
 	}
 

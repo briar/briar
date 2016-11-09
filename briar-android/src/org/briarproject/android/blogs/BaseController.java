@@ -8,6 +8,7 @@ import org.briarproject.android.controller.handler.ExceptionHandler;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
@@ -33,9 +34,10 @@ interface BaseController {
 	void repeatPost(BlogPostItem item, @Nullable String comment,
 			ExceptionHandler<DbException> handler);
 
-	void setOnBlogPostAddedListener(OnBlogPostAddedListener listener);
+	void setBlogListener(BlogListener listener);
 
-	interface OnBlogPostAddedListener extends DestroyableContext {
+	@NotNullByDefault
+	interface BlogListener extends DestroyableContext {
 
 		@UiThread
 		void onBlogPostAdded(BlogPostHeader header, boolean local);

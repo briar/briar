@@ -2,6 +2,7 @@ package org.briarproject.android.blogs;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,8 @@ import android.view.ViewGroup;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
@@ -17,6 +20,9 @@ import javax.inject.Inject;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BasePostPagerFragment.POST_ID;
 
+@UiThread
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class FeedPostFragment extends BasePostFragment {
 
 	public final static String TAG = FeedPostFragment.class.getName();
@@ -40,8 +46,9 @@ public class FeedPostFragment extends BasePostFragment {
 
 	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 
 		Bundle args = getArguments();
 		byte[] b = args.getByteArray(GROUP_ID);

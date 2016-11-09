@@ -1,20 +1,30 @@
 package org.briarproject.android.blogs;
 
 import android.os.Bundle;
+import android.support.annotation.UiThread;
+import android.support.v4.app.Fragment;
 
 import org.briarproject.android.ActivityComponent;
+import org.briarproject.android.blogs.FeedController.FeedListener;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
 import javax.inject.Inject;
 
-public class FeedPostPagerFragment extends BasePostPagerFragment {
+@UiThread
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
+public class FeedPostPagerFragment extends BasePostPagerFragment
+	implements FeedListener {
 
-	public final static String TAG = FeedPostPagerFragment.class.getName();
+	private static final String TAG = FeedPostPagerFragment.class.getName();
 
 	@Inject
 	FeedController feedController;
@@ -32,7 +42,7 @@ public class FeedPostPagerFragment extends BasePostPagerFragment {
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
-		feedController.setOnBlogPostAddedListener(this);
+		feedController.setFeedListener(this);
 	}
 
 	@Override
@@ -53,6 +63,11 @@ public class FeedPostPagerFragment extends BasePostPagerFragment {
 	}
 
 	@Override
+	Fragment createFragment(GroupId g, MessageId m) {
+		return FeedPostFragment.newInstance(g, m);
+	}
+
+	@Override
 	void loadBlogPosts(final MessageId select) {
 		feedController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
@@ -64,7 +79,7 @@ public class FeedPostPagerFragment extends BasePostPagerFragment {
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						onBlogPostsLoadedException(exception);
+						// TODO: Decide how to handle errors in the UI
 					}
 				});
 	}
@@ -76,14 +91,23 @@ public class FeedPostPagerFragment extends BasePostPagerFragment {
 						this) {
 					@Override
 					public void onResultUi(BlogPostItem post) {
-						addPost(post);
+						onBlogPostLoaded(post);
 					}
 
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO: Decide how to handle errors in the UI
-						finish();
 					}
 				});
+	}
+
+	@Override
+	public void onBlogAdded() {
+		loadBlogPosts();
+	}
+
+	@Override
+	public void onBlogRemoved() {
+		loadBlogPosts();
 	}
 }
