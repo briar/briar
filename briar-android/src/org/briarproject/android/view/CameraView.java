@@ -14,6 +14,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import org.briarproject.android.util.PreviewConsumer;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,6 +35,8 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 @SuppressWarnings("deprecation")
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		AutoFocusCallback {
 
@@ -44,7 +48,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	private PreviewConsumer previewConsumer = null;
 	private Surface surface = null;
 	private int displayOrientation = 0, surfaceWidth = 0, surfaceHeight = 0;
-	private boolean autoFocus = false;
+	private boolean previewStarted = false, autoFocus = false;
 
 	public CameraView(Context context) {
 		super(context);
@@ -56,6 +60,12 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	public CameraView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
+	}
+
+	@UiThread
+	public void setPreviewConsumer(PreviewConsumer previewConsumer) {
+		LOG.info("Setting preview consumer");
+		this.previewConsumer = previewConsumer;
 	}
 
 	@Override
@@ -70,15 +80,18 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		super.onDetachedFromWindow();
 		setKeepScreenOn(false);
 		getHolder().removeCallback(this);
-		if (surface != null) surface.release();
 	}
 
 	@UiThread
-	public void start(Camera camera, PreviewConsumer previewConsumer,
-			int rotationDegrees) {
-		this.camera = camera;
-		this.previewConsumer = previewConsumer;
-		setDisplayOrientation(rotationDegrees);
+	public void start() {
+		try {
+			LOG.info("Opening camera");
+			camera = Camera.open();
+		} catch (RuntimeException e) {
+			LOG.log(WARNING, "Error opening camera", e);
+			return;
+		}
+		setDisplayOrientation(0);
 		// Use barcode scene mode if it's available
 		Parameters params = camera.getParameters();
 		params = setSceneMode(camera, params);
@@ -96,14 +109,17 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		enableAutoFocus(params.getFocusMode());
 		// Log the parameters that are being used (maybe not what we asked for)
 		logCameraParameters();
-		if (surface != null) startPreview(getHolder());
+		// Start the preview when the camera and the surface are both ready
+		if (surface != null && !previewStarted) startPreview(getHolder());
 	}
 
 	@UiThread
 	public void stop() {
+		if (camera == null) return;
 		stopPreview();
 		try {
-			if (camera != null) camera.release();
+			LOG.info("Releasing camera");
+			camera.release();
 		} catch (RuntimeException e) {
 			LOG.log(WARNING, "Error releasing camera", e);
 		}
@@ -112,9 +128,11 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	@UiThread
 	private void startPreview(SurfaceHolder holder) {
+		LOG.info("Starting preview");
 		try {
 			camera.setPreviewDisplay(holder);
 			camera.startPreview();
+			previewStarted = true;
 			startConsumer();
 		} catch (IOException | RuntimeException e) {
 			LOG.log(WARNING, "Error starting camera preview", e);
@@ -123,24 +141,26 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	@UiThread
 	private void stopPreview() {
+		LOG.info("Stopping preview");
 		try {
 			stopConsumer();
-			if (camera != null) camera.stopPreview();
+			camera.stopPreview();
 		} catch (RuntimeException e) {
 			LOG.log(WARNING, "Error stopping camera preview", e);
 		}
+		previewStarted = false;
 	}
 
 	@UiThread
-	public void startConsumer() {
+	private void startConsumer() {
 		if (autoFocus) camera.autoFocus(this);
 		previewConsumer.start(camera);
 	}
 
 	@UiThread
-	public void stopConsumer() {
-		if (previewConsumer != null) previewConsumer.stop();
+	private void stopConsumer() {
 		if (autoFocus) camera.cancelAutoFocus();
+		previewConsumer.stop();
 	}
 
 	@UiThread
@@ -295,9 +315,13 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	@UiThread
 	private void surfaceCreatedUi(SurfaceHolder holder) {
 		LOG.info("Surface created");
-		if (surface != null) throw new IllegalStateException();
+		if (surface != null && surface != holder.getSurface()) {
+			LOG.info("Releasing old surface");
+			surface.release();
+		}
 		surface = holder.getSurface();
-		if (camera != null) startPreview(holder);
+		// Start the preview when the camera and the surface are both ready
+		if (camera != null && !previewStarted) startPreview(holder);
 	}
 
 	@Override
@@ -314,9 +338,10 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	@UiThread
 	private void surfaceChangedUi(SurfaceHolder holder, int w, int h) {
 		if (LOG.isLoggable(INFO)) LOG.info("Surface changed: " + w + "x" + h);
-		// Release the previous surface if necessary
-		if (surface != null && surface != holder.getSurface())
+		if (surface != null && surface != holder.getSurface()) {
+			LOG.info("Releasing old surface");
 			surface.release();
+		}
 		surface = holder.getSurface();
 		surfaceWidth = w;
 		surfaceHeight = h;
@@ -346,8 +371,12 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	@UiThread
 	private void surfaceDestroyedUi(SurfaceHolder holder) {
 		LOG.info("Surface destroyed");
-		if (holder.getSurface() != surface) throw new IllegalStateException();
-		if (surface != null) surface.release();
+		if (surface != null && surface != holder.getSurface()) {
+			LOG.info("Releasing old surface");
+			surface.release();
+		}
+		surface = null;
+		holder.getSurface().release();
 	}
 
 	@Override

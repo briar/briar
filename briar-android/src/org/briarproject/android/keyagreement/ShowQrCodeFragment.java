@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -58,7 +57,6 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 
 public class ShowQrCodeFragment extends BaseEventFragment
 		implements QrCodeDecoder.ResultCallback {
@@ -86,7 +84,6 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	private ViewGroup mainProgressContainer;
 
 	private BluetoothStateReceiver receiver;
-	private QrCodeDecoder decoder;
 	private boolean gotRemotePayload, waitingForBluetooth;
 	private KeyAgreementTask task;
 
@@ -136,8 +133,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		super.onActivityCreated(savedInstanceState);
 
 		getActivity().setRequestedOrientation(SCREEN_ORIENTATION_NOSENSOR);
-
-		decoder = new QrCodeDecoder(this);
+		cameraView.setPreviewConsumer(new QrCodeDecoder(this));
 	}
 
 	@Override
@@ -163,8 +159,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		} else {
 			startListening();
 		}
-
-		openCamera();
+		cameraView.start();
 	}
 
 	@Override
@@ -172,7 +167,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		super.onStop();
 		stopListening();
 		if (receiver != null) getActivity().unregisterReceiver(receiver);
-		releaseCamera();
+		cameraView.stop();
 	}
 
 	@UiThread
@@ -200,45 +195,11 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		});
 	}
 
-	@SuppressWarnings("deprecation")
-	@UiThread
-	private void openCamera() {
-		LOG.info("Opening camera");
-		Camera camera;
-		try {
-			camera = Camera.open();
-		} catch (RuntimeException e) {
-			LOG.log(WARNING, e.toString(), e);
-			camera = null;
-		}
-		if (camera == null) {
-			LOG.log(WARNING, "Error opening camera");
-			Toast.makeText(getActivity(), R.string.could_not_open_camera,
-					LENGTH_LONG).show();
-			finish();
-			return;
-		}
-		cameraView.start(camera, decoder, 0);
-	}
-
-	@UiThread
-	private void releaseCamera() {
-		LOG.info("Releasing camera");
-		try {
-			cameraView.stop();
-		} catch (RuntimeException e) {
-			LOG.log(WARNING, "Error releasing camera", e);
-			// TODO better solution
-			finish();
-		}
-	}
-
 	@UiThread
 	private void reset() {
 		statusView.setVisibility(INVISIBLE);
 		cameraView.setVisibility(VISIBLE);
 		gotRemotePayload = false;
-		cameraView.startConsumer();
 		startListening();
 	}
 
@@ -380,7 +341,6 @@ public class ShowQrCodeFragment extends BaseEventFragment
 				LOG.info("Got result from decoder");
 				if (!gotRemotePayload) {
 					gotRemotePayload = true;
-					cameraView.stopConsumer();
 					qrCodeScanned(result.getText());
 				}
 			}
