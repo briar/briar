@@ -7,6 +7,8 @@ import org.briarproject.api.privategroup.GroupMember;
 
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.api.privategroup.Visibility.INVISIBLE;
+
 @Immutable
 @NotNullByDefault
 class MemberListItem {
@@ -17,7 +19,7 @@ class MemberListItem {
 
 	public MemberListItem(GroupMember groupMember) {
 		this.member = groupMember.getAuthor();
-		this.sharing = groupMember.isShared();
+		this.sharing = groupMember.getVisibility() != INVISIBLE; // TODO #732
 		this.status = groupMember.getStatus();
 	}
 

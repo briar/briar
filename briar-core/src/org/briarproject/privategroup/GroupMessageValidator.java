@@ -98,7 +98,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 		PrivateGroup pg = privateGroupFactory.parsePrivateGroup(g);
 
 		// invite is null if the member is the creator of the private group
-		Author creator = pg.getAuthor();
+		Author creator = pg.getCreator();
 		BdfList invite = body.getOptionalList(3);
 		if (invite == null) {
 			if (!member.equals(creator))

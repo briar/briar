@@ -12,20 +12,22 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class PrivateGroup extends NamedGroup implements Shareable {
 
-	private final Author author;
+	private final Author creator;
 
-	public PrivateGroup(Group group, String name, Author author, byte[] salt) {
+	public PrivateGroup(Group group, String name, Author creator, byte[] salt) {
 		super(group, name, salt);
-		this.author = author;
+		this.creator = creator;
 	}
 
-	public Author getAuthor() {
-		return author;
+	public Author getCreator() {
+		return creator;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof PrivateGroup && super.equals(o);
+		return o instanceof PrivateGroup &&
+				creator.equals(((PrivateGroup) o).getCreator()) &&
+				super.equals(o);
 	}
 
 }

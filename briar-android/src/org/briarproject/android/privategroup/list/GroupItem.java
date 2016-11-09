@@ -43,7 +43,7 @@ class GroupItem {
 	}
 
 	Author getCreator() {
-		return privateGroup.getAuthor();
+		return privateGroup.getCreator();
 	}
 
 	String getName() {

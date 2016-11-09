@@ -12,12 +12,12 @@ public class GroupMember {
 
 	private final Author author;
 	private final Status status;
-	private final boolean shared;
+	private final Visibility visibility;
 
-	public GroupMember(Author author, Status status, boolean shared) {
+	public GroupMember(Author author, Status status, Visibility visibility) {
 		this.author = author;
 		this.status = status;
-		this.shared = shared;
+		this.visibility = visibility;
 	}
 
 	public Author getAuthor() {
@@ -28,8 +28,8 @@ public class GroupMember {
 		return status;
 	}
 
-	public boolean isShared() {
-		return shared;
+	public Visibility getVisibility() {
+		return visibility;
 	}
 
 }

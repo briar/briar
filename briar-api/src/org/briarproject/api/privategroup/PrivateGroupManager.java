@@ -1,9 +1,11 @@
 package org.briarproject.api.privategroup;
 
+import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
@@ -20,16 +22,16 @@ public interface PrivateGroupManager extends MessageTracker {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.privategroup");
 
 	/**
-	 * Adds a new private group and joins it.
+	 * Adds a new private group and joins it as the creator.
 	 *
 	 * @param group        The private group to add
-	 * @param joinMsg      The new member's join message
+	 * @param joinMsg      The creators's join message
 	 */
 	void addPrivateGroup(PrivateGroup group, GroupMessage joinMsg)
 			throws DbException;
 
 	/**
-	 * Adds a new private group and joins it.
+	 * Adds a new private group and joins it as a member.
 	 *
 	 * @param group        The private group to add
 	 * @param joinMsg      The new member's join message
@@ -102,6 +104,17 @@ public interface PrivateGroupManager extends MessageTracker {
 	 * Returns true if the given Author a is member of the group with ID g
 	 */
 	boolean isMember(Transaction txn, GroupId g, Author a) throws DbException;
+
+	/**
+	 * This method needs to be called when a contact relationship
+	 * has been revealed between you and the Author with AuthorId a
+	 * in the Group identified by the GroupId g.
+	 *
+	 * @param byContact true if the remote contact has revealed
+	 *                     the relationship first. Otherwise false.
+	 */
+	void relationshipRevealed(Transaction txn, GroupId g, AuthorId a,
+			boolean byContact) throws FormatException, DbException;
 
 	/**
 	 * Registers a hook to be called when members are added

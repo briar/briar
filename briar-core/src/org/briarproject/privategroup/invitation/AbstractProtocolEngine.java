@@ -105,7 +105,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 		}
 		Message m = messageEncoder.encodeInviteMessage(
 				session.getContactGroupId(), privateGroup.getId(),
-				timestamp, privateGroup.getName(), privateGroup.getAuthor(),
+				timestamp, privateGroup.getName(), privateGroup.getCreator(),
 				privateGroup.getSalt(), message, signature);
 		sendMessage(txn, m, INVITE, privateGroup.getId(), true);
 		return m;
