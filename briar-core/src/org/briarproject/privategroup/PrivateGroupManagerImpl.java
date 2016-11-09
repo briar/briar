@@ -110,7 +110,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			GroupMessage joinMsg, boolean creator) throws DbException {
 		try {
 			db.addGroup(txn, group.getGroup());
-			AuthorId creatorId = joinMsg.getMember().getId();
+			AuthorId creatorId = group.getCreator().getId();
 			BdfDictionary meta = BdfDictionary.of(
 					new BdfEntry(GROUP_KEY_MEMBERS, new BdfList()),
 					new BdfEntry(GROUP_KEY_CREATOR_ID, creatorId),
@@ -134,6 +134,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		addMember(txn, m.getMessage().getGroupId(), m.getMember(), VISIBLE);
 		setPreviousMsgId(txn, m.getMessage().getGroupId(),
 				m.getMessage().getId());
+		attachJoinMessageAddedEvent(txn, m.getMessage(), meta, true, VISIBLE);
 	}
 
 	@Override
@@ -335,11 +336,22 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			for (AuthorId id : authors) {
 				statuses.put(id, identityManager.getAuthorStatus(txn, id));
 			}
-			// Parse the metadata
+			// get current visibilities for join messages
+			Map<Author, Visibility> visibilities = getMembers(txn, g);
+			// parse the metadata
 			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
 				BdfDictionary meta = entry.getValue();
-				headers.add(getGroupMessageHeader(txn, g, entry.getKey(), meta,
-						statuses));
+				if (meta.getLong(KEY_TYPE) == JOIN.getInt()) {
+					Author member = getAuthor(meta);
+					Visibility v = visibilities.get(member);
+					headers.add(
+							getJoinMessageHeader(txn, g, entry.getKey(), meta,
+									statuses, v));
+				} else {
+					headers.add(
+							getGroupMessageHeader(txn, g, entry.getKey(), meta,
+									statuses));
+				}
 			}
 			db.commitTransaction(txn);
 			return headers;
@@ -369,19 +381,17 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		}
 		boolean read = meta.getBoolean(KEY_READ);
 
-		if (meta.getLong(KEY_TYPE) == JOIN.getInt()) {
-			return new JoinMessageHeader(g, id, parentId, timestamp, author,
-					status, read);
-		}
 		return new GroupMessageHeader(g, id, parentId, timestamp, author,
 				status, read);
 	}
 
-	private GroupMessageHeader getGroupMessageHeader(Transaction txn, GroupId g,
-			MessageId id, BdfDictionary meta)
-			throws DbException, FormatException {
-		return getGroupMessageHeader(txn, g, id, meta,
-				Collections.<AuthorId, Status>emptyMap());
+	private JoinMessageHeader getJoinMessageHeader(Transaction txn, GroupId g,
+			MessageId id, BdfDictionary meta, Map<AuthorId, Status> statuses,
+			Visibility v) throws DbException, FormatException {
+
+		GroupMessageHeader header =
+				getGroupMessageHeader(txn, g, id, meta, statuses);
+		return new JoinMessageHeader(header, v);
 	}
 
 	@Override
@@ -494,7 +504,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		addMember(txn, m.getGroupId(), member, v);
 		// track message and broadcast event
 		trackIncomingMessage(txn, m);
-		attachGroupMessageAddedEvent(txn, m, meta, false);
+		attachJoinMessageAddedEvent(txn, m, meta, false, v);
 	}
 
 	private void handleGroupMessage(Transaction txn, Message m,
@@ -538,7 +548,18 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 			BdfDictionary meta, boolean local)
 			throws DbException, FormatException {
 		GroupMessageHeader h =
-				getGroupMessageHeader(txn, m.getGroupId(), m.getId(), meta);
+				getGroupMessageHeader(txn, m.getGroupId(), m.getId(), meta,
+						Collections.<AuthorId, Status>emptyMap());
+		Event e = new GroupMessageAddedEvent(m.getGroupId(), h, local);
+		txn.attach(e);
+	}
+
+	private void attachJoinMessageAddedEvent(Transaction txn, Message m,
+			BdfDictionary meta, boolean local, Visibility v)
+			throws DbException, FormatException {
+		JoinMessageHeader h =
+				getJoinMessageHeader(txn, m.getGroupId(), m.getId(), meta,
+						Collections.<AuthorId, Status>emptyMap(), v);
 		Event e = new GroupMessageAddedEvent(m.getGroupId(), h, local);
 		txn.attach(e);
 	}

@@ -212,6 +212,7 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		defaultInit();
 
 		// create and add test message with no previousMsgId
+		@SuppressWarnings("ConstantConditions")
 		GroupMessage msg = groupMessageFactory
 				.createGroupMessage(groupId0, clock.currentTimeMillis(), null,
 						author0, "test", null);
@@ -485,6 +486,35 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 	}
 
 	@Test
+	public void testJoinMessages() throws Exception {
+		defaultInit();
+
+		Collection<GroupMessageHeader> headers0 =
+				groupManager0.getHeaders(groupId0);
+		for (GroupMessageHeader h : headers0) {
+			if (h instanceof JoinMessageHeader) {
+				JoinMessageHeader j = (JoinMessageHeader) h;
+				// all relationships of the creator are visible
+				assertEquals(VISIBLE, j.getVisibility());
+			}
+		}
+
+		Collection<GroupMessageHeader> headers1 =
+				groupManager1.getHeaders(groupId0);
+		for (GroupMessageHeader h : headers1) {
+			if (h instanceof JoinMessageHeader) {
+				JoinMessageHeader j = (JoinMessageHeader) h;
+				if (h.getAuthor().equals(author1))
+					// we are visible to ourselves
+					assertEquals(VISIBLE, j.getVisibility());
+				else
+					// our relationship to the creator is visible
+					assertEquals(VISIBLE, j.getVisibility());
+			}
+		}
+	}
+
+	@Test
 	public void testRevealingRelationships() throws Exception {
 		defaultInit();
 
@@ -568,6 +598,51 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 				assertEquals(REVEALED_BY_CONTACT, m.getVisibility());
 			}
 		}
+
+		// assert that join messages reflect revealed relationship
+		Collection<GroupMessageHeader> headers1 =
+				groupManager1.getHeaders(groupId0);
+		for (GroupMessageHeader h : headers1) {
+			if (h instanceof JoinMessageHeader) {
+				JoinMessageHeader j = (JoinMessageHeader) h;
+				if (h.getAuthor().equals(author2))
+					// 1 revealed the relationship to 2
+					assertEquals(REVEALED_BY_YOU, j.getVisibility());
+				else
+					// 1's other relationship (to 1 and creator) are visible
+					assertEquals(VISIBLE, j.getVisibility());
+			}
+		}
+		Collection<GroupMessageHeader> headers2 =
+				groupManager2.getHeaders(groupId0);
+		for (GroupMessageHeader h : headers2) {
+			if (h instanceof JoinMessageHeader) {
+				JoinMessageHeader j = (JoinMessageHeader) h;
+				if (h.getAuthor().equals(author1))
+					// 2's relationship was revealed by 1
+					assertEquals(REVEALED_BY_CONTACT, j.getVisibility());
+				else
+					// 2's other relationship (to 2 and creator) are visible
+					assertEquals(VISIBLE, j.getVisibility());
+			}
+		}
+	}
+
+	@Test
+	public void testDissolveGroup() throws Exception {
+		defaultInit();
+
+		// group is not dissolved initially
+		assertFalse(groupManager0.isDissolved(groupId0));
+
+		// creator dissolves group
+		Transaction txn0 = db0.startTransaction(false);
+		groupManager0.markGroupDissolved(txn0, groupId0);
+		db0.commitTransaction(txn0);
+		db0.endTransaction(txn0);
+
+		// group is dissolved now
+		assertTrue(groupManager0.isDissolved(groupId0));
 	}
 
 	@After
