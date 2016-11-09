@@ -41,6 +41,18 @@ public class FeedPostPagerFragment extends BasePostPagerFragment {
 	}
 
 	@Override
+	public void onStart() {
+		super.onStart();
+		feedController.onStart();
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		feedController.onStop();
+	}
+
+	@Override
 	void loadBlogPosts(final MessageId select) {
 		feedController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
