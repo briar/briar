@@ -15,51 +15,53 @@ import java.util.Arrays;
  * <p/>
  * Alice:
  * <ul>
- *     <li>Send A_KEY</li>
- *     <li>Receive B_KEY
- *     <ul>
- *         <li>Check B_KEY matches B_COMMIT</li>
- *     </ul></li>
- *     <li>Calculate s</li>
- *     <li>Send A_CONFIRM</li>
- *     <li>Receive B_CONFIRM
- *     <ul>
- *         <li>Check B_CONFIRM matches expected</li>
- *     </ul></li>
- *     <li>Derive master</li>
+ * <li>Send A_KEY</li>
+ * <li>Receive B_KEY
+ * <ul>
+ * <li>Check B_KEY matches B_COMMIT</li>
+ * </ul></li>
+ * <li>Calculate s</li>
+ * <li>Send A_CONFIRM</li>
+ * <li>Receive B_CONFIRM
+ * <ul>
+ * <li>Check B_CONFIRM matches expected</li>
+ * </ul></li>
+ * <li>Derive master</li>
  * </ul><p/>
  * Bob:
  * <ul>
- *     <li>Receive A_KEY
- *     <ul>
- *         <li>Check A_KEY matches A_COMMIT</li>
- *     </ul></li>
- *     <li>Send B_KEY</li>
- *     <li>Calculate s</li>
- *     <li>Receive A_CONFIRM
- *     <ul>
- *         <li>Check A_CONFIRM matches expected</li>
- *     </ul></li>
- *     <li>Send B_CONFIRM</li>
- *     <li>Derive master</li>
+ * <li>Receive A_KEY
+ * <ul>
+ * <li>Check A_KEY matches A_COMMIT</li>
+ * </ul></li>
+ * <li>Send B_KEY</li>
+ * <li>Calculate s</li>
+ * <li>Receive A_CONFIRM
+ * <ul>
+ * <li>Check A_CONFIRM matches expected</li>
+ * </ul></li>
+ * <li>Send B_CONFIRM</li>
+ * <li>Derive master</li>
  * </ul>
  */
 class KeyAgreementProtocol {
 
 	interface Callbacks {
+
 		void connectionWaiting();
+
 		void initialPacketReceived();
 	}
 
-	private Callbacks callbacks;
-	private CryptoComponent crypto;
-	private PayloadEncoder payloadEncoder;
-	private KeyAgreementTransport transport;
-	private Payload theirPayload, ourPayload;
-	private KeyPair ourKeyPair;
-	private boolean alice;
+	private final Callbacks callbacks;
+	private final CryptoComponent crypto;
+	private final PayloadEncoder payloadEncoder;
+	private final KeyAgreementTransport transport;
+	private final Payload theirPayload, ourPayload;
+	private final KeyPair ourKeyPair;
+	private final boolean alice;
 
-	public KeyAgreementProtocol(Callbacks callbacks, CryptoComponent crypto,
+	KeyAgreementProtocol(Callbacks callbacks, CryptoComponent crypto,
 			PayloadEncoder payloadEncoder, KeyAgreementTransport transport,
 			Payload theirPayload, Payload ourPayload, KeyPair ourKeyPair,
 			boolean alice) {
@@ -78,9 +80,9 @@ class KeyAgreementProtocol {
 	 *
 	 * @return the negotiated master secret.
 	 * @throws AbortException when the protocol may have been tampered with.
-	 * @throws IOException for all other other connection errors.
+	 * @throws IOException    for all other other connection errors.
 	 */
-	public SecretKey perform() throws AbortException, IOException {
+	SecretKey perform() throws AbortException, IOException {
 		try {
 			byte[] theirPublicKey;
 			if (alice) {

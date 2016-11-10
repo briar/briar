@@ -7,12 +7,13 @@ import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.keyagreement.Payload;
 import org.briarproject.api.keyagreement.PayloadParser;
+import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -48,15 +49,17 @@ class PayloadParserImpl implements PayloadParser {
 		byte[] commitment = payload.getRaw(1);
 		if (commitment.length != COMMIT_LENGTH) throw new FormatException();
 		// Remaining elements: transport descriptors
-		Map<TransportId, BdfList> recognised =
-				new HashMap<TransportId, BdfList>();
+		List<TransportDescriptor> recognised =
+				new ArrayList<TransportDescriptor>();
 		for (int i = 2; i < payload.size(); i++) {
 			BdfList descriptor = payload.getList(i);
 			long transportId = descriptor.getLong(0);
 			if (transportId == TRANSPORT_ID_BLUETOOTH) {
-				recognised.put(new TransportId("bt"), descriptor);
+				TransportId id = new TransportId("bt");
+				recognised.add(new TransportDescriptor(id, descriptor));
 			} else if (transportId == TRANSPORT_ID_LAN) {
-				recognised.put(new TransportId("lan"), descriptor);
+				TransportId id = new TransportId("lan");
+				recognised.add(new TransportDescriptor(id, descriptor));
 			}
 		}
 		return new Payload(commitment, recognised);

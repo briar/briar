@@ -7,6 +7,7 @@ import org.briarproject.api.data.BdfList;
 import org.briarproject.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.api.keyagreement.KeyAgreementListener;
 import org.briarproject.api.keyagreement.Payload;
+import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
@@ -16,10 +17,7 @@ import org.briarproject.api.system.Clock;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -73,13 +71,14 @@ class KeyAgreementConnector {
 		byte[] commitment = crypto.deriveKeyCommitment(
 				localKeyPair.getPublic().getEncoded());
 		// Start all listeners and collect their descriptors
-		Map<TransportId, BdfList> descriptors =
-				new HashMap<TransportId, BdfList>();
+		List<TransportDescriptor> descriptors =
+				new ArrayList<TransportDescriptor>();
 		for (DuplexPlugin plugin : pluginManager.getKeyAgreementPlugins()) {
 			KeyAgreementListener l =
 					plugin.createKeyAgreementListener(commitment);
 			if (l != null) {
-				descriptors.put(plugin.getId(), l.getDescriptor());
+				TransportId id = plugin.getId();
+				descriptors.add(new TransportDescriptor(id, l.getDescriptor()));
 				pending.add(connect.submit(new ReadableTask(l.listen())));
 				listeners.add(l);
 			}
@@ -104,15 +103,13 @@ class KeyAgreementConnector {
 
 		// Start connecting over supported transports
 		LOG.info("Starting outgoing BQP connections");
-		Map<TransportId, BdfList> descriptors =
-				remotePayload.getTransportDescriptors();
-		for (Entry<TransportId, BdfList> e : descriptors.entrySet()) {
-			Plugin p = pluginManager.getPlugin(e.getKey());
+		for (TransportDescriptor d : remotePayload.getTransportDescriptors()) {
+			Plugin p = pluginManager.getPlugin(d.getId());
 			if (p instanceof DuplexPlugin) {
 				DuplexPlugin plugin = (DuplexPlugin) p;
 				pending.add(connect.submit(new ReadableTask(
 						new ConnectorTask(plugin, remotePayload.getCommitment(),
-								e.getValue(), end))));
+								d.getDescriptor(), end))));
 			}
 		}
 

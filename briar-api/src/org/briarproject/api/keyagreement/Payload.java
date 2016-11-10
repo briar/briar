@@ -1,11 +1,9 @@
 package org.briarproject.api.keyagreement;
 
 import org.briarproject.api.Bytes;
-import org.briarproject.api.TransportId;
-import org.briarproject.api.data.BdfList;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 
-import java.util.Map;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -17,9 +15,9 @@ import javax.annotation.concurrent.Immutable;
 public class Payload implements Comparable<Payload> {
 
 	private final Bytes commitment;
-	private final Map<TransportId, BdfList> descriptors;
+	private final List<TransportDescriptor> descriptors;
 
-	public Payload(byte[] commitment, Map<TransportId, BdfList> descriptors) {
+	public Payload(byte[] commitment, List<TransportDescriptor> descriptors) {
 		this.commitment = new Bytes(commitment);
 		this.descriptors = descriptors;
 	}
@@ -34,7 +32,7 @@ public class Payload implements Comparable<Payload> {
 	/**
 	 * Returns the transport descriptors contained in this payload.
 	 */
-	public Map<TransportId, BdfList> getTransportDescriptors() {
+	public List<TransportDescriptor> getTransportDescriptors() {
 		return descriptors;
 	}
 
