@@ -8,22 +8,26 @@ import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.annotation.concurrent.Immutable;
+
 import static java.util.logging.Level.WARNING;
 
+@Immutable
+@NotNullByDefault
 public abstract class ContactSelectorControllerImpl<I extends SelectableContactItem>
 		extends DbControllerImpl
 		implements ContactSelectorController<I> {
 
-	protected static final Logger LOG =
-			Logger.getLogger("ContactSelectorController");
+	private static final Logger LOG =
+			Logger.getLogger(ContactSelectorControllerImpl.class.getName());
 
 	private final ContactManager contactManager;
 
@@ -35,7 +39,7 @@ public abstract class ContactSelectorControllerImpl<I extends SelectableContactI
 
 	@Override
 	public void loadContacts(final GroupId g,
-			@Nullable final Collection<ContactId> selection,
+			final Collection<ContactId> selection,
 			final ResultExceptionHandler<Collection<I>, DbException> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
@@ -44,8 +48,8 @@ public abstract class ContactSelectorControllerImpl<I extends SelectableContactI
 					Collection<I> contacts = new ArrayList<>();
 					for (Contact c : contactManager.getActiveContacts()) {
 						// was this contact already selected?
-						boolean selected = isSelected(c, selection != null &&
-								selection.contains(c.getId()));
+						boolean selected =
+								isSelected(c, selection.contains(c.getId()));
 						// can this contact be selected?
 						boolean disabled = isDisabled(g, c);
 						contacts.add(getItem(c, selected, disabled));
@@ -61,7 +65,8 @@ public abstract class ContactSelectorControllerImpl<I extends SelectableContactI
 	}
 
 	@DatabaseExecutor
-	protected abstract boolean isSelected(Contact c, boolean wasSelected);
+	protected abstract boolean isSelected(Contact c, boolean wasSelected)
+			throws DbException;
 
 	@DatabaseExecutor
 	protected abstract boolean isDisabled(GroupId g, Contact c)

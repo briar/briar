@@ -27,8 +27,8 @@ public class GroupInviteActivity extends BaseGroupInviteActivity
 		groupId = new GroupId(g);
 
 		if (bundle == null) {
-			ContactSelectorFragment fragment =
-					ContactSelectorFragment.newInstance(groupId);
+			GroupInviteFragment fragment =
+					GroupInviteFragment.newInstance(groupId);
 			getSupportFragmentManager().beginTransaction()
 					.replace(R.id.fragmentContainer, fragment)
 					.commit();

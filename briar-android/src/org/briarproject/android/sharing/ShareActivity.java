@@ -10,31 +10,28 @@ import org.briarproject.android.contactselection.ContactSelectorFragment;
 import org.briarproject.android.contactselection.SelectableContactItem;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public abstract class ShareActivity
 		extends ContactSelectorActivity<SelectableContactItem>
 		implements MessageFragmentListener {
 
 	@Override
-	public void onCreate(Bundle bundle) {
+	public void onCreate(@Nullable Bundle bundle) {
 		super.onCreate(bundle);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No GroupId");
 		groupId = new GroupId(b);
-
-		if (bundle == null) {
-			ContactSelectorFragment contactSelectorFragment =
-					ContactSelectorFragment.newInstance(groupId);
-			getSupportFragmentManager().beginTransaction()
-					.add(R.id.fragmentContainer, contactSelectorFragment)
-					.commit();
-		}
 	}
 
 	@UiThread

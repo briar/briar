@@ -19,6 +19,8 @@ import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
@@ -29,22 +31,22 @@ import static org.briarproject.android.contactselection.ContactSelectorActivity.
 import static org.briarproject.android.contactselection.ContactSelectorActivity.getContactsFromIntegers;
 import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public abstract class BaseContactSelectorFragment<I extends SelectableContactItem, H extends ContactItemViewHolder<I>>
 		extends BaseFragment
 		implements OnContactClickListener<I> {
 
 	protected BriarRecyclerView list;
 	protected BaseContactSelectorAdapter<I, H> adapter;
-	protected Collection<ContactId> selectedContacts;
+	protected Collection<ContactId> selectedContacts = new ArrayList<>();
 	protected ContactSelectorListener<I> listener;
 
 	private GroupId groupId;
-	private ContactSelectorController<I> controller;
 
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		//noinspection unchecked
 		listener = (ContactSelectorListener<I>) context;
 	}
 
@@ -60,8 +62,9 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 
 	@Override
 	@CallSuper
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 
 		View contentView = inflater.inflate(R.layout.list, container, false);
 
@@ -87,7 +90,6 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 	@Override
 	public void onStart() {
 		super.onStart();
-		controller = listener.getController();
 		loadContacts(selectedContacts);
 	}
 
@@ -115,10 +117,10 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 		onSelectionChanged();
 	}
 
-	private void loadContacts(@Nullable final Collection<ContactId> selection) {
-		controller.loadContacts(groupId, selection,
+	private void loadContacts(final Collection<ContactId> selection) {
+		getController().loadContacts(groupId, selection,
 				new UiResultExceptionHandler<Collection<I>, DbException>(
-						listener) {
+						this) {
 					@Override
 					public void onResultUi(Collection<I> contacts) {
 						if (contacts.isEmpty()) list.showData();
@@ -128,11 +130,14 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-
+						// TODO error handling
+						finish();
 					}
 				});
 	}
 
 	protected abstract void onSelectionChanged();
+
+	protected abstract ContactSelectorController<I> getController();
 
 }

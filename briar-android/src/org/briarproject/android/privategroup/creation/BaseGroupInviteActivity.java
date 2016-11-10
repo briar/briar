@@ -8,6 +8,8 @@ import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -16,17 +18,14 @@ import javax.inject.Inject;
 
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_MSG_LENGTH;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public abstract class BaseGroupInviteActivity
 		extends ContactSelectorActivity<SelectableContactItem>
 		implements MessageFragmentListener {
 
 	@Inject
 	CreateGroupController controller;
-
-	@Override
-	public ContactSelectorController<SelectableContactItem> getController() {
-		return controller;
-	}
 
 	@Override
 	public void contactsSelected(Collection<ContactId> contacts) {

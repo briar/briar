@@ -67,8 +67,8 @@ public class CreateGroupActivity extends BaseGroupInviteActivity implements
 
 	private void switchToContactSelectorFragment(GroupId g) {
 		setTitle(R.string.groups_invite_members);
-		ContactSelectorFragment fragment =
-				ContactSelectorFragment.newInstance(g);
+		GroupInviteFragment fragment =
+				GroupInviteFragment.newInstance(g);
 		getSupportFragmentManager().beginTransaction()
 				.setCustomAnimations(android.R.anim.fade_in,
 						android.R.anim.fade_out,

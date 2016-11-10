@@ -33,17 +33,19 @@ import org.briarproject.android.privategroup.creation.CreateGroupActivity;
 import org.briarproject.android.privategroup.creation.CreateGroupFragment;
 import org.briarproject.android.privategroup.creation.CreateGroupMessageFragment;
 import org.briarproject.android.privategroup.creation.GroupInviteActivity;
+import org.briarproject.android.privategroup.creation.GroupInviteFragment;
 import org.briarproject.android.privategroup.invitation.GroupInvitationActivity;
 import org.briarproject.android.privategroup.list.GroupListFragment;
 import org.briarproject.android.privategroup.memberlist.GroupMemberListActivity;
 import org.briarproject.android.sharing.BlogInvitationActivity;
 import org.briarproject.android.sharing.BlogSharingStatusActivity;
-import org.briarproject.android.contactselection.ContactSelectorFragment;
 import org.briarproject.android.sharing.ForumInvitationActivity;
 import org.briarproject.android.sharing.ForumSharingStatusActivity;
 import org.briarproject.android.sharing.ShareBlogActivity;
+import org.briarproject.android.sharing.ShareBlogFragment;
 import org.briarproject.android.sharing.ShareBlogMessageFragment;
 import org.briarproject.android.sharing.ShareForumActivity;
+import org.briarproject.android.sharing.ShareForumFragment;
 import org.briarproject.android.sharing.ShareForumMessageFragment;
 import org.thoughtcrime.securesms.components.emoji.EmojiProvider;
 import org.thoughtcrime.securesms.components.emoji.RecentEmojiPageModel;
@@ -142,6 +144,8 @@ public interface ActivityComponent {
 
 	void inject(GroupListFragment fragment);
 
+	void inject(GroupInviteFragment fragment);
+
 	void inject(ForumListFragment fragment);
 
 	void inject(FeedFragment fragment);
@@ -152,9 +156,11 @@ public interface ActivityComponent {
 
 	void inject(ContactChooserFragment fragment);
 
-	void inject(ContactSelectorFragment fragment);
+	void inject(ShareForumFragment fragment);
 
 	void inject(ShareForumMessageFragment fragment);
+
+	void inject(ShareBlogFragment fragment);
 
 	void inject(ShareBlogMessageFragment fragment);
 

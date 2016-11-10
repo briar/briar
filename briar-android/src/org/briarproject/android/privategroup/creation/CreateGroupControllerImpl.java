@@ -131,7 +131,8 @@ public class CreateGroupControllerImpl
 	}
 
 	@Override
-	protected boolean isSelected(Contact c, boolean wasSelected) {
+	protected boolean isSelected(Contact c, boolean wasSelected)
+			throws DbException {
 		return wasSelected;
 	}
 

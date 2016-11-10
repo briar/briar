@@ -9,13 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
-import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.contact.BaseContactListAdapter.OnContactClickListener;
-import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
+import org.jetbrains.annotations.Nullable;
 
-import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
-
-public class ContactSelectorFragment extends
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
+public abstract class ContactSelectorFragment extends
 		BaseContactSelectorFragment<SelectableContactItem, SelectableContactHolder>
 		implements OnContactClickListener<SelectableContactItem> {
 
@@ -23,22 +24,10 @@ public class ContactSelectorFragment extends
 
 	private Menu menu;
 
-	public static ContactSelectorFragment newInstance(GroupId groupId) {
-		Bundle args = new Bundle();
-		args.putByteArray(GROUP_ID, groupId.getBytes());
-		ContactSelectorFragment fragment = new ContactSelectorFragment();
-		fragment.setArguments(args);
-		return fragment;
-	}
-
 	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 		View contentView =
 				super.onCreateView(inflater, container, savedInstanceState);
 		adapter = new ContactSelectorAdapter(getActivity(), this);
@@ -65,11 +54,6 @@ public class ContactSelectorFragment extends
 			default:
 				return super.onOptionsItemSelected(item);
 		}
-	}
-
-	@Override
-	public String getUniqueTag() {
-		return TAG;
 	}
 
 	@Override

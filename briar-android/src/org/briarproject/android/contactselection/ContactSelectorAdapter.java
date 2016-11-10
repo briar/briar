@@ -6,7 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.R;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 
+@NotNullByDefault
 public class ContactSelectorAdapter extends
 		BaseContactSelectorAdapter<SelectableContactItem, SelectableContactHolder> {
 

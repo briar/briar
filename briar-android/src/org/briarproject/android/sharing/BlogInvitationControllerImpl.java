@@ -2,7 +2,6 @@ package org.briarproject.android.sharing;
 
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.blogs.Blog;
-import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.db.DatabaseExecutor;
@@ -22,19 +21,18 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.blogs.BlogManager.CLIENT_ID;
 
+
 public class BlogInvitationControllerImpl
 		extends InvitationControllerImpl<SharingInvitationItem>
 		implements BlogInvitationController {
 
-	private final BlogManager blogManager;
 	private final BlogSharingManager blogSharingManager;
 
 	@Inject
 	BlogInvitationControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus,
-			BlogManager blogManager, BlogSharingManager blogSharingManager) {
+			BlogSharingManager blogSharingManager) {
 		super(dbExecutor, lifecycleManager, eventBus);
-		this.blogManager = blogManager;
 		this.blogSharingManager = blogSharingManager;
 	}
 

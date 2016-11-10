@@ -5,10 +5,12 @@ import android.content.Context;
 import org.briarproject.android.contact.BaseContactListAdapter;
 import org.briarproject.android.contact.ContactItemViewHolder;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+@NotNullByDefault
 public abstract class BaseContactSelectorAdapter<I extends SelectableContactItem, H extends ContactItemViewHolder<I>>
 		extends BaseContactListAdapter<I, H> {
 

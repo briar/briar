@@ -2,18 +2,23 @@ package org.briarproject.android.contactselection;
 
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.api.contact.ContactId;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public abstract class ContactSelectorActivity<I extends SelectableContactItem>
 		extends BriarActivity
 		implements BaseFragmentListener, ContactSelectorListener<I> {
@@ -25,7 +30,7 @@ public abstract class ContactSelectorActivity<I extends SelectableContactItem>
 	protected Collection<ContactId> contacts;
 
 	@Override
-	public void onCreate(Bundle bundle) {
+	public void onCreate(@Nullable Bundle bundle) {
 		super.onCreate(bundle);
 
 		setContentView(R.layout.activity_fragment_container);

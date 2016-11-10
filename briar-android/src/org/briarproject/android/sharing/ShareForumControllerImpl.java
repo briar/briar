@@ -8,20 +8,30 @@ import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.db.NoSuchContactException;
+import org.briarproject.api.db.NoSuchGroupException;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
 import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
+import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 
+@Immutable
+@NotNullByDefault
 public class ShareForumControllerImpl
 		extends ContactSelectorControllerImpl<SelectableContactItem>
 		implements ShareForumController {
+
+	private final static Logger LOG =
+			Logger.getLogger(ShareForumControllerImpl.class.getName());
 
 	private final ForumSharingManager forumSharingManager;
 
@@ -36,7 +46,8 @@ public class ShareForumControllerImpl
 	}
 
 	@Override
-	protected boolean isSelected(Contact c, boolean wasSelected) {
+	protected boolean isSelected(Contact c, boolean wasSelected)
+			throws DbException {
 		return wasSelected;
 	}
 
@@ -60,7 +71,12 @@ public class ShareForumControllerImpl
 			public void run() {
 				try {
 					for (ContactId c : contacts) {
-						forumSharingManager.sendInvitation(g, c, msg);
+						try {
+							forumSharingManager.sendInvitation(g, c, msg);
+						} catch (NoSuchContactException | NoSuchGroupException e) {
+							if (LOG.isLoggable(WARNING))
+								LOG.log(WARNING, e.toString(), e);
+						}
 					}
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
