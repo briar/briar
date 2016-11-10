@@ -196,7 +196,7 @@ public class GroupControllerImpl extends
 				try {
 					LocalAuthor author = identityManager.getLocalAuthor();
 					boolean isCreator =
-							author.getId().equals(group.getAuthor().getId());
+							author.getId().equals(group.getCreator().getId());
 					handler.onResult(isCreator);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))

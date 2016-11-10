@@ -1,10 +1,6 @@
 package org.briarproject.api.privategroup;
 
-import org.briarproject.api.identity.Author;
 import org.briarproject.api.nullsafety.NotNullByDefault;
-import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageId;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -12,10 +8,16 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class JoinMessageHeader extends GroupMessageHeader {
 
-	public JoinMessageHeader(GroupId groupId, MessageId id,
-			@Nullable MessageId parentId, long timestamp, Author author,
-			Author.Status authorStatus, boolean read) {
-		super(groupId, id, parentId, timestamp, author, authorStatus, read);
+	private final Visibility visibility;
+
+	public JoinMessageHeader(GroupMessageHeader h, Visibility visibility) {
+		super(h.getGroupId(), h.getId(), h.getParentId(), h.getTimestamp(),
+				h.getAuthor(), h.getAuthorStatus(), h.isRead());
+		this.visibility = visibility;
+	}
+
+	public Visibility getVisibility() {
+		return visibility;
 	}
 
 }

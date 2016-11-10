@@ -117,7 +117,7 @@ public class CreateGroupControllerImpl extends DbControllerImpl
 			public void run() {
 				LOG.info("Adding group to database...");
 				try {
-					groupManager.addPrivateGroup(group, joinMsg);
+					groupManager.addPrivateGroup(group, joinMsg, true);
 					handler.onResult(group.getId());
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))

@@ -105,7 +105,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 		}
 		Message m = messageEncoder.encodeInviteMessage(
 				session.getContactGroupId(), privateGroup.getId(),
-				timestamp, privateGroup.getName(), privateGroup.getAuthor(),
+				timestamp, privateGroup.getName(), privateGroup.getCreator(),
 				privateGroup.getSalt(), message, signature);
 		sendMessage(txn, m, INVITE, privateGroup.getId(), true);
 		return m;
@@ -183,7 +183,8 @@ abstract class AbstractProtocolEngine<S extends Session>
 		GroupMessage joinMessage = groupMessageFactory.createJoinMessage(
 				privateGroup.getId(), timestamp, member, invite.getTimestamp(),
 				invite.getSignature());
-		privateGroupManager.addPrivateGroup(txn, privateGroup, joinMessage);
+		privateGroupManager
+				.addPrivateGroup(txn, privateGroup, joinMessage, false);
 	}
 
 	long getLocalTimestamp(S session) {

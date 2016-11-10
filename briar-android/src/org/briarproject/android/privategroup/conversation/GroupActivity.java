@@ -105,7 +105,7 @@ public class GroupActivity extends
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
 			actionBar.setSubtitle(getString(R.string.groups_created_by,
-					group.getAuthor().getName()));
+					group.getCreator().getName()));
 		}
 		controller.isCreator(group,
 				new UiResultExceptionHandler<Boolean, DbException>(this) {
