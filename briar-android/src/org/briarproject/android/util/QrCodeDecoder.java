@@ -28,7 +28,7 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	private final Reader reader = new QRCodeReader();
 	private final ResultCallback callback;
 
-	private boolean stopped = false;
+	private Camera camera = null;
 
 	public QrCodeDecoder(ResultCallback callback) {
 		this.callback = callback;
@@ -36,37 +36,35 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 
 	@Override
 	public void start(Camera camera) {
-		stopped = false;
-		askForPreviewFrame(camera);
+		this.camera = camera;
+		askForPreviewFrame();
 	}
 
 	@Override
 	public void stop() {
-		stopped = true;
+		camera = null;
 	}
 
 	@UiThread
-	private void askForPreviewFrame(Camera camera) {
-		if (!stopped) camera.setOneShotPreviewCallback(this);
+	private void askForPreviewFrame() {
+		if (camera != null) camera.setOneShotPreviewCallback(this);
 	}
 
 	@UiThread
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
-		if (!stopped) {
+		if (camera == this.camera) {
 			Size size = camera.getParameters().getPreviewSize();
-			new DecoderTask(camera, data, size.width, size.height).execute();
+			new DecoderTask(data, size.width, size.height).execute();
 		}
 	}
 
 	private class DecoderTask extends AsyncTask<Void, Void, Void> {
 
-		private final Camera camera;
 		private final byte[] data;
 		private final int width, height;
 
-		DecoderTask(Camera camera, byte[] data, int width, int height) {
-			this.camera = camera;
+		DecoderTask(byte[] data, int width, int height) {
 			this.data = data;
 			this.width = width;
 			this.height = height;
@@ -84,7 +82,7 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 			} catch (ReaderException e) {
 				return null; // No barcode found
 			} catch (RuntimeException e) {
-				return null; // Decoding failed due to bug in decoder
+				return null; // Preview data did not match width and height
 			} finally {
 				reader.reset();
 			}
@@ -97,7 +95,7 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 
 		@Override
 		protected void onPostExecute(Void result) {
-			askForPreviewFrame(camera);
+			askForPreviewFrame();
 		}
 	}
 
