@@ -223,8 +223,8 @@ public class FeedFragment extends BaseFragment implements
 
 	@Override
 	public void onBlogPostClick(BlogPostItem post) {
-		FeedPostPagerFragment f = FeedPostPagerFragment
-				.newInstance(post.getId());
+		FeedPostFragment f =
+				FeedPostFragment.newInstance(post.getGroupId(), post.getId());
 		getActivity().getSupportFragmentManager().beginTransaction()
 				.replace(R.id.content_fragment, f, f.getUniqueTag())
 				.addToBackStack(f.getUniqueTag())

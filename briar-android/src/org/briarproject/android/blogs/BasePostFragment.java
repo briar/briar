@@ -11,7 +11,6 @@ import android.widget.ProgressBar;
 
 import org.briarproject.R;
 import org.briarproject.android.fragment.BaseFragment;
-import org.briarproject.api.db.DbException;
 import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 
@@ -26,6 +25,8 @@ import static org.briarproject.android.util.AndroidUtils.MIN_RESOLUTION;
 @ParametersNotNullByDefault
 abstract class BasePostFragment extends BaseFragment {
 
+	static final String POST_ID = "briar.POST_ID";
+
 	private static final Logger LOG =
 			Logger.getLogger(BasePostFragment.class.getName());
 
@@ -39,7 +40,8 @@ abstract class BasePostFragment extends BaseFragment {
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater,
-			@Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 		view = inflater.inflate(R.layout.fragment_blog_post, container,
 				false);
 		progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
@@ -67,12 +69,6 @@ abstract class BasePostFragment extends BaseFragment {
 		progressBar.setVisibility(INVISIBLE);
 		this.post = post;
 		ui.bindItem(post);
-	}
-
-	@UiThread
-	protected void onBlogPostLoadException(DbException exception) {
-		// TODO: Decide how to handle errors in the UI
-		finish();
 	}
 
 	private void startPeriodicUpdate() {

@@ -18,14 +18,13 @@ import org.briarproject.api.sync.MessageId;
 import javax.inject.Inject;
 
 import static org.briarproject.android.BriarActivity.GROUP_ID;
-import static org.briarproject.android.blogs.BasePostPagerFragment.POST_ID;
 
 @UiThread
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class FeedPostFragment extends BasePostFragment {
 
-	public final static String TAG = FeedPostFragment.class.getName();
+	private static final String TAG = FeedPostFragment.class.getName();
 
 	private MessageId postId;
 	private GroupId blogId;
@@ -63,6 +62,11 @@ public class FeedPostFragment extends BasePostFragment {
 	}
 
 	@Override
+	public String getUniqueTag() {
+		return TAG;
+	}
+
+	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
 	}
@@ -77,16 +81,12 @@ public class FeedPostFragment extends BasePostFragment {
 					public void onResultUi(BlogPostItem post) {
 						onBlogPostLoaded(post);
 					}
+
 					@Override
 					public void onExceptionUi(DbException exception) {
-						onBlogPostLoadException(exception);
+						// TODO: Decide how to handle errors in the UI
 					}
 				});
-	}
-
-	@Override
-	public String getUniqueTag() {
-		return TAG;
 	}
 
 }

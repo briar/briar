@@ -30,7 +30,7 @@ import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAn
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
-import static org.briarproject.android.blogs.BasePostPagerFragment.POST_ID;
+import static org.briarproject.android.blogs.BasePostFragment.POST_ID;
 import static org.briarproject.android.util.AndroidUtils.TEASER_LENGTH;
 import static org.briarproject.android.util.AndroidUtils.getSpanned;
 import static org.briarproject.android.util.AndroidUtils.getTeaser;

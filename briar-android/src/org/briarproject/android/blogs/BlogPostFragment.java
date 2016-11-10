@@ -16,14 +16,12 @@ import org.briarproject.api.sync.MessageId;
 
 import javax.inject.Inject;
 
-import static org.briarproject.android.blogs.BasePostPagerFragment.POST_ID;
-
 @UiThread
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class BlogPostFragment extends BasePostFragment {
 
-	public final static String TAG = BlogPostFragment.class.getName();
+	private static final String TAG = BlogPostFragment.class.getName();
 
 	private MessageId postId;
 
@@ -74,9 +72,11 @@ public class BlogPostFragment extends BasePostFragment {
 					public void onResultUi(BlogPostItem post) {
 						onBlogPostLoaded(post);
 					}
+
 					@Override
 					public void onExceptionUi(DbException exception) {
-						onBlogPostLoadException(exception);
+						// TODO: Decide how to handle errors in the UI
+						finish();
 					}
 				});
 	}

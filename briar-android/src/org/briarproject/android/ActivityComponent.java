@@ -5,10 +5,8 @@ import android.app.Activity;
 import org.briarproject.android.blogs.BlogActivity;
 import org.briarproject.android.blogs.BlogFragment;
 import org.briarproject.android.blogs.BlogPostFragment;
-import org.briarproject.android.blogs.BlogPostPagerFragment;
 import org.briarproject.android.blogs.FeedFragment;
 import org.briarproject.android.blogs.FeedPostFragment;
-import org.briarproject.android.blogs.FeedPostPagerFragment;
 import org.briarproject.android.blogs.ReblogActivity;
 import org.briarproject.android.blogs.ReblogFragment;
 import org.briarproject.android.blogs.RssFeedImportActivity;
@@ -112,10 +110,6 @@ public interface ActivityComponent {
 	void inject(BlogPostFragment fragment);
 
 	void inject(FeedPostFragment fragment);
-
-	void inject(BlogPostPagerFragment fragment);
-
-	void inject(FeedPostPagerFragment fragment);
 
 	void inject(ReblogFragment fragment);
 

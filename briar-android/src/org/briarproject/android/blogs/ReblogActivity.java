@@ -15,7 +15,7 @@ import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
-import static org.briarproject.android.blogs.BasePostPagerFragment.POST_ID;
+import static org.briarproject.android.blogs.BasePostFragment.POST_ID;
 
 public class ReblogActivity extends BriarActivity implements
 		BaseFragmentListener {
