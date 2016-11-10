@@ -39,10 +39,8 @@ public abstract class BaseContactListAdapter<I extends ContactItem, VH extends C
 	}
 
 	@Override
-	public boolean areContentsTheSame(I c1, I c2) {
-		// check for all properties that influence visual
-		// representation of contact
-		return c1.isConnected() == c2.isConnected();
+	public boolean areContentsTheSame(ContactItem c1, ContactItem c2) {
+		return true;
 	}
 
 	int findItemPosition(ContactId c) {

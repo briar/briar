@@ -38,7 +38,7 @@ import org.briarproject.android.privategroup.list.GroupListFragment;
 import org.briarproject.android.privategroup.memberlist.GroupMemberListActivity;
 import org.briarproject.android.sharing.BlogInvitationActivity;
 import org.briarproject.android.sharing.BlogSharingStatusActivity;
-import org.briarproject.android.sharing.ContactSelectorFragment;
+import org.briarproject.android.contactselection.ContactSelectorFragment;
 import org.briarproject.android.sharing.ForumInvitationActivity;
 import org.briarproject.android.sharing.ForumSharingStatusActivity;
 import org.briarproject.android.sharing.ShareBlogActivity;

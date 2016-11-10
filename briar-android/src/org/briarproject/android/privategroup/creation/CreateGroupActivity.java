@@ -7,12 +7,10 @@ import android.support.v4.app.ActivityOptionsCompat;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
+import org.briarproject.android.contactselection.ContactSelectorFragment;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.privategroup.conversation.GroupActivity;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;
-import org.briarproject.android.sharing.ContactSelectorFragment;
-import org.briarproject.api.contact.Contact;
-import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.sync.GroupId;
 
@@ -36,13 +34,6 @@ public class CreateGroupActivity extends BaseGroupInviteActivity implements
 					.add(R.id.fragmentContainer, fragment)
 					.commit();
 		}
-	}
-
-	@Override
-	@DatabaseExecutor
-	public boolean isDisabled(GroupId groupId, Contact c) throws DbException {
-		// contacts can always be invited into a new group
-		return false;
 	}
 
 	@Override

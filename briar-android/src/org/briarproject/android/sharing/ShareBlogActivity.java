@@ -1,22 +1,26 @@
 package org.briarproject.android.sharing;
 
+import android.widget.Toast;
+
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.api.blogs.BlogSharingManager;
-import org.briarproject.api.contact.Contact;
+import org.briarproject.android.contactselection.ContactSelectorController;
+import org.briarproject.android.contactselection.SelectableContactItem;
+import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.sync.GroupId;
+
+import java.util.Collection;
 
 import javax.inject.Inject;
 
+import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 
 public class ShareBlogActivity extends ShareActivity {
 
-	// Fields that are accessed from background threads must be volatile
 	@Inject
-	volatile BlogSharingManager blogSharingManager;
+	ShareBlogController controller;
 
 	@Override
 	BaseMessageFragment getMessageFragment() {
@@ -29,23 +33,33 @@ public class ShareBlogActivity extends ShareActivity {
 	}
 
 	@Override
-	public boolean isDisabled(GroupId groupId, Contact c) throws DbException {
-		return !blogSharingManager.canBeShared(groupId, c);
-	}
-
-	@Override
-	protected void share(GroupId g, ContactId c, String msg)
-			throws DbException {
-		blogSharingManager.sendInvitation(g, c, msg);
-	}
-
-	@Override
-	protected int getSharingError() {
-		return R.string.blogs_sharing_error;
+	public ContactSelectorController<SelectableContactItem> getController() {
+		return controller;
 	}
 
 	@Override
 	public int getMaximumMessageLength() {
 		return MAX_MESSAGE_BODY_LENGTH;
 	}
+
+	@Override
+	void share(Collection<ContactId> contacts, String msg) {
+		controller.share(groupId, contacts, msg,
+				new UiResultExceptionHandler<Void, DbException>(this) {
+					@Override
+					public void onResultUi(Void result) {
+
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO proper error handling
+						Toast.makeText(ShareBlogActivity.this,
+								R.string.blogs_sharing_error, LENGTH_SHORT)
+								.show();
+					}
+				});
+
+	}
+
 }

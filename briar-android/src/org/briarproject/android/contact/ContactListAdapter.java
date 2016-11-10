@@ -34,7 +34,7 @@ public class ContactListAdapter extends
 		if (c1.getTimestamp() != c2.getTimestamp()) {
 			return false;
 		}
-		return super.areContentsTheSame(c1, c2);
+		return c1.isConnected() == c2.isConnected();
 	}
 
 	@Override

@@ -35,6 +35,10 @@ import org.briarproject.android.sharing.BlogInvitationController;
 import org.briarproject.android.sharing.BlogInvitationControllerImpl;
 import org.briarproject.android.sharing.ForumInvitationController;
 import org.briarproject.android.sharing.ForumInvitationControllerImpl;
+import org.briarproject.android.sharing.ShareBlogController;
+import org.briarproject.android.sharing.ShareBlogControllerImpl;
+import org.briarproject.android.sharing.ShareForumController;
+import org.briarproject.android.sharing.ShareForumControllerImpl;
 
 import dagger.Module;
 import dagger.Provides;
@@ -150,6 +154,13 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
+	ShareForumController provideShareForumController(
+			ShareForumControllerImpl shareForumController) {
+		return shareForumController;
+	}
+
+	@ActivityScope
+	@Provides
 	protected ForumInvitationController provideInvitationForumController(
 			ForumInvitationControllerImpl forumInvitationController) {
 		activity.addLifecycleController(forumInvitationController);
@@ -169,6 +180,13 @@ public class ActivityModule {
 	BlogController provideBlogController(BlogControllerImpl blogController) {
 		activity.addLifecycleController(blogController);
 		return blogController;
+	}
+
+	@ActivityScope
+	@Provides
+	ShareBlogController provideShareBlogController(
+			ShareBlogControllerImpl shareBlogController) {
+		return shareBlogController;
 	}
 
 	@ActivityScope

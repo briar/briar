@@ -11,15 +11,12 @@ import org.briarproject.android.contact.ContactItem;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
-
-import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 
@@ -31,10 +28,6 @@ abstract class SharingStatusActivity extends BriarActivity {
 	private GroupId groupId;
 	private BriarRecyclerView sharedByList, sharedWithList;
 	private SharingStatusAdapter sharedByAdapter, sharedWithAdapter;
-
-	// Fields that are accessed from background threads must be volatile
-	@Inject
-	volatile ConnectionRegistry connectionRegistry;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -109,9 +102,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 				try {
 					List<ContactItem> contactItems = new ArrayList<>();
 					for (Contact c : getSharedBy()) {
-						boolean isConnected =
-								connectionRegistry.isConnected(c.getId());
-						ContactItem item = new ContactItem(c, isConnected);
+						ContactItem item = new ContactItem(c);
 						contactItems.add(item);
 					}
 					displaySharedBy(contactItems);
@@ -140,9 +131,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 				try {
 					List<ContactItem> contactItems = new ArrayList<>();
 					for (Contact c : getSharedWith()) {
-						boolean isConnected =
-								connectionRegistry.isConnected(c.getId());
-						ContactItem item = new ContactItem(c, isConnected);
+						ContactItem item = new ContactItem(c);
 						contactItems.add(item);
 					}
 					displaySharedWith(contactItems);

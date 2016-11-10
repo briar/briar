@@ -1,4 +1,4 @@
-package org.briarproject.android.sharing;
+package org.briarproject.android.contactselection;
 
 import org.briarproject.android.contact.ContactItem;
 import org.briarproject.api.contact.Contact;
@@ -8,13 +8,13 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
 @NotNullByDefault
-class SelectableContactItem extends ContactItem {
+public class SelectableContactItem extends ContactItem {
 
 	private boolean selected, disabled;
 
-	SelectableContactItem(Contact contact, boolean connected,
-			boolean selected, boolean disabled) {
-		super(contact, connected);
+	public SelectableContactItem(Contact contact, boolean selected,
+			boolean disabled) {
+		super(contact);
 		this.selected = selected;
 		this.disabled = disabled;
 	}
