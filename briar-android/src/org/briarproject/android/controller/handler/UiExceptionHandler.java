@@ -9,24 +9,26 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public abstract class UiResultExceptionHandler<R, E extends Exception>
-		extends UiExceptionHandler<E> implements ResultExceptionHandler<R, E> {
+public abstract class UiExceptionHandler<E extends Exception>
+		implements ExceptionHandler<E> {
 
-	protected UiResultExceptionHandler(DestroyableContext listener) {
-		super(listener);
+	protected final DestroyableContext listener;
+
+	protected UiExceptionHandler(DestroyableContext listener) {
+		this.listener = listener;
 	}
 
 	@Override
-	public void onResult(final R result) {
+	public void onException(final E exception) {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				onResultUi(result);
+				onExceptionUi(exception);
 			}
 		});
 	}
 
 	@UiThread
-	public abstract void onResultUi(R result);
+	public abstract void onExceptionUi(E exception);
 
 }

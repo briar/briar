@@ -4,6 +4,7 @@ import android.support.annotation.UiThread;
 
 import org.briarproject.android.DestroyableContext;
 import org.briarproject.android.controller.DbController;
+import org.briarproject.android.controller.handler.ExceptionHandler;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.privategroup.GroupMessageHeader;
@@ -27,8 +28,7 @@ public interface GroupListController extends DbController {
 	void loadGroups(
 			ResultExceptionHandler<Collection<GroupItem>, DbException> result);
 
-	void removeGroup(GroupId g,
-			ResultExceptionHandler<Void, DbException> result);
+	void removeGroup(GroupId g, ExceptionHandler<DbException> result);
 
 	void loadAvailableGroups(
 			ResultExceptionHandler<Integer, DbException> result);

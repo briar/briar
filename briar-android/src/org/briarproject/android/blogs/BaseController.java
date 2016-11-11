@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
 import org.briarproject.android.DestroyableContext;
+import org.briarproject.android.controller.handler.ExceptionHandler;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
@@ -30,7 +31,7 @@ interface BaseController {
 			ResultExceptionHandler<BlogPostItem, DbException> handler);
 
 	void repeatPost(BlogPostItem item, @Nullable String comment,
-			ResultExceptionHandler<Void, DbException> resultHandler);
+			ExceptionHandler<DbException> handler);
 
 	void setOnBlogPostAddedListener(OnBlogPostAddedListener listener);
 

@@ -1,6 +1,5 @@
 package org.briarproject.android.blogs;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -11,11 +10,14 @@ import android.widget.ScrollView;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
+import org.briarproject.android.controller.handler.UiExceptionHandler;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.view.TextInputView;
 import org.briarproject.android.view.TextInputView.TextInputListener;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
@@ -28,11 +30,12 @@ import static android.view.View.VISIBLE;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BasePostPagerFragment.POST_ID;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class ReblogFragment extends BaseFragment implements TextInputListener {
 
 	public static final String TAG = ReblogFragment.class.getName();
 
-	private BaseFragmentListener listener;
 	private ViewHolder ui;
 	private GroupId blogId;
 	private MessageId postId;
@@ -63,14 +66,9 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 	}
 
 	@Override
-	public void onAttach(Context context) {
-		super.onAttach(context);
-		listener = (BaseFragmentListener) context;
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 
 		Bundle args = getArguments();
 		blogId = new GroupId(args.getByteArray(GROUP_ID));
@@ -130,14 +128,10 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 	public void onSendClick(String text) {
 		String comment = getComment();
 		feedController.repeatPost(item, comment,
-				new UiResultExceptionHandler<Void, DbException>(this) {
-					@Override
-					public void onResultUi(Void result) {
-						// do nothing, this fragment is gone already
-					}
-
+				new UiExceptionHandler<DbException>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
+						// TODO proper error handling
 						// do nothing, this fragment is gone already
 					}
 				});

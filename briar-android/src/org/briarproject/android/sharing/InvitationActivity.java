@@ -2,16 +2,20 @@ package org.briarproject.android.sharing;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
+import org.briarproject.android.controller.handler.UiExceptionHandler;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.sharing.InvitationController.InvitationListener;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.sharing.InvitationItem;
 
 import java.util.Collection;
@@ -20,6 +24,8 @@ import java.util.logging.Logger;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.android.sharing.InvitationAdapter.InvitationClickListener;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public abstract class InvitationActivity<I extends InvitationItem>
 		extends BriarActivity
 		implements InvitationListener, InvitationClickListener<I> {
@@ -31,7 +37,7 @@ public abstract class InvitationActivity<I extends InvitationItem>
 	private BriarRecyclerView list;
 
 	@Override
-	public void onCreate(Bundle state) {
+	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
 		setContentView(R.layout.list);
@@ -101,12 +107,7 @@ public abstract class InvitationActivity<I extends InvitationItem>
 	protected void respondToInvitation(final I item,
 			final boolean accept) {
 		getController().respondToInvitation(item, accept,
-				new UiResultExceptionHandler<Void, DbException>(this) {
-					@Override
-					public void onResultUi(Void result) {
-
-					}
-
+				new UiExceptionHandler<DbException>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO proper error handling

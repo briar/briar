@@ -17,6 +17,7 @@ import android.view.MenuItem;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
+import org.briarproject.android.controller.handler.UiExceptionHandler;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.privategroup.conversation.GroupController.GroupListener;
 import org.briarproject.android.privategroup.creation.GroupInviteActivity;
@@ -24,6 +25,8 @@ import org.briarproject.android.privategroup.memberlist.GroupMemberListActivity;
 import org.briarproject.android.threaded.ThreadListActivity;
 import org.briarproject.android.threaded.ThreadListController;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.privategroup.GroupMessageHeader;
 import org.briarproject.api.privategroup.PrivateGroup;
 
@@ -33,6 +36,8 @@ import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.view.View.GONE;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class GroupActivity extends
 		ThreadListActivity<PrivateGroup, GroupMessageItem, GroupMessageHeader>
 		implements GroupListener, OnClickListener {
@@ -247,13 +252,9 @@ public class GroupActivity extends
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 		controller.deleteNamedGroup(
-				new UiResultExceptionHandler<Void, DbException>(this) {
-					@Override
-					public void onResultUi(Void v) {
-						// The activity is going to be destroyed by the
-						// GroupRemovedEvent being fired
-					}
-
+				new UiExceptionHandler<DbException>(this) {
+					// The activity is going to be destroyed by the
+					// GroupRemovedEvent being fired
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO proper error handling

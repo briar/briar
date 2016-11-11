@@ -2,7 +2,6 @@ package org.briarproject.android.privategroup.creation;
 
 import org.briarproject.R;
 import org.briarproject.android.contactselection.ContactSelectorActivity;
-import org.briarproject.android.contactselection.ContactSelectorController;
 import org.briarproject.android.contactselection.SelectableContactItem;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;

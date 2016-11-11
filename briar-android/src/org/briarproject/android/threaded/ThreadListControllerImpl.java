@@ -5,11 +5,12 @@ import android.support.annotation.CallSuper;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.DbControllerImpl;
+import org.briarproject.android.controller.handler.ExceptionHandler;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.threaded.ThreadListController.ThreadListListener;
-import org.briarproject.api.clients.ThreadedMessage;
 import org.briarproject.api.clients.NamedGroup;
 import org.briarproject.api.clients.PostHeader;
+import org.briarproject.api.clients.ThreadedMessage;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
@@ -265,8 +266,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected abstract H addLocalMessage(M message) throws DbException;
 
 	@Override
-	public void deleteNamedGroup(
-			final ResultExceptionHandler<Void, DbException> handler) {
+	public void deleteNamedGroup(final ExceptionHandler<DbException> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -277,8 +277,6 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Removing group took " + duration + " ms");
-					//noinspection ConstantConditions
-					handler.onResult(null);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

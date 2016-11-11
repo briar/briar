@@ -1,6 +1,6 @@
 package org.briarproject.android.sharing;
 
-import org.briarproject.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.android.controller.handler.ExceptionHandler;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
@@ -10,6 +10,7 @@ import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sharing.SharingInvitationItem;
 import org.briarproject.api.sync.ClientId;
 
@@ -21,6 +22,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.forum.ForumManager.CLIENT_ID;
 
+@NotNullByDefault
 public class ForumInvitationControllerImpl
 		extends InvitationControllerImpl<SharingInvitationItem>
 		implements ForumInvitationController {
@@ -58,7 +60,7 @@ public class ForumInvitationControllerImpl
 	@Override
 	public void respondToInvitation(final SharingInvitationItem item,
 			final boolean accept,
-			final ResultExceptionHandler<Void, DbException> handler) {
+			final ExceptionHandler<DbException> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {

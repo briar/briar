@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.DbControllerImpl;
+import org.briarproject.android.controller.handler.ExceptionHandler;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogCommentHeader;
@@ -196,7 +197,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	@Override
 	public void repeatPost(final BlogPostItem item,
 			final @Nullable String comment,
-			final ResultExceptionHandler<Void, DbException> handler) {
+			final ExceptionHandler<DbException> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -205,7 +206,6 @@ abstract class BaseControllerImpl extends DbControllerImpl
 					Blog b = blogManager.getPersonalBlog(a);
 					BlogPostHeader h = item.getHeader();
 					blogManager.addLocalComment(a, b.getId(), comment, h);
-					handler.onResult(null);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

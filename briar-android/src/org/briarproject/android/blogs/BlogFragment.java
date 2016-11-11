@@ -23,12 +23,14 @@ import org.briarproject.android.blogs.BaseController.OnBlogPostAddedListener;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
-import org.briarproject.android.sharing.ShareBlogActivity;
 import org.briarproject.android.sharing.BlogSharingStatusActivity;
+import org.briarproject.android.sharing.ShareBlogActivity;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
@@ -44,6 +46,8 @@ import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_SHARE;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_WRITE_POST;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class BlogFragment extends BaseFragment implements
 		OnBlogPostAddedListener {
 
@@ -71,8 +75,9 @@ public class BlogFragment extends BaseFragment implements
 
 	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 		Bundle args = getArguments();
 		byte[] b = args.getByteArray(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No group ID in args");
