@@ -11,6 +11,7 @@ import org.briarproject.api.nullsafety.NotNullByDefault;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static org.briarproject.api.identity.Author.Status.OURSELVES;
 
 @UiThread
 @NotNullByDefault
@@ -28,7 +29,7 @@ class MemberListItemHolder extends RecyclerView.ViewHolder {
 	protected void bind(MemberListItem item) {
 		author.setAuthor(item.getMember());
 		author.setAuthorStatus(item.getStatus());
-		if (item.isSharing()) {
+		if (item.isSharing() && item.getStatus() != OURSELVES) {
 			sharing.setVisibility(VISIBLE);
 		} else {
 			sharing.setVisibility(INVISIBLE);
