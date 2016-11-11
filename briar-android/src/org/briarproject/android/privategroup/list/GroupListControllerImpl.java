@@ -4,6 +4,7 @@ import android.support.annotation.CallSuper;
 
 import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.DbControllerImpl;
+import org.briarproject.android.controller.handler.ExceptionHandler;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.db.DatabaseExecutor;
@@ -197,7 +198,7 @@ public class GroupListControllerImpl extends DbControllerImpl
 
 	@Override
 	public void removeGroup(final GroupId g,
-			final ResultExceptionHandler<Void, DbException> handler) {
+			final ExceptionHandler<DbException> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -207,7 +208,6 @@ public class GroupListControllerImpl extends DbControllerImpl
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Removing group took " + duration + " ms");
-					handler.onResult(null);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

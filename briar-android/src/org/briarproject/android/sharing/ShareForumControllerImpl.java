@@ -2,7 +2,7 @@ package org.briarproject.android.sharing;
 
 import org.briarproject.android.contactselection.ContactSelectorControllerImpl;
 import org.briarproject.android.contactselection.SelectableContactItem;
-import org.briarproject.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.android.controller.handler.ExceptionHandler;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -65,7 +65,7 @@ public class ShareForumControllerImpl
 	@Override
 	public void share(final GroupId g, final Collection<ContactId> contacts,
 			final String msg,
-			final ResultExceptionHandler<Void, DbException> handler) {
+			final ExceptionHandler<DbException> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {

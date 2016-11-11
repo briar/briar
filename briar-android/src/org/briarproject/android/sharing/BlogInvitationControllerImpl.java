@@ -1,6 +1,6 @@
 package org.briarproject.android.sharing;
 
-import org.briarproject.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.android.controller.handler.ExceptionHandler;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.contact.Contact;
@@ -10,6 +10,7 @@ import org.briarproject.api.event.BlogInvitationReceivedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sharing.SharingInvitationItem;
 import org.briarproject.api.sync.ClientId;
 
@@ -21,7 +22,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.blogs.BlogManager.CLIENT_ID;
 
-
+@NotNullByDefault
 public class BlogInvitationControllerImpl
 		extends InvitationControllerImpl<SharingInvitationItem>
 		implements BlogInvitationController {
@@ -59,7 +60,7 @@ public class BlogInvitationControllerImpl
 	@Override
 	public void respondToInvitation(final SharingInvitationItem item,
 			final boolean accept,
-			final ResultExceptionHandler<Void, DbException> handler) {
+			final ExceptionHandler<DbException> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {

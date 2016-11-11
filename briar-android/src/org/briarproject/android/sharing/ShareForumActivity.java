@@ -5,7 +5,7 @@ import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.android.controller.handler.UiExceptionHandler;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
@@ -57,12 +57,7 @@ public class ShareForumActivity extends ShareActivity {
 	@Override
 	void share(Collection<ContactId> contacts, String msg) {
 		controller.share(groupId, contacts, msg,
-				new UiResultExceptionHandler<Void, DbException>(this) {
-					@Override
-					public void onResultUi(Void result) {
-
-					}
-
+				new UiExceptionHandler<DbException>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO proper error handling

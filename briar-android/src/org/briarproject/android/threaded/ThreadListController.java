@@ -5,6 +5,7 @@ import android.support.annotation.UiThread;
 
 import org.briarproject.android.DestroyableContext;
 import org.briarproject.android.controller.ActivityLifecycleController;
+import org.briarproject.android.controller.handler.ExceptionHandler;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.clients.NamedGroup;
 import org.briarproject.api.clients.PostHeader;
@@ -31,7 +32,7 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 	void createAndStoreMessage(String body, @Nullable I parentItem,
 			ResultExceptionHandler<I, DbException> handler);
 
-	void deleteNamedGroup(ResultExceptionHandler<Void, DbException> handler);
+	void deleteNamedGroup(ExceptionHandler<DbException> handler);
 
 	interface ThreadListListener<H> extends DestroyableContext {
 		@UiThread

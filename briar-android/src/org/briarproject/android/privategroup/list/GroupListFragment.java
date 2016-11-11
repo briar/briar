@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
+import org.briarproject.android.controller.handler.UiExceptionHandler;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.privategroup.creation.CreateGroupActivity;
@@ -26,6 +27,8 @@ import org.briarproject.android.privategroup.list.GroupListController.GroupListL
 import org.briarproject.android.privategroup.list.GroupViewHolder.OnGroupRemoveClickListener;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.privategroup.GroupMessageHeader;
 import org.briarproject.api.sync.GroupId;
 
@@ -37,6 +40,8 @@ import javax.inject.Inject;
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class GroupListFragment extends BaseFragment implements
 		GroupListListener, OnGroupRemoveClickListener, OnClickListener {
 
@@ -56,8 +61,9 @@ public class GroupListFragment extends BaseFragment implements
 
 	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 
 		View v = inflater.inflate(R.layout.list, container, false);
 
@@ -126,12 +132,8 @@ public class GroupListFragment extends BaseFragment implements
 	@Override
 	public void onGroupRemoveClick(GroupItem item) {
 		controller.removeGroup(item.getId(),
-				new UiResultExceptionHandler<Void, DbException>(this) {
-					@Override
-					public void onResultUi(Void result) {
-						// handled by GroupRemovedEvent and onGroupRemoved()
-					}
-
+				new UiExceptionHandler<DbException>(this) {
+					// result handled by GroupRemovedEvent and onGroupRemoved()
 					@Override
 					public void onExceptionUi(DbException exception) {
 						// TODO handle error

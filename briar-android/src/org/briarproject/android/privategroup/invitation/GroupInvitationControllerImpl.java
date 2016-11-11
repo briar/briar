@@ -1,6 +1,6 @@
 package org.briarproject.android.privategroup.invitation;
 
-import org.briarproject.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.android.controller.handler.ExceptionHandler;
 import org.briarproject.android.sharing.InvitationControllerImpl;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseExecutor;
@@ -10,8 +10,8 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.GroupInvitationRequestReceivedEvent;
 import org.briarproject.api.event.GroupInvitationResponseReceivedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.privategroup.PrivateGroup;
-import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.privategroup.invitation.GroupInvitationItem;
 import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.api.sync.ClientId;
@@ -24,20 +24,18 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.privategroup.PrivateGroupManager.CLIENT_ID;
 
+@NotNullByDefault
 public class GroupInvitationControllerImpl
 		extends InvitationControllerImpl<GroupInvitationItem>
 		implements GroupInvitationController {
 
-	private final PrivateGroupManager privateGroupManager;
 	private final GroupInvitationManager groupInvitationManager;
 
 	@Inject
 	GroupInvitationControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus,
-			PrivateGroupManager privateGroupManager,
 			GroupInvitationManager groupInvitationManager) {
 		super(dbExecutor, lifecycleManager, eventBus);
-		this.privateGroupManager = privateGroupManager;
 		this.groupInvitationManager = groupInvitationManager;
 	}
 
@@ -68,7 +66,7 @@ public class GroupInvitationControllerImpl
 	@Override
 	public void respondToInvitation(final GroupInvitationItem item,
 			final boolean accept,
-			final ResultExceptionHandler<Void, DbException> handler) {
+			final ExceptionHandler<DbException> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
