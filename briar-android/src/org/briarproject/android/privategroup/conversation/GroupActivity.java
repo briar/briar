@@ -22,6 +22,7 @@ import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.privategroup.conversation.GroupController.GroupListener;
 import org.briarproject.android.privategroup.creation.GroupInviteActivity;
 import org.briarproject.android.privategroup.memberlist.GroupMemberListActivity;
+import org.briarproject.android.privategroup.reveal.RevealContactsActivity;
 import org.briarproject.android.threaded.ThreadListActivity;
 import org.briarproject.android.threaded.ThreadListController;
 import org.briarproject.api.db.DbException;
@@ -48,8 +49,8 @@ public class GroupActivity extends
 	GroupController controller;
 
 	private boolean isCreator, isDissolved = false;
-	private MenuItem writeMenuItem, inviteMenuItem, leaveMenuItem,
-			dissolveMenuItem;
+	private MenuItem writeMenuItem, revealMenuItem, inviteMenuItem,
+			leaveMenuItem, dissolveMenuItem;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -135,6 +136,7 @@ public class GroupActivity extends
 		inflater.inflate(R.menu.group_actions, menu);
 
 		writeMenuItem = menu.findItem(R.id.action_group_compose_message);
+		revealMenuItem = menu.findItem(R.id.action_group_reveal);
 		inviteMenuItem = menu.findItem(R.id.action_group_invite);
 		leaveMenuItem = menu.findItem(R.id.action_group_leave);
 		dissolveMenuItem = menu.findItem(R.id.action_group_dissolve);
@@ -157,10 +159,15 @@ public class GroupActivity extends
 				i1.putExtra(GROUP_ID, groupId.getBytes());
 				ActivityCompat.startActivity(this, i1, options.toBundle());
 				return true;
-			case R.id.action_group_invite:
-				Intent i2 = new Intent(this, GroupInviteActivity.class);
+			case R.id.action_group_reveal:
+				Intent i2 = new Intent(this, RevealContactsActivity.class);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
-				ActivityCompat.startActivityForResult(this, i2, REQUEST_INVITE,
+				ActivityCompat.startActivity(this, i2, options.toBundle());
+				return true;
+			case R.id.action_group_invite:
+				Intent i3 = new Intent(this, GroupInviteActivity.class);
+				i3.putExtra(GROUP_ID, groupId.getBytes());
+				ActivityCompat.startActivityForResult(this, i3, REQUEST_INVITE,
 						options.toBundle());
 				return true;
 			case R.id.action_group_leave:
@@ -218,10 +225,12 @@ public class GroupActivity extends
 	private void showMenuItems() {
 		if (leaveMenuItem == null || dissolveMenuItem == null) return;
 		if (isCreator) {
+			revealMenuItem.setVisible(false);
 			inviteMenuItem.setVisible(true);
 			leaveMenuItem.setVisible(false);
 			dissolveMenuItem.setVisible(true);
 		} else {
+			revealMenuItem.setVisible(true);
 			inviteMenuItem.setVisible(false);
 			leaveMenuItem.setVisible(true);
 			dissolveMenuItem.setVisible(false);

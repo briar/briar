@@ -31,6 +31,8 @@ import org.briarproject.android.privategroup.list.GroupListController;
 import org.briarproject.android.privategroup.list.GroupListControllerImpl;
 import org.briarproject.android.privategroup.memberlist.GroupMemberListController;
 import org.briarproject.android.privategroup.memberlist.GroupMemberListControllerImpl;
+import org.briarproject.android.privategroup.reveal.RevealContactsController;
+import org.briarproject.android.privategroup.reveal.RevealContactsControllerImpl;
 import org.briarproject.android.sharing.BlogInvitationController;
 import org.briarproject.android.sharing.BlogInvitationControllerImpl;
 import org.briarproject.android.sharing.ForumInvitationController;
@@ -142,6 +144,13 @@ public class ActivityModule {
 	protected GroupMemberListController provideGroupMemberListController(
 			GroupMemberListControllerImpl groupMemberListController) {
 		return groupMemberListController;
+	}
+
+	@ActivityScope
+	@Provides
+	protected RevealContactsController provideRevealContactsController(
+			RevealContactsControllerImpl revealContactsController) {
+		return revealContactsController;
 	}
 
 	@ActivityScope

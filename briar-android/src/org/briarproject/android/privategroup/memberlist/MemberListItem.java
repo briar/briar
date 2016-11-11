@@ -19,7 +19,7 @@ class MemberListItem {
 
 	public MemberListItem(GroupMember groupMember) {
 		this.member = groupMember.getAuthor();
-		this.sharing = groupMember.getVisibility() != INVISIBLE; // TODO #732
+		this.sharing = groupMember.getVisibility() != INVISIBLE;
 		this.status = groupMember.getStatus();
 	}
 

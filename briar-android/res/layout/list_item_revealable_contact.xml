@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
+
+
+	<RelativeLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:tools="http://schemas.android.com/tools"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="?attr/selectableItemBackground"
+		android:orientation="vertical"
+		android:padding="@dimen/listitem_horizontal_margin">
+
+		<de.hdodenhof.circleimageview.CircleImageView
+			android:id="@+id/avatarView"
+			style="@style/BriarAvatar"
+			android:layout_width="@dimen/listitem_selectable_picture_size"
+			android:layout_height="@dimen/listitem_selectable_picture_size"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentStart="true"
+			android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+			android:layout_marginRight="@dimen/listitem_horizontal_margin"
+			android:transitionName="avatar"
+			tools:src="@drawable/ic_launcher"/>
+
+		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+			android:id="@+id/nameView"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_toRightOf="@+id/avatarView"
+			android:textColor="@color/briar_text_primary"
+			android:textSize="@dimen/text_size_large"
+			tools:text="Revealable Contact"/>
+
+		<ImageView
+			android:id="@+id/visibilityView"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/nameView"
+			android:layout_marginRight="@dimen/margin_small"
+			android:layout_toRightOf="@+id/avatarView"
+			android:src="@drawable/ic_visibility"
+			tools:ignore="ContentDescription"/>
+
+		<TextView
+			android:id="@+id/infoView"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/nameView"
+			android:layout_toLeftOf="@+id/checkBox"
+			android:layout_toRightOf="@+id/visibilityView"
+			android:gravity="center_vertical"
+			android:text="@string/groups_reveal_visible"
+			android:textColor="@color/briar_text_tertiary"
+			android:textSize="@dimen/text_size_small"
+			tools:visibility="visible"/>
+
+		<CheckBox
+			android:id="@+id/checkBox"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentEnd="true"
+			android:layout_alignParentRight="true"
+			android:layout_centerVertical="true"
+			android:clickable="false"/>
+
+	</RelativeLayout>
+
+	<View style="@style/Divider.ContactList"/>
+
+</LinearLayout>

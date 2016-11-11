@@ -143,6 +143,17 @@
 		</activity>
 
 		<activity
+			android:name=".android.privategroup.reveal.RevealContactsActivity"
+			android:label="@string/groups_reveal_contacts"
+			android:parentActivityName=".android.privategroup.conversation.GroupActivity"
+			android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.privategroup.conversation.GroupActivity"
+				/>
+		</activity>
+
+		<activity
 			android:name=".android.privategroup.creation.GroupInviteActivity"
 			android:label="@string/groups_invite_members"
 			android:parentActivityName=".android.privategroup.conversation.GroupActivity"
