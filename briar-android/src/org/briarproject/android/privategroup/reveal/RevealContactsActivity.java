@@ -1,9 +1,13 @@
 package org.briarproject.android.privategroup.reveal;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -13,6 +17,7 @@ import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
 import org.briarproject.android.contactselection.ContactSelectorActivity;
 import org.briarproject.android.controller.handler.UiExceptionHandler;
+import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
@@ -68,14 +73,72 @@ public class RevealContactsActivity extends ContactSelectorActivity
 	}
 
 	@Override
+	public void onStart() {
+		super.onStart();
+		controller.isOnboardingNeeded(
+				new UiResultExceptionHandler<Boolean, DbException>(this) {
+					@Override
+					public void onResultUi(Boolean show) {
+						if (show) showOnboardingDialog();
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO proper error handling
+						finish();
+					}
+				});
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.group_reveal_actions, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				onBackPressed();
 				return true;
+			case R.id.action_group_reveal_onboarding:
+				showOnboardingDialog();
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	private void showOnboardingDialog() {
+		new AlertDialog.Builder(this, R.style.BriarDialogTheme)
+				.setMessage(getString(R.string.groups_reveal_dialog_message))
+				.setPositiveButton(R.string.ok,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								dialog.cancel();
+							}
+						})
+				.setOnCancelListener(new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						onboardingShown();
+					}
+				})
+				.show();
+	}
+
+	private void onboardingShown() {
+		controller.onboardingShown(
+				new UiExceptionHandler<DbException>(this) {
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO proper error handling
+					}
+				});
 	}
 
 	@Override

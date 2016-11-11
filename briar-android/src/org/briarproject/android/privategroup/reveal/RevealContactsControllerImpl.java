@@ -14,6 +14,8 @@ import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.privategroup.GroupMember;
 import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.api.settings.Settings;
+import org.briarproject.api.settings.SettingsManager;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.fragment.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.api.privategroup.Visibility.INVISIBLE;
 
 @Immutable
@@ -35,20 +38,24 @@ public class RevealContactsControllerImpl extends DbControllerImpl
 
 	private static final Logger LOG =
 			Logger.getLogger(RevealContactsControllerImpl.class.getName());
+	private static final String SHOW_ONBOARDING_REVEAL_CONTACTS =
+			"showOnboardingRevealContacts";
 
 	private final PrivateGroupManager groupManager;
 	private final GroupInvitationManager groupInvitationManager;
 	private final ContactManager contactManager;
+	private final SettingsManager settingsManager;
 
 	@Inject
 	public RevealContactsControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, PrivateGroupManager groupManager,
 			GroupInvitationManager groupInvitationManager,
-			ContactManager contactManager) {
+			ContactManager contactManager, SettingsManager settingsManager) {
 		super(dbExecutor, lifecycleManager);
 		this.groupManager = groupManager;
 		this.groupInvitationManager = groupInvitationManager;
 		this.contactManager = contactManager;
+		this.settingsManager = settingsManager;
 	}
 
 	@Override
@@ -93,6 +100,45 @@ public class RevealContactsControllerImpl extends DbControllerImpl
 			}
 		}
 		return items;
+	}
+
+	@Override
+	public void isOnboardingNeeded(
+			final ResultExceptionHandler<Boolean, DbException> handler) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Settings settings =
+							settingsManager.getSettings(SETTINGS_NAMESPACE);
+					handler.onResult(
+							settings.getBoolean(SHOW_ONBOARDING_REVEAL_CONTACTS,
+									true));
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					handler.onException(e);
+				}
+
+			}
+		});
+	}
+
+	@Override
+	public void onboardingShown(ExceptionHandler<DbException> handler) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Settings settings = new Settings();
+					settings.putBoolean(SHOW_ONBOARDING_REVEAL_CONTACTS, false);
+					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
 	}
 
 	@Override
