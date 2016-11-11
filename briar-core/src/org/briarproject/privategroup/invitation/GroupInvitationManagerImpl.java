@@ -315,6 +315,30 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 	}
 
+	@Override
+	public void revealRelationship(ContactId c, GroupId g) throws DbException {
+		Transaction txn = db.startTransaction(false);
+		try {
+			// Look up the session
+			Contact contact = db.getContact(txn, c);
+			GroupId contactGroupId = getContactGroup(contact).getId();
+			StoredSession ss = getSession(txn, contactGroupId, getSessionId(g));
+			if (ss == null) throw new IllegalArgumentException();
+			// Parse the session
+			PeerSession session = sessionParser
+					.parsePeerSession(contactGroupId, ss.bdfSession);
+			// Handle the join action
+			session = peerEngine.onJoinAction(txn, session);
+			// Store the updated session
+			storeSession(txn, ss.storageId, session);
+			db.commitTransaction(txn);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
 	private <S extends Session> S handleAction(Transaction txn,
 			LocalAction type, S session, ProtocolEngine<S> engine)
 			throws DbException, FormatException {

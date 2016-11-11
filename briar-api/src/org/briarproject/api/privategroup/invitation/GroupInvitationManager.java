@@ -43,6 +43,12 @@ public interface GroupInvitationManager {
 			throws DbException;
 
 	/**
+	 * Makes the user's relationship with the given contact visible to the
+	 * given private group.
+	 */
+	void revealRelationship(ContactId c, GroupId g) throws DbException;
+
+	/**
 	 * Returns all private group invitation messages related to the given
 	 * contact.
 	 */
