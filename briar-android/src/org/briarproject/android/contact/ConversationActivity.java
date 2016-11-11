@@ -36,6 +36,7 @@ import org.briarproject.android.view.TextInputView;
 import org.briarproject.android.view.TextInputView.TextInputListener;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.blogs.BlogSharingManager;
+import org.briarproject.api.clients.ProtocolStateException;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -898,7 +899,11 @@ public class ConversationActivity extends BriarActivity
 	@DatabaseExecutor
 	private void respondToGroupRequest(SessionId id, boolean accept)
 			throws DbException {
-		groupInvitationManager.respondToInvitation(contactId, id, accept);
+		try {
+			groupInvitationManager.respondToInvitation(contactId, id, accept);
+		} catch (ProtocolStateException e) {
+			// this action is no longer possible
+		}
 	}
 
 	private void introductionResponseError() {

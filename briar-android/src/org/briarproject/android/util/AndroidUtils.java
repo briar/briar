@@ -47,6 +47,7 @@ public class AndroidUtils {
 
 	public static final long MIN_RESOLUTION = MINUTE_IN_MILLIS;
 	public static final int TEASER_LENGTH = 320;
+	public static final float GREY_OUT = 0.5f;
 
 	// Fake Bluetooth address returned by BluetoothAdapter on API 23 and later
 	private static final String FAKE_BLUETOOTH_ADDRESS = "02:00:00:00:00:00";

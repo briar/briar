@@ -7,7 +7,6 @@ import android.support.v4.app.ActivityOptionsCompat;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.contactselection.ContactSelectorFragment;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.privategroup.conversation.GroupActivity;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;

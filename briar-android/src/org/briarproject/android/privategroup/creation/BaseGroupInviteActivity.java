@@ -2,7 +2,6 @@ package org.briarproject.android.privategroup.creation;
 
 import org.briarproject.R;
 import org.briarproject.android.contactselection.ContactSelectorActivity;
-import org.briarproject.android.contactselection.SelectableContactItem;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;
 import org.briarproject.api.contact.ContactId;
@@ -20,8 +19,7 @@ import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public abstract class BaseGroupInviteActivity
-		extends ContactSelectorActivity<SelectableContactItem>
-		implements MessageFragmentListener {
+		extends ContactSelectorActivity implements MessageFragmentListener {
 
 	@Inject
 	CreateGroupController controller;

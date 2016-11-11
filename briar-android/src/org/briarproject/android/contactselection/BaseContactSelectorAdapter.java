@@ -14,12 +14,12 @@ import java.util.Collection;
 public abstract class BaseContactSelectorAdapter<I extends SelectableContactItem, H extends ContactItemViewHolder<I>>
 		extends BaseContactListAdapter<I, H> {
 
-	BaseContactSelectorAdapter(Context context, Class<I> c,
+	public BaseContactSelectorAdapter(Context context, Class<I> c,
 			OnContactClickListener<I> listener) {
 		super(context, c, listener);
 	}
 
-	Collection<ContactId> getSelectedContactIds() {
+	public Collection<ContactId> getSelectedContactIds() {
 		Collection<ContactId> selected = new ArrayList<>();
 
 		for (int i = 0; i < items.size(); i++) {

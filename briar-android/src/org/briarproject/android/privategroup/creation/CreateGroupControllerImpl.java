@@ -1,7 +1,6 @@
 package org.briarproject.android.privategroup.creation;
 
 import org.briarproject.android.contactselection.ContactSelectorControllerImpl;
-import org.briarproject.android.contactselection.SelectableContactItem;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -37,8 +36,7 @@ import static java.util.logging.Level.WARNING;
 
 @Immutable
 @NotNullByDefault
-public class CreateGroupControllerImpl
-		extends ContactSelectorControllerImpl<SelectableContactItem>
+public class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 		implements CreateGroupController {
 
 	private static final Logger LOG =
@@ -131,20 +129,8 @@ public class CreateGroupControllerImpl
 	}
 
 	@Override
-	protected boolean isSelected(Contact c, boolean wasSelected)
-			throws DbException {
-		return wasSelected;
-	}
-
-	@Override
 	protected boolean isDisabled(GroupId g, Contact c) throws DbException {
 		return !groupInvitationManager.isInvitationAllowed(c, g);
-	}
-
-	@Override
-	protected SelectableContactItem getItem(Contact c, boolean selected,
-			boolean disabled) {
-		return new SelectableContactItem(c, selected, disabled);
 	}
 
 	@Override

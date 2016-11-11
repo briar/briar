@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.contactselection.ContactSelectorFragment;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;
 import org.briarproject.api.sync.GroupId;
 

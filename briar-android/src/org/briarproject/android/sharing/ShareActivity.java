@@ -20,8 +20,7 @@ import java.util.Collection;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public abstract class ShareActivity
-		extends ContactSelectorActivity<SelectableContactItem>
+public abstract class ShareActivity extends ContactSelectorActivity
 		implements MessageFragmentListener {
 
 	@Override

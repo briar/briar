@@ -27,7 +27,7 @@ public class SelectableContactItem extends ContactItem {
 		selected = !selected;
 	}
 
-	boolean isDisabled() {
+	public boolean isDisabled() {
 		return disabled;
 	}
 

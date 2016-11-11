@@ -22,9 +22,9 @@ import static java.util.logging.Level.WARNING;
 
 @Immutable
 @NotNullByDefault
-public abstract class ContactSelectorControllerImpl<I extends SelectableContactItem>
+public abstract class ContactSelectorControllerImpl
 		extends DbControllerImpl
-		implements ContactSelectorController<I> {
+		implements ContactSelectorController<SelectableContactItem> {
 
 	private static final Logger LOG =
 			Logger.getLogger(ContactSelectorControllerImpl.class.getName());
@@ -40,19 +40,20 @@ public abstract class ContactSelectorControllerImpl<I extends SelectableContactI
 	@Override
 	public void loadContacts(final GroupId g,
 			final Collection<ContactId> selection,
-			final ResultExceptionHandler<Collection<I>, DbException> handler) {
+			final ResultExceptionHandler<Collection<SelectableContactItem>, DbException> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					Collection<I> contacts = new ArrayList<>();
+					Collection<SelectableContactItem> contacts =
+							new ArrayList<>();
 					for (Contact c : contactManager.getActiveContacts()) {
 						// was this contact already selected?
-						boolean selected =
-								isSelected(c, selection.contains(c.getId()));
+						boolean selected = selection.contains(c.getId());
 						// can this contact be selected?
 						boolean disabled = isDisabled(g, c);
-						contacts.add(getItem(c, selected, disabled));
+						contacts.add(new SelectableContactItem(c, selected,
+								disabled));
 					}
 					handler.onResult(contacts);
 				} catch (DbException e) {
@@ -65,13 +66,7 @@ public abstract class ContactSelectorControllerImpl<I extends SelectableContactI
 	}
 
 	@DatabaseExecutor
-	protected abstract boolean isSelected(Contact c, boolean wasSelected)
-			throws DbException;
-
-	@DatabaseExecutor
 	protected abstract boolean isDisabled(GroupId g, Contact c)
 			throws DbException;
-
-	protected abstract I getItem(Contact c, boolean selected, boolean disabled);
 
 }
