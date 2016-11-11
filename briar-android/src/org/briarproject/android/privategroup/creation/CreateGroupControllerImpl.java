@@ -1,6 +1,7 @@
 package org.briarproject.android.privategroup.creation;
 
-import org.briarproject.android.controller.DbControllerImpl;
+import org.briarproject.android.contactselection.ContactSelectorControllerImpl;
+import org.briarproject.android.contactselection.SelectableContactItem;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -36,7 +37,8 @@ import static java.util.logging.Level.WARNING;
 
 @Immutable
 @NotNullByDefault
-public class CreateGroupControllerImpl extends DbControllerImpl
+public class CreateGroupControllerImpl
+		extends ContactSelectorControllerImpl<SelectableContactItem>
 		implements CreateGroupController {
 
 	private static final Logger LOG =
@@ -61,7 +63,7 @@ public class CreateGroupControllerImpl extends DbControllerImpl
 			PrivateGroupManager groupManager,
 			GroupInvitationFactory groupInvitationFactory,
 			GroupInvitationManager groupInvitationManager, Clock clock) {
-		super(dbExecutor, lifecycleManager);
+		super(dbExecutor, lifecycleManager, contactManager);
 		this.cryptoExecutor = cryptoExecutor;
 		this.contactManager = contactManager;
 		this.identityManager = identityManager;
@@ -129,6 +131,23 @@ public class CreateGroupControllerImpl extends DbControllerImpl
 	}
 
 	@Override
+	protected boolean isSelected(Contact c, boolean wasSelected)
+			throws DbException {
+		return wasSelected;
+	}
+
+	@Override
+	protected boolean isDisabled(GroupId g, Contact c) throws DbException {
+		return !groupInvitationManager.isInvitationAllowed(c, g);
+	}
+
+	@Override
+	protected SelectableContactItem getItem(Contact c, boolean selected,
+			boolean disabled) {
+		return new SelectableContactItem(c, selected, disabled);
+	}
+
+	@Override
 	public void sendInvitation(final GroupId g,
 			final Collection<ContactId> contactIds, final String message,
 			final ResultExceptionHandler<Void, DbException> handler) {
@@ -191,6 +210,7 @@ public class CreateGroupControllerImpl extends DbControllerImpl
 							// Continue
 						}
 					}
+					//noinspection ConstantConditions
 					handler.onResult(null);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))

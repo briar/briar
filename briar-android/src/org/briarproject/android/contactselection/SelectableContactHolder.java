@@ -1,4 +1,4 @@
-package org.briarproject.android.sharing;
+package org.briarproject.android.contactselection;
 
 import android.support.annotation.UiThread;
 import android.view.View;
@@ -16,7 +16,7 @@ import static android.view.View.VISIBLE;
 
 @UiThread
 @NotNullByDefault
-class SelectableContactHolder
+public class SelectableContactHolder
 		extends ContactItemViewHolder<SelectableContactItem> {
 
 	private final CheckBox checkBox;

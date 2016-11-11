@@ -8,7 +8,6 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.event.ForumInvitationReceivedEvent;
 import org.briarproject.api.forum.Forum;
-import org.briarproject.api.forum.ForumManager;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.sharing.SharingInvitationItem;
@@ -26,16 +25,13 @@ public class ForumInvitationControllerImpl
 		extends InvitationControllerImpl<SharingInvitationItem>
 		implements ForumInvitationController {
 
-	private final ForumManager forumManager;
 	private final ForumSharingManager forumSharingManager;
 
 	@Inject
 	ForumInvitationControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus,
-			ForumManager forumManager,
 			ForumSharingManager forumSharingManager) {
 		super(dbExecutor, lifecycleManager, eventBus);
-		this.forumManager = forumManager;
 		this.forumSharingManager = forumSharingManager;
 	}
 

@@ -2,6 +2,7 @@ package org.briarproject.android;
 
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -31,7 +32,7 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);

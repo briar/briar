@@ -5,21 +5,12 @@ import android.os.Bundle;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
+import org.briarproject.android.contactselection.ContactSelectorFragment;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;
-import org.briarproject.android.sharing.ContactSelectorFragment;
-import org.briarproject.api.contact.Contact;
-import org.briarproject.api.db.DatabaseExecutor;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.api.sync.GroupId;
-
-import javax.inject.Inject;
 
 public class GroupInviteActivity extends BaseGroupInviteActivity
 		implements MessageFragmentListener {
-
-	@Inject
-	GroupInvitationManager groupInvitationManager;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -30,26 +21,18 @@ public class GroupInviteActivity extends BaseGroupInviteActivity
 	public void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
 
-		// Initialise the group ID,
-		// it will be saved and restored by the superclass
 		Intent i = getIntent();
 		byte[] g = i.getByteArrayExtra(GROUP_ID);
 		if (g == null) throw new IllegalStateException("No GroupId in intent.");
 		groupId = new GroupId(g);
 
 		if (bundle == null) {
-			ContactSelectorFragment fragment =
-					ContactSelectorFragment.newInstance(groupId);
+			GroupInviteFragment fragment =
+					GroupInviteFragment.newInstance(groupId);
 			getSupportFragmentManager().beginTransaction()
 					.replace(R.id.fragmentContainer, fragment)
 					.commit();
 		}
-	}
-
-	@Override
-	@DatabaseExecutor
-	public boolean isDisabled(GroupId g, Contact c) throws DbException {
-		return !groupInvitationManager.isInvitationAllowed(c, g);
 	}
 
 }

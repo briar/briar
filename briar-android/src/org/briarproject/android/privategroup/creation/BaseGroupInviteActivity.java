@@ -1,14 +1,15 @@
 package org.briarproject.android.privategroup.creation;
 
-import android.os.Bundle;
-
 import org.briarproject.R;
+import org.briarproject.android.contactselection.ContactSelectorActivity;
+import org.briarproject.android.contactselection.ContactSelectorController;
+import org.briarproject.android.contactselection.SelectableContactItem;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;
-import org.briarproject.android.sharing.ContactSelectorActivity;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -17,37 +18,18 @@ import javax.inject.Inject;
 
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_MSG_LENGTH;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public abstract class BaseGroupInviteActivity
-		extends ContactSelectorActivity
+		extends ContactSelectorActivity<SelectableContactItem>
 		implements MessageFragmentListener {
 
 	@Inject
 	CreateGroupController controller;
 
 	@Override
-	public void onCreate(Bundle bundle) {
-		super.onCreate(bundle);
-
-		// Subclasses may initialise the group ID in different places,
-		// restore it if it was saved
-		if (bundle != null) {
-			byte[] groupBytes = bundle.getByteArray(GROUP_ID);
-			if (groupBytes != null) groupId = new GroupId(groupBytes);
-		}
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		if (groupId != null) {
-			outState.putByteArray(GROUP_ID, groupId.getBytes());
-		}
-	}
-
-	@Override
-	public void contactsSelected(GroupId groupId,
-			Collection<ContactId> contacts) {
-		super.contactsSelected(groupId, contacts);
+	public void contactsSelected(Collection<ContactId> contacts) {
+		super.contactsSelected(contacts);
 
 		CreateGroupMessageFragment fragment = new CreateGroupMessageFragment();
 		getSupportFragmentManager().beginTransaction()
@@ -62,6 +44,8 @@ public abstract class BaseGroupInviteActivity
 
 	@Override
 	public boolean onButtonClick(@NotNull String message) {
+		if (groupId == null)
+			throw new IllegalStateException("GroupId was not initialized");
 		controller.sendInvitation(groupId, contacts, message,
 				new UiResultExceptionHandler<Void, DbException>(this) {
 					@Override
