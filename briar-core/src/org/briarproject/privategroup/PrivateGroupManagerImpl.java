@@ -443,21 +443,26 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn, g);
 		BdfList members = meta.getList(GROUP_KEY_MEMBERS);
 		Visibility v = INVISIBLE;
-		boolean foundMember = false;
+		boolean foundMember = false, changed = false;
 		for (int i = 0 ; i < members.size(); i++) {
 			BdfDictionary d = members.getDictionary(i);
 			AuthorId memberId = new AuthorId(d.getRaw(KEY_MEMBER_ID));
 			if (a.equals(memberId)) {
 				foundMember = true;
-				Visibility vOld = getVisibility(d);
-				if (vOld != INVISIBLE) throw new ProtocolStateException();
-				v = byContact ? REVEALED_BY_CONTACT : REVEALED_BY_US;
-				d.put(GROUP_KEY_VISIBILITY, v.getInt());
+				// Don't update the visibility if the contact is already visible
+				if (getVisibility(d) == INVISIBLE) {
+					changed = true;
+					v = byContact ? REVEALED_BY_CONTACT : REVEALED_BY_US;
+					d.put(GROUP_KEY_VISIBILITY, v.getInt());
+				}
+				break;
 			}
 		}
 		if (!foundMember) throw new ProtocolStateException();
-		clientHelper.mergeGroupMetadata(txn, g, meta);
-		txn.attach(new ContactRelationshipRevealedEvent(g, v));
+		if (changed) {
+			clientHelper.mergeGroupMetadata(txn, g, meta);
+			txn.attach(new ContactRelationshipRevealedEvent(g, v));
+		}
 	}
 
 	@Override
