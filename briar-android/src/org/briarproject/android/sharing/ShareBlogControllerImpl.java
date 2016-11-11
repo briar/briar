@@ -1,7 +1,6 @@
 package org.briarproject.android.sharing;
 
 import org.briarproject.android.contactselection.ContactSelectorControllerImpl;
-import org.briarproject.android.contactselection.SelectableContactItem;
 import org.briarproject.android.controller.handler.ExceptionHandler;
 import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.contact.Contact;
@@ -26,8 +25,7 @@ import static java.util.logging.Level.WARNING;
 
 @Immutable
 @NotNullByDefault
-public class ShareBlogControllerImpl
-		extends ContactSelectorControllerImpl<SelectableContactItem>
+public class ShareBlogControllerImpl extends ContactSelectorControllerImpl
 		implements ShareBlogController {
 
 	private final static Logger LOG =
@@ -46,20 +44,8 @@ public class ShareBlogControllerImpl
 	}
 
 	@Override
-	protected boolean isSelected(Contact c, boolean wasSelected)
-			throws DbException {
-		return wasSelected;
-	}
-
-	@Override
 	protected boolean isDisabled(GroupId g, Contact c) throws DbException {
 		return !blogSharingManager.canBeShared(g, c);
-	}
-
-	@Override
-	protected SelectableContactItem getItem(Contact c, boolean selected,
-			boolean disabled) {
-		return new SelectableContactItem(c, selected, disabled);
 	}
 
 	@Override

@@ -9,8 +9,7 @@ import org.briarproject.api.nullsafety.NotNullByDefault;
 import java.util.Collection;
 
 @NotNullByDefault
-interface ContactSelectorListener<I extends SelectableContactItem>
-		extends DestroyableContext {
+public interface ContactSelectorListener extends DestroyableContext {
 
 	@UiThread
 	void contactsSelected(Collection<ContactId> contacts);

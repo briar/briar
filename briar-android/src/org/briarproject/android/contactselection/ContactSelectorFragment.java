@@ -1,23 +1,19 @@
 package org.briarproject.android.contactselection;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.content.Context;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.contact.BaseContactListAdapter.OnContactClickListener;
 import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
-import org.jetbrains.annotations.Nullable;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public abstract class ContactSelectorFragment extends
-		BaseContactSelectorFragment<SelectableContactItem, SelectableContactHolder>
+		BaseContactSelectorFragment<SelectableContactItem, ContactSelectorAdapter>
 		implements OnContactClickListener<SelectableContactItem> {
 
 	public static final String TAG = ContactSelectorFragment.class.getName();
@@ -25,14 +21,9 @@ public abstract class ContactSelectorFragment extends
 	private Menu menu;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater,
-			@Nullable ViewGroup container,
-			@Nullable Bundle savedInstanceState) {
-		View contentView =
-				super.onCreateView(inflater, container, savedInstanceState);
-		adapter = new ContactSelectorAdapter(getActivity(), this);
-		list.setAdapter(adapter);
-		return contentView;
+	protected ContactSelectorAdapter getAdapter(Context context,
+			OnContactClickListener<SelectableContactItem> listener) {
+		return new ContactSelectorAdapter(context, listener);
 	}
 
 	@Override

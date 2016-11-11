@@ -12,7 +12,7 @@ import org.briarproject.api.sync.GroupId;
 
 import javax.inject.Inject;
 
-import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
+import static org.briarproject.android.BriarActivity.GROUP_ID;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

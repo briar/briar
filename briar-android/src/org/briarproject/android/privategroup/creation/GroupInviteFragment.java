@@ -1,8 +1,11 @@
 package org.briarproject.android.privategroup.creation;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import org.briarproject.android.ActivityComponent;
+import org.briarproject.android.contact.BaseContactListAdapter;
+import org.briarproject.android.contactselection.ContactSelectorAdapter;
 import org.briarproject.android.contactselection.ContactSelectorController;
 import org.briarproject.android.contactselection.ContactSelectorFragment;
 import org.briarproject.android.contactselection.SelectableContactItem;
@@ -12,7 +15,7 @@ import org.briarproject.api.sync.GroupId;
 
 import javax.inject.Inject;
 
-import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
+import static org.briarproject.android.BriarActivity.GROUP_ID;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

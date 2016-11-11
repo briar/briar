@@ -1,9 +1,12 @@
 package org.briarproject.android.contactselection;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.transition.Fade;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
@@ -19,9 +22,9 @@ import java.util.List;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public abstract class ContactSelectorActivity<I extends SelectableContactItem>
+public abstract class ContactSelectorActivity
 		extends BriarActivity
-		implements BaseFragmentListener, ContactSelectorListener<I> {
+		implements BaseFragmentListener, ContactSelectorListener {
 
 	final static String CONTACTS = "contacts";
 
@@ -33,7 +36,11 @@ public abstract class ContactSelectorActivity<I extends SelectableContactItem>
 	public void onCreate(@Nullable Bundle bundle) {
 		super.onCreate(bundle);
 
-		setContentView(R.layout.activity_fragment_container);
+		setContentView(getLayout());
+
+		if (Build.VERSION.SDK_INT >= 21) {
+			getWindow().setExitTransition(new Fade());
+		}
 
 		if (bundle != null) {
 			// restore group ID if it was saved
@@ -46,6 +53,11 @@ public abstract class ContactSelectorActivity<I extends SelectableContactItem>
 				contacts = getContactsFromIntegers(intContacts);
 			}
 		}
+	}
+
+	@LayoutRes
+	protected int getLayout() {
+		return R.layout.activity_fragment_container;
 	}
 
 	@Override

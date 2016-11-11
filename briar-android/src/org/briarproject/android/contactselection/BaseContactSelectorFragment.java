@@ -26,28 +26,28 @@ import org.briarproject.api.sync.GroupId;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.contactselection.ContactSelectorActivity.CONTACTS;
 import static org.briarproject.android.contactselection.ContactSelectorActivity.getContactsFromIds;
 import static org.briarproject.android.contactselection.ContactSelectorActivity.getContactsFromIntegers;
-import static org.briarproject.api.sharing.SharingConstants.GROUP_ID;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public abstract class BaseContactSelectorFragment<I extends SelectableContactItem, H extends ContactItemViewHolder<I>>
+public abstract class BaseContactSelectorFragment<I extends SelectableContactItem, A extends BaseContactSelectorAdapter<I, ? extends ContactItemViewHolder<I>>>
 		extends BaseFragment
 		implements OnContactClickListener<I> {
 
 	protected BriarRecyclerView list;
-	protected BaseContactSelectorAdapter<I, H> adapter;
+	protected A adapter;
 	protected Collection<ContactId> selectedContacts = new ArrayList<>();
-	protected ContactSelectorListener<I> listener;
+	protected ContactSelectorListener listener;
 
 	private GroupId groupId;
 
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		listener = (ContactSelectorListener<I>) context;
+		listener = (ContactSelectorListener) context;
 	}
 
 	@Override
@@ -75,6 +75,8 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 		list = (BriarRecyclerView) contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setEmptyText(getString(R.string.no_contacts_selector));
+		adapter = getAdapter(getContext(), this);
+		list.setAdapter(adapter);
 
 		// restore selected contacts if available
 		if (savedInstanceState != null) {
@@ -86,6 +88,9 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 		}
 		return contentView;
 	}
+
+	protected abstract A getAdapter(Context context,
+			OnContactClickListener<I> listener);
 
 	@Override
 	public void onStart() {
