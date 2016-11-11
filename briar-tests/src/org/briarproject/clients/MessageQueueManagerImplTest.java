@@ -16,6 +16,7 @@ import org.briarproject.api.db.Transaction;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
+import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageContext;
 import org.briarproject.api.sync.MessageId;
@@ -37,8 +38,8 @@ import static org.briarproject.api.clients.QueueMessage.QUEUE_MESSAGE_HEADER_LEN
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
 public class MessageQueueManagerImplTest extends BriarTestCase {
 
@@ -152,7 +153,12 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		MessageValidator delegate = captured.get();
 		assertNotNull(delegate);
 		// The message should be invalid
-		assertNull(delegate.validateMessage(message, group));
+		try {
+			delegate.validateMessage(message, group);
+			fail();
+		} catch (InvalidMessageException expected) {
+			// Expected
+		}
 
 		context.assertIsSatisfied();
 	}
@@ -193,7 +199,12 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 		MessageValidator delegate = captured.get();
 		assertNotNull(delegate);
 		// The message should be invalid
-		assertNull(delegate.validateMessage(message, group));
+		try {
+			delegate.validateMessage(message, group);
+			fail();
+		} catch (InvalidMessageException expected) {
+			// Expected
+		}
 
 		context.assertIsSatisfied();
 	}

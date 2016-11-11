@@ -4,6 +4,7 @@ import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -41,9 +42,6 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
-import static org.briarproject.clients.BdfConstants.GROUP_KEY_LATEST_MSG;
-import static org.briarproject.clients.BdfConstants.GROUP_KEY_MSG_COUNT;
-import static org.briarproject.clients.BdfConstants.GROUP_KEY_UNREAD_COUNT;
 import static org.junit.Assert.assertFalse;
 
 public class IntroductionManagerImplTest extends BriarTestCase {
@@ -54,6 +52,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 	private final IntroduceeManager introduceeManager;
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
+	private final MessageTracker messageTracker;
 	private final IntroductionGroupFactory introductionGroupFactory;
 	private final SessionId sessionId = new SessionId(TestUtils.getRandomId());
 	private final long time = 42L;
@@ -63,7 +62,6 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 	private final Group introductionGroup2;
 	private final Message message1;
 	private Transaction txn;
-	private BdfDictionary metadataBefore, metadataAfter;
 
 	public IntroductionManagerImplTest() {
 		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
@@ -94,16 +92,6 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 				time,
 				TestUtils.getRandomBytes(MESSAGE_HEADER_LENGTH + 1)
 		);
-		metadataBefore = BdfDictionary.of(
-				new BdfEntry(GROUP_KEY_MSG_COUNT, 41),
-				new BdfEntry(GROUP_KEY_UNREAD_COUNT, 0),
-				new BdfEntry(GROUP_KEY_LATEST_MSG, 0)
-		);
-		metadataAfter = BdfDictionary.of(
-				new BdfEntry(GROUP_KEY_MSG_COUNT, 42),
-				new BdfEntry(GROUP_KEY_UNREAD_COUNT, 0),
-				new BdfEntry(GROUP_KEY_LATEST_MSG, time)
-		);
 
 		// mock ALL THE THINGS!!!
 		context = new Mockery();
@@ -113,12 +101,12 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		db = context.mock(DatabaseComponent.class);
 		clientHelper = context.mock(ClientHelper.class);
 		MetadataParser metadataParser = context.mock(MetadataParser.class);
+		messageTracker = context.mock(MessageTracker.class);
 		introductionGroupFactory = context.mock(IntroductionGroupFactory.class);
 
-		introductionManager = new IntroductionManagerImpl(
-				db, clientHelper, metadataParser, introducerManager,
-				introduceeManager, introductionGroupFactory
-		);
+		introductionManager = new IntroductionManagerImpl(db, clientHelper,
+				metadataParser, messageTracker, introducerManager,
+				introduceeManager, introductionGroupFactory);
 	}
 
 	@Test
@@ -139,19 +127,11 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 					.createIntroductionGroup(introducee2);
 			will(returnValue(introductionGroup2));
 			// track message for group 1
-			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
-					introductionGroup1.getId());
-			will(returnValue(metadataBefore));
-			oneOf(clientHelper)
-					.mergeGroupMetadata(txn, introductionGroup1.getId(),
-							metadataAfter);
+			oneOf(messageTracker).trackMessage(txn,
+					introductionGroup1.getId(), time, true);
 			// track message for group 2
-			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
-					introductionGroup2.getId());
-			will(returnValue(metadataBefore));
-			oneOf(clientHelper)
-					.mergeGroupMetadata(txn, introductionGroup2.getId(),
-							metadataAfter);
+			oneOf(messageTracker).trackMessage(txn,
+					introductionGroup2.getId(), time, true);
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
@@ -181,12 +161,8 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 			will(returnValue(state));
 			oneOf(introduceeManager).acceptIntroduction(txn, state, time);
 			// track message
-			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
-					introductionGroup1.getId());
-			will(returnValue(metadataBefore));
-			oneOf(clientHelper)
-					.mergeGroupMetadata(txn, introductionGroup1.getId(),
-							metadataAfter);
+			oneOf(messageTracker).trackMessage(txn,
+					introductionGroup1.getId(), time, true);
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
@@ -216,12 +192,8 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 			will(returnValue(state));
 			oneOf(introduceeManager).declineIntroduction(txn, state, time);
 			// track message
-			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
-					introductionGroup1.getId());
-			will(returnValue(metadataBefore));
-			oneOf(clientHelper)
-					.mergeGroupMetadata(txn, introductionGroup1.getId(),
-							metadataAfter);
+			oneOf(messageTracker).trackMessage(txn,
+					introductionGroup1.getId(), time, true);
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
@@ -272,9 +244,6 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		final BdfDictionary state = new BdfDictionary();
 		txn = new Transaction(null, false);
 
-		metadataBefore.put(GROUP_KEY_UNREAD_COUNT, 1);
-		metadataAfter.put(GROUP_KEY_UNREAD_COUNT, 2);
-
 		context.checking(new Expectations() {{
 			oneOf(introduceeManager)
 					.initialize(txn, introductionGroup1.getId(), msg);
@@ -282,12 +251,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 			oneOf(introduceeManager)
 					.incomingMessage(txn, state, msg);
 			// track message
-			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
-					introductionGroup1.getId());
-			will(returnValue(metadataBefore));
-			oneOf(clientHelper)
-					.mergeGroupMetadata(txn, introductionGroup1.getId(),
-							metadataAfter);
+			oneOf(messageTracker).trackIncomingMessage(txn, message1);
 		}});
 
 		introductionManager
@@ -313,20 +277,12 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 
 		txn = new Transaction(null, false);
 
-		metadataBefore.put(GROUP_KEY_UNREAD_COUNT, 41);
-		metadataAfter.put(GROUP_KEY_UNREAD_COUNT, 42);
-
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn, sessionId);
 			will(returnValue(state));
 			oneOf(introducerManager).incomingMessage(txn, state, msg);
 			// track message
-			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
-					introductionGroup1.getId());
-			will(returnValue(metadataBefore));
-			oneOf(clientHelper)
-					.mergeGroupMetadata(txn, introductionGroup1.getId(),
-							metadataAfter);
+			oneOf(messageTracker).trackIncomingMessage(txn, message1);
 		}});
 
 		introductionManager

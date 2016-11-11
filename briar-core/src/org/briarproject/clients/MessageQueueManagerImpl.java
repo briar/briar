@@ -11,6 +11,7 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -20,6 +21,7 @@ import org.briarproject.api.sync.MessageContext;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.ValidationManager;
 import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
+import org.briarproject.api.sync.ValidationManager.MessageValidator;
 import org.briarproject.util.ByteUtils;
 
 import java.util.ArrayList;
@@ -29,12 +31,14 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static org.briarproject.api.clients.QueueMessage.QUEUE_MESSAGE_HEADER_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
+@NotNullByDefault
 class MessageQueueManagerImpl implements MessageQueueManager {
 
 	private static final String OUTGOING_POSITION_KEY = "nextOut";
@@ -139,6 +143,7 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 			this.pending = pending;
 		}
 
+		@Nullable
 		MessageId popIncomingMessageId() {
 			Iterator<Entry<Long, MessageId>> it = pending.entrySet().iterator();
 			if (!it.hasNext()) {
@@ -161,8 +166,9 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 		}
 	}
 
+	@NotNullByDefault
 	private static class DelegatingMessageValidator
-			implements ValidationManager.MessageValidator {
+			implements MessageValidator {
 
 		private final QueueMessageValidator delegate;
 
@@ -174,21 +180,24 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 		public MessageContext validateMessage(Message m, Group g)
 				throws InvalidMessageException {
 			byte[] raw = m.getRaw();
-			if (raw.length < QUEUE_MESSAGE_HEADER_LENGTH) return null;
+			if (raw.length < QUEUE_MESSAGE_HEADER_LENGTH)
+				throw new InvalidMessageException();
 			long queuePosition = ByteUtils.readUint64(raw,
 					MESSAGE_HEADER_LENGTH);
-			if (queuePosition < 0) return null;
+			if (queuePosition < 0) throw new InvalidMessageException();
 			QueueMessage q = new QueueMessage(m.getId(), m.getGroupId(),
 					m.getTimestamp(), queuePosition, raw);
 			return delegate.validateMessage(q, g);
 		}
 	}
 
+	@NotNullByDefault
 	private class DelegatingIncomingMessageHook implements IncomingMessageHook {
 
 		private final IncomingQueueMessageHook delegate;
 
-		private DelegatingIncomingMessageHook(IncomingQueueMessageHook delegate) {
+		private DelegatingIncomingMessageHook(
+				IncomingQueueMessageHook delegate) {
 			this.delegate = delegate;
 		}
 
@@ -227,20 +236,16 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 				// Save the queue state before passing control to the delegate
 				saveQueueState(txn, m.getGroupId(), queueState);
 				// Deliver the messages to the delegate
-				try {
-					delegate.incomingMessage(txn, q, meta);
-					for (MessageId id : consecutive) {
-						byte[] raw = db.getRawMessage(txn, id);
-						meta = db.getMessageMetadata(txn, id);
-						q = queueMessageFactory.createMessage(id, raw);
-						if (LOG.isLoggable(INFO)) {
-							LOG.info("Delivering pending message with position "
-									+ q.getQueuePosition());
-						}
-						delegate.incomingMessage(txn, q, meta);
+				delegate.incomingMessage(txn, q, meta);
+				for (MessageId id : consecutive) {
+					byte[] raw = db.getRawMessage(txn, id);
+					meta = db.getMessageMetadata(txn, id);
+					q = queueMessageFactory.createMessage(id, raw);
+					if (LOG.isLoggable(INFO)) {
+						LOG.info("Delivering pending message with position "
+								+ q.getQueuePosition());
 					}
-				} catch (FormatException e) {
-					throw new InvalidMessageException(e);
+					delegate.incomingMessage(txn, q, meta);
 				}
 			}
 			// message queues are only useful for groups with two members

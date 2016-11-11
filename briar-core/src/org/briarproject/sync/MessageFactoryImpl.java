@@ -1,19 +1,22 @@
 package org.briarproject.sync;
 
-
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.crypto.CryptoComponent;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.ByteUtils;
 
+import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
+@Immutable
+@NotNullByDefault
 class MessageFactoryImpl implements MessageFactory {
 
 	private final CryptoComponent crypto;

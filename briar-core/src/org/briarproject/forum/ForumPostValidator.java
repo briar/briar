@@ -9,6 +9,7 @@ import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
@@ -25,6 +26,7 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENG
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 
+@NotNullByDefault
 class ForumPostValidator extends BdfMessageValidator {
 
 	private final AuthorFactory authorFactory;

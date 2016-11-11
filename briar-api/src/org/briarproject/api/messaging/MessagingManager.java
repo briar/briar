@@ -1,15 +1,17 @@
 package org.briarproject.api.messaging;
 
-import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.messaging.ConversationManager.ConversationClient;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import java.util.Collection;
 
-public interface MessagingManager extends MessageTracker {
+@NotNullByDefault
+public interface MessagingManager extends ConversationClient {
 
 	/** The unique ID of the messaging client. */
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.messaging");

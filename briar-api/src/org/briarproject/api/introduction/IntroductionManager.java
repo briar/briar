@@ -1,16 +1,18 @@
 package org.briarproject.api.introduction;
 
 import org.briarproject.api.FormatException;
-import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.messaging.ConversationManager.ConversationClient;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.ClientId;
 
 import java.util.Collection;
 
-public interface IntroductionManager extends MessageTracker {
+@NotNullByDefault
+public interface IntroductionManager extends ConversationClient {
 
 	/** The unique ID of the introduction client. */
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.introduction");

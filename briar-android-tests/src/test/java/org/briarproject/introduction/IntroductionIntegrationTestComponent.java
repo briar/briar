@@ -4,6 +4,7 @@ import org.briarproject.TestDatabaseModule;
 import org.briarproject.TestPluginsModule;
 import org.briarproject.TestSeedProviderModule;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.event.EventBus;
@@ -50,7 +51,7 @@ import dagger.Component;
 		PropertiesModule.class,
 		MessagingModule.class
 })
-public interface IntroductionIntegrationTestComponent {
+interface IntroductionIntegrationTestComponent {
 
 	void inject(IntroductionIntegrationTest testCase);
 
@@ -81,6 +82,8 @@ public interface IntroductionIntegrationTestComponent {
 	IntroductionManager getIntroductionManager();
 
 	TransportPropertyManager getTransportPropertyManager();
+
+	MessageTracker getMessageTracker();
 
 	SyncSessionFactory getSyncSessionFactory();
 

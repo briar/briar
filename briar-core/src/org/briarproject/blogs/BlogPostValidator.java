@@ -11,6 +11,7 @@ import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.identity.Author;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupFactory;
 import org.briarproject.api.sync.InvalidMessageException;
@@ -42,6 +43,7 @@ import static org.briarproject.api.blogs.MessageType.COMMENT;
 import static org.briarproject.api.blogs.MessageType.POST;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 
+@NotNullByDefault
 class BlogPostValidator extends BdfMessageValidator {
 
 	private final GroupFactory groupFactory;
@@ -76,10 +78,10 @@ class BlogPostValidator extends BdfMessageValidator {
 				addMessageMetadata(c, m.getTimestamp());
 				break;
 			case WRAPPED_POST:
-				c = validateWrappedPost(m, g, body);
+				c = validateWrappedPost(body);
 				break;
 			case WRAPPED_COMMENT:
-				c = validateWrappedComment(m, g, body);
+				c = validateWrappedComment(body);
 				break;
 			default:
 				throw new InvalidMessageException("Unknown Message Type");
@@ -164,8 +166,8 @@ class BlogPostValidator extends BdfMessageValidator {
 		return new BdfMessageContext(meta, dependencies);
 	}
 
-	private BdfMessageContext validateWrappedPost(Message m, Group g,
-			BdfList body) throws InvalidMessageException, FormatException {
+	private BdfMessageContext validateWrappedPost(BdfList body)
+			throws InvalidMessageException, FormatException {
 
 		// p_group descriptor, p_timestamp, p_content, p_signature
 		checkSize(body, 4);
@@ -202,8 +204,8 @@ class BlogPostValidator extends BdfMessageValidator {
 		return new BdfMessageContext(meta);
 	}
 
-	private BdfMessageContext validateWrappedComment(Message m, Group g,
-			BdfList body) throws InvalidMessageException, FormatException {
+	private BdfMessageContext validateWrappedComment(BdfList body)
+			throws InvalidMessageException, FormatException {
 
 		// c_group descriptor, c_timestamp, c_comment, c_parent_original_id,
 		// c_parent_id, c_signature, parent_id

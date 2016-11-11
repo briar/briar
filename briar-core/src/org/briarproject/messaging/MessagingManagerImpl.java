@@ -4,6 +4,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.ContactGroupFactory;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager.AddContactHook;
@@ -18,6 +19,7 @@ import org.briarproject.api.event.PrivateMessageReceivedEvent;
 import org.briarproject.api.messaging.MessagingManager;
 import org.briarproject.api.messaging.PrivateMessage;
 import org.briarproject.api.messaging.PrivateMessageHeader;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
@@ -33,6 +35,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
+@NotNullByDefault
 class MessagingManagerImpl extends ConversationClientImpl
 		implements MessagingManager, Client, AddContactHook, RemoveContactHook {
 
@@ -40,9 +43,9 @@ class MessagingManagerImpl extends ConversationClientImpl
 
 	@Inject
 	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
-			MetadataParser metadataParser,
+			MetadataParser metadataParser, MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory) {
-		super(db, clientHelper, metadataParser);
+		super(db, clientHelper, metadataParser, messageTracker);
 		this.contactGroupFactory = contactGroupFactory;
 	}
 
@@ -72,7 +75,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	protected Group getContactGroup(Contact c) {
+	public Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID, c);
 	}
 
@@ -95,7 +98,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
 				header, contactId, groupId);
 		txn.attach(event);
-		trackIncomingMessage(txn, m);
+		messageTracker.trackIncomingMessage(txn, m);
 
 		// don't share message
 		return false;
@@ -110,7 +113,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 			meta.put("local", true);
 			meta.put("read", true);
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
-			trackOutgoingMessage(txn, m.getMessage());
+			messageTracker.trackOutgoingMessage(txn, m.getMessage());
 			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
@@ -195,20 +198,11 @@ class MessagingManagerImpl extends ConversationClientImpl
 		try {
 			// 0: private message body
 			BdfList message = clientHelper.getMessageAsList(m);
+			if (message == null) throw new DbException();
 			return message.getString(0);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
-	}
-
-	@Override
-	public GroupCount getGroupCount(Transaction txn, ContactId contactId)
-			throws DbException {
-
-		Contact contact = db.getContact(txn, contactId);
-		GroupId groupId = getContactGroup(contact).getId();
-
-		return getGroupCount(txn, groupId);
 	}
 
 }

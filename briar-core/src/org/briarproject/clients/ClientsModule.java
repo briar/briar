@@ -3,6 +3,7 @@ package org.briarproject.clients;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.clients.MessageQueueManager;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.clients.QueueMessageFactory;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.data.BdfReaderFactory;
@@ -52,4 +53,8 @@ public class ClientsModule {
 		return new QueueMessageFactoryImpl(crypto);
 	}
 
+	@Provides
+	MessageTracker provideMessageTracker(MessageTrackerImpl messageTracker) {
+		return messageTracker;
+	}
 }

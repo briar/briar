@@ -4,11 +4,11 @@ import junit.framework.Assert;
 
 import net.jodah.concurrentunit.Waiter;
 
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.event.Event;
@@ -66,6 +66,7 @@ public class ForumManagerTest extends BriarIntegrationTest {
 	private SyncSessionFactory sync0, sync1;
 	private ForumManager forumManager0, forumManager1;
 	private ContactManager contactManager0, contactManager1;
+	private MessageTracker messageTracker0, messageTracker1;
 	private ContactId contactId0,contactId1;
 	private IdentityManager identityManager0, identityManager1;
 	private LocalAuthor author0, author1;
@@ -118,6 +119,8 @@ public class ForumManagerTest extends BriarIntegrationTest {
 		identityManager1 = t1.getIdentityManager();
 		contactManager0 = t0.getContactManager();
 		contactManager1 = t1.getContactManager();
+		messageTracker0 = t0.getMessageTracker();
+		messageTracker1 = t1.getMessageTracker();
 		forumManager0 = t0.getForumManager();
 		forumManager1 = t1.getForumManager();
 		forumSharingManager0 = t0.getForumSharingManager();
@@ -156,16 +159,16 @@ public class ForumManagerTest extends BriarIntegrationTest {
 		forumManager0.addLocalPost(post1);
 		forumManager0.setReadFlag(forum.getGroup().getId(),
 				post1.getMessage().getId(), true);
-		assertGroupCount(forumManager0, forum.getGroup().getId(), 1, 0,
+		assertGroupCount(messageTracker0, forum.getGroup().getId(), 1, 0,
 				post1.getMessage().getTimestamp());
 		forumManager0.addLocalPost(post2);
 		forumManager0.setReadFlag(forum.getGroup().getId(),
 				post2.getMessage().getId(), false);
-		assertGroupCount(forumManager0, forum.getGroup().getId(), 2, 1,
+		assertGroupCount(messageTracker0, forum.getGroup().getId(), 2, 1,
 				post2.getMessage().getTimestamp());
 		forumManager0.setReadFlag(forum.getGroup().getId(),
 				post2.getMessage().getId(), false);
-		assertGroupCount(forumManager0, forum.getGroup().getId(), 2, 1,
+		assertGroupCount(messageTracker0, forum.getGroup().getId(), 2, 1,
 				post2.getMessage().getTimestamp());
 		Collection<ForumPostHeader> headers =
 				forumManager0.getPostHeaders(forum.getGroup().getId());
@@ -215,14 +218,14 @@ public class ForumManagerTest extends BriarIntegrationTest {
 		forumManager0.addLocalPost(post1);
 		assertEquals(1, forumManager0.getPostHeaders(g).size());
 		assertEquals(0, forumManager1.getPostHeaders(g).size());
-		assertGroupCount(forumManager0, g, 1, 0, time);
-		assertGroupCount(forumManager1, g, 0, 0, 0);
+		assertGroupCount(messageTracker0, g, 1, 0, time);
+		assertGroupCount(messageTracker1, g, 0, 0, 0);
 
 		// send post to 1
 		sync0To1();
 		deliveryWaiter.await(TIMEOUT, 1);
 		assertEquals(1, forumManager1.getPostHeaders(g).size());
-		assertGroupCount(forumManager1, g, 1, 1, time);
+		assertGroupCount(messageTracker1, g, 1, 1, time);
 
 		// add another forum post
 		long time2 = clock.currentTimeMillis();
@@ -230,14 +233,14 @@ public class ForumManagerTest extends BriarIntegrationTest {
 		forumManager1.addLocalPost(post2);
 		assertEquals(1, forumManager0.getPostHeaders(g).size());
 		assertEquals(2, forumManager1.getPostHeaders(g).size());
-		assertGroupCount(forumManager0, g, 1, 0, time);
-		assertGroupCount(forumManager1, g, 2, 1, time2);
+		assertGroupCount(messageTracker0, g, 1, 0, time);
+		assertGroupCount(messageTracker1, g, 2, 1, time2);
 
 		// send post to 0
 		sync1To0();
 		deliveryWaiter.await(TIMEOUT, 1);
 		assertEquals(2, forumManager1.getPostHeaders(g).size());
-		assertGroupCount(forumManager0, g, 2, 1, time2);
+		assertGroupCount(messageTracker0, g, 2, 1, time2);
 
 		stopLifecycles();
 	}

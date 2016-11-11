@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 public abstract class BriarIntegrationTest extends BriarTestCase {
 
-	protected void assertGroupCount(MessageTracker tracker, GroupId g,
+	protected static void assertGroupCount(MessageTracker tracker, GroupId g,
 			long msgCount, long unreadCount, long latestMsg)
 			throws DbException {
 
@@ -19,7 +19,7 @@ public abstract class BriarIntegrationTest extends BriarTestCase {
 		assertEquals(latestMsg, groupCount.getLatestMsgTime());
 	}
 
-	protected void assertGroupCount(MessageTracker tracker, GroupId g,
+	protected static void assertGroupCount(MessageTracker tracker, GroupId g,
 			long msgCount, long unreadCount) throws	DbException {
 
 		GroupCount c1 = tracker.getGroupCount(g);

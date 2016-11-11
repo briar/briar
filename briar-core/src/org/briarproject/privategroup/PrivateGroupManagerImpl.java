@@ -2,6 +2,8 @@ package org.briarproject.privategroup;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageTracker;
+import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.clients.ProtocolStateException;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
@@ -75,17 +77,18 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 
 	private final PrivateGroupFactory privateGroupFactory;
 	private final IdentityManager identityManager;
+	private final MessageTracker messageTracker;
 	private final List<PrivateGroupHook> hooks;
 
 	@Inject
 	PrivateGroupManagerImpl(ClientHelper clientHelper,
 			MetadataParser metadataParser, DatabaseComponent db,
 			PrivateGroupFactory privateGroupFactory,
-			IdentityManager identityManager) {
+			IdentityManager identityManager, MessageTracker messageTracker) {
 		super(db, clientHelper, metadataParser);
-
 		this.privateGroupFactory = privateGroupFactory;
 		this.identityManager = identityManager;
+		this.messageTracker = messageTracker;
 		hooks = new CopyOnWriteArrayList<PrivateGroupHook>();
 	}
 
@@ -126,7 +129,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		meta.put(KEY_TYPE, JOIN.getInt());
 		addMessageMetadata(meta, m, true);
 		clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
-		trackOutgoingMessage(txn, m.getMessage());
+		messageTracker.trackOutgoingMessage(txn, m.getMessage());
 		addMember(txn, m.getMessage().getGroupId(), m.getMember(), VISIBLE);
 		setPreviousMsgId(txn, m.getMessage().getGroupId(),
 				m.getMessage().getId());
@@ -218,7 +221,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 
 			// track message
 			setPreviousMsgId(txn, g, m.getMessage().getId());
-			trackOutgoingMessage(txn, m.getMessage());
+			messageTracker.trackOutgoingMessage(txn, m.getMessage());
 
 			// broadcast event
 			attachGroupMessageAddedEvent(txn, m.getMessage(), meta, true);
@@ -438,6 +441,17 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 	}
 
 	@Override
+	public GroupCount getGroupCount(GroupId g) throws DbException {
+		return messageTracker.getGroupCount(g);
+	}
+
+	@Override
+	public void setReadFlag(GroupId g, MessageId m, boolean read)
+			throws DbException {
+		messageTracker.setReadFlag(g, m, read);
+	}
+
+	@Override
 	public void relationshipRevealed(Transaction txn, GroupId g, AuthorId a,
 			boolean byContact) throws FormatException, DbException {
 		BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn, g);
@@ -500,7 +514,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		}
 		addMember(txn, m.getGroupId(), member, v);
 		// track message and broadcast event
-		trackIncomingMessage(txn, m);
+		messageTracker.trackIncomingMessage(txn, m);
 		attachJoinMessageAddedEvent(txn, m, meta, false, v);
 	}
 
@@ -537,7 +551,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		if (previousType != JOIN && previousType != POST)
 			throw new FormatException();
 		// track message and broadcast event
-		trackIncomingMessage(txn, m);
+		messageTracker.trackIncomingMessage(txn, m);
 		attachGroupMessageAddedEvent(txn, m, meta, false);
 	}
 

@@ -9,6 +9,7 @@ import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogPostFactory;
 import org.briarproject.api.blogs.BlogSharingManager;
 import org.briarproject.api.clients.ContactGroupFactory;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -70,6 +71,7 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 			lifecycleManager2;
 	private SyncSessionFactory sync0, sync1;
 	private BlogManager blogManager0, blogManager1;
+	private MessageTracker messageTracker0, messageTracker1;
 	private ContactManager contactManager0, contactManager1, contactManager2;
 	private Contact contact1, contact2, contact01, contact02;
 	private ContactId contactId1, contactId01;
@@ -142,6 +144,8 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 		contactManager2 = t2.getContactManager();
 		blogManager0 = t0.getBlogManager();
 		blogManager1 = t1.getBlogManager();
+		messageTracker0 = t0.getMessageTracker();
+		messageTracker1 = t1.getMessageTracker();
 		blogSharingManager0 = t0.getBlogSharingManager();
 		blogSharingManager1 = t1.getBlogSharingManager();
 		blogSharingManager2 = t2.getBlogSharingManager();
@@ -192,19 +196,19 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 		// get sharing group and assert group message count
 		GroupId g = contactGroupFactory.createContactGroup(CLIENT_ID, contact1)
 				.getId();
-		assertGroupCount(blogSharingManager0, g, 1, 0);
+		assertGroupCount(messageTracker0, g, 1, 0);
 
 		// sync first request message
 		sync0To1();
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener1.requestReceived);
-		assertGroupCount(blogSharingManager1, g, 2, 1);
+		assertGroupCount(messageTracker1, g, 2, 1);
 
 		// sync response back
 		sync1To0();
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.responseReceived);
-		assertGroupCount(blogSharingManager0, g, 2, 1);
+		assertGroupCount(messageTracker0, g, 2, 1);
 
 		// blog was added successfully
 		assertEquals(0, blogSharingManager0.getInvitations().size());
@@ -242,8 +246,8 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 		assertFalse(blogSharingManager1.canBeShared(blog2.getId(), contact01));
 
 		// group message count is still correct
-		assertGroupCount(blogSharingManager0, g, 2, 1);
-		assertGroupCount(blogSharingManager1, g, 2, 1);
+		assertGroupCount(messageTracker0, g, 2, 1);
+		assertGroupCount(messageTracker1, g, 2, 1);
 
 		stopLifecycles();
 	}

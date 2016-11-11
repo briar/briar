@@ -12,6 +12,7 @@ import org.briarproject.api.blogs.BlogSharingMessage.BlogInvitation;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.clients.MessageQueueManager;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -28,6 +29,7 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
@@ -43,6 +45,7 @@ import static org.briarproject.api.blogs.BlogConstants.BLOG_PUBLIC_KEY;
 import static org.briarproject.api.sharing.SharingConstants.INVITATION_ID;
 import static org.briarproject.api.sharing.SharingConstants.RESPONSE_ID;
 
+@NotNullByDefault
 class BlogSharingManagerImpl extends
 		SharingManagerImpl<Blog, BlogInvitation, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationReceivedEvent, BlogInvitationResponseReceivedEvent>
 		implements BlogSharingManager, RemoveBlogHook {
@@ -63,10 +66,11 @@ class BlogSharingManagerImpl extends
 			DatabaseComponent db, MessageQueueManager messageQueueManager,
 			MetadataEncoder metadataEncoder, MetadataParser metadataParser,
 			ContactGroupFactory contactGroupFactory, SecureRandom random,
-			IdentityManager identityManager) {
+			IdentityManager identityManager, MessageTracker messageTracker) {
 
 		super(db, messageQueueManager, clientHelper, metadataParser,
-				metadataEncoder, random, contactGroupFactory, clock);
+				metadataEncoder, random, contactGroupFactory, messageTracker,
+				clock);
 
 		this.blogManager = blogManager;
 		this.identityManager = identityManager;

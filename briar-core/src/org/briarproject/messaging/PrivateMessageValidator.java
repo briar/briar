@@ -6,6 +6,7 @@ import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.system.Clock;
@@ -14,6 +15,7 @@ import org.briarproject.clients.BdfMessageValidator;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
+@NotNullByDefault
 class PrivateMessageValidator extends BdfMessageValidator {
 
 	PrivateMessageValidator(ClientHelper clientHelper,

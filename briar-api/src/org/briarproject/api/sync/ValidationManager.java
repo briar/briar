@@ -3,11 +3,13 @@ package org.briarproject.api.sync;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.db.Transaction;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 
 /**
  * Responsible for managing message validators and passing them messages to
  * validate.
  */
+@NotNullByDefault
 public interface ValidationManager {
 
 	enum State {
