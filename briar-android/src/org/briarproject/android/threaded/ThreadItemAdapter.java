@@ -27,7 +27,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 
 	static final int UNDEFINED = -1;
 
-	private final NestedTreeList<I> items = new NestedTreeList<>();
+	protected final NestedTreeList<I> items = new NestedTreeList<>();
 	private final Map<I, ValueAnimator> animatingItems = new HashMap<>();
 	private final ThreadItemListener<I> listener;
 	private final LinearLayoutManager layoutManager;
@@ -61,6 +61,11 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		ui.bind(this, listener, item, position);
 	}
 
+	/**
+	 * Contrary to the super class adapter,
+	 * this returns the number of <b>visible</b> items,
+	 * not all items in the dataset.
+	 */
 	@Override
 	public int getItemCount() {
 		return getVisiblePos(null);

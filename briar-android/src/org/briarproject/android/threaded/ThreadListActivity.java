@@ -24,6 +24,8 @@ import org.briarproject.android.view.TextInputView.TextInputListener;
 import org.briarproject.api.clients.NamedGroup;
 import org.briarproject.api.clients.PostHeader;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.util.StringUtils;
@@ -35,7 +37,9 @@ import static android.support.design.widget.Snackbar.make;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadItem, H extends PostHeader>
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
+public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadItemAdapter<I>, I extends ThreadItem, H extends PostHeader>
 		extends BriarActivity
 		implements ThreadListListener<H>, TextInputListener,
 		ThreadItemListener<I> {
@@ -46,7 +50,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	private static final Logger LOG =
 			Logger.getLogger(ThreadListActivity.class.getName());
 
-	protected ThreadItemAdapter<I> adapter;
+	protected A adapter;
 	protected BriarRecyclerView list;
 	protected TextInputView textInput;
 	protected GroupId groupId;
@@ -57,7 +61,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	@CallSuper
 	@Override
 	@SuppressWarnings("ConstantConditions")
-	public void onCreate(final Bundle state) {
+	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
 		setContentView(getLayout());
@@ -88,8 +92,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	@LayoutRes
 	protected abstract int getLayout();
 
-	protected abstract ThreadItemAdapter<I> createAdapter(
-			LinearLayoutManager layoutManager);
+	protected abstract A createAdapter(LinearLayoutManager layoutManager);
 
 	protected void loadNamedGroup() {
 		getController().loadNamedGroup(

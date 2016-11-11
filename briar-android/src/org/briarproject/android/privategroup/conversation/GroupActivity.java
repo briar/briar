@@ -5,6 +5,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -26,10 +27,13 @@ import org.briarproject.android.privategroup.reveal.RevealContactsActivity;
 import org.briarproject.android.threaded.ThreadListActivity;
 import org.briarproject.android.threaded.ThreadListController;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.privategroup.GroupMessageHeader;
 import org.briarproject.api.privategroup.PrivateGroup;
+import org.briarproject.api.privategroup.Visibility;
 
 import javax.inject.Inject;
 
@@ -40,7 +44,7 @@ import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class GroupActivity extends
-		ThreadListActivity<PrivateGroup, GroupMessageItem, GroupMessageHeader>
+		ThreadListActivity<PrivateGroup, GroupMessageAdapter<GroupMessageItem>, GroupMessageItem, GroupMessageHeader>
 		implements GroupListener, OnClickListener {
 
 	private final static int REQUEST_INVITE = 2;
@@ -63,7 +67,7 @@ public class GroupActivity extends
 	}
 
 	@Override
-	public void onCreate(Bundle state) {
+	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
 		Intent i = getIntent();
@@ -81,9 +85,9 @@ public class GroupActivity extends
 	}
 
 	@Override
-	protected GroupMessageAdapter createAdapter(
+	protected GroupMessageAdapter<GroupMessageItem> createAdapter(
 			LinearLayoutManager layoutManager) {
-		return new GroupMessageAdapter(this, layoutManager);
+		return new GroupMessageAdapter<>(this, layoutManager);
 	}
 
 	@Override
@@ -105,7 +109,7 @@ public class GroupActivity extends
 	}
 
 	@Override
-	protected void onNamedGroupLoaded(PrivateGroup group) {
+	protected void onNamedGroupLoaded(final PrivateGroup group) {
 		setTitle(group.getName());
 		// Created by
 		ActionBar actionBar = getSupportActionBar();
@@ -113,11 +117,12 @@ public class GroupActivity extends
 			actionBar.setSubtitle(getString(R.string.groups_created_by,
 					group.getCreator().getName()));
 		}
-		controller.isCreator(group,
-				new UiResultExceptionHandler<Boolean, DbException>(this) {
+		controller.loadLocalAuthor(
+				new UiResultExceptionHandler<LocalAuthor, DbException>(this) {
 					@Override
-					public void onResultUi(Boolean isCreator) {
-						GroupActivity.this.isCreator = isCreator;
+					public void onResultUi(LocalAuthor author) {
+						isCreator = group.getCreator().equals(author);
+						adapter.setPerspective(isCreator);
 						showMenuItems();
 					}
 
@@ -270,6 +275,11 @@ public class GroupActivity extends
 						finish();
 					}
 				});
+	}
+
+	@Override
+	public void onContactRelationshipRevealed(AuthorId memberId, Visibility v) {
+		adapter.updateVisibility(memberId, v);
 	}
 
 	@Override

@@ -60,6 +60,7 @@ import static org.briarproject.privategroup.GroupConstants.GROUP_KEY_DISSOLVED;
 import static org.briarproject.privategroup.GroupConstants.GROUP_KEY_MEMBERS;
 import static org.briarproject.privategroup.GroupConstants.GROUP_KEY_OUR_GROUP;
 import static org.briarproject.privategroup.GroupConstants.GROUP_KEY_VISIBILITY;
+import static org.briarproject.privategroup.GroupConstants.KEY_INITIAL_JOIN_MSG;
 import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_ID;
 import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_NAME;
 import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_PUBLIC_KEY;
@@ -114,16 +115,17 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 					new BdfEntry(GROUP_KEY_DISSOLVED, false)
 			);
 			clientHelper.mergeGroupMetadata(txn, group.getId(), meta);
-			joinPrivateGroup(txn, joinMsg);
+			joinPrivateGroup(txn, joinMsg, creator);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
 	}
 
-	private void joinPrivateGroup(Transaction txn, GroupMessage m)
-			throws DbException, FormatException {
+	private void joinPrivateGroup(Transaction txn, GroupMessage m,
+			boolean creator) throws DbException, FormatException {
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(KEY_TYPE, JOIN.getInt());
+		meta.put(KEY_INITIAL_JOIN_MSG, creator);
 		addMessageMetadata(meta, m, true);
 		clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
 		trackOutgoingMessage(txn, m.getMessage());
@@ -387,7 +389,8 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 
 		GroupMessageHeader header =
 				getGroupMessageHeader(txn, g, id, meta, statuses);
-		return new JoinMessageHeader(header, v);
+		boolean creator = meta.getBoolean(KEY_INITIAL_JOIN_MSG);
+		return new JoinMessageHeader(header, v, creator);
 	}
 
 	@Override
@@ -461,7 +464,7 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 		if (!foundMember) throw new ProtocolStateException();
 		if (changed) {
 			clientHelper.mergeGroupMetadata(txn, g, meta);
-			txn.attach(new ContactRelationshipRevealedEvent(g, v));
+			txn.attach(new ContactRelationshipRevealedEvent(g, a, v));
 		}
 	}
 

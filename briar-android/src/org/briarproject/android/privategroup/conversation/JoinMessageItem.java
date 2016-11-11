@@ -4,7 +4,8 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.UiThread;
 
 import org.briarproject.R;
-import org.briarproject.api.privategroup.GroupMessageHeader;
+import org.briarproject.api.privategroup.JoinMessageHeader;
+import org.briarproject.api.privategroup.Visibility;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -12,9 +13,14 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 class JoinMessageItem extends GroupMessageItem {
 
-	JoinMessageItem(GroupMessageHeader h,
+	private Visibility visibility;
+	private final boolean isInitial;
+
+	JoinMessageItem(JoinMessageHeader h,
 			String text) {
 		super(h, text);
+		this.visibility = h.getVisibility();
+		this.isInitial = h.isInitial();
 	}
 
 	@Override
@@ -29,7 +35,19 @@ class JoinMessageItem extends GroupMessageItem {
 
 	@LayoutRes
 	public int getLayout() {
-		return R.layout.list_item_thread_notice;
+		return R.layout.list_item_group_join_notice;
+	}
+
+	public Visibility getVisibility() {
+		return visibility;
+	}
+
+	public void setVisibility(Visibility visibility) {
+		this.visibility = visibility;
+	}
+
+	public boolean isInitial() {
+		return isInitial;
 	}
 
 }

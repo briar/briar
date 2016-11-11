@@ -9,15 +9,21 @@ import javax.annotation.concurrent.Immutable;
 public class JoinMessageHeader extends GroupMessageHeader {
 
 	private final Visibility visibility;
+	private final boolean isCreator;
 
-	public JoinMessageHeader(GroupMessageHeader h, Visibility visibility) {
+	public JoinMessageHeader(GroupMessageHeader h, Visibility visibility, boolean isCreator) {
 		super(h.getGroupId(), h.getId(), h.getParentId(), h.getTimestamp(),
 				h.getAuthor(), h.getAuthorStatus(), h.isRead());
 		this.visibility = visibility;
+		this.isCreator = isCreator;
 	}
 
 	public Visibility getVisibility() {
 		return visibility;
+	}
+
+	public boolean isInitial() {
+		return isCreator;
 	}
 
 }

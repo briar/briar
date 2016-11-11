@@ -70,16 +70,14 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_marginLeft="@dimen/margin_medium"
+		android:layout_marginBottom="@dimen/margin_medium"
 		android:layout_weight="1">
 
 		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 			android:id="@+id/text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="@dimen/margin_small"
-			android:layout_marginLeft="@dimen/margin_medium"
-			android:layout_marginRight="@dimen/margin_medium"
-			android:layout_marginTop="@dimen/margin_medium"
+			android:layout_margin="@dimen/margin_medium"
 			android:textIsSelectable="true"
 			android:textSize="@dimen/text_size_medium"
 			android:textColor="@color/briar_text_primary"

@@ -8,6 +8,7 @@ import org.briarproject.android.threaded.ThreadItem;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.privategroup.GroupMessageHeader;
+import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -16,15 +17,23 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 class GroupMessageItem extends ThreadItem {
 
-	private GroupMessageItem(MessageId messageId, MessageId parentId,
+	private final GroupId groupId;
+
+	private GroupMessageItem(MessageId messageId, GroupId groupId,
+			MessageId parentId,
 			String text, long timestamp, Author author, Status status,
 			boolean isRead) {
 		super(messageId, parentId, text, timestamp, author, status, isRead);
+		this.groupId = groupId;
 	}
 
 	GroupMessageItem(GroupMessageHeader h, String text) {
-		this(h.getId(), h.getParentId(), text, h.getTimestamp(), h.getAuthor(),
-				h.getAuthorStatus(), h.isRead());
+		this(h.getId(), h.getGroupId(), h.getParentId(), text, h.getTimestamp(),
+				h.getAuthor(), h.getAuthorStatus(), h.isRead());
+	}
+
+	public GroupId getGroupId() {
+		return groupId;
 	}
 
 	@LayoutRes
