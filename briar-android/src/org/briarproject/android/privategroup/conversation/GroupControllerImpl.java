@@ -6,6 +6,7 @@ import org.briarproject.android.api.AndroidNotificationManager;
 import org.briarproject.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.android.privategroup.conversation.GroupController.GroupListener;
 import org.briarproject.android.threaded.ThreadListControllerImpl;
+import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.db.DbException;
@@ -130,15 +131,10 @@ public class GroupControllerImpl extends
 					MessageId parentId = null;
 					MessageId previousMsgId =
 							privateGroupManager.getPreviousMsgId(getGroupId());
-					// timestamp must be greater than the timestamps
-					// of the member's previous message...
-					long timestamp = privateGroupManager
-							.getMessageTimestamp(previousMsgId);
-					// ...and the parent post, if any
-					if (parentItem != null) {
-						timestamp = max(parentItem.getTimestamp(), timestamp);
-						parentId = parentItem.getId();
-					}
+					GroupCount count =
+							privateGroupManager.getGroupCount(getGroupId());
+					long timestamp = count.getLatestMsgTime();
+					if (parentItem != null) parentId = parentItem.getId();
 					timestamp = max(clock.currentTimeMillis(), timestamp + 1);
 					createMessage(body, timestamp, parentId, author,
 							previousMsgId, handler);

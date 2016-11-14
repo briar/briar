@@ -52,12 +52,6 @@ public interface PrivateGroupManager extends MessageTracker {
 	MessageId getPreviousMsgId(GroupId g) throws DbException;
 
 	/**
-	 * Returns the timestamp of the message with the given ID
-	 */
-	// TODO change to getPreviousMessageHeader()
-	long getMessageTimestamp(MessageId id) throws DbException;
-
-	/**
 	 * Marks the group with GroupId g as resolved
 	 */
 	void markGroupDissolved(Transaction txn, GroupId g) throws DbException;

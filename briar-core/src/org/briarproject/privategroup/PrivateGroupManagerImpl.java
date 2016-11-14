@@ -193,16 +193,6 @@ public class PrivateGroupManagerImpl extends BdfIncomingMessageHook implements
 	}
 
 	@Override
-	public long getMessageTimestamp(MessageId id) throws DbException {
-		try {
-			BdfDictionary d = clientHelper.getMessageMetadataAsDictionary(id);
-			return d.getLong(KEY_TIMESTAMP);
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
-	}
-
-	@Override
 	public GroupMessageHeader addLocalMessage(GroupMessage m)
 			throws DbException {
 		Transaction txn = db.startTransaction(false);
