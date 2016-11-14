@@ -459,9 +459,6 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			db.commitTransaction(txn);
 			// If there's no session, the contact can be invited
 			if (ss == null) return true;
-			// If there's a session, it should be a creator session
-			if (sessionParser.getRole(ss.bdfSession) != CREATOR)
-				throw new IllegalArgumentException();
 			// If the session's in the start state, the contact can be invited
 			CreatorSession session = sessionParser
 					.parseCreatorSession(contactGroupId, ss.bdfSession);

@@ -1,5 +1,6 @@
 package org.briarproject.api.privategroup.invitation;
 
+import org.briarproject.api.clients.ProtocolStateException;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -26,18 +27,28 @@ public interface GroupInvitationManager {
 	/**
 	 * Sends an invitation to share the given private group with the given
 	 * contact, including an optional message.
+	 *
+	 * @throws ProtocolStateException if the group is no longer eligible to be
+	 * shared with the contact, for example because an invitation is already
+	 * pending.
 	 */
 	void sendInvitation(GroupId g, ContactId c, @Nullable String message,
 			long timestamp, byte[] signature) throws DbException;
 
 	/**
 	 * Responds to a pending private group invitation from the given contact.
+	 *
+	 * @throws ProtocolStateException if the invitation is no longer pending,
+	 * for example because the group has been dissolved.
 	 */
 	void respondToInvitation(ContactId c, PrivateGroup g, boolean accept)
 			throws DbException;
 
 	/**
 	 * Responds to a pending private group invitation from the given contact.
+	 *
+	 * @throws ProtocolStateException if the invitation is no longer pending,
+	 * for example because the group has been dissolved.
 	 */
 	void respondToInvitation(ContactId c, SessionId s, boolean accept)
 			throws DbException;
@@ -45,6 +56,9 @@ public interface GroupInvitationManager {
 	/**
 	 * Makes the user's relationship with the given contact visible to the
 	 * given private group.
+	 *
+	 * @throws ProtocolStateException if the relationship is no longer eligible
+	 * to be revealed, for example because the contact has revealed it.
 	 */
 	void revealRelationship(ContactId c, GroupId g) throws DbException;
 
