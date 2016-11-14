@@ -80,6 +80,7 @@
 	<string name="no_data">No data</string>
 	<string name="ellipsis">…</string>
 	<string name="text_too_long">The entered text is too long</string>
+	<string name="show_onboarding">Show Help Dialog</string>
 
 	<!-- Contacts and Private Conversations-->
 	<string name="no_contacts">It seems that you are new here and have no contacts yet.\n\nTap the + icon at the top and follow the instructions to add some friends to your list.\n\nPlease remember: You can only add new contacts face-to-face to prevent anyone from impersonating you or reading your messages in the future.</string>
@@ -196,6 +197,7 @@
 
 	<!-- Private Groups Revealing Contacts -->
 	<string name="groups_reveal_contacts">Reveal Contacts</string>
+	<string name="groups_reveal_dialog_message">You can choose whether to reveal contacts to all current and future members of this group.\n\nRevealing contacts makes your connection to the group faster and more reliable, because you can communicate with revealed contacts even when the creator of the group is offline.</string>
 	<string name="groups_reveal_visible">Your relationship is visible to the group</string>
 	<string name="groups_reveal_visible_revealed_by_us">Your relationship is visible to the group (revealed by you)</string>
 	<string name="groups_reveal_visible_revealed_by_contact">Your relationship is visible to the group (revealed by contact)</string>
