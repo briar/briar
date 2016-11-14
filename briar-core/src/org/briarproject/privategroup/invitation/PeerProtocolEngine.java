@@ -3,6 +3,8 @@ package org.briarproject.privategroup.invitation;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.ProtocolStateException;
+import org.briarproject.api.contact.Contact;
+import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
@@ -179,6 +181,7 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group metadata
 		}
+		// The relationship is already marked visible to the group
 		// Move to the BOTH_JOINED state
 		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
@@ -228,6 +231,12 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group metadata
 		}
+		try {
+			// Mark the relationship visible to the group, revealed by contact
+			relationshipRevealed(txn, s, true);
+		} catch (FormatException e) {
+			throw new DbException(e); // Invalid group metadata
+		}
 		// Move to the BOTH_JOINED state
 		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
@@ -254,6 +263,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 		Message sent = sendJoinMessage(txn, s, false);
 		// Start syncing the private group with the contact
 		syncPrivateGroupWithContact(txn, s, true);
+		// Mark the relationship visible to the group, revealed by contact
+		relationshipRevealed(txn, s, true);
 		// Move to the BOTH_JOINED state
 		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), m.getId(), sent.getTimestamp(), BOTH_JOINED);
@@ -266,6 +277,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 			return abort(txn, s);
 		// Start syncing the private group with the contact
 		syncPrivateGroupWithContact(txn, s, true);
+		// Mark the relationship visible to the group, revealed by us
+		relationshipRevealed(txn, s, false);
 		// Move to the BOTH_JOINED state
 		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -320,5 +333,13 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
 				ERROR);
+	}
+
+	private void relationshipRevealed(Transaction txn, PeerSession s,
+			boolean byContact) throws DbException, FormatException {
+		ContactId contactId = getContactId(txn, s.getContactGroupId());
+		Contact contact = db.getContact(txn, contactId);
+		privateGroupManager.relationshipRevealed(txn, s.getPrivateGroupId(),
+				contact.getAuthor().getId(), byContact);
 	}
 }

@@ -315,6 +315,30 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 	}
 
+	@Override
+	public void revealRelationship(ContactId c, GroupId g) throws DbException {
+		Transaction txn = db.startTransaction(false);
+		try {
+			// Look up the session
+			Contact contact = db.getContact(txn, c);
+			GroupId contactGroupId = getContactGroup(contact).getId();
+			StoredSession ss = getSession(txn, contactGroupId, getSessionId(g));
+			if (ss == null) throw new IllegalArgumentException();
+			// Parse the session
+			PeerSession session = sessionParser
+					.parsePeerSession(contactGroupId, ss.bdfSession);
+			// Handle the join action
+			session = peerEngine.onJoinAction(txn, session);
+			// Store the updated session
+			storeSession(txn, ss.storageId, session);
+			db.commitTransaction(txn);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
 	private <S extends Session> S handleAction(Transaction txn,
 			LocalAction type, S session, ProtocolEngine<S> engine)
 			throws DbException, FormatException {
@@ -435,9 +459,6 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			db.commitTransaction(txn);
 			// If there's no session, the contact can be invited
 			if (ss == null) return true;
-			// If there's a session, it should be a creator session
-			if (sessionParser.getRole(ss.bdfSession) != CREATOR)
-				throw new IllegalArgumentException();
 			// If the session's in the start state, the contact can be invited
 			CreatorSession session = sessionParser
 					.parseCreatorSession(contactGroupId, ss.bdfSession);
