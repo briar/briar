@@ -2,6 +2,7 @@ package org.briarproject.privategroup.invitation;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.clients.ProtocolStateException;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
@@ -34,10 +35,11 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 			PrivateGroupFactory privateGroupFactory,
 			GroupMessageFactory groupMessageFactory,
 			IdentityManager identityManager, MessageParser messageParser,
-			MessageEncoder messageEncoder, Clock clock) {
+			MessageEncoder messageEncoder, MessageTracker messageTracker,
+			Clock clock) {
 		super(db, clientHelper, privateGroupManager, privateGroupFactory,
 				groupMessageFactory, identityManager, messageParser,
-				messageEncoder, clock);
+				messageEncoder, messageTracker, clock);
 	}
 
 	@Override

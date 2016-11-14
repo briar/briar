@@ -4,6 +4,7 @@ import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.messaging.ConversationManager.ConversationClient;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.sharing.InvitationMessage;
@@ -15,7 +16,7 @@ import java.util.Collection;
 import javax.annotation.Nullable;
 
 @NotNullByDefault
-public interface GroupInvitationManager {
+public interface GroupInvitationManager extends ConversationClient {
 
 	/**
 	 * The unique ID of the private group invitation client.

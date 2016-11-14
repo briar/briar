@@ -2,6 +2,7 @@ package org.briarproject.privategroup.invitation;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
@@ -42,6 +43,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 	protected final ClientHelper clientHelper;
 	protected final PrivateGroupManager privateGroupManager;
 	protected final PrivateGroupFactory privateGroupFactory;
+	protected final MessageTracker messageTracker;
 
 	private final GroupMessageFactory groupMessageFactory;
 	private final IdentityManager identityManager;
@@ -54,7 +56,8 @@ abstract class AbstractProtocolEngine<S extends Session>
 			PrivateGroupFactory privateGroupFactory,
 			GroupMessageFactory groupMessageFactory,
 			IdentityManager identityManager, MessageParser messageParser,
-			MessageEncoder messageEncoder, Clock clock) {
+			MessageEncoder messageEncoder, MessageTracker messageTracker,
+			Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.privateGroupManager = privateGroupManager;
@@ -63,6 +66,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 		this.identityManager = identityManager;
 		this.messageParser = messageParser;
 		this.messageEncoder = messageEncoder;
+		this.messageTracker = messageTracker;
 		this.clock = clock;
 	}
 

@@ -2,6 +2,7 @@ package org.briarproject.privategroup.invitation;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.clients.ProtocolStateException;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
@@ -40,10 +41,11 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 			PrivateGroupFactory privateGroupFactory,
 			GroupMessageFactory groupMessageFactory,
 			IdentityManager identityManager, MessageParser messageParser,
-			MessageEncoder messageEncoder, Clock clock) {
+			MessageEncoder messageEncoder, MessageTracker messageTracker,
+			Clock clock) {
 		super(db, clientHelper, privateGroupManager, privateGroupFactory,
 				groupMessageFactory, identityManager, messageParser,
-				messageEncoder, clock);
+				messageEncoder, messageTracker, clock);
 	}
 
 	@Override
@@ -150,6 +152,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		markMessageAvailableToAnswer(txn, inviteId, false);
 		// Send a JOIN message
 		Message sent = sendJoinMessage(txn, s, true);
+		// Track the message
+		messageTracker.trackOutgoingMessage(txn, sent);
 		try {
 			// Subscribe to the private group
 			subscribeToPrivateGroup(txn, inviteId);
@@ -172,6 +176,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		markMessageAvailableToAnswer(txn, inviteId, false);
 		// Send a LEAVE message
 		Message sent = sendLeaveMessage(txn, s, true);
+		// Track the message
+		messageTracker.trackOutgoingMessage(txn, sent);
 		// Move to the START state
 		return new InviteeSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
@@ -200,6 +206,9 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		// Mark the invite message visible in the UI and available to answer
 		markMessageVisibleInUi(txn, m.getId(), true);
 		markMessageAvailableToAnswer(txn, m.getId(), true);
+		// Track the message
+		messageTracker.trackMessage(txn, m.getContactGroupId(),
+				m.getTimestamp(), false);
 		// Broadcast an event
 		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
 				m.getGroupName(), m.getCreator(), m.getSalt());
