@@ -7,7 +7,6 @@ import android.support.annotation.UiThread;
 import org.briarproject.R;
 import org.briarproject.android.contactselection.ContactSelectorActivity;
 import org.briarproject.android.contactselection.ContactSelectorFragment;
-import org.briarproject.android.contactselection.SelectableContactItem;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.nullsafety.MethodsNotNullByDefault;

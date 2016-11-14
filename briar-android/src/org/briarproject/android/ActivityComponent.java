@@ -37,6 +37,8 @@ import org.briarproject.android.privategroup.creation.GroupInviteFragment;
 import org.briarproject.android.privategroup.invitation.GroupInvitationActivity;
 import org.briarproject.android.privategroup.list.GroupListFragment;
 import org.briarproject.android.privategroup.memberlist.GroupMemberListActivity;
+import org.briarproject.android.privategroup.reveal.RevealContactsActivity;
+import org.briarproject.android.privategroup.reveal.RevealContactsFragment;
 import org.briarproject.android.sharing.BlogInvitationActivity;
 import org.briarproject.android.sharing.BlogSharingStatusActivity;
 import org.briarproject.android.sharing.ForumInvitationActivity;
@@ -90,6 +92,8 @@ public interface ActivityComponent {
 	void inject(GroupInvitationActivity activity);
 
 	void inject(GroupMemberListActivity activity);
+
+	void inject(RevealContactsActivity activity);
 
 	void inject(CreateForumActivity activity);
 
@@ -145,6 +149,8 @@ public interface ActivityComponent {
 	void inject(GroupListFragment fragment);
 
 	void inject(GroupInviteFragment fragment);
+
+	void inject(RevealContactsFragment activity);
 
 	void inject(ForumListFragment fragment);
 

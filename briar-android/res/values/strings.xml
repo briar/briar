@@ -194,6 +194,13 @@
 	<string name="groups_invitations_response_accepted_received">%s accepted the group invitation.</string>
 	<string name="groups_invitations_response_declined_received">%s declined the group invitation.</string>
 
+	<!-- Private Groups Revealing Contacts -->
+	<string name="groups_reveal_contacts">Reveal Contacts</string>
+	<string name="groups_reveal_visible">Your relationship is visible to the group</string>
+	<string name="groups_reveal_visible_revealed_by_us">Your relationship is visible to the group (revealed by you)</string>
+	<string name="groups_reveal_visible_revealed_by_contact">Your relationship is visible to the group (revealed by contact)</string>
+	<string name="groups_reveal_invisible">Your relationship is not visible to the group</string>
+
 	<!-- Forums -->
 	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>
 	<string name="create_forum_title">New Forum</string>
