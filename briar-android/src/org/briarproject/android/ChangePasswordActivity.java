@@ -18,7 +18,8 @@ import android.widget.Toast;
 import org.briarproject.R;
 import org.briarproject.android.controller.PasswordController;
 import org.briarproject.android.controller.SetupController;
-import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.controller.handler.DestroyableContextManager;
+import org.briarproject.android.controller.handler.UiContextResultHandler;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.StrengthMeter;
 
@@ -31,6 +32,8 @@ import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
 public class ChangePasswordActivity extends BaseActivity
 		implements OnClickListener,
 		OnEditorActionListener {
+
+	private static final String TAG_PASSWORD_CHANGE = "briar.PASSWORD_CHANGE";
 
 	@Inject
 	protected PasswordController passwordController;
@@ -91,6 +94,11 @@ public class ChangePasswordActivity extends BaseActivity
 		newPasswordConfirmation.addTextChangedListener(tw);
 		newPasswordConfirmation.setOnEditorActionListener(this);
 		changePasswordButton.setOnClickListener(this);
+
+		if (containsContextResultHandler(TAG_PASSWORD_CHANGE)) {
+			changePasswordButton.setVisibility(INVISIBLE);
+			progress.setVisibility(VISIBLE);
+		}
 	}
 
 	@Override
@@ -131,22 +139,27 @@ public class ChangePasswordActivity extends BaseActivity
 		// Replace the button with a progress bar
 		changePasswordButton.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
+
 		passwordController.changePassword(currentPassword.getText().toString(),
 				newPassword.getText().toString(),
-				new UiResultHandler<Boolean>(this) {
+				new UiContextResultHandler<Boolean>(this, TAG_PASSWORD_CHANGE) {
 					@Override
-					public void onResultUi(@NonNull Boolean result) {
+					public void onResultUi(@NonNull Boolean result,
+							@NonNull DestroyableContextManager context) {
+						ChangePasswordActivity cpa =
+								(ChangePasswordActivity) getContextManager();
 						if (result) {
-							Toast.makeText(ChangePasswordActivity.this,
-									R.string.password_changed,
+							Toast.makeText(cpa, R.string.password_changed,
 									Toast.LENGTH_LONG).show();
-							setResult(RESULT_OK);
-							finish();
+							cpa.setResult(RESULT_OK);
+							cpa.finish();
 						} else {
-							tryAgain();
+							cpa.tryAgain();
 						}
 					}
+
 				});
+
 	}
 
 	private void tryAgain() {

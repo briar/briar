@@ -2,12 +2,16 @@ package org.briarproject.android;
 
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import org.briarproject.android.controller.ActivityLifecycleController;
+import org.briarproject.android.controller.handler.ContextResultHandler;
+import org.briarproject.android.controller.handler.DestroyableContextManager;
 import org.briarproject.android.forum.ForumModule;
 
 import java.util.ArrayList;
@@ -18,11 +22,13 @@ import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static org.briarproject.android.TestingConstants.PREVENT_SCREENSHOTS;
 
 public abstract class BaseActivity extends AppCompatActivity
-		implements DestroyableContext {
+		implements DestroyableContext, DestroyableContextManager {
 
 	protected ActivityComponent activityComponent;
 
 	private final List<ActivityLifecycleController> lifecycleControllers =
+			new ArrayList<>();
+	private List<ContextResultHandler> contextResultHandlers =
 			new ArrayList<>();
 	private boolean destroyed = false;
 
@@ -32,6 +38,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		lifecycleControllers.add(alc);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -52,6 +59,39 @@ public abstract class BaseActivity extends AppCompatActivity
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityCreate(this);
 		}
+
+		if (getLastCustomNonConfigurationInstance() != null) {
+			contextResultHandlers =
+					(List<ContextResultHandler>) getLastCustomNonConfigurationInstance();
+			for (ContextResultHandler crh : contextResultHandlers)
+				crh.setDestroyableContextManager(this);
+		}
+
+	}
+
+	@UiThread
+	public void addContextResultHandler(ContextResultHandler crh) {
+		contextResultHandlers.add(crh);
+	}
+
+
+	@UiThread
+	public void removeContextResultHandler(String tag) {
+		List<ContextResultHandler> handlersToRemove = new ArrayList<>();
+		for (ContextResultHandler crh : contextResultHandlers) {
+			if (crh.getTag().equals(tag))
+				contextResultHandlers.remove(crh);
+				handlersToRemove.add(crh);
+		}
+		contextResultHandlers.removeAll(handlersToRemove);
+	}
+
+	@UiThread
+	public boolean containsContextResultHandler(String tag) {
+		for (ContextResultHandler crh : contextResultHandlers) {
+			if (crh.getTag().equals(tag)) return true;
+		}
+		return false;
 	}
 
 	public ActivityComponent getActivityComponent() {
@@ -65,6 +105,12 @@ public abstract class BaseActivity extends AppCompatActivity
 
 	protected ForumModule getForumModule() {
 		return new ForumModule();
+	}
+
+	@CallSuper
+	@Override
+	public Object onRetainCustomNonConfigurationInstance() {
+		return contextResultHandlers;
 	}
 
 	@Override
@@ -87,6 +133,9 @@ public abstract class BaseActivity extends AppCompatActivity
 	protected void onDestroy() {
 		super.onDestroy();
 		destroyed = true;
+		for (ContextResultHandler crh : contextResultHandlers) {
+			crh.setDestroyableContextManager(null);
+		}
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityDestroy();
 		}

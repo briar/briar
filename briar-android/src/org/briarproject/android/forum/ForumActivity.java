@@ -18,7 +18,8 @@ import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.android.controller.handler.DestroyableContextManager;
+import org.briarproject.android.controller.handler.UiContextExceptionResultHandler;
 import org.briarproject.android.sharing.ForumSharingStatusActivity;
 import org.briarproject.android.sharing.ShareForumActivity;
 import org.briarproject.android.threaded.ThreadItemAdapter;
@@ -44,6 +45,7 @@ public class ForumActivity extends
 		ThreadListActivity<Forum, ThreadItemAdapter<ForumItem>, ForumItem, ForumPostHeader> {
 
 	private static final int REQUEST_FORUM_SHARED = 3;
+	private static final String TAG_FORUM = "briar.FORUM";
 
 	@Inject
 	ForumController forumController;
@@ -168,19 +170,22 @@ public class ForumActivity extends
 
 	private void deleteForum() {
 		forumController.deleteNamedGroup(
-				new UiResultExceptionHandler<Void, DbException>(this) {
+				new UiContextExceptionResultHandler<Void, DbException>(this,
+						TAG_FORUM) {
 					@Override
-					public void onResultUi(Void v) {
-						Toast.makeText(ForumActivity.this,
+					public void onResultUi(Void result,
+							DestroyableContextManager context) {
+						Toast.makeText((ForumActivity)context,
 								R.string.forum_left_toast, LENGTH_SHORT).show();
 					}
 
 					@Override
-					public void onExceptionUi(DbException exception) {
-						// TODO proper error handling
-						finish();
+					public void onExceptionUi(DbException exception,
+							DestroyableContextManager context) {
+						((ForumActivity)context).finish();
 					}
 				});
+
 	}
 
 }

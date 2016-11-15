@@ -2,6 +2,7 @@ package org.briarproject.android;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,7 +17,8 @@ import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.R;
 import org.briarproject.android.controller.SetupController;
-import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.controller.handler.DestroyableContextManager;
+import org.briarproject.android.controller.handler.UiContextResultHandler;
 import org.briarproject.android.util.AndroidUtils;
 import org.briarproject.android.util.StrengthMeter;
 import org.briarproject.util.StringUtils;
@@ -32,6 +34,8 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENG
 
 public class SetupActivity extends BaseActivity implements OnClickListener,
 		OnEditorActionListener {
+
+	protected static final String TAG_SETUP = "briar.SETUP";
 
 	@Inject
 	protected SetupController setupController;
@@ -87,6 +91,14 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		passwordConfirmation.addTextChangedListener(tw);
 		passwordConfirmation.setOnEditorActionListener(this);
 		createAccountButton.setOnClickListener(this);
+
+		if (containsContextResultHandler(TAG_SETUP)) {
+			// Activity has been re-created due to an orientation change,
+			// update the result handler with the current context and restore
+			// the UI state
+			createAccountButton.setVisibility(INVISIBLE);
+			progress.setVisibility(VISIBLE);
+		}
 	}
 
 	@Override
@@ -135,13 +147,16 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		String nickname = nicknameEntry.getText().toString();
 		String password = passwordEntry.getText().toString();
 
-		setupController.storeAuthorInfo(nickname, password,
-				new UiResultHandler<Void>(this) {
-					@Override
-					public void onResultUi(Void result) {
-						showMain();
-					}
-				});
+		setupController
+				.storeAuthorInfo(nickname, password,
+						new UiContextResultHandler<Void>(this, TAG_SETUP) {
+							@Override
+							public void onResultUi(@NonNull Void result,
+									@NonNull DestroyableContextManager context) {
+								((SetupActivity)context).showMain();
+							}
+
+						});
 	}
 
 	private void showMain() {

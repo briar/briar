@@ -2,7 +2,8 @@ package org.briarproject.android.privategroup.creation;
 
 import org.briarproject.R;
 import org.briarproject.android.contactselection.ContactSelectorActivity;
-import org.briarproject.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.android.controller.handler.DestroyableContextManager;
+import org.briarproject.android.controller.handler.UiContextExceptionResultHandler;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
@@ -20,6 +21,8 @@ import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_
 @ParametersNotNullByDefault
 public abstract class BaseGroupInviteActivity
 		extends ContactSelectorActivity implements MessageFragmentListener {
+
+	private static final String TAG_GROUP_INVITEE = "briar.GROUP_INVITEE";
 
 	@Inject
 	CreateGroupController controller;
@@ -43,19 +46,26 @@ public abstract class BaseGroupInviteActivity
 	public boolean onButtonClick(@NotNull String message) {
 		if (groupId == null)
 			throw new IllegalStateException("GroupId was not initialized");
+
 		controller.sendInvitation(groupId, contacts, message,
-				new UiResultExceptionHandler<Void, DbException>(this) {
+				new UiContextExceptionResultHandler<Void, DbException>(this,
+						TAG_GROUP_INVITEE) {
 					@Override
-					public void onResultUi(Void result) {
-						setResult(RESULT_OK);
-						supportFinishAfterTransition();
+					public void onExceptionUi(DbException exception,
+							DestroyableContextManager context) {
+						((BaseGroupInviteActivity) context)
+								.setResult(RESULT_CANCELED);
+						((BaseGroupInviteActivity) context)
+								.finish();
 					}
 
 					@Override
-					public void onExceptionUi(DbException exception) {
-						// TODO proper error handling
-						setResult(RESULT_CANCELED);
-						finish();
+					public void onResultUi(Void result,
+							DestroyableContextManager context) {
+						((BaseGroupInviteActivity) context)
+								.setResult(RESULT_OK);
+						((BaseGroupInviteActivity) context)
+								.supportFinishAfterTransition();
 					}
 				});
 		return true;

@@ -7,7 +7,8 @@ import android.support.v4.app.ActivityOptionsCompat;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.android.controller.handler.DestroyableContextManager;
+import org.briarproject.android.controller.handler.UiContextExceptionResultHandler;
 import org.briarproject.android.privategroup.conversation.GroupActivity;
 import org.briarproject.android.sharing.BaseMessageFragment.MessageFragmentListener;
 import org.briarproject.api.db.DbException;
@@ -17,6 +18,8 @@ import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 
 public class CreateGroupActivity extends BaseGroupInviteActivity implements
 		CreateGroupListener, MessageFragmentListener {
+
+	private static final String TAG_CREATE_GROUP = "briar.CREATE_GROUP";
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -49,17 +52,20 @@ public class CreateGroupActivity extends BaseGroupInviteActivity implements
 	@Override
 	public void onGroupNameChosen(String name) {
 		controller.createGroup(name,
-				new UiResultExceptionHandler<GroupId, DbException>(this) {
+				new UiContextExceptionResultHandler<GroupId, DbException>(this,
+						TAG_CREATE_GROUP) {
 					@Override
-					public void onResultUi(GroupId g) {
-						groupId = g;
-						switchToContactSelectorFragment(g);
+					public void onExceptionUi(DbException exception,
+							DestroyableContextManager context) {
+						((CreateGroupActivity) context).finish();
 					}
 
 					@Override
-					public void onExceptionUi(DbException exception) {
-						// TODO proper error handling
-						finish();
+					public void onResultUi(GroupId g,
+							DestroyableContextManager context) {
+						((CreateGroupActivity) context).groupId = g;
+						((CreateGroupActivity) context)
+								.switchToContactSelectorFragment(g);
 					}
 				});
 	}

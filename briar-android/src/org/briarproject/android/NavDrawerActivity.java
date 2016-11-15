@@ -129,6 +129,12 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		if (getIntent() != null) {
 			onNewIntent(getIntent());
 		}
+
+		if (containsContextResultHandler(TAG_SIGN_OUT)) {
+			// User is signing out of Briar and rotated the device before the
+			// operation could finish, restore the UI state
+			showLoadingScreen(true, R.string.progress_title_logout);
+		}
 	}
 
 	private void welcomeMessageCheck() {

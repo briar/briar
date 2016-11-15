@@ -71,6 +71,7 @@ public class BriarControllerImpl implements BriarController {
 			@Override
 			public void run() {
 				try {
+					Thread.sleep(5000);
 					// Wait for the service to finish starting up
 					IBinder binder = serviceConnection.waitForBinder();
 					BriarService service =

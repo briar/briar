@@ -18,8 +18,11 @@ import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.R;
 import org.briarproject.android.controller.PasswordController;
-import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.controller.handler.DestroyableContextManager;
+import org.briarproject.android.controller.handler.UiContextResultHandler;
 import org.briarproject.android.util.AndroidUtils;
+
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -29,6 +32,11 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 public class PasswordActivity extends BaseActivity {
+
+	private static final String TAG_PASSWORD = "briar.PASSWORD";
+
+	private static final Logger LOG =
+			Logger.getLogger(NavDrawerActivity.class.getName());
 
 	@Inject
 	protected PasswordController passwordController;
@@ -77,6 +85,12 @@ public class PasswordActivity extends BaseActivity {
 			public void afterTextChanged(Editable s) {
 			}
 		});
+		if (containsContextResultHandler(TAG_PASSWORD)) {
+			signInButton.setVisibility(INVISIBLE);
+			progress.setVisibility(VISIBLE);
+		}
+
+		LOG.info("not tryAgain() " + this.hashCode());
 	}
 
 	@Override
@@ -125,21 +139,28 @@ public class PasswordActivity extends BaseActivity {
 		hideSoftKeyboard(password);
 		signInButton.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
-		passwordController.validatePassword(password.getText().toString(),
-				new UiResultHandler<Boolean>(this) {
+
+		UiContextResultHandler<Boolean> crh =
+				new UiContextResultHandler<Boolean>(this, TAG_PASSWORD) {
 					@Override
-					public void onResultUi(@NonNull Boolean result) {
+					public void onResultUi(@NonNull Boolean result,
+							@NonNull DestroyableContextManager context) {
+						PasswordActivity pa =
+								((PasswordActivity) getContextManager());
 						if (result) {
-							setResult(RESULT_OK);
-							finish();
+							pa.setResult(RESULT_OK);
+							pa.finish();
 						} else {
-							tryAgain();
+							pa.tryAgain();
 						}
 					}
-				});
+
+				};
+		passwordController.validatePassword(password.getText().toString(), crh);
 	}
 
 	private void tryAgain() {
+		LOG.info("tryAgain() " + this.hashCode());
 		AndroidUtils.setError(input, getString(R.string.try_again), true);
 		signInButton.setVisibility(VISIBLE);
 		progress.setVisibility(INVISIBLE);

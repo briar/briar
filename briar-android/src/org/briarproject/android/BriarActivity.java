@@ -3,10 +3,12 @@ package org.briarproject.android;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
+import android.support.annotation.NonNull;
 
 import org.briarproject.android.controller.BriarController;
 import org.briarproject.android.controller.DbController;
-import org.briarproject.android.controller.handler.UiResultHandler;
+import org.briarproject.android.controller.handler.DestroyableContextManager;
+import org.briarproject.android.controller.handler.UiContextResultHandler;
 import org.briarproject.android.panic.ExitActivity;
 
 import java.util.logging.Logger;
@@ -27,6 +29,8 @@ public abstract class BriarActivity extends BaseActivity {
 	public static final String GROUP_NAME = "briar.GROUP_NAME";
 
 	public static final int REQUEST_PASSWORD = 1;
+
+	protected static final String TAG_SIGN_OUT = "briar.SIGN_OUT";
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarActivity.class.getName());
@@ -58,13 +62,18 @@ public abstract class BriarActivity extends BaseActivity {
 	}
 
 	protected void signOut(final boolean removeFromRecentApps) {
-		briarController.signOut(new UiResultHandler<Void>(this) {
-			@Override
-			public void onResultUi(Void result) {
-				if (removeFromRecentApps) startExitActivity();
-				else finishAndExit();
-			}
-		});
+		briarController
+				.signOut(new UiContextResultHandler<Void>(this, TAG_SIGN_OUT) {
+					@Override
+					public void onResultUi(@NonNull Void result,
+							@NonNull DestroyableContextManager context) {
+						if (removeFromRecentApps) {
+							((BriarActivity) context).startExitActivity();
+						} else {
+							((BriarActivity)context).finishAndExit();
+						}
+					}
+				});
 	}
 
 	protected void signOut() {
