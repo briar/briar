@@ -73,6 +73,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ABORT
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
 @NotNullByDefault
@@ -116,7 +117,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			if (db.containsGroup(txn, g.getId())) return;
 			// Store the group and share it with the contact
 			db.addGroup(txn, g);
-			db.setVisibleToContact(txn, c.getId(), g.getId(), true);
+			db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
 			// Attach the contact ID to the group
 			BdfDictionary gm = new BdfDictionary();
 			gm.put(CONTACT, c.getId().getInt());

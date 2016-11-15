@@ -33,6 +33,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
 @NotNullByDefault
@@ -64,7 +65,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 			if (db.containsGroup(txn, g.getId())) return;
 			// Store the group and share it with the contact
 			db.addGroup(txn, g);
-			db.setVisibleToContact(txn, c.getId(), g.getId(), true);
+			db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
 			// Attach the contact ID to the group
 			BdfDictionary d = new BdfDictionary();
 			d.put("contactId", c.getId().getInt());

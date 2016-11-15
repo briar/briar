@@ -25,6 +25,8 @@ import org.briarproject.api.system.Clock;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.api.sync.Group.Visibility.INVISIBLE;
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.privategroup.invitation.InviteeState.DISSOLVED;
 import static org.briarproject.privategroup.invitation.InviteeState.ERROR;
 import static org.briarproject.privategroup.invitation.InviteeState.INVITED;
@@ -157,8 +159,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		try {
 			// Subscribe to the private group
 			subscribeToPrivateGroup(txn, inviteId);
-			// Start syncing the private group with the contact
-			syncPrivateGroupWithContact(txn, s, true);
+			// Share the private group with the contact
+			setPrivateGroupVisibility(txn, s, SHARED);
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group metadata
 		}
@@ -228,8 +230,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
 		try {
-			// Stop syncing the private group with the contact
-			syncPrivateGroupWithContact(txn, s, false);
+			// Make the private group invisible to the contact
+			setPrivateGroupVisibility(txn, s, INVISIBLE);
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group metadata
 		}
@@ -247,9 +249,9 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		if (s.getState() == ERROR) return s;
 		// Mark any invite messages in the session unavailable to answer
 		markInvitesUnavailableToAnswer(txn, s);
-		// Stop syncing the private group with the contact, if we subscribe
+		// If we subscribe, make the private group invisible to the contact
 		if (isSubscribedPrivateGroup(txn, s.getPrivateGroupId()))
-			syncPrivateGroupWithContact(txn, s, false);
+			setPrivateGroupVisibility(txn, s, INVISIBLE);
 		// Send an ABORT message
 		Message sent = sendAbortMessage(txn, s);
 		// Move to the ERROR state

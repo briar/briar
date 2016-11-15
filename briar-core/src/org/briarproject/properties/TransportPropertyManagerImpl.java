@@ -29,6 +29,8 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
+
 class TransportPropertyManagerImpl implements TransportPropertyManager,
 		Client, AddContactHook, RemoveContactHook {
 
@@ -64,7 +66,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		if (db.containsGroup(txn, g.getId())) return;
 		// Store the group and share it with the contact
 		db.addGroup(txn, g);
-		db.setVisibleToContact(txn, c.getId(), g.getId(), true);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
 		// Copy the latest local properties into the group
 		Map<TransportId, TransportProperties> local = getLocalProperties(txn);
 		for (Entry<TransportId, TransportProperties> e : local.entrySet()) {

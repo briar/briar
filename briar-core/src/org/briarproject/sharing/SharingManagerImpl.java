@@ -87,6 +87,8 @@ import static org.briarproject.api.sharing.SharingConstants.TO_BE_SHARED_BY_US;
 import static org.briarproject.api.sharing.SharingConstants.TYPE;
 import static org.briarproject.api.sharing.SharingMessage.BaseMessage;
 import static org.briarproject.api.sharing.SharingMessage.Invitation;
+import static org.briarproject.api.sync.Group.Visibility.INVISIBLE;
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 import static org.briarproject.sharing.InviteeSessionState.State.AWAIT_LOCAL_RESPONSE;
 
@@ -159,7 +161,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			if (db.containsGroup(txn, g.getId())) return;
 			// Store the group and share it with the contact
 			db.addGroup(txn, g);
-			db.setVisibleToContact(txn, c.getId(), g.getId(), true);
+			db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
 			// Attach the contact ID to the group
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(CONTACT_ID, c.getId().getInt());
@@ -908,20 +910,20 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			// TODO we might want to call the add() method of the respective
 			//      manager here, because blogs add a description for example
 			db.addGroup(txn, f.getGroup());
-			db.setVisibleToContact(txn, contactId, f.getId(), true);
+			db.setGroupVisibility(txn, contactId, f.getId(), SHARED);
 		} else if (task == TASK_ADD_SHAREABLE_TO_LIST_TO_BE_SHARED_BY_US) {
 			addToList(txn, groupId, TO_BE_SHARED_BY_US, f);
 		} else if (task == TASK_REMOVE_SHAREABLE_FROM_LIST_TO_BE_SHARED_BY_US) {
 			removeFromList(txn, groupId, TO_BE_SHARED_BY_US, f);
 		} else if (task == TASK_SHARE_SHAREABLE) {
-			db.setVisibleToContact(txn, contactId, f.getId(), true);
+			db.setGroupVisibility(txn, contactId, f.getId(), SHARED);
 			removeFromList(txn, groupId, TO_BE_SHARED_BY_US, f);
 			addToList(txn, groupId, SHARED_BY_US, f);
 		} else if (task == TASK_UNSHARE_SHAREABLE_SHARED_BY_US) {
-			db.setVisibleToContact(txn, contactId, f.getId(), false);
+			db.setGroupVisibility(txn, contactId, f.getId(), INVISIBLE);
 			removeFromList(txn, groupId, SHARED_BY_US, f);
 		} else if (task == TASK_UNSHARE_SHAREABLE_SHARED_WITH_US) {
-			db.setVisibleToContact(txn, contactId, f.getId(), false);
+			db.setGroupVisibility(txn, contactId, f.getId(), INVISIBLE);
 			removeFromList(txn, groupId, SHARED_WITH_US, f);
 		}
 	}

@@ -20,6 +20,8 @@ import org.briarproject.api.system.Clock;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.api.sync.Group.Visibility.INVISIBLE;
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.privategroup.invitation.PeerState.AWAIT_MEMBER;
 import static org.briarproject.privategroup.invitation.PeerState.BOTH_JOINED;
 import static org.briarproject.privategroup.invitation.PeerState.ERROR;
@@ -178,8 +180,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 		// Send a JOIN message
 		Message sent = sendJoinMessage(txn, s, false);
 		try {
-			// Start syncing the private group with the contact
-			syncPrivateGroupWithContact(txn, s, true);
+			// Share the private group with the contact
+			setPrivateGroupVisibility(txn, s, SHARED);
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group metadata
 		}
@@ -195,8 +197,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 		// Send a LEAVE message
 		Message sent = sendLeaveMessage(txn, s, false);
 		try {
-			// Stop syncing the private group with the contact
-			syncPrivateGroupWithContact(txn, s, false);
+			// Make the private group invisible to the contact
+			setPrivateGroupVisibility(txn, s, INVISIBLE);
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group metadata
 		}
@@ -228,8 +230,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 		// Send a JOIN message
 		Message sent = sendJoinMessage(txn, s, false);
 		try {
-			// Start syncing the private group with the contact
-			syncPrivateGroupWithContact(txn, s, true);
+			// Share the private group with the contact
+			setPrivateGroupVisibility(txn, s, SHARED);
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group metadata
 		}
@@ -263,8 +265,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 			return abort(txn, s);
 		// Send a JOIN message
 		Message sent = sendJoinMessage(txn, s, false);
-		// Start syncing the private group with the contact
-		syncPrivateGroupWithContact(txn, s, true);
+		// Share the private group with the contact
+		setPrivateGroupVisibility(txn, s, SHARED);
 		// Mark the relationship visible to the group, revealed by contact
 		relationshipRevealed(txn, s, true);
 		// Move to the BOTH_JOINED state
@@ -277,8 +279,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
-		// Start syncing the private group with the contact
-		syncPrivateGroupWithContact(txn, s, true);
+		// Share the private group with the contact
+		setPrivateGroupVisibility(txn, s, SHARED);
 		// Mark the relationship visible to the group, revealed by us
 		relationshipRevealed(txn, s, false);
 		// Move to the BOTH_JOINED state
@@ -314,8 +316,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
-		// Stop syncing the private group with the contact
-		syncPrivateGroupWithContact(txn, s, false);
+		// Make the private group invisible to the contact
+		setPrivateGroupVisibility(txn, s, INVISIBLE);
 		// Move to the LOCAL_JOINED state
 		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -326,9 +328,9 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 			throws DbException, FormatException {
 		// If the session has already been aborted, do nothing
 		if (s.getState() == ERROR) return s;
-		// Stop syncing the private group with the contact, if we subscribe
+		// If we subscribe, make the private group invisible to the contact
 		if (isSubscribedPrivateGroup(txn, s.getPrivateGroupId()))
-			syncPrivateGroupWithContact(txn, s, false);
+			setPrivateGroupVisibility(txn, s, INVISIBLE);
 		// Send an ABORT message
 		Message sent = sendAbortMessage(txn, s);
 		// Move to the ERROR state

@@ -66,6 +66,7 @@ import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_CONTACT;
 import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_US;
 import static org.briarproject.api.privategroup.Visibility.VISIBLE;
 import static org.briarproject.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
@@ -348,9 +349,9 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		assertEquals(joinMsg0.getMessage().getId(),
 				groupManager0.getPreviousMsgId(groupId0));
 
-		// make group visible to 1
+		// share the group with 1
 		Transaction txn0 = db0.startTransaction(false);
-		db0.setVisibleToContact(txn0, contactId1, privateGroup0.getId(), true);
+		db0.setGroupVisibility(txn0, contactId1, privateGroup0.getId(), SHARED);
 		db0.commitTransaction(txn0);
 		db0.endTransaction(txn0);
 
@@ -371,9 +372,10 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		assertEquals(joinMsg1.getMessage().getId(),
 				groupManager1.getPreviousMsgId(groupId0));
 
-		// make group visible to 0
+		// share the group with 0
 		Transaction txn1 = db1.startTransaction(false);
-		db1.setVisibleToContact(txn1, contactId01, privateGroup0.getId(), true);
+		db1.setGroupVisibility(txn1, contactId01, privateGroup0.getId(),
+				SHARED);
 		db1.commitTransaction(txn1);
 		db1.endTransaction(txn1);
 
@@ -415,9 +417,9 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		assertEquals(joinMsg0.getMessage().getId(),
 				groupManager0.getPreviousMsgId(groupId0));
 
-		// make group visible to 1
+		// share the group with 1
 		Transaction txn0 = db0.startTransaction(false);
-		db0.setVisibleToContact(txn0, contactId1, privateGroup0.getId(), true);
+		db0.setGroupVisibility(txn0, contactId1, privateGroup0.getId(), SHARED);
 		db0.commitTransaction(txn0);
 		db0.endTransaction(txn0);
 
@@ -438,9 +440,9 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		assertEquals(joinMsg1.getMessage().getId(),
 				groupManager1.getPreviousMsgId(groupId0));
 
-		// make group visible to 0
+		// share the group with 0
 		Transaction txn1 = db1.startTransaction(false);
-		db1.setVisibleToContact(txn1, contactId01, privateGroup0.getId(), true);
+		db1.setGroupVisibility(txn1, contactId01, privateGroup0.getId(), SHARED);
 		db1.commitTransaction(txn1);
 		db1.endTransaction(txn1);
 
@@ -518,9 +520,9 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 	public void testRevealingRelationships() throws Exception {
 		defaultInit();
 
-		// make group visible to 2
+		// share the group with 2
 		Transaction txn0 = db0.startTransaction(false);
-		db0.setVisibleToContact(txn0, contactId2, privateGroup0.getId(), true);
+		db0.setGroupVisibility(txn0, contactId2, privateGroup0.getId(), SHARED);
 		db0.commitTransaction(txn0);
 		db0.endTransaction(txn0);
 
@@ -540,8 +542,9 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		Transaction txn2 = db2.startTransaction(false);
 		groupManager2.addPrivateGroup(txn2, privateGroup0, joinMsg2, false);
 
-		// make group visible to 0
-		db2.setVisibleToContact(txn2, contactId01, privateGroup0.getId(), true);
+		// share the group with 0
+		db2.setGroupVisibility(txn2, contactId01, privateGroup0.getId(),
+				SHARED);
 		db2.commitTransaction(txn2);
 		db2.endTransaction(txn2);
 
@@ -741,9 +744,9 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		assertEquals(joinMsg0.getMessage().getId(),
 				groupManager0.getPreviousMsgId(groupId0));
 
-		// make group visible to 1
+		// share the group with 1
 		Transaction txn0 = db0.startTransaction(false);
-		db0.setVisibleToContact(txn0, contactId1, privateGroup0.getId(), true);
+		db0.setGroupVisibility(txn0, contactId1, privateGroup0.getId(), SHARED);
 		db0.commitTransaction(txn0);
 		db0.endTransaction(txn0);
 
@@ -762,9 +765,10 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 						inviteTime, creatorSignature);
 		groupManager1.addPrivateGroup(privateGroup0, joinMsg1, false);
 
-		// make group visible to 0
+		// share the group with 0
 		Transaction txn1 = db1.startTransaction(false);
-		db1.setVisibleToContact(txn1, contactId01, privateGroup0.getId(), true);
+		db1.setGroupVisibility(txn1, contactId01, privateGroup0.getId(),
+				SHARED);
 		db1.commitTransaction(txn1);
 		db1.endTransaction(txn1);
 		assertEquals(joinMsg1.getMessage().getId(),

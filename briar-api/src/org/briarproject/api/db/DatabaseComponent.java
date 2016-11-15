@@ -11,6 +11,7 @@ import org.briarproject.api.settings.Settings;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.Group.Visibility;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -233,6 +234,15 @@ public interface DatabaseComponent {
 	Collection<Group> getGroups(Transaction txn, ClientId c) throws DbException;
 
 	/**
+	 * Returns the given group's visibility to the given contact, or
+	 * {@link Visibility INVISIBLE} if the group is not in the database.
+	 * <p/>
+	 * Read-only.
+	 */
+	Visibility getGroupVisibility(Transaction txn, ContactId c, GroupId g)
+			throws DbException;
+
+	/**
 	 * Returns the local pseudonym with the given ID.
 	 * <p/>
 	 * Read-only.
@@ -389,14 +399,6 @@ public interface DatabaseComponent {
 			long rotationPeriod) throws DbException;
 
 	/**
-	 * Returns true if the given group is visible to the given contact.
-	 * <p/>
-	 * Read-only.
-	 */
-	boolean isVisibleToContact(Transaction txn, ContactId c, GroupId g)
-			throws DbException;
-
-	/**
 	 * Merges the given metadata with the existing metadata for the given
 	 * group.
 	 */
@@ -471,6 +473,12 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
+	 * Sets the given group's visibility to the given contact.
+	 */
+	void setGroupVisibility(Transaction txn, ContactId c, GroupId g,
+			Visibility v) throws DbException;
+
+	/**
 	 * Marks the given message as shared.
 	 */
 	void setMessageShared(Transaction txn, MessageId m) throws DbException;
@@ -493,12 +501,6 @@ public interface DatabaseComponent {
 	 */
 	void setReorderingWindow(Transaction txn, ContactId c, TransportId t,
 			long rotationPeriod, long base, byte[] bitmap) throws DbException;
-
-	/**
-	 * Makes a group visible or invisible to a contact.
-	 */
-	void setVisibleToContact(Transaction txn, ContactId c, GroupId g,
-			boolean visible) throws DbException;
 
 	/**
 	 * Stores the given transport keys, deleting any keys they have replaced.

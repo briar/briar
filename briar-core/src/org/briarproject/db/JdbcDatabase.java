@@ -15,6 +15,7 @@ import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.Group.Visibility;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -50,6 +51,9 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.db.Metadata.REMOVE;
+import static org.briarproject.api.sync.Group.Visibility.INVISIBLE;
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.api.sync.Group.Visibility.VISIBLE;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
@@ -67,8 +71,8 @@ import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 28;
-	private static final int MIN_SCHEMA_VERSION = 28;
+	private static final int SCHEMA_VERSION = 29;
+	private static final int MIN_SCHEMA_VERSION = 29;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -121,6 +125,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE TABLE groupVisibilities"
 					+ " (contactId INT NOT NULL,"
 					+ " groupId HASH NOT NULL,"
+					+ " shared BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (contactId, groupId),"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
@@ -356,6 +361,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		return s;
 	}
 
+	@Override
 	public Connection startTransaction() throws DbException {
 		Connection txn = null;
 		connectionsLock.lock();
@@ -384,6 +390,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		return txn;
 	}
 
+	@Override
 	public void abortTransaction(Connection txn) {
 		try {
 			txn.rollback();
@@ -414,6 +421,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void commitTransaction(Connection txn) throws DbException {
 		try {
 			txn.commit();
@@ -429,7 +437,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	protected void closeAllConnections() throws SQLException {
+	void closeAllConnections() throws SQLException {
 		boolean interrupted = false;
 		connectionsLock.lock();
 		try {
@@ -455,11 +463,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		if (interrupted) Thread.currentThread().interrupt();
 	}
 
+	@Override
 	public DeviceId getDeviceId(Connection txn) throws DbException {
 		Settings s = getSettings(txn, DEVICE_SETTINGS_NAMESPACE);
 		return new DeviceId(StringUtils.fromHexString(s.get(DEVICE_ID_KEY)));
 	}
 
+	@Override
 	public ContactId addContact(Connection txn, Author remote, AuthorId local,
 			boolean verified, boolean active) throws DbException {
 		PreparedStatement ps = null;
@@ -497,6 +507,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void addGroup(Connection txn, Group g) throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -515,6 +526,28 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
+	public void addGroupVisibility(Connection txn, ContactId c, GroupId g,
+			boolean shared) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "INSERT INTO groupVisibilities"
+					+ " (contactId, groupId, shared)"
+					+ " VALUES (?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, g.getBytes());
+			ps.setBoolean(3, shared);
+			int affected = ps.executeUpdate();
+			if (affected != 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void addLocalAuthor(Connection txn, LocalAuthor a)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -537,6 +570,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void addMessage(Connection txn, Message m, State state,
 			boolean shared) throws DbException {
 		PreparedStatement ps = null;
@@ -562,6 +596,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void addOfferedMessage(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -592,6 +627,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void addStatus(Connection txn, ContactId c, MessageId m, boolean ack,
 			boolean seen) throws DbException {
 		PreparedStatement ps = null;
@@ -613,6 +649,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void addMessageDependency(Connection txn, GroupId g,
 			MessageId dependent, MessageId dependency) throws DbException {
 		PreparedStatement ps = null;
@@ -633,6 +670,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void addTransport(Connection txn, TransportId t, int maxLatency)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -651,6 +689,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void addTransportKeys(Connection txn, ContactId c, TransportKeys k)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -712,24 +751,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addVisibility(Connection txn, ContactId c, GroupId g)
-			throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "INSERT INTO groupVisibilities (contactId, groupId)"
-					+ " VALUES (?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, g.getBytes());
-			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
+	@Override
 	public boolean containsContact(Connection txn, AuthorId remote,
 			AuthorId local) throws DbException {
 		PreparedStatement ps = null;
@@ -753,6 +775,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public boolean containsContact(Connection txn, ContactId c)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -774,6 +797,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public boolean containsGroup(Connection txn, GroupId g)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -795,6 +819,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public boolean containsLocalAuthor(Connection txn, AuthorId a)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -816,6 +841,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public boolean containsMessage(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -837,6 +863,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public boolean containsTransport(Connection txn, TransportId t)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -858,29 +885,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean containsVisibleGroup(Connection txn, ContactId c, GroupId g)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT NULL FROM groupVisibilities"
-					+ " WHERE contactId = ? AND groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, g.getBytes());
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return found;
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
+	@Override
 	public boolean containsVisibleMessage(Connection txn, ContactId c,
 			MessageId m) throws DbException {
 		PreparedStatement ps = null;
@@ -891,7 +896,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON m.groupId = gv.groupId"
 					+ " WHERE messageId = ?"
 					+ " AND contactId = ?"
-					+ " AND shared = TRUE";
+					+ " AND m.shared = TRUE";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
@@ -908,6 +913,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public int countOfferedMessages(Connection txn, ContactId c)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -931,6 +937,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void deleteMessage(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -947,6 +954,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void deleteMessageMetadata(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -963,6 +971,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Contact getContact(Connection txn, ContactId c) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -992,6 +1001,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<Contact> getContacts(Connection txn)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1025,6 +1035,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<ContactId> getContacts(Connection txn, AuthorId local)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1047,6 +1058,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<Contact> getContactsByAuthorId(Connection txn,
 			AuthorId remote) throws DbException {
 		PreparedStatement ps = null;
@@ -1081,6 +1093,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Group getGroup(Connection txn, GroupId g) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1103,6 +1116,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<Group> getGroups(Connection txn, ClientId c)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1129,6 +1143,56 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
+	public Visibility getGroupVisibility(Connection txn, ContactId c, GroupId g)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT shared FROM groupVisibilities"
+					+ " WHERE contactId = ? AND groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, g.getBytes());
+			rs = ps.executeQuery();
+			Visibility v;
+			if (rs.next()) v = rs.getBoolean(1) ? SHARED : VISIBLE;
+			else v = INVISIBLE;
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return v;
+		} catch (SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public Collection<ContactId> getGroupVisibility(Connection txn, GroupId g)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT contactId FROM groupVisibilities"
+					+ " WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			List<ContactId> visible = new ArrayList<ContactId>();
+			while (rs.next()) visible.add(new ContactId(rs.getInt(1)));
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(visible);
+		} catch (SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public LocalAuthor getLocalAuthor(Connection txn, AuthorId a)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1158,6 +1222,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<LocalAuthor> getLocalAuthors(Connection txn)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1187,6 +1252,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<MessageId> getMessageIds(Connection txn, GroupId g)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1231,6 +1297,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<MessageId> getMessageIds(Connection txn, GroupId g,
 			Metadata query) throws DbException {
 		// If there are no query terms, return all delivered messages
@@ -1271,6 +1338,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Map<MessageId, Metadata> getMessageMetadata(Connection txn,
 			GroupId g) throws DbException {
 		PreparedStatement ps = null;
@@ -1308,6 +1376,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Map<MessageId, Metadata> getMessageMetadata(Connection txn,
 			GroupId g, Metadata query) throws DbException {
 		// Retrieve the matching message IDs
@@ -1320,6 +1389,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		return Collections.unmodifiableMap(all);
 	}
 
+	@Override
 	public Metadata getGroupMetadata(Connection txn, GroupId g)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1342,6 +1412,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Metadata getMessageMetadata(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1367,6 +1438,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Metadata getMessageMetadataForValidator(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1394,6 +1466,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<MessageStatus> getMessageStatus(Connection txn,
 			ContactId c, GroupId g) throws DbException {
 		PreparedStatement ps = null;
@@ -1426,6 +1499,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public MessageStatus getMessageStatus(Connection txn,
 			ContactId c, MessageId m) throws DbException {
 		PreparedStatement ps = null;
@@ -1453,6 +1527,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Map<MessageId, State> getMessageDependencies(Connection txn,
 			MessageId m) throws DbException {
 		PreparedStatement ps = null;
@@ -1490,6 +1565,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Map<MessageId, State> getMessageDependents(Connection txn,
 			MessageId m) throws DbException {
 		PreparedStatement ps = null;
@@ -1519,6 +1595,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public State getMessageState(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1541,6 +1618,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<MessageId> getMessagesToAck(Connection txn, ContactId c,
 			int maxMessages) throws DbException {
 		PreparedStatement ps = null;
@@ -1565,6 +1643,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<MessageId> getMessagesToOffer(Connection txn,
 			ContactId c, int maxMessages) throws DbException {
 		long now = clock.currentTimeMillis();
@@ -1572,10 +1651,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT m.messageId FROM messages AS m"
+					+ " JOIN groupVisibilities AS gv"
+					+ " ON m.groupId = gv.groupId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
-					+ " WHERE contactId = ?"
-					+ " AND state = ? AND shared = TRUE AND raw IS NOT NULL"
+					+ " AND gv.contactId = s.contactId"
+					+ " WHERE gv.contactId = ? AND gv.shared = TRUE"
+					+ " AND state = ? AND m.shared = TRUE AND raw IS NOT NULL"
 					+ " AND seen = FALSE AND requested = FALSE"
 					+ " AND expiry < ?"
 					+ " ORDER BY timestamp LIMIT ?";
@@ -1597,6 +1679,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<MessageId> getMessagesToRequest(Connection txn,
 			ContactId c, int maxMessages) throws DbException {
 		PreparedStatement ps = null;
@@ -1621,6 +1704,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<MessageId> getMessagesToSend(Connection txn, ContactId c,
 			int maxLength) throws DbException {
 		long now = clock.currentTimeMillis();
@@ -1628,10 +1712,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT length, m.messageId FROM messages AS m"
+					+ " JOIN groupVisibilities AS gv"
+					+ " ON m.groupId = gv.groupId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
-					+ " WHERE contactId = ?"
-					+ " AND state = ? AND shared = TRUE AND raw IS NOT NULL"
+					+ " AND gv.contactId = s.contactId"
+					+ " WHERE gv.contactId = ? AND gv.shared = TRUE"
+					+ " AND state = ? AND m.shared = TRUE AND raw IS NOT NULL"
 					+ " AND seen = FALSE"
 					+ " AND expiry < ?"
 					+ " ORDER BY timestamp";
@@ -1658,11 +1745,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<MessageId> getMessagesToValidate(Connection txn,
 			ClientId c) throws DbException {
 		return getMessagesInState(txn, c, UNKNOWN);
 	}
 
+	@Override
 	public Collection<MessageId> getPendingMessages(Connection txn,
 			ClientId c) throws DbException {
 		return getMessagesInState(txn, c, PENDING);
@@ -1692,6 +1781,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<MessageId> getMessagesToShare(
 			Connection txn, ClientId c) throws DbException {
 		PreparedStatement ps = null;
@@ -1721,6 +1811,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	@Nullable
 	public byte[] getRawMessage(Connection txn, MessageId m)
 			throws DbException {
@@ -1744,6 +1835,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Collection<MessageId> getRequestedMessagesToSend(Connection txn,
 			ContactId c, int maxLength) throws DbException {
 		long now = clock.currentTimeMillis();
@@ -1751,10 +1843,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT length, m.messageId FROM messages AS m"
+					+ " JOIN groupVisibilities AS gv"
+					+ " ON m.groupId = gv.groupId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
-					+ " WHERE contactId = ?"
-					+ " AND state = ? AND shared = TRUE AND raw IS NOT NULL"
+					+ " AND gv.contactId = s.contactId"
+					+ " WHERE gv.contactId = ? AND gv.shared = TRUE"
+					+ " AND state = ? AND m.shared = TRUE AND raw IS NOT NULL"
 					+ " AND seen = FALSE AND requested = TRUE"
 					+ " AND expiry < ?"
 					+ " ORDER BY timestamp";
@@ -1781,6 +1876,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Settings getSettings(Connection txn, String namespace)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1802,6 +1898,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public Map<ContactId, TransportKeys> getTransportKeys(Connection txn,
 			TransportId t) throws DbException {
 		PreparedStatement ps = null;
@@ -1863,28 +1960,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<ContactId> getVisibility(Connection txn, GroupId g)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT contactId FROM groupVisibilities"
-					+ " WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
-			rs = ps.executeQuery();
-			List<ContactId> visible = new ArrayList<ContactId>();
-			while (rs.next()) visible.add(new ContactId(rs.getInt(1)));
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableList(visible);
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
+	@Override
 	public void incrementStreamCounter(Connection txn, ContactId c,
 			TransportId t, long rotationPeriod) throws DbException {
 		PreparedStatement ps = null;
@@ -1904,6 +1980,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void lowerAckFlag(Connection txn, ContactId c,
 			Collection<MessageId> acked) throws DbException {
 		PreparedStatement ps = null;
@@ -1930,6 +2007,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void lowerRequestedFlag(Connection txn, ContactId c,
 			Collection<MessageId> requested) throws DbException {
 		PreparedStatement ps = null;
@@ -1956,11 +2034,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void mergeGroupMetadata(Connection txn, GroupId g, Metadata meta)
 			throws DbException {
 		mergeMetadata(txn, g.getBytes(), meta, "groupMetadata", "groupId");
 	}
 
+	@Override
 	public void mergeMessageMetadata(Connection txn, MessageId m, Metadata meta)
 			throws DbException {
 		mergeMetadata(txn, m.getBytes(), meta, "messageMetadata", "messageId");
@@ -2041,6 +2121,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void mergeSettings(Connection txn, Settings s, String namespace)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2087,6 +2168,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void raiseAckFlag(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2105,6 +2187,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void raiseRequestedFlag(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2123,6 +2206,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void raiseSeenFlag(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2141,6 +2225,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void removeContact(Connection txn, ContactId c)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2157,6 +2242,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void removeGroup(Connection txn, GroupId g) throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -2172,6 +2258,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
+	public void removeGroupVisibility(Connection txn, ContactId c, GroupId g)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "DELETE FROM groupVisibilities"
+					+ " WHERE contactId = ? AND groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, g.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected != 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void removeLocalAuthor(Connection txn, AuthorId a)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2188,6 +2294,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void removeMessage(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -2203,6 +2310,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public boolean removeOfferedMessage(Connection txn, ContactId c,
 			MessageId m) throws DbException {
 		PreparedStatement ps = null;
@@ -2222,6 +2330,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void removeOfferedMessages(Connection txn, ContactId c,
 			Collection<MessageId> requested) throws DbException {
 		PreparedStatement ps = null;
@@ -2246,6 +2355,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void removeStatus(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2264,6 +2374,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void removeTransport(Connection txn, TransportId t)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2280,24 +2391,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void removeVisibility(Connection txn, ContactId c, GroupId g)
-			throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "DELETE FROM groupVisibilities"
-					+ " WHERE contactId = ? AND groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, g.getBytes());
-			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
+	@Override
 	public void resetExpiryTime(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2316,6 +2410,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void setContactVerified(Connection txn, ContactId c)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2333,6 +2428,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void setContactActive(Connection txn, ContactId c, boolean active)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2350,6 +2446,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
+	public void setGroupVisibility(Connection txn, ContactId c, GroupId g,
+			boolean shared) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE groupVisibilities SET shared = ?"
+					+ " WHERE contactId = ? AND groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBoolean(1, shared);
+			ps.setInt(2, c.getInt());
+			ps.setBytes(3, g.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void setMessageShared(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -2366,6 +2483,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void setMessageState(Connection txn, MessageId m, State state)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2383,6 +2501,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void setReorderingWindow(Connection txn, ContactId c, TransportId t,
 			long rotationPeriod, long base, byte[] bitmap) throws DbException {
 		PreparedStatement ps = null;
@@ -2404,6 +2523,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void updateExpiryTime(Connection txn, ContactId c, MessageId m,
 			int maxLatency) throws DbException {
 		PreparedStatement ps = null;
@@ -2437,6 +2557,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Override
 	public void updateTransportKeys(Connection txn,
 			Map<ContactId, TransportKeys> keys) throws DbException {
 		PreparedStatement ps = null;

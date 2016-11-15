@@ -42,6 +42,7 @@ import org.briarproject.api.settings.Settings;
 import org.briarproject.api.sync.Ack;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.Group.Visibility;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -66,6 +67,8 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.sync.Group.Visibility.INVISIBLE;
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
@@ -97,6 +100,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	@Override
 	public boolean open() throws DbException {
 		Runnable shutdownHook = new Runnable() {
+			@Override
 			public void run() {
 				try {
 					close();
@@ -223,7 +227,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	private void addMessage(T txn, Message m, State state, boolean shared,
 			@Nullable ContactId sender) throws DbException {
 		db.addMessage(txn, m, state, shared);
-		for (ContactId c : db.getVisibility(txn, m.getGroupId())) {
+		for (ContactId c : db.getGroupVisibility(txn, m.getGroupId())) {
 			boolean offered = db.removeOfferedMessage(txn, c, m.getId());
 			boolean seen = offered || c.equals(sender);
 			db.addStatus(txn, c, m.getId(), seen, seen);
@@ -442,6 +446,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public Visibility getGroupVisibility(Transaction transaction, ContactId c,
+			GroupId g) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		return db.getGroupVisibility(txn, c, g);
+	}
+
+	@Override
 	public LocalAuthor getLocalAuthor(Transaction transaction, AuthorId a)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -603,17 +616,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public boolean isVisibleToContact(Transaction transaction, ContactId c,
-			GroupId g) throws DbException {
-		T txn = unbox(transaction);
-		if (!db.containsContact(txn, c))
-			throw new NoSuchContactException();
-		if (!db.containsGroup(txn, g))
-			throw new NoSuchGroupException();
-		return db.containsVisibleGroup(txn, c, g);
-	}
-
-	@Override
 	public void mergeGroupMetadata(Transaction transaction, GroupId g,
 			Metadata meta) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -672,7 +674,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		if (db.containsVisibleGroup(txn, c, m.getGroupId())) {
+		if (db.getGroupVisibility(txn, c, m.getGroupId()) != INVISIBLE) {
 			if (db.containsMessage(txn, m.getId())) {
 				db.raiseSeenFlag(txn, c, m.getId());
 				db.raiseAckFlag(txn, c, m.getId());
@@ -745,7 +747,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		GroupId id = g.getId();
 		if (!db.containsGroup(txn, id))
 			throw new NoSuchGroupException();
-		Collection<ContactId> affected = db.getVisibility(txn, id);
+		Collection<ContactId> affected = db.getGroupVisibility(txn, id);
 		db.removeGroup(txn, id);
 		transaction.attach(new GroupRemovedEvent(g));
 		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
@@ -792,6 +794,34 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchContactException();
 		db.setContactActive(txn, c, active);
 		transaction.attach(new ContactStatusChangedEvent(c, active));
+	}
+
+	@Override
+	public void setGroupVisibility(Transaction transaction, ContactId c,
+			GroupId g, Visibility v) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		if (!db.containsGroup(txn, g))
+			throw new NoSuchGroupException();
+		Visibility old = db.getGroupVisibility(txn, c, g);
+		if (old == v) return;
+		if (old == INVISIBLE) {
+			db.addGroupVisibility(txn, c, g, v == SHARED);
+			for (MessageId m : db.getMessageIds(txn, g)) {
+				boolean seen = db.removeOfferedMessage(txn, c, m);
+				db.addStatus(txn, c, m, seen, seen);
+			}
+		} else if (v == INVISIBLE) {
+			db.removeGroupVisibility(txn, c, g);
+			for (MessageId m : db.getMessageIds(txn, g))
+				db.removeStatus(txn, c, m);
+		} else {
+			db.setGroupVisibility(txn, c, g, v == SHARED);
+		}
+		List<ContactId> affected = Collections.singletonList(c);
+		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
 	}
 
 	@Override
@@ -843,33 +873,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
 		db.setReorderingWindow(txn, c, t, rotationPeriod, base, bitmap);
-	}
-
-	@Override
-	public void setVisibleToContact(Transaction transaction, ContactId c,
-			GroupId g, boolean visible) throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
-		T txn = unbox(transaction);
-		if (!db.containsContact(txn, c))
-			throw new NoSuchContactException();
-		if (!db.containsGroup(txn, g))
-			throw new NoSuchGroupException();
-		boolean wasVisible = db.containsVisibleGroup(txn, c, g);
-		if (visible && !wasVisible) {
-			db.addVisibility(txn, c, g);
-			for (MessageId m : db.getMessageIds(txn, g)) {
-				boolean seen = db.removeOfferedMessage(txn, c, m);
-				db.addStatus(txn, c, m, seen, seen);
-			}
-		} else if (!visible && wasVisible) {
-			db.removeVisibility(txn, c, g);
-			for (MessageId m : db.getMessageIds(txn, g))
-				db.removeStatus(txn, c, m);
-		}
-		if (visible != wasVisible) {
-			List<ContactId> affected = Collections.singletonList(c);
-			transaction.attach(new GroupVisibilityUpdatedEvent(affected));
-		}
 	}
 
 	@Override

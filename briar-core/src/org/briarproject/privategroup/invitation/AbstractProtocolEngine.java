@@ -18,6 +18,7 @@ import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.privategroup.PrivateGroupManager;
 import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.Group.Visibility;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -90,11 +91,10 @@ abstract class AbstractProtocolEngine<S extends Session>
 		return dependency.equals(expected);
 	}
 
-	void syncPrivateGroupWithContact(Transaction txn, S session, boolean sync)
+	void setPrivateGroupVisibility(Transaction txn, S session, Visibility v)
 			throws DbException, FormatException {
 		ContactId contactId = getContactId(txn, session.getContactGroupId());
-		db.setVisibleToContact(txn, contactId, session.getPrivateGroupId(),
-				sync);
+		db.setGroupVisibility(txn, contactId, session.getPrivateGroupId(), v);
 	}
 
 	Message sendInviteMessage(Transaction txn, S session,

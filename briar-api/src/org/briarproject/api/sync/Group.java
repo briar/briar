@@ -2,6 +2,12 @@ package org.briarproject.api.sync;
 
 public class Group {
 
+	public enum Visibility {
+		INVISIBLE, // The group is not visible
+		VISIBLE, // The group is visible but messages are not shared
+		SHARED // The group is visible and messages are shared
+	}
+
 	private final GroupId id;
 	private final ClientId clientId;
 	private final byte[] descriptor;

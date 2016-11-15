@@ -45,6 +45,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.api.db.Metadata.REMOVE;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.sync.Group.Visibility.INVISIBLE;
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.api.sync.Group.Visibility.VISIBLE;
 import static org.briarproject.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
@@ -171,12 +174,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, a group and a message
+		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
 				true, true));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addGroupVisibility(txn, contactId, groupId, true);
 		db.addMessage(txn, message, DELIVERED, true);
 
 		// The message has no status yet, so it should not be sendable
@@ -209,12 +212,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, a group and an unvalidated message
+		// Add a contact, a shared group and a shared but unvalidated message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
 				true, true));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addGroupVisibility(txn, contactId, groupId, true);
 		db.addMessage(txn, message, UNKNOWN, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
@@ -251,16 +254,68 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSendableMessagesMustBeShared() throws Exception {
+	public void testSendableMessagesMustHaveSharedGroup() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, a group and an unshared message
+		// Add a contact, an invisible group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
 				true, true));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addMessage(txn, message, DELIVERED, true);
+		db.addStatus(txn, contactId, messageId, false, false);
+
+		// The group is invisible, so the message should not be sendable
+		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
+				ONE_MEGABYTE);
+		assertTrue(ids.isEmpty());
+		ids = db.getMessagesToOffer(txn, contactId, 100);
+		assertTrue(ids.isEmpty());
+
+		// Making the group visible should not make the message sendable
+		db.addGroupVisibility(txn, contactId, groupId, false);
+		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
+		assertTrue(ids.isEmpty());
+		ids = db.getMessagesToOffer(txn, contactId, 100);
+		assertTrue(ids.isEmpty());
+
+		// Sharing the group should make the message sendable
+		db.setGroupVisibility(txn, contactId, groupId, true);
+		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
+		assertEquals(Collections.singletonList(messageId), ids);
+		ids = db.getMessagesToOffer(txn, contactId, 100);
+		assertEquals(Collections.singletonList(messageId), ids);
+
+		// Unsharing the group should make the message unsendable
+		db.setGroupVisibility(txn, contactId, groupId, false);
+		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
+		assertTrue(ids.isEmpty());
+		ids = db.getMessagesToOffer(txn, contactId, 100);
+		assertTrue(ids.isEmpty());
+
+		// Making the group invisible should make the message unsendable
+		db.removeGroupVisibility(txn, contactId, groupId);
+		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
+		assertTrue(ids.isEmpty());
+		ids = db.getMessagesToOffer(txn, contactId, 100);
+		assertTrue(ids.isEmpty());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSendableMessagesMustBeShared() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, a shared group and an unshared message
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+				true, true));
+		db.addGroup(txn, group);
+		db.addGroupVisibility(txn, contactId, groupId, true);
 		db.addMessage(txn, message, DELIVERED, false);
 		db.addStatus(txn, contactId, messageId, false, false);
 
@@ -287,12 +342,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, a group and a message
+		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
 				true, true));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addGroupVisibility(txn, contactId, groupId, true);
 		db.addMessage(txn, message, DELIVERED, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
@@ -314,12 +369,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact and a group
+		// Add a contact and a visible group
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
 				true, true));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addGroupVisibility(txn, contactId, groupId, false);
 
 		// Add some messages to ack
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
@@ -351,12 +406,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, a group and a message
+		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
 				true, true));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addGroupVisibility(txn, contactId, groupId, true);
 		db.addMessage(txn, message, DELIVERED, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
@@ -515,12 +570,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact and a group
+		// Add a contact and a shared group
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
 				true, true));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addGroupVisibility(txn, contactId, groupId, true);
 
 		// The message is not in the database
 		assertFalse(db.containsVisibleMessage(txn, contactId, messageId));
@@ -569,7 +624,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testVisibility() throws Exception {
+	public void testGroupVisibility() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -580,52 +635,33 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addGroup(txn, group);
 
 		// The group should not be visible to the contact
-		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
+		assertEquals(INVISIBLE, db.getGroupVisibility(txn, contactId, groupId));
+		assertEquals(Collections.emptyList(),
+				db.getGroupVisibility(txn, groupId));
 
 		// Make the group visible to the contact
-		db.addVisibility(txn, contactId, groupId);
+		db.addGroupVisibility(txn, contactId, groupId, false);
+		assertEquals(VISIBLE, db.getGroupVisibility(txn, contactId, groupId));
 		assertEquals(Collections.singletonList(contactId),
-				db.getVisibility(txn, groupId));
+				db.getGroupVisibility(txn, groupId));
+
+		// Share the group with the contact
+		db.setGroupVisibility(txn, contactId, groupId, true);
+		assertEquals(SHARED, db.getGroupVisibility(txn, contactId, groupId));
+		assertEquals(Collections.singletonList(contactId),
+				db.getGroupVisibility(txn, groupId));
+
+		// Unshare the group with the contact
+		db.setGroupVisibility(txn, contactId, groupId, false);
+		assertEquals(VISIBLE, db.getGroupVisibility(txn, contactId, groupId));
+		assertEquals(Collections.singletonList(contactId),
+				db.getGroupVisibility(txn, groupId));
 
 		// Make the group invisible again
-		db.removeVisibility(txn, contactId, groupId);
-		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testMultipleGroupChanges() throws Exception {
-		// Create some groups
-		List<Group> groups = new ArrayList<>();
-		for (int i = 0; i < 100; i++) {
-			GroupId id = new GroupId(TestUtils.getRandomId());
-			ClientId clientId = new ClientId(TestUtils.getRandomString(5));
-			byte[] descriptor = new byte[0];
-			groups.add(new Group(id, clientId, descriptor));
-		}
-
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact and the groups
-		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
-				true, true));
-		for (Group g : groups) db.addGroup(txn, g);
-
-		// Make the groups visible to the contact
-		Collections.shuffle(groups);
-		for (Group g : groups) db.addVisibility(txn, contactId, g.getId());
-
-		// Make some of the groups invisible to the contact and remove them all
-		Collections.shuffle(groups);
-		for (Group g : groups) {
-			if (Math.random() < 0.5)
-				db.removeVisibility(txn, contactId, g.getId());
-			db.removeGroup(txn, g.getId());
-		}
+		db.removeGroupVisibility(txn, contactId, groupId);
+		assertEquals(INVISIBLE, db.getGroupVisibility(txn, contactId, groupId));
+		assertEquals(Collections.emptyList(),
+				db.getGroupVisibility(txn, groupId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1144,15 +1180,15 @@ public class H2DatabaseTest extends BriarTestCase {
 		metadata1.put("foo", new byte[]{'b', 'a', 'r'});
 		db.mergeMessageMetadata(txn, messageId1, metadata1);
 
-		for (int i = 1; i <= 2; i++) {
+		for (int i = 0; i < 2; i++) {
 			Metadata query;
-			if (i == 1) {
+			if (i == 0) {
 				// Query the metadata with an empty query
 				query = new Metadata();
 			} else {
 				// Query for foo
 				query = new Metadata();
-				query.put("foo", metadata.get("foo"));
+				query.put("foo", new byte[]{'b', 'a', 'r'});
 			}
 
 			db.setMessageState(txn, messageId, DELIVERED);
@@ -1160,30 +1196,37 @@ public class H2DatabaseTest extends BriarTestCase {
 			Map<MessageId, Metadata> all =
 					db.getMessageMetadata(txn, groupId, query);
 			assertEquals(2, all.size());
-			assertEquals(2, all.get(messageId).size());
-			assertEquals(1, all.get(messageId1).size());
+			assertMetadataEquals(metadata, all.get(messageId));
+			assertMetadataEquals(metadata1, all.get(messageId1));
 
 			// No metadata for unknown messages
 			db.setMessageState(txn, messageId, UNKNOWN);
-			db.setMessageState(txn, messageId1, UNKNOWN);
 			all = db.getMessageMetadata(txn, groupId, query);
-			assertTrue(all.isEmpty());
+			assertEquals(1, all.size());
+			assertMetadataEquals(metadata1, all.get(messageId1));
 
 			// No metadata for invalid messages
 			db.setMessageState(txn, messageId, INVALID);
-			db.setMessageState(txn, messageId1, INVALID);
 			all = db.getMessageMetadata(txn, groupId, query);
-			assertTrue(all.isEmpty());
+			assertEquals(1, all.size());
+			assertMetadataEquals(metadata1, all.get(messageId1));
 
 			// No metadata for pending messages
 			db.setMessageState(txn, messageId, PENDING);
-			db.setMessageState(txn, messageId1, PENDING);
 			all = db.getMessageMetadata(txn, groupId, query);
-			assertTrue(all.isEmpty());
+			assertEquals(1, all.size());
+			assertMetadataEquals(metadata1, all.get(messageId1));
 		}
 
 		db.commitTransaction(txn);
 		db.close();
+	}
+
+	private void assertMetadataEquals(Metadata m1, Metadata m2) {
+		assertEquals(m1.keySet(), m2.keySet());
+		for (Entry<String, byte[]> e : m1.entrySet()) {
+			assertArrayEquals(e.getValue(), m2.get(e.getKey()));
+		}
 	}
 
 	@Test
@@ -1398,16 +1441,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact
+		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
 				true, true));
-
-		// Add a group and make it visible to the contact
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
-
-		// Add a message to the group
+		db.addGroupVisibility(txn, contactId, groupId, true);
 		db.addMessage(txn, message, DELIVERED, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 
@@ -1471,33 +1510,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testGroupsVisibleToContacts() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact and a group
-		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
-				true, true));
-		db.addGroup(txn, group);
-
-		// The group should not be visible to the contact
-		assertFalse(db.containsVisibleGroup(txn, contactId, groupId));
-
-		// Make the group visible to the contact
-		db.addVisibility(txn, contactId, groupId);
-		assertTrue(db.containsVisibleGroup(txn, contactId, groupId));
-
-		// Make the group invisible to the contact
-		db.removeVisibility(txn, contactId, groupId);
-		assertFalse(db.containsVisibleGroup(txn, contactId, groupId));
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testDifferentLocalPseudonymsCanHaveTheSameContact()
+	public void testDifferentLocalAuthorsCanHaveTheSameContact()
 			throws Exception {
 		AuthorId localAuthorId1 = new AuthorId(TestUtils.getRandomId());
 		LocalAuthor localAuthor1 = new LocalAuthor(localAuthorId1, "Carol",
@@ -1506,11 +1519,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add two local pseudonyms
+		// Add two local authors
 		db.addLocalAuthor(txn, localAuthor);
 		db.addLocalAuthor(txn, localAuthor1);
 
-		// Add the same contact for each local pseudonym
+		// Add the same contact for each local author
 		ContactId contactId =
 				db.addContact(txn, author, localAuthorId, true, true);
 		ContactId contactId1 =
@@ -1531,12 +1544,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, a group and a message
+		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
 				true, true));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addGroupVisibility(txn, contactId, groupId, true);
 		db.addMessage(txn, message, DELIVERED, true);
 		db.addStatus(txn, contactId, messageId, false, false);
 

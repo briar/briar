@@ -12,7 +12,6 @@ import org.briarproject.api.blogs.MessageType;
 import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.contact.Contact;
-import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
@@ -68,6 +67,7 @@ import static org.briarproject.api.blogs.MessageType.WRAPPED_COMMENT;
 import static org.briarproject.api.blogs.MessageType.WRAPPED_POST;
 import static org.briarproject.api.contact.ContactManager.AddContactHook;
 import static org.briarproject.api.contact.ContactManager.RemoveContactHook;
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.blogs.BlogPostValidator.authorToBdfDictionary;
 
 @NotNullByDefault
@@ -96,35 +96,24 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
-		// Ensure that the local identity has its own personal blog
-		LocalAuthor la = identityManager.getLocalAuthor(txn);
-		Blog b = blogFactory.createBlog(la);
-		Group g = b.getGroup();
-		if (!db.containsGroup(txn, g.getId())) {
-			db.addGroup(txn, g);
-			for (ContactId c : db.getContacts(txn, la.getId())) {
-				db.setVisibleToContact(txn, c, g.getId(), true);
-			}
-		}
-		// Ensure that we have the personal blogs of all pre-existing contacts
+		// Create our personal blog if necessary
+		LocalAuthor a = identityManager.getLocalAuthor(txn);
+		Blog b = blogFactory.createBlog(a);
+		db.addGroup(txn, b.getGroup());
+		// Ensure that we have the personal blogs of all contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
 
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
-		// get personal blog of the contact
+		// Add the personal blog of the contact and share it with the contact
 		Blog b = blogFactory.createBlog(c.getAuthor());
-		Group g = b.getGroup();
-		if (!db.containsGroup(txn, g.getId())) {
-			// add the personal blog of the contact
-			db.addGroup(txn, g);
-			db.setVisibleToContact(txn, c.getId(), g.getId(), true);
-
-			// share our personal blog with the new contact
-			LocalAuthor a = db.getLocalAuthor(txn, c.getLocalAuthorId());
-			Blog b2 = blogFactory.createBlog(a);
-			db.setVisibleToContact(txn, c.getId(), b2.getId(), true);
-		}
+		db.addGroup(txn, b.getGroup());
+		db.setGroupVisibility(txn, c.getId(), b.getId(), SHARED);
+		// Share our personal blog with the contact
+		LocalAuthor a = identityManager.getLocalAuthor(txn);
+		Blog b2 = blogFactory.createBlog(a);
+		db.setGroupVisibility(txn, c.getId(), b2.getId(), SHARED);
 	}
 
 	@Override
