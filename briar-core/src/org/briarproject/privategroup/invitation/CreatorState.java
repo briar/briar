@@ -4,8 +4,7 @@ import org.briarproject.api.FormatException;
 
 enum CreatorState implements State {
 
-	START(0), INVITED(1), INVITEE_JOINED(2), INVITEE_LEFT(3), DISSOLVED(4),
-	ERROR(5);
+	START(0), INVITED(1), JOINED(2), LEFT(3), DISSOLVED(4), ERROR(5);
 
 	private final int value;
 
