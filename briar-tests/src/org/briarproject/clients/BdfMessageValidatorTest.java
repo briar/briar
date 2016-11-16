@@ -3,16 +3,13 @@ package org.briarproject.clients;
 import org.briarproject.ValidatorTestCase;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.BdfMessageContext;
-import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
-import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.db.Metadata;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageContext;
-import org.briarproject.api.system.Clock;
 import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
@@ -24,11 +21,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 public class BdfMessageValidatorTest extends ValidatorTestCase {
-
-	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
-	private final MetadataEncoder metadataEncoder =
-			context.mock(MetadataEncoder.class);
-	private final Clock clock = context.mock(Clock.class);
 
 	private final BdfList body = BdfList.of(123, 456);
 	private final BdfDictionary dictionary = new BdfDictionary();

@@ -5,16 +5,13 @@ import org.briarproject.ValidatorTestCase;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.clients.BdfMessageContext;
-import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
-import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.system.Clock;
 import org.jmock.Expectations;
 import org.junit.Test;
 
@@ -33,10 +30,6 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 
 	private final AuthorFactory authorFactory =
 			context.mock(AuthorFactory.class);
-	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
-	private final MetadataEncoder metadataEncoder =
-			context.mock(MetadataEncoder.class);
-	private final Clock clock = context.mock(Clock.class);
 
 	private final MessageId parentId = new MessageId(TestUtils.getRandomId());
 	private final String authorName =

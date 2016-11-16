@@ -5,12 +5,9 @@ import org.briarproject.ValidatorTestCase;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.UniqueId;
 import org.briarproject.api.clients.BdfMessageContext;
-import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
-import org.briarproject.api.data.MetadataEncoder;
-import org.briarproject.api.system.Clock;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
@@ -34,11 +31,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class ForumSharingValidatorTest extends ValidatorTestCase {
-
-	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
-	private final MetadataEncoder metadataEncoder =
-			context.mock(MetadataEncoder.class);
-	private final Clock clock = context.mock(Clock.class);
 
 	private final SessionId sessionId = new SessionId(TestUtils.getRandomId());
 	private final String forumName =

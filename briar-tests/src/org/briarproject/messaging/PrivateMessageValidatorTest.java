@@ -4,11 +4,8 @@ import org.briarproject.TestUtils;
 import org.briarproject.ValidatorTestCase;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.BdfMessageContext;
-import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
-import org.briarproject.api.data.MetadataEncoder;
-import org.briarproject.api.system.Clock;
 import org.junit.Test;
 
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
@@ -17,11 +14,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class PrivateMessageValidatorTest extends ValidatorTestCase {
-
-	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
-	private final MetadataEncoder metadataEncoder =
-			context.mock(MetadataEncoder.class);
-	private final Clock clock = context.mock(Clock.class);
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortBody() throws Exception {

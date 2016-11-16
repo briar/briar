@@ -1,12 +1,21 @@
 package org.briarproject;
 
+import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
+import org.briarproject.api.system.Clock;
 
 public abstract class ValidatorTestCase extends BriarMockTestCase {
+
+	protected final ClientHelper clientHelper =
+			context.mock(ClientHelper.class);
+	protected final MetadataEncoder metadataEncoder =
+			context.mock(MetadataEncoder.class);
+	protected final Clock clock = context.mock(Clock.class);
 
 	protected final MessageId messageId =
 			new MessageId(TestUtils.getRandomId());
