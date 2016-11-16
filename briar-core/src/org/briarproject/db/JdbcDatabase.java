@@ -1027,7 +1027,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(contacts);
+			return contacts;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1050,7 +1050,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) ids.add(new ContactId(rs.getInt(1)));
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(ids);
+			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1085,7 +1085,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(contacts);
+			return contacts;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1135,7 +1135,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(groups);
+			return groups;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1184,7 +1184,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) visible.add(new ContactId(rs.getInt(1)));
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(visible);
+			return visible;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1244,7 +1244,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(authors);
+			return authors;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1266,7 +1266,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(ids);
+			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1289,7 +1289,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(ids);
+			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1329,8 +1329,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				// Return early if there are no matches
 				if (intersection.isEmpty()) return Collections.emptySet();
 			}
-			if (intersection == null) throw new IllegalStateException();
-			return Collections.unmodifiableSet(intersection);
+			if (intersection == null) throw new AssertionError();
+			return intersection;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1368,7 +1368,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableMap(all);
+			return all;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1386,7 +1386,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Map<MessageId, Metadata> all = new HashMap<MessageId, Metadata>(
 				matches.size());
 		for (MessageId m : matches) all.put(m, getMessageMetadata(txn, m));
-		return Collections.unmodifiableMap(all);
+		return all;
 	}
 
 	@Override
@@ -1491,7 +1491,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(statuses);
+			return statuses;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1557,7 +1557,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableMap(dependencies);
+			return dependencies;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1587,7 +1587,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableMap(dependents);
+			return dependents;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1635,7 +1635,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(ids);
+			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1671,7 +1671,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(ids);
+			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1696,7 +1696,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(ids);
+			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1737,7 +1737,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(ids);
+			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1773,7 +1773,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(ids);
+			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1803,7 +1803,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(ids);
+			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1868,7 +1868,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableList(ids);
+			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1952,7 +1952,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return Collections.unmodifiableMap(keys);
+			return keys;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
