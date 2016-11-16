@@ -22,6 +22,17 @@ import static org.junit.Assert.fail;
 
 public class BdfMessageValidatorTest extends ValidatorTestCase {
 
+	private final BdfMessageValidator subclassNotCalled =
+			new BdfMessageValidator(clientHelper, metadataEncoder, clock) {
+				@Override
+				protected BdfMessageContext validateMessage(Message m, Group g,
+						BdfList body)
+						throws InvalidMessageException, FormatException {
+					fail();
+					return null;
+				}
+			};
+
 	private final BdfList body = BdfList.of(123, 456);
 	private final BdfDictionary dictionary = new BdfDictionary();
 	private final Metadata meta = new Metadata();
@@ -37,16 +48,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 			will(returnValue(timestamp - MAX_CLOCK_DIFFERENCE - 1));
 		}});
 
-		BdfMessageValidator v = new BdfMessageValidator(clientHelper,
-				metadataEncoder, clock) {
-			@Override
-			protected BdfMessageContext validateMessage(Message m, Group g,
-					BdfList b) throws InvalidMessageException, FormatException {
-				fail();
-				return null;
-			}
-		};
-		v.validateMessage(message, group);
+		subclassNotCalled.validateMessage(message, group);
 	}
 
 	@Test
@@ -92,16 +94,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 			will(returnValue(invalidRaw));
 		}});
 
-		BdfMessageValidator v = new BdfMessageValidator(clientHelper,
-				metadataEncoder, clock) {
-			@Override
-			protected BdfMessageContext validateMessage(Message m, Group g,
-					BdfList b) throws InvalidMessageException, FormatException {
-				fail();
-				return null;
-			}
-		};
-		v.validateMessage(invalidMessage, group);
+		subclassNotCalled.validateMessage(invalidMessage, group);
 	}
 
 	@Test
@@ -146,16 +139,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 			will(throwException(new FormatException()));
 		}});
 
-		BdfMessageValidator v = new BdfMessageValidator(clientHelper,
-				metadataEncoder, clock) {
-			@Override
-			protected BdfMessageContext validateMessage(Message m, Group g,
-					BdfList b) throws InvalidMessageException, FormatException {
-				fail();
-				return null;
-			}
-		};
-		v.validateMessage(message, group);
+		subclassNotCalled.validateMessage(message, group);
 	}
 
 	@Test(expected = InvalidMessageException.class)
