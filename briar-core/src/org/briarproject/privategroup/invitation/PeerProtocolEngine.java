@@ -22,6 +22,7 @@ import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.api.sync.Group.Visibility.VISIBLE;
 import static org.briarproject.privategroup.invitation.PeerState.AWAIT_MEMBER;
 import static org.briarproject.privategroup.invitation.PeerState.BOTH_JOINED;
 import static org.briarproject.privategroup.invitation.PeerState.ERROR;
@@ -169,6 +170,12 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 			PeerSession s) throws DbException {
 		// Send a JOIN message
 		Message sent = sendJoinMessage(txn, s, false);
+		try {
+			// Make the private group visible to the contact
+			setPrivateGroupVisibility(txn, s, VISIBLE);
+		} catch (FormatException e) {
+			throw new DbException(e); // Invalid group metadata
+		}
 		// Move to the LOCAL_JOINED state
 		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
@@ -212,6 +219,12 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 			PeerSession s) throws DbException {
 		// Send a LEAVE message
 		Message sent = sendLeaveMessage(txn, s, false);
+		try {
+			// Make the private group invisible to the contact
+			setPrivateGroupVisibility(txn, s, INVISIBLE);
+		} catch (FormatException e) {
+			throw new DbException(e); // Invalid group metadata
+		}
 		// Move to the NEITHER_JOINED state
 		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
@@ -316,8 +329,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
-		// Make the private group invisible to the contact
-		setPrivateGroupVisibility(txn, s, INVISIBLE);
+		// Unshare the private group with the contact
+		setPrivateGroupVisibility(txn, s, VISIBLE);
 		// Move to the LOCAL_JOINED state
 		return new PeerSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),

@@ -27,8 +27,8 @@ import static org.briarproject.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.privategroup.invitation.CreatorState.DISSOLVED;
 import static org.briarproject.privategroup.invitation.CreatorState.ERROR;
 import static org.briarproject.privategroup.invitation.CreatorState.INVITED;
-import static org.briarproject.privategroup.invitation.CreatorState.INVITEE_JOINED;
-import static org.briarproject.privategroup.invitation.CreatorState.INVITEE_LEFT;
+import static org.briarproject.privategroup.invitation.CreatorState.JOINED;
+import static org.briarproject.privategroup.invitation.CreatorState.LEFT;
 import static org.briarproject.privategroup.invitation.CreatorState.START;
 
 @Immutable
@@ -55,8 +55,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			case START:
 				return onLocalInvite(txn, s, message, timestamp, signature);
 			case INVITED:
-			case INVITEE_JOINED:
-			case INVITEE_LEFT:
+			case JOINED:
+			case LEFT:
 			case DISSOLVED:
 			case ERROR:
 				throw new ProtocolStateException(); // Invalid in these states
@@ -80,8 +80,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			case ERROR:
 				return s; // Ignored in these states
 			case INVITED:
-			case INVITEE_JOINED:
-			case INVITEE_LEFT:
+			case JOINED:
+			case LEFT:
 				return onLocalLeave(txn, s);
 			default:
 				throw new AssertionError();
@@ -105,8 +105,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			JoinMessage m) throws DbException, FormatException {
 		switch (s.getState()) {
 			case START:
-			case INVITEE_JOINED:
-			case INVITEE_LEFT:
+			case JOINED:
+			case LEFT:
 				return abort(txn, s); // Invalid in these states
 			case INVITED:
 				return onRemoteAccept(txn, s, m);
@@ -123,11 +123,11 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			LeaveMessage m) throws DbException, FormatException {
 		switch (s.getState()) {
 			case START:
-			case INVITEE_LEFT:
+			case LEFT:
 				return abort(txn, s); // Invalid in these states
 			case INVITED:
 				return onRemoteDecline(txn, s, m);
-			case INVITEE_JOINED:
+			case JOINED:
 				return onRemoteLeave(txn, s, m);
 			case DISSOLVED:
 			case ERROR:
@@ -180,6 +180,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
+		// Send a JOIN message
+		Message sent = sendJoinMessage(txn, s, false);
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getId(), true);
 		// Track the message
@@ -191,10 +193,10 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
 		txn.attach(new GroupInvitationResponseReceivedEvent(contactId,
 				createInvitationResponse(m, contactId, true)));
-		// Move to the INVITEE_JOINED state
+		// Move to the JOINED state
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
-				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
-				s.getInviteTimestamp(), INVITEE_JOINED);
+				sent.getId(), m.getId(), sent.getTimestamp(),
+				s.getInviteTimestamp(), JOINED);
 	}
 
 	private CreatorSession onRemoteDecline(Transaction txn, CreatorSession s,
@@ -228,10 +230,10 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			return abort(txn, s);
 		// Make the private group invisible to the contact
 		setPrivateGroupVisibility(txn, s, INVISIBLE);
-		// Move to the INVITEE_LEFT state
+		// Move to the LEFT state
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
-				s.getInviteTimestamp(), INVITEE_LEFT);
+				s.getInviteTimestamp(), LEFT);
 	}
 
 	private CreatorSession abort(Transaction txn, CreatorSession s)

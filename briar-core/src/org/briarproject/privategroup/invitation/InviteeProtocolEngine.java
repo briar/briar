@@ -27,11 +27,13 @@ import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.privategroup.invitation.InviteeState.ACCEPTED;
 import static org.briarproject.privategroup.invitation.InviteeState.DISSOLVED;
 import static org.briarproject.privategroup.invitation.InviteeState.ERROR;
 import static org.briarproject.privategroup.invitation.InviteeState.INVITED;
-import static org.briarproject.privategroup.invitation.InviteeState.INVITEE_JOINED;
-import static org.briarproject.privategroup.invitation.InviteeState.INVITEE_LEFT;
+import static org.briarproject.privategroup.invitation.InviteeState.JOINED;
+import static org.briarproject.privategroup.invitation.InviteeState.LEFT;
 import static org.briarproject.privategroup.invitation.InviteeState.START;
 
 @Immutable
@@ -62,8 +64,9 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 			throws DbException {
 		switch (s.getState()) {
 			case START:
-			case INVITEE_JOINED:
-			case INVITEE_LEFT:
+			case ACCEPTED:
+			case JOINED:
+			case LEFT:
 			case DISSOLVED:
 			case ERROR:
 				throw new ProtocolStateException(); // Invalid in these states
@@ -79,13 +82,14 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 			throws DbException {
 		switch (s.getState()) {
 			case START:
-			case INVITEE_LEFT:
+			case LEFT:
 			case DISSOLVED:
 			case ERROR:
 				return s; // Ignored in these states
 			case INVITED:
 				return onLocalDecline(txn, s);
-			case INVITEE_JOINED:
+			case ACCEPTED:
+			case JOINED:
 				return onLocalLeave(txn, s);
 			default:
 				throw new AssertionError();
@@ -105,8 +109,9 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 			case START:
 				return onRemoteInvite(txn, s, m);
 			case INVITED:
-			case INVITEE_JOINED:
-			case INVITEE_LEFT:
+			case ACCEPTED:
+			case JOINED:
+			case LEFT:
 			case DISSOLVED:
 				return abort(txn, s); // Invalid in these states
 			case ERROR:
@@ -119,7 +124,20 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 	@Override
 	public InviteeSession onJoinMessage(Transaction txn, InviteeSession s,
 			JoinMessage m) throws DbException, FormatException {
-		return abort(txn, s); // Invalid in this role
+		switch (s.getState()) {
+			case START:
+			case INVITED:
+			case JOINED:
+			case LEFT:
+			case DISSOLVED:
+				return abort(txn, s); // Invalid in these states
+			case ACCEPTED:
+				return onRemoteJoin(txn, s, m);
+			case ERROR:
+				return s; // Ignored in this state
+			default:
+				throw new AssertionError();
+		}
 	}
 
 	@Override
@@ -130,8 +148,9 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 			case DISSOLVED:
 				return abort(txn, s); // Invalid in these states
 			case INVITED:
-			case INVITEE_JOINED:
-			case INVITEE_LEFT:
+			case ACCEPTED:
+			case JOINED:
+			case LEFT:
 				return onRemoteLeave(txn, s, m);
 			case ERROR:
 				return s; // Ignored in this state
@@ -159,15 +178,15 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		try {
 			// Subscribe to the private group
 			subscribeToPrivateGroup(txn, inviteId);
-			// Share the private group with the contact
-			setPrivateGroupVisibility(txn, s, SHARED);
+			// Make the private group visible to the contact
+			setPrivateGroupVisibility(txn, s, VISIBLE);
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group metadata
 		}
-		// Move to the INVITEE_JOINED state
+		// Move to the ACCEPTED state
 		return new InviteeSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
-				s.getInviteTimestamp(), INVITEE_JOINED);
+				s.getInviteTimestamp(), ACCEPTED);
 	}
 
 	private InviteeSession onLocalDecline(Transaction txn, InviteeSession s)
@@ -190,10 +209,10 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 			throws DbException {
 		// Send a LEAVE message
 		Message sent = sendLeaveMessage(txn, s, false);
-		// Move to the INVITEE_LEFT state
+		// Move to the LEFT state
 		return new InviteeSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
-				s.getInviteTimestamp(), INVITEE_LEFT);
+				s.getInviteTimestamp(), LEFT);
 	}
 
 	private InviteeSession onRemoteInvite(Transaction txn, InviteeSession s,
@@ -220,6 +239,25 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		return new InviteeSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
 				m.getTimestamp(), INVITED);
+	}
+
+	private InviteeSession onRemoteJoin(Transaction txn, InviteeSession s,
+			JoinMessage m) throws DbException, FormatException {
+		// The timestamp must be higher than the last invite message, if any
+		if (m.getTimestamp() <= s.getInviteTimestamp()) return abort(txn, s);
+		// The dependency, if any, must be the last remote message
+		if (!isValidDependency(s, m.getPreviousMessageId()))
+			return abort(txn, s);
+		try {
+			// Share the private group with the contact
+			setPrivateGroupVisibility(txn, s, SHARED);
+		} catch (FormatException e) {
+			throw new DbException(e); // Invalid group metadata
+		}
+		// Move to the JOINED state
+		return new InviteeSession(s.getContactGroupId(), s.getPrivateGroupId(),
+				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
+				s.getInviteTimestamp(), JOINED);
 	}
 
 	private InviteeSession onRemoteLeave(Transaction txn, InviteeSession s,

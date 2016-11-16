@@ -4,8 +4,8 @@ import org.briarproject.api.FormatException;
 
 enum InviteeState implements State {
 
-	START(0), INVITED(1), INVITEE_JOINED(2), INVITEE_LEFT(3), DISSOLVED(4),
-	ERROR(5);
+	START(0), INVITED(1), ACCEPTED(2), JOINED(3), LEFT(4), DISSOLVED(5),
+	ERROR(6);
 
 	private final int value;
 
