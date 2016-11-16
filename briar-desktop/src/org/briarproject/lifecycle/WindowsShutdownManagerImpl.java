@@ -1,19 +1,5 @@
 package org.briarproject.lifecycle;
 
-import static com.sun.jna.Library.OPTION_FUNCTION_MAPPER;
-import static com.sun.jna.Library.OPTION_TYPE_MAPPER;
-import static java.util.logging.Level.WARNING;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
-
-import org.briarproject.util.OsUtils;
-
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinDef.HINSTANCE;
@@ -27,6 +13,20 @@ import com.sun.jna.win32.StdCallLibrary;
 import com.sun.jna.win32.StdCallLibrary.StdCallCallback;
 import com.sun.jna.win32.W32APIFunctionMapper;
 import com.sun.jna.win32.W32APITypeMapper;
+
+import org.briarproject.util.OsUtils;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
+
+import static com.sun.jna.Library.OPTION_FUNCTION_MAPPER;
+import static com.sun.jna.Library.OPTION_TYPE_MAPPER;
+import static java.util.logging.Level.WARNING;
 
 class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
@@ -44,7 +44,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	WindowsShutdownManagerImpl() {
 		// Use the Unicode versions of Win32 API calls
-		Map<String, Object> m = new HashMap<String, Object>();
+		Map<String, Object> m = new HashMap<>();
 		m.put(OPTION_TYPE_MAPPER, W32APITypeMapper.UNICODE);
 		m.put(OPTION_FUNCTION_MAPPER, W32APIFunctionMapper.UNICODE);
 		options = Collections.unmodifiableMap(m);
@@ -112,6 +112,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 						User32.class, options);
 				// Create a callback to handle the WM_QUERYENDSESSION message
 				WindowProc proc = new WindowProc() {
+					@Override
 					public LRESULT callback(HWND hwnd, int msg, WPARAM wp,
 							LPARAM lp) {
 						if (msg == WM_QUERYENDSESSION) {

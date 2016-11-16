@@ -22,7 +22,6 @@ import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.system.Clock;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -101,7 +100,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		} finally {
 			db.endTransaction(txn);
 		}
-		return Collections.unmodifiableMap(local);
+		return local;
 	}
 
 	@Override
@@ -176,7 +175,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			} finally {
 				db.endTransaction(txn);
 			}
-			return Collections.unmodifiableMap(remote);
+			return remote;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

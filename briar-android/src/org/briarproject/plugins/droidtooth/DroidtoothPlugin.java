@@ -40,6 +40,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -578,7 +579,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private static class DiscoveryReceiver extends BroadcastReceiver {
 
 		private final CountDownLatch finished = new CountDownLatch(1);
-		private final List<String> addresses = new ArrayList<>();
+		private final List<String> addresses = new CopyOnWriteArrayList<>();
 
 		@Override
 		public void onReceive(Context ctx, Intent intent) {
@@ -598,8 +599,9 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 		private List<String> waitForAddresses() throws InterruptedException {
 			finished.await();
-			Collections.shuffle(addresses);
-			return Collections.unmodifiableList(addresses);
+			List<String> shuffled = new ArrayList<>(addresses);
+			Collections.shuffle(shuffled);
+			return shuffled;
 		}
 	}
 

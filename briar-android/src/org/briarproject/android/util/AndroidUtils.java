@@ -31,7 +31,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -63,7 +62,7 @@ public class AndroidUtils {
 			abis.add(Build.CPU_ABI);
 			if (Build.CPU_ABI2 != null) abis.add(Build.CPU_ABI2);
 		}
-		return Collections.unmodifiableList(abis);
+		return abis;
 	}
 
 	public static void setError(TextInputLayout til, String error,

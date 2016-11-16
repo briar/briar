@@ -29,7 +29,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -208,7 +207,7 @@ class ClientHelperImpl implements ClientHelper {
 				new HashMap<MessageId, BdfDictionary>(raw.size());
 		for (Entry<MessageId, Metadata> e : raw.entrySet())
 			parsed.put(e.getKey(), metadataParser.parse(e.getValue()));
-		return Collections.unmodifiableMap(parsed);
+		return parsed;
 	}
 
 	@Override
@@ -236,7 +235,7 @@ class ClientHelperImpl implements ClientHelper {
 				new HashMap<MessageId, BdfDictionary>(raw.size());
 		for (Entry<MessageId, Metadata> e : raw.entrySet())
 			parsed.put(e.getKey(), metadataParser.parse(e.getValue()));
-		return Collections.unmodifiableMap(parsed);
+		return parsed;
 	}
 
 	@Override

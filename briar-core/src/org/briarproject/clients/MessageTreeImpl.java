@@ -103,7 +103,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 		for (T root : roots) {
 			traverse(orderedList, root, 0);
 		}
-		return Collections.unmodifiableList(orderedList);
+		return orderedList;
 	}
 
 }
