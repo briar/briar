@@ -34,7 +34,7 @@ public class PrivateMessageValidatorTest extends ValidatorTestCase {
 	public void testRejectsTooLongBody() throws Exception {
 		PrivateMessageValidator v = new PrivateMessageValidator(clientHelper,
 				metadataEncoder, clock);
-		v.validateMessage(message, group, BdfList.of(1, 2));
+		v.validateMessage(message, group, BdfList.of("", 123));
 	}
 
 	@Test(expected = FormatException.class)
@@ -84,7 +84,7 @@ public class PrivateMessageValidatorTest extends ValidatorTestCase {
 			throws FormatException {
 		BdfDictionary meta = messageContext.getDictionary();
 		assertEquals(3, meta.size());
-		assertEquals(Long.valueOf(timestamp), meta.getLong("timestamp"));
+		assertEquals(timestamp, meta.getLong("timestamp").longValue());
 		assertFalse(meta.getBoolean("local"));
 		assertFalse(meta.getBoolean(MSG_KEY_READ));
 		assertEquals(0, messageContext.getDependencies().size());

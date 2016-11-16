@@ -60,14 +60,16 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 	public void testRejectsTooShortBody() throws Exception {
 		ForumPostValidator v = new ForumPostValidator(authorFactory,
 				clientHelper, metadataEncoder, clock);
-		v.validateMessage(message, group, BdfList.of(1, 2, 3));
+		v.validateMessage(message, group,
+				BdfList.of(parentId, authorList, content));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongBody() throws Exception {
 		ForumPostValidator v = new ForumPostValidator(authorFactory,
 				clientHelper, metadataEncoder, clock);
-		v.validateMessage(message, group, BdfList.of(1, 2, 3, 4, 5));
+		v.validateMessage(message, group,
+				BdfList.of(parentId, authorList, content, signature, 123));
 	}
 
 	@Test
@@ -96,7 +98,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortParentId() throws Exception {
-		byte[] invalidParentId = new byte[UniqueId.LENGTH - 1];
+		byte[] invalidParentId = TestUtils.getRandomBytes(UniqueId.LENGTH - 1);
 		ForumPostValidator v = new ForumPostValidator(authorFactory,
 				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
@@ -105,7 +107,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongParentId() throws Exception {
-		byte[] invalidParentId = new byte[UniqueId.LENGTH + 1];
+		byte[] invalidParentId = TestUtils.getRandomBytes(UniqueId.LENGTH + 1);
 		ForumPostValidator v = new ForumPostValidator(authorFactory,
 				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
@@ -173,7 +175,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 
 	@Test
 	public void testAcceptsMinLengthAuthorName() throws Exception {
-		final String shortAuthorName = "a";
+		final String shortAuthorName = TestUtils.getRandomString(1);
 		BdfList shortNameAuthorList =
 				BdfList.of(shortAuthorName, authorPublicKey);
 		final Author shortNameAuthor =
@@ -388,7 +390,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 			assertEquals(3, meta.size());
 			assertEquals(0, dependencies.size());
 		}
-		assertEquals(Long.valueOf(timestamp), meta.getLong("timestamp"));
+		assertEquals(timestamp, meta.getLong("timestamp").longValue());
 		assertFalse(meta.getBoolean("read"));
 		BdfDictionary authorMeta = meta.getDictionary("author");
 		assertEquals(3, authorMeta.size());
