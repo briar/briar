@@ -60,6 +60,9 @@ import java.util.Collections;
 import java.util.Map;
 
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.sync.Group.Visibility.INVISIBLE;
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.api.sync.Group.Visibility.VISIBLE;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
@@ -170,7 +173,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			// removeGroup()
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).getVisibility(txn, groupId);
+			oneOf(database).getGroupVisibility(txn, groupId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(database).removeGroup(txn, groupId);
 			oneOf(eventBus).broadcast(with(any(GroupRemovedEvent.class)));
@@ -267,7 +270,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(false));
 			oneOf(database).addMessage(txn, message, DELIVERED, true);
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
-			oneOf(database).getVisibility(txn, groupId);
+			oneOf(database).getGroupVisibility(txn, groupId);
 			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
@@ -403,7 +406,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		transaction = db.startTransaction(false);
 		try {
-			db.isVisibleToContact(transaction, contactId, groupId);
+			db.getGroupVisibility(transaction, contactId, groupId);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -487,7 +490,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		transaction = db.startTransaction(false);
 		try {
-			db.setVisibleToContact(transaction, contactId, groupId, true);
+			db.setGroupVisibility(transaction, contactId, groupId, SHARED);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -560,14 +563,13 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		final EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the group is in the DB (which it's not)
-			exactly(9).of(database).startTransaction();
+			exactly(8).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(9).of(database).containsGroup(txn, groupId);
+			exactly(8).of(database).containsGroup(txn, groupId);
 			will(returnValue(false));
-			exactly(9).of(database).abortTransaction(txn);
-			// This is needed for getMessageStatus(), isVisibleToContact(), and
-			// setVisibleToContact() to proceed
-			exactly(3).of(database).containsContact(txn, contactId);
+			exactly(8).of(database).abortTransaction(txn);
+			// This is needed for getMessageStatus() and setGroupVisibility()
+			exactly(2).of(database).containsContact(txn, contactId);
 			will(returnValue(true));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
@@ -625,16 +627,6 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		transaction = db.startTransaction(false);
 		try {
-			db.isVisibleToContact(transaction, contactId, groupId);
-			fail();
-		} catch (NoSuchGroupException expected) {
-			// Expected
-		} finally {
-			db.endTransaction(transaction);
-		}
-
-		transaction = db.startTransaction(false);
-		try {
 			db.mergeGroupMetadata(transaction, groupId, metadata);
 			fail();
 		} catch (NoSuchGroupException expected) {
@@ -655,7 +647,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		transaction = db.startTransaction(false);
 		try {
-			db.setVisibleToContact(transaction, contactId, groupId, true);
+			db.setGroupVisibility(transaction, contactId, groupId, SHARED);
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
@@ -924,6 +916,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			Ack a = db.generateAck(transaction, contactId, 123);
+			assertNotNull(a);
 			assertEquals(messagesToAck, a.getMessageIds());
 			db.commitTransaction(transaction);
 		} finally {
@@ -1005,6 +998,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			Offer o = db.generateOffer(transaction, contactId, 123, maxLatency);
+			assertNotNull(o);
 			assertEquals(ids, o.getMessageIds());
 			db.commitTransaction(transaction);
 		} finally {
@@ -1039,6 +1033,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			Request r = db.generateRequest(transaction, contactId, 123);
+			assertNotNull(r);
 			assertEquals(ids, r.getMessageIds());
 			db.commitTransaction(transaction);
 		} finally {
@@ -1139,12 +1134,12 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			// First time
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
-			will(returnValue(true));
+			oneOf(database).getGroupVisibility(txn, contactId, groupId);
+			will(returnValue(VISIBLE));
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(false));
 			oneOf(database).addMessage(txn, message, UNKNOWN, false);
-			oneOf(database).getVisibility(txn, groupId);
+			oneOf(database).getGroupVisibility(txn, groupId);
 			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
@@ -1152,8 +1147,8 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			// Second time
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
-			will(returnValue(true));
+			oneOf(database).getGroupVisibility(txn, contactId, groupId);
+			will(returnValue(VISIBLE));
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));
 			oneOf(database).raiseSeenFlag(txn, contactId, messageId);
@@ -1195,8 +1190,8 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));
-			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
-			will(returnValue(true));
+			oneOf(database).getGroupVisibility(txn, contactId, groupId);
+			will(returnValue(VISIBLE));
 			// The message wasn't stored but it must still be acked
 			oneOf(database).raiseSeenFlag(txn, contactId, messageId);
 			oneOf(database).raiseAckFlag(txn, contactId, messageId);
@@ -1230,8 +1225,8 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
-			will(returnValue(false));
+			oneOf(database).getGroupVisibility(txn, contactId, groupId);
+			will(returnValue(INVISIBLE));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
@@ -1350,9 +1345,9 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
-			will(returnValue(false)); // Not yet visible
-			oneOf(database).addVisibility(txn, contactId, groupId);
+			oneOf(database).getGroupVisibility(txn, contactId, groupId);
+			will(returnValue(INVISIBLE)); // Not yet visible
+			oneOf(database).addGroupVisibility(txn, contactId, groupId, false);
 			oneOf(database).getMessageIds(txn, groupId);
 			will(returnValue(Collections.singletonList(messageId)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
@@ -1367,7 +1362,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		Transaction transaction = db.startTransaction(false);
 		try {
-			db.setVisibleToContact(transaction, contactId, groupId, true);
+			db.setGroupVisibility(transaction, contactId, groupId, VISIBLE);
 			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
@@ -1391,8 +1386,8 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
-			will(returnValue(true)); // Already visible
+			oneOf(database).getGroupVisibility(txn, contactId, groupId);
+			will(returnValue(VISIBLE)); // Already visible
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
@@ -1400,7 +1395,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 
 		Transaction transaction = db.startTransaction(false);
 		try {
-			db.setVisibleToContact(transaction, contactId, groupId, true);
+			db.setGroupVisibility(transaction, contactId, groupId, VISIBLE);
 			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
@@ -1666,7 +1661,7 @@ public class DatabaseComponentImplTest extends BriarTestCase {
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(false));
 			oneOf(database).addMessage(txn, message, DELIVERED, true);
-			oneOf(database).getVisibility(txn, groupId);
+			oneOf(database).getGroupVisibility(txn, groupId);
 			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);

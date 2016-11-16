@@ -45,6 +45,7 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.privategroup.invitation.CreatorState.START;
 import static org.briarproject.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.privategroup.invitation.MessageType.ABORT;
@@ -110,7 +111,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		if (db.containsGroup(txn, g.getId())) return;
 		// Store the group and share it with the contact
 		db.addGroup(txn, g);
-		db.setVisibleToContact(txn, c.getId(), g.getId(), true);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
 		// Attach the contact ID to the group
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());

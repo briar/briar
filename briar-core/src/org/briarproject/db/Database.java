@@ -12,6 +12,7 @@ import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.settings.Settings;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
+import org.briarproject.api.sync.Group.Visibility;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageId;
@@ -73,6 +74,13 @@ interface Database<T> {
 	void addGroup(T txn, Group g) throws DbException;
 
 	/**
+	 * Sets the given group's visibility to the given contact to either
+	 * {@link Visibility VISIBLE} or {@link Visibility SHARED}.
+	 */
+	void addGroupVisibility(T txn, ContactId c, GroupId g, boolean shared)
+			throws DbException;
+
+	/**
 	 * Stores a local pseudonym.
 	 */
 	void addLocalAuthor(T txn, LocalAuthor a) throws DbException;
@@ -98,7 +106,7 @@ interface Database<T> {
 	 * Initialises the status of the given message with respect to the given
 	 * contact.
 	 *
-	 * @param ack  whether the message needs to be acknowledged.
+	 * @param ack whether the message needs to be acknowledged.
 	 * @param seen whether the contact has seen the message.
 	 */
 	void addStatus(T txn, ContactId c, MessageId m, boolean ack, boolean seen)
@@ -115,11 +123,6 @@ interface Database<T> {
 	 */
 	void addTransportKeys(T txn, ContactId c, TransportKeys k)
 			throws DbException;
-
-	/**
-	 * Makes a group visible to the given contact.
-	 */
-	void addVisibility(T txn, ContactId c, GroupId g) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact for the given
@@ -166,17 +169,9 @@ interface Database<T> {
 	boolean containsTransport(T txn, TransportId t) throws DbException;
 
 	/**
-	 * Returns true if the database contains the given group and the group is
-	 * visible to the given contact.
-	 * <p/>
-	 * Read-only.
-	 */
-	boolean containsVisibleGroup(T txn, ContactId c, GroupId g)
-			throws DbException;
-
-	/**
-	 * Returns true if the database contains the given message and the message
-	 * is visible to the given contact.
+	 * Returns true if the database contains the given message, the message is
+	 * shared, and the visibility of the message's group to the given contact
+	 * is either {@link Visibility VISIBLE} or {@link Visibility SHARED}.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -266,6 +261,24 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<Group> getGroups(T txn, ClientId c) throws DbException;
+
+	/**
+	 * Returns the given group's visibility to the given contact, or
+	 * {@link Visibility INVISIBLE} if the group is not in the database.
+	 * <p/>
+	 * Read-only.
+	 */
+	Visibility getGroupVisibility(T txn, ContactId c, GroupId g)
+			throws DbException;
+
+	/**
+	 * Returns the IDs of all contacts to which the given group's visibility is
+	 * either {@link Visibility VISIBLE} or {@link Visibility SHARED}.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<ContactId> getGroupVisibility(T txn, GroupId g)
+			throws DbException;
 
 	/**
 	 * Returns the local pseudonym with the given ID.
@@ -478,13 +491,6 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the IDs of all contacts to which the given group is visible.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<ContactId> getVisibility(T txn, GroupId g) throws DbException;
-
-	/**
 	 * Increments the outgoing stream counter for the given contact and
 	 * transport in the given rotation period.
 	 */
@@ -551,6 +557,13 @@ interface Database<T> {
 	void removeGroup(T txn, GroupId g) throws DbException;
 
 	/**
+	 * Sets the given group's visibility to the given contact to
+	 * {@link Visibility INVISIBLE}.
+	 */
+	void removeGroupVisibility(T txn, ContactId c, GroupId g)
+			throws DbException;
+
+	/**
 	 * Removes a local pseudonym (and all associated state) from the database.
 	 */
 	void removeLocalAuthor(T txn, AuthorId a) throws DbException;
@@ -586,11 +599,6 @@ interface Database<T> {
 	void removeTransport(T txn, TransportId t) throws DbException;
 
 	/**
-	 * Makes a group invisible to the given contact.
-	 */
-	void removeVisibility(T txn, ContactId c, GroupId g) throws DbException;
-
-	/**
 	 * Resets the transmission count and expiry time of the given message with
 	 * respect to the given contact.
 	 */
@@ -605,6 +613,13 @@ interface Database<T> {
 	 * Marks the given contact as active or inactive.
 	 */
 	void setContactActive(T txn, ContactId c, boolean active)
+			throws DbException;
+
+	/**
+	 * Sets the given group's visibility to the given contact to either
+	 * {@link Visibility VISIBLE} or {@link Visibility SHARED}.
+	 */
+	void setGroupVisibility(T txn, ContactId c, GroupId g, boolean shared)
 			throws DbException;
 
 	/**

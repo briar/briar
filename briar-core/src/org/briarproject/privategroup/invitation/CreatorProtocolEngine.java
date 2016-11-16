@@ -22,6 +22,8 @@ import org.briarproject.api.system.Clock;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.api.sync.Group.Visibility.INVISIBLE;
+import static org.briarproject.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.privategroup.invitation.CreatorState.DISSOLVED;
 import static org.briarproject.privategroup.invitation.CreatorState.ERROR;
 import static org.briarproject.privategroup.invitation.CreatorState.INVITED;
@@ -158,8 +160,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 	private CreatorSession onLocalLeave(Transaction txn, CreatorSession s)
 			throws DbException {
 		try {
-			// Stop syncing the private group with the contact
-			syncPrivateGroupWithContact(txn, s, false);
+			// Make the private group invisible to the contact
+			setPrivateGroupVisibility(txn, s, INVISIBLE);
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group metadata
 		}
@@ -183,8 +185,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
-		// Start syncing the private group with the contact
-		syncPrivateGroupWithContact(txn, s, true);
+		// Share the private group with the contact
+		setPrivateGroupVisibility(txn, s, SHARED);
 		// Broadcast an event
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
 		txn.attach(new GroupInvitationResponseReceivedEvent(contactId,
@@ -224,8 +226,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
-		// Stop syncing the private group with the contact
-		syncPrivateGroupWithContact(txn, s, false);
+		// Make the private group invisible to the contact
+		setPrivateGroupVisibility(txn, s, INVISIBLE);
 		// Move to the INVITEE_LEFT state
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -236,9 +238,9 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			throws DbException, FormatException {
 		// If the session has already been aborted, do nothing
 		if (s.getState() == ERROR) return s;
-		// If we subscribe, stop syncing the private group with the contact
+		// If we subscribe, make the private group invisible to the contact
 		if (isSubscribedPrivateGroup(txn, s.getPrivateGroupId()))
-			syncPrivateGroupWithContact(txn, s, false);
+			setPrivateGroupVisibility(txn, s, INVISIBLE);
 		// Send an ABORT message
 		Message sent = sendAbortMessage(txn, s);
 		// Move to the ERROR state
