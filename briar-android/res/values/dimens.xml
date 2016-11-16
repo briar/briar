@@ -31,6 +31,7 @@
 	<dimen name="avatar_forum_size">48dp</dimen>
 	<dimen name="avatar_border_width">2dp</dimen>
 	<dimen name="avatar_text_size">30sp</dimen>
+	<dimen name="button_size">48dp</dimen>
 
 	<dimen name="unread_bubble_text_size">12sp</dimen>
 	<dimen name="unread_bubble_padding_horizontal">6dp</dimen>

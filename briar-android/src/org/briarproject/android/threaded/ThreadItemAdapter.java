@@ -273,7 +273,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	 * items if 'item' is null. If 'item' is not visible, NO_POSITION is
 	 * returned.
 	 */
-	private int getVisiblePos(@Nullable I item) {
+	protected int getVisiblePos(@Nullable I item) {
 		int visibleCounter = 0;
 		int levelLimit = UNDEFINED;
 		for (I i : items) {

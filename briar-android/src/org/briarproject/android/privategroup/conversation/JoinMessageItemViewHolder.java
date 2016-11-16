@@ -16,15 +16,15 @@ import org.briarproject.android.threaded.ThreadItemAdapter.ThreadItemListener;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 
 import static org.briarproject.android.BriarActivity.GROUP_ID;
-import static org.briarproject.android.privategroup.VisibilityStringProvider.getVisibilityString;
+import static org.briarproject.android.privategroup.VisibilityStringProvider.getVisibilityStringId;
 import static org.briarproject.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.api.identity.Author.Status.UNKNOWN;
 import static org.briarproject.api.privategroup.Visibility.INVISIBLE;
 
 @UiThread
 @NotNullByDefault
-public class JoinMessageItemViewHolder
-		extends BaseThreadItemViewHolder<JoinMessageItem> {
+class JoinMessageItemViewHolder
+		extends BaseThreadItemViewHolder<GroupMessageItem> {
 
 	private final boolean isCreator;
 	private final ImageView icon;
@@ -40,19 +40,18 @@ public class JoinMessageItemViewHolder
 	}
 
 	@Override
-	public void bind(ThreadItemAdapter<JoinMessageItem> adapter,
-			ThreadItemListener<JoinMessageItem> listener, JoinMessageItem item,
-			int pos) {
+	public void bind(ThreadItemAdapter<GroupMessageItem> adapter,
+			ThreadItemListener<GroupMessageItem> listener,
+			GroupMessageItem item, int pos) {
 		super.bind(adapter, listener, item, pos);
 
-		if (isCreator) bindForCreator(item);
-		else bind(item);
+		if (isCreator) bindForCreator((JoinMessageItem) item);
+		else bind((JoinMessageItem) item);
 	}
 
 	private void bindForCreator(final JoinMessageItem item) {
 		if (item.isInitial()) {
-			textView.setText(
-					getContext().getString(R.string.groups_member_created_you));
+			textView.setText(R.string.groups_member_created_you);
 		} else {
 			textView.setText(
 					getContext().getString(R.string.groups_member_joined,
@@ -71,8 +70,7 @@ public class JoinMessageItemViewHolder
 					item.getAuthor().getName()));
 		} else {
 			if (item.getStatus() == OURSELVES) {
-				textView.setText(
-						ctx.getString(R.string.groups_member_joined_you));
+				textView.setText(R.string.groups_member_joined_you);
 			} else {
 				textView.setText(ctx.getString(R.string.groups_member_joined,
 						item.getAuthor().getName()));
@@ -86,7 +84,7 @@ public class JoinMessageItemViewHolder
 		} else {
 			icon.setVisibility(View.VISIBLE);
 			info.setVisibility(View.VISIBLE);
-			info.setText(getVisibilityString(item.getVisibility()));
+			info.setText(getVisibilityStringId(item.getVisibility()));
 
 			if (item.getVisibility() == INVISIBLE) {
 				icon.setImageResource(R.drawable.ic_visibility_off);

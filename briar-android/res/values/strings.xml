@@ -224,7 +224,7 @@
 	<string name="forum_new_entry_received">New forum entry</string>
 	<string name="forum_new_message_hint">New Entry</string>
 	<string name="forum_message_reply_hint">New Reply</string>
-	<string name="btn_reply">REPLY</string>
+	<string name="btn_reply">Reply</string>
 	<plurals name="message_replies">
 		<item quantity="one">%1$d reply</item>
 		<item quantity="other">%1$d replies</item>

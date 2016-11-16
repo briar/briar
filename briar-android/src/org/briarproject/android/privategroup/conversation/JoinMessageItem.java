@@ -16,8 +16,7 @@ class JoinMessageItem extends GroupMessageItem {
 	private Visibility visibility;
 	private final boolean isInitial;
 
-	JoinMessageItem(JoinMessageHeader h,
-			String text) {
+	JoinMessageItem(JoinMessageHeader h, String text) {
 		super(h, text);
 		this.visibility = h.getVisibility();
 		this.isInitial = h.isInitial();

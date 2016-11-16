@@ -44,7 +44,7 @@ import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class GroupActivity extends
-		ThreadListActivity<PrivateGroup, GroupMessageAdapter<GroupMessageItem>, GroupMessageItem, GroupMessageHeader>
+		ThreadListActivity<PrivateGroup, GroupMessageAdapter, GroupMessageItem, GroupMessageHeader>
 		implements GroupListener, OnClickListener {
 
 	private final static int REQUEST_INVITE = 2;
@@ -85,9 +85,9 @@ public class GroupActivity extends
 	}
 
 	@Override
-	protected GroupMessageAdapter<GroupMessageItem> createAdapter(
+	protected GroupMessageAdapter createAdapter(
 			LinearLayoutManager layoutManager) {
-		return new GroupMessageAdapter<>(this, layoutManager);
+		return new GroupMessageAdapter(this, layoutManager);
 	}
 
 	@Override

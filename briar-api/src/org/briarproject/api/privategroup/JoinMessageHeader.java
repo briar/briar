@@ -9,13 +9,13 @@ import javax.annotation.concurrent.Immutable;
 public class JoinMessageHeader extends GroupMessageHeader {
 
 	private final Visibility visibility;
-	private final boolean isCreator;
+	private final boolean isInitial;
 
-	public JoinMessageHeader(GroupMessageHeader h, Visibility visibility, boolean isCreator) {
+	public JoinMessageHeader(GroupMessageHeader h, Visibility visibility, boolean isInitial) {
 		super(h.getGroupId(), h.getId(), h.getParentId(), h.getTimestamp(),
 				h.getAuthor(), h.getAuthorStatus(), h.isRead());
 		this.visibility = visibility;
-		this.isCreator = isCreator;
+		this.isInitial = isInitial;
 	}
 
 	public Visibility getVisibility() {
@@ -23,7 +23,7 @@ public class JoinMessageHeader extends GroupMessageHeader {
 	}
 
 	public boolean isInitial() {
-		return isCreator;
+		return isInitial;
 	}
 
 }

@@ -19,12 +19,11 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 @UiThread
 @NotNullByDefault
-public class GroupMessageAdapter<I extends GroupMessageItem>
-		extends ThreadItemAdapter<I> {
+class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 
 	private boolean isCreator = false;
 
-	public GroupMessageAdapter(ThreadItemListener<I> listener,
+	public GroupMessageAdapter(ThreadItemListener<GroupMessageItem> listener,
 			LinearLayoutManager layoutManager) {
 		super(listener, layoutManager);
 	}
@@ -38,13 +37,12 @@ public class GroupMessageAdapter<I extends GroupMessageItem>
 	}
 
 	@Override
-	public BaseThreadItemViewHolder<I> onCreateViewHolder(
+	public BaseThreadItemViewHolder<GroupMessageItem> onCreateViewHolder(
 			ViewGroup parent, int type) {
 		View v = LayoutInflater.from(parent.getContext())
 				.inflate(type, parent, false);
 		if (type == R.layout.list_item_group_join_notice) {
-			return (BaseThreadItemViewHolder<I>)
-					new JoinMessageItemViewHolder(v, isCreator);
+			return new JoinMessageItemViewHolder(v, isCreator);
 		}
 		return new ThreadPostViewHolder<>(v);
 	}
@@ -60,7 +58,7 @@ public class GroupMessageAdapter<I extends GroupMessageItem>
 			GroupMessageItem item = items.get(position);
 			if (item instanceof JoinMessageItem) {
 				((JoinMessageItem) item).setVisibility(v);
-				notifyItemChanged(position, item);
+				notifyItemChanged(getVisiblePos(item), item);
 			}
 		}
 	}
@@ -68,7 +66,7 @@ public class GroupMessageAdapter<I extends GroupMessageItem>
 	private int findItemPosition(AuthorId a) {
 		int count = items.size();
 		for (int i = 0; i < count; i++) {
-			I item = items.get(i);
+			GroupMessageItem item = items.get(i);
 			if (item.getAuthor().getId().equals(a))
 				return i;
 		}

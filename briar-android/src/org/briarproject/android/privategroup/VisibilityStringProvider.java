@@ -8,7 +8,7 @@ import org.briarproject.api.privategroup.Visibility;
 public class VisibilityStringProvider {
 
 	@StringRes
-	public static int getVisibilityString(Visibility v) {
+	public static int getVisibilityStringId(Visibility v) {
 		switch (v) {
 			case VISIBLE:
 				return R.string.groups_reveal_visible;

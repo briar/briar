@@ -9,7 +9,7 @@
 		style="@style/BriarAvatar"
 		android:layout_width="@dimen/blogs_avatar_normal_size"
 		android:layout_height="@dimen/blogs_avatar_normal_size"
-		android:layout_centerVertical="true"
+		android:layout_alignTop="@+id/authorName"
 		android:layout_marginRight="@dimen/margin_medium"
 		tools:src="@drawable/ic_launcher"/>
 
@@ -30,7 +30,6 @@
 		android:id="@+id/authorName"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignTop="@+id/avatar"
 		android:layout_toEndOf="@+id/avatar"
 		android:layout_toRightOf="@+id/avatar"
 		android:textColor="@color/briar_text_primary"

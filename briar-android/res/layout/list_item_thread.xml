@@ -6,8 +6,8 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:orientation="horizontal"
-	android:baselineAligned="false">
+	android:baselineAligned="false"
+	android:orientation="horizontal">
 
 	<RelativeLayout
 		android:layout_width="wrap_content"
@@ -70,64 +70,64 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_marginLeft="@dimen/margin_medium"
-		android:layout_marginBottom="@dimen/margin_medium"
 		android:layout_weight="1">
 
 		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 			android:id="@+id/text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_margin="@dimen/margin_medium"
+			android:paddingRight="@dimen/margin_medium"
+			android:paddingTop="@dimen/margin_medium"
+			android:textColor="@color/briar_text_primary"
 			android:textIsSelectable="true"
 			android:textSize="@dimen/text_size_medium"
-			android:textColor="@color/briar_text_primary"
 			tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."/>
 
 		<org.briarproject.android.view.AuthorView
 			android:id="@+id/author"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_height="@dimen/button_size"
 			android:layout_alignLeft="@id/text"
 			android:layout_below="@id/text"
+			android:gravity="center"
 			app:persona="commenter"/>
-
-		<ImageView
-			android:id="@+id/chevron"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@id/text"
-			android:layout_marginRight="@dimen/margin_medium"
-			android:layout_marginTop="@dimen/margin_small"
-			android:clickable="true"
-			android:src="@drawable/selector_chevron"/>
-
-		<TextView
-			android:id="@+id/btn_reply"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@id/text"
-			android:layout_marginRight="@dimen/margin_medium"
-			android:layout_toLeftOf="@id/chevron"
-			android:background="?attr/selectableItemBackground"
-			android:clickable="true"
-			android:padding="@dimen/margin_medium"
-			android:text="@string/btn_reply"
-			android:textColor="@color/briar_button_positive"
-			android:textSize="@dimen/text_size_tiny"/>
 
 		<TextView
 			android:id="@+id/replies"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignBaseline="@id/btn_reply"
-			android:layout_toLeftOf="@id/btn_reply"
+			android:layout_alignBottom="@+id/author"
+			android:layout_alignTop="@+id/author"
+			android:layout_toLeftOf="@+id/btn_reply"
 			android:layout_toRightOf="@+id/author"
-			android:gravity="right|end"
+			android:ellipsize="end"
+			android:gravity="right|end|center_vertical"
 			android:maxLines="1"
 			android:padding="@dimen/margin_medium"
 			android:textSize="@dimen/text_size_tiny"
 			tools:text="2 replies"/>
+
+		<TextView
+			android:id="@+id/btn_reply"
+			style="@style/BriarButtonFlat.Positive.Tiny"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignBottom="@+id/author"
+			android:layout_toLeftOf="@+id/chevron"
+			android:text="@string/btn_reply"
+			android:textSize="@dimen/text_size_tiny"/>
+
+		<ImageView
+			android:id="@+id/chevron"
+			android:layout_width="@dimen/button_size"
+			android:layout_height="@dimen/button_size"
+			android:layout_alignBottom="@+id/author"
+			android:layout_alignParentRight="true"
+			android:background="?attr/selectableItemBackground"
+			android:clickable="true"
+			android:padding="@dimen/margin_medium"
+			android:scaleType="center"
+			android:src="@drawable/selector_chevron"/>
 
 		<View
 			android:id="@+id/top_divider"
