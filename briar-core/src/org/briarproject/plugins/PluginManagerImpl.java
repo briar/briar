@@ -156,12 +156,12 @@ class PluginManagerImpl implements PluginManager, Service {
 
 	@Override
 	public Collection<SimplexPlugin> getSimplexPlugins() {
-		return Collections.unmodifiableList(simplexPlugins);
+		return new ArrayList<SimplexPlugin>(simplexPlugins);
 	}
 
 	@Override
 	public Collection<DuplexPlugin> getDuplexPlugins() {
-		return Collections.unmodifiableList(duplexPlugins);
+		return new ArrayList<DuplexPlugin>(duplexPlugins);
 	}
 
 	@Override
@@ -169,7 +169,7 @@ class PluginManagerImpl implements PluginManager, Service {
 		List<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
 		for (DuplexPlugin d : duplexPlugins)
 			if (d.supportsInvitations()) supported.add(d);
-		return Collections.unmodifiableList(supported);
+		return supported;
 	}
 
 	@Override
@@ -177,7 +177,7 @@ class PluginManagerImpl implements PluginManager, Service {
 		List<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
 		for (DuplexPlugin d : duplexPlugins)
 			if (d.supportsKeyAgreement()) supported.add(d);
-		return Collections.unmodifiableList(supported);
+		return supported;
 	}
 
 	private class PluginStarter implements Runnable {

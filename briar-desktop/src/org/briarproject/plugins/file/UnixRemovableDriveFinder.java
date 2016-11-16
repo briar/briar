@@ -3,7 +3,6 @@ package org.briarproject.plugins.file;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
@@ -13,8 +12,9 @@ abstract class UnixRemovableDriveFinder implements RemovableDriveFinder {
 	protected abstract String parseMountPoint(String line);
 	protected abstract boolean isRemovableDriveMountPoint(String path);
 
+	@Override
 	public List<File> findRemovableDrives() throws IOException {
-		List<File> drives = new ArrayList<File>();
+		List<File> drives = new ArrayList<>();
 		Process p = new ProcessBuilder(getMountCommand()).start();
 		Scanner s = new Scanner(p.getInputStream(), "UTF-8");
 		try {
@@ -35,6 +35,6 @@ abstract class UnixRemovableDriveFinder implements RemovableDriveFinder {
 		} finally {
 			s.close();
 		}
-		return Collections.unmodifiableList(drives);
+		return drives;
 	}
 }

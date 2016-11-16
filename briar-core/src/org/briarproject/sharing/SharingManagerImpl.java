@@ -46,7 +46,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -443,7 +442,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 
 	@Override
 	public Collection<SharingInvitationItem> getInvitations() throws DbException {
-		List<SharingInvitationItem> invitations = new ArrayList<SharingInvitationItem>();
+		List<SharingInvitationItem> invitations =
+				new ArrayList<SharingInvitationItem>();
 		Transaction txn = db.startTransaction(true);
 		try {
 			Set<S> shareables = new HashSet<S>();
@@ -474,7 +474,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 				invitations.add(invitation);
 			}
 			db.commitTransaction(txn);
-			return Collections.unmodifiableCollection(invitations);
+			return invitations;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {
@@ -523,7 +523,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		} finally {
 			db.endTransaction(txn);
 		}
-		return Collections.unmodifiableList(subscribers);
+		return subscribers;
 	}
 
 	private List<Contact> getSharedBy(Transaction txn, GroupId g)
@@ -556,7 +556,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			} finally {
 				db.endTransaction(txn);
 			}
-			return Collections.unmodifiableList(shared);
+			return shared;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

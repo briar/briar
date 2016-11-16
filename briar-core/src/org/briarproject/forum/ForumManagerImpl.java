@@ -199,7 +199,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			}
 			List<Forum> forums = new ArrayList<Forum>();
 			for (Group g : groups) forums.add(parseForum(g));
-			return Collections.unmodifiableList(forums);
+			return forums;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

@@ -42,6 +42,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		contactCounts = new HashMap<ContactId, Integer>();
 	}
 
+	@Override
 	public void registerConnection(ContactId c, TransportId t,
 			boolean incoming) {
 		if (LOG.isLoggable(INFO)) {
@@ -76,6 +77,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		}
 	}
 
+	@Override
 	public void unregisterConnection(ContactId c, TransportId t,
 			boolean incoming) {
 		if (LOG.isLoggable(INFO)) {
@@ -112,6 +114,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		}
 	}
 
+	@Override
 	public Collection<ContactId> getConnectedContacts(TransportId t) {
 		lock.lock();
 		try {
@@ -120,12 +123,13 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			List<ContactId> ids = new ArrayList<ContactId>(m.keySet());
 			if (LOG.isLoggable(INFO))
 				LOG.info(ids.size() + " contacts connected");
-			return Collections.unmodifiableList(ids);
+			return ids;
 		} finally {
 			lock.unlock();
 		}
 	}
 
+	@Override
 	public boolean isConnected(ContactId c, TransportId t) {
 		lock.lock();
 		try {
@@ -136,6 +140,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		}
 	}
 
+	@Override
 	public boolean isConnected(ContactId c) {
 		lock.lock();
 		try {

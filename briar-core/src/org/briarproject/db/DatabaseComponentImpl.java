@@ -329,7 +329,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (ids.isEmpty()) return null;
 		db.lowerRequestedFlag(txn, c, ids);
 		transaction.attach(new MessagesSentEvent(c, ids));
-		return Collections.unmodifiableList(messages);
+		return messages;
 	}
 
 	@Nullable
@@ -379,7 +379,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (ids.isEmpty()) return null;
 		db.lowerRequestedFlag(txn, c, ids);
 		transaction.attach(new MessagesSentEvent(c, ids));
-		return Collections.unmodifiableList(messages);
+		return messages;
 	}
 
 	@Override

@@ -396,7 +396,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 				blogs.add(b);
 			}
 		}
-		return Collections.unmodifiableList(blogs);
+		return blogs;
 	}
 
 	@Override
@@ -419,7 +419,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			} finally {
 				db.endTransaction(txn);
 			}
-			return Collections.unmodifiableList(blogs);
+			return blogs;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

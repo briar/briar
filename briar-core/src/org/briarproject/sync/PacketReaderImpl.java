@@ -15,7 +15,6 @@ import org.briarproject.util.ByteUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.briarproject.api.sync.PacketTypes.ACK;
@@ -74,19 +73,22 @@ class PacketReaderImpl implements PacketReader {
 		state = State.BUFFER_FULL;
 	}
 
+	@Override
 	public boolean eof() throws IOException {
 		if (state == State.BUFFER_EMPTY) readPacket();
 		if (state == State.BUFFER_EMPTY) throw new IllegalStateException();
 		return state == State.EOF;
 	}
 
+	@Override
 	public boolean hasAck() throws IOException {
 		return !eof() && header[1] == ACK;
 	}
 
+	@Override
 	public Ack readAck() throws IOException {
 		if (!hasAck()) throw new FormatException();
-		return new Ack(Collections.unmodifiableList(readMessageIds()));
+		return new Ack(readMessageIds());
 	}
 
 	private List<MessageId> readMessageIds() throws IOException {
@@ -102,10 +104,12 @@ class PacketReaderImpl implements PacketReader {
 		return ids;
 	}
 
+	@Override
 	public boolean hasMessage() throws IOException {
 		return !eof() && header[1] == MESSAGE;
 	}
 
+	@Override
 	public Message readMessage() throws IOException {
 		if (!hasMessage()) throw new FormatException();
 		if (payloadLength <= MESSAGE_HEADER_LENGTH) throw new FormatException();
@@ -125,21 +129,25 @@ class PacketReaderImpl implements PacketReader {
 		return new Message(messageId, groupId, timestamp, raw);
 	}
 
+	@Override
 	public boolean hasOffer() throws IOException {
 		return !eof() && header[1] == OFFER;
 	}
 
+	@Override
 	public Offer readOffer() throws IOException {
 		if (!hasOffer()) throw new FormatException();
-		return new Offer(Collections.unmodifiableList(readMessageIds()));
+		return new Offer(readMessageIds());
 	}
 
+	@Override
 	public boolean hasRequest() throws IOException {
 		return !eof() && header[1] == REQUEST;
 	}
 
+	@Override
 	public Request readRequest() throws IOException {
 		if (!hasRequest()) throw new FormatException();
-		return new Request(Collections.unmodifiableList(readMessageIds()));
+		return new Request(readMessageIds());
 	}
 }
