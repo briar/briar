@@ -2,6 +2,7 @@ package org.briarproject;
 
 import org.briarproject.api.blogs.BlogManager;
 import org.briarproject.api.blogs.BlogSharingManager;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.identity.IdentityManager;
@@ -81,6 +82,8 @@ interface BlogSharingIntegrationTestComponent {
 	BlogSharingManager getBlogSharingManager();
 
 	BlogManager getBlogManager();
+
+	MessageTracker getMessageTracker();
 
 	SyncSessionFactory getSyncSessionFactory();
 

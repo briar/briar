@@ -1,5 +1,6 @@
 package org.briarproject;
 
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.event.EventBus;
 import org.briarproject.api.forum.ForumManager;
@@ -77,6 +78,8 @@ interface ForumManagerTestComponent {
 	IdentityManager getIdentityManager();
 
 	ContactManager getContactManager();
+
+	MessageTracker getMessageTracker();
 
 	ForumSharingManager getForumSharingManager();
 

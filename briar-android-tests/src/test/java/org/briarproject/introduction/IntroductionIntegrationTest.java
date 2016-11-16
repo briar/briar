@@ -9,6 +9,7 @@ import org.briarproject.TestDatabaseModule;
 import org.briarproject.TestUtils;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -105,6 +106,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			lifecycleManager2;
 	private SyncSessionFactory sync0, sync1, sync2;
 	private ContactManager contactManager0, contactManager1, contactManager2;
+	private MessageTracker messageTracker0, messageTracker1, messageTracker2;
 	private ContactId contactId0, contactId1, contactId2;
 	private IdentityManager identityManager0, identityManager1,
 			identityManager2;
@@ -172,6 +174,9 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 		contactManager0 = t0.getContactManager();
 		contactManager1 = t1.getContactManager();
 		contactManager2 = t2.getContactManager();
+		messageTracker0 = t0.getMessageTracker();
+		messageTracker1 = t1.getMessageTracker();
+		messageTracker2 = t2.getMessageTracker();
 		introductionManager0 = t0.getIntroductionManager();
 		introductionManager1 = t1.getIntroductionManager();
 		introductionManager2 = t2.getIntroductionManager();
@@ -205,38 +210,38 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 					.createIntroductionGroup(introducee1);
 			Group g2 = introductionGroupFactory
 					.createIntroductionGroup(introducee2);
-			assertGroupCount(introductionManager0, g1.getId(), 1, 0, time);
-			assertGroupCount(introductionManager0, g2.getId(), 1, 0, time);
+			assertGroupCount(messageTracker0, g1.getId(), 1, 0, time);
+			assertGroupCount(messageTracker0, g2.getId(), 1, 0, time);
 
 			// sync first request message
 			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
 			eventWaiter.await(TIMEOUT, 1);
 			assertTrue(listener1.requestReceived);
-			assertGroupCount(introductionManager1, g1.getId(), 2, 1);
+			assertGroupCount(messageTracker1, g1.getId(), 2, 1);
 
 			// sync second request message
 			deliverMessage(sync0, contactId0, sync2, contactId2, "0 to 2");
 			eventWaiter.await(TIMEOUT, 1);
 			assertTrue(listener2.requestReceived);
-			assertGroupCount(introductionManager2, g2.getId(), 2, 1);
+			assertGroupCount(messageTracker2, g2.getId(), 2, 1);
 
 			// sync first response
 			deliverMessage(sync1, contactId1, sync0, contactId0, "1 to 0");
 			eventWaiter.await(TIMEOUT, 1);
 			assertTrue(listener0.response1Received);
-			assertGroupCount(introductionManager0, g1.getId(), 2, 1);
+			assertGroupCount(messageTracker0, g1.getId(), 2, 1);
 
 			// sync second response
 			deliverMessage(sync2, contactId2, sync0, contactId0, "2 to 0");
 			eventWaiter.await(TIMEOUT, 1);
 			assertTrue(listener0.response2Received);
-			assertGroupCount(introductionManager0, g2.getId(), 2, 1);
+			assertGroupCount(messageTracker0, g2.getId(), 2, 1);
 
 			// sync forwarded responses to introducees
 			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
 			deliverMessage(sync0, contactId0, sync2, contactId2, "0 to 2");
-			assertGroupCount(introductionManager1, g1.getId(), 3, 2);
-			assertGroupCount(introductionManager2, g2.getId(), 3, 2);
+			assertGroupCount(messageTracker1, g1.getId(), 3, 2);
+			assertGroupCount(messageTracker2, g2.getId(), 3, 2);
 
 			// sync first ACK and its forward
 			deliverMessage(sync1, contactId1, sync0, contactId0, "1 to 0");
@@ -269,10 +274,10 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			}
 
 			assertDefaultUiMessages();
-			assertGroupCount(introductionManager0, g1.getId(), 2, 1);
-			assertGroupCount(introductionManager0, g2.getId(), 2, 1);
-			assertGroupCount(introductionManager1, g1.getId(), 3, 2);
-			assertGroupCount(introductionManager2, g2.getId(), 3, 2);
+			assertGroupCount(messageTracker0, g1.getId(), 2, 1);
+			assertGroupCount(messageTracker0, g2.getId(), 2, 1);
+			assertGroupCount(messageTracker1, g1.getId(), 3, 2);
+			assertGroupCount(messageTracker2, g2.getId(), 3, 2);
 		} finally {
 			stopLifecycles();
 		}

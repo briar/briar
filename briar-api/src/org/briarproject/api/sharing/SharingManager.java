@@ -1,15 +1,18 @@
 package org.briarproject.api.sharing;
 
-import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.messaging.ConversationManager.ConversationClient;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 
 import java.util.Collection;
 
-public interface SharingManager<S extends Shareable> extends MessageTracker {
+@NotNullByDefault
+public interface SharingManager<S extends Shareable>
+		extends ConversationClient {
 
 	/**
 	 * Sends an invitation to share the given group with the given contact

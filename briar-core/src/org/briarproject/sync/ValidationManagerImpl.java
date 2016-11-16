@@ -1,6 +1,5 @@
 package org.briarproject.sync;
 
-import org.briarproject.api.UniqueId;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
@@ -13,15 +12,15 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.lifecycle.Service;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageContext;
+import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.ValidationManager;
-import org.briarproject.util.ByteUtils;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -33,15 +32,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
 
+@ThreadSafe
+@NotNullByDefault
 class ValidationManagerImpl implements ValidationManager, Service,
 		EventListener {
 
@@ -51,6 +52,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
 	private final Executor cryptoExecutor;
+	private final MessageFactory messageFactory;
 	private final Map<ClientId, MessageValidator> validators;
 	private final Map<ClientId, IncomingMessageHook> hooks;
 	private final AtomicBoolean used = new AtomicBoolean(false);
@@ -58,10 +60,12 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@Inject
 	ValidationManagerImpl(DatabaseComponent db,
 			@DatabaseExecutor Executor dbExecutor,
-			@CryptoExecutor Executor cryptoExecutor) {
+			@CryptoExecutor Executor cryptoExecutor,
+			MessageFactory messageFactory) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
+		this.messageFactory = messageFactory;
 		validators = new ConcurrentHashMap<ClientId, MessageValidator>();
 		hooks = new ConcurrentHashMap<ClientId, IncomingMessageHook>();
 	}
@@ -134,7 +138,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			try {
 				MessageId id = unvalidated.poll();
 				byte[] raw = db.getRawMessage(txn, id);
-				m = parseMessage(id, raw);
+				if (raw == null) throw new DbException();
+				m = messageFactory.createMessage(id, raw);
 				g = db.getGroup(txn, m.getGroupId());
 				db.commitTransaction(txn);
 			} finally {
@@ -210,7 +215,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						invalidateMessage(txn, id);
 						invalidate = getDependentsToInvalidate(txn, id);
 					} else if (allDelivered) {
-						Message m = parseMessage(id, db.getRawMessage(txn, id));
+						byte[] raw = db.getRawMessage(txn, id);
+						if (raw == null) throw new DbException();
+						Message m = messageFactory.createMessage(id, raw);
 						Group g = db.getGroup(txn, m.getGroupId());
 						ClientId c = g.getClientId();
 						Metadata meta = db.getMessageMetadataForValidator(txn,
@@ -245,15 +252,6 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			if (LOG.isLoggable(WARNING))
 				LOG.log(WARNING, e.toString(), e);
 		}
-	}
-
-	private Message parseMessage(MessageId id, byte[] raw) {
-		if (raw.length <= MESSAGE_HEADER_LENGTH)
-			throw new IllegalArgumentException();
-		byte[] groupId = new byte[UniqueId.LENGTH];
-		System.arraycopy(raw, 0, groupId, 0, UniqueId.LENGTH);
-		long timestamp = ByteUtils.readUint64(raw, UniqueId.LENGTH);
-		return new Message(id, new GroupId(groupId), timestamp, raw);
 	}
 
 	private void validateMessageAsync(final Message m, final Group g) {
@@ -412,7 +410,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	/**
 	 * Shares the next message from the toShare queue asynchronously.
-	 *
+	 * <p>
 	 * This method should only be called for messages that have all their
 	 * dependencies delivered and have been delivered themselves.
 	 */

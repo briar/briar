@@ -9,6 +9,7 @@ import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.db.Metadata;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
@@ -25,6 +26,7 @@ import static org.briarproject.api.clients.QueueMessage.QUEUE_MESSAGE_HEADER_LEN
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 
+@NotNullByDefault
 public abstract class BdfMessageValidator implements MessageValidator,
 		QueueMessageValidator {
 
@@ -108,7 +110,7 @@ public abstract class BdfMessageValidator implements MessageValidator,
 		if (b != null && b.length != length) throw new FormatException();
 	}
 
-	protected void checkSize(BdfList list, int minSize, int maxSize)
+	protected void checkSize(@Nullable BdfList list, int minSize, int maxSize)
 			throws FormatException {
 		if (list != null) {
 			if (list.size() < minSize) throw new FormatException();

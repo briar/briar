@@ -8,6 +8,7 @@ import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.privategroup.MessageType;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
@@ -39,6 +40,7 @@ import static org.briarproject.privategroup.GroupConstants.KEY_READ;
 import static org.briarproject.privategroup.GroupConstants.KEY_TIMESTAMP;
 import static org.briarproject.privategroup.GroupConstants.KEY_TYPE;
 
+@NotNullByDefault
 class GroupMessageValidator extends BdfMessageValidator {
 
 	private final PrivateGroupFactory privateGroupFactory;

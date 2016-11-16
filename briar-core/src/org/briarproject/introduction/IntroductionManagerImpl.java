@@ -3,6 +3,7 @@ package org.briarproject.introduction;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -23,6 +24,7 @@ import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.introduction.IntroductionMessage;
 import org.briarproject.api.introduction.IntroductionRequest;
 import org.briarproject.api.introduction.IntroductionResponse;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
@@ -73,6 +75,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUE
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
+@NotNullByDefault
 class IntroductionManagerImpl extends ConversationClientImpl
 		implements IntroductionManager, Client, AddContactHook,
 		RemoveContactHook {
@@ -86,11 +89,12 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	@Inject
 	IntroductionManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
-			MetadataParser metadataParser, IntroducerManager introducerManager,
+			MetadataParser metadataParser, MessageTracker messageTracker,
+			IntroducerManager introducerManager,
 			IntroduceeManager introduceeManager,
 			IntroductionGroupFactory introductionGroupFactory) {
 
-		super(db, clientHelper, metadataParser);
+		super(db, clientHelper, metadataParser, messageTracker);
 		this.introducerManager = introducerManager;
 		this.introduceeManager = introduceeManager;
 		this.introductionGroupFactory = introductionGroupFactory;
@@ -213,7 +217,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 					introduceeManager.initialize(txn, groupId, message);
 			try {
 				introduceeManager.incomingMessage(txn, state, message);
-				trackIncomingMessage(txn, m);
+				messageTracker.trackIncomingMessage(txn, m);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				introduceeManager.abort(txn, state);
@@ -239,7 +243,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 						LOG.warning("Unknown role '" + role + "'");
 					throw new DbException();
 				}
-				if (type == TYPE_RESPONSE) trackIncomingMessage(txn, m);
+				if (type == TYPE_RESPONSE)
+					messageTracker.trackIncomingMessage(txn, m);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				if (role == ROLE_INTRODUCER) introducerManager.abort(txn, state);
@@ -260,7 +265,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	protected Group getContactGroup(Contact contact) {
+	public Group getContactGroup(Contact contact) {
 		return introductionGroupFactory.createIntroductionGroup(contact);
 	}
 
@@ -274,8 +279,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			introducerManager.makeIntroduction(txn, c1, c2, msg, timestamp);
 			Group g1 = getContactGroup(c1);
 			Group g2 = getContactGroup(c2);
-			trackMessage(txn, g1.getId(), timestamp, true);
-			trackMessage(txn, g2.getId(), timestamp, true);
+			messageTracker.trackMessage(txn, g1.getId(), timestamp, true);
+			messageTracker.trackMessage(txn, g2.getId(), timestamp, true);
 			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
@@ -295,7 +300,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 					getSessionState(txn, g.getId(), sessionId.getBytes());
 
 			introduceeManager.acceptIntroduction(txn, state, timestamp);
-			trackMessage(txn, g.getId(), timestamp, true);
+			messageTracker.trackMessage(txn, g.getId(), timestamp, true);
 			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
@@ -315,7 +320,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 					getSessionState(txn, g.getId(), sessionId.getBytes());
 
 			introduceeManager.declineIntroduction(txn, state, timestamp);
-			trackMessage(txn, g.getId(), timestamp, true);
+			messageTracker.trackMessage(txn, g.getId(), timestamp, true);
 			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);

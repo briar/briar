@@ -2,6 +2,8 @@ package org.briarproject.forum;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageTracker;
+import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataParser;
@@ -20,6 +22,7 @@ import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
@@ -52,22 +55,25 @@ import static org.briarproject.api.identity.Author.Status.ANONYMOUS;
 import static org.briarproject.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 
+@NotNullByDefault
 class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	private final IdentityManager identityManager;
 	private final ForumFactory forumFactory;
 	private final ForumPostFactory forumPostFactory;
+	private final MessageTracker messageTracker;
 	private final List<RemoveForumHook> removeHooks;
 
 	@Inject
 	ForumManagerImpl(DatabaseComponent db, IdentityManager identityManager,
 			ClientHelper clientHelper, MetadataParser metadataParser,
-			ForumFactory forumFactory, ForumPostFactory forumPostFactory) {
+			ForumFactory forumFactory, ForumPostFactory forumPostFactory,
+			MessageTracker messageTracker) {
 		super(db, clientHelper, metadataParser);
-
 		this.identityManager = identityManager;
 		this.forumFactory = forumFactory;
 		this.forumPostFactory = forumPostFactory;
+		this.messageTracker = messageTracker;
 		removeHooks = new CopyOnWriteArrayList<RemoveForumHook>();
 	}
 
@@ -75,7 +81,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
 			BdfDictionary meta) throws DbException, FormatException {
 
-		trackIncomingMessage(txn, m);
+		messageTracker.trackIncomingMessage(txn, m);
 
 		ForumPostHeader post = getForumPostHeader(txn, m.getId(), meta);
 		ForumPostReceivedEvent event =
@@ -146,7 +152,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			meta.put(KEY_LOCAL, true);
 			meta.put(MSG_KEY_READ, true);
 			clientHelper.addLocalMessage(txn, p.getMessage(), meta, true);
-			trackOutgoingMessage(txn, p.getMessage());
+			messageTracker.trackOutgoingMessage(txn, p.getMessage());
 			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
@@ -204,6 +210,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		try {
 			// Parent ID, author, forum post body, signature
 			BdfList message = clientHelper.getMessageAsList(m);
+			if (message == null) throw new DbException();
 			return message.getString(2);
 		} catch (FormatException e) {
 			throw new DbException(e);
@@ -251,6 +258,17 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	@Override
 	public void registerRemoveForumHook(RemoveForumHook hook) {
 		removeHooks.add(hook);
+	}
+
+	@Override
+	public GroupCount getGroupCount(GroupId g) throws DbException {
+		return messageTracker.getGroupCount(g);
+	}
+
+	@Override
+	public void setReadFlag(GroupId g, MessageId m, boolean read)
+			throws DbException {
+		messageTracker.setReadFlag(g, m, read);
 	}
 
 	private Forum parseForum(Group g) throws FormatException {

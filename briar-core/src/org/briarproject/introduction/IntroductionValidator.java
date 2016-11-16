@@ -7,6 +7,7 @@ import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.MetadataEncoder;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.system.Clock;
@@ -39,6 +40,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPO
 import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 
+@NotNullByDefault
 class IntroductionValidator extends BdfMessageValidator {
 
 	IntroductionValidator(ClientHelper clientHelper,

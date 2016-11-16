@@ -4,6 +4,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.ContactGroupFactory;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -74,13 +75,14 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	@Inject
 	protected GroupInvitationManagerImpl(DatabaseComponent db,
 			ClientHelper clientHelper, MetadataParser metadataParser,
+			MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory,
 			PrivateGroupFactory privateGroupFactory,
 			PrivateGroupManager privateGroupManager,
 			MessageParser messageParser, SessionParser sessionParser,
 			SessionEncoder sessionEncoder,
 			ProtocolEngineFactory engineFactory) {
-		super(db, clientHelper, metadataParser);
+		super(db, clientHelper, metadataParser, messageTracker);
 		this.contactGroupFactory = contactGroupFactory;
 		this.privateGroupFactory = privateGroupFactory;
 		this.privateGroupManager = privateGroupManager;
@@ -131,7 +133,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	protected Group getContactGroup(Contact c) {
+	public Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID, c);
 	}
 

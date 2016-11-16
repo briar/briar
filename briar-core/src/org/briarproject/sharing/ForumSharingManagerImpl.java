@@ -4,6 +4,7 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.clients.MessageQueueManager;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.data.BdfDictionary;
@@ -20,8 +21,10 @@ import org.briarproject.api.forum.ForumFactory;
 import org.briarproject.api.forum.ForumInvitationRequest;
 import org.briarproject.api.forum.ForumInvitationResponse;
 import org.briarproject.api.forum.ForumManager;
+import org.briarproject.api.forum.ForumManager.RemoveForumHook;
 import org.briarproject.api.forum.ForumSharingManager;
 import org.briarproject.api.forum.ForumSharingMessage.ForumInvitation;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sync.ClientId;
 import org.briarproject.api.sync.GroupId;
@@ -37,9 +40,10 @@ import static org.briarproject.api.forum.ForumConstants.FORUM_SALT;
 import static org.briarproject.api.sharing.SharingConstants.INVITATION_ID;
 import static org.briarproject.api.sharing.SharingConstants.RESPONSE_ID;
 
+@NotNullByDefault
 class ForumSharingManagerImpl extends
 		SharingManagerImpl<Forum, ForumInvitation, ForumInviteeSessionState, ForumSharerSessionState, ForumInvitationReceivedEvent, ForumInvitationResponseReceivedEvent>
-		implements ForumSharingManager, ForumManager.RemoveForumHook {
+		implements ForumSharingManager, RemoveForumHook {
 
 	private final SFactory sFactory;
 	private final IFactory iFactory;
@@ -57,9 +61,10 @@ class ForumSharingManagerImpl extends
 			MetadataEncoder metadataEncoder,
 			MetadataParser metadataParser,
 			ContactGroupFactory contactGroupFactory,
-			SecureRandom random) {
+			SecureRandom random, MessageTracker messageTracker) {
 		super(db, messageQueueManager, clientHelper, metadataParser,
-				metadataEncoder, random, contactGroupFactory, clock);
+				metadataEncoder, random, contactGroupFactory, messageTracker,
+				clock);
 
 		sFactory = new SFactory(forumFactory, forumManager);
 		iFactory = new IFactory();

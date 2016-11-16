@@ -17,6 +17,7 @@ import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.Message;
 import org.briarproject.api.sync.MessageContext;
+import org.briarproject.api.sync.MessageFactory;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.api.sync.ValidationManager.MessageValidator;
@@ -74,6 +75,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -97,6 +100,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn1));
 			oneOf(db).getRawMessage(txn1, messageId);
 			will(returnValue(raw));
+			oneOf(messageFactory).createMessage(messageId, raw);
+			will(returnValue(message));
 			oneOf(db).getGroup(txn1, groupId);
 			will(returnValue(group));
 			oneOf(db).commitTransaction(txn1);
@@ -122,6 +127,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn3));
 			oneOf(db).getRawMessage(txn3, messageId1);
 			will(returnValue(raw));
+			oneOf(messageFactory).createMessage(messageId1, raw);
+			will(returnValue(message1));
 			oneOf(db).getGroup(txn3, groupId);
 			will(returnValue(group));
 			oneOf(db).commitTransaction(txn3);
@@ -159,7 +166,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.startService();
@@ -173,6 +180,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -207,6 +216,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Get the message and its metadata to deliver
 			oneOf(db).getRawMessage(txn2, messageId);
 			will(returnValue(raw));
+			oneOf(messageFactory).createMessage(messageId, raw);
+			will(returnValue(message));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
 			oneOf(db).getMessageMetadataForValidator(txn2, messageId);
@@ -230,6 +241,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Get the dependent and its metadata to deliver
 			oneOf(db).getRawMessage(txn3, messageId2);
 			will(returnValue(raw));
+			oneOf(messageFactory).createMessage(messageId2, raw);
+			will(returnValue(message2));
 			oneOf(db).getGroup(txn3, groupId);
 			will(returnValue(group));
 			oneOf(db).getMessageMetadataForValidator(txn3, messageId2);
@@ -254,7 +267,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.startService();
@@ -268,6 +281,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -319,7 +334,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.startService();
@@ -333,6 +348,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -380,7 +397,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -395,6 +412,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -424,6 +443,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn2));
 			oneOf(db).getRawMessage(txn2, messageId1);
 			will(returnValue(raw));
+			oneOf(messageFactory).createMessage(messageId1, raw);
+			will(returnValue(message1));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
 			oneOf(db).commitTransaction(txn2);
@@ -461,7 +482,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.startService();
@@ -476,6 +497,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -498,6 +521,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn1));
 			oneOf(db).getRawMessage(txn1, messageId);
 			will(returnValue(raw));
+			oneOf(messageFactory).createMessage(messageId, raw);
+			will(returnValue(message));
 			// Load the group - *gasp* it's gone!
 			oneOf(db).getGroup(txn1, groupId);
 			will(throwException(new NoSuchGroupException()));
@@ -508,6 +533,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			will(returnValue(txn2));
 			oneOf(db).getRawMessage(txn2, messageId1);
 			will(returnValue(raw));
+			oneOf(messageFactory).createMessage(messageId1, raw);
+			will(returnValue(message1));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
 			oneOf(db).commitTransaction(txn2);
@@ -545,7 +572,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.startService();
@@ -559,6 +586,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -591,7 +620,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -605,12 +634,14 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, null));
@@ -626,6 +657,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -656,7 +689,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -671,6 +704,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -707,7 +742,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -722,6 +757,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -773,7 +810,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -787,6 +824,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -888,7 +927,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -902,6 +941,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -958,6 +999,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Get message 1 and its metadata
 			oneOf(db).getRawMessage(txn2, messageId1);
 			will(returnValue(raw));
+			oneOf(messageFactory).createMessage(messageId1, raw);
+			will(returnValue(message1));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
 			oneOf(db).getMessageMetadataForValidator(txn2, messageId1);
@@ -981,6 +1024,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Get message 2 and its metadata
 			oneOf(db).getRawMessage(txn3, messageId2);
 			will(returnValue(raw));
+			oneOf(messageFactory).createMessage(messageId2, raw);
+			will(returnValue(message2));
 			oneOf(db).getGroup(txn3, groupId);
 			will(returnValue(group));
 			oneOf(db).getMessageMetadataForValidator(txn3, messageId2);
@@ -1004,6 +1049,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Get message 3 and its metadata
 			oneOf(db).getRawMessage(txn4, messageId3);
 			will(returnValue(raw));
+			oneOf(messageFactory).createMessage(messageId3, raw);
+			will(returnValue(message3));
 			oneOf(db).getGroup(txn4, groupId);
 			will(returnValue(group));
 			oneOf(db).getMessageMetadataForValidator(txn4, messageId3);
@@ -1033,6 +1080,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 			// Get message 4 and its metadata
 			oneOf(db).getRawMessage(txn6, messageId4);
 			will(returnValue(raw));
+			oneOf(messageFactory).createMessage(messageId4, raw);
+			will(returnValue(message4));
 			oneOf(db).getGroup(txn6, groupId);
 			will(returnValue(group));
 			oneOf(db).getMessageMetadataForValidator(txn6, messageId4);
@@ -1049,7 +1098,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -1063,6 +1112,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -1108,7 +1159,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -1125,6 +1176,8 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Executor dbExecutor = new ImmediateExecutor();
 		final Executor cryptoExecutor = new ImmediateExecutor();
+		final MessageFactory messageFactory =
+				context.mock(MessageFactory.class);
 		final MessageValidator validator = context.mock(MessageValidator.class);
 		final IncomingMessageHook hook =
 				context.mock(IncomingMessageHook.class);
@@ -1178,7 +1231,7 @@ public class ValidationManagerImplTest extends BriarTestCase {
 		}});
 
 		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor);
+				cryptoExecutor, messageFactory);
 		vm.registerMessageValidator(clientId, validator);
 		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));

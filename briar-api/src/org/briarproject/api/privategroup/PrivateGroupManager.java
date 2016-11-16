@@ -1,7 +1,7 @@
 package org.briarproject.api.privategroup;
 
 import org.briarproject.api.FormatException;
-import org.briarproject.api.clients.MessageTracker;
+import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.identity.Author;
@@ -14,7 +14,7 @@ import org.briarproject.api.sync.MessageId;
 import java.util.Collection;
 
 @NotNullByDefault
-public interface PrivateGroupManager extends MessageTracker {
+public interface PrivateGroupManager {
 
 	/**
 	 * The unique ID of the private group client.
@@ -24,9 +24,9 @@ public interface PrivateGroupManager extends MessageTracker {
 	/**
 	 * Adds a new private group and joins it.
 	 *
-	 * @param group        The private group to add
-	 * @param joinMsg      The creators's join message
-	 * @param creator      True if the group is added by its creator
+	 * @param group   The private group to add
+	 * @param joinMsg The creators's join message
+	 * @param creator True if the group is added by its creator
 	 */
 	void addPrivateGroup(PrivateGroup group, GroupMessage joinMsg,
 			boolean creator) throws DbException;
@@ -34,9 +34,9 @@ public interface PrivateGroupManager extends MessageTracker {
 	/**
 	 * Adds a new private group and joins it.
 	 *
-	 * @param group        The private group to add
-	 * @param joinMsg      The new member's join message
-	 * @param creator      True if the group is added by its creator
+	 * @param group   The private group to add
+	 * @param joinMsg The new member's join message
+	 * @param creator True if the group is added by its creator
 	 */
 	void addPrivateGroup(Transaction txn, PrivateGroup group,
 			GroupMessage joinMsg, boolean creator) throws DbException;
@@ -102,12 +102,22 @@ public interface PrivateGroupManager extends MessageTracker {
 	boolean isMember(Transaction txn, GroupId g, Author a) throws DbException;
 
 	/**
+	 * Returns the group count for the given group.
+	 */
+	GroupCount getGroupCount(GroupId g) throws DbException;
+
+	/**
+	 * Marks a message as read or unread and updates the group count.
+	 */
+	void setReadFlag(GroupId g, MessageId m, boolean read) throws DbException;
+
+	/**
 	 * This method needs to be called when a contact relationship
 	 * has been revealed between the user and the Author with AuthorId a
 	 * in the Group identified by the GroupId g.
 	 *
 	 * @param byContact true if the remote contact has revealed
-	 *                     the relationship first. Otherwise false.
+	 *                  the relationship first. Otherwise false.
 	 */
 	void relationshipRevealed(Transaction txn, GroupId g, AuthorId a,
 			boolean byContact) throws FormatException, DbException;

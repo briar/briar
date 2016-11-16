@@ -6,12 +6,14 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.messaging.ConversationManager;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.inject.Inject;
 
+@NotNullByDefault
 class ConversationManagerImpl implements ConversationManager {
 
 	private final DatabaseComponent db;
@@ -32,9 +34,7 @@ class ConversationManagerImpl implements ConversationManager {
 	}
 
 	@Override
-	public GroupCount getGroupCount(ContactId contactId)
-			throws DbException {
-
+	public GroupCount getGroupCount(ContactId contactId) throws DbException {
 		int msgCount = 0, unreadCount = 0;
 		long latestTime = 0;
 		Transaction txn = db.startTransaction(true);

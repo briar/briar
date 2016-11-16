@@ -6,6 +6,7 @@ import org.briarproject.api.clients.Client;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.clients.MessageQueueManager;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -25,6 +26,7 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.InvitationRequestReceivedEvent;
 import org.briarproject.api.event.InvitationResponseReceivedEvent;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sharing.InvitationMessage;
 import org.briarproject.api.sharing.Shareable;
 import org.briarproject.api.sharing.SharingInvitationItem;
@@ -51,6 +53,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+
+import javax.annotation.Nullable;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -86,6 +90,7 @@ import static org.briarproject.api.sharing.SharingMessage.Invitation;
 import static org.briarproject.clients.BdfConstants.MSG_KEY_READ;
 import static org.briarproject.sharing.InviteeSessionState.State.AWAIT_LOCAL_RESPONSE;
 
+@NotNullByDefault
 abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS extends InviteeSessionState, SS extends SharerSessionState, IR extends InvitationRequestReceivedEvent, IRR extends InvitationResponseReceivedEvent>
 		extends ConversationClientImpl
 		implements SharingManager<S>, Client, AddContactHook,
@@ -105,9 +110,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			MessageQueueManager messageQueueManager, ClientHelper clientHelper,
 			MetadataParser metadataParser, MetadataEncoder metadataEncoder,
 			SecureRandom random, ContactGroupFactory contactGroupFactory,
-			Clock clock) {
-		super(db, clientHelper, metadataParser);
-
+			MessageTracker messageTracker, Clock clock) {
+		super(db, clientHelper, metadataParser, messageTracker);
 		this.messageQueueManager = messageQueueManager;
 		this.metadataEncoder = metadataEncoder;
 		this.random = random;
@@ -226,7 +230,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 					new InviteeEngine<IS, IR>(getIRFactory(), clock);
 			processInviteeStateUpdate(txn, m.getId(),
 					engine.onMessageReceived(state, msg));
-			trackIncomingMessage(txn, m);
+			messageTracker.trackIncomingMessage(txn, m);
 		} else if (msg.getType() == SHARE_MSG_TYPE_ACCEPT ||
 				msg.getType() == SHARE_MSG_TYPE_DECLINE) {
 			// we are a sharer who just received a response
@@ -237,7 +241,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 							getIRRFactory(), clock);
 			processSharerStateUpdate(txn, m.getId(),
 					engine.onMessageReceived(state, msg));
-			trackIncomingMessage(txn, m);
+			messageTracker.trackIncomingMessage(txn, m);
 		} else if (msg.getType() == SHARE_MSG_TYPE_LEAVE ||
 				msg.getType() == SHARE_MSG_TYPE_ABORT) {
 			// we don't know who we are, so figure it out
@@ -296,7 +300,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			// track message
 			// TODO handle this properly without engine hacks (#376)
 			long time = update.toSend.get(0).getTime();
-			trackMessage(txn, localState.getGroupId(), time, true);
+			messageTracker.trackMessage(txn, localState.getGroupId(), time,
+					true);
 
 			db.commitTransaction(txn);
 		} catch (FormatException e) {
@@ -359,7 +364,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		// track message
 		// TODO handle this properly without engine hacks (#376)
 		long time = update.toSend.get(0).getTime();
-		trackMessage(txn, localState.getGroupId(), time, true);
+		messageTracker.trackMessage(txn, localState.getGroupId(), time, true);
 	}
 
 	@Override
@@ -579,16 +584,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
-	}
-
-	@Override
-	public GroupCount getGroupCount(Transaction txn, ContactId contactId)
-			throws DbException {
-
-		Contact contact = db.getContact(txn, contactId);
-		GroupId groupId = getContactGroup(contact).getId();
-
-		return getGroupCount(txn, groupId);
 	}
 
 	void removingShareable(Transaction txn, S f) throws DbException {
@@ -827,7 +822,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		throw new FormatException();
 	}
 
-	private void processStateUpdate(Transaction txn, MessageId messageId,
+	private void processStateUpdate(Transaction txn,
+			@Nullable MessageId messageId,
 			StateUpdate<SharingSessionState, BaseMessage> result, S f)
 			throws DbException, FormatException {
 
@@ -859,8 +855,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		}
 	}
 
-	private void processSharerStateUpdate(Transaction txn, MessageId messageId,
-			StateUpdate<SS, BaseMessage> result)
+	private void processSharerStateUpdate(Transaction txn,
+			@Nullable MessageId messageId, StateUpdate<SS, BaseMessage> result)
 			throws DbException, FormatException {
 
 		StateUpdate<SharingSessionState, BaseMessage> r =
@@ -874,8 +870,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		processStateUpdate(txn, messageId, r, f);
 	}
 
-	private void processInviteeStateUpdate(Transaction txn, MessageId messageId,
-			StateUpdate<IS, BaseMessage> result)
+	private void processInviteeStateUpdate(Transaction txn,
+			@Nullable MessageId messageId, StateUpdate<IS, BaseMessage> result)
 			throws DbException, FormatException {
 
 		StateUpdate<SharingSessionState, BaseMessage> r =
@@ -947,7 +943,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 	}
 
 	@Override
-	protected Group getContactGroup(Contact c) {
+	public Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(getClientId(), c);
 	}
 

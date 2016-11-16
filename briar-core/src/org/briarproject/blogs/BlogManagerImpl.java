@@ -27,6 +27,7 @@ import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
+import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.Message;
@@ -69,6 +70,7 @@ import static org.briarproject.api.contact.ContactManager.AddContactHook;
 import static org.briarproject.api.contact.ContactManager.RemoveContactHook;
 import static org.briarproject.blogs.BlogPostValidator.authorToBdfDictionary;
 
+@NotNullByDefault
 class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		AddContactHook, RemoveContactHook, Client {
 
@@ -127,10 +129,8 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
-		if (c != null) {
-			Blog b = blogFactory.createBlog(c.getAuthor());
-			db.removeGroup(txn, b.getGroup());
-		}
+		Blog b = blogFactory.createBlog(c.getAuthor());
+		db.removeGroup(txn, b.getGroup());
 	}
 
 	@Override
