@@ -5,6 +5,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -26,6 +27,8 @@ import org.briarproject.android.threaded.ThreadListController;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.forum.Forum;
 import org.briarproject.api.forum.ForumPostHeader;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 
 import javax.inject.Inject;
 
@@ -35,8 +38,10 @@ import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class ForumActivity extends
-		ThreadListActivity<Forum, ForumItem, ForumPostHeader> {
+		ThreadListActivity<Forum, ThreadItemAdapter<ForumItem>, ForumItem, ForumPostHeader> {
 
 	private static final int REQUEST_FORUM_SHARED = 3;
 
@@ -54,7 +59,7 @@ public class ForumActivity extends
 	}
 
 	@Override
-	public void onCreate(Bundle state) {
+	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
 		Intent i = getIntent();

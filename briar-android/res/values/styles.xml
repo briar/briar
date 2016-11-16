@@ -45,6 +45,12 @@
 		<item name="android:padding">@dimen/margin_large</item>
 	</style>
 
+	<style name="BriarButtonFlat.Positive.Tiny" parent="BriarButtonFlat.Positive">
+		<item name="android:textSize">@dimen/text_size_tiny</item>
+		<item name="android:padding">@dimen/margin_medium</item>
+		<item name="android:minWidth">@dimen/button_size</item>
+	</style>
+
 	<style name="BriarTextTitle">
 		<item name="android:textSize">@dimen/text_size_medium</item>
 		<item name="android:textColor">@android:color/primary_text_light</item>

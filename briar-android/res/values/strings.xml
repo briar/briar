@@ -74,6 +74,7 @@
 	<string name="delete">Delete</string>
 	<string name="accept">Accept</string>
 	<string name="decline">Decline</string>
+	<string name="options">Options</string>
 	<string name="online">Online</string>
 	<string name="offline">Offline</string>
 	<string name="send">Send</string>
@@ -169,7 +170,10 @@
 	<string name="groups_message_received">Message received</string>
 	<string name="groups_member_list">Member List</string>
 	<string name="groups_invite_members">Invite Members</string>
-	<string name="groups_member_joined">joined the group.</string>
+	<string name="groups_member_created_you">You created the group</string>
+	<string name="groups_member_created">%s created the group</string>
+	<string name="groups_member_joined_you">You joined the group</string>
+	<string name="groups_member_joined">%s joined the group</string>
 	<string name="groups_leave">Leave Group</string>
 	<string name="groups_leave_dialog_title">Confirm Leaving Group</string>
 	<string name="groups_leave_dialog_message">Are you sure that you want to leave this group?</string>
@@ -220,7 +224,7 @@
 	<string name="forum_new_entry_received">New forum entry</string>
 	<string name="forum_new_message_hint">New Entry</string>
 	<string name="forum_message_reply_hint">New Reply</string>
-	<string name="btn_reply">REPLY</string>
+	<string name="btn_reply">Reply</string>
 	<plurals name="message_replies">
 		<item quantity="one">%1$d reply</item>
 		<item quantity="other">%1$d replies</item>

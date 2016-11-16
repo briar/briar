@@ -17,6 +17,7 @@ import org.briarproject.api.event.GroupMessageAddedEvent;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.privategroup.ContactRelationshipRevealedEvent;
 import org.briarproject.api.privategroup.GroupMessage;
 import org.briarproject.api.privategroup.GroupMessageFactory;
 import org.briarproject.api.privategroup.GroupMessageHeader;
@@ -33,7 +34,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.lang.Math.max;
-
 import static java.util.logging.Level.WARNING;
 
 public class GroupControllerImpl extends
@@ -78,6 +78,18 @@ public class GroupControllerImpl extends
 					@Override
 					public void run() {
 						listener.onHeaderReceived(h);
+					}
+				});
+			}
+		} else if (e instanceof ContactRelationshipRevealedEvent) {
+			final ContactRelationshipRevealedEvent c =
+					(ContactRelationshipRevealedEvent) e;
+			if (getGroupId().equals(c.getGroupId())) {
+				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+					@Override
+					public void run() {
+						listener.onContactRelationshipRevealed(c.getMemberId(),
+								c.getVisibility());
 					}
 				});
 			}
@@ -178,22 +190,20 @@ public class GroupControllerImpl extends
 	protected GroupMessageItem buildItem(GroupMessageHeader header,
 			String body) {
 		if (header instanceof JoinMessageHeader) {
-			return new JoinMessageItem(header, body);
+			return new JoinMessageItem((JoinMessageHeader) header, body);
 		}
 		return new GroupMessageItem(header, body);
 	}
 
 	@Override
-	public void isCreator(final PrivateGroup group,
-			final ResultExceptionHandler<Boolean, DbException> handler) {
+	public void loadLocalAuthor(
+			final ResultExceptionHandler<LocalAuthor, DbException> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					LocalAuthor author = identityManager.getLocalAuthor();
-					boolean isCreator =
-							author.getId().equals(group.getCreator().getId());
-					handler.onResult(isCreator);
+					handler.onResult(author);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

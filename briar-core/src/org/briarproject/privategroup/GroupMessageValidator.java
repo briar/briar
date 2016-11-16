@@ -29,6 +29,7 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH
 import static org.briarproject.api.privategroup.MessageType.JOIN;
 import static org.briarproject.api.privategroup.MessageType.POST;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
+import static org.briarproject.privategroup.GroupConstants.KEY_INITIAL_JOIN_MSG;
 import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_ID;
 import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_NAME;
 import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_PUBLIC_KEY;
@@ -99,10 +100,12 @@ class GroupMessageValidator extends BdfMessageValidator {
 
 		// invite is null if the member is the creator of the private group
 		Author creator = pg.getCreator();
+		boolean isCreator = false;
 		BdfList invite = body.getOptionalList(3);
 		if (invite == null) {
 			if (!member.equals(creator))
 				throw new InvalidMessageException();
+			isCreator = true;
 		} else {
 			if (member.equals(creator))
 				throw new InvalidMessageException();
@@ -149,6 +152,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 
 		// Return the metadata and no dependencies
 		BdfDictionary meta = new BdfDictionary();
+		meta.put(KEY_INITIAL_JOIN_MSG, isCreator);
 		return new BdfMessageContext(meta);
 	}
 

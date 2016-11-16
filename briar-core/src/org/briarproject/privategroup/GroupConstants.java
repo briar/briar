@@ -13,6 +13,7 @@ interface GroupConstants {
 	String KEY_MEMBER_ID = "memberId";
 	String KEY_MEMBER_NAME = "memberName";
 	String KEY_MEMBER_PUBLIC_KEY = "memberPublicKey";
+	String KEY_INITIAL_JOIN_MSG = "initialJoinMsg";
 
 	String GROUP_KEY_MEMBERS = "members";
 	String GROUP_KEY_OUR_GROUP = "ourGroup";
