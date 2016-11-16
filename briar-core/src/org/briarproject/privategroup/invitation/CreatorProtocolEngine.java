@@ -2,6 +2,7 @@ package org.briarproject.privategroup.invitation;
 
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.clients.ProtocolStateException;
 import org.briarproject.api.clients.SessionId;
 import org.briarproject.api.contact.ContactId;
@@ -37,10 +38,11 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			PrivateGroupFactory privateGroupFactory,
 			GroupMessageFactory groupMessageFactory,
 			IdentityManager identityManager, MessageParser messageParser,
-			MessageEncoder messageEncoder, Clock clock) {
+			MessageEncoder messageEncoder, MessageTracker messageTracker,
+			Clock clock) {
 		super(db, clientHelper, privateGroupManager, privateGroupFactory,
 				groupMessageFactory, identityManager, messageParser,
-				messageEncoder, clock);
+				messageEncoder, messageTracker, clock);
 	}
 
 	@Override
@@ -144,8 +146,10 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			throws DbException {
 		// Send an INVITE message
 		Message sent = sendInviteMessage(txn, s, message, timestamp, signature);
-		long localTimestamp = Math.max(timestamp, getLocalTimestamp(s));
+		// Track the message
+		messageTracker.trackOutgoingMessage(txn, sent);
 		// Move to the INVITED state
+		long localTimestamp = Math.max(timestamp, getLocalTimestamp(s));
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), localTimestamp,
 				timestamp, INVITED);
@@ -176,6 +180,9 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			return abort(txn, s);
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getId(), true);
+		// Track the message
+		messageTracker.trackMessage(txn, m.getContactGroupId(),
+				m.getTimestamp(), false);
 		// Start syncing the private group with the contact
 		syncPrivateGroupWithContact(txn, s, true);
 		// Broadcast an event
@@ -197,6 +204,9 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			return abort(txn, s);
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getId(), true);
+		// Track the message
+		messageTracker.trackMessage(txn, m.getContactGroupId(),
+				m.getTimestamp(), false);
 		// Broadcast an event
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
 		txn.attach(new GroupInvitationResponseReceivedEvent(contactId,

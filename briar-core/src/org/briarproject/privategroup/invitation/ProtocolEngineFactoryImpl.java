@@ -1,6 +1,7 @@
 package org.briarproject.privategroup.invitation;
 
 import org.briarproject.api.clients.ClientHelper;
+import org.briarproject.api.clients.MessageTracker;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.nullsafety.NotNullByDefault;
@@ -24,6 +25,7 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 	private final IdentityManager identityManager;
 	private final MessageParser messageParser;
 	private final MessageEncoder messageEncoder;
+	private final MessageTracker messageTracker;
 	private final Clock clock;
 
 	@Inject
@@ -32,7 +34,7 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 			PrivateGroupFactory privateGroupFactory,
 			GroupMessageFactory groupMessageFactory,
 			IdentityManager identityManager, MessageParser messageParser,
-			MessageEncoder messageEncoder,
+			MessageEncoder messageEncoder, MessageTracker messageTracker,
 			Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
@@ -42,6 +44,7 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 		this.identityManager = identityManager;
 		this.messageParser = messageParser;
 		this.messageEncoder = messageEncoder;
+		this.messageTracker = messageTracker;
 		this.clock = clock;
 	}
 
@@ -49,20 +52,20 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 	public ProtocolEngine<CreatorSession> createCreatorEngine() {
 		return new CreatorProtocolEngine(db, clientHelper, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
-				messageParser, messageEncoder, clock);
+				messageParser, messageEncoder, messageTracker, clock);
 	}
 
 	@Override
 	public ProtocolEngine<InviteeSession> createInviteeEngine() {
 		return new InviteeProtocolEngine(db, clientHelper, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
-				messageParser, messageEncoder, clock);
+				messageParser, messageEncoder, messageTracker, clock);
 	}
 
 	@Override
 	public ProtocolEngine<PeerSession> createPeerEngine() {
 		return new PeerProtocolEngine(db, clientHelper, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
-				messageParser, messageEncoder, clock);
+				messageParser, messageEncoder, messageTracker, clock);
 	}
 }
