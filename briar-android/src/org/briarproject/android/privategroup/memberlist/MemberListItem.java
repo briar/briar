@@ -4,6 +4,7 @@ import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.Author.Status;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.privategroup.GroupMember;
+import org.briarproject.api.privategroup.Visibility;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -15,11 +16,11 @@ class MemberListItem {
 
 	private final Author member;
 	private final Status status;
-	private final boolean sharing;
+	private final Visibility visibility;
 
 	public MemberListItem(GroupMember groupMember) {
 		this.member = groupMember.getAuthor();
-		this.sharing = groupMember.getVisibility() != INVISIBLE;
+		this.visibility = groupMember.getVisibility();
 		this.status = groupMember.getStatus();
 	}
 
@@ -27,8 +28,8 @@ class MemberListItem {
 		return member;
 	}
 
-	public boolean isSharing() {
-		return sharing;
+	public Visibility getVisibility() {
+		return visibility;
 	}
 
 	public Status getStatus() {

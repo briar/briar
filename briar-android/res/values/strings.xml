@@ -202,10 +202,10 @@
 	<!-- Private Groups Revealing Contacts -->
 	<string name="groups_reveal_contacts">Reveal Contacts</string>
 	<string name="groups_reveal_dialog_message">You can choose whether to reveal contacts to all current and future members of this group.\n\nRevealing contacts makes your connection to the group faster and more reliable, because you can communicate with revealed contacts even when the creator of the group is offline.</string>
-	<string name="groups_reveal_visible">Your relationship is visible to the group</string>
-	<string name="groups_reveal_visible_revealed_by_us">Your relationship is visible to the group (revealed by you)</string>
-	<string name="groups_reveal_visible_revealed_by_contact">Your relationship is visible to the group (revealed by contact)</string>
-	<string name="groups_reveal_invisible">Your relationship is not visible to the group</string>
+	<string name="groups_reveal_visible">Contact relationship is visible to the group</string>
+	<string name="groups_reveal_visible_revealed_by_us">Contact relationship is visible to the group (revealed by you)</string>
+	<string name="groups_reveal_visible_revealed_by_contact">Contact relationship is visible to the group (revealed by %s)</string>
+	<string name="groups_reveal_invisible">Contact relationship is not visible to the group</string>
 
 	<!-- Forums -->
 	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>
