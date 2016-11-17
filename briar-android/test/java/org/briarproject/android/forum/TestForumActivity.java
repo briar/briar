@@ -1,6 +1,7 @@
 package org.briarproject.android.forum;
 
 import org.briarproject.android.ActivityModule;
+import org.briarproject.android.BaseActivity;
 import org.briarproject.android.controller.BriarController;
 import org.briarproject.android.controller.BriarControllerImpl;
 import org.briarproject.android.threaded.ThreadItemAdapter;
@@ -32,8 +33,14 @@ public class TestForumActivity extends ForumActivity {
 				return c;
 			}
 
+		};
+	}
+
+	@Override
+	protected ForumModule getForumModule() {
+		return new ForumModule() {
 			@Override
-			protected ForumController provideForumController(
+			ForumController provideForumController(BaseActivity activity,
 					ForumControllerImpl forumController) {
 				return Mockito.mock(ForumController.class);
 			}

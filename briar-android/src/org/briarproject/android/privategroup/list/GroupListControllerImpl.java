@@ -38,7 +38,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.privategroup.PrivateGroupManager.CLIENT_ID;
 
-public class GroupListControllerImpl extends DbControllerImpl
+class GroupListControllerImpl extends DbControllerImpl
 		implements GroupListController, EventListener {
 
 	private static final Logger LOG =

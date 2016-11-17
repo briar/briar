@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import org.briarproject.android.blogs.BlogActivity;
 import org.briarproject.android.blogs.BlogFragment;
+import org.briarproject.android.blogs.BlogModule;
 import org.briarproject.android.blogs.BlogPostFragment;
 import org.briarproject.android.blogs.BlogPostPagerFragment;
 import org.briarproject.android.blogs.FeedFragment;
@@ -15,10 +16,12 @@ import org.briarproject.android.blogs.RssFeedImportActivity;
 import org.briarproject.android.blogs.RssFeedManageActivity;
 import org.briarproject.android.blogs.WriteBlogPostActivity;
 import org.briarproject.android.contact.ContactListFragment;
+import org.briarproject.android.contact.ContactModule;
 import org.briarproject.android.contact.ConversationActivity;
 import org.briarproject.android.forum.CreateForumActivity;
 import org.briarproject.android.forum.ForumActivity;
 import org.briarproject.android.forum.ForumListFragment;
+import org.briarproject.android.forum.ForumModule;
 import org.briarproject.android.introduction.ContactChooserFragment;
 import org.briarproject.android.introduction.IntroductionActivity;
 import org.briarproject.android.introduction.IntroductionMessageFragment;
@@ -29,14 +32,20 @@ import org.briarproject.android.keyagreement.ShowQrCodeFragment;
 import org.briarproject.android.panic.PanicPreferencesActivity;
 import org.briarproject.android.panic.PanicResponderActivity;
 import org.briarproject.android.privategroup.conversation.GroupActivity;
+import org.briarproject.android.privategroup.conversation.GroupConversationModule;
 import org.briarproject.android.privategroup.creation.CreateGroupActivity;
 import org.briarproject.android.privategroup.creation.CreateGroupFragment;
 import org.briarproject.android.privategroup.creation.CreateGroupMessageFragment;
+import org.briarproject.android.privategroup.creation.GroupCreateModule;
 import org.briarproject.android.privategroup.creation.GroupInviteActivity;
 import org.briarproject.android.privategroup.creation.GroupInviteFragment;
 import org.briarproject.android.privategroup.invitation.GroupInvitationActivity;
+import org.briarproject.android.privategroup.invitation.GroupInvitationModule;
 import org.briarproject.android.privategroup.list.GroupListFragment;
+import org.briarproject.android.privategroup.list.GroupListModule;
 import org.briarproject.android.privategroup.memberlist.GroupMemberListActivity;
+import org.briarproject.android.privategroup.memberlist.GroupMemberModule;
+import org.briarproject.android.privategroup.reveal.GroupRevealModule;
 import org.briarproject.android.privategroup.reveal.RevealContactsActivity;
 import org.briarproject.android.privategroup.reveal.RevealContactsFragment;
 import org.briarproject.android.sharing.BlogInvitationActivity;
@@ -49,13 +58,19 @@ import org.briarproject.android.sharing.ShareBlogMessageFragment;
 import org.briarproject.android.sharing.ShareForumActivity;
 import org.briarproject.android.sharing.ShareForumFragment;
 import org.briarproject.android.sharing.ShareForumMessageFragment;
+import org.briarproject.android.sharing.SharingModule;
 import org.thoughtcrime.securesms.components.emoji.EmojiProvider;
 import org.thoughtcrime.securesms.components.emoji.RecentEmojiPageModel;
 
 import dagger.Component;
 
 @ActivityScope
-@Component(modules = ActivityModule.class,
+@Component(
+		modules = {ActivityModule.class, ForumModule.class, SharingModule.class,
+				BlogModule.class, ContactModule.class, GroupListModule.class,
+				GroupCreateModule.class, GroupInvitationModule.class,
+				GroupConversationModule.class, GroupMemberModule.class,
+				GroupRevealModule.class},
 		dependencies = AndroidComponent.class)
 public interface ActivityComponent {
 

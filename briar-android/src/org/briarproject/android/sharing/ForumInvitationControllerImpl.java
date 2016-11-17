@@ -23,7 +23,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.forum.ForumManager.CLIENT_ID;
 
 @NotNullByDefault
-public class ForumInvitationControllerImpl
+class ForumInvitationControllerImpl
 		extends InvitationControllerImpl<SharingInvitationItem>
 		implements ForumInvitationController {
 

@@ -23,7 +23,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.blogs.BlogManager.CLIENT_ID;
 
 @NotNullByDefault
-public class BlogInvitationControllerImpl
+class BlogInvitationControllerImpl
 		extends InvitationControllerImpl<SharingInvitationItem>
 		implements BlogInvitationController {
 
