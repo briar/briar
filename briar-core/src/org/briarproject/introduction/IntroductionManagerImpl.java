@@ -237,15 +237,17 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			try {
 				if (role == ROLE_INTRODUCER) {
 					introducerManager.incomingMessage(txn, state, message);
+					if (type == TYPE_RESPONSE)
+						messageTracker.trackIncomingMessage(txn, m);
 				} else if (role == ROLE_INTRODUCEE) {
 					introduceeManager.incomingMessage(txn, state, message);
+					if (type == TYPE_RESPONSE && !message.getBoolean(ACCEPT))
+						messageTracker.trackIncomingMessage(txn, m);
 				} else {
 					if (LOG.isLoggable(WARNING))
 						LOG.warning("Unknown role '" + role + "'");
 					throw new DbException();
 				}
-				if (type == TYPE_RESPONSE)
-					messageTracker.trackIncomingMessage(txn, m);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				if (role == ROLE_INTRODUCER) introducerManager.abort(txn, state);

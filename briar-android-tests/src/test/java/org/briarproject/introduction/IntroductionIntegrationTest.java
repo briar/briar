@@ -240,8 +240,8 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			// sync forwarded responses to introducees
 			deliverMessage(sync0, contactId0, sync1, contactId1, "0 to 1");
 			deliverMessage(sync0, contactId0, sync2, contactId2, "0 to 2");
-			assertGroupCount(messageTracker1, g1.getId(), 3, 2);
-			assertGroupCount(messageTracker2, g2.getId(), 3, 2);
+			assertGroupCount(messageTracker1, g1.getId(), 2, 1);
+			assertGroupCount(messageTracker2, g2.getId(), 2, 1);
 
 			// sync first ACK and its forward
 			deliverMessage(sync1, contactId1, sync0, contactId0, "1 to 0");
@@ -276,8 +276,8 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			assertDefaultUiMessages();
 			assertGroupCount(messageTracker0, g1.getId(), 2, 1);
 			assertGroupCount(messageTracker0, g2.getId(), 2, 1);
-			assertGroupCount(messageTracker1, g1.getId(), 3, 2);
-			assertGroupCount(messageTracker2, g2.getId(), 3, 2);
+			assertGroupCount(messageTracker1, g1.getId(), 2, 1);
+			assertGroupCount(messageTracker2, g2.getId(), 2, 1);
 		} finally {
 			stopLifecycles();
 		}
@@ -332,19 +332,27 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 			assertFalse(contactManager2
 					.contactExists(author1.getId(), author2.getId()));
 
+			Group g1 = introductionGroupFactory
+					.createIntroductionGroup(introducee1);
+			Group g2 = introductionGroupFactory
+					.createIntroductionGroup(introducee2);
 			assertEquals(2,
 					introductionManager0.getIntroductionMessages(contactId1)
 							.size());
+			assertGroupCount(messageTracker0, g1.getId(), 2, 1);
 			assertEquals(2,
 					introductionManager0.getIntroductionMessages(contactId2)
 							.size());
+			assertGroupCount(messageTracker0, g2.getId(), 2, 1);
 			assertEquals(2,
 					introductionManager1.getIntroductionMessages(contactId0)
 							.size());
+			assertGroupCount(messageTracker1, g1.getId(), 2, 1);
 			// introducee2 should also have the decline response of introducee1
 			assertEquals(3,
 					introductionManager2.getIntroductionMessages(contactId0)
 							.size());
+			assertGroupCount(messageTracker2, g2.getId(), 3, 2);
 		} finally {
 			stopLifecycles();
 		}
