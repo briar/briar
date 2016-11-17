@@ -4,7 +4,7 @@ import org.briarproject.api.TransportId;
 
 public interface TorConstants {
 
-	TransportId ID = new TransportId("tor");
+	TransportId ID = new TransportId("org.briarproject.bramble.tor");
 
 	int SOCKS_PORT   = 59050;
 	int CONTROL_PORT = 59051;

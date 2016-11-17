@@ -10,6 +10,8 @@ import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 
+import static org.briarproject.api.plugins.BluetoothConstants.ID;
+
 public class BluetoothPluginFactory implements DuplexPluginFactory {
 
 	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
@@ -30,7 +32,7 @@ public class BluetoothPluginFactory implements DuplexPluginFactory {
 
 	@Override
 	public TransportId getId() {
-		return BluetoothPlugin.ID;
+		return ID;
 	}
 
 	@Override

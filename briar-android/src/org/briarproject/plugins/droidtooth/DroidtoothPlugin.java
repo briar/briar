@@ -65,25 +65,22 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_BLUETOOTH;
+import static org.briarproject.api.plugins.BluetoothConstants.ID;
+import static org.briarproject.api.plugins.BluetoothConstants.PROP_ADDRESS;
+import static org.briarproject.api.plugins.BluetoothConstants.PROP_UUID;
+import static org.briarproject.api.plugins.BluetoothConstants.UUID_BYTES;
 import static org.briarproject.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 class DroidtoothPlugin implements DuplexPlugin {
 
-	// Share an ID with the J2SE Bluetooth plugin
-	static final TransportId ID = new TransportId("bt");
-
 	private static final Logger LOG =
 			Logger.getLogger(DroidtoothPlugin.class.getName());
-	private static final int UUID_BYTES = 16;
 	private static final String FOUND =
 			"android.bluetooth.device.action.FOUND";
 	private static final String DISCOVERY_FINISHED =
 			"android.bluetooth.adapter.action.DISCOVERY_FINISHED";
-
-	private static final String PROP_ADDRESS = "address";
-	private static final String PROP_UUID = "uuid";
 
 	private final Executor ioExecutor;
 	private final AndroidExecutor androidExecutor;
@@ -315,6 +312,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 	}
 
+	@Nullable
 	private BluetoothSocket connect(String address, String uuid) {
 		// Validate the address
 		if (!BluetoothAdapter.checkBluetoothAddress(address)) {
@@ -646,7 +644,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 		private final BluetoothServerSocket ss;
 
-		BluetoothKeyAgreementListener(BdfList descriptor,
+		private BluetoothKeyAgreementListener(BdfList descriptor,
 				BluetoothServerSocket ss) {
 			super(descriptor);
 			this.ss = ss;

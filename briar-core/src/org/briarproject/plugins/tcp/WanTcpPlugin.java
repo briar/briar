@@ -16,11 +16,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import static org.briarproject.api.plugins.WanTcpConstants.ID;
+
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 class WanTcpPlugin extends TcpPlugin {
-
-	static final TransportId ID = new TransportId("wan");
 
 	private static final String PROP_IP_PORT = "ipPort";
 
