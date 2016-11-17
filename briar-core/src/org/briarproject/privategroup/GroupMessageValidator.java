@@ -27,9 +27,12 @@ import java.util.Collection;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.api.privategroup.GroupMessageFactory.SIGNING_LABEL_JOIN;
+import static org.briarproject.api.privategroup.GroupMessageFactory.SIGNING_LABEL_POST;
 import static org.briarproject.api.privategroup.MessageType.JOIN;
 import static org.briarproject.api.privategroup.MessageType.POST;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
+import static org.briarproject.api.privategroup.invitation.GroupInvitationFactory.SIGNING_LABEL_INVITE;
 import static org.briarproject.privategroup.GroupConstants.KEY_INITIAL_JOIN_MSG;
 import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_ID;
 import static org.briarproject.privategroup.GroupConstants.KEY_MEMBER_NAME;
@@ -130,7 +133,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 					.createInviteToken(creator.getId(), member.getId(),
 							pg.getId(), inviteTimestamp);
 			try {
-				clientHelper.verifySignature(creatorSignature,
+				clientHelper.verifySignature(SIGNING_LABEL_INVITE, creatorSignature,
 						creator.getPublicKey(), token);
 			} catch (GeneralSecurityException e) {
 				throw new InvalidMessageException(e);
@@ -146,8 +149,8 @@ class GroupMessageValidator extends BdfMessageValidator {
 		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), JOIN.getInt(),
 				member.getName(), member.getPublicKey(), invite);
 		try {
-			clientHelper.verifySignature(memberSignature, member.getPublicKey(),
-					signed);
+			clientHelper.verifySignature(SIGNING_LABEL_JOIN, memberSignature,
+					member.getPublicKey(), signed);
 		} catch (GeneralSecurityException e) {
 			throw new InvalidMessageException(e);
 		}
@@ -189,8 +192,8 @@ class GroupMessageValidator extends BdfMessageValidator {
 				member.getName(), member.getPublicKey(), parentId,
 				previousMessageId, content);
 		try {
-			clientHelper
-					.verifySignature(signature, member.getPublicKey(), signed);
+			clientHelper.verifySignature(SIGNING_LABEL_POST, signature,
+					member.getPublicKey(), signed);
 		} catch (GeneralSecurityException e) {
 			throw new InvalidMessageException(e);
 		}

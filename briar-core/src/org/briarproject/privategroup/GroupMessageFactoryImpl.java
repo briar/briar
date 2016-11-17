@@ -51,8 +51,8 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 			int type = JOIN.getInt();
 			BdfList toSign = BdfList.of(groupId, timestamp, type,
 					member.getName(), member.getPublicKey(), invite);
-			byte[] memberSignature =
-					clientHelper.sign(toSign, member.getPrivateKey());
+			byte[] memberSignature = clientHelper
+					.sign(SIGNING_LABEL_JOIN, toSign, member.getPrivateKey());
 
 			// Compose the message
 			BdfList body =
@@ -78,8 +78,8 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 			BdfList toSign = BdfList.of(groupId, timestamp, type,
 					author.getName(), author.getPublicKey(), parentId,
 					previousMsgId, content);
-			byte[] signature =
-					clientHelper.sign(toSign, author.getPrivateKey());
+			byte[] signature = clientHelper
+					.sign(SIGNING_LABEL_POST, toSign, author.getPrivateKey());
 
 			// Compose the message
 			BdfList body =

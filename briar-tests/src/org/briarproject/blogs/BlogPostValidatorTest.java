@@ -38,6 +38,8 @@ import static org.briarproject.api.blogs.BlogConstants.KEY_ORIGINAL_PARENT_MSG_I
 import static org.briarproject.api.blogs.BlogConstants.KEY_PARENT_MSG_ID;
 import static org.briarproject.api.blogs.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.api.blogs.BlogConstants.KEY_READ;
+import static org.briarproject.api.blogs.BlogPostFactory.SIGNING_LABEL_COMMENT;
+import static org.briarproject.api.blogs.BlogPostFactory.SIGNING_LABEL_POST;
 import static org.briarproject.api.blogs.MessageType.COMMENT;
 import static org.briarproject.api.blogs.MessageType.POST;
 import static org.briarproject.api.blogs.MessageType.WRAPPED_COMMENT;
@@ -101,7 +103,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 
 		BdfList signed =
 				BdfList.of(blog.getId(), message.getTimestamp(), body);
-		expectCrypto(signed, sigBytes);
+		expectCrypto(SIGNING_LABEL_POST, signed, sigBytes);
 		final BdfDictionary result =
 				validator.validateMessage(message, group, m).getDictionary();
 
@@ -143,7 +145,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		BdfList signed =
 				BdfList.of(blog.getId(), message.getTimestamp(), comment,
 						pOriginalId, currentId);
-		expectCrypto(signed, sigBytes);
+		expectCrypto(SIGNING_LABEL_COMMENT, signed, sigBytes);
 		final BdfDictionary result =
 				validator.validateMessage(message, group, m).getDictionary();
 
@@ -170,7 +172,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		BdfList signed =
 				BdfList.of(blog.getId(), message.getTimestamp(), null,
 						originalId, currentId);
-		expectCrypto(signed, sigBytes);
+		expectCrypto(SIGNING_LABEL_COMMENT, signed, sigBytes);
 		final BdfDictionary result =
 				validator.validateMessage(message, group, m).getDictionary();
 
@@ -189,7 +191,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 
 		BdfList signed =
 				BdfList.of(blog.getId(), message.getTimestamp(), body);
-		expectCrypto(signed, sigBytes);
+		expectCrypto(SIGNING_LABEL_POST, signed, sigBytes);
 
 		final BdfList originalList = BdfList.of(POST.getInt(), body, sigBytes);
 		final byte[] originalBody = TestUtils.getRandomBytes(42);
@@ -228,7 +230,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 
 		BdfList signed = BdfList.of(blog.getId(), message.getTimestamp(),
 				comment, originalId, oldId);
-		expectCrypto(signed, sigBytes);
+		expectCrypto(SIGNING_LABEL_COMMENT, signed, sigBytes);
 
 		final BdfList originalList = BdfList.of(COMMENT.getInt(), comment,
 				originalId, oldId, sigBytes);
@@ -256,13 +258,13 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		context.assertIsSatisfied();
 	}
 
-	private void expectCrypto(final BdfList signed, final byte[] sig)
-			throws IOException, GeneralSecurityException {
+	private void expectCrypto(final String label, final BdfList signed,
+			final byte[] sig) throws IOException, GeneralSecurityException {
 		context.checking(new Expectations() {{
 			oneOf(blogFactory).parseBlog(group);
 			will(returnValue(blog));
 			oneOf(clientHelper)
-					.verifySignature(sig, author.getPublicKey(), signed);
+					.verifySignature(label, sig, author.getPublicKey(), signed);
 		}});
 	}
 

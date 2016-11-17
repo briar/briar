@@ -1,6 +1,7 @@
 package org.briarproject.clients;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.TestUtils;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -70,6 +71,7 @@ public class ClientHelperImplTest extends BriarTestCase {
 			new Message(messageId, groupId, timestamp, rawMessage);
 	private final Metadata metadata = new Metadata();
 	private final BdfList list = BdfList.of("Sign this!", getRandomBytes(42));
+	private final String label = TestUtils.getRandomString(5);
 
 	public ClientHelperImplTest() {
 		clientHelper =
@@ -290,19 +292,16 @@ public class ClientHelperImplTest extends BriarTestCase {
 
 		final byte[] bytes = expectToByteArray(list);
 		context.checking(new Expectations() {{
-			oneOf(cryptoComponent).getSignature();
-			will(returnValue(signature));
 			oneOf(cryptoComponent).getSignatureKeyParser();
 			will(returnValue(keyParser));
 			oneOf(keyParser).parsePrivateKey(privateKeyBytes);
 			will(returnValue(privateKey));
-			oneOf(signature).initSign(privateKey);
-			oneOf(signature).update(bytes);
-			oneOf(signature).sign();
+			oneOf(cryptoComponent).sign(label, bytes, privateKey);
 			will(returnValue(signed));
 		}});
 
-		assertArrayEquals(signed, clientHelper.sign(list, privateKeyBytes));
+		assertArrayEquals(signed,
+				clientHelper.sign(label, list, privateKeyBytes));
 		context.assertIsSatisfied();
 	}
 
@@ -317,15 +316,11 @@ public class ClientHelperImplTest extends BriarTestCase {
 			will(returnValue(keyParser));
 			oneOf(keyParser).parsePublicKey(publicKeyBytes);
 			will(returnValue(publicKey));
-			oneOf(cryptoComponent).getSignature();
-			will(returnValue(signature));
-			oneOf(signature).initVerify(publicKey);
-			oneOf(signature).update(bytes);
-			oneOf(signature).verify(rawMessage);
+			oneOf(cryptoComponent).verify(label, bytes, publicKey, rawMessage);
 			will(returnValue(true));
 		}});
 
-		clientHelper.verifySignature(rawMessage, publicKeyBytes, list);
+		clientHelper.verifySignature(label, rawMessage, publicKeyBytes, list);
 		context.assertIsSatisfied();
 	}
 
@@ -340,16 +335,13 @@ public class ClientHelperImplTest extends BriarTestCase {
 			will(returnValue(keyParser));
 			oneOf(keyParser).parsePublicKey(publicKeyBytes);
 			will(returnValue(publicKey));
-			oneOf(cryptoComponent).getSignature();
-			will(returnValue(signature));
-			oneOf(signature).initVerify(publicKey);
-			oneOf(signature).update(bytes);
-			oneOf(signature).verify(rawMessage);
+			oneOf(cryptoComponent).verify(label, bytes, publicKey, rawMessage);
 			will(returnValue(false));
 		}});
 
 		try {
-			clientHelper.verifySignature(rawMessage, publicKeyBytes, list);
+			clientHelper
+					.verifySignature(label, rawMessage, publicKeyBytes, list);
 			fail();
 		} catch (GeneralSecurityException e) {
 			// expected

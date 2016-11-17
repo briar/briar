@@ -1,5 +1,7 @@
 package org.briarproject.crypto;
 
+import com.google.common.primitives.Bytes;
+
 import org.briarproject.api.TransportId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
@@ -397,6 +399,26 @@ class CryptoComponentImpl implements CryptoComponent {
 		prf.doFinal(mac, 0);
 		// The output is the first TAG_LENGTH bytes of the MAC
 		System.arraycopy(mac, 0, tag, 0, TAG_LENGTH);
+	}
+
+	@Override
+	public byte[] sign(String label, byte[] toSign, PrivateKey privateKey)
+			throws GeneralSecurityException {
+		Signature signature = getSignature();
+		signature.initSign(privateKey);
+		toSign = Bytes.concat(StringUtils.toUtf8(label), toSign);
+		signature.update(toSign);
+		return signature.sign();
+	}
+
+	@Override
+	public boolean verify(String label, byte[] signedData, PublicKey publicKey,
+			byte[] signature) throws GeneralSecurityException {
+		Signature sig = getSignature();
+		sig.initVerify(publicKey);
+		signedData = Bytes.concat(StringUtils.toUtf8(label), signedData);
+		sig.update(signedData);
+		return sig.verify(signature);
 	}
 
 	@Override

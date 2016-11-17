@@ -92,10 +92,10 @@ public interface ClientHelper {
 
 	BdfList toList(Message m) throws FormatException;
 
-	byte[] sign(BdfList toSign, byte[] privateKey)
+	byte[] sign(String label, BdfList toSign, byte[] privateKey)
 			throws FormatException, GeneralSecurityException;
 
-	void verifySignature(byte[] sig, byte[] publicKey, BdfList signed)
-			throws FormatException, GeneralSecurityException;
+	void verifySignature(String label, byte[] sig, byte[] publicKey,
+			BdfList signed) throws FormatException, GeneralSecurityException;
 
 }

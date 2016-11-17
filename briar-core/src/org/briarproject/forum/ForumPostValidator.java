@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
+import static org.briarproject.api.forum.ForumPostFactory.SIGNING_LABEL_POST;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
@@ -68,7 +69,8 @@ class ForumPostValidator extends BdfMessageValidator {
 		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), parent,
 				authorList, forumPostBody);
 		try {
-			clientHelper.verifySignature(sig, author.getPublicKey(), signed);
+			clientHelper.verifySignature(SIGNING_LABEL_POST, sig,
+					author.getPublicKey(), signed);
 		} catch (GeneralSecurityException e) {
 			throw new InvalidMessageException(e);
 		}

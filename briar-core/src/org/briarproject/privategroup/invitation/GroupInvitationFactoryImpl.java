@@ -36,7 +36,7 @@ class GroupInvitationFactoryImpl implements GroupInvitationFactory {
 		BdfList token = createInviteToken(creatorId, memberId, privateGroupId,
 				timestamp);
 		try {
-			return clientHelper.sign(token, privateKey);
+			return clientHelper.sign(SIGNING_LABEL_INVITE, token, privateKey);
 		} catch (GeneralSecurityException e) {
 			throw new IllegalArgumentException(e);
 		} catch (FormatException e) {
@@ -50,7 +50,6 @@ class GroupInvitationFactoryImpl implements GroupInvitationFactory {
 		Group contactGroup = contactGroupFactory.createContactGroup(CLIENT_ID,
 				creatorId, memberId);
 		return BdfList.of(
-				0, // TODO: Replace with a namespaced string
 				timestamp,
 				contactGroup.getId(),
 				privateGroupId

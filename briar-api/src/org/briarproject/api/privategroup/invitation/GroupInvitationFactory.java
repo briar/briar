@@ -6,7 +6,11 @@ import org.briarproject.api.data.BdfList;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.GroupId;
 
+import static org.briarproject.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
+
 public interface GroupInvitationFactory {
+
+	String SIGNING_LABEL_INVITE = CLIENT_ID + "/INVITE";
 
 	/**
 	 * Returns a signature to include when inviting a member to join a private
@@ -24,4 +28,5 @@ public interface GroupInvitationFactory {
 	 */
 	BdfList createInviteToken(AuthorId creatorId, AuthorId memberId,
 			GroupId privateGroupId, long timestamp);
+
 }
