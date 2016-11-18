@@ -11,6 +11,8 @@ import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 
 import java.util.concurrent.Executor;
 
+import static org.briarproject.api.plugins.LanTcpConstants.ID;
+
 public class AndroidLanTcpPluginFactory implements DuplexPluginFactory {
 
 	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
@@ -32,7 +34,7 @@ public class AndroidLanTcpPluginFactory implements DuplexPluginFactory {
 
 	@Override
 	public TransportId getId() {
-		return LanTcpPlugin.ID;
+		return ID;
 	}
 
 	@Override
