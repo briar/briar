@@ -5,6 +5,7 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseExecutor;
 import org.briarproject.api.system.Clock;
+import org.briarproject.api.system.Scheduler;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -23,7 +24,7 @@ class TransportKeyManagerFactoryImpl implements
 	@Inject
 	TransportKeyManagerFactoryImpl(DatabaseComponent db, CryptoComponent crypto,
 			@DatabaseExecutor Executor dbExecutor,
-			ScheduledExecutorService scheduler, Clock clock) {
+			@Scheduler ScheduledExecutorService scheduler, Clock clock) {
 		this.db = db;
 		this.crypto = crypto;
 		this.dbExecutor = dbExecutor;

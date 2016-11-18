@@ -8,6 +8,7 @@ import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.ConnectionRegistry;
 import org.briarproject.api.plugins.PluginManager;
 import org.briarproject.api.system.Clock;
+import org.briarproject.api.system.Scheduler;
 
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
@@ -37,7 +38,7 @@ public class PluginsModule {
 	@Provides
 	@Singleton
 	Poller providePoller(@IoExecutor Executor ioExecutor,
-			ScheduledExecutorService scheduler,
+			@Scheduler ScheduledExecutorService scheduler,
 			ConnectionManager connectionManager,
 			ConnectionRegistry connectionRegistry, PluginManager pluginManager,
 			SecureRandom random, Clock clock, EventBus eventBus) {

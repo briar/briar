@@ -9,6 +9,7 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.Transaction;
 import org.briarproject.api.system.Clock;
+import org.briarproject.api.system.Scheduler;
 import org.briarproject.api.transport.StreamContext;
 import org.briarproject.api.transport.TransportKeys;
 import org.briarproject.transport.ReorderingWindow.Change;
@@ -48,7 +49,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	private final Map<ContactId, MutableTransportKeys> keys;
 
 	TransportKeyManagerImpl(DatabaseComponent db, CryptoComponent crypto,
-			Executor dbExecutor, ScheduledExecutorService scheduler,
+			Executor dbExecutor, @Scheduler ScheduledExecutorService scheduler,
 			Clock clock, TransportId transportId, long maxLatency) {
 		this.db = db;
 		this.crypto = crypto;
