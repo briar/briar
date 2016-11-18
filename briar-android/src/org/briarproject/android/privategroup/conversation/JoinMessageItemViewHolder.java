@@ -16,7 +16,8 @@ import org.briarproject.android.threaded.ThreadItemAdapter.ThreadItemListener;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 
 import static org.briarproject.android.BriarActivity.GROUP_ID;
-import static org.briarproject.android.privategroup.VisibilityStringProvider.getVisibilityStringId;
+import static org.briarproject.android.privategroup.VisibilityHelper.getVisibilityIcon;
+import static org.briarproject.android.privategroup.VisibilityHelper.getVisibilityString;
 import static org.briarproject.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.api.identity.Author.Status.UNKNOWN;
 import static org.briarproject.api.privategroup.Visibility.INVISIBLE;
@@ -83,11 +84,11 @@ class JoinMessageItemViewHolder
 			options.setVisibility(View.GONE);
 		} else {
 			icon.setVisibility(View.VISIBLE);
+			icon.setImageResource(getVisibilityIcon(item.getVisibility()));
 			info.setVisibility(View.VISIBLE);
-			info.setText(getVisibilityStringId(item.getVisibility()));
-
+			info.setText(getVisibilityString(getContext(), item.getVisibility(),
+					item.getAuthor().getName()));
 			if (item.getVisibility() == INVISIBLE) {
-				icon.setImageResource(R.drawable.ic_visibility_off);
 				options.setVisibility(View.VISIBLE);
 				options.setOnClickListener(new View.OnClickListener() {
 					@Override
@@ -99,7 +100,6 @@ class JoinMessageItemViewHolder
 					}
 				});
 			} else {
-				icon.setImageResource(R.drawable.ic_visibility);
 				options.setVisibility(View.GONE);
 			}
 		}

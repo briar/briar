@@ -10,7 +10,8 @@ import org.briarproject.android.contactselection.BaseSelectableContactHolder;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.jetbrains.annotations.Nullable;
 
-import static org.briarproject.android.privategroup.VisibilityStringProvider.getVisibilityStringId;
+import static org.briarproject.android.privategroup.VisibilityHelper.getVisibilityIcon;
+import static org.briarproject.android.privategroup.VisibilityHelper.getVisibilityString;
 import static org.briarproject.android.util.AndroidUtils.GREY_OUT;
 import static org.briarproject.api.privategroup.Visibility.INVISIBLE;
 
@@ -32,13 +33,10 @@ public class RevealableContactViewHolder
 			OnContactClickListener<RevealableContactItem> listener) {
 		super.bind(item, listener);
 
-		info.setText(getVisibilityStringId(item.getVisibility()));
-
-		if (item.getVisibility() == INVISIBLE) {
-			icon.setImageResource(R.drawable.ic_visibility_off);
-		} else {
-			icon.setImageResource(R.drawable.ic_visibility);
-		}
+		icon.setImageResource(getVisibilityIcon(item.getVisibility()));
+		info.setText(
+				getVisibilityString(info.getContext(), item.getVisibility(),
+						item.getContact().getAuthor().getName()));
 	}
 
 	@Override

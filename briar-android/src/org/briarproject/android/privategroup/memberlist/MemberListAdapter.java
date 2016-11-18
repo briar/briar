@@ -35,7 +35,7 @@ class MemberListAdapter extends
 
 	@Override
 	public boolean areContentsTheSame(MemberListItem m1, MemberListItem m2) {
-		if (m1.isSharing() != m2.isSharing()) return false;
+		if (m1.getVisibility() != m2.getVisibility()) return false;
 		if (m1.getStatus() != m2.getStatus()) return false;
 		return true;
 	}
