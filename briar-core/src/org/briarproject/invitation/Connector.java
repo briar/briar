@@ -1,31 +1,20 @@
 package org.briarproject.invitation;
 
 import org.briarproject.api.FormatException;
-import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.ContactExchangeTask;
-import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.MessageDigest;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.BdfReaderFactory;
 import org.briarproject.api.data.BdfWriter;
 import org.briarproject.api.data.BdfWriterFactory;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.identity.Author;
-import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.plugins.ConnectionManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
-import org.briarproject.api.system.Clock;
-import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.api.transport.StreamWriterFactory;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -34,9 +23,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
 
 // FIXME: This class has way too many dependencies

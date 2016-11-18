@@ -9,7 +9,6 @@ import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.system.SeedProvider;
 import org.briarproject.api.transport.IncomingKeys;
 import org.briarproject.api.transport.OutgoingKeys;
