@@ -179,7 +179,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				if (textInput.isKeyboardOpen()) textInput.hideSoftKeyboard();
 				supportFinishAfterTransition();
 				return true;
 			default:

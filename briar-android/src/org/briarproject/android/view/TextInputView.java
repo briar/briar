@@ -27,7 +27,7 @@ import org.thoughtcrime.securesms.components.emoji.EmojiToggle;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.view.KeyEvent.KEYCODE_BACK;
-import static android.view.inputmethod.InputMethodManager.SHOW_FORCED;
+import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 
 @UiThread
 public class TextInputView extends KeyboardAwareLinearLayout
@@ -180,7 +180,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 				InputMethodManager imm =
 						(InputMethodManager) getContext()
 								.getSystemService(INPUT_METHOD_SERVICE);
-				imm.showSoftInput(ui.editText, SHOW_FORCED);
+				imm.showSoftInput(ui.editText, SHOW_IMPLICIT);
 			}
 		});
 	}
