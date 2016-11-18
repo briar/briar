@@ -13,7 +13,6 @@ import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.db.DatabaseComponent;
@@ -88,11 +87,13 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ABORT;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
+import static org.briarproject.api.introduction.IntroductionManager.CLIENT_ID;
 
 class IntroduceeManager {
 
 	private static final Logger LOG =
 			Logger.getLogger(IntroduceeManager.class.getName());
+	static final String SIGNING_LABEL_RESPONSE = CLIENT_ID + "/RESPONSE";
 
 	private final MessageSender messageSender;
 	private final DatabaseComponent db;
@@ -453,12 +454,8 @@ class IntroduceeManager {
 		localState.put(MAC_KEY, theirMacKey.getBytes());
 
 		// Sign our nonce with our long-term identity public key
-		Signature signature = cryptoComponent.getSignature();
-		KeyParser sigParser = cryptoComponent.getSignatureKeyParser();
-		PrivateKey privKey = sigParser.parsePrivateKey(author.getPrivateKey());
-		signature.initSign(privKey);
-		signature.update(ourNonce);
-		byte[] sig = signature.sign();
+		byte[] sig = cryptoComponent
+				.sign(SIGNING_LABEL_RESPONSE, ourNonce, author.getPrivateKey());
 
 		// Calculate a MAC over identity public key, ephemeral public key,
 		// transport properties and timestamp.
@@ -479,16 +476,10 @@ class IntroduceeManager {
 			throws FormatException, GeneralSecurityException {
 		byte[] nonce = localState.getRaw(NONCE);
 		byte[] sig = localState.getRaw(SIGNATURE);
-		byte[] keyBytes = localState.getRaw(PUBLIC_KEY);
+		byte[] key = localState.getRaw(PUBLIC_KEY);
 
-		// Parse the public key
-		KeyParser keyParser = cryptoComponent.getSignatureKeyParser();
-		PublicKey key = keyParser.parsePublicKey(keyBytes);
 		// Verify the signature
-		Signature signature = cryptoComponent.getSignature();
-		signature.initVerify(key);
-		signature.update(nonce);
-		if (!signature.verify(sig)) {
+		if (!cryptoComponent.verify(SIGNING_LABEL_RESPONSE, nonce, key, sig)) {
 			LOG.warning("Invalid nonce signature in ACK");
 			throw new GeneralSecurityException();
 		}

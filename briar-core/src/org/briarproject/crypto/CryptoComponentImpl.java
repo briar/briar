@@ -1,7 +1,5 @@
 package org.briarproject.crypto;
 
-import com.google.common.primitives.Bytes;
-
 import org.briarproject.api.TransportId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
@@ -164,11 +162,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Deriving shared secret took " + duration + " ms");
 		return secret;
-	}
-
-	@Override
-	public Signature getSignature() {
-		return new SignatureImpl(secureRandom);
 	}
 
 	@Override
@@ -402,23 +395,37 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public byte[] sign(String label, byte[] toSign, PrivateKey privateKey)
+	public byte[] sign(String label, byte[] toSign, byte[] privateKey)
 			throws GeneralSecurityException {
-		Signature signature = getSignature();
-		signature.initSign(privateKey);
-		toSign = Bytes.concat(StringUtils.toUtf8(label), toSign);
-		signature.update(toSign);
+		Signature signature = new SignatureImpl(secureRandom);
+		KeyParser keyParser = getSignatureKeyParser();
+		PrivateKey key = keyParser.parsePrivateKey(privateKey);
+		signature.initSign(key);
+		updateSignature(signature, label, toSign);
 		return signature.sign();
 	}
 
 	@Override
-	public boolean verify(String label, byte[] signedData, PublicKey publicKey,
+	public boolean verify(String label, byte[] signedData, byte[] publicKey,
 			byte[] signature) throws GeneralSecurityException {
-		Signature sig = getSignature();
-		sig.initVerify(publicKey);
-		signedData = Bytes.concat(StringUtils.toUtf8(label), signedData);
-		sig.update(signedData);
+		Signature sig = new SignatureImpl(secureRandom);
+		KeyParser keyParser = getSignatureKeyParser();
+		PublicKey key = keyParser.parsePublicKey(publicKey);
+		sig.initVerify(key);
+		updateSignature(sig, label, signedData);
 		return sig.verify(signature);
+	}
+
+	private void updateSignature(Signature signature, String label,
+			byte[] toSign) {
+		byte[] labelBytes = StringUtils.toUtf8(label);
+		byte[] length = new byte[INT_32_BYTES];
+		ByteUtils.writeUint32(labelBytes.length, length, 0);
+		signature.update(length);
+		signature.update(labelBytes);
+		ByteUtils.writeUint32(toSign.length, length, 0);
+		signature.update(length);
+		signature.update(toSign);
 	}
 
 	@Override

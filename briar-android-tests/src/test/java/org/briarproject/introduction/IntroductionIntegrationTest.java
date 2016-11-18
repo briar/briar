@@ -17,7 +17,6 @@ import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
@@ -95,6 +94,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUE
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
+import static org.briarproject.introduction.IntroduceeManager.SIGNING_LABEL_RESPONSE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -922,10 +922,8 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 		byte[] nonce1 = crypto.deriveSignatureNonce(secretKey, true);
 
 		// Signature 1
-		Signature signature = crypto.getSignature();
-		signature.initSign(keyPair1.getPrivate());
-		signature.update(nonce1);
-		byte[] sig1 = signature.sign();
+		byte[] sig1 = crypto.sign(SIGNING_LABEL_RESPONSE, nonce1,
+				keyPair1.getPrivate().getEncoded());
 
 		// MAC 1
 		SecretKey macKey1 = crypto.deriveMacKey(secretKey, true);

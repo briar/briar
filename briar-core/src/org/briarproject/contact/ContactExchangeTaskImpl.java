@@ -7,9 +7,7 @@ import org.briarproject.api.contact.ContactExchangeTask;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.BdfReader;
 import org.briarproject.api.data.BdfReaderFactory;
@@ -55,6 +53,8 @@ public class ContactExchangeTaskImpl extends Thread
 
 	private static final Logger LOG =
 			Logger.getLogger(ContactExchangeTaskImpl.class.getName());
+	private static final String SIGNING_LABEL_EXCHANGE =
+			"org.briarproject.briar.contact/EXCHANGE";
 
 	private final DatabaseComponent db;
 	private final AuthorFactory authorFactory;
@@ -219,12 +219,9 @@ public class ContactExchangeTaskImpl extends Thread
 	private void sendPseudonym(BdfWriter w, byte[] nonce)
 			throws GeneralSecurityException, IOException {
 		// Sign the nonce
-		Signature signature = crypto.getSignature();
-		KeyParser keyParser = crypto.getSignatureKeyParser();
 		byte[] privateKey = localAuthor.getPrivateKey();
-		signature.initSign(keyParser.parsePrivateKey(privateKey));
-		signature.update(nonce);
-		byte[] sig = signature.sign();
+		byte[] sig = crypto.sign(SIGNING_LABEL_EXCHANGE, nonce, privateKey);
+
 		// Write the name, public key and signature
 		w.writeListStart();
 		w.writeString(localAuthor.getName());
@@ -244,11 +241,7 @@ public class ContactExchangeTaskImpl extends Thread
 		r.readListEnd();
 		LOG.info("Received pseudonym");
 		// Verify the signature
-		Signature signature = crypto.getSignature();
-		KeyParser keyParser = crypto.getSignatureKeyParser();
-		signature.initVerify(keyParser.parsePublicKey(publicKey));
-		signature.update(nonce);
-		if (!signature.verify(sig)) {
+		if (!crypto.verify(SIGNING_LABEL_EXCHANGE, nonce, publicKey, sig)) {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Invalid signature");
 			throw new GeneralSecurityException();

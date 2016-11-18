@@ -10,10 +10,7 @@ import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyParser;
-import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
@@ -77,6 +74,7 @@ import static org.briarproject.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.introduction.IntroduceeManager.SIGNING_LABEL_RESPONSE;
 import static org.hamcrest.Matchers.array;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.Assert.assertFalse;
@@ -91,11 +89,8 @@ public class IntroduceeManagerTest extends BriarTestCase {
 	private final CryptoComponent cryptoComponent;
 	private final ClientHelper clientHelper;
 	private final IntroductionGroupFactory introductionGroupFactory;
-	private final MessageSender messageSender;
-	private final TransportPropertyManager transportPropertyManager;
 	private final AuthorFactory authorFactory;
 	private final ContactManager contactManager;
-	private final IdentityManager identityManager;
 	private final Clock clock;
 	private final Contact introducer;
 	private final Contact introducee1;
@@ -105,24 +100,24 @@ public class IntroduceeManagerTest extends BriarTestCase {
 	private final Transaction txn;
 	private final long time = 42L;
 	private final Message localStateMessage;
-	private final ClientId clientId;
 	private final SessionId sessionId;
 	private final Message message1;
 
 	public IntroduceeManagerTest() {
 		context = new Mockery();
 		context.setImposteriser(ClassImposteriser.INSTANCE);
-		messageSender = context.mock(MessageSender.class);
+		MessageSender messageSender = context.mock(MessageSender.class);
 		db = context.mock(DatabaseComponent.class);
 		cryptoComponent = context.mock(CryptoComponent.class);
 		clientHelper = context.mock(ClientHelper.class);
 		clock = context.mock(Clock.class);
 		introductionGroupFactory =
 				context.mock(IntroductionGroupFactory.class);
-		transportPropertyManager = context.mock(TransportPropertyManager.class);
+		TransportPropertyManager transportPropertyManager =
+				context.mock(TransportPropertyManager.class);
 		authorFactory = context.mock(AuthorFactory.class);
 		contactManager = context.mock(ContactManager.class);
-		identityManager = context.mock(IdentityManager.class);
+		IdentityManager identityManager = context.mock(IdentityManager.class);
 
 		introduceeManager = new IntroduceeManager(messageSender, db,
 				clientHelper, clock, cryptoComponent, transportPropertyManager,
@@ -152,7 +147,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		introducee2 =
 				new Contact(contactId2, author2, localAuthorId, true, true);
 
-		clientId = IntroductionManagerImpl.CLIENT_ID;
+		ClientId clientId = IntroductionManagerImpl.CLIENT_ID;
 		localGroup1 = new Group(new GroupId(TestUtils.getRandomId()),
 				clientId, new byte[0]);
 		introductionGroup1 = new Group(new GroupId(TestUtils.getRandomId()),
@@ -270,20 +265,9 @@ public class IntroduceeManagerTest extends BriarTestCase {
 				new BdfEntry(SIGNATURE, sig)
 		);
 
-		final KeyParser keyParser = context.mock(KeyParser.class);
-		final PublicKey publicKey = context.mock(PublicKey.class);
-		final Signature signature = context.mock(Signature.class);
 		context.checking(new Expectations() {{
-			oneOf(cryptoComponent).getSignatureKeyParser();
-			will(returnValue(keyParser));
-			oneOf(keyParser)
-					.parsePublicKey(introducee2.getAuthor().getPublicKey());
-			will(returnValue(publicKey));
-			oneOf(cryptoComponent).getSignature();
-			will(returnValue(signature));
-			oneOf(signature).initVerify(publicKey);
-			oneOf(signature).update(nonce);
-			oneOf(signature).verify(sig);
+			oneOf(cryptoComponent).verify(SIGNING_LABEL_RESPONSE, nonce,
+					introducee2.getAuthor().getPublicKey(), sig);
 			will(returnValue(false));
 		}});
 
@@ -311,19 +295,9 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		state.put(NONCE, nonce);
 		state.put(SIGNATURE, sig);
 
-		final KeyParser keyParser = context.mock(KeyParser.class);
-		final Signature signature = context.mock(Signature.class);
-		final PublicKey publicKey = context.mock(PublicKey.class);
 		context.checking(new Expectations() {{
-			oneOf(cryptoComponent).getSignatureKeyParser();
-			will(returnValue(keyParser));
-			oneOf(keyParser).parsePublicKey(publicKeyBytes);
-			will(returnValue(publicKey));
-			oneOf(cryptoComponent).getSignature();
-			will(returnValue(signature));
-			oneOf(signature).initVerify(publicKey);
-			oneOf(signature).update(nonce);
-			oneOf(signature).verify(sig);
+			oneOf(cryptoComponent).verify(SIGNING_LABEL_RESPONSE, nonce,
+					publicKeyBytes, sig);
 			will(returnValue(true));
 		}});
 		introduceeManager.verifySignature(state);

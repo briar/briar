@@ -16,8 +16,6 @@ public interface CryptoComponent {
 
 	SecureRandom getSecureRandom();
 
-	Signature getSignature();
-
 	KeyPair generateAgreementKeyPair();
 
 	KeyParser getAgreementKeyParser();
@@ -149,7 +147,7 @@ public interface CryptoComponent {
 	 * @param label A label specific to this signature
 	 *              to ensure that the signature cannot be repurposed
 	 */
-	byte[] sign(String label, byte[] toSign, PrivateKey privateKey)
+	byte[] sign(String label, byte[] toSign, byte[] privateKey)
 			throws GeneralSecurityException;
 
 	/**
@@ -160,7 +158,7 @@ public interface CryptoComponent {
 	 *              to ensure that the signature cannot be repurposed
 	 * @return true if the signature was valid, false otherwise.
 	 */
-	boolean verify(String label, byte[] signedData, PublicKey publicKey,
+	boolean verify(String label, byte[] signedData, byte[] publicKey,
 			byte[] signature) throws GeneralSecurityException;
 
 	/**

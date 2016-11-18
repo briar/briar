@@ -3,9 +3,6 @@ package org.briarproject.clients;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyParser;
-import org.briarproject.api.crypto.PrivateKey;
-import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.data.BdfReader;
@@ -347,19 +344,13 @@ class ClientHelperImpl implements ClientHelper {
 	@Override
 	public byte[] sign(String label, BdfList toSign, byte[] privateKey)
 			throws FormatException, GeneralSecurityException {
-		KeyParser keyParser = crypto.getSignatureKeyParser();
-		PrivateKey key = keyParser.parsePrivateKey(privateKey);
-		return crypto.sign(label, toByteArray(toSign), key);
+		return crypto.sign(label, toByteArray(toSign), privateKey);
 	}
 
 	@Override
 	public void verifySignature(String label, byte[] sig, byte[] publicKey,
 			BdfList signed) throws FormatException, GeneralSecurityException {
-		// Parse the public key
-		KeyParser keyParser = crypto.getSignatureKeyParser();
-		PublicKey key = keyParser.parsePublicKey(publicKey);
-		// Verify the signature
-		if (!crypto.verify(label, toByteArray(signed), key, sig)) {
+		if (!crypto.verify(label, toByteArray(signed), publicKey, sig)) {
 			throw new GeneralSecurityException("Invalid signature");
 		}
 	}

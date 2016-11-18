@@ -7,7 +7,6 @@ import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PublicKey;
-import org.briarproject.api.crypto.Signature;
 import org.junit.Test;
 
 import java.security.GeneralSecurityException;
@@ -102,15 +101,13 @@ public class KeyEncodingAndParsingTest extends BriarTestCase {
 
 	@Test
 	public void testSignatureLength() throws Exception {
-		Signature sig = crypto.getSignature();
 		// Generate 10 signature key pairs
 		for (int i = 0; i < 10; i++) {
 			KeyPair keyPair = crypto.generateSignatureKeyPair();
+			byte[] key = keyPair.getPrivate().getEncoded();
 			// Sign some random data and check the length of the signature
 			byte[] toBeSigned = TestUtils.getRandomBytes(1234);
-			sig.initSign(keyPair.getPrivate());
-			sig.update(toBeSigned);
-			byte[] signature = sig.sign();
+			byte[] signature = crypto.sign("label", toBeSigned, key);
 			assertTrue(signature.length <= MAX_SIGNATURE_LENGTH);
 		}
 	}
