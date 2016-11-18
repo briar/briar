@@ -1,8 +1,11 @@
-package org.briarproject.api.crypto;
+package org.briarproject.crypto;
+
+import org.briarproject.api.crypto.PrivateKey;
+import org.briarproject.api.crypto.PublicKey;
 
 import java.security.GeneralSecurityException;
 
-public interface Signature {
+interface Signature {
 
 	/**
 	 * @see {@link java.security.Signature#initSign(java.security.PrivateKey)}
@@ -10,7 +13,7 @@ public interface Signature {
 	void initSign(PrivateKey k) throws GeneralSecurityException;
 
 	/**
-	 * @see {@link java.security.Signature#initVafiry(java.security.PublicKey)}
+	 * @see {@link java.security.Signature#initVerify(java.security.PublicKey)}
 	 */
 	void initVerify(PublicKey k) throws GeneralSecurityException;
 

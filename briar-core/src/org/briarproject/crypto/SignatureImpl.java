@@ -2,7 +2,6 @@ package org.briarproject.crypto;
 
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PublicKey;
-import org.briarproject.api.crypto.Signature;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
@@ -33,30 +32,36 @@ class SignatureImpl implements Signature {
 		signer = new DSADigestSigner(new ECDSASigner(calculator), digest);
 	}
 
+	@Override
 	public void initSign(PrivateKey k) throws GeneralSecurityException {
 		if (!(k instanceof Sec1PrivateKey)) throw new GeneralSecurityException();
 		ECPrivateKeyParameters priv = ((Sec1PrivateKey) k).getKey();
 		signer.init(true, new ParametersWithRandom(priv, secureRandom));
 	}
 
+	@Override
 	public void initVerify(PublicKey k) throws GeneralSecurityException {
 		if (!(k instanceof Sec1PublicKey)) throw new GeneralSecurityException();
 		ECPublicKeyParameters pub = ((Sec1PublicKey) k).getKey();
 		signer.init(false, pub);
 	}
 
+	@Override
 	public void update(byte b) {
 		signer.update(b);
 	}
 
+	@Override
 	public void update(byte[] b) {
 		update(b, 0, b.length);
 	}
 
+	@Override
 	public void update(byte[] b, int off, int len) {
 		signer.update(b, off, len);
 	}
 
+	@Override
 	public byte[] sign() {
 		long now = System.currentTimeMillis();
 		byte[] signature = signer.generateSignature();
@@ -66,6 +71,7 @@ class SignatureImpl implements Signature {
 		return signature;
 	}
 
+	@Override
 	public boolean verify(byte[] signature) {
 		long now = System.currentTimeMillis();
 		boolean valid = signer.verifySignature(signature);
