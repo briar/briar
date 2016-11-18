@@ -29,15 +29,4 @@ interface DatabaseConstants {
 	 */
 	String MIN_SCHEMA_VERSION_KEY = "minSchemaVersion";
 
-	/**
-	 * The namespace of the {@link Settings Settings}
-	 * where the unique device ID is stored.
-	 */
-	String DEVICE_SETTINGS_NAMESPACE = "device";
-
-	/**
-	 * The {@link Settings Settings} key under which the
-	 * unique device ID is stored.
-	 */
-	String DEVICE_ID_KEY = "deviceId";
 }

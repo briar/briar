@@ -1,6 +1,5 @@
 package org.briarproject.db;
 
-import org.briarproject.api.DeviceId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -412,12 +411,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsLocalAuthor(txn, a))
 			throw new NoSuchLocalAuthorException();
 		return db.getContacts(txn, a);
-	}
-
-	@Override
-	public DeviceId getDeviceId(Transaction transaction) throws DbException {
-		T txn = unbox(transaction);
-		return db.getDeviceId(txn);
 	}
 
 	@Override

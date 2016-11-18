@@ -1,6 +1,5 @@
 package org.briarproject.db;
 
-import org.briarproject.api.DeviceId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
@@ -226,13 +225,6 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<ContactId> getContacts(T txn, AuthorId a) throws DbException;
-
-	/**
-	 * Returns the unique ID for this device.
-	 * <p/>
-	 * Read-only.
-	 */
-	DeviceId getDeviceId(T txn) throws DbException;
 
 	/**
 	 * Returns the amount of free storage space available to the database, in
