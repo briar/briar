@@ -33,13 +33,12 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
+import static org.briarproject.api.plugins.LanTcpConstants.ID;
 import static org.briarproject.util.ByteUtils.MAX_16_BIT_UNSIGNED;
 import static org.briarproject.util.PrivacyUtils.scrubSocketAddress;
 
 @NotNullByDefault
 class LanTcpPlugin extends TcpPlugin {
-
-	static final TransportId ID = new TransportId("lan");
 
 	private static final Logger LOG =
 			Logger.getLogger(LanTcpPlugin.class.getName());

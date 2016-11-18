@@ -19,7 +19,8 @@ import static java.util.logging.Level.WARNING;
 class RemovableDrivePlugin extends FilePlugin
 implements RemovableDriveMonitor.Callback {
 
-	static final TransportId ID = new TransportId("file");
+	static final TransportId ID =
+			new TransportId("org.briarproject.bramble.file");
 
 	private static final Logger LOG =
 			Logger.getLogger(RemovableDrivePlugin.class.getName());

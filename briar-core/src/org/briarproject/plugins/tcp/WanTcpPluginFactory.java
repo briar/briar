@@ -10,6 +10,8 @@ import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 
 import java.util.concurrent.Executor;
 
+import static org.briarproject.api.plugins.WanTcpConstants.ID;
+
 public class WanTcpPluginFactory implements DuplexPluginFactory {
 
 	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
@@ -31,7 +33,7 @@ public class WanTcpPluginFactory implements DuplexPluginFactory {
 
 	@Override
 	public TransportId getId() {
-		return WanTcpPlugin.ID;
+		return ID;
 	}
 
 	@Override

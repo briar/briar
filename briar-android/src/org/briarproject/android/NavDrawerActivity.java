@@ -29,6 +29,9 @@ import org.briarproject.android.forum.ForumListFragment;
 import org.briarproject.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.android.privategroup.list.GroupListFragment;
 import org.briarproject.api.TransportId;
+import org.briarproject.api.plugins.BluetoothConstants;
+import org.briarproject.api.plugins.LanTcpConstants;
+import org.briarproject.api.plugins.TorConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -230,21 +233,21 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		transports = new ArrayList<>(3);
 
 		Transport tor = new Transport();
-		tor.id = new TransportId("tor");
+		tor.id = TorConstants.ID;
 		tor.enabled = controller.isTransportRunning(tor.id);
 		tor.iconId = R.drawable.transport_tor;
 		tor.textId = R.string.transport_tor;
 		transports.add(tor);
 
 		Transport bt = new Transport();
-		bt.id = new TransportId("bt");
+		bt.id = BluetoothConstants.ID;
 		bt.enabled = controller.isTransportRunning(bt.id);
 		bt.iconId = R.drawable.transport_bt;
 		bt.textId = R.string.transport_bt;
 		transports.add(bt);
 
 		Transport lan = new Transport();
-		lan.id = new TransportId("lan");
+		lan.id = LanTcpConstants.ID;
 		lan.enabled = controller.isTransportRunning(lan.id);
 		lan.iconId = R.drawable.transport_lan;
 		lan.textId = R.string.transport_lan;

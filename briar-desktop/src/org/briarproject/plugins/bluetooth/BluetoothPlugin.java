@@ -49,20 +49,17 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static javax.bluetooth.DiscoveryAgent.GIAC;
 import static org.briarproject.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_BLUETOOTH;
+import static org.briarproject.api.plugins.BluetoothConstants.ID;
+import static org.briarproject.api.plugins.BluetoothConstants.PROP_ADDRESS;
+import static org.briarproject.api.plugins.BluetoothConstants.PROP_UUID;
+import static org.briarproject.api.plugins.BluetoothConstants.UUID_BYTES;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 class BluetoothPlugin implements DuplexPlugin {
 
-	// Share an ID with the Android Bluetooth plugin
-	static final TransportId ID = new TransportId("bt");
-
 	private static final Logger LOG =
 			Logger.getLogger(BluetoothPlugin.class.getName());
-	private static final int UUID_BYTES = 16;
-
-	private static final String PROP_ADDRESS = "address";
-	private static final String PROP_UUID = "uuid";
 
 	private final Executor ioExecutor;
 	private final SecureRandom secureRandom;
@@ -507,7 +504,7 @@ class BluetoothPlugin implements DuplexPlugin {
 
 		private final StreamConnectionNotifier ss;
 
-		BluetoothKeyAgreementListener(BdfList descriptor,
+		private BluetoothKeyAgreementListener(BdfList descriptor,
 				StreamConnectionNotifier ss) {
 			super(descriptor);
 			this.ss = ss;
