@@ -32,7 +32,7 @@ import javax.inject.Inject;
 import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
 
-public class ForumControllerImpl
+class ForumControllerImpl
 		extends ThreadListControllerImpl<Forum, ForumItem, ForumPostHeader, ForumPost, ThreadListListener<ForumPostHeader>>
 		implements ForumController {
 

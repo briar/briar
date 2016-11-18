@@ -36,7 +36,7 @@ import javax.inject.Inject;
 import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
 
-public class GroupControllerImpl extends
+class GroupControllerImpl extends
 		ThreadListControllerImpl<PrivateGroup, GroupMessageItem, GroupMessageHeader, GroupMessage, GroupListener>
 		implements GroupController {
 

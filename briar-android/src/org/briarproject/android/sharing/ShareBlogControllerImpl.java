@@ -25,7 +25,7 @@ import static java.util.logging.Level.WARNING;
 
 @Immutable
 @NotNullByDefault
-public class ShareBlogControllerImpl extends ContactSelectorControllerImpl
+class ShareBlogControllerImpl extends ContactSelectorControllerImpl
 		implements ShareBlogController {
 
 	private final static Logger LOG =

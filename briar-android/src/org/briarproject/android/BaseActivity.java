@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import org.briarproject.android.controller.ActivityLifecycleController;
+import org.briarproject.android.forum.ForumModule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		activityComponent = DaggerActivityComponent.builder()
 				.androidComponent(applicationComponent)
 				.activityModule(getActivityModule())
+				.forumModule(getForumModule())
 				.build();
 
 		injectActivity(activityComponent);
@@ -59,6 +61,10 @@ public abstract class BaseActivity extends AppCompatActivity
 	// This exists to make test overrides easier
 	protected ActivityModule getActivityModule() {
 		return new ActivityModule(this);
+	}
+
+	protected ForumModule getForumModule() {
+		return new ForumModule();
 	}
 
 	@Override

@@ -18,7 +18,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 
-public class GroupMemberListControllerImpl extends DbControllerImpl
+class GroupMemberListControllerImpl extends DbControllerImpl
 		implements GroupMemberListController {
 
 	private static final Logger LOG =

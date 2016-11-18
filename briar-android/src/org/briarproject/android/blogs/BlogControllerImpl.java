@@ -29,7 +29,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-public class BlogControllerImpl extends BaseControllerImpl
+class BlogControllerImpl extends BaseControllerImpl
 		implements ActivityLifecycleController, BlogController, EventListener {
 
 	private static final Logger LOG =

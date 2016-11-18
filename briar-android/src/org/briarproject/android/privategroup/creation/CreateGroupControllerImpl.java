@@ -36,7 +36,7 @@ import static java.util.logging.Level.WARNING;
 
 @Immutable
 @NotNullByDefault
-public class CreateGroupControllerImpl extends ContactSelectorControllerImpl
+class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 		implements CreateGroupController {
 
 	private static final Logger LOG =

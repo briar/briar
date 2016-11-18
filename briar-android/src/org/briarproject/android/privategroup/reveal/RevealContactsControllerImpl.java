@@ -33,7 +33,7 @@ import static org.briarproject.api.privategroup.Visibility.INVISIBLE;
 
 @Immutable
 @NotNullByDefault
-public class RevealContactsControllerImpl extends DbControllerImpl
+class RevealContactsControllerImpl extends DbControllerImpl
 		implements RevealContactsController {
 
 	private static final Logger LOG =

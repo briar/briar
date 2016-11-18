@@ -27,7 +27,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.blogs.BlogManager.CLIENT_ID;
 
-public class FeedControllerImpl extends BaseControllerImpl
+class FeedControllerImpl extends BaseControllerImpl
 		implements FeedController {
 
 	private static final Logger LOG =

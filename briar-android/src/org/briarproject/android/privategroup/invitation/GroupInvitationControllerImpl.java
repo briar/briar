@@ -25,7 +25,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.api.privategroup.PrivateGroupManager.CLIENT_ID;
 
 @NotNullByDefault
-public class GroupInvitationControllerImpl
+class GroupInvitationControllerImpl
 		extends InvitationControllerImpl<GroupInvitationItem>
 		implements GroupInvitationController {
 
