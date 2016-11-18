@@ -25,11 +25,11 @@
 		<org.thoughtcrime.securesms.components.emoji.EmojiEditText
 			android:id="@+id/input_text"
 			android:layout_width="0dp"
-			android:layout_height="match_parent"
+			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:background="@android:color/transparent"
 			android:inputType="textMultiLine|textCapSentences"
-			android:maxLines="5"
+			android:maxLines="3"
 			android:minHeight="@dimen/text_input_height"
 			android:textColor="@color/briar_text_primary"
 			android:textColorHint="@color/briar_text_tertiary"/>
