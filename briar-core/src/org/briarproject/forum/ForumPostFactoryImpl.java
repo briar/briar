@@ -39,7 +39,8 @@ class ForumPostFactoryImpl implements ForumPostFactory {
 		BdfList signed = BdfList.of(groupId, timestamp, parent, authorList,
 				body);
 		// Sign the data
-		byte[] sig = clientHelper.sign(signed, author.getPrivateKey());
+		byte[] sig = clientHelper
+				.sign(SIGNING_LABEL_POST, signed, author.getPrivateKey());
 		// Serialise the signed message
 		BdfList message = BdfList.of(parent, authorList, body, sig);
 		Message m = clientHelper.createMessage(groupId, timestamp, message);

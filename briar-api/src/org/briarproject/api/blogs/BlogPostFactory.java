@@ -11,7 +11,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.security.GeneralSecurityException;
 
+import static org.briarproject.api.blogs.BlogManager.CLIENT_ID;
+
 public interface BlogPostFactory {
+
+	String SIGNING_LABEL_POST = CLIENT_ID + "/POST";
+	String SIGNING_LABEL_COMMENT = CLIENT_ID + "/COMMENT";
 
 	BlogPost createBlogPost(@NotNull GroupId groupId, long timestamp,
 			@Nullable MessageId parent, @NotNull LocalAuthor author,

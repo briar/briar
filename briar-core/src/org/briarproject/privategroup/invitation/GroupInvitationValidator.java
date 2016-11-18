@@ -31,6 +31,7 @@ import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH
 import static org.briarproject.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_MSG_LENGTH;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
+import static org.briarproject.api.privategroup.invitation.GroupInvitationFactory.SIGNING_LABEL_INVITE;
 import static org.briarproject.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.privategroup.invitation.MessageType.JOIN;
@@ -96,13 +97,13 @@ class GroupInvitationValidator extends BdfMessageValidator {
 				groupName, creator, salt);
 		// Verify the signature
 		BdfList signed = BdfList.of(
-				INVITE.getValue(),
 				m.getTimestamp(),
 				m.getGroupId(),
 				privateGroup.getId()
 		);
 		try {
-			clientHelper.verifySignature(signature, creatorPublicKey, signed);
+			clientHelper.verifySignature(SIGNING_LABEL_INVITE, signature,
+					creatorPublicKey, signed);
 		} catch (GeneralSecurityException e) {
 			throw new FormatException();
 		}

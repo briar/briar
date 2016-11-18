@@ -1,15 +1,19 @@
 package org.briarproject.api.privategroup;
 
 import org.briarproject.api.crypto.CryptoExecutor;
-import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.jetbrains.annotations.Nullable;
 
+import static org.briarproject.api.privategroup.PrivateGroupManager.CLIENT_ID;
+
 @NotNullByDefault
 public interface GroupMessageFactory {
+
+	String SIGNING_LABEL_JOIN = CLIENT_ID + "/JOIN";
+	String SIGNING_LABEL_POST = CLIENT_ID + "/POST";
 
 	/**
 	 * Creates a join announcement message for the creator of a group.

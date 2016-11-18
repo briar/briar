@@ -8,7 +8,11 @@ import org.briarproject.api.sync.MessageId;
 
 import java.security.GeneralSecurityException;
 
+import static org.briarproject.api.forum.ForumManager.CLIENT_ID;
+
 public interface ForumPostFactory {
+
+	String SIGNING_LABEL_POST = CLIENT_ID + "/POST";
 
 	@CryptoExecutor
 	ForumPost createPost(GroupId groupId, long timestamp, MessageId parent,

@@ -165,11 +165,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public Signature getSignature() {
-		return new SignatureImpl(secureRandom);
-	}
-
-	@Override
 	public KeyPair generateAgreementKeyPair() {
 		AsymmetricCipherKeyPair keyPair =
 				agreementKeyPairGenerator.generateKeyPair();
@@ -397,6 +392,40 @@ class CryptoComponentImpl implements CryptoComponent {
 		prf.doFinal(mac, 0);
 		// The output is the first TAG_LENGTH bytes of the MAC
 		System.arraycopy(mac, 0, tag, 0, TAG_LENGTH);
+	}
+
+	@Override
+	public byte[] sign(String label, byte[] toSign, byte[] privateKey)
+			throws GeneralSecurityException {
+		Signature signature = new SignatureImpl(secureRandom);
+		KeyParser keyParser = getSignatureKeyParser();
+		PrivateKey key = keyParser.parsePrivateKey(privateKey);
+		signature.initSign(key);
+		updateSignature(signature, label, toSign);
+		return signature.sign();
+	}
+
+	@Override
+	public boolean verify(String label, byte[] signedData, byte[] publicKey,
+			byte[] signature) throws GeneralSecurityException {
+		Signature sig = new SignatureImpl(secureRandom);
+		KeyParser keyParser = getSignatureKeyParser();
+		PublicKey key = keyParser.parsePublicKey(publicKey);
+		sig.initVerify(key);
+		updateSignature(sig, label, signedData);
+		return sig.verify(signature);
+	}
+
+	private void updateSignature(Signature signature, String label,
+			byte[] toSign) {
+		byte[] labelBytes = StringUtils.toUtf8(label);
+		byte[] length = new byte[INT_32_BYTES];
+		ByteUtils.writeUint32(labelBytes.length, length, 0);
+		signature.update(length);
+		signature.update(labelBytes);
+		ByteUtils.writeUint32(toSign.length, length, 0);
+		signature.update(length);
+		signature.update(toSign);
 	}
 
 	@Override

@@ -16,8 +16,6 @@ public interface CryptoComponent {
 
 	SecureRandom getSecureRandom();
 
-	Signature getSignature();
-
 	KeyPair generateAgreementKeyPair();
 
 	KeyParser getAgreementKeyParser();
@@ -142,6 +140,26 @@ public interface CryptoComponent {
 
 	/** Encodes the pseudo-random tag that is used to recognise a stream. */
 	void encodeTag(byte[] tag, SecretKey tagKey, long streamNumber);
+
+	/**
+	 * Signs the given byte[] with the given PrivateKey.
+	 *
+	 * @param label A label specific to this signature
+	 *              to ensure that the signature cannot be repurposed
+	 */
+	byte[] sign(String label, byte[] toSign, byte[] privateKey)
+			throws GeneralSecurityException;
+
+	/**
+	 * Verifies that the given signature is valid for the signedData
+	 * and the given publicKey.
+	 *
+	 * @param label A label that was specific to this signature
+	 *              to ensure that the signature cannot be repurposed
+	 * @return true if the signature was valid, false otherwise.
+	 */
+	boolean verify(String label, byte[] signedData, byte[] publicKey,
+			byte[] signature) throws GeneralSecurityException;
 
 	/**
 	 * Returns the hash of the given inputs. The inputs are unambiguously

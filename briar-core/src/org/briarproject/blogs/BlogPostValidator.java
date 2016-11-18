@@ -39,6 +39,8 @@ import static org.briarproject.api.blogs.BlogConstants.KEY_TIME_RECEIVED;
 import static org.briarproject.api.blogs.BlogConstants.KEY_TYPE;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_COMMENT_LENGTH;
 import static org.briarproject.api.blogs.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
+import static org.briarproject.api.blogs.BlogPostFactory.SIGNING_LABEL_COMMENT;
+import static org.briarproject.api.blogs.BlogPostFactory.SIGNING_LABEL_POST;
 import static org.briarproject.api.blogs.MessageType.COMMENT;
 import static org.briarproject.api.blogs.MessageType.POST;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
@@ -105,7 +107,9 @@ class BlogPostValidator extends BdfMessageValidator {
 		Blog b = blogFactory.parseBlog(g);
 		Author a = b.getAuthor();
 		try {
-			clientHelper.verifySignature(sig, a.getPublicKey(), signed);
+			clientHelper
+					.verifySignature(SIGNING_LABEL_POST, sig, a.getPublicKey(),
+							signed);
 		} catch (GeneralSecurityException e) {
 			throw new InvalidMessageException(e);
 		}
@@ -150,7 +154,8 @@ class BlogPostValidator extends BdfMessageValidator {
 		Blog b = blogFactory.parseBlog(g);
 		Author a = b.getAuthor();
 		try {
-			clientHelper.verifySignature(sig, a.getPublicKey(), signed);
+			clientHelper.verifySignature(SIGNING_LABEL_COMMENT, sig,
+					a.getPublicKey(), signed);
 		} catch (GeneralSecurityException e) {
 			throw new InvalidMessageException(e);
 		}

@@ -5,6 +5,7 @@ import net.jodah.concurrentunit.Waiter;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.clients.MessageTracker.GroupCount;
+import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -29,7 +30,7 @@ import org.briarproject.api.privategroup.JoinMessageHeader;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.privategroup.PrivateGroupManager;
-import org.briarproject.api.sync.Group;
+import org.briarproject.api.privategroup.invitation.GroupInvitationFactory;
 import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.MessageId;
 import org.briarproject.api.sync.SyncSession;
@@ -65,7 +66,7 @@ import static org.briarproject.api.privategroup.Visibility.INVISIBLE;
 import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_CONTACT;
 import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_US;
 import static org.briarproject.api.privategroup.Visibility.VISIBLE;
-import static org.briarproject.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
+import static org.briarproject.api.privategroup.invitation.GroupInvitationFactory.SIGNING_LABEL_INVITE;
 import static org.briarproject.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
@@ -103,6 +104,8 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 	PrivateGroupFactory privateGroupFactory;
 	@Inject
 	GroupMessageFactory groupMessageFactory;
+	@Inject
+	GroupInvitationFactory groupInvitationFactory;
 
 	// objects accessed from background threads need to be volatile
 	private volatile Waiter validationWaiter;
@@ -358,13 +361,10 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		// author1 joins privateGroup0 with wrong timestamp
 		joinTime = clock.currentTimeMillis();
 		long inviteTime = joinTime;
-		Group invitationGroup = contactGroupFactory
-				.createContactGroup(CLIENT_ID, author0.getId(),
-						author1.getId());
-		BdfList toSign = BdfList.of(0, inviteTime, invitationGroup.getId(),
-				privateGroup0.getId());
-		byte[] creatorSignature =
-				clientHelper.sign(toSign, author0.getPrivateKey());
+		Contact c1 = contactManager0.getContact(contactId1);
+		byte[] creatorSignature = groupInvitationFactory
+				.signInvitation(c1, privateGroup0.getId(), inviteTime,
+						author0.getPrivateKey());
 		GroupMessage joinMsg1 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author1,
 						inviteTime, creatorSignature);
@@ -402,13 +402,11 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		// author0 joins privateGroup0 with wrong member's join message
 		long joinTime = clock.currentTimeMillis();
 		long inviteTime = joinTime - 1;
-		Group invitationGroup = contactGroupFactory
-				.createContactGroup(CLIENT_ID, author0.getId(),
-						author0.getId());
-		BdfList toSign = BdfList.of(0, inviteTime, invitationGroup.getId(),
-				privateGroup0.getId());
-		byte[] creatorSignature =
-				clientHelper.sign(toSign, author0.getPrivateKey());
+		BdfList toSign = groupInvitationFactory
+				.createInviteToken(author0.getId(), author0.getId(),
+						privateGroup0.getId(), inviteTime);
+		byte[] creatorSignature = clientHelper
+				.sign(SIGNING_LABEL_INVITE, toSign, author0.getPrivateKey());
 		// join message should not include invite time and creator's signature
 		GroupMessage joinMsg0 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author0,
@@ -426,13 +424,11 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		// author1 joins privateGroup0 with wrong signature in join message
 		joinTime = clock.currentTimeMillis();
 		inviteTime = joinTime - 1;
-		invitationGroup = contactGroupFactory
-				.createContactGroup(CLIENT_ID, author0.getId(),
-						author1.getId());
-		toSign = BdfList.of(0, inviteTime, invitationGroup.getId(),
-				privateGroup0.getId());
 		// signature uses joiner's key, not creator's key
-		creatorSignature = clientHelper.sign(toSign, author1.getPrivateKey());
+		Contact c1 = contactManager0.getContact(contactId1);
+		creatorSignature = groupInvitationFactory
+				.signInvitation(c1, privateGroup0.getId(), inviteTime,
+						author1.getPrivateKey());
 		GroupMessage joinMsg1 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author1,
 						inviteTime, creatorSignature);
@@ -529,13 +525,10 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		// author2 joins privateGroup0
 		long joinTime = clock.currentTimeMillis();
 		long inviteTime = joinTime - 1;
-		Group invitationGroup = contactGroupFactory
-				.createContactGroup(CLIENT_ID, author0.getId(),
-						author2.getId());
-		BdfList toSign = BdfList.of(0, inviteTime, invitationGroup.getId(),
-				privateGroup0.getId());
-		byte[] creatorSignature =
-				clientHelper.sign(toSign, author0.getPrivateKey());
+		Contact c2 = contactManager0.getContact(contactId2);
+		byte[] creatorSignature = groupInvitationFactory
+				.signInvitation(c2, privateGroup0.getId(), inviteTime,
+						author0.getPrivateKey());
 		GroupMessage joinMsg2 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author2,
 						inviteTime, creatorSignature);
@@ -753,13 +746,10 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		// author1 joins privateGroup0
 		joinTime = clock.currentTimeMillis();
 		long inviteTime = joinTime - 1;
-		Group invitationGroup = contactGroupFactory
-				.createContactGroup(CLIENT_ID, author0.getId(),
-						author1.getId());
-		BdfList toSign = BdfList.of(0, inviteTime, invitationGroup.getId(),
-				privateGroup0.getId());
-		byte[] creatorSignature =
-				clientHelper.sign(toSign, author0.getPrivateKey());
+		Contact c1 = contactManager0.getContact(contactId1);
+		byte[] creatorSignature = groupInvitationFactory
+				.signInvitation(c1, privateGroup0.getId(), inviteTime,
+						author0.getPrivateKey());
 		GroupMessage joinMsg1 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author1,
 						inviteTime, creatorSignature);

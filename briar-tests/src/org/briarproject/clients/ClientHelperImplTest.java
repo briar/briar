@@ -1,13 +1,10 @@
 package org.briarproject.clients;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.TestUtils;
 import org.briarproject.api.FormatException;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.KeyParser;
-import org.briarproject.api.crypto.PrivateKey;
-import org.briarproject.api.crypto.PublicKey;
-import org.briarproject.api.crypto.Signature;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfEntry;
 import org.briarproject.api.data.BdfList;
@@ -57,8 +54,6 @@ public class ClientHelperImplTest extends BriarTestCase {
 			context.mock(MetadataEncoder.class);
 	private final CryptoComponent cryptoComponent =
 			context.mock(CryptoComponent.class);
-	private final KeyParser keyParser = context.mock(KeyParser.class);
-	private final Signature signature = context.mock(Signature.class);
 	private final ClientHelper clientHelper;
 
 	private final GroupId groupId = new GroupId(getRandomId());
@@ -70,6 +65,7 @@ public class ClientHelperImplTest extends BriarTestCase {
 			new Message(messageId, groupId, timestamp, rawMessage);
 	private final Metadata metadata = new Metadata();
 	private final BdfList list = BdfList.of("Sign this!", getRandomBytes(42));
+	private final String label = TestUtils.getRandomString(5);
 
 	public ClientHelperImplTest() {
 		clientHelper =
@@ -284,72 +280,46 @@ public class ClientHelperImplTest extends BriarTestCase {
 
 	@Test
 	public void testSign() throws Exception {
-		final byte[] privateKeyBytes = getRandomBytes(42);
-		final PrivateKey privateKey = context.mock(PrivateKey.class);
+		final byte[] privateKey = getRandomBytes(42);
 		final byte[] signed = getRandomBytes(42);
 
 		final byte[] bytes = expectToByteArray(list);
 		context.checking(new Expectations() {{
-			oneOf(cryptoComponent).getSignature();
-			will(returnValue(signature));
-			oneOf(cryptoComponent).getSignatureKeyParser();
-			will(returnValue(keyParser));
-			oneOf(keyParser).parsePrivateKey(privateKeyBytes);
-			will(returnValue(privateKey));
-			oneOf(signature).initSign(privateKey);
-			oneOf(signature).update(bytes);
-			oneOf(signature).sign();
+			oneOf(cryptoComponent).sign(label, bytes, privateKey);
 			will(returnValue(signed));
 		}});
 
-		assertArrayEquals(signed, clientHelper.sign(list, privateKeyBytes));
+		assertArrayEquals(signed, clientHelper.sign(label, list, privateKey));
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testVerifySignature() throws Exception {
-		final PublicKey publicKey = context.mock(PublicKey.class);
-		final byte[] publicKeyBytes = getRandomBytes(42);
-
+		final byte[] publicKey = getRandomBytes(42);
 		final byte[] bytes = expectToByteArray(list);
+
 		context.checking(new Expectations() {{
-			oneOf(cryptoComponent).getSignatureKeyParser();
-			will(returnValue(keyParser));
-			oneOf(keyParser).parsePublicKey(publicKeyBytes);
-			will(returnValue(publicKey));
-			oneOf(cryptoComponent).getSignature();
-			will(returnValue(signature));
-			oneOf(signature).initVerify(publicKey);
-			oneOf(signature).update(bytes);
-			oneOf(signature).verify(rawMessage);
+			oneOf(cryptoComponent).verify(label, bytes, publicKey, rawMessage);
 			will(returnValue(true));
 		}});
 
-		clientHelper.verifySignature(rawMessage, publicKeyBytes, list);
+		clientHelper.verifySignature(label, rawMessage, publicKey, list);
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testVerifyWrongSignature() throws Exception {
-		final PublicKey publicKey = context.mock(PublicKey.class);
-		final byte[] publicKeyBytes = getRandomBytes(42);
-
+		final byte[] publicKey = getRandomBytes(42);
 		final byte[] bytes = expectToByteArray(list);
+
 		context.checking(new Expectations() {{
-			oneOf(cryptoComponent).getSignatureKeyParser();
-			will(returnValue(keyParser));
-			oneOf(keyParser).parsePublicKey(publicKeyBytes);
-			will(returnValue(publicKey));
-			oneOf(cryptoComponent).getSignature();
-			will(returnValue(signature));
-			oneOf(signature).initVerify(publicKey);
-			oneOf(signature).update(bytes);
-			oneOf(signature).verify(rawMessage);
+			oneOf(cryptoComponent).verify(label, bytes, publicKey, rawMessage);
 			will(returnValue(false));
 		}});
 
 		try {
-			clientHelper.verifySignature(rawMessage, publicKeyBytes, list);
+			clientHelper
+					.verifySignature(label, rawMessage, publicKey, list);
 			fail();
 		} catch (GeneralSecurityException e) {
 			// expected

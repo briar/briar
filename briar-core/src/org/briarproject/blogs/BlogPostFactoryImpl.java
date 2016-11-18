@@ -52,7 +52,8 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 		BdfList signed = BdfList.of(groupId, timestamp, body);
 
 		// Generate the signature
-		byte[] sig = clientHelper.sign(signed, author.getPrivateKey());
+		byte[] sig = clientHelper
+				.sign(SIGNING_LABEL_POST, signed, author.getPrivateKey());
 
 		// Serialise the signed message
 		BdfList message = BdfList.of(POST.getInt(), body, sig);
@@ -77,7 +78,8 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 		// Generate the signature
 		BdfList signed =
 				BdfList.of(groupId, timestamp, comment, pOriginalId, parentId);
-		byte[] sig = clientHelper.sign(signed, author.getPrivateKey());
+		byte[] sig = clientHelper
+				.sign(SIGNING_LABEL_COMMENT, signed, author.getPrivateKey());
 
 		// Serialise the signed message
 		BdfList message =

@@ -19,6 +19,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collection;
 
 import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
+import static org.briarproject.api.forum.ForumPostFactory.SIGNING_LABEL_POST;
 import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
@@ -70,8 +71,8 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
 			will(returnValue(author));
-			oneOf(clientHelper).verifySignature(signature, authorPublicKey,
-					signedWithoutParent);
+			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
+					authorPublicKey, signedWithoutParent);
 		}});
 
 		ForumPostValidator v = new ForumPostValidator(authorFactory,
@@ -179,8 +180,8 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(authorFactory).createAuthor(shortAuthorName, authorPublicKey);
 			will(returnValue(shortNameAuthor));
-			oneOf(clientHelper).verifySignature(signature, authorPublicKey,
-					signedWithShortNameAuthor);
+			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
+					authorPublicKey, signedWithShortNameAuthor);
 		}});
 
 		ForumPostValidator v = new ForumPostValidator(authorFactory,
@@ -267,8 +268,8 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
 			will(returnValue(author));
-			oneOf(clientHelper).verifySignature(signature, authorPublicKey,
-					signedWithShortContent);
+			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
+					authorPublicKey, signedWithShortContent);
 		}});
 
 		ForumPostValidator v = new ForumPostValidator(authorFactory,
@@ -342,8 +343,8 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
 			will(returnValue(author));
-			oneOf(clientHelper).verifySignature(signature, authorPublicKey,
-					signedWithParent);
+			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
+					authorPublicKey, signedWithParent);
 			will(throwException(new FormatException()));
 		}});
 
@@ -359,8 +360,8 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
 			will(returnValue(author));
-			oneOf(clientHelper).verifySignature(signature, authorPublicKey,
-					signedWithParent);
+			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
+					authorPublicKey, signedWithParent);
 			will(throwException(new GeneralSecurityException()));
 		}});
 
