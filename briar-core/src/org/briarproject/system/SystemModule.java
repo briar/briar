@@ -2,6 +2,7 @@ package org.briarproject.system;
 
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.system.Clock;
+import org.briarproject.api.system.Scheduler;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -17,6 +18,7 @@ public class SystemModule {
 
 	public static class EagerSingletons {
 		@Inject
+		@Scheduler
 		ScheduledExecutorService scheduledExecutorService;
 	}
 
@@ -33,6 +35,7 @@ public class SystemModule {
 
 	@Provides
 	@Singleton
+	@Scheduler
 	ScheduledExecutorService provideScheduledExecutorService(
 			LifecycleManager lifecycleManager) {
 		lifecycleManager.registerForShutdown(scheduler);

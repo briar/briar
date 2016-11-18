@@ -18,6 +18,7 @@ import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.plugins.simplex.SimplexPlugin;
 import org.briarproject.api.system.Clock;
+import org.briarproject.api.system.Scheduler;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -48,7 +49,8 @@ class Poller implements EventListener {
 	private final Map<TransportId, PollTask> tasks; // Locking: lock
 
 	@Inject
-	Poller(@IoExecutor Executor ioExecutor, ScheduledExecutorService scheduler,
+	Poller(@IoExecutor Executor ioExecutor,
+			@Scheduler ScheduledExecutorService scheduler,
 			ConnectionManager connectionManager,
 			ConnectionRegistry connectionRegistry, PluginManager pluginManager,
 			SecureRandom random, Clock clock) {
@@ -135,13 +137,14 @@ class Poller implements EventListener {
 
 	private void reschedule(TransportId t) {
 		Plugin p = pluginManager.getPlugin(t);
-		if (p.shouldPoll()) schedule(p, p.getPollingInterval(), false);
+		if (p != null && p.shouldPoll())
+			schedule(p, p.getPollingInterval(), false);
 	}
 
 	private void pollNow(TransportId t) {
 		Plugin p = pluginManager.getPlugin(t);
 		// Randomise next polling interval
-		if (p.shouldPoll()) schedule(p, 0, true);
+		if (p != null && p.shouldPoll()) schedule(p, 0, true);
 	}
 
 	private void schedule(Plugin p, int delay, boolean randomiseNext) {
@@ -152,24 +155,25 @@ class Poller implements EventListener {
 		try {
 			PollTask scheduled = tasks.get(t);
 			if (scheduled == null || due < scheduled.due) {
-				PollTask task = new PollTask(p, due, randomiseNext);
+				final PollTask task = new PollTask(p, due, randomiseNext);
 				tasks.put(t, task);
-				scheduler.schedule(task, delay, MILLISECONDS);
+				scheduler.schedule(new Runnable() {
+					@Override
+					public void run() {
+						ioExecutor.execute(task);
+					}
+				}, delay, MILLISECONDS);
 			}
 		} finally {
 			lock.unlock();
 		}
 	}
 
+	@IoExecutor
 	private void poll(final Plugin p) {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				TransportId t = p.getId();
-				if (LOG.isLoggable(INFO)) LOG.info("Polling plugin " + t);
-				p.poll(connectionRegistry.getConnectedContacts(t));
-			}
-		});
+		TransportId t = p.getId();
+		if (LOG.isLoggable(INFO)) LOG.info("Polling plugin " + t);
+		p.poll(connectionRegistry.getConnectedContacts(t));
 	}
 
 	private class PollTask implements Runnable {
@@ -185,6 +189,7 @@ class Poller implements EventListener {
 		}
 
 		@Override
+		@IoExecutor
 		public void run() {
 			lock.lock();
 			try {

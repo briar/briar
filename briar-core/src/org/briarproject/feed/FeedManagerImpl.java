@@ -29,6 +29,7 @@ import org.briarproject.api.feed.FeedManager;
 import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.identity.LocalAuthor;
 import org.briarproject.api.lifecycle.IoExecutor;
+import org.briarproject.api.system.Scheduler;
 import org.briarproject.api.plugins.TorConstants;
 import org.briarproject.api.sync.Group;
 import org.briarproject.api.sync.GroupId;
@@ -74,7 +75,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 
 	private static final int CONNECT_TIMEOUT = 60 * 1000; // Milliseconds
 
-	private final ScheduledExecutorService feedExecutor;
+	private final ScheduledExecutorService scheduler;
 	private final Executor ioExecutor;
 	private final DatabaseComponent db;
 	private final ContactGroupFactory contactGroupFactory;
@@ -92,13 +93,13 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	Clock clock;
 
 	@Inject
-	FeedManagerImpl(ScheduledExecutorService feedExecutor,
+	FeedManagerImpl(@Scheduler ScheduledExecutorService scheduler,
 			@IoExecutor Executor ioExecutor, DatabaseComponent db,
 			ContactGroupFactory contactGroupFactory, ClientHelper clientHelper,
 			IdentityManager identityManager, BlogManager blogManager,
 			SocketFactory torSocketFactory) {
 
-		this.feedExecutor = feedExecutor;
+		this.scheduler = scheduler;
 		this.ioExecutor = ioExecutor;
 		this.db = db;
 		this.contactGroupFactory = contactGroupFactory;
@@ -132,7 +133,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 				});
 			}
 		};
-		feedExecutor.scheduleWithFixedDelay(fetcher, FETCH_DELAY_INITIAL,
+		scheduler.scheduleWithFixedDelay(fetcher, FETCH_DELAY_INITIAL,
 				FETCH_INTERVAL, FETCH_UNIT);
 	}
 
