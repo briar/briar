@@ -6,7 +6,6 @@ import org.briarproject.api.event.EventBus;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.system.Clock;
 
-import java.security.SecureRandom;
 import java.sql.Connection;
 
 import javax.inject.Singleton;
@@ -19,9 +18,8 @@ public class DatabaseModule {
 
 	@Provides
 	@Singleton
-	Database<Connection> provideDatabase(DatabaseConfig config,
-			SecureRandom random, Clock clock) {
-		return new H2Database(config, random, clock);
+	Database<Connection> provideDatabase(DatabaseConfig config, Clock clock) {
+		return new H2Database(config, clock);
 	}
 
 	@Provides

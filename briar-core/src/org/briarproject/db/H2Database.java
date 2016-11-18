@@ -6,7 +6,6 @@ import org.briarproject.api.system.Clock;
 import org.briarproject.util.StringUtils;
 
 import java.io.File;
-import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -26,8 +25,8 @@ class H2Database extends JdbcDatabase {
 	private final String url;
 
 	@Inject
-	H2Database(DatabaseConfig config, SecureRandom random, Clock clock) {
-		super(HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE, random, clock);
+	H2Database(DatabaseConfig config, Clock clock) {
+		super(HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE, clock);
 		this.config = config;
 		File dir = config.getDatabaseDirectory();
 		String path = new File(dir, "db").getAbsolutePath();
