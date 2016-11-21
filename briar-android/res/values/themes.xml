@@ -2,7 +2,6 @@
 <resources>
 
 	<style name="BriarBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-		<item name="actionBarStyle">@style/BriarActionBar</item>
 		<item name="colorPrimary">@color/briar_primary</item>
 		<item name="colorPrimaryDark">@color/briar_primary_dark</item>
 		<item name="colorAccent">@color/briar_accent</item>

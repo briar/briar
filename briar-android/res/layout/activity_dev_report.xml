@@ -11,11 +11,17 @@
 		android:orientation="vertical"
 		tools:context=".android.report.DevReportActivity">
 
-		<android.support.v7.widget.Toolbar
-			android:id="@+id/toolbar"
-			style="@style/BriarToolbar"
+		<android.support.design.widget.AppBarLayout
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"/>
+			android:layout_height="wrap_content">
+
+			<android.support.v7.widget.Toolbar
+				android:id="@+id/toolbar"
+				style="@style/BriarToolbar"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"/>
+
+		</android.support.design.widget.AppBarLayout>
 
 		<RelativeLayout
 			android:layout_width="match_parent"
