@@ -10,7 +10,7 @@ import org.briarproject.api.keyagreement.PayloadParser;
 import org.briarproject.api.keyagreement.TransportDescriptor;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.plugins.BluetoothConstants;
-import org.briarproject.api.plugins.TorConstants;
+import org.briarproject.api.plugins.LanTcpConstants;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -60,7 +60,7 @@ class PayloadParserImpl implements PayloadParser {
 				TransportId id = BluetoothConstants.ID;
 				recognised.add(new TransportDescriptor(id, descriptor));
 			} else if (transportId == TRANSPORT_ID_LAN) {
-				TransportId id = TorConstants.ID;
+				TransportId id = LanTcpConstants.ID;
 				recognised.add(new TransportDescriptor(id, descriptor));
 			}
 		}
