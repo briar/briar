@@ -17,6 +17,7 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.text.TextUtils;
 
 import org.briarproject.R;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -72,8 +73,8 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 			}
 		}
 
-		ArrayList<CharSequence> entries = new ArrayList<CharSequence>();
-		ArrayList<CharSequence> entryValues = new ArrayList<CharSequence>();
+		ArrayList<CharSequence> entries = new ArrayList<>();
+		ArrayList<CharSequence> entryValues = new ArrayList<>();
 		entries.add(0, getString(R.string.panic_app_setting_none));
 		entryValues.add(0, Panic.PACKAGE_NAME_NONE);
 
@@ -245,11 +246,12 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 		String text = String.format(
 				getString(R.string.dialog_message_connect_panic_app), app);
 		builder.setMessage(text);
-		builder.setPositiveButton(android.R.string.ok, okListener);
-		builder.setNegativeButton(android.R.string.cancel, cancelListener);
+		builder.setNegativeButton(R.string.allow, okListener);
+		builder.setPositiveButton(R.string.cancel, cancelListener);
 		builder.show();
 	}
 
+	@Nullable
 	private String getCallingPackageName() {
 		ComponentName componentName = getActivity().getCallingActivity();
 		String packageName = null;

@@ -78,6 +78,7 @@
 	<string name="online">Online</string>
 	<string name="offline">Offline</string>
 	<string name="send">Send</string>
+	<string name="allow">Allow</string>
 	<string name="no_data">No data</string>
 	<string name="ellipsis">…</string>
 	<string name="text_too_long">The entered text is too long</string>

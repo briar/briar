@@ -686,8 +686,8 @@ public class ConversationActivity extends BriarActivity
 						R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_delete_contact));
 		builder.setMessage(getString(R.string.dialog_message_delete_contact));
-		builder.setPositiveButton(android.R.string.ok, okListener);
-		builder.setNegativeButton(android.R.string.cancel, null);
+		builder.setNegativeButton(R.string.delete, okListener);
+		builder.setPositiveButton(R.string.cancel, null);
 		builder.show();
 	}
 
