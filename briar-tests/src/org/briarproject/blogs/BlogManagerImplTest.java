@@ -34,8 +34,6 @@ import org.junit.Test;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.inject.Inject;
-
 import static org.briarproject.TestUtils.getRandomBytes;
 import static org.briarproject.TestUtils.getRandomId;
 import static org.briarproject.api.blogs.BlogConstants.KEY_AUTHOR;
@@ -71,12 +69,9 @@ public class BlogManagerImplTest extends BriarTestCase {
 	private final Message message;
 	private final MessageId messageId;
 
-	@Inject
-	@SuppressWarnings("WeakerAccess")
-	BlogPostFactory blogPostFactory;
-
 	public BlogManagerImplTest() {
 		MetadataParser metadataParser = context.mock(MetadataParser.class);
+		BlogPostFactory blogPostFactory = context.mock(BlogPostFactory.class);
 		blogManager = new BlogManagerImpl(db, identityManager, clientHelper,
 				metadataParser, contactManager, blogFactory, blogPostFactory);
 
@@ -91,8 +86,6 @@ public class BlogManagerImplTest extends BriarTestCase {
 		final Transaction txn = new Transaction(null, false);
 
 		final ContactId contactId = new ContactId(0);
-		final Collection<ContactId> contactIds =
-				Collections.singletonList(contactId);
 
 		Contact contact = new Contact(contactId, blog2.getAuthor(),
 				blog1.getAuthor().getId(), true, true);
