@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
+import android.support.annotation.DimenRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -29,7 +30,6 @@ import im.delight.android.identicons.IdenticonDrawable;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.graphics.Typeface.BOLD;
-import static android.graphics.Typeface.NORMAL;
 import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
@@ -37,6 +37,11 @@ import static org.briarproject.api.identity.Author.Status.OURSELVES;
 
 @UiThread
 public class AuthorView extends RelativeLayout {
+
+	public static final int NORMAL = 0;
+	public static final int REBLOGGER = 1;
+	public static final int COMMENTER = 2;
+	public static final int LIST = 3;
 
 	private final CircleImageView avatar;
 	private final ImageView avatarIcon;
@@ -127,44 +132,51 @@ public class AuthorView extends RelativeLayout {
 		setOnClickListener(null);
 	}
 
-	private void setPersona(int persona) {
+	public void setPersona(int persona) {
 		switch (persona) {
-			// reblogger
-			case 1:
+			case REBLOGGER:
 				avatarIcon.setVisibility(VISIBLE);
+				date.setVisibility(VISIBLE);
+				setCenterVertical(authorName, false);
+				setCenterVertical(trustIndicator, false);
 				break;
-			// commenter
-			case 2:
-				LayoutParams params = (LayoutParams) avatar.getLayoutParams();
-				int size = getResources().getDimensionPixelSize(
-						R.dimen.blogs_avatar_comment_size);
-				params.height = size;
-				params.width = size;
-				avatar.setLayoutParams(params);
-				float textSize = getResources()
-						.getDimensionPixelSize(R.dimen.text_size_tiny);
-				authorName.setTextSize(COMPLEX_UNIT_PX, textSize);
+			case COMMENTER:
+				avatarIcon.setVisibility(INVISIBLE);
+				date.setVisibility(VISIBLE);
+				setAvatarSize(R.dimen.blogs_avatar_comment_size);
+				setTextSize(authorName, R.dimen.text_size_tiny);
+				setCenterVertical(authorName, false);
+				setCenterVertical(trustIndicator, false);
 				break;
-			// list
-			case 3:
+			case LIST:
+				avatarIcon.setVisibility(INVISIBLE);
 				date.setVisibility(GONE);
-				params = (LayoutParams) avatar.getLayoutParams();
-				size = getResources().getDimensionPixelSize(
-						R.dimen.listitem_picture_size_small);
-				params.height = size;
-				params.width = size;
-				avatar.setLayoutParams(params);
-				textSize = getResources()
-						.getDimensionPixelSize(R.dimen.text_size_medium);
-				authorName.setTextSize(COMPLEX_UNIT_PX, textSize);
-				params = (LayoutParams) authorName.getLayoutParams();
-				params.addRule(CENTER_VERTICAL);
-				authorName.setLayoutParams(params);
-				params = (LayoutParams) trustIndicator.getLayoutParams();
-				params.addRule(CENTER_VERTICAL);
-				trustIndicator.setLayoutParams(params);
+				setAvatarSize(R.dimen.listitem_picture_size_small);
+				setTextSize(authorName, R.dimen.text_size_medium);
+				setCenterVertical(authorName, true);
+				setCenterVertical(trustIndicator, true);
 				break;
 		}
+	}
+
+	private void setAvatarSize(@DimenRes int res) {
+		LayoutParams params = (LayoutParams) avatar.getLayoutParams();
+		int size = getResources().getDimensionPixelSize(
+				res);
+		params.height = size;
+		params.width = size;
+		avatar.setLayoutParams(params);
+	}
+
+	private void setTextSize(TextView v, @DimenRes int res) {
+		float textSize = getResources().getDimensionPixelSize(res);
+		v.setTextSize(COMPLEX_UNIT_PX, textSize);
+	}
+
+	private void setCenterVertical(View v, boolean center) {
+		LayoutParams params = (LayoutParams) v.getLayoutParams();
+		params.addRule(CENTER_VERTICAL, center ? RelativeLayout.TRUE : 0);
+		v.setLayoutParams(params);
 	}
 
 }
