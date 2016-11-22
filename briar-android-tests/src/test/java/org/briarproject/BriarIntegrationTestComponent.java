@@ -14,6 +14,7 @@ import org.briarproject.api.identity.IdentityManager;
 import org.briarproject.api.introduction.IntroductionManager;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.privategroup.PrivateGroupManager;
+import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.api.properties.TransportPropertyManager;
 import org.briarproject.api.sync.SyncSessionFactory;
 import org.briarproject.blogs.BlogsModule;
@@ -78,6 +79,8 @@ public interface BriarIntegrationTestComponent {
 
 	void inject(ForumModule.EagerSingletons init);
 
+	void inject(GroupInvitationModule.EagerSingletons init);
+
 	void inject(IntroductionModule.EagerSingletons init);
 
 	void inject(LifecycleModule.EagerSingletons init);
@@ -113,6 +116,8 @@ public interface BriarIntegrationTestComponent {
 	ForumSharingManager getForumSharingManager();
 
 	ForumManager getForumManager();
+
+	GroupInvitationManager getGroupInvitationManager();
 
 	IntroductionManager getIntroductionManager();
 

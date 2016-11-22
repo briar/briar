@@ -39,6 +39,7 @@ import org.briarproject.introduction.IntroductionGroupFactory;
 import org.briarproject.introduction.IntroductionModule;
 import org.briarproject.lifecycle.LifecycleModule;
 import org.briarproject.privategroup.PrivateGroupModule;
+import org.briarproject.privategroup.invitation.GroupInvitationModule;
 import org.briarproject.properties.PropertiesModule;
 import org.briarproject.sharing.SharingModule;
 import org.briarproject.sync.SyncModule;
@@ -180,6 +181,7 @@ public abstract class BriarIntegrationTest extends BriarTestCase {
 		component.inject(new CryptoModule.EagerSingletons());
 		component.inject(new ContactModule.EagerSingletons());
 		component.inject(new ForumModule.EagerSingletons());
+		component.inject(new GroupInvitationModule.EagerSingletons());
 		component.inject(new IntroductionModule.EagerSingletons());
 		component.inject(new PropertiesModule.EagerSingletons());
 		component.inject(new PrivateGroupModule.EagerSingletons());
