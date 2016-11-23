@@ -387,7 +387,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		BluetoothServerSocket ss;
 		try {
 			ss = adapter.listenUsingInsecureRfcommWithServiceRecord(
-					"RFCOMM", getUuid());
+					"RFCOMM", uuid);
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
@@ -472,7 +472,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		BluetoothServerSocket ss;
 		try {
 			ss = adapter.listenUsingInsecureRfcommWithServiceRecord(
-					"RFCOMM", getUuid());
+					"RFCOMM", uuid);
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
