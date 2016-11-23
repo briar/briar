@@ -30,6 +30,7 @@
   <string name="nav_drawer_open_description">Abrir el panel de navegación</string>
   <string name="nav_drawer_close_description">Cierra el panel de navegación</string>
   <string name="contact_list_button">Contactos</string>
+  <string name="groups_button">Grupos privados</string>
   <string name="forums_button">Foros</string>
   <string name="blogs_button">Blogs</string>
   <string name="settings_button">Configuración</string>
@@ -44,6 +45,10 @@
   <plurals name="private_message_notification_text">
     <item quantity="one">Tienes un nuevo mensaje privado.</item>
     <item quantity="other">Tienes %d nuevos mensajes privados.</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="one"> h</item>
+    <item quantity="other">%d mensajes de grupo nuevos.</item>
   </plurals>
   <plurals name="forum_post_notification_text">
     <item quantity="one">Hay una nueva publicación en el foro.</item>
@@ -62,15 +67,19 @@
   <string name="delete">Borrar</string>
   <string name="accept">Aceptar</string>
   <string name="decline">Rechazar</string>
+  <string name="options">Configuración</string>
   <string name="online">En línea</string>
   <string name="offline">Desconectado</string>
   <string name="send">Enviar</string>
   <string name="no_data">Sin datos</string>
   <string name="ellipsis">…</string>
+  <string name="text_too_long">El texto es demasiado largo</string>
+  <string name="show_onboarding">Mostrar diálogo de ayuda</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Parece que eres nuevo por aquí y no tienes aún contactos.\n\nPulsa el icono + en la parte superior y sigue las instrucciones para añadir amigos a tu lista.\n\nPor favor, recuerda: sólo puedes añadir nuevos contactos cara a cara para evitar que nadie suplante tu identidad o lea tus mensajes en el futuro. </string>
   <string name="date_no_private_messages">Sin mensajes.</string>
   <string name="no_private_messages">Esta es la vista de conversación.\n\nParece que aún no hay tal.\n\nPulsa el campo de texto en la parte inferior para empezar la conversación.</string>
+  <string name="message_hint">Escribe un mensaje</string>
   <string name="delete_contact">Eliminar contacto</string>
   <string name="dialog_title_delete_contact">Confirmar eliminación de contacto</string>
   <string name="dialog_message_delete_contact">¿Seguro que quieres eliminar este contacto y todos los mensajes intercambiados entre vosotros?</string>
@@ -78,7 +87,7 @@
   <!--Adding Contacts-->
   <string name="add_contact_title">Añadir un contacto</string>
   <string name="your_nickname">Elige la identidad que quieres usar:</string>
-  <string name="face_to_face">Debes estar cara a cara con la persona que quieres añadir como contacto. De esta manera se evita que nadie suplante tu identidad o lea tus mensajes en el futuro.</string>
+  <string name="face_to_face">Debes reunirte con la persona a la que quieras añadir como contacto.\n\nHaciéndolo así prevendrás que nadie te suplante o pueda leer tus mensajes en el futuro.</string>
   <string name="continue_button">Continuar</string>
   <string name="your_invitation_code">Tu código de invitación es</string>
   <string name="enter_invitation_code">Por favor, introduce el código de invitación de tu contacto:</string>
@@ -92,6 +101,7 @@
   <string name="your_confirmation_code">Tu código de confirmación es</string>
   <string name="enter_confirmation_code">Por favor, introduce el código de confirmación de tu contacto:</string>
   <string name="waiting_for_contact">Esperando al contacto\u2026</string>
+  <string name="waiting_for_contact_to_scan">Esperando a que el contacto escanee y conecte contigo\u2026</string>
   <string name="exchanging_contact_details">Intercambiando información de contacto\u2026</string>
   <string name="codes_do_not_match">Los códigos no concuerdan</string>
   <string name="interfering">Esto podría significar que alguien está intentando interceptar la conexión</string>
@@ -104,6 +114,8 @@
   <string name="connection_aborted_local">¡Hemos interumpido la conexión! Esto podría significar que alguien está intentando interceptar la conexión</string>
   <string name="connection_aborted_remote">¡La conexión ha sido interrumpida por tu contacto! Esto podría significar que alguien está intentando interceptar la conexión</string>
   <!--Introductions-->
+  <string name="introduction_onboarding_title">Presenta a tus contactos</string>
+  <string name="introduction_onboarding_text">Presenta a tus contactos entre sí para ahorrarles encontrarse en persona para poder conectar mediante Briar.</string>
   <string name="introduction_activity_title">Seleccionar contacto</string>
   <string name="introduction_message_title">Presentar a dos contactos</string>
   <string name="introduction_message_text">Puedes redactar un mensaje que se enviará a %1$s y a %2$s junto con tu presentación:</string>
@@ -112,13 +124,10 @@
   <string name="introduction_sent">Tu presentación se ha mandado.</string>
   <string name="introduction_error">Ocurrió un error realizando la presentación.</string>
   <string name="introduction_response_error">Error al responder a la presentación</string>
-  <string name="introduction_warn_different_identities_title">Advertencia: identidades diferentes</string>
-  <string name="introduction_warn_different_identities_text">Estás intentando presentar a dos contactos que añadiste con identidades distintas. Esto quizá pueda revelar que esas dos identidades te pertenecen.</string>
   <string name="dialog_button_introduce">Presentar</string>
   <string name="introduction_request_sent">Has pedido presentar a %1$s a %2$s.</string>
   <string name="introduction_request_received">%1$s ha pedido presentarte a %2$s. ¿Quieres añadir a %2$s a tu lista de contactos?</string>
   <string name="introduction_request_exists_received">%1$s ha pedido presentarte a %2$s, pero %2$s ya está en tu lista de contactos. %1$s puede no saberlo, así que puedes responderle de todas maneras:</string>
-  <string name="introduction_request_for_our_identity_received">%1$s ha pedido presentarte a %2$s, pero %2$s es una de tus otras identidades, así que no puedes aceptar la presentación:</string>
   <string name="introduction_request_answered_received">%1$s ha pedido presentarte a %2$s.</string>
   <string name="introduction_response_accepted_sent">Has aceptado la presentación a %1$s.</string>
   <string name="introduction_response_declined_sent">Has rechazado la presentación a %1$s.</string>
@@ -130,6 +139,60 @@
     <item quantity="other">%d nuevos contactos añadido</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">Aún no participas en ningún grupo.\n\nCrea un grupo pulsando en el icono + arriba o pide a tus contactos que te inviten a uno de sus grupos.</string>
+  <string name="groups_created_by">Creado por %s</string>
+  <plurals name="messages">
+    <item quantity="one">%d mensaje</item>
+    <item quantity="other">%d mensajes</item>
+  </plurals>
+  <string name="groups_group_is_empty">Este grupo está vacío</string>
+  <string name="groups_group_is_dissolved">Este grupo ha sido disuelto</string>
+  <string name="groups_remove">Eliminar</string>
+  <string name="groups_create_group_title">Crear grupo privado</string>
+  <string name="groups_no_messages">Este grupo está vacío.\n\nPuedes usar el icono del lápiz arriba para escribir el primer mensaje.</string>
+  <string name="groups_create_group_button">Crear grupo</string>
+  <string name="groups_create_group_invitation_button">Enviar invitación</string>
+  <string name="groups_create_group_hint">Dar nombre al grupo privado</string>
+  <string name="groups_invitation_sent">Se ha mandado la invitación de grupo</string>
+  <string name="groups_compose_message">Escribir mensaje</string>
+  <string name="groups_message_sent">Mensaje enviado</string>
+  <string name="groups_message_received">Mensaje recibido</string>
+  <string name="groups_member_list">Integrantes</string>
+  <string name="groups_invite_members">Invitar miembros</string>
+  <string name="groups_member_created_you">Tú creaste el grupo</string>
+  <string name="groups_member_created">%s creó el grupo</string>
+  <string name="groups_member_joined_you">Te uniste al grupo</string>
+  <string name="groups_member_joined">%s se unió al grupo</string>
+  <string name="groups_leave">Abandonar grupo</string>
+  <string name="groups_leave_dialog_title">Confirmación de la salida del grupo</string>
+  <string name="groups_leave_dialog_message">¿Estás seguro de querer salir de este grupo?</string>
+  <string name="groups_dissolve">Disolver grupo</string>
+  <string name="groups_dissolve_dialog_title">Confirmación de la disolución del grupo</string>
+  <string name="groups_dissolve_dialog_message">¿Estás seguro de querer disolver el grupo?\n\nLos demás miembros no podrán continuar la conversación y puede que nunca reciban los últimos mensajes.</string>
+  <string name="groups_dissolve_button">Disolver</string>
+  <string name="groups_dissolved_dialog_title">El grupo ha sido disuelto</string>
+  <string name="groups_dissolved_dialog_message">El creador de este grupo lo ha disuelto.\n\nYa no puede escribir mensajes al grupo y puede que no reciba todas las publicaciones que se hayan escrito.</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">Invitaciones de grupo</string>
+  <string name="groups_invitations_invitation_sent">Has sido invitado %1$s a ingresar en el grupo \"%2$s\".</string>
+  <string name="groups_invitations_invitation_received">%1$s te ha invitado a unirte al grupo «%2$s».</string>
+  <string name="groups_invitations_joined">Te uniste al grupo</string>
+  <string name="groups_invitations_declined">Invitación de grupo declinada</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="one">%d invitación de grupo sin responder</item>
+    <item quantity="other">%d invitaciones de grupo sin responder</item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">Aceptaste la invitación de grupo de %s.</string>
+  <string name="groups_invitations_response_declined_sent">Declinaste la invitación de grupo de %s.</string>
+  <string name="groups_invitations_response_accepted_received">%s ha aceptado la invitación al grupo.</string>
+  <string name="groups_invitations_response_declined_received">%s ha declinado la invitación al grupo.</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">Desvelar contactos</string>
+  <string name="groups_reveal_dialog_message">Puedes elegir si desvelar los contactos a los actuales y futuros integrantes de este grupo.\n\nDesvelar los contactos mejora la velocidad y la fiabilidad de tu conexión, porque puedes comunicarte con los contactos desvelados incluso cuando el creador del grupo no se encuentra conectado.</string>
+  <string name="groups_reveal_visible">Las relaciones entre los contactos son visibles al grupo</string>
+  <string name="groups_reveal_visible_revealed_by_us">Las relaciones entre los contactos son visibles al grupo (las desvelaste tú)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">Las relaciones entre los contactos son visibles al grupo (las desveló %s)</string>
+  <string name="groups_reveal_invisible">Las relaciones entre los contactos no son visibles al grupo</string>
   <!--Forums-->
   <string name="no_forums">No tienes ningún foro aún.\n\n¿Por qué no creas uno pulsando el icono + de la parte superior?\n\nTambién puedes pedirle a tus contactos que compartan foros contigo.</string>
   <string name="create_forum_title">Nuevo foro</string>
@@ -147,7 +210,7 @@
   <string name="forum_new_entry_received">Nueva entrada en el foro</string>
   <string name="forum_new_message_hint">Nueva entrada</string>
   <string name="forum_message_reply_hint">Nueva respuesta</string>
-  <string name="btn_reply">RESPONDER</string>
+  <string name="btn_reply">Responder</string>
   <plurals name="message_replies">
     <item quantity="one">%1$d respuesta</item>
     <item quantity="other">%1$d respuestas</item>
@@ -159,7 +222,7 @@
   <string name="forum_left_toast">Foro abandonado</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Compartir foro</string>
-  <string name="contacts_selected">Compartir este foro con los contactos seleccionados</string>
+  <string name="contacts_selected">Contactos seleccionados</string>
   <string name="activity_share_toolbar_header">Elige contactos</string>
   <string name="no_contacts_selector">Parece que eres nuevo aquí y no tienes contactos aún.\n\nPor favor, vuelve cuando hayas añadido tu primer contacto.</string>
   <string name="forum_shared_snackbar">Foro compartido con los contactos seleccionados</string>
@@ -167,7 +230,6 @@
   <string name="forum_share_error">Hubo un error compartiendo este foro.</string>
   <string name="forum_invitation_received">%1$s ha compartido el foro \"%2$s\" contigo.</string>
   <string name="forum_invitation_sent">Has compartido el foro \"%1$s\" con %2$s.</string>
-  <string name="forum_show_invitations">Mostrar invitaciones a foros</string>
   <string name="forum_invitations_title">Invitaciones a foros</string>
   <string name="forum_invitation_exists">Ya aceptaste la invitación a este foro. Aceptar más invitaciones aumentará y fortalecerá la comunicación con el foro.</string>
   <string name="forum_joined_toast">Te uniste al foro</string>
@@ -187,25 +249,14 @@
   <string name="forum_shared_with">Compartido con</string>
   <string name="nobody">Nadie</string>
   <!--Blogs-->
-  <string name="blogs_my_blogs_create">Crear blog</string>
-  <string name="blogs_my_blogs_label">Añadir nuevo blog</string>
-  <string name="blogs_my_blogs_create_hint_title">Título del blog (no se podrá cambiar más tarde)</string>
-  <string name="blogs_my_blogs_create_hint_desc">Pequeña descripción de tu nuevo blog</string>
-  <string name="blogs_my_blogs_create_hint_desc_explanation">Los lectores en potencia podrán o no suscribirse a tu blog en función de la descripción</string>
-  <string name="blogs_my_blogs_created">Blog creado</string>
-  <string name="blogs_blog_is_empty">Este blog está vacío</string>
   <string name="blogs_other_blog_empty_state">Este blog está vacío.\n\nO el autor no ha escrito aún, o la persona que compartió este blog contigo necesita conectarse para que se puedan sincronizar los artículos.</string>
-  <string name="tag_new">NUEVO</string>
   <string name="read_more">leer más</string>
   <string name="blogs_write_blog_post">Escribir artículo del blog</string>
-  <string name="blogs_write_blog_post_title_hint">Añade un título (opcional)</string>
   <string name="blogs_write_blog_post_body_hint">Escribe tu artículo aquí</string>
   <string name="blogs_publish_blog_post">Publicar</string>
   <string name="blogs_blog_post_created">Creado artículo del blog</string>
   <string name="blogs_blog_post_received">Recibido nuevo artículo del blog</string>
   <string name="blogs_blog_post_scroll_to">Desplazarse hasta</string>
-  <string name="blogs_blog_failed_to_load">Fallo al cargar el blog</string>
-  <string name="blogs_blog_post_failed_to_load">Fallo al cargar el artículo del blog</string>
   <string name="blogs_feed_empty_state">Esta es la lista global de entradas de blog.\n\nParece que nadie ha publicado nada todavía.\n\nSé el primero: pulsa el icono del lápiz para escribir una nueva entrada de blog.</string>
   <string name="blogs_personal_blog">Blog personal de %s</string>
   <string name="blogs_remove_blog">Eliminar blog</string>
@@ -214,8 +265,6 @@
   <string name="blogs_blog_removed">Blog eliminado</string>
   <string name="blogs_reblog_comment_hint">Añade un comentario opcional</string>
   <string name="blogs_reblog_button">Rebloguear</string>
-  <string name="blogs_blog_list">Lista de blogs</string>
-  <string name="blogs_available_blogs">Blogs disponibles</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Compartir blog</string>
   <string name="blogs_sharing_error">Hubo un error compartiendo este blog.</string>
@@ -227,7 +276,6 @@
   <string name="blogs_sharing_response_declined_received">%s rechazó la invitación al blog.</string>
   <string name="blogs_sharing_invitation_received">%1$s ha compartido el blog personal de %2$s contigo.</string>
   <string name="blogs_sharing_invitation_sent">Has compartido el blog personal de %1$s con %2$s.</string>
-  <string name="blogs_sharing_show_invitations">Mostrar invitaciones a blogs</string>
   <string name="blogs_sharing_invitations_title">Invitaciones a blogs</string>
   <string name="blogs_sharing_exists">Ya estás suscrito a este blog. Aceptar la invitación de nuevo conllevará una mejora de la velocidad en la recepción de los artículos.</string>
   <string name="blogs_sharing_joined_toast">Suscrito al blog</string>
@@ -277,6 +325,7 @@
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificaciones</string>
   <string name="notify_private_messages_setting">Mostrar alertar para mensajes privados</string>
+  <string name="notify_group_messages_setting">Mostrar alertas para mensajes de grupo</string>
   <string name="notify_forum_posts_setting">Mostrar alertas para publicaciones de foros</string>
   <string name="notify_blog_posts_setting">Mostrar alertas para artículos de blogs</string>
   <string name="notify_vibration_setting">Vibrar</string>
@@ -292,11 +341,6 @@
   <string name="link_warning_intro">Estás a punto de abrir el siguiente enlace con otra aplicación</string>
   <string name="link_warning_text">Eso puede usarse para identificarte. Piensa si confías en la persona que te envió el enlace y considera la opción de abrirlo con Orfox.</string>
   <string name="link_warning_open_link">Abrir enlace</string>
-  <!--Multiple Identities-->
-  <string name="anonymous">Anónimo</string>
-  <string name="new_identity_title">Nueva identidad</string>
-  <string name="create_identity_button">Crear identidad</string>
-  <string name="identity_created_toast">Identidad creada</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Informe de error de Briar</string>
   <string name="briar_crashed">Lo sentimos, Briar ha fallado.</string>

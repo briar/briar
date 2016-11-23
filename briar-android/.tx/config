@@ -1,6 +1,6 @@
 [main]
 host = https://www.transifex.com
-lang_map = pt_BR: pt-rBR
+lang_map = pt_BR: pt-rBR, fr_FR: fr
 
 [briar.stringsxml-5]
 file_filter = res/values-<lang>/strings.xml

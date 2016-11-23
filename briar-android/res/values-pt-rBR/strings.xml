@@ -84,7 +84,6 @@ Apenas clique no espaço de entrada abaixo para iniciar uma conversa.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Adicionar um contato</string>
   <string name="your_nickname">Escolha a identidade que você quer usar:</string>
-  <string name="face_to_face">Você deve estar frente-a-frente com a pessoal que deseja adicionar como contato. Isso evita que alguém se passe por você ou leia suas mensagens no futuro.</string>
   <string name="continue_button">Continuar</string>
   <string name="your_invitation_code">Seu código do convite é</string>
   <string name="enter_invitation_code">Insira o código do convite do contato:</string>
@@ -120,13 +119,10 @@ Apenas clique no espaço de entrada abaixo para iniciar uma conversa.</string>
   <string name="introduction_sent">Sua Introdução foi enviada.</string>
   <string name="introduction_error">Houve um erro ao fazer a apresentação</string>
   <string name="introduction_response_error">Erro ao responder à apresentação</string>
-  <string name="introduction_warn_different_identities_title">Aviso: identidades diferentes</string>
-  <string name="introduction_warn_different_identities_text">Você está tentando apresentar dois contatos que você adicionou com identidades diferentes. Isso pode revelar que ambas identidades são suas.</string>
   <string name="dialog_button_introduce">Apresentar</string>
   <string name="introduction_request_sent">Você recebeu um pedido para apresentar %1$s a %2$s.</string>
   <string name="introduction_request_received">%1$s pediu para apresentar você a %2$s. Você quer adicionar %2$s a sua lista de contatos?</string>
   <string name="introduction_request_exists_received">%1$s pediu para apresentar você a %2$s, mas %2$s já está na sua lista de contatos. Já que %1$s não sabe disso, você ainda pode responder:</string>
-  <string name="introduction_request_for_our_identity_received">%1$s pediu para apresentar você a %2$s, mas %2$s é uma outra identidade sua, então você não pode aceitar a apresentação.</string>
   <string name="introduction_request_answered_received">%1$s pediu para apresentar você a %2$s.</string>
   <string name="introduction_response_accepted_sent">Você aceitou ser apresentado a %1$s.</string>
   <string name="introduction_response_declined_sent">Você recusou ser apresentado a %1$s.</string>
@@ -138,6 +134,8 @@ Apenas clique no espaço de entrada abaixo para iniciar uma conversa.</string>
     <item quantity="other">%d novos contatos adicionados.</item>
   </plurals>
   <!--Private Groups-->
+  <!--Private Group Invitations-->
+  <!--Private Groups Revealing Contacts-->
   <!--Forums-->
   <string name="no_forums">Você não tem nenhum fórum.
 Por que não cria um novo você mesmo, Clicando o ícone + no topo?
@@ -159,7 +157,6 @@ Se sentido sozinho aqui? Compartilhe esse fórum com seus contatos!</string>
   <string name="forum_new_entry_received">Novo tópico no fórum </string>
   <string name="forum_new_message_hint">Novo tópico</string>
   <string name="forum_message_reply_hint">Nova resposta</string>
-  <string name="btn_reply">Responder</string>
   <plurals name="message_replies">
     <item quantity="one">%1$d resposta</item>
     <item quantity="other">%1$d respostas</item>
@@ -171,7 +168,6 @@ Se sentido sozinho aqui? Compartilhe esse fórum com seus contatos!</string>
   <string name="forum_left_toast">Saiu do fórum</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Compartilhar fórum</string>
-  <string name="contacts_selected">Compartilhar este fórum com os contatos escolhidos</string>
   <string name="activity_share_toolbar_header">Escolher contatos</string>
   <string name="no_contacts_selector">Parece que você é novo aqui e não tem nenhum contato ainda.
 Por favor volte aqui depois de adicionar um contato.</string>
@@ -180,7 +176,6 @@ Por favor volte aqui depois de adicionar um contato.</string>
   <string name="forum_share_error">Houve um erro em compartilhar esse fórum.</string>
   <string name="forum_invitation_received">%1$s compartilhou o fórum \"%2$s\" com você.</string>
   <string name="forum_invitation_sent">Você compartilhou o fórum \"%1$s\" com %2$s.</string>
-  <string name="forum_show_invitations">Mostrar os convites de Forum</string>
   <string name="forum_invitations_title">Convites para Foruns</string>
   <string name="forum_invitation_exists">Você já aceitou o convite deste fórum. Aceitando mais convites fortalecerá a comunicação no fórum.</string>
   <string name="forum_joined_toast">Você entrou no fórum</string>
@@ -200,26 +195,15 @@ Por favor volte aqui depois de adicionar um contato.</string>
   <string name="forum_shared_with">Compartilhado com</string>
   <string name="nobody">Ninguém</string>
   <!--Blogs-->
-  <string name="blogs_my_blogs_create">Criar Blog</string>
-  <string name="blogs_my_blogs_label">Adicionar novo Blog</string>
-  <string name="blogs_my_blogs_create_hint_title">Título do Blog (não pode ser mudado depois)</string>
-  <string name="blogs_my_blogs_create_hint_desc">Uma pequena descrição do seu novo Blog</string>
-  <string name="blogs_my_blogs_create_hint_desc_explanation">Leitores Potenciais podem se inscrever ou não no seu Blog baseado no conteúdo da descrição. </string>
-  <string name="blogs_my_blogs_created">Blog Criado</string>
-  <string name="blogs_blog_is_empty">Esse blog está vazio</string>
   <string name="blogs_other_blog_empty_state">Esse Blog atualmente está vazio.
 Ou o autor não não postou nada ainda, ou a pessoa que compartilhou esse Blog contigo precisa estar online, assim os Posts serão sincronizados.</string>
-  <string name="tag_new">Novo</string>
   <string name="read_more">leia mais</string>
   <string name="blogs_write_blog_post">Escrever Post do Blog</string>
-  <string name="blogs_write_blog_post_title_hint">Adicione um Título (opcional)</string>
   <string name="blogs_write_blog_post_body_hint">Digite aqui seu post do blog</string>
   <string name="blogs_publish_blog_post">Publicar</string>
   <string name="blogs_blog_post_created">Post do Blog criado</string>
   <string name="blogs_blog_post_received">Novo Post de Blog recebido</string>
   <string name="blogs_blog_post_scroll_to">Role Para</string>
-  <string name="blogs_blog_failed_to_load">Falha ao carregar o Blog</string>
-  <string name="blogs_blog_post_failed_to_load">Post de Blog falhou ao carregar</string>
   <string name="blogs_feed_empty_state">Esse é o feed de blog global.
 Parece que ninguém postou nada, ainda.
 Seja o primeiro a postar e clique no ícone da caneta para escrever um novo Post pro Blog.</string>
@@ -231,8 +215,6 @@ Note que isso não irá remover o Blog dos dispositivos de outras pessoas. </str
   <string name="blogs_blog_removed">Blog Deletado</string>
   <string name="blogs_reblog_comment_hint">Adicione um comentario (opcional)</string>
   <string name="blogs_reblog_button">Reblog</string>
-  <string name="blogs_blog_list">Lista de blogs</string>
-  <string name="blogs_available_blogs">Blogs Disponíveis </string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Compartilhar Blog</string>
   <string name="blogs_sharing_error">Houve um erro em compartilhar esse Blog.</string>
@@ -244,7 +226,6 @@ Note que isso não irá remover o Blog dos dispositivos de outras pessoas. </str
   <string name="blogs_sharing_response_declined_received">%s recusou o convite de Fórum.</string>
   <string name="blogs_sharing_invitation_received">%1$s compartilhou o blog %2$s com você.</string>
   <string name="blogs_sharing_invitation_sent">Você compartilhou o blog de %1$s com %2$s.</string>
-  <string name="blogs_sharing_show_invitations">Mostrar os convites de Fórum</string>
   <string name="blogs_sharing_invitations_title">Convites para Fóruns</string>
   <string name="blogs_sharing_exists">Você já está inscrito neste blog. Aceitando novamente pode tornar mais rápida a entrega dos posts.</string>
   <string name="blogs_sharing_joined_toast">Inscrito neste Blog</string>
@@ -309,11 +290,6 @@ Note que isso não irá remover o Blog dos dispositivos de outras pessoas. </str
   <string name="link_warning_intro">Você está prestes a abrir esse link em um Aplicativo Externo.</string>
   <string name="link_warning_text">Isso pode ser usado para identificar você. Pense se você confia a pessoa que enviou esse link ou considere abrindo o no Orfox.</string>
   <string name="link_warning_open_link">Abrir Link</string>
-  <!--Multiple Identities-->
-  <string name="anonymous">Anônimo</string>
-  <string name="new_identity_title">Nova identidade</string>
-  <string name="create_identity_button">Criar identidade</string>
-  <string name="identity_created_toast">Identidade criada</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Relatório de falhas do Briar</string>
   <string name="briar_crashed">Briar encerrou de maneira inesperada</string>

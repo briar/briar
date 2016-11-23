@@ -1,0 +1,362 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_title">Rregullimi i Briar-it</string>
+  <string name="setup_explanation">Llogaria juaj Briar depozitohet e fshehtëzuar në pajisjen tuaj, jo në re. Nëse e çinstaloni Briar-in ose harroni fjalëkalimin tuaj, nuk ka rrugë për ta rimarrë llogarinë tuaj dhe të dhënat tuaja.</string>
+  <string name="choose_nickname">Zgjidhni nofkën tuaj</string>
+  <string name="choose_password">Zgjidhni fjalëkalimin tuaj</string>
+  <string name="confirm_password">Ripohoni fjalëkalimin tuaj</string>
+  <string name="name_too_long">Emri është shumë i gjatë</string>
+  <string name="password_too_weak">Fjalëkalimi është shumë i dobët</string>
+  <string name="passwords_do_not_match">Fjalëkalimet nuk përputhen</string>
+  <string name="create_account_button">Krijoje Llogarinë</string>
+  <string name="progress_title_please_wait">Ju lutemi, prisni…</string>
+  <!--Login-->
+  <string name="enter_password">Jepni fjalëkalimin tuaj:</string>
+  <string name="try_again">Fjalëkalim i gabuar, riprovoni</string>
+  <string name="sign_in_button">Hyni</string>
+  <string name="forgotten_password">Kam harruar fjalëkalimin tim</string>
+  <string name="dialog_title_lost_password">U humb Fjalëkalimi</string>
+  <string name="dialog_message_lost_password">Llogaria juaj Briar depozitohet e fshehtëzuar në pajisjen tuaj, jo në re, ndaj s’mund ta ricaktojmë fjalëkalimin tuaj. Do të donit ta fshini llogarinë tuaj dhe t’ia filloni nga e para?\n\nKujdes: Identitetet, kontaktet dhe mesazhet tuaja do të humbin përgjithnjë.</string>
+  <string name="startup_failed_notification_title">Briar-i s’u nis dot</string>
+  <string name="startup_failed_notification_text">Mund të keni nevojë të ri-instaloni Briar-in.</string>
+  <string name="startup_failed_activity_title">Dështim Nisjeje i Briar-it</string>
+  <string name="startup_failed_db_error">Për ndonjë arsye, baza e të dhënave e Briar-it tuaj është aq e dëmtuar, sa s’mund të ndreqet. Llogaria juaj, të dhënat tuaja dhe krejt lidhjet tuaja me kontaktet kanë humbur. Mjerisht lypset të ri-instaloni Briar-in dhe të rregulloni një llogari të re.</string>
+  <string name="startup_failed_service_error">Briar-i s’arriti të nisë një shtojcë të domosdoshme. Ri-instalimi i Briar-it zakonisht e zgjidh këtë problem. Por, ju lutemi, kini parasysh se me të do të humbni llogarinë tuaj dhe krejt të dhënat e lidhura me të, ngaqë Briar nuk përdor shërbyes qendrorë për të depozituar në ta të dhënat tuaja.</string>
+  <string name="expiry_warning">Ky software ka skaduar.\nJu lutemi, instaloni një version më të ri.</string>
+  <string name="dialog_title_welcome">Mirë se vini në Briar</string>
+  <string name="dialog_welcome_message">Shtoni një kontakt që të filloni të komunikoni në mënyrë të sigurt, ose shtypni ikonën në cepin e sipërm majtas të ekranit për më tepër mundësi.</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">Hap sirtarin e lëvizjeve</string>
+  <string name="nav_drawer_close_description">Mbylle sirtarin e lëvizjeve</string>
+  <string name="contact_list_button">Kontakte</string>
+  <string name="groups_button">Grupe Private</string>
+  <string name="forums_button">Forume</string>
+  <string name="blogs_button">Blogje</string>
+  <string name="settings_button">Rregullime</string>
+  <string name="sign_out_button">Dilni</string>
+  <!--Transports-->
+  <string name="transport_tor">Internet</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">Hytë në Briar</string>
+  <string name="ongoing_notification_text">Prekeni, që të hapet Briar-i</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="one">Mesazh i ri privat.</item>
+    <item quantity="other">%d mesazhe të reja private.</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="one">Mesazh i ri grupi.</item>
+    <item quantity="other">%d mesazhe të rinj grupi.</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one">Postim i ri forumi</item>
+    <item quantity="other">%d postime të rinj forumi.</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">Postim i ri blogu.</item>
+    <item quantity="other">%d postime të reja blogu.</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">tani</string>
+  <string name="show">Shfaqi</string>
+  <string name="hide">Fshihi</string>
+  <string name="ok">OK</string>
+  <string name="cancel">Anuloje</string>
+  <string name="delete">Fshije</string>
+  <string name="accept">Pranoje</string>
+  <string name="decline">Hidhe poshtë</string>
+  <string name="options">Mundësi</string>
+  <string name="online">Në linjë</string>
+  <string name="offline">Jo në linjë</string>
+  <string name="send">Dërgoje</string>
+  <string name="no_data">S’ka të dhëna</string>
+  <string name="ellipsis">…</string>
+  <string name="text_too_long">Teksti i dhënë është shumë i gjatë</string>
+  <string name="show_onboarding">Shfaq Dialog Ndihme</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Duket se jeni i ri këtu dhe ende s’keni kontakte.\n\nPrekni ikonën + në krye dhe ndiqni udhëzimet që të shtoni ca shokë e miq te lista juaj.\n\nJu lutemi, mbani mend: Mundeni të shtoni kontakte të rinj vetëm duke qenë ballë për ballë me ta. që kështu të pengoni cilindo të hiqet si ju ose të lexojë në të ardhmen mesazhet tuaj.</string>
+  <string name="date_no_private_messages">S’ka mesazhe.</string>
+  <string name="no_private_messages">Kjo është pamja e bisedave.\n\nDuket se ka mungesë bisedash.\n\nQë të filloni një bisedë, thjesht prekni fushën e teksteve në fund.</string>
+  <string name="message_hint">Shtypni mesazhin</string>
+  <string name="delete_contact">Fshije kontaktin</string>
+  <string name="dialog_title_delete_contact">Ripohoni Fshirje Kontakti</string>
+  <string name="dialog_message_delete_contact">Jeni i sigurt se doni të hiqet ky kontakt dhe krejt mesazhet e shkëmbyer me këtë kontakt?</string>
+  <string name="contact_deleted_toast">Kontakti u fshi</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">Shtoni një Kontakt</string>
+  <string name="your_nickname">Zgjidhni identitetin që doni të përdoret:</string>
+  <string name="face_to_face">Duhet të takoheni me personin që doni ta shtoni si kontakt.\n\nKjo do të pengojë cilindo të hiqet si ju ose të lexojë në të ardhmen mesazhet tuaj.</string>
+  <string name="continue_button">Vazhdo</string>
+  <string name="your_invitation_code">Kodi juaj i ftesës është</string>
+  <string name="enter_invitation_code">Ju lutemi, jepni kodin e ftesës së kontaktit tuaj:</string>
+  <string name="searching_format">Po kërkohet për kontakt me kod ftese %06d\u2026</string>
+  <string name="connection_failed">Lidhja dështoi</string>
+  <string name="could_not_find_contact">Briar-i s’e gjeti dot kontaktin tuaj këtej pari</string>
+  <string name="could_not_open_camera">S’u hy dot te kamera juaj. Ju lutemi, riprovoni!</string>
+  <string name="try_again_button">Riprovoni</string>
+  <string name="connected_to_contact">U lidh me kontaktin</string>
+  <string name="calculating_confirmation_code">Po përllogaritet kodi i ripohimit\u2026</string>
+  <string name="your_confirmation_code">Kodi juaj i ripohimit është</string>
+  <string name="enter_confirmation_code">Ju lutemi, jepni kodin e ripohimit të kontaktit tuaj:</string>
+  <string name="waiting_for_contact">Po pritet për kontaktin\u2026</string>
+  <string name="waiting_for_contact_to_scan">Po pritet që kontakti ta skanojë dhe të lidhet\u2026</string>
+  <string name="exchanging_contact_details">Po shkëmbehen hollësi kontaktesh\u2026</string>
+  <string name="codes_do_not_match">Kodet nuk përputhen</string>
+  <string name="interfering">Kjo do të thotë se dikush tjetër po përpiqet të fusë hundët në kontaktin tuaj</string>
+  <string name="contact_added_toast">Kontakti u shtua: %s</string>
+  <string name="contact_already_exists">Kontakti %s ekziston tashmë</string>
+  <string name="contact_exchange_failed">Shkëmbimi i kontaktit dështoi</string>
+  <string name="qr_code_invalid">Kodi QR është i pavlefshëm</string>
+  <string name="connecting_to_device">Po lidhet me pajisjen\u2026</string>
+  <string name="authenticating_with_device">Po bëhet mirëfilltësimi me pajisjen\u2026</string>
+  <string name="connection_aborted_local">Lidhje e ndërprerë nga ne! Kjo mund të jetë shenjë se dikush po përpiqet të fusë hundët në lidhjen tuaj</string>
+  <string name="connection_aborted_remote">Lidhje e ndërprerë nga kontakti juaj! Kjo mund të jetë shenjë se dikush po përpiqet të fusë hundët në lidhjen tuaj</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_title">Prezantoni kontaktet tuaja</string>
+  <string name="introduction_onboarding_text">Kontaktet tuaja mund t’ia prezantoni njëri-tjetrit, që kështu të mos u duhet të takohen realisht për të mundur të lidhen në Briar.</string>
+  <string name="introduction_activity_title">Përzgjidhni Kontakt</string>
+  <string name="introduction_message_title">Prezantoni Kontakte</string>
+  <string name="introduction_message_text">Mund të hartoni një mesazh për t’u dërguar te %1$s dhe %2$s tok me prezantimin tuaj:</string>
+  <string name="introduction_message_hint">Shtypni mesazh (në daçi)</string>
+  <string name="introduction_button">Bëje prezantimin</string>
+  <string name="introduction_sent">Prezantimi juaj u dërgua.</string>
+  <string name="introduction_error">Pati një gabim me bërjen e prezantimit.</string>
+  <string name="introduction_response_error">Gabim në përgjigjen ndaj prezantimit</string>
+  <string name="dialog_button_introduce">Prezantoje</string>
+  <string name="introduction_request_sent">Keni kërkuar të prezantoni %1$s te %2$s.</string>
+  <string name="introduction_request_received">%1$s ka kërkuar t’ju prezantojë te %2$s. Doni të shtohet %2$s te lista juaj e kontakteve?</string>
+  <string name="introduction_request_exists_received">%1$s ka kërkuar t’ju prezantojë te %2$s, por %2$s gjendet tashmë te lista juaj e kontakteve. Meqë %1$s mund të mos ta dijë këtë gjë, mundeni prapëseprapë t’i përgjigjeni:</string>
+  <string name="introduction_request_answered_received">%1$s ka kërkuar t’ju prezantojë te %2$s.</string>
+  <string name="introduction_response_accepted_sent">Pranuat prezantimin te %1$s.</string>
+  <string name="introduction_response_declined_sent">Hodhët poshtë prezantimin te %1$s.</string>
+  <string name="introduction_response_accepted_received">%1$s pranoi prezantimin te %2$s.</string>
+  <string name="introduction_response_declined_received">%1$s hodhi poshtë prezantimin te %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s thotë se %2$s hodhi poshtë prezantimin.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">U shtua kontakt i ri.</item>
+    <item quantity="other">U shtuan %d kontakte të rinj.</item>
+  </plurals>
+  <!--Private Groups-->
+  <string name="groups_list_empty">S’merrni pjesë në ndonjë grup.\n\nPrekni ikonën + në krye që të krijoni një grup ose kërkojuni kontakteve tuaj t’ju ftojnë në një prej grupeve të tyre.</string>
+  <string name="groups_created_by">Krijuar nga %s</string>
+  <plurals name="messages">
+    <item quantity="one">%d mesazh</item>
+    <item quantity="other">%d mesazhe</item>
+  </plurals>
+  <string name="groups_group_is_empty">Ky grup është i zbrazët</string>
+  <string name="groups_group_is_dissolved">Ky grup është shkrirë</string>
+  <string name="groups_remove">Hiqe</string>
+  <string name="groups_create_group_title">Krijoni Grup Privat</string>
+  <string name="groups_no_messages">Ky grup është i zbrazët.\n\nMund të përdorni ikonën penë në krye që të hartoni mesazhin e parë.</string>
+  <string name="groups_create_group_button">Krijoje Grupin</string>
+  <string name="groups_create_group_invitation_button">Dërgoje Ftesën</string>
+  <string name="groups_create_group_hint">Shtoni një emër për grupin tuaj privat</string>
+  <string name="groups_invitation_sent">Ftesa e grupit u dërgua</string>
+  <string name="groups_compose_message">Hartoni Mesazh</string>
+  <string name="groups_message_sent">Mesazhi u dërgua</string>
+  <string name="groups_message_received">Mesazhi u mor</string>
+  <string name="groups_member_list">Listë Anëtarësh</string>
+  <string name="groups_invite_members">Ftoni Anëtarë</string>
+  <string name="groups_member_created_you">E krijuat grupin</string>
+  <string name="groups_member_created">%s krijoi grupin</string>
+  <string name="groups_member_joined_you">U bëtë pjesë e grupit</string>
+  <string name="groups_member_joined">%s u bë pjesë e grupit</string>
+  <string name="groups_leave">Braktiseni Grupin</string>
+  <string name="groups_leave_dialog_title">Ripohoni Braktisjen e Grupit</string>
+  <string name="groups_leave_dialog_message">Jeni i sigurt se doni ta braktisni këtë grup?</string>
+  <string name="groups_dissolve">Shkrijeni Grupin</string>
+  <string name="groups_dissolve_dialog_title">Ripohoni Shkrirjen e Grupit</string>
+  <string name="groups_dissolve_dialog_message">Jeni i sigurt se doni të shkrihet ky grup?\n\nKrejt anëtarët e tjerë s’do të jenë në gjendje të vazhdojnë bisedat e tyre dhe mundet të mos i marrin mesazhet më të rinj.</string>
+  <string name="groups_dissolve_button">Shkrije</string>
+  <string name="groups_dissolved_dialog_title">Grupi u Shkri</string>
+  <string name="groups_dissolved_dialog_message">Krijuesi i këtij grupi e ka shkrirë atë.\n\nS’mund të shkruani më mesazhe për grupin dhe mundet të mos i merrni krejt postimet që janë shkruar.</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">Ftesa Grupi</string>
+  <string name="groups_invitations_invitation_sent">Keni ftuar %1$s të bëhet pjesë e grupit \"%2$s\".</string>
+  <string name="groups_invitations_invitation_received">%1$s ju ka ftuar të bëheni pjesë e grupit \"%2$s\".</string>
+  <string name="groups_invitations_joined">U bëtë pjesë e grupit</string>
+  <string name="groups_invitations_declined">Ftesa e grupit u hodh poshtë</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="one">%d ftesë grupi e hapur</item>
+    <item quantity="other">%d ftesa grupi të hapura</item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">Pranuat ftesën e grupit nga %s.</string>
+  <string name="groups_invitations_response_declined_sent">Hodhët poshtë ftesën e grupit nga %s.</string>
+  <string name="groups_invitations_response_accepted_received">%s e pranoi ftesën e grupit.</string>
+  <string name="groups_invitations_response_declined_received">%s e hodhi poshtë ftesën e grupit.</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">Shfaqua Kontaktet</string>
+  <string name="groups_reveal_dialog_message">Mund të zgjidhni t’ua shfaqni ose jo kontaktet krejt anëtarëve të tanishëm dhe të ardhshëm të këtij grupi.\n\nShfaqja e kontakteve e bën lidhjen tuaj me grupin më të shpejtë dhe më të besueshme, ngaqë mund të komunikoni me kontaktet e shfaqura edhe kur krijuesi i grupit s’është në linjë.</string>
+  <string name="groups_reveal_visible">Marrëdhënia e kontaktit është e dukshme për grupin</string>
+  <string name="groups_reveal_visible_revealed_by_us">Marrëdhënia e kontaktit është e dukshme për grupin (shfaqur nga ju)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">Marrëdhënia e kontaktit është e dukshme për grupin (shfaqur nga %s)</string>
+  <string name="groups_reveal_invisible">Marrëdhënia e kontaktit s’është e dukshme për grupin</string>
+  <!--Forums-->
+  <string name="no_forums">Ende s’keni forume.\n\nPse nuk krijoni vetë një të tillë duke prekur ikonën + në krye?\n\nMund edhe t’u kërkoni kontakteve tuaj të ndajnë me ju forume.</string>
+  <string name="create_forum_title">Forum i Ri</string>
+  <string name="choose_forum_name">Zgjidhni një emër për forumin tuaj:</string>
+  <string name="create_forum_button">Krijoje Forumin</string>
+  <string name="forum_created_toast">Forumi u krijua</string>
+  <string name="no_forum_posts">Ky forum është i zbrazët.\n\nPërdorni ikonën penë që të hartoni postimin tuaj të parë.\n\nNdiheni vetëm? Ndajeni këtë forum me kontaktet tuaj!</string>
+  <string name="no_posts">S’ka postime</string>
+  <plurals name="posts">
+    <item quantity="one">%d postim</item>
+    <item quantity="other">%d postime</item>
+  </plurals>
+  <string name="forum_compose_post">Postim i Ri Forumi</string>
+  <string name="forum_new_entry_posted">U postua zë forumi</string>
+  <string name="forum_new_entry_received">Zë i ri forumi</string>
+  <string name="forum_new_message_hint">Zë i Ri</string>
+  <string name="forum_message_reply_hint">Përgjigje e Re</string>
+  <string name="btn_reply">Përgjigju</string>
+  <plurals name="message_replies">
+    <item quantity="one">%1$d përgjigje</item>
+    <item quantity="other">%1$d përgjigje</item>
+  </plurals>
+  <string name="forum_leave">Braktiseni Forumin</string>
+  <string name="dialog_title_leave_forum">Ripohoni Braktisjen e Forumit</string>
+  <string name="dialog_message_leave_forum">Jeni i sigurt se doni ta braktisni këtë forum? Kontaktet me të cilët e keni ndarë këtë forum mundet të mbeten jashtë marrjes së përditësimeve nga ky forum.</string>
+  <string name="dialog_button_leave">Braktise</string>
+  <string name="forum_left_toast">E braktisët Forumin</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">Ndajeni Forumin Me të Tjerë</string>
+  <string name="contacts_selected">Kontaktet u përzgjodhën</string>
+  <string name="activity_share_toolbar_header">Zgjidhni Kontakte</string>
+  <string name="no_contacts_selector">Duket se jeni i ri këtu dhe s’keni ende kontakte.\n\nJu lutemi, rikthehuni këtu pasi të keni shtuar kontaktin tuaj të parë.</string>
+  <string name="forum_shared_snackbar">Forumi u nda me kontaktet e zgjedhur</string>
+  <string name="forum_share_message">Mundeni të hartoni një mesazh ftese (në daçi) që do t’u dërgohet kontakteve të përzgjedhur.</string>
+  <string name="forum_share_error">Pati një gabim në ndarjen e këtij forumi me të tjerët.</string>
+  <string name="forum_invitation_received">%1$s ndau me ju forumin \"%2$s\".</string>
+  <string name="forum_invitation_sent">Ndatë me \"%2$s\" forumin %1$s.</string>
+  <string name="forum_invitations_title">Ftesa Forumi</string>
+  <string name="forum_invitation_exists">Keni pranuar tashmë një ftesë te ky forum. Pranimi i më shumë ftesave do të rrisë dhe forcojë komunikimin në forum.</string>
+  <string name="forum_joined_toast">U bëtë Pjesë e Forumit</string>
+  <string name="forum_declined_toast">Ftesa e Forumit u Hodh Poshtë</string>
+  <string name="shared_by_format">Ndarë nga %s</string>
+  <string name="forum_invitation_already_sharing">Ndarë tashmë</string>
+  <string name="forum_invitation_response_accepted_sent">Pranuat ftesën e forumit nga %s.</string>
+  <string name="forum_invitation_response_declined_sent">Hodhët poshtë ftesën e forumit nga %s.</string>
+  <string name="forum_invitation_response_accepted_received">%s pranoi ftesën e forumit.</string>
+  <string name="forum_invitation_response_declined_received">%s e hodhi poshtë ftesën e forumit.</string>
+  <string name="sharing_status">Gjendje Ndarjeje Me të Tjerë</string>
+  <plurals name="forums_shared">
+    <item quantity="one">%d forum ndarë nga kontakte</item>
+    <item quantity="other">%d forum ndarë nga kontakte</item>
+  </plurals>
+  <string name="forum_shared_by">Ndarë nga</string>
+  <string name="forum_shared_with">Ndarë me</string>
+  <string name="nobody">Askush</string>
+  <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">Hëpërhë ky blog është i zbrazët.\n\nOse autori s’ka shkruar gjë ende, ose personi që ndau blogun me ju lypset të jetë në linjë, që të mund të njëkohësohen postimet.</string>
+  <string name="read_more">lexoni më tepër</string>
+  <string name="blogs_write_blog_post">Shkruani Postim Blogu</string>
+  <string name="blogs_write_blog_post_body_hint">Shtypni këtu postimin tuaj të blogut</string>
+  <string name="blogs_publish_blog_post">Botoje</string>
+  <string name="blogs_blog_post_created">Postimi i Blogut u Krijua</string>
+  <string name="blogs_blog_post_received">U morën Postime të Reja Blogu</string>
+  <string name="blogs_blog_post_scroll_to">Kalo Te</string>
+  <string name="blogs_feed_empty_state">Kjo është prurja globale e blogjeve.\n\nDuket se askush s’ka shkruar gjë në ndonjë blog.\n\nBëhuni ju i pari dhe prekni ikonën penë që të shkruani postimin e parë të një blogu të ri.</string>
+  <string name="blogs_personal_blog">Blogu Personal i %s</string>
+  <string name="blogs_remove_blog">hiqe Blogun</string>
+  <string name="blogs_remove_blog_dialog_message">Jeni i sigurt se doni të hiqet ky blog dhe krejt postimet?\nMbani parasysh që kjo nuk do ta heqë blogun nga pajisjet e personave të tjerë.</string>
+  <string name="blogs_remove_blog_ok">Hiqe Blogun</string>
+  <string name="blogs_blog_removed">Blogu u Hoq</string>
+  <string name="blogs_reblog_comment_hint">Shtoni një koment opsional</string>
+  <string name="blogs_reblog_button">Riblogojeni</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">Ndajeni Blogun Me të Tjerë</string>
+  <string name="blogs_sharing_error">Pati një gabim në ndarjen e këtij blogu me të tjerë.</string>
+  <string name="blogs_sharing_button">Ndaje Blogun Me të Tjerë</string>
+  <string name="blogs_sharing_snackbar">Blogu u nda me kontaktet e zgjedhur</string>
+  <string name="blogs_sharing_response_accepted_sent">Pranuat ftesën e blogut nga %s.</string>
+  <string name="blogs_sharing_response_declined_sent">Hodhët poshtë ftesën e blogut nga %s.</string>
+  <string name="blogs_sharing_response_accepted_received">%s pranoi ftesën e blogut.</string>
+  <string name="blogs_sharing_response_declined_received">%s hodhi poshtë ftesën e blogut.</string>
+  <string name="blogs_sharing_invitation_received">%1$s ka ndarë me ju blogun personal të %2$s.</string>
+  <string name="blogs_sharing_invitation_sent">Keni ndarë me %2$s blogun personal të %1$s.</string>
+  <string name="blogs_sharing_invitations_title">Ftesa Blogu</string>
+  <string name="blogs_sharing_exists">Jeni i pajtuar te ky blog një herë. Pranimi sërish mund të shpjerë te shpërndarje më e shpejtë postimesh blogu.</string>
+  <string name="blogs_sharing_joined_toast">U pajtuat te Blogu</string>
+  <string name="blogs_sharing_declined_toast">Ftesa e Blogut u Hodh Poshtë</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">Importoni Prurje RSS</string>
+  <string name="blogs_rss_feeds_import_button">Importo</string>
+  <string name="blogs_rss_feeds_import_hint">Jepni URL-në e prurjes RSS</string>
+  <string name="blogs_rss_feeds_import_error">Na ndjeni! Pati një gabim me importimin e prurjes tuaj.</string>
+  <string name="blogs_rss_feeds_manage">Administroni Prurje RSS</string>
+  <string name="blogs_rss_feeds_manage_imported">Të importuara:</string>
+  <string name="blogs_rss_feeds_manage_author">Autor:</string>
+  <string name="blogs_rss_feeds_manage_updated">Përditësuar Së Fundi:</string>
+  <string name="blogs_rss_feeds_manage_delete_error">S’u fshi dot prurja!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">S’keni importuar ende ndonjë prurje RSS.\n\nPse nuk klikoni mbi shenjën plus në cepin e sipërm djathtas që të shtoni të parën tuaj?</string>
+  <string name="blogs_rss_feeds_manage_error">Pati një problem me ngarkimin e prurjeve tuaja. Ju lutemi, riprovoni më vonë.</string>
+  <!--Settings Network-->
+  <string name="network_settings_title">Rrjete</string>
+  <string name="bluetooth_setting">Lidhu përmes Bluetooth-i</string>
+  <string name="bluetooth_setting_enabled">Kurdo që kontaktet janë këtej pari</string>
+  <string name="bluetooth_setting_disabled">Vetëm kur shtohen kontakte</string>
+  <string name="tor_mobile_setting">Lidhu përmes Tor-i</string>
+  <string name="tor_mobile_setting_enabled">Kur përdoret Wi-Fi ose të dhëna celulari</string>
+  <string name="tor_mobile_setting_disabled">Vetëm kur përdoret Wi-Fi</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">Siguri</string>
+  <string name="change_password">Ndryshoni fjalëkalimin</string>
+  <string name="current_password">Jepni fjalëkalimin tuaj të tanishëm:</string>
+  <string name="choose_new_password">Zgjidhni fjalëkalimin tuaj të ri:</string>
+  <string name="confirm_new_password">Ripohoni fjalëkalimin tuaj të ri:</string>
+  <string name="password_changed">Fjalëkalimi u ndryshua.</string>
+  <string name="panic_setting">Rregullimi i butonit të panikut</string>
+  <string name="panic_setting_title">Buton paniku</string>
+  <string name="panic_setting_hint">Formësoni si do të reagojë Briar-i kur përdorni aplikacion butoni paniku</string>
+  <string name="panic_app_setting_title">Aplikacion Butoni Paniku</string>
+  <string name="unknown_app">aplikacion i panjohur</string>
+  <string name="panic_app_setting_summary">S’është rregulluar ndonjë aplikacion</string>
+  <string name="panic_app_setting_none">Asnjë</string>
+  <string name="dialog_title_connect_panic_app">Ripohoni Aplikacion Paniku</string>
+  <string name="dialog_message_connect_panic_app">Jeni i sigurt se doni të lejohet %1$s të prodhojë veprime shkatërruese butoni paniku?</string>
+  <string name="lock_setting_title">Dilni</string>
+  <string name="lock_setting_summary">Dil nga Briar-i nëse shtypet një buton paniku</string>
+  <string name="purge_setting_title">Fshi Llogarinë</string>
+  <string name="purge_setting_summary">Fshijeni llogarinë tuaj Briar, nëse shtypet një buton paniku. Kujdes: Kjo do të shkaktojë fshirjen e identiteteve, kontakteve dhe mesazheve tuaj</string>
+  <string name="uninstall_setting_title">Çinstalo Briar-in</string>
+  <string name="uninstall_setting_summary">Kjo lyp ripohim dorazi, në rast akti paniku</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">Njoftime</string>
+  <string name="notify_private_messages_setting">Shfaq sinjalizime për mesazhe private</string>
+  <string name="notify_group_messages_setting">Shfaq sinjalizime për mesazhe grupi</string>
+  <string name="notify_forum_posts_setting">Shfaq sinjalizime për postime forumi</string>
+  <string name="notify_blog_posts_setting">Shfaq sinjalizime për postime blogu</string>
+  <string name="notify_vibration_setting">Dridhu</string>
+  <string name="notify_sound_setting">Tingull</string>
+  <string name="notify_sound_setting_default">Zilja parazgjedhje</string>
+  <string name="notify_sound_setting_disabled">Asnjë</string>
+  <string name="choose_ringtone_title">Zgjidhni zile</string>
+  <!--Settings Feedback-->
+  <string name="feedback_settings_title">Përshtypje</string>
+  <string name="send_feedback">Dërgoji përshtypjet</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">Sinjalizim Lidhjeje</string>
+  <string name="link_warning_intro">Ju ndan një hap nga hapja e lidhjes vijuese me një aplikacion të jashtëm.</string>
+  <string name="link_warning_text">Kjo mund të përdoret për t’ju identifikuar. Mendohuni nëse e besoni apo jo personin që ju dërgoi këtë lidhje dhe shihni mundësinë e hapjes së sja me Orfox</string>
+  <string name="link_warning_open_link">Hape Lidhjen</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">Njoftim Vithisjesh Briar</string>
+  <string name="briar_crashed">Na ndjeni, Briar-i u vithis.</string>
+  <string name="not_your_fault">S’është faji juaj.</string>
+  <string name="please_send_report">Ju lutemi, na ndihmoni të ndërtojmë një Briar më të mirë, duke na dërguar një njoftim vithisjeje.</string>
+  <string name="report_is_encrypted">Premtojmë që njoftimi fshehtëzohet dhe dërgohet në mënyrë të sigurt.</string>
+  <string name="feedback_title">Përshtypje</string>
+  <string name="describe_crash">Përshkruani se ç’ndodhi (në daçi)</string>
+  <string name="enter_feedback">Jepni përshtypjet tuaja</string>
+  <string name="optional_contact_email">Adresa juaj email (në daçi)</string>
+  <string name="include_debug_report_crash">Përfshi të dhëna anonime rreth vithisjes</string>
+  <string name="include_debug_report_feedback">Përfshi të dhëna anonime rreth kësaj pajisjeje</string>
+  <string name="could_not_load_report_data">S’u ngarkuan dot të dhëna njoftimi.</string>
+  <string name="send_report">Dërgoje njoftimin</string>
+  <string name="close">Mbylle</string>
+  <string name="dev_report_saved">Njoftimi u ruajt. Do të dërgohet herën tjetër që do të hyni në Briar.</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">Po dilet nga Briar-i…</string>
+</resources>

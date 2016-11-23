@@ -27,6 +27,7 @@
   <string name="dialog_welcome_message">Aggiungi un contatto per iniziare a comunicare in modo sicuro oppure premi l\'icona in alto a sinistra dello schermo per vedere le altre opzioni.</string>
   <!--Navigation Drawer-->
   <string name="contact_list_button">Contatti</string>
+  <string name="groups_button">Gruppi privati</string>
   <string name="forums_button">Forum</string>
   <string name="blogs_button">Blog</string>
   <string name="settings_button">Impostazioni</string>
@@ -64,8 +65,10 @@
   <string name="send">Invia</string>
   <string name="no_data">Nessun dato</string>
   <string name="ellipsis">...</string>
+  <string name="text_too_long">Il testo inserito è troppo lungo</string>
   <!--Contacts and Private Conversations-->
   <string name="date_no_private_messages">Nessun messaggio.</string>
+  <string name="message_hint">Scrivi un messaggio</string>
   <string name="delete_contact">Elimina contatto</string>
   <string name="dialog_title_delete_contact">Conferma cancellazione contatto</string>
   <string name="contact_deleted_toast">Contatto cancellato</string>
@@ -100,7 +103,6 @@
   <string name="introduction_button">Crea l\'introduzione</string>
   <string name="introduction_sent">La tua introduzione è stata inviata.</string>
   <string name="introduction_error">C\'è stato un errore nella creazione dell\'introduzione</string>
-  <string name="introduction_warn_different_identities_title">Attenzione: differenti identità</string>
   <string name="dialog_button_introduce">Introduci</string>
   <string name="introduction_request_sent">Hai richiesto di introdurre %1$s a %2$s.</string>
   <string name="introduction_request_answered_received">%1$s ha richiesto di introdurti a %2$s.</string>
@@ -114,6 +116,18 @@
     <item quantity="other">Aggiunti %d nuovi contatti.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_created_by">Creato da %s</string>
+  <string name="groups_remove">Rimuovere</string>
+  <string name="groups_create_group_title">Crea gruppo privato</string>
+  <string name="groups_create_group_button">Crea gruppo</string>
+  <string name="groups_create_group_invitation_button">Invia invito</string>
+  <string name="groups_message_sent">Messaggio inviato</string>
+  <string name="groups_message_received">Messaggio ricevuto</string>
+  <string name="groups_member_list">Lista membri</string>
+  <string name="groups_invite_members">Invita Membri</string>
+  <string name="groups_leave">Lascia gruppo</string>
+  <!--Private Group Invitations-->
+  <!--Private Groups Revealing Contacts-->
   <!--Forums-->
   <string name="create_forum_title">Nuovo Forum</string>
   <string name="choose_forum_name">Scegli un nome per il tuo forum:</string>
@@ -125,7 +139,6 @@
     <item quantity="other">%d post</item>
   </plurals>
   <string name="forum_message_reply_hint">Nuova Risposta</string>
-  <string name="btn_reply">RISPOSTA</string>
   <plurals name="message_replies">
     <item quantity="one">risposta di %1$d</item>
     <item quantity="other">risposte di %1$d</item>
@@ -136,13 +149,11 @@
   <string name="forum_left_toast">Forum lasciato</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Condividi Forum</string>
-  <string name="contacts_selected">Condividi questo forum con i contatti scelti</string>
   <string name="activity_share_toolbar_header">Scegli Contatti</string>
   <string name="forum_shared_snackbar">Forum condiviso con i contatti scelti</string>
   <string name="forum_share_error">C\'è stato un errore nella condivisione di questo forum.</string>
   <string name="forum_invitation_received">%1$s ha condiviso il forum \"%2$s\" con te.</string>
   <string name="forum_invitation_sent">Hai condiviso il forum \"%1$s\" con %2$s.</string>
-  <string name="forum_show_invitations">Mostra Inviti Forum</string>
   <string name="forum_invitations_title">Inviti Forum</string>
   <string name="forum_declined_toast">Invito al forum declinato</string>
   <string name="shared_by_format">Condiviso da %s</string>
@@ -160,28 +171,16 @@
   <string name="forum_shared_with">Condiviso con</string>
   <string name="nobody">Nessuno</string>
   <!--Blogs-->
-  <string name="blogs_my_blogs_create">Crea Blog</string>
-  <string name="blogs_my_blogs_label">Aggiungi nuovo Blog</string>
-  <string name="blogs_my_blogs_create_hint_title">Titolo blog (non può essere cambiato dopo)</string>
-  <string name="blogs_my_blogs_create_hint_desc">Una descrizione corta del tuo nuovo blog</string>
-  <string name="blogs_my_blogs_created">Blog creato</string>
-  <string name="blogs_blog_is_empty">Questo blog è vuoto</string>
-  <string name="tag_new">NUOVO</string>
   <string name="read_more">leggi ancora</string>
   <string name="blogs_write_blog_post">Scrivere un post sul blog</string>
-  <string name="blogs_write_blog_post_title_hint">Aggiungere un titolo (facoltativo)</string>
   <string name="blogs_publish_blog_post">Pubblica</string>
   <string name="blogs_blog_post_created">Post blog creato</string>
   <string name="blogs_blog_post_received">Ricevuto nuovo post del blog</string>
-  <string name="blogs_blog_failed_to_load">Fallito caricamento blog</string>
-  <string name="blogs_blog_post_failed_to_load">Fallito caricamento messaggio del blog</string>
   <string name="blogs_personal_blog">Il blog personale di %s</string>
   <string name="blogs_remove_blog">Rimuovi Blog</string>
   <string name="blogs_remove_blog_ok">Rimuovi Blog</string>
   <string name="blogs_blog_removed">Blog Rimosso</string>
   <string name="blogs_reblog_comment_hint">Aggiungi un commento facoltativo</string>
-  <string name="blogs_blog_list">Lista Blog</string>
-  <string name="blogs_available_blogs">Blog disponibili</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Condividi Blog</string>
   <string name="blogs_sharing_error">C\'è stato un errore nella condivisione di questo blog.</string>
@@ -193,7 +192,6 @@
   <string name="blogs_sharing_response_declined_received">%s ha declinato l\'invito al blog.</string>
   <string name="blogs_sharing_invitation_received">%1$s ha condiviso il blog personale di %2$s con te.</string>
   <string name="blogs_sharing_invitation_sent">Hai condiviso il tuo blog personale di %1$s con %2$s.</string>
-  <string name="blogs_sharing_show_invitations">Mostra inviti del Blog</string>
   <string name="blogs_sharing_invitations_title">Inviti Blog</string>
   <string name="blogs_sharing_joined_toast">Iscritto al Blog</string>
   <string name="blogs_sharing_declined_toast">Invito al blog declinato</string>
@@ -221,6 +219,7 @@
   <string name="choose_new_password">Scegli la tua password:</string>
   <string name="confirm_new_password">Conferma la tua nuova password:</string>
   <string name="password_changed">La password è stata cambiata.</string>
+  <string name="panic_setting_title">Pulsante panico</string>
   <string name="unknown_app">un\'app sconosciuta</string>
   <string name="panic_app_setting_summary">Nessun app è stata impostata</string>
   <string name="purge_setting_title">Elimina Account</string>
@@ -238,11 +237,6 @@
   <!--Link Warning-->
   <string name="link_warning_title">Attenzione Link</string>
   <string name="link_warning_open_link">Apri Link</string>
-  <!--Multiple Identities-->
-  <string name="anonymous">Anonimo</string>
-  <string name="new_identity_title">Nuova Identità</string>
-  <string name="create_identity_button">Crea Identità</string>
-  <string name="identity_created_toast">Identità creata</string>
   <!--Crash Reporter-->
   <string name="briar_crashed">Spiacenti, Briar è crashato</string>
   <string name="not_your_fault">Questo non è colpa tua.</string>
