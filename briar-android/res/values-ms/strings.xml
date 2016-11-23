@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="crash_report_title">Laporan Kesalahan Briar</string>
-  <string name="ongoing_notification_title">Briar sedang berjalan</string>
+  <!--Setup-->
   <string name="setup_title">Tetapan Briar</string>
   <string name="choose_nickname">Pilih nama samaran anda:</string>
   <string name="choose_password">Pilih kata laluan anda:</string>
@@ -9,16 +8,30 @@
   <string name="name_too_long">Nama samaran terlalu panjang</string>
   <string name="password_too_weak">Kata laluan terlalu lemah</string>
   <string name="passwords_do_not_match">Kata laluan tidak sepadan</string>
+  <!--Login-->
   <string name="enter_password">Masukkan kata laluan anda:</string>
   <string name="startup_failed_notification_title">Briar gagal dimulakan</string>
   <string name="startup_failed_notification_text">Anda perlu pasang ulang Briar.</string>
   <string name="expiry_warning">Aplikasi ini telah tamat tempoh.\nSila pasang ulang versi baru.</string>
+  <!--Navigation Drawer-->
   <string name="contact_list_button">Kenalan</string>
+  <string name="forums_button">Forum</string>
+  <string name="settings_button">Tetapan</string>
+  <string name="sign_out_button">Daftar Keluar</string>
+  <!--Transports-->
+  <!--Notifications-->
+  <string name="ongoing_notification_title">Briar sedang berjalan</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="other">%d mesej peribadi baru.</item>
+  </plurals>
+  <!--Misc-->
+  <string name="cancel">Batal</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Tiada kenalan</string>
+  <string name="no_private_messages">Tiada mesej</string>
   <string name="delete_contact">Padam kenalan</string>
   <string name="contact_deleted_toast">Kenalan telah dipadam</string>
-  <string name="forums_button">Forum</string>
-  <string name="sign_out_button">Daftar Keluar</string>
-  <string name="no_contacts">Tiada kenalan</string>
+  <!--Adding Contacts-->
   <string name="add_contact_title">Tambah kenalan</string>
   <string name="continue_button">Teruskan</string>
   <string name="your_invitation_code">Kod jemputan anda adalah</string>
@@ -34,30 +47,31 @@
   <string name="codes_do_not_match">Kod tidak sepadan</string>
   <string name="interfering">Ini menunjukkan bahawa seseorang sedang mengganggu sambungan anda</string>
   <string name="contact_added_toast">Kenalan telah ditambah: %s</string>
-  <string name="no_private_messages">Tiada mesej</string>
+  <!--Introductions-->
+  <!--Private Groups-->
+  <!--Private Group Invitations-->
+  <!--Private Groups Revealing Contacts-->
+  <!--Forums-->
   <string name="create_forum_title">Cipta forum baru</string>
   <string name="choose_forum_name">Pilih nama untuk forum anda:</string>
   <string name="forum_created_toast">Forum telah dicipta</string>
-  <string name="anonymous">Tidak dikenali</string>
-  <string name="new_identity_title">Identiti baru</string>
-  <string name="identity_created_toast">Identiti telah dicipta</string>
-  <string name="cancel">Batal</string>
-  <plurals name="private_message_notification_text">
-    <item quantity="other">%d mesej peribadi baru.</item>
-  </plurals>
-  <!--Settings-->
-  <string name="settings_button">Tetapan</string>
+  <!--Forum Sharing-->
+  <!--Blogs-->
+  <!--Blog Sharing-->
+  <!--RSS Feeds-->
+  <!--Settings Network-->
   <string name="bluetooth_setting_disabled">Hanya ketika menambah kenalan</string>
+  <!--Settings Security and Panic-->
+  <!--Settings Notifications-->
   <string name="notify_private_messages_setting">Papar notifikasi untuk mesej peribadi</string>
   <string name="notify_vibration_setting">Getar</string>
   <string name="notify_sound_setting">Bunyi</string>
   <string name="notify_sound_setting_default">Nada bunyi asal</string>
   <string name="notify_sound_setting_disabled">Tiada</string>
   <string name="choose_ringtone_title">Pilih nada bunyi</string>
-  <!--Introduction Client-->
-  <!--Forum-->
-  <!--Dialogs-->
-  <!--Toolbar headers-->
-  <!--Progress titles-->
-  <!--Blogs-->
+  <!--Settings Feedback-->
+  <!--Link Warning-->
+  <!--Crash Reporter-->
+  <string name="crash_report_title">Laporan Kesalahan Briar</string>
+  <!--Sign Out-->
 </resources>
