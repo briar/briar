@@ -1,28 +1,28 @@
 package org.briarproject;
 
-import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.identity.IdentityManager;
-import org.briarproject.api.lifecycle.LifecycleManager;
-import org.briarproject.api.messaging.MessagingManager;
-import org.briarproject.api.messaging.PrivateMessageFactory;
-import org.briarproject.api.sync.SyncSessionFactory;
-import org.briarproject.api.transport.KeyManager;
-import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.api.transport.StreamWriterFactory;
-import org.briarproject.clients.ClientsModule;
-import org.briarproject.contact.ContactModule;
-import org.briarproject.crypto.CryptoModule;
-import org.briarproject.data.DataModule;
-import org.briarproject.db.DatabaseModule;
-import org.briarproject.event.EventModule;
-import org.briarproject.identity.IdentityModule;
-import org.briarproject.lifecycle.LifecycleModule;
-import org.briarproject.messaging.MessagingModule;
-import org.briarproject.plugins.PluginsModule;
-import org.briarproject.sync.SyncModule;
-import org.briarproject.system.SystemModule;
-import org.briarproject.transport.TransportModule;
+import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.sync.SyncSessionFactory;
+import org.briarproject.bramble.api.transport.KeyManager;
+import org.briarproject.bramble.api.transport.StreamReaderFactory;
+import org.briarproject.bramble.api.transport.StreamWriterFactory;
+import org.briarproject.bramble.client.ClientModule;
+import org.briarproject.bramble.contact.ContactModule;
+import org.briarproject.bramble.crypto.CryptoModule;
+import org.briarproject.bramble.data.DataModule;
+import org.briarproject.bramble.db.DatabaseModule;
+import org.briarproject.bramble.event.EventModule;
+import org.briarproject.bramble.identity.IdentityModule;
+import org.briarproject.bramble.lifecycle.LifecycleModule;
+import org.briarproject.bramble.sync.SyncModule;
+import org.briarproject.bramble.system.SystemModule;
+import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.briar.api.messaging.MessagingManager;
+import org.briarproject.briar.api.messaging.PrivateMessageFactory;
+import org.briarproject.briar.client.BriarClientModule;
+import org.briarproject.briar.messaging.MessagingModule;
 
 import javax.inject.Singleton;
 
@@ -31,9 +31,10 @@ import dagger.Component;
 @Singleton
 @Component(modules = {
 		TestDatabaseModule.class,
-		TestPluginsModule.class,
+		TestPluginConfigModule.class,
 		TestSeedProviderModule.class,
-		ClientsModule.class,
+		BriarClientModule.class,
+		ClientModule.class,
 		ContactModule.class,
 		CryptoModule.class,
 		DataModule.class,
@@ -42,12 +43,13 @@ import dagger.Component;
 		IdentityModule.class,
 		LifecycleModule.class,
 		MessagingModule.class,
-		PluginsModule.class,
 		SyncModule.class,
 		SystemModule.class,
 		TransportModule.class
 })
-public interface SimplexMessagingIntegrationTestComponent {
+interface SimplexMessagingIntegrationTestComponent {
+
+	void inject(MessagingModule.EagerSingletons init);
 
 	void inject(SystemModule.EagerSingletons init);
 

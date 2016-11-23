@@ -1,42 +1,42 @@
 package org.briarproject;
 
-import org.briarproject.api.blogs.BlogManager;
-import org.briarproject.api.blogs.BlogSharingManager;
-import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.MessageQueueManager;
-import org.briarproject.api.clients.MessageTracker;
-import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.event.EventBus;
-import org.briarproject.api.forum.ForumManager;
-import org.briarproject.api.forum.ForumSharingManager;
-import org.briarproject.api.identity.IdentityManager;
-import org.briarproject.api.introduction.IntroductionManager;
-import org.briarproject.api.lifecycle.LifecycleManager;
-import org.briarproject.api.privategroup.PrivateGroupManager;
-import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
-import org.briarproject.api.properties.TransportPropertyManager;
-import org.briarproject.api.sync.SyncSessionFactory;
-import org.briarproject.blogs.BlogsModule;
-import org.briarproject.clients.ClientsModule;
-import org.briarproject.contact.ContactModule;
-import org.briarproject.crypto.CryptoModule;
-import org.briarproject.data.DataModule;
-import org.briarproject.db.DatabaseModule;
-import org.briarproject.event.EventModule;
-import org.briarproject.forum.ForumModule;
-import org.briarproject.identity.IdentityModule;
-import org.briarproject.introduction.IntroductionModule;
-import org.briarproject.introduction.MessageSender;
-import org.briarproject.lifecycle.LifecycleModule;
-import org.briarproject.messaging.MessagingModule;
-import org.briarproject.privategroup.PrivateGroupModule;
-import org.briarproject.privategroup.invitation.GroupInvitationModule;
-import org.briarproject.properties.PropertiesModule;
-import org.briarproject.sharing.SharingModule;
-import org.briarproject.sync.SyncModule;
-import org.briarproject.system.SystemModule;
-import org.briarproject.transport.TransportModule;
+import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.sync.SyncSessionFactory;
+import org.briarproject.bramble.client.ClientModule;
+import org.briarproject.bramble.contact.ContactModule;
+import org.briarproject.bramble.crypto.CryptoModule;
+import org.briarproject.bramble.data.DataModule;
+import org.briarproject.bramble.db.DatabaseModule;
+import org.briarproject.bramble.event.EventModule;
+import org.briarproject.bramble.identity.IdentityModule;
+import org.briarproject.bramble.lifecycle.LifecycleModule;
+import org.briarproject.bramble.properties.PropertiesModule;
+import org.briarproject.bramble.sync.SyncModule;
+import org.briarproject.bramble.system.SystemModule;
+import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.briar.api.blog.BlogManager;
+import org.briarproject.briar.api.blog.BlogSharingManager;
+import org.briarproject.briar.api.client.MessageQueueManager;
+import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.forum.ForumManager;
+import org.briarproject.briar.api.forum.ForumSharingManager;
+import org.briarproject.briar.api.introduction.IntroductionManager;
+import org.briarproject.briar.api.privategroup.PrivateGroupManager;
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.briar.blog.BlogModule;
+import org.briarproject.briar.client.BriarClientModule;
+import org.briarproject.briar.forum.ForumModule;
+import org.briarproject.briar.introduction.IntroductionModule;
+import org.briarproject.briar.messaging.MessagingModule;
+import org.briarproject.briar.privategroup.PrivateGroupModule;
+import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
+import org.briarproject.briar.sharing.SharingModule;
 
 import javax.inject.Singleton;
 
@@ -45,21 +45,22 @@ import dagger.Component;
 @Singleton
 @Component(modules = {
 		TestDatabaseModule.class,
-		TestPluginsModule.class,
+		TestPluginConfigModule.class,
 		TestSeedProviderModule.class,
-		ClientsModule.class,
+		BlogModule.class,
+		BriarClientModule.class,
+		ClientModule.class,
 		ContactModule.class,
 		CryptoModule.class,
-		BlogsModule.class,
 		DataModule.class,
 		DatabaseModule.class,
 		EventModule.class,
 		ForumModule.class,
 		GroupInvitationModule.class,
-		MessagingModule.class,
 		IdentityModule.class,
 		IntroductionModule.class,
 		LifecycleModule.class,
+		MessagingModule.class,
 		PrivateGroupModule.class,
 		PropertiesModule.class,
 		SharingModule.class,
@@ -69,9 +70,9 @@ import dagger.Component;
 })
 public interface BriarIntegrationTestComponent {
 
-	void inject(BriarIntegrationTest init);
+	void inject(BriarIntegrationTest<BriarIntegrationTestComponent> init);
 
-	void inject(BlogsModule.EagerSingletons init);
+	void inject(BlogModule.EagerSingletons init);
 
 	void inject(ContactModule.EagerSingletons init);
 
@@ -81,9 +82,13 @@ public interface BriarIntegrationTestComponent {
 
 	void inject(GroupInvitationModule.EagerSingletons init);
 
+	void inject(IdentityModule.EagerSingletons init);
+
 	void inject(IntroductionModule.EagerSingletons init);
 
 	void inject(LifecycleModule.EagerSingletons init);
+
+	void inject(MessagingModule.EagerSingletons init);
 
 	void inject(PrivateGroupModule.EagerSingletons init);
 
@@ -92,6 +97,8 @@ public interface BriarIntegrationTestComponent {
 	void inject(SharingModule.EagerSingletons init);
 
 	void inject(SyncModule.EagerSingletons init);
+
+	void inject(SystemModule.EagerSingletons init);
 
 	void inject(TransportModule.EagerSingletons init);
 
@@ -122,8 +129,6 @@ public interface BriarIntegrationTestComponent {
 	IntroductionManager getIntroductionManager();
 
 	MessageTracker getMessageTracker();
-
-	MessageSender getMessageSender();
 
 	MessageQueueManager getMessageQueueManager();
 

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<org.briarproject.briar.android.keyagreement.CameraView
+		android:id="@+id/camera_view"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"/>
+
+	<LinearLayout
+		android:id="@+id/camera_overlay"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+		android:weightSum="2">
+
+		<FrameLayout
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1">
+
+			<LinearLayout
+				android:id="@+id/status_container"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:background="@android:color/background_light"
+				android:gravity="center"
+				android:orientation="vertical"
+				android:padding="@dimen/margin_medium"
+				android:visibility="invisible">
+
+				<ProgressBar
+					style="?android:attr/progressBarStyleLarge"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
+
+				<TextView
+					android:id="@+id/connect_status"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:gravity="center"
+					android:paddingTop="@dimen/margin_large"
+					tools:text="Connection failed"/>
+			</LinearLayout>
+		</FrameLayout>
+
+		<FrameLayout
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"
+			android:background="@android:color/white">
+
+			<ProgressBar
+				style="?android:attr/progressBarStyleLarge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"/>
+
+			<ImageView
+				android:id="@+id/qr_code"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:scaleType="fitCenter"
+				android:layout_gravity="center"/>
+		</FrameLayout>
+	</LinearLayout>
+
+	<RelativeLayout
+		android:id="@+id/container_progress"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@android:color/white"
+		android:visibility="invisible">
+
+		<ProgressBar
+			android:id="@+id/progress_bar"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_above="@+id/title_progress_bar"
+			android:layout_centerHorizontal="true"/>
+
+		<TextView
+			android:id="@+id/title_progress_bar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_centerInParent="true"
+			android:gravity="center"
+			android:paddingTop="@dimen/margin_large"
+			tools:text="@string/waiting_for_contact_to_scan"/>
+	</RelativeLayout>
+
+</FrameLayout>

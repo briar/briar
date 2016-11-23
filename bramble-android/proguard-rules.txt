@@ -1,0 +1,15 @@
+-keep,includedescriptorclasses class org.briarproject.** { *; }
+
+-keep class org.h2.** { *; }
+-dontwarn org.h2.**
+-dontnote org.h2.**
+
+-keep class dagger.** { *; }
+-dontwarn dagger.**
+-dontnote dagger.**
+
+-dontwarn sun.misc.Unsafe
+-dontnote com.google.common.**
+
+# UPnP library isn't used
+-dontwarn org.bitlet.weupnp.**

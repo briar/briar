@@ -1,66 +1,30 @@
--dontusemixedcaseclassnames
--dontskipnonpubliclibraryclasses
--dontpreverify
+# Android defaults and rules from ../bramble-android/proguard-rules.txt are also applied
+
 -dontobfuscate
--verbose
--useuniqueclassmembernames
-#-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
-# For comfortability in case we do obfuscate
-# -renamesourcefileattribute SourceFile
 -keepattributes SourceFile, LineNumberTable, *Annotation*, Signature, InnerClasses, EnclosingMethod
 
--keep public class * extends android.app.Activity
--keep public class * extends android.app.Application
--keep public class * extends android.app.Service
--keep public class * extends android.content.BroadcastReceiver
--keep public class * extends android.content.ContentProvider
--keepclasseswithmembers class * { native <methods>; }
--keepclasseswithmembers class * {  
-	public <init> (android.content.Context, android.util.AttributeSet); 
-}
--keepclasseswithmembers class * { 
-	public <init> (android.content.Context, android.util.AttributeSet, int); 
-}
--keepclassmembers class * implements android.os.Parcelable { static android.os.Parcelable$Creator *; }
--keepclassmembers class **.R$* { public static <fields>; }
--keepclasseswithmembernames class * { native <methods>; }
--keepclassmembers enum * {
-	public static **[] values();
-	public static ** valueOf(java.lang.String);
-}
--keepclassmembers class * extends android.app.Activity { 
-	public void *(android.view.View); 
-}
-
--keep class org.h2.** { *; }
--keep class org.briarproject.** { *; }
--keep class javax.inject.** { *; }
--keep class dagger.** { *; }
+# QR codes
 -keep class com.google.zxing.Result
 
--dontwarn org.h2.**
--dontnote org.h2.**
--dontwarn net.sf.cglib.**
--dontwarn org.briarproject.plugins.tcp.**
--dontnote org.briarproject.crypto.**
--dontnote org.spongycastle.crypto.parsers.ECIESPublicKeyParser
--dontwarn net.sourceforge.jsocks.**
--dontnote android.support.**
--dontnote dagger.**
--dontwarn dagger.**
--dontnote com.google.common.**
--dontwarn com.google.common.**
-
 # RSS libraries
--keep class com.rometools.rome.feed.synd.impl.** { *;}
--keep class com.rometools.rome.io.impl.** { *;}
--keep class org.jsoup.safety.Whitelist
--dontnote com.rometools.rome.**
+-keep,includedescriptorclasses class com.rometools.rome.feed.synd.impl.** { *; }
+-keep,includedescriptorclasses class com.rometools.rome.io.impl.** { *; }
 -dontwarn javax.xml.stream.**
 -dontwarn org.jaxen.**
 -dontwarn java.nio.**
--dontwarn org.codehaus.mojo.animal_sniffer.**
+-dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
 -dontwarn org.slf4j.impl.**
+
+# OkHttp does some shenanigans with Android's SSL classes
+-dontnote com.android.org.conscrypt.SSLParametersImpl
+-dontnote org.apache.harmony.xnet.provider.jsse.SSLParametersImpl
+-dontnote sun.security.ssl.SSLContextImpl
+
+# HTML sanitiser
+-keep class org.jsoup.safety.Whitelist
+
+# KeyboardAwareLinearLayout uses reflection on android.View
+-dontnote org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout
 
 # Emoji
 -keep class org.thoughtcrime.securesms.**

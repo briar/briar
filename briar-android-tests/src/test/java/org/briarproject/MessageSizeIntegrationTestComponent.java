@@ -1,15 +1,16 @@
 package org.briarproject;
 
-import org.briarproject.clients.ClientsModule;
-import org.briarproject.crypto.CryptoModule;
-import org.briarproject.data.DataModule;
-import org.briarproject.db.DatabaseModule;
-import org.briarproject.event.EventModule;
-import org.briarproject.forum.ForumModule;
-import org.briarproject.identity.IdentityModule;
-import org.briarproject.messaging.MessagingModule;
-import org.briarproject.sync.SyncModule;
-import org.briarproject.system.SystemModule;
+import org.briarproject.bramble.client.ClientModule;
+import org.briarproject.bramble.crypto.CryptoModule;
+import org.briarproject.bramble.data.DataModule;
+import org.briarproject.bramble.db.DatabaseModule;
+import org.briarproject.bramble.event.EventModule;
+import org.briarproject.bramble.identity.IdentityModule;
+import org.briarproject.bramble.sync.SyncModule;
+import org.briarproject.bramble.system.SystemModule;
+import org.briarproject.briar.client.BriarClientModule;
+import org.briarproject.briar.forum.ForumModule;
+import org.briarproject.briar.messaging.MessagingModule;
 
 import javax.inject.Singleton;
 
@@ -20,7 +21,8 @@ import dagger.Component;
 		TestDatabaseModule.class,
 		TestLifecycleModule.class,
 		TestSeedProviderModule.class,
-		ClientsModule.class,
+		BriarClientModule.class,
+		ClientModule.class,
 		CryptoModule.class,
 		DataModule.class,
 		DatabaseModule.class,
@@ -31,7 +33,7 @@ import dagger.Component;
 		SyncModule.class,
 		SystemModule.class
 })
-public interface MessageSizeIntegrationTestComponent {
+interface MessageSizeIntegrationTestComponent {
 
 	void inject(MessageSizeIntegrationTest testCase);
 

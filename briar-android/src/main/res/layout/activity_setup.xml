@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context=".android.login.SetupActivity">
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:paddingBottom="@dimen/margin_activity_vertical"
+		android:paddingEnd="@dimen/margin_activity_horizontal"
+		android:paddingLeft="@dimen/margin_activity_horizontal"
+		android:paddingRight="@dimen/margin_activity_horizontal"
+		android:paddingStart="@dimen/margin_activity_horizontal"
+		android:paddingTop="@dimen/margin_activity_vertical">
+
+		<TextView
+			android:id="@+id/setup_explanation"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/setup_explanation"/>
+
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/nickname_entry_wrapper"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/setup_explanation"
+			android:layout_centerHorizontal="true"
+			android:layout_marginTop="@dimen/margin_medium"
+			app:errorEnabled="true">
+
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/nickname_entry"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/choose_nickname"
+				android:imeOptions="actionNext"
+				android:inputType="text|textCapWords"
+				android:maxLines="1"/>
+		</android.support.design.widget.TextInputLayout>
+
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/password_entry_wrapper"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/nickname_entry_wrapper"
+			android:layout_centerHorizontal="true"
+			app:errorEnabled="true">
+
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/password_entry"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/choose_password"
+				android:imeOptions="actionNext"
+				android:inputType="textPassword"
+				android:maxLines="1"/>
+		</android.support.design.widget.TextInputLayout>
+
+		<org.briarproject.briar.android.login.StrengthMeter
+			android:id="@+id/strength_meter"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/password_entry_wrapper"
+			android:layout_centerHorizontal="true"
+			android:layout_marginBottom="@dimen/margin_medium"
+			android:visibility="gone"/>
+
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/password_confirm_wrapper"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/strength_meter"
+			android:layout_centerHorizontal="true"
+			app:errorEnabled="true">
+
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/password_confirm"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/confirm_password"
+				android:imeOptions="actionDone"
+				android:inputType="textPassword"
+				android:maxLines="1"/>
+		</android.support.design.widget.TextInputLayout>
+
+		<Button
+			android:id="@+id/create_account"
+			style="@style/BriarButton.Default"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/password_confirm_wrapper"
+			android:layout_centerHorizontal="true"
+			android:enabled="false"
+			android:text="@string/create_account_button"/>
+
+		<ProgressBar
+			android:id="@+id/progress_wheel"
+			style="?android:attr/progressBarStyle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignTop="@id/create_account"
+			android:layout_centerHorizontal="true"
+			android:visibility="invisible"/>
+
+	</RelativeLayout>
+
+</ScrollView>

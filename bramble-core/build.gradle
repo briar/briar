@@ -1,0 +1,19 @@
+apply plugin: 'java'
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+apply plugin: 'witness'
+
+dependencies {
+	compile project(':bramble-api')
+	compile fileTree(dir: 'libs', include: '*.jar')
+	compile 'com.madgag.spongycastle:core:1.54.0.0'
+	compile 'com.h2database:h2:1.4.190'
+}
+
+dependencyVerification {
+	verify = [
+			'com.madgag.spongycastle:core:1e7fa4b19ccccd1011364ab838d0b4702470c178bbbdd94c5c90b2d4d749ea1e',
+			'com.h2database:h2:23ba495a07bbbb3bd6c3084d10a96dad7a23741b8b6d64b213459a784195a98c'
+	]
+}

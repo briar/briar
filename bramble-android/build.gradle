@@ -1,0 +1,104 @@
+import de.undercouch.gradle.tasks.download.Download
+import de.undercouch.gradle.tasks.download.Verify
+
+apply plugin: 'com.android.library'
+apply plugin: 'witness'
+apply plugin: 'de.undercouch.download'
+
+android {
+	compileSdkVersion 23
+	buildToolsVersion "23.0.3"
+
+	defaultConfig {
+		minSdkVersion 14
+		targetSdkVersion 22
+		versionCode 1
+		versionName "1.0"
+		consumerProguardFiles 'proguard-rules.txt'
+	}
+
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_7
+		targetCompatibility JavaVersion.VERSION_1_7
+	}
+}
+
+dependencies {
+	compile project(':bramble-core')
+	compile fileTree(dir: 'libs', include: ['*.jar'])
+	provided 'javax.annotation:jsr250-api:1.0'
+}
+
+def torBinaryDir = 'src/main/res/raw'
+
+task downloadTorGeoIp(type: Download) {
+	src 'https://briarproject.org/build/geoip-2015-12-01.zip'
+	dest "$torBinaryDir/geoip.zip"
+	onlyIfNewer true
+}
+
+task downloadTorBinaryArm(type: Download) {
+	src 'https://briarproject.org/build/tor-0.2.7.6-arm.zip'
+	dest "$torBinaryDir/tor_arm.zip"
+	onlyIfNewer true
+}
+
+task downloadTorBinaryArmPie(type: Download) {
+	src 'https://briarproject.org/build/tor-0.2.7.6-arm-pie.zip'
+	dest "$torBinaryDir/tor_arm_pie.zip"
+	onlyIfNewer true
+}
+
+task downloadTorBinaryX86(type: Download) {
+	src 'https://briarproject.org/build/tor-0.2.7.6-x86.zip'
+	dest "$torBinaryDir/tor_x86.zip"
+	onlyIfNewer true
+}
+
+task downloadTorBinaryX86Pie(type: Download) {
+	src 'https://briarproject.org/build/tor-0.2.7.6-x86-pie.zip'
+	dest "$torBinaryDir/tor_x86_pie.zip"
+	onlyIfNewer true
+}
+
+task verifyTorGeoIp(type: Verify, dependsOn: 'downloadTorGeoIp') {
+	src "$torBinaryDir/geoip.zip"
+	algorithm 'SHA-256'
+	checksum '9bcdaf0a7ba0933735328d8ec466c25c25dbb459efc2bce9e55c774eabea5162'
+}
+
+task verifyTorBinaryArm(type: Verify, dependsOn: 'downloadTorBinaryArm') {
+	src "$torBinaryDir/tor_arm.zip"
+	algorithm 'SHA-256'
+	checksum '83272962eda701cd5d74d2418651c4ff0f0b1dff51f558a292d1a1c42bf12146'
+}
+
+task verifyTorBinaryArmPie(type: Verify, dependsOn: 'downloadTorBinaryArmPie') {
+	src "$torBinaryDir/tor_arm_pie.zip"
+	algorithm 'SHA-256'
+	checksum 'd0300d1e45de11ebb24ed62b9c492be9c2e88590b7822195ab38c7a76ffcf646'
+}
+
+task verifyTorBinaryX86(type: Verify, dependsOn: 'downloadTorBinaryX86') {
+	src "$torBinaryDir/tor_x86.zip"
+	algorithm 'SHA-256'
+	checksum 'b8813d97b01ee1b9c9a4233c1b9bbe9f9f6b494ae6f9cbd84de8a3911911615e'
+}
+
+task verifyTorBinaryX86Pie(type: Verify, dependsOn: 'downloadTorBinaryX86Pie') {
+	src "$torBinaryDir/tor_x86_pie.zip"
+	algorithm 'SHA-256'
+	checksum '9c66e765aa196dc089951a1b2140cc8290305c2fcbf365121f99e01a233baf4e'
+}
+
+project.afterEvaluate {
+	preBuild.dependsOn {
+		[
+				'verifyTorGeoIp',
+				'verifyTorBinaryArm',
+				'verifyTorBinaryArmPie',
+				'verifyTorBinaryX86',
+				'verifyTorBinaryX86Pie'
+		]
+	}
+}

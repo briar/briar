@@ -1,28 +1,29 @@
 package org.briarproject;
 
-import org.briarproject.api.contact.Contact;
-import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.identity.AuthorId;
-import org.briarproject.api.privategroup.GroupMember;
-import org.briarproject.api.privategroup.GroupMessage;
-import org.briarproject.api.privategroup.GroupMessageHeader;
-import org.briarproject.api.privategroup.JoinMessageHeader;
-import org.briarproject.api.privategroup.PrivateGroup;
-import org.briarproject.api.privategroup.PrivateGroupManager;
-import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
-import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageId;
-import org.jetbrains.annotations.Nullable;
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.api.privategroup.GroupMember;
+import org.briarproject.briar.api.privategroup.GroupMessage;
+import org.briarproject.briar.api.privategroup.GroupMessageHeader;
+import org.briarproject.briar.api.privategroup.JoinMessageHeader;
+import org.briarproject.briar.api.privategroup.PrivateGroup;
+import org.briarproject.briar.api.privategroup.PrivateGroupManager;
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
 
-import static org.briarproject.api.identity.Author.Status.OURSELVES;
-import static org.briarproject.api.privategroup.Visibility.INVISIBLE;
-import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_CONTACT;
-import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_US;
+import javax.annotation.Nullable;
+
+import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
+import static org.briarproject.briar.api.privategroup.Visibility.INVISIBLE;
+import static org.briarproject.briar.api.privategroup.Visibility.REVEALED_BY_CONTACT;
+import static org.briarproject.briar.api.privategroup.Visibility.REVEALED_BY_US;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -30,7 +31,8 @@ import static org.junit.Assert.assertTrue;
  * This class tests how PrivateGroupManager and GroupInvitationManager
  * play together.
  */
-public class PrivateGroupIntegrationTest extends BriarIntegrationTest {
+public class PrivateGroupIntegrationTest
+		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
 	private GroupId groupId0;
 	private PrivateGroup privateGroup0;
@@ -57,6 +59,25 @@ public class PrivateGroupIntegrationTest extends BriarIntegrationTest {
 		GroupMessage joinMsg0 = groupMessageFactory
 				.createJoinMessage(groupId0, joinTime, author0);
 		groupManager0.addPrivateGroup(privateGroup0, joinMsg0, true);
+	}
+
+	@Override
+	protected void createComponents() {
+		BriarIntegrationTestComponent component =
+				DaggerBriarIntegrationTestComponent.builder().build();
+		component.inject(this);
+
+		c0 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t0Dir)).build();
+		injectEagerSingletons(c0);
+
+		c1 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
+		injectEagerSingletons(c1);
+
+		c2 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
+		injectEagerSingletons(c2);
 	}
 
 	@Test

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+	android:id="@+id/postLayout"
+	style="@style/BriarCard"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:foreground="?android:attr/selectableItemBackground">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:padding="@dimen/listitem_vertical_margin">
+
+			<org.briarproject.briar.android.view.AuthorView
+				android:id="@+id/rebloggerView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_alignParentTop="true"
+				android:layout_marginBottom="@dimen/listitem_horizontal_margin"
+				android:layout_toLeftOf="@+id/commentView"
+				app:persona="reblogger"/>
+
+			<org.briarproject.briar.android.view.AuthorView
+				android:id="@+id/authorView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_below="@+id/rebloggerView"
+				android:layout_marginBottom="@dimen/listitem_vertical_margin"
+				android:layout_toLeftOf="@+id/commentView"/>
+
+			<ImageView
+				android:id="@+id/commentView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:layout_alignParentTop="true"
+				android:background="?attr/selectableItemBackground"
+				android:clickable="true"
+				android:contentDescription="@string/blogs_reblog_comment_hint"
+				android:padding="@dimen/margin_small"
+				android:src="@drawable/ic_repeat"/>
+
+			<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+				android:id="@+id/bodyView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/authorView"
+				android:textColor="@color/briar_text_secondary"
+				android:textSize="@dimen/text_size_medium"
+				tools:text="This is a body text that shows the content of a blog post.\n\nThis one is not short, but it is also not too long."/>
+
+		</RelativeLayout>
+
+		<LinearLayout
+			android:id="@+id/commentContainer"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<include
+				layout="@layout/list_item_blog_comment"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"/>
+
+		</LinearLayout>
+
+	</LinearLayout>
+
+</android.support.v7.widget.CardView>

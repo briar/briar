@@ -1,25 +1,25 @@
 package org.briarproject;
 
-import org.briarproject.api.TransportId;
-import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.sync.Ack;
-import org.briarproject.api.sync.ClientId;
-import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.GroupFactory;
-import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageFactory;
-import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.sync.Offer;
-import org.briarproject.api.sync.PacketReader;
-import org.briarproject.api.sync.PacketReaderFactory;
-import org.briarproject.api.sync.PacketWriter;
-import org.briarproject.api.sync.PacketWriterFactory;
-import org.briarproject.api.sync.Request;
-import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.api.transport.StreamWriterFactory;
+import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.sync.Ack;
+import org.briarproject.bramble.api.sync.ClientId;
+import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.GroupFactory;
+import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageFactory;
+import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.sync.Offer;
+import org.briarproject.bramble.api.sync.PacketReader;
+import org.briarproject.bramble.api.sync.PacketReaderFactory;
+import org.briarproject.bramble.api.sync.PacketWriter;
+import org.briarproject.bramble.api.sync.PacketWriterFactory;
+import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.transport.StreamContext;
+import org.briarproject.bramble.api.transport.StreamReaderFactory;
+import org.briarproject.bramble.api.transport.StreamWriterFactory;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -31,7 +31,7 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
-import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
+import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

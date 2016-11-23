@@ -1,15 +1,11 @@
-import de.undercouch.gradle.tasks.download.Download
-import de.undercouch.gradle.tasks.download.Verify
-
 apply plugin: 'com.android.application'
 apply plugin: 'witness'
 apply plugin: 'com.neenbedankt.android-apt'
-apply plugin: 'de.undercouch.download'
 
 dependencies {
 	def supportVersion = '23.2.1'
-	compile project(':briar-api')
 	compile project(':briar-core')
+	compile project(':bramble-android')
 	compile fileTree(dir: 'libs', include: '*.jar')
 
 	compile "com.android.support:support-v4:$supportVersion"
@@ -63,6 +59,7 @@ dependencyVerification {
 			'com.android.support:animated-vector-drawable:06d1963b85aa917099d7757e6a7b3e4dc06889413dc747f625ae8683606db3a1',
 			'com.android.support:support-vector-drawable:799bafe4c3de812386f0b291f744d5d6876452722dd40189b9ab87dbbf594ea1',
 			'com.android.support:recyclerview-v7:44040a888e23e0c93162a3377cfe06751080e3c22d369ab0d4301ef60d63b0fe',
+			'com.android.support:preference-v7:775101bd07bd052e455761c5c5d9523d7ad59f2f320e3e8cbde241fd6b1d6025',
 			'com.android.support:cardview-v7:4595f1c4a28cfa083b6c0920ad4d49e1c2ca4b8302a955e548f68eb63b74931b',
 			'com.jpardogo.materialtabstrip:library:24d19232b319f8c73e25793432357919a7ed972186f57a3b2c9093ea74ad8311',
 			'com.github.bumptech.glide:glide:76ef123957b5fbaebb05fcbe6606dd58c3bc3fcdadb257f99811d0ac9ea9b88b',
@@ -75,32 +72,9 @@ android {
 	buildToolsVersion "23.0.3"
 
 	defaultConfig {
-		resValue "string", "app_package", "org.briarproject"
-	}
-
-	sourceSets {
-		main {
-			manifest.srcFile 'AndroidManifest.xml'
-			java.srcDirs = ['src']
-			resources.srcDirs = ['src']
-			aidl.srcDirs = ['src']
-			renderscript.srcDirs = ['src']
-			res.srcDirs = ['res']
-			assets.srcDirs = ['assets']
-		}
-
-		androidTest.setRoot('androidTest')
-		androidTest {
-			java.srcDirs = ['androidTest/java']
-		}
-
-		test.setRoot('test')
-		test {
-			java.srcDirs = ['test/java']
-			testOptions {
-				unitTests.returnDefaultValues = true
-			}
-		}
+		minSdkVersion 14
+		targetSdkVersion 22
+		resValue "string", "app_package", "org.briarproject.briar"
 	}
 
 	buildTypes {
@@ -125,76 +99,4 @@ android {
 		warning 'MissingTranslation'
 		warning 'ImpliedQuantity'
 	}
-}
-
-task downloadTorGeoIp(type: Download) {
-    src 'https://briarproject.org/build/geoip-2015-12-01.zip'
-    dest 'assets/geoip.zip'
-    onlyIfNewer true
-}
-
-task downloadTorBinaryArm(type: Download) {
-    src 'https://briarproject.org/build/tor-0.2.7.6-arm.zip'
-    dest 'assets/tor-arm.zip'
-    onlyIfNewer true
-}
-
-task downloadTorBinaryArmPie(type: Download) {
-    src 'https://briarproject.org/build/tor-0.2.7.6-arm-pie.zip'
-    dest 'assets/tor-arm-pie.zip'
-    onlyIfNewer true
-}
-
-task downloadTorBinaryX86(type: Download) {
-    src 'https://briarproject.org/build/tor-0.2.7.6-x86.zip'
-    dest 'assets/tor-x86.zip'
-    onlyIfNewer true
-}
-
-task downloadTorBinaryX86Pie(type: Download) {
-    src 'https://briarproject.org/build/tor-0.2.7.6-x86-pie.zip'
-    dest 'assets/tor-x86-pie.zip'
-    onlyIfNewer true
-}
-
-task verifyTorGeoIp(type: Verify, dependsOn: 'downloadTorGeoIp') {
-    src 'assets/geoip.zip'
-    algorithm 'SHA-256'
-    checksum '9bcdaf0a7ba0933735328d8ec466c25c25dbb459efc2bce9e55c774eabea5162'
-}
-
-task verifyTorBinaryArm(type: Verify, dependsOn: 'downloadTorBinaryArm') {
-    src 'assets/tor-arm.zip'
-    algorithm 'SHA-256'
-    checksum '83272962eda701cd5d74d2418651c4ff0f0b1dff51f558a292d1a1c42bf12146'
-}
-
-task verifyTorBinaryArmPie(type: Verify, dependsOn: 'downloadTorBinaryArmPie') {
-    src 'assets/tor-arm-pie.zip'
-    algorithm 'SHA-256'
-    checksum 'd0300d1e45de11ebb24ed62b9c492be9c2e88590b7822195ab38c7a76ffcf646'
-}
-
-task verifyTorBinaryX86(type: Verify, dependsOn: 'downloadTorBinaryX86') {
-    src 'assets/tor-x86.zip'
-    algorithm 'SHA-256'
-    checksum 'b8813d97b01ee1b9c9a4233c1b9bbe9f9f6b494ae6f9cbd84de8a3911911615e'
-}
-
-task verifyTorBinaryX86Pie(type: Verify, dependsOn: 'downloadTorBinaryX86Pie') {
-    src 'assets/tor-x86-pie.zip'
-    algorithm 'SHA-256'
-    checksum '9c66e765aa196dc089951a1b2140cc8290305c2fcbf365121f99e01a233baf4e'
-}
-
-project.afterEvaluate {
-    preBuild.dependsOn {
-        [
-                'verifyTorGeoIp',
-                'verifyTorBinaryArm',
-                'verifyTorBinaryArmPie',
-                'verifyTorBinaryX86',
-                'verifyTorBinaryX86Pie'
-        ]
-    }
 }

@@ -1,14 +1,14 @@
 package org.briarproject;
 
-import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.data.MetadataEncoder;
-import org.briarproject.api.identity.AuthorFactory;
-import org.briarproject.api.sync.ClientId;
-import org.briarproject.api.sync.Group;
-import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.Message;
-import org.briarproject.api.sync.MessageId;
-import org.briarproject.api.system.Clock;
+import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.data.MetadataEncoder;
+import org.briarproject.bramble.api.identity.AuthorFactory;
+import org.briarproject.bramble.api.sync.ClientId;
+import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.system.Clock;
 
 public abstract class ValidatorTestCase extends BriarMockTestCase {
 

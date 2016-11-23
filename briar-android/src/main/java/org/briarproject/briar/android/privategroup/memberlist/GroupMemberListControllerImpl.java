@@ -1,0 +1,60 @@
+package org.briarproject.briar.android.privategroup.memberlist;
+
+import org.briarproject.bramble.api.db.DatabaseExecutor;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.briar.android.controller.DbControllerImpl;
+import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.briar.api.privategroup.GroupMember;
+import org.briarproject.briar.api.privategroup.PrivateGroupManager;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import static java.util.logging.Level.WARNING;
+
+class GroupMemberListControllerImpl extends DbControllerImpl
+		implements GroupMemberListController {
+
+	private static final Logger LOG =
+			Logger.getLogger(GroupMemberListControllerImpl.class.getName());
+
+	private final PrivateGroupManager privateGroupManager;
+
+	@Inject
+	GroupMemberListControllerImpl(@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager,
+			PrivateGroupManager privateGroupManager) {
+		super(dbExecutor, lifecycleManager);
+		this.privateGroupManager = privateGroupManager;
+	}
+
+	@Override
+	public void loadMembers(final GroupId groupId, final
+			ResultExceptionHandler<Collection<MemberListItem>, DbException> handler) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Collection<MemberListItem> items = new ArrayList<>();
+					Collection<GroupMember> members =
+							privateGroupManager.getMembers(groupId);
+					for (GroupMember m : members) {
+						items.add(new MemberListItem(m));
+					}
+					handler.onResult(items);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					handler.onException(e);
+				}
+			}
+		});
+	}
+
+}

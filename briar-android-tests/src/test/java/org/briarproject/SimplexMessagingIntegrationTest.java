@@ -1,27 +1,29 @@
 package org.briarproject;
 
-import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.MessageAddedEvent;
-import org.briarproject.api.identity.Author;
-import org.briarproject.api.identity.AuthorId;
-import org.briarproject.api.identity.IdentityManager;
-import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.lifecycle.LifecycleManager;
-import org.briarproject.api.messaging.MessagingManager;
-import org.briarproject.api.messaging.PrivateMessage;
-import org.briarproject.api.messaging.PrivateMessageFactory;
-import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.SyncSession;
-import org.briarproject.api.sync.SyncSessionFactory;
-import org.briarproject.api.transport.KeyManager;
-import org.briarproject.api.transport.StreamContext;
-import org.briarproject.api.transport.StreamReaderFactory;
-import org.briarproject.api.transport.StreamWriterFactory;
-import org.briarproject.system.SystemModule;
+import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventListener;
+import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.SyncSession;
+import org.briarproject.bramble.api.sync.SyncSessionFactory;
+import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
+import org.briarproject.bramble.api.transport.KeyManager;
+import org.briarproject.bramble.api.transport.StreamContext;
+import org.briarproject.bramble.api.transport.StreamReaderFactory;
+import org.briarproject.bramble.api.transport.StreamWriterFactory;
+import org.briarproject.bramble.system.SystemModule;
+import org.briarproject.briar.api.messaging.MessagingManager;
+import org.briarproject.briar.api.messaging.PrivateMessage;
+import org.briarproject.briar.api.messaging.PrivateMessageFactory;
+import org.briarproject.briar.messaging.MessagingModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,10 +34,10 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static org.briarproject.TestPluginsModule.MAX_LATENCY;
-import static org.briarproject.TestPluginsModule.TRANSPORT_ID;
-import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
+import static org.briarproject.TestPluginConfigModule.MAX_LATENCY;
+import static org.briarproject.TestPluginConfigModule.TRANSPORT_ID;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -61,10 +63,11 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		assertTrue(testDir.mkdirs());
 		alice = DaggerSimplexMessagingIntegrationTestComponent.builder()
 				.testDatabaseModule(new TestDatabaseModule(aliceDir)).build();
+		injectEagerSingletons(alice);
 		alice.inject(new SystemModule.EagerSingletons());
 		bob = DaggerSimplexMessagingIntegrationTestComponent.builder()
 				.testDatabaseModule(new TestDatabaseModule(bobDir)).build();
-		bob.inject(new SystemModule.EagerSingletons());
+		injectEagerSingletons(bob);
 	}
 
 	@Test
@@ -136,8 +139,6 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		KeyManager keyManager = bob.getKeyManager();
 		StreamReaderFactory streamReaderFactory = bob.getStreamReaderFactory();
 		SyncSessionFactory syncSessionFactory = bob.getSyncSessionFactory();
-		// Bob needs a MessagingManager even though we're not using it directly
-		bob.getMessagingManager();
 
 		// Start the lifecyle manager
 		lifecycleManager.startServices(null);
@@ -185,6 +186,13 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		TestUtils.deleteTestDirectory(testDir);
 	}
 
+	private static void injectEagerSingletons(
+			SimplexMessagingIntegrationTestComponent component) {
+		component.inject(new MessagingModule.EagerSingletons());
+		component.inject(new SystemModule.EagerSingletons());
+	}
+
+	@NotNullByDefault
 	private static class MessageListener implements EventListener {
 
 		private volatile boolean messageAdded = false;

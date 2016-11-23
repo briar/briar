@@ -1,21 +1,22 @@
 package org.briarproject;
 
-import org.briarproject.api.clients.ProtocolStateException;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.privategroup.GroupMessage;
-import org.briarproject.api.privategroup.PrivateGroup;
-import org.briarproject.api.privategroup.PrivateGroupManager;
-import org.briarproject.api.privategroup.invitation.GroupInvitationItem;
-import org.briarproject.api.privategroup.invitation.GroupInvitationManager;
-import org.briarproject.api.privategroup.invitation.GroupInvitationRequest;
-import org.briarproject.api.privategroup.invitation.GroupInvitationResponse;
-import org.briarproject.api.sharing.InvitationMessage;
-import org.briarproject.api.sync.Group;
-import org.jetbrains.annotations.Nullable;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.briar.api.client.ProtocolStateException;
+import org.briarproject.briar.api.privategroup.GroupMessage;
+import org.briarproject.briar.api.privategroup.PrivateGroup;
+import org.briarproject.briar.api.privategroup.PrivateGroupManager;
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationItem;
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
+import org.briarproject.briar.api.sharing.InvitationMessage;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
+
+import javax.annotation.Nullable;
 
 import static junit.framework.TestCase.fail;
 import static org.briarproject.TestUtils.assertGroupCount;
@@ -23,7 +24,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class GroupInvitationIntegrationTest extends BriarIntegrationTest {
+public class GroupInvitationIntegrationTest
+		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
 	private PrivateGroup privateGroup0;
 	private PrivateGroupManager groupManager0, groupManager1;
@@ -46,6 +48,25 @@ public class GroupInvitationIntegrationTest extends BriarIntegrationTest {
 		GroupMessage joinMsg0 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author0);
 		groupManager0.addPrivateGroup(privateGroup0, joinMsg0, true);
+	}
+
+	@Override
+	protected void createComponents() {
+		BriarIntegrationTestComponent component =
+				DaggerBriarIntegrationTestComponent.builder().build();
+		component.inject(this);
+
+		c0 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t0Dir)).build();
+		injectEagerSingletons(c0);
+
+		c1 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
+		injectEagerSingletons(c1);
+
+		c2 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
+		injectEagerSingletons(c2);
 	}
 
 	@Test

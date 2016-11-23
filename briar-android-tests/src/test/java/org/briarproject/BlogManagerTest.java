@@ -1,11 +1,12 @@
 package org.briarproject;
 
-import org.briarproject.api.blogs.Blog;
-import org.briarproject.api.blogs.BlogCommentHeader;
-import org.briarproject.api.blogs.BlogManager;
-import org.briarproject.api.blogs.BlogPost;
-import org.briarproject.api.blogs.BlogPostHeader;
-import org.briarproject.api.db.DbException;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.api.blog.Blog;
+import org.briarproject.briar.api.blog.BlogCommentHeader;
+import org.briarproject.briar.api.blog.BlogManager;
+import org.briarproject.briar.api.blog.BlogPost;
+import org.briarproject.briar.api.blog.BlogPostHeader;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,14 +16,16 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import static junit.framework.Assert.assertFalse;
-import static org.briarproject.api.blogs.MessageType.COMMENT;
-import static org.briarproject.api.blogs.MessageType.POST;
-import static org.briarproject.api.blogs.MessageType.WRAPPED_COMMENT;
-import static org.briarproject.api.blogs.MessageType.WRAPPED_POST;
+import static junit.framework.Assert.assertNotNull;
+import static org.briarproject.briar.api.blog.MessageType.COMMENT;
+import static org.briarproject.briar.api.blog.MessageType.POST;
+import static org.briarproject.briar.api.blog.MessageType.WRAPPED_COMMENT;
+import static org.briarproject.briar.api.blog.MessageType.WRAPPED_POST;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class BlogManagerTest extends BriarIntegrationTest {
+public class BlogManagerTest
+		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
 	private BlogManager blogManager0, blogManager1;
 	private Blog blog0, blog1;
@@ -43,6 +46,25 @@ public class BlogManagerTest extends BriarIntegrationTest {
 
 		blog0 = blogFactory.createBlog(author0);
 		blog1 = blogFactory.createBlog(author1);
+	}
+
+	@Override
+	protected void createComponents() {
+		BriarIntegrationTestComponent component =
+				DaggerBriarIntegrationTestComponent.builder().build();
+		component.inject(this);
+
+		c0 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t0Dir)).build();
+		injectEagerSingletons(c0);
+
+		c1 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
+		injectEagerSingletons(c1);
+
+		c2 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
+		injectEagerSingletons(c2);
 	}
 
 	@Test
@@ -189,7 +211,9 @@ public class BlogManagerTest extends BriarIntegrationTest {
 		assertEquals(author0, h.getParent().getAuthor());
 
 		// ensure that body can be retrieved from wrapped post
-		assertEquals(body, blogManager0.getPostBody(h.getParentId()));
+		MessageId parentId = h.getParentId();
+		assertNotNull(parentId);
+		assertEquals(body, blogManager0.getPostBody(parentId));
 
 		// 1 has only their own comment in their blog
 		headers1 = blogManager1.getPostHeaders(blog1.getId());
@@ -227,7 +251,7 @@ public class BlogManagerTest extends BriarIntegrationTest {
 			if (h.getType() == POST) {
 				assertEquals(body, blogManager1.getPostBody(h.getId()));
 			} else {
-				assertEquals(comment, ((BlogCommentHeader)h).getComment());
+				assertEquals(comment, ((BlogCommentHeader) h).getComment());
 			}
 		}
 	}

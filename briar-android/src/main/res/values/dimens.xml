@@ -1,0 +1,65 @@
+<resources>
+
+	<!-- Default screen margins, per the Android Design guidelines. -->
+	<dimen name="margin_activity_horizontal">16dp</dimen>
+	<dimen name="margin_activity_vertical">16dp</dimen>
+
+	<dimen name="margin_separator">1dp</dimen>
+	<dimen name="margin_tiny">2dp</dimen>
+	<dimen name="margin_small">4dp</dimen>
+	<dimen name="margin_medium">8dp</dimen>
+	<dimen name="margin_large">16dp</dimen>
+	<dimen name="margin_xlarge">32dp</dimen>
+	<dimen name="margin_xxlarge">64dp</dimen>
+
+	<!-- v2 dimens -->
+	<dimen name="text_size_tiny">12sp</dimen>
+	<dimen name="text_size_small">14sp</dimen>
+	<dimen name="text_size_medium">16sp</dimen>
+	<dimen name="text_size_large">20sp</dimen>
+	<dimen name="text_size_xlarge">34sp</dimen>
+
+	<dimen name="listitem_horizontal_margin">16dp</dimen>
+	<dimen name="listitem_vertical_margin">10dp</dimen>
+	<dimen name="listitem_height_one_line_avatar">56dp</dimen>
+	<dimen name="listitem_picture_size">48dp</dimen>
+	<dimen name="listitem_picture_size_small">23dp</dimen>
+	<dimen name="listitem_picture_frame_size">51dp</dimen>
+	<dimen name="listitem_picture_frame_offset_horizontal">1dp</dimen>
+	<dimen name="listitem_picture_frame_offset_vertical">2dp</dimen>
+	<dimen name="listitem_selectable_picture_size">40dp</dimen>
+	<dimen name="listitem_group_member_indentation">32dp</dimen>
+	<dimen name="avatar_forum_size">48dp</dimen>
+	<dimen name="avatar_border_width">2dp</dimen>
+	<dimen name="avatar_text_size">30sp</dimen>
+	<dimen name="button_size">48dp</dimen>
+
+	<dimen name="unread_bubble_text_size">12sp</dimen>
+	<dimen name="unread_bubble_padding_horizontal">6dp</dimen>
+	<dimen name="unread_bubble_size">19dp</dimen>
+
+	<dimen name="message_bubble_margin_tail">3dp</dimen>
+	<dimen name="message_bubble_margin_non_tail">30dp</dimen>
+	<dimen name="message_bubble_timestamp_margin">7dp</dimen>
+	<dimen name="forum_nested_line_width">2dp</dimen>
+	<dimen name="forum_nested_indicator">24dp</dimen>
+
+	<dimen name="blogs_avatar_normal_size">30dp</dimen>
+	<dimen name="blogs_avatar_icon_size">15dp</dimen>
+	<dimen name="blogs_avatar_comment_size">20dp</dimen>
+
+	<!-- Emoji -->
+	<dimen name="text_input_height">42dp</dimen>
+	<dimen name="conversation_item_body_text_size">16sp</dimen>
+	<dimen name="emoji_drawer_size">32sp</dimen>
+	<dimen name="emoji_drawer_indicator_height">2dp</dimen>
+	<dimen name="emoji_drawer_item_padding">5dp</dimen>
+	<dimen name="emoji_drawer_left_right_padding">2dp</dimen>
+
+	<!-- Keyboard Sizes -->
+	<dimen name="min_keyboard_size">50dp</dimen>
+	<dimen name="default_custom_keyboard_size">220dp</dimen>
+	<dimen name="min_custom_keyboard_size">110dp</dimen>
+	<dimen name="min_custom_keyboard_top_margin">170dp</dimen>
+
+</resources>
