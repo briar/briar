@@ -180,7 +180,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 
 		// content (string)
 		String content = body.getString(5);
-		checkLength(content, 0, MAX_GROUP_POST_BODY_LENGTH);
+		checkLength(content, 1, MAX_GROUP_POST_BODY_LENGTH);
 
 		// signature (raw)
 		// a signature with the member's private key over a list with 7 elements
