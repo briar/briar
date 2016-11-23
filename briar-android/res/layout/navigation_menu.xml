@@ -1,28 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
+	android:layout_width="wrap_content"
 	android:layout_height="match_parent"
 	android:background="@color/menu_background"
+	android:fillViewport="true"
 	android:orientation="vertical">
 
-	<android.support.design.widget.NavigationView
-		android:id="@+id/navigation"
+	<LinearLayout
 		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
-		android:layout_gravity="start"
-		app:headerLayout="@layout/navigation_header"
-		app:menu="@menu/navigation_drawer">
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<android.support.design.widget.NavigationView
+			android:id="@+id/navigation"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:background="@color/menu_background"
+			app:elevation="0dp"
+			app:headerLayout="@layout/navigation_header"
+			app:menu="@menu/navigation_drawer"/>
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"/>
 
 		<include
 			layout="@layout/transports_list"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_gravity="bottom"
-			tools:visibility="gone"/>
+			android:layout_gravity="bottom"/>
 
-	</android.support.design.widget.NavigationView>
+	</LinearLayout>
 
-</LinearLayout>
+</ScrollView>
