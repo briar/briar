@@ -71,8 +71,9 @@
   <string name="online">En ligne</string>
   <string name="offline">Hors ligne</string>
   <string name="send">Envoyer</string>
+  <string name="allow">Autoriser</string>
   <string name="no_data">Aucune donée</string>
-  <string name="ellipsis">...</string>
+  <string name="ellipsis">…</string>
   <string name="text_too_long">Le texte saisi est trop long</string>
   <string name="show_onboarding">Afficher la boite de dialogue d\'Aide</string>
   <!--Contacts and Private Conversations-->

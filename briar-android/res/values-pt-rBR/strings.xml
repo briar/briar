@@ -17,9 +17,7 @@
   <string name="sign_in_button">Entrar</string>
   <string name="forgotten_password">Esqueci minha senha</string>
   <string name="dialog_title_lost_password">Perdeu a senha</string>
-  <string name="dialog_message_lost_password">Sua conta Briar é armazenada em seu dispositivo e criptografada, não na Nuvem, assim não podemos recuperar a senha. 
-Você quer deletar sua conta e começar de novo?  
-Atenção: Isso irá apagar permanentemente suas identidades, contatos e mensagens</string>
+  <string name="dialog_message_lost_password">Sua conta Briar é armazenada em seu dispositivo e criptografada, não na Nuvem, assim não podemos recuperar a senha. Você quer deletar sua conta e começar de novo?\n\nAtenção: Isso irá apagar permanentemente suas identidades, contatos e mensagens</string>
   <string name="startup_failed_notification_title">Briar não pode iniciar</string>
   <string name="startup_failed_notification_text">Você pode precisar reinstalar o Briar.</string>
   <string name="startup_failed_activity_title">Inicialização do Briar falhou</string>
@@ -32,6 +30,7 @@ Atenção: Isso irá apagar permanentemente suas identidades, contatos e mensage
   <string name="nav_drawer_open_description">Abrir aba de navegação</string>
   <string name="nav_drawer_close_description">Fechar aba de navegação</string>
   <string name="contact_list_button">Contatos</string>
+  <string name="groups_button">Grupos Privados</string>
   <string name="forums_button">Fóruns</string>
   <string name="blogs_button">Blogs</string>
   <string name="settings_button">Configurações</string>
@@ -46,6 +45,10 @@ Atenção: Isso irá apagar permanentemente suas identidades, contatos e mensage
   <plurals name="private_message_notification_text">
     <item quantity="one">Nova mensagem privada.</item>
     <item quantity="other">%d novas mensagens privadas.</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="one">Nova mensagem de um Grupo.</item>
+    <item quantity="other">%d novas mensagens de Grupos.</item>
   </plurals>
   <plurals name="forum_post_notification_text">
     <item quantity="one">Nova postagem de fórum</item>
@@ -64,19 +67,20 @@ Atenção: Isso irá apagar permanentemente suas identidades, contatos e mensage
   <string name="delete">Deletar</string>
   <string name="accept">Aceitar</string>
   <string name="decline">Recusar</string>
+  <string name="options">Opções</string>
   <string name="online">Online</string>
   <string name="offline">Offline</string>
   <string name="send">Enviar</string>
+  <string name="allow">Permitir</string>
   <string name="no_data">Nenhum dado</string>
-  <string name="ellipsis">...</string>
+  <string name="ellipsis">…</string>
+  <string name="text_too_long">O texto entrado é muito grande</string>
+  <string name="show_onboarding">Mostrar dialogo de ajuda</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Parece que você é novo aqui e ainda não tem contatos.
-Clique no ícone + no topo e siga as instruções para adicionar alguns amigos para sua lista.
-Por favor lembre: você só pode adicionar contatos pessoalmente para prevenir alguém se passar por você ou ler suas mensagens no futuro. </string>
+  <string name="no_contacts">Parece que você é novo aqui e ainda não tem contatos.\nClique no ícone + no topo e siga as instruções para adicionar alguns amigos para sua lista.\nPor favor lembre: você só pode adicionar contatos pessoalmente para prevenir alguém se passar por você ou ler suas mensagens no futuro. </string>
   <string name="date_no_private_messages">Sem Mensagens</string>
-  <string name="no_private_messages">Essa é vista das conversas.
-Aparentemente não há conversas.
-Apenas clique no espaço de entrada abaixo para iniciar uma conversa.</string>
+  <string name="no_private_messages">Essa é vista das conversas.\nAparentemente não há conversas.\nApenas clique no espaço de entrada abaixo para iniciar uma conversa.</string>
+  <string name="message_hint">Digite a mensagem</string>
   <string name="delete_contact">Apagar contato</string>
   <string name="dialog_title_delete_contact">Confirmar remoção do contato</string>
   <string name="dialog_message_delete_contact">Você tem certeza que quer remover este contato e todas mensagens trocadas com ele?</string>
@@ -84,6 +88,7 @@ Apenas clique no espaço de entrada abaixo para iniciar uma conversa.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Adicionar um contato</string>
   <string name="your_nickname">Escolha a identidade que você quer usar:</string>
+  <string name="face_to_face">Você deve estar frente-a-frente com a pessoa que deseja adicionar como contato.\n\nIsso evita que alguém se passe por você ou leia suas mensagens no futuro.</string>
   <string name="continue_button">Continuar</string>
   <string name="your_invitation_code">Seu código do convite é</string>
   <string name="enter_invitation_code">Insira o código do convite do contato:</string>
@@ -97,6 +102,7 @@ Apenas clique no espaço de entrada abaixo para iniciar uma conversa.</string>
   <string name="your_confirmation_code">Seu código de confirmação é</string>
   <string name="enter_confirmation_code">Insira o código de confirmação do contato:</string>
   <string name="waiting_for_contact">Esperando pelo contato\u2026</string>
+  <string name="waiting_for_contact_to_scan">Esperando pelo contato escanear e conectar\u2026</string>
   <string name="exchanging_contact_details">Transferindo detalhes do contato\u2026</string>
   <string name="codes_do_not_match">Códigos não conferem</string>
   <string name="interfering">Isto pode significar que algúem está tentando interferir em sua conexão</string>
@@ -134,19 +140,67 @@ Apenas clique no espaço de entrada abaixo para iniciar uma conversa.</string>
     <item quantity="other">%d novos contatos adicionados.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">Você não está participando de nenhum Grupo.\n\nClique o ícone + no topo para criar você mesmo um Grupo ou peça para seus contatos te convidar para um Grupo</string>
+  <string name="groups_created_by">Criado por %s.</string>
+  <plurals name="messages">
+    <item quantity="one">%d mensagem</item>
+    <item quantity="other">%d mensagens</item>
+  </plurals>
+  <string name="groups_group_is_empty">Esse grupo está vazio</string>
+  <string name="groups_group_is_dissolved">Esse grupo foi dissolvido</string>
+  <string name="groups_remove">Remover</string>
+  <string name="groups_create_group_title">Criar Grupo Privado</string>
+  <string name="groups_no_messages">Esse grupo está vazio.\n\nVocê pode usar o ícone da caneta no topo para escrever a primeira mensagem.</string>
+  <string name="groups_create_group_button">Criar Grupo</string>
+  <string name="groups_create_group_invitation_button">Enviar Convite</string>
+  <string name="groups_create_group_hint">Adicionar um nome para seu grupo privado</string>
+  <string name="groups_invitation_sent">Convite do Grupo enviado </string>
+  <string name="groups_compose_message">Escrever Mensagem</string>
+  <string name="groups_message_sent">Mensagem enviada</string>
+  <string name="groups_message_received">Mensagem recebida</string>
+  <string name="groups_member_list">Lista de membros</string>
+  <string name="groups_invite_members">Convidar membros</string>
+  <string name="groups_member_created_you">Você criou o grupo</string>
+  <string name="groups_member_created">%s criou o Grupo</string>
+  <string name="groups_member_joined_you">Você entrou no Grupo</string>
+  <string name="groups_member_joined">%s entrou no Grupo</string>
+  <string name="groups_leave">Sair do Grupo</string>
+  <string name="groups_leave_dialog_title">Confirmar saída do Grupo</string>
+  <string name="groups_leave_dialog_message">Você tem certeza que quer sair desse Grupo?</string>
+  <string name="groups_dissolve">Dissolver Grupo</string>
+  <string name="groups_dissolve_dialog_title">Confirmar dissolução do Grupo</string>
+  <string name="groups_dissolve_dialog_message">Você tem certeza que quer dissolver esse Grupo?\n\nTodos os outros membros não conseguiram continuar recebendo suas conversas e talvez não recebam as ultimas mensagens.</string>
+  <string name="groups_dissolve_button">Dissolver</string>
+  <string name="groups_dissolved_dialog_title">O grupo foi dissolvido</string>
+  <string name="groups_dissolved_dialog_message">O criador desse Grupo o dissolveu.\n\nVocê não pode mais escrever mensagens no grupo e talvez não receba todos posts que foram escritos.</string>
   <!--Private Group Invitations-->
+  <string name="groups_invitations_title">Convites para Grupos</string>
+  <string name="groups_invitations_invitation_sent">Você convidou %1$s para entrar no grupo \"%2$s\".</string>
+  <string name="groups_invitations_invitation_received">%1$s convidou você para entrar no Grupo \"%2$s\".</string>
+  <string name="groups_invitations_joined">Entrou no Grupo</string>
+  <string name="groups_invitations_declined">Convite do Grupo recusado</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="one">%d convite para Grupo aberto</item>
+    <item quantity="other">%d convites para Grupos abertos</item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">Você aceitou o convite do Grupo de %s.</string>
+  <string name="groups_invitations_response_declined_sent">Você recusou o convite do Grupo de %s.</string>
+  <string name="groups_invitations_response_accepted_received">%s aceitou o convite do Grupo.</string>
+  <string name="groups_invitations_response_declined_received">%s recusou o convite do Grupo.</string>
   <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">Revelar contatos</string>
+  <string name="groups_reveal_dialog_message">Você pode escolher revelar seus contatos para todos os membros presentes e futuros desse Grupo.\n\nRevelar seus contatos torna sua conexão com o grupo mais rápida e confiável, porque você pode comunicar com os contatos revelados mesmo se o criador do Grupo está offline</string>
+  <string name="groups_reveal_visible">Relação de contatos é está visível para o Grupo</string>
+  <string name="groups_reveal_visible_revealed_by_us">Relação de contatos está visível para o Grupo (revelado por você)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">Relação de contatos está visível para o Grupo (revelado por %s)</string>
+  <string name="groups_reveal_invisible">Relação de contatos não visível para o Grupo </string>
   <!--Forums-->
-  <string name="no_forums">Você não tem nenhum fórum.
-Por que não cria um novo você mesmo, Clicando o ícone + no topo?
-Você também pode pedir que seus contatos compartilhem fóruns com você.</string>
+  <string name="no_forums">Você não tem nenhum fórum.\nPor que não cria um novo você mesmo, Clicando o ícone + no topo?\nVocê também pode pedir que seus contatos compartilhem fóruns com você.</string>
   <string name="create_forum_title">Novo fórum</string>
   <string name="choose_forum_name">Escolha um nome para o seu fórum:</string>
   <string name="create_forum_button">Criar fórum</string>
   <string name="forum_created_toast">Fórum criado</string>
-  <string name="no_forum_posts">Esse fórum está vazio.
-Use o ícone da caneta no topo para escrever o primeiro Post.
-Se sentido sozinho aqui? Compartilhe esse fórum com seus contatos!</string>
+  <string name="no_forum_posts">Esse fórum está vazio.\nUse o ícone da caneta no topo para escrever o primeiro Post.\nSe sentido sozinho aqui? Compartilhe esse fórum com seus contatos!</string>
   <string name="no_posts">Sem Posts</string>
   <plurals name="posts">
     <item quantity="one">%d Post</item>
@@ -157,6 +211,7 @@ Se sentido sozinho aqui? Compartilhe esse fórum com seus contatos!</string>
   <string name="forum_new_entry_received">Novo tópico no fórum </string>
   <string name="forum_new_message_hint">Novo tópico</string>
   <string name="forum_message_reply_hint">Nova resposta</string>
+  <string name="btn_reply">Responder</string>
   <plurals name="message_replies">
     <item quantity="one">%1$d resposta</item>
     <item quantity="other">%1$d respostas</item>
@@ -168,9 +223,9 @@ Se sentido sozinho aqui? Compartilhe esse fórum com seus contatos!</string>
   <string name="forum_left_toast">Saiu do fórum</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Compartilhar fórum</string>
+  <string name="contacts_selected">Contatos Selecionados</string>
   <string name="activity_share_toolbar_header">Escolher contatos</string>
-  <string name="no_contacts_selector">Parece que você é novo aqui e não tem nenhum contato ainda.
-Por favor volte aqui depois de adicionar um contato.</string>
+  <string name="no_contacts_selector">Parece que você é novo aqui e não tem nenhum contato ainda.\nPor favor volte aqui depois de adicionar um contato.</string>
   <string name="forum_shared_snackbar">Fòrum compartilhado com os contatos escolhidos</string>
   <string name="forum_share_message">Você pode escrever um convite que será enviado aos contatos selecionados.</string>
   <string name="forum_share_error">Houve um erro em compartilhar esse fórum.</string>
@@ -195,8 +250,7 @@ Por favor volte aqui depois de adicionar um contato.</string>
   <string name="forum_shared_with">Compartilhado com</string>
   <string name="nobody">Ninguém</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Esse Blog atualmente está vazio.
-Ou o autor não não postou nada ainda, ou a pessoa que compartilhou esse Blog contigo precisa estar online, assim os Posts serão sincronizados.</string>
+  <string name="blogs_other_blog_empty_state">Esse Blog atualmente está vazio.\nOu o autor não postou nada ainda, ou a pessoa que compartilhou esse Blog contigo precisa estar online, assim os Posts serão sincronizados.</string>
   <string name="read_more">leia mais</string>
   <string name="blogs_write_blog_post">Escrever Post do Blog</string>
   <string name="blogs_write_blog_post_body_hint">Digite aqui seu post do blog</string>
@@ -204,13 +258,10 @@ Ou o autor não não postou nada ainda, ou a pessoa que compartilhou esse Blog c
   <string name="blogs_blog_post_created">Post do Blog criado</string>
   <string name="blogs_blog_post_received">Novo Post de Blog recebido</string>
   <string name="blogs_blog_post_scroll_to">Role Para</string>
-  <string name="blogs_feed_empty_state">Esse é o feed de blog global.
-Parece que ninguém postou nada, ainda.
-Seja o primeiro a postar e clique no ícone da caneta para escrever um novo Post pro Blog.</string>
+  <string name="blogs_feed_empty_state">Esse é o feed de blog global.\nParece que ninguém postou nada, ainda.\nSeja o primeiro a postar e clique no ícone da caneta para escrever um novo Post pro Blog.</string>
   <string name="blogs_personal_blog">Blog pessoal do(a) %s</string>
   <string name="blogs_remove_blog">Remover Blog</string>
-  <string name="blogs_remove_blog_dialog_message">Você ter certeza que quer remover esse Blog e todos seus Posts?
-Note que isso não irá remover o Blog dos dispositivos de outras pessoas. </string>
+  <string name="blogs_remove_blog_dialog_message">Você ter certeza que quer remover esse Blog e todos seus Posts?\nNote que isso não irá remover o Blog dos dispositivos de outras pessoas. </string>
   <string name="blogs_remove_blog_ok">Remover Blog</string>
   <string name="blogs_blog_removed">Blog Deletado</string>
   <string name="blogs_reblog_comment_hint">Adicione um comentario (opcional)</string>
@@ -238,9 +289,9 @@ Note que isso não irá remover o Blog dos dispositivos de outras pessoas. </str
   <string name="blogs_rss_feeds_manage">Gerenciar Feeds RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importado:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
-  <string name="blogs_rss_feeds_manage_updated">Ultima Atualização:</string>
+  <string name="blogs_rss_feeds_manage_updated">Última Atualização:</string>
   <string name="blogs_rss_feeds_manage_delete_error">O Feed não pode ser deletado!</string>
-  <string name="blogs_rss_feeds_manage_empty_state">Você ainda não importou nenhum feed RSS. Por que não clica no simbolo de mais no canto superior direito para adicionar o primeiro? </string>
+  <string name="blogs_rss_feeds_manage_empty_state">Você ainda não importou nenhum feed RSS. Por que não clica no símbolo de mais no canto superior direito para adicionar o primeiro? </string>
   <string name="blogs_rss_feeds_manage_error">Houve um problema ao carregar seus Feeds. Por favor tente novamente.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Redes</string>
@@ -275,6 +326,7 @@ Note que isso não irá remover o Blog dos dispositivos de outras pessoas. </str
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificações</string>
   <string name="notify_private_messages_setting">Mostrar alertas para mensagens privadas</string>
+  <string name="notify_group_messages_setting">Mostrar alertas para mensagens nos Grupos </string>
   <string name="notify_forum_posts_setting">Mostrar alertas para postagens nos fórums</string>
   <string name="notify_blog_posts_setting">Mostrar alertas para postagens nos blogs</string>
   <string name="notify_vibration_setting">Vibrar</string>
@@ -307,5 +359,5 @@ Note que isso não irá remover o Blog dos dispositivos de outras pessoas. </str
   <string name="close">Fechar</string>
   <string name="dev_report_saved">Relatório salvo. Ele será enviado na próxima vez em que você entrar no Briar.</string>
   <!--Sign Out-->
-  <string name="progress_title_logout">Saindo do Briar ...</string>
+  <string name="progress_title_logout">Saindo do Briar…</string>
 </resources>

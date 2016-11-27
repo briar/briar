@@ -71,6 +71,7 @@
   <string name="online">Në linjë</string>
   <string name="offline">Jo në linjë</string>
   <string name="send">Dërgoje</string>
+  <string name="allow">Lejoje</string>
   <string name="no_data">S’ka të dhëna</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Teksti i dhënë është shumë i gjatë</string>
