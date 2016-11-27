@@ -18,10 +18,6 @@
 		<item name="android:textColor">@color/briar_text_primary_inverse</item>
 	</style>
 
-	<style name="BriarActionBar" parent="Base.Widget.AppCompat.Light.ActionBar.Solid">
-		<item name="elevation">1dp</item>
-	</style>
-
 	<style name="BriarButton.Default">
 		<item name="android:textAllCaps">true</item>
 	</style>
