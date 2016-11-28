@@ -193,14 +193,14 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 	@Override
 	public void onBackPressed() {
-		// Check the Contacts item because we always return to Contacts here
-		NavigationView navigation =	(NavigationView) findViewById(R.id.navigation);
-		navigation.getMenu().findItem(R.id.nav_btn_contacts).setChecked(true);
 		if (getSupportFragmentManager().getBackStackEntryCount() == 0
 				&& drawerLayout.isDrawerOpen(START)) {
 			drawerLayout.closeDrawer(START);
 			return;
 		}
+		// Check the Contacts item because we always return to Contacts here
+		NavigationView navigation =	(NavigationView) findViewById(R.id.navigation);
+		navigation.getMenu().findItem(R.id.nav_btn_contacts).setChecked(true);
 		super.onBackPressed();
 	}
 
