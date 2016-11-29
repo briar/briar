@@ -36,7 +36,7 @@ import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,6 +46,8 @@ import static junit.framework.TestCase.fail;
 import static org.briarproject.TestUtils.getRandomBytes;
 import static org.briarproject.TestUtils.getRandomId;
 import static org.briarproject.TestUtils.getRandomString;
+import static org.briarproject.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
+import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
 import static org.briarproject.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
@@ -60,7 +62,6 @@ import static org.junit.Assert.assertTrue;
 
 public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 
-	private final GroupInvitationManagerImpl groupInvitationManager;
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
 	private final ContactGroupFactory contactGroupFactory =
@@ -77,12 +78,17 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			context.mock(SessionEncoder.class);
 	private final ProtocolEngineFactory engineFactory =
 			context.mock(ProtocolEngineFactory.class);
+
 	private final CreatorProtocolEngine creatorEngine;
 	private final InviteeProtocolEngine inviteeEngine;
 	private final PeerProtocolEngine peerEngine;
 	private final CreatorSession creatorSession;
 	private final InviteeSession inviteeSession;
 	private final PeerSession peerSession;
+	private final MessageMetadata messageMetadata;
+
+	private final GroupInvitationManagerImpl groupInvitationManager;
+
 	private final Group localGroup =
 			new Group(new GroupId(getRandomId()), CLIENT_ID, getRandomBytes(5));
 	private final Transaction txn = new Transaction(null, false);
@@ -97,14 +103,23 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			new Group(new GroupId(getRandomId()), CLIENT_ID, getRandomBytes(5));
 	private final Group privateGroup =
 			new Group(new GroupId(getRandomId()), CLIENT_ID, getRandomBytes(5));
-	private final BdfDictionary meta = BdfDictionary.of(new BdfEntry("f", "o"));
+	private final BdfDictionary meta = BdfDictionary.of(new BdfEntry("m", "e"));
 	private final Message message =
 			new Message(new MessageId(getRandomId()), contactGroup.getId(),
 					0L, getRandomBytes(MESSAGE_HEADER_LENGTH + 1));
-	private final BdfList body = new BdfList();
+	private final BdfList body = BdfList.of("body");
+	private final SessionId sessionId =
+			new SessionId(privateGroup.getId().getBytes());
 	private final Message storageMessage =
 			new Message(new MessageId(getRandomId()), contactGroup.getId(),
 					0L, getRandomBytes(MESSAGE_HEADER_LENGTH + 1));
+	private final BdfDictionary bdfSession =
+			BdfDictionary.of(new BdfEntry("f", "o"));
+	private final Map<MessageId, BdfDictionary> oneResult =
+			Collections.singletonMap(storageMessage.getId(), bdfSession);
+	private final Map<MessageId, BdfDictionary> noResults =
+			Collections.emptyMap();
+
 
 	public GroupInvitationManagerImplTest() {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
@@ -115,6 +130,8 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 		creatorSession = context.mock(CreatorSession.class);
 		inviteeSession = context.mock(InviteeSession.class);
 		peerSession = context.mock(PeerSession.class);
+
+		messageMetadata = context.mock(MessageMetadata.class);
 
 		context.checking(new Expectations() {{
 			oneOf(engineFactory).createCreatorEngine();
@@ -179,11 +196,11 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, c);
 			will(returnValue(contactGroup));
 		}});
-		expectGetSession(Collections.<MessageId, BdfDictionary>emptyMap(),
-				new SessionId(g.getBytes()));
+		expectGetSession(noResults, new SessionId(g.getBytes()),
+				contactGroup.getId());
 
 		context.checking(new Expectations() {{
-			oneOf(peerEngine).onMemberAddedAction(with(equal(txn)),
+			oneOf(peerEngine).onMemberAddedAction(with(txn),
 					with(any(PeerSession.class)));
 			will(returnValue(peerSession));
 		}});
@@ -210,16 +227,16 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 		}});
 	}
 
-	private void expectGetSession(final Map<MessageId, BdfDictionary> result,
-			final SessionId sessionId) throws Exception {
+	private void expectGetSession(final Map<MessageId, BdfDictionary> results,
+			final SessionId sessionId, final GroupId contactGroupId)
+			throws Exception {
 		final BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
 		context.checking(new Expectations() {{
 			oneOf(sessionParser).getSessionQuery(sessionId);
 			will(returnValue(query));
-			oneOf(clientHelper)
-					.getMessageMetadataAsDictionary(txn, contactGroup.getId(),
-							query);
-			will(returnValue(result));
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroupId, query);
+			will(returnValue(results));
 		}});
 	}
 
@@ -289,45 +306,39 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 
 	private void expectFirstIncomingMessage(Role role, MessageType type)
 			throws Exception {
-		expectIncomingMessage(role, type,
-				Collections.<MessageId, BdfDictionary>emptyMap());
+		expectParseMessageMetadata();
+		expectGetSession(noResults, sessionId, contactGroup.getId());
+		Session session = expectHandleFirstMessage(role, messageMetadata, type);
+		if (session != null) {
+			expectCreateStorageId();
+			expectStoreSession(session, storageMessage.getId());
+		}
 	}
 
-	private void expectIncomingMessage(Role role, MessageType type)
-			throws Exception {
-		BdfDictionary state = BdfDictionary.of(new BdfEntry("state", "test"));
-		Map<MessageId, BdfDictionary> states =
-				Collections.singletonMap(storageMessage.getId(), state);
-		expectIncomingMessage(role, type, states);
-	}
-
-	private void expectIncomingMessage(final Role role,
-			final MessageType type, final Map<MessageId, BdfDictionary> states)
-			throws Exception {
-		final MessageMetadata messageMetadata =
-				context.mock(MessageMetadata.class);
+	private void expectParseMessageMetadata() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(messageParser).parseMetadata(meta);
 			will(returnValue(messageMetadata));
 			oneOf(messageMetadata).getPrivateGroupId();
 			will(returnValue(privateGroup.getId()));
 		}});
-		expectGetSession(states,
-				new SessionId(privateGroup.getId().getBytes()));
 
-		Session session;
-		if (states.isEmpty()) {
-			session = expectHandleFirstMessage(role, messageMetadata, type);
-			if (session != null) {
-				expectCreateStorageId();
-				expectStoreSession(session, storageMessage.getId());
-			}
-		} else {
-			assertEquals(1, states.size());
-			session = expectHandleMessage(role, messageMetadata,
-					states.values().iterator().next(), type);
-			expectStoreSession(session, storageMessage.getId());
-		}
+	}
+
+	private void expectIncomingMessage(Role role, MessageType type)
+			throws Exception {
+		BdfDictionary bdfSession = BdfDictionary.of(new BdfEntry("f", "o"));
+		expectIncomingMessageWithSession(role, type, bdfSession);
+	}
+
+	private void expectIncomingMessageWithSession(final Role role,
+			final MessageType type, final BdfDictionary bdfSession)
+			throws Exception {
+		expectParseMessageMetadata();
+		expectGetSession(oneResult, sessionId, contactGroup.getId());
+		Session session = expectHandleMessage(role, messageMetadata, bdfSession,
+				type);
+		expectStoreSession(session, storageMessage.getId());
 	}
 
 	@Nullable
@@ -353,7 +364,7 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			engine = peerEngine;
 			session = peerSession;
 		} else {
-			throw new RuntimeException();
+			throw new AssertionError();
 		}
 		expectIndividualMessage(type, engine, session);
 		return session;
@@ -394,8 +405,7 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			expectIndividualMessage(type, peerEngine, peerSession);
 			return peerSession;
 		} else {
-			fail();
-			throw new RuntimeException();
+			throw new AssertionError();
 		}
 	}
 
@@ -407,9 +417,8 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			context.checking(new Expectations() {{
 				oneOf(messageParser).parseInviteMessage(message, body);
 				will(returnValue(msg));
-				oneOf(engine).onInviteMessage(with(equal(txn)),
-						with(AbstractExpectations.<S>anything()),
-						with(equal(msg)));
+				oneOf(engine).onInviteMessage(with(txn),
+						with(AbstractExpectations.<S>anything()), with(msg));
 				will(returnValue(session));
 			}});
 		} else if (type == JOIN) {
@@ -417,9 +426,8 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			context.checking(new Expectations() {{
 				oneOf(messageParser).parseJoinMessage(message, body);
 				will(returnValue(msg));
-				oneOf(engine).onJoinMessage(with(equal(txn)),
-						with(AbstractExpectations.<S>anything()),
-						with(equal(msg)));
+				oneOf(engine).onJoinMessage(with(txn),
+						with(AbstractExpectations.<S>anything()), with(msg));
 				will(returnValue(session));
 			}});
 		} else if (type == LEAVE) {
@@ -427,9 +435,8 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			context.checking(new Expectations() {{
 				oneOf(messageParser).parseLeaveMessage(message, body);
 				will(returnValue(msg));
-				oneOf(engine).onLeaveMessage(with(equal(txn)),
-						with(AbstractExpectations.<S>anything()),
-						with(equal(msg)));
+				oneOf(engine).onLeaveMessage(with(txn),
+						with(AbstractExpectations.<S>anything()), with(msg));
 				will(returnValue(session));
 			}});
 		} else if (type == ABORT) {
@@ -437,9 +444,8 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			context.checking(new Expectations() {{
 				oneOf(messageParser).parseAbortMessage(message, body);
 				will(returnValue(msg));
-				oneOf(engine).onAbortMessage(with(equal(txn)),
-						with(AbstractExpectations.<S>anything()),
-						with(equal(msg)));
+				oneOf(engine).onAbortMessage(with(txn),
+						with(AbstractExpectations.<S>anything()), with(msg));
 				will(returnValue(session));
 			}});
 		} else {
@@ -451,11 +457,9 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 	public void testSendFirstInvitation() throws Exception {
 		final String msg = "Invitation text for first invitation";
 		final long time = 42L;
-		final byte[] signature = TestUtils.getRandomBytes(42);
-		Map<MessageId, BdfDictionary> states = Collections.emptyMap();
+		final byte[] signature = getRandomBytes(42);
 
-		expectGetSession(states,
-				new SessionId(privateGroup.getId().getBytes()));
+		expectGetSession(noResults, sessionId, contactGroup.getId());
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));
@@ -466,9 +470,9 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 		}});
 		expectCreateStorageId();
 		context.checking(new Expectations() {{
-			oneOf(creatorEngine).onInviteAction(with(same(txn)),
-					with(any(CreatorSession.class)), with(equal(msg)),
-					with(equal(time)), with(equal(signature)));
+			oneOf(creatorEngine).onInviteAction(with(txn),
+					with(any(CreatorSession.class)), with(msg), with(time),
+					with(signature));
 			will(returnValue(creatorSession));
 		}});
 		expectStoreSession(creatorSession, storageMessage.getId());
@@ -484,14 +488,9 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 	public void testSendSubsequentInvitation() throws Exception {
 		final String msg = "Invitation text for subsequent invitation";
 		final long time = 43L;
-		final byte[] signature = TestUtils.getRandomBytes(43);
-		final BdfDictionary state =
-				BdfDictionary.of(new BdfEntry("state", "test"));
-		Map<MessageId, BdfDictionary> states =
-				Collections.singletonMap(storageMessage.getId(), state);
+		final byte[] signature = getRandomBytes(43);
 
-		expectGetSession(states,
-				new SessionId(privateGroup.getId().getBytes()));
+		expectGetSession(oneResult, sessionId, contactGroup.getId());
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));
@@ -500,11 +499,11 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
 			will(returnValue(contactGroup));
 			oneOf(sessionParser)
-					.parseCreatorSession(contactGroup.getId(), state);
+					.parseCreatorSession(contactGroup.getId(), bdfSession);
 			will(returnValue(creatorSession));
-			oneOf(creatorEngine).onInviteAction(with(same(txn)),
-					with(any(CreatorSession.class)), with(equal(msg)),
-					with(equal(time)), with(equal(signature)));
+			oneOf(creatorEngine).onInviteAction(with(txn),
+					with(any(CreatorSession.class)), with(msg), with(time),
+					with(signature));
 			will(returnValue(creatorSession));
 		}});
 		expectStoreSession(creatorSession, storageMessage.getId());
@@ -529,59 +528,48 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			will(returnValue(contactGroup));
 			oneOf(db).endTransaction(txn);
 		}});
-		expectGetSession(Collections.<MessageId, BdfDictionary>emptyMap(),
-				sessionId);
+		expectGetSession(noResults, sessionId, contactGroup.getId());
 
 		groupInvitationManager.respondToInvitation(contactId, sessionId, true);
 	}
 
 	@Test
 	public void testAcceptInvitationWithSession() throws Exception {
-		final boolean accept = true;
-		SessionId sessionId = new SessionId(getRandomId());
-		BdfDictionary state = BdfDictionary.of(new BdfEntry("f", "o"));
-		Map<MessageId, BdfDictionary> states =
-				Collections.singletonMap(storageMessage.getId(), state);
-
-		expectRespondToInvitation(states, sessionId, accept);
+		expectRespondToInvitation(sessionId, true);
 		groupInvitationManager
-				.respondToInvitation(contactId, sessionId, accept);
+				.respondToInvitation(contactId, sessionId, true);
 	}
 
 	@Test
 	public void testDeclineInvitationWithSession() throws Exception {
-		final boolean accept = false;
-		SessionId sessionId = new SessionId(getRandomId());
-		BdfDictionary state = BdfDictionary.of(new BdfEntry("f", "o"));
-		Map<MessageId, BdfDictionary> states =
-				Collections.singletonMap(storageMessage.getId(), state);
-
-		expectRespondToInvitation(states, sessionId, accept);
+		expectRespondToInvitation(sessionId, false);
 		groupInvitationManager
-				.respondToInvitation(contactId, sessionId, accept);
+				.respondToInvitation(contactId, sessionId, false);
 	}
 
 	@Test
-	public void testRespondToInvitationWithGroupId() throws Exception {
-		final boolean accept = true;
-		final PrivateGroup g = context.mock(PrivateGroup.class);
-		SessionId sessionId = new SessionId(privateGroup.getId().getBytes());
-		BdfDictionary state = BdfDictionary.of(new BdfEntry("f", "o"));
-		Map<MessageId, BdfDictionary> states =
-				Collections.singletonMap(storageMessage.getId(), state);
+	public void testAcceptInvitationWithGroupId() throws Exception {
+		PrivateGroup pg = new PrivateGroup(privateGroup,
+				getRandomString(MAX_GROUP_NAME_LENGTH), author,
+				getRandomBytes(GROUP_SALT_LENGTH));
 
-		context.checking(new Expectations() {{
-			oneOf(g).getId();
-			will(returnValue(privateGroup.getId()));
-		}});
-		expectRespondToInvitation(states, sessionId, accept);
-		groupInvitationManager.respondToInvitation(contactId, g, accept);
+		expectRespondToInvitation(sessionId, true);
+		groupInvitationManager.respondToInvitation(contactId, pg, true);
 	}
 
-	private void expectRespondToInvitation(
-			final Map<MessageId, BdfDictionary> states,
-			final SessionId sessionId, final boolean accept) throws Exception {
-		expectGetSession(states, sessionId);
+	@Test
+	public void testDeclineInvitationWithGroupId() throws Exception {
+		PrivateGroup pg = new PrivateGroup(privateGroup,
+				getRandomString(MAX_GROUP_NAME_LENGTH), author,
+				getRandomBytes(GROUP_SALT_LENGTH));
+
+		expectRespondToInvitation(sessionId, false);
+		groupInvitationManager.respondToInvitation(contactId, pg, false);
+	}
+
+	private void expectRespondToInvitation(final SessionId sessionId,
+			final boolean accept) throws Exception {
+		expectGetSession(oneResult, sessionId, contactGroup.getId());
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));
@@ -589,15 +577,8 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			will(returnValue(contact));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
 			will(returnValue(contactGroup));
-		}});
-
-		if (states.isEmpty()) return;
-		assertEquals(1, states.size());
-
-		final BdfDictionary state = states.values().iterator().next();
-		context.checking(new Expectations() {{
 			oneOf(sessionParser)
-					.parseInviteeSession(contactGroup.getId(), state);
+					.parseInviteeSession(contactGroup.getId(), bdfSession);
 			will(returnValue(inviteeSession));
 			if (accept) oneOf(inviteeEngine).onJoinAction(txn, inviteeSession);
 			else oneOf(inviteeEngine).onLeaveAction(txn, inviteeSession);
@@ -610,11 +591,6 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 
 	@Test
 	public void testRevealRelationship() throws Exception {
-		SessionId sessionId = new SessionId(privateGroup.getId().getBytes());
-		final BdfDictionary state = BdfDictionary.of(new BdfEntry("f", "o"));
-		Map<MessageId, BdfDictionary> states =
-				Collections.singletonMap(storageMessage.getId(), state);
-
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));
@@ -622,14 +598,15 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			will(returnValue(contact));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
 			will(returnValue(contactGroup));
-			oneOf(sessionParser).parsePeerSession(contactGroup.getId(), state);
+			oneOf(sessionParser)
+					.parsePeerSession(contactGroup.getId(), bdfSession);
 			will(returnValue(peerSession));
 			oneOf(peerEngine).onJoinAction(txn, peerSession);
 			will(returnValue(peerSession));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
-		expectGetSession(states, sessionId);
+		expectGetSession(oneResult, sessionId, contactGroup.getId());
 		expectStoreSession(peerSession, storageMessage.getId());
 
 		groupInvitationManager
@@ -638,8 +615,6 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRevealRelationshipWithoutSession() throws Exception {
-		SessionId sessionId = new SessionId(privateGroup.getId().getBytes());
-
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));
@@ -649,8 +624,7 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			will(returnValue(contactGroup));
 			oneOf(db).endTransaction(txn);
 		}});
-		expectGetSession(Collections.<MessageId, BdfDictionary>emptyMap(),
-				sessionId);
+		expectGetSession(noResults, sessionId, contactGroup.getId());
 
 		groupInvitationManager
 				.revealRelationship(contactId, privateGroup.getId());
@@ -658,20 +632,19 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 
 	@Test
 	public void testGetInvitationMessages() throws Exception {
-		final BdfDictionary query = new BdfDictionary();
-		final BdfDictionary d1 = BdfDictionary.of(new BdfEntry("m1", "d"));
-		final BdfDictionary d2 = BdfDictionary.of(new BdfEntry("m2", "d"));
-		final Map<MessageId, BdfDictionary> results =	new HashMap<>();
-		results.put(message.getId(), d1);
-		results.put(storageMessage.getId(), d2);
+		final BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
+		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		final BdfDictionary meta2 = BdfDictionary.of(new BdfEntry("m2", "e"));
+		final Map<MessageId, BdfDictionary> results = new HashMap<>();
+		results.put(message.getId(), meta);
+		results.put(messageId2, meta2);
 		long time1 = 1L, time2 = 2L;
-		final MessageMetadata meta1 =
+		final MessageMetadata messageMetadata1 =
 				new MessageMetadata(INVITE, privateGroup.getId(), time1, true,
 						true, true, true);
-		final MessageMetadata meta2 =
+		final MessageMetadata messageMetadata2 =
 				new MessageMetadata(JOIN, privateGroup.getId(), time2, true,
 						true, true, true);
-		final BdfList list1 = BdfList.of(1);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
@@ -682,23 +655,22 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			will(returnValue(contactGroup));
 			oneOf(messageParser).getMessagesVisibleInUiQuery();
 			will(returnValue(query));
-			oneOf(clientHelper)
-					.getMessageMetadataAsDictionary(txn, contactGroup.getId(),
-							query);
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId(), query);
 			will(returnValue(results));
 			// first message
-			oneOf(messageParser).parseMetadata(d1);
-			will(returnValue(meta1));
+			oneOf(messageParser).parseMetadata(meta);
+			will(returnValue(messageMetadata1));
 			oneOf(db).getMessageStatus(txn, contactId, message.getId());
 			oneOf(clientHelper).getMessage(txn, message.getId());
 			will(returnValue(message));
 			oneOf(clientHelper).toList(message);
-			will(returnValue(list1));
-			oneOf(messageParser).parseInviteMessage(message, list1);
+			will(returnValue(body));
+			oneOf(messageParser).parseInviteMessage(message, body);
 			// second message
-			oneOf(messageParser).parseMetadata(d2);
-			will(returnValue(meta2));
-			oneOf(db).getMessageStatus(txn, contactId, storageMessage.getId());
+			oneOf(messageParser).parseMetadata(meta2);
+			will(returnValue(messageMetadata2));
+			oneOf(db).getMessageStatus(txn, contactId, messageId2);
 			// end transaction
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
@@ -713,33 +685,39 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			if (m.getId().equals(message.getId())) {
 				assertTrue(m instanceof GroupInvitationRequest);
 				assertEquals(time1, m.getTimestamp());
-			} else if (m.getId().equals(storageMessage.getId())) {
+			} else if (m.getId().equals(messageId2)) {
 				assertTrue(m instanceof GroupInvitationResponse);
 				assertEquals(time2, m.getTimestamp());
+			} else {
+				throw new AssertionError();
 			}
 		}
 	}
 
 	@Test
 	public void testGetInvitations() throws Exception {
-		final BdfDictionary query = new BdfDictionary();
-		BdfDictionary d1 = BdfDictionary.of(new BdfEntry("m1", "d"));
-		BdfDictionary d2 = BdfDictionary.of(new BdfEntry("m2", "d"));
-		final Map<MessageId, BdfDictionary> results =	new HashMap<>();
-		results.put(message.getId(), d1);
-		results.put(storageMessage.getId(), d2);
-		final BdfList list1 = BdfList.of(1);
-		final BdfList list2 = BdfList.of(2);
+		final BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
+		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		final BdfDictionary meta2 = BdfDictionary.of(new BdfEntry("m2", "e"));
+		final Map<MessageId, BdfDictionary> results = new HashMap<>();
+		results.put(message.getId(), meta);
+		results.put(messageId2, meta2);
+		final Message message2 = new Message(messageId2, contactGroup.getId(),
+				0L, getRandomBytes(MESSAGE_HEADER_LENGTH + 1));
 		long time1 = 1L, time2 = 2L;
-		final InviteMessage m1 =
+		final String groupName = getRandomString(MAX_GROUP_NAME_LENGTH);
+		final byte[] salt = getRandomBytes(GROUP_SALT_LENGTH);
+		final InviteMessage inviteMessage1 =
 				new InviteMessage(message.getId(), contactGroup.getId(),
-						privateGroup.getId(), time1, "test", author,
-						getRandomBytes(5), null, getRandomBytes(5));
-		final InviteMessage m2 =
+						privateGroup.getId(), time1, groupName, author, salt,
+						null, getRandomBytes(5));
+		final InviteMessage inviteMessage2 =
 				new InviteMessage(message.getId(), contactGroup.getId(),
-						privateGroup.getId(), time2, "test", author,
-						getRandomBytes(5), null, getRandomBytes(5));
-		final PrivateGroup g = context.mock(PrivateGroup.class);
+						privateGroup.getId(), time2, groupName, author, salt,
+						null, getRandomBytes(5));
+		final PrivateGroup pg = new PrivateGroup(privateGroup, groupName,
+				author, salt);
+		final BdfList body2 = BdfList.of("body2");
 
 		context.checking(new Expectations() {{
 			oneOf(messageParser).getInvitesAvailableToAnswerQuery();
@@ -750,32 +728,29 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 			will(returnValue(Collections.singletonList(contact)));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
 			will(returnValue(contactGroup));
-			oneOf(clientHelper)
-					.getMessageMetadataAsDictionary(txn, contactGroup.getId(),
-							query);
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId(), query);
 			will(returnValue(results));
 			// message 1
 			oneOf(clientHelper).getMessage(txn, message.getId());
 			will(returnValue(message));
 			oneOf(clientHelper).toList(message);
-			will(returnValue(list1));
-			oneOf(messageParser).parseInviteMessage(message, list1);
-			will(returnValue(m1));
-			oneOf(privateGroupFactory)
-					.createPrivateGroup(m1.getGroupName(), m1.getCreator(),
-							m1.getSalt());
-			will(returnValue(g));
+			will(returnValue(body));
+			oneOf(messageParser).parseInviteMessage(message, body);
+			will(returnValue(inviteMessage1));
+			oneOf(privateGroupFactory).createPrivateGroup(groupName, author,
+					salt);
+			will(returnValue(pg));
 			// message 2
-			oneOf(clientHelper).getMessage(txn, storageMessage.getId());
-			will(returnValue(storageMessage));
-			oneOf(clientHelper).toList(storageMessage);
-			will(returnValue(list2));
-			oneOf(messageParser).parseInviteMessage(storageMessage, list2);
-			will(returnValue(m2));
-			oneOf(privateGroupFactory)
-					.createPrivateGroup(m2.getGroupName(), m2.getCreator(),
-							m2.getSalt());
-			will(returnValue(g));
+			oneOf(clientHelper).getMessage(txn, messageId2);
+			will(returnValue(message2));
+			oneOf(clientHelper).toList(message2);
+			will(returnValue(body2));
+			oneOf(messageParser).parseInviteMessage(message2, body2);
+			will(returnValue(inviteMessage2));
+			oneOf(privateGroupFactory).createPrivateGroup(groupName, author,
+					salt);
+			will(returnValue(pg));
 			// end transaction
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
@@ -787,6 +762,8 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 		for (GroupInvitationItem i : items) {
 			assertEquals(contact, i.getCreator());
 			assertEquals(author, i.getCreator().getAuthor());
+			assertEquals(privateGroup.getId(), i.getId());
+			assertEquals(groupName, i.getName());
 		}
 	}
 
@@ -822,20 +799,14 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 
 	private void expectIsInvitationAllowed(final CreatorState state)
 			throws Exception {
-		final SessionId sessionId =
-				new SessionId(privateGroup.getId().getBytes());
-		final BdfDictionary meta = BdfDictionary.of(new BdfEntry("m", "d"));
-		final Map<MessageId, BdfDictionary> results = new HashMap<>();
-		results.put(message.getId(), meta);
-
-		expectGetSession(results, sessionId);
+		expectGetSession(oneResult, sessionId, contactGroup.getId());
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
 			will(returnValue(contactGroup));
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
 			oneOf(sessionParser)
-					.parseCreatorSession(contactGroup.getId(), meta);
+					.parseCreatorSession(contactGroup.getId(), bdfSession);
 			will(returnValue(creatorSession));
 			oneOf(creatorSession).getState();
 			will(returnValue(state));
@@ -856,68 +827,70 @@ public class GroupInvitationManagerImplTest extends BriarMockTestCase {
 
 	@Test
 	public void testRemovingGroupEndsSessions() throws Exception {
-		final Contact contact2 =
-				new Contact(new ContactId(2), author, author.getId(), true,
-						true);
-		final Contact contact3 =
-				new Contact(new ContactId(3), author, author.getId(), true,
-						true);
-		final Collection<Contact> contacts = new ArrayList<>();
-		contacts.add(contact);
-		contacts.add(contact2);
-		contacts.add(contact3);
-		final MessageId mId2 = new MessageId(getRandomId());
-		final MessageId mId3 = new MessageId(getRandomId());
-		final BdfDictionary meta1 = BdfDictionary.of(new BdfEntry("m1", "d"));
-		final BdfDictionary meta2 = BdfDictionary.of(new BdfEntry("m2", "d"));
-		final BdfDictionary meta3 = BdfDictionary.of(new BdfEntry("m3", "d"));
+		final Contact contact2 = new Contact(new ContactId(2), author,
+				author.getId(), true, true);
+		final Contact contact3 = new Contact(new ContactId(3), author,
+				author.getId(), true, true);
+		final Collection<Contact> contacts =
+				Arrays.asList(contact, contact2, contact3);
 
-		expectGetSession(
-				Collections.singletonMap(storageMessage.getId(), meta1),
-				new SessionId(privateGroup.getId().getBytes()));
-		expectGetSession(
-				Collections.singletonMap(mId2, meta2),
-				new SessionId(privateGroup.getId().getBytes()));
-		expectGetSession(
-				Collections.singletonMap(mId3, meta3),
-				new SessionId(privateGroup.getId().getBytes()));
+		final Group contactGroup2 = new Group(new GroupId(getRandomId()),
+				CLIENT_ID, getRandomBytes(5));
+		final Group contactGroup3 = new Group(new GroupId(getRandomId()),
+				CLIENT_ID, getRandomBytes(5));
+
+		final MessageId storageId2 = new MessageId(getRandomId());
+		final MessageId storageId3 = new MessageId(getRandomId());
+		final BdfDictionary bdfSession2 =
+				BdfDictionary.of(new BdfEntry("f2", "o"));
+		final BdfDictionary bdfSession3 =
+				BdfDictionary.of(new BdfEntry("f3", "o"));
+
+		expectGetSession(oneResult, sessionId, contactGroup.getId());
+		expectGetSession(Collections.singletonMap(storageId2, bdfSession2),
+				sessionId, contactGroup2.getId());
+		expectGetSession(Collections.singletonMap(storageId3, bdfSession3),
+				sessionId, contactGroup3.getId());
+
 		context.checking(new Expectations() {{
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
 			will(returnValue(contactGroup));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact2);
-			will(returnValue(contactGroup));
+			will(returnValue(contactGroup2));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact3);
-			will(returnValue(contactGroup));
+			will(returnValue(contactGroup3));
 			// session 1
-			oneOf(sessionParser).getRole(meta1);
+			oneOf(sessionParser).getRole(bdfSession);
 			will(returnValue(Role.CREATOR));
 			oneOf(sessionParser)
-					.parseCreatorSession(contactGroup.getId(), meta1);
+					.parseCreatorSession(contactGroup.getId(), bdfSession);
 			will(returnValue(creatorSession));
 			oneOf(creatorEngine).onLeaveAction(txn, creatorSession);
 			will(returnValue(creatorSession));
 			// session 2
-			oneOf(sessionParser).getRole(meta2);
+			oneOf(sessionParser).getRole(bdfSession2);
 			will(returnValue(Role.INVITEE));
 			oneOf(sessionParser)
-					.parseInviteeSession(contactGroup.getId(), meta2);
+					.parseInviteeSession(contactGroup2.getId(), bdfSession2);
 			will(returnValue(inviteeSession));
 			oneOf(inviteeEngine).onLeaveAction(txn, inviteeSession);
 			will(returnValue(inviteeSession));
 			// session 3
-			oneOf(sessionParser).getRole(meta3);
+			oneOf(sessionParser).getRole(bdfSession3);
 			will(returnValue(Role.PEER));
 			oneOf(sessionParser)
-					.parsePeerSession(contactGroup.getId(), meta3);
+					.parsePeerSession(contactGroup3.getId(), bdfSession3);
 			will(returnValue(peerSession));
 			oneOf(peerEngine).onLeaveAction(txn, peerSession);
 			will(returnValue(peerSession));
 		}});
+
 		expectStoreSession(creatorSession, storageMessage.getId());
-		expectStoreSession(inviteeSession, mId2);
-		expectStoreSession(peerSession, mId3);
+		expectStoreSession(inviteeSession, storageId2);
+		expectStoreSession(peerSession, storageId3);
+
 		groupInvitationManager.removingGroup(txn, privateGroup.getId());
 	}
 
