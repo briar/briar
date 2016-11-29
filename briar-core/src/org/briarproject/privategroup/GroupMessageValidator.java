@@ -9,7 +9,6 @@ import org.briarproject.api.data.MetadataEncoder;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.nullsafety.NotNullByDefault;
-import org.briarproject.api.privategroup.MessageType;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.privategroup.invitation.GroupInvitationFactory;
@@ -79,17 +78,14 @@ class GroupMessageValidator extends BdfMessageValidator {
 
 		Author member = authorFactory.createAuthor(memberName, memberPublicKey);
 		BdfMessageContext c;
-		switch (MessageType.valueOf(type)) {
-			case JOIN:
-				c = validateJoin(m, g, body, member);
-				addMessageMetadata(c, member, m.getTimestamp());
-				break;
-			case POST:
-				c = validatePost(m, g, body, member);
-				addMessageMetadata(c, member, m.getTimestamp());
-				break;
-			default:
-				throw new InvalidMessageException("Unknown Message Type");
+		if (type == JOIN.getInt()) {
+			c = validateJoin(m, g, body, member);
+			addMessageMetadata(c, member, m.getTimestamp());
+		} else if (type == POST.getInt()) {
+			c = validatePost(m, g, body, member);
+			addMessageMetadata(c, member, m.getTimestamp());
+		} else {
+			throw new InvalidMessageException("Unknown Message Type");
 		}
 		c.getDictionary().put(KEY_TYPE, type);
 		return c;
@@ -133,8 +129,9 @@ class GroupMessageValidator extends BdfMessageValidator {
 					.createInviteToken(creator.getId(), member.getId(),
 							pg.getId(), inviteTimestamp);
 			try {
-				clientHelper.verifySignature(SIGNING_LABEL_INVITE, creatorSignature,
-						creator.getPublicKey(), token);
+				clientHelper
+						.verifySignature(SIGNING_LABEL_INVITE, creatorSignature,
+								creator.getPublicKey(), token);
 			} catch (GeneralSecurityException e) {
 				throw new InvalidMessageException(e);
 			}
@@ -180,7 +177,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 
 		// content (string)
 		String content = body.getString(5);
-		checkLength(content, 0, MAX_GROUP_POST_BODY_LENGTH);
+		checkLength(content, 1, MAX_GROUP_POST_BODY_LENGTH);
 
 		// signature (raw)
 		// a signature with the member's private key over a list with 7 elements
