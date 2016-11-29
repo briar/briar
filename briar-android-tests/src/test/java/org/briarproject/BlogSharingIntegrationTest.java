@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static org.briarproject.TestUtils.assertGroupCount;
 import static org.briarproject.api.blogs.BlogSharingManager.CLIENT_ID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -46,6 +47,7 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 

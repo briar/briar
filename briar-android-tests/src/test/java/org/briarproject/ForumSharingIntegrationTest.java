@@ -59,6 +59,7 @@ public class ForumSharingIntegrationTest extends BriarIntegrationTest {
 	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 

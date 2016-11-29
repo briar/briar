@@ -46,6 +46,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 import static org.briarproject.TestPluginsModule.TRANSPORT_ID;
+import static org.briarproject.TestUtils.assertGroupCount;
 import static org.briarproject.api.clients.MessageQueueManager.QUEUE_STATE_KEY;
 import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
@@ -88,6 +89,7 @@ public class IntroductionIntegrationTest extends BriarIntegrationTest {
 	}
 
 	@Before
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 

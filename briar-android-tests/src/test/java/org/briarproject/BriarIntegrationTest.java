@@ -9,7 +9,6 @@ import org.briarproject.api.blogs.BlogPostFactory;
 import org.briarproject.api.clients.ClientHelper;
 import org.briarproject.api.clients.ContactGroupFactory;
 import org.briarproject.api.clients.MessageTracker;
-import org.briarproject.api.clients.MessageTracker.GroupCount;
 import org.briarproject.api.contact.Contact;
 import org.briarproject.api.contact.ContactId;
 import org.briarproject.api.contact.ContactManager;
@@ -29,7 +28,6 @@ import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.api.privategroup.GroupMessageFactory;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.privategroup.invitation.GroupInvitationFactory;
-import org.briarproject.api.sync.GroupId;
 import org.briarproject.api.sync.SyncSession;
 import org.briarproject.api.sync.SyncSessionFactory;
 import org.briarproject.api.system.Clock;
@@ -58,12 +56,12 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.TestPluginsModule.MAX_LATENCY;
 import static org.briarproject.TestUtils.getSecretKey;
 import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.api.sync.ValidationManager.State.PENDING;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @MethodsNotNullByDefault
@@ -304,15 +302,15 @@ public abstract class BriarIntegrationTest extends BriarTestCase {
 
 	protected void sync2To1(int num, boolean valid)
 			throws IOException, TimeoutException {
-		assertTrue(contactId2From1 != null);
-		assertTrue(contactId1From2 != null);
+		assertNotNull(contactId2From1);
+		assertNotNull(contactId1From2);
 		syncMessage(sync2, contactId2From1, sync1, contactId1From2, num, valid);
 	}
 
 	protected void sync1To2(int num, boolean valid)
 			throws IOException, TimeoutException {
-		assertTrue(contactId2From1 != null);
-		assertTrue(contactId1From2 != null);
+		assertNotNull(contactId2From1);
+		assertNotNull(contactId1From2);
 		syncMessage(sync1, contactId1From2, sync2, contactId2From1, num, valid);
 	}
 
@@ -359,23 +357,4 @@ public abstract class BriarIntegrationTest extends BriarTestCase {
 		contactManager2.removeContact(contactId0From2);
 		contactManager2.removeContact(contactId1From2);
 	}
-
-	protected static void assertGroupCount(MessageTracker tracker, GroupId g,
-			long msgCount, long unreadCount, long latestMsg)
-			throws DbException {
-
-		GroupCount groupCount = tracker.getGroupCount(g);
-		assertEquals(msgCount, groupCount.getMsgCount());
-		assertEquals(unreadCount, groupCount.getUnreadCount());
-		assertEquals(latestMsg, groupCount.getLatestMsgTime());
-	}
-
-	protected static void assertGroupCount(MessageTracker tracker, GroupId g,
-			long msgCount, long unreadCount) throws	DbException {
-
-		GroupCount c1 = tracker.getGroupCount(g);
-		assertEquals(msgCount, c1.getMsgCount());
-		assertEquals(unreadCount, c1.getUnreadCount());
-	}
-
 }
