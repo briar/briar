@@ -7,6 +7,7 @@ import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.AuthorId;
+import org.briarproject.api.privategroup.MessageType;
 import org.briarproject.api.privategroup.PrivateGroup;
 import org.briarproject.api.privategroup.PrivateGroupFactory;
 import org.briarproject.api.privategroup.invitation.GroupInvitationFactory;
@@ -16,6 +17,9 @@ import org.jmock.Expectations;
 import org.junit.Test;
 
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 import static org.briarproject.TestUtils.getRandomBytes;
 import static org.briarproject.TestUtils.getRandomId;
@@ -28,6 +32,7 @@ import static org.briarproject.api.privategroup.GroupMessageFactory.SIGNING_LABE
 import static org.briarproject.api.privategroup.MessageType.JOIN;
 import static org.briarproject.api.privategroup.MessageType.POST;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
+import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
 import static org.briarproject.api.privategroup.invitation.GroupInvitationFactory.SIGNING_LABEL_INVITE;
 import static org.briarproject.privategroup.GroupConstants.KEY_INITIAL_JOIN_MSG;
@@ -39,6 +44,7 @@ import static org.briarproject.privategroup.GroupConstants.KEY_PREVIOUS_MSG_ID;
 import static org.briarproject.privategroup.GroupConstants.KEY_READ;
 import static org.briarproject.privategroup.GroupConstants.KEY_TIMESTAMP;
 import static org.briarproject.privategroup.GroupConstants.KEY_TYPE;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -50,9 +56,8 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 	private final GroupInvitationFactory groupInvitationFactory =
 			context.mock(GroupInvitationFactory.class);
 
-
-	private final String creatorName = "Member Name";
-	private final String memberName = "Member Name";
+	private final String creatorName = getRandomString(MAX_AUTHOR_NAME_LENGTH);
+	private final String memberName = getRandomString(MAX_AUTHOR_NAME_LENGTH);
 	private final byte[] creatorKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 	private final byte[] memberKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 	private final byte[] creatorSignature =
@@ -63,220 +68,272 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 	private final Author creator =
 			new Author(new AuthorId(getRandomId()), creatorName, creatorKey);
 	private final long inviteTimestamp = 42L;
-	private final PrivateGroup privateGroup =
-			new PrivateGroup(group, "Private Group Name", creator,
-					getRandomBytes(GROUP_SALT_LENGTH));
+	private final PrivateGroup privateGroup = new PrivateGroup(group,
+			getRandomString(MAX_GROUP_NAME_LENGTH), creator,
+			getRandomBytes(GROUP_SALT_LENGTH));
 	private final BdfList token = BdfList.of("token");
-	private MessageId parentId = new MessageId(getRandomId());
-	private MessageId previousMsgId = new MessageId(getRandomId());
-	private String postContent = "Post text";
+	private final MessageId parentId = new MessageId(getRandomId());
+	private final MessageId previousMsgId = new MessageId(getRandomId());
+	private final String postContent =
+			getRandomString(MAX_GROUP_POST_BODY_LENGTH);
 
-	private GroupMessageValidator validator =
+	private final GroupMessageValidator validator =
 			new GroupMessageValidator(privateGroupFactory, clientHelper,
 					metadataEncoder, clock, authorFactory,
 					groupInvitationFactory);
-
-	@Test(expected = FormatException.class)
-	public void testRejectTooShortMemberName() throws Exception {
-		BdfList list = BdfList.of(JOIN.getInt(), "", memberKey, null,
-				signature);
-		validator.validateMessage(message, group, list);
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectTooLongMemberName() throws Exception {
-		BdfList list = BdfList.of(JOIN.getInt(),
-				getRandomString(MAX_AUTHOR_NAME_LENGTH + 1), memberKey, null,
-				signature);
-		validator.validateMessage(message, group, list);
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectTooShortMemberKey() throws Exception {
-		BdfList list = BdfList.of(JOIN.getInt(), memberName, new byte[0], null,
-				signature);
-		validator.validateMessage(message, group, list);
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectTooLongMemberKey() throws Exception {
-		BdfList list = BdfList.of(JOIN.getInt(), memberName,
-				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1), null,
-				signature);
-		validator.validateMessage(message, group, list);
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectNonRawMemberKey() throws Exception {
-		BdfList list =
-				BdfList.of(JOIN.getInt(), memberName, "non raw key", null,
-						signature);
-		validator.validateMessage(message, group, list);
-	}
 
 	// JOIN message
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortJoinMessage() throws Exception {
-		BdfList list = BdfList.of(JOIN.getInt(), creatorName, creatorKey,
-				null);
-		validator.validateMessage(message, group, list);
+		BdfList body = BdfList.of(JOIN.getInt(), creatorName, creatorKey, null);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongJoinMessage() throws Exception {
 		expectCreateAuthor(creator);
-		BdfList list = BdfList.of(JOIN.getInt(), creatorName, creatorKey,
-				null, signature, "");
-		validator.validateMessage(message, group, list);
+		BdfList body = BdfList.of(JOIN.getInt(), creatorName, creatorKey, null,
+				signature, "");
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsJoinMessageWithNonListInvitation() throws Exception {
+	public void testRejectsJoinWithTooShortMemberName() throws Exception {
+		BdfList body = BdfList.of(JOIN.getInt(), "", memberKey, null,
+				signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsJoinMessageWithTooLongMemberName() throws Exception {
+		BdfList body = BdfList.of(JOIN.getInt(),
+				getRandomString(MAX_AUTHOR_NAME_LENGTH + 1), memberKey, null,
+				signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsJoinMessageWithNullMemberName() throws Exception {
+		BdfList body = BdfList.of(JOIN.getInt(), null, memberKey, null,
+				signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsJoinMessageWithNonStringMemberName() throws Exception {
+		BdfList body = BdfList.of(JOIN.getInt(), getRandomBytes(5), memberKey,
+				null, signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsJoinWithTooShortMemberKey() throws Exception {
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, new byte[0], null,
+				signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsJoinWithTooLongMemberKey() throws Exception {
+		BdfList body = BdfList.of(JOIN.getInt(), memberName,
+				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1), null, signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsJoinWithNoullMemberKey() throws Exception {
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, null, null,
+				signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsJoinWithNonRawMemberKey() throws Exception {
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, "not raw", null,
+				signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsJoinWithNonListInvitation() throws Exception {
 		expectCreateAuthor(creator);
 		expectParsePrivateGroup();
-		BdfList list = BdfList.of(JOIN.getInt(), creatorName, creatorKey,
+		BdfList body = BdfList.of(JOIN.getInt(), creatorName, creatorKey,
 				"not a list", signature);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test
-	public void testAcceptCreatorJoinMessage() throws Exception {
-		final BdfList invite = null;
-		expectJoinMessage(creator, invite, true, true);
-		BdfList list = BdfList.of(JOIN.getInt(), creatorName, creatorKey,
-				invite, signature);
+	public void testAcceptsCreatorJoin() throws Exception {
+		expectJoinMessage(creator, null, true, true);
+		BdfList body = BdfList.of(JOIN.getInt(), creatorName, creatorKey,
+				null, signature);
 		BdfMessageContext messageContext =
-				validator.validateMessage(message, group, list);
-		assertMessageContext(messageContext, creator);
+				validator.validateMessage(message, group, body);
+		assertExpectedMessageContext(messageContext, JOIN, creator,
+				Collections.<MessageId>emptyList());
 		assertTrue(messageContext.getDictionary()
 				.getBoolean(KEY_INITIAL_JOIN_MSG));
 	}
 
 	@Test(expected = InvalidMessageException.class)
-	public void testRejectsMemberJoinMessageWithoutInvitation()
-			throws Exception {
+	public void testRejectsMemberJoinWithNullInvitation() throws Exception {
 		expectCreateAuthor(member);
 		expectParsePrivateGroup();
-		BdfList list = BdfList.of(JOIN.getInt(), memberName, memberKey, null,
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, null,
 				signature);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsJoinMessageWithTooShortInvitation() throws Exception {
+	public void testRejectsMemberJoinWithTooShortInvitation() throws Exception {
 		BdfList invite = BdfList.of(inviteTimestamp);
 		expectCreateAuthor(member);
 		expectParsePrivateGroup();
-		BdfList list = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
 				signature);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsJoinMessageWithTooLongInvitation() throws Exception {
+	public void testRejectsMemberJoinWithTooLongInvitation() throws Exception {
 		BdfList invite = BdfList.of(inviteTimestamp, creatorSignature, "");
 		expectCreateAuthor(member);
 		expectParsePrivateGroup();
-		BdfList list = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
 				signature);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = InvalidMessageException.class)
-	public void testRejectsJoinMessageWithEqualInvitationTime()
+	public void testRejectsMemberJoinWithEqualInvitationTime()
 			throws Exception {
 		BdfList invite = BdfList.of(message.getTimestamp(), creatorSignature);
 		expectCreateAuthor(member);
 		expectParsePrivateGroup();
-		BdfList list = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
 				signature);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = InvalidMessageException.class)
-	public void testRejectsJoinMessageWithLaterInvitationTime()
+	public void testRejectsMemberJoinWithLaterInvitationTime()
 			throws Exception {
-		BdfList invite =
-				BdfList.of(message.getTimestamp() + 1, creatorSignature);
+		BdfList invite = BdfList.of(message.getTimestamp() + 1,
+				creatorSignature);
 		expectCreateAuthor(member);
 		expectParsePrivateGroup();
-		BdfList list = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
 				signature);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsJoinMessageWithNonRawCreatorSignature()
+	public void testRejectsMemberJoinWithNullInvitationTime()
 			throws Exception {
-		BdfList invite = BdfList.of(inviteTimestamp, "non-raw signature");
+		BdfList invite = BdfList.of(null, creatorSignature);
 		expectCreateAuthor(member);
 		expectParsePrivateGroup();
-		BdfList list = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
 				signature);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsJoinMessageWithTooShortCreatorSignature()
+	public void testRejectsMemberJoinWithNonLongInvitationTime()
+			throws Exception {
+		BdfList invite = BdfList.of("not long", creatorSignature);
+		expectCreateAuthor(member);
+		expectParsePrivateGroup();
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
+				signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsMemberJoinWithTooShortCreatorSignature()
 			throws Exception {
 		BdfList invite = BdfList.of(inviteTimestamp, new byte[0]);
 		expectCreateAuthor(member);
 		expectParsePrivateGroup();
-		BdfList list = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
 				signature);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsJoinMessageWithTooLongCreatorSignature()
+	public void testRejectsJoinWithTooLongCreatorSignature()
 			throws Exception {
 		BdfList invite = BdfList.of(inviteTimestamp,
 				getRandomBytes(MAX_SIGNATURE_LENGTH + 1));
 		expectCreateAuthor(member);
 		expectParsePrivateGroup();
-		BdfList list = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
 				signature);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsMemberJoinWithNullCreatorSignature()
+			throws Exception {
+		BdfList invite = BdfList.of(inviteTimestamp, null);
+		expectCreateAuthor(member);
+		expectParsePrivateGroup();
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
+				signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsMemberJoinWithNonRawCreatorSignature()
+			throws Exception {
+		BdfList invite = BdfList.of(inviteTimestamp, "not raw");
+		expectCreateAuthor(member);
+		expectParsePrivateGroup();
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
+				signature);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = InvalidMessageException.class)
-	public void testRejectsJoinMessageWithInvalidCreatorSignature()
+	public void testRejectsMemberJoinWithInvalidCreatorSignature()
 			throws Exception {
 		BdfList invite = BdfList.of(inviteTimestamp, creatorSignature);
 		expectJoinMessage(member, invite, false, true);
-		BdfList list = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
 				signature);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = InvalidMessageException.class)
-	public void testRejectsJoinMessageWithInvalidMemberSignature()
+	public void testRejectsMemberJoinWithInvalidMemberSignature()
 			throws Exception {
 		BdfList invite = BdfList.of(inviteTimestamp, creatorSignature);
 		expectJoinMessage(member, invite, true, false);
-		BdfList list = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
 				signature);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test
-	public void testAcceptMemberJoinMessage() throws Exception {
+	public void testAcceptsMemberJoin() throws Exception {
 		BdfList invite = BdfList.of(inviteTimestamp, creatorSignature);
 		expectJoinMessage(member, invite, true, true);
-		BdfList list = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
+		BdfList body = BdfList.of(JOIN.getInt(), memberName, memberKey, invite,
 				signature);
 		BdfMessageContext messageContext =
-				validator.validateMessage(message, group, list);
-		assertMessageContext(messageContext, member);
+				validator.validateMessage(message, group, body);
+		assertExpectedMessageContext(messageContext, JOIN, member,
+				Collections.<MessageId>emptyList());
 		assertFalse(messageContext.getDictionary()
 				.getBoolean(KEY_INITIAL_JOIN_MSG));
 	}
 
 	private void expectCreateAuthor(final Author member) {
 		context.checking(new Expectations() {{
-			oneOf(authorFactory)
-					.createAuthor(member.getName(), member.getPublicKey());
+			oneOf(authorFactory).createAuthor(member.getName(),
+					member.getPublicKey());
 			will(returnValue(member));
 		}});
 	}
@@ -291,27 +348,23 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 	private void expectJoinMessage(final Author member, final BdfList invite,
 			final boolean creatorSigValid, final boolean memberSigValid)
 			throws Exception {
-		final BdfList signed =
-				BdfList.of(group.getId(), message.getTimestamp(), JOIN.getInt(),
-						member.getName(), member.getPublicKey(), invite);
+		final BdfList signed = BdfList.of(group.getId(), message.getTimestamp(),
+				JOIN.getInt(), member.getName(), member.getPublicKey(), invite);
 		expectCreateAuthor(member);
 		expectParsePrivateGroup();
 		context.checking(new Expectations() {{
 			if (invite != null) {
-				oneOf(groupInvitationFactory)
-						.createInviteToken(creator.getId(), member.getId(),
-								privateGroup.getId(), inviteTimestamp);
+				oneOf(groupInvitationFactory).createInviteToken(creator.getId(),
+						member.getId(), privateGroup.getId(), inviteTimestamp);
 				will(returnValue(token));
-				oneOf(clientHelper)
-						.verifySignature(SIGNING_LABEL_INVITE, creatorSignature,
-								creatorKey, token);
+				oneOf(clientHelper).verifySignature(SIGNING_LABEL_INVITE,
+						creatorSignature, creatorKey, token);
 				if (!memberSigValid)
 					will(throwException(new GeneralSecurityException()));
 			}
 			if (memberSigValid) {
-				oneOf(clientHelper)
-						.verifySignature(SIGNING_LABEL_JOIN, signature,
-								member.getPublicKey(), signed);
+				oneOf(clientHelper).verifySignature(SIGNING_LABEL_JOIN,
+						signature, member.getPublicKey(), signed);
 				if (!creatorSigValid)
 					will(throwException(new GeneralSecurityException()));
 			}
@@ -322,213 +375,274 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortPost() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						previousMsgId, postContent);
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, previousMsgId, postContent);
 		expectCreateAuthor(member);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongPost() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						previousMsgId, postContent, signature, "");
-		validator.validateMessage(message, group, list);
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, previousMsgId, postContent, signature, "");
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsPostWithNonRawParentId() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, "non-raw",
-						previousMsgId, postContent, signature);
-		expectCreateAuthor(member);
-		validator.validateMessage(message, group, list);
+	public void testRejectsPostWithTooShortMemberName() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), "", memberKey, parentId,
+				previousMsgId, postContent, signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPostWithTooLongMemberName() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(),
+				getRandomString(MAX_AUTHOR_NAME_LENGTH + 1), memberKey,
+				parentId, previousMsgId, postContent, signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPostWithNullMemberName() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), null, memberKey,
+				parentId, previousMsgId, postContent, signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPostWithNonStringMemberName() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), getRandomBytes(5), memberKey,
+				parentId, previousMsgId, postContent, signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPostWithTooShortMemberKey() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), memberName, new byte[0],
+				parentId, previousMsgId, postContent, signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPostWithTooLongMemberKey() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), memberName,
+				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1), parentId,
+				previousMsgId, postContent, signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPostWithNullMemberKey() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), memberName, null,
+				parentId, previousMsgId, postContent, signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPostWithNonRawMemberKey() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), memberName, "not raw",
+				parentId, previousMsgId, postContent, signature);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsPostWithTooShortParentId() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey,
-						getRandomBytes(MessageId.LENGTH - 1), previousMsgId,
-						postContent, signature);
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				getRandomBytes(MessageId.LENGTH - 1), previousMsgId,
+				postContent, signature);
 		expectCreateAuthor(member);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsPostWithTooLongParentId() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey,
-						getRandomBytes(MessageId.LENGTH + 1), previousMsgId,
-						postContent, signature);
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				getRandomBytes(MessageId.LENGTH + 1), previousMsgId,
+				postContent, signature);
 		expectCreateAuthor(member);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsPostWithNonRawPreviousMsgId() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						"non-raw", postContent, signature);
+	public void testRejectsPostWithNonRawParentId() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				"not raw", previousMsgId, postContent, signature);
 		expectCreateAuthor(member);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsPostWithTooShortPreviousMsgId() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						getRandomBytes(MessageId.LENGTH - 1),
-						postContent, signature);
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, getRandomBytes(MessageId.LENGTH - 1), postContent,
+				signature);
 		expectCreateAuthor(member);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsPostWithTooLongPreviousMsgId() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						getRandomBytes(MessageId.LENGTH + 1),
-						postContent, signature);
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, getRandomBytes(MessageId.LENGTH + 1), postContent,
+				signature);
 		expectCreateAuthor(member);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsPostWithEmptyContent() throws Exception {
-		postContent = "";
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						previousMsgId, postContent, signature);
+	public void testRejectsPostWithNullPreviousMsgId() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, null, postContent, signature);
 		expectCreateAuthor(member);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPostWithNonRawPreviousMsgId() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, "not raw", postContent, signature);
+		expectCreateAuthor(member);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPostWithTooShortContent() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, previousMsgId, "", signature);
+		expectCreateAuthor(member);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsPostWithTooLongContent() throws Exception {
-		postContent = getRandomString(MAX_GROUP_POST_BODY_LENGTH + 1);
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						previousMsgId, postContent, signature);
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, previousMsgId,
+				getRandomString(MAX_GROUP_POST_BODY_LENGTH + 1), signature);
 		expectCreateAuthor(member);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPostWithNullContent() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, previousMsgId, null, signature);
+		expectCreateAuthor(member);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsPostWithNonStringContent() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						previousMsgId, getRandomBytes(5), signature);
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, previousMsgId, getRandomBytes(5), signature);
 		expectCreateAuthor(member);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsPostWithEmptySignature() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						previousMsgId, postContent, new byte[0]);
+	public void testRejectsPostWithTooShortSignature() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, previousMsgId, postContent, new byte[0]);
 		expectCreateAuthor(member);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsPostWithTooLongSignature() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						previousMsgId, postContent,
-						getRandomBytes(MAX_SIGNATURE_LENGTH + 1));
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, previousMsgId, postContent,
+				getRandomBytes(MAX_SIGNATURE_LENGTH + 1));
 		expectCreateAuthor(member);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPostWithNullSignature() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, previousMsgId, postContent,null);
+		expectCreateAuthor(member);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsPostWithNonRawSignature() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						previousMsgId, postContent, "non-raw");
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, previousMsgId, postContent, "not raw");
 		expectCreateAuthor(member);
-		validator.validateMessage(message, group, list);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = InvalidMessageException.class)
 	public void testRejectsPostWithInvalidSignature() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						previousMsgId, postContent, signature);
-		expectPostMessage(member, false);
-		validator.validateMessage(message, group, list);
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, previousMsgId, postContent, signature);
+		expectPostMessage(member, parentId, false);
+		validator.validateMessage(message, group, body);
 	}
 
 	@Test
-	public void testAcceptPost() throws Exception {
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						previousMsgId, postContent, signature);
-		expectPostMessage(member, true);
+	public void testAcceptsPost() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey,
+				parentId, previousMsgId, postContent, signature);
+		expectPostMessage(member, parentId, true);
 		BdfMessageContext messageContext =
-				validator.validateMessage(message, group, list);
-		assertMessageContext(messageContext, member);
-		assertEquals(previousMsgId.getBytes(),
+				validator.validateMessage(message, group, body);
+		assertExpectedMessageContext(messageContext, POST, member,
+				Arrays.asList(parentId, previousMsgId));
+		assertArrayEquals(previousMsgId.getBytes(),
 				messageContext.getDictionary().getRaw(KEY_PREVIOUS_MSG_ID));
-		assertEquals(parentId.getBytes(),
+		assertArrayEquals(parentId.getBytes(),
 				messageContext.getDictionary().getRaw(KEY_PARENT_MSG_ID));
 	}
 
 	@Test
-	public void testAcceptTopLevelPost() throws Exception {
-		parentId = null;
-		BdfList list =
-				BdfList.of(POST.getInt(), memberName, memberKey, parentId,
-						previousMsgId, postContent, signature);
-		expectPostMessage(member, true);
+	public void testAcceptsTopLevelPost() throws Exception {
+		BdfList body = BdfList.of(POST.getInt(), memberName, memberKey, null,
+				previousMsgId, postContent, signature);
+		expectPostMessage(member, null, true);
 		BdfMessageContext messageContext =
-				validator.validateMessage(message, group, list);
-		assertMessageContext(messageContext, member);
-		assertEquals(previousMsgId.getBytes(),
+				validator.validateMessage(message, group, body);
+		assertExpectedMessageContext(messageContext, POST, member,
+				Collections.singletonList(previousMsgId));
+		assertArrayEquals(previousMsgId.getBytes(),
 				messageContext.getDictionary().getRaw(KEY_PREVIOUS_MSG_ID));
 		assertFalse(
 				messageContext.getDictionary().containsKey(KEY_PARENT_MSG_ID));
 	}
 
-	private void expectPostMessage(final Author member, final boolean sigValid)
-			throws Exception {
-		final BdfList signed =
-				BdfList.of(group.getId(), message.getTimestamp(), POST.getInt(),
-						member.getName(), member.getPublicKey(),
-						parentId == null ? null : parentId.getBytes(),
-						previousMsgId == null ? null : previousMsgId.getBytes(),
-						postContent);
+	private void expectPostMessage(final Author member,
+			final MessageId parentId, final boolean sigValid) throws Exception {
+		final BdfList signed = BdfList.of(group.getId(), message.getTimestamp(),
+				POST.getInt(), member.getName(), member.getPublicKey(),
+				parentId == null ? null : parentId.getBytes(),
+				previousMsgId.getBytes(), postContent);
 		expectCreateAuthor(member);
 		context.checking(new Expectations() {{
-			oneOf(clientHelper)
-					.verifySignature(SIGNING_LABEL_POST, signature,
-							member.getPublicKey(), signed);
+			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
+					member.getPublicKey(), signed);
 			if (!sigValid) will(throwException(new GeneralSecurityException()));
 		}});
 	}
 
-	private void assertMessageContext(BdfMessageContext c, Author member)
-			throws FormatException {
+	private void assertExpectedMessageContext(BdfMessageContext c,
+			MessageType type, Author member,
+			Collection<MessageId> dependencies) throws FormatException {
 		BdfDictionary d = c.getDictionary();
-		assertTrue(message.getTimestamp() == d.getLong(KEY_TIMESTAMP));
+		assertEquals(type.getInt(), d.getLong(KEY_TYPE).intValue());
+		assertEquals(message.getTimestamp(),
+				d.getLong(KEY_TIMESTAMP).longValue());
 		assertFalse(d.getBoolean(KEY_READ));
 		assertEquals(member.getId().getBytes(), d.getRaw(KEY_MEMBER_ID));
 		assertEquals(member.getName(), d.getString(KEY_MEMBER_NAME));
 		assertEquals(member.getPublicKey(), d.getRaw(KEY_MEMBER_PUBLIC_KEY));
-
-		// assert message dependencies
-		if (d.getLong(KEY_TYPE) == POST.getInt()) {
-			assertTrue(c.getDependencies().contains(previousMsgId));
-			if (parentId != null) {
-				assertTrue(c.getDependencies().contains(parentId));
-			} else {
-				assertFalse(c.getDependencies().contains(parentId));
-			}
-		} else {
-			assertEquals(JOIN.getInt(), d.getLong(KEY_TYPE).intValue());
-		}
+		assertEquals(dependencies, c.getDependencies());
 	}
 
+	@Test(expected = InvalidMessageException.class)
+	public void testRejectsMessageWithUnknownType() throws Exception {
+		BdfList body = BdfList.of(POST.getInt() + 1, memberName, memberKey,
+				parentId, previousMsgId, postContent, signature);
+		expectCreateAuthor(member);
+		validator.validateMessage(message, group, body);
+	}
 }
