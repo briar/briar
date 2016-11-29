@@ -7,6 +7,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.messaging.ConversationManager.ConversationClient;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.GroupId;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -19,7 +20,7 @@ public interface SharingManager<S extends Shareable>
 	 * and sends an optional message along with it.
 	 */
 	void sendInvitation(GroupId groupId, ContactId contactId,
-			String message) throws DbException;
+			@Nullable String message) throws DbException;
 
 	/**
 	 * Responds to a pending group invitation

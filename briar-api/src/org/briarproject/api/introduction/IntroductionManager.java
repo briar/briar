@@ -8,6 +8,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.messaging.ConversationManager.ConversationClient;
 import org.briarproject.api.nullsafety.NotNullByDefault;
 import org.briarproject.api.sync.ClientId;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -20,7 +21,7 @@ public interface IntroductionManager extends ConversationClient {
 	/**
 	 * sends two initial introduction messages
 	 */
-	void makeIntroduction(Contact c1, Contact c2, String msg,
+	void makeIntroduction(Contact c1, Contact c2, @Nullable String msg,
 			final long timestamp)
 			throws DbException, FormatException;
 
