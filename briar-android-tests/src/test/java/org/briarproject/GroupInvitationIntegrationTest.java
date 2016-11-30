@@ -265,8 +265,8 @@ public class GroupInvitationIntegrationTest extends BriarIntegrationTest {
 				.respondToInvitation(contactId0From1, privateGroup0, true);
 	}
 
-	@Test
-	public void testCreatorLeavesBeforeInvitationAnswered() throws Exception {
+	@Test(expected = ProtocolStateException.class)
+	public void testCreatorLeavesBeforeInvitationAccepted() throws Exception {
 		// Creator invites invitee to join group
 		sendInvitation(clock.currentTimeMillis(), null);
 
@@ -278,7 +278,54 @@ public class GroupInvitationIntegrationTest extends BriarIntegrationTest {
 		groupManager0.removePrivateGroup(privateGroup0.getId());
 		assertEquals(0, groupManager0.getPrivateGroups().size());
 
-		// Invitee responds to invitation
+		// Creator's leave message is delivered to invitee
+		sync0To1(1, true);
+
+		// Invitee accepts invitation, but it's no longer open - exception is
+		// thrown as the action has failed
+		assertEquals(0, groupManager1.getPrivateGroups().size());
+		groupInvitationManager1
+				.respondToInvitation(contactId0From1, privateGroup0, true);
+	}
+
+	@Test
+	public void testCreatorLeavesBeforeInvitationDeclined() throws Exception {
+		// Creator invites invitee to join group
+		sendInvitation(clock.currentTimeMillis(), null);
+
+		// Creator's invite message is delivered to invitee
+		sync0To1(1, true);
+
+		// Creator leaves group
+		assertEquals(1, groupManager0.getPrivateGroups().size());
+		groupManager0.removePrivateGroup(privateGroup0.getId());
+		assertEquals(0, groupManager0.getPrivateGroups().size());
+
+		// Creator's leave message is delivered to invitee
+		sync0To1(1, true);
+
+		// Invitee declines invitation, but it's no longer open - no exception
+		// as the action has succeeded
+		assertEquals(0, groupManager1.getPrivateGroups().size());
+		groupInvitationManager1
+				.respondToInvitation(contactId0From1, privateGroup0, false);
+	}
+
+	@Test
+	public void testCreatorLeavesConcurrentlyWithInvitationAccepted()
+			throws Exception {
+		// Creator invites invitee to join group
+		sendInvitation(clock.currentTimeMillis(), null);
+
+		// Creator's invite message is delivered to invitee
+		sync0To1(1, true);
+
+		// Creator leaves group
+		assertEquals(1, groupManager0.getPrivateGroups().size());
+		groupManager0.removePrivateGroup(privateGroup0.getId());
+		assertEquals(0, groupManager0.getPrivateGroups().size());
+
+		// Invitee accepts invitation
 		assertEquals(0, groupManager1.getPrivateGroups().size());
 		groupInvitationManager1
 				.respondToInvitation(contactId0From1, privateGroup0, true);
@@ -293,7 +340,67 @@ public class GroupInvitationIntegrationTest extends BriarIntegrationTest {
 
 		// Group is marked as dissolved
 		assertTrue(groupManager1.isDissolved(privateGroup0.getId()));
+	}
 
+	@Test
+	public void testCreatorLeavesConcurrentlyWithInvitationDeclined()
+			throws Exception {
+		// Creator invites invitee to join group
+		sendInvitation(clock.currentTimeMillis(), null);
+
+		// Creator's invite message is delivered to invitee
+		sync0To1(1, true);
+
+		// Creator leaves group
+		assertEquals(1, groupManager0.getPrivateGroups().size());
+		groupManager0.removePrivateGroup(privateGroup0.getId());
+		assertEquals(0, groupManager0.getPrivateGroups().size());
+
+		// Invitee declines invitation
+		assertEquals(0, groupManager1.getPrivateGroups().size());
+		groupInvitationManager1
+				.respondToInvitation(contactId0From1, privateGroup0, false);
+		assertEquals(0, groupManager1.getPrivateGroups().size());
+
+		// Invitee's leave message is delivered to creator
+		sync1To0(1, true);
+
+		// Creator's leave message is delivered to invitee
+		sync0To1(1, true);
+	}
+
+	@Test
+	public void testCreatorLeavesConcurrentlyWithMemberLeaving()
+			throws Exception {
+		// Creator invites invitee to join group
+		sendInvitation(clock.currentTimeMillis(), null);
+
+		// Creator's invite message is delivered to invitee
+		sync0To1(1, true);
+
+		// Invitee responds to invitation
+		assertEquals(0, groupManager1.getPrivateGroups().size());
+		groupInvitationManager1
+				.respondToInvitation(contactId0From1, privateGroup0, true);
+		assertEquals(1, groupManager1.getPrivateGroups().size());
+
+		// Invitee's join message is delivered to creator
+		sync1To0(1, true);
+
+		// Creator leaves group
+		assertEquals(1, groupManager0.getPrivateGroups().size());
+		groupManager0.removePrivateGroup(privateGroup0.getId());
+		assertEquals(0, groupManager0.getPrivateGroups().size());
+
+		// Invitee leaves group
+		groupManager1.removePrivateGroup(privateGroup0.getId());
+		assertEquals(0, groupManager1.getPrivateGroups().size());
+
+		// Creator's leave message is delivered to invitee
+		sync0To1(1, true);
+
+		// Invitee's leave message is delivered to creator
+		sync1To0(1, true);
 	}
 
 	private void sendInvitation(long timestamp, @Nullable String msg) throws

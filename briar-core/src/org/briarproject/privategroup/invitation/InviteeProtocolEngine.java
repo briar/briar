@@ -148,10 +148,11 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 			case DISSOLVED:
 				return abort(txn, s); // Invalid in these states
 			case INVITED:
+			case LEFT:
+				return onRemoteLeaveWhenNotSubscribed(txn, s, m);
 			case ACCEPTED:
 			case JOINED:
-			case LEFT:
-				return onRemoteLeave(txn, s, m);
+				return onRemoteLeaveWhenSubscribed(txn, s, m);
 			case ERROR:
 				return s; // Ignored in this state
 			default:
@@ -260,8 +261,23 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 				s.getInviteTimestamp(), JOINED);
 	}
 
-	private InviteeSession onRemoteLeave(Transaction txn, InviteeSession s,
-			LeaveMessage m) throws DbException, FormatException {
+	private InviteeSession onRemoteLeaveWhenNotSubscribed(Transaction txn,
+			InviteeSession s, LeaveMessage m)
+			throws DbException, FormatException {
+		// The timestamp must be higher than the last invite message, if any
+		if (m.getTimestamp() <= s.getInviteTimestamp()) return abort(txn, s);
+		// The dependency, if any, must be the last remote message
+		if (!isValidDependency(s, m.getPreviousMessageId()))
+			return abort(txn, s);
+		// Move to the DISSOLVED state
+		return new InviteeSession(s.getContactGroupId(), s.getPrivateGroupId(),
+				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
+				s.getInviteTimestamp(), DISSOLVED);
+	}
+
+	private InviteeSession onRemoteLeaveWhenSubscribed(Transaction txn,
+			InviteeSession s, LeaveMessage m)
+			throws DbException, FormatException {
 		// The timestamp must be higher than the last invite message, if any
 		if (m.getTimestamp() <= s.getInviteTimestamp()) return abort(txn, s);
 		// The dependency, if any, must be the last remote message
