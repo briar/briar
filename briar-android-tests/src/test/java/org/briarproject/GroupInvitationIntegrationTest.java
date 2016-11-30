@@ -94,28 +94,35 @@ public class GroupInvitationIntegrationTest extends BriarIntegrationTest {
 		Collection<InvitationMessage> messages =
 				groupInvitationManager1.getInvitationMessages(contactId0From1);
 		assertEquals(2, messages.size());
+		boolean foundResponse = false;
 		for (InvitationMessage m : messages) {
 			if (m instanceof GroupInvitationResponse) {
+				foundResponse = true;
 				GroupInvitationResponse response = (GroupInvitationResponse) m;
 				assertEquals(contactId0From1, response.getContactId());
 				assertTrue(response.isLocal());
 				assertFalse(response.wasAccepted());
 			}
 		}
+		assertTrue(foundResponse);
 
 		sync1To0(1, true);
 
 		messages =
 				groupInvitationManager0.getInvitationMessages(contactId1From0);
 		assertEquals(2, messages.size());
+		foundResponse = false;
 		for (InvitationMessage m : messages) {
 			if (m instanceof GroupInvitationResponse) {
+				foundResponse = true;
 				GroupInvitationResponse response = (GroupInvitationResponse) m;
 				assertEquals(contactId0From1, response.getContactId());
 				assertFalse(response.isLocal());
 				assertFalse(response.wasAccepted());
 			}
 		}
+		assertTrue(foundResponse);
+
 		// no invitations are open
 		assertTrue(groupInvitationManager1.getInvitations().isEmpty());
 		// no groups were added
@@ -136,24 +143,31 @@ public class GroupInvitationIntegrationTest extends BriarIntegrationTest {
 		Collection<InvitationMessage> messages =
 				groupInvitationManager1.getInvitationMessages(contactId0From1);
 		assertEquals(2, messages.size());
+		boolean foundResponse = false;
 		for (InvitationMessage m : messages) {
 			if (m instanceof GroupInvitationResponse) {
+				foundResponse = true;
 				GroupInvitationResponse response = (GroupInvitationResponse) m;
 				assertTrue(response.wasAccepted());
 			}
 		}
+		assertTrue(foundResponse);
 
 		sync1To0(1, true);
 
 		messages =
 				groupInvitationManager0.getInvitationMessages(contactId1From0);
 		assertEquals(2, messages.size());
+		foundResponse = false;
 		for (InvitationMessage m : messages) {
 			if (m instanceof GroupInvitationResponse) {
+				foundResponse = true;
 				GroupInvitationResponse response = (GroupInvitationResponse) m;
 				assertTrue(response.wasAccepted());
 			}
 		}
+		assertTrue(foundResponse);
+
 		// no invitations are open
 		assertTrue(groupInvitationManager1.getInvitations().isEmpty());
 		// group was added
