@@ -11,6 +11,7 @@ import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.event.BlogPostAddedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventBus;
+import org.briarproject.api.event.GroupAddedEvent;
 import org.briarproject.api.event.GroupRemovedEvent;
 import org.briarproject.api.identity.Author;
 import org.briarproject.api.identity.IdentityManager;
@@ -33,6 +34,8 @@ class FeedControllerImpl extends BaseControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(FeedControllerImpl.class.getName());
 
+	private volatile FeedListener listener;
+
 	@Inject
 	FeedControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus,
@@ -45,6 +48,7 @@ class FeedControllerImpl extends BaseControllerImpl
 	@Override
 	public void onStart() {
 		super.onStart();
+		if (listener == null) throw new IllegalStateException();
 		notificationManager.blockAllBlogPostNotifications();
 		notificationManager.clearAllBlogPostNotifications();
 	}
@@ -56,11 +60,23 @@ class FeedControllerImpl extends BaseControllerImpl
 	}
 
 	@Override
+	public void setFeedListener(FeedListener listener) {
+		super.setBlogListener(listener);
+		this.listener = listener;
+	}
+
+	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof BlogPostAddedEvent) {
 			BlogPostAddedEvent b = (BlogPostAddedEvent) e;
 			LOG.info("Blog post added");
 			onBlogPostAdded(b.getHeader(), b.isLocal());
+		} else if (e instanceof GroupAddedEvent) {
+			GroupAddedEvent g = (GroupAddedEvent) e;
+			if (g.getGroup().getClientId().equals(CLIENT_ID)) {
+				LOG.info("Blog added");
+				onBlogAdded();
+			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
 			if (g.getGroup().getClientId().equals(CLIENT_ID)) {
@@ -68,6 +84,15 @@ class FeedControllerImpl extends BaseControllerImpl
 				onBlogRemoved();
 			}
 		}
+	}
+
+	private void onBlogAdded() {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
+			public void run() {
+				listener.onBlogAdded();
+			}
+		});
 	}
 
 	@Override

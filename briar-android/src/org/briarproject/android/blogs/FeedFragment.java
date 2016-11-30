@@ -3,6 +3,7 @@ package org.briarproject.android.blogs;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
@@ -17,14 +18,16 @@ import android.view.ViewGroup;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.blogs.BaseController.OnBlogPostAddedListener;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
+import org.briarproject.android.blogs.FeedController.FeedListener;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
 import org.briarproject.android.view.BriarRecyclerView;
 import org.briarproject.api.blogs.Blog;
 import org.briarproject.api.blogs.BlogPostHeader;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
 
 import java.util.Collection;
 import java.util.logging.Logger;
@@ -37,8 +40,11 @@ import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_WRITE_POST;
 
+@UiThread
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class FeedFragment extends BaseFragment implements
-		OnBlogPostClickListener, OnBlogPostAddedListener {
+		OnBlogPostClickListener, FeedListener {
 
 	public final static String TAG = FeedFragment.class.getName();
 	private static final Logger LOG = Logger.getLogger(TAG);
@@ -62,8 +68,9 @@ public class FeedFragment extends BaseFragment implements
 
 	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
@@ -81,7 +88,7 @@ public class FeedFragment extends BaseFragment implements
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
-		feedController.setOnBlogPostAddedListener(this);
+		feedController.setFeedListener(this);
 	}
 
 	@Override
@@ -216,8 +223,8 @@ public class FeedFragment extends BaseFragment implements
 
 	@Override
 	public void onBlogPostClick(BlogPostItem post) {
-		FeedPostPagerFragment f = FeedPostPagerFragment
-				.newInstance(post.getId());
+		FeedPostFragment f =
+				FeedPostFragment.newInstance(post.getGroupId(), post.getId());
 		getActivity().getSupportFragmentManager().beginTransaction()
 				.replace(R.id.content_fragment, f, f.getUniqueTag())
 				.addToBackStack(f.getUniqueTag())
@@ -251,6 +258,11 @@ public class FeedFragment extends BaseFragment implements
 			s.setAction(R.string.blogs_blog_post_scroll_to, onClick);
 		}
 		s.show();
+	}
+
+	@Override
+	public void onBlogAdded() {
+		loadBlogPosts(false);
 	}
 
 	@Override

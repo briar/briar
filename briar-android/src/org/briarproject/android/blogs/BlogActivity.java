@@ -49,7 +49,7 @@ public class BlogActivity extends BriarActivity implements
 
 	@Override
 	public void onBlogPostClick(BlogPostItem post) {
-		BlogPostPagerFragment f = BlogPostPagerFragment.newInstance(post.getId());
+		BlogPostFragment f = BlogPostFragment.newInstance(post.getId());
 		getSupportFragmentManager().beginTransaction()
 				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
 				.addToBackStack(f.getUniqueTag())

@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
@@ -19,7 +20,7 @@ import android.widget.Toast;
 
 import org.briarproject.R;
 import org.briarproject.android.ActivityComponent;
-import org.briarproject.android.blogs.BaseController.OnBlogPostAddedListener;
+import org.briarproject.android.blogs.BaseController.BlogListener;
 import org.briarproject.android.blogs.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.android.fragment.BaseFragment;
@@ -46,10 +47,11 @@ import static org.briarproject.android.BriarActivity.GROUP_ID;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_SHARE;
 import static org.briarproject.android.blogs.BlogActivity.REQUEST_WRITE_POST;
 
+@UiThread
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class BlogFragment extends BaseFragment implements
-		OnBlogPostAddedListener {
+		BlogListener {
 
 	private final static String TAG = BlogFragment.class.getName();
 
@@ -99,7 +101,7 @@ public class BlogFragment extends BaseFragment implements
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
-		blogController.setOnBlogPostAddedListener(this);
+		blogController.setBlogListener(this);
 	}
 
 	@Override
