@@ -74,7 +74,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	private final Group localGroup;
 
 	@Inject
-	protected GroupInvitationManagerImpl(DatabaseComponent db,
+	GroupInvitationManagerImpl(DatabaseComponent db,
 			ClientHelper clientHelper, MetadataParser metadataParser,
 			MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory,
