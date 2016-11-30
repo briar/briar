@@ -25,7 +25,6 @@ import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_CONTACT;
 import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_US;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * This class tests how PrivateGroupManager and GroupInvitationManager
@@ -40,6 +39,7 @@ public class PrivateGroupIntegrationTest extends BriarIntegrationTest {
 			groupInvitationManager1, groupInvitationManager2;
 
 	@Before
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 
@@ -81,15 +81,21 @@ public class PrivateGroupIntegrationTest extends BriarIntegrationTest {
 		// now the group has two members
 		members = groupManager0.getMembers(groupId0);
 		assertEquals(2, members.size());
-		members = groupManager1.getMembers(groupId0);
-		assertEquals(2, members.size());
-
-		// make sure 1's member list is as expected
 		for (GroupMember m : members) {
-			if (m.getStatus() != OURSELVES) {
+			if (m.getStatus() == OURSELVES) {
 				assertEquals(author0.getId(), m.getAuthor().getId());
 			} else {
 				assertEquals(author1.getId(), m.getAuthor().getId());
+			}
+		}
+
+		members = groupManager1.getMembers(groupId0);
+		assertEquals(2, members.size());
+		for (GroupMember m : members) {
+			if (m.getStatus() == OURSELVES) {
+				assertEquals(author1.getId(), m.getAuthor().getId());
+			} else {
+				assertEquals(author0.getId(), m.getAuthor().getId());
 			}
 		}
 	}
@@ -161,12 +167,15 @@ public class PrivateGroupIntegrationTest extends BriarIntegrationTest {
 		sync2To1(1, true);
 		headers = groupManager1.getHeaders(groupId0);
 		assertEquals(4, headers.size());
+		boolean foundPost = false;
 		for (GroupMessageHeader h : headers) {
 			if (h instanceof JoinMessageHeader) continue;
+			foundPost = true;
 			assertEquals(time, h.getTimestamp());
 			assertEquals(groupId0, h.getGroupId());
 			assertEquals(author2.getId(), h.getAuthor().getId());
 		}
+		assertTrue(foundPost);
 
 		// message should sync from 1 to 0 without 2 being involved
 		sync1To0(1, true);
@@ -190,8 +199,7 @@ public class PrivateGroupIntegrationTest extends BriarIntegrationTest {
 		for (GroupMember m : members) {
 			if (m.getAuthor().getId().equals(a)) return m;
 		}
-		fail();
-		throw new RuntimeException();
+		throw new AssertionError();
 	}
 
 }
