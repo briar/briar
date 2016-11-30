@@ -72,6 +72,9 @@ public abstract class BaseFragment extends Fragment
 		ActivityComponent getActivityComponent();
 
 		@UiThread
+		void showNextFragment(BaseFragment f);
+
+		@UiThread
 		void onFragmentCreated(String tag);
 	}
 
@@ -92,4 +95,9 @@ public abstract class BaseFragment extends Fragment
 			});
 		}
 	}
+
+	protected void showNextFragment(BaseFragment f) {
+		listener.showNextFragment(f);
+	}
+
 }

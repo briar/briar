@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -92,8 +93,6 @@ public class IntroductionMessageFragment extends BaseFragment
 		// inflate view
 		View v = inflater.inflate(R.layout.introduction_message, container,
 				false);
-
-		// show progress bar until contacts have been loaded
 		ui = new ViewHolder(v);
 		ui.text.setVisibility(GONE);
 		ui.message.setSendButtonEnabled(false);
@@ -172,6 +171,18 @@ public class IntroductionMessageFragment extends BaseFragment
 				ui.message.showSoftKeyboard();
 			}
 		});
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				introductionActivity.hideSoftKeyboard(ui.message);
+				introductionActivity.onBackPressed();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override

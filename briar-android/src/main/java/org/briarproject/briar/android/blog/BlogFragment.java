@@ -142,30 +142,25 @@ public class BlogFragment extends BaseFragment
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
-		ActivityOptionsCompat options =
-				makeCustomAnimation(getActivity(),
-						android.R.anim.slide_in_left,
-						android.R.anim.slide_out_right);
 		switch (item.getItemId()) {
 			case R.id.action_write_blog_post:
 				Intent i = new Intent(getActivity(),
 						WriteBlogPostActivity.class);
 				i.putExtra(GROUP_ID, groupId.getBytes());
-				startActivityForResult(i, REQUEST_WRITE_POST,
-						options.toBundle());
+				startActivityForResult(i, REQUEST_WRITE_POST);
 				return true;
 			case R.id.action_blog_share:
 				Intent i2 = new Intent(getActivity(), ShareBlogActivity.class);
 				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
-				startActivityForResult(i2, REQUEST_SHARE, options.toBundle());
+				startActivityForResult(i2, REQUEST_SHARE);
 				return true;
 			case R.id.action_blog_sharing_status:
 				Intent i3 = new Intent(getActivity(),
 						BlogSharingStatusActivity.class);
 				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
-				startActivity(i3, options.toBundle());
+				startActivity(i3);
 				return true;
 			case R.id.action_blog_delete:
 				showDeleteDialog();

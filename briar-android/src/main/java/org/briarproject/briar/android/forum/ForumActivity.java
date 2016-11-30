@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
@@ -37,7 +35,6 @@ import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
 
@@ -124,8 +121,6 @@ public class ForumActivity extends
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
-		ActivityOptionsCompat options = makeCustomAnimation(this,
-				android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case R.id.action_forum_compose_post:
@@ -135,14 +130,13 @@ public class ForumActivity extends
 				Intent i2 = new Intent(this, ShareForumActivity.class);
 				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
-				ActivityCompat.startActivityForResult(this, i2,
-						REQUEST_FORUM_SHARED, options.toBundle());
+				startActivityForResult(i2, REQUEST_FORUM_SHARED);
 				return true;
 			case R.id.action_forum_sharing_status:
 				Intent i3 = new Intent(this, ForumSharingStatusActivity.class);
 				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
-				ActivityCompat.startActivity(this, i3, options.toBundle());
+				startActivity(i3);
 				return true;
 			case R.id.action_forum_delete:
 				showUnsubscribeDialog();

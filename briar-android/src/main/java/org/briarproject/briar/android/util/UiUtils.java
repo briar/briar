@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.util;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -36,7 +37,7 @@ public class UiUtils {
 	public static final int TEASER_LENGTH = 320;
 	public static final float GREY_OUT = 0.5f;
 
-	public static void setError(TextInputLayout til, String error,
+	public static void setError(TextInputLayout til, @Nullable String error,
 			boolean set) {
 		if (set) {
 			if (til.getError() == null) til.setError(error);
@@ -116,4 +117,5 @@ public class UiUtils {
 	public static String getBulbTransitionName(ContactId c) {
 		return "bulb" + c.getInt();
 	}
+
 }

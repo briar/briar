@@ -139,7 +139,7 @@ public class ChangePasswordActivity extends BaseActivity
 									R.string.password_changed,
 									Toast.LENGTH_LONG).show();
 							setResult(RESULT_OK);
-							finish();
+							supportFinishAfterTransition();
 						} else {
 							tryAgain();
 						}

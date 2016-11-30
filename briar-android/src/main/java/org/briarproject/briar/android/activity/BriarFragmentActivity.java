@@ -1,8 +1,6 @@
 package org.briarproject.briar.android.activity;
 
-import android.support.annotation.AnimRes;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AlertDialog;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.ContactListFragment;
@@ -49,31 +47,15 @@ public abstract class BriarFragmentActivity extends BriarActivity {
 		else startFragment(fragment, true);
 	}
 
-	protected void showMessageDialog(int titleStringId, int msgStringId) {
-		// TODO replace with custom dialog fragment ?
-		AlertDialog.Builder builder = new AlertDialog.Builder(this,
-				R.style.BriarDialogTheme);
-		builder.setTitle(titleStringId);
-		builder.setMessage(msgStringId);
-		builder.setPositiveButton(R.string.ok, null);
-		AlertDialog dialog = builder.create();
-		dialog.show();
-	}
-
-	public void startFragment(BaseFragment fragment,
-			boolean isAddedToBackStack) {
-		startFragment(fragment, 0, 0, isAddedToBackStack);
-	}
-
-	private void startFragment(BaseFragment fragment,
-			@AnimRes int inAnimation, @AnimRes int outAnimation,
+	protected void startFragment(BaseFragment fragment,
 			boolean isAddedToBackStack) {
 		FragmentTransaction trans =
-				getSupportFragmentManager().beginTransaction();
-		if (inAnimation != 0 && outAnimation != 0) {
-			trans.setCustomAnimations(inAnimation, 0, 0, outAnimation);
-		}
-		trans.replace(R.id.content_fragment, fragment, fragment.getUniqueTag());
+				getSupportFragmentManager().beginTransaction()
+						.setCustomAnimations(R.anim.dialog_in,
+								R.anim.dialog_out, R.anim.dialog_in,
+								R.anim.dialog_out)
+						.replace(R.id.fragmentContainer, fragment,
+								fragment.getUniqueTag());
 		if (isAddedToBackStack) {
 			trans.addToBackStack(fragment.getUniqueTag());
 		}

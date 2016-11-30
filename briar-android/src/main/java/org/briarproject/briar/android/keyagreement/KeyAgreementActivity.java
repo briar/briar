@@ -21,6 +21,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarFragmentActivity;
+import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.keyagreement.IntroFragment.IntroScreenSeenListener;
 
@@ -40,9 +41,6 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 
 	private static final Logger LOG =
 			Logger.getLogger(KeyAgreementActivity.class.getName());
-
-	private static final int STEP_INTRO = 1;
-	private static final int STEP_QR = 2;
 
 	@Inject
 	EventBus eventBus;
@@ -70,18 +68,8 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		getSupportActionBar().setTitle(R.string.add_contact_title);
-		if (state == null) showStep(STEP_INTRO);
-	}
-
-	private void showStep(int step) {
-		switch (step) {
-			case STEP_QR:
-				startFragment(ShowQrCodeFragment.newInstance(), true);
-				break;
-			case STEP_INTRO:
-			default:
-				startFragment(IntroFragment.newInstance(), true);
-				break;
+		if (state == null) {
+			showInitialFragment(IntroFragment.newInstance());
 		}
 	}
 
@@ -109,17 +97,14 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 	}
 
 	@Override
-	public void onBackPressed() {
-		if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
-			supportFinishAfterTransition();
-		} else {
-			super.onBackPressed();
-		}
-	}
-
-	@Override
 	public void showNextScreen() {
-		showStep(STEP_QR);
+		// FIXME with #288
+//		showNextFragment(ShowQrCodeFragment.newInstance());
+		BaseFragment f = ShowQrCodeFragment.newInstance();
+		getSupportFragmentManager().beginTransaction()
+				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
+				.addToBackStack(f.getUniqueTag())
+				.commit();
 	}
 
 	@Override
@@ -173,7 +158,7 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 				String text = String.format(format, contactName);
 				Toast.makeText(KeyAgreementActivity.this, text, LENGTH_LONG)
 						.show();
-				finish();
+				supportFinishAfterTransition();
 			}
 		});
 	}

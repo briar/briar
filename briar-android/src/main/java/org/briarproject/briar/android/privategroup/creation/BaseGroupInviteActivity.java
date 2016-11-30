@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.briar.R;
 import org.briarproject.briar.android.contactselection.ContactSelectorActivity;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.sharing.BaseMessageFragment.MessageFragmentListener;
@@ -27,15 +26,7 @@ public abstract class BaseGroupInviteActivity
 	public void contactsSelected(Collection<ContactId> contacts) {
 		super.contactsSelected(contacts);
 
-		CreateGroupMessageFragment fragment = new CreateGroupMessageFragment();
-		getSupportFragmentManager().beginTransaction()
-				.setCustomAnimations(android.R.anim.fade_in,
-						android.R.anim.fade_out,
-						android.R.anim.slide_in_left,
-						android.R.anim.slide_out_right)
-				.replace(R.id.fragmentContainer, fragment)
-				.addToBackStack(fragment.getUniqueTag())
-				.commit();
+		showNextFragment(new CreateGroupMessageFragment());
 	}
 
 	@Override

@@ -126,7 +126,7 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 							Intent intent = new Intent(Intent.ACTION_VIEW);
 							intent.setData(Uri.parse(
 									"market://details?id=info.guardianproject.ripple"));
-							getActivity().startActivity(intent);
+							startActivity(intent);
 							return true;
 						}
 					});

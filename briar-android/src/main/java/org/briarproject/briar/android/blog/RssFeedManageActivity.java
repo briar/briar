@@ -3,8 +3,6 @@ package org.briarproject.briar.android.blog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,7 +24,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
-import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static java.util.logging.Level.WARNING;
 
 public class RssFeedManageActivity extends BriarActivity
@@ -89,13 +86,9 @@ public class RssFeedManageActivity extends BriarActivity
 				onBackPressed();
 				return true;
 			case R.id.action_rss_feeds_import:
-				Intent i =
-						new Intent(this, RssFeedImportActivity.class);
+				Intent i = new Intent(this, RssFeedImportActivity.class);
 				i.putExtra(GROUP_ID, groupId.getBytes());
-				ActivityOptionsCompat options =
-						makeCustomAnimation(this, android.R.anim.slide_in_left,
-								android.R.anim.slide_out_right);
-				ActivityCompat.startActivity(this, i, options.toBundle());
+				startActivity(i);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);

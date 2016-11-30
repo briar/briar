@@ -10,7 +10,6 @@
   <string name="password_too_weak">A senha está muito fraca</string>
   <string name="passwords_do_not_match">As senhas não conferem</string>
   <string name="create_account_button">Criar conta</string>
-  <string name="progress_title_please_wait">Por favor, aguarde</string>
   <!--Login-->
   <string name="enter_password">Insira sua senha:</string>
   <string name="try_again">Senha Incorreta, tente novamente</string>
@@ -24,8 +23,6 @@
   <string name="startup_failed_db_error">Por alguma razão, seus dados do Briar estão corrompidos e não podem ser reparados. Sua conta, seus dados e todas suas conexões com contatos estão perdidas. Infelizmente você terá que resintalar o Briar e criar uma nova conta.</string>
   <string name="startup_failed_service_error">O Briar não pode iniciar devido a um plugin. Reinstalar o Briar geralmente resolve esse problema. Porém, note que ao fazer isso você perderá sua conta e todos os dados associados a ela,  já que o Briar não usa um servidor central para armazenar seus dados.</string>
   <string name="expiry_warning">Esse programa expirou.\nPor favor instale uma versão mais recente.</string>
-  <string name="dialog_title_welcome">Bem-vindo ao Briar</string>
-  <string name="dialog_welcome_message">Adicione um contato para começar uma comunicação segura ou pressione o ícone na parte superior direita da tela para mais opções.</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Abrir aba de navegação</string>
   <string name="nav_drawer_close_description">Fechar aba de navegação</string>
@@ -95,7 +92,6 @@
   <string name="searching_format">Procurando por contato com código de convite %06d\u2026</string>
   <string name="connection_failed">Conexão incompleta</string>
   <string name="could_not_find_contact">Briar não conseguiu achar nenhum contato por perto</string>
-  <string name="could_not_open_camera">Não foi possível acessar sua câmera. Por favor tente novamente!</string>
   <string name="try_again_button">Tente novamente</string>
   <string name="connected_to_contact">Conectado ao contato</string>
   <string name="calculating_confirmation_code">Calculando código de confirmação\u2026</string>
@@ -125,7 +121,6 @@
   <string name="introduction_sent">Sua Introdução foi enviada.</string>
   <string name="introduction_error">Houve um erro ao fazer a apresentação</string>
   <string name="introduction_response_error">Erro ao responder à apresentação</string>
-  <string name="dialog_button_introduce">Apresentar</string>
   <string name="introduction_request_sent">Você recebeu um pedido para apresentar %1$s a %2$s.</string>
   <string name="introduction_request_received">%1$s pediu para apresentar você a %2$s. Você quer adicionar %2$s a sua lista de contatos?</string>
   <string name="introduction_request_exists_received">%1$s pediu para apresentar você a %2$s, mas %2$s já está na sua lista de contatos. Já que %1$s não sabe disso, você ainda pode responder:</string>
@@ -150,7 +145,6 @@
   <string name="groups_group_is_dissolved">Esse grupo foi dissolvido</string>
   <string name="groups_remove">Remover</string>
   <string name="groups_create_group_title">Criar Grupo Privado</string>
-  <string name="groups_no_messages">Esse grupo está vazio.\n\nVocê pode usar o ícone da caneta no topo para escrever a primeira mensagem.</string>
   <string name="groups_create_group_button">Criar Grupo</string>
   <string name="groups_create_group_invitation_button">Enviar Convite</string>
   <string name="groups_create_group_hint">Adicionar um nome para seu grupo privado</string>
@@ -278,7 +272,6 @@
   <string name="blogs_sharing_invitation_received">%1$s compartilhou o blog %2$s com você.</string>
   <string name="blogs_sharing_invitation_sent">Você compartilhou o blog de %1$s com %2$s.</string>
   <string name="blogs_sharing_invitations_title">Convites para Fóruns</string>
-  <string name="blogs_sharing_exists">Você já está inscrito neste blog. Aceitando novamente pode tornar mais rápida a entrega dos posts.</string>
   <string name="blogs_sharing_joined_toast">Inscrito neste Blog</string>
   <string name="blogs_sharing_declined_toast">Convite do Blog recusado</string>
   <!--RSS Feeds-->

@@ -158,7 +158,7 @@ public class CreateForumActivity extends BriarActivity
 				startActivity(i);
 				Toast.makeText(CreateForumActivity.this,
 						R.string.forum_created_toast, LENGTH_LONG).show();
-				finish();
+				supportFinishAfterTransition();
 			}
 		});
 	}

@@ -120,7 +120,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 						ContactId contactId = item.getContact().getId();
 						i.putExtra(CONTACT_ID, contactId.getInt());
 
-						// work-around for android bug #224270
 						if (Build.VERSION.SDK_INT >= 23) {
 							ContactListItemViewHolder holder =
 									(ContactListItemViewHolder) list
@@ -140,7 +139,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 							ActivityCompat.startActivity(getActivity(), i,
 									options.toBundle());
 						} else {
-							getActivity().startActivity(i);
+							// work-around for android bug #224270
+							startActivity(i);
 						}
 					}
 				};

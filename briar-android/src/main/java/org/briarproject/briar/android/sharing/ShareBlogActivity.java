@@ -41,10 +41,7 @@ public class ShareBlogActivity extends ShareActivity {
 		super.onCreate(bundle);
 
 		if (bundle == null) {
-			ShareBlogFragment fragment = ShareBlogFragment.newInstance(groupId);
-			getSupportFragmentManager().beginTransaction()
-					.add(R.id.fragmentContainer, fragment)
-					.commit();
+			showInitialFragment(ShareBlogFragment.newInstance(groupId));
 		}
 	}
 

@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contactselection.ContactSelectorActivity;
-import org.briarproject.briar.android.contactselection.ContactSelectorFragment;
 import org.briarproject.briar.android.sharing.BaseMessageFragment.MessageFragmentListener;
 
 import java.util.Collection;
@@ -36,17 +35,7 @@ public abstract class ShareActivity extends ContactSelectorActivity
 	@Override
 	public void contactsSelected(Collection<ContactId> contacts) {
 		super.contactsSelected(contacts);
-
-		BaseMessageFragment messageFragment = getMessageFragment();
-		getSupportFragmentManager().beginTransaction()
-				.setCustomAnimations(android.R.anim.fade_in,
-						android.R.anim.fade_out,
-						android.R.anim.slide_in_left,
-						android.R.anim.slide_out_right)
-				.replace(R.id.fragmentContainer, messageFragment,
-						ContactSelectorFragment.TAG)
-				.addToBackStack(null)
-				.commit();
+		showNextFragment(getMessageFragment());
 	}
 
 	abstract BaseMessageFragment getMessageFragment();

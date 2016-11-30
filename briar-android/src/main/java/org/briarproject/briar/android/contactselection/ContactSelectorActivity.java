@@ -1,11 +1,9 @@
 package org.briarproject.briar.android.contactselection;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.UiThread;
-import android.transition.Fade;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -38,10 +36,6 @@ public abstract class ContactSelectorActivity
 		super.onCreate(bundle);
 
 		setContentView(getLayout());
-
-		if (Build.VERSION.SDK_INT >= 21) {
-			getWindow().setExitTransition(new Fade());
-		}
 
 		if (bundle != null) {
 			// restore group ID if it was saved

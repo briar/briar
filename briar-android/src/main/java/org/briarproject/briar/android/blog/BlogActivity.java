@@ -57,10 +57,7 @@ public class BlogActivity extends BriarActivity implements
 		}
 
 		if (state == null) {
-			BlogFragment f = BlogFragment.newInstance(groupId);
-			getSupportFragmentManager().beginTransaction()
-					.replace(R.id.fragmentContainer, f, f.getUniqueTag())
-					.commit();
+			showInitialFragment(BlogFragment.newInstance(groupId));
 		}
 	}
 
@@ -72,10 +69,7 @@ public class BlogActivity extends BriarActivity implements
 	@Override
 	public void onBlogPostClick(BlogPostItem post) {
 		BlogPostFragment f = BlogPostFragment.newInstance(post.getId());
-		getSupportFragmentManager().beginTransaction()
-				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
-				.addToBackStack(f.getUniqueTag())
-				.commit();
+		showNextFragment(f);
 	}
 
 	@Override

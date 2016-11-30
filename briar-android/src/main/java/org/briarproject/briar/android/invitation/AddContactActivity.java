@@ -151,7 +151,7 @@ public class AddContactActivity extends BriarActivity
 		String format = getString(R.string.contact_added_toast);
 		String text = String.format(format, contactName);
 		Toast.makeText(this, text, LENGTH_LONG).show();
-		finish();
+		supportFinishAfterTransition();
 	}
 
 	@Override

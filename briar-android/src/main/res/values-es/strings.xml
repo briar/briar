@@ -10,7 +10,6 @@
   <string name="password_too_weak">La contraseña es demasiado débil</string>
   <string name="passwords_do_not_match">Las contraseñas no coinciden</string>
   <string name="create_account_button">Registrar una nueva cuenta</string>
-  <string name="progress_title_please_wait">Espera, por favor</string>
   <!--Login-->
   <string name="enter_password">Introduce tu contraseña:</string>
   <string name="try_again">Contraseña incorrecta, inténtalo de nuevo</string>
@@ -24,8 +23,6 @@
   <string name="startup_failed_db_error">Por alguna razón, la base de datos de Briar ha sufrido daños irreparables. Tu cuenta, tus datos y todos tus contactos se han perdido. Desafortunadamente, tendrás que reinstalar Briar y registrar una nueva cuenta.</string>
   <string name="startup_failed_service_error">Briar no pudo iniciar un complemento necesario. Reinstalar Briar suele solucionar el problema. Sin embargo, ten en cuenta que perderás tu cuenta y todos los datos asociados ya que Briar no almacena esta información en ningún servidor centrar.</string>
   <string name="expiry_warning">Esta versión ha caducado.\nInstala una más reciente, por favor.</string>
-  <string name="dialog_title_welcome">Bienvenido a Briar</string>
-  <string name="dialog_welcome_message">Añade un contacto para empezar a comunicarte de forma segura o pulsa el icono de la esquina superior izquierda de la pantalla para otras opciones.</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Abrir el panel de navegación</string>
   <string name="nav_drawer_close_description">Cierra el panel de navegación</string>
@@ -94,7 +91,6 @@
   <string name="searching_format">Buscando el contacto con el código de invitación %06d\u2026</string>
   <string name="connection_failed">La conexión falló</string>
   <string name="could_not_find_contact">Briar no pudo encontrar a tu contacto cerca</string>
-  <string name="could_not_open_camera">No se pudo acceder a la cámara. ¡Prueba de nuevo, por favor!</string>
   <string name="try_again_button">Prueba de nuevo</string>
   <string name="connected_to_contact">Conectado con el contacto</string>
   <string name="calculating_confirmation_code">Calculando código de confirmación\u2026</string>
@@ -124,7 +120,6 @@
   <string name="introduction_sent">Tu presentación se ha mandado.</string>
   <string name="introduction_error">Ocurrió un error realizando la presentación.</string>
   <string name="introduction_response_error">Error al responder a la presentación</string>
-  <string name="dialog_button_introduce">Presentar</string>
   <string name="introduction_request_sent">Has pedido presentar a %1$s a %2$s.</string>
   <string name="introduction_request_received">%1$s ha pedido presentarte a %2$s. ¿Quieres añadir a %2$s a tu lista de contactos?</string>
   <string name="introduction_request_exists_received">%1$s ha pedido presentarte a %2$s, pero %2$s ya está en tu lista de contactos. %1$s puede no saberlo, así que puedes responderle de todas maneras:</string>
@@ -149,7 +144,6 @@
   <string name="groups_group_is_dissolved">Este grupo ha sido disuelto</string>
   <string name="groups_remove">Eliminar</string>
   <string name="groups_create_group_title">Crear grupo privado</string>
-  <string name="groups_no_messages">Este grupo está vacío.\n\nPuedes usar el icono del lápiz arriba para escribir el primer mensaje.</string>
   <string name="groups_create_group_button">Crear grupo</string>
   <string name="groups_create_group_invitation_button">Enviar invitación</string>
   <string name="groups_create_group_hint">Dar nombre al grupo privado</string>
@@ -277,7 +271,6 @@
   <string name="blogs_sharing_invitation_received">%1$s ha compartido el blog personal de %2$s contigo.</string>
   <string name="blogs_sharing_invitation_sent">Has compartido el blog personal de %1$s con %2$s.</string>
   <string name="blogs_sharing_invitations_title">Invitaciones a blogs</string>
-  <string name="blogs_sharing_exists">Ya estás suscrito a este blog. Aceptar la invitación de nuevo conllevará una mejora de la velocidad en la recepción de los artículos.</string>
   <string name="blogs_sharing_joined_toast">Suscrito al blog</string>
   <string name="blogs_sharing_declined_toast">Rechazada invitación al blog</string>
   <!--RSS Feeds-->
