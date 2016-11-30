@@ -31,6 +31,7 @@ public class GroupInvitationIntegrationTest extends BriarIntegrationTest {
 			groupInvitationManager1;
 
 	@Before
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 
@@ -252,18 +253,33 @@ public class GroupInvitationIntegrationTest extends BriarIntegrationTest {
 
 	@Test
 	public void testCreatorLeavesBeforeInvitationAnswered() throws Exception {
+		// Creator invites invitee to join group
 		sendInvitation(clock.currentTimeMillis(), null);
+
+		// Creator's invite message is delivered to invitee
 		sync0To1(1, true);
 
+		// Creator leaves group
+		assertEquals(1, groupManager0.getPrivateGroups().size());
 		groupManager0.removePrivateGroup(privateGroup0.getId());
 		assertEquals(0, groupManager0.getPrivateGroups().size());
-//		sync0To1(1, true);
-		// FIXME
+
+		// Invitee responds to invitation
+		assertEquals(0, groupManager1.getPrivateGroups().size());
 		groupInvitationManager1
 				.respondToInvitation(contactId0From1, privateGroup0, true);
+		assertEquals(1, groupManager1.getPrivateGroups().size());
+		assertFalse(groupManager1.isDissolved(privateGroup0.getId()));
+
+		// Invitee's join message is delivered to creator
 		sync1To0(1, true);
 
-		assertEquals(0, groupManager1.getPrivateGroups().size());
+		// Creator's leave message is delivered to invitee
+		sync0To1(1, true);
+
+		// Group is marked as dissolved
+		assertTrue(groupManager1.isDissolved(privateGroup0.getId()));
+
 	}
 
 	private void sendInvitation(long timestamp, @Nullable String msg) throws
