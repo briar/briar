@@ -8,7 +8,6 @@ import org.briarproject.api.clients.BdfMessageContext;
 import org.briarproject.api.data.BdfDictionary;
 import org.briarproject.api.data.BdfList;
 import org.briarproject.api.identity.Author;
-import org.briarproject.api.identity.AuthorFactory;
 import org.briarproject.api.identity.AuthorId;
 import org.briarproject.api.sync.InvalidMessageException;
 import org.briarproject.api.sync.MessageId;
@@ -28,9 +27,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class ForumPostValidatorTest extends ValidatorTestCase {
-
-	private final AuthorFactory authorFactory =
-			context.mock(AuthorFactory.class);
 
 	private final MessageId parentId = new MessageId(TestUtils.getRandomId());
 	private final String authorName =
