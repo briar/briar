@@ -1,6 +1,6 @@
 package org.briarproject.bramble.identity;
 
-import org.briarproject.BriarTestCase;
+import org.briarproject.BriarMockTestCase;
 import org.briarproject.TestUtils;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -12,48 +12,73 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.Author.Status.UNKNOWN;
 import static org.briarproject.bramble.api.identity.Author.Status.UNVERIFIED;
 import static org.briarproject.bramble.api.identity.Author.Status.VERIFIED;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
-public class IdentityManagerImplTest extends BriarTestCase {
+public class IdentityManagerImplTest extends BriarMockTestCase {
 
-	private final Mockery context;
 	private final IdentityManager identityManager;
-	private final DatabaseComponent db;
-	private final Transaction txn;
+	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
+	private final Transaction txn = new Transaction(null, false);
+	private final LocalAuthor localAuthor =
+			new LocalAuthor(new AuthorId(TestUtils.getRandomId()),
+					TestUtils.getRandomString(8), TestUtils.getRandomBytes(42),
+					TestUtils.getRandomBytes(42), 0);
+	private final Collection<LocalAuthor> localAuthors =
+			Collections.singletonList(localAuthor);
 
 	public IdentityManagerImplTest() {
-		context = new Mockery();
-		db = context.mock(DatabaseComponent.class);
-		txn = new Transaction(null, false);
 		identityManager = new IdentityManagerImpl(db);
 	}
 
 	@Test
-	public void testUnitTestsExist() {
-		fail(); // FIXME: Write more tests
+	public void testRegisterLocalAuthor() throws DbException {
+		expectRegisterLocalAuthor();
+		identityManager.registerLocalAuthor(localAuthor);
+	}
+
+	private void expectRegisterLocalAuthor() throws DbException {
+		context.checking(new Expectations() {{
+			oneOf(db).startTransaction(false);
+			will(returnValue(txn));
+			oneOf(db).addLocalAuthor(txn, localAuthor);
+			oneOf(db).commitTransaction(txn);
+			oneOf(db).endTransaction(txn);
+		}});
+	}
+
+	@Test
+	public void testGetLocalAuthor() throws DbException {
+		context.checking(new Expectations() {{
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn));
+			oneOf(db).getLocalAuthors(txn);
+			will(returnValue(localAuthors));
+			oneOf(db).commitTransaction(txn);
+			oneOf(db).endTransaction(txn);
+		}});
+		assertEquals(localAuthor, identityManager.getLocalAuthor());
+	}
+
+	@Test
+	public void testGetCachedLocalAuthor() throws DbException {
+		expectRegisterLocalAuthor();
+		identityManager.registerLocalAuthor(localAuthor);
+		assertEquals(localAuthor, identityManager.getLocalAuthor());
 	}
 
 	@Test
 	public void testGetAuthorStatus() throws DbException {
 		final AuthorId authorId = new AuthorId(TestUtils.getRandomId());
-		final Collection<LocalAuthor> localAuthors = new ArrayList<>();
-		LocalAuthor localAuthor =
-				new LocalAuthor(new AuthorId(TestUtils.getRandomId()),
-						TestUtils.getRandomString(8),
-						TestUtils.getRandomBytes(42),
-						TestUtils.getRandomBytes(42), 0);
-		localAuthors.add(localAuthor);
 		final Collection<Contact> contacts = new ArrayList<>();
 
 		context.checking(new Expectations() {{
@@ -96,8 +121,6 @@ public class IdentityManagerImplTest extends BriarTestCase {
 		}});
 		assertEquals(OURSELVES,
 				identityManager.getAuthorStatus(localAuthor.getId()));
-
-		context.assertIsSatisfied();
 	}
 
 	private void checkAuthorStatusContext(final AuthorId authorId,
