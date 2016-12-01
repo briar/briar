@@ -3,8 +3,8 @@ host = https://www.transifex.com
 lang_map = pt_BR: pt-rBR, fr_FR: fr
 
 [briar.stringsxml-5]
-file_filter = res/values-<lang>/strings.xml
-source_file = res/values/strings.xml
+file_filter = src/main/res/values-<lang>/strings.xml
+source_file = src/main/res/values/strings.xml
 source_lang = en
 type = ANDROID
 minimum_perc = 25
