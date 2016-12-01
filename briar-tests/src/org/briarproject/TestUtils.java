@@ -1,12 +1,12 @@
 package org.briarproject;
 
-import org.briarproject.api.UniqueId;
-import org.briarproject.api.clients.MessageTracker;
-import org.briarproject.api.clients.MessageTracker.GroupCount;
-import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.sync.GroupId;
-import org.briarproject.util.IoUtils;
+import org.briarproject.bramble.api.UniqueId;
+import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.util.IoUtils;
+import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 
 import java.io.File;
 import java.util.Random;

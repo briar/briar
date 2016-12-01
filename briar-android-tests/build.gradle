@@ -18,12 +18,10 @@ android {
 }
 
 dependencies {
-    testCompile project(':briar-api')
-    testCompile project(':briar-core')
+    testCompile project(':briar-tests')
     testCompile 'junit:junit:4.12'
     testCompile 'net.jodah:concurrentunit:0.4.2'
     testCompile 'com.android.support:appcompat-v7:23.2.1'
     testApt 'com.google.dagger:dagger-compiler:2.0.2'
     provided 'javax.annotation:jsr250-api:1.0'
-    testCompile project(':briar-tests')
 }

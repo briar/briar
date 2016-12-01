@@ -1,8 +1,8 @@
 package org.briarproject;
 
-import org.briarproject.crypto.CryptoModule;
-import org.briarproject.sync.SyncModule;
-import org.briarproject.transport.TransportModule;
+import org.briarproject.bramble.crypto.CryptoModule;
+import org.briarproject.bramble.sync.SyncModule;
+import org.briarproject.bramble.transport.TransportModule;
 
 import javax.inject.Singleton;
 
@@ -15,6 +15,7 @@ import dagger.Component;
 		SyncModule.class,
 		TransportModule.class
 })
-public interface SyncIntegrationTestComponent {
+interface SyncIntegrationTestComponent {
+
 	void inject(SyncIntegrationTest testCase);
 }

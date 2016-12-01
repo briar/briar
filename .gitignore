@@ -21,3 +21,5 @@ local.properties
 .gradle
 build/
 *.iml
+.gitignore
+src/test/

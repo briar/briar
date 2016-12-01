@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_activity_horizontal"
+			android:orientation="vertical">
+
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
+
+				<LinearLayout
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_toLeftOf="@+id/introductionIcon"
+					android:gravity="top|center_horizontal"
+					android:orientation="vertical">
+
+					<de.hdodenhof.circleimageview.CircleImageView
+						android:id="@+id/avatarContact1"
+						style="@style/BriarAvatar"
+						android:layout_width="@dimen/listitem_picture_size"
+						android:layout_height="@dimen/listitem_picture_size"
+						android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+						android:layout_marginLeft="@dimen/listitem_horizontal_margin"
+						android:layout_marginRight="@dimen/listitem_horizontal_margin"
+						android:layout_marginStart="@dimen/listitem_horizontal_margin"
+						tools:src="@drawable/ic_launcher"/>
+
+					<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+						android:id="@+id/nameContact1"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginTop="@dimen/margin_small"
+						android:gravity="center"
+						android:textColor="@color/briar_text_primary"
+						android:textSize="@dimen/text_size_tiny"
+						tools:text="Contact 1"/>
+
+				</LinearLayout>
+
+				<ImageView
+					android:id="@+id/introductionIcon"
+					android:layout_width="@dimen/listitem_picture_size"
+					android:layout_height="@dimen/listitem_picture_size"
+					android:layout_centerHorizontal="true"
+					android:src="@drawable/ic_contact_introduction"
+					tools:ignore="ContentDescription"/>
+
+				<LinearLayout
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_toEndOf="@+id/introductionIcon"
+					android:layout_toRightOf="@+id/introductionIcon"
+					android:gravity="top|center_horizontal"
+					android:orientation="vertical">
+
+					<de.hdodenhof.circleimageview.CircleImageView
+						android:id="@+id/avatarContact2"
+						style="@style/BriarAvatar"
+						android:layout_width="@dimen/listitem_picture_size"
+						android:layout_height="@dimen/listitem_picture_size"
+						android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+						android:layout_marginLeft="@dimen/listitem_horizontal_margin"
+						android:layout_marginRight="@dimen/listitem_horizontal_margin"
+						android:layout_marginStart="@dimen/listitem_horizontal_margin"
+						android:transitionName="avatar"
+						tools:src="@drawable/ic_launcher"/>
+
+					<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+						android:id="@+id/nameContact2"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginTop="@dimen/margin_small"
+						android:gravity="center"
+						android:textColor="@color/briar_text_primary"
+						android:textSize="@dimen/text_size_tiny"
+						tools:text="Contact 2"/>
+
+				</LinearLayout>
+
+			</RelativeLayout>
+
+			<ProgressBar
+				android:id="@+id/progressBar"
+				style="?android:attr/progressBarStyleLarge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				tools:visibility="gone"/>
+
+			<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+				android:id="@+id/introductionText"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/margin_activity_horizontal"
+				android:textColor="@color/briar_text_secondary"
+				android:textSize="@dimen/text_size_medium"
+				tools:text="@string/introduction_message_text"/>
+
+		</LinearLayout>
+
+	</ScrollView>
+
+	<org.briarproject.briar.android.view.LargeTextInputView
+		android:id="@+id/introductionMessageView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:buttonText="@string/introduction_button"
+		app:hint="@string/introduction_message_hint"
+		app:maxLines="5"/>
+
+</LinearLayout>

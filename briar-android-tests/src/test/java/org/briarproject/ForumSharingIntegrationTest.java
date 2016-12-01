@@ -2,28 +2,29 @@ package org.briarproject;
 
 import net.jodah.concurrentunit.Waiter;
 
-import org.briarproject.api.Bytes;
-import org.briarproject.api.clients.MessageQueueManager;
-import org.briarproject.api.clients.SessionId;
-import org.briarproject.api.contact.Contact;
-import org.briarproject.api.data.BdfList;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.Metadata;
-import org.briarproject.api.db.Transaction;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.ForumInvitationReceivedEvent;
-import org.briarproject.api.event.ForumInvitationResponseReceivedEvent;
-import org.briarproject.api.forum.Forum;
-import org.briarproject.api.forum.ForumInvitationRequest;
-import org.briarproject.api.forum.ForumInvitationResponse;
-import org.briarproject.api.forum.ForumManager;
-import org.briarproject.api.forum.ForumPost;
-import org.briarproject.api.forum.ForumPostHeader;
-import org.briarproject.api.forum.ForumSharingManager;
-import org.briarproject.api.sharing.InvitationMessage;
-import org.briarproject.api.sharing.SharingInvitationItem;
-import org.briarproject.api.sync.Group;
+import org.briarproject.bramble.api.Bytes;
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Metadata;
+import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventListener;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.briar.api.client.MessageQueueManager;
+import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.forum.Forum;
+import org.briarproject.briar.api.forum.ForumInvitationRequest;
+import org.briarproject.briar.api.forum.ForumInvitationResponse;
+import org.briarproject.briar.api.forum.ForumManager;
+import org.briarproject.briar.api.forum.ForumPost;
+import org.briarproject.briar.api.forum.ForumPostHeader;
+import org.briarproject.briar.api.forum.ForumSharingManager;
+import org.briarproject.briar.api.forum.event.ForumInvitationRequestReceivedEvent;
+import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
+import org.briarproject.briar.api.sharing.InvitationMessage;
+import org.briarproject.briar.api.sharing.SharingInvitationItem;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,14 +34,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.briarproject.api.forum.ForumConstants.FORUM_SALT_LENGTH;
-import static org.briarproject.api.forum.ForumSharingManager.CLIENT_ID;
-import static org.briarproject.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;
+import static junit.framework.Assert.assertNotNull;
+import static org.briarproject.briar.api.forum.ForumConstants.FORUM_SALT_LENGTH;
+import static org.briarproject.briar.api.forum.ForumSharingManager.CLIENT_ID;
+import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class ForumSharingIntegrationTest extends BriarIntegrationTest {
+public class ForumSharingIntegrationTest
+		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
 	private ForumManager forumManager0, forumManager1;
 	private SharerListener listener0, listener2;
@@ -74,6 +77,25 @@ public class ForumSharingIntegrationTest extends BriarIntegrationTest {
 
 		addContacts1And2();
 		addForumForSharer();
+	}
+
+	@Override
+	protected void createComponents() {
+		BriarIntegrationTestComponent component =
+				DaggerBriarIntegrationTestComponent.builder().build();
+		component.inject(this);
+
+		c0 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t0Dir)).build();
+		injectEagerSingletons(c0);
+
+		c1 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
+		injectEagerSingletons(c1);
+
+		c2 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
+		injectEagerSingletons(c2);
 	}
 
 	private void addForumForSharer() throws DbException {
@@ -633,6 +655,7 @@ public class ForumSharingIntegrationTest extends BriarIntegrationTest {
 		assertEquals(2, contacts.size());
 
 		// answer second request
+		assertNotNull(contactId2From1);
 		Contact contact2From1 = contactManager1.getContact(contactId2From1);
 		forumSharingManager1.respondToInvitation(forum0, contact2From1, true);
 		// sync response
@@ -752,6 +775,7 @@ public class ForumSharingIntegrationTest extends BriarIntegrationTest {
 		assertTrue(found);
 	}
 
+	@NotNullByDefault
 	private class SharerListener implements EventListener {
 
 		private volatile boolean requestReceived = false;
@@ -764,9 +788,9 @@ public class ForumSharingIntegrationTest extends BriarIntegrationTest {
 				eventWaiter.resume();
 			}
 			// this is only needed for tests where a forum is re-shared
-			else if (e instanceof ForumInvitationReceivedEvent) {
-				ForumInvitationReceivedEvent event =
-						(ForumInvitationReceivedEvent) e;
+			else if (e instanceof ForumInvitationRequestReceivedEvent) {
+				ForumInvitationRequestReceivedEvent event =
+						(ForumInvitationRequestReceivedEvent) e;
 				eventWaiter.assertEquals(contactId1From0, event.getContactId());
 				requestReceived = true;
 				Forum f = event.getShareable();
@@ -782,6 +806,7 @@ public class ForumSharingIntegrationTest extends BriarIntegrationTest {
 		}
 	}
 
+	@NotNullByDefault
 	private class InviteeListener implements EventListener {
 
 		private volatile boolean requestReceived = false;
@@ -800,9 +825,9 @@ public class ForumSharingIntegrationTest extends BriarIntegrationTest {
 
 		@Override
 		public void eventOccurred(Event e) {
-			if (e instanceof ForumInvitationReceivedEvent) {
-				ForumInvitationReceivedEvent event =
-						(ForumInvitationReceivedEvent) e;
+			if (e instanceof ForumInvitationRequestReceivedEvent) {
+				ForumInvitationRequestReceivedEvent event =
+						(ForumInvitationRequestReceivedEvent) e;
 				requestReceived = true;
 				if (!answer) return;
 				Forum f = event.getShareable();

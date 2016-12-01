@@ -1,10 +1,12 @@
 package org.briarproject;
 
-import org.briarproject.api.crypto.SecretKey;
-import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.File;
 
+@NotNullByDefault
 public class TestDatabaseConfig implements DatabaseConfig {
 
 	private final File dir;

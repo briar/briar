@@ -1,28 +1,28 @@
 package org.briarproject;
 
-import org.briarproject.api.UniqueId;
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.crypto.PrivateKey;
-import org.briarproject.api.forum.ForumConstants;
-import org.briarproject.api.forum.ForumPost;
-import org.briarproject.api.forum.ForumPostFactory;
-import org.briarproject.api.identity.AuthorFactory;
-import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.messaging.PrivateMessage;
-import org.briarproject.api.messaging.PrivateMessageFactory;
-import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageId;
-import org.briarproject.system.SystemModule;
-import org.briarproject.util.StringUtils;
+import org.briarproject.bramble.api.UniqueId;
+import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.identity.AuthorFactory;
+import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.system.SystemModule;
+import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.briar.api.forum.ForumConstants;
+import org.briarproject.briar.api.forum.ForumPost;
+import org.briarproject.briar.api.forum.ForumPostFactory;
+import org.briarproject.briar.api.messaging.PrivateMessage;
+import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.junit.Test;
 
 import javax.inject.Inject;
 
-import static org.briarproject.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
-import static org.briarproject.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
-import static org.briarproject.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
+import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
 import static org.junit.Assert.assertTrue;
 
 public class MessageSizeIntegrationTest extends BriarTestCase {
@@ -40,7 +40,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		MessageSizeIntegrationTestComponent component =
 				DaggerMessageSizeIntegrationTestComponent.builder().build();
 		component.inject(this);
-		component.inject(new SystemModule.EagerSingletons());
+		injectEagerSingletons(component);
 	}
 
 	@Test
@@ -83,5 +83,10 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 				+ ForumConstants.MAX_CONTENT_TYPE_LENGTH
 				+ MAX_FORUM_POST_BODY_LENGTH);
 		assertTrue(length <= MAX_PACKET_PAYLOAD_LENGTH);
+	}
+
+	private static void injectEagerSingletons(
+			MessageSizeIntegrationTestComponent component) {
+		component.inject(new SystemModule.EagerSingletons());
 	}
 }

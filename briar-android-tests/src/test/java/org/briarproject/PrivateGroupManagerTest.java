@@ -1,35 +1,36 @@
 package org.briarproject;
 
-import org.briarproject.api.clients.MessageTracker.GroupCount;
-import org.briarproject.api.contact.Contact;
-import org.briarproject.api.data.BdfList;
-import org.briarproject.api.db.Transaction;
-import org.briarproject.api.privategroup.GroupMember;
-import org.briarproject.api.privategroup.GroupMessage;
-import org.briarproject.api.privategroup.GroupMessageHeader;
-import org.briarproject.api.privategroup.JoinMessageHeader;
-import org.briarproject.api.privategroup.PrivateGroup;
-import org.briarproject.api.privategroup.PrivateGroupManager;
-import org.briarproject.api.sync.GroupId;
-import org.briarproject.api.sync.MessageId;
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.api.client.MessageTracker.GroupCount;
+import org.briarproject.briar.api.privategroup.GroupMember;
+import org.briarproject.briar.api.privategroup.GroupMessage;
+import org.briarproject.briar.api.privategroup.GroupMessageHeader;
+import org.briarproject.briar.api.privategroup.JoinMessageHeader;
+import org.briarproject.briar.api.privategroup.PrivateGroup;
+import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
 
 import static org.briarproject.TestUtils.getRandomBytes;
-import static org.briarproject.api.identity.Author.Status.VERIFIED;
-import static org.briarproject.api.privategroup.Visibility.INVISIBLE;
-import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_CONTACT;
-import static org.briarproject.api.privategroup.Visibility.REVEALED_BY_US;
-import static org.briarproject.api.privategroup.Visibility.VISIBLE;
-import static org.briarproject.api.privategroup.invitation.GroupInvitationFactory.SIGNING_LABEL_INVITE;
-import static org.briarproject.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.bramble.api.identity.Author.Status.VERIFIED;
+import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.briar.api.privategroup.Visibility.INVISIBLE;
+import static org.briarproject.briar.api.privategroup.Visibility.REVEALED_BY_CONTACT;
+import static org.briarproject.briar.api.privategroup.Visibility.REVEALED_BY_US;
+import static org.briarproject.briar.api.privategroup.Visibility.VISIBLE;
+import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory.SIGNING_LABEL_INVITE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class PrivateGroupManagerTest extends BriarIntegrationTest {
+public class PrivateGroupManagerTest
+		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
 	private PrivateGroup privateGroup0;
 	private GroupId groupId0;
@@ -46,6 +47,25 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 		privateGroup0 =
 				privateGroupFactory.createPrivateGroup("Testgroup", author0);
 		groupId0 = privateGroup0.getId();
+	}
+
+	@Override
+	protected void createComponents() {
+		BriarIntegrationTestComponent component =
+				DaggerBriarIntegrationTestComponent.builder().build();
+		component.inject(this);
+
+		c0 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t0Dir)).build();
+		injectEagerSingletons(c0);
+
+		c1 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
+		injectEagerSingletons(c1);
+
+		c2 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
+		injectEagerSingletons(c2);
 	}
 
 	@Test
@@ -220,7 +240,8 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 
 		// share the group with 1
 		Transaction txn0 = db0.startTransaction(false);
-		db0.setGroupVisibility(txn0, contactId1From0, privateGroup0.getId(), SHARED);
+		db0.setGroupVisibility(txn0, contactId1From0, privateGroup0.getId(),
+				SHARED);
 		db0.commitTransaction(txn0);
 		db0.endTransaction(txn0);
 
@@ -277,7 +298,8 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 
 		// share the group with 1
 		Transaction txn0 = db0.startTransaction(false);
-		db0.setGroupVisibility(txn0, contactId1From0, privateGroup0.getId(), SHARED);
+		db0.setGroupVisibility(txn0, contactId1From0, privateGroup0.getId(),
+				SHARED);
 		db0.commitTransaction(txn0);
 		db0.endTransaction(txn0);
 
@@ -298,7 +320,8 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 
 		// share the group with 0
 		Transaction txn1 = db1.startTransaction(false);
-		db1.setGroupVisibility(txn1, contactId0From1, privateGroup0.getId(), SHARED);
+		db1.setGroupVisibility(txn1, contactId0From1, privateGroup0.getId(),
+				SHARED);
 		db1.commitTransaction(txn1);
 		db1.endTransaction(txn1);
 
@@ -376,7 +399,8 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 
 		// share the group with 2
 		Transaction txn0 = db0.startTransaction(false);
-		db0.setGroupVisibility(txn0, contactId2From0, privateGroup0.getId(), SHARED);
+		db0.setGroupVisibility(txn0, contactId2From0, privateGroup0.getId(),
+				SHARED);
 		db0.commitTransaction(txn0);
 		db0.endTransaction(txn0);
 
@@ -507,7 +531,8 @@ public class PrivateGroupManagerTest extends BriarIntegrationTest {
 
 		// share the group with 1
 		Transaction txn0 = db0.startTransaction(false);
-		db0.setGroupVisibility(txn0, contactId1From0, privateGroup0.getId(), SHARED);
+		db0.setGroupVisibility(txn0, contactId1From0, privateGroup0.getId(),
+				SHARED);
 		db0.commitTransaction(txn0);
 		db0.endTransaction(txn0);
 

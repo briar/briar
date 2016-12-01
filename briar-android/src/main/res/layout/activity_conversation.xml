@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	tools:context=".android.contact.ConversationActivity">
+
+	<android.support.design.widget.AppBarLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<android.support.v7.widget.Toolbar
+			android:id="@+id/toolbar"
+			style="@style/BriarToolbar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent">
+
+				<include layout="@layout/contact_avatar_status"/>
+
+				<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+					android:id="@+id/contactName"
+					style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:layout_marginLeft="@dimen/margin_medium"
+					android:layout_marginStart="@dimen/margin_medium"
+					android:gravity="center"
+					tools:text="Contact Name"/>
+
+			</LinearLayout>
+
+		</android.support.v7.widget.Toolbar>
+
+	</android.support.design.widget.AppBarLayout>
+
+	<org.briarproject.briar.android.view.BriarRecyclerView
+		android:id="@+id/conversationView"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:background="@color/window_background"/>
+
+	<org.briarproject.briar.android.view.TextInputView
+		android:id="@+id/text_input_container"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/button_bar_background"
+		android:elevation="@dimen/margin_tiny"
+		app:hint="@string/message_hint"/>
+
+</LinearLayout>

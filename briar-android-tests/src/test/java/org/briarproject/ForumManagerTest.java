@@ -2,17 +2,18 @@ package org.briarproject;
 
 import junit.framework.Assert;
 
-import org.briarproject.api.forum.Forum;
-import org.briarproject.api.forum.ForumManager;
-import org.briarproject.api.forum.ForumPost;
-import org.briarproject.api.forum.ForumPostHeader;
-import org.briarproject.api.forum.ForumSharingManager;
-import org.briarproject.api.sync.GroupId;
-import org.jetbrains.annotations.Nullable;
+import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.briar.api.forum.Forum;
+import org.briarproject.briar.api.forum.ForumManager;
+import org.briarproject.briar.api.forum.ForumPost;
+import org.briarproject.briar.api.forum.ForumPostHeader;
+import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
+
+import javax.annotation.Nullable;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
@@ -20,7 +21,8 @@ import static junit.framework.TestCase.assertFalse;
 import static org.briarproject.TestUtils.assertGroupCount;
 import static org.junit.Assert.assertTrue;
 
-public class ForumManagerTest extends BriarIntegrationTest {
+public class ForumManagerTest
+		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
 	private ForumManager forumManager0, forumManager1;
 	private ForumSharingManager forumSharingManager0, forumSharingManager1;
@@ -45,6 +47,25 @@ public class ForumManagerTest extends BriarIntegrationTest {
 		sync0To1(1, true);
 		forumSharingManager1.respondToInvitation(forum0, contact0From1, true);
 		sync1To0(1, true);
+	}
+
+	@Override
+	protected void createComponents() {
+		BriarIntegrationTestComponent component =
+				DaggerBriarIntegrationTestComponent.builder().build();
+		component.inject(this);
+
+		c0 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t0Dir)).build();
+		injectEagerSingletons(c0);
+
+		c1 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
+		injectEagerSingletons(c1);
+
+		c2 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
+		injectEagerSingletons(c2);
 	}
 
 	private ForumPost createForumPost(GroupId groupId,

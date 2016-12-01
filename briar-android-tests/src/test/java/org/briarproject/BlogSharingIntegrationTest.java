@@ -2,19 +2,20 @@ package org.briarproject;
 
 import net.jodah.concurrentunit.Waiter;
 
-import org.briarproject.api.blogs.Blog;
-import org.briarproject.api.blogs.BlogInvitationRequest;
-import org.briarproject.api.blogs.BlogInvitationResponse;
-import org.briarproject.api.blogs.BlogManager;
-import org.briarproject.api.blogs.BlogSharingManager;
-import org.briarproject.api.contact.Contact;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.event.BlogInvitationReceivedEvent;
-import org.briarproject.api.event.BlogInvitationResponseReceivedEvent;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventListener;
-import org.briarproject.api.sharing.InvitationMessage;
-import org.briarproject.api.sync.GroupId;
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventListener;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.briar.api.blog.Blog;
+import org.briarproject.briar.api.blog.BlogInvitationRequest;
+import org.briarproject.briar.api.blog.BlogInvitationResponse;
+import org.briarproject.briar.api.blog.BlogManager;
+import org.briarproject.briar.api.blog.BlogSharingManager;
+import org.briarproject.briar.api.blog.event.BlogInvitationRequestReceivedEvent;
+import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
+import org.briarproject.briar.api.sharing.InvitationMessage;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,12 +26,13 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.briarproject.TestUtils.assertGroupCount;
-import static org.briarproject.api.blogs.BlogSharingManager.CLIENT_ID;
+import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class BlogSharingIntegrationTest extends BriarIntegrationTest {
+public class BlogSharingIntegrationTest
+		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
 	private BlogManager blogManager1;
 	private Blog blog0, blog1, blog2;
@@ -63,6 +65,25 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 
 		// initialize waiters fresh for each test
 		eventWaiter = new Waiter();
+	}
+
+	@Override
+	protected void createComponents() {
+		BriarIntegrationTestComponent component =
+				DaggerBriarIntegrationTestComponent.builder().build();
+		component.inject(this);
+
+		c0 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t0Dir)).build();
+		injectEagerSingletons(c0);
+
+		c1 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
+		injectEagerSingletons(c1);
+
+		c2 = DaggerBriarIntegrationTestComponent.builder()
+				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
+		injectEagerSingletons(c2);
 	}
 
 	@Test
@@ -213,7 +234,8 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 				blogSharingManager0.getInvitationMessages(contactId1From0)
 						.size());
 		// blog can be shared again
-		assertTrue(blogSharingManager0.canBeShared(blog2.getId(), contact1From0));
+		assertTrue(
+				blogSharingManager0.canBeShared(blog2.getId(), contact1From0));
 	}
 
 	@Test
@@ -264,8 +286,10 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 		assertFalse(blogSharingManager1.getSharedBy(blog2.getId())
 				.contains(contact0From1));
 		// blog can be shared again
-		assertTrue(blogSharingManager0.canBeShared(blog2.getId(), contact1From0));
-		assertTrue(blogSharingManager1.canBeShared(blog2.getId(), contact0From1));
+		assertTrue(
+				blogSharingManager0.canBeShared(blog2.getId(), contact1From0));
+		assertTrue(
+				blogSharingManager1.canBeShared(blog2.getId(), contact0From1));
 	}
 
 	@Test
@@ -393,6 +417,7 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 		assertFalse(blogManager1.canBeRemoved(blog2.getId()));
 	}
 
+	@NotNullByDefault
 	private class SharerListener implements EventListener {
 
 		private volatile boolean responseReceived = false;
@@ -407,9 +432,9 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 				eventWaiter.resume();
 			}
 			// this is only needed for tests where a blog is re-shared
-			else if (e instanceof BlogInvitationReceivedEvent) {
-				BlogInvitationReceivedEvent event =
-						(BlogInvitationReceivedEvent) e;
+			else if (e instanceof BlogInvitationRequestReceivedEvent) {
+				BlogInvitationRequestReceivedEvent event =
+						(BlogInvitationRequestReceivedEvent) e;
 				eventWaiter.assertEquals(contactId1From0, event.getContactId());
 				Blog b = event.getShareable();
 				try {
@@ -424,6 +449,7 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 		}
 	}
 
+	@NotNullByDefault
 	private class InviteeListener implements EventListener {
 
 		private volatile boolean requestReceived = false;
@@ -441,9 +467,9 @@ public class BlogSharingIntegrationTest extends BriarIntegrationTest {
 
 		@Override
 		public void eventOccurred(Event e) {
-			if (e instanceof BlogInvitationReceivedEvent) {
-				BlogInvitationReceivedEvent event =
-						(BlogInvitationReceivedEvent) e;
+			if (e instanceof BlogInvitationRequestReceivedEvent) {
+				BlogInvitationRequestReceivedEvent event =
+						(BlogInvitationRequestReceivedEvent) e;
 				requestReceived = true;
 				if (!answer) return;
 				Blog b = event.getShareable();

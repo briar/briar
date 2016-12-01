@@ -5,10 +5,8 @@ targetCompatibility = 1.7
 apply plugin: 'witness'
 
 dependencies {
-	compile project(':briar-api')
 	compile project(':briar-core')
-	compile fileTree(dir: '../briar-desktop/libs', include: '*.jar')
-	compile project(':briar-desktop')
+	compile project(':bramble-j2se')
 	compile "junit:junit:4.12"
 	compile "org.jmock:jmock:2.8.1"
 	compile "org.jmock:jmock-junit4:2.8.1"
@@ -41,5 +39,5 @@ sourceSets {
 }
 
 tasks.withType(Test) {
-	systemProperty 'java.library.path', '../briar-desktop/libs'
+	systemProperty 'java.library.path', '../bramble-j2se/libs'
 }

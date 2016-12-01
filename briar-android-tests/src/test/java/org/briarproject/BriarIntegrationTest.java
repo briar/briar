@@ -4,47 +4,48 @@ import android.support.annotation.CallSuper;
 
 import net.jodah.concurrentunit.Waiter;
 
-import org.briarproject.api.blogs.BlogFactory;
-import org.briarproject.api.blogs.BlogPostFactory;
-import org.briarproject.api.clients.ClientHelper;
-import org.briarproject.api.clients.ContactGroupFactory;
-import org.briarproject.api.clients.MessageTracker;
-import org.briarproject.api.contact.Contact;
-import org.briarproject.api.contact.ContactId;
-import org.briarproject.api.contact.ContactManager;
-import org.briarproject.api.crypto.CryptoComponent;
-import org.briarproject.api.db.DatabaseComponent;
-import org.briarproject.api.db.DbException;
-import org.briarproject.api.event.Event;
-import org.briarproject.api.event.EventListener;
-import org.briarproject.api.event.MessageStateChangedEvent;
-import org.briarproject.api.forum.ForumPostFactory;
-import org.briarproject.api.identity.AuthorFactory;
-import org.briarproject.api.identity.IdentityManager;
-import org.briarproject.api.identity.LocalAuthor;
-import org.briarproject.api.lifecycle.LifecycleManager;
-import org.briarproject.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.api.privategroup.GroupMessageFactory;
-import org.briarproject.api.privategroup.PrivateGroupFactory;
-import org.briarproject.api.privategroup.invitation.GroupInvitationFactory;
-import org.briarproject.api.sync.SyncSession;
-import org.briarproject.api.sync.SyncSessionFactory;
-import org.briarproject.api.system.Clock;
-import org.briarproject.blogs.BlogsModule;
-import org.briarproject.contact.ContactModule;
-import org.briarproject.crypto.CryptoModule;
-import org.briarproject.forum.ForumModule;
-import org.briarproject.introduction.IntroductionGroupFactory;
-import org.briarproject.introduction.IntroductionModule;
-import org.briarproject.lifecycle.LifecycleModule;
-import org.briarproject.privategroup.PrivateGroupModule;
-import org.briarproject.privategroup.invitation.GroupInvitationModule;
-import org.briarproject.properties.PropertiesModule;
-import org.briarproject.sharing.SharingModule;
-import org.briarproject.sync.SyncModule;
-import org.briarproject.transport.TransportModule;
-import org.jetbrains.annotations.Nullable;
+import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.client.ContactGroupFactory;
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventListener;
+import org.briarproject.bramble.api.identity.AuthorFactory;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.sync.SyncSession;
+import org.briarproject.bramble.api.sync.SyncSessionFactory;
+import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
+import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.contact.ContactModule;
+import org.briarproject.bramble.crypto.CryptoModule;
+import org.briarproject.bramble.identity.IdentityModule;
+import org.briarproject.bramble.lifecycle.LifecycleModule;
+import org.briarproject.bramble.properties.PropertiesModule;
+import org.briarproject.bramble.sync.SyncModule;
+import org.briarproject.bramble.system.SystemModule;
+import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.briar.api.blog.BlogFactory;
+import org.briarproject.briar.api.blog.BlogPostFactory;
+import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.forum.ForumPostFactory;
+import org.briarproject.briar.api.privategroup.GroupMessageFactory;
+import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory;
+import org.briarproject.briar.blog.BlogModule;
+import org.briarproject.briar.forum.ForumModule;
+import org.briarproject.briar.introduction.IntroductionModule;
+import org.briarproject.briar.messaging.MessagingModule;
+import org.briarproject.briar.privategroup.PrivateGroupModule;
+import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
+import org.briarproject.briar.sharing.SharingModule;
 import org.junit.After;
 import org.junit.Before;
 
@@ -55,19 +56,21 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.briarproject.TestPluginsModule.MAX_LATENCY;
+import static org.briarproject.TestPluginConfigModule.MAX_LATENCY;
 import static org.briarproject.TestUtils.getSecretKey;
-import static org.briarproject.api.sync.ValidationManager.State.DELIVERED;
-import static org.briarproject.api.sync.ValidationManager.State.INVALID;
-import static org.briarproject.api.sync.ValidationManager.State.PENDING;
+import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
+import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
+import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.junit.Assert.assertTrue;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public abstract class BriarIntegrationTest extends BriarTestCase {
+public abstract class BriarIntegrationTest<C extends BriarIntegrationTestComponent>
+		extends BriarTestCase {
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarIntegrationTest.class.getName());
@@ -98,8 +101,6 @@ public abstract class BriarIntegrationTest extends BriarTestCase {
 	@Inject
 	protected AuthorFactory authorFactory;
 	@Inject
-	protected IntroductionGroupFactory introductionGroupFactory;
-	@Inject
 	ContactGroupFactory contactGroupFactory;
 	@Inject
 	PrivateGroupFactory privateGroupFactory;
@@ -119,33 +120,22 @@ public abstract class BriarIntegrationTest extends BriarTestCase {
 	private volatile Waiter deliveryWaiter;
 
 	protected final static int TIMEOUT = 15000;
-	protected BriarIntegrationTestComponent c0, c1, c2;
+	protected C c0, c1, c2;
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final String AUTHOR0 = "Author 0";
 	private final String AUTHOR1 = "Author 1";
 	private final String AUTHOR2 = "Author 2";
 
+	protected File t0Dir = new File(testDir, AUTHOR0);
+	protected File t1Dir = new File(testDir, AUTHOR1);
+	protected File t2Dir = new File(testDir, AUTHOR2);
+
 	@Before
 	@CallSuper
 	public void setUp() throws Exception {
-		BriarIntegrationTestComponent component =
-				DaggerBriarIntegrationTestComponent.builder().build();
-		component.inject(this);
-
 		assertTrue(testDir.mkdirs());
-		File t0Dir = new File(testDir, AUTHOR0);
-		c0 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t0Dir)).build();
-		injectEagerSingletons(c0);
-		File t1Dir = new File(testDir, AUTHOR1);
-		c1 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
-		injectEagerSingletons(c1);
-		File t2Dir = new File(testDir, AUTHOR2);
-		c2 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
-		injectEagerSingletons(c2);
+		createComponents();
 
 		identityManager0 = c0.getIdentityManager();
 		identityManager1 = c1.getIdentityManager();
@@ -174,19 +164,24 @@ public abstract class BriarIntegrationTest extends BriarTestCase {
 		listenToEvents();
 	}
 
-	private void injectEagerSingletons(
+	abstract protected void createComponents();
+
+	protected void injectEagerSingletons(
 			BriarIntegrationTestComponent component) {
-		component.inject(new LifecycleModule.EagerSingletons());
-		component.inject(new BlogsModule.EagerSingletons());
-		component.inject(new CryptoModule.EagerSingletons());
+		component.inject(new BlogModule.EagerSingletons());
 		component.inject(new ContactModule.EagerSingletons());
+		component.inject(new CryptoModule.EagerSingletons());
 		component.inject(new ForumModule.EagerSingletons());
 		component.inject(new GroupInvitationModule.EagerSingletons());
+		component.inject(new IdentityModule.EagerSingletons());
 		component.inject(new IntroductionModule.EagerSingletons());
-		component.inject(new PropertiesModule.EagerSingletons());
+		component.inject(new LifecycleModule.EagerSingletons());
+		component.inject(new MessagingModule.EagerSingletons());
 		component.inject(new PrivateGroupModule.EagerSingletons());
-		component.inject(new SyncModule.EagerSingletons());
+		component.inject(new PropertiesModule.EagerSingletons());
 		component.inject(new SharingModule.EagerSingletons());
+		component.inject(new SyncModule.EagerSingletons());
+		component.inject(new SystemModule.EagerSingletons());
 		component.inject(new TransportModule.EagerSingletons());
 	}
 
@@ -355,8 +350,10 @@ public abstract class BriarIntegrationTest extends BriarTestCase {
 		contactManager0.removeContact(contactId1From0);
 		contactManager0.removeContact(contactId2From0);
 		contactManager1.removeContact(contactId0From1);
-		contactManager1.removeContact(contactId2From1);
 		contactManager2.removeContact(contactId0From2);
+		assertNotNull(contactId2From1);
+		contactManager1.removeContact(contactId2From1);
+		assertNotNull(contactId1From2);
 		contactManager2.removeContact(contactId1From2);
 	}
 }
