@@ -341,8 +341,10 @@ class DroidtoothPlugin implements DuplexPlugin {
 				LOG.info("Connected to " + scrubMacAddress(address));
 			return s;
 		} catch (IOException e) {
-			if (LOG.isLoggable(INFO))
-				LOG.info("Failed to connect to " + scrubMacAddress(address));
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Failed to connect to " + scrubMacAddress(address)
+						+ ": " + e);
+			}
 			tryToClose(s);
 			return null;
 		}
@@ -588,9 +590,10 @@ class DroidtoothPlugin implements DuplexPlugin {
 				finished.countDown();
 			} else if (action.equals(FOUND)) {
 				BluetoothDevice d = intent.getParcelableExtra(EXTRA_DEVICE);
-				if (LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO)) {
 					LOG.info("Discovered device: " +
 							scrubMacAddress(d.getAddress()));
+				}
 				addresses.add(d.getAddress());
 			}
 		}

@@ -148,9 +148,9 @@ class KeyAgreementConnector {
 	private void closePending(@Nullable KeyAgreementConnection chosen) {
 		for (Future<KeyAgreementConnection> f : pending) {
 			try {
-				if (f.cancel(true))
+				if (f.cancel(true)) {
 					LOG.info("Cancelled task");
-				else if (!f.isCancelled()) {
+				} else if (!f.isCancelled()) {
 					KeyAgreementConnection c = f.get();
 					if (c != null && c != chosen)
 						tryToClose(c.getConnection(), false);
@@ -193,9 +193,10 @@ class KeyAgreementConnector {
 
 		@Override
 		public KeyAgreementConnection call() throws Exception {
-			// Repeat attempts until we connect or get interrupted
+			// Repeat attempts until we connect, get interrupted, or time out
 			while (true) {
 				long now = clock.currentTimeMillis();
+				if (now > end) throw new IOException();
 				DuplexTransportConnection conn =
 						plugin.createKeyAgreementConnection(commitment,
 								descriptor, end - now);
@@ -221,8 +222,7 @@ class KeyAgreementConnector {
 		}
 
 		@Override
-		public KeyAgreementConnection call()
-				throws Exception {
+		public KeyAgreementConnection call() throws Exception {
 			KeyAgreementConnection c = connectionTask.call();
 			InputStream in = c.getConnection().getReader().getInputStream();
 			boolean waitingSent = false;
@@ -232,13 +232,14 @@ class KeyAgreementConnector {
 					callbacks.connectionWaiting();
 					waitingSent = true;
 				}
-				if (LOG.isLoggable(INFO))
-					LOG.info(c.getTransportId().toString() +
+				if (LOG.isLoggable(INFO)) {
+					LOG.info(c.getTransportId().getString() +
 							": Waiting for connection");
+				}
 				Thread.sleep(1000);
 			}
 			if (!alice && LOG.isLoggable(INFO))
-				LOG.info(c.getTransportId().toString() + ": Data available");
+				LOG.info(c.getTransportId().getString() + ": Data available");
 			return c;
 		}
 	}
