@@ -3,7 +3,6 @@ package org.briarproject.bramble.crypto;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.KeyParser;
-import org.briarproject.bramble.api.crypto.MessageDigest;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PseudoRandom;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -58,6 +57,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int PBKDF_SALT_BYTES = 32; // 256 bits
 	private static final int PBKDF_TARGET_MILLIS = 500;
 	private static final int PBKDF_SAMPLES = 30;
+	private static final int HASH_SIZE = 256 / 8;
 
 	private static byte[] ascii(String s) {
 		return s.getBytes(Charset.forName("US-ASCII"));
@@ -73,9 +73,11 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final byte[] A_SIG_NONCE = ascii("ALICE_SIGNATURE_NONCE");
 	private static final byte[] B_SIG_NONCE = ascii("BOB_SIGNATURE_NONCE");
 	// Hash label for BQP public key commitment derivation
-	private static final byte[] COMMIT = ascii("COMMIT");
+	private static final String COMMIT =
+			"org.briarproject.bramble.COMMIT";
 	// Hash label for shared secret derivation
-	private static final byte[] SHARED_SECRET = ascii("SHARED_SECRET");
+	private static final String SHARED_SECRET =
+			"org.briarproject.bramble.SHARED_SECRET";
 	// KDF label for BQP confirmation key derivation
 	private static final byte[] CONFIRMATION_KEY = ascii("CONFIRMATION_KEY");
 	// KDF label for master key derivation
@@ -127,11 +129,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] b = new byte[SecretKey.LENGTH];
 		secureRandom.nextBytes(b);
 		return new SecretKey(b);
-	}
-
-	@Override
-	public MessageDigest getMessageDigest() {
-		return new DigestWrapper(new Blake2sDigest());
 	}
 
 	@Override
@@ -428,15 +425,26 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public byte[] hash(byte[]... inputs) {
-		MessageDigest digest = getMessageDigest();
+	public byte[] hash(String label, byte[]... inputs) {
+		byte[] labelBytes = StringUtils.toUtf8(label);
+		Digest digest = new Blake2sDigest();
 		byte[] length = new byte[INT_32_BYTES];
+		ByteUtils.writeUint32(labelBytes.length, length, 0);
+		digest.update(length, 0, length.length);
+		digest.update(labelBytes, 0, labelBytes.length);
 		for (byte[] input : inputs) {
 			ByteUtils.writeUint32(input.length, length, 0);
-			digest.update(length);
-			digest.update(input);
+			digest.update(length, 0, length.length);
+			digest.update(input, 0, input.length);
 		}
-		return digest.digest();
+		byte[] output = new byte[digest.getDigestSize()];
+		digest.doFinal(output, 0);
+		return output;
+	}
+
+	@Override
+	public int getHashLength() {
+		return HASH_SIZE;
 	}
 
 	@Override
