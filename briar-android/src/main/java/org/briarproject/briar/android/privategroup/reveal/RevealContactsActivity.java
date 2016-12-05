@@ -112,9 +112,9 @@ public class RevealContactsActivity extends ContactSelectorActivity
 	}
 
 	private void showOnboardingDialog() {
-		new AlertDialog.Builder(this, R.style.BriarDialogTheme)
+		new AlertDialog.Builder(this, R.style.OnboardingDialogTheme)
 				.setMessage(getString(R.string.groups_reveal_dialog_message))
-				.setNeutralButton(R.string.ok,
+				.setNeutralButton(R.string.got_it,
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog,
