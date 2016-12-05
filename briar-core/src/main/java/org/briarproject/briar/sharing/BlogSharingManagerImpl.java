@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataEncoder;
@@ -37,6 +38,7 @@ import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.sharing.InvitationMessage;
 
 import java.security.SecureRandom;
+import java.util.Collection;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -52,6 +54,7 @@ class BlogSharingManagerImpl extends
 		SharingManagerImpl<Blog, BlogInvitation, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationRequestReceivedEvent, BlogInvitationResponseReceivedEvent>
 		implements BlogSharingManager, RemoveBlogHook {
 
+	private final ContactManager contactManager;
 	private final IdentityManager identityManager;
 	private final BlogManager blogManager;
 
@@ -68,13 +71,15 @@ class BlogSharingManagerImpl extends
 			DatabaseComponent db, MessageQueueManager messageQueueManager,
 			MetadataEncoder metadataEncoder, MetadataParser metadataParser,
 			ContactGroupFactory contactGroupFactory, SecureRandom random,
-			IdentityManager identityManager, MessageTracker messageTracker) {
+			ContactManager contactManager, IdentityManager identityManager,
+			MessageTracker messageTracker) {
 
 		super(db, messageQueueManager, clientHelper, metadataParser,
 				metadataEncoder, random, contactGroupFactory, messageTracker,
 				clock);
 
 		this.blogManager = blogManager;
+		this.contactManager = contactManager;
 		this.identityManager = identityManager;
 		sFactory = new SFactory(authorFactory, blogFactory, blogManager);
 		iFactory = new IFactory();
@@ -103,6 +108,27 @@ class BlogSharingManagerImpl extends
 		if (b.getId().equals(g)) return false;
 
 		return super.canBeShared(txn, g, c);
+	}
+
+	@Override
+	public Collection<Contact> getSharedWith(GroupId g) throws DbException {
+		Blog blog = blogManager.getBlog(g);
+		LocalAuthor author = identityManager.getLocalAuthor();
+		if (blog.getAuthor().equals(author)) {
+			// This is our personal blog. It is shared with all our contacts
+			return contactManager.getActiveContacts();
+		} else {
+			// This is someone else's blog. Look up who it is shared with
+			Collection<Contact> shared = super.getSharedWith(g);
+			// If the blog author is our contact, also add her to the list
+			boolean isContact = contactManager
+					.contactExists(blog.getAuthor().getId(), author.getId());
+			if (isContact) {
+				shared.add(contactManager
+						.getContact(blog.getAuthor().getId(), author.getId()));
+			}
+			return shared;
+		}
 	}
 
 	@Override

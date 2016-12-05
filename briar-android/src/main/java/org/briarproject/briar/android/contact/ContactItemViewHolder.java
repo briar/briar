@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.contact;
 
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -12,8 +13,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
 
-import javax.annotation.Nullable;
-
 import im.delight.android.identicons.IdenticonDrawable;
 
 @UiThread
@@ -24,6 +23,8 @@ public class ContactItemViewHolder<I extends ContactItem>
 	protected final ViewGroup layout;
 	protected final ImageView avatar;
 	protected final TextView name;
+	@Nullable
+	protected final ImageView bulb;
 
 	public ContactItemViewHolder(View v) {
 		super(v);
@@ -31,6 +32,7 @@ public class ContactItemViewHolder<I extends ContactItem>
 		layout = (ViewGroup) v;
 		avatar = (ImageView) v.findViewById(R.id.avatarView);
 		name = (TextView) v.findViewById(R.id.nameView);
+		bulb = (ImageView) v.findViewById(R.id.bulbView);
 	}
 
 	protected void bind(final I item,
@@ -40,6 +42,15 @@ public class ContactItemViewHolder<I extends ContactItem>
 				new IdenticonDrawable(author.getId().getBytes()));
 		String contactName = author.getName();
 		name.setText(contactName);
+
+		if (bulb != null) {
+			// online/offline
+			if (item.isConnected()) {
+				bulb.setImageResource(R.drawable.contact_connected);
+			} else {
+				bulb.setImageResource(R.drawable.contact_disconnected);
+			}
+		}
 
 		layout.setOnClickListener(new View.OnClickListener() {
 			@Override

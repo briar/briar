@@ -4,6 +4,7 @@ import net.jodah.concurrentunit.Waiter;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -30,6 +31,7 @@ import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class BlogSharingIntegrationTest
 		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
@@ -266,7 +268,7 @@ public class BlogSharingIntegrationTest
 		assertTrue(blogSharingManager0.getSharedWith(blog2.getId())
 				.contains(contact1From0));
 		// invitee gets blog shared by sharer
-		assertTrue(blogSharingManager1.getSharedBy(blog2.getId())
+		assertTrue(blogSharingManager1.getSharedWith(blog2.getId())
 				.contains(contact0From1));
 
 		// invitee un-subscribes from blog
@@ -282,9 +284,13 @@ public class BlogSharingIntegrationTest
 		// sharer no longer shares blog with invitee
 		assertFalse(blogSharingManager0.getSharedWith(blog2.getId())
 				.contains(contact1From0));
-		// invitee no longer gets blog shared by sharer
-		assertFalse(blogSharingManager1.getSharedBy(blog2.getId())
-				.contains(contact0From1));
+		// invitee no longer has blog shared by sharer
+		try {
+			blogSharingManager1.getSharedWith(blog2.getId());
+			fail();
+		} catch (NoSuchGroupException e) {
+			// expected
+		}
 		// blog can be shared again
 		assertTrue(
 				blogSharingManager0.canBeShared(blog2.getId(), contact1From0));
@@ -310,10 +316,10 @@ public class BlogSharingIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener1.requestReceived);
 
-		// make sure blog2 is shared by 0
+		// make sure blog2 is shared by 0 and 2
 		Collection<Contact> contacts =
-				blogSharingManager1.getSharedBy(blog2.getId());
-		assertEquals(1, contacts.size());
+				blogSharingManager1.getSharedWith(blog2.getId());
+		assertEquals(2, contacts.size());
 		assertTrue(contacts.contains(contact0From1));
 
 		// make sure 1 knows that they have blog2 already
@@ -355,10 +361,11 @@ public class BlogSharingIntegrationTest
 		assertEquals(3, blogManager1.getBlogs().size());
 		Collection<Contact> sharedWith =
 				blogSharingManager0.getSharedWith(blog2.getId());
-		assertEquals(1, sharedWith.size());
-		assertEquals(contact1From0, sharedWith.iterator().next());
+		assertEquals(2, sharedWith.size());
+		assertTrue(sharedWith.contains(contact1From0));
+		assertTrue(sharedWith.contains(contact2From0));
 		Collection<Contact> sharedBy =
-				blogSharingManager1.getSharedBy(blog2.getId());
+				blogSharingManager1.getSharedWith(blog2.getId());
 		assertEquals(1, sharedBy.size());
 		assertEquals(contact0From1, sharedBy.iterator().next());
 
@@ -374,7 +381,8 @@ public class BlogSharingIntegrationTest
 		// sharer does not share this blog anymore with invitee
 		sharedWith =
 				blogSharingManager0.getSharedWith(blog2.getId());
-		assertEquals(0, sharedWith.size());
+		assertEquals(1, sharedWith.size());
+		assertTrue(sharedWith.contains(contact2From0));
 	}
 
 	@Test
@@ -396,7 +404,7 @@ public class BlogSharingIntegrationTest
 
 		// make sure blog2 is shared by 0
 		Collection<Contact> contacts =
-				blogSharingManager1.getSharedBy(blog2.getId());
+				blogSharingManager1.getSharedWith(blog2.getId());
 		assertEquals(1, contacts.size());
 		assertTrue(contacts.contains(contact0From1));
 

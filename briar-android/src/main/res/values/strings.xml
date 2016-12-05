@@ -262,8 +262,6 @@
 		<item quantity="one">%d forum shared by contacts</item>
 		<item quantity="other">%d forums shared by contacts</item>
 	</plurals>
-	<string name="forum_shared_by">Shared by</string>
-	<string name="forum_shared_with">Shared with</string>
 	<string name="nobody">Nobody</string>
 
 	<!-- Blogs -->

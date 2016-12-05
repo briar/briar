@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
@@ -86,6 +87,32 @@ class ContactManagerImpl implements ContactManager {
 			db.endTransaction(txn);
 		}
 		return contact;
+	}
+
+	@Override
+	public Contact getContact(AuthorId remoteAuthorId, AuthorId localAuthorId)
+			throws DbException {
+		Transaction txn = db.startTransaction(true);
+		try {
+			Contact c = getContact(txn, remoteAuthorId, localAuthorId);
+			db.commitTransaction(txn);
+			return c;
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	@Override
+	public Contact getContact(Transaction txn, AuthorId remoteAuthorId,
+			AuthorId localAuthorId) throws DbException {
+		Collection<Contact> contacts =
+				db.getContactsByAuthorId(txn, remoteAuthorId);
+		for (Contact c : contacts) {
+			if (c.getLocalAuthorId().equals(localAuthorId)) {
+				return c;
+			}
+		}
+		throw new NoSuchContactException();
 	}
 
 	@Override

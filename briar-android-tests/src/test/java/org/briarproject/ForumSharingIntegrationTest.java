@@ -244,7 +244,7 @@ public class ForumSharingIntegrationTest
 				.contains(c1));
 		// invitee gets forum shared by sharer
 		Contact contact0 = contactManager1.getContact(contactId1From0);
-		assertTrue(forumSharingManager1.getSharedBy(forum0.getId())
+		assertTrue(forumSharingManager1.getSharedWith(forum0.getId())
 				.contains(contact0));
 
 		// invitee un-subscribes from forum
@@ -261,7 +261,7 @@ public class ForumSharingIntegrationTest
 		assertFalse(forumSharingManager0.getSharedWith(forum0.getId())
 				.contains(c1));
 		// invitee no longer gets forum shared by sharer
-		assertFalse(forumSharingManager1.getSharedBy(forum0.getId())
+		assertFalse(forumSharingManager1.getSharedWith(forum0.getId())
 				.contains(contact0));
 		// forum can be shared again
 		assertTrue(forumSharingManager0.canBeShared(forum0.getId(), c1));
@@ -299,7 +299,7 @@ public class ForumSharingIntegrationTest
 				.contains(c1));
 		// invitee gets forum shared by sharer
 		Contact contact0 = contactManager1.getContact(contactId1From0);
-		assertTrue(forumSharingManager1.getSharedBy(forum0.getId())
+		assertTrue(forumSharingManager1.getSharedWith(forum0.getId())
 				.contains(contact0));
 
 		// sharer un-subscribes from forum
@@ -317,7 +317,7 @@ public class ForumSharingIntegrationTest
 		assertFalse(forumSharingManager1.getSharedWith(forum0.getId())
 				.contains(c0));
 		// sharer no longer gets forum shared by invitee
-		assertFalse(forumSharingManager1.getSharedBy(forum0.getId())
+		assertFalse(forumSharingManager1.getSharedWith(forum0.getId())
 				.contains(contact0));
 		// forum can be shared again
 		assertTrue(forumSharingManager1.canBeShared(forum0.getId(), c0));
@@ -647,11 +647,11 @@ public class ForumSharingIntegrationTest
 		assertEquals(2, forums.iterator().next().getNewSharers().size());
 		assertEquals(forum0, forums.iterator().next().getShareable());
 		assertEquals(2,
-				forumSharingManager1.getSharedBy(forum0.getId()).size());
+				forumSharingManager1.getSharedWith(forum0.getId()).size());
 
 		// make sure both sharers actually share the forum
 		Collection<Contact> contacts =
-				forumSharingManager1.getSharedBy(forum0.getId());
+				forumSharingManager1.getSharedWith(forum0.getId());
 		assertEquals(2, contacts.size());
 
 		// answer second request
