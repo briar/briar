@@ -24,7 +24,7 @@ import org.jmock.Expectations;
 
 import static org.briarproject.TestUtils.getRandomBytes;
 import static org.briarproject.TestUtils.getRandomId;
-import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
+import static org.briarproject.briar.api.privategroup.PrivateGroupManager.*;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
@@ -80,6 +80,21 @@ public abstract class AbstractProtocolEngineTest extends BriarMockTestCase {
 			BdfDictionary.of(new BdfEntry("me", "ta"));
 	protected final ContactId contactId = new ContactId(5);
 
+	protected final InviteMessage inviteMessage =
+			new InviteMessage(new MessageId(getRandomId()), contactGroupId,
+					privateGroupId, 0L, privateGroup.getName(),
+					privateGroup.getCreator(), privateGroup.getSalt(), "msg",
+					signature);
+	protected final JoinMessage joinMessage =
+			new JoinMessage(new MessageId(getRandomId()), contactGroupId,
+					privateGroupId, 0L, lastRemoteMessageId);
+	protected final LeaveMessage leaveMessage =
+			new LeaveMessage(new MessageId(getRandomId()), contactGroupId,
+					privateGroupId, 0L, lastRemoteMessageId);
+	protected final AbortMessage abortMessage =
+			new AbortMessage(messageId, contactGroupId, privateGroupId,
+					inviteTimestamp + 1);
+
 	protected void assertSessionConstantsUnchanged(Session s1, Session s2) {
 		assertEquals(s1.getRole(), s2.getRole());
 		assertEquals(s1.getContactGroupId(), s2.getContactGroupId());
@@ -112,7 +127,8 @@ public abstract class AbstractProtocolEngineTest extends BriarMockTestCase {
 		expectSendMessage(INVITE, true);
 	}
 
-	protected void expectSendJoinMessage(final JoinMessage m) throws Exception {
+	protected void expectSendJoinMessage(final JoinMessage m, boolean visible)
+			throws Exception {
 		expectGetLocalTimestamp(messageTimestamp);
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeJoinMessage(m.getContactGroupId(),
@@ -120,10 +136,10 @@ public abstract class AbstractProtocolEngineTest extends BriarMockTestCase {
 					lastLocalMessageId);
 			will(returnValue(message));
 		}});
-		expectSendMessage(JOIN, false);
+		expectSendMessage(JOIN, visible);
 	}
 
-	protected void expectSendLeaveMessage() throws Exception {
+	protected void expectSendLeaveMessage(boolean visible) throws Exception {
 		expectGetLocalTimestamp(messageTimestamp);
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder)
@@ -131,7 +147,7 @@ public abstract class AbstractProtocolEngineTest extends BriarMockTestCase {
 							messageTimestamp, lastLocalMessageId);
 			will(returnValue(message));
 		}});
-		expectSendMessage(LEAVE, false);
+		expectSendMessage(LEAVE, visible);
 	}
 
 	protected void expectSendAbortMessage() throws Exception {

@@ -22,12 +22,6 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 			new CreatorProtocolEngine(db, clientHelper, privateGroupManager,
 					privateGroupFactory, groupMessageFactory, identityManager,
 					messageParser, messageEncoder, messageTracker, clock);
-	private final JoinMessage joinMessage =
-			new JoinMessage(new MessageId(getRandomId()), contactGroupId,
-					privateGroupId, 0L, lastRemoteMessageId);
-	private final LeaveMessage leaveMessage =
-			new LeaveMessage(new MessageId(getRandomId()), contactGroupId,
-					privateGroupId, 0L, lastRemoteMessageId);
 
 	private CreatorSession getDefaultSession(CreatorState state) {
 		return new CreatorSession(contactGroupId, privateGroupId,
@@ -185,7 +179,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	private void expectOnLocalLeave() throws Exception {
 		expectSetPrivateGroupVisibility(INVISIBLE);
-		expectSendLeaveMessage();
+		expectSendLeaveMessage(false);
 	}
 
 	// onMemberAddedAction
@@ -215,12 +209,8 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	@Test
 	public void testOnInviteMessageInAnyState() throws Exception {
-		InviteMessage inviteMessage =
-				new InviteMessage(new MessageId(getRandomId()), contactGroupId,
-						privateGroupId, inviteTimestamp, privateGroup.getName(),
-						author, privateGroup.getSalt(), null, signature);
-
 		expectIsSubscribedPrivateGroup();
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
 		CreatorSession session = getDefaultSession(LEFT);
 		CreatorSession newSession =
@@ -228,6 +218,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		assertEquals(ERROR, newSession.getState());
 
 		expectIsSubscribedPrivateGroup();
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
 		session = getDefaultSession(START);
 		newSession =
@@ -244,6 +235,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(START);
 
 		expectIsSubscribedPrivateGroup();
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
 		CreatorSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
@@ -257,6 +249,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(JOINED);
 
 		expectIsSubscribedPrivateGroup();
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
 		CreatorSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
@@ -270,6 +263,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(LEFT);
 
 		expectIsSubscribedPrivateGroup();
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
 		CreatorSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
@@ -284,6 +278,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(INVITED);
 
 		expectIsSubscribedPrivateGroup();
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
 		CreatorSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
@@ -301,6 +296,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 						inviteTimestamp + 1, messageId);
 
 		expectIsSubscribedPrivateGroup();
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
 		CreatorSession newSession =
 				engine.onJoinMessage(txn, session, invalidJoinMessage);
@@ -317,7 +313,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 						privateGroupId, inviteTimestamp + 1,
 						lastRemoteMessageId);
 
-		expectSendJoinMessage(properJoinMessage);
+		expectSendJoinMessage(properJoinMessage, false);
 		expectMarkMessageVisibleInUi(properJoinMessage.getId(), true);
 		context.checking(new Expectations() {{
 			oneOf(messageTracker)
@@ -359,6 +355,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(START);
 
 		expectIsSubscribedPrivateGroup();
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
 		CreatorSession newSession =
 				engine.onLeaveMessage(txn, session, leaveMessage);
@@ -372,6 +369,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(LEFT);
 
 		expectIsSubscribedPrivateGroup();
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
 		CreatorSession newSession =
 				engine.onLeaveMessage(txn, session, leaveMessage);
@@ -385,6 +383,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(INVITED);
 
 		expectIsSubscribedPrivateGroup();
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
 		CreatorSession newSession =
 				engine.onLeaveMessage(txn, session, leaveMessage);
@@ -402,6 +401,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(INVITED);
 
 		expectIsSubscribedPrivateGroup();
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
 		CreatorSession newSession =
 				engine.onLeaveMessage(txn, session, invalidLeaveMessage);
@@ -455,9 +455,6 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	@Test
 	public void testOnAbortMessageWhenNotSubscribed() throws Exception {
-		AbortMessage abortMessage =
-				new AbortMessage(messageId, contactGroupId, privateGroupId,
-						inviteTimestamp + 1);
 		CreatorSession session = getDefaultSession(START);
 
 		expectIsNotSubscribedPrivateGroup();
@@ -471,12 +468,10 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	@Test
 	public void testOnAbortMessageWhenSubscribed() throws Exception {
-		AbortMessage abortMessage =
-				new AbortMessage(messageId, contactGroupId, privateGroupId,
-						inviteTimestamp + 1);
 		CreatorSession session = getDefaultSession(START);
 
 		expectIsSubscribedPrivateGroup();
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
 		CreatorSession newSession =
 				engine.onAbortMessage(txn, session, abortMessage);
