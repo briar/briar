@@ -2,6 +2,8 @@ package org.briarproject.briar.android.blog;
 
 import android.app.Activity;
 
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
@@ -20,8 +22,13 @@ import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
+import org.briarproject.briar.api.blog.BlogSharingManager;
+import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
+import org.briarproject.briar.api.sharing.InvitationResponse;
+import org.briarproject.briar.api.sharing.event.ShareableLeftEvent;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -39,15 +46,19 @@ class BlogControllerImpl extends BaseControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(BlogControllerImpl.class.getName());
 
+	private final BlogSharingManager blogSharingManager;
 	private volatile GroupId groupId = null;
+	private volatile BlogSharingListener listener;
 
 	@Inject
 	BlogControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus,
 			AndroidNotificationManager notificationManager,
-			IdentityManager identityManager, BlogManager blogManager) {
+			IdentityManager identityManager, BlogManager blogManager,
+			BlogSharingManager blogSharingManager) {
 		super(dbExecutor, lifecycleManager, eventBus, notificationManager,
 				identityManager, blogManager);
+		this.blogSharingManager = blogSharingManager;
 	}
 
 	@Override
@@ -77,6 +88,12 @@ class BlogControllerImpl extends BaseControllerImpl
 	}
 
 	@Override
+	public void setBlogSharingListener(BlogSharingListener listener) {
+		super.setBlogListener(listener);
+		this.listener = listener;
+	}
+
+	@Override
 	public void eventOccurred(Event e) {
 		if (groupId == null) throw new IllegalStateException();
 		if (e instanceof BlogPostAddedEvent) {
@@ -85,6 +102,20 @@ class BlogControllerImpl extends BaseControllerImpl
 				LOG.info("Blog post added");
 				onBlogPostAdded(b.getHeader(), b.isLocal());
 			}
+		} else if (e instanceof BlogInvitationResponseReceivedEvent) {
+			BlogInvitationResponseReceivedEvent b =
+					(BlogInvitationResponseReceivedEvent) e;
+			InvitationResponse r = b.getResponse();
+			if (r.getGroupId().equals(groupId) && r.wasAccepted()) {
+				LOG.info("Blog invitation accepted");
+				onBlogInvitationAccepted(b.getContactId());
+			}
+		} else if (e instanceof ShareableLeftEvent) {
+			ShareableLeftEvent s = (ShareableLeftEvent) e;
+			if (s.getGroupId().equals(groupId)) {
+				LOG.info("Blog left");
+				onBlogLeft(s.getContactId());
+			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
 			if (g.getGroup().getId().equals(groupId)) {
@@ -92,6 +123,24 @@ class BlogControllerImpl extends BaseControllerImpl
 				onBlogRemoved();
 			}
 		}
+	}
+
+	private void onBlogInvitationAccepted(final ContactId c) {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
+			public void run() {
+				listener.onBlogInvitationAccepted(c);
+			}
+		});
+	}
+
+	private void onBlogLeft(final ContactId c) {
+		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+			@Override
+			public void run() {
+				listener.onBlogLeft(c);
+			}
+		});
 	}
 
 	@Override
@@ -150,6 +199,29 @@ class BlogControllerImpl extends BaseControllerImpl
 					if (LOG.isLoggable(INFO))
 						LOG.info("Removing blog took " + duration + " ms");
 					handler.onResult(null);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					handler.onException(e);
+				}
+			}
+		});
+	}
+
+	@Override
+	public void loadSharingContacts(
+			final ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
+		if (groupId == null) throw new IllegalStateException();
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Collection<Contact> contacts =
+							blogSharingManager.getSharedWith(groupId);
+					Collection<ContactId> contactIds =
+							new ArrayList<>(contacts.size());
+					for (Contact c : contacts) contactIds.add(c.getId());
+					handler.onResult(contactIds);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

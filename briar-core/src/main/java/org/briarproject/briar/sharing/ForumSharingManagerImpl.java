@@ -287,8 +287,8 @@ class ForumSharingManagerImpl extends
 				throw new IllegalStateException("No responseId");
 			ForumInvitationResponse response = new ForumInvitationResponse(
 					responseId, localState.getSessionId(),
-					localState.getGroupId(), localState.getContactId(), accept,
-					time, false, false, false, false);
+					localState.getShareableId(), localState.getContactId(),
+					accept, time, false, false, false, false);
 			return new ForumInvitationResponseReceivedEvent(name, c, response);
 		}
 	}

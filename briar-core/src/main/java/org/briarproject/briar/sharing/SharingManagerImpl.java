@@ -39,6 +39,7 @@ import org.briarproject.briar.api.sharing.SharingInvitationItem;
 import org.briarproject.briar.api.sharing.SharingManager;
 import org.briarproject.briar.api.sharing.event.InvitationRequestReceivedEvent;
 import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
+import org.briarproject.briar.api.sharing.event.ShareableLeftEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.io.IOException;
@@ -897,9 +898,15 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		} else if (task == TASK_UNSHARE_SHAREABLE_SHARED_BY_US) {
 			db.setGroupVisibility(txn, contactId, f.getId(), INVISIBLE);
 			removeFromList(txn, groupId, SHARED_BY_US, f);
+			// broadcast event informing UI that contact has left the group
+			ShareableLeftEvent e = new ShareableLeftEvent(f.getId(), contactId);
+			txn.attach(e);
 		} else if (task == TASK_UNSHARE_SHAREABLE_SHARED_WITH_US) {
 			db.setGroupVisibility(txn, contactId, f.getId(), INVISIBLE);
 			removeFromList(txn, groupId, SHARED_WITH_US, f);
+			// broadcast event informing UI that contact has left the group
+			ShareableLeftEvent e = new ShareableLeftEvent(f.getId(), contactId);
+			txn.attach(e);
 		}
 	}
 

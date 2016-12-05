@@ -357,7 +357,8 @@ class BlogSharingManagerImpl extends
 				throw new IllegalStateException("No responseId");
 			BlogInvitationResponse response =
 					new BlogInvitationResponse(responseId,
-							localState.getSessionId(), localState.getGroupId(),
+							localState.getSessionId(),
+							localState.getShareableId(),
 							localState.getContactId(), accept, time, false,
 							false, false, false);
 			return new BlogInvitationResponseReceivedEvent(c, response);
