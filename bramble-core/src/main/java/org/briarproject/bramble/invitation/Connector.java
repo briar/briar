@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.contact.ContactExchangeTask;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.KeyParser;
-import org.briarproject.bramble.api.crypto.MessageDigest;
 import org.briarproject.bramble.api.crypto.PseudoRandom;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.data.BdfReader;
@@ -35,6 +34,8 @@ abstract class Connector extends Thread {
 
 	private static final Logger LOG =
 			Logger.getLogger(Connector.class.getName());
+	private static final String LABEL_PUBLIC_KEY =
+			"org.briarproject.bramble.invitation.PUBLIC_KEY";
 
 	protected final CryptoComponent crypto;
 	protected final BdfReaderFactory bdfReaderFactory;
@@ -48,7 +49,6 @@ abstract class Connector extends Thread {
 
 	private final KeyPair keyPair;
 	private final KeyParser keyParser;
-	private final MessageDigest messageDigest;
 
 	Connector(CryptoComponent crypto, BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory,
@@ -66,7 +66,6 @@ abstract class Connector extends Thread {
 		pluginName = plugin.getClass().getName();
 		keyPair = crypto.generateAgreementKeyPair();
 		keyParser = crypto.getAgreementKeyParser();
-		messageDigest = crypto.getMessageDigest();
 	}
 
 	@Nullable
@@ -78,13 +77,15 @@ abstract class Connector extends Thread {
 	}
 
 	void sendPublicKeyHash(BdfWriter w) throws IOException {
-		w.writeRaw(messageDigest.digest(keyPair.getPublic().getEncoded()));
+		byte[] hash =
+				crypto.hash(LABEL_PUBLIC_KEY, keyPair.getPublic().getEncoded());
+		w.writeRaw(hash);
 		w.flush();
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " sent hash");
 	}
 
 	byte[] receivePublicKeyHash(BdfReader r) throws IOException {
-		int hashLength = messageDigest.getDigestLength();
+		int hashLength = crypto.getHashLength();
 		byte[] b = r.readRaw(hashLength);
 		if (b.length < hashLength) throw new FormatException();
 		if (LOG.isLoggable(INFO)) LOG.info(pluginName + " received hash");
@@ -109,7 +110,9 @@ abstract class Connector extends Thread {
 	SecretKey deriveMasterSecret(byte[] hash, byte[] key, boolean alice)
 			throws GeneralSecurityException {
 		// Check that the hash matches the key
-		if (!Arrays.equals(hash, messageDigest.digest(key))) {
+		byte[] keyHash =
+				crypto.hash(LABEL_PUBLIC_KEY, keyPair.getPublic().getEncoded());
+		if (!Arrays.equals(hash, keyHash)) {
 			if (LOG.isLoggable(INFO))
 				LOG.info(pluginName + " hash does not match key");
 			throw new GeneralSecurityException();

@@ -1,6 +1,5 @@
 package org.briarproject.bramble.crypto;
 
-import org.briarproject.bramble.api.crypto.MessageDigest;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.spongycastle.crypto.BlockCipher;
 import org.spongycastle.crypto.digests.SHA256Digest;
@@ -27,7 +26,7 @@ class FortunaGenerator {
 	private final Lock lock = new ReentrantLock();
 
 	// The following are locking: lock
-	private final MessageDigest digest = new DoubleDigest(new SHA256Digest());
+	private final DoubleDigest digest = new DoubleDigest(new SHA256Digest());
 	private final BlockCipher cipher = new AESLightEngine();
 	private final byte[] key = new byte[KEY_BYTES];
 	private final byte[] counter = new byte[BLOCK_BYTES];

@@ -1,6 +1,5 @@
 package org.briarproject.bramble.crypto;
 
-import org.briarproject.bramble.api.crypto.MessageDigest;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.spongycastle.crypto.Digest;
 
@@ -17,7 +16,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 @NotNullByDefault
-class DoubleDigest implements MessageDigest {
+class DoubleDigest implements Digest {
 
 	private final Digest delegate;
 
@@ -25,8 +24,7 @@ class DoubleDigest implements MessageDigest {
 		this.delegate = delegate;
 	}
 
-	@Override
-	public byte[] digest() {
+	private byte[] digest() {
 		byte[] digest = new byte[delegate.getDigestSize()];
 		delegate.doFinal(digest, 0); // h(m)
 		delegate.update(digest, 0, digest.length);
@@ -34,13 +32,6 @@ class DoubleDigest implements MessageDigest {
 		return digest;
 	}
 
-	@Override
-	public byte[] digest(byte[] input) {
-		delegate.update(input, 0, input.length);
-		return digest();
-	}
-
-	@Override
 	public int digest(byte[] buf, int offset, int len) {
 		byte[] digest = digest();
 		len = Math.min(len, digest.length);
@@ -49,8 +40,13 @@ class DoubleDigest implements MessageDigest {
 	}
 
 	@Override
-	public int getDigestLength() {
+	public int getDigestSize() {
 		return delegate.getDigestSize();
+	}
+
+	@Override
+	public String getAlgorithmName() {
+		return "Double " + delegate.getAlgorithmName();
 	}
 
 	@Override
@@ -63,7 +59,6 @@ class DoubleDigest implements MessageDigest {
 		delegate.update(input);
 	}
 
-	@Override
 	public void update(byte[] input) {
 		delegate.update(input, 0, input.length);
 	}
@@ -72,4 +67,10 @@ class DoubleDigest implements MessageDigest {
 	public void update(byte[] input, int offset, int len) {
 		delegate.update(input, offset, len);
 	}
+
+	@Override
+	public int doFinal(byte[] out, int outOff) {
+		return digest(out, outOff, delegate.getDigestSize());
+	}
+
 }

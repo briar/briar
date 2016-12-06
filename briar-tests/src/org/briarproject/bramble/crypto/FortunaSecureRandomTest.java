@@ -1,7 +1,6 @@
 package org.briarproject.bramble.crypto;
 
 import org.briarproject.BriarTestCase;
-import org.briarproject.bramble.api.crypto.MessageDigest;
 import org.junit.Test;
 import org.spongycastle.crypto.BlockCipher;
 import org.spongycastle.crypto.digests.SHA256Digest;
@@ -27,7 +26,7 @@ public class FortunaSecureRandomTest extends BriarTestCase {
 		byte[] counter = new byte[16], output = new byte[16];
 		byte[] newKey = new byte[32];
 		// Calculate the initial key
-		MessageDigest digest = new DoubleDigest(new SHA256Digest());
+		DoubleDigest digest = new DoubleDigest(new SHA256Digest());
 		digest.update(key);
 		digest.update(seed);
 		digest.digest(key, 0, 32);

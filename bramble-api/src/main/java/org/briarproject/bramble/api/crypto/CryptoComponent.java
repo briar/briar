@@ -10,8 +10,6 @@ public interface CryptoComponent {
 
 	SecretKey generateSecretKey();
 
-	MessageDigest getMessageDigest();
-
 	PseudoRandom getPseudoRandom(int seed1, int seed2);
 
 	SecureRandom getSecureRandom();
@@ -164,8 +162,17 @@ public interface CryptoComponent {
 	/**
 	 * Returns the hash of the given inputs. The inputs are unambiguously
 	 * combined by prefixing each input with its length.
+	 *
+	 * @param label A label specific to this hash to ensure that hashes
+	 *              calculated for distinct purposes don't collide.
 	 */
-	byte[] hash(byte[]... inputs);
+	byte[] hash(String label, byte[]... inputs);
+
+	/**
+	 * Returns the length of hashes produced by
+	 * the {@link CryptoComponent#hash(String, byte[]...)} method.
+	 */
+	int getHashLength();
 
 	/**
 	 * Returns a message authentication code with the given key over the
