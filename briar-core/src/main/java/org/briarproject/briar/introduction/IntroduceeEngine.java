@@ -266,14 +266,6 @@ class IntroduceeEngine
 		m.put(SESSION_ID, localState.getRaw(SESSION_ID));
 		m.put(MAC, localState.getRaw(OUR_MAC));
 		m.put(SIGNATURE, localState.getRaw(OUR_SIGNATURE));
-
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("Sending ACK " + " to " +
-					localState.getString(INTRODUCER) + " for " +
-					localState.getString(NAME) + " with session ID " +
-					Arrays.hashCode(m.getRaw(SESSION_ID)) + " in group " +
-					Arrays.hashCode(m.getRaw(GROUP_ID)));
-		}
 		return m;
 	}
 
@@ -285,14 +277,9 @@ class IntroduceeEngine
 		try {
 			LOG.info("Sending " +
 					(localState.getBoolean(ACCEPT) ? "accept " : "decline ") +
-					"response in state " + state.name() +
-					" to " + localState.getString(INTRODUCER) +
-					" for " + localState.getString(NAME) + " with session ID " +
-					Arrays.hashCode(msg.getRaw(SESSION_ID)) + " in group " +
-					Arrays.hashCode(msg.getRaw(GROUP_ID)) + ". " +
-					"Moving on to state " +
-					getState(localState.getLong(STATE)).name()
-			);
+					"response in state " + state.name());
+			LOG.info("Moving on to state " +
+					getState(localState.getLong(STATE)).name());
 		} catch (FormatException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
@@ -304,25 +291,14 @@ class IntroduceeEngine
 
 		if (!LOG.isLoggable(INFO)) return;
 
-		try {
-			String t = "unknown";
-			if (type == TYPE_REQUEST) t = "Introduction";
-			else if (type == TYPE_RESPONSE) t = "Response";
-			else if (type == TYPE_ACK) t = "ACK";
-			else if (type == TYPE_ABORT) t = "Abort";
+		String t = "unknown";
+		if (type == TYPE_REQUEST) t = "Introduction";
+		else if (type == TYPE_RESPONSE) t = "Response";
+		else if (type == TYPE_ACK) t = "ACK";
+		else if (type == TYPE_ABORT) t = "Abort";
 
-			LOG.info("Received " + t + " in state " + currentState.name() +
-					" from " + localState.getString(INTRODUCER) +
-					(localState.containsKey(NAME) ?
-							" related to " + localState.getString(NAME) : "") +
-					" with session ID " +
-					Arrays.hashCode(msg.getRaw(SESSION_ID)) + " in group " +
-					Arrays.hashCode(msg.getRaw(GROUP_ID)) + ". " +
-					"Moving on to state " + nextState.name()
-			);
-		} catch (FormatException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
+		LOG.info("Received " + t + " in state " + currentState.name());
+		LOG.info("Moving on to state " + nextState.name());
 	}
 
 	@Override
@@ -368,11 +344,9 @@ class IntroduceeEngine
 			IntroduceeProtocolState currentState, BdfDictionary localState)
 			throws FormatException {
 
-		if (LOG.isLoggable(WARNING)) {
-			LOG.warning("Aborting protocol session " +
-					Arrays.hashCode(localState.getRaw(SESSION_ID)) +
-					" in state " + currentState.name());
-		}
+		if (LOG.isLoggable(WARNING))
+			LOG.warning("Aborting protocol session in state " +
+					currentState.name());
 
 		localState.put(STATE, ERROR.getValue());
 		localState.put(TASK, TASK_ABORT);

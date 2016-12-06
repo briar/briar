@@ -167,7 +167,6 @@ class IntroducerManager {
 	}
 
 	public void abort(Transaction txn, BdfDictionary state) {
-
 		IntroducerEngine engine = new IntroducerEngine();
 		BdfDictionary localAction = new BdfDictionary();
 		localAction.put(TYPE, TYPE_ABORT);

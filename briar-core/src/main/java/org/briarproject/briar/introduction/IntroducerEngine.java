@@ -114,7 +114,7 @@ class IntroducerEngine
 				}
 				msg1.put(MESSAGE_TIME, localAction.getLong(MESSAGE_TIME));
 				messages.add(msg1);
-				logLocalAction(currentState, localState, msg1);
+				logLocalAction(currentState, localState);
 				BdfDictionary msg2 = new BdfDictionary();
 				msg2.put(TYPE, TYPE_REQUEST);
 				msg2.put(SESSION_ID, localState.getRaw(SESSION_ID));
@@ -126,7 +126,7 @@ class IntroducerEngine
 				}
 				msg2.put(MESSAGE_TIME, localAction.getLong(MESSAGE_TIME));
 				messages.add(msg2);
-				logLocalAction(currentState, localState, msg2);
+				logLocalAction(currentState, localState);
 
 				List<Event> events = Collections.emptyList();
 				return new StateUpdate<BdfDictionary, BdfDictionary>(false,
@@ -214,19 +214,13 @@ class IntroducerEngine
 	}
 
 	private void logLocalAction(IntroducerProtocolState state,
-			BdfDictionary localState, BdfDictionary msg) {
+			BdfDictionary localState) {
 
 		if (!LOG.isLoggable(INFO)) return;
-
 		try {
-			String to = getMessagePartner(localState, msg);
-			LOG.info("Sending introduction request in state " + state.name() +
-					" to " + to + " with session ID " +
-					Arrays.hashCode(msg.getRaw(SESSION_ID)) + " in group " +
-					Arrays.hashCode(msg.getRaw(GROUP_ID)) + ". " +
-					"Moving on to state " +
-					getState(localState.getLong(STATE)).name()
-			);
+			LOG.info("Sending introduction request in state " + state.name());
+			LOG.info("Moving on to state " +
+					getState(localState.getLong(STATE)).name());
 		} catch (FormatException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
@@ -235,28 +229,17 @@ class IntroducerEngine
 	private void logMessageReceived(IntroducerProtocolState currentState,
 			IntroducerProtocolState nextState,
 			BdfDictionary localState, int type, BdfDictionary msg) {
+
 		if (!LOG.isLoggable(INFO)) return;
 
-		try {
-			String t = "unknown";
-			if (type == TYPE_REQUEST) t = "Introduction";
-			else if (type == TYPE_RESPONSE) t = "Response";
-			else if (type == TYPE_ACK) t = "ACK";
-			else if (type == TYPE_ABORT) t = "Abort";
+		String t = "unknown";
+		if (type == TYPE_REQUEST) t = "Introduction";
+		else if (type == TYPE_RESPONSE) t = "Response";
+		else if (type == TYPE_ACK) t = "ACK";
+		else if (type == TYPE_ABORT) t = "Abort";
 
-			String from = getMessagePartner(localState, msg);
-			String to = getOtherContact(localState, msg);
-
-			LOG.info("Received " + t + " in state " + currentState.name() +
-					" from " +
-					from + " to " + to + " with session ID " +
-					Arrays.hashCode(msg.getRaw(SESSION_ID)) + " in group " +
-					Arrays.hashCode(msg.getRaw(GROUP_ID)) + ". " +
-					"Moving on to state " + nextState.name()
-			);
-		} catch (FormatException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
+		LOG.info("Received " + t + " in state " + currentState.name());
+		LOG.info("Moving on to state " + nextState.name());
 	}
 
 	private List<BdfDictionary> forwardMessage(BdfDictionary localState,
@@ -268,11 +251,6 @@ class IntroducerEngine
 			msg.put(GROUP_ID, localState.getRaw(GROUP_ID_2));
 		} else {
 			msg.put(GROUP_ID, localState.getRaw(GROUP_ID_1));
-		}
-
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("Forwarding message to group " +
-					Arrays.hashCode(msg.getRaw(GROUP_ID)));
 		}
 
 		return Collections.singletonList(msg);
@@ -336,17 +314,6 @@ class IntroducerEngine
 		}
 	}
 
-	private String getMessagePartner(BdfDictionary localState,
-			BdfDictionary msg) throws FormatException {
-
-		String from = localState.getString(CONTACT_1);
-		if (Arrays
-				.equals(msg.getRaw(GROUP_ID), localState.getRaw(GROUP_ID_2))) {
-			from = localState.getString(CONTACT_2);
-		}
-		return from;
-	}
-
 	private String getOtherContact(BdfDictionary localState, BdfDictionary msg)
 			throws FormatException {
 
@@ -362,11 +329,9 @@ class IntroducerEngine
 			IntroducerProtocolState currentState, BdfDictionary localState)
 			throws FormatException {
 
-		if (LOG.isLoggable(WARNING)) {
-			LOG.warning("Aborting protocol session " +
-					Arrays.hashCode(localState.getRaw(SESSION_ID)) +
-					" in state " + currentState.name());
-		}
+		if (LOG.isLoggable(WARNING))
+			LOG.warning("Aborting protocol session in state " +
+					currentState.name());
 
 		localState.put(STATE, ERROR.getValue());
 		List<BdfDictionary> messages = new ArrayList<BdfDictionary>(2);
