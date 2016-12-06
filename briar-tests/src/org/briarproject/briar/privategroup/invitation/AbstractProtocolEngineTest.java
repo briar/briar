@@ -2,6 +2,7 @@ package org.briarproject.briar.privategroup.invitation;
 
 import org.briarproject.BriarMockTestCase;
 import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
@@ -79,6 +80,9 @@ public abstract class AbstractProtocolEngineTest extends BriarMockTestCase {
 	private final BdfDictionary meta =
 			BdfDictionary.of(new BdfEntry("me", "ta"));
 	protected final ContactId contactId = new ContactId(5);
+	protected final Contact contact =
+			new Contact(contactId, author, new AuthorId(getRandomId()), true,
+					true);
 
 	protected final InviteMessage inviteMessage =
 			new InviteMessage(new MessageId(getRandomId()), contactGroupId,
