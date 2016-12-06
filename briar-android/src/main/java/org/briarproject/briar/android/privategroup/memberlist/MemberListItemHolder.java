@@ -20,19 +20,52 @@ import static org.briarproject.briar.android.privategroup.VisibilityHelper.getVi
 class MemberListItemHolder extends RecyclerView.ViewHolder {
 
 	private final AuthorView author;
+	private final ImageView bulb;
+	private final TextView creator;
 	private final ImageView icon;
 	private final TextView info;
 
 	MemberListItemHolder(View v) {
 		super(v);
 		author = (AuthorView) v.findViewById(R.id.authorView);
+		bulb = (ImageView) v.findViewById(R.id.bulbView);
+		creator = (TextView) v.findViewById(R.id.creatorView);
 		icon = (ImageView) v.findViewById(R.id.icon);
 		info = (TextView) v.findViewById(R.id.info);
 	}
 
 	protected void bind(MemberListItem item) {
+		// member name, avatar and status
 		author.setAuthor(item.getMember());
 		author.setAuthorStatus(item.getStatus());
+
+		// online status of visible contacts
+		if (item.getContactId() != null) {
+			bulb.setVisibility(View.VISIBLE);
+			if (item.isOnline()) {
+				bulb.setImageResource(R.drawable.contact_connected);
+			} else {
+				bulb.setImageResource(R.drawable.contact_disconnected);
+			}
+		} else {
+			bulb.setVisibility(View.GONE);
+		}
+
+		// text shown for creator
+		if (item.isCreator()) {
+			creator.setVisibility(View.VISIBLE);
+			if (item.getStatus() == OURSELVES) {
+				creator.setText(R.string.groups_member_created_you);
+			} else {
+				creator.setText(creator.getContext()
+						.getString(R.string.groups_member_created,
+								item.getMember().getName()));
+			}
+		} else {
+			creator.setVisibility(View.GONE);
+		}
+
+		// visibility information
 		if (item.getStatus() == OURSELVES || item.getStatus() == UNKNOWN) {
 			icon.setVisibility(View.GONE);
 			info.setVisibility(View.GONE);

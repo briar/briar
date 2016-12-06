@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.AuthorId;
@@ -71,6 +72,21 @@ public class GroupActivity extends
 		String groupName = i.getStringExtra(GROUP_NAME);
 		if (groupName != null) setTitle(groupName);
 		loadNamedGroup();
+
+		// Open member list on ActionBar click
+		View actionBar = findViewById(R.id.action_bar);
+		if (actionBar != null) {
+			actionBar.setOnClickListener(
+					new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							Intent i = new Intent(GroupActivity.this,
+									GroupMemberListActivity.class);
+							i.putExtra(GROUP_ID, groupId.getBytes());
+							startActivity(i);
+						}
+					});
+		}
 
 		setGroupEnabled(false);
 	}

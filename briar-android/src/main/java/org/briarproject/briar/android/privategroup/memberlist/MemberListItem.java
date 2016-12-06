@@ -1,37 +1,55 @@
 package org.briarproject.briar.android.privategroup.memberlist;
 
+import android.support.annotation.Nullable;
+
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.Author.Status;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.privategroup.GroupMember;
 import org.briarproject.briar.api.privategroup.Visibility;
 
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
 
-@Immutable
+@NotThreadSafe
 @NotNullByDefault
 class MemberListItem {
 
-	private final Author member;
-	private final Status status;
-	private final Visibility visibility;
+	private final GroupMember groupMember;
+	private boolean online;
 
-	MemberListItem(GroupMember groupMember) {
-		this.member = groupMember.getAuthor();
-		this.visibility = groupMember.getVisibility();
-		this.status = groupMember.getStatus();
+	MemberListItem(GroupMember groupMember, boolean online) {
+		this.groupMember = groupMember;
+		this.online = online;
 	}
 
 	Author getMember() {
-		return member;
-	}
-
-	Visibility getVisibility() {
-		return visibility;
+		return groupMember.getAuthor();
 	}
 
 	Status getStatus() {
-		return status;
+		return groupMember.getStatus();
+	}
+
+	boolean isCreator() {
+		return groupMember.isCreator();
+	}
+
+	@Nullable
+	ContactId getContactId() {
+		return groupMember.getContactId();
+	}
+
+	Visibility getVisibility() {
+		return groupMember.getVisibility();
+	}
+
+	boolean isOnline() {
+		return online;
+	}
+
+	void setOnline(boolean online) {
+		this.online = online;
 	}
 
 }
