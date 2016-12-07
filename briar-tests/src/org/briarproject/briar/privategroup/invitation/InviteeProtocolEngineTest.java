@@ -30,6 +30,8 @@ import static org.briarproject.briar.privategroup.invitation.InviteeState.LEFT;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.START;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
@@ -311,13 +313,10 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		assertTrue(
 				inviteMessage.getTimestamp() <= session.getInviteTimestamp());
 
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession newSession =
 				engine.onInviteMessage(txn, session, inviteMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -337,14 +336,11 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
 		}});
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 
 		InviteeSession newSession =
 				engine.onInviteMessage(txn, session, properInviteMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -393,62 +389,47 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	@Test
 	public void testOnInviteMessageFromInvited() throws Exception {
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession session = getDefaultSession(INVITED);
 		InviteeSession newSession =
 				engine.onInviteMessage(txn, session, inviteMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnInviteMessageFromAccepted() throws Exception {
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession session = getDefaultSession(ACCEPTED);
 		InviteeSession newSession =
 				engine.onInviteMessage(txn, session, inviteMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnInviteMessageFromJoined() throws Exception {
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession session = getDefaultSession(JOINED);
 		InviteeSession newSession =
 				engine.onInviteMessage(txn, session, inviteMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnInviteMessageFromLeft() throws Exception {
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession session = getDefaultSession(LEFT);
 		InviteeSession newSession =
 				engine.onInviteMessage(txn, session, inviteMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnInviteMessageFromDissolved() throws Exception {
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession session = getDefaultSession(DISSOLVED);
 		InviteeSession newSession =
 				engine.onInviteMessage(txn, session, inviteMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -462,62 +443,47 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	@Test
 	public void testOnJoinMessageFromStart() throws Exception {
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession session = getDefaultSession(START);
 		InviteeSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnJoinMessageFromInvited() throws Exception {
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession session = getDefaultSession(INVITED);
 		InviteeSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnJoinMessageFromJoined() throws Exception {
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession session = getDefaultSession(JOINED);
 		InviteeSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnJoinMessageFromLeft() throws Exception {
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession session = getDefaultSession(LEFT);
 		InviteeSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnJoinMessageFromDissolved() throws Exception {
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession session = getDefaultSession(DISSOLVED);
 		InviteeSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -526,13 +492,10 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		InviteeSession session = getDefaultSession(ACCEPTED);
 		assertTrue(joinMessage.getTimestamp() <= session.getInviteTimestamp());
 
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -545,18 +508,15 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 						lastLocalMessageId);
 		assertFalse(invalidJoinMessage.getTimestamp() <=
 				session.getInviteTimestamp());
-		assertTrue(session.getLastRemoteMessageId() != null);
-		assertTrue(invalidJoinMessage.getPreviousMessageId() != null);
+		assertNotNull(session.getLastRemoteMessageId());
+		assertNotNull(invalidJoinMessage.getPreviousMessageId());
 		assertFalse(session.getLastRemoteMessageId()
 				.equals(invalidJoinMessage.getPreviousMessageId()));
 
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession newSession =
 				engine.onJoinMessage(txn, session, invalidJoinMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -568,8 +528,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 						lastRemoteMessageId);
 		assertFalse(properJoinMessage.getTimestamp() <=
 				session.getInviteTimestamp());
-		assertTrue(session.getLastRemoteMessageId() != null);
-		assertTrue(properJoinMessage.getPreviousMessageId() != null);
+		assertNotNull(session.getLastRemoteMessageId());
+		assertNotNull(properJoinMessage.getPreviousMessageId());
 		assertTrue(session.getLastRemoteMessageId()
 				.equals(properJoinMessage.getPreviousMessageId()));
 
@@ -601,26 +561,20 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	@Test
 	public void testOnLeaveMessageFromStart() throws Exception {
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession session = getDefaultSession(START);
 		InviteeSession newSession =
 				engine.onLeaveMessage(txn, session, leaveMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnLeaveMessageFromDissolved() throws Exception {
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession session = getDefaultSession(DISSOLVED);
 		InviteeSession newSession =
 				engine.onLeaveMessage(txn, session, leaveMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -629,13 +583,10 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		InviteeSession session = getDefaultSession(INVITED);
 		assertTrue(leaveMessage.getTimestamp() <= session.getInviteTimestamp());
 
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession newSession =
 				engine.onLeaveMessage(txn, session, leaveMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -644,13 +595,10 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		InviteeSession session = getDefaultSession(LEFT);
 		assertTrue(leaveMessage.getTimestamp() <= session.getInviteTimestamp());
 
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession newSession =
 				engine.onLeaveMessage(txn, session, leaveMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -662,15 +610,12 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 						privateGroupId, session.getInviteTimestamp() + 1, null);
 		assertFalse(invalidLeaveMessage.getTimestamp() <=
 				session.getInviteTimestamp());
-		assertTrue(invalidLeaveMessage.getPreviousMessageId() == null);
+		assertNull(invalidLeaveMessage.getPreviousMessageId());
 
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession newSession =
 				engine.onLeaveMessage(txn, session, invalidLeaveMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -682,15 +627,12 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 						privateGroupId, session.getInviteTimestamp() + 1, null);
 		assertFalse(invalidLeaveMessage.getTimestamp() <=
 				session.getInviteTimestamp());
-		assertTrue(invalidLeaveMessage.getPreviousMessageId() == null);
+		assertNull(invalidLeaveMessage.getPreviousMessageId());
 
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession newSession =
 				engine.onLeaveMessage(txn, session, invalidLeaveMessage);
-
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -702,8 +644,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 						lastRemoteMessageId);
 		assertFalse(properLeaveMessage.getTimestamp() <=
 				session.getInviteTimestamp());
-		assertTrue(session.getLastRemoteMessageId() != null);
-		assertTrue(properLeaveMessage.getPreviousMessageId() != null);
+		assertNotNull(session.getLastRemoteMessageId());
+		assertNotNull(properLeaveMessage.getPreviousMessageId());
 		assertTrue(session.getLastRemoteMessageId()
 				.equals(properLeaveMessage.getPreviousMessageId()));
 
@@ -731,8 +673,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 						lastRemoteMessageId);
 		assertFalse(properLeaveMessage.getTimestamp() <=
 				session.getInviteTimestamp());
-		assertTrue(session.getLastRemoteMessageId() != null);
-		assertTrue(properLeaveMessage.getPreviousMessageId() != null);
+		assertNotNull(session.getLastRemoteMessageId());
+		assertNotNull(properLeaveMessage.getPreviousMessageId());
 		assertTrue(session.getLastRemoteMessageId()
 				.equals(properLeaveMessage.getPreviousMessageId()));
 
@@ -757,12 +699,10 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	public void testOnAbortMessageWhenNotSubscribed() throws Exception {
 		InviteeSession session = getDefaultSession(START);
 
-		expectAbort();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession newSession =
 				engine.onAbortMessage(txn, session, abortMessage);
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -772,9 +712,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		expectAbortWhenNotSubscribedToGroup();
 		InviteeSession newSession =
 				engine.onAbortMessage(txn, session, abortMessage);
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	// helper methods
@@ -790,7 +728,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		}});
 	}
 
-	private void expectAbort() throws Exception {
+	private void expectAbortWhenSubscribedToGroup() throws Exception {
 		expectAbort(true);
 	}
 
@@ -819,6 +757,13 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 			expectIsNotSubscribedPrivateGroup();
 		}
 		expectSendAbortMessage();
+	}
+
+	private void assertSessionAborted(InviteeSession oldSession,
+			InviteeSession newSession) throws Exception {
+		assertEquals(ERROR, newSession.getState());
+		assertSessionRecordedSentMessage(newSession);
+		assertSessionConstantsUnchanged(oldSession, newSession);
 	}
 
 }

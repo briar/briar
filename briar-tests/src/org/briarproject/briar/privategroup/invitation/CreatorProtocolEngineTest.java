@@ -208,7 +208,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 	// onInviteMessage
 
 	@Test
-	public void testOnInviteMessageInAnyState() throws Exception {
+	public void testOnInviteMessageInAnyStateWhenSubscribed() throws Exception {
 		expectIsSubscribedPrivateGroup();
 		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
@@ -217,15 +217,29 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 				engine.onInviteMessage(txn, session, inviteMessage);
 		assertEquals(ERROR, newSession.getState());
 
-		expectIsSubscribedPrivateGroup();
-		expectSetPrivateGroupVisibility(INVISIBLE);
-		expectSendAbortMessage();
+		expectAbortWhenSubscribedToGroup();
 		session = getDefaultSession(START);
 		newSession =
 				engine.onInviteMessage(txn, session, inviteMessage);
+		assertSessionAborted(session, newSession);
+	}
+
+	@Test
+	public void testOnInviteMessageInAnyStateWhenNotSubscribed()
+			throws Exception {
+		expectIsSubscribedPrivateGroup();
+		expectSetPrivateGroupVisibility(INVISIBLE);
+		expectSendAbortMessage();
+		CreatorSession session = getDefaultSession(LEFT);
+		CreatorSession newSession =
+				engine.onInviteMessage(txn, session, inviteMessage);
 		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+
+		expectAbortWhenNotSubscribedToGroup();
+		session = getDefaultSession(START);
+		newSession =
+				engine.onInviteMessage(txn, session, inviteMessage);
+		assertSessionAborted(session, newSession);
 	}
 
 	// onJoinMessage
@@ -234,42 +248,30 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 	public void testOnJoinMessageFromStart() throws Exception {
 		CreatorSession session = getDefaultSession(START);
 
-		expectIsSubscribedPrivateGroup();
-		expectSetPrivateGroupVisibility(INVISIBLE);
-		expectSendAbortMessage();
+		expectAbortWhenSubscribedToGroup();
 		CreatorSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnJoinMessageFromJoined() throws Exception {
 		CreatorSession session = getDefaultSession(JOINED);
 
-		expectIsSubscribedPrivateGroup();
-		expectSetPrivateGroupVisibility(INVISIBLE);
-		expectSendAbortMessage();
+		expectAbortWhenSubscribedToGroup();
 		CreatorSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnJoinMessageFromLeft() throws Exception {
 		CreatorSession session = getDefaultSession(LEFT);
 
-		expectIsSubscribedPrivateGroup();
-		expectSetPrivateGroupVisibility(INVISIBLE);
-		expectSendAbortMessage();
+		expectAbortWhenSubscribedToGroup();
 		CreatorSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -277,14 +279,10 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 			throws Exception {
 		CreatorSession session = getDefaultSession(INVITED);
 
-		expectIsSubscribedPrivateGroup();
-		expectSetPrivateGroupVisibility(INVISIBLE);
-		expectSendAbortMessage();
+		expectAbortWhenSubscribedToGroup();
 		CreatorSession newSession =
 				engine.onJoinMessage(txn, session, joinMessage);
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -295,14 +293,10 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 				new JoinMessage(messageId, contactGroupId, privateGroupId,
 						inviteTimestamp + 1, messageId);
 
-		expectIsSubscribedPrivateGroup();
-		expectSetPrivateGroupVisibility(INVISIBLE);
-		expectSendAbortMessage();
+		expectAbortWhenSubscribedToGroup();
 		CreatorSession newSession =
 				engine.onJoinMessage(txn, session, invalidJoinMessage);
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -354,42 +348,30 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 						inviteTimestamp, lastLocalMessageId);
 		CreatorSession session = getDefaultSession(START);
 
-		expectIsSubscribedPrivateGroup();
-		expectSetPrivateGroupVisibility(INVISIBLE);
-		expectSendAbortMessage();
+		expectAbortWhenSubscribedToGroup();
 		CreatorSession newSession =
 				engine.onLeaveMessage(txn, session, leaveMessage);
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnLeaveMessageFromLeft() throws Exception {
 		CreatorSession session = getDefaultSession(LEFT);
 
-		expectIsSubscribedPrivateGroup();
-		expectSetPrivateGroupVisibility(INVISIBLE);
-		expectSendAbortMessage();
+		expectAbortWhenSubscribedToGroup();
 		CreatorSession newSession =
 				engine.onLeaveMessage(txn, session, leaveMessage);
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnLeaveMessageFromInvitedWithWrongTime() throws Exception {
 		CreatorSession session = getDefaultSession(INVITED);
 
-		expectIsSubscribedPrivateGroup();
-		expectSetPrivateGroupVisibility(INVISIBLE);
-		expectSendAbortMessage();
+		expectAbortWhenSubscribedToGroup();
 		CreatorSession newSession =
 				engine.onLeaveMessage(txn, session, leaveMessage);
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -400,14 +382,10 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 						inviteTimestamp + 1, lastLocalMessageId);
 		CreatorSession session = getDefaultSession(INVITED);
 
-		expectIsSubscribedPrivateGroup();
-		expectSetPrivateGroupVisibility(INVISIBLE);
-		expectSendAbortMessage();
+		expectAbortWhenSubscribedToGroup();
 		CreatorSession newSession =
 				engine.onLeaveMessage(txn, session, invalidLeaveMessage);
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
@@ -461,23 +439,37 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		expectSendAbortMessage();
 		CreatorSession newSession =
 				engine.onAbortMessage(txn, session, abortMessage);
-		assertEquals(ERROR, newSession.getState());
-		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionAborted(session, newSession);
 	}
 
 	@Test
 	public void testOnAbortMessageWhenSubscribed() throws Exception {
 		CreatorSession session = getDefaultSession(START);
 
+		expectAbortWhenSubscribedToGroup();
+		CreatorSession newSession =
+				engine.onAbortMessage(txn, session, abortMessage);
+		assertSessionAborted(session, newSession);
+	}
+
+	// helper methods
+
+	private void expectAbortWhenSubscribedToGroup() throws Exception {
 		expectIsSubscribedPrivateGroup();
 		expectSetPrivateGroupVisibility(INVISIBLE);
 		expectSendAbortMessage();
-		CreatorSession newSession =
-				engine.onAbortMessage(txn, session, abortMessage);
+	}
+
+	private void expectAbortWhenNotSubscribedToGroup() throws Exception {
+		expectIsNotSubscribedPrivateGroup();
+		expectSendAbortMessage();
+	}
+
+	private void assertSessionAborted(CreatorSession oldSession,
+			CreatorSession newSession) throws Exception {
 		assertEquals(ERROR, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);
-		assertSessionConstantsUnchanged(session, newSession);
+		assertSessionConstantsUnchanged(oldSession, newSession);
 	}
 
 }
