@@ -3,7 +3,6 @@ package org.briarproject.briar.android.login;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -19,7 +18,7 @@ import android.widget.TextView.OnEditorActionListener;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
-import org.briarproject.briar.android.controller.handler.UiResultHandler;
+import org.briarproject.briar.android.controller.handler.NewUiResultHandler;
 import org.briarproject.briar.android.util.UiUtils;
 
 import javax.inject.Inject;
@@ -38,6 +37,8 @@ public class PasswordActivity extends BaseActivity {
 	private ProgressBar progress;
 	private TextInputLayout input;
 	private EditText password;
+
+	private PasswordResult passwordResult;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -78,6 +79,16 @@ public class PasswordActivity extends BaseActivity {
 			public void afterTextChanged(Editable s) {
 			}
 		});
+
+		this.passwordResult =
+				(PasswordResult) getLastCustomNonConfigurationInstance();
+		if (passwordResult != null)
+			passwordResult.setActivity(this);
+	}
+
+	@Override
+	public Object onRetainCustomNonConfigurationInstance() {
+		return passwordResult;
 	}
 
 	@Override
@@ -123,24 +134,21 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	private void validatePassword() {
+		initProgressUiState();
+
+		passwordResult = new PasswordResult(this);
+		passwordController.validatePassword(password.getText().toString(),
+				passwordResult);
+	}
+
+	public void initProgressUiState() {
 		hideSoftKeyboard(password);
 		signInButton.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
-		passwordController.validatePassword(password.getText().toString(),
-				new UiResultHandler<Boolean>(this) {
-					@Override
-					public void onResultUi(@NonNull Boolean result) {
-						if (result) {
-							setResult(RESULT_OK);
-							finish();
-						} else {
-							tryAgain();
-						}
-					}
-				});
 	}
 
 	private void tryAgain() {
+		passwordResult = null;
 		UiUtils.setError(input, getString(R.string.try_again), true);
 		signInButton.setVisibility(VISIBLE);
 		progress.setVisibility(INVISIBLE);
@@ -148,5 +156,30 @@ public class PasswordActivity extends BaseActivity {
 
 		// show the keyboard again
 		showSoftKeyboard(password);
+	}
+
+	private static class PasswordResult extends
+			NewUiResultHandler<Boolean> {
+
+		private PasswordActivity activity;
+
+		PasswordResult(PasswordActivity activity) {
+			setActivity(activity);
+		}
+
+		void setActivity(PasswordActivity activity) {
+			this.activity = activity;
+			activity.initProgressUiState();
+		}
+
+		@Override
+		public void onResultUi(Boolean result) {
+			if (result) {
+				activity.setResult(RESULT_OK);
+				activity.finish();
+			} else {
+				activity.tryAgain();
+			}
+		}
 	}
 }
