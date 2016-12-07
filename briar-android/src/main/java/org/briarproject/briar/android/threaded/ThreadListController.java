@@ -2,6 +2,7 @@ package org.briarproject.briar.android.threaded;
 
 import android.support.annotation.UiThread;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -24,6 +25,9 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 
 	void loadNamedGroup(ResultExceptionHandler<G, DbException> handler);
 
+	void loadSharingContacts(
+			ResultExceptionHandler<Collection<ContactId>, DbException> handler);
+
 	void loadItem(H header, ResultExceptionHandler<I, DbException> handler);
 
 	void loadItems(ResultExceptionHandler<Collection<I>, DbException> handler);
@@ -43,6 +47,9 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 
 		@UiThread
 		void onGroupRemoved();
+
+		@UiThread
+		void onInvitationAccepted(ContactId c);
 	}
 
 }

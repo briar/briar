@@ -8,10 +8,12 @@ import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
 import android.view.View;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -20,6 +22,8 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.controller.SharingController;
+import org.briarproject.briar.android.controller.SharingController.SharingListener;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 import org.briarproject.briar.android.threaded.ThreadListController.ThreadListListener;
@@ -33,6 +37,7 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.make;
 import static android.view.View.GONE;
@@ -42,7 +47,7 @@ import static android.view.View.VISIBLE;
 @ParametersNotNullByDefault
 public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadItemAdapter<I>, I extends ThreadItem, H extends PostHeader>
 		extends BriarActivity
-		implements ThreadListListener<H>, TextInputListener,
+		implements ThreadListListener<H>, TextInputListener, SharingListener,
 		ThreadItemListener<I> {
 
 	protected static final String KEY_INPUT_VISIBILITY = "inputVisibility";
@@ -58,6 +63,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	private MessageId replyId;
 
 	protected abstract ThreadListController<G, I, H> getController();
+	@Inject
+	protected SharingController sharingController;
 
 	@CallSuper
 	@Override
@@ -88,6 +95,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		}
 
 		loadItems();
+		sharingController.setSharingListener(this);
+		loadSharingContacts();
 	}
 
 	@LayoutRes
@@ -144,10 +153,30 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 				});
 	}
 
+	protected void loadSharingContacts() {
+		getController().loadSharingContacts(
+				new UiResultExceptionHandler<Collection<ContactId>, DbException>(
+						this) {
+					@Override
+					public void onResultUi(Collection<ContactId> contacts) {
+						sharingController.addAll(contacts);
+						int online = sharingController.getOnlineCount();
+						setToolbarSubTitle(contacts.size(), online);
+					}
+
+					@Override
+					public void onExceptionUi(DbException e) {
+						// TODO Proper error handling
+						finish();
+					}
+				});
+	}
+
 	@CallSuper
 	@Override
 	public void onStart() {
 		super.onStart();
+		sharingController.onStart();
 		list.startPeriodicUpdate();
 	}
 
@@ -155,6 +184,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	@Override
 	public void onStop() {
 		super.onStop();
+		sharingController.onStop();
 		list.stopPeriodicUpdate();
 	}
 
@@ -208,6 +238,26 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	@Override
 	public void onReplyClick(I item) {
 		showTextInput(item);
+	}
+
+	@Override
+	public void onSharingInfoUpdated(int total, int online) {
+		setToolbarSubTitle(total, online);
+	}
+
+	@Override
+	public void onInvitationAccepted(ContactId c) {
+		sharingController.add(c);
+		setToolbarSubTitle(sharingController.getTotalCount(),
+				sharingController.getOnlineCount());
+	}
+
+	protected void setToolbarSubTitle(int total, int online) {
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setSubtitle(
+					getString(R.string.shared_with, total, online));
+		}
 	}
 
 	protected void displaySnackbarShort(@StringRes int stringId) {
