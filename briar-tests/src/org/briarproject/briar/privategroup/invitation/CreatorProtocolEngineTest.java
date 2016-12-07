@@ -209,9 +209,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	@Test
 	public void testOnInviteMessageInAnyStateWhenSubscribed() throws Exception {
-		expectIsSubscribedPrivateGroup();
-		expectSetPrivateGroupVisibility(INVISIBLE);
-		expectSendAbortMessage();
+		expectAbortWhenSubscribedToGroup();
 		CreatorSession session = getDefaultSession(LEFT);
 		CreatorSession newSession =
 				engine.onInviteMessage(txn, session, inviteMessage);
@@ -227,9 +225,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test
 	public void testOnInviteMessageInAnyStateWhenNotSubscribed()
 			throws Exception {
-		expectIsSubscribedPrivateGroup();
-		expectSetPrivateGroupVisibility(INVISIBLE);
-		expectSendAbortMessage();
+		expectAbortWhenNotSubscribedToGroup();
 		CreatorSession session = getDefaultSession(LEFT);
 		CreatorSession newSession =
 				engine.onInviteMessage(txn, session, inviteMessage);
