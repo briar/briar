@@ -32,6 +32,7 @@ public class ContactItemViewHolder<I extends ContactItem>
 		layout = (ViewGroup) v;
 		avatar = (ImageView) v.findViewById(R.id.avatarView);
 		name = (TextView) v.findViewById(R.id.nameView);
+		// this can be null as not all layouts that use this ViewHolder have it
 		bulb = (ImageView) v.findViewById(R.id.bulbView);
 	}
 

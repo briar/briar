@@ -13,7 +13,7 @@ public class ContactItem {
 	private boolean connected;
 
 	public ContactItem(Contact contact) {
-		this.contact = contact;
+		this(contact, false);
 	}
 
 	public ContactItem(Contact contact, boolean connected) {
