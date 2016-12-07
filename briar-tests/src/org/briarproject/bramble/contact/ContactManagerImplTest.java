@@ -1,11 +1,12 @@
 package org.briarproject.bramble.contact;
 
-import org.briarproject.BriarTestCase;
+import org.briarproject.BriarMockTestCase;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
@@ -24,7 +25,7 @@ import static org.briarproject.TestUtils.getSecretKey;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ContactManagerImplTest extends BriarTestCase {
+public class ContactManagerImplTest extends BriarMockTestCase {
 
 	private final Mockery context = new Mockery();
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
@@ -66,7 +67,6 @@ public class ContactManagerImplTest extends BriarTestCase {
 		assertEquals(contactId, contactManager
 				.addContact(remote, local, master, timestamp, alice, verified,
 						active));
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -82,7 +82,51 @@ public class ContactManagerImplTest extends BriarTestCase {
 		}});
 
 		assertEquals(contact, contactManager.getContact(contactId));
-		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testGetContactByAuthor() throws Exception {
+		final Transaction txn = new Transaction(null, true);
+		final Collection<Contact> contacts = Collections.singleton(contact);
+		context.checking(new Expectations() {{
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn));
+			oneOf(db).getContactsByAuthorId(txn, remote.getId());
+			will(returnValue(contacts));
+			oneOf(db).commitTransaction(txn);
+			oneOf(db).endTransaction(txn);
+		}});
+
+		assertEquals(contact, contactManager.getContact(remote.getId(), local));
+	}
+
+	@Test(expected = NoSuchContactException.class)
+	public void testGetContactByUnknownAuthor() throws Exception {
+		final Transaction txn = new Transaction(null, true);
+		context.checking(new Expectations() {{
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn));
+			oneOf(db).getContactsByAuthorId(txn, remote.getId());
+			will(returnValue(Collections.emptyList()));
+			oneOf(db).endTransaction(txn);
+		}});
+
+		contactManager.getContact(remote.getId(), local);
+	}
+
+	@Test(expected = NoSuchContactException.class)
+	public void testGetContactByUnknownLocalAuthor() throws Exception {
+		final Transaction txn = new Transaction(null, true);
+		final Collection<Contact> contacts = Collections.singleton(contact);
+		context.checking(new Expectations() {{
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn));
+			oneOf(db).getContactsByAuthorId(txn, remote.getId());
+			will(returnValue(contacts));
+			oneOf(db).endTransaction(txn);
+		}});
+
+		contactManager.getContact(remote.getId(), new AuthorId(getRandomId()));
 	}
 
 	@Test
@@ -101,7 +145,6 @@ public class ContactManagerImplTest extends BriarTestCase {
 		}});
 
 		assertEquals(activeContacts, contactManager.getActiveContacts());
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -118,7 +161,6 @@ public class ContactManagerImplTest extends BriarTestCase {
 		}});
 
 		contactManager.removeContact(contactId);
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -129,7 +171,6 @@ public class ContactManagerImplTest extends BriarTestCase {
 		}});
 
 		contactManager.setContactActive(txn, contactId, active);
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -145,7 +186,6 @@ public class ContactManagerImplTest extends BriarTestCase {
 		}});
 
 		assertTrue(contactManager.contactExists(remote.getId(), local));
-		context.assertIsSatisfied();
 	}
 
 }

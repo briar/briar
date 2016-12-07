@@ -48,11 +48,6 @@ public interface SharingManager<S extends Shareable>
 	Collection<SharingInvitationItem> getInvitations() throws DbException;
 
 	/**
-	 * Returns all contacts who are sharing the given group with us.
-	 */
-	Collection<Contact> getSharedBy(GroupId g) throws DbException;
-
-	/**
 	 * Returns all contacts with whom the given group is shared.
 	 */
 	Collection<Contact> getSharedWith(GroupId g) throws DbException;

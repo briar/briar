@@ -2,11 +2,16 @@ package org.briarproject.briar.android.sharing;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -18,55 +23,53 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import static java.util.logging.Level.WARNING;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 abstract class SharingStatusActivity extends BriarActivity {
+
+	@Inject
+	ConnectionRegistry connectionRegistry;
 
 	private static final Logger LOG =
 			Logger.getLogger(SharingStatusActivity.class.getName());
 
 	private GroupId groupId;
-	private BriarRecyclerView sharedByList, sharedWithList;
-	private SharingStatusAdapter sharedByAdapter, sharedWithAdapter;
+	private BriarRecyclerView list;
+	private SharingStatusAdapter adapter;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_sharing_status);
+		setContentView(R.layout.list);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No GroupId");
 		groupId = new GroupId(b);
 
-		sharedByList = (BriarRecyclerView) findViewById(R.id.sharedByView);
-		sharedByAdapter = new SharingStatusAdapter(this);
-		sharedByList.setLayoutManager(new LinearLayoutManager(this));
-		sharedByList.setAdapter(sharedByAdapter);
-		sharedByList.setEmptyText(getString(R.string.nobody));
-
-		sharedWithList = (BriarRecyclerView) findViewById(R.id.sharedWithView);
-		sharedWithAdapter = new SharingStatusAdapter(this);
-		sharedWithList.setLayoutManager(new LinearLayoutManager(this));
-		sharedWithList.setAdapter(sharedWithAdapter);
-		sharedWithList.setEmptyText(getString(R.string.nobody));
+		list = (BriarRecyclerView) findViewById(R.id.list);
+		adapter = new SharingStatusAdapter(this);
+		list.setLayoutManager(new LinearLayoutManager(this));
+		list.setAdapter(adapter);
+		list.setEmptyText(getString(R.string.nobody));
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-		loadSharedBy();
 		loadSharedWith();
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		sharedByAdapter.clear();
-		sharedByList.showProgressBar();
-		sharedWithAdapter.clear();
-		sharedWithList.showProgressBar();
+		adapter.clear();
+		list.showProgressBar();
 	}
 
 	@Override
@@ -81,47 +84,11 @@ abstract class SharingStatusActivity extends BriarActivity {
 		}
 	}
 
-	/**
-	 * This must only be called from the DbThread
-	 */
+	@DatabaseExecutor
 	abstract protected Collection<Contact> getSharedWith() throws DbException;
-
-	/**
-	 * This must only be called from the DbThread
-	 */
-	abstract protected Collection<Contact> getSharedBy() throws DbException;
 
 	protected GroupId getGroupId() {
 		return groupId;
-	}
-
-	private void loadSharedBy() {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					List<ContactItem> contactItems = new ArrayList<>();
-					for (Contact c : getSharedBy()) {
-						ContactItem item = new ContactItem(c);
-						contactItems.add(item);
-					}
-					displaySharedBy(contactItems);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
-	}
-
-	private void displaySharedBy(final List<ContactItem> contacts) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				if (contacts.isEmpty()) sharedByList.showData();
-				else sharedByAdapter.addAll(contacts);
-			}
-		});
 	}
 
 	private void loadSharedWith() {
@@ -131,7 +98,9 @@ abstract class SharingStatusActivity extends BriarActivity {
 				try {
 					List<ContactItem> contactItems = new ArrayList<>();
 					for (Contact c : getSharedWith()) {
-						ContactItem item = new ContactItem(c);
+						boolean online =
+								connectionRegistry.isConnected(c.getId());
+						ContactItem item = new ContactItem(c, online);
 						contactItems.add(item);
 					}
 					displaySharedWith(contactItems);
@@ -147,8 +116,8 @@ abstract class SharingStatusActivity extends BriarActivity {
 		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				if (contacts.isEmpty()) sharedWithList.showData();
-				else sharedWithAdapter.addAll(contacts);
+				if (contacts.isEmpty()) list.showData();
+				else adapter.addAll(contacts);
 			}
 		});
 	}

@@ -515,34 +515,6 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 	}
 
 	@Override
-	public Collection<Contact> getSharedBy(GroupId g) throws DbException {
-		List<Contact> subscribers;
-		Transaction txn = db.startTransaction(true);
-		try {
-			subscribers = getSharedBy(txn, g);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return subscribers;
-	}
-
-	private List<Contact> getSharedBy(Transaction txn, GroupId g)
-			throws DbException {
-		try {
-			List<Contact> subscribers = new ArrayList<Contact>();
-			for (Contact c : db.getContacts(txn)) {
-				GroupId contactGroup = getContactGroup(c).getId();
-				if (listContains(txn, contactGroup, g, SHARED_WITH_US))
-					subscribers.add(c);
-			}
-			return subscribers;
-		} catch (IOException e) {
-			throw new DbException(e);
-		}
-	}
-
-	@Override
 	public Collection<Contact> getSharedWith(GroupId g) throws DbException {
 		try {
 			List<Contact> shared = new ArrayList<Contact>();
@@ -551,6 +523,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 				for (Contact c : db.getContacts(txn)) {
 					GroupId contactGroup = getContactGroup(c).getId();
 					if (listContains(txn, contactGroup, g, SHARED_BY_US))
+						shared.add(c);
+					else if (listContains(txn, contactGroup, g, SHARED_WITH_US))
 						shared.add(c);
 				}
 				db.commitTransaction(txn);

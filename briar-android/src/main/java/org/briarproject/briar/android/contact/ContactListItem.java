@@ -10,14 +10,13 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotNullByDefault
 public class ContactListItem extends ContactItem {
 
-	private boolean connected, empty;
+	private boolean empty;
 	private long timestamp;
 	private int unread;
 
 	public ContactListItem(Contact contact, boolean connected,
 			GroupCount count) {
-		super(contact);
-		this.connected = connected;
+		super(contact, connected);
 		this.empty = count.getMsgCount() == 0;
 		this.unread = count.getUnreadCount();
 		this.timestamp = count.getLatestMsgTime();
@@ -28,14 +27,6 @@ public class ContactListItem extends ContactItem {
 		if (message.getTime() > timestamp) timestamp = message.getTime();
 		if (!message.isRead())
 			unread++;
-	}
-
-	boolean isConnected() {
-		return connected;
-	}
-
-	void setConnected(boolean connected) {
-		this.connected = connected;
 	}
 
 	boolean isEmpty() {

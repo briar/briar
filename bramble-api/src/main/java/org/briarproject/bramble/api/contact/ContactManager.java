@@ -44,6 +44,24 @@ public interface ContactManager {
 	Contact getContact(ContactId c) throws DbException;
 
 	/**
+	 * Returns the contact with the given remoteAuthorId
+	 * that was added by the LocalAuthor with the given localAuthorId
+	 *
+	 * @throws org.briarproject.bramble.api.db.NoSuchContactException
+	 */
+	Contact getContact(AuthorId remoteAuthorId, AuthorId localAuthorId)
+			throws DbException;
+
+	/**
+	 * Returns the contact with the given remoteAuthorId
+	 * that was added by the LocalAuthor with the given localAuthorId
+	 *
+	 * @throws org.briarproject.bramble.api.db.NoSuchContactException
+	 */
+	Contact getContact(Transaction txn, AuthorId remoteAuthorId,
+			AuthorId localAuthorId) throws DbException;
+
+	/**
 	 * Returns all active contacts.
 	 */
 	Collection<Contact> getActiveContacts() throws DbException;

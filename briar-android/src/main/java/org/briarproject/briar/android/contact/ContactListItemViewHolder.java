@@ -2,7 +2,6 @@ package org.briarproject.briar.android.contact;
 
 import android.support.annotation.UiThread;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.contact.ContactId;
@@ -20,13 +19,11 @@ import static org.briarproject.briar.android.util.UiUtils.formatDate;
 @NotNullByDefault
 class ContactListItemViewHolder extends ContactItemViewHolder<ContactListItem> {
 
-	protected final ImageView bulb;
 	private final TextView unread;
 	private final TextView date;
 
 	ContactListItemViewHolder(View v) {
 		super(v);
-		bulb = (ImageView) v.findViewById(R.id.bulbView);
 		unread = (TextView) v.findViewById(R.id.unreadCountView);
 		date = (TextView) v.findViewById(R.id.dateView);
 	}
@@ -51,13 +48,6 @@ class ContactListItemViewHolder extends ContactItemViewHolder<ContactListItem> {
 		} else {
 			long timestamp = item.getTimestamp();
 			date.setText(formatDate(date.getContext(), timestamp));
-		}
-
-		// online/offline
-		if (item.isConnected()) {
-			bulb.setImageResource(R.drawable.contact_connected);
-		} else {
-			bulb.setImageResource(R.drawable.contact_disconnected);
 		}
 
 		ContactId c = item.getContact().getId();
