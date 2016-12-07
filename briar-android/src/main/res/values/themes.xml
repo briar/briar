@@ -58,6 +58,13 @@
 		<item name="android:windowExitAnimation">@android:anim/fade_out</item>
 	</style>
 
+	<style name="OnboardingDialogTheme" parent="BriarDialogTheme">
+		<item name="android:background">@color/briar_primary</item>
+		<item name="android:textColorPrimary">@color/briar_text_primary_inverse</item>
+		<item name="android:textColorSecondary">@color/briar_text_secondary_inverse</item>
+		<item name="buttonBarNeutralButtonStyle">@style/Widget.AppCompat.Button.Borderless</item>
+	</style>
+
 	<!-- This fixes a UI bug in the support preference library -->
 	<style name="BriarTheme.ListSeparatorTextView">
 		<item name="android:textSize">14sp</item>
@@ -66,6 +73,5 @@
 		<item name="android:paddingTop">16dp</item>
 		<item name="android:layout_marginBottom">16dp</item>
 	</style>
-
 
 </resources>
