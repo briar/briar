@@ -436,7 +436,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 						list.add(ir);
 					}
 				} catch (FormatException e) {
-					if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
 				}
 			}
 			db.commitTransaction(txn);
@@ -455,7 +456,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			return state.getString(CONTACT_2);
 		if (contactId.getInt() == state.getLong(CONTACT_ID_2).intValue())
 			return state.getString(CONTACT_1);
-		throw new RuntimeException("Contact not part of this introduction session");
+		throw new RuntimeException(
+				"Contact not part of this introduction session");
 	}
 
 	private AuthorId getAuthorIdForIntroducer(ContactId contactId,
@@ -465,7 +467,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			return new AuthorId(state.getRaw(AUTHOR_ID_2));
 		if (contactId.getInt() == state.getLong(CONTACT_ID_2).intValue())
 			return new AuthorId(state.getRaw(AUTHOR_ID_1));
-		throw new RuntimeException("Contact not part of this introduction session");
+		throw new RuntimeException(
+				"Contact not part of this introduction session");
 	}
 
 	private boolean concernsThisContact(ContactId contactId, MessageId messageId,
@@ -508,11 +511,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 					if (g.equals(groupId)) return state;
 				}
 			}
-			if (warn && LOG.isLoggable(WARNING)) {
-				LOG.warning(
-						"No session state found for message with session ID " +
-								Arrays.hashCode(sessionId));
-			}
+			if (warn && LOG.isLoggable(WARNING))
+				LOG.warning("No session state found");
 			throw new FormatException();
 		}
 	}
