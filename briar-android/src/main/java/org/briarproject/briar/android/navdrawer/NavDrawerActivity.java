@@ -5,9 +5,9 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -25,10 +25,11 @@ import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.activity.BriarFragmentActivity;
+import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.FeedFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.forum.ForumListFragment;
+import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.fragment.SignOutFragment;
 import org.briarproject.briar.android.privategroup.list.GroupListFragment;
@@ -40,10 +41,11 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 import static android.support.v4.view.GravityCompat.START;
 import static android.support.v4.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 
-public class NavDrawerActivity extends BriarFragmentActivity implements
+public class NavDrawerActivity extends BriarActivity implements
 		BaseFragmentListener, TransportStateListener,
 		OnNavigationItemSelectedListener {
 
@@ -161,24 +163,6 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 	}
 
 	@Override
-	public void onFragmentCreated(String tag) {
-		super.onFragmentCreated(tag);
-
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar == null) return;
-
-		if (tag.equals(ContactListFragment.TAG)) {
-			actionBar.setTitle(R.string.contact_list_button);
-		} else if (tag.equals(GroupListFragment.TAG)) {
-			actionBar.setTitle(R.string.groups_button);
-		} else if (tag.equals(ForumListFragment.TAG)) {
-			actionBar.setTitle(R.string.forums_button);
-		} else if (tag.equals(FeedFragment.TAG)) {
-			actionBar.setTitle(R.string.blogs_button);
-		}
-	}
-
-	@Override
 	public boolean onNavigationItemSelected(MenuItem item) {
 		drawerLayout.closeDrawer(START);
 		clearBackStack();
@@ -192,14 +176,29 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 
 	@Override
 	public void onBackPressed() {
-		if (getSupportFragmentManager().getBackStackEntryCount() == 0
-				&& drawerLayout.isDrawerOpen(START)) {
+		if (drawerLayout.isDrawerOpen(START)) {
 			drawerLayout.closeDrawer(START);
-			return;
+		} else if (getSupportFragmentManager().getBackStackEntryCount() == 0 &&
+				getSupportFragmentManager()
+						.findFragmentByTag(ContactListFragment.TAG) != null) {
+			Intent i = new Intent(Intent.ACTION_MAIN);
+			i.addCategory(Intent.CATEGORY_HOME);
+			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(i);
+		} else if (getSupportFragmentManager().getBackStackEntryCount() == 0 &&
+				getSupportFragmentManager()
+						.findFragmentByTag(ContactListFragment.TAG) == null) {
+			/**
+			 * This Makes sure that the first fragment (ContactListFragment) the
+			 * user sees is the same as the last fragment the user sees before
+			 * exiting. This models the typical Google navigation behaviour such
+			 * as in Gmail/Inbox.
+			 */
+			navigation.setCheckedItem(R.id.nav_btn_contacts);
+			startFragment(ContactListFragment.newInstance());
+		} else {
+			super.onBackPressed();
 		}
-		// Check the Contacts item because we always return to Contacts here
-		navigation.setCheckedItem(R.id.nav_btn_contacts);
-		super.onBackPressed();
 	}
 
 	@Override
@@ -219,6 +218,32 @@ public class NavDrawerActivity extends BriarFragmentActivity implements
 		drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED);
 		startFragment(new SignOutFragment());
 		super.signOut();
+	}
+
+	private void startFragment(BaseFragment fragment) {
+		if (getSupportFragmentManager().getBackStackEntryCount() == 0)
+			startFragment(fragment, false);
+		else startFragment(fragment, true);
+	}
+
+	private void startFragment(BaseFragment fragment,
+			boolean isAddedToBackStack) {
+		FragmentTransaction trans =
+				getSupportFragmentManager().beginTransaction()
+						.setCustomAnimations(R.anim.dialog_in,
+								R.anim.dialog_out, R.anim.dialog_in,
+								R.anim.dialog_out)
+						.replace(R.id.fragmentContainer, fragment,
+								fragment.getUniqueTag());
+		if (isAddedToBackStack) {
+			trans.addToBackStack(fragment.getUniqueTag());
+		}
+		trans.commit();
+	}
+
+	private void clearBackStack() {
+		getSupportFragmentManager().popBackStackImmediate(null,
+				POP_BACK_STACK_INCLUSIVE);
 	}
 
 	private void initializeTransports(final LayoutInflater inflater) {

@@ -63,6 +63,8 @@ public class GroupListFragment extends BaseFragment implements
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
+		getActivity().setTitle(R.string.groups_button);
+
 		View v = inflater.inflate(R.layout.list, container, false);
 
 		adapter = new GroupListAdapter(getContext(), this);

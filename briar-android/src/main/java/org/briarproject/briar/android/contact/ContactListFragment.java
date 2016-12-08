@@ -109,6 +109,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
+		getActivity().setTitle(R.string.contact_list_button);
+
 		View contentView = inflater.inflate(R.layout.list, container, false);
 
 		OnContactClickListener<ContactListItem> onContactClickListener =

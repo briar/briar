@@ -70,6 +70,8 @@ public class FeedFragment extends BaseFragment implements
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
+		getActivity().setTitle(R.string.blogs_button);
+
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
 		adapter = new BlogPostAdapter(getActivity(), this);
@@ -260,4 +262,5 @@ public class FeedFragment extends BaseFragment implements
 	public void onBlogRemoved() {
 		loadBlogPosts(true);
 	}
+
 }

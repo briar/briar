@@ -54,9 +54,4 @@ public class ReblogActivity extends BriarActivity implements
 		component.inject(this);
 	}
 
-	@Override
-	public void onFragmentCreated(String tag) {
-
-	}
-
 }

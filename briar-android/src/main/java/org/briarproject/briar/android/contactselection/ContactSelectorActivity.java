@@ -95,9 +95,5 @@ public abstract class ContactSelectorActivity
 		return contacts;
 	}
 
-	@Override
-	public void onFragmentCreated(String tag) {
-
-	}
 
 }

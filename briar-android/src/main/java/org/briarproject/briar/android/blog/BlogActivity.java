@@ -72,8 +72,4 @@ public class BlogActivity extends BriarActivity implements
 		showNextFragment(f);
 	}
 
-	@Override
-	public void onFragmentCreated(String tag) {
-	}
-
 }

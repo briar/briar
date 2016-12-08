@@ -20,7 +20,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.activity.BriarFragmentActivity;
+import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.keyagreement.IntroFragment.IntroScreenSeenListener;
@@ -35,7 +35,7 @@ import static java.util.logging.Level.WARNING;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class KeyAgreementActivity extends BriarFragmentActivity implements
+public class KeyAgreementActivity extends BriarActivity implements
 		BaseFragmentListener, IntroScreenSeenListener, EventListener,
 		ContactExchangeListener {
 
@@ -189,4 +189,5 @@ public class KeyAgreementActivity extends BriarFragmentActivity implements
 			}
 		});
 	}
+
 }

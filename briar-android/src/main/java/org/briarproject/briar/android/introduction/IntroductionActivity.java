@@ -35,9 +35,4 @@ public class IntroductionActivity extends BriarActivity
 		component.inject(this);
 	}
 
-	@Override
-	public void onFragmentCreated(String tag) {
-
-	}
-
 }
