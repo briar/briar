@@ -1,4 +1,8 @@
-apply plugin: 'java'
+plugins {
+	id "java"
+	id "net.ltgt.apt" version "0.9"
+	id "idea"
+}
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
@@ -9,6 +13,11 @@ dependencies {
 	compile fileTree(dir: 'libs', include: '*.jar')
 	compile 'com.madgag.spongycastle:core:1.54.0.0'
 	compile 'com.h2database:h2:1.4.190'
+
+	testCompile project(':briar-tests') // TODO remove when moving unit tests (#778)
+	testCompile 'junit:junit:4.12'
+	testCompile 'com.google.dagger:dagger-compiler:2.8'
+	testApt 'com.google.dagger:dagger-compiler:2.8'
 }
 
 dependencyVerification {
