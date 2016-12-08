@@ -23,8 +23,6 @@ public class BlogPostFragment extends BasePostFragment {
 
 	private static final String TAG = BlogPostFragment.class.getName();
 
-	private MessageId postId;
-
 	@Inject
 	BlogController blogController;
 
@@ -36,20 +34,6 @@ public class BlogPostFragment extends BasePostFragment {
 
 		f.setArguments(bundle);
 		return f;
-	}
-
-	@Nullable
-	@Override
-	public View onCreateView(LayoutInflater inflater,
-			@Nullable ViewGroup container,
-			@Nullable Bundle savedInstanceState) {
-
-		Bundle args = getArguments();
-		byte[] p = args.getByteArray(POST_ID);
-		if (p == null) throw new IllegalStateException("No post ID in args");
-		postId = new MessageId(p);
-
-		return super.onCreateView(inflater, container, savedInstanceState);
 	}
 
 	@Override

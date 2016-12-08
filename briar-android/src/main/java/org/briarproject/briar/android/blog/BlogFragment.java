@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -45,7 +44,6 @@ import javax.inject.Inject;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
-import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.blog.BlogActivity.REQUEST_SHARE;
@@ -56,7 +54,8 @@ import static org.briarproject.briar.android.controller.SharingController.Sharin
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class BlogFragment extends BaseFragment
-		implements BlogSharingListener, SharingListener {
+		implements BlogSharingListener, SharingListener,
+		OnBlogPostClickListener {
 
 	private final static String TAG = BlogFragment.class.getName();
 
@@ -94,8 +93,7 @@ public class BlogFragment extends BaseFragment
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
-		adapter = new BlogPostAdapter(getActivity(),
-				(OnBlogPostClickListener) getActivity());
+		adapter = new BlogPostAdapter(getActivity(), this);
 		list = (BriarRecyclerView) v.findViewById(R.id.postList);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
@@ -212,6 +210,12 @@ public class BlogFragment extends BaseFragment
 					}
 				}
 		);
+	}
+
+	@Override
+	public void onBlogPostClick(BlogPostItem post) {
+		BlogPostFragment f = BlogPostFragment.newInstance(post.getId());
+		showNextFragment(f);
 	}
 
 	private void loadBlogPosts(final boolean reload) {

@@ -10,6 +10,7 @@ import android.widget.ProgressBar;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
@@ -31,6 +32,7 @@ abstract class BasePostFragment extends BaseFragment {
 	private static final Logger LOG =
 			Logger.getLogger(BasePostFragment.class.getName());
 
+	protected MessageId postId;
 	private View view;
 	private ProgressBar progressBar;
 	private BlogPostViewHolder ui;
@@ -43,6 +45,11 @@ abstract class BasePostFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
+		// retrieve MessageId of blog post from arguments
+		byte[] p = getArguments().getByteArray(POST_ID);
+		if (p == null) throw new IllegalStateException("No post ID in args");
+		postId = new MessageId(p);
+
 		view = inflater.inflate(R.layout.fragment_blog_post, container,
 				false);
 		progressBar = (ProgressBar) view.findViewById(R.id.progressBar);

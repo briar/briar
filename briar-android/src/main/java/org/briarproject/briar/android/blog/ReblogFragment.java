@@ -74,8 +74,7 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 		blogId = new GroupId(args.getByteArray(GROUP_ID));
 		postId = new MessageId(args.getByteArray(POST_ID));
 
-		View v = inflater.inflate(R.layout.fragment_reblog, container,
-				false);
+		View v = inflater.inflate(R.layout.fragment_reblog, container, false);
 		ui = new ViewHolder(v);
 		ui.post.setTransitionName(postId);
 		ui.input.setSendButtonEnabled(false);
