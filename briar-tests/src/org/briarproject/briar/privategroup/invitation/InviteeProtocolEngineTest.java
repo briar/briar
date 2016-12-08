@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.Message;
@@ -327,14 +328,17 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 						privateGroupId, session.getInviteTimestamp() + 1,
 						privateGroup.getName(), privateGroup.getCreator(),
 						privateGroup.getSalt(), "msg", signature);
-		final Contact contact =
-				new Contact(contactId, localAuthor, localAuthor.getId(), true,
+		Author notCreator =
+				new Author(new AuthorId(getRandomId()), "Not Creator",
+						getRandomBytes(5));
+		final Contact notCreatorContact =
+				new Contact(contactId, notCreator, localAuthor.getId(), true,
 						true);
 
 		expectGetContactId();
 		context.checking(new Expectations() {{
 			oneOf(db).getContact(txn, contactId);
-			will(returnValue(contact));
+			will(returnValue(notCreatorContact));
 		}});
 		expectAbortWhenSubscribedToGroup();
 
@@ -351,8 +355,6 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 						privateGroupId, session.getInviteTimestamp() + 1,
 						privateGroup.getName(), privateGroup.getCreator(),
 						privateGroup.getSalt(), "msg", signature);
-		final Contact contact =
-				new Contact(contactId, author, localAuthor.getId(), true, true);
 		assertEquals(contact.getAuthor(), privateGroup.getCreator());
 
 		expectGetContactId();
