@@ -39,6 +39,8 @@ public class CreateGroupActivity extends BaseGroupInviteActivity implements
 			// At this point, the group had been created already,
 			// so don't allow to create it again.
 			openNewGroup();
+			overridePendingTransition(R.anim.screen_old_in,
+					R.anim.screen_new_out);
 		} else {
 			super.onBackPressed();
 		}
