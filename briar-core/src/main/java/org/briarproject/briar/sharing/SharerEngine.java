@@ -86,7 +86,7 @@ class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR exte
 						.setTask(TASK_ADD_SHAREABLE_TO_LIST_TO_BE_SHARED_BY_US);
 			} else if (action == SharerSessionState.Action.LOCAL_LEAVE) {
 				BaseMessage msg = new SimpleMessage(SHARE_MSG_TYPE_LEAVE,
-						localState.getGroupId(), localState.getSessionId(),
+						localState.getContactGroupId(), localState.getSessionId(),
 						clock.currentTimeMillis());
 				messages = Collections.singletonList(msg);
 				logLocalAction(currentState, nextState, msg);
@@ -217,7 +217,7 @@ class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR exte
 
 		localState.setState(SharerSessionState.State.ERROR);
 		BaseMessage msg = new SimpleMessage(SHARE_MSG_TYPE_ABORT,
-				localState.getGroupId(), localState.getSessionId(),
+				localState.getContactGroupId(), localState.getSessionId(),
 				clock.currentTimeMillis());
 		List<BaseMessage> messages = Collections.singletonList(msg);
 

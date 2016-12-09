@@ -191,7 +191,7 @@ class ForumSharingManagerImpl extends
 		@Override
 		public ForumInvitation build(ForumSharerSessionState localState,
 				long time) {
-			return new ForumInvitation(localState.getGroupId(),
+			return new ForumInvitation(localState.getContactGroupId(),
 					localState.getSessionId(), localState.getForumName(),
 					localState.getForumSalt(), time, localState.getMessage());
 		}
@@ -268,7 +268,7 @@ class ForumSharingManagerImpl extends
 			ContactId contactId = localState.getContactId();
 			ForumInvitationRequest request = new ForumInvitationRequest(
 					localState.getInvitationId(), localState.getSessionId(),
-					localState.getGroupId(), contactId, forum.getName(), msg,
+					localState.getContactGroupId(), contactId, forum.getName(), msg,
 					true, time, false, false, false, false);
 			return new ForumInvitationRequestReceivedEvent(forum, contactId,
 					request);
@@ -287,8 +287,8 @@ class ForumSharingManagerImpl extends
 				throw new IllegalStateException("No responseId");
 			ForumInvitationResponse response = new ForumInvitationResponse(
 					responseId, localState.getSessionId(),
-					localState.getGroupId(), localState.getContactId(), accept,
-					time, false, false, false, false);
+					localState.getShareableId(), localState.getContactId(),
+					accept, time, false, false, false, false);
 			return new ForumInvitationResponseReceivedEvent(name, c, response);
 		}
 	}

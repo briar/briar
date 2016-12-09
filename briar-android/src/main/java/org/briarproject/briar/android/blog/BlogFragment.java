@@ -7,6 +7,7 @@ import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -24,8 +26,10 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.blog.BaseController.BlogListener;
+import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.blog.BlogController.BlogSharingListener;
 import org.briarproject.briar.android.blog.BlogPostAdapter.OnBlogPostClickListener;
+import org.briarproject.briar.android.controller.SharingController;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.sharing.BlogSharingStatusActivity;
@@ -46,17 +50,20 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.blog.BlogActivity.REQUEST_SHARE;
 import static org.briarproject.briar.android.blog.BlogActivity.REQUEST_WRITE_POST;
+import static org.briarproject.briar.android.controller.SharingController.SharingListener;
 
 @UiThread
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class BlogFragment extends BaseFragment implements
-		BlogListener {
+public class BlogFragment extends BaseFragment
+		implements BlogSharingListener, SharingListener {
 
 	private final static String TAG = BlogFragment.class.getName();
 
 	@Inject
 	BlogController blogController;
+	@Inject
+	SharingController sharingController;
 
 	private GroupId groupId;
 	private BlogPostAdapter adapter;
@@ -101,13 +108,16 @@ public class BlogFragment extends BaseFragment implements
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
-		blogController.setBlogListener(this);
+		blogController.setBlogSharingListener(this);
+		sharingController.setSharingListener(this);
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
+		sharingController.onStart();
 		loadBlog();
+		loadSharedContacts();
 		loadBlogPosts(false);
 		list.startPeriodicUpdate();
 	}
@@ -115,6 +125,7 @@ public class BlogFragment extends BaseFragment implements
 	@Override
 	public void onStop() {
 		super.onStop();
+		sharingController.onStop();
 		list.stopPeriodicUpdate();
 	}
 
@@ -255,6 +266,52 @@ public class BlogFragment extends BaseFragment implements
 		getActivity().setTitle(title);
 	}
 
+	private void loadSharedContacts() {
+		blogController.loadSharingContacts(
+				new UiResultExceptionHandler<Collection<ContactId>, DbException>(this) {
+					@Override
+					public void onResultUi(Collection<ContactId> contacts) {
+						sharingController.addAll(contacts);
+						int online = sharingController.getOnlineCount();
+						setToolbarSubTitle(contacts.size(), online);
+					}
+
+					@Override
+					public void onExceptionUi(DbException exception) {
+						// TODO: Decide how to handle errors in the UI
+						finish();
+					}
+				});
+	}
+
+	@Override
+	public void onBlogInvitationAccepted(ContactId c) {
+		sharingController.add(c);
+		setToolbarSubTitle(sharingController.getTotalCount(),
+				sharingController.getOnlineCount());
+	}
+
+	@Override
+	public void onBlogLeft(ContactId c) {
+		sharingController.remove(c);
+		setToolbarSubTitle(sharingController.getTotalCount(),
+				sharingController.getOnlineCount());
+	}
+
+	@Override
+	public void onSharingInfoUpdated(int total, int online) {
+		setToolbarSubTitle(total, online);
+	}
+
+	private void setToolbarSubTitle(int total, int online) {
+		ActionBar actionBar =
+				((BriarActivity) getActivity()).getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setSubtitle(
+					getString(R.string.shared_with, total, online));
+		}
+	}
+
 	private void showWriteButton() {
 		isMyBlog = true;
 		if (writeButton != null)
@@ -327,4 +384,5 @@ public class BlogFragment extends BaseFragment implements
 	public void onBlogRemoved() {
 		finish();
 	}
+
 }

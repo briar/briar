@@ -259,6 +259,7 @@
 	<string name="forum_invitation_response_declined_received">%s declined the forum invitation.</string>
 
 	<string name="sharing_status">Sharing Status</string>
+	<string name="shared_with">Shared with %1$d (%2$d online)</string>
 	<plurals name="forums_shared">
 		<item quantity="one">%d forum shared by contacts</item>
 		<item quantity="other">%d forums shared by contacts</item>

@@ -258,7 +258,7 @@ class BlogSharingManagerImpl extends
 		@Override
 		public BlogInvitation build(BlogSharerSessionState localState,
 				long time) {
-			return new BlogInvitation(localState.getGroupId(),
+			return new BlogInvitation(localState.getContactGroupId(),
 					localState.getSessionId(), localState.getBlogAuthorName(),
 					localState.getBlogPublicKey(), time,
 					localState.getMessage());
@@ -338,7 +338,7 @@ class BlogSharingManagerImpl extends
 			ContactId contactId = localState.getContactId();
 			BlogInvitationRequest request =
 					new BlogInvitationRequest(localState.getInvitationId(),
-							localState.getSessionId(), localState.getGroupId(),
+							localState.getSessionId(), localState.getContactGroupId(),
 							contactId, blog.getAuthor().getName(), msg, true,
 							time, false, false, false, false);
 			return new BlogInvitationRequestReceivedEvent(blog, contactId,
@@ -357,7 +357,8 @@ class BlogSharingManagerImpl extends
 				throw new IllegalStateException("No responseId");
 			BlogInvitationResponse response =
 					new BlogInvitationResponse(responseId,
-							localState.getSessionId(), localState.getGroupId(),
+							localState.getSessionId(),
+							localState.getShareableId(),
 							localState.getContactId(), accept, time, false,
 							false, false, false);
 			return new BlogInvitationResponseReceivedEvent(c, response);
