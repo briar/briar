@@ -26,7 +26,7 @@ import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
-import org.briarproject.briar.api.sharing.event.ShareableLeftEvent;
+import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -88,8 +88,8 @@ class ForumControllerImpl extends
 				LOG.info("Forum invitation was accepted");
 				onForumInvitationAccepted(r.getContactId());
 			}
-		} else if (e instanceof ShareableLeftEvent) {
-			ShareableLeftEvent s = (ShareableLeftEvent) e;
+		} else if (e instanceof ContactLeftShareableEvent) {
+			ContactLeftShareableEvent s = (ContactLeftShareableEvent) e;
 			if (s.getGroupId().equals(getGroupId())) {
 				LOG.info("Forum left by contact");
 				onForumLeft(s.getContactId());
