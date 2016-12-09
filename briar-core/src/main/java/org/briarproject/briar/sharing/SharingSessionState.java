@@ -68,7 +68,7 @@ abstract class SharingSessionState {
 		BdfDictionary d = new BdfDictionary();
 		d.put(SESSION_ID, getSessionId());
 		d.put(STORAGE_ID, getStorageId());
-		d.put(GROUP_ID, getGroupId());
+		d.put(GROUP_ID, getContactGroupId());
 		d.put(CONTACT_ID, getContactId().getInt());
 		d.put(SHAREABLE_ID, getShareableId());
 
@@ -83,7 +83,7 @@ abstract class SharingSessionState {
 		return storageId;
 	}
 
-	public GroupId getGroupId() {
+	public GroupId getContactGroupId() {
 		return groupId;
 	}
 

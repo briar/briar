@@ -26,7 +26,7 @@ import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
 import org.briarproject.briar.api.sharing.InvitationResponse;
-import org.briarproject.briar.api.sharing.event.ShareableLeftEvent;
+import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -110,10 +110,10 @@ class BlogControllerImpl extends BaseControllerImpl
 				LOG.info("Blog invitation accepted");
 				onBlogInvitationAccepted(b.getContactId());
 			}
-		} else if (e instanceof ShareableLeftEvent) {
-			ShareableLeftEvent s = (ShareableLeftEvent) e;
+		} else if (e instanceof ContactLeftShareableEvent) {
+			ContactLeftShareableEvent s = (ContactLeftShareableEvent) e;
 			if (s.getGroupId().equals(groupId)) {
-				LOG.info("Blog left");
+				LOG.info("Blog left by contact");
 				onBlogLeft(s.getContactId());
 			}
 		} else if (e instanceof GroupRemovedEvent) {

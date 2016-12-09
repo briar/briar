@@ -77,20 +77,20 @@ class InviteeEngine<IS extends InviteeSessionState, IR extends InvitationRequest
 				if (action == InviteeSessionState.Action.LOCAL_ACCEPT) {
 					localState.setTask(TASK_ADD_SHARED_SHAREABLE);
 					msg = new SimpleMessage(SHARE_MSG_TYPE_ACCEPT,
-							localState.getGroupId(), localState.getSessionId(),
+							localState.getContactGroupId(), localState.getSessionId(),
 							clock.currentTimeMillis());
 				} else {
 					localState.setTask(
 							TASK_REMOVE_SHAREABLE_FROM_LIST_SHARED_WITH_US);
 					msg = new SimpleMessage(SHARE_MSG_TYPE_DECLINE,
-							localState.getGroupId(), localState.getSessionId(),
+							localState.getContactGroupId(), localState.getSessionId(),
 							clock.currentTimeMillis());
 				}
 				messages = Collections.singletonList(msg);
 				logLocalAction(currentState, localState, msg);
 			} else if (action == InviteeSessionState.Action.LOCAL_LEAVE) {
 				BaseMessage msg = new SimpleMessage(SHARE_MSG_TYPE_LEAVE,
-						localState.getGroupId(), localState.getSessionId(),
+						localState.getContactGroupId(), localState.getSessionId(),
 						clock.currentTimeMillis());
 				messages = Collections.singletonList(msg);
 				logLocalAction(currentState, localState, msg);
@@ -221,7 +221,7 @@ class InviteeEngine<IS extends InviteeSessionState, IR extends InvitationRequest
 		}
 		localState.setState(InviteeSessionState.State.ERROR);
 		BaseMessage msg =
-				new SimpleMessage(SHARE_MSG_TYPE_ABORT, localState.getGroupId(),
+				new SimpleMessage(SHARE_MSG_TYPE_ABORT, localState.getContactGroupId(),
 						localState.getSessionId(), clock.currentTimeMillis());
 		List<BaseMessage> messages = Collections.singletonList(msg);
 

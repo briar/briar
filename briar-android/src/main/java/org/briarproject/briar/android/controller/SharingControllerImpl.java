@@ -18,7 +18,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-@UiThread
 @NotNullByDefault
 public class SharingControllerImpl implements SharingController, EventListener {
 
@@ -26,8 +25,9 @@ public class SharingControllerImpl implements SharingController, EventListener {
 	private final ConnectionRegistry connectionRegistry;
 
 	@Nullable
-	private SharingListener listener;
-	private Set<ContactId> contacts = new HashSet<>();
+	private volatile SharingListener listener;
+	// only access on @UiThread
+	private final Set<ContactId> contacts = new HashSet<>();
 
 	@Inject
 	SharingControllerImpl(EventBus eventBus,

@@ -10,12 +10,12 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class ShareableLeftEvent extends Event {
+public class ContactLeftShareableEvent extends Event {
 
 	private final GroupId groupId;
 	private final ContactId contactId;
 
-	public ShareableLeftEvent(GroupId groupId, ContactId contactId) {
+	public ContactLeftShareableEvent(GroupId groupId, ContactId contactId) {
 		this.groupId = groupId;
 		this.contactId = contactId;
 	}

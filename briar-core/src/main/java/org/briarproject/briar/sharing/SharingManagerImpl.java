@@ -39,7 +39,7 @@ import org.briarproject.briar.api.sharing.SharingInvitationItem;
 import org.briarproject.briar.api.sharing.SharingManager;
 import org.briarproject.briar.api.sharing.event.InvitationRequestReceivedEvent;
 import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
-import org.briarproject.briar.api.sharing.event.ShareableLeftEvent;
+import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.io.IOException;
@@ -302,7 +302,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			// track message
 			// TODO handle this properly without engine hacks (#376)
 			long time = update.toSend.get(0).getTime();
-			messageTracker.trackMessage(txn, localState.getGroupId(), time,
+			messageTracker.trackMessage(txn, localState.getContactGroupId(), time,
 					true);
 
 			db.commitTransaction(txn);
@@ -366,7 +366,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		// track message
 		// TODO handle this properly without engine hacks (#376)
 		long time = update.toSend.get(0).getTime();
-		messageTracker.trackMessage(txn, localState.getGroupId(), time, true);
+		messageTracker.trackMessage(txn, localState.getContactGroupId(), time, true);
 	}
 
 	@Override
@@ -873,7 +873,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		localState.setTask(-1);
 
 		// get group ID for later
-		GroupId groupId = localState.getGroupId();
+		GroupId groupId = localState.getContactGroupId();
 		// get contact ID for later
 		ContactId contactId = localState.getContactId();
 
@@ -899,13 +899,15 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			db.setGroupVisibility(txn, contactId, f.getId(), INVISIBLE);
 			removeFromList(txn, groupId, SHARED_BY_US, f);
 			// broadcast event informing UI that contact has left the group
-			ShareableLeftEvent e = new ShareableLeftEvent(f.getId(), contactId);
+			ContactLeftShareableEvent
+					e = new ContactLeftShareableEvent(f.getId(), contactId);
 			txn.attach(e);
 		} else if (task == TASK_UNSHARE_SHAREABLE_SHARED_WITH_US) {
 			db.setGroupVisibility(txn, contactId, f.getId(), INVISIBLE);
 			removeFromList(txn, groupId, SHARED_WITH_US, f);
 			// broadcast event informing UI that contact has left the group
-			ShareableLeftEvent e = new ShareableLeftEvent(f.getId(), contactId);
+			ContactLeftShareableEvent
+					e = new ContactLeftShareableEvent(f.getId(), contactId);
 			txn.attach(e);
 		}
 	}
