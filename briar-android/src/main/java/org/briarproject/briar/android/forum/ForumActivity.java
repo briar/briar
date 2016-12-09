@@ -13,14 +13,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.briar.android.forum.ForumController.ForumListener;
 import org.briarproject.briar.android.sharing.ForumSharingStatusActivity;
 import org.briarproject.briar.android.sharing.ShareForumActivity;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter;
@@ -41,7 +44,8 @@ import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BOD
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ForumActivity extends
-		ThreadListActivity<Forum, ThreadItemAdapter<ForumItem>, ForumItem, ForumPostHeader> {
+		ThreadListActivity<Forum, ThreadItemAdapter<ForumItem>, ForumItem, ForumPostHeader>
+		implements ForumListener {
 
 	private static final int REQUEST_FORUM_SHARED = 3;
 
@@ -66,6 +70,21 @@ public class ForumActivity extends
 		String groupName = i.getStringExtra(GROUP_NAME);
 		if (groupName != null) setTitle(groupName);
 		else loadNamedGroup();
+
+		// Open Sharing Status on ActionBar click
+		View actionBar = findViewById(R.id.action_bar);
+		if (actionBar != null) {
+			actionBar.setOnClickListener(
+					new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							Intent i = new Intent(ForumActivity.this,
+									ForumSharingStatusActivity.class);
+							i.putExtra(GROUP_ID, groupId.getBytes());
+							startActivity(i);
+						}
+					});
+		}
 	}
 
 	@Override
@@ -181,6 +200,13 @@ public class ForumActivity extends
 						finish();
 					}
 				});
+	}
+
+	@Override
+	public void onForumLeft(ContactId c) {
+		sharingController.remove(c);
+		setToolbarSubTitle(sharingController.getTotalCount(),
+				sharingController.getOnlineCount());
 	}
 
 }

@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.privategroup.conversation;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -132,6 +133,12 @@ class GroupControllerImpl extends
 	@Override
 	protected void markRead(MessageId id) throws DbException {
 		privateGroupManager.setReadFlag(getGroupId(), id, true);
+	}
+
+	@Override
+	public void loadSharingContacts(
+			ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
+		// TODO
 	}
 
 	@Override
