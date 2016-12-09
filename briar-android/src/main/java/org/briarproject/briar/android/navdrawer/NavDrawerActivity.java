@@ -230,9 +230,9 @@ public class NavDrawerActivity extends BriarActivity implements
 			boolean isAddedToBackStack) {
 		FragmentTransaction trans =
 				getSupportFragmentManager().beginTransaction()
-						.setCustomAnimations(R.anim.dialog_in,
-								R.anim.dialog_out, R.anim.dialog_in,
-								R.anim.dialog_out)
+						.setCustomAnimations(R.anim.fade_in,
+								R.anim.fade_out, R.anim.fade_in,
+								R.anim.fade_out)
 						.replace(R.id.fragmentContainer, fragment,
 								fragment.getUniqueTag());
 		if (isAddedToBackStack) {
@@ -290,10 +290,12 @@ public class NavDrawerActivity extends BriarActivity implements
 			public View getView(int position, View convertView,
 					ViewGroup parent) {
 				View view;
-				if (convertView != null) view = convertView;
-				else view =
-						inflater.inflate(R.layout.list_item_transport, parent,
-								false);
+				if (convertView != null) {
+					view = convertView;
+				} else {
+					view = inflater.inflate(R.layout.list_item_transport,
+							parent, false);
+				}
 
 				Transport t = getItem(position);
 				int c;

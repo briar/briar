@@ -65,7 +65,6 @@ public class CreateGroupActivity extends BaseGroupInviteActivity implements
 	}
 
 	private void switchToContactSelectorFragment(GroupId g) {
-		setTitle(R.string.groups_invite_members);
 		showNextFragment(GroupInviteFragment.newInstance(g));
 	}
 

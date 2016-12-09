@@ -50,7 +50,8 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		overridePendingTransition(R.anim.dialog_in, R.anim.dialog_out);
+		// fade-in after splash screen instead of default animation
+		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 		setContentView(R.layout.activity_setup);
 
 		nicknameEntryWrapper =

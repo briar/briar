@@ -63,8 +63,8 @@
 	</style>
 
 	<style name="DialogAnimation" parent="@android:style/Animation.Dialog">
-		<item name="android:windowEnterAnimation">@anim/dialog_in</item>
-		<item name="android:windowExitAnimation">@anim/dialog_out</item>
+		<item name="android:windowEnterAnimation">@anim/fade_in</item>
+		<item name="android:windowExitAnimation">@anim/fade_out</item>
 	</style>
 
 	<style name="OnboardingDialogTheme" parent="BriarDialogTheme">

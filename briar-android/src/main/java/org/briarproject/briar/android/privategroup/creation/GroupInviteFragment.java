@@ -5,6 +5,7 @@ import android.os.Bundle;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.contactselection.ContactSelectorController;
 import org.briarproject.briar.android.contactselection.ContactSelectorFragment;
@@ -29,6 +30,12 @@ public class GroupInviteFragment extends ContactSelectorFragment {
 		GroupInviteFragment fragment = new GroupInviteFragment();
 		fragment.setArguments(args);
 		return fragment;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		getActivity().setTitle(R.string.groups_invite_members);
 	}
 
 	@Override

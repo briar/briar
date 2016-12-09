@@ -98,7 +98,7 @@ public class KeyAgreementActivity extends BriarActivity implements
 
 	@Override
 	public void showNextScreen() {
-		// FIXME with #288
+		// FIXME #824
 //		showNextFragment(ShowQrCodeFragment.newInstance());
 		BaseFragment f = ShowQrCodeFragment.newInstance();
 		getSupportFragmentManager().beginTransaction()
