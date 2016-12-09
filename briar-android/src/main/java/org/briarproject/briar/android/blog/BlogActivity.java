@@ -11,7 +11,6 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.blog.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.sharing.BlogSharingStatusActivity;
 
@@ -19,8 +18,8 @@ import javax.inject.Inject;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class BlogActivity extends BriarActivity implements
-		OnBlogPostClickListener, BaseFragmentListener {
+public class BlogActivity extends BriarActivity
+		implements BaseFragmentListener {
 
 	static final int REQUEST_WRITE_POST = 2;
 	static final int REQUEST_SHARE = 3;
@@ -57,29 +56,13 @@ public class BlogActivity extends BriarActivity implements
 		}
 
 		if (state == null) {
-			BlogFragment f = BlogFragment.newInstance(groupId);
-			getSupportFragmentManager().beginTransaction()
-					.replace(R.id.fragmentContainer, f, f.getUniqueTag())
-					.commit();
+			showInitialFragment(BlogFragment.newInstance(groupId));
 		}
 	}
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
-	}
-
-	@Override
-	public void onBlogPostClick(BlogPostItem post) {
-		BlogPostFragment f = BlogPostFragment.newInstance(post.getId());
-		getSupportFragmentManager().beginTransaction()
-				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
-				.addToBackStack(f.getUniqueTag())
-				.commit();
-	}
-
-	@Override
-	public void onFragmentCreated(String tag) {
 	}
 
 }

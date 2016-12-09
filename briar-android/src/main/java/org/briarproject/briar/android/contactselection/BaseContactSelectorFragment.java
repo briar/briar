@@ -1,11 +1,9 @@
 package org.briarproject.briar.android.contactselection;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.v7.widget.LinearLayoutManager;
-import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,10 +66,6 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 			@Nullable Bundle savedInstanceState) {
 
 		View contentView = inflater.inflate(R.layout.list, container, false);
-
-		if (Build.VERSION.SDK_INT >= 21) {
-			setExitTransition(new Fade());
-		}
 
 		list = (BriarRecyclerView) contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));

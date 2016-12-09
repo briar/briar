@@ -42,6 +42,8 @@ public class PasswordActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+		// fade-in after splash screen instead of default animation
+		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 
 		if (!passwordController.accountExists()) {
 			deleteAccount();
@@ -97,7 +99,7 @@ public class PasswordActivity extends BaseActivity {
 		passwordController.deleteAccount(this);
 		setResult(RESULT_CANCELED);
 		startActivity(new Intent(this, SetupActivity.class));
-		finish();
+		supportFinishAfterTransition();
 	}
 
 	public void onSignInClick(View v) {
@@ -132,7 +134,11 @@ public class PasswordActivity extends BaseActivity {
 					public void onResultUi(@NonNull Boolean result) {
 						if (result) {
 							setResult(RESULT_OK);
-							finish();
+							supportFinishAfterTransition();
+							// don't show closing animation,
+							// but one for opening NavDrawerActivity
+							overridePendingTransition(R.anim.screen_new_in,
+									R.anim.screen_old_out);
 						} else {
 							tryAgain();
 						}

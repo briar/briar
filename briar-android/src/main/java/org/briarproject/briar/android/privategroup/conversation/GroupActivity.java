@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -37,7 +35,6 @@ import org.briarproject.briar.api.privategroup.Visibility;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.view.View.GONE;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
 
@@ -152,9 +149,6 @@ public class GroupActivity extends
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
-		ActivityOptionsCompat options =
-				makeCustomAnimation(this, android.R.anim.slide_in_left,
-						android.R.anim.slide_out_right);
 		switch (item.getItemId()) {
 			case R.id.action_group_compose_message:
 				showTextInput(null);
@@ -162,18 +156,17 @@ public class GroupActivity extends
 			case R.id.action_group_member_list:
 				Intent i1 = new Intent(this, GroupMemberListActivity.class);
 				i1.putExtra(GROUP_ID, groupId.getBytes());
-				ActivityCompat.startActivity(this, i1, options.toBundle());
+				startActivity(i1);
 				return true;
 			case R.id.action_group_reveal:
 				Intent i2 = new Intent(this, RevealContactsActivity.class);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
-				ActivityCompat.startActivity(this, i2, options.toBundle());
+				startActivity(i2);
 				return true;
 			case R.id.action_group_invite:
 				Intent i3 = new Intent(this, GroupInviteActivity.class);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
-				ActivityCompat.startActivityForResult(this, i3, REQUEST_INVITE,
-						options.toBundle());
+				startActivityForResult(i3, REQUEST_INVITE);
 				return true;
 			case R.id.action_group_leave:
 				showLeaveGroupDialog();

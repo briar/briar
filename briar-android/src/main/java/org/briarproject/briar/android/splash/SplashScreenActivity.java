@@ -1,12 +1,14 @@
 package org.briarproject.briar.android.splash;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
 import android.support.v7.preference.PreferenceManager;
+import android.transition.Fade;
 
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
@@ -45,6 +47,10 @@ public class SplashScreenActivity extends BaseActivity {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
+		if (Build.VERSION.SDK_INT >= 21) {
+			getWindow().setExitTransition(new Fade());
+		}
+
 		setPreferencesDefaults();
 
 		setContentView(R.layout.splash);
@@ -53,7 +59,7 @@ public class SplashScreenActivity extends BaseActivity {
 			@Override
 			public void run() {
 				startNextActivity();
-				finish();
+				supportFinishAfterTransition();
 			}
 		}, 500);
 	}

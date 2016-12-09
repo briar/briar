@@ -2,8 +2,7 @@ package org.briarproject.briar.android.privategroup.creation;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
+import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -14,10 +13,6 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.sharing.BaseMessageFragment.MessageFragmentListener;
-
-import javax.annotation.Nullable;
-
-import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -34,10 +29,7 @@ public class CreateGroupActivity extends BaseGroupInviteActivity implements
 		super.onCreate(bundle);
 
 		if (bundle == null) {
-			CreateGroupFragment fragment = new CreateGroupFragment();
-			getSupportFragmentManager().beginTransaction()
-					.add(R.id.fragmentContainer, fragment)
-					.commit();
+			showInitialFragment(new CreateGroupFragment());
 		}
 	}
 
@@ -47,6 +39,8 @@ public class CreateGroupActivity extends BaseGroupInviteActivity implements
 			// At this point, the group had been created already,
 			// so don't allow to create it again.
 			openNewGroup();
+			overridePendingTransition(R.anim.screen_old_in,
+					R.anim.screen_new_out);
 		} else {
 			super.onBackPressed();
 		}
@@ -71,26 +65,13 @@ public class CreateGroupActivity extends BaseGroupInviteActivity implements
 	}
 
 	private void switchToContactSelectorFragment(GroupId g) {
-		setTitle(R.string.groups_invite_members);
-		GroupInviteFragment fragment =
-				GroupInviteFragment.newInstance(g);
-		getSupportFragmentManager().beginTransaction()
-				.setCustomAnimations(android.R.anim.fade_in,
-						android.R.anim.fade_out,
-						android.R.anim.slide_in_left,
-						android.R.anim.slide_out_right)
-				.replace(R.id.fragmentContainer, fragment)
-				.addToBackStack(fragment.getUniqueTag())
-				.commit();
+		showNextFragment(GroupInviteFragment.newInstance(g));
 	}
 
 	private void openNewGroup() {
 		Intent i = new Intent(this, GroupActivity.class);
 		i.putExtra(GROUP_ID, groupId.getBytes());
-		ActivityOptionsCompat options =
-				makeCustomAnimation(this, android.R.anim.fade_in,
-						android.R.anim.fade_out);
-		ActivityCompat.startActivity(this, i, options.toBundle());
+		startActivity(i);
 		// finish this activity, so we can't come back to it
 		finish();
 	}

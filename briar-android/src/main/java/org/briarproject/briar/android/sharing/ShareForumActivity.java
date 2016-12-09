@@ -41,11 +41,7 @@ public class ShareForumActivity extends ShareActivity {
 		super.onCreate(bundle);
 
 		if (bundle == null) {
-			ShareForumFragment fragment =
-					ShareForumFragment.newInstance(groupId);
-			getSupportFragmentManager().beginTransaction()
-					.add(R.id.fragmentContainer, fragment)
-					.commit();
+			showInitialFragment(ShareForumFragment.newInstance(groupId));
 		}
 	}
 

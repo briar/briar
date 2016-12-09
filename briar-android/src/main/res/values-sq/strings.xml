@@ -10,7 +10,6 @@
   <string name="password_too_weak">Fjalëkalimi është shumë i dobët</string>
   <string name="passwords_do_not_match">Fjalëkalimet nuk përputhen</string>
   <string name="create_account_button">Krijoje Llogarinë</string>
-  <string name="progress_title_please_wait">Ju lutemi, prisni…</string>
   <!--Login-->
   <string name="enter_password">Jepni fjalëkalimin tuaj:</string>
   <string name="try_again">Fjalëkalim i gabuar, riprovoni</string>
@@ -24,8 +23,6 @@
   <string name="startup_failed_db_error">Për ndonjë arsye, baza e të dhënave e Briar-it tuaj është aq e dëmtuar, sa s’mund të ndreqet. Llogaria juaj, të dhënat tuaja dhe krejt lidhjet tuaja me kontaktet kanë humbur. Mjerisht lypset të ri-instaloni Briar-in dhe të rregulloni një llogari të re.</string>
   <string name="startup_failed_service_error">Briar-i s’arriti të nisë një shtojcë të domosdoshme. Ri-instalimi i Briar-it zakonisht e zgjidh këtë problem. Por, ju lutemi, kini parasysh se me të do të humbni llogarinë tuaj dhe krejt të dhënat e lidhura me të, ngaqë Briar nuk përdor shërbyes qendrorë për të depozituar në ta të dhënat tuaja.</string>
   <string name="expiry_warning">Ky software ka skaduar.\nJu lutemi, instaloni një version më të ri.</string>
-  <string name="dialog_title_welcome">Mirë se vini në Briar</string>
-  <string name="dialog_welcome_message">Shtoni një kontakt që të filloni të komunikoni në mënyrë të sigurt, ose shtypni ikonën në cepin e sipërm majtas të ekranit për më tepër mundësi.</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Hap sirtarin e lëvizjeve</string>
   <string name="nav_drawer_close_description">Mbylle sirtarin e lëvizjeve</string>
@@ -95,7 +92,6 @@
   <string name="searching_format">Po kërkohet për kontakt me kod ftese %06d\u2026</string>
   <string name="connection_failed">Lidhja dështoi</string>
   <string name="could_not_find_contact">Briar-i s’e gjeti dot kontaktin tuaj këtej pari</string>
-  <string name="could_not_open_camera">S’u hy dot te kamera juaj. Ju lutemi, riprovoni!</string>
   <string name="try_again_button">Riprovoni</string>
   <string name="connected_to_contact">U lidh me kontaktin</string>
   <string name="calculating_confirmation_code">Po përllogaritet kodi i ripohimit\u2026</string>
@@ -125,7 +121,6 @@
   <string name="introduction_sent">Prezantimi juaj u dërgua.</string>
   <string name="introduction_error">Pati një gabim me bërjen e prezantimit.</string>
   <string name="introduction_response_error">Gabim në përgjigjen ndaj prezantimit</string>
-  <string name="dialog_button_introduce">Prezantoje</string>
   <string name="introduction_request_sent">Keni kërkuar të prezantoni %1$s te %2$s.</string>
   <string name="introduction_request_received">%1$s ka kërkuar t’ju prezantojë te %2$s. Doni të shtohet %2$s te lista juaj e kontakteve?</string>
   <string name="introduction_request_exists_received">%1$s ka kërkuar t’ju prezantojë te %2$s, por %2$s gjendet tashmë te lista juaj e kontakteve. Meqë %1$s mund të mos ta dijë këtë gjë, mundeni prapëseprapë t’i përgjigjeni:</string>
@@ -150,7 +145,6 @@
   <string name="groups_group_is_dissolved">Ky grup është shkrirë</string>
   <string name="groups_remove">Hiqe</string>
   <string name="groups_create_group_title">Krijoni Grup Privat</string>
-  <string name="groups_no_messages">Ky grup është i zbrazët.\n\nMund të përdorni ikonën penë në krye që të hartoni mesazhin e parë.</string>
   <string name="groups_create_group_button">Krijoje Grupin</string>
   <string name="groups_create_group_invitation_button">Dërgoje Ftesën</string>
   <string name="groups_create_group_hint">Shtoni një emër për grupin tuaj privat</string>
@@ -278,7 +272,6 @@
   <string name="blogs_sharing_invitation_received">%1$s ka ndarë me ju blogun personal të %2$s.</string>
   <string name="blogs_sharing_invitation_sent">Keni ndarë me %2$s blogun personal të %1$s.</string>
   <string name="blogs_sharing_invitations_title">Ftesa Blogu</string>
-  <string name="blogs_sharing_exists">Jeni i pajtuar te ky blog një herë. Pranimi sërish mund të shpjerë te shpërndarje më e shpejtë postimesh blogu.</string>
   <string name="blogs_sharing_joined_toast">U pajtuat te Blogu</string>
   <string name="blogs_sharing_declined_toast">Ftesa e Blogut u Hodh Poshtë</string>
   <!--RSS Feeds-->

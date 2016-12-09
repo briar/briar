@@ -50,6 +50,8 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+		// fade-in after splash screen instead of default animation
+		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 		setContentView(R.layout.activity_setup);
 
 		nicknameEntryWrapper =
@@ -149,6 +151,7 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 		Intent i = new Intent(this, NavDrawerActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);
-		finish();
+		supportFinishAfterTransition();
+		overridePendingTransition(R.anim.screen_new_in, R.anim.screen_old_out);
 	}
 }

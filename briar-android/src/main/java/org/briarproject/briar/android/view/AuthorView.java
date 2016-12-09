@@ -6,8 +6,6 @@ import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.support.annotation.DimenRes;
 import android.support.annotation.UiThread;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -31,7 +29,6 @@ import im.delight.android.identicons.IdenticonDrawable;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.graphics.Typeface.BOLD;
-import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
@@ -116,13 +113,7 @@ public class AuthorView extends RelativeLayout {
 				Intent i = new Intent(getContext(), BlogActivity.class);
 				i.putExtra(GROUP_ID, groupId.getBytes());
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-				ActivityOptionsCompat options =
-						makeCustomAnimation(getContext(),
-								android.R.anim.slide_in_left,
-								android.R.anim.slide_out_right);
-				Intent[] intents = {i};
-				ContextCompat.startActivities(getContext(), intents,
-								options.toBundle());
+				getContext().startActivity(i);
 			}
 		});
 	}
@@ -135,9 +126,19 @@ public class AuthorView extends RelativeLayout {
 
 	public void setPersona(int persona) {
 		switch (persona) {
+			case NORMAL:
+				avatarIcon.setVisibility(VISIBLE);
+				date.setVisibility(VISIBLE);
+				setAvatarSize(R.dimen.blogs_avatar_normal_size);
+				setTextSize(authorName, R.dimen.text_size_small);
+				setCenterVertical(authorName, false);
+				setCenterVertical(trustIndicator, false);
+				break;
 			case REBLOGGER:
 				avatarIcon.setVisibility(VISIBLE);
 				date.setVisibility(VISIBLE);
+				setAvatarSize(R.dimen.blogs_avatar_normal_size);
+				setTextSize(authorName, R.dimen.text_size_small);
 				setCenterVertical(authorName, false);
 				setCenterVertical(trustIndicator, false);
 				break;
@@ -162,8 +163,7 @@ public class AuthorView extends RelativeLayout {
 
 	private void setAvatarSize(@DimenRes int res) {
 		LayoutParams params = (LayoutParams) avatar.getLayoutParams();
-		int size = getResources().getDimensionPixelSize(
-				res);
+		int size = getResources().getDimensionPixelSize(res);
 		params.height = size;
 		params.width = size;
 		avatar.setLayoutParams(params);

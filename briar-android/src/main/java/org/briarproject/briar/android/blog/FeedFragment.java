@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
@@ -36,7 +35,6 @@ import javax.inject.Inject;
 
 import static android.app.Activity.RESULT_OK;
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
-import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.blog.BlogActivity.REQUEST_WRITE_POST;
 
@@ -71,6 +69,8 @@ public class FeedFragment extends BaseFragment implements
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
+
+		getActivity().setTitle(R.string.blogs_button);
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
@@ -169,28 +169,24 @@ public class FeedFragment extends BaseFragment implements
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		if (personalBlog == null) return false;
-		ActivityOptionsCompat options =
-				makeCustomAnimation(getActivity(), android.R.anim.slide_in_left,
-						android.R.anim.slide_out_right);
 		switch (item.getItemId()) {
 			case R.id.action_write_blog_post:
 				Intent i1 =
 						new Intent(getActivity(), WriteBlogPostActivity.class);
 				i1.putExtra(GROUP_ID, personalBlog.getId().getBytes());
-				startActivityForResult(i1, REQUEST_WRITE_POST,
-						options.toBundle());
+				startActivityForResult(i1, REQUEST_WRITE_POST);
 				return true;
 			case R.id.action_rss_feeds_import:
 				Intent i2 =
 						new Intent(getActivity(), RssFeedImportActivity.class);
 				i2.putExtra(GROUP_ID, personalBlog.getId().getBytes());
-				startActivity(i2, options.toBundle());
+				startActivity(i2);
 				return true;
 			case R.id.action_rss_feeds_manage:
 				Intent i3 =
 						new Intent(getActivity(), RssFeedManageActivity.class);
 				i3.putExtra(GROUP_ID, personalBlog.getId().getBytes());
-				startActivity(i3, options.toBundle());
+				startActivity(i3);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -225,10 +221,7 @@ public class FeedFragment extends BaseFragment implements
 	public void onBlogPostClick(BlogPostItem post) {
 		FeedPostFragment f =
 				FeedPostFragment.newInstance(post.getGroupId(), post.getId());
-		getActivity().getSupportFragmentManager().beginTransaction()
-				.replace(R.id.content_fragment, f, f.getUniqueTag())
-				.addToBackStack(f.getUniqueTag())
-				.commit();
+		showNextFragment(f);
 	}
 
 	@Override
@@ -269,4 +262,5 @@ public class FeedFragment extends BaseFragment implements
 	public void onBlogRemoved() {
 		loadBlogPosts(true);
 	}
+
 }

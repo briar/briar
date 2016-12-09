@@ -3,10 +3,16 @@ package org.briarproject.briar.android.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
+import android.transition.Slide;
+import android.transition.Transition;
+import android.view.Gravity;
+import android.view.Window;
 
+import org.briarproject.briar.R;
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.DbController;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
+import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.login.PasswordActivity;
 import org.briarproject.briar.android.panic.ExitActivity;
 
@@ -44,7 +50,7 @@ public abstract class BriarActivity extends BaseActivity {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_PASSWORD) {
 			if (result == RESULT_OK) briarController.startAndBindService();
-			else finish();
+			else supportFinishAfterTransition();
 		}
 	}
 
@@ -53,9 +59,39 @@ public abstract class BriarActivity extends BaseActivity {
 		super.onStart();
 		if (!briarController.hasEncryptionKey() && !isFinishing()) {
 			Intent i = new Intent(this, PasswordActivity.class);
-			i.setFlags(FLAG_ACTIVITY_NO_ANIMATION | FLAG_ACTIVITY_SINGLE_TOP);
+			i.setFlags(FLAG_ACTIVITY_SINGLE_TOP);
 			startActivityForResult(i, REQUEST_PASSWORD);
 		}
+	}
+
+	protected void showInitialFragment(BaseFragment f) {
+		getSupportFragmentManager().beginTransaction()
+				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
+				.commit();
+	}
+
+	public void showNextFragment(BaseFragment f) {
+		getSupportFragmentManager().beginTransaction()
+				.setCustomAnimations(R.anim.step_next_in,
+						R.anim.step_previous_out, R.anim.step_previous_in,
+						R.anim.step_next_out)
+				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
+				.addToBackStack(f.getUniqueTag())
+				.commit();
+	}
+
+	public void setSceneTransitionAnimation() {
+		if (Build.VERSION.SDK_INT < 21) return;
+		Transition slide = new Slide(Gravity.RIGHT);
+		slide.excludeTarget(android.R.id.statusBarBackground, true);
+		slide.excludeTarget(android.R.id.navigationBarBackground, true);
+		Window window = getWindow();
+		window.requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+		window.setExitTransition(slide);
+		window.setEnterTransition(slide);
+		window.setTransitionBackgroundFadeDuration(getResources()
+				.getInteger(android.R.integer.config_longAnimTime));
+		window.setBackgroundDrawableResource(android.R.color.transparent);
 	}
 
 	protected void signOut(final boolean removeFromRecentApps) {
@@ -83,7 +119,7 @@ public abstract class BriarActivity extends BaseActivity {
 
 	private void finishAndExit() {
 		if (Build.VERSION.SDK_INT >= 21) finishAndRemoveTask();
-		else finish();
+		else supportFinishAfterTransition();
 		LOG.info("Exiting");
 		System.exit(0);
 	}
@@ -98,7 +134,7 @@ public abstract class BriarActivity extends BaseActivity {
 		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				finish();
+				supportFinishAfterTransition();
 			}
 		});
 	}

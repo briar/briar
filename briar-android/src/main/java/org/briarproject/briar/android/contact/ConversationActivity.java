@@ -5,10 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.ActionMenuView;
@@ -55,7 +52,6 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.contact.ConversationAdapter.ConversationListener;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
-import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.TextInputListener;
@@ -100,12 +96,14 @@ import im.delight.android.identicons.IdenticonDrawable;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.OnHidePromptListener;
 
-import static android.support.v4.app.ActivityOptionsCompat.makeCustomAnimation;
+import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
+import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
+import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
 
 @MethodsNotNullByDefault
@@ -117,7 +115,7 @@ public class ConversationActivity extends BriarActivity
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
-	private static final int REQUEST_CODE_INTRODUCTION = 1;
+	private static final int REQUEST_CODE_INTRODUCTION = 2;
 	private static final String SHOW_ONBOARDING_INTRODUCTION =
 			"showOnboardingIntroduction";
 
@@ -168,6 +166,7 @@ public class ConversationActivity extends BriarActivity
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
+		setSceneTransitionAnimation();
 
 		Intent i = getIntent();
 		int id = i.getIntExtra(CONTACT_ID, -1);
@@ -194,10 +193,8 @@ public class ConversationActivity extends BriarActivity
 			ab.setDisplayShowTitleEnabled(false);
 		}
 
-		ViewCompat.setTransitionName(toolbarAvatar,
-				UiUtils.getAvatarTransitionName(contactId));
-		ViewCompat.setTransitionName(toolbarStatus,
-				UiUtils.getBulbTransitionName(contactId));
+		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
+		setTransitionName(toolbarStatus, getBulbTransitionName(contactId));
 
 		adapter = new ConversationAdapter(this, this);
 		list = (BriarRecyclerView) findViewById(R.id.conversationView);
@@ -267,13 +264,8 @@ public class ConversationActivity extends BriarActivity
 			case R.id.action_introduction:
 				if (contactId == null) return false;
 				Intent intent = new Intent(this, IntroductionActivity.class);
-				intent.putExtra(IntroductionActivity.CONTACT_ID,
-						contactId.getInt());
-				ActivityOptionsCompat options =
-						makeCustomAnimation(this, android.R.anim.slide_in_left,
-								android.R.anim.slide_out_right);
-				ActivityCompat.startActivityForResult(this, intent,
-						REQUEST_CODE_INTRODUCTION, options.toBundle());
+				intent.putExtra(CONTACT_ID, contactId.getInt());
+				startActivityForResult(intent, REQUEST_CODE_INTRODUCTION);
 				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
@@ -281,13 +273,6 @@ public class ConversationActivity extends BriarActivity
 			default:
 				return super.onOptionsItemSelected(item);
 		}
-	}
-
-	@Override
-	public void onBackPressed() {
-		// FIXME disabled exit transition, because it doesn't work for some reason #318
-		//supportFinishAfterTransition();
-		finish();
 	}
 
 	private void loadContactDetails() {
@@ -714,7 +699,7 @@ public class ConversationActivity extends BriarActivity
 				String deleted = getString(R.string.contact_deleted_toast);
 				Toast.makeText(ConversationActivity.this, deleted, LENGTH_SHORT)
 						.show();
-				finish();
+				supportFinishAfterTransition();
 			}
 		});
 	}

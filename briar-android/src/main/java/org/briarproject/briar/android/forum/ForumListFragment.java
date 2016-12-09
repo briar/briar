@@ -84,6 +84,8 @@ public class ForumListFragment extends BaseEventFragment implements
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
+		getActivity().setTitle(R.string.forums_button);
+
 		View contentView =
 				inflater.inflate(R.layout.fragment_forum_list, container,
 						false);

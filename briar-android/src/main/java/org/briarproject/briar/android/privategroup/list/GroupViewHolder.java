@@ -2,7 +2,6 @@ package org.briarproject.briar.android.privategroup.list;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,7 +18,6 @@ import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.view.TextAvatarView;
 
 import static android.support.v4.content.ContextCompat.getColor;
-import static android.support.v4.content.ContextCompat.startActivities;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
@@ -126,11 +124,7 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 				GroupId id = group.getId();
 				i.putExtra(GROUP_ID, id.getBytes());
 				i.putExtra(GROUP_NAME, group.getName());
-				ActivityOptionsCompat options = ActivityOptionsCompat
-						.makeCustomAnimation(ctx, android.R.anim.fade_in,
-								android.R.anim.fade_out);
-				Intent[] intents = {i};
-				startActivities(ctx, intents, options.toBundle());
+				ctx.startActivity(i);
 			}
 		});
 	}

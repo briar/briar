@@ -10,7 +10,6 @@
   <string name="password_too_weak">Passwort zu schwach</string>
   <string name="passwords_do_not_match">Passwörter stimmen nicht überein</string>
   <string name="create_account_button">Konto anlegen</string>
-  <string name="progress_title_please_wait">Bitte warten ...</string>
   <!--Login-->
   <string name="enter_password">Passwort eingeben:</string>
   <string name="try_again">Passwort falsch, bitte erneut versuchen</string>
@@ -24,8 +23,6 @@
   <string name="startup_failed_db_error">Deine Briar-Datenbank ist korrupt. Briar-Konto, Daten und alle Verbindungen zu Kontakten können nicht mehr wiederhergestellt werden. Deinstalliere Briar und erstelle nach Installation der aktuellen Briar-Version ein neues Konto.</string>
   <string name="startup_failed_service_error">Briar konnte ein benötigtes Plugin nicht starten. Normalerweise kann das Problem durch eine Neuinstallation von Briar gelöst werden. Eine Neuinstallation führt jedoch zum Verlust des Kontos und aller dazugehörigen Daten, da Briar deine Daten nicht auf zentralen Servern speichert</string>
   <string name="expiry_warning">Diese Version von Briar ist nicht mehr aktuell.\nBitte installiere eine neuere Version.</string>
-  <string name="dialog_title_welcome">Willkommen bei Briar</string>
-  <string name="dialog_welcome_message">Füge einen Kontakt hinzu, um mit verschlüsselter Kommunikation zu beginnen oder wähle das Icon in der oberen linken Ecke für mehr Optionen.</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Navigationsleiste öffnen</string>
   <string name="nav_drawer_close_description">Navigationsleiste schliessen</string>
@@ -87,7 +84,6 @@
   <string name="searching_format">Suche nach Kontakt mit Einladungs-Code %06d\u2026</string>
   <string name="connection_failed">Verbindung fehlgeschlagen</string>
   <string name="could_not_find_contact">Briar kann Deinen Kontakt nicht innerhalb der Reichweite finden</string>
-  <string name="could_not_open_camera">Es konnte nicht auf die Kamera zugegriffen werden. Bitte versuche es erneut.</string>
   <string name="try_again_button">Noch einmal versuchen</string>
   <string name="connected_to_contact">Mit Kontakt verbunden</string>
   <string name="calculating_confirmation_code">Bestätigungscode wird berechnet\u2026</string>
@@ -116,7 +112,6 @@
   <string name="introduction_sent">Deine Kontaktempfehlung wurde verschickt</string>
   <string name="introduction_error">Es gab einen Fehler beim Versuch, die Kontaktempfehlung zu verschicken</string>
   <string name="introduction_response_error">Fehler bei Antwort auf Kontaktempfehlung</string>
-  <string name="dialog_button_introduce">Als Kontakt empfehlen</string>
   <string name="introduction_request_sent">Du wolltest %1$s an %2$s als Kontakt empfehlen</string>
   <string name="introduction_request_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. Möchtest Du %2$s zu deiner Kontaktliste hinzufügen?</string>
   <string name="introduction_request_exists_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. %2$s ist allerdings bereits in deiner Kontaktliste. Da %1$s das vielleicht nicht weiss, kannst du trotzdem antworten:</string>
@@ -140,7 +135,6 @@
   <string name="groups_group_is_empty">Diese Gruppe ist leer.</string>
   <string name="groups_remove">Entfernen</string>
   <string name="groups_create_group_title">Private Gruppe erstellen</string>
-  <string name="groups_no_messages">Diese Gruppe hat keine Teilnehmer.\n\nErstelle die erste Nachricht über das Stift-Symbol am oberen Rand.</string>
   <string name="groups_create_group_button">Gruppe erstellen</string>
   <string name="groups_create_group_invitation_button">Einladung schicken</string>
   <string name="groups_create_group_hint">Gebe Deiner privaten Gruppe einen Namen</string>
@@ -240,7 +234,6 @@
   <string name="blogs_sharing_invitation_received">%1$s hat das persönliche Blog von %2$s mit dir geteilt.</string>
   <string name="blogs_sharing_invitation_sent">Du hast das persönliche Blog von %1$s mit %2$s geteilt.</string>
   <string name="blogs_sharing_invitations_title">Blogeinladungen</string>
-  <string name="blogs_sharing_exists">Du hast dieses Blog bereits abonniert. Ein neues Abo anzunehmen kann dazu führen, dass neue Einträge schneller verfügbar werden.</string>
   <string name="blogs_sharing_joined_toast">Blog abonniert</string>
   <string name="blogs_sharing_declined_toast">Blogeinladung abgelehnt</string>
   <!--RSS Feeds-->

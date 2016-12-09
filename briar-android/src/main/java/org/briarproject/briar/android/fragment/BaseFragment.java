@@ -40,7 +40,6 @@ public abstract class BaseFragment extends Fragment
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		injectFragment(listener.getActivityComponent());
-		listener.onFragmentCreated(getUniqueTag());
 	}
 
 	@Override
@@ -61,7 +60,6 @@ public abstract class BaseFragment extends Fragment
 	}
 
 	public interface BaseFragmentListener {
-
 		@Deprecated
 		void runOnDbThread(Runnable runnable);
 
@@ -72,7 +70,7 @@ public abstract class BaseFragment extends Fragment
 		ActivityComponent getActivityComponent();
 
 		@UiThread
-		void onFragmentCreated(String tag);
+		void showNextFragment(BaseFragment f);
 	}
 
 	@CallSuper
@@ -92,4 +90,9 @@ public abstract class BaseFragment extends Fragment
 			});
 		}
 	}
+
+	protected void showNextFragment(BaseFragment f) {
+		listener.showNextFragment(f);
+	}
+
 }

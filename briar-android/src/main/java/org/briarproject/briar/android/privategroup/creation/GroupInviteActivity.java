@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.sharing.BaseMessageFragment.MessageFragmentListener;
 
@@ -26,11 +25,7 @@ public class GroupInviteActivity extends BaseGroupInviteActivity
 		groupId = new GroupId(g);
 
 		if (bundle == null) {
-			GroupInviteFragment fragment =
-					GroupInviteFragment.newInstance(groupId);
-			getSupportFragmentManager().beginTransaction()
-					.replace(R.id.fragmentContainer, fragment)
-					.commit();
+			showInitialFragment(GroupInviteFragment.newInstance(groupId));
 		}
 	}
 

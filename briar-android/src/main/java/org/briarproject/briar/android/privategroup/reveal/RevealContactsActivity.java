@@ -58,11 +58,7 @@ public class RevealContactsActivity extends ContactSelectorActivity
 		button.setEnabled(false);
 
 		if (bundle == null) {
-			RevealContactsFragment fragment =
-					RevealContactsFragment.newInstance(groupId);
-			getSupportFragmentManager().beginTransaction()
-					.replace(R.id.fragmentContainer, fragment)
-					.commit();
+			showInitialFragment(RevealContactsFragment.newInstance(groupId));
 		}
 	}
 

@@ -137,15 +137,14 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 				i.putExtra(GROUP_ID, item.getGroupId().getBytes());
 				i.putExtra(POST_ID, item.getId().getBytes());
 
-				// work-around for android bug #224270
 				if (Build.VERSION.SDK_INT >= 23) {
 					ActivityOptionsCompat options =
 							makeSceneTransitionAnimation((Activity) ctx, layout,
 									getTransitionName(item.getId()));
-					ActivityCompat
-							.startActivity((Activity) ctx, i,
-									options.toBundle());
+					ActivityCompat.startActivity((Activity) ctx, i,
+							options.toBundle());
 				} else {
+					// work-around for android bug #224270
 					ctx.startActivity(i);
 				}
 			}
@@ -167,6 +166,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		reblogger.setDate(item.getTimestamp());
 		reblogger.setBlogLink(item.getGroupId());
 		reblogger.setVisibility(VISIBLE);
+		reblogger.setPersona(AuthorView.REBLOGGER);
 
 		author.setPersona(AuthorView.COMMENTER);
 

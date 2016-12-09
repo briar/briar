@@ -13,6 +13,7 @@
 		<item name="android:textColorTertiary">@color/briar_text_tertiary</item>
 		<item name="android:textColorTertiaryInverse">@color/briar_text_tertiary_inverse</item>
 		<item name="android:textColorLink">@color/briar_text_link</item>
+		<item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
 	</style>
 
 	<style name="BriarThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
@@ -28,6 +29,14 @@
 		<item name="android:textColorTertiary">@color/briar_text_tertiary</item>
 		<item name="android:textColorTertiaryInverse">@color/briar_text_tertiary_inverse</item>
 		<item name="android:textColorLink">@color/briar_text_link</item>
+		<item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
+	</style>
+
+	<style name="ActivityAnimation" parent="@android:style/Animation.Activity">
+		<item name="android:activityOpenEnterAnimation">@anim/screen_new_in</item>
+		<item name="android:activityOpenExitAnimation">@anim/screen_old_out</item>
+		<item name="android:activityCloseEnterAnimation">@anim/screen_old_in</item>
+		<item name="android:activityCloseExitAnimation">@anim/screen_new_out</item>
 	</style>
 
 	<style name="BriarThemeNoActionBar.Default"/>
@@ -54,8 +63,8 @@
 	</style>
 
 	<style name="DialogAnimation" parent="@android:style/Animation.Dialog">
-		<item name="android:windowEnterAnimation">@android:anim/fade_in</item>
-		<item name="android:windowExitAnimation">@android:anim/fade_out</item>
+		<item name="android:windowEnterAnimation">@anim/fade_in</item>
+		<item name="android:windowExitAnimation">@anim/fade_out</item>
 	</style>
 
 	<style name="OnboardingDialogTheme" parent="BriarDialogTheme">

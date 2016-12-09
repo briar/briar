@@ -1,10 +1,8 @@
 package org.briarproject.briar.android.introduction;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
-import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,13 +29,13 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
 
 public class ContactChooserFragment extends BaseFragment {
 
 	public static final String TAG = ContactChooserFragment.class.getName();
 	private static final Logger LOG = Logger.getLogger(TAG);
 
-	private IntroductionActivity introductionActivity;
 	private BriarRecyclerView list;
 	private ContactListAdapter adapter;
 	private ContactId contactId;
@@ -51,11 +49,12 @@ public class ContactChooserFragment extends BaseFragment {
 	@Inject
 	volatile ConnectionRegistry connectionRegistry;
 
-	public static ContactChooserFragment newInstance() {
+	public static ContactChooserFragment newInstance(ContactId id) {
 
 		Bundle args = new Bundle();
 
 		ContactChooserFragment fragment = new ContactChooserFragment();
+		args.putInt(CONTACT_ID, id.getInt());
 		fragment.setArguments(args);
 		return fragment;
 	}
@@ -63,7 +62,6 @@ public class ContactChooserFragment extends BaseFragment {
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		introductionActivity = (IntroductionActivity) context;
 	}
 
 	@Override
@@ -72,17 +70,13 @@ public class ContactChooserFragment extends BaseFragment {
 
 		View contentView = inflater.inflate(R.layout.list, container, false);
 
-		if (Build.VERSION.SDK_INT >= 21) {
-			setExitTransition(new Fade());
-		}
-
 		OnContactClickListener<ContactListItem> onContactClickListener =
 				new OnContactClickListener<ContactListItem>() {
 					@Override
 					public void onItemClick(View view, ContactListItem item) {
 						if (c1 == null) throw new IllegalStateException();
 						Contact c2 = item.getContact();
-						introductionActivity.showMessageScreen(view, c1, c2);
+						showMessageScreen(c1, c2);
 					}
 				};
 		adapter = new ContactListAdapter(getActivity(), onContactClickListener);
@@ -92,7 +86,7 @@ public class ContactChooserFragment extends BaseFragment {
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_contacts));
 
-		contactId = introductionActivity.getContactId();
+		contactId = new ContactId(getArguments().getInt(CONTACT_ID));
 
 		return contentView;
 	}
@@ -121,7 +115,7 @@ public class ContactChooserFragment extends BaseFragment {
 	}
 
 	private void loadContacts() {
-		introductionActivity.runOnDbThread(new Runnable() {
+		listener.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -149,13 +143,20 @@ public class ContactChooserFragment extends BaseFragment {
 	}
 
 	private void displayContacts(final List<ContactListItem> contacts) {
-		introductionActivity.runOnUiThreadUnlessDestroyed(new Runnable() {
+		runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
 				if (contacts.isEmpty()) list.showData();
 				else adapter.addAll(contacts);
 			}
 		});
+	}
+
+	private void showMessageScreen(Contact c1, Contact c2) {
+		IntroductionMessageFragment messageFragment =
+				IntroductionMessageFragment
+						.newInstance(c1.getId().getInt(), c2.getId().getInt());
+		showNextFragment(messageFragment);
 	}
 
 }

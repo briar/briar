@@ -26,7 +26,6 @@ public class FeedPostFragment extends BasePostFragment {
 
 	private static final String TAG = FeedPostFragment.class.getName();
 
-	private MessageId postId;
 	private GroupId blogId;
 
 	@Inject
@@ -53,10 +52,6 @@ public class FeedPostFragment extends BasePostFragment {
 		byte[] b = args.getByteArray(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No group ID in args");
 		blogId = new GroupId(b);
-
-		byte[] p = args.getByteArray(POST_ID);
-		if (p == null) throw new IllegalStateException("No post ID in args");
-		postId = new MessageId(p);
 
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}

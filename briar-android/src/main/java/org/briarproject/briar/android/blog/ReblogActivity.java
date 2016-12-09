@@ -1,11 +1,7 @@
 package org.briarproject.briar.android.blog;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.transition.Fade;
-import android.transition.Transition;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.sync.GroupId;
@@ -23,10 +19,7 @@ public class ReblogActivity extends BriarActivity implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		if (Build.VERSION.SDK_INT >= 21) {
-			setTransition();
-		}
+		setSceneTransitionAnimation();
 
 		Intent intent = getIntent();
 		byte[] groupId = intent.getByteArrayExtra(GROUP_ID);
@@ -41,10 +34,7 @@ public class ReblogActivity extends BriarActivity implements
 		if (savedInstanceState == null) {
 			ReblogFragment f = ReblogFragment
 					.newInstance(new GroupId(groupId), new MessageId(postId));
-			getSupportFragmentManager()
-					.beginTransaction()
-					.add(R.id.fragmentContainer, f)
-					.commit();
+			showInitialFragment(f);
 		}
 	}
 
@@ -64,18 +54,4 @@ public class ReblogActivity extends BriarActivity implements
 		component.inject(this);
 	}
 
-	@Override
-	public void onFragmentCreated(String tag) {
-
-	}
-
-	@TargetApi(21)
-	private void setTransition() {
-		Transition fade = new Fade();
-		fade.excludeTarget(android.R.id.statusBarBackground, true);
-		fade.excludeTarget(R.id.action_bar_container, true);
-		fade.excludeTarget(android.R.id.navigationBarBackground, true);
-		getWindow().setExitTransition(fade);
-		getWindow().setEnterTransition(fade);
-	}
 }

@@ -10,7 +10,6 @@
   <string name="password_too_weak">La password è troppo debole</string>
   <string name="passwords_do_not_match">La password non corrisponde</string>
   <string name="create_account_button">Creare Account</string>
-  <string name="progress_title_please_wait">Attendi per favore...</string>
   <!--Login-->
   <string name="enter_password">Inserisci la tua password:</string>
   <string name="try_again">Password sbagliata, riprova</string>
@@ -23,8 +22,6 @@
   <string name="startup_failed_activity_title">Fallimento Avvio Briar</string>
   <string name="startup_failed_db_error">Per alcune reagioni, il tuo database Briar si è corrotto in modo irreparabile. Il tuo account, i tuoi dati e tutte le connessioni ai tuoi contatti sono andati persi. Sfortunatamente, devi reinstallare Briar per creare un nuovo account.</string>
   <string name="expiry_warning">Questo software è scaduto.\nSi prega di installare una nuova versione.</string>
-  <string name="dialog_title_welcome">Benvenuti su Briar</string>
-  <string name="dialog_welcome_message">Aggiungi un contatto per iniziare a comunicare in modo sicuro oppure premi l\'icona in alto a sinistra dello schermo per vedere le altre opzioni.</string>
   <!--Navigation Drawer-->
   <string name="contact_list_button">Contatti</string>
   <string name="groups_button">Gruppi privati</string>
@@ -81,7 +78,6 @@
   <string name="searching_format">Sto cercando i contatti con codice di invito %06d\u2026</string>
   <string name="connection_failed">Connessione fallita</string>
   <string name="could_not_find_contact">Briar non è stato in grado di trovare il vostro contatto vicino</string>
-  <string name="could_not_open_camera">Impossibile accedere alla tua fotocamera. Si prega di ritentare!</string>
   <string name="try_again_button">Riprova</string>
   <string name="connected_to_contact">Connesso al contatto</string>
   <string name="calculating_confirmation_code">Calcolazione codice di conferma\u2026</string>
@@ -103,7 +99,6 @@
   <string name="introduction_button">Crea l\'introduzione</string>
   <string name="introduction_sent">La tua introduzione è stata inviata.</string>
   <string name="introduction_error">C\'è stato un errore nella creazione dell\'introduzione</string>
-  <string name="dialog_button_introduce">Introduci</string>
   <string name="introduction_request_sent">Hai richiesto di introdurre %1$s a %2$s.</string>
   <string name="introduction_request_answered_received">%1$s ha richiesto di introdurti a %2$s.</string>
   <string name="introduction_response_accepted_sent">Hai accettato l\'introduzione a %1$s.</string>
