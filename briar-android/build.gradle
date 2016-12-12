@@ -30,14 +30,13 @@ dependencies {
 	compile 'info.guardianproject.trustedintents:trustedintents:0.2'
 	compile 'de.hdodenhof:circleimageview:2.1.0'
 	compile 'com.google.zxing:core:3.2.1'
-	apt 'com.google.dagger:dagger-compiler:2.0.2'
+	apt 'com.google.dagger:dagger-compiler:2.8'
 	provided 'javax.annotation:jsr250-api:1.0'
 	compile 'com.jpardogo.materialtabstrip:library:1.1.0'
 	compile 'com.github.bumptech.glide:glide:3.7.0'
 	compile 'uk.co.samuelwall:material-tap-target-prompt:1.3.0'
 
-	testCompile 'junit:junit:4.12'
-	testCompile project(path: ':briar-tests')
+	testCompile project(path: ':bramble-core', configuration: 'testOutput')
 	testCompile 'org.robolectric:robolectric:3.0'
 	testCompile 'org.mockito:mockito-core:1.10.19'
 }

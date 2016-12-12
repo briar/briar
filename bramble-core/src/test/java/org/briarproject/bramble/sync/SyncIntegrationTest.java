@@ -1,7 +1,7 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.BriarTestCase;
-import org.briarproject.TestUtils;
+import org.briarproject.bramble.BrambleTestCase;
+import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class SyncIntegrationTest extends BriarTestCase {
+public class SyncIntegrationTest extends BrambleTestCase {
 
 	@Inject
 	GroupFactory groupFactory;

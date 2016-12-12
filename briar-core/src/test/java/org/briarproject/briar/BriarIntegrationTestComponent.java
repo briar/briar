@@ -1,8 +1,7 @@
 package org.briarproject.briar;
 
-import org.briarproject.TestDatabaseModule;
-import org.briarproject.TestPluginConfigModule;
-import org.briarproject.TestSeedProviderModule;
+import org.briarproject.bramble.TestDatabaseModule;
+import org.briarproject.bramble.TestSeedProviderModule;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseComponent;

@@ -16,11 +16,10 @@ dependencies {
 	compile 'com.squareup.okhttp3:okhttp:3.3.1'
 	compile 'org.jsoup:jsoup:1.9.2'
 
-	testCompile project(':briar-tests') // TODO remove when moving unit tests (#778)
-	testCompile 'junit:junit:4.12'
+	testCompile project(':bramble-core') // TODO get rid of this dependency
+
+	testCompile project(path: ':bramble-api', configuration: 'testOutput')
 	testCompile 'net.jodah:concurrentunit:0.4.2'
-	testCompile 'com.google.dagger:dagger-compiler:2.8'
-	testApt 'com.google.dagger:dagger-compiler:2.8'
 }
 
 dependencyVerification {

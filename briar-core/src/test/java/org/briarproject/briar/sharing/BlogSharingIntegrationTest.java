@@ -2,7 +2,7 @@ package org.briarproject.briar.sharing;
 
 import net.jodah.concurrentunit.Waiter;
 
-import org.briarproject.TestDatabaseModule;
+import org.briarproject.bramble.TestDatabaseModule;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchGroupException;
@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.briarproject.TestUtils.assertGroupCount;
+import static org.briarproject.briar.BriarTestUtils.assertGroupCount;
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

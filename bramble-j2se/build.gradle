@@ -7,4 +7,10 @@ apply plugin: 'witness'
 dependencies {
 	compile project(':bramble-core')
 	compile fileTree(dir: 'libs', include: '*.jar')
+
+	testCompile project(path: ':bramble-core', configuration: 'testOutput')
+}
+
+tasks.withType(Test) {
+	systemProperty 'java.library.path', 'libs'
 }

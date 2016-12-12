@@ -1,6 +1,6 @@
 package org.briarproject.briar.privategroup;
 
-import org.briarproject.TestDatabaseModule;
+import org.briarproject.bramble.TestDatabaseModule;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;

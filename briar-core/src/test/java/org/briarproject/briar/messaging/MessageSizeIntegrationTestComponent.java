@@ -1,8 +1,8 @@
 package org.briarproject.briar.messaging;
 
-import org.briarproject.TestDatabaseModule;
-import org.briarproject.TestLifecycleModule;
-import org.briarproject.TestSeedProviderModule;
+import org.briarproject.bramble.TestDatabaseModule;
+import org.briarproject.briar.TestLifecycleModule;
+import org.briarproject.bramble.TestSeedProviderModule;
 import org.briarproject.bramble.client.ClientModule;
 import org.briarproject.bramble.crypto.CryptoModule;
 import org.briarproject.bramble.data.DataModule;

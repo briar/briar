@@ -1,6 +1,6 @@
 package org.briarproject.briar.forum;
 
-import org.briarproject.TestDatabaseModule;
+import org.briarproject.bramble.TestDatabaseModule;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.BriarIntegrationTest;
 import org.briarproject.briar.BriarIntegrationTestComponent;
@@ -17,7 +17,7 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
-import static org.briarproject.TestUtils.assertGroupCount;
+import static org.briarproject.briar.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;

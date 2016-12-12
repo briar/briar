@@ -2,7 +2,7 @@ package org.briarproject.briar.sharing;
 
 import net.jodah.concurrentunit.Waiter;
 
-import org.briarproject.TestDatabaseModule;
+import org.briarproject.bramble.TestDatabaseModule;
 import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.data.BdfList;
@@ -39,8 +39,8 @@ import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.briarproject.TestUtils.getRandomBytes;
-import static org.briarproject.TestUtils.getRandomString;
+import static org.briarproject.bramble.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.TestUtils.getRandomString;
 import static org.briarproject.briar.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.briar.api.forum.ForumSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;

@@ -1,6 +1,6 @@
 package org.briarproject.briar.blog;
 
-import org.briarproject.TestDatabaseModule;
+import org.briarproject.bramble.TestDatabaseModule;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.BriarIntegrationTest;
@@ -21,7 +21,7 @@ import java.util.Iterator;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
-import static org.briarproject.TestUtils.getRandomString;
+import static org.briarproject.bramble.TestUtils.getRandomString;
 import static org.briarproject.briar.api.blog.MessageType.COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.POST;
 import static org.briarproject.briar.api.blog.MessageType.WRAPPED_COMMENT;

@@ -1,6 +1,6 @@
 package org.briarproject.briar.privategroup;
 
-import org.briarproject.TestDatabaseModule;
+import org.briarproject.bramble.TestDatabaseModule;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.briar.BriarIntegrationTest;
@@ -22,7 +22,7 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
-import static org.briarproject.TestUtils.assertGroupCount;
+import static org.briarproject.briar.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

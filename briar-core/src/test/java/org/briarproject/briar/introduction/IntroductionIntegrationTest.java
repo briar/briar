@@ -2,8 +2,8 @@ package org.briarproject.briar.introduction;
 
 import net.jodah.concurrentunit.Waiter;
 
-import org.briarproject.TestDatabaseModule;
-import org.briarproject.TestUtils;
+import org.briarproject.bramble.TestDatabaseModule;
+import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
@@ -51,8 +51,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static org.briarproject.TestPluginConfigModule.TRANSPORT_ID;
-import static org.briarproject.TestUtils.assertGroupCount;
+import static org.briarproject.briar.TestPluginConfigModule.TRANSPORT_ID;
+import static org.briarproject.briar.BriarTestUtils.assertGroupCount;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.briar.api.client.MessageQueueManager.QUEUE_STATE_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.E_PUBLIC_KEY;

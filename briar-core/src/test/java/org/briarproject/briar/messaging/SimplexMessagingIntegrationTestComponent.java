@@ -1,8 +1,8 @@
 package org.briarproject.briar.messaging;
 
-import org.briarproject.TestDatabaseModule;
-import org.briarproject.TestPluginConfigModule;
-import org.briarproject.TestSeedProviderModule;
+import org.briarproject.bramble.TestDatabaseModule;
+import org.briarproject.briar.TestPluginConfigModule;
+import org.briarproject.bramble.TestSeedProviderModule;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;

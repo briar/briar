@@ -1,6 +1,6 @@
 package org.briarproject.briar.privategroup;
 
-import org.briarproject.TestDatabaseModule;
+import org.briarproject.bramble.TestDatabaseModule;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.Transaction;
@@ -21,8 +21,8 @@ import org.junit.Test;
 
 import java.util.Collection;
 
-import static org.briarproject.TestUtils.getRandomBytes;
-import static org.briarproject.TestUtils.getRandomId;
+import static org.briarproject.bramble.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.TestUtils.getRandomId;
 import static org.briarproject.bramble.api.identity.Author.Status.VERIFIED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.briar.api.privategroup.Visibility.INVISIBLE;

@@ -2,8 +2,7 @@ package org.briarproject.briar;
 
 import net.jodah.concurrentunit.Waiter;
 
-import org.briarproject.BriarTestCase;
-import org.briarproject.TestUtils;
+import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
@@ -60,11 +59,11 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.briarproject.TestPluginConfigModule.MAX_LATENCY;
-import static org.briarproject.TestUtils.getSecretKey;
+import static org.briarproject.bramble.TestUtils.getSecretKey;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
+import static org.briarproject.briar.TestPluginConfigModule.MAX_LATENCY;
 import static org.junit.Assert.assertTrue;
 
 @MethodsNotNullByDefault

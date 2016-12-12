@@ -1,8 +1,8 @@
 package org.briarproject.briar.introduction;
 
-import org.briarproject.TestDatabaseModule;
-import org.briarproject.TestPluginConfigModule;
-import org.briarproject.TestSeedProviderModule;
+import org.briarproject.bramble.TestDatabaseModule;
+import org.briarproject.briar.TestPluginConfigModule;
+import org.briarproject.bramble.TestSeedProviderModule;
 import org.briarproject.bramble.client.ClientModule;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoModule;

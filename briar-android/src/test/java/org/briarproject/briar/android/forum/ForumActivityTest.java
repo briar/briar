@@ -4,7 +4,7 @@ import android.content.Intent;
 
 import junit.framework.Assert;
 
-import org.briarproject.TestUtils;
+import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;

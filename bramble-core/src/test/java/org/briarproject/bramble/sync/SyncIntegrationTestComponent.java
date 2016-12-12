@@ -1,6 +1,6 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.TestSeedProviderModule;
+import org.briarproject.bramble.TestSeedProviderModule;
 import org.briarproject.bramble.crypto.CryptoModule;
 import org.briarproject.bramble.transport.TransportModule;
 

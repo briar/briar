@@ -1,7 +1,6 @@
 package org.briarproject.briar.messaging;
 
-import org.briarproject.BriarTestCase;
-import org.briarproject.TestUtils;
+import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PrivateKey;
@@ -11,6 +10,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.briar.BriarTestCase;
 import org.briarproject.briar.api.forum.ForumConstants;
 import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostFactory;
@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import javax.inject.Inject;
 
-import static org.briarproject.TestUtils.getRandomId;
+import static org.briarproject.bramble.TestUtils.getRandomId;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
