@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
@@ -14,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -124,12 +124,6 @@ public class GroupActivity extends
 	@Override
 	protected void onNamedGroupLoaded(final PrivateGroup group) {
 		setTitle(group.getName());
-		// Created by
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setSubtitle(getString(R.string.groups_created_by,
-					group.getCreator().getName()));
-		}
 		controller.loadLocalAuthor(
 				new UiResultExceptionHandler<LocalAuthor, DbException>(this) {
 					@Override
@@ -287,8 +281,13 @@ public class GroupActivity extends
 	}
 
 	@Override
-	public void onContactRelationshipRevealed(AuthorId memberId, Visibility v) {
+	public void onContactRelationshipRevealed(AuthorId memberId, ContactId c,
+			Visibility v) {
 		adapter.updateVisibility(memberId, v);
+
+		sharingController.add(c);
+		setToolbarSubTitle(sharingController.getTotalCount(),
+				sharingController.getOnlineCount());
 	}
 
 	@Override

@@ -380,11 +380,11 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 					messages.add(parseInvitationRequest(txn, c, contactGroupId,
 							m, meta, status));
 				} else if (type == JOIN) {
-					messages.add(parseInvitationResponse(c, contactGroupId, m,
-							meta, status, true));
+					messages.add(
+							parseInvitationResponse(c, m, meta, status, true));
 				} else if (type == LEAVE) {
-					messages.add(parseInvitationResponse(c, contactGroupId, m,
-							meta, status, false));
+					messages.add(
+							parseInvitationResponse(c, m, meta, status, false));
 				}
 			}
 			db.commitTransaction(txn);
@@ -418,13 +418,13 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	private GroupInvitationResponse parseInvitationResponse(ContactId c,
-			GroupId contactGroupId, MessageId m, MessageMetadata meta,
-			MessageStatus status, boolean accept)
-			throws DbException, FormatException {
+			MessageId m, MessageMetadata meta, MessageStatus status,
+			boolean accept) throws DbException, FormatException {
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
-		return new GroupInvitationResponse(m, sessionId, contactGroupId, c,
-				accept, meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead());
+		return new GroupInvitationResponse(m, sessionId,
+				meta.getPrivateGroupId(), c, accept, meta.getTimestamp(),
+				meta.isLocal(), status.isSent(), status.isSeen(),
+				meta.isRead());
 	}
 
 	@Override

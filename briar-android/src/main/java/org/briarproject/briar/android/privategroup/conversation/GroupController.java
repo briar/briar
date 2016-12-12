@@ -2,6 +2,7 @@ package org.briarproject.briar.android.privategroup.conversation;
 
 import android.support.annotation.UiThread;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -23,7 +24,8 @@ public interface GroupController
 
 	interface GroupListener extends ThreadListListener<GroupMessageHeader> {
 		@UiThread
-		void onContactRelationshipRevealed(AuthorId memberId, Visibility v);
+		void onContactRelationshipRevealed(AuthorId memberId,
+				ContactId contactId, Visibility v);
 
 		@UiThread
 		void onGroupDissolved();
