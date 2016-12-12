@@ -2,6 +2,8 @@ package org.briarproject.briar.privategroup;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
@@ -14,6 +16,7 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.Author.Status;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -52,6 +55,8 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
+import static org.briarproject.bramble.api.identity.Author.Status.UNVERIFIED;
+import static org.briarproject.bramble.api.identity.Author.Status.VERIFIED;
 import static org.briarproject.briar.api.privategroup.MessageType.JOIN;
 import static org.briarproject.briar.api.privategroup.MessageType.POST;
 import static org.briarproject.briar.api.privategroup.Visibility.INVISIBLE;
@@ -79,6 +84,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		implements PrivateGroupManager {
 
 	private final PrivateGroupFactory privateGroupFactory;
+	private final ContactManager contactManager;
 	private final IdentityManager identityManager;
 	private final MessageTracker messageTracker;
 	private final List<PrivateGroupHook> hooks;
@@ -87,9 +93,11 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	PrivateGroupManagerImpl(ClientHelper clientHelper,
 			MetadataParser metadataParser, DatabaseComponent db,
 			PrivateGroupFactory privateGroupFactory,
-			IdentityManager identityManager, MessageTracker messageTracker) {
+			ContactManager contactManager, IdentityManager identityManager,
+			MessageTracker messageTracker) {
 		super(db, clientHelper, metadataParser);
 		this.privateGroupFactory = privateGroupFactory;
+		this.contactManager = contactManager;
 		this.identityManager = identityManager;
 		this.messageTracker = messageTracker;
 		hooks = new CopyOnWriteArrayList<PrivateGroupHook>();
@@ -394,10 +402,20 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		try {
 			Collection<GroupMember> members = new ArrayList<GroupMember>();
 			Map<Author, Visibility> authors = getMembers(txn, g);
+			LocalAuthor la = identityManager.getLocalAuthor();
+			PrivateGroup privateGroup = getPrivateGroup(txn, g);
 			for (Entry<Author, Visibility> m : authors.entrySet()) {
-				Status status = identityManager
-						.getAuthorStatus(txn, m.getKey().getId());
-				members.add(new GroupMember(m.getKey(), status, m.getValue()));
+				Author a = m.getKey();
+				Status status = identityManager.getAuthorStatus(txn, a.getId());
+				Visibility v = m.getValue();
+				ContactId c = null;
+				if (v != INVISIBLE &&
+						(status == VERIFIED || status == UNVERIFIED)) {
+					c = contactManager.getContact(txn, a.getId(), la.getId())
+							.getId();
+				}
+				boolean isCreator = privateGroup.getCreator().equals(a);
+				members.add(new GroupMember(a, status, isCreator, c, v));
 			}
 			db.commitTransaction(txn);
 			return members;
