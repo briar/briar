@@ -1,4 +1,8 @@
-apply plugin: 'java'
+plugins {
+	id "java"
+	id "net.ltgt.apt" version "0.9"
+	id "idea"
+}
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
@@ -11,6 +15,12 @@ dependencies {
 	compile 'org.jdom:jdom2:2.0.6'
 	compile 'com.squareup.okhttp3:okhttp:3.3.1'
 	compile 'org.jsoup:jsoup:1.9.2'
+
+	testCompile project(':briar-tests') // TODO remove when moving unit tests (#778)
+	testCompile 'junit:junit:4.12'
+	testCompile 'net.jodah:concurrentunit:0.4.2'
+	testCompile 'com.google.dagger:dagger-compiler:2.8'
+	testApt 'com.google.dagger:dagger-compiler:2.8'
 }
 
 dependencyVerification {
@@ -24,4 +34,3 @@ dependencyVerification {
 			'org.slf4j:slf4j-api:e56288031f5e60652c06e7bb6e9fa410a61231ab54890f7b708fc6adc4107c5b'
 	]
 }
-
