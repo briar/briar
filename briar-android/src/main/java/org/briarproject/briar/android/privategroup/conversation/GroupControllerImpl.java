@@ -18,6 +18,7 @@ import org.briarproject.briar.android.privategroup.conversation.GroupController.
 import org.briarproject.briar.android.threaded.ThreadListControllerImpl;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
+import org.briarproject.briar.api.privategroup.GroupMember;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.GroupMessageHeader;
@@ -26,8 +27,11 @@ import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.event.ContactRelationshipRevealedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupDissolvedEvent;
+import org.briarproject.briar.api.privategroup.event.GroupInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -93,7 +97,20 @@ class GroupControllerImpl extends
 					@Override
 					public void run() {
 						listener.onContactRelationshipRevealed(c.getMemberId(),
-								c.getVisibility());
+								c.getContactId(), c.getVisibility());
+					}
+				});
+			}
+		} else if (e instanceof GroupInvitationResponseReceivedEvent) {
+			GroupInvitationResponseReceivedEvent g =
+					(GroupInvitationResponseReceivedEvent) e;
+			final GroupInvitationResponse r =
+					(GroupInvitationResponse) g.getResponse();
+			if (getGroupId().equals(r.getGroupId()) && r.wasAccepted()) {
+				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
+					@Override
+					public void run() {
+						listener.onInvitationAccepted(r.getContactId());
 					}
 				});
 			}
@@ -137,8 +154,26 @@ class GroupControllerImpl extends
 
 	@Override
 	public void loadSharingContacts(
-			ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
-		// TODO
+			final ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Collection<GroupMember> members =
+							privateGroupManager.getMembers(getGroupId());
+					Collection<ContactId> contactIds = new ArrayList<>();
+					for (GroupMember m : members) {
+						if (m.getContactId() != null)
+							contactIds.add(m.getContactId());
+					}
+					handler.onResult(contactIds);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					handler.onException(e);
+				}
+			}
+		});
 	}
 
 	@Override

@@ -441,6 +441,9 @@ public class PrivateGroupManagerIntegrationTest
 		Collection<GroupMember> members2 = groupManager2.getMembers(groupId0);
 		assertEquals(3, members2.size());
 
+		// 1 and 2 add each other
+		addContacts1And2();
+
 		// assert that contact relationship is not revealed initially
 		for (GroupMember m : members1) {
 			if (m.getAuthor().equals(author2)) {

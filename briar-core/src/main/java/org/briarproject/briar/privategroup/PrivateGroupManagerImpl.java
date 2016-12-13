@@ -402,7 +402,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		try {
 			Collection<GroupMember> members = new ArrayList<GroupMember>();
 			Map<Author, Visibility> authors = getMembers(txn, g);
-			LocalAuthor la = identityManager.getLocalAuthor();
+			LocalAuthor la = identityManager.getLocalAuthor(txn);
 			PrivateGroup privateGroup = getPrivateGroup(txn, g);
 			for (Entry<Author, Visibility> m : authors.entrySet()) {
 				Author a = m.getKey();
@@ -488,7 +488,10 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		if (!foundMember) throw new ProtocolStateException();
 		if (changed) {
 			clientHelper.mergeGroupMetadata(txn, g, meta);
-			txn.attach(new ContactRelationshipRevealedEvent(g, a, v));
+			LocalAuthor la = identityManager.getLocalAuthor(txn);
+			ContactId c = contactManager.getContact(txn, a, la.getId()).getId();
+			Event e = new ContactRelationshipRevealedEvent(g, a, c, v);
+			txn.attach(e);
 		}
 	}
 
