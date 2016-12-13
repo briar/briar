@@ -12,6 +12,7 @@ import android.os.Build;
 import android.support.annotation.UiThread;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.ContextCompat;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -327,7 +328,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		} else if (settings.getBoolean("notifyPrivateMessages", true)) {
 			NotificationCompat.Builder b =
 					new NotificationCompat.Builder(appContext);
-			b.setSmallIcon(R.drawable.message_notification_icon);
+			b.setSmallIcon(R.drawable.notification_private_message);
+			b.setColor(ContextCompat.getColor(appContext, R.color.briar_primary));
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.private_message_notification_text, contactTotal,
@@ -435,7 +437,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		} else if (settings.getBoolean(PREF_NOTIFY_GROUP, true)) {
 			NotificationCompat.Builder b =
 					new NotificationCompat.Builder(appContext);
-			b.setSmallIcon(R.drawable.message_notification_icon);
+			b.setSmallIcon(R.drawable.notification_private_group);
+			b.setColor(ContextCompat.getColor(appContext, R.color.briar_primary));
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.group_message_notification_text, groupTotal,
@@ -530,7 +533,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		} else if (settings.getBoolean("notifyForumPosts", true)) {
 			NotificationCompat.Builder b =
 					new NotificationCompat.Builder(appContext);
-			b.setSmallIcon(R.drawable.message_notification_icon);
+			b.setSmallIcon(R.drawable.notification_forum);
+			b.setColor(ContextCompat.getColor(appContext, R.color.briar_primary));
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.forum_post_notification_text, forumTotal,
@@ -625,7 +629,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		} else if (settings.getBoolean(PREF_NOTIFY_BLOG, true)) {
 			NotificationCompat.Builder b =
 					new NotificationCompat.Builder(appContext);
-			b.setSmallIcon(R.drawable.message_notification_icon);
+			b.setSmallIcon(R.drawable.notification_blog);
+			b.setColor(ContextCompat.getColor(appContext, R.color.briar_primary));
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.blog_post_notification_text, blogTotal,
@@ -685,7 +690,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private void updateIntroductionNotification() {
 		NotificationCompat.Builder b =
 				new NotificationCompat.Builder(appContext);
-		b.setSmallIcon(R.drawable.introduction_notification);
+		b.setSmallIcon(R.drawable.notification_introduction);
+		b.setColor(ContextCompat.getColor(appContext, R.color.briar_primary));
 		b.setContentTitle(appContext.getText(R.string.app_name));
 		b.setContentText(appContext.getResources().getQuantityString(
 				R.plurals.introduction_notification_text, introductionTotal,

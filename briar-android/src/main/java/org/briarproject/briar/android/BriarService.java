@@ -10,6 +10,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
@@ -75,7 +76,8 @@ public class BriarService extends Service {
 		}
 		// Show an ongoing notification that the service is running
 		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
-		b.setSmallIcon(R.drawable.ongoing_notification_icon);
+		b.setSmallIcon(R.drawable.notification_ongoing);
+		b.setColor(ContextCompat.getColor(this, R.color.briar_primary));
 		b.setContentTitle(getText(R.string.ongoing_notification_title));
 		b.setContentText(getText(R.string.ongoing_notification_text));
 		b.setWhen(0); // Don't show the time
