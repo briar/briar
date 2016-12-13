@@ -62,6 +62,19 @@ dependencyVerification {
 	]
 }
 
+def getGitHash = { ->
+	def stdout = new ByteArrayOutputStream()
+	try {
+		exec {
+			commandLine 'git', 'rev-parse', '--short', 'HEAD'
+			standardOutput = stdout
+		}
+		return stdout.toString().trim()
+	} catch (Exception ignored) {
+		return "No commit hash"
+	}
+}
+
 android {
 	compileSdkVersion 23
 	buildToolsVersion "23.0.3"
@@ -70,6 +83,7 @@ android {
 		minSdkVersion 14
 		targetSdkVersion 22
 		resValue "string", "app_package", "org.briarproject.briar"
+		buildConfigField "String", "GitHash", "\"${getGitHash()}\""
 	}
 
 	buildTypes {
