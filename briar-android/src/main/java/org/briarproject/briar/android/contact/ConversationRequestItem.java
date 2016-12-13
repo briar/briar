@@ -17,6 +17,8 @@ class ConversationRequestItem extends ConversationNoticeInItem {
 
 	enum RequestType { INTRODUCTION, FORUM, BLOG, GROUP }
 
+	@Nullable
+	private final GroupId requestedGroupId;
 	private final RequestType requestType;
 	private final SessionId sessionId;
 	private boolean answered;
@@ -24,10 +26,11 @@ class ConversationRequestItem extends ConversationNoticeInItem {
 	ConversationRequestItem(MessageId id, GroupId groupId,
 			RequestType requestType, SessionId sessionId, String text,
 			@Nullable String msgText, long time, boolean read,
-			boolean answered) {
+			@Nullable GroupId requestedGroupId, boolean answered) {
 		super(id, groupId, text, msgText, time, read);
 		this.requestType = requestType;
 		this.sessionId = sessionId;
+		this.requestedGroupId = requestedGroupId;
 		this.answered = answered;
 	}
 
@@ -37,6 +40,11 @@ class ConversationRequestItem extends ConversationNoticeInItem {
 
 	SessionId getSessionId() {
 		return sessionId;
+	}
+
+	@Nullable
+	public GroupId getRequestedGroupId() {
+		return requestedGroupId;
 	}
 
 	boolean wasAnswered() {

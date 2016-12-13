@@ -18,11 +18,12 @@ public abstract class InvitationRequest extends InvitationMessage {
 	private final boolean available;
 
 	public InvitationRequest(MessageId id, SessionId sessionId, GroupId groupId,
-			ContactId contactId, @Nullable String message, boolean available,
-			long time, boolean local, boolean sent, boolean seen,
-			boolean read) {
+			ContactId contactId, @Nullable String message,
+			@Nullable GroupId invitedGroupId, boolean available, long time,
+			boolean local, boolean sent, boolean seen, boolean read) {
 
-		super(id, sessionId, groupId, contactId, time, local, sent, seen, read);
+		super(id, sessionId, groupId, contactId, invitedGroupId, time, local,
+				sent, seen, read);
 		this.message = message;
 		this.available = available;
 	}

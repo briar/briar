@@ -14,11 +14,12 @@ import javax.annotation.concurrent.Immutable;
 public class ForumInvitationResponse extends InvitationResponse {
 
 	public ForumInvitationResponse(MessageId id, SessionId sessionId,
-			GroupId groupId, ContactId contactId, boolean accept, long time,
-			boolean local, boolean sent, boolean seen, boolean read) {
+			GroupId groupId, ContactId contactId, GroupId forumId,
+			boolean accept, long time, boolean local, boolean sent,
+			boolean seen, boolean read) {
 
-		super(id, sessionId, groupId, contactId, accept, time, local, sent,
-				seen, read);
+		super(id, sessionId, groupId, contactId, forumId, accept, time, local,
+				sent, seen, read);
 	}
 
 }

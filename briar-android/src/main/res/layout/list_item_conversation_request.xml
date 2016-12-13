@@ -43,7 +43,7 @@
 			android:layout_height="wrap_content"
 			android:layout_alignEnd="@+id/text"
 			android:layout_alignRight="@+id/text"
-			android:layout_below="@+id/declineButton"
+			android:layout_below="@+id/acceptButton"
 			android:layout_marginTop="@dimen/message_bubble_timestamp_margin"
 			android:textColor="@color/private_message_date"
 			android:textSize="@dimen/text_size_tiny"
@@ -57,6 +57,7 @@
 			android:layout_alignEnd="@+id/text"
 			android:layout_alignRight="@+id/text"
 			android:layout_below="@+id/text"
+			android:layout_marginBottom="-10dp"
 			android:text="@string/accept"/>
 
 		<Button
@@ -64,8 +65,8 @@
 			style="@style/BriarButtonFlat.Negative"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_below="@+id/text"
-			android:layout_marginBottom="-15dp"
+			android:layout_alignBottom="@+id/acceptButton"
+			android:layout_alignTop="@+id/acceptButton"
 			android:layout_toLeftOf="@+id/acceptButton"
 			android:layout_toStartOf="@+id/acceptButton"
 			android:text="@string/decline"/>

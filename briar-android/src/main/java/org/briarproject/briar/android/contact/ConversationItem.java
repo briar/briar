@@ -101,9 +101,6 @@ abstract class ConversationItem {
 				text = ctx.getString(
 						R.string.introduction_request_answered_received,
 						contactName, ir.getName());
-				return new ConversationNoticeInItem(ir.getMessageId(),
-						ir.getGroupId(), text, ir.getMessage(), ir.getTimestamp(),
-						ir.isRead());
 			} else if (ir.contactExists()){
 				text = ctx.getString(
 						R.string.introduction_request_exists_received,
@@ -114,7 +111,7 @@ abstract class ConversationItem {
 			}
 			return new ConversationRequestItem(ir.getMessageId(),
 					ir.getGroupId(), INTRODUCTION, ir.getSessionId(), text,
-					ir.getMessage(), ir.getTimestamp(), ir.isRead(),
+					ir.getMessage(), ir.getTimestamp(), ir.isRead(), null,
 					ir.wasAnswered());
 		}
 	}
@@ -203,14 +200,10 @@ abstract class ConversationItem {
 			} else {
 				throw new IllegalArgumentException("Unknown InvitationRequest");
 			}
-			if (!ir.isAvailable()) {
-				return new ConversationNoticeInItem(ir.getId(), ir.getGroupId(),
-						text, ir.getMessage(), ir.getTimestamp(), ir.isRead());
-			}
 			return new ConversationRequestItem(ir.getId(),
 					ir.getGroupId(), type, ir.getSessionId(), text,
 					ir.getMessage(), ir.getTimestamp(), ir.isRead(),
-					!ir.isAvailable());
+					ir.getInvitedGroupId(), !ir.isAvailable());
 		}
 	}
 

@@ -20,10 +20,11 @@ public class GroupInvitationRequest extends InvitationRequest {
 
 	public GroupInvitationRequest(MessageId id, SessionId sessionId,
 			GroupId groupId, ContactId contactId, @Nullable String message,
-			String groupName, Author creator, boolean available, long time,
-			boolean local, boolean sent, boolean seen, boolean read) {
-		super(id, sessionId, groupId, contactId, message, available, time,
-				local, sent, seen, read);
+			GroupId privateGroupId, String groupName, Author creator,
+			boolean available, long time, boolean local, boolean sent,
+			boolean seen, boolean read) {
+		super(id, sessionId, groupId, contactId, message, privateGroupId,
+				available, time, local, sent, seen, read);
 		this.groupName = groupName;
 		this.creator = creator;
 	}

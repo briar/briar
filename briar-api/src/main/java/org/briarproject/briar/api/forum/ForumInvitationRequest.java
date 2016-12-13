@@ -17,12 +17,13 @@ public class ForumInvitationRequest extends InvitationRequest {
 	private final String forumName;
 
 	public ForumInvitationRequest(MessageId id, SessionId sessionId,
-			GroupId groupId, ContactId contactId, String forumName,
-			@Nullable String message, boolean available, long time,
-			boolean local, boolean sent, boolean seen, boolean read) {
+			GroupId groupId, ContactId contactId, GroupId forumId,
+			String forumName, @Nullable String message, boolean available,
+			long time, boolean local, boolean sent, boolean seen,
+			boolean read) {
 
-		super(id, sessionId, groupId, contactId, message, available, time,
-				local, sent, seen, read);
+		super(id, sessionId, groupId, contactId, message, forumId, available,
+				time, local, sent, seen, read);
 		this.forumName = forumName;
 	}
 

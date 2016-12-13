@@ -139,6 +139,9 @@ class ConversationAdapter
 		void onItemVisible(ConversationItem item);
 
 		void respondToRequest(ConversationRequestItem item, boolean accept);
+
+		void open(ConversationRequestItem item);
+
 	}
 
 }

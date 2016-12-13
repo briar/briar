@@ -11,11 +11,12 @@ import org.briarproject.briar.api.sharing.InvitationResponse;
 public class BlogInvitationResponse extends InvitationResponse {
 
 	public BlogInvitationResponse(MessageId id, SessionId sessionId,
-			GroupId groupId, ContactId contactId, boolean accept, long time,
-			boolean local, boolean sent, boolean seen, boolean read) {
+			GroupId groupId, ContactId contactId, GroupId blogId,
+			boolean accept, long time, boolean local, boolean sent,
+			boolean seen, boolean read) {
 
-		super(id, sessionId, groupId, contactId, accept, time, local, sent,
-				seen, read);
+		super(id, sessionId, groupId, contactId, blogId, accept, time, local,
+				sent, seen, read);
 	}
 
 }
