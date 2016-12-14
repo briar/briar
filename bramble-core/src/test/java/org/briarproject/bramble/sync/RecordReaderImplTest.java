@@ -10,20 +10,20 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import static org.briarproject.bramble.api.sync.PacketTypes.ACK;
-import static org.briarproject.bramble.api.sync.PacketTypes.OFFER;
-import static org.briarproject.bramble.api.sync.PacketTypes.REQUEST;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
-import static org.briarproject.bramble.api.sync.SyncConstants.PACKET_HEADER_LENGTH;
+import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
+import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
+import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.RECORD_HEADER_LENGTH;
 import static org.junit.Assert.assertEquals;
 
-public class PacketReaderImplTest extends BrambleTestCase {
+public class RecordReaderImplTest extends BrambleTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testFormatExceptionIfAckIsTooLarge() throws Exception {
 		byte[] b = createAck(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		PacketReaderImpl reader = new PacketReaderImpl(null, in);
+		RecordReaderImpl reader = new RecordReaderImpl(null, in);
 		reader.readAck();
 	}
 
@@ -31,7 +31,7 @@ public class PacketReaderImplTest extends BrambleTestCase {
 	public void testNoFormatExceptionIfAckIsMaximumSize() throws Exception {
 		byte[] b = createAck(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		PacketReaderImpl reader = new PacketReaderImpl(null, in);
+		RecordReaderImpl reader = new RecordReaderImpl(null, in);
 		reader.readAck();
 	}
 
@@ -39,7 +39,7 @@ public class PacketReaderImplTest extends BrambleTestCase {
 	public void testEmptyAck() throws Exception {
 		byte[] b = createEmptyAck();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		PacketReaderImpl reader = new PacketReaderImpl(null, in);
+		RecordReaderImpl reader = new RecordReaderImpl(null, in);
 		reader.readAck();
 	}
 
@@ -47,7 +47,7 @@ public class PacketReaderImplTest extends BrambleTestCase {
 	public void testFormatExceptionIfOfferIsTooLarge() throws Exception {
 		byte[] b = createOffer(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		PacketReaderImpl reader = new PacketReaderImpl(null, in);
+		RecordReaderImpl reader = new RecordReaderImpl(null, in);
 		reader.readOffer();
 	}
 
@@ -55,7 +55,7 @@ public class PacketReaderImplTest extends BrambleTestCase {
 	public void testNoFormatExceptionIfOfferIsMaximumSize() throws Exception {
 		byte[] b = createOffer(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		PacketReaderImpl reader = new PacketReaderImpl(null, in);
+		RecordReaderImpl reader = new RecordReaderImpl(null, in);
 		reader.readOffer();
 	}
 
@@ -63,7 +63,7 @@ public class PacketReaderImplTest extends BrambleTestCase {
 	public void testEmptyOffer() throws Exception {
 		byte[] b = createEmptyOffer();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		PacketReaderImpl reader = new PacketReaderImpl(null, in);
+		RecordReaderImpl reader = new RecordReaderImpl(null, in);
 		reader.readOffer();
 	}
 
@@ -71,7 +71,7 @@ public class PacketReaderImplTest extends BrambleTestCase {
 	public void testFormatExceptionIfRequestIsTooLarge() throws Exception {
 		byte[] b = createRequest(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		PacketReaderImpl reader = new PacketReaderImpl(null, in);
+		RecordReaderImpl reader = new RecordReaderImpl(null, in);
 		reader.readRequest();
 	}
 
@@ -79,7 +79,7 @@ public class PacketReaderImplTest extends BrambleTestCase {
 	public void testNoFormatExceptionIfRequestIsMaximumSize() throws Exception {
 		byte[] b = createRequest(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		PacketReaderImpl reader = new PacketReaderImpl(null, in);
+		RecordReaderImpl reader = new RecordReaderImpl(null, in);
 		reader.readRequest();
 	}
 
@@ -87,76 +87,76 @@ public class PacketReaderImplTest extends BrambleTestCase {
 	public void testEmptyRequest() throws Exception {
 		byte[] b = createEmptyRequest();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		PacketReaderImpl reader = new PacketReaderImpl(null, in);
+		RecordReaderImpl reader = new RecordReaderImpl(null, in);
 		reader.readRequest();
 	}
 
 	private byte[] createAck(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		out.write(new byte[PACKET_HEADER_LENGTH]);
-		while (out.size() + UniqueId.LENGTH <= PACKET_HEADER_LENGTH
-				+ MAX_PACKET_PAYLOAD_LENGTH) {
+		out.write(new byte[RECORD_HEADER_LENGTH]);
+		while (out.size() + UniqueId.LENGTH <= RECORD_HEADER_LENGTH
+				+ MAX_RECORD_PAYLOAD_LENGTH) {
 			out.write(TestUtils.getRandomId());
 		}
 		if (tooBig) out.write(TestUtils.getRandomId());
-		assertEquals(tooBig, out.size() > PACKET_HEADER_LENGTH +
-				MAX_PACKET_PAYLOAD_LENGTH);
-		byte[] packet = out.toByteArray();
-		packet[1] = ACK;
-		ByteUtils.writeUint16(packet.length - PACKET_HEADER_LENGTH, packet, 2);
-		return packet;
+		assertEquals(tooBig, out.size() > RECORD_HEADER_LENGTH +
+				MAX_RECORD_PAYLOAD_LENGTH);
+		byte[] record = out.toByteArray();
+		record[1] = ACK;
+		ByteUtils.writeUint16(record.length - RECORD_HEADER_LENGTH, record, 2);
+		return record;
 	}
 
 	private byte[] createEmptyAck() throws Exception {
-		byte[] packet = new byte[PACKET_HEADER_LENGTH];
-		packet[1] = ACK;
-		ByteUtils.writeUint16(packet.length - PACKET_HEADER_LENGTH, packet, 2);
-		return packet;
+		byte[] record = new byte[RECORD_HEADER_LENGTH];
+		record[1] = ACK;
+		ByteUtils.writeUint16(record.length - RECORD_HEADER_LENGTH, record, 2);
+		return record;
 	}
 
 	private byte[] createOffer(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		out.write(new byte[PACKET_HEADER_LENGTH]);
-		while (out.size() + UniqueId.LENGTH <= PACKET_HEADER_LENGTH
-				+ MAX_PACKET_PAYLOAD_LENGTH) {
+		out.write(new byte[RECORD_HEADER_LENGTH]);
+		while (out.size() + UniqueId.LENGTH <= RECORD_HEADER_LENGTH
+				+ MAX_RECORD_PAYLOAD_LENGTH) {
 			out.write(TestUtils.getRandomId());
 		}
 		if (tooBig) out.write(TestUtils.getRandomId());
-		assertEquals(tooBig, out.size() > PACKET_HEADER_LENGTH +
-				MAX_PACKET_PAYLOAD_LENGTH);
-		byte[] packet = out.toByteArray();
-		packet[1] = OFFER;
-		ByteUtils.writeUint16(packet.length - PACKET_HEADER_LENGTH, packet, 2);
-		return packet;
+		assertEquals(tooBig, out.size() > RECORD_HEADER_LENGTH +
+				MAX_RECORD_PAYLOAD_LENGTH);
+		byte[] record = out.toByteArray();
+		record[1] = OFFER;
+		ByteUtils.writeUint16(record.length - RECORD_HEADER_LENGTH, record, 2);
+		return record;
 	}
 
 	private byte[] createEmptyOffer() throws Exception {
-		byte[] packet = new byte[PACKET_HEADER_LENGTH];
-		packet[1] = OFFER;
-		ByteUtils.writeUint16(packet.length - PACKET_HEADER_LENGTH, packet, 2);
-		return packet;
+		byte[] record = new byte[RECORD_HEADER_LENGTH];
+		record[1] = OFFER;
+		ByteUtils.writeUint16(record.length - RECORD_HEADER_LENGTH, record, 2);
+		return record;
 	}
 
 	private byte[] createRequest(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		out.write(new byte[PACKET_HEADER_LENGTH]);
-		while (out.size() + UniqueId.LENGTH <= PACKET_HEADER_LENGTH
-				+ MAX_PACKET_PAYLOAD_LENGTH) {
+		out.write(new byte[RECORD_HEADER_LENGTH]);
+		while (out.size() + UniqueId.LENGTH <= RECORD_HEADER_LENGTH
+				+ MAX_RECORD_PAYLOAD_LENGTH) {
 			out.write(TestUtils.getRandomId());
 		}
 		if (tooBig) out.write(TestUtils.getRandomId());
-		assertEquals(tooBig, out.size() > PACKET_HEADER_LENGTH +
-				MAX_PACKET_PAYLOAD_LENGTH);
-		byte[] packet = out.toByteArray();
-		packet[1] = REQUEST;
-		ByteUtils.writeUint16(packet.length - PACKET_HEADER_LENGTH, packet, 2);
-		return packet;
+		assertEquals(tooBig, out.size() > RECORD_HEADER_LENGTH +
+				MAX_RECORD_PAYLOAD_LENGTH);
+		byte[] record = out.toByteArray();
+		record[1] = REQUEST;
+		ByteUtils.writeUint16(record.length - RECORD_HEADER_LENGTH, record, 2);
+		return record;
 	}
 
 	private byte[] createEmptyRequest() throws Exception {
-		byte[] packet = new byte[PACKET_HEADER_LENGTH];
-		packet[1] = REQUEST;
-		ByteUtils.writeUint16(packet.length - PACKET_HEADER_LENGTH, packet, 2);
-		return packet;
+		byte[] record = new byte[RECORD_HEADER_LENGTH];
+		record[1] = REQUEST;
+		ByteUtils.writeUint16(record.length - RECORD_HEADER_LENGTH, record, 2);
+		return record;
 	}
 }

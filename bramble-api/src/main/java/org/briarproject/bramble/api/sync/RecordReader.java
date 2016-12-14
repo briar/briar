@@ -5,7 +5,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import java.io.IOException;
 
 @NotNullByDefault
-public interface PacketReader {
+public interface RecordReader {
 
 	boolean eof() throws IOException;
 

@@ -13,7 +13,7 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.event.ShutdownEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
-import org.briarproject.bramble.api.sync.PacketWriter;
+import org.briarproject.bramble.api.sync.RecordWriter;
 import org.briarproject.bramble.api.sync.SyncSession;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
 
 /**
  * An outgoing {@link SyncSession} suitable for simplex transports. The session
@@ -55,7 +55,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	private final EventBus eventBus;
 	private final ContactId contactId;
 	private final int maxLatency;
-	private final PacketWriter packetWriter;
+	private final RecordWriter recordWriter;
 	private final AtomicInteger outstandingQueries;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
 
@@ -63,13 +63,13 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 
 	SimplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, ContactId contactId,
-			int maxLatency, PacketWriter packetWriter) {
+			int maxLatency, RecordWriter recordWriter) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
 		this.contactId = contactId;
 		this.maxLatency = maxLatency;
-		this.packetWriter = packetWriter;
+		this.recordWriter = recordWriter;
 		outstandingQueries = new AtomicInteger(2); // One per type of packet
 		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
 	}
@@ -89,7 +89,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 					if (task == CLOSE) break;
 					task.run();
 				}
-				packetWriter.flush();
+				recordWriter.flush();
 			} catch (InterruptedException e) {
 				LOG.info("Interrupted while waiting for a packet to write");
 				Thread.currentThread().interrupt();
@@ -157,7 +157,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		@Override
 		public void run() throws IOException {
 			if (interrupted) return;
-			packetWriter.writeAck(ack);
+			recordWriter.writeAck(ack);
 			LOG.info("Sent ack");
 			dbExecutor.execute(new GenerateAck());
 		}
@@ -174,7 +174,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 				Transaction txn = db.startTransaction(false);
 				try {
 					b = db.generateBatch(txn, contactId,
-							MAX_PACKET_PAYLOAD_LENGTH, maxLatency);
+							MAX_RECORD_PAYLOAD_LENGTH, maxLatency);
 					db.commitTransaction(txn);
 				} finally {
 					db.endTransaction(txn);
@@ -202,7 +202,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		@Override
 		public void run() throws IOException {
 			if (interrupted) return;
-			for (byte[] raw : batch) packetWriter.writeMessage(raw);
+			for (byte[] raw : batch) recordWriter.writeMessage(raw);
 			LOG.info("Sent batch");
 			dbExecutor.execute(new GenerateBatch());
 		}

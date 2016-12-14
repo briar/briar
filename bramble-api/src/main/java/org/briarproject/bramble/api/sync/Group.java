@@ -1,5 +1,7 @@
 package org.briarproject.bramble.api.sync;
 
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
+
 public class Group {
 
 	public enum Visibility {
@@ -13,6 +15,8 @@ public class Group {
 	private final byte[] descriptor;
 
 	public Group(GroupId id, ClientId clientId, byte[] descriptor) {
+		if (descriptor.length > MAX_GROUP_DESCRIPTOR_LENGTH)
+			throw new IllegalArgumentException();
 		this.id = id;
 		this.clientId = clientId;
 		this.descriptor = descriptor;

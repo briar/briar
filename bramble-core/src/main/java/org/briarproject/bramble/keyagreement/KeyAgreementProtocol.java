@@ -52,7 +52,7 @@ class KeyAgreementProtocol {
 
 		void connectionWaiting();
 
-		void initialPacketReceived();
+		void initialRecordReceived();
 	}
 
 	private final Callbacks callbacks;
@@ -117,7 +117,7 @@ class KeyAgreementProtocol {
 
 	private byte[] receiveKey() throws AbortException {
 		byte[] publicKey = transport.receiveKey();
-		callbacks.initialPacketReceived();
+		callbacks.initialRecordReceived();
 		byte[] expected = crypto.deriveKeyCommitment(publicKey);
 		if (!Arrays.equals(expected, theirPayload.getCommitment()))
 			throw new AbortException();

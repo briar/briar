@@ -30,11 +30,15 @@ class MessageFactoryImpl implements MessageFactory {
 	public Message createMessage(GroupId g, long timestamp, byte[] body) {
 		if (body.length > MAX_MESSAGE_BODY_LENGTH)
 			throw new IllegalArgumentException();
+		byte[] timeBytes = new byte[ByteUtils.INT_64_BYTES];
+		ByteUtils.writeUint64(timestamp, timeBytes, 0);
+		byte[] idHash =
+				crypto.hash(MessageId.LABEL, g.getBytes(), timeBytes, body);
+		MessageId id = new MessageId(idHash);
 		byte[] raw = new byte[MESSAGE_HEADER_LENGTH + body.length];
 		System.arraycopy(g.getBytes(), 0, raw, 0, UniqueId.LENGTH);
 		ByteUtils.writeUint64(timestamp, raw, UniqueId.LENGTH);
 		System.arraycopy(body, 0, raw, MESSAGE_HEADER_LENGTH, body.length);
-		MessageId id = new MessageId(crypto.hash(MessageId.LABEL, raw));
 		return new Message(id, g, timestamp, raw);
 	}
 

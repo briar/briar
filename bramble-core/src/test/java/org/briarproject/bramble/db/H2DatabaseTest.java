@@ -47,6 +47,7 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_K
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
@@ -84,7 +85,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 	public H2DatabaseTest() throws Exception {
 		groupId = new GroupId(TestUtils.getRandomId());
 		clientId = new ClientId(TestUtils.getRandomString(5));
-		byte[] descriptor = new byte[0];
+		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
 		group = new Group(groupId, clientId, descriptor);
 		AuthorId authorId = new AuthorId(TestUtils.getRandomId());
 		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);
@@ -1316,7 +1317,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 		// Add a second group
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
 		Group group1 = new Group(groupId1, clientId,
-				TestUtils.getRandomBytes(42));
+				TestUtils.getRandomBytes(MAX_GROUP_DESCRIPTOR_LENGTH));
 		db.addGroup(txn, group1);
 
 		// Add a message to the second group

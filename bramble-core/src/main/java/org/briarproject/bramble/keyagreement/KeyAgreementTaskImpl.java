@@ -129,7 +129,7 @@ class KeyAgreementTaskImpl extends Thread implements
 	}
 
 	@Override
-	public void initialPacketReceived() {
+	public void initialRecordReceived() {
 		// We send this here instead of when we create the protocol, so that
 		// if device A makes a connection after getting device B's payload and
 		// starts its protocol, device A's UI doesn't change to prevent device B

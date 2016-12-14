@@ -2,14 +2,14 @@ package org.briarproject.bramble.sync;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UniqueId;
-import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
-import org.briarproject.bramble.api.sync.PacketReader;
+import org.briarproject.bramble.api.sync.RecordReader;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.util.ByteUtils;
 
@@ -20,41 +20,41 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import static org.briarproject.bramble.api.sync.PacketTypes.ACK;
-import static org.briarproject.bramble.api.sync.PacketTypes.MESSAGE;
-import static org.briarproject.bramble.api.sync.PacketTypes.OFFER;
-import static org.briarproject.bramble.api.sync.PacketTypes.REQUEST;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
+import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
+import static org.briarproject.bramble.api.sync.RecordTypes.MESSAGE;
+import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
+import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
-import static org.briarproject.bramble.api.sync.SyncConstants.PACKET_HEADER_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
+import static org.briarproject.bramble.api.sync.SyncConstants.RECORD_HEADER_LENGTH;
 
 @NotThreadSafe
 @NotNullByDefault
-class PacketReaderImpl implements PacketReader {
+class RecordReaderImpl implements RecordReader {
 
 	private enum State { BUFFER_EMPTY, BUFFER_FULL, EOF }
 
-	private final CryptoComponent crypto;
+	private final MessageFactory messageFactory;
 	private final InputStream in;
 	private final byte[] header, payload;
 
 	private State state = State.BUFFER_EMPTY;
 	private int payloadLength = 0;
 
-	PacketReaderImpl(CryptoComponent crypto, InputStream in) {
-		this.crypto = crypto;
+	RecordReaderImpl(MessageFactory messageFactory, InputStream in) {
+		this.messageFactory = messageFactory;
 		this.in = in;
-		header = new byte[PACKET_HEADER_LENGTH];
-		payload = new byte[MAX_PACKET_PAYLOAD_LENGTH];
+		header = new byte[RECORD_HEADER_LENGTH];
+		payload = new byte[MAX_RECORD_PAYLOAD_LENGTH];
 	}
 
-	private void readPacket() throws IOException {
+	private void readRecord() throws IOException {
 		if (state != State.BUFFER_EMPTY) throw new IllegalStateException();
 		// Read the header
 		int offset = 0;
-		while (offset < PACKET_HEADER_LENGTH) {
-			int read = in.read(header, offset, PACKET_HEADER_LENGTH - offset);
+		while (offset < RECORD_HEADER_LENGTH) {
+			int read = in.read(header, offset, RECORD_HEADER_LENGTH - offset);
 			if (read == -1) {
 				if (offset > 0) throw new FormatException();
 				state = State.EOF;
@@ -66,7 +66,7 @@ class PacketReaderImpl implements PacketReader {
 		if (header[0] != PROTOCOL_VERSION) throw new FormatException();
 		// Read the payload length
 		payloadLength = ByteUtils.readUint16(header, 2);
-		if (payloadLength > MAX_PACKET_PAYLOAD_LENGTH) throw new FormatException();
+		if (payloadLength > MAX_RECORD_PAYLOAD_LENGTH) throw new FormatException();
 		// Read the payload
 		offset = 0;
 		while (offset < payloadLength) {
@@ -79,7 +79,7 @@ class PacketReaderImpl implements PacketReader {
 
 	@Override
 	public boolean eof() throws IOException {
-		if (state == State.BUFFER_EMPTY) readPacket();
+		if (state == State.BUFFER_EMPTY) readRecord();
 		if (state == State.BUFFER_EMPTY) throw new IllegalStateException();
 		return state == State.EOF;
 	}
@@ -124,13 +124,12 @@ class PacketReaderImpl implements PacketReader {
 		// Timestamp
 		long timestamp = ByteUtils.readUint64(payload, UniqueId.LENGTH);
 		if (timestamp < 0) throw new FormatException();
-		// Raw message
-		byte[] raw = new byte[payloadLength];
-		System.arraycopy(payload, 0, raw, 0, payloadLength);
+		// Body
+		byte[] body = new byte[payloadLength - MESSAGE_HEADER_LENGTH];
+		System.arraycopy(payload, MESSAGE_HEADER_LENGTH, body, 0,
+				payloadLength - MESSAGE_HEADER_LENGTH);
 		state = State.BUFFER_EMPTY;
-		// Message ID
-		MessageId messageId = new MessageId(crypto.hash(MessageId.LABEL, raw));
-		return new Message(messageId, groupId, timestamp, raw);
+		return messageFactory.createMessage(groupId, timestamp, body);
 	}
 
 	@Override
