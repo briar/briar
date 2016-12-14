@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
@@ -128,7 +129,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	@Override
-	public boolean start() throws IOException {
+	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		// BluetoothAdapter.getDefaultAdapter() must be called on a thread
 		// with a message queue, so submit it to the AndroidExecutor
@@ -142,13 +143,14 @@ class DroidtoothPlugin implements DuplexPlugin {
 					}).get();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			throw new IOException("Interrupted while getting BluetoothAdapter");
+			LOG.warning("Interrupted while getting BluetoothAdapter");
+			throw new PluginException(e);
 		} catch (ExecutionException e) {
-			throw new IOException(e);
+			throw new PluginException(e);
 		}
 		if (adapter == null) {
 			LOG.info("Bluetooth is not supported");
-			return false;
+			throw new PluginException();
 		}
 		running = true;
 		// Listen for changes to the Bluetooth state
@@ -170,7 +172,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 				LOG.info("Not enabling Bluetooth");
 			}
 		}
-		return true;
 	}
 
 	private void bind() {

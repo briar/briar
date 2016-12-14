@@ -2,6 +2,7 @@ package org.briarproject.bramble.plugin.file;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginCallback;
 
@@ -42,17 +43,24 @@ class RemovableDrivePlugin extends FilePlugin
 	}
 
 	@Override
-	public boolean start() throws IOException {
+	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		running = true;
-		monitor.start(this);
-		return true;
+		try {
+			monitor.start(this);
+		} catch (IOException e) {
+			throw new PluginException(e);
+		}
 	}
 
 	@Override
-	public void stop() throws IOException {
+	public void stop() throws PluginException {
 		running = false;
-		monitor.stop();
+		try {
+			monitor.stop();
+		} catch (IOException e) {
+			throw new PluginException(e);
+		}
 	}
 
 	@Override

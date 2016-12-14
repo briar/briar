@@ -39,14 +39,13 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	}
 
 	@Override
-	public boolean start() {
+	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		running = true;
 		// Register to receive network status events
 		networkStateReceiver = new NetworkStateReceiver();
 		IntentFilter filter = new IntentFilter(CONNECTIVITY_ACTION);
 		appContext.registerReceiver(networkStateReceiver, filter);
-		return true;
 	}
 
 	@Override
