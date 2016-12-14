@@ -3,6 +3,9 @@ package org.briarproject.briar.android.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
+import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.view.Gravity;
@@ -92,6 +95,27 @@ public abstract class BriarActivity extends BaseActivity {
 		window.setTransitionBackgroundFadeDuration(getResources()
 				.getInteger(android.R.integer.config_longAnimTime));
 		window.setBackgroundDrawableResource(android.R.color.transparent);
+	}
+
+	/**
+	 * This should be called after the content view has been added in onCreate()
+	 *
+	 * @param ownLayout true if the custom toolbar brings its own layout
+	 * @return the Toolbar object or null if content view did not contain one
+	 */
+	@Nullable
+	protected Toolbar setUpCustomToolbar(boolean ownLayout) {
+		// Custom Toolbar
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+		ActionBar ab = getSupportActionBar();
+		if (ab != null) {
+			ab.setDisplayShowHomeEnabled(true);
+			ab.setDisplayHomeAsUpEnabled(true);
+			ab.setDisplayShowCustomEnabled(ownLayout);
+			ab.setDisplayShowTitleEnabled(!ownLayout);
+		}
+		return toolbar;
 	}
 
 	protected void signOut(final boolean removeFromRecentApps) {

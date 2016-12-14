@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -176,21 +175,13 @@ public class ConversationActivity extends BriarActivity
 		setContentView(R.layout.activity_conversation);
 
 		// Custom Toolbar
-		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		toolbar = setUpCustomToolbar(true);
 		if (toolbar != null) {
 			toolbarAvatar =
 					(CircleImageView) toolbar.findViewById(R.id.contactAvatar);
 			toolbarStatus =
 					(ImageView) toolbar.findViewById(R.id.contactStatus);
 			toolbarTitle = (TextView) toolbar.findViewById(R.id.contactName);
-			setSupportActionBar(toolbar);
-		}
-		ActionBar ab = getSupportActionBar();
-		if (ab != null) {
-			ab.setDisplayShowHomeEnabled(true);
-			ab.setDisplayHomeAsUpEnabled(true);
-			ab.setDisplayShowCustomEnabled(true);
-			ab.setDisplayShowTitleEnabled(false);
 		}
 
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));

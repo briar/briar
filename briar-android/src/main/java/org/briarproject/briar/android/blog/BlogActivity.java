@@ -3,6 +3,7 @@ package org.briarproject.briar.android.blog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -38,12 +39,12 @@ public class BlogActivity extends BriarActivity
 		final GroupId groupId = new GroupId(b);
 		blogController.setGroupId(groupId);
 
-		setContentView(R.layout.activity_fragment_container);
+		setContentView(R.layout.activity_fragment_container_toolbar);
+		Toolbar toolbar = setUpCustomToolbar(false);
 
-		// Open Sharing Status on ActionBar click
-		View actionBar = findViewById(R.id.action_bar);
-		if (actionBar != null) {
-			actionBar.setOnClickListener(
+		// Open Sharing Status on Toolbar click
+		if (toolbar != null) {
+			toolbar.setOnClickListener(
 					new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
