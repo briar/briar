@@ -2,7 +2,6 @@ package org.briarproject.briar.sharing;
 
 import net.jodah.concurrentunit.Waiter;
 
-import org.briarproject.TestDatabaseModule;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchGroupException;
@@ -10,9 +9,7 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.briar.BriarIntegrationTest;
-import org.briarproject.briar.BriarIntegrationTestComponent;
-import org.briarproject.briar.DaggerBriarIntegrationTestComponent;
+import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogInvitationRequest;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
@@ -21,6 +18,9 @@ import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.sharing.InvitationMessage;
+import org.briarproject.briar.test.BriarIntegrationTest;
+import org.briarproject.briar.test.BriarIntegrationTestComponent;
+import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,8 +30,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.briarproject.TestUtils.assertGroupCount;
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
+import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

@@ -37,9 +37,9 @@ import org.briarproject.briar.api.sharing.InvitationMessage;
 import org.briarproject.briar.api.sharing.Shareable;
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
 import org.briarproject.briar.api.sharing.SharingManager;
+import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 import org.briarproject.briar.api.sharing.event.InvitationRequestReceivedEvent;
 import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
-import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.io.IOException;

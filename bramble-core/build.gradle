@@ -14,10 +14,7 @@ dependencies {
 	compile 'com.madgag.spongycastle:core:1.54.0.0'
 	compile 'com.h2database:h2:1.4.190'
 
-	testCompile project(':briar-tests') // TODO remove when moving unit tests (#778)
-	testCompile 'junit:junit:4.12'
-	testCompile 'com.google.dagger:dagger-compiler:2.8'
-	testApt 'com.google.dagger:dagger-compiler:2.8'
+	testCompile project(path: ':bramble-api', configuration: 'testOutput')
 }
 
 dependencyVerification {
@@ -25,4 +22,16 @@ dependencyVerification {
 			'com.madgag.spongycastle:core:1e7fa4b19ccccd1011364ab838d0b4702470c178bbbdd94c5c90b2d4d749ea1e',
 			'com.h2database:h2:23ba495a07bbbb3bd6c3084d10a96dad7a23741b8b6d64b213459a784195a98c'
 	]
+}
+
+// needed to make test output available to bramble-j2se
+configurations {
+	testOutput.extendsFrom(testCompile)
+}
+task jarTest(type: Jar, dependsOn: testClasses) {
+	from sourceSets.test.output
+	classifier = 'test'
+}
+artifacts {
+	testOutput jarTest
 }

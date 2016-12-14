@@ -1,15 +1,12 @@
 package org.briarproject.briar.privategroup;
 
-import org.briarproject.TestDatabaseModule;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.BriarIntegrationTest;
-import org.briarproject.briar.BriarIntegrationTestComponent;
-import org.briarproject.briar.DaggerBriarIntegrationTestComponent;
+import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.privategroup.GroupMember;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.GroupMessageHeader;
@@ -17,6 +14,9 @@ import org.briarproject.briar.api.privategroup.JoinMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.briar.test.BriarIntegrationTest;
+import org.briarproject.briar.test.BriarIntegrationTestComponent;
+import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
 import org.junit.Before;
 import org.junit.Test;
 

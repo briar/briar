@@ -1,8 +1,5 @@
 package org.briarproject.briar.messaging;
 
-import org.briarproject.TestDatabaseModule;
-import org.briarproject.TestPluginConfigModule;
-import org.briarproject.TestSeedProviderModule;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
@@ -21,6 +18,9 @@ import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.system.SystemModule;
+import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.bramble.test.TestPluginConfigModule;
+import org.briarproject.bramble.test.TestSeedProviderModule;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;

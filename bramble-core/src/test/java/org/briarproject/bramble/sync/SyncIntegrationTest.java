@@ -1,7 +1,5 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.BriarTestCase;
-import org.briarproject.TestUtils;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -22,6 +20,8 @@ import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
+import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.TestUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class SyncIntegrationTest extends BriarTestCase {
+public class SyncIntegrationTest extends BrambleTestCase {
 
 	@Inject
 	GroupFactory groupFactory;

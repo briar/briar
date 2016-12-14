@@ -17,7 +17,6 @@ import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -43,7 +42,6 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.CONT
 import static org.briarproject.briar.api.introduction.IntroductionConstants.EXISTS;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.INTRODUCER;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MESSAGE_TIME;

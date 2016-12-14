@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.controller;
 
 import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;

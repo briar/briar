@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.briar.R;
 import org.briarproject.briar.android.contactselection.ContactSelectorActivity;
 import org.briarproject.briar.android.sharing.BaseMessageFragment.MessageFragmentListener;
 

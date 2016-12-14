@@ -4,11 +4,11 @@ import android.content.Intent;
 
 import junit.framework.Assert;
 
-import org.briarproject.TestUtils;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.android.TestBriarApplication;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;

@@ -2,8 +2,6 @@ package org.briarproject.briar.introduction;
 
 import net.jodah.concurrentunit.Waiter;
 
-import org.briarproject.TestDatabaseModule;
-import org.briarproject.TestUtils;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
@@ -26,7 +24,8 @@ import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.BriarIntegrationTest;
+import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionMessage;
@@ -35,6 +34,7 @@ import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
+import org.briarproject.briar.test.BriarIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,9 +51,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static org.briarproject.TestPluginConfigModule.TRANSPORT_ID;
-import static org.briarproject.TestUtils.assertGroupCount;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
 import static org.briarproject.briar.api.client.MessageQueueManager.QUEUE_STATE_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID;
@@ -70,6 +69,7 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_RESPONSE;
 import static org.briarproject.briar.introduction.IntroduceeManager.SIGNING_LABEL_RESPONSE;
+import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
