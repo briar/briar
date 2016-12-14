@@ -86,6 +86,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	private BluetoothStateReceiver receiver;
 	private boolean gotRemotePayload, waitingForBluetooth;
+	private volatile boolean gotLocalPayload;
 	private KeyAgreementTask task;
 
 	public static ShowQrCodeFragment newInstance() {
@@ -202,6 +203,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		statusView.setVisibility(INVISIBLE);
 		cameraView.setVisibility(VISIBLE);
 		gotRemotePayload = false;
+		gotLocalPayload = false;
 		startListening();
 	}
 
@@ -227,6 +229,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	public void eventOccurred(Event e) {
 		if (e instanceof KeyAgreementListeningEvent) {
 			KeyAgreementListeningEvent event = (KeyAgreementListeningEvent) e;
+			gotLocalPayload = true;
 			setQrCode(event.getLocalPayload());
 		} else if (e instanceof KeyAgreementFailedEvent) {
 			keyAgreementFailed();
@@ -341,6 +344,10 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			@Override
 			public void run() {
 				LOG.info("Got result from decoder");
+				// Ignore results until the KeyAgreementTask is ready
+				if (!gotLocalPayload) {
+					return;
+				}
 				if (!gotRemotePayload) {
 					gotRemotePayload = true;
 					qrCodeScanned(result.getText());
