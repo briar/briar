@@ -1,4 +1,4 @@
-package org.briarproject.briar.android;
+package org.briarproject.briar.android.login;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,9 +12,8 @@ import com.google.common.base.Strings;
 import org.briarproject.bramble.api.identity.AuthorConstants;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.TestBriarApplication;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
-import org.briarproject.briar.android.login.SetupController;
-import org.briarproject.briar.android.login.StrengthMeter;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.junit.Assert;
 import org.junit.Before;

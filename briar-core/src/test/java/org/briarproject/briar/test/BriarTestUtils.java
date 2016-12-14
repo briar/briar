@@ -1,4 +1,4 @@
-package org.briarproject.briar;
+package org.briarproject.briar.test;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.GroupId;

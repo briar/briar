@@ -1,8 +1,8 @@
 package org.briarproject.bramble.plugin.file;
 
-import org.briarproject.bramble.BrambleTestCase;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.plugin.file.RemovableDriveMonitor.Callback;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
 import java.io.File;
@@ -41,7 +41,7 @@ public class PollingRemovableDriveMonitorTest extends BrambleTestCase {
 		};
 		// Create a callback that waits for two files
 		final CountDownLatch latch = new CountDownLatch(2);
-		final List<File> detected = new ArrayList<File>();
+		final List<File> detected = new ArrayList<>();
 		@NotNullByDefault
 		Callback callback = new Callback() {
 

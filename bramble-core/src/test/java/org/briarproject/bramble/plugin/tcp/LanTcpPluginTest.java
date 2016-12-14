@@ -1,6 +1,5 @@
 package org.briarproject.bramble.plugin.tcp;
 
-import org.briarproject.bramble.BrambleTestCase;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
@@ -12,6 +11,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
 import java.io.IOException;

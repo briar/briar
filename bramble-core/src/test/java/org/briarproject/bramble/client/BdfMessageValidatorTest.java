@@ -1,6 +1,5 @@
 package org.briarproject.bramble.client;
 
-import org.briarproject.bramble.ValidatorTestCase;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.BdfMessageContext;
 import org.briarproject.bramble.api.client.BdfMessageValidator;
@@ -12,6 +11,7 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageContext;
+import org.briarproject.bramble.test.ValidatorTestCase;
 import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;

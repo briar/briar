@@ -1,7 +1,7 @@
 package org.briarproject.bramble.db;
 
-import org.briarproject.bramble.BrambleTestCase;
-import org.briarproject.bramble.TestUtils;
+import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

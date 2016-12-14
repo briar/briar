@@ -4,7 +4,6 @@ import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.android.DestroyableContext;
 
 import java.util.Collection;

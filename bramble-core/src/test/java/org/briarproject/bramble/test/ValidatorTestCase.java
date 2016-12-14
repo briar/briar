@@ -1,4 +1,4 @@
-package org.briarproject.bramble;
+package org.briarproject.bramble.test;
 
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.MetadataEncoder;

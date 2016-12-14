@@ -1,9 +1,9 @@
 package org.briarproject.bramble.plugin.modem;
 
-import org.briarproject.bramble.BrambleTestCase;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;

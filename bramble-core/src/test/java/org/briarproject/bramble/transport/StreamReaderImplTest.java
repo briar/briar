@@ -1,7 +1,7 @@
 package org.briarproject.bramble.transport;
 
-import org.briarproject.bramble.BrambleTestCase;
 import org.briarproject.bramble.api.crypto.StreamDecrypter;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;

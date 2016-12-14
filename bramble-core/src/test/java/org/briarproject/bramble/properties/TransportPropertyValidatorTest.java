@@ -1,7 +1,5 @@
 package org.briarproject.bramble.properties;
 
-import org.briarproject.bramble.BrambleTestCase;
-import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfDictionary;
@@ -14,6 +12,8 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.TestUtils;
 import org.jmock.Mockery;
 import org.junit.Test;
 

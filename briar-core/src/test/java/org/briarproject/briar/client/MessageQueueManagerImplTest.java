@@ -1,8 +1,5 @@
 package org.briarproject.briar.client;
 
-import org.briarproject.briar.BriarTestCase;
-import org.briarproject.briar.CaptureArgumentAction;
-import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
@@ -19,11 +16,14 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.bramble.api.sync.ValidationManager.MessageValidator;
+import org.briarproject.bramble.test.CaptureArgumentAction;
+import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.ByteUtils;
 import org.briarproject.briar.api.client.MessageQueueManager.IncomingQueueMessageHook;
 import org.briarproject.briar.api.client.MessageQueueManager.QueueMessageValidator;
 import org.briarproject.briar.api.client.QueueMessage;
 import org.briarproject.briar.api.client.QueueMessageFactory;
+import org.briarproject.briar.test.BriarTestCase;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;

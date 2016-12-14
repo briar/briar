@@ -1,7 +1,5 @@
 package org.briarproject.briar.messaging;
 
-import org.briarproject.bramble.TestDatabaseModule;
-import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -22,10 +20,12 @@ import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.briar.BriarTestCase;
+import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
+import org.briarproject.briar.test.BriarTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +38,8 @@ import java.io.OutputStream;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
-import static org.briarproject.briar.TestPluginConfigModule.MAX_LATENCY;
-import static org.briarproject.briar.TestPluginConfigModule.TRANSPORT_ID;
+import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
+import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;

@@ -1,4 +1,4 @@
-package org.briarproject.bramble;
+package org.briarproject.bramble.test;
 
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DatabaseExecutor;

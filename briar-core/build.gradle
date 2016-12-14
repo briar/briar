@@ -16,8 +16,8 @@ dependencies {
 	compile 'com.squareup.okhttp3:okhttp:3.3.1'
 	compile 'org.jsoup:jsoup:1.9.2'
 
-	testCompile project(':bramble-core') // TODO get rid of this dependency
-
+	testCompile project(':bramble-core')
+	testCompile project(path: ':bramble-core', configuration: 'testOutput')
 	testCompile project(path: ':bramble-api', configuration: 'testOutput')
 	testCompile 'net.jodah:concurrentunit:0.4.2'
 }

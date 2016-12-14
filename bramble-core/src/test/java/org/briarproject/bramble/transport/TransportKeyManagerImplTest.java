@@ -1,8 +1,5 @@
 package org.briarproject.bramble.transport;
 
-import org.briarproject.bramble.RunAction;
-import org.briarproject.bramble.BrambleTestCase;
-import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -14,6 +11,9 @@ import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.TransportKeys;
+import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.RunAction;
+import org.briarproject.bramble.test.TestUtils;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;

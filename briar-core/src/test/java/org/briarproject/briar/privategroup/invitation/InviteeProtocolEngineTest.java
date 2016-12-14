@@ -17,11 +17,11 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.briarproject.bramble.TestUtils.getRandomBytes;
-import static org.briarproject.bramble.TestUtils.getRandomId;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.ACCEPTED;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.DISSOLVED;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.ERROR;

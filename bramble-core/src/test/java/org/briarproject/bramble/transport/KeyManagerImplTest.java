@@ -1,6 +1,5 @@
 package org.briarproject.bramble.transport;
 
-import org.briarproject.bramble.BrambleTestCase;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
@@ -14,6 +13,7 @@ import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.transport.StreamContext;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.concurrent.DeterministicExecutor;
@@ -24,10 +24,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.briarproject.bramble.TestUtils.getRandomBytes;
-import static org.briarproject.bramble.TestUtils.getRandomId;
-import static org.briarproject.bramble.TestUtils.getSecretKey;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.junit.Assert.assertEquals;
 
 public class KeyManagerImplTest extends BrambleTestCase {

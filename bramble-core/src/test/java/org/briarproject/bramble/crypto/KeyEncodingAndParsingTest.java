@@ -1,12 +1,12 @@
 package org.briarproject.bramble.crypto;
 
-import org.briarproject.bramble.BrambleTestCase;
-import org.briarproject.bramble.TestSeedProvider;
-import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
+import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.TestSeedProvider;
+import org.briarproject.bramble.test.TestUtils;
 import org.junit.Test;
 
 import java.security.GeneralSecurityException;

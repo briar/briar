@@ -1,8 +1,5 @@
 package org.briarproject.bramble.plugin;
 
-import org.briarproject.bramble.RunAction;
-import org.briarproject.bramble.BrambleTestCase;
-import org.briarproject.bramble.ImmediateExecutor;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactStatusChangedEvent;
 import org.briarproject.bramble.api.plugin.ConnectionManager;
@@ -18,6 +15,9 @@ import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
 import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.ImmediateExecutor;
+import org.briarproject.bramble.test.RunAction;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;

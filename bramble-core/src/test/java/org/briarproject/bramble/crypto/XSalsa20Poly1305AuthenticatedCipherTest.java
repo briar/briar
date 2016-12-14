@@ -1,7 +1,7 @@
 package org.briarproject.bramble.crypto;
 
-import org.briarproject.bramble.BrambleTestCase;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.util.StringUtils;
 import org.junit.Test;
 

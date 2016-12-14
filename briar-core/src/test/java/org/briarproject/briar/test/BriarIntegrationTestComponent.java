@@ -1,7 +1,5 @@
-package org.briarproject.briar;
+package org.briarproject.briar.test;
 
-import org.briarproject.bramble.TestDatabaseModule;
-import org.briarproject.bramble.TestSeedProviderModule;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -21,6 +19,9 @@ import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.properties.PropertiesModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.system.SystemModule;
+import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.bramble.test.TestPluginConfigModule;
+import org.briarproject.bramble.test.TestSeedProviderModule;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;

@@ -5,10 +5,10 @@ import org.briarproject.briar.api.client.ProtocolStateException;
 import org.jmock.Expectations;
 import org.junit.Test;
 
-import static org.briarproject.bramble.TestUtils.getRandomId;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.privategroup.invitation.PeerState.AWAIT_MEMBER;
 import static org.briarproject.briar.privategroup.invitation.PeerState.BOTH_JOINED;
 import static org.briarproject.briar.privategroup.invitation.PeerState.ERROR;

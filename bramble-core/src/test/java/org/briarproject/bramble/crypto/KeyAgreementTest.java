@@ -1,11 +1,11 @@
 package org.briarproject.bramble.crypto;
 
-import org.briarproject.bramble.BrambleTestCase;
-import org.briarproject.bramble.TestSeedProvider;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.system.SeedProvider;
+import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.TestSeedProvider;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;

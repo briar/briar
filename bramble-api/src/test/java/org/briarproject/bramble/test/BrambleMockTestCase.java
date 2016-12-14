@@ -1,4 +1,4 @@
-package org.briarproject.bramble;
+package org.briarproject.bramble.test;
 
 import org.jmock.Mockery;
 import org.junit.After;

@@ -1,9 +1,9 @@
 package org.briarproject.bramble.plugin.file;
 
-import org.briarproject.bramble.BrambleTestCase;
-import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.plugin.file.RemovableDriveMonitor.Callback;
+import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.OsUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -61,7 +61,7 @@ public class UnixRemovableDriveMonitorTest extends BrambleTestCase {
 			return;
 		}
 		// Create a callback that will wait for two files before stopping
-		final List<File> detected = new ArrayList<File>();
+		final List<File> detected = new ArrayList<>();
 		final CountDownLatch latch = new CountDownLatch(2);
 		@NotNullByDefault
 		final Callback callback = new Callback() {

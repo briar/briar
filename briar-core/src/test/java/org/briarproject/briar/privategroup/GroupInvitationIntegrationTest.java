@@ -1,11 +1,8 @@
 package org.briarproject.briar.privategroup;
 
-import org.briarproject.bramble.TestDatabaseModule;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.Group;
-import org.briarproject.briar.BriarIntegrationTest;
-import org.briarproject.briar.BriarIntegrationTestComponent;
-import org.briarproject.briar.DaggerBriarIntegrationTestComponent;
+import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
@@ -15,6 +12,9 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
 import org.briarproject.briar.api.sharing.InvitationMessage;
+import org.briarproject.briar.test.BriarIntegrationTest;
+import org.briarproject.briar.test.BriarIntegrationTestComponent;
+import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
-import static org.briarproject.briar.BriarTestUtils.assertGroupCount;
+import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

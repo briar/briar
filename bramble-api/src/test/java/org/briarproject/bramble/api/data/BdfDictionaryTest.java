@@ -1,7 +1,7 @@
 package org.briarproject.bramble.api.data;
 
-import org.briarproject.bramble.BrambleTestCase;
 import org.briarproject.bramble.api.Bytes;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
 import java.util.Collections;

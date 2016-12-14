@@ -2,7 +2,6 @@ package org.briarproject.briar.sharing;
 
 import net.jodah.concurrentunit.Waiter;
 
-import org.briarproject.bramble.TestDatabaseModule;
 import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.data.BdfList;
@@ -13,9 +12,7 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
-import org.briarproject.briar.BriarIntegrationTest;
-import org.briarproject.briar.BriarIntegrationTestComponent;
-import org.briarproject.briar.DaggerBriarIntegrationTestComponent;
+import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.client.MessageQueueManager;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.forum.Forum;
@@ -29,6 +26,9 @@ import org.briarproject.briar.api.forum.event.ForumInvitationRequestReceivedEven
 import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.sharing.InvitationMessage;
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
+import org.briarproject.briar.test.BriarIntegrationTest;
+import org.briarproject.briar.test.BriarIntegrationTestComponent;
+import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,8 +39,8 @@ import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.briarproject.bramble.TestUtils.getRandomBytes;
-import static org.briarproject.bramble.TestUtils.getRandomString;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomString;
 import static org.briarproject.briar.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.briar.api.forum.ForumSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;

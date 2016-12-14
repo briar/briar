@@ -1,9 +1,9 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.bramble.BrambleTestCase;
-import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UniqueId;
+import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.ByteUtils;
 import org.junit.Test;
 

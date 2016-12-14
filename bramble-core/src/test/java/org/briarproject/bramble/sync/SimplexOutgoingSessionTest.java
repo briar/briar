@@ -1,8 +1,5 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.bramble.BrambleTestCase;
-import org.briarproject.bramble.ImmediateExecutor;
-import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Transaction;
@@ -10,6 +7,9 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.PacketWriter;
+import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.ImmediateExecutor;
+import org.briarproject.bramble.test.TestUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;

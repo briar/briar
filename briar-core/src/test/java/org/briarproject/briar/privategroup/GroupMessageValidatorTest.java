@@ -1,6 +1,5 @@
 package org.briarproject.briar.privategroup;
 
-import org.briarproject.bramble.ValidatorTestCase;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.BdfMessageContext;
 import org.briarproject.bramble.api.data.BdfDictionary;
@@ -9,6 +8,7 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.test.ValidatorTestCase;
 import org.briarproject.briar.api.privategroup.MessageType;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
@@ -21,12 +21,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.briarproject.bramble.TestUtils.getRandomBytes;
-import static org.briarproject.bramble.TestUtils.getRandomId;
-import static org.briarproject.bramble.TestUtils.getRandomString;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.getRandomString;
 import static org.briarproject.briar.api.privategroup.GroupMessageFactory.SIGNING_LABEL_JOIN;
 import static org.briarproject.briar.api.privategroup.GroupMessageFactory.SIGNING_LABEL_POST;
 import static org.briarproject.briar.api.privategroup.MessageType.JOIN;

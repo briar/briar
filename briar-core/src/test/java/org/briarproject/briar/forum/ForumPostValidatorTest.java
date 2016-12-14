@@ -1,7 +1,5 @@
 package org.briarproject.briar.forum;
 
-import org.briarproject.bramble.TestUtils;
-import org.briarproject.bramble.ValidatorTestCase;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.client.BdfMessageContext;
@@ -11,6 +9,8 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.test.ValidatorTestCase;
 import org.jmock.Expectations;
 import org.junit.Test;
 

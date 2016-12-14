@@ -1,8 +1,8 @@
 package org.briarproject.briar.client;
 
-import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.client.MessageTree;
 import org.junit.Test;
 

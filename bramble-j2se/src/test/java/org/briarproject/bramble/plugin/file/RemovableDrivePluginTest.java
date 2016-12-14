@@ -1,12 +1,12 @@
 package org.briarproject.bramble.plugin.file;
 
-import org.briarproject.bramble.BrambleTestCase;
-import org.briarproject.bramble.ImmediateExecutor;
-import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginCallback;
 import org.briarproject.bramble.plugin.file.RemovableDriveMonitor.Callback;
+import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.ImmediateExecutor;
+import org.briarproject.bramble.test.TestUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.concurrent.Synchroniser;
@@ -73,7 +73,7 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 	public void testWriterIsNullIfNoDriveIsChosen() throws Exception {
 		final File drive1 = new File(testDir, "1");
 		final File drive2 = new File(testDir, "2");
-		final List<File> drives = new ArrayList<File>();
+		final List<File> drives = new ArrayList<>();
 		drives.add(drive1);
 		drives.add(drive2);
 
@@ -112,7 +112,7 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 	public void testWriterIsNullIfOutputDirDoesNotExist() throws Exception {
 		final File drive1 = new File(testDir, "1");
 		final File drive2 = new File(testDir, "2");
-		final List<File> drives = new ArrayList<File>();
+		final List<File> drives = new ArrayList<>();
 		drives.add(drive1);
 		drives.add(drive2);
 
@@ -151,7 +151,7 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 	public void testWriterIsNullIfOutputDirIsAFile() throws Exception {
 		final File drive1 = new File(testDir, "1");
 		final File drive2 = new File(testDir, "2");
-		final List<File> drives = new ArrayList<File>();
+		final List<File> drives = new ArrayList<>();
 		drives.add(drive1);
 		drives.add(drive2);
 		// Create drive1 as a file rather than a directory
@@ -192,7 +192,7 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 	public void testWriterIsNotNullIfOutputDirIsADir() throws Exception {
 		final File drive1 = new File(testDir, "1");
 		final File drive2 = new File(testDir, "2");
-		final List<File> drives = new ArrayList<File>();
+		final List<File> drives = new ArrayList<>();
 		drives.add(drive1);
 		drives.add(drive2);
 		// Create drive1 as a directory
@@ -236,7 +236,7 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 	public void testWritingToWriter() throws Exception {
 		final File drive1 = new File(testDir, "1");
 		final File drive2 = new File(testDir, "2");
-		final List<File> drives = new ArrayList<File>();
+		final List<File> drives = new ArrayList<>();
 		drives.add(drive1);
 		drives.add(drive2);
 		// Create drive1 as a directory

@@ -1,8 +1,8 @@
 package org.briarproject.bramble.system;
 
-import org.briarproject.bramble.BrambleTestCase;
-import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.Bytes;
+import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.OsUtils;
 import org.junit.After;
 import org.junit.Before;

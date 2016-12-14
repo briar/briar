@@ -9,7 +9,6 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 
 import java.util.Collection;
-import java.util.HashSet;
 
 import javax.inject.Inject;
 

@@ -1,4 +1,4 @@
-package org.briarproject.briar;
+package org.briarproject.bramble.test;
 
 import org.hamcrest.Description;
 import org.jmock.api.Action;

@@ -1,9 +1,9 @@
 package org.briarproject.bramble.data;
 
-import org.briarproject.bramble.BrambleTestCase;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.db.Metadata;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Before;
 import org.junit.Test;
 

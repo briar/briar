@@ -1,12 +1,12 @@
 package org.briarproject.briar.sharing;
 
-import org.briarproject.bramble.TestUtils;
-import org.briarproject.bramble.ValidatorTestCase;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.client.BdfMessageContext;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.test.ValidatorTestCase;
 import org.briarproject.briar.api.client.SessionId;
 import org.junit.Test;
 

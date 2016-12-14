@@ -1,6 +1,6 @@
 package org.briarproject.bramble.db;
 
-import org.briarproject.bramble.BrambleTestCase;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;

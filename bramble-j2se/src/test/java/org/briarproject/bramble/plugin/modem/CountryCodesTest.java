@@ -1,6 +1,6 @@
 package org.briarproject.bramble.plugin.modem;
 
-import org.briarproject.bramble.BrambleTestCase;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

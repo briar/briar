@@ -1,7 +1,7 @@
 package org.briarproject.bramble.crypto;
 
-import org.briarproject.bramble.BrambleTestCase;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_STRONG;

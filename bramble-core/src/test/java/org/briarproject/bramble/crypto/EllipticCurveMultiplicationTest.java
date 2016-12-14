@@ -1,6 +1,6 @@
 package org.briarproject.bramble.crypto;
 
-import org.briarproject.bramble.BrambleTestCase;
+import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 import org.spongycastle.asn1.teletrust.TeleTrusTNamedCurves;
 import org.spongycastle.asn1.x9.X9ECParameters;

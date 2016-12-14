@@ -1,7 +1,5 @@
 package org.briarproject.bramble.identity;
 
-import org.briarproject.bramble.BrambleMockTestCase;
-import org.briarproject.bramble.TestUtils;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -11,6 +9,8 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.TestUtils;
 import org.jmock.Expectations;
 import org.junit.Test;
 

@@ -1,6 +1,6 @@
-package org.briarproject.briar;
+package org.briarproject.briar.test;
 
-import org.briarproject.bramble.BrambleTestCase;
+import org.briarproject.bramble.test.BrambleTestCase;
 
 public abstract class BriarTestCase extends BrambleTestCase {
 

@@ -1,11 +1,11 @@
 package org.briarproject.briar.messaging;
 
-import org.briarproject.bramble.TestUtils;
-import org.briarproject.bramble.ValidatorTestCase;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.BdfMessageContext;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.test.ValidatorTestCase;
 import org.junit.Test;
 
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
