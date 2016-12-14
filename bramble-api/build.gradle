@@ -5,8 +5,8 @@ targetCompatibility = 1.6
 apply plugin: 'witness'
 
 dependencies {
-	compile "com.google.dagger:dagger:2.8"
-	compile 'com.google.dagger:dagger-compiler:2.8'
+	compile "com.google.dagger:dagger:2.0.2"
+	compile 'com.google.dagger:dagger-compiler:2.0.2'
 	compile 'com.google.code.findbugs:jsr305:3.0.1'
 
 	testCompile 'junit:junit:4.12'
@@ -19,12 +19,12 @@ dependencies {
 
 dependencyVerification {
 	verify = [
-			'com.google.dagger:dagger:5070e1dff5c551a4908ba7b93125c0243de2a688aed3d2f475357d86d9d7c0ad',
-			'com.google.dagger:dagger-compiler:7b2686f94907868c5364e9965601ffe2f020ba4af1849ad9b57dad5fe3fa6242',
+			'com.google.dagger:dagger:84c0282ed8be73a29e0475d639da030b55dee72369e58dd35ae7d4fe6243dcf9',
+			'com.google.dagger:dagger-compiler:b74bc9de063dd4c6400b232231f2ef5056145b8fbecbf5382012007dd1c071b3',
 			'com.google.code.findbugs:jsr305:c885ce34249682bc0236b4a7d56efcc12048e6135a5baf7a9cde8ad8cda13fcd',
 			'javax.inject:javax.inject:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
-			'com.google.dagger:dagger-producers:1e4043e85f67de381d19e22c7932aaf7ff1611091be7e1aaae93f2c37f331cf2',
-			'com.google.guava:guava:ff89d4a4a6b303c4084194975a5a35f55a8af6f7337678b4cc8ddbea9005c323',
+			'com.google.dagger:dagger-producers:99ec15e8a0507ba569e7655bc1165ee5e5ca5aa914b3c8f7e2c2458f724edd6b',
+			'com.google.guava:guava:d664fbfc03d2e5ce9cab2a44fb01f1d0bf9dfebeccc1a473b1f9ea31f79f6f99',
 	]
 }
 
