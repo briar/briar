@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ImageView
+<FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="85dp"
-	android:contentDescription="@string/app_name"
-	android:scaleType="fitStart"
-	android:src="@drawable/navigation_drawer_header"
-	tools:showIn="@layout/navigation_menu"/>
+	android:background="@color/briar_primary"
+	tools:showIn="@layout/navigation_menu">
+
+	<ImageView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom"
+		android:layout_marginBottom="@dimen/margin_medium"
+		android:layout_marginLeft="@dimen/margin_medium"
+		android:contentDescription="@string/app_name"
+		android:src="@drawable/navigation_drawer_header"/>
+
+</FrameLayout>
