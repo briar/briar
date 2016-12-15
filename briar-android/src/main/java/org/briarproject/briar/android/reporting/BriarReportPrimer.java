@@ -17,6 +17,7 @@ import android.support.annotation.NonNull;
 import org.acra.builder.ReportBuilder;
 import org.acra.builder.ReportPrimer;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.briar.BuildConfig;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -212,6 +213,9 @@ public class BriarReportPrimer implements ReportPrimer {
 			}
 			customData.put("Bluetooth address from settings",
 					scrubMacAddress(btSettingsAddr));
+
+			// Git commit ID
+			customData.put("Commit ID", BuildConfig.GitHash);
 
 			return Collections.unmodifiableMap(customData);
 		}
