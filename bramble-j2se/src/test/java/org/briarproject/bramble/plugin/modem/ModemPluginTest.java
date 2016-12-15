@@ -14,7 +14,6 @@ import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class ModemPluginTest extends BrambleTestCase {
 
@@ -49,7 +48,7 @@ public class ModemPluginTest extends BrambleTestCase {
 			oneOf(modem).start();
 			will(returnValue(true));
 		}});
-		assertTrue(plugin.start());
+		plugin.start();
 		context.assertIsSatisfied();
 	}
 
@@ -88,7 +87,7 @@ public class ModemPluginTest extends BrambleTestCase {
 			oneOf(modem).dial(NUMBER);
 			will(returnValue(true));
 		}});
-		assertTrue(plugin.start());
+		plugin.start();
 		// A connection should be returned
 		assertNotNull(plugin.createConnection(contactId));
 		context.assertIsSatisfied();
@@ -129,7 +128,7 @@ public class ModemPluginTest extends BrambleTestCase {
 			oneOf(modem).dial(NUMBER);
 			will(returnValue(false));
 		}});
-		assertTrue(plugin.start());
+		plugin.start();
 		// No connection should be returned
 		assertNull(plugin.createConnection(contactId));
 		context.assertIsSatisfied();
@@ -177,7 +176,7 @@ public class ModemPluginTest extends BrambleTestCase {
 			oneOf(modem).start();
 			will(returnValue(true));
 		}});
-		assertTrue(plugin.start());
+		plugin.start();
 		// No connection should be returned
 		assertNull(plugin.createConnection(contactId));
 		context.assertIsSatisfied();

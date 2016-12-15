@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginConfig;
+import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
@@ -30,7 +31,6 @@ import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.ui.UiCallback;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -193,24 +193,17 @@ class PluginManagerImpl implements PluginManager, Service {
 		@Override
 		public void run() {
 			try {
-				try {
-					long start = System.currentTimeMillis();
-					boolean started = plugin.start();
-					long duration = System.currentTimeMillis() - start;
-					if (started) {
-						if (LOG.isLoggable(INFO)) {
-							LOG.info("Starting plugin " + plugin.getId()
-									+ " took " + duration + " ms");
-						}
-					} else {
-						if (LOG.isLoggable(WARNING)) {
-							LOG.warning("Plugin" + plugin.getId()
-									+ " did not start");
-						}
-					}
-				} catch (IOException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
+				long start = System.currentTimeMillis();
+				plugin.start();
+				long duration = System.currentTimeMillis() - start;
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Starting plugin " + plugin.getId() + " took " +
+							duration + " ms");
+				}
+			} catch (PluginException e) {
+				if (LOG.isLoggable(WARNING)) {
+					LOG.warning("Plugin " + plugin.getId() + " did not start");
+					LOG.log(WARNING, e.toString(), e);
 				}
 			} finally {
 				startLatch.countDown();
@@ -246,10 +239,13 @@ class PluginManagerImpl implements PluginManager, Service {
 							+ " took " + duration + " ms");
 				}
 			} catch (InterruptedException e) {
-				LOG.warning("Interrupted while waiting for plugin to start");
+				LOG.warning("Interrupted while waiting for plugin to stop");
 				// This task runs on an executor, so don't reset the interrupt
-			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (PluginException e) {
+				if (LOG.isLoggable(WARNING)) {
+					LOG.warning("Plugin " + plugin.getId() + " did not stop");
+					LOG.log(WARNING, e.toString(), e);
+				}
 			} finally {
 				stopLatch.countDown();
 			}

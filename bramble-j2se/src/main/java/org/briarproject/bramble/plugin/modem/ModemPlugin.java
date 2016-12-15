@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.AbstractDuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
@@ -68,7 +69,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	@Override
-	public boolean start() {
+	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		for (String portName : serialPortList.getPortNames()) {
 			if (LOG.isLoggable(INFO))
@@ -79,12 +80,12 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				if (LOG.isLoggable(INFO))
 					LOG.info("Initialised modem on " + portName);
 				running = true;
-				return true;
+				return;
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
-		return false;
+		throw new PluginException();
 	}
 
 	@Override

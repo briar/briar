@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
@@ -99,7 +100,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	@Override
-	public boolean start() throws IOException {
+	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		// Initialise the Bluetooth stack
 		try {
@@ -108,13 +109,14 @@ class BluetoothPlugin implements DuplexPlugin {
 			// On Linux the user may need to install libbluetooth-dev
 			if (OsUtils.isLinux())
 				callback.showMessage("BLUETOOTH_INSTALL_LIBS");
-			return false;
+			throw new PluginException(e);
+		} catch (BluetoothStateException e) {
+			throw new PluginException(e);
 		}
 		if (LOG.isLoggable(INFO))
 			LOG.info("Local address " + localDevice.getBluetoothAddress());
 		running = true;
 		bind();
-		return true;
 	}
 
 	private void bind() {

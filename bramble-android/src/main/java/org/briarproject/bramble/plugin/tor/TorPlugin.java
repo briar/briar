@@ -25,6 +25,7 @@ import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
@@ -162,14 +163,18 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	@Override
-	public boolean start() throws IOException {
+	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		// Install or update the assets if necessary
 		if (!assetsAreUpToDate()) installAssets();
 		LOG.info("Starting Tor");
 		// Watch for the auth cookie file being updated
-		cookieFile.getParentFile().mkdirs();
-		cookieFile.createNewFile();
+		try {
+			cookieFile.getParentFile().mkdirs();
+			cookieFile.createNewFile();
+		} catch (IOException e) {
+			throw new PluginException(e);
+		}
 		CountDownLatch latch = new CountDownLatch(1);
 		FileObserver obs = new WriteObserver(cookieFile, latch);
 		obs.startWatching();
@@ -182,8 +187,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		Process torProcess;
 		try {
 			torProcess = Runtime.getRuntime().exec(cmd, env, torDirectory);
-		} catch (SecurityException e) {
-			throw new IOException(e);
+		} catch (SecurityException | IOException e) {
+			throw new PluginException(e);
 		}
 		// Log the process's standard output until it detaches
 		if (LOG.isLoggable(INFO)) {
@@ -197,35 +202,39 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (exit != 0) {
 				if (LOG.isLoggable(WARNING))
 					LOG.warning("Tor exited with value " + exit);
-				return false;
+				throw new PluginException();
 			}
 			// Wait for the auth cookie file to be created/updated
 			if (!latch.await(COOKIE_TIMEOUT, MILLISECONDS)) {
 				LOG.warning("Auth cookie not created");
 				if (LOG.isLoggable(INFO)) listFiles(torDirectory);
-				return false;
+				throw new PluginException();
 			}
 		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while starting Tor");
 			Thread.currentThread().interrupt();
-			return false;
+			throw new PluginException();
 		}
-		// Open a control connection and authenticate using the cookie file
-		controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
-		controlConnection = new TorControlConnection(controlSocket);
-		controlConnection.authenticate(read(cookieFile));
-		// Tell Tor to exit when the control connection is closed
-		controlConnection.takeOwnership();
-		controlConnection.resetConf(Collections.singletonList(OWNER));
-		running = true;
-		// Register to receive events from the Tor process
-		controlConnection.setEventHandler(this);
-		controlConnection.setEvents(Arrays.asList(EVENTS));
-		// Check whether Tor has already bootstrapped
-		String phase = controlConnection.getInfo("status/bootstrap-phase");
-		if (phase != null && phase.contains("PROGRESS=100")) {
-			LOG.info("Tor has already bootstrapped");
-			connectionStatus.setBootstrapped();
+		try {
+			// Open a control connection and authenticate using the cookie file
+			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
+			controlConnection = new TorControlConnection(controlSocket);
+			controlConnection.authenticate(read(cookieFile));
+			// Tell Tor to exit when the control connection is closed
+			controlConnection.takeOwnership();
+			controlConnection.resetConf(Collections.singletonList(OWNER));
+			running = true;
+			// Register to receive events from the Tor process
+			controlConnection.setEventHandler(this);
+			controlConnection.setEvents(Arrays.asList(EVENTS));
+			// Check whether Tor has already bootstrapped
+			String phase = controlConnection.getInfo("status/bootstrap-phase");
+			if (phase != null && phase.contains("PROGRESS=100")) {
+				LOG.info("Tor has already bootstrapped");
+				connectionStatus.setBootstrapped();
+			}
+		} catch (IOException e) {
+			throw new PluginException(e);
 		}
 		// Register to receive network status events
 		networkStateReceiver = new NetworkStateReceiver();
@@ -233,7 +242,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		appContext.registerReceiver(networkStateReceiver, filter);
 		// Bind a server socket to receive incoming hidden service connections
 		bind();
-		return true;
 	}
 
 	private boolean assetsAreUpToDate() {
@@ -246,7 +254,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
-	private void installAssets() throws IOException {
+	private void installAssets() throws PluginException {
 		InputStream in = null;
 		OutputStream out = null;
 		try {
@@ -269,7 +277,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		} catch (IOException e) {
 			tryToClose(in);
 			tryToClose(out);
-			throw e;
+			throw new PluginException(e);
 		}
 	}
 
@@ -476,7 +484,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	@Override
-	public void stop() throws IOException {
+	public void stop() throws PluginException {
 		running = false;
 		tryToClose(socket);
 		if (networkStateReceiver != null)

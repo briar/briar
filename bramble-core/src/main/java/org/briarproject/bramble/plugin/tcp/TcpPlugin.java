@@ -101,11 +101,10 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	@Override
-	public boolean start() {
+	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		running = true;
 		bind();
-		return true;
 	}
 
 	protected void bind() {

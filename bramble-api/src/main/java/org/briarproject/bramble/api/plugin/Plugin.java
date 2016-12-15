@@ -3,7 +3,6 @@ package org.briarproject.bramble.api.plugin;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
-import java.io.IOException;
 import java.util.Collection;
 
 @NotNullByDefault
@@ -25,14 +24,14 @@ public interface Plugin {
 	int getMaxIdleTime();
 
 	/**
-	 * Starts the plugin and returns true if it started successfully.
+	 * Starts the plugin.
 	 */
-	boolean start() throws IOException;
+	void start() throws PluginException;
 
 	/**
 	 * Stops the plugin.
 	 */
-	void stop() throws IOException;
+	void stop() throws PluginException;
 
 	/**
 	 * Returns true if the plugin is running.
