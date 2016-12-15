@@ -202,8 +202,6 @@
     <item quantity="one">%d Forum von Kontaken geteilt</item>
     <item quantity="other">%d Foren von Kontakten geteilt</item>
   </plurals>
-  <string name="forum_shared_by">Geteilt durch</string>
-  <string name="forum_shared_with">Geteilt mit</string>
   <string name="nobody">Niemand</string>
   <!--Blogs-->
   <string name="blogs_other_blog_empty_state">Dieser Blog ist momentan leer.\n\nEntweder hat der Autor noch nichts geschrieben, oder die Person, die diesen Blog mit dir geteilt hat, muss online kommen, sodass Beiträge synchronisiert werden können.</string>
