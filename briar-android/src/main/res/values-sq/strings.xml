@@ -240,8 +240,6 @@
     <item quantity="one">%d forum ndarë nga kontakte</item>
     <item quantity="other">%d forum ndarë nga kontakte</item>
   </plurals>
-  <string name="forum_shared_by">Ndarë nga</string>
-  <string name="forum_shared_with">Ndarë me</string>
   <string name="nobody">Askush</string>
   <!--Blogs-->
   <string name="blogs_other_blog_empty_state">Hëpërhë ky blog është i zbrazët.\n\nOse autori s’ka shkruar gjë ende, ose personi që ndau blogun me ju lypset të jetë në linjë, që të mund të njëkohësohen postimet.</string>

@@ -239,8 +239,6 @@
     <item quantity="one">%d foro compartido por contactos</item>
     <item quantity="other">%d foros compartidos por contactos</item>
   </plurals>
-  <string name="forum_shared_by">Compartido por</string>
-  <string name="forum_shared_with">Compartido con</string>
   <string name="nobody">Nadie</string>
   <!--Blogs-->
   <string name="blogs_other_blog_empty_state">Este blog está vacío.\n\nO el autor no ha escrito aún, o la persona que compartió este blog contigo necesita conectarse para que se puedan sincronizar los artículos.</string>

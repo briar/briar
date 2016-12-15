@@ -162,8 +162,6 @@
     <item quantity="one">%d forum condiviso dai contatti</item>
     <item quantity="other">%d forum condivisi dai contatti</item>
   </plurals>
-  <string name="forum_shared_by">Condiviso da</string>
-  <string name="forum_shared_with">Condiviso con</string>
   <string name="nobody">Nessuno</string>
   <!--Blogs-->
   <string name="read_more">leggi ancora</string>

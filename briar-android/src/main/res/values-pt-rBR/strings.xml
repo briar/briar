@@ -240,8 +240,6 @@
     <item quantity="one">%d fórum compartilhado por contatos</item>
     <item quantity="other">%d fóruns compartilhados por contatos</item>
   </plurals>
-  <string name="forum_shared_by">Compartilhado por</string>
-  <string name="forum_shared_with">Compartilhado com</string>
   <string name="nobody">Ninguém</string>
   <!--Blogs-->
   <string name="blogs_other_blog_empty_state">Esse Blog atualmente está vazio.\nOu o autor não postou nada ainda, ou a pessoa que compartilhou esse Blog contigo precisa estar online, assim os Posts serão sincronizados.</string>
