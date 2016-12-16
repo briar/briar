@@ -90,8 +90,6 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	private final GroupInvitationManagerImpl groupInvitationManager;
 
-	private final Group localGroup =
-			new Group(new GroupId(getRandomId()), CLIENT_ID, getRandomBytes(5));
 	private final Transaction txn = new Transaction(null, false);
 	private final ContactId contactId = new ContactId(0);
 	private final Author author =
@@ -141,8 +139,6 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(inviteeEngine));
 			oneOf(engineFactory).createPeerEngine();
 			will(returnValue(peerEngine));
-			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID);
-			will(returnValue(localGroup));
 		}});
 		MetadataParser metadataParser = context.mock(MetadataParser.class);
 		MessageTracker messageTracker = context.mock(MessageTracker.class);
@@ -156,7 +152,6 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testCreateLocalState() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(db).addGroup(txn, localGroup);
 			oneOf(db).getContacts(txn);
 			will(returnValue(Collections.singletonList(contact)));
 		}});
@@ -651,6 +646,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 				new InviteMessage(message.getId(), contactGroup.getId(),
 						privateGroup.getId(), time1, "name", author,
 						new byte[0], null, new byte[0]);
+		final PrivateGroup pg =
+				new PrivateGroup(privateGroup, invite.getGroupName(),
+						invite.getCreator(), invite.getSalt());
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
@@ -674,6 +672,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(body));
 			oneOf(messageParser).parseInviteMessage(message, body);
 			will(returnValue(invite));
+			oneOf(privateGroupFactory).createPrivateGroup(invite.getGroupName(),
+					invite.getCreator(), invite.getSalt());
+			will(returnValue(pg));
 			oneOf(db).containsGroup(txn, privateGroup.getId());
 			will(returnValue(true));
 			// second message

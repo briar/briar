@@ -107,7 +107,8 @@ public class BlogSharingIntegrationTest
 
 		// create invitation
 		blogSharingManager0
-				.sendInvitation(blog1.getId(), contactId1From0, "Hi!");
+				.sendInvitation(blog1.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
 		// sync invitation
 		sync0To1(1, false);
@@ -122,7 +123,8 @@ public class BlogSharingIntegrationTest
 
 		// send invitation
 		blogSharingManager0
-				.sendInvitation(blog2.getId(), contactId1From0, "Hi!");
+				.sendInvitation(blog2.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
 		// invitee has own blog and that of the sharer
 		assertEquals(2, blogManager1.getBlogs().size());
@@ -194,7 +196,8 @@ public class BlogSharingIntegrationTest
 
 		// send invitation
 		blogSharingManager0
-				.sendInvitation(blog2.getId(), contactId1From0, null);
+				.sendInvitation(blog2.getId(), contactId1From0, null,
+						clock.currentTimeMillis());
 
 		// sync first request message
 		sync0To1(1, true);
@@ -251,7 +254,8 @@ public class BlogSharingIntegrationTest
 
 		// send invitation
 		blogSharingManager0
-				.sendInvitation(blog2.getId(), contactId1From0, "Hi!");
+				.sendInvitation(blog2.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
 		// sync first request message
 		sync0To1(1, true);
@@ -313,7 +317,8 @@ public class BlogSharingIntegrationTest
 
 		// sharer sends invitation for 2's blog to 1
 		blogSharingManager0
-				.sendInvitation(blog2.getId(), contactId1From0, "Hi!");
+				.sendInvitation(blog2.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
 		// sync first request message
 		sync0To1(1, true);
@@ -349,7 +354,8 @@ public class BlogSharingIntegrationTest
 
 		// send invitation
 		blogSharingManager0
-				.sendInvitation(blog2.getId(), contactId1From0, "Hi!");
+				.sendInvitation(blog2.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
 		// sync first request message
 		sync0To1(1, true);
@@ -399,7 +405,8 @@ public class BlogSharingIntegrationTest
 
 		// sharer sends invitation for 2's blog to 1
 		blogSharingManager0
-				.sendInvitation(blog2.getId(), contactId1From0, "Hi!");
+				.sendInvitation(blog2.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
 		// sync first request message
 		sync0To1(1, true);

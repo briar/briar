@@ -109,6 +109,11 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	}
 
 	@Override
+	public void addForum(Transaction txn, Forum f) throws DbException {
+		db.addGroup(txn, f.getGroup());
+	}
+
+	@Override
 	public void removeForum(Forum f) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {

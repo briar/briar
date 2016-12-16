@@ -28,6 +28,11 @@ public interface ForumManager {
 	Forum addForum(String name) throws DbException;
 
 	/**
+	 * Subscribes to a forum within the given {@link Transaction}.
+	 */
+	void addForum(Transaction txn, Forum f) throws DbException;
+
+	/**
 	 * Unsubscribes from a forum.
 	 */
 	void removeForum(Forum f) throws DbException;

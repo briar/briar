@@ -45,7 +45,8 @@ public class ForumManagerTest
 		forum0 = forumManager0.addForum("Test Forum");
 		groupId0 = forum0.getId();
 		// share forum
-		forumSharingManager0.sendInvitation(groupId0, contactId1From0, null);
+		forumSharingManager0.sendInvitation(groupId0, contactId1From0, null,
+				clock.currentTimeMillis());
 		sync0To1(1, true);
 		forumSharingManager1.respondToInvitation(forum0, contact0From1, true);
 		sync1To0(1, true);
@@ -189,7 +190,8 @@ public class ForumManagerTest
 		// share a second forum
 		Forum forum1 = forumManager0.addForum("Test Forum1");
 		GroupId g1 = forum1.getId();
-		forumSharingManager0.sendInvitation(g1, contactId1From0, null);
+		forumSharingManager0.sendInvitation(g1, contactId1From0, null,
+				clock.currentTimeMillis());
 		sync0To1(1, true);
 		forumSharingManager1.respondToInvitation(forum1, contact0From1, true);
 		sync1To0(1, true);

@@ -29,6 +29,7 @@ import static org.briarproject.briar.api.sharing.SharingMessage.SimpleMessage;
 import static org.briarproject.briar.sharing.SharerSessionState.Action.REMOTE_ACCEPT;
 import static org.briarproject.briar.sharing.SharerSessionState.Action.REMOTE_DECLINE;
 
+@Deprecated
 @Immutable
 @NotNullByDefault
 class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR extends InvitationResponseReceivedEvent>

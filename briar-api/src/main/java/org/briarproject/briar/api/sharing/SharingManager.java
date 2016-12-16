@@ -20,8 +20,8 @@ public interface SharingManager<S extends Shareable>
 	 * Sends an invitation to share the given group with the given contact
 	 * and sends an optional message along with it.
 	 */
-	void sendInvitation(GroupId groupId, ContactId contactId,
-			@Nullable String message) throws DbException;
+	void sendInvitation(GroupId shareableId, ContactId contactId,
+			@Nullable String message, long timestamp) throws DbException;
 
 	/**
 	 * Responds to a pending group invitation
@@ -32,7 +32,7 @@ public interface SharingManager<S extends Shareable>
 	/**
 	 * Responds to a pending group invitation
 	 */
-	void respondToInvitation(SessionId id, boolean accept)
+	void respondToInvitation(ContactId c, SessionId id, boolean accept)
 			throws DbException;
 
 	/**

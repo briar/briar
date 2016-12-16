@@ -12,23 +12,18 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class ForumInvitationRequest extends InvitationRequest {
+public class ForumInvitationRequest extends InvitationRequest<Forum> {
 
-	private final String forumName;
-
-	public ForumInvitationRequest(MessageId id, SessionId sessionId,
-			GroupId groupId, ContactId contactId, GroupId forumId,
-			String forumName, @Nullable String message, boolean available,
-			boolean canBeOpened, long time, boolean local, boolean sent,
-			boolean seen, boolean read) {
-
-		super(id, sessionId, groupId, contactId, message, forumId, available,
-				canBeOpened, time, local, sent, seen, read);
-		this.forumName = forumName;
+	public ForumInvitationRequest(MessageId id, GroupId groupId, long time,
+			boolean local, boolean sent, boolean seen, boolean read,
+			SessionId sessionId, Forum forum, ContactId contactId,
+			@Nullable String message, boolean available, boolean canBeOpened) {
+		super(id, groupId, time, local, sent, seen, read, sessionId, forum,
+				contactId, message, available, canBeOpened);
 	}
 
 	public String getForumName() {
-		return forumName;
+		return getShareable().getName();
 	}
 
 }

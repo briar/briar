@@ -14,9 +14,8 @@ public class BlogInvitationResponse extends InvitationResponse {
 			GroupId groupId, ContactId contactId, GroupId blogId,
 			boolean accept, long time, boolean local, boolean sent,
 			boolean seen, boolean read) {
-
-		super(id, sessionId, groupId, contactId, blogId, accept, time, local,
-				sent, seen, read);
+		super(id, groupId, time, local, sent, seen, read, sessionId, blogId,
+				contactId, accept);
 	}
 
 }

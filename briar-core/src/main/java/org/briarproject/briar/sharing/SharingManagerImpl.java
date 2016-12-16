@@ -1,6 +1,5 @@
 package org.briarproject.briar.sharing;
 
-import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
@@ -9,17 +8,12 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager.AddContactHook;
 import org.briarproject.bramble.api.contact.ContactManager.RemoveContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
-import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
-import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
-import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -28,127 +22,64 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
-import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.util.StringUtils;
-import org.briarproject.briar.api.client.MessageQueueManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.sharing.InvitationMessage;
+import org.briarproject.briar.api.sharing.InvitationRequest;
+import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.api.sharing.Shareable;
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
 import org.briarproject.briar.api.sharing.SharingManager;
-import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
-import org.briarproject.briar.api.sharing.event.InvitationRequestReceivedEvent;
-import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
-import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
-import static org.briarproject.briar.api.client.ProtocolEngine.StateUpdate;
-import static org.briarproject.briar.api.sharing.SharingConstants.CONTACT_ID;
-import static org.briarproject.briar.api.sharing.SharingConstants.IS_SHARER;
-import static org.briarproject.briar.api.sharing.SharingConstants.LOCAL;
-import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
-import static org.briarproject.briar.api.sharing.SharingConstants.SESSION_ID;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHAREABLE_ID;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARED_BY_US;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARED_WITH_US;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_ABORT;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_ACCEPT;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_DECLINE;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_LEAVE;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARING_SALT_LENGTH;
-import static org.briarproject.briar.api.sharing.SharingConstants.STATE;
-import static org.briarproject.briar.api.sharing.SharingConstants.TASK_ADD_SHAREABLE_TO_LIST_SHARED_WITH_US;
-import static org.briarproject.briar.api.sharing.SharingConstants.TASK_ADD_SHAREABLE_TO_LIST_TO_BE_SHARED_BY_US;
-import static org.briarproject.briar.api.sharing.SharingConstants.TASK_ADD_SHARED_SHAREABLE;
-import static org.briarproject.briar.api.sharing.SharingConstants.TASK_REMOVE_SHAREABLE_FROM_LIST_SHARED_WITH_US;
-import static org.briarproject.briar.api.sharing.SharingConstants.TASK_REMOVE_SHAREABLE_FROM_LIST_TO_BE_SHARED_BY_US;
-import static org.briarproject.briar.api.sharing.SharingConstants.TASK_SHARE_SHAREABLE;
-import static org.briarproject.briar.api.sharing.SharingConstants.TASK_UNSHARE_SHAREABLE_SHARED_BY_US;
-import static org.briarproject.briar.api.sharing.SharingConstants.TASK_UNSHARE_SHAREABLE_SHARED_WITH_US;
-import static org.briarproject.briar.api.sharing.SharingConstants.TIME;
-import static org.briarproject.briar.api.sharing.SharingConstants.TO_BE_SHARED_BY_US;
-import static org.briarproject.briar.api.sharing.SharingConstants.TYPE;
-import static org.briarproject.briar.api.sharing.SharingMessage.BaseMessage;
-import static org.briarproject.briar.api.sharing.SharingMessage.Invitation;
-import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
-import static org.briarproject.briar.sharing.InviteeSessionState.State.AWAIT_LOCAL_RESPONSE;
+import static org.briarproject.briar.sharing.MessageType.ABORT;
+import static org.briarproject.briar.sharing.MessageType.ACCEPT;
+import static org.briarproject.briar.sharing.MessageType.DECLINE;
+import static org.briarproject.briar.sharing.MessageType.INVITE;
+import static org.briarproject.briar.sharing.MessageType.LEAVE;
+import static org.briarproject.briar.sharing.SharingConstants.GROUP_KEY_CONTACT_ID;
 
 @NotNullByDefault
-abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS extends InviteeSessionState, SS extends SharerSessionState, IR extends InvitationRequestReceivedEvent, IRR extends InvitationResponseReceivedEvent>
+abstract class SharingManagerImpl<S extends Shareable>
 		extends ConversationClientImpl
 		implements SharingManager<S>, Client, AddContactHook,
 		RemoveContactHook {
 
-	private static final Logger LOG =
-			Logger.getLogger(SharingManagerImpl.class.getName());
-
-	private final MessageQueueManager messageQueueManager;
-	private final MetadataEncoder metadataEncoder;
-	private final SecureRandom random;
+	private final MessageParser<S> messageParser;
+	private final SessionEncoder sessionEncoder;
+	private final SessionParser sessionParser;
 	private final ContactGroupFactory contactGroupFactory;
-	private final Clock clock;
-	private final Group localGroup;
+	private final ProtocolEngine<S> engine;
 
-	SharingManagerImpl(DatabaseComponent db,
-			MessageQueueManager messageQueueManager, ClientHelper clientHelper,
-			MetadataParser metadataParser, MetadataEncoder metadataEncoder,
-			SecureRandom random, ContactGroupFactory contactGroupFactory,
-			MessageTracker messageTracker, Clock clock) {
+	SharingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+			MetadataParser metadataParser, MessageParser<S> messageParser,
+			SessionEncoder sessionEncoder, SessionParser sessionParser,
+			MessageTracker messageTracker,
+			ContactGroupFactory contactGroupFactory, ProtocolEngine<S> engine) {
 		super(db, clientHelper, metadataParser, messageTracker);
-		this.messageQueueManager = messageQueueManager;
-		this.metadataEncoder = metadataEncoder;
-		this.random = random;
+		this.messageParser = messageParser;
+		this.sessionEncoder = sessionEncoder;
+		this.sessionParser = sessionParser;
 		this.contactGroupFactory = contactGroupFactory;
-		this.clock = clock;
-		localGroup = contactGroupFactory.createLocalGroup(getClientId());
+		this.engine = engine;
 	}
 
 	protected abstract ClientId getClientId();
 
-	protected abstract InvitationMessage createInvitationRequest(MessageId id,
-			I msg, ContactId contactId, GroupId shareableId, boolean available,
-			boolean canBeOpened, long time, boolean local, boolean sent,
-			boolean seen, boolean read);
-
-	protected abstract InvitationMessage createInvitationResponse(MessageId id,
-			SessionId sessionId, GroupId groupId, ContactId contactId,
-			GroupId shareableId, boolean accept, long time, boolean local,
-			boolean sent, boolean seen, boolean read);
-
-	protected abstract ShareableFactory<S, I, IS, SS> getSFactory();
-
-	protected abstract InvitationFactory<I, SS> getIFactory();
-
-	protected abstract InviteeSessionStateFactory<S, IS> getISFactory();
-
-	protected abstract SharerSessionStateFactory<S, SS> getSSFactory();
-
-	protected abstract InvitationReceivedEventFactory<IS, IR> getIRFactory();
-
-	protected abstract InvitationResponseReceivedEventFactory<SS, IRR> getIRRFactory();
-
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
-		db.addGroup(txn, localGroup);
 		// Ensure we've set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
@@ -165,10 +96,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 			db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
 			// Attach the contact ID to the group
 			BdfDictionary meta = new BdfDictionary();
-			meta.put(CONTACT_ID, c.getId().getInt());
-			meta.put(TO_BE_SHARED_BY_US, new BdfList());
-			meta.put(SHARED_BY_US, new BdfList());
-			meta.put(SHARED_WITH_US, new BdfList());
+			meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
 			clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
 		} catch (FormatException e) {
 			throw new DbException(e);
@@ -177,763 +105,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
-		// query for this contact c
-		BdfDictionary query = BdfDictionary.of(
-				new BdfEntry(CONTACT_ID, c.getId().getInt())
-		);
-
-		// clean up session states with that contact from localGroup
-		try {
-			Map<MessageId, BdfDictionary> map = clientHelper
-					.getMessageMetadataAsDictionary(txn, localGroup.getId(),
-							query);
-			for (Map.Entry<MessageId, BdfDictionary> entry : map.entrySet()) {
-				deleteMessage(txn, entry.getKey());
-			}
-		} catch (FormatException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
-
 		// remove the contact group (all messages will be removed with it)
 		db.removeGroup(txn, getContactGroup(c));
-	}
-
-	@Override
-	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary d) throws DbException, FormatException {
-
-		BaseMessage msg = BaseMessage.from(getIFactory(), m.getGroupId(), d);
-		SessionId sessionId = msg.getSessionId();
-
-		if (msg.getType() == SHARE_MSG_TYPE_INVITATION) {
-			// we are an invitee who just received a new invitation
-			boolean stateExists = true;
-			try {
-				// check if we have a session with that ID already
-				getSessionState(txn, sessionId, false);
-			} catch (FormatException e) {
-				// this is what we would expect under normal circumstances
-				stateExists = false;
-			}
-			// check if we already have a state with that sessionId
-			if (stateExists) throw new FormatException();
-
-			// check if shareable can be shared
-			I invitation = (I) msg;
-			S f = getSFactory().parse(invitation);
-			ContactId contactId = getContactId(txn, m.getGroupId());
-			Contact contact = db.getContact(txn, contactId);
-			if (!canBeShared(txn, f.getId(), contact))
-				checkForRaceCondition(txn, f, contact);
-
-			// initialize state and process invitation
-			IS state = initializeInviteeState(txn, contactId, invitation,
-					m.getId());
-			InviteeEngine<IS, IR> engine =
-					new InviteeEngine<IS, IR>(getIRFactory(), clock);
-			processInviteeStateUpdate(txn, m.getId(),
-					engine.onMessageReceived(state, msg));
-			messageTracker.trackIncomingMessage(txn, m);
-		} else if (msg.getType() == SHARE_MSG_TYPE_ACCEPT ||
-				msg.getType() == SHARE_MSG_TYPE_DECLINE) {
-			// we are a sharer who just received a response
-			SS state = getSessionStateForSharer(txn, sessionId);
-			state.setResponseId(m.getId());
-			SharerEngine<I, SS, IRR> engine =
-					new SharerEngine<I, SS, IRR>(getIFactory(),
-							getIRRFactory(), clock);
-			processSharerStateUpdate(txn, m.getId(),
-					engine.onMessageReceived(state, msg));
-			messageTracker.trackIncomingMessage(txn, m);
-		} else if (msg.getType() == SHARE_MSG_TYPE_LEAVE ||
-				msg.getType() == SHARE_MSG_TYPE_ABORT) {
-			// we don't know who we are, so figure it out
-			SharingSessionState s = getSessionState(txn, sessionId, true);
-			if (s instanceof SharerSessionState) {
-				// we are a sharer and the invitee wants to leave or abort
-				SS state = (SS) s;
-				SharerEngine<I, SS, IRR> engine =
-						new SharerEngine<I, SS, IRR>(getIFactory(),
-								getIRRFactory(), clock);
-				processSharerStateUpdate(txn, m.getId(),
-						engine.onMessageReceived(state, msg));
-			} else {
-				// we are an invitee and the sharer wants to leave or abort
-				IS state = (IS) s;
-				InviteeEngine<IS, IR> engine =
-						new InviteeEngine<IS, IR>(getIRFactory(), clock);
-				processInviteeStateUpdate(txn, m.getId(),
-						engine.onMessageReceived(state, msg));
-			}
-		} else {
-			// message has passed validator, so that should never happen
-			throw new AssertionError("Illegal Sharing Message");
-		}
-		// don't share message as other party already has it
-		return false;
-	}
-
-	@Override
-	public void sendInvitation(GroupId groupId, ContactId contactId,
-			@Nullable String msg) throws DbException {
-
-		Transaction txn = db.startTransaction(false);
-		try {
-			// initialize local state for sharer
-			S f = getSFactory().get(txn, groupId);
-			SS localState = initializeSharerState(txn, f, contactId);
-
-			// add invitation message to local state to be available for engine
-			if (!StringUtils.isNullOrEmpty(msg)) {
-				int msgLength = StringUtils.toUtf8(msg).length;
-				if (msgLength > MAX_INVITATION_MESSAGE_LENGTH)
-					throw new IllegalArgumentException();
-				localState.setMessage(msg);
-			}
-
-			// start engine and process its state update
-			SharerEngine<I, SS, IRR> engine =
-					new SharerEngine<I, SS, IRR>(getIFactory(),
-							getIRRFactory(), clock);
-			StateUpdate<SS, BaseMessage> update =
-					engine.onLocalAction(localState,
-							SharerSessionState.Action.LOCAL_INVITATION);
-			processSharerStateUpdate(txn, null, update);
-
-			// track message
-			// TODO handle this properly without engine hacks (#376)
-			long time = update.toSend.get(0).getTime();
-			messageTracker.trackMessage(txn, localState.getContactGroupId(), time,
-					true);
-
-			db.commitTransaction(txn);
-		} catch (FormatException e) {
-			throw new DbException();
-		} finally {
-			db.endTransaction(txn);
-		}
-	}
-
-	@Override
-	public void respondToInvitation(S f, Contact c, boolean accept)
-			throws DbException {
-
-		Transaction txn = db.startTransaction(false);
-		try {
-			// find session state based on shareable
-			IS localState = getSessionStateForResponse(txn, f, c);
-			respondToInvitation(txn, localState, accept);
-			db.commitTransaction(txn);
-		} catch (FormatException e) {
-			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
-		}
-	}
-
-	@Override
-	public void respondToInvitation(SessionId id, boolean accept)
-			throws DbException {
-
-		Transaction txn = db.startTransaction(false);
-		try {
-			IS localState = (IS) getSessionState(txn, id, true);
-			respondToInvitation(txn, localState, accept);
-			db.commitTransaction(txn);
-		} catch (FormatException e) {
-			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
-		}
-	}
-
-	private void respondToInvitation(Transaction txn, IS localState,
-			boolean accept) throws DbException, FormatException {
-		// define action
-		InviteeSessionState.Action localAction;
-		if (accept) {
-			localAction = InviteeSessionState.Action.LOCAL_ACCEPT;
-		} else {
-			localAction = InviteeSessionState.Action.LOCAL_DECLINE;
-		}
-
-		// start engine and process its state update
-		InviteeEngine<IS, IR> engine =
-				new InviteeEngine<IS, IR>(getIRFactory(), clock);
-		StateUpdate<IS, BaseMessage> update =
-				engine.onLocalAction(localState, localAction);
-		processInviteeStateUpdate(txn, null, update);
-
-		// track message
-		// TODO handle this properly without engine hacks (#376)
-		long time = update.toSend.get(0).getTime();
-		messageTracker.trackMessage(txn, localState.getContactGroupId(), time, true);
-	}
-
-	@Override
-	public Collection<InvitationMessage> getInvitationMessages(
-			ContactId contactId)
-			throws DbException {
-
-		Transaction txn = db.startTransaction(true);
-		try {
-			Contact contact = db.getContact(txn, contactId);
-			Group group = getContactGroup(contact);
-
-			Collection<InvitationMessage> list =
-					new ArrayList<InvitationMessage>();
-			Map<MessageId, BdfDictionary> map = clientHelper
-					.getMessageMetadataAsDictionary(txn, group.getId());
-			for (Map.Entry<MessageId, BdfDictionary> m : map.entrySet()) {
-				BdfDictionary d = m.getValue();
-				long type = d.getLong(TYPE);
-				if (type == SHARE_MSG_TYPE_LEAVE ||
-						type == SHARE_MSG_TYPE_ABORT) continue;
-				try {
-					MessageStatus status =
-							db.getMessageStatus(txn, contactId, m.getKey());
-					SharingSessionState s;
-					long time = d.getLong(TIME);
-					boolean local = d.getBoolean(LOCAL);
-					boolean read = d.getBoolean(MSG_KEY_READ, false);
-					boolean available = false, canBeOpened = false;
-
-					if (type == SHARE_MSG_TYPE_INVITATION) {
-						I msg = getIFactory().build(group.getId(), d);
-						SessionId sessionId = msg.getSessionId();
-						s = getSessionState(txn, sessionId, true);
-						if (!local) {
-							// figure out whether the shareable is still available
-							if (!(s instanceof InviteeSessionState))
-								continue;
-							available = ((InviteeSessionState) s).getState() ==
-									AWAIT_LOCAL_RESPONSE;
-							if (!available) {
-								canBeOpened = db.containsGroup(txn,
-										s.getShareableId());
-							}
-						}
-						InvitationMessage im =
-								createInvitationRequest(m.getKey(), msg,
-										contactId, s.getShareableId(),
-										available, canBeOpened, time, local,
-										status.isSent(), status.isSeen(), read);
-						list.add(im);
-					} else if (type == SHARE_MSG_TYPE_ACCEPT ||
-							type == SHARE_MSG_TYPE_DECLINE) {
-						boolean accept = type == SHARE_MSG_TYPE_ACCEPT;
-						BaseMessage msg = BaseMessage
-								.from(getIFactory(), group.getId(), d);
-						SessionId sessionId = msg.getSessionId();
-						s = getSessionState(txn, sessionId, true);
-						InvitationMessage im =
-								createInvitationResponse(m.getKey(), sessionId,
-										group.getId(), contactId,
-										s.getShareableId(), accept, time, local,
-										status.isSent(), status.isSeen(), read);
-						list.add(im);
-					} else {
-						throw new RuntimeException("Unexpected Message Type");
-					}
-				} catch (FormatException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-			db.commitTransaction(txn);
-			return list;
-		} catch (FormatException e) {
-			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
-		}
-	}
-
-	@Override
-	public Collection<SharingInvitationItem> getInvitations()
-			throws DbException {
-		List<SharingInvitationItem> invitations =
-				new ArrayList<SharingInvitationItem>();
-		Transaction txn = db.startTransaction(true);
-		try {
-			Set<S> shareables = new HashSet<S>();
-			Map<GroupId, Collection<Contact>> newSharers =
-					new HashMap<GroupId, Collection<Contact>>();
-			Collection<Contact> contacts = db.getContacts(txn);
-
-			// get invitations from each contact
-			for (Contact contact : contacts) {
-				Collection<S> newShareables = getInvited(txn, contact);
-				shareables.addAll(newShareables);
-				for (S s : newShareables) {
-					if (newSharers.containsKey(s.getId())) {
-						newSharers.get(s.getId()).add(contact);
-					} else {
-						Collection<Contact> c = new ArrayList<Contact>();
-						c.add(contact);
-						newSharers.put(s.getId(), c);
-					}
-				}
-			}
-			// construct InvitationItem objects
-			for (S s : shareables) {
-				Collection<Contact> newS = newSharers.get(s.getId());
-				boolean subscribed = db.containsGroup(txn, s.getId());
-				SharingInvitationItem invitation =
-						new SharingInvitationItem(s, subscribed, newS);
-				invitations.add(invitation);
-			}
-			db.commitTransaction(txn);
-			return invitations;
-		} catch (FormatException e) {
-			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
-		}
-	}
-
-	private Collection<S> getInvited(Transaction txn, Contact contact)
-			throws DbException, FormatException {
-
-		// query for all external invitations
-		BdfDictionary query = BdfDictionary.of(
-				new BdfEntry(TYPE, SHARE_MSG_TYPE_INVITATION),
-				new BdfEntry(LOCAL, false)
-		);
-		Group group = getContactGroup(contact);
-
-		Set<S> invited = new HashSet<S>();
-		Map<MessageId, BdfDictionary> map = clientHelper
-				.getMessageMetadataAsDictionary(txn, group.getId(), query);
-		for (Map.Entry<MessageId, BdfDictionary> m : map.entrySet()) {
-			BdfDictionary d = m.getValue();
-			try {
-				I msg = getIFactory().build(group.getId(), d);
-				IS iss = (IS) getSessionState(txn, msg.getSessionId(), true);
-				// get and add the shareable if the invitation is unanswered
-				if (iss.getState().equals(AWAIT_LOCAL_RESPONSE)) {
-					S s = getSFactory().parse(iss);
-					invited.add(s);
-				}
-			} catch (FormatException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
-			}
-		}
-		return invited;
-	}
-
-	@Override
-	public Collection<Contact> getSharedWith(GroupId g) throws DbException {
-		try {
-			List<Contact> shared = new ArrayList<Contact>();
-			Transaction txn = db.startTransaction(true);
-			try {
-				for (Contact c : db.getContacts(txn)) {
-					GroupId contactGroup = getContactGroup(c).getId();
-					if (listContains(txn, contactGroup, g, SHARED_BY_US))
-						shared.add(c);
-					else if (listContains(txn, contactGroup, g, SHARED_WITH_US))
-						shared.add(c);
-				}
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
-			return shared;
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public boolean canBeShared(GroupId g, Contact c) throws DbException {
-		boolean canBeShared;
-		Transaction txn = db.startTransaction(true);
-		try {
-			canBeShared = canBeShared(txn, g, c);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return canBeShared;
-	}
-
-	protected boolean canBeShared(Transaction txn, GroupId g, Contact c)
-			throws DbException {
-
-		try {
-			GroupId contactGroup = getContactGroup(c).getId();
-			return !listContains(txn, contactGroup, g, SHARED_BY_US) &&
-					!listContains(txn, contactGroup, g, SHARED_WITH_US) &&
-					!listContains(txn, contactGroup, g, TO_BE_SHARED_BY_US);
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
-	}
-
-	void removingShareable(Transaction txn, S f) throws DbException {
-		try {
-			for (Contact c : db.getContacts(txn)) {
-				GroupId g = getContactGroup(c).getId();
-				if (removeFromList(txn, g, TO_BE_SHARED_BY_US, f)) {
-					leaveShareable(txn, c.getId(), f);
-				}
-				if (removeFromList(txn, g, SHARED_BY_US, f)) {
-					leaveShareable(txn, c.getId(), f);
-				}
-				if (removeFromList(txn, g, SHARED_WITH_US, f)) {
-					leaveShareable(txn, c.getId(), f);
-				}
-			}
-		} catch (IOException e) {
-			throw new DbException(e);
-		}
-	}
-
-	private void checkForRaceCondition(Transaction txn, S f, Contact c)
-			throws FormatException, DbException {
-
-		GroupId contactGroup = getContactGroup(c).getId();
-		if (!listContains(txn, contactGroup, f.getId(), TO_BE_SHARED_BY_US))
-			// no race-condition, this invitation is invalid
-			throw new FormatException();
-
-		// we have an invitation race condition
-		LocalAuthor author = db.getLocalAuthor(txn, c.getLocalAuthorId());
-		Bytes ourKey = new Bytes(author.getPublicKey());
-		Bytes theirKey = new Bytes(c.getAuthor().getPublicKey());
-
-		// determine which invitation takes precedence
-		boolean alice = ourKey.compareTo(theirKey) < 0;
-
-		if (alice) {
-			// our own invitation takes precedence, so just delete Bob's
-			LOG.info(
-					"Invitation race-condition: We are Alice deleting Bob's invitation.");
-			throw new FormatException();
-		} else {
-			// we are Bob, so we need to "take back" our own invitation
-			LOG.info(
-					"Invitation race-condition: We are Bob taking back our invitation.");
-			SharingSessionState state =
-					getSessionStateForLeaving(txn, f, c.getId());
-			if (state instanceof SharerSessionState) {
-				//SharerEngine engine = new SharerEngine();
-				//processSharerStateUpdate(txn, null,
-				//		engine.onLocalAction((SharerSessionState) state,
-				//				Action.LOCAL_LEAVE));
-
-				// simply remove from list instead of involving engine
-				removeFromList(txn, contactGroup, TO_BE_SHARED_BY_US, f);
-				// TODO here we could also remove the old session state
-				//      and invitation message
-			}
-		}
-
-	}
-
-	private SS initializeSharerState(Transaction txn, S f,
-			ContactId contactId) throws FormatException, DbException {
-
-		Contact c = db.getContact(txn, contactId);
-		Group group = getContactGroup(c);
-
-		// create local message to keep engine state
-		long now = clock.currentTimeMillis();
-		Bytes salt = new Bytes(new byte[SHARING_SALT_LENGTH]);
-		random.nextBytes(salt.getBytes());
-		Message m = clientHelper.createMessage(localGroup.getId(), now,
-				BdfList.of(salt));
-		SessionId sessionId = new SessionId(m.getId().getBytes());
-
-		SS s = getSSFactory().build(sessionId, m.getId(), group.getId(),
-				SharerSessionState.State.PREPARE_INVITATION, contactId, f);
-
-		// save local state to database
-		BdfDictionary d = s.toBdfDictionary();
-		clientHelper.addLocalMessage(txn, m, d, false);
-
-		return s;
-	}
-
-	private IS initializeInviteeState(Transaction txn,
-			ContactId contactId, I msg, MessageId id)
-			throws FormatException, DbException {
-
-		Contact c = db.getContact(txn, contactId);
-		Group group = getContactGroup(c);
-		S f = getSFactory().parse(msg);
-
-		// create local message to keep engine state
-		long now = clock.currentTimeMillis();
-		Bytes mSalt = new Bytes(new byte[SHARING_SALT_LENGTH]);
-		random.nextBytes(mSalt.getBytes());
-		Message m = clientHelper.createMessage(localGroup.getId(), now,
-				BdfList.of(mSalt));
-
-		IS s = getISFactory()
-				.build(msg.getSessionId(), m.getId(), group.getId(),
-						InviteeSessionState.State.AWAIT_INVITATION, contactId,
-						f, id);
-
-		// save local state to database
-		BdfDictionary d = s.toBdfDictionary();
-		clientHelper.addLocalMessage(txn, m, d, false);
-
-		return s;
-	}
-
-	private SharingSessionState getSessionState(Transaction txn,
-			SessionId sessionId, boolean warn)
-			throws DbException, FormatException {
-
-		try {
-			return getSessionStateForSharer(txn, sessionId);
-		} catch (NoSuchMessageException e) {
-			// State not found directly, so query for state for invitee
-			BdfDictionary query = BdfDictionary.of(
-					new BdfEntry(SESSION_ID, sessionId)
-			);
-
-			Map<MessageId, BdfDictionary> map = clientHelper
-					.getMessageMetadataAsDictionary(txn, localGroup.getId(),
-							query);
-
-			if (map.size() > 1 && LOG.isLoggable(WARNING)) {
-				LOG.warning(
-						"More than one session state found for message with session ID " +
-								Arrays.hashCode(sessionId.getBytes()));
-			}
-			if (map.isEmpty()) {
-				if (warn && LOG.isLoggable(WARNING)) {
-					LOG.warning(
-							"No session state found for message with session ID " +
-									Arrays.hashCode(sessionId.getBytes()));
-				}
-				throw new FormatException();
-			}
-			return SharingSessionState
-					.fromBdfDictionary(getISFactory(), getSSFactory(),
-							map.values().iterator().next());
-		}
-	}
-
-	private SS getSessionStateForSharer(Transaction txn,
-			SessionId sessionId)
-			throws DbException, FormatException {
-
-		// we should be able to get the sharer state directly from sessionId
-		MessageId storageId = new MessageId(sessionId.getBytes());
-		BdfDictionary d =
-				clientHelper.getMessageMetadataAsDictionary(txn, storageId);
-
-		if (!d.getBoolean(IS_SHARER)) throw new FormatException();
-
-		return (SS) SharingSessionState
-				.fromBdfDictionary(getISFactory(), getSSFactory(), d);
-	}
-
-	private IS getSessionStateForResponse(Transaction txn,
-			S f, Contact c) throws DbException, FormatException {
-
-		// query for invitee states for that shareable in state await response
-		BdfDictionary query = BdfDictionary.of(
-				new BdfEntry(IS_SHARER, false),
-				new BdfEntry(CONTACT_ID, c.getId().getInt()),
-				new BdfEntry(SHAREABLE_ID, f.getId()),
-				new BdfEntry(STATE, AWAIT_LOCAL_RESPONSE.getValue())
-		);
-
-		Map<MessageId, BdfDictionary> map = clientHelper
-				.getMessageMetadataAsDictionary(txn, localGroup.getId(), query);
-
-		if (map.size() > 1 && LOG.isLoggable(WARNING)) {
-			LOG.warning(
-					"More than one session state found for shareable with ID " +
-							Arrays.hashCode(f.getId().getBytes()) +
-							" in state AWAIT_LOCAL_RESPONSE for contact " +
-							c.getAuthor().getName());
-		}
-		if (map.isEmpty()) {
-			if (LOG.isLoggable(WARNING)) {
-				LOG.warning(
-						"No session state found for shareable with ID " +
-								Arrays.hashCode(f.getId().getBytes()) +
-								" in state AWAIT_LOCAL_RESPONSE");
-			}
-			throw new DbException();
-		}
-		return (IS) SharingSessionState
-				.fromBdfDictionary(getISFactory(), getSSFactory(),
-						map.values().iterator().next());
-	}
-
-	private SharingSessionState getSessionStateForLeaving(Transaction txn,
-			S f, ContactId c) throws DbException, FormatException {
-
-		BdfDictionary query = BdfDictionary.of(
-				new BdfEntry(CONTACT_ID, c.getInt()),
-				new BdfEntry(SHAREABLE_ID, f.getId())
-		);
-		Map<MessageId, BdfDictionary> map = clientHelper
-				.getMessageMetadataAsDictionary(txn, localGroup.getId(), query);
-		for (Map.Entry<MessageId, BdfDictionary> m : map.entrySet()) {
-			BdfDictionary d = m.getValue();
-			try {
-				SharingSessionState s = SharingSessionState
-						.fromBdfDictionary(getISFactory(), getSSFactory(), d);
-
-				// check that a shareable get be left in current session
-				if (s instanceof SharerSessionState) {
-					SharerSessionState state = (SharerSessionState) s;
-					SharerSessionState.State nextState =
-							state.getState()
-									.next(SharerSessionState.Action.LOCAL_LEAVE);
-					if (nextState != SharerSessionState.State.ERROR) {
-						return state;
-					}
-				} else {
-					InviteeSessionState state = (InviteeSessionState) s;
-					InviteeSessionState.State nextState = state.getState()
-							.next(InviteeSessionState.Action.LOCAL_LEAVE);
-					if (nextState != InviteeSessionState.State.ERROR) {
-						return state;
-					}
-				}
-			} catch (FormatException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			}
-		}
-		throw new FormatException();
-	}
-
-	private void processStateUpdate(Transaction txn,
-			@Nullable MessageId messageId,
-			StateUpdate<SharingSessionState, BaseMessage> result, S f)
-			throws DbException, FormatException {
-
-		// perform actions based on new local state
-		performTasks(txn, result.localState, f);
-
-		// save new local state
-		MessageId storageId = result.localState.getStorageId();
-		clientHelper.mergeMessageMetadata(txn, storageId,
-				result.localState.toBdfDictionary());
-
-		// send messages
-		for (BaseMessage msg : result.toSend) {
-			sendMessage(txn, msg);
-		}
-
-		// broadcast events
-		for (Event event : result.toBroadcast) {
-			txn.attach(event);
-		}
-
-		// delete message
-		if (result.deleteMessage && messageId != null) {
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("Deleting message with id " + messageId.hashCode());
-			}
-			db.deleteMessage(txn, messageId);
-			db.deleteMessageMetadata(txn, messageId);
-		}
-	}
-
-	private void processSharerStateUpdate(Transaction txn,
-			@Nullable MessageId messageId, StateUpdate<SS, BaseMessage> result)
-			throws DbException, FormatException {
-
-		StateUpdate<SharingSessionState, BaseMessage> r =
-				new StateUpdate<SharingSessionState, BaseMessage>(
-						result.deleteMessage, result.deleteState,
-						result.localState, result.toSend, result.toBroadcast);
-
-		// get shareable for later
-		S f = getSFactory().parse(result.localState);
-
-		processStateUpdate(txn, messageId, r, f);
-	}
-
-	private void processInviteeStateUpdate(Transaction txn,
-			@Nullable MessageId messageId, StateUpdate<IS, BaseMessage> result)
-			throws DbException, FormatException {
-
-		StateUpdate<SharingSessionState, BaseMessage> r =
-				new StateUpdate<SharingSessionState, BaseMessage>(
-						result.deleteMessage, result.deleteState,
-						result.localState, result.toSend, result.toBroadcast);
-
-		// get shareable for later
-		S f = getSFactory().parse(result.localState);
-
-		processStateUpdate(txn, messageId, r, f);
-	}
-
-	private void performTasks(Transaction txn, SharingSessionState localState,
-			S f) throws FormatException, DbException {
-
-		if (localState.getTask() == -1) return;
-
-		// remember task and remove it from localState
-		long task = localState.getTask();
-		localState.setTask(-1);
-
-		// get group ID for later
-		GroupId groupId = localState.getContactGroupId();
-		// get contact ID for later
-		ContactId contactId = localState.getContactId();
-
-		// perform tasks
-		if (task == TASK_ADD_SHAREABLE_TO_LIST_SHARED_WITH_US) {
-			addToList(txn, groupId, SHARED_WITH_US, f);
-		} else if (task == TASK_REMOVE_SHAREABLE_FROM_LIST_SHARED_WITH_US) {
-			removeFromList(txn, groupId, SHARED_WITH_US, f);
-		} else if (task == TASK_ADD_SHARED_SHAREABLE) {
-			// TODO we might want to call the add() method of the respective
-			//      manager here, because blogs add a description for example
-			db.addGroup(txn, f.getGroup());
-			db.setGroupVisibility(txn, contactId, f.getId(), SHARED);
-		} else if (task == TASK_ADD_SHAREABLE_TO_LIST_TO_BE_SHARED_BY_US) {
-			addToList(txn, groupId, TO_BE_SHARED_BY_US, f);
-		} else if (task == TASK_REMOVE_SHAREABLE_FROM_LIST_TO_BE_SHARED_BY_US) {
-			removeFromList(txn, groupId, TO_BE_SHARED_BY_US, f);
-		} else if (task == TASK_SHARE_SHAREABLE) {
-			db.setGroupVisibility(txn, contactId, f.getId(), SHARED);
-			removeFromList(txn, groupId, TO_BE_SHARED_BY_US, f);
-			addToList(txn, groupId, SHARED_BY_US, f);
-		} else if (task == TASK_UNSHARE_SHAREABLE_SHARED_BY_US) {
-			db.setGroupVisibility(txn, contactId, f.getId(), INVISIBLE);
-			removeFromList(txn, groupId, SHARED_BY_US, f);
-			// broadcast event informing UI that contact has left the group
-			ContactLeftShareableEvent
-					e = new ContactLeftShareableEvent(f.getId(), contactId);
-			txn.attach(e);
-		} else if (task == TASK_UNSHARE_SHAREABLE_SHARED_WITH_US) {
-			db.setGroupVisibility(txn, contactId, f.getId(), INVISIBLE);
-			removeFromList(txn, groupId, SHARED_WITH_US, f);
-			// broadcast event informing UI that contact has left the group
-			ContactLeftShareableEvent
-					e = new ContactLeftShareableEvent(f.getId(), contactId);
-			txn.attach(e);
-		}
-	}
-
-	private void sendMessage(Transaction txn, BaseMessage m)
-			throws FormatException, DbException {
-
-		byte[] body = clientHelper.toByteArray(m.toBdfList());
-		Group group = db.getGroup(txn, m.getGroupId());
-
-		// add message itself as metadata
-		BdfDictionary d = m.toBdfDictionary();
-		d.put(LOCAL, true);
-		d.put(TIME, m.getTime());
-		Metadata meta = metadataEncoder.encode(d);
-
-		messageQueueManager
-				.sendMessage(txn, group, m.getTime(), body, meta);
 	}
 
 	@Override
@@ -941,111 +114,348 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 		return contactGroupFactory.createContactGroup(getClientId(), c);
 	}
 
-	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
-			throws DbException, FormatException {
-		BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn,
-				contactGroupId);
-		return new ContactId(meta.getLong(CONTACT_ID).intValue());
-	}
-
-	private void leaveShareable(Transaction txn, ContactId c, S f)
-			throws DbException, FormatException {
-
-		SharingSessionState state = getSessionStateForLeaving(txn, f, c);
-		if (state instanceof SharerSessionState) {
-			SharerSessionState.Action action =
-					SharerSessionState.Action.LOCAL_LEAVE;
-			SharerEngine<I, SS, IRR> engine =
-					new SharerEngine<I, SS, IRR>(getIFactory(),
-							getIRRFactory(), clock);
-			processSharerStateUpdate(txn, null,
-					engine.onLocalAction((SS) state, action));
+	@Override
+	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
+			BdfDictionary d) throws DbException, FormatException {
+		// Parse the metadata
+		MessageMetadata meta = messageParser.parseMetadata(d);
+		// Look up the session, if there is one
+		SessionId sessionId = getSessionId(meta.getShareableId());
+		StoredSession ss = getSession(txn, m.getGroupId(), sessionId);
+		// Handle the message
+		Session session;
+		MessageId storageId;
+		if (ss == null) {
+			session = handleFirstMessage(txn, m, body, meta);
+			storageId = createStorageId(txn, m.getGroupId());
 		} else {
-			InviteeSessionState.Action action =
-					InviteeSessionState.Action.LOCAL_LEAVE;
-			InviteeEngine<IS, IR> engine =
-					new InviteeEngine<IS, IR>(getIRFactory(), clock);
-			processInviteeStateUpdate(txn, null,
-					engine.onLocalAction((IS) state, action));
+			session = handleMessage(txn, m, body, meta, ss.bdfSession);
+			storageId = ss.storageId;
 		}
-	}
-
-	private boolean listContains(Transaction txn, GroupId contactGroup,
-			GroupId shareable, String key) throws DbException, FormatException {
-
-		List<S> list = getShareableList(txn, contactGroup, key);
-		for (S f : list) {
-			if (f.getId().equals(shareable)) return true;
-		}
+		// Store the updated session
+		storeSession(txn, storageId, session);
 		return false;
 	}
 
-	private boolean addToList(Transaction txn, GroupId groupId, String key,
-			S f) throws DbException, FormatException {
-
-		List<S> shareables = getShareableList(txn, groupId, key);
-		if (shareables.contains(f)) return false;
-		shareables.add(f);
-		storeShareableList(txn, groupId, key, shareables);
-		return true;
+	private SessionId getSessionId(GroupId privateGroupId) {
+		return new SessionId(privateGroupId.getBytes());
 	}
 
-	private boolean removeFromList(Transaction txn, GroupId groupId, String key,
-			S f) throws DbException, FormatException {
+	@Nullable
+	private StoredSession getSession(Transaction txn, GroupId contactGroupId,
+			SessionId sessionId) throws DbException, FormatException {
+		BdfDictionary query = sessionParser.getSessionQuery(sessionId);
+		Map<MessageId, BdfDictionary> results = clientHelper
+				.getMessageMetadataAsDictionary(txn, contactGroupId, query);
+		if (results.size() > 1) throw new DbException();
+		if (results.isEmpty()) return null;
+		return new StoredSession(results.keySet().iterator().next(),
+				results.values().iterator().next());
+	}
 
-		List<S> shareables = getShareableList(txn, groupId, key);
-		if (shareables.remove(f)) {
-			storeShareableList(txn, groupId, key, shareables);
-			return true;
+	private Session handleFirstMessage(Transaction txn, Message m, BdfList body,
+			MessageMetadata meta) throws DbException, FormatException {
+		GroupId shareableId = meta.getShareableId();
+		MessageType type = meta.getMessageType();
+		if (type == INVITE) {
+			Session session = new Session(m.getGroupId(), shareableId);
+			BdfDictionary d = sessionEncoder.encodeSession(session);
+			return handleMessage(txn, m, body, meta, d);
+		} else {
+			throw new FormatException(); // Invalid first message
 		}
-		return false;
 	}
 
-	private List<S> getShareableList(Transaction txn, GroupId groupId,
-			String key) throws DbException, FormatException {
-
-		BdfDictionary metadata =
-				clientHelper.getGroupMetadataAsDictionary(txn, groupId);
-		BdfList list = metadata.getList(key);
-
-		return parseShareableList(list);
-	}
-
-	private void storeShareableList(Transaction txn, GroupId groupId,
-			String key,
-			List<S> shareables) throws DbException, FormatException {
-
-		BdfList list = encodeShareableList(shareables);
-		BdfDictionary metadata = BdfDictionary.of(
-				new BdfEntry(key, list)
-		);
-		clientHelper.mergeGroupMetadata(txn, groupId, metadata);
-	}
-
-	private BdfList encodeShareableList(List<S> shareables) {
-		BdfList shareableList = new BdfList();
-		for (S f : shareables)
-			shareableList.add(getSFactory().encode(f));
-		return shareableList;
-	}
-
-	private List<S> parseShareableList(BdfList list) throws FormatException {
-		List<S> shareables = new ArrayList<S>(list.size());
-		for (int i = 0; i < list.size(); i++) {
-			BdfList shareable = list.getList(i);
-			shareables.add(getSFactory().parse(shareable));
+	private Session handleMessage(Transaction txn, Message m, BdfList body,
+			MessageMetadata meta, BdfDictionary d)
+			throws DbException, FormatException {
+		MessageType type = meta.getMessageType();
+		Session session = sessionParser.parseSession(m.getGroupId(), d);
+		if (type == INVITE) {
+			InviteMessage<S> invite = messageParser.parseInviteMessage(m, body);
+			return engine.onInviteMessage(txn, session, invite);
+		} else if (type == ACCEPT) {
+			AcceptMessage accept = messageParser.parseAcceptMessage(m, body);
+			return engine.onAcceptMessage(txn, session, accept);
+		} else if (type == DECLINE) {
+			DeclineMessage decline = messageParser.parseDeclineMessage(m, body);
+			return engine.onDeclineMessage(txn, session, decline);
+		} else if (type == LEAVE) {
+			LeaveMessage leave = messageParser.parseLeaveMessage(m, body);
+			return engine.onLeaveMessage(txn, session, leave);
+		} else if (type == ABORT) {
+			AbortMessage abort = messageParser.parseAbortMessage(m, body);
+			return engine.onAbortMessage(txn, session, abort);
+		} else {
+			throw new AssertionError();
 		}
-		return shareables;
 	}
 
-	private void deleteMessage(Transaction txn, MessageId messageId)
+	private MessageId createStorageId(Transaction txn, GroupId g)
 			throws DbException {
+		Message m = clientHelper.createMessageForStoringMetadata(g);
+		db.addLocalMessage(txn, m, new Metadata(), false);
+		return m.getId();
+	}
 
-		if (LOG.isLoggable(INFO))
-			LOG.info("Deleting message with ID: " + messageId.hashCode());
+	private void storeSession(Transaction txn, MessageId storageId,
+			Session session) throws DbException, FormatException {
+		BdfDictionary d = sessionEncoder.encodeSession(session);
+		clientHelper.mergeMessageMetadata(txn, storageId, d);
+	}
 
-		db.deleteMessage(txn, messageId);
-		db.deleteMessageMetadata(txn, messageId);
+	@Override
+	public void sendInvitation(GroupId shareableId, ContactId contactId,
+			@Nullable String message, long timestamp) throws DbException {
+		SessionId sessionId = getSessionId(shareableId);
+		Transaction txn = db.startTransaction(false);
+		try {
+			// Look up the session, if there is one
+			Contact contact = db.getContact(txn, contactId);
+			GroupId contactGroupId = getContactGroup(contact).getId();
+			StoredSession ss = getSession(txn, contactGroupId, sessionId);
+			// Create or parse the session
+			Session session;
+			MessageId storageId;
+			if (ss == null) {
+				// This is the first invite - create a new session
+				session = new Session(contactGroupId, shareableId);
+				storageId = createStorageId(txn, contactGroupId);
+			} else {
+				// An earlier invite was declined, so we already have a session
+				session = sessionParser
+						.parseSession(contactGroupId, ss.bdfSession);
+				storageId = ss.storageId;
+			}
+			// Handle the invite action
+			session = engine.onInviteAction(txn, session, message, timestamp);
+			// Store the updated session
+			storeSession(txn, storageId, session);
+			db.commitTransaction(txn);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	@Override
+	public void respondToInvitation(S s, Contact c, boolean accept)
+			throws DbException {
+		respondToInvitation(c.getId(), getSessionId(s.getId()), accept);
+	}
+
+	@Override
+	public void respondToInvitation(ContactId c, SessionId id, boolean accept)
+			throws DbException {
+		Transaction txn = db.startTransaction(false);
+		try {
+			// Look up the session
+			Contact contact = db.getContact(txn, c);
+			GroupId contactGroupId = getContactGroup(contact).getId();
+			StoredSession ss = getSession(txn, contactGroupId, id);
+			if (ss == null) throw new IllegalArgumentException();
+			// Parse the session
+			Session session =
+					sessionParser.parseSession(contactGroupId, ss.bdfSession);
+			// Handle the accept or decline action
+			if (accept) session = engine.onAcceptAction(txn, session);
+			else session = engine.onDeclineAction(txn, session);
+			// Store the updated session
+			storeSession(txn, ss.storageId, session);
+			db.commitTransaction(txn);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	@Override
+	public Collection<InvitationMessage> getInvitationMessages(ContactId c)
+			throws DbException {
+		List<InvitationMessage> messages;
+		Transaction txn = db.startTransaction(true);
+		try {
+			Contact contact = db.getContact(txn, c);
+			GroupId contactGroupId = getContactGroup(contact).getId();
+			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
+			Map<MessageId, BdfDictionary> results = clientHelper
+					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
+			messages = new ArrayList<InvitationMessage>(results.size());
+			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
+				MessageId m = e.getKey();
+				MessageMetadata meta =
+						messageParser.parseMetadata(e.getValue());
+				MessageStatus status = db.getMessageStatus(txn, c, m);
+				MessageType type = meta.getMessageType();
+				if (type == INVITE) {
+					messages.add(
+							parseInvitationRequest(txn, c, m, meta, status));
+				} else if (type == ACCEPT) {
+					messages.add(
+							parseInvitationResponse(c, contactGroupId, m, meta,
+									status, true));
+				} else if (type == DECLINE) {
+					messages.add(
+							parseInvitationResponse(c, contactGroupId, m, meta,
+									status, false));
+				}
+			}
+			db.commitTransaction(txn);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+		return messages;
+	}
+
+	private InvitationRequest parseInvitationRequest(Transaction txn,
+			ContactId c, MessageId m, MessageMetadata meta,
+			MessageStatus status) throws DbException, FormatException {
+		// Look up the invite message to get the details of the private group
+		InviteMessage<S> invite = getInviteMessage(txn, m);
+		boolean canBeOpened = db.containsGroup(txn, invite.getShareableId());
+		return engine.createInvitationRequest(meta.isLocal(), status.isSent(),
+				status.isSeen(), meta.isRead(), invite, c,
+				meta.isAvailableToAnswer(), canBeOpened);
+	}
+
+	private InviteMessage<S> getInviteMessage(Transaction txn, MessageId m)
+			throws DbException, FormatException {
+		Message message = clientHelper.getMessage(txn, m);
+		if (message == null) throw new DbException();
+		BdfList body = clientHelper.toList(message);
+		return messageParser.parseInviteMessage(message, body);
+	}
+
+	private InvitationResponse parseInvitationResponse(ContactId c,
+			GroupId contactGroupId, MessageId m, MessageMetadata meta,
+			MessageStatus status, boolean accept)
+			throws DbException, FormatException {
+		return engine.createInvitationResponse(m, contactGroupId,
+				meta.getTimestamp(), meta.isLocal(), status.isSent(),
+				status.isSeen(), meta.isRead(), meta.getShareableId(), c,
+				accept);
+	}
+
+	@Override
+	public Collection<SharingInvitationItem> getInvitations()
+			throws DbException {
+		List<SharingInvitationItem> items =
+				new ArrayList<SharingInvitationItem>();
+		BdfDictionary query = messageParser.getInvitesAvailableToAnswerQuery();
+		Set<S> shareables = new HashSet<S>();
+		Map<GroupId, Collection<Contact>> sharers =
+				new HashMap<GroupId, Collection<Contact>>();
+		Transaction txn = db.startTransaction(true);
+		try {
+			// get invitations from each contact
+			for (Contact c : db.getContacts(txn)) {
+				GroupId contactGroupId = getContactGroup(c).getId();
+				Map<MessageId, BdfDictionary> results =
+						clientHelper.getMessageMetadataAsDictionary(txn,
+								contactGroupId, query);
+				for (MessageId m : results.keySet()) {
+					InviteMessage<S> invite = getInviteMessage(txn, m);
+					S s = invite.getShareable();
+					shareables.add(s);
+					if (sharers.containsKey(s.getId())) {
+						sharers.get(s.getId()).add(c);
+					} else {
+						Collection<Contact> contacts = new ArrayList<Contact>();
+						contacts.add(c);
+						sharers.put(s.getId(), contacts);
+					}
+				}
+			}
+			// construct the invitation items
+			for (S s : shareables) {
+				Collection<Contact> contacts = sharers.get(s.getId());
+				boolean subscribed = db.containsGroup(txn, s.getId());
+				SharingInvitationItem invitation =
+						new SharingInvitationItem(s, subscribed, contacts);
+				items.add(invitation);
+			}
+			db.commitTransaction(txn);
+			return items;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	@Override
+	public Collection<Contact> getSharedWith(GroupId g) throws DbException {
+		// TODO report also pending invitations
+		Collection<Contact> contacts = new ArrayList<Contact>();
+		Transaction txn = db.startTransaction(true);
+		try {
+			for (Contact c : db.getContacts(txn)) {
+				if (db.getGroupVisibility(txn, c.getId(), g) == SHARED)
+					contacts.add(c);
+			}
+			db.commitTransaction(txn);
+		} finally {
+			db.endTransaction(txn);
+		}
+		return contacts;
+	}
+
+	@Override
+	public boolean canBeShared(GroupId g, Contact c) throws DbException {
+		GroupId contactGroupId = getContactGroup(c).getId();
+		SessionId sessionId = getSessionId(g);
+		Transaction txn = db.startTransaction(true);
+		try {
+			StoredSession ss = getSession(txn, contactGroupId, sessionId);
+			db.commitTransaction(txn);
+			// If there's no session, we can share the group with the contact
+			if (ss == null) return true;
+			// If the session's in the right state, the contact can be invited
+			Session session =
+					sessionParser.parseSession(contactGroupId, ss.bdfSession);
+			return session.getState().canInvite();
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	protected void removingShareable(Transaction txn, S shareable)
+			throws DbException {
+		SessionId sessionId = getSessionId(shareable.getId());
+		// If we have any sessions in progress, tell the contacts we're leaving
+		try {
+			for (Contact c : db.getContacts(txn)) {
+				// Look up the session for the contact, if there is one
+				GroupId contactGroupId = getContactGroup(c).getId();
+				StoredSession ss = getSession(txn, contactGroupId, sessionId);
+				if (ss == null) continue; // No session for this contact
+				// Let the engine perform a LEAVE action
+				Session session = sessionParser
+						.parseSession(contactGroupId, ss.bdfSession);
+				session = engine.onLeaveAction(txn, session);
+				// Store the updated session
+				storeSession(txn, ss.storageId, session);
+			}
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	private static class StoredSession {
+
+		private final MessageId storageId;
+		private final BdfDictionary bdfSession;
+
+		private StoredSession(MessageId storageId, BdfDictionary bdfSession) {
+			this.storageId = storageId;
+			this.bdfSession = bdfSession;
+		}
 	}
 
 }

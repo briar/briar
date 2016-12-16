@@ -52,7 +52,7 @@ import static org.briarproject.briar.api.sharing.SharingConstants.RESPONSE_ID;
 @Immutable
 @NotNullByDefault
 class BlogSharingManagerImpl extends
-		SharingManagerImpl<Blog, BlogInvitation, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationRequestReceivedEvent, BlogInvitationResponseReceivedEvent>
+		OldSharingManagerImpl<Blog, BlogInvitation, BlogInviteeSessionState, BlogSharerSessionState, BlogInvitationRequestReceivedEvent, BlogInvitationResponseReceivedEvent>
 		implements BlogSharingManager, RemoveBlogHook {
 
 	private final ContactManager contactManager;

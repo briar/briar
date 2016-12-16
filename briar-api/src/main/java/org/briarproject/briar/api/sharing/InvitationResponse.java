@@ -10,21 +10,26 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public abstract class InvitationResponse extends InvitationMessage {
+public class InvitationResponse extends InvitationMessage {
 
+	private final GroupId shareableId;
 	private final boolean accept;
 
-	public InvitationResponse(MessageId id, SessionId sessionId,
-			GroupId groupId, ContactId contactId,
-			GroupId invitedGroupId, boolean accept, long time,
-			boolean local, boolean sent, boolean seen, boolean read) {
-
-		super(id, sessionId, groupId, contactId, invitedGroupId, time, local,
-				sent, seen, read);
+	public InvitationResponse(MessageId id, GroupId groupId,
+			long time, boolean local, boolean sent, boolean seen,
+			boolean read, SessionId sessionId, GroupId shareableId,
+			ContactId contactId, boolean accept) {
+		super(id, groupId, time, local, sent, seen, read, sessionId, contactId);
+		this.shareableId = shareableId;
 		this.accept = accept;
 	}
 
 	public boolean wasAccepted() {
 		return accept;
 	}
+
+	public GroupId getShareableId() {
+		return shareableId;
+	}
+
 }

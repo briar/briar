@@ -28,6 +28,7 @@ import static org.briarproject.briar.api.sharing.SharingConstants.TASK_UNSHARE_S
 import static org.briarproject.briar.api.sharing.SharingMessage.BaseMessage;
 import static org.briarproject.briar.api.sharing.SharingMessage.SimpleMessage;
 
+@Deprecated
 @Immutable
 @NotNullByDefault
 class InviteeEngine<IS extends InviteeSessionState, IR extends InvitationRequestReceivedEvent>

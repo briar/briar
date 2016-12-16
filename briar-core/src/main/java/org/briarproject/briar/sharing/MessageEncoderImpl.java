@@ -22,7 +22,7 @@ import static org.briarproject.briar.sharing.MessageType.LEAVE;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_MESSAGE_TYPE;
-import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_PRIVATE_GROUP_ID;
+import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_SHAREABLE_ID;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_READ;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_TIMESTAMP;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_VISIBLE_IN_UI;
@@ -47,7 +47,7 @@ class MessageEncoderImpl implements MessageEncoder {
 			boolean visible, boolean available) {
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(MSG_KEY_MESSAGE_TYPE, type.getValue());
-		meta.put(MSG_KEY_PRIVATE_GROUP_ID, groupId);
+		meta.put(MSG_KEY_SHAREABLE_ID, groupId);
 		meta.put(MSG_KEY_TIMESTAMP, timestamp);
 		meta.put(MSG_KEY_LOCAL, local);
 		meta.put(MSG_KEY_READ, read);
@@ -70,6 +70,8 @@ class MessageEncoderImpl implements MessageEncoder {
 	public Message encodeInviteMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, BdfList descriptor,
 			@Nullable String message) {
+		if (message != null && message.equals(""))
+			throw new IllegalArgumentException();
 		BdfList body = BdfList.of(
 				INVITE.getValue(),
 				previousMessageId,

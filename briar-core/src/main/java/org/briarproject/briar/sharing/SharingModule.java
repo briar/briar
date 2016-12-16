@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.MessageQueueManager;
+import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumFactory;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumSharingManager;
@@ -86,14 +87,14 @@ public class SharingModule {
 	@Singleton
 	ForumSharingManager provideForumSharingManager(
 			LifecycleManager lifecycleManager, ContactManager contactManager,
-			MessageQueueManager messageQueueManager,
+			ValidationManager validationManager,
 			ConversationManager conversationManager, ForumManager forumManager,
 			ForumSharingManagerImpl forumSharingManager) {
 
 		lifecycleManager.registerClient(forumSharingManager);
 		contactManager.registerAddContactHook(forumSharingManager);
 		contactManager.registerRemoveContactHook(forumSharingManager);
-		messageQueueManager.registerIncomingMessageHook(
+		validationManager.registerIncomingMessageHook(
 				ForumSharingManager.CLIENT_ID, forumSharingManager);
 		conversationManager.registerConversationClient(forumSharingManager);
 		forumManager.registerRemoveForumHook(forumSharingManager);
@@ -104,6 +105,28 @@ public class SharingModule {
 	@Provides
 	MessageEncoder provideMessageEncoder(MessageEncoderImpl messageEncoder) {
 		return messageEncoder;
+	}
+
+	@Provides
+	MessageParser<Forum> provideForumMessageParser(
+			ForumMessageParserImpl forumMessageParser) {
+		return forumMessageParser;
+	}
+
+	@Provides
+	SessionEncoder provideSessionEncoder(SessionEncoderImpl sessionEncoder) {
+		return sessionEncoder;
+	}
+
+	@Provides
+	SessionParser provideSessionParser(SessionParserImpl sessionParser) {
+		return sessionParser;
+	}
+
+	@Provides
+	ProtocolEngine<Forum> provideForumProtocolEngine(
+			ForumProtocolEngineImpl forumProtocolEngine) {
+		return forumProtocolEngine;
 	}
 
 }
