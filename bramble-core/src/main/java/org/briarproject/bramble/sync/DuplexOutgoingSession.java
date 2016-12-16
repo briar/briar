@@ -42,14 +42,14 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD
 /**
  * An outgoing {@link SyncSession} suitable for duplex transports. The session
  * offers messages before sending them, keeps its output stream open when there
- * are no packets to send, and reacts to events that make packets available to
+ * are no records to send, and reacts to events that make records available to
  * send.
  */
 @ThreadSafe
 @NotNullByDefault
 class DuplexOutgoingSession implements SyncSession, EventListener {
 
-	// Check for retransmittable packets once every 60 seconds
+	// Check for retransmittable records once every 60 seconds
 	private static final int RETX_QUERY_INTERVAL = 60 * 1000;
 	private static final Logger LOG =
 			Logger.getLogger(DuplexOutgoingSession.class.getName());
@@ -91,7 +91,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	public void run() throws IOException {
 		eventBus.addListener(this);
 		try {
-			// Start a query for each type of packet
+			// Start a query for each type of record
 			dbExecutor.execute(new GenerateAck());
 			dbExecutor.execute(new GenerateBatch());
 			dbExecutor.execute(new GenerateOffer());
@@ -100,10 +100,10 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			long nextKeepalive = now + maxIdleTime;
 			long nextRetxQuery = now + RETX_QUERY_INTERVAL;
 			boolean dataToFlush = true;
-			// Write packets until interrupted
+			// Write records until interrupted
 			try {
 				while (!interrupted) {
-					// Work out how long we should wait for a packet
+					// Work out how long we should wait for a record
 					now = clock.currentTimeMillis();
 					long wait = Math.min(nextKeepalive, nextRetxQuery) - now;
 					if (wait < 0) wait = 0;
@@ -113,13 +113,13 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 						dataToFlush = false;
 						nextKeepalive = now + maxIdleTime;
 					}
-					// Wait for a packet
+					// Wait for a record
 					ThrowingRunnable<IOException> task = writerTasks.poll(wait,
 							MILLISECONDS);
 					if (task == null) {
 						now = clock.currentTimeMillis();
 						if (now >= nextRetxQuery) {
-							// Check for retransmittable packets
+							// Check for retransmittable records
 							dbExecutor.execute(new GenerateBatch());
 							dbExecutor.execute(new GenerateOffer());
 							nextRetxQuery = now + RETX_QUERY_INTERVAL;
@@ -139,7 +139,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 				}
 				if (dataToFlush) recordWriter.flush();
 			} catch (InterruptedException e) {
-				LOG.info("Interrupted while waiting for a packet to write");
+				LOG.info("Interrupted while waiting for a record to write");
 				Thread.currentThread().interrupt();
 			}
 		} finally {

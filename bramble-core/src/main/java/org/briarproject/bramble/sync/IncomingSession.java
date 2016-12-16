@@ -1,5 +1,6 @@
 package org.briarproject.bramble.sync;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -60,7 +61,7 @@ class IncomingSession implements SyncSession, EventListener {
 	public void run() throws IOException {
 		eventBus.addListener(this);
 		try {
-			// Read packets until interrupted or EOF
+			// Read records until interrupted or EOF
 			while (!interrupted && !recordReader.eof()) {
 				if (recordReader.hasAck()) {
 					Ack a = recordReader.readAck();
@@ -74,8 +75,10 @@ class IncomingSession implements SyncSession, EventListener {
 				} else if (recordReader.hasRequest()) {
 					Request r = recordReader.readRequest();
 					dbExecutor.execute(new ReceiveRequest(r));
+				} else {
+					// unknown records are ignored in RecordReader#eof()
+					throw new FormatException();
 				}
-				// unknown records are ignored
 			}
 		} finally {
 			eventBus.removeListener(this);

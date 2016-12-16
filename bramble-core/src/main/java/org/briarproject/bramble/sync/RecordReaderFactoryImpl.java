@@ -1,6 +1,5 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.RecordReader;
@@ -15,13 +14,10 @@ import javax.inject.Inject;
 @NotNullByDefault
 class RecordReaderFactoryImpl implements RecordReaderFactory {
 
-	private final CryptoComponent crypto;
 	private final MessageFactory messageFactory;
 
 	@Inject
-	RecordReaderFactoryImpl(CryptoComponent crypto,
-			MessageFactory messageFactory) {
-		this.crypto = crypto;
+	RecordReaderFactoryImpl(MessageFactory messageFactory) {
 		this.messageFactory = messageFactory;
 	}
 

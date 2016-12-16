@@ -17,15 +17,10 @@ public interface SyncConstants {
 	/**
 	 * The maximum length of the record payload in bytes.
 	 */
-	int MAX_RECORD_PAYLOAD_LENGTH = 32 * 1024; // 32 KiB
+	int MAX_RECORD_PAYLOAD_LENGTH = 48 * 1024; // 48 KiB
 
 	/** The maximum length of a group descriptor in bytes. */
-	int MAX_GROUP_DESCRIPTOR_LENGTH = 32 * 1024; // 32 KiB
-
-	/**
-	 * The maximum length of a message in bytes.
-	 */
-	int MAX_MESSAGE_LENGTH = MAX_RECORD_PAYLOAD_LENGTH - RECORD_HEADER_LENGTH;
+	int MAX_GROUP_DESCRIPTOR_LENGTH = 16 * 1024; // 16 KiB
 
 	/**
 	 * The length of the message header in bytes.
@@ -36,6 +31,11 @@ public interface SyncConstants {
 	 * The maximum length of a message body in bytes.
 	 */
 	int MAX_MESSAGE_BODY_LENGTH = 32 * 1024; // 32 KiB
+
+	/**
+	 * The maximum length of a message in bytes.
+	 */
+	int MAX_MESSAGE_LENGTH = MESSAGE_HEADER_LENGTH + MAX_MESSAGE_BODY_LENGTH;
 
 	/**
 	 * The maximum number of message IDs in an ack, offer or request record.

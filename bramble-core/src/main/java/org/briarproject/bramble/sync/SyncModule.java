@@ -40,9 +40,9 @@ public class SyncModule {
 	}
 
 	@Provides
-	RecordReaderFactory provideRecordReaderFactory(CryptoComponent crypto,
-			MessageFactory messageFactory) {
-		return new RecordReaderFactoryImpl(crypto, messageFactory);
+	RecordReaderFactory provideRecordReaderFactory(
+			RecordReaderFactoryImpl recordReaderFactory) {
+		return recordReaderFactory;
 	}
 
 	@Provides

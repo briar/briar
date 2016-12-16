@@ -24,4 +24,5 @@ public interface RecordReader {
 	boolean hasRequest() throws IOException;
 
 	Request readRequest() throws IOException;
+
 }

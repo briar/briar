@@ -51,32 +51,49 @@ class RecordReaderImpl implements RecordReader {
 
 	private void readRecord() throws IOException {
 		if (state != State.BUFFER_EMPTY) throw new IllegalStateException();
-		// Read the header
-		int offset = 0;
-		while (offset < RECORD_HEADER_LENGTH) {
-			int read = in.read(header, offset, RECORD_HEADER_LENGTH - offset);
-			if (read == -1) {
-				if (offset > 0) throw new FormatException();
-				state = State.EOF;
+		while (true) {
+			// Read the header
+			int offset = 0;
+			while (offset < RECORD_HEADER_LENGTH) {
+				int read =
+						in.read(header, offset, RECORD_HEADER_LENGTH - offset);
+				if (read == -1) {
+					if (offset > 0) throw new FormatException();
+					state = State.EOF;
+					return;
+				}
+				offset += read;
+			}
+			// Check the protocol version
+			if (header[0] != PROTOCOL_VERSION) throw new FormatException();
+			// Read the payload length
+			payloadLength = ByteUtils.readUint16(header, 2);
+			if (payloadLength > MAX_RECORD_PAYLOAD_LENGTH)
+				throw new FormatException();
+			// Read the payload
+			offset = 0;
+			while (offset < payloadLength) {
+				int read = in.read(payload, offset, payloadLength - offset);
+				if (read == -1) throw new FormatException();
+				offset += read;
+			}
+			state = State.BUFFER_FULL;
+			// Return if this is a known record type
+			if (header[1] == ACK || header[1] == MESSAGE ||
+					header[1] == OFFER || header[1] == REQUEST) {
 				return;
 			}
-			offset += read;
 		}
-		// Check the protocol version
-		if (header[0] != PROTOCOL_VERSION) throw new FormatException();
-		// Read the payload length
-		payloadLength = ByteUtils.readUint16(header, 2);
-		if (payloadLength > MAX_RECORD_PAYLOAD_LENGTH) throw new FormatException();
-		// Read the payload
-		offset = 0;
-		while (offset < payloadLength) {
-			int read = in.read(payload, offset, payloadLength - offset);
-			if (read == -1) throw new FormatException();
-			offset += read;
-		}
-		state = State.BUFFER_FULL;
 	}
 
+	/**
+	 * The return value indicates whether there's another record available
+	 * or whether we've reached the end of the input stream.
+	 * If a record is available,
+	 * it's been read into the buffer by the time eof() returns,
+	 * so the method that called eof() can access the record from the buffer,
+	 * for example to check its type or extract its payload.
+	 */
 	@Override
 	public boolean eof() throws IOException {
 		if (state == State.BUFFER_EMPTY) readRecord();
@@ -153,4 +170,5 @@ class RecordReaderImpl implements RecordReader {
 		if (!hasRequest()) throw new FormatException();
 		return new Request(readMessageIds());
 	}
+
 }

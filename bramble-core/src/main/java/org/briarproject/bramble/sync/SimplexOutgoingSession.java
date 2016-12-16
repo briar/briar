@@ -34,7 +34,7 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD
 /**
  * An outgoing {@link SyncSession} suitable for simplex transports. The session
  * sends messages without offering them first, and closes its output stream
- * when there are no more packets to send.
+ * when there are no more records to send.
  */
 @ThreadSafe
 @NotNullByDefault
@@ -70,7 +70,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		this.contactId = contactId;
 		this.maxLatency = maxLatency;
 		this.recordWriter = recordWriter;
-		outstandingQueries = new AtomicInteger(2); // One per type of packet
+		outstandingQueries = new AtomicInteger(2); // One per type of record
 		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
 	}
 
@@ -79,10 +79,10 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	public void run() throws IOException {
 		eventBus.addListener(this);
 		try {
-			// Start a query for each type of packet
+			// Start a query for each type of record
 			dbExecutor.execute(new GenerateAck());
 			dbExecutor.execute(new GenerateBatch());
-			// Write packets until interrupted or no more packets to write
+			// Write records until interrupted or no more records to write
 			try {
 				while (!interrupted) {
 					ThrowingRunnable<IOException> task = writerTasks.take();
@@ -91,7 +91,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 				}
 				recordWriter.flush();
 			} catch (InterruptedException e) {
-				LOG.info("Interrupted while waiting for a packet to write");
+				LOG.info("Interrupted while waiting for a record to write");
 				Thread.currentThread().interrupt();
 			}
 		} finally {

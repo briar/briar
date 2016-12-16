@@ -96,37 +96,33 @@ class KeyAgreementTransport {
 	}
 
 	private byte[] readRecord(byte expectedType) throws AbortException {
-		byte[] header = readHeader();
-		int len = ByteUtils.readUint16(header,
-				RECORD_HEADER_PAYLOAD_LENGTH_OFFSET);
-		if (header[0] != PROTOCOL_VERSION) {
-			// ignore record with unknown protocol version and try next
+		while (true) {
+			byte[] header = readHeader();
+			int len = ByteUtils.readUint16(header,
+					RECORD_HEADER_PAYLOAD_LENGTH_OFFSET);
+			if (header[0] != PROTOCOL_VERSION) {
+				throw new AbortException(false);
+			}
+			byte type = header[1];
+			if (type == ABORT) throw new AbortException(true);
+			if (type != expectedType) {
+				if (type != KEY && type != CONFIRM) {
+					// ignore unrecognised record and try next
+					try {
+						readData(len);
+					} catch (IOException e) {
+						throw new AbortException(e);
+					}
+					continue;
+				} else {
+					throw new AbortException(false);
+				}
+			}
 			try {
-				readData(len);
+				return readData(len);
 			} catch (IOException e) {
 				throw new AbortException(e);
 			}
-			return readRecord(expectedType);
-		}
-		byte type = header[1];
-		if (type == ABORT) throw new AbortException(true);
-		if (type != expectedType) {
-			if (type != KEY && type != CONFIRM) {
-				// ignore unrecognised record and try next
-				try {
-					readData(len);
-				} catch (IOException e) {
-					throw new AbortException(e);
-				}
-				return readRecord(expectedType);
-			} else {
-				throw new AbortException(false);
-			}
-		}
-		try {
-			return readData(len);
-		} catch (IOException e) {
-			throw new AbortException(e);
 		}
 	}
 
