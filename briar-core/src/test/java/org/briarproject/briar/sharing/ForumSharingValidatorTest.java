@@ -3,341 +3,310 @@ package org.briarproject.briar.sharing;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.client.BdfMessageContext;
-import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.test.ValidatorTestCase;
-import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.forum.Forum;
+import org.briarproject.briar.api.forum.ForumFactory;
+import org.jmock.Expectations;
 import org.junit.Test;
+
+import java.util.Collection;
 
 import javax.annotation.Nullable;
 
-import static org.briarproject.briar.api.forum.ForumConstants.FORUM_NAME;
-import static org.briarproject.briar.api.forum.ForumConstants.FORUM_SALT;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
-import static org.briarproject.briar.api.sharing.SharingConstants.INVITATION_MSG;
-import static org.briarproject.briar.api.sharing.SharingConstants.LOCAL;
 import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
-import static org.briarproject.briar.api.sharing.SharingConstants.SESSION_ID;
 import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_ABORT;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_ACCEPT;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_DECLINE;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_LEAVE;
-import static org.briarproject.briar.api.sharing.SharingConstants.TIME;
-import static org.briarproject.briar.api.sharing.SharingConstants.TYPE;
+import static org.briarproject.briar.sharing.MessageType.ABORT;
+import static org.briarproject.briar.sharing.MessageType.ACCEPT;
+import static org.briarproject.briar.sharing.MessageType.DECLINE;
+import static org.briarproject.briar.sharing.MessageType.INVITE;
+import static org.briarproject.briar.sharing.MessageType.LEAVE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ForumSharingValidatorTest extends ValidatorTestCase {
 
-	private final SessionId sessionId = new SessionId(TestUtils.getRandomId());
+	private final MessageEncoder messageEncoder =
+			context.mock(MessageEncoder.class);
+	private final ForumFactory forumFactory = context.mock(ForumFactory.class);
+	private final ForumSharingValidator v =
+			new ForumSharingValidator(messageEncoder, clientHelper,
+					metadataEncoder, clock, forumFactory);
+
+	private final MessageId previousMsgId = new MessageId(getRandomId());
 	private final String forumName =
 			TestUtils.getRandomString(MAX_FORUM_NAME_LENGTH);
 	private final byte[] salt = TestUtils.getRandomBytes(FORUM_SALT_LENGTH);
+	private final Forum forum = new Forum(group, forumName, salt);
+	private final BdfList descriptor = BdfList.of(forumName, salt);
 	private final String content =
 			TestUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH);
 
 	@Test
 	public void testAcceptsInvitationWithContent() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		expectCreateForum(forumName);
+		expectEncodeMetadata(INVITE);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, forumName,
-						salt, content));
-		assertExpectedContextForInvitation(messageContext, forumName, content);
+				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
+						content));
+		assertExpectedContext(messageContext, previousMsgId);
 	}
 
 	@Test
-	public void testAcceptsInvitationWithoutContent() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+	public void testAcceptsInvitationWithNullContent() throws Exception {
+		expectCreateForum(forumName);
+		expectEncodeMetadata(INVITE);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, forumName,
-						salt));
-		assertExpectedContextForInvitation(messageContext, forumName, null);
+				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, null));
+		assertExpectedContext(messageContext, previousMsgId);
+	}
+
+	@Test
+	public void testAcceptsInvitationWithNullPreviousMsgId() throws Exception {
+		expectCreateForum(forumName);
+		expectEncodeMetadata(INVITE);
+		BdfMessageContext messageContext = v.validateMessage(message, group,
+				BdfList.of(INVITE.getValue(), null, descriptor, null));
+		assertExpectedContext(messageContext, null);
 	}
 
 	@Test
 	public void testAcceptsAccept() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		expectEncodeMetadata(ACCEPT);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_ACCEPT, sessionId));
-		assertExpectedContext(messageContext, SHARE_MSG_TYPE_ACCEPT);
+				BdfList.of(ACCEPT.getValue(), groupId, previousMsgId));
+		assertExpectedContext(messageContext, previousMsgId);
 	}
 
 	@Test
 	public void testAcceptsDecline() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		expectEncodeMetadata(DECLINE);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_DECLINE, sessionId));
-		assertExpectedContext(messageContext, SHARE_MSG_TYPE_DECLINE);
+				BdfList.of(DECLINE.getValue(), groupId, previousMsgId));
+		assertExpectedContext(messageContext, previousMsgId);
 	}
 
 	@Test
 	public void testAcceptsLeave() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		expectEncodeMetadata(LEAVE);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_LEAVE, sessionId));
-		assertExpectedContext(messageContext, SHARE_MSG_TYPE_LEAVE);
+				BdfList.of(LEAVE.getValue(), groupId, previousMsgId));
+		assertExpectedContext(messageContext, previousMsgId);
 	}
 
 	@Test
 	public void testAcceptsAbort() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		expectEncodeMetadata(ABORT);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_ABORT, sessionId));
-		assertExpectedContext(messageContext, SHARE_MSG_TYPE_ABORT);
+				BdfList.of(ABORT.getValue(), groupId, previousMsgId));
+		assertExpectedContext(messageContext, previousMsgId);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNullMessageType() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
-		v.validateMessage(message, group, BdfList.of(null, sessionId));
+		v.validateMessage(message, group,
+				BdfList.of(null, groupId, previousMsgId));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonLongMessageType() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
-		v.validateMessage(message, group, BdfList.of("", sessionId));
+		v.validateMessage(message, group,
+				BdfList.of("", groupId, previousMsgId));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInvalidMessageType() throws Exception {
 		int invalidMessageType = SHARE_MSG_TYPE_ABORT + 1;
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
 		v.validateMessage(message, group,
-				BdfList.of(invalidMessageType, sessionId));
+				BdfList.of(invalidMessageType, groupId, previousMsgId));
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsNullSessionId() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+	public void testRejectsNullGroupId() throws Exception {
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_ABORT, null));
+				BdfList.of(ABORT.getValue(), null, previousMsgId));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonRawSessionId() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(SHARE_MSG_TYPE_ABORT, 123));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortSessionId() throws Exception {
-		byte[] invalidSessionId = TestUtils.getRandomBytes(UniqueId.LENGTH - 1);
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		byte[] invalidGroupId = TestUtils.getRandomBytes(UniqueId.LENGTH - 1);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_ABORT, invalidSessionId));
+				BdfList.of(ABORT.getValue(), invalidGroupId, previousMsgId));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongSessionId() throws Exception {
-		byte[] invalidSessionId = TestUtils.getRandomBytes(UniqueId.LENGTH + 1);
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		byte[] invalidGroupId = TestUtils.getRandomBytes(UniqueId.LENGTH + 1);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_ABORT, invalidSessionId));
+				BdfList.of(ABORT.getValue(), invalidGroupId, previousMsgId));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortBodyForAbort() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
-		v.validateMessage(message, group, BdfList.of(SHARE_MSG_TYPE_ABORT));
+		v.validateMessage(message, group,
+				BdfList.of(ABORT.getValue(), groupId));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongBodyForAbort() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_ABORT, sessionId, 123));
+				BdfList.of(SHARE_MSG_TYPE_ABORT, groupId, previousMsgId, 123));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortBodyForInvitation() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, forumName));
+				BdfList.of(INVITE.getValue(), groupId, forumName));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongBodyForInvitation() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, forumName,
-						salt, content, 123));
+				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, null,
+						123));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNullForumName() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		BdfList invalidDescriptor = BdfList.of(null, salt);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, null,
-						salt, content));
+				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
+						null));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonStringForumName() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		BdfList invalidDescriptor = BdfList.of(123, salt);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, 123,
-						salt, content));
+				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
+						null));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortForumName() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		BdfList invalidDescriptor = BdfList.of("", salt);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, "",
-						salt, content));
+				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
+						null));
 	}
 
 	@Test
 	public void testAcceptsMinLengthForumName() throws Exception {
 		String shortForumName = TestUtils.getRandomString(1);
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
-		BdfMessageContext messageContext = v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, shortForumName,
-						salt, content));
-		assertExpectedContextForInvitation(messageContext, shortForumName,
-				content);
+		BdfList validDescriptor = BdfList.of(shortForumName, salt);
+		expectCreateForum(shortForumName);
+		expectEncodeMetadata(INVITE);
+		v.validateMessage(message, group,
+				BdfList.of(INVITE.getValue(), previousMsgId, validDescriptor,
+						null));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongForumName() throws Exception {
 		String invalidForumName =
 				TestUtils.getRandomString(MAX_FORUM_NAME_LENGTH + 1);
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		BdfList invalidDescriptor = BdfList.of(invalidForumName, salt);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId,
-						invalidForumName, salt, content));
+				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
+						null));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNullSalt() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		BdfList invalidDescriptor = BdfList.of(forumName, null);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, forumName,
-						null, content));
+				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
+						null));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonRawSalt() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		BdfList invalidDescriptor = BdfList.of(forumName, 123);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, forumName,
-						123, content));
+				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
+						null));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortSalt() throws Exception {
 		byte[] invalidSalt = TestUtils.getRandomBytes(FORUM_SALT_LENGTH - 1);
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		BdfList invalidDescriptor = BdfList.of(forumName, invalidSalt);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, forumName,
-						invalidSalt, content));
+				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
+						null));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongSalt() throws Exception {
 		byte[] invalidSalt = TestUtils.getRandomBytes(FORUM_SALT_LENGTH + 1);
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		BdfList invalidDescriptor = BdfList.of(forumName, invalidSalt);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, forumName,
-						invalidSalt, content));
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectsNullContent() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
-		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, forumName,
-						salt, null));
+				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
+						null));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonStringContent() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		expectCreateForum(forumName);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, forumName,
-						salt, 123));
+				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
+						123));
 	}
 
 	@Test
 	public void testAcceptsMinLengthContent() throws Exception {
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		expectCreateForum(forumName);
+		expectEncodeMetadata(INVITE);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, forumName,
-						salt, ""));
-		assertExpectedContextForInvitation(messageContext, forumName, "");
+				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, "1"));
+		assertExpectedContext(messageContext, previousMsgId);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongContent() throws Exception {
 		String invalidContent =
 				TestUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH + 1);
-		ForumSharingValidator v = new ForumSharingValidator(clientHelper,
-				metadataEncoder, clock);
+		expectCreateForum(forumName);
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId, forumName,
-						salt, invalidContent));
+				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
+						invalidContent));
 	}
 
-	private void assertExpectedContextForInvitation(
-			BdfMessageContext messageContext, String forumName,
-			@Nullable String content) throws FormatException {
-		BdfDictionary meta = messageContext.getDictionary();
-		if (content == null) {
-			assertEquals(6, meta.size());
-		} else {
-			assertEquals(7, meta.size());
-			assertEquals(content, meta.getString(INVITATION_MSG));
-		}
-		assertEquals(forumName, meta.getString(FORUM_NAME));
-		assertEquals(salt, meta.getRaw(FORUM_SALT));
-		assertEquals(SHARE_MSG_TYPE_INVITATION, meta.getLong(TYPE).intValue());
-		assertEquals(sessionId.getBytes(), meta.getRaw(SESSION_ID));
-		assertFalse(meta.getBoolean(LOCAL));
-		assertEquals(timestamp, meta.getLong(TIME).longValue());
-		assertEquals(0, messageContext.getDependencies().size());
+	private void expectCreateForum(final String name) {
+		context.checking(new Expectations() {{
+			oneOf(forumFactory).createForum(name, salt);
+			will(returnValue(forum));
+		}});
+	}
+
+	private void expectEncodeMetadata(final MessageType type) {
+		context.checking(new Expectations() {{
+			oneOf(messageEncoder)
+					.encodeMetadata(type, groupId, timestamp, false, false,
+							false, false);
+		}});
 	}
 
 	private void assertExpectedContext(BdfMessageContext messageContext,
-			int type) throws FormatException {
-		BdfDictionary meta = messageContext.getDictionary();
-		assertEquals(4, meta.size());
-		assertEquals(type, meta.getLong(TYPE).intValue());
-		assertEquals(sessionId.getBytes(), meta.getRaw(SESSION_ID));
-		assertFalse(meta.getBoolean(LOCAL));
-		assertEquals(timestamp, meta.getLong(TIME).longValue());
-		assertEquals(0, messageContext.getDependencies().size());
+			@Nullable MessageId previousMsgId) throws FormatException {
+		Collection<MessageId> dependencies = messageContext.getDependencies();
+		if (previousMsgId == null) {
+			assertTrue(dependencies.isEmpty());
+		} else {
+			assertEquals(1, dependencies.size());
+			assertTrue(dependencies.contains(previousMsgId));
+		}
 	}
+
 }
