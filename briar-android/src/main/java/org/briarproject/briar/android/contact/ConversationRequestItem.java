@@ -21,17 +21,19 @@ class ConversationRequestItem extends ConversationNoticeInItem {
 	private final GroupId requestedGroupId;
 	private final RequestType requestType;
 	private final SessionId sessionId;
-	private boolean answered;
+	private final boolean answered, canBeOpened;
 
 	ConversationRequestItem(MessageId id, GroupId groupId,
 			RequestType requestType, SessionId sessionId, String text,
 			@Nullable String msgText, long time, boolean read,
-			@Nullable GroupId requestedGroupId, boolean answered) {
+			@Nullable GroupId requestedGroupId, boolean answered,
+			boolean canBeOpened) {
 		super(id, groupId, text, msgText, time, read);
 		this.requestType = requestType;
 		this.sessionId = sessionId;
 		this.requestedGroupId = requestedGroupId;
 		this.answered = answered;
+		this.canBeOpened = canBeOpened;
 	}
 
 	RequestType getRequestType() {
@@ -51,8 +53,8 @@ class ConversationRequestItem extends ConversationNoticeInItem {
 		return answered;
 	}
 
-	void setAnswered(boolean answered) {
-		this.answered = answered;
+	public boolean canBeOpened() {
+		return canBeOpened;
 	}
 
 	@LayoutRes

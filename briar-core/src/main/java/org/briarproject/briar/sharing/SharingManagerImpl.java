@@ -126,7 +126,8 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 
 	protected abstract InvitationMessage createInvitationRequest(MessageId id,
 			I msg, ContactId contactId, GroupId shareableId, boolean available,
-			long time, boolean local, boolean sent, boolean seen, boolean read);
+			boolean canBeOpened, long time, boolean local, boolean sent,
+			boolean seen, boolean read);
 
 	protected abstract InvitationMessage createInvitationResponse(MessageId id,
 			SessionId sessionId, GroupId groupId, ContactId contactId,
@@ -395,7 +396,7 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 					long time = d.getLong(TIME);
 					boolean local = d.getBoolean(LOCAL);
 					boolean read = d.getBoolean(MSG_KEY_READ, false);
-					boolean available = false;
+					boolean available = false, canBeOpened = false;
 
 					if (type == SHARE_MSG_TYPE_INVITATION) {
 						I msg = getIFactory().build(group.getId(), d);
@@ -407,12 +408,16 @@ abstract class SharingManagerImpl<S extends Shareable, I extends Invitation, IS 
 								continue;
 							available = ((InviteeSessionState) s).getState() ==
 									AWAIT_LOCAL_RESPONSE;
+							if (!available) {
+								canBeOpened = db.containsGroup(txn,
+										s.getShareableId());
+							}
 						}
 						InvitationMessage im =
 								createInvitationRequest(m.getKey(), msg,
 										contactId, s.getShareableId(),
-										available, time, local, status.isSent(),
-										status.isSeen(), read);
+										available, canBeOpened, time, local,
+										status.isSent(), status.isSeen(), read);
 						list.add(im);
 					} else if (type == SHARE_MSG_TYPE_ACCEPT ||
 							type == SHARE_MSG_TYPE_DECLINE) {

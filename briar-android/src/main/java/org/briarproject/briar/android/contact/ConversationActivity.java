@@ -855,8 +855,9 @@ public class ConversationActivity extends BriarActivity
 
 	@UiThread
 	@Override
-	public void open(ConversationRequestItem item) {
-		if (item.getRequestedGroupId() == null) return;
+	public void openRequestedShareable(ConversationRequestItem item) {
+		if (item.getRequestedGroupId() == null)
+			throw new IllegalArgumentException();
 		Intent i;
 		switch (item.getRequestType()) {
 			case FORUM:

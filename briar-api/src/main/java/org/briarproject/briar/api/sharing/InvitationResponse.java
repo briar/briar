@@ -6,7 +6,6 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.SessionId;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -17,7 +16,7 @@ public abstract class InvitationResponse extends InvitationMessage {
 
 	public InvitationResponse(MessageId id, SessionId sessionId,
 			GroupId groupId, ContactId contactId,
-			@Nullable GroupId invitedGroupId, boolean accept, long time,
+			GroupId invitedGroupId, boolean accept, long time,
 			boolean local, boolean sent, boolean seen, boolean read) {
 
 		super(id, sessionId, groupId, contactId, invitedGroupId, time, local,

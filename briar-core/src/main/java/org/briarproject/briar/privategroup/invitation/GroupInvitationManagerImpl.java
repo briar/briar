@@ -405,11 +405,13 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
 		// Look up the invite message to get the details of the private group
 		InviteMessage invite = getInviteMessage(txn, m);
+		boolean canBeOpened = db.containsGroup(txn, invite.getPrivateGroupId());
 		return new GroupInvitationRequest(m, sessionId, contactGroupId, c,
 				invite.getMessage(), invite.getPrivateGroupId(),
 				invite.getGroupName(), invite.getCreator(),
-				meta.isAvailableToAnswer(), meta.getTimestamp(), meta.isLocal(),
-				status.isSent(), status.isSeen(), meta.isRead());
+				meta.isAvailableToAnswer(), canBeOpened, meta.getTimestamp(),
+				meta.isLocal(), status.isSent(), status.isSeen(),
+				meta.isRead());
 	}
 
 	private InviteMessage getInviteMessage(Transaction txn, MessageId m)

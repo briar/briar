@@ -640,13 +640,17 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 				new HashMap<MessageId, BdfDictionary>();
 		results.put(message.getId(), meta);
 		results.put(messageId2, meta2);
-		long time1 = 1L, time2 = 2L;
+		final long time1 = 1L, time2 = 2L;
 		final MessageMetadata messageMetadata1 =
 				new MessageMetadata(INVITE, privateGroup.getId(), time1, true,
-						true, true, true);
+						true, true, false);
 		final MessageMetadata messageMetadata2 =
 				new MessageMetadata(JOIN, privateGroup.getId(), time2, true,
 						true, true, true);
+		final InviteMessage invite =
+				new InviteMessage(message.getId(), contactGroup.getId(),
+						privateGroup.getId(), time1, "name", author,
+						new byte[0], null, new byte[0]);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
@@ -669,6 +673,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).toList(message);
 			will(returnValue(body));
 			oneOf(messageParser).parseInviteMessage(message, body);
+			will(returnValue(invite));
+			oneOf(db).containsGroup(txn, privateGroup.getId());
+			will(returnValue(true));
 			// second message
 			oneOf(messageParser).parseMetadata(meta2);
 			will(returnValue(messageMetadata2));

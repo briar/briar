@@ -112,7 +112,7 @@ abstract class ConversationItem {
 			return new ConversationRequestItem(ir.getMessageId(),
 					ir.getGroupId(), INTRODUCTION, ir.getSessionId(), text,
 					ir.getMessage(), ir.getTimestamp(), ir.isRead(), null,
-					ir.wasAnswered());
+					ir.wasAnswered(), false);
 		}
 	}
 
@@ -203,7 +203,8 @@ abstract class ConversationItem {
 			return new ConversationRequestItem(ir.getId(),
 					ir.getGroupId(), type, ir.getSessionId(), text,
 					ir.getMessage(), ir.getTimestamp(), ir.isRead(),
-					ir.getInvitedGroupId(), !ir.isAvailable());
+					ir.getInvitedGroupId(), !ir.isAvailable(),
+					ir.canBeOpened());
 		}
 	}
 

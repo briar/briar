@@ -19,11 +19,11 @@ public class ForumInvitationRequest extends InvitationRequest {
 	public ForumInvitationRequest(MessageId id, SessionId sessionId,
 			GroupId groupId, ContactId contactId, GroupId forumId,
 			String forumName, @Nullable String message, boolean available,
-			long time, boolean local, boolean sent, boolean seen,
-			boolean read) {
+			boolean canBeOpened, long time, boolean local, boolean sent,
+			boolean seen, boolean read) {
 
 		super(id, sessionId, groupId, contactId, message, forumId, available,
-				time, local, sent, seen, read);
+				canBeOpened, time, local, sent, seen, read);
 		this.forumName = forumName;
 	}
 

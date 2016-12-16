@@ -140,7 +140,7 @@ class ConversationAdapter
 
 		void respondToRequest(ConversationRequestItem item, boolean accept);
 
-		void open(ConversationRequestItem item);
+		void openRequestedShareable(ConversationRequestItem item);
 
 	}
 

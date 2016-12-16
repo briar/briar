@@ -83,11 +83,12 @@ class ForumSharingManagerImpl extends
 	@Override
 	protected InvitationMessage createInvitationRequest(MessageId id,
 			ForumInvitation msg, ContactId contactId, GroupId forumId,
-			boolean available, long time, boolean local, boolean sent,
-			boolean seen, boolean read) {
+			boolean available, boolean canBeOpened, long time,
+			boolean local, boolean sent, boolean seen, boolean read) {
 		return new ForumInvitationRequest(id, msg.getSessionId(),
 				msg.getGroupId(), contactId, forumId, msg.getForumName(),
-				msg.getMessage(), available, time, local, sent, seen, read);
+				msg.getMessage(), available, canBeOpened, time, local, sent,
+				seen, read);
 	}
 
 	@Override
@@ -272,7 +273,7 @@ class ForumSharingManagerImpl extends
 					localState.getInvitationId(), localState.getSessionId(),
 					localState.getContactGroupId(), contactId,
 					localState.getShareableId(), forum.getName(), msg, true,
-					time, false, false, false, false);
+					false, time, false, false, false, false);
 			return new ForumInvitationRequestReceivedEvent(forum, contactId,
 					request);
 		}

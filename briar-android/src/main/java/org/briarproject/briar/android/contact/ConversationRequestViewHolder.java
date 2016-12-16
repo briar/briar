@@ -11,7 +11,6 @@ import org.briarproject.briar.android.contact.ConversationAdapter.ConversationLi
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static org.briarproject.briar.android.contact.ConversationRequestItem.RequestType.INTRODUCTION;
 
 @UiThread
 @NotNullByDefault
@@ -33,19 +32,18 @@ class ConversationRequestViewHolder extends ConversationNoticeInViewHolder {
 		final ConversationRequestItem item =
 				(ConversationRequestItem) conversationItem;
 
-		if (item.getRequestType() == INTRODUCTION && item.wasAnswered()) {
-			acceptButton.setVisibility(GONE);
-			declineButton.setVisibility(GONE);
-		} else if (item.wasAnswered()) {
+		if (item.wasAnswered() && item.canBeOpened()) {
 			acceptButton.setVisibility(VISIBLE);
 			acceptButton.setText(R.string.open);
 			acceptButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					item.setAnswered(true);
-					listener.open(item);
+					listener.openRequestedShareable(item);
 				}
 			});
+			declineButton.setVisibility(GONE);
+		} else if (item.wasAnswered()) {
+			acceptButton.setVisibility(GONE);
 			declineButton.setVisibility(GONE);
 		} else {
 			acceptButton.setVisibility(VISIBLE);
@@ -53,7 +51,6 @@ class ConversationRequestViewHolder extends ConversationNoticeInViewHolder {
 			acceptButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					item.setAnswered(true);
 					listener.respondToRequest(item, true);
 				}
 			});
@@ -61,7 +58,6 @@ class ConversationRequestViewHolder extends ConversationNoticeInViewHolder {
 			declineButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					item.setAnswered(true);
 					listener.respondToRequest(item, false);
 				}
 			});

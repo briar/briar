@@ -135,13 +135,13 @@ class BlogSharingManagerImpl extends
 	@Override
 	protected InvitationMessage createInvitationRequest(MessageId id,
 			BlogInvitation msg, ContactId contactId, GroupId blogId,
-			boolean available, long time, boolean local, boolean sent,
-			boolean seen, boolean read) {
+			boolean available, boolean canBeOpened, long time, boolean local,
+			boolean sent, boolean seen, boolean read) {
 
 		return new BlogInvitationRequest(id, msg.getSessionId(),
 				msg.getGroupId(), contactId, msg.getBlogAuthorName(),
-				msg.getMessage(), blogId, available, time, local, sent, seen,
-				read);
+				msg.getMessage(), blogId, available, canBeOpened, time, local,
+				sent, seen, read);
 	}
 
 	@Override
@@ -345,8 +345,8 @@ class BlogSharingManagerImpl extends
 							localState.getSessionId(),
 							localState.getContactGroupId(), contactId,
 							blog.getAuthor().getName(), msg,
-							localState.getShareableId(), true, time, false,
-							false, false, false);
+							localState.getShareableId(), true, false, time,
+							false, false, false, false);
 			return new BlogInvitationRequestReceivedEvent(blog, contactId,
 					request);
 		}

@@ -16,11 +16,10 @@ public abstract class InvitationMessage extends BaseMessageHeader {
 
 	private final SessionId sessionId;
 	private final ContactId contactId;
-	@Nullable
 	private final GroupId invitedGroupId;
 
 	public InvitationMessage(MessageId id, SessionId sessionId, GroupId groupId,
-			ContactId contactId, @Nullable GroupId invitedGroupId, long time,
+			ContactId contactId, GroupId invitedGroupId, long time,
 			boolean local, boolean sent, boolean seen, boolean read) {
 
 		super(id, groupId, time, local, read, sent, seen);
