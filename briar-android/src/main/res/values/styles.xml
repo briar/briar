@@ -6,7 +6,8 @@
 		<item name="android:textColorPrimary">@color/briar_text_primary_inverse</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
 		<item name="colorPrimary">@color/briar_primary</item>
-		<item name="titleTextAppearance">@style/BriarToolbarTextAppearance</item>
+		<item name="titleTextAppearance">@style/BriarToolbarTitleTextAppearance</item>
+		<item name="subtitleTextAppearance">@style/BriarToolbarSubTitleTextAppearance</item>
 		<item name="android:theme">@style/BriarToolbarTheme</item>
 	</style>
 
@@ -14,8 +15,12 @@
 		<item name="colorControlNormal">@color/briar_text_primary_inverse</item>
 	</style>
 
-	<style name="BriarToolbarTextAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+	<style name="BriarToolbarTitleTextAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
 		<item name="android:textColor">@color/briar_text_primary_inverse</item>
+	</style>
+
+	<style name="BriarToolbarSubTitleTextAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+		<item name="android:textColor">@color/briar_text_secondary_inverse</item>
 	</style>
 
 	<style name="BriarButton.Default">

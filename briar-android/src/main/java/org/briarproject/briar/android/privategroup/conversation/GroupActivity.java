@@ -8,6 +8,7 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -68,15 +69,16 @@ public class GroupActivity extends
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
+		Toolbar toolbar = setUpCustomToolbar(false);
+
 		Intent i = getIntent();
 		String groupName = i.getStringExtra(GROUP_NAME);
 		if (groupName != null) setTitle(groupName);
 		loadNamedGroup();
 
-		// Open member list on ActionBar click
-		View actionBar = findViewById(R.id.action_bar);
-		if (actionBar != null) {
-			actionBar.setOnClickListener(
+		// Open member list on Toolbar click
+		if (toolbar != null) {
+			toolbar.setOnClickListener(
 					new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
@@ -94,7 +96,7 @@ public class GroupActivity extends
 	@Override
 	@LayoutRes
 	protected int getLayout() {
-		return R.layout.activity_forum;
+		return R.layout.activity_threaded_conversation;
 	}
 
 	@Override

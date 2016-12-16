@@ -111,6 +111,7 @@
 			android:name=".android.privategroup.conversation.GroupActivity"
 			android:label="@string/app_name"
 			android:parentActivityName=".android.navdrawer.NavDrawerActivity"
+			android:theme="@style/BriarThemeNoActionBar.Default"
 			android:windowSoftInputMode="adjustResize|stateHidden">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
@@ -194,6 +195,7 @@
 			android:name=".android.forum.ForumActivity"
 			android:label="@string/app_name"
 			android:parentActivityName=".android.navdrawer.NavDrawerActivity"
+			android:theme="@style/BriarThemeNoActionBar.Default"
 			android:windowSoftInputMode="adjustResize|stateHidden">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
@@ -245,11 +247,11 @@
 
 		<activity
 			android:name=".android.blog.BlogActivity"
-			android:parentActivityName=".android.navdrawer.NavDrawerActivity">
+			android:parentActivityName=".android.navdrawer.NavDrawerActivity"
+			android:theme="@style/BriarThemeNoActionBar.Default">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".android.navdrawer.NavDrawerActivity"
-				/>
+				android:value=".android.navdrawer.NavDrawerActivity"/>
 		</activity>
 
 		<activity

@@ -60,7 +60,7 @@ public class KeyAgreementActivity extends BriarActivity implements
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
-		setContentView(R.layout.activity_plain);
+		setContentView(R.layout.activity_fragment_container_toolbar);
 
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
