@@ -29,7 +29,7 @@ public class BriarRecyclerView extends FrameLayout {
 	private TextView emptyView;
 	private ProgressBar progressBar;
 	private RecyclerView.AdapterDataObserver emptyObserver;
-	private Runnable refresher = null;
+	private Refresher refresher;
 	private boolean isScrollingToEnd = false;
 
 	public BriarRecyclerView(Context context) {
@@ -188,14 +188,8 @@ public class BriarRecyclerView extends FrameLayout {
 		if (recyclerView == null || recyclerView.getAdapter() == null) {
 			throw new IllegalStateException("Need to call setAdapter() first!");
 		}
-		refresher = new Runnable() {
-			@Override
-			public void run() {
-				LOG.info("Updating Content...");
-				recyclerView.getAdapter().notifyDataSetChanged();
-				postDelayed(refresher, DEFAULT_REFRESH_INTERVAL);
-			}
-		};
+
+		refresher = new Refresher(this);
 		LOG.info("Adding Handler Callback");
 		postDelayed(refresher, DEFAULT_REFRESH_INTERVAL);
 	}
@@ -203,7 +197,29 @@ public class BriarRecyclerView extends FrameLayout {
 	public void stopPeriodicUpdate() {
 		if (refresher != null) {
 			LOG.info("Removing Handler Callback");
+			refresher.setRecyclerView(null);
 			removeCallbacks(refresher);
+		}
+	}
+
+	private static class Refresher implements Runnable {
+
+		private BriarRecyclerView rv;
+
+		Refresher(BriarRecyclerView rv) {
+			setRecyclerView(rv);
+		}
+
+		void setRecyclerView(BriarRecyclerView rv) {
+			this.rv = rv;
+		}
+
+		@Override
+		public void run() {
+			if (rv != null) {
+				rv.getRecyclerView().getAdapter().notifyDataSetChanged();
+				rv.postDelayed(this, DEFAULT_REFRESH_INTERVAL);
+			}
 		}
 	}
 
