@@ -269,6 +269,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
+		// Mark any invite messages in the session unavailable to answer
+		markInvitesUnavailableToAnswer(txn, s);
 		// Move to the DISSOLVED state
 		return new InviteeSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),

@@ -651,6 +651,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		assertTrue(session.getLastRemoteMessageId()
 				.equals(properLeaveMessage.getPreviousMessageId()));
 
+		expectMarkInvitesUnavailableToAnswer();
 		InviteeSession newSession =
 				engine.onLeaveMessage(txn, session, properLeaveMessage);
 
@@ -680,6 +681,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		assertTrue(session.getLastRemoteMessageId()
 				.equals(properLeaveMessage.getPreviousMessageId()));
 
+		expectMarkInvitesUnavailableToAnswer();
 		InviteeSession newSession =
 				engine.onLeaveMessage(txn, session, properLeaveMessage);
 
@@ -701,7 +703,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	public void testOnAbortMessageWhenNotSubscribed() throws Exception {
 		InviteeSession session = getDefaultSession(START);
 
-		expectAbortWhenSubscribedToGroup();
+		expectAbortWhenNotSubscribedToGroup();
 		InviteeSession newSession =
 				engine.onAbortMessage(txn, session, abortMessage);
 		assertSessionAborted(session, newSession);
@@ -711,7 +713,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	public void testOnAbortMessageWhenSubscribed() throws Exception {
 		InviteeSession session = getDefaultSession(START);
 
-		expectAbortWhenNotSubscribedToGroup();
+		expectAbortWhenSubscribedToGroup();
 		InviteeSession newSession =
 				engine.onAbortMessage(txn, session, abortMessage);
 		assertSessionAborted(session, newSession);
@@ -739,6 +741,17 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	}
 
 	private void expectAbort(boolean subscribed) throws Exception {
+		expectMarkInvitesUnavailableToAnswer();
+		if (subscribed) {
+			expectIsSubscribedPrivateGroup();
+			expectSetPrivateGroupVisibility(INVISIBLE);
+		} else {
+			expectIsNotSubscribedPrivateGroup();
+		}
+		expectSendAbortMessage();
+	}
+
+	private void expectMarkInvitesUnavailableToAnswer() throws Exception {
 		final BdfDictionary query = BdfDictionary.of(new BdfEntry("query", ""));
 		final BdfDictionary meta = BdfDictionary.of(new BdfEntry("meta", ""));
 		final Map<MessageId, BdfDictionary> invites =
@@ -752,13 +765,6 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 			will(returnValue(invites));
 		}});
 		expectMarkMessageAvailableToAnswer(lastRemoteMessageId, false);
-		if (subscribed) {
-			expectIsSubscribedPrivateGroup();
-			expectSetPrivateGroupVisibility(INVISIBLE);
-		} else {
-			expectIsNotSubscribedPrivateGroup();
-		}
-		expectSendAbortMessage();
 	}
 
 	private void assertSessionAborted(InviteeSession oldSession,
