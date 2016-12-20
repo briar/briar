@@ -77,6 +77,7 @@
 	<string name="offline">Offline</string>
 	<string name="send">Send</string>
 	<string name="allow">Allow</string>
+	<string name="open">Open</string>
 	<string name="no_data">No data</string>
 	<string name="ellipsis">…</string>
 	<string name="text_too_long">The entered text is too long</string>
@@ -182,8 +183,8 @@
 
 	<!-- Private Group Invitations -->
 	<string name="groups_invitations_title">Group Invitations</string>
-	<string name="groups_invitations_invitation_sent">You have invited %1$s to join the group "%2$s".</string>
-	<string name="groups_invitations_invitation_received">%1$s has invited you to join the group "%2$s".</string>
+	<string name="groups_invitations_invitation_sent">You have invited %1$s to join the group \"%2$s\".</string>
+	<string name="groups_invitations_invitation_received">%1$s has invited you to join the group \"%2$s\".</string>
 	<string name="groups_invitations_joined">Joined group</string>
 	<string name="groups_invitations_declined">Group invitation declined</string>
 	<plurals name="groups_invitations_open">

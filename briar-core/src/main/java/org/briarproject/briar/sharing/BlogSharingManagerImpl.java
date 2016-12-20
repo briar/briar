@@ -40,6 +40,7 @@ import org.briarproject.briar.api.sharing.InvitationMessage;
 import java.security.SecureRandom;
 import java.util.Collection;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
@@ -133,21 +134,23 @@ class BlogSharingManagerImpl extends
 
 	@Override
 	protected InvitationMessage createInvitationRequest(MessageId id,
-			BlogInvitation msg, ContactId contactId, boolean available,
-			long time, boolean local, boolean sent, boolean seen,
-			boolean read) {
+			BlogInvitation msg, ContactId contactId, GroupId blogId,
+			boolean available, boolean canBeOpened, long time, boolean local,
+			boolean sent, boolean seen, boolean read) {
+
 		return new BlogInvitationRequest(id, msg.getSessionId(),
 				msg.getGroupId(), contactId, msg.getBlogAuthorName(),
-				msg.getMessage(), available, time, local, sent, seen, read);
+				msg.getMessage(), blogId, available, canBeOpened, time, local,
+				sent, seen, read);
 	}
 
 	@Override
 	protected InvitationMessage createInvitationResponse(MessageId id,
 			SessionId sessionId, GroupId groupId, ContactId contactId,
-			boolean accept, long time,
-			boolean local, boolean sent, boolean seen, boolean read) {
+			GroupId blogId, boolean accept, long time, boolean local,
+			boolean sent, boolean seen, boolean read) {
 		return new BlogInvitationResponse(id, sessionId, groupId, contactId,
-				accept, time, local, sent, seen, read);
+				blogId, accept, time, local, sent, seen, read);
 	}
 
 	@Override
@@ -333,14 +336,17 @@ class BlogSharingManagerImpl extends
 
 		@Override
 		public BlogInvitationRequestReceivedEvent build(
-				BlogInviteeSessionState localState, long time, String msg) {
+				BlogInviteeSessionState localState, long time,
+				@Nullable String msg) {
 			Blog blog = sFactory.parse(localState);
 			ContactId contactId = localState.getContactId();
 			BlogInvitationRequest request =
 					new BlogInvitationRequest(localState.getInvitationId(),
-							localState.getSessionId(), localState.getContactGroupId(),
-							contactId, blog.getAuthor().getName(), msg, true,
-							time, false, false, false, false);
+							localState.getSessionId(),
+							localState.getContactGroupId(), contactId,
+							blog.getAuthor().getName(), msg,
+							localState.getShareableId(), true, false, time,
+							false, false, false, false);
 			return new BlogInvitationRequestReceivedEvent(blog, contactId,
 					request);
 		}
@@ -358,8 +364,9 @@ class BlogSharingManagerImpl extends
 			BlogInvitationResponse response =
 					new BlogInvitationResponse(responseId,
 							localState.getSessionId(),
-							localState.getShareableId(),
-							localState.getContactId(), accept, time, false,
+							localState.getContactGroupId(),
+							localState.getContactId(),
+							localState.getShareableId(), accept, time, false,
 							false, false, false);
 			return new BlogInvitationResponseReceivedEvent(c, response);
 		}

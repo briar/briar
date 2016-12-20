@@ -32,15 +32,25 @@ class ConversationRequestViewHolder extends ConversationNoticeInViewHolder {
 		final ConversationRequestItem item =
 				(ConversationRequestItem) conversationItem;
 
-		if (item.wasAnswered()) {
+		if (item.wasAnswered() && item.canBeOpened()) {
+			acceptButton.setVisibility(VISIBLE);
+			acceptButton.setText(R.string.open);
+			acceptButton.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					listener.openRequestedShareable(item);
+				}
+			});
+			declineButton.setVisibility(GONE);
+		} else if (item.wasAnswered()) {
 			acceptButton.setVisibility(GONE);
 			declineButton.setVisibility(GONE);
 		} else {
 			acceptButton.setVisibility(VISIBLE);
+			acceptButton.setText(R.string.accept);
 			acceptButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					item.setAnswered(true);
 					listener.respondToRequest(item, true);
 				}
 			});
@@ -48,7 +58,6 @@ class ConversationRequestViewHolder extends ConversationNoticeInViewHolder {
 			declineButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					item.setAnswered(true);
 					listener.respondToRequest(item, false);
 				}
 			});

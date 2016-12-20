@@ -49,8 +49,11 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.contact.ConversationAdapter.ConversationListener;
+import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
+import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.TextInputListener;
@@ -848,6 +851,29 @@ public class ConversationActivity extends BriarActivity
 
 			}
 		});
+	}
+
+	@UiThread
+	@Override
+	public void openRequestedShareable(ConversationRequestItem item) {
+		if (item.getRequestedGroupId() == null)
+			throw new IllegalArgumentException();
+		Intent i;
+		switch (item.getRequestType()) {
+			case FORUM:
+				i = new Intent(this, ForumActivity.class);
+				break;
+			case BLOG:
+				i = new Intent(this, BlogActivity.class);
+				break;
+			case GROUP:
+				i = new Intent(this, GroupActivity.class);
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown Request Type");
+		}
+		i.putExtra(GROUP_ID, item.getRequestedGroupId().getBytes());
+		startActivity(i);
 	}
 
 	@DatabaseExecutor

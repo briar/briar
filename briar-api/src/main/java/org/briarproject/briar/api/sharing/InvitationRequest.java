@@ -15,16 +15,19 @@ public abstract class InvitationRequest extends InvitationMessage {
 
 	@Nullable
 	private final String message;
-	private final boolean available;
+	private final boolean available, canBeOpened;
 
 	public InvitationRequest(MessageId id, SessionId sessionId, GroupId groupId,
-			ContactId contactId, @Nullable String message, boolean available,
-			long time, boolean local, boolean sent, boolean seen,
-			boolean read) {
-
-		super(id, sessionId, groupId, contactId, time, local, sent, seen, read);
+			ContactId contactId, @Nullable String message,
+			GroupId invitedGroupId, boolean available,
+			boolean canBeOpened, long time, boolean local, boolean sent,
+			boolean seen, boolean read) {
+		super(id, sessionId, groupId, contactId, invitedGroupId, time, local,
+				sent, seen, read);
+		if (available && canBeOpened) throw new IllegalArgumentException();
 		this.message = message;
 		this.available = available;
+		this.canBeOpened = canBeOpened;
 	}
 
 	@Nullable
@@ -34,6 +37,10 @@ public abstract class InvitationRequest extends InvitationMessage {
 
 	public boolean isAvailable() {
 		return available;
+	}
+
+	public boolean canBeOpened() {
+		return canBeOpened;
 	}
 
 }

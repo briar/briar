@@ -381,10 +381,12 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 							m, meta, status));
 				} else if (type == JOIN) {
 					messages.add(
-							parseInvitationResponse(c, m, meta, status, true));
+							parseInvitationResponse(c, contactGroupId, m, meta,
+									status, true));
 				} else if (type == LEAVE) {
 					messages.add(
-							parseInvitationResponse(c, m, meta, status, false));
+							parseInvitationResponse(c, contactGroupId, m, meta,
+									status, false));
 				}
 			}
 			db.commitTransaction(txn);
@@ -403,10 +405,13 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
 		// Look up the invite message to get the details of the private group
 		InviteMessage invite = getInviteMessage(txn, m);
+		boolean canBeOpened = db.containsGroup(txn, invite.getPrivateGroupId());
 		return new GroupInvitationRequest(m, sessionId, contactGroupId, c,
-				invite.getMessage(), invite.getGroupName(), invite.getCreator(),
-				meta.isAvailableToAnswer(), meta.getTimestamp(), meta.isLocal(),
-				status.isSent(), status.isSeen(), meta.isRead());
+				invite.getMessage(), invite.getPrivateGroupId(),
+				invite.getGroupName(), invite.getCreator(),
+				meta.isAvailableToAnswer(), canBeOpened, meta.getTimestamp(),
+				meta.isLocal(), status.isSent(), status.isSeen(),
+				meta.isRead());
 	}
 
 	private InviteMessage getInviteMessage(Transaction txn, MessageId m)
@@ -418,11 +423,12 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	private GroupInvitationResponse parseInvitationResponse(ContactId c,
-			MessageId m, MessageMetadata meta, MessageStatus status,
-			boolean accept) throws DbException, FormatException {
+			GroupId contactGroupId, MessageId m, MessageMetadata meta,
+			MessageStatus status, boolean accept)
+			throws DbException, FormatException {
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
-		return new GroupInvitationResponse(m, sessionId,
-				meta.getPrivateGroupId(), c, accept, meta.getTimestamp(),
+		return new GroupInvitationResponse(m, sessionId, contactGroupId, c,
+				meta.getPrivateGroupId(), accept, meta.getTimestamp(),
 				meta.isLocal(), status.isSent(), status.isSeen(),
 				meta.isRead());
 	}
