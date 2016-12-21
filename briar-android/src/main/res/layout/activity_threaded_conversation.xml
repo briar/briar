@@ -2,21 +2,43 @@
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical"
-	xmlns:tools="http://schemas.android.com/tools"
 	tools:context=".android.forum.ForumActivity">
 
 	<include layout="@layout/toolbar"/>
 
-	<org.briarproject.briar.android.view.BriarRecyclerView
-		android:id="@+id/list"
+	<android.support.design.widget.CoordinatorLayout
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
-		android:layout_weight="1"
-		app:emptyText="@string/no_forum_posts"
-		app:scrollToEnd="false"/>
+		android:layout_weight="1">
+
+		<org.briarproject.briar.android.view.BriarRecyclerView
+			android:id="@+id/list"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			app:emptyText="@string/no_forum_posts"
+			app:scrollToEnd="false"/>
+
+		<org.briarproject.briar.android.view.UnreadMessageButton
+			android:id="@+id/upButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="top|right"
+			app:layout_anchorGravity="top|right"
+			app:direction="up"/>
+
+		<org.briarproject.briar.android.view.UnreadMessageButton
+			android:id="@+id/downButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="bottom|right"
+			app:layout_anchorGravity="bottom|right"
+			app:direction="down"/>
+
+	</android.support.design.widget.CoordinatorLayout>
 
 	<org.briarproject.briar.android.view.TextInputView
 		android:id="@+id/text_input_container"
