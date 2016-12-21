@@ -103,6 +103,7 @@ import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
@@ -117,7 +118,6 @@ public class ConversationActivity extends BriarActivity
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
-	private static final int REQUEST_CODE_INTRODUCTION = 2;
 	private static final String SHOW_ONBOARDING_INTRODUCTION =
 			"showOnboardingIntroduction";
 
@@ -209,7 +209,7 @@ public class ConversationActivity extends BriarActivity
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
 
-		if (request == REQUEST_CODE_INTRODUCTION && result == RESULT_OK) {
+		if (request == REQUEST_INTRODUCTION && result == RESULT_OK) {
 			Snackbar snackbar = Snackbar.make(list, R.string.introduction_sent,
 					Snackbar.LENGTH_SHORT);
 			snackbar.getView().setBackgroundResource(R.color.briar_primary);
@@ -259,7 +259,7 @@ public class ConversationActivity extends BriarActivity
 				if (contactId == null) return false;
 				Intent intent = new Intent(this, IntroductionActivity.class);
 				intent.putExtra(CONTACT_ID, contactId.getInt());
-				startActivityForResult(intent, REQUEST_CODE_INTRODUCTION);
+				startActivityForResult(intent, REQUEST_INTRODUCTION);
 				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();

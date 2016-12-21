@@ -11,7 +11,7 @@ import org.briarproject.briar.R;
 
 import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
-import static org.briarproject.briar.android.invitation.AddContactActivity.REQUEST_BLUETOOTH;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_BLUETOOTH;
 
 class ChooseIdentityView extends AddContactView implements OnClickListener {
 

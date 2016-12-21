@@ -22,9 +22,6 @@ import javax.inject.Inject;
 public class BlogActivity extends BriarActivity
 		implements BaseFragmentListener {
 
-	static final int REQUEST_WRITE_POST = 2;
-	static final int REQUEST_SHARE = 3;
-
 	@Inject
 	BlogController blogController;
 

@@ -46,8 +46,8 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
-import static org.briarproject.briar.android.blog.BlogActivity.REQUEST_SHARE;
-import static org.briarproject.briar.android.blog.BlogActivity.REQUEST_WRITE_POST;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SHARE_BLOG;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_WRITE_BLOG_POST;
 import static org.briarproject.briar.android.controller.SharingController.SharingListener;
 
 @UiThread
@@ -145,13 +145,13 @@ public class BlogFragment extends BaseFragment
 				Intent i = new Intent(getActivity(),
 						WriteBlogPostActivity.class);
 				i.putExtra(GROUP_ID, groupId.getBytes());
-				startActivityForResult(i, REQUEST_WRITE_POST);
+				startActivityForResult(i, REQUEST_WRITE_BLOG_POST);
 				return true;
 			case R.id.action_blog_share:
 				Intent i2 = new Intent(getActivity(), ShareBlogActivity.class);
 				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
-				startActivityForResult(i2, REQUEST_SHARE);
+				startActivityForResult(i2, REQUEST_SHARE_BLOG);
 				return true;
 			case R.id.action_blog_sharing_status:
 				Intent i3 = new Intent(getActivity(),
@@ -172,10 +172,10 @@ public class BlogFragment extends BaseFragment
 	public void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
 
-		if (request == REQUEST_WRITE_POST && result == RESULT_OK) {
+		if (request == REQUEST_WRITE_BLOG_POST && result == RESULT_OK) {
 			displaySnackbar(R.string.blogs_blog_post_created, true);
 			loadBlogPosts(true);
-		} else if (request == REQUEST_SHARE && result == RESULT_OK) {
+		} else if (request == REQUEST_SHARE_BLOG && result == RESULT_OK) {
 			displaySnackbar(R.string.blogs_sharing_snackbar, false);
 		}
 	}

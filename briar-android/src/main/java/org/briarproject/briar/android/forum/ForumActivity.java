@@ -37,6 +37,7 @@ import javax.inject.Inject;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static android.widget.Toast.LENGTH_SHORT;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SHARE_FORUM;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
 
 @MethodsNotNullByDefault
@@ -44,8 +45,6 @@ import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BOD
 public class ForumActivity extends
 		ThreadListActivity<Forum, ThreadItemAdapter<ForumItem>, ForumItem, ForumPostHeader>
 		implements ForumListener {
-
-	private static final int REQUEST_FORUM_SHARED = 3;
 
 	@Inject
 	ForumController forumController;
@@ -107,7 +106,7 @@ public class ForumActivity extends
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
 
-		if (request == REQUEST_FORUM_SHARED && result == RESULT_OK) {
+		if (request == REQUEST_SHARE_FORUM && result == RESULT_OK) {
 			displaySnackbarShort(R.string.forum_shared_snackbar);
 		}
 	}
@@ -132,7 +131,7 @@ public class ForumActivity extends
 				Intent i2 = new Intent(this, ShareForumActivity.class);
 				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
-				startActivityForResult(i2, REQUEST_FORUM_SHARED);
+				startActivityForResult(i2, REQUEST_SHARE_FORUM);
 				return true;
 			case R.id.action_forum_sharing_status:
 				Intent i3 = new Intent(this, ForumSharingStatusActivity.class);
