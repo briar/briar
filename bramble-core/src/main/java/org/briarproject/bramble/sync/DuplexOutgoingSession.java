@@ -14,7 +14,7 @@ import org.briarproject.bramble.api.lifecycle.event.ShutdownEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Offer;
-import org.briarproject.bramble.api.sync.PacketWriter;
+import org.briarproject.bramble.api.sync.RecordWriter;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.event.GroupVisibilityUpdatedEvent;
@@ -37,19 +37,19 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
 
 /**
  * An outgoing {@link SyncSession} suitable for duplex transports. The session
  * offers messages before sending them, keeps its output stream open when there
- * are no packets to send, and reacts to events that make packets available to
+ * are no records to send, and reacts to events that make records available to
  * send.
  */
 @ThreadSafe
 @NotNullByDefault
 class DuplexOutgoingSession implements SyncSession, EventListener {
 
-	// Check for retransmittable packets once every 60 seconds
+	// Check for retransmittable records once every 60 seconds
 	private static final int RETX_QUERY_INTERVAL = 60 * 1000;
 	private static final Logger LOG =
 			Logger.getLogger(DuplexOutgoingSession.class.getName());
@@ -67,14 +67,14 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	private final Clock clock;
 	private final ContactId contactId;
 	private final int maxLatency, maxIdleTime;
-	private final PacketWriter packetWriter;
+	private final RecordWriter recordWriter;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
 
 	private volatile boolean interrupted = false;
 
 	DuplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, Clock clock, ContactId contactId, int maxLatency,
-			int maxIdleTime, PacketWriter packetWriter) {
+			int maxIdleTime, RecordWriter recordWriter) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
@@ -82,7 +82,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		this.contactId = contactId;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
-		this.packetWriter = packetWriter;
+		this.recordWriter = recordWriter;
 		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
 	}
 
@@ -91,7 +91,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	public void run() throws IOException {
 		eventBus.addListener(this);
 		try {
-			// Start a query for each type of packet
+			// Start a query for each type of record
 			dbExecutor.execute(new GenerateAck());
 			dbExecutor.execute(new GenerateBatch());
 			dbExecutor.execute(new GenerateOffer());
@@ -100,33 +100,33 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			long nextKeepalive = now + maxIdleTime;
 			long nextRetxQuery = now + RETX_QUERY_INTERVAL;
 			boolean dataToFlush = true;
-			// Write packets until interrupted
+			// Write records until interrupted
 			try {
 				while (!interrupted) {
-					// Work out how long we should wait for a packet
+					// Work out how long we should wait for a record
 					now = clock.currentTimeMillis();
 					long wait = Math.min(nextKeepalive, nextRetxQuery) - now;
 					if (wait < 0) wait = 0;
 					// Flush any unflushed data if we're going to wait
 					if (wait > 0 && dataToFlush && writerTasks.isEmpty()) {
-						packetWriter.flush();
+						recordWriter.flush();
 						dataToFlush = false;
 						nextKeepalive = now + maxIdleTime;
 					}
-					// Wait for a packet
+					// Wait for a record
 					ThrowingRunnable<IOException> task = writerTasks.poll(wait,
 							MILLISECONDS);
 					if (task == null) {
 						now = clock.currentTimeMillis();
 						if (now >= nextRetxQuery) {
-							// Check for retransmittable packets
+							// Check for retransmittable records
 							dbExecutor.execute(new GenerateBatch());
 							dbExecutor.execute(new GenerateOffer());
 							nextRetxQuery = now + RETX_QUERY_INTERVAL;
 						}
 						if (now >= nextKeepalive) {
 							// Flush the stream to keep it alive
-							packetWriter.flush();
+							recordWriter.flush();
 							dataToFlush = false;
 							nextKeepalive = now + maxIdleTime;
 						}
@@ -137,9 +137,9 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 						dataToFlush = true;
 					}
 				}
-				if (dataToFlush) packetWriter.flush();
+				if (dataToFlush) recordWriter.flush();
 			} catch (InterruptedException e) {
-				LOG.info("Interrupted while waiting for a packet to write");
+				LOG.info("Interrupted while waiting for a record to write");
 				Thread.currentThread().interrupt();
 			}
 		} finally {
@@ -215,7 +215,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		@Override
 		public void run() throws IOException {
 			if (interrupted) return;
-			packetWriter.writeAck(ack);
+			recordWriter.writeAck(ack);
 			LOG.info("Sent ack");
 			dbExecutor.execute(new GenerateAck());
 		}
@@ -232,7 +232,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 				Transaction txn = db.startTransaction(false);
 				try {
 					b = db.generateRequestedBatch(txn, contactId,
-							MAX_PACKET_PAYLOAD_LENGTH, maxLatency);
+							MAX_RECORD_PAYLOAD_LENGTH, maxLatency);
 					db.commitTransaction(txn);
 				} finally {
 					db.endTransaction(txn);
@@ -259,7 +259,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		@Override
 		public void run() throws IOException {
 			if (interrupted) return;
-			for (byte[] raw : batch) packetWriter.writeMessage(raw);
+			for (byte[] raw : batch) recordWriter.writeMessage(raw);
 			LOG.info("Sent batch");
 			dbExecutor.execute(new GenerateBatch());
 		}
@@ -303,7 +303,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		@Override
 		public void run() throws IOException {
 			if (interrupted) return;
-			packetWriter.writeOffer(offer);
+			recordWriter.writeOffer(offer);
 			LOG.info("Sent offer");
 			dbExecutor.execute(new GenerateOffer());
 		}
@@ -346,7 +346,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		@Override
 		public void run() throws IOException {
 			if (interrupted) return;
-			packetWriter.writeRequest(request);
+			recordWriter.writeRequest(request);
 			LOG.info("Sent request");
 			dbExecutor.execute(new GenerateRequest());
 		}

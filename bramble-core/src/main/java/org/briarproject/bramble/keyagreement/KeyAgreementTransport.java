@@ -95,20 +95,34 @@ class KeyAgreementTransport {
 		out.flush();
 	}
 
-	private byte[] readRecord(byte type) throws AbortException {
-		byte[] header = readHeader();
-		if (header[0] != PROTOCOL_VERSION)
-			throw new AbortException(); // TODO handle?
-		if (header[1] != type) {
-			// Unexpected packet
-			throw new AbortException(header[1] == ABORT);
-		}
-		int len = ByteUtils.readUint16(header,
-				RECORD_HEADER_PAYLOAD_LENGTH_OFFSET);
-		try {
-			return readData(len);
-		} catch (IOException e) {
-			throw new AbortException(e);
+	private byte[] readRecord(byte expectedType) throws AbortException {
+		while (true) {
+			byte[] header = readHeader();
+			int len = ByteUtils.readUint16(header,
+					RECORD_HEADER_PAYLOAD_LENGTH_OFFSET);
+			if (header[0] != PROTOCOL_VERSION) {
+				throw new AbortException(false);
+			}
+			byte type = header[1];
+			if (type == ABORT) throw new AbortException(true);
+			if (type != expectedType) {
+				if (type != KEY && type != CONFIRM) {
+					// ignore unrecognised record and try next
+					try {
+						readData(len);
+					} catch (IOException e) {
+						throw new AbortException(e);
+					}
+					continue;
+				} else {
+					throw new AbortException(false);
+				}
+			}
+			try {
+				return readData(len);
+			} catch (IOException e) {
+				throw new AbortException(e);
+			}
 		}
 	}
 

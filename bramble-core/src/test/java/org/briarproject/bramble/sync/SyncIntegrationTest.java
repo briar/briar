@@ -12,10 +12,10 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
-import org.briarproject.bramble.api.sync.PacketReader;
-import org.briarproject.bramble.api.sync.PacketReaderFactory;
-import org.briarproject.bramble.api.sync.PacketWriter;
-import org.briarproject.bramble.api.sync.PacketWriterFactory;
+import org.briarproject.bramble.api.sync.RecordReader;
+import org.briarproject.bramble.api.sync.RecordReaderFactory;
+import org.briarproject.bramble.api.sync.RecordWriter;
+import org.briarproject.bramble.api.sync.RecordWriterFactory;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
@@ -33,6 +33,7 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -50,9 +51,9 @@ public class SyncIntegrationTest extends BrambleTestCase {
 	@Inject
 	StreamWriterFactory streamWriterFactory;
 	@Inject
-	PacketReaderFactory packetReaderFactory;
+	RecordReaderFactory recordReaderFactory;
 	@Inject
-	PacketWriterFactory packetWriterFactory;
+	RecordWriterFactory recordWriterFactory;
 	@Inject
 	CryptoComponent crypto;
 
@@ -77,7 +78,7 @@ public class SyncIntegrationTest extends BrambleTestCase {
 		streamNumber = 123;
 		// Create a group
 		ClientId clientId = new ClientId(TestUtils.getRandomString(5));
-		byte[] descriptor = new byte[0];
+		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
 		Group group = groupFactory.createGroup(clientId, descriptor);
 		// Add two messages to the group
 		long timestamp = System.currentTimeMillis();
@@ -98,14 +99,14 @@ public class SyncIntegrationTest extends BrambleTestCase {
 				headerKey, streamNumber);
 		OutputStream streamWriter = streamWriterFactory.createStreamWriter(out,
 				ctx);
-		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(
+		RecordWriter recordWriter = recordWriterFactory.createRecordWriter(
 				streamWriter);
 
-		packetWriter.writeAck(new Ack(messageIds));
-		packetWriter.writeMessage(message.getRaw());
-		packetWriter.writeMessage(message1.getRaw());
-		packetWriter.writeOffer(new Offer(messageIds));
-		packetWriter.writeRequest(new Request(messageIds));
+		recordWriter.writeAck(new Ack(messageIds));
+		recordWriter.writeMessage(message.getRaw());
+		recordWriter.writeMessage(message1.getRaw());
+		recordWriter.writeOffer(new Offer(messageIds));
+		recordWriter.writeRequest(new Request(messageIds));
 
 		streamWriter.flush();
 		return out.toByteArray();
@@ -127,31 +128,31 @@ public class SyncIntegrationTest extends BrambleTestCase {
 				headerKey, streamNumber);
 		InputStream streamReader = streamReaderFactory.createStreamReader(in,
 				ctx);
-		PacketReader packetReader = packetReaderFactory.createPacketReader(
+		RecordReader recordReader = recordReaderFactory.createRecordReader(
 				streamReader);
 
 		// Read the ack
-		assertTrue(packetReader.hasAck());
-		Ack a = packetReader.readAck();
+		assertTrue(recordReader.hasAck());
+		Ack a = recordReader.readAck();
 		assertEquals(messageIds, a.getMessageIds());
 
 		// Read the messages
-		assertTrue(packetReader.hasMessage());
-		Message m = packetReader.readMessage();
+		assertTrue(recordReader.hasMessage());
+		Message m = recordReader.readMessage();
 		checkMessageEquality(message, m);
-		assertTrue(packetReader.hasMessage());
-		m = packetReader.readMessage();
+		assertTrue(recordReader.hasMessage());
+		m = recordReader.readMessage();
 		checkMessageEquality(message1, m);
-		assertFalse(packetReader.hasMessage());
+		assertFalse(recordReader.hasMessage());
 
 		// Read the offer
-		assertTrue(packetReader.hasOffer());
-		Offer o = packetReader.readOffer();
+		assertTrue(recordReader.hasOffer());
+		Offer o = recordReader.readOffer();
 		assertEquals(messageIds, o.getMessageIds());
 
 		// Read the request
-		assertTrue(packetReader.hasRequest());
-		Request req = packetReader.readRequest();
+		assertTrue(recordReader.hasRequest());
+		Request req = recordReader.readRequest();
 		assertEquals(messageIds, req.getMessageIds());
 
 		in.close();

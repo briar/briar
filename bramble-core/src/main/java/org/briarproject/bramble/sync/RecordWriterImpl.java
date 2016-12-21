@@ -4,8 +4,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
-import org.briarproject.bramble.api.sync.PacketTypes;
-import org.briarproject.bramble.api.sync.PacketWriter;
+import org.briarproject.bramble.api.sync.RecordTypes;
+import org.briarproject.bramble.api.sync.RecordWriter;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.util.ByteUtils;
 
@@ -15,30 +15,30 @@ import java.io.OutputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import static org.briarproject.bramble.api.sync.PacketTypes.ACK;
-import static org.briarproject.bramble.api.sync.PacketTypes.OFFER;
-import static org.briarproject.bramble.api.sync.PacketTypes.REQUEST;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
-import static org.briarproject.bramble.api.sync.SyncConstants.PACKET_HEADER_LENGTH;
+import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
+import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
+import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.RECORD_HEADER_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
 
 @NotThreadSafe
 @NotNullByDefault
-class PacketWriterImpl implements PacketWriter {
+class RecordWriterImpl implements RecordWriter {
 
 	private final OutputStream out;
 	private final byte[] header;
 	private final ByteArrayOutputStream payload;
 
-	PacketWriterImpl(OutputStream out) {
+	RecordWriterImpl(OutputStream out) {
 		this.out = out;
-		header = new byte[PACKET_HEADER_LENGTH];
+		header = new byte[RECORD_HEADER_LENGTH];
 		header[0] = PROTOCOL_VERSION;
-		payload = new ByteArrayOutputStream(MAX_PACKET_PAYLOAD_LENGTH);
+		payload = new ByteArrayOutputStream(MAX_RECORD_PAYLOAD_LENGTH);
 	}
 
-	private void writePacket(byte packetType) throws IOException {
-		header[1] = packetType;
+	private void writeRecord(byte recordType) throws IOException {
+		header[1] = recordType;
 		ByteUtils.writeUint16(payload.size(), header, 2);
 		out.write(header);
 		payload.writeTo(out);
@@ -49,12 +49,12 @@ class PacketWriterImpl implements PacketWriter {
 	public void writeAck(Ack a) throws IOException {
 		if (payload.size() != 0) throw new IllegalStateException();
 		for (MessageId m : a.getMessageIds()) payload.write(m.getBytes());
-		writePacket(ACK);
+		writeRecord(ACK);
 	}
 
 	@Override
 	public void writeMessage(byte[] raw) throws IOException {
-		header[1] = PacketTypes.MESSAGE;
+		header[1] = RecordTypes.MESSAGE;
 		ByteUtils.writeUint16(raw.length, header, 2);
 		out.write(header);
 		out.write(raw);
@@ -64,14 +64,14 @@ class PacketWriterImpl implements PacketWriter {
 	public void writeOffer(Offer o) throws IOException {
 		if (payload.size() != 0) throw new IllegalStateException();
 		for (MessageId m : o.getMessageIds()) payload.write(m.getBytes());
-		writePacket(OFFER);
+		writeRecord(OFFER);
 	}
 
 	@Override
 	public void writeRequest(Request r) throws IOException {
 		if (payload.size() != 0) throw new IllegalStateException();
 		for (MessageId m : r.getMessageIds()) payload.write(m.getBytes());
-		writePacket(REQUEST);
+		writeRecord(REQUEST);
 	}
 
 	@Override

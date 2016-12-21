@@ -2,10 +2,10 @@ package org.briarproject.bramble.api.sync;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
-import java.io.InputStream;
+import java.io.OutputStream;
 
 @NotNullByDefault
-public interface PacketReaderFactory {
+public interface RecordWriterFactory {
 
-	PacketReader createPacketReader(InputStream in);
+	RecordWriter createRecordWriter(OutputStream out);
 }

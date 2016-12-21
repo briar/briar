@@ -92,7 +92,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			oneOf(callbacks).connectionWaiting();
 			oneOf(transport).receiveKey();
 			will(returnValue(BOB_PUBKEY));
-			oneOf(callbacks).initialPacketReceived();
+			oneOf(callbacks).initialRecordReceived();
 
 			// Alice verifies Bob's public key
 			oneOf(crypto).deriveKeyCommitment(BOB_PUBKEY);
@@ -152,7 +152,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			// Bob receives Alice's public key
 			oneOf(transport).receiveKey();
 			will(returnValue(ALICE_PUBKEY));
-			oneOf(callbacks).initialPacketReceived();
+			oneOf(callbacks).initialRecordReceived();
 
 			// Bob verifies Alice's public key
 			oneOf(crypto).deriveKeyCommitment(ALICE_PUBKEY);
@@ -213,7 +213,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			oneOf(callbacks).connectionWaiting();
 			oneOf(transport).receiveKey();
 			will(returnValue(BAD_PUBKEY));
-			oneOf(callbacks).initialPacketReceived();
+			oneOf(callbacks).initialRecordReceived();
 
 			// Alice verifies Bob's public key
 			oneOf(crypto).deriveKeyCommitment(BAD_PUBKEY);
@@ -250,7 +250,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			// Bob receives a bad public key
 			oneOf(transport).receiveKey();
 			will(returnValue(BAD_PUBKEY));
-			oneOf(callbacks).initialPacketReceived();
+			oneOf(callbacks).initialRecordReceived();
 
 			// Bob verifies Alice's public key
 			oneOf(crypto).deriveKeyCommitment(BAD_PUBKEY);
@@ -296,7 +296,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			oneOf(callbacks).connectionWaiting();
 			oneOf(transport).receiveKey();
 			will(returnValue(BOB_PUBKEY));
-			oneOf(callbacks).initialPacketReceived();
+			oneOf(callbacks).initialRecordReceived();
 
 			// Alice verifies Bob's public key
 			oneOf(crypto).deriveKeyCommitment(BOB_PUBKEY);
@@ -357,7 +357,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			// Bob receives Alice's public key
 			oneOf(transport).receiveKey();
 			will(returnValue(ALICE_PUBKEY));
-			oneOf(callbacks).initialPacketReceived();
+			oneOf(callbacks).initialRecordReceived();
 
 			// Bob verifies Alice's public key
 			oneOf(crypto).deriveKeyCommitment(ALICE_PUBKEY);

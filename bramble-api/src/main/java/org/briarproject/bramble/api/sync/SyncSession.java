@@ -5,7 +5,7 @@ import java.io.IOException;
 public interface SyncSession {
 
 	/**
-	 * Runs the session. This method returns when there are no more packets to
+	 * Runs the session. This method returns when there are no more records to
 	 * send or receive, or when the {@link #interrupt()} method has been called.
 	 */
 	void run() throws IOException;

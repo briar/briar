@@ -16,7 +16,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.Offer;
-import org.briarproject.bramble.api.sync.PacketReader;
+import org.briarproject.bramble.api.sync.RecordReader;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncSession;
 
@@ -42,18 +42,18 @@ class IncomingSession implements SyncSession, EventListener {
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
 	private final ContactId contactId;
-	private final PacketReader packetReader;
+	private final RecordReader recordReader;
 
 	private volatile boolean interrupted = false;
 
 	IncomingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, ContactId contactId,
-			PacketReader packetReader) {
+			RecordReader recordReader) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
 		this.contactId = contactId;
-		this.packetReader = packetReader;
+		this.recordReader = recordReader;
 	}
 
 	@IoExecutor
@@ -61,21 +61,22 @@ class IncomingSession implements SyncSession, EventListener {
 	public void run() throws IOException {
 		eventBus.addListener(this);
 		try {
-			// Read packets until interrupted or EOF
-			while (!interrupted && !packetReader.eof()) {
-				if (packetReader.hasAck()) {
-					Ack a = packetReader.readAck();
+			// Read records until interrupted or EOF
+			while (!interrupted && !recordReader.eof()) {
+				if (recordReader.hasAck()) {
+					Ack a = recordReader.readAck();
 					dbExecutor.execute(new ReceiveAck(a));
-				} else if (packetReader.hasMessage()) {
-					Message m = packetReader.readMessage();
+				} else if (recordReader.hasMessage()) {
+					Message m = recordReader.readMessage();
 					dbExecutor.execute(new ReceiveMessage(m));
-				} else if (packetReader.hasOffer()) {
-					Offer o = packetReader.readOffer();
+				} else if (recordReader.hasOffer()) {
+					Offer o = recordReader.readOffer();
 					dbExecutor.execute(new ReceiveOffer(o));
-				} else if (packetReader.hasRequest()) {
-					Request r = packetReader.readRequest();
+				} else if (recordReader.hasRequest()) {
+					Request r = recordReader.readRequest();
 					dbExecutor.execute(new ReceiveRequest(r));
 				} else {
+					// unknown records are ignored in RecordReader#eof()
 					throw new FormatException();
 				}
 			}

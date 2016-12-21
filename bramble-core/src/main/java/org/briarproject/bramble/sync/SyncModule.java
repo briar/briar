@@ -7,8 +7,8 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.GroupFactory;
 import org.briarproject.bramble.api.sync.MessageFactory;
-import org.briarproject.bramble.api.sync.PacketReaderFactory;
-import org.briarproject.bramble.api.sync.PacketWriterFactory;
+import org.briarproject.bramble.api.sync.RecordReaderFactory;
+import org.briarproject.bramble.api.sync.RecordWriterFactory;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
@@ -40,23 +40,24 @@ public class SyncModule {
 	}
 
 	@Provides
-	PacketReaderFactory providePacketReaderFactory(CryptoComponent crypto) {
-		return new PacketReaderFactoryImpl(crypto);
+	RecordReaderFactory provideRecordReaderFactory(
+			RecordReaderFactoryImpl recordReaderFactory) {
+		return recordReaderFactory;
 	}
 
 	@Provides
-	PacketWriterFactory providePacketWriterFactory() {
-		return new PacketWriterFactoryImpl();
+	RecordWriterFactory provideRecordWriterFactory() {
+		return new RecordWriterFactoryImpl();
 	}
 
 	@Provides
 	@Singleton
 	SyncSessionFactory provideSyncSessionFactory(DatabaseComponent db,
 			@DatabaseExecutor Executor dbExecutor, EventBus eventBus,
-			Clock clock, PacketReaderFactory packetReaderFactory,
-			PacketWriterFactory packetWriterFactory) {
+			Clock clock, RecordReaderFactory recordReaderFactory,
+			RecordWriterFactory recordWriterFactory) {
 		return new SyncSessionFactoryImpl(db, dbExecutor, eventBus, clock,
-				packetReaderFactory, packetWriterFactory);
+				recordReaderFactory, recordWriterFactory);
 	}
 
 	@Provides

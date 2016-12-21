@@ -63,6 +63,7 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_K
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
@@ -95,7 +96,7 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 	public DatabaseComponentImplTest() {
 		clientId = new ClientId(TestUtils.getRandomString(5));
 		groupId = new GroupId(TestUtils.getRandomId());
-		byte[] descriptor = new byte[0];
+		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
 		group = new Group(groupId, clientId, descriptor);
 		authorId = new AuthorId(TestUtils.getRandomId());
 		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);

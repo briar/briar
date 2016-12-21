@@ -3,7 +3,7 @@ package org.briarproject.bramble.api.sync;
 import java.util.Collection;
 
 /**
- * A packet offering the recipient one or more {@link Message Messages}.
+ * A record offering the recipient one or more {@link Message Messages}.
  */
 public class Offer {
 

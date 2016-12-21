@@ -13,7 +13,7 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.event.ShutdownEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
-import org.briarproject.bramble.api.sync.PacketWriter;
+import org.briarproject.bramble.api.sync.RecordWriter;
 import org.briarproject.bramble.api.sync.SyncSession;
 
 import java.io.IOException;
@@ -29,12 +29,12 @@ import javax.annotation.concurrent.ThreadSafe;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_PACKET_PAYLOAD_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
 
 /**
  * An outgoing {@link SyncSession} suitable for simplex transports. The session
  * sends messages without offering them first, and closes its output stream
- * when there are no more packets to send.
+ * when there are no more records to send.
  */
 @ThreadSafe
 @NotNullByDefault
@@ -55,7 +55,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	private final EventBus eventBus;
 	private final ContactId contactId;
 	private final int maxLatency;
-	private final PacketWriter packetWriter;
+	private final RecordWriter recordWriter;
 	private final AtomicInteger outstandingQueries;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
 
@@ -63,14 +63,14 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 
 	SimplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, ContactId contactId,
-			int maxLatency, PacketWriter packetWriter) {
+			int maxLatency, RecordWriter recordWriter) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
 		this.contactId = contactId;
 		this.maxLatency = maxLatency;
-		this.packetWriter = packetWriter;
-		outstandingQueries = new AtomicInteger(2); // One per type of packet
+		this.recordWriter = recordWriter;
+		outstandingQueries = new AtomicInteger(2); // One per type of record
 		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
 	}
 
@@ -79,19 +79,19 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	public void run() throws IOException {
 		eventBus.addListener(this);
 		try {
-			// Start a query for each type of packet
+			// Start a query for each type of record
 			dbExecutor.execute(new GenerateAck());
 			dbExecutor.execute(new GenerateBatch());
-			// Write packets until interrupted or no more packets to write
+			// Write records until interrupted or no more records to write
 			try {
 				while (!interrupted) {
 					ThrowingRunnable<IOException> task = writerTasks.take();
 					if (task == CLOSE) break;
 					task.run();
 				}
-				packetWriter.flush();
+				recordWriter.flush();
 			} catch (InterruptedException e) {
-				LOG.info("Interrupted while waiting for a packet to write");
+				LOG.info("Interrupted while waiting for a record to write");
 				Thread.currentThread().interrupt();
 			}
 		} finally {
@@ -157,7 +157,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		@Override
 		public void run() throws IOException {
 			if (interrupted) return;
-			packetWriter.writeAck(ack);
+			recordWriter.writeAck(ack);
 			LOG.info("Sent ack");
 			dbExecutor.execute(new GenerateAck());
 		}
@@ -174,7 +174,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 				Transaction txn = db.startTransaction(false);
 				try {
 					b = db.generateBatch(txn, contactId,
-							MAX_PACKET_PAYLOAD_LENGTH, maxLatency);
+							MAX_RECORD_PAYLOAD_LENGTH, maxLatency);
 					db.commitTransaction(txn);
 				} finally {
 					db.endTransaction(txn);
@@ -202,7 +202,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		@Override
 		public void run() throws IOException {
 			if (interrupted) return;
-			for (byte[] raw : batch) packetWriter.writeMessage(raw);
+			for (byte[] raw : batch) recordWriter.writeMessage(raw);
 			LOG.info("Sent batch");
 			dbExecutor.execute(new GenerateBatch());
 		}

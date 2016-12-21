@@ -3,7 +3,7 @@ package org.briarproject.bramble.api.sync;
 import java.util.Collection;
 
 /**
- * A packet acknowledging receipt of one or more {@link Message Messages}.
+ * A record acknowledging receipt of one or more {@link Message Messages}.
  */
 public class Ack {
 

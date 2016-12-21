@@ -5,7 +5,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import java.io.IOException;
 
 @NotNullByDefault
-public interface PacketWriter {
+public interface RecordWriter {
 
 	void writeAck(Ack a) throws IOException;
 

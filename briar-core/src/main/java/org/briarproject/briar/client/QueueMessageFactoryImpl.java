@@ -39,7 +39,11 @@ class QueueMessageFactoryImpl implements QueueMessageFactory {
 		ByteUtils.writeUint64(queuePosition, raw, MESSAGE_HEADER_LENGTH);
 		System.arraycopy(body, 0, raw, QUEUE_MESSAGE_HEADER_LENGTH,
 				body.length);
-		MessageId id = new MessageId(crypto.hash(MessageId.LABEL, raw));
+		byte[] timeBytes = new byte[ByteUtils.INT_64_BYTES];
+		ByteUtils.writeUint64(timestamp, timeBytes, 0);
+		MessageId id = new MessageId(
+				crypto.hash(MessageId.LABEL, groupId.getBytes(), timeBytes,
+						body));
 		return new QueueMessage(id, groupId, timestamp, queuePosition, raw);
 	}
 
