@@ -33,7 +33,7 @@ import static org.briarproject.bramble.api.sync.SyncConstants.RECORD_HEADER_LENG
 @NotNullByDefault
 class RecordReaderImpl implements RecordReader {
 
-	private enum State { BUFFER_EMPTY, BUFFER_FULL, EOF }
+	private enum State {BUFFER_EMPTY, BUFFER_FULL, EOF}
 
 	private final MessageFactory messageFactory;
 	private final InputStream in;
@@ -64,10 +64,11 @@ class RecordReaderImpl implements RecordReader {
 				}
 				offset += read;
 			}
-			// Check the protocol version
-			if (header[0] != PROTOCOL_VERSION) throw new FormatException();
-			// Read the payload length
+			byte version = header[0], type = header[1];
 			payloadLength = ByteUtils.readUint16(header, 2);
+			// Check the protocol version
+			if (version != PROTOCOL_VERSION) throw new FormatException();
+			// Check the payload length
 			if (payloadLength > MAX_RECORD_PAYLOAD_LENGTH)
 				throw new FormatException();
 			// Read the payload
@@ -78,21 +79,21 @@ class RecordReaderImpl implements RecordReader {
 				offset += read;
 			}
 			state = State.BUFFER_FULL;
-			// Return if this is a known record type
-			if (header[1] == ACK || header[1] == MESSAGE ||
-					header[1] == OFFER || header[1] == REQUEST) {
+			// Return if this is a known record type, otherwise continue
+			if (type == ACK || type == MESSAGE || type == OFFER ||
+					type == REQUEST) {
 				return;
 			}
 		}
 	}
 
 	/**
-	 * The return value indicates whether there's another record available
-	 * or whether we've reached the end of the input stream.
-	 * If a record is available,
-	 * it's been read into the buffer by the time eof() returns,
-	 * so the method that called eof() can access the record from the buffer,
-	 * for example to check its type or extract its payload.
+	 * Returns true if there's another record available or false if we've
+	 * reached the end of the input stream.
+	 * <p>
+	 * If a record is available, it's been read into the buffer by the time
+	 * eof() returns, so the method that called eof() can access the record
+	 * from the buffer, for example to check its type or extract its payload.
 	 */
 	@Override
 	public boolean eof() throws IOException {
