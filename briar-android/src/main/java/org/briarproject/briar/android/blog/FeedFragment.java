@@ -36,7 +36,7 @@ import javax.inject.Inject;
 import static android.app.Activity.RESULT_OK;
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
-import static org.briarproject.briar.android.blog.BlogActivity.REQUEST_WRITE_POST;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_WRITE_BLOG_POST;
 
 @UiThread
 @MethodsNotNullByDefault
@@ -96,7 +96,7 @@ public class FeedFragment extends BaseFragment implements
 		super.onActivityResult(requestCode, resultCode, data);
 
 		// The BlogPostAddedEvent arrives when the controller is not listening
-		if (requestCode == REQUEST_WRITE_POST && resultCode == RESULT_OK) {
+		if (requestCode == REQUEST_WRITE_BLOG_POST && resultCode == RESULT_OK) {
 			showSnackBar(R.string.blogs_blog_post_created);
 		}
 	}
@@ -174,7 +174,7 @@ public class FeedFragment extends BaseFragment implements
 				Intent i1 =
 						new Intent(getActivity(), WriteBlogPostActivity.class);
 				i1.putExtra(GROUP_ID, personalBlog.getId().getBytes());
-				startActivityForResult(i1, REQUEST_WRITE_POST);
+				startActivityForResult(i1, REQUEST_WRITE_BLOG_POST);
 				return true;
 			case R.id.action_rss_feeds_import:
 				Intent i2 =

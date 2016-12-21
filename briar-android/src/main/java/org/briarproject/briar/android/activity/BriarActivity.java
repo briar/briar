@@ -28,6 +28,7 @@ import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 
 @SuppressLint("Registered")
 public abstract class BriarActivity extends BaseActivity {
@@ -35,8 +36,6 @@ public abstract class BriarActivity extends BaseActivity {
 	public static final String KEY_STARTUP_FAILED = "briar.STARTUP_FAILED";
 	public static final String GROUP_ID = "briar.GROUP_ID";
 	public static final String GROUP_NAME = "briar.GROUP_NAME";
-
-	public static final int REQUEST_PASSWORD = 1;
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarActivity.class.getName());

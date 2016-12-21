@@ -38,6 +38,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.view.View.GONE;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_GROUP_INVITE;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
 
 @MethodsNotNullByDefault
@@ -45,8 +46,6 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_
 public class GroupActivity extends
 		ThreadListActivity<PrivateGroup, GroupMessageAdapter, GroupMessageItem, GroupMessageHeader>
 		implements GroupListener, OnClickListener {
-
-	private final static int REQUEST_INVITE = 2;
 
 	@Inject
 	GroupController controller;
@@ -176,7 +175,7 @@ public class GroupActivity extends
 			case R.id.action_group_invite:
 				Intent i3 = new Intent(this, GroupInviteActivity.class);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
-				startActivityForResult(i3, REQUEST_INVITE);
+				startActivityForResult(i3, REQUEST_GROUP_INVITE);
 				return true;
 			case R.id.action_group_leave:
 				showLeaveGroupDialog();
@@ -190,7 +189,7 @@ public class GroupActivity extends
 
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
-		if (request == REQUEST_INVITE && result == RESULT_OK) {
+		if (request == REQUEST_GROUP_INVITE && result == RESULT_OK) {
 			displaySnackbarShort(R.string.groups_invitation_sent);
 		} else super.onActivityResult(request, result, data);
 	}

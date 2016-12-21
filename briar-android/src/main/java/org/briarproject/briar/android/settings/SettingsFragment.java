@@ -45,13 +45,13 @@ import static android.media.RingtoneManager.TYPE_NOTIFICATION;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class SettingsFragment extends PreferenceFragmentCompat
 		implements EventListener, Preference.OnPreferenceChangeListener {
 
-	private static final int REQUEST_RINGTONE = 2;
 	public static final String SETTINGS_NAMESPACE = "android-ui";
 	public static final String PREF_NOTIFY_GROUP = "notifyGroupMessages";
 	public static final String PREF_NOTIFY_BLOG = "notifyBlogPosts";

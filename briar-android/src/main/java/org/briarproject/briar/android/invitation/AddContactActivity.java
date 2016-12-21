@@ -25,14 +25,13 @@ import javax.inject.Inject;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_BLUETOOTH;
 import static org.briarproject.briar.android.invitation.ConfirmationCodeView.ConfirmationState.CONNECTED;
 import static org.briarproject.briar.android.invitation.ConfirmationCodeView.ConfirmationState.DETAILS;
 import static org.briarproject.briar.android.invitation.ConfirmationCodeView.ConfirmationState.WAIT_FOR_CONTACT;
 
 public class AddContactActivity extends BriarActivity
 		implements InvitationListener {
-
-	static final int REQUEST_BLUETOOTH = 1;
 
 	private static final Logger LOG =
 			Logger.getLogger(AddContactActivity.class.getName());
