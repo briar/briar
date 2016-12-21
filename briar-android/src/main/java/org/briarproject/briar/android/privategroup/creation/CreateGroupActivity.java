@@ -58,8 +58,7 @@ public class CreateGroupActivity extends BaseGroupInviteActivity implements
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO proper error handling
-						finish();
+						handleDbException(exception);
 					}
 				});
 	}

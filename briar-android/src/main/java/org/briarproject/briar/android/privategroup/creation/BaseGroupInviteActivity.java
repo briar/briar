@@ -43,9 +43,8 @@ public abstract class BaseGroupInviteActivity
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO proper error handling
 						setResult(RESULT_CANCELED);
-						finish();
+						handleDbException(exception);
 					}
 				});
 		return true;

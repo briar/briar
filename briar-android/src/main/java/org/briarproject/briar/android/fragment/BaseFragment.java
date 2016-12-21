@@ -8,6 +8,7 @@ import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 import android.view.MenuItem;
 
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.android.DestroyableContext;
 import org.briarproject.briar.android.activity.ActivityComponent;
 
@@ -71,6 +72,9 @@ public abstract class BaseFragment extends Fragment
 
 		@UiThread
 		void showNextFragment(BaseFragment f);
+
+		@UiThread
+		void handleDbException(DbException e);
 	}
 
 	@CallSuper
@@ -93,6 +97,11 @@ public abstract class BaseFragment extends Fragment
 
 	protected void showNextFragment(BaseFragment f) {
 		listener.showNextFragment(f);
+	}
+
+	@UiThread
+	protected void handleDbException(DbException e) {
+		listener.handleDbException(e);
 	}
 
 }

@@ -19,6 +19,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.TorConstants;
@@ -244,6 +245,11 @@ public class NavDrawerActivity extends BriarActivity implements
 	private void clearBackStack() {
 		getSupportFragmentManager().popBackStackImmediate(null,
 				POP_BACK_STACK_INCLUSIVE);
+	}
+
+	@Override
+	public void handleDbException(DbException e) {
+		// Do nothing for now
 	}
 
 	private void initializeTransports(final LayoutInflater inflater) {

@@ -56,10 +56,10 @@ public class ShareForumActivity extends ShareActivity {
 				new UiExceptionHandler<DbException>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO proper error handling
 						Toast.makeText(ShareForumActivity.this,
 								R.string.forum_share_error, LENGTH_SHORT)
 								.show();
+						handleDbException(exception);
 					}
 				});
 	}

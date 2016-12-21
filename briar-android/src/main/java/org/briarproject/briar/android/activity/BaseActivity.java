@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.DestroyableContext;
@@ -116,4 +117,9 @@ public abstract class BaseActivity extends AppCompatActivity
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
 	}
+
+	public void handleDbException(DbException e) {
+		supportFinishAfterTransition();
+	}
+
 }

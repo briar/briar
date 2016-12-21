@@ -99,8 +99,7 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO
-						finish();
+						handleDbException(exception);
 					}
 				});
 	}
@@ -130,8 +129,7 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 				new UiExceptionHandler<DbException>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO proper error handling
-						// do nothing, this fragment is gone already
+						handleDbException(exception);
 					}
 				});
 		finish();

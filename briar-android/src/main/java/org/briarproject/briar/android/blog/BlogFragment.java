@@ -205,8 +205,7 @@ public class BlogFragment extends BaseFragment
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO: Decide how to handle errors in the UI
-						finish();
+						handleDbException(exception);
 					}
 				}
 		);
@@ -234,8 +233,7 @@ public class BlogFragment extends BaseFragment
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO: Decide how to handle errors in the UI
-						finish();
+						handleDbException(exception);
 					}
 				});
 	}
@@ -254,8 +252,7 @@ public class BlogFragment extends BaseFragment
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO: Decide how to handle errors in the UI
-						finish();
+						handleDbException(exception);
 					}
 				});
 	}
@@ -277,8 +274,7 @@ public class BlogFragment extends BaseFragment
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO: Decide how to handle errors in the UI
-						finish();
+						handleDbException(exception);
 					}
 				});
 	}
@@ -373,8 +369,7 @@ public class BlogFragment extends BaseFragment
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO: Decide how to handle errors in the UI
-						finish();
+						handleDbException(exception);
 					}
 				});
 	}
