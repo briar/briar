@@ -80,8 +80,7 @@ public class RevealContactsActivity extends ContactSelectorActivity
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO proper error handling
-						finish();
+						handleDbException(exception);
 					}
 				});
 	}
@@ -132,7 +131,7 @@ public class RevealContactsActivity extends ContactSelectorActivity
 				new UiExceptionHandler<DbException>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO proper error handling
+						handleDbException(exception);
 					}
 				});
 	}
@@ -149,8 +148,7 @@ public class RevealContactsActivity extends ContactSelectorActivity
 				new UiExceptionHandler<DbException>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO proper error handling
-						finish();
+						handleDbException(exception);
 					}
 				});
 		supportFinishAfterTransition();

@@ -132,7 +132,7 @@ public class GroupListFragment extends BaseFragment implements
 					// result handled by GroupRemovedEvent and onGroupRemoved()
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO handle error
+						handleDbException(exception);
 					}
 				});
 	}
@@ -202,7 +202,7 @@ public class GroupListFragment extends BaseFragment implements
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO handle this error
+						handleDbException(exception);
 					}
 				});
 	}
@@ -224,8 +224,7 @@ public class GroupListFragment extends BaseFragment implements
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO handle this error
-						finish();
+						handleDbException(exception);
 					}
 				});
 	}

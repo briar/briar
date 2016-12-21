@@ -56,10 +56,10 @@ public class ShareBlogActivity extends ShareActivity {
 				new UiExceptionHandler<DbException>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO proper error handling
 						Toast.makeText(ShareBlogActivity.this,
 								R.string.blogs_sharing_error, LENGTH_SHORT)
 								.show();
+						handleDbException(exception);
 					}
 				});
 

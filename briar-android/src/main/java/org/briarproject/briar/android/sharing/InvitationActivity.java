@@ -97,8 +97,7 @@ public abstract class InvitationActivity<I extends InvitationItem>
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO proper error handling
-						finish();
+						handleDbException(exception);
 					}
 				});
 	}
@@ -111,8 +110,7 @@ public abstract class InvitationActivity<I extends InvitationItem>
 				new UiExceptionHandler<DbException>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO proper error handling
-						finish();
+						handleDbException(exception);
 					}
 				});
 	}

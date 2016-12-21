@@ -114,8 +114,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO Proper error handling
-						finish();
+						handleDbException(exception);
 					}
 				});
 	}
@@ -147,8 +146,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO Proper error handling
-						finish();
+						handleDbException(exception);
 					}
 				});
 	}
@@ -165,9 +163,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 					}
 
 					@Override
-					public void onExceptionUi(DbException e) {
-						// TODO Proper error handling
-						finish();
+					public void onExceptionUi(DbException exception) {
+						handleDbException(exception);
 					}
 				});
 	}
@@ -299,8 +296,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO add proper exception handling
-						finish();
+						handleDbException(exception);
 					}
 				};
 		getController().createAndStoreMessage(text, replyItem, handler);
@@ -323,8 +319,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						// TODO add proper exception handling
-						finish();
+						handleDbException(exception);
 					}
 				});
 	}
