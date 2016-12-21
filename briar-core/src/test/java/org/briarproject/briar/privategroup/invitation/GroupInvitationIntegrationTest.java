@@ -1,4 +1,4 @@
-package org.briarproject.briar.privategroup;
+package org.briarproject.briar.privategroup.invitation;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.Group;
@@ -328,6 +328,9 @@ public class GroupInvitationIntegrationTest
 
 		// Creator's leave message is delivered to invitee
 		sync0To1(1, true);
+
+		// invitee should have no more open invitations
+		assertTrue(groupInvitationManager1.getInvitations().isEmpty());
 
 		// Invitee declines invitation, but it's no longer open - no exception
 		// as the action has succeeded
