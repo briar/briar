@@ -3,13 +3,12 @@ package org.briarproject.briar.android.threaded;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -30,6 +29,7 @@ import org.briarproject.briar.android.threaded.ThreadListController.ThreadListLi
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.TextInputListener;
+import org.briarproject.briar.android.view.UnreadMessageButton;
 import org.briarproject.briar.api.client.NamedGroup;
 import org.briarproject.briar.api.client.PostHeader;
 
@@ -40,8 +40,12 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.make;
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static java.util.logging.Level.INFO;
+import static org.briarproject.briar.android.threaded.ThreadItemAdapter.UnreadCount;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -60,6 +64,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	protected BriarRecyclerView list;
 	protected TextInputView textInput;
 	protected GroupId groupId;
+	private UnreadMessageButton upButton, downButton;
 	private MessageId replyId;
 
 	protected abstract ThreadListController<G, I, H> getController();
@@ -72,7 +77,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
-		setContentView(getLayout());
+		setContentView(R.layout.activity_threaded_conversation);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
@@ -89,6 +94,47 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		adapter = createAdapter(linearLayoutManager);
 		list.setAdapter(adapter);
 
+		list.getRecyclerView().addOnScrollListener(
+				new RecyclerView.OnScrollListener() {
+					@Override
+					public void onScrolled(RecyclerView recyclerView, int dx,
+							int dy) {
+						super.onScrolled(recyclerView, dx, dy);
+						if (dx == 0 && dy == 0) {
+							// scrollToPosition has been called and finished
+							updateUnreadCount();
+						}
+					}
+					@Override
+					public void onScrollStateChanged(RecyclerView recyclerView,
+							int newState) {
+						super.onScrollStateChanged(recyclerView, newState);
+						if (newState == SCROLL_STATE_IDLE) {
+							updateUnreadCount();
+						}
+					}
+				});
+		upButton = (UnreadMessageButton) findViewById(R.id.upButton);
+		downButton = (UnreadMessageButton) findViewById(R.id.downButton);
+		upButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				int position = adapter.getVisibleUnreadPosTop();
+				if (position != NO_POSITION) {
+					list.getRecyclerView().scrollToPosition(position);
+				}
+			}
+		});
+		downButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				int position = adapter.getVisibleUnreadPosBottom();
+				if (position != NO_POSITION) {
+					list.getRecyclerView().scrollToPosition(position);
+				}
+			}
+		});
+
 		if (state != null) {
 			byte[] replyIdBytes = state.getByteArray(KEY_REPLY_ID);
 			if (replyIdBytes != null) replyId = new MessageId(replyIdBytes);
@@ -98,9 +144,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		sharingController.setSharingListener(this);
 		loadSharingContacts();
 	}
-
-	@LayoutRes
-	protected abstract int getLayout();
 
 	protected abstract A createAdapter(LinearLayoutManager layoutManager);
 
@@ -225,7 +268,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	}
 
 	@Override
-	public void onItemVisible(I item) {
+	public void onUnreadItemVisible(I item) {
 		if (!item.isRead()) {
 			item.setRead(true);
 			getController().markItemRead(item);
@@ -329,34 +372,28 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		supportFinishAfterTransition();
 	}
 
-	protected void addItem(final I item, boolean isLocal) {
+	protected void addItem(I item, boolean isLocal) {
 		adapter.incrementRevision();
 		adapter.add(item);
-		if (isLocal && adapter.isVisible(item)) {
+
+		if (isLocal) {
 			displaySnackbarShort(getItemPostedString());
 		} else {
-			Snackbar snackbar = Snackbar.make(list,
-					isLocal ? getItemPostedString() : getItemReceivedString(),
-					Snackbar.LENGTH_LONG);
-			snackbar.getView().setBackgroundResource(R.color.briar_primary);
-			snackbar.setActionTextColor(ContextCompat
-					.getColor(ThreadListActivity.this,
-							R.color.briar_button_positive));
-			snackbar.setAction(R.string.show, new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					adapter.scrollTo(item);
-				}
-			});
-			snackbar.getView().setBackgroundResource(R.color.briar_primary);
-			snackbar.show();
+			updateUnreadCount();
 		}
+	}
+
+	private void updateUnreadCount() {
+		UnreadCount unreadCount = adapter.getUnreadCount();
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Updating unread count: top=" + unreadCount.top +
+					" bottom=" + unreadCount.bottom);
+		}
+		upButton.setUnreadCount(unreadCount.top);
+		downButton.setUnreadCount(unreadCount.bottom);
 	}
 
 	@StringRes
 	protected abstract int getItemPostedString();
-
-	@StringRes
-	protected abstract int getItemReceivedString();
 
 }

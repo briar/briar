@@ -11,6 +11,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -18,6 +19,9 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 import org.briarproject.briar.android.view.AuthorView;
+
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 
 @UiThread
 @NotNullByDefault
@@ -48,9 +52,9 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 		textView.setText(StringUtils.trim(item.getText()));
 
 		if (pos == 0) {
-			topDivider.setVisibility(View.INVISIBLE);
+			topDivider.setVisibility(INVISIBLE);
 		} else {
-			topDivider.setVisibility(View.VISIBLE);
+			topDivider.setVisibility(VISIBLE);
 		}
 
 		author.setAuthor(item.getAuthor());
@@ -58,16 +62,13 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 		author.setAuthorStatus(item.getStatus());
 
 		if (item.equals(adapter.getReplyItem())) {
-			layout.setBackgroundColor(ContextCompat
-					.getColor(getContext(), R.color.forum_cell_highlight));
-		} else if (item.equals(adapter.getAddedItem())) {
-			layout.setBackgroundColor(ContextCompat
-					.getColor(getContext(), R.color.forum_cell_highlight));
-			animateFadeOut(adapter, adapter.getAddedItem());
-			adapter.clearAddedItem();
+			layout.setActivated(true);
+		} else if (!item.isRead()) {
+			layout.setActivated(true);
+			animateFadeOut(adapter, item);
+			listener.onUnreadItemVisible(item);
 		} else {
-			layout.setBackgroundColor(ContextCompat
-					.getColor(getContext(), R.color.window_background));
+			layout.setActivated(false);
 		}
 	}
 
@@ -77,31 +78,29 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 		setIsRecyclable(false);
 		ValueAnimator anim = new ValueAnimator();
 		adapter.addAnimatingItem(addedItem, anim);
-		ColorDrawable viewColor = (ColorDrawable) layout.getBackground();
+		ColorDrawable viewColor = new ColorDrawable(ContextCompat
+				.getColor(getContext(), R.color.forum_cell_highlight));
 		anim.setIntValues(viewColor.getColor(), ContextCompat
 				.getColor(getContext(), R.color.window_background));
 		anim.setEvaluator(new ArgbEvaluator());
+		anim.setInterpolator(new AccelerateInterpolator());
 		anim.addListener(new Animator.AnimatorListener() {
 			@Override
 			public void onAnimationStart(Animator animation) {
-
 			}
-
 			@Override
 			public void onAnimationEnd(Animator animation) {
+				layout.setBackgroundResource(
+						R.drawable.list_item_thread_background);
+				layout.setActivated(false);
 				setIsRecyclable(true);
 				adapter.removeAnimatingItem(addedItem);
 			}
-
 			@Override
 			public void onAnimationCancel(Animator animation) {
-				setIsRecyclable(true);
-				adapter.removeAnimatingItem(addedItem);
 			}
-
 			@Override
 			public void onAnimationRepeat(Animator animation) {
-
 			}
 		});
 		anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {

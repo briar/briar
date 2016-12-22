@@ -64,12 +64,16 @@ public class UnreadMessageButton extends FrameLayout {
 
 	public void setUnreadCount(int count) {
 		if (count == 0) {
-			unread.setVisibility(INVISIBLE);
-			fab.hide();
+			fab.setVisibility(GONE);
+//			fab.hide();
+			unread.setVisibility(GONE);
 		} else {
+			// FIXME: Use animations when upgrading to support library 24.2.0
+			//        https://code.google.com/p/android/issues/detail?id=216469
+			fab.setVisibility(VISIBLE);
+//			if (!fab.isShown()) fab.show();
 			unread.setVisibility(VISIBLE);
 			unread.setText(String.valueOf(count));
-			if (!fab.isShown()) fab.show();
 		}
 	}
 

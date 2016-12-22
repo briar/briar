@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -90,12 +89,6 @@ public class GroupActivity extends
 		}
 
 		setGroupEnabled(false);
-	}
-
-	@Override
-	@LayoutRes
-	protected int getLayout() {
-		return R.layout.activity_threaded_conversation;
 	}
 
 	@Override
@@ -203,12 +196,6 @@ public class GroupActivity extends
 	@StringRes
 	protected int getItemPostedString() {
 		return R.string.groups_message_sent;
-	}
-
-	@Override
-	@StringRes
-	protected int getItemReceivedString() {
-		return R.string.groups_message_received;
 	}
 
 	@Override
