@@ -1,13 +1,18 @@
 package org.briarproject.briar.android.forum;
 
+import android.os.Bundle;
+
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityModule;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.BriarControllerImpl;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter;
 import org.mockito.Mockito;
+
+import javax.annotation.Nullable;
 
 /**
  * This class exposes the ForumController and offers the possibility to
@@ -24,6 +29,12 @@ public class TestForumActivity extends ForumActivity {
 
 	public ThreadItemAdapter<ForumItem> getAdapter() {
 		return adapter;
+	}
+
+	@Override
+	public void onCreate(@Nullable Bundle state) {
+		setTheme(R.style.BriarTheme_NoActionBar);
+		super.onCreate(state);
 	}
 
 	@Override
