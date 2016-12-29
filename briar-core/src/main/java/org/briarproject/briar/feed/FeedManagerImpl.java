@@ -60,7 +60,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
 import static org.briarproject.briar.api.feed.FeedConstants.FETCH_DELAY_INITIAL;
@@ -322,9 +321,6 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 
 	private Feed fetchFeed(Feed feed, boolean post)
 			throws FeedException, IOException, DbException {
-		if (LOG.isLoggable(INFO))
-			LOG.info("Fetching feed from " + feed.getUrl());
-
 		String title, description, author;
 		long updated = clock.currentTimeMillis();
 		long lastEntryTime = feed.getLastEntryTime();
@@ -389,8 +385,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 					entryTime = entry.getUpdatedDate().getTime();
 				} else {
 					// no time information available, ignore this entry
-					if (LOG.isLoggable(WARNING))
-						LOG.warning("Entry has no date: " + entry.getTitle());
+					LOG.warning("Entry has no date, ignored.");
 					continue;
 				}
 				if (entryTime > feed.getLastEntryTime()) {
