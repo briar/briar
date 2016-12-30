@@ -61,6 +61,7 @@
   <string name="hide">Fshihi</string>
   <string name="ok">OK</string>
   <string name="cancel">Anuloje</string>
+  <string name="got_it">Kuptova</string>
   <string name="delete">Fshije</string>
   <string name="accept">Pranoje</string>
   <string name="decline">Hidhe poshtë</string>
@@ -69,6 +70,7 @@
   <string name="offline">Jo në linjë</string>
   <string name="send">Dërgoje</string>
   <string name="allow">Lejoje</string>
+  <string name="open">Hape</string>
   <string name="no_data">S’ka të dhëna</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Teksti i dhënë është shumë i gjatë</string>
@@ -236,6 +238,7 @@
   <string name="forum_invitation_response_accepted_received">%s pranoi ftesën e forumit.</string>
   <string name="forum_invitation_response_declined_received">%s e hodhi poshtë ftesën e forumit.</string>
   <string name="sharing_status">Gjendje Ndarjeje Me të Tjerë</string>
+  <string name="shared_with">E ndarë me %1$d (%2$d në linjë)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d forum ndarë nga kontakte</item>
     <item quantity="other">%d forum ndarë nga kontakte</item>

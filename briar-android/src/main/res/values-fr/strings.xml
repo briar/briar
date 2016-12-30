@@ -16,7 +16,7 @@
   <string name="sign_in_button">Se connecter</string>
   <string name="forgotten_password">J\'ai oublié mon mot de passe</string>
   <string name="dialog_title_lost_password">Mot de passe oublié</string>
-  <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffrée sur votre appareil et non sur le \"cloud\", par conséquent, votre mot de passe ne peut être réinitialisé. Voulez-vous supprimer votre compte et démarrer à nouveau ?\n\nAttention : vos identités, contacts et messages seront définitivement perdus.</string>
+  <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil et non sur le \"cloud\", par conséquent, votre mot de passe ne peut être réinitialisé. Voulez-vous supprimer votre compte et démarrer à nouveau ?\n\nAttention : vos identités, contacts et messages seront définitivement perdus.</string>
   <string name="startup_failed_notification_title">Briar n\'a pas pu démarrer</string>
   <string name="startup_failed_notification_text">Vous devrez peut-être réinstaller Briar.</string>
   <string name="startup_failed_activity_title">Echec de démarrage de Briar.</string>
@@ -61,6 +61,7 @@
   <string name="hide">Cacher</string>
   <string name="ok">OK</string>
   <string name="cancel">Annuler</string>
+  <string name="got_it">Je l\'ai</string>
   <string name="delete">Supprimer</string>
   <string name="accept">Accepter</string>
   <string name="decline">Refuser</string>
@@ -69,12 +70,13 @@
   <string name="offline">Hors ligne</string>
   <string name="send">Envoyer</string>
   <string name="allow">Autoriser</string>
-  <string name="no_data">Aucune donée</string>
-  <string name="ellipsis">…</string>
+  <string name="open">Ouvrir</string>
+  <string name="no_data">Aucune donnée</string>
+  <string name="ellipsis">...</string>
   <string name="text_too_long">Le texte saisi est trop long</string>
   <string name="show_onboarding">Afficher la boite de dialogue d\'Aide</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Vous semblez être nouveau ici et n\'avez aucun contact.\n\nTouchez l\'icône + en haut et suivez les instructions pour ajouter des contacts.\n\nRappel : vous pouvez ajouter des contacts uniquement en les rencontrant face à face, ceci pour éviter le vol d\'identité et que vos messages ne soient lus par d\'autres.</string>
+  <string name="no_contacts">Vous semblez être nouveau ici et n\'avez aucun contact.\n\nTouchez l\'icône + en haut et suivez les instructions pour en ajouter.\n\nRappel : vous pouvez ajouter des contacts uniquement en les rencontrant face à face, ceci pour éviter le vol d\'identité et que vos messages ne soient lus par d\'autres.</string>
   <string name="date_no_private_messages">Aucun message.</string>
   <string name="no_private_messages">Ceci est la vue de conversation.\n\nIl semble y avoir un manque de conversation.\n\nAppuyez sur le champ de saisie en bas pour en démarrer une. </string>
   <string name="message_hint">Taper le message</string>
@@ -236,6 +238,7 @@
   <string name="forum_invitation_response_accepted_received">%s a accepté l\'invitation au forum.</string>
   <string name="forum_invitation_response_declined_received">%s a décliné l\'invitation au forum.</string>
   <string name="sharing_status">Etat de partage</string>
+  <string name="shared_with">Partagé avec %1$d (%2$d en ligne)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d forum partagé par des contacts</item>
     <item quantity="other">%d forums partagés par des contacts</item>
