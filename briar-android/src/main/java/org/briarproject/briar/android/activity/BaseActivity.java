@@ -2,6 +2,7 @@ package org.briarproject.briar.android.activity;
 
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -118,6 +119,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
 	}
 
+	@UiThread
 	public void handleDbException(DbException e) {
 		supportFinishAfterTransition();
 	}
