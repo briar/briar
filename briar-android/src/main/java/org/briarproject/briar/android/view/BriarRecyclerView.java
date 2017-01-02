@@ -2,6 +2,8 @@ package org.briarproject.briar.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.util.AttributeSet;
@@ -17,13 +19,14 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import static org.briarproject.briar.android.util.UiUtils.MIN_RESOLUTION;
+import static org.briarproject.briar.android.util.UiUtils.MIN_DATE_RESOLUTION;
 
 public class BriarRecyclerView extends FrameLayout {
 
-	private static final long DEFAULT_REFRESH_INTERVAL = MIN_RESOLUTION;
 	private static final Logger LOG =
 			Logger.getLogger(BriarRecyclerView.class.getName());
+
+	private final Handler handler = new Handler(Looper.getMainLooper());
 
 	private RecyclerView recyclerView;
 	private TextView emptyView;
@@ -192,18 +195,19 @@ public class BriarRecyclerView extends FrameLayout {
 			@Override
 			public void run() {
 				LOG.info("Updating Content...");
-				recyclerView.getAdapter().notifyDataSetChanged();
-				postDelayed(refresher, DEFAULT_REFRESH_INTERVAL);
+				Adapter adapter = recyclerView.getAdapter();
+				adapter.notifyItemRangeChanged(0, adapter.getItemCount());
+				handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
 			}
 		};
 		LOG.info("Adding Handler Callback");
-		postDelayed(refresher, DEFAULT_REFRESH_INTERVAL);
+		handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
 	}
 
 	public void stopPeriodicUpdate() {
 		if (refresher != null) {
 			LOG.info("Removing Handler Callback");
-			removeCallbacks(refresher);
+			handler.removeCallbacks(refresher);
 		}
 	}
 

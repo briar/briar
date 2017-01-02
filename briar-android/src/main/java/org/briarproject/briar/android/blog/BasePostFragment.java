@@ -1,6 +1,8 @@
 package org.briarproject.briar.android.blog;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.CallSuper;
 import android.support.annotation.UiThread;
 import android.view.LayoutInflater;
@@ -20,7 +22,7 @@ import javax.annotation.Nullable;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static org.briarproject.briar.android.util.UiUtils.MIN_RESOLUTION;
+import static org.briarproject.briar.android.util.UiUtils.MIN_DATE_RESOLUTION;
 
 @UiThread
 @MethodsNotNullByDefault
@@ -32,8 +34,9 @@ abstract class BasePostFragment extends BaseFragment {
 	private static final Logger LOG =
 			Logger.getLogger(BasePostFragment.class.getName());
 
+	private final Handler handler = new Handler(Looper.getMainLooper());
+
 	protected MessageId postId;
-	private View view;
 	private ProgressBar progressBar;
 	private BlogPostViewHolder ui;
 	private BlogPostItem post;
@@ -50,7 +53,7 @@ abstract class BasePostFragment extends BaseFragment {
 		if (p == null) throw new IllegalStateException("No post ID in args");
 		postId = new MessageId(p);
 
-		view = inflater.inflate(R.layout.fragment_blog_post, container,
+		View view = inflater.inflate(R.layout.fragment_blog_post, container,
 				false);
 		progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
 		progressBar.setVisibility(VISIBLE);
@@ -83,21 +86,19 @@ abstract class BasePostFragment extends BaseFragment {
 		refresher = new Runnable() {
 			@Override
 			public void run() {
-				if (ui == null) return;
 				LOG.info("Updating Content...");
-
 				ui.updateDate(post.getTimestamp());
-				view.postDelayed(refresher, MIN_RESOLUTION);
+				handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
 			}
 		};
 		LOG.info("Adding Handler Callback");
-		view.postDelayed(refresher, MIN_RESOLUTION);
+		handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
 	}
 
 	private void stopPeriodicUpdate() {
-		if (refresher != null && ui != null) {
+		if (refresher != null) {
 			LOG.info("Removing Handler Callback");
-			view.removeCallbacks(refresher);
+			handler.removeCallbacks(refresher);
 		}
 	}
 

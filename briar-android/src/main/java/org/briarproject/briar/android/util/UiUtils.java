@@ -33,7 +33,7 @@ import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 
 public class UiUtils {
 
-	public static final long MIN_RESOLUTION = MINUTE_IN_MILLIS;
+	public static final long MIN_DATE_RESOLUTION = MINUTE_IN_MILLIS;
 	public static final int TEASER_LENGTH = 320;
 	public static final float GREY_OUT = 0.5f;
 
@@ -51,15 +51,16 @@ public class UiUtils {
 				FORMAT_SHOW_DATE | FORMAT_ABBREV_TIME | FORMAT_ABBREV_MONTH;
 
 		long diff = System.currentTimeMillis() - time;
-		if (diff < MIN_RESOLUTION) return ctx.getString(R.string.now);
+		if (diff < MIN_DATE_RESOLUTION) return ctx.getString(R.string.now);
 		if (diff >= DAY_IN_MILLIS && diff < WEEK_IN_MILLIS) {
 			// also show time when older than a day, but newer than a week
 			return DateUtils.getRelativeDateTimeString(ctx, time,
-					MIN_RESOLUTION, WEEK_IN_MILLIS, flags).toString();
+					MIN_DATE_RESOLUTION, WEEK_IN_MILLIS, flags).toString();
 		}
 		// otherwise just show "...ago" or date string
 		return DateUtils.getRelativeTimeSpanString(time,
-				System.currentTimeMillis(), MIN_RESOLUTION, flags).toString();
+				System.currentTimeMillis(),
+				MIN_DATE_RESOLUTION, flags).toString();
 	}
 
 	public static SpannableStringBuilder getTeaser(Context ctx, Spanned body) {

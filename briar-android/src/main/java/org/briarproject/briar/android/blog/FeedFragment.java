@@ -105,6 +105,7 @@ public class FeedFragment extends BaseFragment implements
 	public void onStart() {
 		super.onStart();
 		feedController.onStart();
+		list.startPeriodicUpdate();
 		loadPersonalBlog();
 		loadBlogPosts(false);
 	}
@@ -157,7 +158,6 @@ public class FeedFragment extends BaseFragment implements
 						handleDbException(exception);
 					}
 				});
-		list.startPeriodicUpdate();
 	}
 
 	@Override
