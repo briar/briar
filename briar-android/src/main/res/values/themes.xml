@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<style name="BriarBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+	<style name="BriarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
 		<item name="colorPrimary">@color/briar_primary</item>
 		<item name="colorPrimaryDark">@color/briar_primary_dark</item>
 		<item name="colorAccent">@color/briar_accent</item>
@@ -14,22 +14,16 @@
 		<item name="android:textColorTertiaryInverse">@color/briar_text_tertiary_inverse</item>
 		<item name="android:textColorLink">@color/briar_text_link</item>
 		<item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
+
+		<!-- These fix a long-standing UI bug in the support preference library -->
+		<item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+		<item name="android:listSeparatorTextViewStyle">@style/BriarTheme.ListSeparatorTextView</item>
 	</style>
 
-	<style name="BriarThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+	<style name="BriarTheme.NoActionBar" parent="BriarTheme">
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
 		<item name="toolbarStyle">@style/BriarToolbar</item>
-		<item name="colorPrimary">@color/briar_primary</item>
-		<item name="colorPrimaryDark">@color/briar_primary_dark</item>
-		<item name="colorAccent">@color/briar_primary</item>
-		<item name="android:windowBackground">@color/window_background</item>
-		<item name="android:textColorPrimary">@color/briar_text_primary</item>
-		<item name="android:textColorPrimaryInverse">@color/briar_text_primary_inverse</item>
-		<item name="android:textColorSecondary">@color/briar_text_secondary</item>
-		<item name="android:textColorSecondaryInverse">@color/briar_text_secondary_inverse</item>
-		<item name="android:textColorTertiary">@color/briar_text_tertiary</item>
-		<item name="android:textColorTertiaryInverse">@color/briar_text_tertiary_inverse</item>
-		<item name="android:textColorLink">@color/briar_text_link</item>
-		<item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
 	</style>
 
 	<style name="ActivityAnimation" parent="@android:style/Animation.Activity">
@@ -37,13 +31,6 @@
 		<item name="android:activityOpenExitAnimation">@anim/screen_old_out</item>
 		<item name="android:activityCloseEnterAnimation">@anim/screen_old_in</item>
 		<item name="android:activityCloseExitAnimation">@anim/screen_new_out</item>
-	</style>
-
-	<style name="BriarThemeNoActionBar.Default"/>
-
-	<style name="BriarTheme" parent="BriarBaseTheme">
-		<item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
-		<item name="android:listSeparatorTextViewStyle">@style/BriarTheme.ListSeparatorTextView</item>
 	</style>
 
 	<style name="BriarDialogTheme" parent="Theme.AppCompat.Light.Dialog">
