@@ -35,11 +35,9 @@ import org.briarproject.briar.client.ConversationClientImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -62,18 +60,21 @@ abstract class SharingManagerImpl<S extends Shareable>
 	private final SessionParser sessionParser;
 	private final ContactGroupFactory contactGroupFactory;
 	private final ProtocolEngine<S> engine;
+	private final InvitationFactory<S> invitationFactory;
 
 	SharingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
 			MetadataParser metadataParser, MessageParser<S> messageParser,
 			SessionEncoder sessionEncoder, SessionParser sessionParser,
 			MessageTracker messageTracker,
-			ContactGroupFactory contactGroupFactory, ProtocolEngine<S> engine) {
+			ContactGroupFactory contactGroupFactory, ProtocolEngine<S> engine,
+			InvitationFactory<S> invitationFactory) {
 		super(db, clientHelper, metadataParser, messageTracker);
 		this.messageParser = messageParser;
 		this.sessionEncoder = sessionEncoder;
 		this.sessionParser = sessionParser;
 		this.contactGroupFactory = contactGroupFactory;
 		this.engine = engine;
+		this.invitationFactory = invitationFactory;
 	}
 
 	protected abstract ClientId getClientId();
@@ -137,8 +138,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 		return false;
 	}
 
-	private SessionId getSessionId(GroupId privateGroupId) {
-		return new SessionId(privateGroupId.getBytes());
+	private SessionId getSessionId(GroupId shareableId) {
+		return new SessionId(shareableId.getBytes());
 	}
 
 	@Nullable
@@ -222,7 +223,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 				session = new Session(contactGroupId, shareableId);
 				storageId = createStorageId(txn, contactGroupId);
 			} else {
-				// An earlier invite was declined, so we already have a session
+				// We already have a session
 				session = sessionParser
 						.parseSession(contactGroupId, ss.bdfSession);
 				storageId = ss.storageId;
@@ -315,26 +316,19 @@ abstract class SharingManagerImpl<S extends Shareable>
 			ContactId c, MessageId m, MessageMetadata meta,
 			MessageStatus status) throws DbException, FormatException {
 		// Look up the invite message to get the details of the private group
-		InviteMessage<S> invite = getInviteMessage(txn, m);
+		InviteMessage<S> invite = messageParser.getInviteMessage(txn, m);
 		boolean canBeOpened = db.containsGroup(txn, invite.getShareableId());
-		return engine.createInvitationRequest(meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), invite, c,
-				meta.isAvailableToAnswer(), canBeOpened);
-	}
-
-	private InviteMessage<S> getInviteMessage(Transaction txn, MessageId m)
-			throws DbException, FormatException {
-		Message message = clientHelper.getMessage(txn, m);
-		if (message == null) throw new DbException();
-		BdfList body = clientHelper.toList(message);
-		return messageParser.parseInviteMessage(message, body);
+		return invitationFactory
+				.createInvitationRequest(meta.isLocal(), status.isSent(),
+						status.isSeen(), meta.isRead(), invite, c,
+						meta.isAvailableToAnswer(), canBeOpened);
 	}
 
 	private InvitationResponse parseInvitationResponse(ContactId c,
 			GroupId contactGroupId, MessageId m, MessageMetadata meta,
 			MessageStatus status, boolean accept)
 			throws DbException, FormatException {
-		return engine.createInvitationResponse(m, contactGroupId,
+		return invitationFactory.createInvitationResponse(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
 				status.isSeen(), meta.isRead(), meta.getShareableId(), c,
 				accept);
@@ -346,9 +340,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 		List<SharingInvitationItem> items =
 				new ArrayList<SharingInvitationItem>();
 		BdfDictionary query = messageParser.getInvitesAvailableToAnswerQuery();
-		Set<S> shareables = new HashSet<S>();
-		Map<GroupId, Collection<Contact>> sharers =
-				new HashMap<GroupId, Collection<Contact>>();
+		Map<S, Collection<Contact>> sharers =
+				new HashMap<S, Collection<Contact>>();
 		Transaction txn = db.startTransaction(true);
 		try {
 			// get invitations from each contact
@@ -358,21 +351,22 @@ abstract class SharingManagerImpl<S extends Shareable>
 						clientHelper.getMessageMetadataAsDictionary(txn,
 								contactGroupId, query);
 				for (MessageId m : results.keySet()) {
-					InviteMessage<S> invite = getInviteMessage(txn, m);
+					InviteMessage<S> invite =
+							messageParser.getInviteMessage(txn, m);
 					S s = invite.getShareable();
-					shareables.add(s);
-					if (sharers.containsKey(s.getId())) {
-						sharers.get(s.getId()).add(c);
+					if (sharers.containsKey(s)) {
+						sharers.get(s).add(c);
 					} else {
 						Collection<Contact> contacts = new ArrayList<Contact>();
 						contacts.add(c);
-						sharers.put(s.getId(), contacts);
+						sharers.put(s, contacts);
 					}
 				}
 			}
 			// construct the invitation items
-			for (S s : shareables) {
-				Collection<Contact> contacts = sharers.get(s.getId());
+			for (Entry<S, Collection<Contact>> e : sharers.entrySet()) {
+				S s = e.getKey();
+				Collection<Contact> contacts = e.getValue();
 				boolean subscribed = db.containsGroup(txn, s.getId());
 				SharingInvitationItem invitation =
 						new SharingInvitationItem(s, subscribed, contacts);

@@ -9,7 +9,7 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class LeaveMessage extends SharingMessage {
+class LeaveMessage extends SharingMessage {
 
 	LeaveMessage(MessageId id, GroupId contactGroupId,
 			GroupId shareableId, long timestamp,

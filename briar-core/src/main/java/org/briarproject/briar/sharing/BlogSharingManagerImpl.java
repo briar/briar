@@ -159,7 +159,7 @@ class BlogSharingManagerImpl extends
 	}
 
 	@Override
-	protected InvitationFactory<BlogInvitation, BlogSharerSessionState> getIFactory() {
+	protected OldInvitationFactory<BlogInvitation, BlogSharerSessionState> getIFactory() {
 		return iFactory;
 	}
 
@@ -251,7 +251,7 @@ class BlogSharingManagerImpl extends
 	}
 
 	private static class IFactory implements
-			InvitationFactory<BlogInvitation, BlogSharerSessionState> {
+			OldInvitationFactory<BlogInvitation, BlogSharerSessionState> {
 		@Override
 		public BlogInvitation build(GroupId groupId, BdfDictionary d)
 				throws FormatException {

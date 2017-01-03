@@ -33,8 +33,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.test.TestUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
@@ -48,9 +46,6 @@ public class ForumSharingIntegrationTest
 	private SharerListener listener0, listener2;
 	private InviteeListener listener1;
 	private Forum forum0;
-
-	@Inject
-	MessageEncoder messageEncoder;
 
 	// objects accessed from background threads need to be volatile
 	private volatile ForumSharingManager forumSharingManager0;

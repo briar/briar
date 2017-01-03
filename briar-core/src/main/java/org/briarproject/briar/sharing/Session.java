@@ -32,8 +32,8 @@ class Session {
 		this.inviteTimestamp = inviteTimestamp;
 	}
 
-	Session(GroupId contactGroupId, GroupId privateGroupId) {
-		this(START, contactGroupId, privateGroupId, null, null, 0, 0);
+	Session(GroupId contactGroupId, GroupId shareableId) {
+		this(START, contactGroupId, shareableId, null, null, 0, 0);
 	}
 
 	public State getState() {

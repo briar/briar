@@ -401,7 +401,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			throws DbException, FormatException {
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
 		// Look up the invite message to get the details of the private group
-		InviteMessage invite = getInviteMessage(txn, m);
+		InviteMessage invite = messageParser.getInviteMessage(txn, m);
 		PrivateGroup pg = privateGroupFactory
 				.createPrivateGroup(invite.getGroupName(), invite.getCreator(),
 						invite.getSalt());
@@ -410,14 +410,6 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
 				status.isSeen(), meta.isRead(), sessionId, pg, c,
 				invite.getMessage(), meta.isAvailableToAnswer(), canBeOpened);
-	}
-
-	private InviteMessage getInviteMessage(Transaction txn, MessageId m)
-			throws DbException, FormatException {
-		Message message = clientHelper.getMessage(txn, m);
-		if (message == null) throw new DbException();
-		BdfList body = clientHelper.toList(message);
-		return messageParser.parseInviteMessage(message, body);
 	}
 
 	private GroupInvitationResponse parseInvitationResponse(ContactId c,
@@ -479,7 +471,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	private GroupInvitationItem parseGroupInvitationItem(Transaction txn,
 			Contact c, MessageId m) throws DbException, FormatException {
-		InviteMessage invite = getInviteMessage(txn, m);
+		InviteMessage invite = messageParser.getInviteMessage(txn, m);
 		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
 				invite.getGroupName(), invite.getCreator(), invite.getSalt());
 		return new GroupInvitationItem(privateGroup, c);

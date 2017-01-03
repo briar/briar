@@ -3,6 +3,8 @@ package org.briarproject.briar.sharing;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.client.BdfMessageContext;
+import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestUtils;
@@ -20,7 +22,6 @@ import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_ABORT;
 import static org.briarproject.briar.sharing.MessageType.ABORT;
 import static org.briarproject.briar.sharing.MessageType.ACCEPT;
 import static org.briarproject.briar.sharing.MessageType.DECLINE;
@@ -46,6 +47,8 @@ public class ForumSharingValidatorTest extends ValidatorTestCase {
 	private final BdfList descriptor = BdfList.of(forumName, salt);
 	private final String content =
 			TestUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH);
+	private final BdfDictionary meta =
+			BdfDictionary.of(new BdfEntry("meta", "data"));
 
 	@Test
 	public void testAcceptsInvitationWithContent() throws Exception {
@@ -121,21 +124,20 @@ public class ForumSharingValidatorTest extends ValidatorTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInvalidMessageType() throws Exception {
-		int invalidMessageType = SHARE_MSG_TYPE_ABORT + 1;
+		int invalidMessageType = ABORT.getValue() + 1;
 		v.validateMessage(message, group,
 				BdfList.of(invalidMessageType, groupId, previousMsgId));
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsNullGroupId() throws Exception {
+	public void testRejectsNullSessionId() throws Exception {
 		v.validateMessage(message, group,
 				BdfList.of(ABORT.getValue(), null, previousMsgId));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonRawSessionId() throws Exception {
-		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_ABORT, 123));
+		v.validateMessage(message, group, BdfList.of(ABORT.getValue(), 123));
 	}
 
 	@Test(expected = FormatException.class)
@@ -161,13 +163,13 @@ public class ForumSharingValidatorTest extends ValidatorTestCase {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongBodyForAbort() throws Exception {
 		v.validateMessage(message, group,
-				BdfList.of(SHARE_MSG_TYPE_ABORT, groupId, previousMsgId, 123));
+				BdfList.of(ABORT.getValue(), groupId, previousMsgId, 123));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortBodyForInvitation() throws Exception {
 		v.validateMessage(message, group,
-				BdfList.of(INVITE.getValue(), groupId, forumName));
+				BdfList.of(INVITE.getValue(), previousMsgId, descriptor));
 	}
 
 	@Test(expected = FormatException.class)
@@ -207,9 +209,10 @@ public class ForumSharingValidatorTest extends ValidatorTestCase {
 		BdfList validDescriptor = BdfList.of(shortForumName, salt);
 		expectCreateForum(shortForumName);
 		expectEncodeMetadata(INVITE);
-		v.validateMessage(message, group,
+		BdfMessageContext messageContext = v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, validDescriptor,
 						null));
+		assertExpectedContext(messageContext, previousMsgId);
 	}
 
 	@Test(expected = FormatException.class)
@@ -295,6 +298,7 @@ public class ForumSharingValidatorTest extends ValidatorTestCase {
 			oneOf(messageEncoder)
 					.encodeMetadata(type, groupId, timestamp, false, false,
 							false, false);
+			will(returnValue(meta));
 		}});
 	}
 
@@ -307,6 +311,7 @@ public class ForumSharingValidatorTest extends ValidatorTestCase {
 			assertEquals(1, dependencies.size());
 			assertTrue(dependencies.contains(previousMsgId));
 		}
+		assertEquals(meta, messageContext.getDictionary());
 	}
 
 }

@@ -21,6 +21,7 @@ import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE
 import static org.briarproject.briar.api.sharing.SharingConstants.TIME;
 import static org.briarproject.briar.api.sharing.SharingConstants.TYPE;
 
+@Deprecated
 @NotNullByDefault
 public interface SharingMessage {
 

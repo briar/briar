@@ -137,7 +137,7 @@ abstract class OldSharingManagerImpl<S extends Shareable, I extends Invitation, 
 
 	protected abstract ShareableFactory<S, I, IS, SS> getSFactory();
 
-	protected abstract InvitationFactory<I, SS> getIFactory();
+	protected abstract OldInvitationFactory<I, SS> getIFactory();
 
 	protected abstract InviteeSessionStateFactory<S, IS> getISFactory();
 

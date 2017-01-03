@@ -1,6 +1,7 @@
 package org.briarproject.briar.sharing;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.forum.Forum;
@@ -16,8 +17,9 @@ class ForumMessageParserImpl extends MessageParserImpl<Forum> {
 	private final ForumFactory forumFactory;
 
 	@Inject
-	ForumMessageParserImpl(ForumFactory forumFactory) {
-		super();
+	ForumMessageParserImpl(ClientHelper clientHelper,
+			ForumFactory forumFactory) {
+		super(clientHelper);
 		this.forumFactory = forumFactory;
 	}
 

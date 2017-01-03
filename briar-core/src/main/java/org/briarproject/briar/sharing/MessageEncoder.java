@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 @NotNullByDefault
 interface MessageEncoder {
 
-	BdfDictionary encodeMetadata(MessageType type, GroupId groupId,
+	BdfDictionary encodeMetadata(MessageType type, GroupId shareableId,
 			long timestamp, boolean local, boolean read, boolean visible,
 			boolean available);
 
@@ -24,16 +24,16 @@ interface MessageEncoder {
 			@Nullable MessageId previousMessageId, BdfList descriptor,
 			@Nullable String message);
 
-	Message encodeAcceptMessage(GroupId contactGroupId, GroupId groupId,
+	Message encodeAcceptMessage(GroupId contactGroupId, GroupId shareableId,
 			long timestamp, @Nullable MessageId previousMessageId);
 
-	Message encodeDeclineMessage(GroupId contactGroupId, GroupId groupId,
+	Message encodeDeclineMessage(GroupId contactGroupId, GroupId shareableId,
 			long timestamp, @Nullable MessageId previousMessageId);
 
-	Message encodeLeaveMessage(GroupId contactGroupId, GroupId groupId,
+	Message encodeLeaveMessage(GroupId contactGroupId, GroupId shareableId,
 			long timestamp, @Nullable MessageId previousMessageId);
 
-	Message encodeAbortMessage(GroupId contactGroupId, GroupId groupId,
+	Message encodeAbortMessage(GroupId contactGroupId, GroupId shareableId,
 			long timestamp, @Nullable MessageId previousMessageId);
 
 }

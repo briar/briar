@@ -1,9 +1,12 @@
 package org.briarproject.briar.sharing;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -26,7 +29,10 @@ import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_VISIBLE_IN
 abstract class MessageParserImpl<S extends Shareable>
 		implements MessageParser<S> {
 
-	MessageParserImpl() {
+	private final ClientHelper clientHelper;
+
+	MessageParserImpl(ClientHelper clientHelper) {
+		this.clientHelper = clientHelper;
 	}
 
 	@Override
@@ -64,6 +70,15 @@ abstract class MessageParserImpl<S extends Shareable>
 		boolean available = meta.getBoolean(MSG_KEY_AVAILABLE_TO_ANSWER, false);
 		return new MessageMetadata(type, shareableId, timestamp, local, read,
 				visible, available);
+	}
+
+	@Override
+	public InviteMessage<S> getInviteMessage(Transaction txn, MessageId m)
+			throws DbException, FormatException {
+		Message message = clientHelper.getMessage(txn, m);
+		if (message == null) throw new DbException();
+		BdfList body = clientHelper.toList(message);
+		return parseInviteMessage(message, body);
 	}
 
 	@Override

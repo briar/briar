@@ -43,11 +43,11 @@ class MessageEncoderImpl implements MessageEncoder {
 
 	@Override
 	public BdfDictionary encodeMetadata(MessageType type,
-			GroupId groupId, long timestamp, boolean local, boolean read,
+			GroupId shareableId, long timestamp, boolean local, boolean read,
 			boolean visible, boolean available) {
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(MSG_KEY_MESSAGE_TYPE, type.getValue());
-		meta.put(MSG_KEY_SHAREABLE_ID, groupId);
+		meta.put(MSG_KEY_SHAREABLE_ID, shareableId);
 		meta.put(MSG_KEY_TIMESTAMP, timestamp);
 		meta.put(MSG_KEY_LOCAL, local);
 		meta.put(MSG_KEY_READ, read);
@@ -88,42 +88,42 @@ class MessageEncoderImpl implements MessageEncoder {
 
 	@Override
 	public Message encodeAcceptMessage(GroupId contactGroupId,
-			GroupId privateGroupId, long timestamp,
+			GroupId shareableId, long timestamp,
 			@Nullable MessageId previousMessageId) {
-		return encodeMessage(ACCEPT, contactGroupId, privateGroupId, timestamp,
+		return encodeMessage(ACCEPT, contactGroupId, shareableId, timestamp,
 				previousMessageId);
 	}
 
 	@Override
 	public Message encodeDeclineMessage(GroupId contactGroupId,
-			GroupId privateGroupId, long timestamp,
+			GroupId shareableId, long timestamp,
 			@Nullable MessageId previousMessageId) {
-		return encodeMessage(DECLINE, contactGroupId, privateGroupId, timestamp,
+		return encodeMessage(DECLINE, contactGroupId, shareableId, timestamp,
 				previousMessageId);
 	}
 
 	@Override
 	public Message encodeLeaveMessage(GroupId contactGroupId,
-			GroupId privateGroupId, long timestamp,
+			GroupId shareableId, long timestamp,
 			@Nullable MessageId previousMessageId) {
-		return encodeMessage(LEAVE, contactGroupId, privateGroupId, timestamp,
+		return encodeMessage(LEAVE, contactGroupId, shareableId, timestamp,
 				previousMessageId);
 	}
 
 	@Override
 	public Message encodeAbortMessage(GroupId contactGroupId,
-			GroupId privateGroupId, long timestamp,
+			GroupId shareableId, long timestamp,
 			@Nullable MessageId previousMessageId) {
-		return encodeMessage(ABORT, contactGroupId, privateGroupId, timestamp,
+		return encodeMessage(ABORT, contactGroupId, shareableId, timestamp,
 				previousMessageId);
 	}
 
 	private Message encodeMessage(MessageType type, GroupId contactGroupId,
-			GroupId groupId, long timestamp,
+			GroupId shareableId, long timestamp,
 			@Nullable MessageId previousMessageId) {
 		BdfList body = BdfList.of(
 				type.getValue(),
-				groupId,
+				shareableId,
 				previousMessageId
 		);
 		try {

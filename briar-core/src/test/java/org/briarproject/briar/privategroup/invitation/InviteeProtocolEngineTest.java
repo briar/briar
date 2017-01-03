@@ -144,11 +144,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		expectSendJoinMessage(properJoinMessage, true);
 		context.checking(new Expectations() {{
 			oneOf(messageTracker).trackOutgoingMessage(txn, message);
-			oneOf(clientHelper).getMessage(txn, lastRemoteMessageId);
-			will(returnValue(inviteMsg));
-			oneOf(clientHelper).toList(inviteMsg);
-			will(returnValue(inviteList));
-			oneOf(messageParser).parseInviteMessage(inviteMsg, inviteList);
+			oneOf(messageParser).getInviteMessage(txn, lastRemoteMessageId);
 			will(returnValue(inviteMessage));
 			oneOf(privateGroupFactory)
 					.createPrivateGroup(inviteMessage.getGroupName(),

@@ -9,7 +9,7 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class AcceptMessage extends SharingMessage {
+class AcceptMessage extends SharingMessage {
 
 	AcceptMessage(MessageId id, @Nullable MessageId previousMessageId,
 			GroupId contactGroupId, GroupId shareableId, long timestamp) {

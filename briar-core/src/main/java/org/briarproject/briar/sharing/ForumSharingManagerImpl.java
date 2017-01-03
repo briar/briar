@@ -25,9 +25,11 @@ class ForumSharingManagerImpl extends SharingManagerImpl<Forum>
 			SessionEncoder sessionEncoder, SessionParser sessionParser,
 			MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory,
-			ProtocolEngine<Forum> engine) {
+			ProtocolEngine<Forum> engine,
+			InvitationFactory<Forum> invitationFactory) {
 		super(db, clientHelper, metadataParser, messageParser, sessionEncoder,
-				sessionParser, messageTracker, contactGroupFactory, engine);
+				sessionParser, messageTracker, contactGroupFactory, engine,
+				invitationFactory);
 	}
 
 	@Override

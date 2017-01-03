@@ -1,14 +1,9 @@
 package org.briarproject.briar.sharing;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.api.sharing.InvitationRequest;
-import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.api.sharing.Shareable;
 
 import javax.annotation.Nullable;
@@ -40,14 +35,5 @@ interface ProtocolEngine<S extends Shareable> {
 
 	Session onAbortMessage(Transaction txn, Session session, AbortMessage m)
 			throws DbException, FormatException;
-
-	InvitationRequest<S> createInvitationRequest(boolean local, boolean sent,
-			boolean seen, boolean read, InviteMessage<S> m, ContactId c,
-			boolean available, boolean canBeOpened);
-
-	InvitationResponse createInvitationResponse(MessageId id, GroupId groupId,
-			long time, boolean local, boolean sent, boolean seen,
-			boolean read, GroupId shareableId, ContactId contactId,
-			boolean accept);
 
 }

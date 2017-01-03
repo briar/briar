@@ -1,9 +1,12 @@
 package org.briarproject.briar.privategroup.invitation;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -31,12 +34,14 @@ class MessageParserImpl implements MessageParser {
 
 	private final AuthorFactory authorFactory;
 	private final PrivateGroupFactory privateGroupFactory;
+	private final ClientHelper clientHelper;
 
 	@Inject
 	MessageParserImpl(AuthorFactory authorFactory,
-			PrivateGroupFactory privateGroupFactory) {
+			PrivateGroupFactory privateGroupFactory, ClientHelper clientHelper) {
 		this.authorFactory = authorFactory;
 		this.privateGroupFactory = privateGroupFactory;
+		this.clientHelper = clientHelper;
 	}
 
 	@Override
@@ -76,6 +81,15 @@ class MessageParserImpl implements MessageParser {
 		boolean available = meta.getBoolean(MSG_KEY_AVAILABLE_TO_ANSWER, false);
 		return new MessageMetadata(type, privateGroupId, timestamp, local, read,
 				visible, available);
+	}
+
+	@Override
+	public InviteMessage getInviteMessage(Transaction txn, MessageId m)
+			throws DbException, FormatException {
+		Message message = clientHelper.getMessage(txn, m);
+		if (message == null) throw new DbException();
+		BdfList body = clientHelper.toList(message);
+		return parseInviteMessage(message, body);
 	}
 
 	@Override

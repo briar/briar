@@ -129,4 +129,10 @@ public class SharingModule {
 		return forumProtocolEngine;
 	}
 
+	@Provides
+	InvitationFactory<Forum> provideForumInvitationFactory(
+			ForumInvitationFactoryImpl forumInvitationFactory) {
+		return forumInvitationFactory;
+	}
+
 }

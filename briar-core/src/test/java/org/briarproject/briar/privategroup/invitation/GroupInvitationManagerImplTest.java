@@ -666,11 +666,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(messageParser).parseMetadata(meta);
 			will(returnValue(messageMetadata1));
 			oneOf(db).getMessageStatus(txn, contactId, message.getId());
-			oneOf(clientHelper).getMessage(txn, message.getId());
-			will(returnValue(message));
-			oneOf(clientHelper).toList(message);
-			will(returnValue(body));
-			oneOf(messageParser).parseInviteMessage(message, body);
+			oneOf(messageParser).getInviteMessage(txn, message.getId());
 			will(returnValue(invite));
 			oneOf(privateGroupFactory).createPrivateGroup(invite.getGroupName(),
 					invite.getCreator(), invite.getSalt());
@@ -743,21 +739,13 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId(), query);
 			will(returnValue(results));
 			// message 1
-			oneOf(clientHelper).getMessage(txn, message.getId());
-			will(returnValue(message));
-			oneOf(clientHelper).toList(message);
-			will(returnValue(body));
-			oneOf(messageParser).parseInviteMessage(message, body);
+			oneOf(messageParser).getInviteMessage(txn, message.getId());
 			will(returnValue(inviteMessage1));
 			oneOf(privateGroupFactory).createPrivateGroup(groupName, author,
 					salt);
 			will(returnValue(pg));
 			// message 2
-			oneOf(clientHelper).getMessage(txn, messageId2);
-			will(returnValue(message2));
-			oneOf(clientHelper).toList(message2);
-			will(returnValue(body2));
-			oneOf(messageParser).parseInviteMessage(message2, body2);
+			oneOf(messageParser).getInviteMessage(txn, messageId2);
 			will(returnValue(inviteMessage2));
 			oneOf(privateGroupFactory).createPrivateGroup(groupName, author,
 					salt);

@@ -59,13 +59,13 @@ abstract class SharingValidator extends BdfMessageValidator {
 		byte[] previousMessageId = body.getOptionalRaw(1);
 		checkLength(previousMessageId, UniqueId.LENGTH);
 		BdfList descriptor = body.getList(2);
-		GroupId groupId = validateDescriptor(descriptor);
+		GroupId shareableId = validateDescriptor(descriptor);
 		String msg = body.getOptionalString(3);
 		checkLength(msg, 1, MAX_INVITATION_MESSAGE_LENGTH);
 
 		BdfDictionary meta = messageEncoder
-				.encodeMetadata(INVITE, groupId, m.getTimestamp(), false, false,
-						false, false);
+				.encodeMetadata(INVITE, shareableId, m.getTimestamp(), false,
+						false, false, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -81,14 +81,14 @@ abstract class SharingValidator extends BdfMessageValidator {
 	private BdfMessageContext validateNonInviteMessage(MessageType type,
 			Message m, BdfList body) throws FormatException {
 		checkSize(body, 3);
-		byte[] groupId = body.getRaw(1);
-		checkLength(groupId, UniqueId.LENGTH);
+		byte[] shareableId = body.getRaw(1);
+		checkLength(shareableId, UniqueId.LENGTH);
 		byte[] previousMessageId = body.getOptionalRaw(2);
 		checkLength(previousMessageId, UniqueId.LENGTH);
 
 		BdfDictionary meta = messageEncoder
-				.encodeMetadata(type, new GroupId(groupId), m.getTimestamp(),
-						false, false, false, false);
+				.encodeMetadata(type, new GroupId(shareableId),
+						m.getTimestamp(), false, false, false, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {

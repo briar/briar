@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -27,6 +28,7 @@ import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
 import static org.briarproject.briar.sharing.MessageType.ABORT;
 import static org.briarproject.briar.sharing.MessageType.ACCEPT;
 import static org.briarproject.briar.sharing.MessageType.DECLINE;
@@ -91,11 +93,16 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		Message sent = sendInviteMessage(txn, s, message, timestamp);
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
+		// Make the shareable visible to the contact
+		try {
+			setShareableVisibility(txn, s, VISIBLE);
+		} catch (FormatException e) {
+			throw new DbException(e); // Invalid group metadata
+		}
 		// Move to the REMOTE_INVITED state
-		long localTimestamp = Math.max(timestamp, getLocalTimestamp(s));
 		return new Session(REMOTE_INVITED, s.getContactGroupId(),
 				s.getShareableId(), sent.getId(), s.getLastRemoteMessageId(),
-				localTimestamp, s.getInviteTimestamp());
+				sent.getTimestamp(), s.getInviteTimestamp());
 	}
 
 	private Message sendInviteMessage(Transaction txn, Session s,
@@ -107,8 +114,9 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group descriptor
 		}
+		long localTimestamp = Math.max(timestamp, getLocalTimestamp(s));
 		Message m = messageEncoder
-				.encodeInviteMessage(s.getContactGroupId(), timestamp,
+				.encodeInviteMessage(s.getContactGroupId(), localTimestamp,
 						s.getLastLocalMessageId(), descriptor, message);
 		sendMessage(txn, m, INVITE, s.getShareableId(), true);
 		return m;
@@ -140,14 +148,14 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		if (inviteId == null) throw new IllegalStateException();
 		markMessageAvailableToAnswer(txn, inviteId, false);
 		// Send a ACCEPT message
-		Message sent = sendAcceptMessage(txn, s, true);
+		Message sent = sendAcceptMessage(txn, s);
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
 		try {
 			// Add and subscribe to the shareable
 			addShareable(txn, inviteId);
 			// Share the shareable with the contact
-			setPrivateGroupVisibility(txn, s, SHARED);
+			setShareableVisibility(txn, s, SHARED);
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group metadata
 		}
@@ -160,12 +168,12 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	protected abstract void addShareable(Transaction txn, MessageId inviteId)
 			throws DbException, FormatException;
 
-	private Message sendAcceptMessage(Transaction txn, Session session,
-			boolean visibleInUi) throws DbException {
+	private Message sendAcceptMessage(Transaction txn, Session session)
+			throws DbException {
 		Message m = messageEncoder.encodeAcceptMessage(
 				session.getContactGroupId(), session.getShareableId(),
 				getLocalTimestamp(session), session.getLastLocalMessageId());
-		sendMessage(txn, m, ACCEPT, session.getShareableId(), visibleInUi);
+		sendMessage(txn, m, ACCEPT, session.getShareableId(), true);
 		return m;
 	}
 
@@ -195,7 +203,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		if (inviteId == null) throw new IllegalStateException();
 		markMessageAvailableToAnswer(txn, inviteId, false);
 		// Send a DECLINE message
-		Message sent = sendDeclineMessage(txn, s, true);
+		Message sent = sendDeclineMessage(txn, s);
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
 		// Move to the START state
@@ -204,12 +212,12 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 				s.getInviteTimestamp());
 	}
 
-	private Message sendDeclineMessage(Transaction txn, Session session,
-			boolean visibleInUi) throws DbException {
+	private Message sendDeclineMessage(Transaction txn, Session session)
+			throws DbException {
 		Message m = messageEncoder.encodeDeclineMessage(
 				session.getContactGroupId(), session.getShareableId(),
 				getLocalTimestamp(session), session.getLastLocalMessageId());
-		sendMessage(txn, m, DECLINE, session.getShareableId(), visibleInUi);
+		sendMessage(txn, m, DECLINE, session.getShareableId(), true);
 		return m;
 	}
 
@@ -228,7 +236,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			case LOCAL_LEFT:
 			case REMOTE_HANGING:
 			case ERROR:
-				throw new ProtocolStateException(); // Invalid in these states
+				return s; // Ignored in this state
 			default:
 				throw new AssertionError();
 		}
@@ -237,25 +245,25 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private Session onLocalLeave(Transaction txn, Session s, State nextState)
 			throws DbException {
 		try {
-			// Stop sharing the shareable with the contact
-			setPrivateGroupVisibility(txn, s, INVISIBLE);
+			// Stop sharing the shareable (not actually needed in REMOTE_LEFT)
+			setShareableVisibility(txn, s, INVISIBLE);
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group metadata
 		}
 		// Send a LEAVE message
-		Message sent = sendLeaveMessage(txn, s, false);
+		Message sent = sendLeaveMessage(txn, s);
 		// Move to the next state
 		return new Session(nextState, s.getContactGroupId(), s.getShareableId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),
 				s.getInviteTimestamp());
 	}
 
-	private Message sendLeaveMessage(Transaction txn, Session session,
-			boolean visibleInUi) throws DbException {
+	private Message sendLeaveMessage(Transaction txn, Session session)
+			throws DbException {
 		Message m = messageEncoder.encodeLeaveMessage(
 				session.getContactGroupId(), session.getShareableId(),
 				getLocalTimestamp(session), session.getLastLocalMessageId());
-		sendMessage(txn, m, LEAVE, session.getShareableId(), visibleInUi);
+		sendMessage(txn, m, LEAVE, session.getShareableId(), false);
 		return m;
 	}
 
@@ -286,7 +294,10 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			throws DbException, FormatException {
 		// The timestamp must be higher than the last invite message, if any
 		if (m.getTimestamp() <= s.getInviteTimestamp()) return abort(txn, s);
-		// Mark the invite message visible in the UI and available to answer
+		// The dependency, if any, must be the last remote message
+		if (!isValidDependency(s, m.getPreviousMessageId()))
+			return abort(txn, s);
+		// Mark the invite message visible in the UI and (un)available to answer
 		markMessageVisibleInUi(txn, m.getId(), true);
 		markMessageAvailableToAnswer(txn, m.getId(), available);
 		// Track the message
@@ -309,14 +320,14 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
-		// Mark the invite message visible in the UI and available to answer
+		// Mark the invite message visible in the UI and unavailable to answer
 		markMessageVisibleInUi(txn, m.getId(), true);
 		markMessageAvailableToAnswer(txn, m.getId(), false);
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
 		// Share the shareable with the contact
-		setPrivateGroupVisibility(txn, s, SHARED);
+		setShareableVisibility(txn, s, SHARED);
 		// Broadcast an event
 		ContactId contactId = getContactId(txn, s.getContactGroupId());
 		txn.attach(
@@ -335,9 +346,9 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			AcceptMessage m) throws DbException, FormatException {
 		switch (s.getState()) {
 			case REMOTE_INVITED:
-				return onRemoteAccept(txn, s, m);
+				return onRemoteAcceptWhenInvited(txn, s, m);
 			case REMOTE_HANGING:
-				return onRemoteAcceptWhenHanging(txn, s, m, LOCAL_LEFT);
+				return onRemoteAccept(txn, s, m, LOCAL_LEFT);
 			case START:
 			case LOCAL_INVITED:
 			case SHARING:
@@ -351,9 +362,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		}
 	}
 
-	private Session onRemoteAcceptWhenHanging(Transaction txn, Session s,
-			AcceptMessage m, State nextState)
-			throws DbException, FormatException {
+	private Session onRemoteAccept(Transaction txn, Session s, AcceptMessage m,
+			State nextState) throws DbException, FormatException {
 		// The timestamp must be higher than the last invite message
 		if (m.getTimestamp() <= s.getInviteTimestamp()) return abort(txn, s);
 		// The dependency, if any, must be the last remote message
@@ -373,13 +383,13 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 				s.getInviteTimestamp());
 	}
 
-	private Session onRemoteAccept(Transaction txn, Session s, AcceptMessage m)
-			throws DbException, FormatException {
+	private Session onRemoteAcceptWhenInvited(Transaction txn, Session s,
+			AcceptMessage m) throws DbException, FormatException {
 		// Perform normal remote accept validation and operation
-		Session session = onRemoteAcceptWhenHanging(txn, s, m, SHARING);
+		Session session = onRemoteAccept(txn, s, m, SHARING);
 		// Share the shareable with the contact
 		if (session.getState() != ERROR)
-			setPrivateGroupVisibility(txn, s, SHARED);
+			setShareableVisibility(txn, s, SHARED);
 		return session;
 	}
 
@@ -392,7 +402,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		switch (s.getState()) {
 			case REMOTE_INVITED:
 			case REMOTE_HANGING:
-				return onRemoteDecline(txn, s, m, START);
+				return onRemoteDecline(txn, s, m);
 			case START:
 			case LOCAL_INVITED:
 			case SHARING:
@@ -407,8 +417,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	}
 
 	private Session onRemoteDecline(Transaction txn, Session s,
-			DeclineMessage m, State nextState)
-			throws DbException, FormatException {
+			DeclineMessage m) throws DbException, FormatException {
 		// The timestamp must be higher than the last invite message
 		if (m.getTimestamp() <= s.getInviteTimestamp()) return abort(txn, s);
 		// The dependency, if any, must be the last remote message
@@ -419,11 +428,17 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
+		// Make the shareable invisible (not actually needed in REMOTE_HANGING)
+		try {
+			setShareableVisibility(txn, s, INVISIBLE);
+		} catch (FormatException e) {
+			throw new DbException(e); // Invalid group metadata
+		}
 		// Broadcast an event
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
 		txn.attach(getInvitationResponseReceivedEvent(m, contactId));
 		// Move to the next state
-		return new Session(nextState, s.getContactGroupId(), s.getShareableId(),
+		return new Session(START, s.getContactGroupId(), s.getShareableId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
 				s.getInviteTimestamp());
 	}
@@ -440,7 +455,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			case LOCAL_LEFT:
 				return onRemoteLeave(txn, s, m, START);
 			case SHARING:
-				return onRemoteLeaveWhenSharing(txn, s, m, REMOTE_LEFT);
+				return onRemoteLeaveWhenSharing(txn, s, m);
 			case START:
 			case REMOTE_INVITED:
 			case REMOTE_LEFT:
@@ -478,13 +493,12 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	}
 
 	private Session onRemoteLeaveWhenSharing(Transaction txn, Session s,
-			LeaveMessage m, State nextState)
-			throws DbException, FormatException {
+			LeaveMessage m) throws DbException, FormatException {
 		// Carry out normal leave validation and operation
-		Session session = onRemoteLeave(txn, s, m, nextState);
+		Session session = onRemoteLeave(txn, s, m, REMOTE_LEFT);
 		// Stop sharing the shareable with the contact
 		if (session.getState() != ERROR)
-			setPrivateGroupVisibility(txn, s, INVISIBLE);
+			setShareableVisibility(txn, s, INVISIBLE);
 		// Move to the next state
 		return session;
 	}
@@ -503,7 +517,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		markInvitesUnavailableToAnswer(txn, s);
 		// If we subscribe, make the shareable invisible to the contact
 		if (isSubscribed(txn, s.getShareableId()))
-			setPrivateGroupVisibility(txn, s, INVISIBLE);
+			setShareableVisibility(txn, s, INVISIBLE);
 		// Send an ABORT message
 		Message sent = sendAbortMessage(txn, s);
 		// Move to the ERROR state
@@ -526,8 +540,12 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 
 	private boolean isSubscribed(Transaction txn, GroupId g)
 			throws DbException {
-		return db.containsGroup(txn, g);
+		if (!db.containsGroup(txn, g)) return false;
+		Group group = db.getGroup(txn, g);
+		return group.getClientId().equals(getClientId());
 	}
+
+	protected abstract ClientId getClientId();
 
 	private Message sendAbortMessage(Transaction txn, Session session)
 			throws DbException {
@@ -572,7 +590,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		}
 	}
 
-	private void setPrivateGroupVisibility(Transaction txn, Session session,
+	private void setShareableVisibility(Transaction txn, Session session,
 			Visibility v) throws DbException, FormatException {
 		ContactId contactId = getContactId(txn, session.getContactGroupId());
 		db.setGroupVisibility(txn, contactId, session.getShareableId(), v);

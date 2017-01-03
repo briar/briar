@@ -10,7 +10,7 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class InviteMessage<S extends Shareable> extends SharingMessage {
+class InviteMessage<S extends Shareable> extends SharingMessage {
 
 	private final S shareable;
 	@Nullable
