@@ -5,6 +5,7 @@ import org.briarproject.briar.api.sharing.event.InvitationRequestReceivedEvent;
 
 import javax.annotation.Nullable;
 
+@Deprecated
 @NotNullByDefault
 interface InvitationReceivedEventFactory<IS extends InviteeSessionState, IR extends InvitationRequestReceivedEvent> {
 

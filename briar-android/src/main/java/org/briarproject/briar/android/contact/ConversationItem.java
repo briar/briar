@@ -170,8 +170,7 @@ abstract class ConversationItem {
 			} else if (ir instanceof GroupInvitationRequest) {
 				text = ctx.getString(
 						R.string.groups_invitations_invitation_sent,
-						contactName,
-						((GroupInvitationRequest) ir).getGroupName());
+						contactName, ir.getShareable().getName());
 			} else {
 				throw new IllegalArgumentException("Unknown InvitationRequest");
 			}
@@ -194,8 +193,7 @@ abstract class ConversationItem {
 			} else if (ir instanceof GroupInvitationRequest) {
 				text = ctx.getString(
 						R.string.groups_invitations_invitation_received,
-						contactName,
-						((GroupInvitationRequest) ir).getGroupName());
+						contactName, ir.getShareable().getName());
 				type = GROUP;
 			} else {
 				throw new IllegalArgumentException("Unknown InvitationRequest");
@@ -203,7 +201,7 @@ abstract class ConversationItem {
 			return new ConversationRequestItem(ir.getId(),
 					ir.getGroupId(), type, ir.getSessionId(), text,
 					ir.getMessage(), ir.getTimestamp(), ir.isRead(),
-					ir.getInvitedGroupId(), !ir.isAvailable(),
+					ir.getShareable().getId(), !ir.isAvailable(),
 					ir.canBeOpened());
 		}
 	}

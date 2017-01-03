@@ -18,6 +18,7 @@ import static org.briarproject.briar.api.sharing.SharingConstants.SHAREABLE_ID;
 import static org.briarproject.briar.api.sharing.SharingConstants.STATE;
 import static org.briarproject.briar.api.sharing.SharingConstants.STORAGE_ID;
 
+@Deprecated
 @NotThreadSafe
 @NotNullByDefault
 abstract class SharingSessionState {

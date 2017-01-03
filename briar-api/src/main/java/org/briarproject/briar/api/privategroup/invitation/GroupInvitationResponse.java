@@ -13,11 +13,12 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class GroupInvitationResponse extends InvitationResponse {
 
-	public GroupInvitationResponse(MessageId id, SessionId sessionId,
-			GroupId groupId, ContactId contactId, GroupId privateGroupId,
-			boolean accept, long time, boolean local, boolean sent,
-			boolean seen, boolean read) {
-		super(id, sessionId, groupId, contactId, privateGroupId, accept, time,
-				local, sent, seen, read);
+	public GroupInvitationResponse(MessageId id, GroupId groupId, long time,
+			boolean local, boolean sent, boolean seen, boolean read,
+			SessionId sessionId, GroupId shareableId, ContactId contactId,
+			boolean accept) {
+		super(id, groupId, time, local, sent, seen, read, sessionId,
+				shareableId, contactId, accept);
 	}
+
 }

@@ -234,8 +234,9 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		// Broadcast an event
 		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
 				m.getGroupName(), m.getCreator(), m.getSalt());
-		txn.attach(new GroupInvitationRequestReceivedEvent(privateGroup,
-				contactId, createInvitationRequest(m, contactId)));
+		txn.attach(
+				new GroupInvitationRequestReceivedEvent(privateGroup, contactId,
+						createInvitationRequest(m, privateGroup, contactId)));
 		// Move to the INVITED state
 		return new InviteeSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -317,11 +318,11 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 	}
 
 	private GroupInvitationRequest createInvitationRequest(InviteMessage m,
-			ContactId c) {
+			PrivateGroup pg, ContactId c) {
 		SessionId sessionId = new SessionId(m.getPrivateGroupId().getBytes());
-		return new GroupInvitationRequest(m.getId(), sessionId,
-				m.getContactGroupId(), c, m.getMessage(), m.getPrivateGroupId(),
-				m.getGroupName(), m.getCreator(), true, false, m.getTimestamp(),
-				false, false, true, false);
+		return new GroupInvitationRequest(m.getId(), m.getContactGroupId(),
+				m.getTimestamp(), false, false, true, false, sessionId, pg, c,
+				m.getMessage(), true, false);
 	}
+
 }

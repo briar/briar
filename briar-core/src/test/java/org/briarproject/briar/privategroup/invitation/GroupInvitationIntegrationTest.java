@@ -12,6 +12,7 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
 import org.briarproject.briar.api.sharing.InvitationMessage;
+import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
@@ -97,10 +98,10 @@ public class GroupInvitationIntegrationTest
 		GroupInvitationRequest request =
 				(GroupInvitationRequest) messages.iterator().next();
 		assertEquals(msg, request.getMessage());
-		assertEquals(author0, request.getCreator());
+		assertEquals(author0, request.getShareable().getCreator());
 		assertEquals(timestamp, request.getTimestamp());
 		assertEquals(contactId0From1, request.getContactId());
-		assertEquals(privateGroup0.getName(), request.getGroupName());
+		assertEquals(privateGroup0.getName(), request.getShareable().getName());
 		assertFalse(request.isLocal());
 		assertFalse(request.isRead());
 	}
@@ -123,7 +124,7 @@ public class GroupInvitationIntegrationTest
 		for (InvitationMessage m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
-				GroupInvitationResponse response = (GroupInvitationResponse) m;
+				InvitationResponse response = (GroupInvitationResponse) m;
 				assertEquals(contactId0From1, response.getContactId());
 				assertTrue(response.isLocal());
 				assertFalse(response.wasAccepted());
@@ -140,7 +141,7 @@ public class GroupInvitationIntegrationTest
 		for (InvitationMessage m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
-				GroupInvitationResponse response = (GroupInvitationResponse) m;
+				InvitationResponse response = (GroupInvitationResponse) m;
 				assertEquals(contactId0From1, response.getContactId());
 				assertFalse(response.isLocal());
 				assertFalse(response.wasAccepted());
@@ -172,7 +173,7 @@ public class GroupInvitationIntegrationTest
 		for (InvitationMessage m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
-				GroupInvitationResponse response = (GroupInvitationResponse) m;
+				InvitationResponse response = (GroupInvitationResponse) m;
 				assertTrue(response.wasAccepted());
 			}
 		}
@@ -187,7 +188,7 @@ public class GroupInvitationIntegrationTest
 		for (InvitationMessage m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
-				GroupInvitationResponse response = (GroupInvitationResponse) m;
+				InvitationResponse response = (GroupInvitationResponse) m;
 				assertTrue(response.wasAccepted());
 			}
 		}

@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.sharing.Shareable;
 import org.briarproject.briar.api.sharing.SharingMessage;
 
+@Deprecated
 @NotNullByDefault
 interface ShareableFactory<S extends Shareable, I extends SharingMessage.Invitation, IS extends InviteeSessionState, SS extends SharerSessionState> {
 

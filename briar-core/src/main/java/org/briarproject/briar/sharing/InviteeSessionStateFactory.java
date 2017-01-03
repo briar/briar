@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.sharing.Shareable;
 
+@Deprecated
 interface InviteeSessionStateFactory<S extends Shareable, IS extends InviteeSessionState> {
 
 	IS build(SessionId sessionId, MessageId storageId, GroupId groupId,

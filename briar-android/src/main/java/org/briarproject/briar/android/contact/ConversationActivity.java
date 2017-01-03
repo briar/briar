@@ -1020,13 +1020,13 @@ public class ConversationActivity extends BriarActivity
 	@DatabaseExecutor
 	private void respondToForumRequest(SessionId id, boolean accept)
 			throws DbException {
-		forumSharingManager.respondToInvitation(id, accept);
+		forumSharingManager.respondToInvitation(contactId, id, accept);
 	}
 
 	@DatabaseExecutor
 	private void respondToBlogRequest(SessionId id, boolean accept)
 			throws DbException {
-		blogSharingManager.respondToInvitation(id, accept);
+		blogSharingManager.respondToInvitation(contactId, id, accept);
 	}
 
 	@DatabaseExecutor

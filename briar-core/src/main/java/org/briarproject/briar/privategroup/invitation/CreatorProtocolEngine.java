@@ -254,8 +254,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 	private GroupInvitationResponse createInvitationResponse(
 			GroupInvitationMessage m, ContactId c, boolean accept) {
 		SessionId sessionId = new SessionId(m.getPrivateGroupId().getBytes());
-		return new GroupInvitationResponse(m.getId(), sessionId,
-				m.getContactGroupId(), c, m.getPrivateGroupId(), accept,
-				m.getTimestamp(), false, false, true, false);
+		return new GroupInvitationResponse(m.getId(), m.getContactGroupId(),
+				m.getTimestamp(), false, false, true, false, sessionId,
+				m.getPrivateGroupId(), c, accept);
 	}
 }

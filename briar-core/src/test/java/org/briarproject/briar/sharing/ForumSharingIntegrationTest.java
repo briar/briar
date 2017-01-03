@@ -2,19 +2,14 @@ package org.briarproject.briar.sharing;
 
 import net.jodah.concurrentunit.Waiter;
 
-import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.test.TestDatabaseModule;
-import org.briarproject.briar.api.client.MessageQueueManager;
-import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationRequest;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
@@ -39,11 +34,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomString;
-import static org.briarproject.briar.api.forum.ForumConstants.FORUM_SALT_LENGTH;
-import static org.briarproject.briar.api.forum.ForumSharingManager.CLIENT_ID;
-import static org.briarproject.briar.api.sharing.SharingConstants.SHARE_MSG_TYPE_INVITATION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -115,7 +106,8 @@ public class ForumSharingIntegrationTest
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum0.getId(), contactId1From0, "Hi!");
+				.sendInvitation(forum0.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
 		// sync first request message
 		sync0To1(1, true);
@@ -171,7 +163,8 @@ public class ForumSharingIntegrationTest
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum0.getId(), contactId1From0, null);
+				.sendInvitation(forum0.getId(), contactId1From0, null,
+						clock.currentTimeMillis());
 
 		// sync first request message
 		sync0To1(1, true);
@@ -227,7 +220,8 @@ public class ForumSharingIntegrationTest
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum0.getId(), contactId1From0, "Hi!");
+				.sendInvitation(forum0.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
 		// sync first request message
 		sync0To1(1, true);
@@ -245,9 +239,8 @@ public class ForumSharingIntegrationTest
 		assertTrue(forumManager1.getForums().contains(forum0));
 
 		// sharer shares forum with invitee
-		Contact c1 = contactManager0.getContact(contactId1From0);
 		assertTrue(forumSharingManager0.getSharedWith(forum0.getId())
-				.contains(c1));
+				.contains(contact1From0));
 		// invitee gets forum shared by sharer
 		Contact contact0 = contactManager1.getContact(contactId1From0);
 		assertTrue(forumSharingManager1.getSharedWith(forum0.getId())
@@ -265,14 +258,16 @@ public class ForumSharingIntegrationTest
 
 		// sharer no longer shares forum with invitee
 		assertFalse(forumSharingManager0.getSharedWith(forum0.getId())
-				.contains(c1));
+				.contains(contact1From0));
 		// invitee no longer gets forum shared by sharer
 		assertFalse(forumSharingManager1.getSharedWith(forum0.getId())
 				.contains(contact0));
-		// forum can be shared again
-		assertTrue(forumSharingManager0.canBeShared(forum0.getId(), c1));
-		Contact c0 = contactManager1.getContact(contactId0From1);
-		assertTrue(forumSharingManager1.canBeShared(forum0.getId(), c0));
+		// forum can be shared again by sharer
+		assertTrue(forumSharingManager0
+				.canBeShared(forum0.getId(), contact1From0));
+		// invitee that left can not share again
+		assertFalse(forumSharingManager1
+				.canBeShared(forum0.getId(), contact0From1));
 	}
 
 	@Test
@@ -282,7 +277,8 @@ public class ForumSharingIntegrationTest
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum0.getId(), contactId1From0, null);
+				.sendInvitation(forum0.getId(), contactId1From0, null,
+						clock.currentTimeMillis());
 
 		// sync first request message
 		sync0To1(1, true);
@@ -336,7 +332,8 @@ public class ForumSharingIntegrationTest
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum0.getId(), contactId1From0, null);
+				.sendInvitation(forum0.getId(), contactId1From0, null,
+						clock.currentTimeMillis());
 
 		// sharer un-subscribes from forum
 		forumManager0.removeForum(forum0);
@@ -360,7 +357,8 @@ public class ForumSharingIntegrationTest
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum0.getId(), contactId1From0, null);
+				.sendInvitation(forum0.getId(), contactId1From0, null,
+						clock.currentTimeMillis());
 
 		// sharer un-subscribes from forum
 		forumManager0.removeForum(forum0);
@@ -375,73 +373,15 @@ public class ForumSharingIntegrationTest
 		assertEquals(1, forumManager1.getForums().size());
 	}
 
-	@Test
-	public void testSessionIdReuse() throws Exception {
-		// initialize and let invitee accept all requests
-		listenToEvents(true);
-
-		// send invitation
-		forumSharingManager0
-				.sendInvitation(forum0.getId(), contactId1From0, "Hi!");
-
-		// sync first request message
-		sync0To1(1, true);
-		eventWaiter.await(TIMEOUT, 1);
-		assertTrue(listener1.requestReceived);
-
-		// sync response back
-		sync1To0(1, true);
-		eventWaiter.await(TIMEOUT, 1);
-		assertTrue(listener0.responseReceived);
-
-		// forum was added successfully
-		assertEquals(1, forumManager1.getForums().size());
-
-		// reset event received state
-		listener1.requestReceived = false;
-
-		// get SessionId from invitation
-		List<InvitationMessage> list = new ArrayList<InvitationMessage>(
-				forumSharingManager1
-						.getInvitationMessages(contactId0From1));
-		assertEquals(2, list.size());
-		InvitationMessage msg = list.get(0);
-		SessionId sessionId = msg.getSessionId();
-		assertEquals(sessionId, list.get(1).getSessionId());
-
-		// get all sorts of stuff needed to send a message
-		MessageQueueManager queue = c0.getMessageQueueManager();
-		Contact c1 = contactManager0.getContact(contactId1From0);
-		Group group = contactGroupFactory.createContactGroup(CLIENT_ID, c1);
-		long time = clock.currentTimeMillis();
-		BdfList bodyList =
-				BdfList.of(SHARE_MSG_TYPE_INVITATION, sessionId.getBytes(),
-						getRandomString(42), getRandomBytes(FORUM_SALT_LENGTH));
-		byte[] body = clientHelper.toByteArray(bodyList);
-
-		// add the message to the queue
-		Transaction txn = db0.startTransaction(false);
-		try {
-			queue.sendMessage(txn, group, time, body, new Metadata());
-			db0.commitTransaction(txn);
-		} finally {
-			db0.endTransaction(txn);
-		}
-
-		// actually send the message
-		sync0To1(1, false);
-		// make sure there was no new request received
-		assertFalse(listener1.requestReceived);
-	}
-
-	@Test
+	@Test(expected = ProtocolStateException.class)
 	public void testSharingSameForumWithEachOther() throws Exception {
 		// initialize and let invitee accept all requests
 		listenToEvents(true);
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum0.getId(), contactId1From0, "Hi!");
+				.sendInvitation(forum0.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
 		// sync first request message
 		sync0To1(1, true);
@@ -455,24 +395,12 @@ public class ForumSharingIntegrationTest
 
 		// forum was added successfully
 		assertEquals(1, forumManager1.getForums().size());
-		assertEquals(2,
-				forumSharingManager0.getInvitationMessages(contactId1From0)
-						.size());
 
 		// invitee now shares same forum back
 		forumSharingManager1.sendInvitation(forum0.getId(),
 				contactId0From1,
-				"I am re-sharing this forum with you.");
-
-		// sync re-share invitation
-		sync1To0(1, false);
-
-		// make sure that no new request was received
-		assertFalse(listener0.requestReceived);
-		assertEquals(2,
-				forumSharingManager0.getInvitationMessages(contactId1From0)
-						.size());
-		assertEquals(0, forumSharingManager0.getInvitations().size());
+				"I am re-sharing this forum with you.",
+				clock.currentTimeMillis());
 	}
 
 	@Test
@@ -482,62 +410,48 @@ public class ForumSharingIntegrationTest
 
 		// invitee adds the same forum
 		Transaction txn = db1.startTransaction(false);
-		db1.addGroup(txn, forum0.getGroup());
+		forumManager1.addForum(txn, forum0);
 		db1.commitTransaction(txn);
 		db1.endTransaction(txn);
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum0.getId(), contactId1From0, "Hi!");
+				.sendInvitation(forum0.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
 		// invitee now shares same forum back
 		forumSharingManager1.sendInvitation(forum0.getId(),
-				contactId0From1, "I am re-sharing this forum with you.");
+				contactId0From1, "I am re-sharing this forum with you.",
+				clock.currentTimeMillis());
 
-		// find out who should be Alice, because of random keys
-		Bytes key0 = new Bytes(author0.getPublicKey());
-		Bytes key1 = new Bytes(author1.getPublicKey());
+		// prevent automatic responses
+		respond = false;
 
 		// only now sync first request message
-		boolean alice = key1.compareTo(key0) < 0;
-		if (alice) {
-			sync0To1(1, false);
-			assertFalse(listener1.requestReceived);
-		} else {
-			sync0To1(1, true);
-			eventWaiter.await(TIMEOUT, 1);
-			assertTrue(listener1.requestReceived);
-		}
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener1.requestReceived);
 
-		// sync second invitation
-		alice = key0.compareTo(key1) < 0;
-		if (alice) {
-			sync1To0(1, false);
-			assertFalse(listener0.requestReceived);
+		// sync second invitation which counts as accept
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener0.requestReceived);
 
-			// sharer did not receive request, but response to own request
-			eventWaiter.await(TIMEOUT, 1);
-			assertTrue(listener0.responseReceived);
+		// both peers should share the forum with each other now
+		assertTrue(forumSharingManager0.getSharedWith(forum0.getId())
+				.contains(contact1From0));
+		assertTrue(forumSharingManager1.getSharedWith(forum0.getId())
+				.contains(contact0From1));
 
-			assertEquals(2, forumSharingManager0
-					.getInvitationMessages(contactId1From0).size());
-			assertEquals(3, forumSharingManager1
-					.getInvitationMessages(contactId0From1).size());
-		} else {
-			sync1To0(1, true);
-			eventWaiter.await(TIMEOUT, 1);
-			assertTrue(listener0.requestReceived);
+		// and both have each other's invitations (and no response)
+		assertEquals(2, forumSharingManager0
+				.getInvitationMessages(contactId1From0).size());
+		assertEquals(2, forumSharingManager1
+				.getInvitationMessages(contactId0From1).size());
 
-			// send response from sharer to invitee and make sure it arrived
-			sync0To1(1, true);
-			eventWaiter.await(TIMEOUT, 1);
-			assertTrue(listener1.responseReceived);
-
-			assertEquals(3, forumSharingManager0
-					.getInvitationMessages(contactId1From0).size());
-			assertEquals(2, forumSharingManager1
-					.getInvitationMessages(contactId0From1).size());
-		}
+		// there are no more open invitations
+		assertTrue(forumSharingManager0.getInvitations().isEmpty());
+		assertTrue(forumSharingManager1.getInvitations().isEmpty());
 	}
 
 	@Test
@@ -547,7 +461,8 @@ public class ForumSharingIntegrationTest
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum0.getId(), contactId1From0, "Hi!");
+				.sendInvitation(forum0.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
 		// sync first request message
 		sync0To1(1, true);
@@ -564,17 +479,11 @@ public class ForumSharingIntegrationTest
 		assertEquals(1,
 				forumSharingManager0.getSharedWith(forum0.getId()).size());
 
-		// remember SessionId from invitation
-		List<InvitationMessage> list = new ArrayList<InvitationMessage>(
-				forumSharingManager1
-						.getInvitationMessages(contactId0From1));
-		assertEquals(2, list.size());
-		InvitationMessage msg = list.get(0);
-		SessionId sessionId = msg.getSessionId();
-		assertEquals(sessionId, list.get(1).getSessionId());
-
 		// contacts now remove each other
 		removeAllContacts();
+
+		// invitee still has forum
+		assertEquals(1, forumManager1.getForums().size());
 
 		// make sure sharer does share the forum with nobody now
 		assertEquals(0,
@@ -584,35 +493,30 @@ public class ForumSharingIntegrationTest
 		addDefaultContacts();
 		addContacts1And2();
 
-		// get all sorts of stuff needed to send a message
-		MessageQueueManager queue = c0.getMessageQueueManager();
-		Contact c1 = contactManager0.getContact(contactId1From0);
-		Group group = contactGroupFactory.createContactGroup(CLIENT_ID, c1);
-		long time = clock.currentTimeMillis();
+		// forum can be shared with contacts again
+		assertTrue(forumSharingManager0
+				.canBeShared(forum0.getId(), contact1From0));
+		assertTrue(forumSharingManager0
+				.canBeShared(forum0.getId(), contact2From0));
+		// send invitation
+		forumSharingManager0
+				.sendInvitation(forum0.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
-		// construct a new message re-using the old SessionId
-		BdfList bodyList = BdfList.of(SHARE_MSG_TYPE_INVITATION,
-				sessionId.getBytes(),
-				getRandomString(42),
-				getRandomBytes(FORUM_SALT_LENGTH)
-		);
-		byte[] body = clientHelper.toByteArray(bodyList);
-
-		// add the message to the queue
-		Transaction txn = db0.startTransaction(false);
-		try {
-			queue.sendMessage(txn, group, time, body, new Metadata());
-			db0.commitTransaction(txn);
-		} finally {
-			db0.endTransaction(txn);
-		}
-
-		// actually send the message
+		// sync first request message
 		sync0To1(1, true);
 		eventWaiter.await(TIMEOUT, 1);
-		// make sure the new request was received with the same sessionId
-		// as proof that the state got deleted along with contacts
 		assertTrue(listener1.requestReceived);
+
+		// sync response back
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener0.responseReceived);
+
+		// forum is still there
+		assertEquals(1, forumManager1.getForums().size());
+		assertEquals(1,
+				forumSharingManager0.getSharedWith(forum0.getId()).size());
 	}
 
 	@Test
@@ -633,14 +537,16 @@ public class ForumSharingIntegrationTest
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum0.getId(), contactId1From0, "Hi!");
+				.sendInvitation(forum0.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 		// sync first request message
 		sync0To1(1, true);
 
 		// second sharer sends invitation for same forum
 		assertTrue(contactId1From2 != null);
 		forumSharingManager2
-				.sendInvitation(forum0.getId(), contactId1From2, null);
+				.sendInvitation(forum0.getId(), contactId1From2, null,
+						clock.currentTimeMillis());
 		// sync second request message
 		sync2To1(1, true);
 
@@ -650,13 +556,6 @@ public class ForumSharingIntegrationTest
 		assertEquals(1, forums.size());
 		assertEquals(2, forums.iterator().next().getNewSharers().size());
 		assertEquals(forum0, forums.iterator().next().getShareable());
-		assertEquals(2,
-				forumSharingManager1.getSharedWith(forum0.getId()).size());
-
-		// make sure both sharers actually share the forum
-		Collection<Contact> contacts =
-				forumSharingManager1.getSharedWith(forum0.getId());
-		assertEquals(2, contacts.size());
 
 		// answer second request
 		assertNotNull(contactId2From1);
@@ -675,6 +574,11 @@ public class ForumSharingIntegrationTest
 		sync1To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.responseReceived);
+
+		// make sure both sharers actually share the forum
+		Collection<Contact> contacts =
+				forumSharingManager1.getSharedWith(forum0.getId());
+		assertEquals(2, contacts.size());
 	}
 
 	@Test
@@ -684,7 +588,8 @@ public class ForumSharingIntegrationTest
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum0.getId(), contactId1From0, "Hi!");
+				.sendInvitation(forum0.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
 		// sync first request message
 		sync0To1(1, true);
@@ -745,7 +650,8 @@ public class ForumSharingIntegrationTest
 
 		// send invitation again
 		forumSharingManager0
-				.sendInvitation(forum0.getId(), contactId1From0, "Hi!");
+				.sendInvitation(forum0.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
 
 		// sync first request message
 		sync0To1(1, true);
@@ -799,8 +705,10 @@ public class ForumSharingIntegrationTest
 				requestReceived = true;
 				Forum f = event.getShareable();
 				try {
-					Contact c = contactManager0.getContact(contactId1From0);
-					forumSharingManager0.respondToInvitation(f, c, true);
+					if (respond) {
+						Contact c = contactManager0.getContact(contactId1From0);
+						forumSharingManager0.respondToInvitation(f, c, true);
+					}
 				} catch (DbException ex) {
 					eventWaiter.rethrow(ex);
 				} finally {
@@ -814,7 +722,6 @@ public class ForumSharingIntegrationTest
 	private class InviteeListener implements EventListener {
 
 		private volatile boolean requestReceived = false;
-		private volatile boolean responseReceived = false;
 
 		private final boolean accept, answer;
 
@@ -836,13 +743,13 @@ public class ForumSharingIntegrationTest
 				if (!answer) return;
 				Forum f = event.getShareable();
 				try {
-					eventWaiter.assertEquals(1,
-							forumSharingManager1.getInvitations().size());
-					SharingInvitationItem invitation =
-							forumSharingManager1.getInvitations().iterator()
-									.next();
-					eventWaiter.assertEquals(f, invitation.getShareable());
 					if (respond) {
+						eventWaiter.assertEquals(1,
+								forumSharingManager1.getInvitations().size());
+						SharingInvitationItem invitation =
+								forumSharingManager1.getInvitations().iterator()
+										.next();
+						eventWaiter.assertEquals(f, invitation.getShareable());
 						Contact c =
 								contactManager1
 										.getContact(event.getContactId());
@@ -859,7 +766,6 @@ public class ForumSharingIntegrationTest
 				ForumInvitationResponseReceivedEvent event =
 						(ForumInvitationResponseReceivedEvent) e;
 				eventWaiter.assertEquals(contactId0From1, event.getContactId());
-				responseReceived = true;
 				eventWaiter.resume();
 			}
 		}

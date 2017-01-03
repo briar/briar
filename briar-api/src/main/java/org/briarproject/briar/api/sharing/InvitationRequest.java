@@ -11,20 +11,19 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public abstract class InvitationRequest extends InvitationMessage {
+public class InvitationRequest<S extends Shareable> extends InvitationMessage {
 
+	private final S shareable;
 	@Nullable
 	private final String message;
 	private final boolean available, canBeOpened;
 
-	public InvitationRequest(MessageId id, SessionId sessionId, GroupId groupId,
-			ContactId contactId, @Nullable String message,
-			GroupId invitedGroupId, boolean available,
-			boolean canBeOpened, long time, boolean local, boolean sent,
-			boolean seen, boolean read) {
-		super(id, sessionId, groupId, contactId, invitedGroupId, time, local,
-				sent, seen, read);
-		if (available && canBeOpened) throw new IllegalArgumentException();
+	public InvitationRequest(MessageId id, GroupId groupId, long time,
+			boolean local, boolean sent, boolean seen, boolean read,
+			SessionId sessionId, S shareable, ContactId contactId,
+			@Nullable String message, boolean available, boolean canBeOpened) {
+		super(id, groupId, time, local, sent, seen, read, sessionId, contactId);
+		this.shareable = shareable;
 		this.message = message;
 		this.available = available;
 		this.canBeOpened = canBeOpened;
@@ -41,6 +40,10 @@ public abstract class InvitationRequest extends InvitationMessage {
 
 	public boolean canBeOpened() {
 		return canBeOpened;
+	}
+
+	public S getShareable() {
+		return shareable;
 	}
 
 }

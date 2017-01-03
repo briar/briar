@@ -23,6 +23,7 @@ import static org.briarproject.briar.sharing.InviteeSessionState.Action.LOCAL_LE
 import static org.briarproject.briar.sharing.InviteeSessionState.Action.REMOTE_INVITATION;
 import static org.briarproject.briar.sharing.InviteeSessionState.Action.REMOTE_LEAVE;
 
+@Deprecated
 @NotThreadSafe
 @NotNullByDefault
 public abstract class InviteeSessionState extends SharingSessionState {

@@ -29,6 +29,7 @@ import static org.briarproject.briar.api.sharing.SharingMessage.SimpleMessage;
 import static org.briarproject.briar.sharing.SharerSessionState.Action.REMOTE_ACCEPT;
 import static org.briarproject.briar.sharing.SharerSessionState.Action.REMOTE_DECLINE;
 
+@Deprecated
 @Immutable
 @NotNullByDefault
 class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR extends InvitationResponseReceivedEvent>
@@ -37,12 +38,12 @@ class SharerEngine<I extends Invitation, SS extends SharerSessionState, IRR exte
 	private static final Logger LOG =
 			Logger.getLogger(SharerEngine.class.getName());
 
-	private final InvitationFactory<I, SS> invitationFactory;
+	private final OldInvitationFactory<I, SS> invitationFactory;
 	private final InvitationResponseReceivedEventFactory<SS, IRR>
 			invitationResponseReceivedEventFactory;
 	private final Clock clock;
 
-	SharerEngine(InvitationFactory<I, SS> invitationFactory,
+	SharerEngine(OldInvitationFactory<I, SS> invitationFactory,
 			InvitationResponseReceivedEventFactory<SS, IRR> invitationResponseReceivedEventFactory,
 			Clock clock) {
 		this.invitationFactory = invitationFactory;

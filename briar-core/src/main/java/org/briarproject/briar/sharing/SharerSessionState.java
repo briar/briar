@@ -23,6 +23,7 @@ import static org.briarproject.briar.sharing.SharerSessionState.Action.REMOTE_AC
 import static org.briarproject.briar.sharing.SharerSessionState.Action.REMOTE_DECLINE;
 import static org.briarproject.briar.sharing.SharerSessionState.Action.REMOTE_LEAVE;
 
+@Deprecated
 @NotThreadSafe
 @NotNullByDefault
 public abstract class SharerSessionState extends SharingSessionState {

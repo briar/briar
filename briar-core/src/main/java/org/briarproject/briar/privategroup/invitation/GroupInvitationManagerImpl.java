@@ -71,7 +71,6 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	private final ProtocolEngine<CreatorSession> creatorEngine;
 	private final ProtocolEngine<InviteeSession> inviteeEngine;
 	private final ProtocolEngine<PeerSession> peerEngine;
-	private final Group localGroup;
 
 	@Inject
 	GroupInvitationManagerImpl(DatabaseComponent db,
@@ -93,12 +92,10 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		creatorEngine = engineFactory.createCreatorEngine();
 		inviteeEngine = engineFactory.createInviteeEngine();
 		peerEngine = engineFactory.createPeerEngine();
-		localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID);
 	}
 
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
-		db.addGroup(txn, localGroup);
 		// Ensure we've set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
@@ -404,22 +401,15 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			throws DbException, FormatException {
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
 		// Look up the invite message to get the details of the private group
-		InviteMessage invite = getInviteMessage(txn, m);
+		InviteMessage invite = messageParser.getInviteMessage(txn, m);
+		PrivateGroup pg = privateGroupFactory
+				.createPrivateGroup(invite.getGroupName(), invite.getCreator(),
+						invite.getSalt());
 		boolean canBeOpened = db.containsGroup(txn, invite.getPrivateGroupId());
-		return new GroupInvitationRequest(m, sessionId, contactGroupId, c,
-				invite.getMessage(), invite.getPrivateGroupId(),
-				invite.getGroupName(), invite.getCreator(),
-				meta.isAvailableToAnswer(), canBeOpened, meta.getTimestamp(),
-				meta.isLocal(), status.isSent(), status.isSeen(),
-				meta.isRead());
-	}
-
-	private InviteMessage getInviteMessage(Transaction txn, MessageId m)
-			throws DbException, FormatException {
-		Message message = clientHelper.getMessage(txn, m);
-		if (message == null) throw new DbException();
-		BdfList body = clientHelper.toList(message);
-		return messageParser.parseInviteMessage(message, body);
+		return new GroupInvitationRequest(m, contactGroupId,
+				meta.getTimestamp(), meta.isLocal(), status.isSent(),
+				status.isSeen(), meta.isRead(), sessionId, pg, c,
+				invite.getMessage(), meta.isAvailableToAnswer(), canBeOpened);
 	}
 
 	private GroupInvitationResponse parseInvitationResponse(ContactId c,
@@ -427,10 +417,10 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			MessageStatus status, boolean accept)
 			throws DbException, FormatException {
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
-		return new GroupInvitationResponse(m, sessionId, contactGroupId, c,
-				meta.getPrivateGroupId(), accept, meta.getTimestamp(),
-				meta.isLocal(), status.isSent(), status.isSeen(),
-				meta.isRead());
+		return new GroupInvitationResponse(m, contactGroupId,
+				meta.getTimestamp(), meta.isLocal(), status.isSent(),
+				status.isSeen(), meta.isRead(), sessionId,
+				meta.getPrivateGroupId(), c, accept);
 	}
 
 	@Override
@@ -481,7 +471,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	private GroupInvitationItem parseGroupInvitationItem(Transaction txn,
 			Contact c, MessageId m) throws DbException, FormatException {
-		InviteMessage invite = getInviteMessage(txn, m);
+		InviteMessage invite = messageParser.getInviteMessage(txn, m);
 		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
 				invite.getGroupName(), invite.getCreator(), invite.getSalt());
 		return new GroupInvitationItem(privateGroup, c);

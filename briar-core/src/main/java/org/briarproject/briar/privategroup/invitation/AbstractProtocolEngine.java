@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfDictionary;
-import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -177,7 +176,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 
 	void subscribeToPrivateGroup(Transaction txn, MessageId inviteId)
 			throws DbException, FormatException {
-		InviteMessage invite = getInviteMessage(txn, inviteId);
+		InviteMessage invite = messageParser.getInviteMessage(txn, inviteId);
 		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
 				invite.getGroupName(), invite.getCreator(), invite.getSalt());
 		long timestamp =
@@ -195,14 +194,6 @@ abstract class AbstractProtocolEngine<S extends Session>
 		return Math.max(clock.currentTimeMillis(),
 				Math.max(session.getLocalTimestamp(),
 						session.getInviteTimestamp()) + 1);
-	}
-
-	private InviteMessage getInviteMessage(Transaction txn, MessageId m)
-			throws DbException, FormatException {
-		Message message = clientHelper.getMessage(txn, m);
-		if (message == null) throw new DbException();
-		BdfList body = clientHelper.toList(message);
-		return messageParser.parseInviteMessage(message, body);
 	}
 
 	private void sendMessage(Transaction txn, Message m, MessageType type,
