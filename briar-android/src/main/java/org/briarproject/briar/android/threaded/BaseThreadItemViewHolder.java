@@ -20,9 +20,6 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 import org.briarproject.briar.android.view.AuthorView;
 
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
-
 @UiThread
 @NotNullByDefault
 public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
@@ -33,7 +30,6 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 	protected final TextView textView;
 	private final ViewGroup layout;
 	private final AuthorView author;
-	private final View topDivider;
 
 	public BaseThreadItemViewHolder(View v) {
 		super(v);
@@ -41,43 +37,30 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 		layout = (ViewGroup) v.findViewById(R.id.layout);
 		textView = (TextView) v.findViewById(R.id.text);
 		author = (AuthorView) v.findViewById(R.id.author);
-		topDivider = v.findViewById(R.id.top_divider);
 	}
 
-	// TODO improve encapsulation, so we don't need to pass the adapter here
 	@CallSuper
-	public void bind(final ThreadItemAdapter<I> adapter,
-			final ThreadItemListener<I> listener, final I item, int pos) {
-
+	public void bind(final I item, final ThreadItemListener<I> listener) {
 		textView.setText(StringUtils.trim(item.getText()));
-
-		if (pos == 0) {
-			topDivider.setVisibility(INVISIBLE);
-		} else {
-			topDivider.setVisibility(VISIBLE);
-		}
 
 		author.setAuthor(item.getAuthor());
 		author.setDate(item.getTimestamp());
 		author.setAuthorStatus(item.getStatus());
 
-		if (item.equals(adapter.getReplyItem())) {
+		if (item.isHighlighted()) {
 			layout.setActivated(true);
 		} else if (!item.isRead()) {
 			layout.setActivated(true);
-			animateFadeOut(adapter, item);
+			animateFadeOut();
 			listener.onUnreadItemVisible(item);
 		} else {
 			layout.setActivated(false);
 		}
 	}
 
-	private void animateFadeOut(final ThreadItemAdapter<I> adapter,
-			final I addedItem) {
-
+	private void animateFadeOut() {
 		setIsRecyclable(false);
 		ValueAnimator anim = new ValueAnimator();
-		adapter.addAnimatingItem(addedItem, anim);
 		ColorDrawable viewColor = new ColorDrawable(ContextCompat
 				.getColor(getContext(), R.color.forum_cell_highlight));
 		anim.setIntValues(viewColor.getColor(), ContextCompat
@@ -94,7 +77,6 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 						R.drawable.list_item_thread_background);
 				layout.setActivated(false);
 				setIsRecyclable(true);
-				adapter.removeAnimatingItem(addedItem);
 			}
 			@Override
 			public void onAnimationCancel(Animator animation) {

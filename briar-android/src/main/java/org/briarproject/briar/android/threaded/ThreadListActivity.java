@@ -3,6 +3,7 @@ package org.briarproject.briar.android.threaded;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
@@ -32,11 +33,11 @@ import org.briarproject.briar.android.view.TextInputView.TextInputListener;
 import org.briarproject.briar.android.view.UnreadMessageButton;
 import org.briarproject.briar.api.client.NamedGroup;
 import org.briarproject.briar.api.client.PostHeader;
+import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 
 import java.util.Collection;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.make;
@@ -62,9 +63,11 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 
 	protected A adapter;
 	protected BriarRecyclerView list;
+	private LinearLayoutManager layoutManager;
 	protected TextInputView textInput;
 	protected GroupId groupId;
 	private UnreadMessageButton upButton, downButton;
+	@Nullable
 	private MessageId replyId;
 
 	protected abstract ThreadListController<G, I, H> getController();
@@ -89,9 +92,9 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		textInput.setVisibility(GONE);
 		textInput.setListener(this);
 		list = (BriarRecyclerView) findViewById(R.id.list);
-		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-		list.setLayoutManager(linearLayoutManager);
-		adapter = createAdapter(linearLayoutManager);
+		layoutManager = new LinearLayoutManager(this);
+		list.setLayoutManager(layoutManager);
+		adapter = createAdapter(layoutManager);
 		list.setAdapter(adapter);
 
 		list.getRecyclerView().addOnScrollListener(
@@ -179,7 +182,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 								adapter.setItems(items);
 								list.showData();
 								if (replyId != null)
-									adapter.setReplyItemById(replyId);
+									adapter.setHighlightedItem(replyId);
 							}
 						} else {
 							LOG.info("Concurrent update, reloading");
@@ -240,7 +243,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		super.onSaveInstanceState(outState);
 		boolean visible = textInput.getVisibility() == VISIBLE;
 		outState.putBoolean(KEY_INPUT_VISIBILITY, visible);
-		ThreadItem replyItem = adapter.getReplyItem();
+		ThreadItem replyItem = adapter.getHighlightedItem();
 		if (replyItem != null) {
 			outState.putByteArray(KEY_REPLY_ID, replyItem.getId().getBytes());
 		}
@@ -261,7 +264,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	public void onBackPressed() {
 		if (textInput.getVisibility() == VISIBLE) {
 			textInput.setVisibility(GONE);
-			adapter.setReplyItem(null);
+			adapter.setHighlightedItem(null);
 		} else {
 			super.onBackPressed();
 		}
@@ -276,8 +279,21 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	}
 
 	@Override
-	public void onReplyClick(I item) {
+	public void onReplyClick(final I item) {
 		showTextInput(item);
+		if (textInput.isKeyboardOpen()) {
+			scrollToItemAtTop(item);
+		} else {
+			// wait with scrolling until keyboard opened
+			textInput.addOnKeyboardShownListener(
+					new KeyboardAwareLinearLayout.OnKeyboardShownListener() {
+						@Override
+						public void onKeyboardShown() {
+							scrollToItemAtTop(item);
+							textInput.removeOnKeyboardShownListener(this);
+						}
+					});
+		}
 	}
 
 	@Override
@@ -300,7 +316,15 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		}
 	}
 
-	protected void displaySnackbarShort(@StringRes int stringId) {
+	private void scrollToItemAtTop(I item) {
+		int position = adapter.findItemPosition(item);
+		if (position != NO_POSITION) {
+			layoutManager
+					.scrollToPositionWithOffset(position, 0);
+		}
+	}
+
+	protected void displaySnackbar(@StringRes int stringId) {
 		Snackbar snackbar = make(list, stringId, Snackbar.LENGTH_SHORT);
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
 		snackbar.show();
@@ -318,7 +342,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		textInput.showSoftKeyboard();
 		textInput.setHint(replyItem == null ? R.string.forum_new_message_hint :
 				R.string.forum_message_reply_hint);
-		adapter.setReplyItem(replyItem);
+		adapter.setHighlightedItem(
+				replyItem == null ? null : replyItem.getId());
 	}
 
 	@Override
@@ -326,10 +351,10 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		if (text.trim().length() == 0)
 			return;
 		if (StringUtils.utf8IsTooLong(text, getMaxBodyLength())) {
-			displaySnackbarShort(R.string.text_too_long);
+			displaySnackbar(R.string.text_too_long);
 			return;
 		}
-		I replyItem = adapter.getReplyItem();
+		I replyItem = adapter.getHighlightedItem();
 		UiResultExceptionHandler<I, DbException> handler =
 				new UiResultExceptionHandler<I, DbException>(this) {
 					@Override
@@ -346,7 +371,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		textInput.hideSoftKeyboard();
 		textInput.setVisibility(GONE);
 		textInput.setText("");
-		adapter.setReplyItem(null);
+		adapter.setHighlightedItem(null);
 	}
 
 	protected abstract int getMaxBodyLength();
@@ -377,7 +402,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		adapter.add(item);
 
 		if (isLocal) {
-			displaySnackbarShort(getItemPostedString());
+			displaySnackbar(getItemPostedString());
+			scrollToItemAtTop(item);
 		} else {
 			updateUnreadCount();
 		}

@@ -83,7 +83,6 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 		list.add(node);
 		List<T> children = nodeMap.get(node.getId());
 		node.setLevel(level);
-		node.setDescendantCount(children.size());
 		for (T child : children) {
 			traverse(list, child, level + 1);
 		}

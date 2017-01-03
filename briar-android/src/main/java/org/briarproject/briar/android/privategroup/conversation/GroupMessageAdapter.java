@@ -31,9 +31,8 @@ class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 	@LayoutRes
 	@Override
 	public int getItemViewType(int position) {
-		GroupMessageItem item = getVisibleItem(position);
-		if (item != null) return item.getLayout();
-		return R.layout.list_item_thread;
+		GroupMessageItem item = items.get(position);
+		return item.getLayout();
 	}
 
 	@Override
@@ -58,7 +57,7 @@ class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 			GroupMessageItem item = items.get(position);
 			if (item instanceof JoinMessageItem) {
 				((JoinMessageItem) item).setVisibility(v);
-				notifyItemChanged(getVisiblePos(item), item);
+				notifyItemChanged(findItemPosition(item), item);
 			}
 		}
 	}

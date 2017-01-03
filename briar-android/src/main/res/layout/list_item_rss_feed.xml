@@ -113,7 +113,7 @@
 		tools:text="This is a description of the RSS feed. It can be several lines long, but it can also not exist at all if it is not present in the feed itself."/>
 
 	<View
-		style="@style/Divider.ForumList"
+		style="@style/Divider.ThreadItem"
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentStart="true"
 		android:layout_below="@+id/descriptionView"
