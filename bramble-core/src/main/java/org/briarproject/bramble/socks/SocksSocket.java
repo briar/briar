@@ -12,6 +12,18 @@ import java.net.SocketAddress;
 
 class SocksSocket extends Socket {
 
+	private static final String[] ERRORS = {
+			"Succeeded",
+			"General SOCKS server failure",
+			"Connection not allowed by ruleset",
+			"Network unreachable",
+			"Host unreachable",
+			"Connection refused",
+			"TTL expired",
+			"Command not supported",
+			"Address type not supported"
+	};
+
 	private final SocketAddress proxy;
 	private final int connectToProxyTimeout;
 
@@ -93,13 +105,16 @@ class SocksSocket extends Socket {
 	private void receiveConnectResponse(InputStream in) throws IOException {
 		byte[] connectResponse = new byte[4];
 		IoUtils.read(in, connectResponse);
-		byte version = connectResponse[0];
-		byte reply = connectResponse[1];
-		byte addressType = connectResponse[3];
+		int version = connectResponse[0] & 0xFF;
+		int reply = connectResponse[1] & 0xFF;
+		int addressType = connectResponse[3] & 0xFF;
 		if (version != 5)
 			throw new IOException("Unsupported SOCKS version: " + version);
-		if (reply != 0)
-			throw new IOException("Connection failed: " + reply);
+		if (reply != 0) {
+			if (reply < ERRORS.length)
+				throw new IOException("Connection failed: " + ERRORS[reply]);
+			else throw new IOException("Connection failed: " + reply);
+		}
 		if (addressType == 1) IoUtils.read(in, new byte[4]); // IPv4
 		else if (addressType == 4) IoUtils.read(in, new byte[16]); // IPv6
 		else throw new IOException("Unsupported address type: " + addressType);
