@@ -108,7 +108,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Add the personal blog of the contact and share it with the contact
 		Blog b = blogFactory.createBlog(c.getAuthor());
-		db.addGroup(txn, b.getGroup());
+		addBlog(txn, b);
 		db.setGroupVisibility(txn, c.getId(), b.getId(), SHARED);
 		// Share our personal blog with the contact
 		LocalAuthor a = identityManager.getLocalAuthor(txn);
@@ -168,6 +168,25 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		}
 		// don't share message until parent arrives
 		return false;
+	}
+
+	@Override
+	public Blog addBlog(Author author) throws DbException {
+		Blog b = blogFactory.createBlog(author);
+
+		Transaction txn = db.startTransaction(false);
+		try {
+			db.addGroup(txn, b.getGroup());
+			db.commitTransaction(txn);
+		} finally {
+			db.endTransaction(txn);
+		}
+		return b;
+	}
+
+	@Override
+	public void addBlog(Transaction txn, Blog b) throws DbException {
+		db.addGroup(txn, b.getGroup());
 	}
 
 	@Override

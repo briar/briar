@@ -4,7 +4,6 @@ import net.jodah.concurrentunit.Waiter;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -17,6 +16,7 @@ import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
+import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.sharing.InvitationMessage;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
@@ -35,7 +35,6 @@ import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class BlogSharingIntegrationTest
 		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
@@ -92,7 +91,7 @@ public class BlogSharingIntegrationTest
 		injectEagerSingletons(c2);
 	}
 
-	@Test
+	@Test(expected = ProtocolStateException.class)
 	public void testPersonalBlogCannotBeSharedWithOwner() throws Exception {
 		listenToEvents(true);
 
@@ -109,11 +108,6 @@ public class BlogSharingIntegrationTest
 		blogSharingManager0
 				.sendInvitation(blog1.getId(), contactId1From0, "Hi!",
 						clock.currentTimeMillis());
-
-		// sync invitation
-		sync0To1(1, false);
-		// make sure the invitee ignored the request for their own blog
-		assertFalse(listener1.requestReceived);
 	}
 
 	@Test
@@ -293,17 +287,11 @@ public class BlogSharingIntegrationTest
 		assertFalse(blogSharingManager0.getSharedWith(blog2.getId())
 				.contains(contact1From0));
 		// invitee no longer has blog shared by sharer
-		try {
-			blogSharingManager1.getSharedWith(blog2.getId());
-			fail();
-		} catch (NoSuchGroupException e) {
-			// expected
-		}
-		// blog can be shared again
+		assertEquals(0,
+				blogSharingManager1.getSharedWith(blog2.getId()).size());
+		// blog can be shared again by sharer
 		assertTrue(
 				blogSharingManager0.canBeShared(blog2.getId(), contact1From0));
-		assertTrue(
-				blogSharingManager1.canBeShared(blog2.getId(), contact0From1));
 	}
 
 	@Test

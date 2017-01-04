@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.sharing.Shareable;
+import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 
 import java.util.Map;
 
@@ -486,6 +487,14 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		// The dependency, if any, must be the last remote message
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
+		if (s.getState() == SHARING) {
+			// Broadcast event informing that contact left
+			ContactId contactId = getContactId(txn, s.getContactGroupId());
+			ContactLeftShareableEvent e =
+					new ContactLeftShareableEvent(s.getShareableId(),
+							contactId);
+			txn.attach(e);
+		}
 		// Move to the next state
 		return new Session(nextState, s.getContactGroupId(), s.getShareableId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),

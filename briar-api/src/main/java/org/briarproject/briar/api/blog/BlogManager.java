@@ -22,6 +22,16 @@ public interface BlogManager {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.blog");
 
 	/**
+	 * Adds a blog from the given author.
+	 */
+	Blog addBlog(Author author) throws DbException;
+
+	/**
+	 * Adds the given {@link Blog} within the given {@link Transaction}.
+	 */
+	void addBlog(Transaction txn, Blog b) throws DbException;
+
+	/**
 	 * Returns true if a blog can be removed.
 	 */
 	boolean canBeRemoved(GroupId g) throws DbException;

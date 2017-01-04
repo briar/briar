@@ -1,5 +1,6 @@
 package org.briarproject.briar.api.blog;
 
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 
 public interface BlogConstants {
@@ -7,12 +8,7 @@ public interface BlogConstants {
 	/**
 	 * The maximum length of a blogs's name in UTF-8 bytes.
 	 */
-	int MAX_BLOG_TITLE_LENGTH = 100;
-
-	/**
-	 * The length of a blogs's description in UTF-8 bytes.
-	 */
-	int MAX_BLOG_DESC_LENGTH = 240;
+	int MAX_BLOG_NAME_LENGTH = MAX_AUTHOR_NAME_LENGTH;
 
 	/**
 	 * The maximum length of a blog post's body in bytes.
@@ -24,13 +20,8 @@ public interface BlogConstants {
 	 */
 	int MAX_BLOG_COMMENT_LENGTH = MAX_BLOG_POST_BODY_LENGTH;
 
-	/* Blog Sharing Constants */
-	String BLOG_AUTHOR_NAME = "blogAuthorName";
-	String BLOG_PUBLIC_KEY = "blogPublicKey";
-
 	// Metadata keys
 	String KEY_TYPE = "type";
-	String KEY_DESCRIPTION = "description";
 	String KEY_TIMESTAMP = "timestamp";
 	String KEY_TIME_RECEIVED = "timeReceived";
 	String KEY_AUTHOR_ID = "id";

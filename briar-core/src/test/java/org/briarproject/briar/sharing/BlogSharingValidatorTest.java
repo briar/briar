@@ -3,35 +3,40 @@ package org.briarproject.briar.sharing;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.BdfMessageContext;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.briar.api.forum.Forum;
+import org.briarproject.briar.api.blog.Blog;
 import org.jmock.Expectations;
 import org.junit.Test;
 
-import static org.briarproject.briar.api.forum.ForumConstants.FORUM_SALT_LENGTH;
-import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_NAME_LENGTH;
 import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 
-public class ForumSharingValidatorTest extends SharingValidatorTest {
+public class BlogSharingValidatorTest extends SharingValidatorTest {
 
-	private final String forumName =
-			TestUtils.getRandomString(MAX_FORUM_NAME_LENGTH);
-	private final byte[] salt = TestUtils.getRandomBytes(FORUM_SALT_LENGTH);
-	private final Forum forum = new Forum(group, forumName, salt);
-	private final BdfList descriptor = BdfList.of(forumName, salt);
+	private final AuthorId authorId = new AuthorId(getRandomId());
+	private final String authorName = TestUtils.getRandomString(42);
+	private final byte[] publicKey =
+			TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+	private final Author author = new Author(authorId, authorName, publicKey);
+	private final Blog blog = new Blog(group, author);
+	private final BdfList descriptor = BdfList.of(authorName, publicKey);
 	private final String content =
 			TestUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH);
 
 	@Override
 	SharingValidator getValidator() {
-		return new ForumSharingValidator(messageEncoder, clientHelper,
-				metadataEncoder, clock, forumFactory);
+		return new BlogSharingValidator(messageEncoder, clientHelper,
+				metadataEncoder, clock, blogFactory, authorFactory);
 	}
 
 	@Test
 	public void testAcceptsInvitationWithContent() throws Exception {
-		expectCreateForum(forumName);
+		expectCreateBlog(authorName, publicKey);
 		expectEncodeMetadata(INVITE);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
@@ -41,7 +46,7 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 
 	@Test
 	public void testAcceptsInvitationWithNullContent() throws Exception {
-		expectCreateForum(forumName);
+		expectCreateBlog(authorName, publicKey);
 		expectEncodeMetadata(INVITE);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, null));
@@ -50,7 +55,7 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 
 	@Test
 	public void testAcceptsInvitationWithNullPreviousMsgId() throws Exception {
-		expectCreateForum(forumName);
+		expectCreateBlog(authorName, publicKey);
 		expectEncodeMetadata(INVITE);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), null, descriptor, null));
@@ -58,34 +63,34 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsNullForumName() throws Exception {
-		BdfList invalidDescriptor = BdfList.of(null, salt);
+	public void testRejectsNullBlogName() throws Exception {
+		BdfList invalidDescriptor = BdfList.of(null, publicKey);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsNonStringForumName() throws Exception {
-		BdfList invalidDescriptor = BdfList.of(123, salt);
+	public void testRejectsNonStringBlogName() throws Exception {
+		BdfList invalidDescriptor = BdfList.of(123, publicKey);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsTooShortForumName() throws Exception {
-		BdfList invalidDescriptor = BdfList.of("", salt);
+	public void testRejectsTooShortBlogName() throws Exception {
+		BdfList invalidDescriptor = BdfList.of("", publicKey);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
 	}
 
 	@Test
-	public void testAcceptsMinLengthForumName() throws Exception {
-		String shortForumName = TestUtils.getRandomString(1);
-		BdfList validDescriptor = BdfList.of(shortForumName, salt);
-		expectCreateForum(shortForumName);
+	public void testAcceptsMinLengthBlogName() throws Exception {
+		String shortBlogName = TestUtils.getRandomString(1);
+		BdfList validDescriptor = BdfList.of(shortBlogName, publicKey);
+		expectCreateBlog(shortBlogName, publicKey);
 		expectEncodeMetadata(INVITE);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, validDescriptor,
@@ -94,52 +99,56 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsTooLongForumName() throws Exception {
-		String invalidForumName =
-				TestUtils.getRandomString(MAX_FORUM_NAME_LENGTH + 1);
-		BdfList invalidDescriptor = BdfList.of(invalidForumName, salt);
+	public void testRejectsTooLongBlogName() throws Exception {
+		String invalidBlogName =
+				TestUtils.getRandomString(MAX_BLOG_NAME_LENGTH + 1);
+		BdfList invalidDescriptor = BdfList.of(invalidBlogName, publicKey);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsNullSalt() throws Exception {
-		BdfList invalidDescriptor = BdfList.of(forumName, null);
+	public void testRejectsNullPublicKey() throws Exception {
+		BdfList invalidDescriptor = BdfList.of(authorName, null);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsNonRawSalt() throws Exception {
-		BdfList invalidDescriptor = BdfList.of(forumName, 123);
+	public void testRejectsNonRawPublicKey() throws Exception {
+		BdfList invalidDescriptor = BdfList.of(authorName, 123);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsTooShortSalt() throws Exception {
-		byte[] invalidSalt = TestUtils.getRandomBytes(FORUM_SALT_LENGTH - 1);
-		BdfList invalidDescriptor = BdfList.of(forumName, invalidSalt);
+	public void testRejectsTooLongPublicKey() throws Exception {
+		byte[] invalidKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1);
+		BdfList invalidDescriptor = BdfList.of(authorName, invalidKey);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
 	}
 
-	@Test(expected = FormatException.class)
-	public void testRejectsTooLongSalt() throws Exception {
-		byte[] invalidSalt = TestUtils.getRandomBytes(FORUM_SALT_LENGTH + 1);
-		BdfList invalidDescriptor = BdfList.of(forumName, invalidSalt);
-		v.validateMessage(message, group,
-				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
+	@Test
+	public void testAcceptsMinLengthPublicKey() throws Exception {
+		byte[] key = TestUtils.getRandomBytes(1);
+		BdfList validDescriptor = BdfList.of(authorName, key);
+
+		expectCreateBlog(authorName, key);
+		expectEncodeMetadata(INVITE);
+		BdfMessageContext messageContext = v.validateMessage(message, group,
+				BdfList.of(INVITE.getValue(), previousMsgId, validDescriptor,
 						null));
+		assertExpectedContext(messageContext, previousMsgId);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonStringContent() throws Exception {
-		expectCreateForum(forumName);
+		expectCreateBlog(authorName, publicKey);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
 						123));
@@ -147,7 +156,7 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 
 	@Test
 	public void testAcceptsMinLengthContent() throws Exception {
-		expectCreateForum(forumName);
+		expectCreateBlog(authorName, publicKey);
 		expectEncodeMetadata(INVITE);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, "1"));
@@ -158,16 +167,18 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 	public void testRejectsTooLongContent() throws Exception {
 		String invalidContent =
 				TestUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH + 1);
-		expectCreateForum(forumName);
+		expectCreateBlog(authorName, publicKey);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
 						invalidContent));
 	}
 
-	private void expectCreateForum(final String name) {
+	private void expectCreateBlog(final String name, final byte[] key) {
 		context.checking(new Expectations() {{
-			oneOf(forumFactory).createForum(name, salt);
-			will(returnValue(forum));
+			oneOf(authorFactory).createAuthor(name, key);
+			will(returnValue(author));
+			oneOf(blogFactory).createBlog(author);
+			will(returnValue(blog));
 		}});
 	}
 

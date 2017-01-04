@@ -23,6 +23,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.sharing.InvitationMessage;
 import org.briarproject.briar.api.sharing.InvitationRequest;
@@ -211,8 +212,10 @@ abstract class SharingManagerImpl<S extends Shareable>
 		SessionId sessionId = getSessionId(shareableId);
 		Transaction txn = db.startTransaction(false);
 		try {
-			// Look up the session, if there is one
 			Contact contact = db.getContact(txn, contactId);
+			if (!canBeShared(txn, shareableId, contact))
+				throw new ProtocolStateException();
+			// Look up the session, if there is one
 			GroupId contactGroupId = getContactGroup(contact).getId();
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
 			// Create or parse the session
@@ -400,12 +403,22 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 	@Override
 	public boolean canBeShared(GroupId g, Contact c) throws DbException {
-		GroupId contactGroupId = getContactGroup(c).getId();
-		SessionId sessionId = getSessionId(g);
 		Transaction txn = db.startTransaction(true);
 		try {
-			StoredSession ss = getSession(txn, contactGroupId, sessionId);
+			boolean canBeShared = canBeShared(txn, g, c);
 			db.commitTransaction(txn);
+			return canBeShared;
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	protected boolean canBeShared(Transaction txn, GroupId g, Contact c)
+			throws DbException {
+		GroupId contactGroupId = getContactGroup(c).getId();
+		SessionId sessionId = getSessionId(g);
+		try {
+			StoredSession ss = getSession(txn, contactGroupId, sessionId);
 			// If there's no session, we can share the group with the contact
 			if (ss == null) return true;
 			// If the session's in the right state, the contact can be invited
@@ -414,8 +427,6 @@ abstract class SharingManagerImpl<S extends Shareable>
 			return session.getState().canInvite();
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
