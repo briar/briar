@@ -208,6 +208,7 @@ public class BriarRecyclerView extends FrameLayout {
 		if (refresher != null) {
 			LOG.info("Removing Handler Callback");
 			handler.removeCallbacks(refresher);
+			refresher = null;
 		}
 	}
 
