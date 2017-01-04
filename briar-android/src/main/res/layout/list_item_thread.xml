@@ -6,6 +6,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:background="@drawable/list_item_thread_background"
 	android:baselineAligned="false"
 	android:orientation="horizontal">
 
@@ -113,6 +114,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignBottom="@+id/author"
+			android:layout_alignParentRight="true"
 			android:layout_toLeftOf="@+id/chevron"
 			android:text="@string/btn_reply"
 			android:textSize="@dimen/text_size_tiny"/>
@@ -127,7 +129,8 @@
 			android:clickable="true"
 			android:padding="@dimen/margin_medium"
 			android:scaleType="center"
-			android:src="@drawable/selector_chevron"/>
+			android:src="@drawable/selector_chevron"
+			android:visibility="gone"/>
 
 		<View
 			android:id="@+id/top_divider"

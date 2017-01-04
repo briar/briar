@@ -25,4 +25,11 @@
 		<attr name="fillHeight" format="boolean"/>
 	</declare-styleable>
 
+	<declare-styleable name="UnreadMessageButton">
+		<attr name="direction" format="enum">
+			<enum name="up" value="0"/>
+			<enum name="down" value="1"/>
+		</attr>
+	</declare-styleable>
+
 </resources>

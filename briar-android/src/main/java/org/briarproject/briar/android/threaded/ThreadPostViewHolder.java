@@ -9,7 +9,6 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 @UiThread
@@ -64,7 +63,7 @@ public class ThreadPostViewHolder<I extends ThreadItem>
 		}
 
 		if (item.hasDescendants()) {
-			chevron.setVisibility(VISIBLE);
+//			chevron.setVisibility(VISIBLE);
 			if (item.isShowingDescendants()) {
 				chevron.setSelected(false);
 			} else {
@@ -82,7 +81,7 @@ public class ThreadPostViewHolder<I extends ThreadItem>
 				}
 			});
 		} else {
-			chevron.setVisibility(INVISIBLE);
+//			chevron.setVisibility(INVISIBLE);
 		}
 		replyButton.setOnClickListener(new View.OnClickListener() {
 			@Override

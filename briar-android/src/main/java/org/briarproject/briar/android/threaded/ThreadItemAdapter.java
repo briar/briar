@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.threaded;
 
 import android.animation.ValueAnimator;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,8 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 public class ThreadItemAdapter<I extends ThreadItem>
@@ -33,10 +32,8 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	private final ThreadItemListener<I> listener;
 	private final LinearLayoutManager layoutManager;
 
-	// highlight not dependant on time
+	@Nullable
 	private I replyItem;
-	// temporary highlight
-	private I addedItem;
 
 	private volatile int revision = 0;
 
@@ -58,7 +55,6 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	public void onBindViewHolder(BaseThreadItemViewHolder<I> ui, int position) {
 		I item = getVisibleItem(position);
 		if (item == null) return;
-		listener.onItemVisible(item);
 		ui.bind(this, listener, item, position);
 	}
 
@@ -72,6 +68,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		return getVisiblePos(null);
 	}
 
+	@Nullable
 	I getReplyItem() {
 		return replyItem;
 	}
@@ -84,7 +81,6 @@ public class ThreadItemAdapter<I extends ThreadItem>
 
 	public void add(I item) {
 		items.add(item);
-		addedItem = item;
 		if (item.getParentId() == null) {
 			notifyItemInserted(getVisiblePos(item));
 		} else {
@@ -262,10 +258,6 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		return null;
 	}
 
-	boolean isVisible(I item) {
-		return getVisiblePos(item) != NO_POSITION;
-	}
-
 	/**
 	 * Returns the visible position of the given item.
 	 *
@@ -296,14 +288,6 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		return item == null ? visibleCounter : NO_POSITION;
 	}
 
-	I getAddedItem() {
-		return addedItem;
-	}
-
-	void clearAddedItem() {
-		addedItem = null;
-	}
-
 	void addAnimatingItem(I item, ValueAnimator anim) {
 		animatingItems.put(item, anim);
 	}
@@ -323,10 +307,108 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		revision++;
 	}
 
-	public interface ThreadItemListener<I> {
 
-		void onItemVisible(I item);
+	/**
+	 * Gets the number of unread items above and below the current view port.
+	 *
+	 * Attention: Do not call this when the list is still scrolling,
+	 *            because then the view port is unknown.
+	 */
+	public UnreadCount getUnreadCount() {
+		final int positionTop = layoutManager.findFirstVisibleItemPosition();
+		final int positionBottom = layoutManager.findLastVisibleItemPosition();
+		if (positionTop == NO_POSITION && positionBottom == NO_POSITION)
+			return new UnreadCount(0, 0);
+
+		int unreadCounterTop = 0, unreadCounterBottom = 0;
+		int visibleCounter = 0;
+		int levelLimit = UNDEFINED;
+		for (I i : items) {
+			if (levelLimit >= 0) {
+				if (i.getLevel() > levelLimit) {
+					// skip all the items below a non visible branch
+					continue;
+				}
+				levelLimit = UNDEFINED;
+			}
+			if (visibleCounter > positionBottom && !i.isRead()) {
+				unreadCounterBottom++;
+			} else if (visibleCounter < positionTop && !i.isRead()) {
+				unreadCounterTop++;
+			} else if (!i.isShowingDescendants()) {
+				levelLimit = i.getLevel();
+			}
+			visibleCounter++;
+		}
+		return new UnreadCount(unreadCounterTop, unreadCounterBottom);
+	}
+
+	/**
+	 * Returns the position of the first unread item below the current viewport
+	 */
+	public int getVisibleUnreadPosBottom() {
+		final int positionBottom = layoutManager.findLastVisibleItemPosition();
+		int visibleCounter = 0;
+		int levelLimit = UNDEFINED;
+		for (I i : items) {
+			if (levelLimit >= 0) {
+				if (i.getLevel() > levelLimit) {
+					// skip all the items below a non visible branch
+					continue;
+				}
+				levelLimit = UNDEFINED;
+			}
+			if (visibleCounter > positionBottom && !i.isRead()) {
+				return visibleCounter;
+			} else if (!i.isShowingDescendants()) {
+				levelLimit = i.getLevel();
+			}
+			visibleCounter++;
+		}
+		return NO_POSITION;
+	}
+
+	/**
+	 * Returns the position of the first unread item above the current viewport
+	 */
+	public int getVisibleUnreadPosTop() {
+		final int positionTop = layoutManager.findFirstVisibleItemPosition();
+		int position = NO_POSITION;
+		int visibleCounter = 0;
+		int levelLimit = UNDEFINED;
+		for (I i : items) {
+			if (levelLimit >= 0) {
+				if (i.getLevel() > levelLimit) {
+					// skip all the items below a non visible branch
+					continue;
+				}
+				levelLimit = UNDEFINED;
+			}
+			if (visibleCounter < positionTop && !i.isRead()) {
+				position = visibleCounter;
+			} if (visibleCounter >= positionTop) {
+				return position;
+			} else if (!i.isShowingDescendants()) {
+				levelLimit = i.getLevel();
+			}
+			visibleCounter++;
+		}
+		return NO_POSITION;
+	}
+
+	static class UnreadCount {
+		final int top, bottom;
+
+		private UnreadCount(int top, int bottom) {
+			this.top = top;
+			this.bottom = bottom;
+		}
+	}
+
+	public interface ThreadItemListener<I> {
+		void onUnreadItemVisible(I item);
 
 		void onReplyClick(I item);
 	}
+
 }

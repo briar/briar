@@ -164,7 +164,6 @@
 	<string name="groups_invitation_sent">Group invitation has been sent</string>
 	<string name="groups_compose_message">Compose Message</string>
 	<string name="groups_message_sent">Message sent</string>
-	<string name="groups_message_received">Message received</string>
 	<string name="groups_member_list">Member List</string>
 	<string name="groups_invite_members">Invite Members</string>
 	<string name="groups_member_created_you">You created the group</string>
@@ -218,7 +217,6 @@
 	</plurals>
 	<string name="forum_compose_post">New Forum Post</string>
 	<string name="forum_new_entry_posted">Forum entry posted</string>
-	<string name="forum_new_entry_received">New forum entry</string>
 	<string name="forum_new_message_hint">New Entry</string>
 	<string name="forum_message_reply_hint">New Reply</string>
 	<string name="btn_reply">Reply</string>

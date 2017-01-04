@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -91,12 +90,6 @@ public class ForumActivity extends
 	}
 
 	@Override
-	@LayoutRes
-	protected int getLayout() {
-		return R.layout.activity_threaded_conversation;
-	}
-
-	@Override
 	protected ThreadItemAdapter<ForumItem> createAdapter(
 			LinearLayoutManager layoutManager) {
 		return new ThreadItemAdapter<>(this, layoutManager);
@@ -156,12 +149,6 @@ public class ForumActivity extends
 	@StringRes
 	protected int getItemPostedString() {
 		return R.string.forum_new_entry_posted;
-	}
-
-	@Override
-	@StringRes
-	protected int getItemReceivedString() {
-		return R.string.forum_new_entry_received;
 	}
 
 	private void showUnsubscribeDialog() {
