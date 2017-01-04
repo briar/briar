@@ -23,9 +23,7 @@ public abstract class ThreadItem implements MessageNode {
 	private final Author author;
 	private final Status status;
 	private int level = UNDEFINED;
-	private boolean isShowingDescendants = true;
-	private int descendantCount = 0;
-	private boolean isRead;
+	private boolean isRead, highlighted;
 
 	public ThreadItem(MessageId messageId, @Nullable MessageId parentId,
 			String text, long timestamp, Author author, Status status,
@@ -37,6 +35,7 @@ public abstract class ThreadItem implements MessageNode {
 		this.author = author;
 		this.status = status;
 		this.isRead = isRead;
+		this.highlighted = false;
 	}
 
 	public String getText() {
@@ -71,17 +70,9 @@ public abstract class ThreadItem implements MessageNode {
 		return status;
 	}
 
-	public boolean isShowingDescendants() {
-		return isShowingDescendants;
-	}
-
 	@Override
 	public void setLevel(int level) {
 		this.level = level;
-	}
-
-	public void setShowingDescendants(boolean showingDescendants) {
-		this.isShowingDescendants = showingDescendants;
 	}
 
 	public boolean isRead() {
@@ -92,13 +83,12 @@ public abstract class ThreadItem implements MessageNode {
 		isRead = read;
 	}
 
-	public boolean hasDescendants() {
-		return descendantCount > 0;
+	public void setHighlighted(boolean highlighted) {
+		this.highlighted = highlighted;
 	}
 
-	@Override
-	public void setDescendantCount(int descendantCount) {
-		this.descendantCount = descendantCount;
+	public boolean isHighlighted() {
+		return highlighted;
 	}
 
 }

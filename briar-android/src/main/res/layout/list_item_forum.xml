@@ -60,7 +60,7 @@
 		tools:text="Dec 24"/>
 
 	<View
-		style="@style/Divider.ForumList"
+		style="@style/Divider.ThreadItem"
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentStart="true"
 		android:layout_below="@+id/postCountView"/>

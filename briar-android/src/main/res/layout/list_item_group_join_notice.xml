@@ -6,23 +6,14 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:layout_marginLeft="@dimen/margin_medium"
 	android:baselineAligned="false"
 	android:orientation="vertical">
-
-	<View
-		android:id="@+id/top_divider"
-		style="@style/Divider.ForumList"
-		android:layout_alignParentTop="true"/>
 
 	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 		android:id="@+id/text"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/top_divider"
-		android:layout_marginBottom="@dimen/margin_small"
-		android:layout_marginRight="@dimen/margin_medium"
-		android:layout_marginTop="@dimen/margin_medium"
+		android:layout_margin="@dimen/margin_medium"
 		android:textColor="@color/briar_text_secondary"
 		android:textSize="@dimen/text_size_medium"
 		android:textStyle="italic"
@@ -32,9 +23,12 @@
 		android:id="@+id/icon"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_alignBottom="@+id/info"
 		android:layout_alignLeft="@+id/text"
+		android:layout_alignTop="@+id/info"
 		android:layout_below="@+id/text"
-		android:layout_marginRight="@dimen/margin_small"
+		android:layout_marginRight="@dimen/margin_medium"
+		android:scaleType="center"
 		tools:ignore="ContentDescription"
 		tools:src="@drawable/ic_visibility"/>
 
@@ -45,6 +39,7 @@
 		android:layout_alignEnd="@+id/text"
 		android:layout_alignRight="@+id/text"
 		android:layout_below="@+id/text"
+		android:layout_marginBottom="@dimen/margin_medium"
 		android:layout_toRightOf="@+id/icon"
 		android:gravity="center_vertical"
 		android:minHeight="24dp"
@@ -57,10 +52,10 @@
 	<org.briarproject.briar.android.view.AuthorView
 		android:id="@+id/author"
 		android:layout_width="wrap_content"
-		android:layout_height="@dimen/button_size"
+		android:layout_height="wrap_content"
 		android:layout_alignLeft="@+id/text"
 		android:layout_below="@+id/info"
-		android:gravity="center"
+		android:layout_toLeftOf="@+id/optionsButton"
 		app:persona="commenter"/>
 
 	<Button
@@ -68,11 +63,16 @@
 		style="@style/BriarButtonFlat.Positive.Tiny"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_alignBottom="@+id/author"
 		android:layout_alignEnd="@+id/text"
 		android:layout_alignRight="@+id/text"
-		android:layout_alignTop="@+id/author"
-		android:layout_toRightOf="@+id/author"
+		android:layout_below="@+id/info"
 		android:gravity="right|center_vertical"
 		android:text="@string/options"/>
+
+	<View
+		style="@style/Divider.ThreadItem"
+		android:layout_below="@+id/author"
+		android:layout_marginTop="@dimen/margin_medium"/>
 
 </RelativeLayout>

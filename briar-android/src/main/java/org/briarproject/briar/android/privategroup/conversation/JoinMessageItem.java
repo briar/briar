@@ -28,11 +28,6 @@ class JoinMessageItem extends GroupMessageItem {
 	}
 
 	@Override
-	public boolean hasDescendants() {
-		return false;
-	}
-
-	@Override
 	@LayoutRes
 	public int getLayout() {
 		return R.layout.list_item_group_join_notice;

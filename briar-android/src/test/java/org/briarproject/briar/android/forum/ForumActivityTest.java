@@ -114,28 +114,15 @@ public class ForumActivityTest {
 		rc.getValue().onResult(dummyData);
 		ThreadItemAdapter<ForumItem> adapter = forumActivity.getAdapter();
 		Assert.assertNotNull(adapter);
-		// Cascade close
 		assertEquals(6, adapter.getItemCount());
-		adapter.hideDescendants(dummyData.get(2));
-		assertEquals(5, adapter.getItemCount());
-		adapter.hideDescendants(dummyData.get(1));
-		assertEquals(4, adapter.getItemCount());
-		adapter.hideDescendants(dummyData.get(0));
-		assertEquals(2, adapter.getItemCount());
 		assertTrue(dummyData.get(0).getText()
-				.equals(adapter.getVisibleItem(0).getText()));
+				.equals(adapter.getItemAt(0).getText()));
 		assertTrue(dummyData.get(5).getText()
-				.equals(adapter.getVisibleItem(1).getText()));
-		// Cascade re-open
-		adapter.showDescendants(dummyData.get(0));
-		assertEquals(4, adapter.getItemCount());
-		adapter.showDescendants(dummyData.get(1));
-		assertEquals(5, adapter.getItemCount());
-		adapter.showDescendants(dummyData.get(2));
-		assertEquals(6, adapter.getItemCount());
+				.equals(adapter.getItemAt(1).getText()));
 		assertTrue(dummyData.get(2).getText()
-				.equals(adapter.getVisibleItem(2).getText()));
+				.equals(adapter.getItemAt(2).getText()));
 		assertTrue(dummyData.get(4).getText()
-				.equals(adapter.getVisibleItem(4).getText()));
+				.equals(adapter.getItemAt(4).getText()));
 	}
+
 }

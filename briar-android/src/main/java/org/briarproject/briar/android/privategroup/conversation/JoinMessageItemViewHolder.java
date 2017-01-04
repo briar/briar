@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.privategroup.reveal.RevealContactsActivity;
 import org.briarproject.briar.android.threaded.BaseThreadItemViewHolder;
-import org.briarproject.briar.android.threaded.ThreadItemAdapter;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
@@ -41,10 +40,9 @@ class JoinMessageItemViewHolder
 	}
 
 	@Override
-	public void bind(ThreadItemAdapter<GroupMessageItem> adapter,
-			ThreadItemListener<GroupMessageItem> listener,
-			GroupMessageItem item, int pos) {
-		super.bind(adapter, listener, item, pos);
+	public void bind(GroupMessageItem item,
+			ThreadItemListener<GroupMessageItem> listener) {
+		super.bind(item, listener);
 
 		if (isCreator) bindForCreator((JoinMessageItem) item);
 		else bind((JoinMessageItem) item);

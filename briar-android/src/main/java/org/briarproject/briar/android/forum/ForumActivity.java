@@ -100,7 +100,7 @@ public class ForumActivity extends
 		super.onActivityResult(request, result, data);
 
 		if (request == REQUEST_SHARE_FORUM && result == RESULT_OK) {
-			displaySnackbarShort(R.string.forum_shared_snackbar);
+			displaySnackbar(R.string.forum_shared_snackbar);
 		}
 	}
 

@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.privategroup.conversation;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.identity.Author;
@@ -20,9 +21,8 @@ class GroupMessageItem extends ThreadItem {
 	private final GroupId groupId;
 
 	private GroupMessageItem(MessageId messageId, GroupId groupId,
-			MessageId parentId,
-			String text, long timestamp, Author author, Status status,
-			boolean isRead) {
+			@Nullable MessageId parentId, String text, long timestamp,
+			Author author, Status status, boolean isRead) {
 		super(messageId, parentId, text, timestamp, author, status, isRead);
 		this.groupId = groupId;
 	}
