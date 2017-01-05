@@ -169,7 +169,7 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 			final boolean visible) throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(type, privateGroupId,
-					message.getTimestamp(), true, true, visible, false);
+					message.getTimestamp(), true, true, visible, false, false);
 			will(returnValue(meta));
 			oneOf(clientHelper).addLocalMessage(txn, message, meta, true);
 		}});

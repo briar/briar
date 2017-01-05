@@ -148,6 +148,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		MessageId inviteId = s.getLastRemoteMessageId();
 		if (inviteId == null) throw new IllegalStateException();
 		markMessageAvailableToAnswer(txn, inviteId, false);
+		// Mark the invite message as accepted
+		markInvitationAccepted(txn, inviteId, true);
 		// Send a ACCEPT message
 		Message sent = sendAcceptMessage(txn, s);
 		// Track the message
@@ -568,8 +570,9 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private void sendMessage(Transaction txn, Message m, MessageType type,
 			GroupId shareableId, boolean visibleInConversation)
 			throws DbException {
-		BdfDictionary meta = messageEncoder.encodeMetadata(type, shareableId,
-				m.getTimestamp(), true, true, visibleInConversation, false);
+		BdfDictionary meta = messageEncoder
+				.encodeMetadata(type, shareableId, m.getTimestamp(), true, true,
+						visibleInConversation, false, false);
 		try {
 			clientHelper.addLocalMessage(txn, m, meta, true);
 		} catch (FormatException e) {
@@ -592,6 +595,17 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			boolean visible) throws DbException {
 		BdfDictionary meta = new BdfDictionary();
 		messageEncoder.setVisibleInUi(meta, visible);
+		try {
+			clientHelper.mergeMessageMetadata(txn, m, meta);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	private void markInvitationAccepted(Transaction txn, MessageId m,
+			boolean accepted) throws DbException {
+		BdfDictionary meta = new BdfDictionary();
+		messageEncoder.setInvitationAccepted(meta, accepted);
 		try {
 			clientHelper.mergeMessageMetadata(txn, m, meta);
 		} catch (FormatException e) {

@@ -12,10 +12,11 @@ class MessageMetadata {
 	private final MessageType type;
 	private final GroupId shareableId;
 	private final long timestamp;
-	private final boolean local, read, visible, available;
+	private final boolean local, read, visible, available, accepted;
 
 	MessageMetadata(MessageType type, GroupId shareableId, long timestamp,
-			boolean local, boolean read, boolean visible, boolean available) {
+			boolean local, boolean read, boolean visible, boolean available,
+			boolean accepted) {
 		this.shareableId = shareableId;
 		this.type = type;
 		this.timestamp = timestamp;
@@ -23,6 +24,7 @@ class MessageMetadata {
 		this.read = read;
 		this.visible = visible;
 		this.available = available;
+		this.accepted = accepted;
 	}
 
 	MessageType getMessageType() {
@@ -51,6 +53,15 @@ class MessageMetadata {
 
 	boolean isAvailableToAnswer() {
 		return available;
+	}
+
+	/**
+	 * Returns true if the invitation was accepted.
+	 *
+	 * Only applies to messages of type INVITE.
+	 */
+	public boolean wasAccepted() {
+		return accepted;
 	}
 
 }

@@ -136,6 +136,7 @@ public class ForumSharingIntegrationTest
 				assertEquals(forum0.getName(), invitation.getForumName());
 				assertEquals(contactId1From0, invitation.getContactId());
 				assertEquals("Hi!", invitation.getMessage());
+				assertTrue(invitation.canBeOpened());
 			} else {
 				ForumInvitationResponse response =
 						(ForumInvitationResponse) m;
@@ -195,6 +196,7 @@ public class ForumSharingIntegrationTest
 				assertEquals(forum0.getName(), invitation.getForumName());
 				assertEquals(contactId1From0, invitation.getContactId());
 				assertEquals(null, invitation.getMessage());
+				assertFalse(invitation.canBeOpened());
 			} else {
 				ForumInvitationResponse response =
 						(ForumInvitationResponse) m;

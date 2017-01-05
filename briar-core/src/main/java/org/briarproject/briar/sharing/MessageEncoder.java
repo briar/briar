@@ -14,11 +14,13 @@ interface MessageEncoder {
 
 	BdfDictionary encodeMetadata(MessageType type, GroupId shareableId,
 			long timestamp, boolean local, boolean read, boolean visible,
-			boolean available);
+			boolean available, boolean accepted);
 
 	void setVisibleInUi(BdfDictionary meta, boolean visible);
 
 	void setAvailableToAnswer(BdfDictionary meta, boolean available);
+
+	void setInvitationAccepted(BdfDictionary meta, boolean accepted);
 
 	Message encodeInviteMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, BdfList descriptor,

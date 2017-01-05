@@ -405,7 +405,9 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		PrivateGroup pg = privateGroupFactory
 				.createPrivateGroup(invite.getGroupName(), invite.getCreator(),
 						invite.getSalt());
-		boolean canBeOpened = db.containsGroup(txn, invite.getPrivateGroupId());
+		// Find out whether the private group can be opened
+		boolean canBeOpened = meta.wasAccepted() &&
+				db.containsGroup(txn, invite.getPrivateGroupId());
 		return new GroupInvitationRequest(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
 				status.isSeen(), meta.isRead(), sessionId, pg, c,

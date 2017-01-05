@@ -147,7 +147,7 @@ public abstract class SharingValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder)
 					.encodeMetadata(type, groupId, timestamp, false, false,
-							false, false);
+							false, false, false);
 			will(returnValue(meta));
 		}});
 	}

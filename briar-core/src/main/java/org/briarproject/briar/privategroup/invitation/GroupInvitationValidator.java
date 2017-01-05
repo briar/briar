@@ -112,7 +112,7 @@ class GroupInvitationValidator extends BdfMessageValidator {
 		// Create the metadata
 		BdfDictionary meta = messageEncoder.encodeMetadata(INVITE,
 				privateGroup.getId(), m.getTimestamp(), false, false, false,
-				false);
+				false, false);
 		return new BdfMessageContext(meta);
 	}
 
@@ -125,7 +125,7 @@ class GroupInvitationValidator extends BdfMessageValidator {
 		checkLength(previousMessageId, UniqueId.LENGTH);
 		BdfDictionary meta = messageEncoder.encodeMetadata(JOIN,
 				new GroupId(privateGroupId), m.getTimestamp(), false, false,
-				false, false);
+				false, false, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -144,7 +144,7 @@ class GroupInvitationValidator extends BdfMessageValidator {
 		checkLength(previousMessageId, UniqueId.LENGTH);
 		BdfDictionary meta = messageEncoder.encodeMetadata(LEAVE,
 				new GroupId(privateGroupId), m.getTimestamp(), false, false,
-				false, false);
+				false, false, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -161,7 +161,7 @@ class GroupInvitationValidator extends BdfMessageValidator {
 		checkLength(privateGroupId, UniqueId.LENGTH);
 		BdfDictionary meta = messageEncoder.encodeMetadata(ABORT,
 				new GroupId(privateGroupId), m.getTimestamp(), false, false,
-				false, false);
+				false, false, false);
 		return new BdfMessageContext(meta);
 	}
 }

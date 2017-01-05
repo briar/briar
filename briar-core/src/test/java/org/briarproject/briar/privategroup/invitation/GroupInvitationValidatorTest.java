@@ -311,7 +311,7 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 			} else {
 				oneOf(messageEncoder).encodeMetadata(INVITE,
 						message.getGroupId(), message.getTimestamp(), false,
-						false, false, false);
+						false, false, false, false);
 				will(returnValue(meta));
 			}
 		}});
@@ -389,7 +389,7 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 		BdfList body = BdfList.of(JOIN.getValue(), privateGroup.getId(), null);
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(JOIN, message.getGroupId(),
-					message.getTimestamp(), false, false, false, false);
+					message.getTimestamp(), false, false, false, false, false);
 			will(returnValue(meta));
 		}});
 		BdfMessageContext messageContext =
@@ -404,7 +404,7 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 				previousMessageId);
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(JOIN, message.getGroupId(),
-					message.getTimestamp(), false, false, false, false);
+					message.getTimestamp(), false, false, false, false, false);
 			will(returnValue(meta));
 		}});
 		BdfMessageContext messageContext =
@@ -487,7 +487,7 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 		BdfList body = BdfList.of(LEAVE.getValue(), privateGroup.getId(), null);
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(LEAVE, message.getGroupId(),
-					message.getTimestamp(), false, false, false, false);
+					message.getTimestamp(), false, false, false, false, false);
 			will(returnValue(meta));
 		}});
 		BdfMessageContext messageContext =
@@ -500,7 +500,7 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 	public void testAcceptsValidLeaveMessage() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(LEAVE, message.getGroupId(),
-					message.getTimestamp(), false, false, false, false);
+					message.getTimestamp(), false, false, false, false, false);
 			will(returnValue(meta));
 		}});
 		BdfList body = BdfList.of(LEAVE.getValue(), privateGroup.getId(),
@@ -557,7 +557,7 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 	public void testAcceptsValidAbortMessage() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(ABORT, message.getGroupId(),
-					message.getTimestamp(), false, false, false, false);
+					message.getTimestamp(), false, false, false, false, false);
 			will(returnValue(meta));
 		}});
 		BdfList body = BdfList.of(ABORT.getValue(), privateGroup.getId());

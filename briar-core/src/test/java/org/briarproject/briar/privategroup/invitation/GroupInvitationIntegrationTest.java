@@ -104,6 +104,7 @@ public class GroupInvitationIntegrationTest
 		assertEquals(privateGroup0.getName(), request.getShareable().getName());
 		assertFalse(request.isLocal());
 		assertFalse(request.isRead());
+		assertFalse(request.canBeOpened());
 	}
 
 	@Test
@@ -175,6 +176,8 @@ public class GroupInvitationIntegrationTest
 				foundResponse = true;
 				InvitationResponse response = (GroupInvitationResponse) m;
 				assertTrue(response.wasAccepted());
+			} else {
+				assertTrue(((GroupInvitationRequest) m).canBeOpened());
 			}
 		}
 		assertTrue(foundResponse);
