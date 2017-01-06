@@ -34,6 +34,7 @@ import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -92,7 +93,7 @@ public class BlogSharingIntegrationTest
 		injectEagerSingletons(c2);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void testPersonalBlogCannotBeSharedWithOwner() throws Exception {
 		listenToEvents(true);
 
@@ -109,11 +110,6 @@ public class BlogSharingIntegrationTest
 		blogSharingManager0
 				.sendInvitation(blog1.getId(), contactId1From0, "Hi!",
 						clock.currentTimeMillis());
-
-		// sync invitation
-		sync0To1(1, false);
-		// make sure the invitee ignored the request for their own blog
-		assertFalse(listener1.requestReceived);
 	}
 
 	@Test
@@ -293,17 +289,11 @@ public class BlogSharingIntegrationTest
 		assertFalse(blogSharingManager0.getSharedWith(blog2.getId())
 				.contains(contact1From0));
 		// invitee no longer has blog shared by sharer
-		try {
-			blogSharingManager1.getSharedWith(blog2.getId());
-			fail();
-		} catch (NoSuchGroupException e) {
-			// expected
-		}
-		// blog can be shared again
+		assertEquals(0,
+				blogSharingManager1.getSharedWith(blog2.getId()).size());
+		// blog can be shared again by sharer
 		assertTrue(
 				blogSharingManager0.canBeShared(blog2.getId(), contact1From0));
-		assertTrue(
-				blogSharingManager1.canBeShared(blog2.getId(), contact0From1));
 	}
 
 	@Test
@@ -434,6 +424,65 @@ public class BlogSharingIntegrationTest
 
 		// now blog can not be removed anymore
 		assertFalse(blogManager1.canBeRemoved(blog2.getId()));
+	}
+
+	@Test
+	public void testSharerIsInformedWhenBlogIsRemovedDueToContactDeletion()
+			throws Exception {
+		// initialize and let invitee accept all requests
+		listenToEvents(true);
+
+		// sharer sends invitation for 2's blog to 1
+		blogSharingManager0
+				.sendInvitation(blog2.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
+
+		// sync first request message
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener1.requestReceived);
+
+		// sync response back
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener0.responseReceived);
+
+		// 1 and 2 are adding each other
+		addContacts1And2();
+		assertEquals(3, blogManager1.getBlogs().size());
+
+		// make sure blog2 is shared between 0 and 1
+		Collection<Contact> contacts =
+				blogSharingManager1.getSharedWith(blog2.getId());
+		assertEquals(2, contacts.size());
+		assertTrue(contacts.contains(contact0From1));
+		contacts = blogSharingManager0.getSharedWith(blog2.getId());
+		assertEquals(2, contacts.size());
+		assertTrue(contacts.contains(contact1From0));
+
+		// 1 removes contact 2
+		assertNotNull(contactId2From1);
+		contactManager1.removeContact(contactId2From1);
+
+		// sync leave message to 0
+		sync1To0(1, true);
+
+		// make sure blog2 is no longer shared between 0 and 1
+		contacts = blogSharingManager0.getSharedWith(blog2.getId());
+		assertEquals(1, contacts.size());
+		assertFalse(contacts.contains(contact1From0));
+
+		// 1 doesn't even have blog2 anymore
+		try {
+			blogManager1.getBlog(blog2.getId());
+			fail();
+		} catch (NoSuchGroupException e) {
+			// expected
+		}
+
+		// 0 can share blog2 again with 1
+		assertTrue(
+				blogSharingManager0.canBeShared(blog2.getId(), contact1From0));
 	}
 
 	@NotNullByDefault

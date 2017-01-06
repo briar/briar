@@ -3,14 +3,18 @@ package org.briarproject.briar.sharing;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
+import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.briar.api.blog.Blog;
+import org.briarproject.briar.api.blog.BlogFactory;
+import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
-import org.briarproject.briar.api.client.MessageQueueManager;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumFactory;
+import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.messaging.ConversationManager;
@@ -36,16 +40,31 @@ public class SharingModule {
 	}
 
 	@Provides
+	MessageEncoder provideMessageEncoder(MessageEncoderImpl messageEncoder) {
+		return messageEncoder;
+	}
+
+	@Provides
+	SessionEncoder provideSessionEncoder(SessionEncoderImpl sessionEncoder) {
+		return sessionEncoder;
+	}
+
+	@Provides
+	SessionParser provideSessionParser(SessionParserImpl sessionParser) {
+		return sessionParser;
+	}
+
+	@Provides
 	@Singleton
 	BlogSharingValidator provideBlogSharingValidator(
-			MessageQueueManager messageQueueManager, ClientHelper clientHelper,
-			MetadataEncoder metadataEncoder, Clock clock) {
-
+			ValidationManager validationManager, MessageEncoder messageEncoder,
+			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
+			Clock clock, BlogFactory blogFactory, AuthorFactory authorFactory) {
 		BlogSharingValidator validator =
-				new BlogSharingValidator(clientHelper, metadataEncoder, clock);
-		messageQueueManager.registerMessageValidator(
-				BlogSharingManager.CLIENT_ID, validator);
-
+				new BlogSharingValidator(messageEncoder, clientHelper,
+						metadataEncoder, clock, blogFactory, authorFactory);
+		validationManager.registerMessageValidator(BlogSharingManager.CLIENT_ID,
+				validator);
 		return validator;
 	}
 
@@ -53,19 +72,36 @@ public class SharingModule {
 	@Singleton
 	BlogSharingManager provideBlogSharingManager(
 			LifecycleManager lifecycleManager, ContactManager contactManager,
-			MessageQueueManager messageQueueManager,
+			ValidationManager validationManager,
 			ConversationManager conversationManager, BlogManager blogManager,
 			BlogSharingManagerImpl blogSharingManager) {
-
 		lifecycleManager.registerClient(blogSharingManager);
 		contactManager.registerAddContactHook(blogSharingManager);
 		contactManager.registerRemoveContactHook(blogSharingManager);
-		messageQueueManager.registerIncomingMessageHook(
+		validationManager.registerIncomingMessageHook(
 				BlogSharingManager.CLIENT_ID, blogSharingManager);
 		conversationManager.registerConversationClient(blogSharingManager);
 		blogManager.registerRemoveBlogHook(blogSharingManager);
 
 		return blogSharingManager;
+	}
+
+	@Provides
+	MessageParser<Blog> provideBlogMessageParser(
+			BlogMessageParserImpl blogMessageParser) {
+		return blogMessageParser;
+	}
+
+	@Provides
+	ProtocolEngine<Blog> provideBlogProtocolEngine(
+			BlogProtocolEngineImpl blogProtocolEngine) {
+		return blogProtocolEngine;
+	}
+
+	@Provides
+	InvitationFactory<Blog, BlogInvitationResponse> provideBlogInvitationFactory(
+			BlogInvitationFactoryImpl blogInvitationFactory) {
+		return blogInvitationFactory;
 	}
 
 	@Provides
@@ -103,24 +139,9 @@ public class SharingModule {
 	}
 
 	@Provides
-	MessageEncoder provideMessageEncoder(MessageEncoderImpl messageEncoder) {
-		return messageEncoder;
-	}
-
-	@Provides
 	MessageParser<Forum> provideForumMessageParser(
 			ForumMessageParserImpl forumMessageParser) {
 		return forumMessageParser;
-	}
-
-	@Provides
-	SessionEncoder provideSessionEncoder(SessionEncoderImpl sessionEncoder) {
-		return sessionEncoder;
-	}
-
-	@Provides
-	SessionParser provideSessionParser(SessionParserImpl sessionParser) {
-		return sessionParser;
 	}
 
 	@Provides
@@ -130,7 +151,7 @@ public class SharingModule {
 	}
 
 	@Provides
-	InvitationFactory<Forum> provideForumInvitationFactory(
+	InvitationFactory<Forum, ForumInvitationResponse> provideForumInvitationFactory(
 			ForumInvitationFactoryImpl forumInvitationFactory) {
 		return forumInvitationFactory;
 	}

@@ -14,7 +14,7 @@ public class BlogInvitationRequestReceivedEvent extends
 		InvitationRequestReceivedEvent<Blog> {
 
 	public BlogInvitationRequestReceivedEvent(Blog blog, ContactId contactId,
-			InvitationRequest request) {
+			InvitationRequest<Blog> request) {
 		super(blog, contactId, request);
 	}
 

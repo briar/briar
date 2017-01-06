@@ -7,13 +7,13 @@ import org.briarproject.briar.api.sharing.InvitationRequest;
 import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.api.sharing.Shareable;
 
-public interface InvitationFactory<S extends Shareable> {
+public interface InvitationFactory<S extends Shareable, I extends InvitationResponse> {
 
 	InvitationRequest<S> createInvitationRequest(boolean local, boolean sent,
 			boolean seen, boolean read, InviteMessage<S> m, ContactId c,
 			boolean available, boolean canBeOpened);
 
-	InvitationResponse createInvitationResponse(MessageId id,
+	I createInvitationResponse(MessageId id,
 			GroupId contactGroupId, long time, boolean local, boolean sent,
 			boolean seen, boolean read, GroupId shareableId,
 			ContactId contactId, boolean accept);
