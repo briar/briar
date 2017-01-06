@@ -75,13 +75,13 @@ public class NavDrawerActivity extends BriarActivity implements
 		exitIfStartupFailed(intent);
 		// TODO don't create new instances if they are on the stack (#606)
 		if (intent.getBooleanExtra(INTENT_GROUPS, false)) {
-			startFragment(GroupListFragment.newInstance());
+			startFragment(GroupListFragment.newInstance(), R.id.nav_btn_groups);
 		} else if (intent.getBooleanExtra(INTENT_FORUMS, false)) {
-			startFragment(ForumListFragment.newInstance());
+			startFragment(ForumListFragment.newInstance(), R.id.nav_btn_forums);
 		} else if (intent.getBooleanExtra(INTENT_CONTACTS, false)) {
-			startFragment(ContactListFragment.newInstance());
+			startFragment(ContactListFragment.newInstance(), R.id.nav_btn_contacts);
 		} else if (intent.getBooleanExtra(INTENT_BLOGS, false)) {
-			startFragment(FeedFragment.newInstance());
+			startFragment(FeedFragment.newInstance(), R.id.nav_btn_blogs);
 		}
 		setIntent(null);
 	}
@@ -117,8 +117,7 @@ public class NavDrawerActivity extends BriarActivity implements
 		transportsView.setAdapter(transportsAdapter);
 
 		if (state == null) {
-			navigation.setCheckedItem(R.id.nav_btn_contacts);
-			startFragment(ContactListFragment.newInstance());
+			startFragment(ContactListFragment.newInstance(), R.id.nav_btn_contacts);
 		}
 		if (getIntent() != null) {
 			onNewIntent(getIntent());
@@ -195,8 +194,7 @@ public class NavDrawerActivity extends BriarActivity implements
 			 * exiting. This models the typical Google navigation behaviour such
 			 * as in Gmail/Inbox.
 			 */
-			navigation.setCheckedItem(R.id.nav_btn_contacts);
-			startFragment(ContactListFragment.newInstance());
+			startFragment(ContactListFragment.newInstance(), R.id.nav_btn_contacts);
 		} else {
 			super.onBackPressed();
 		}
@@ -219,6 +217,11 @@ public class NavDrawerActivity extends BriarActivity implements
 		drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED);
 		startFragment(new SignOutFragment());
 		super.signOut();
+	}
+
+	private void startFragment(BaseFragment fragment, int itemId){
+		navigation.setCheckedItem(itemId);
+		startFragment(fragment);
 	}
 
 	private void startFragment(BaseFragment fragment) {
