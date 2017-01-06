@@ -172,6 +172,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		MessageId inviteId = s.getLastRemoteMessageId();
 		if (inviteId == null) throw new IllegalStateException();
 		markMessageAvailableToAnswer(txn, inviteId, false);
+		// Record the response
+		markInviteAccepted(txn, inviteId, true);
 		// Send a JOIN message
 		Message sent = sendJoinMessage(txn, s, true);
 		// Track the message

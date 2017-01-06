@@ -319,7 +319,9 @@ abstract class SharingManagerImpl<S extends Shareable>
 			MessageStatus status) throws DbException, FormatException {
 		// Look up the invite message to get the details of the private group
 		InviteMessage<S> invite = messageParser.getInviteMessage(txn, m);
-		boolean canBeOpened = db.containsGroup(txn, invite.getShareableId());
+		// Find out whether the shareable can be opened
+		boolean canBeOpened = meta.wasAccepted() &&
+				db.containsGroup(txn, invite.getShareableId());
 		return invitationFactory
 				.createInvitationRequest(meta.isLocal(), status.isSent(),
 						status.isSeen(), meta.isRead(), invite, c,

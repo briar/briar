@@ -65,7 +65,7 @@ abstract class SharingValidator extends BdfMessageValidator {
 
 		BdfDictionary meta = messageEncoder
 				.encodeMetadata(INVITE, shareableId, m.getTimestamp(), false,
-						false, false, false);
+						false, false, false, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -88,7 +88,7 @@ abstract class SharingValidator extends BdfMessageValidator {
 
 		BdfDictionary meta = messageEncoder
 				.encodeMetadata(type, new GroupId(shareableId),
-						m.getTimestamp(), false, false, false, false);
+						m.getTimestamp(), false, false, false, false, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {

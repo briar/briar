@@ -174,6 +174,17 @@ abstract class AbstractProtocolEngine<S extends Session>
 			markMessageAvailableToAnswer(txn, m, false);
 	}
 
+	void markInviteAccepted(Transaction txn, MessageId m, boolean accepted)
+			throws DbException {
+		BdfDictionary meta = new BdfDictionary();
+		messageEncoder.setInvitationAccepted(meta, accepted);
+		try {
+			clientHelper.mergeMessageMetadata(txn, m, meta);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
+	}
+
 	void subscribeToPrivateGroup(Transaction txn, MessageId inviteId)
 			throws DbException, FormatException {
 		InviteMessage invite = messageParser.getInviteMessage(txn, inviteId);
@@ -199,8 +210,9 @@ abstract class AbstractProtocolEngine<S extends Session>
 	private void sendMessage(Transaction txn, Message m, MessageType type,
 			GroupId privateGroupId, boolean visibleInConversation)
 			throws DbException {
-		BdfDictionary meta = messageEncoder.encodeMetadata(type, privateGroupId,
-				m.getTimestamp(), true, true, visibleInConversation, false);
+		BdfDictionary meta = messageEncoder
+				.encodeMetadata(type, privateGroupId, m.getTimestamp(), true,
+						true, visibleInConversation, false, false);
 		try {
 			clientHelper.addLocalMessage(txn, m, meta, true);
 		} catch (FormatException e) {

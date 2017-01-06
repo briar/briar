@@ -17,6 +17,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_INVITATION_ACCEPTED;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_PRIVATE_GROUP_ID;
@@ -44,7 +45,7 @@ class MessageEncoderImpl implements MessageEncoder {
 	@Override
 	public BdfDictionary encodeMetadata(MessageType type,
 			GroupId privateGroupId, long timestamp, boolean local, boolean read,
-			boolean visible, boolean available) {
+			boolean visible, boolean available, boolean accepted) {
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(MSG_KEY_MESSAGE_TYPE, type.getValue());
 		meta.put(MSG_KEY_PRIVATE_GROUP_ID, privateGroupId);
@@ -53,6 +54,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		meta.put(MSG_KEY_READ, read);
 		meta.put(MSG_KEY_VISIBLE_IN_UI, visible);
 		meta.put(MSG_KEY_AVAILABLE_TO_ANSWER, available);
+		meta.put(MSG_KEY_INVITATION_ACCEPTED, accepted);
 		return meta;
 	}
 
@@ -64,6 +66,11 @@ class MessageEncoderImpl implements MessageEncoder {
 	@Override
 	public void setAvailableToAnswer(BdfDictionary meta, boolean available) {
 		meta.put(MSG_KEY_AVAILABLE_TO_ANSWER, available);
+	}
+
+	@Override
+	public void setInvitationAccepted(BdfDictionary meta, boolean accepted) {
+		meta.put(MSG_KEY_INVITATION_ACCEPTED, accepted);
 	}
 
 	@Override

@@ -21,6 +21,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_INVITATION_ACCEPTED;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_PRIVATE_GROUP_ID;
@@ -79,8 +80,9 @@ class MessageParserImpl implements MessageParser {
 		boolean read = meta.getBoolean(MSG_KEY_READ, false);
 		boolean visible = meta.getBoolean(MSG_KEY_VISIBLE_IN_UI, false);
 		boolean available = meta.getBoolean(MSG_KEY_AVAILABLE_TO_ANSWER, false);
+		boolean accepted = meta.getBoolean(MSG_KEY_INVITATION_ACCEPTED, false);
 		return new MessageMetadata(type, privateGroupId, timestamp, local, read,
-				visible, available);
+				visible, available, accepted);
 	}
 
 	@Override

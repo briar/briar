@@ -3,11 +3,9 @@ package org.briarproject.briar.privategroup.invitation;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
-import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.privategroup.GroupMessage;
@@ -132,15 +130,17 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		final JoinMessage properJoinMessage =
 				new JoinMessage(messageId, contactGroupId, privateGroupId,
 						messageTimestamp, lastRemoteMessageId);
-		final Message inviteMsg =
-				new Message(lastRemoteMessageId, contactGroupId, 1337L,
-						getRandomBytes(42));
-		final BdfList inviteList = BdfList.of("inviteMessage");
 		final long timestamp = 0L;
 		final GroupMessage joinGroupMessage =
 				new GroupMessage(message, null, localAuthor);
+		final BdfDictionary meta = new BdfDictionary();
 
 		expectMarkMessageAvailableToAnswer(lastRemoteMessageId, false);
+		context.checking(new Expectations() {{
+			oneOf(messageEncoder).setInvitationAccepted(meta, true);
+			oneOf(clientHelper)
+					.mergeMessageMetadata(txn, lastRemoteMessageId, meta);
+		}});
 		expectSendJoinMessage(properJoinMessage, true);
 		context.checking(new Expectations() {{
 			oneOf(messageTracker).trackOutgoingMessage(txn, message);

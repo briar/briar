@@ -638,10 +638,10 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		final long time1 = 1L, time2 = 2L;
 		final MessageMetadata messageMetadata1 =
 				new MessageMetadata(INVITE, privateGroup.getId(), time1, true,
-						true, true, false);
+						true, true, false, true);
 		final MessageMetadata messageMetadata2 =
 				new MessageMetadata(JOIN, privateGroup.getId(), time2, true,
-						true, true, true);
+						true, true, true, false);
 		final InviteMessage invite =
 				new InviteMessage(message.getId(), contactGroup.getId(),
 						privateGroup.getId(), time1, "name", author,
