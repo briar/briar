@@ -1,6 +1,5 @@
 package org.briarproject.briar.blog;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.blog.Blog;
@@ -170,7 +169,7 @@ public class BlogManagerIntegrationTest
 		assertFalse(blogManager1.canBeRemoved(blog0.getId()));
 
 		// the following two calls should throw a DbException now
-		thrown.expect(DbException.class);
+		thrown.expect(IllegalArgumentException.class);
 
 		blogManager0.removeBlog(blog1);
 		blogManager1.removeBlog(blog0);

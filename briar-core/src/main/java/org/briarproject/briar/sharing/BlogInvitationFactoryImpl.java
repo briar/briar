@@ -10,7 +10,8 @@ import org.briarproject.briar.api.client.SessionId;
 
 import javax.inject.Inject;
 
-public class BlogInvitationFactoryImpl implements InvitationFactory<Blog> {
+public class BlogInvitationFactoryImpl
+		implements InvitationFactory<Blog, BlogInvitationResponse> {
 
 	@Inject
 	BlogInvitationFactoryImpl() {

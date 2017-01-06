@@ -17,7 +17,6 @@ import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
-import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.sharing.InvitationMessage;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
@@ -94,7 +93,7 @@ public class BlogSharingIntegrationTest
 		injectEagerSingletons(c2);
 	}
 
-	@Test(expected = ProtocolStateException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testPersonalBlogCannotBeSharedWithOwner() throws Exception {
 		listenToEvents(true);
 

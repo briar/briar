@@ -31,7 +31,6 @@ import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.blog.BlogPostHeader;
 import org.briarproject.briar.api.blog.MessageType;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
-import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.client.BdfIncomingMessageHook;
 
 import java.security.GeneralSecurityException;
@@ -228,7 +227,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	private void removeBlog(Transaction txn, Blog b, boolean forced)
 			throws DbException {
 		if (!forced && !canBeRemoved(txn, b.getId()))
-			throw new ProtocolStateException();
+			throw new IllegalArgumentException();
 		for (RemoveBlogHook hook : removeHooks)
 			hook.removingBlog(txn, b);
 		db.removeGroup(txn, b.getGroup());

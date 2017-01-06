@@ -10,7 +10,8 @@ import org.briarproject.briar.api.forum.ForumInvitationResponse;
 
 import javax.inject.Inject;
 
-public class ForumInvitationFactoryImpl implements InvitationFactory<Forum> {
+public class ForumInvitationFactoryImpl
+		implements InvitationFactory<Forum, ForumInvitationResponse> {
 
 	@Inject
 	ForumInvitationFactoryImpl() {

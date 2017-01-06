@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.blog.Blog;
+import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogManager.RemoveBlogHook;
 import org.briarproject.briar.api.blog.BlogSharingManager;
@@ -36,7 +37,7 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 			MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory,
 			ProtocolEngine<Blog> engine,
-			InvitationFactory<Blog> invitationFactory,
+			InvitationFactory<Blog, BlogInvitationResponse> invitationFactory,
 			IdentityManager identityManager, BlogManager blogManager) {
 		super(db, clientHelper, metadataParser, messageParser, sessionEncoder,
 				sessionParser, messageTracker, contactGroupFactory, engine,

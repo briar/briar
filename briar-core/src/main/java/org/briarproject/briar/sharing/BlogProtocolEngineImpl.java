@@ -12,13 +12,13 @@ import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.blog.Blog;
-import org.briarproject.briar.api.blog.BlogInvitationRequest;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.sharing.InvitationRequest;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -28,14 +28,15 @@ import javax.inject.Inject;
 class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 
 	private final BlogManager blogManager;
-	private final InvitationFactory<Blog> invitationFactory;
+	private final InvitationFactory<Blog, BlogInvitationResponse>
+			invitationFactory;
 
 	@Inject
 	BlogProtocolEngineImpl(DatabaseComponent db,
 			ClientHelper clientHelper, MessageEncoder messageEncoder,
 			MessageParser<Blog> messageParser, MessageTracker messageTracker,
 			Clock clock, BlogManager blogManager,
-			InvitationFactory<Blog> invitationFactory) {
+			InvitationFactory<Blog, BlogInvitationResponse> invitationFactory) {
 		super(db, clientHelper, messageEncoder, messageParser, messageTracker,
 				clock);
 		this.blogManager = blogManager;
@@ -45,8 +46,7 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 	@Override
 	Event getInvitationRequestReceivedEvent(InviteMessage<Blog> m,
 			ContactId contactId, boolean available, boolean canBeOpened) {
-		BlogInvitationRequest request =
-				(BlogInvitationRequest) invitationFactory
+		InvitationRequest<Blog> request = invitationFactory
 						.createInvitationRequest(false, false, true, false, m,
 								contactId, available, canBeOpened);
 		return new BlogInvitationRequestReceivedEvent(m.getShareable(),
@@ -56,24 +56,20 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 	@Override
 	Event getInvitationResponseReceivedEvent(AcceptMessage m,
 			ContactId contactId) {
-		BlogInvitationResponse response =
-				(BlogInvitationResponse) invitationFactory
-						.createInvitationResponse(m.getId(),
-								m.getContactGroupId(), m.getTimestamp(), false,
-								false, true, false, m.getShareableId(),
-								contactId, true);
+		BlogInvitationResponse response = invitationFactory
+				.createInvitationResponse(m.getId(), m.getContactGroupId(),
+						m.getTimestamp(), false, false, true, false,
+						m.getShareableId(), contactId, true);
 		return new BlogInvitationResponseReceivedEvent(contactId, response);
 	}
 
 	@Override
 	Event getInvitationResponseReceivedEvent(DeclineMessage m,
 			ContactId contactId) {
-		BlogInvitationResponse response =
-				(BlogInvitationResponse) invitationFactory
-						.createInvitationResponse(m.getId(),
-								m.getContactGroupId(), m.getTimestamp(), false,
-								false, true, false, m.getShareableId(),
-								contactId, true);
+		BlogInvitationResponse response = invitationFactory
+				.createInvitationResponse(m.getId(), m.getContactGroupId(),
+						m.getTimestamp(), false, false, true, false,
+						m.getShareableId(), contactId, true);
 		return new BlogInvitationResponseReceivedEvent(contactId, response);
 	}
 

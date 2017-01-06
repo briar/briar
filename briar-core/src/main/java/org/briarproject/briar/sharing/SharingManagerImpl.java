@@ -23,7 +23,6 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.briar.api.client.MessageTracker;
-import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.sharing.InvitationMessage;
 import org.briarproject.briar.api.sharing.InvitationRequest;
@@ -61,14 +60,14 @@ abstract class SharingManagerImpl<S extends Shareable>
 	private final SessionParser sessionParser;
 	private final ContactGroupFactory contactGroupFactory;
 	private final ProtocolEngine<S> engine;
-	private final InvitationFactory<S> invitationFactory;
+	private final InvitationFactory<S, ?> invitationFactory;
 
 	SharingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
 			MetadataParser metadataParser, MessageParser<S> messageParser,
 			SessionEncoder sessionEncoder, SessionParser sessionParser,
 			MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory, ProtocolEngine<S> engine,
-			InvitationFactory<S> invitationFactory) {
+			InvitationFactory<S, ?> invitationFactory) {
 		super(db, clientHelper, metadataParser, messageTracker);
 		this.messageParser = messageParser;
 		this.sessionEncoder = sessionEncoder;
@@ -214,7 +213,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 		try {
 			Contact contact = db.getContact(txn, contactId);
 			if (!canBeShared(txn, shareableId, contact))
-				throw new ProtocolStateException();
+				throw new IllegalArgumentException();
 			// Look up the session, if there is one
 			GroupId contactGroupId = getContactGroup(contact).getId();
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);

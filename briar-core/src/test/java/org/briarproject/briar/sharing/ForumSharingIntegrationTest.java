@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.test.TestDatabaseModule;
-import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationRequest;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
@@ -373,7 +372,7 @@ public class ForumSharingIntegrationTest
 		assertEquals(1, forumManager1.getForums().size());
 	}
 
-	@Test(expected = ProtocolStateException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testSharingSameForumWithEachOther() throws Exception {
 		// initialize and let invitee accept all requests
 		listenToEvents(true);

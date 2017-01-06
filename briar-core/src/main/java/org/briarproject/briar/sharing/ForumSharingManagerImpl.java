@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.forum.Forum;
+import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager.RemoveForumHook;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 
@@ -26,7 +27,7 @@ class ForumSharingManagerImpl extends SharingManagerImpl<Forum>
 			MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory,
 			ProtocolEngine<Forum> engine,
-			InvitationFactory<Forum> invitationFactory) {
+			InvitationFactory<Forum, ForumInvitationResponse> invitationFactory) {
 		super(db, clientHelper, metadataParser, messageParser, sessionEncoder,
 				sessionParser, messageTracker, contactGroupFactory, engine,
 				invitationFactory);

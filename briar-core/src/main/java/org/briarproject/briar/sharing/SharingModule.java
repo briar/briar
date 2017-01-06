@@ -9,10 +9,12 @@ import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogFactory;
+import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumFactory;
+import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.messaging.ConversationManager;
@@ -97,7 +99,7 @@ public class SharingModule {
 	}
 
 	@Provides
-	InvitationFactory<Blog> provideBlogInvitationFactory(
+	InvitationFactory<Blog, BlogInvitationResponse> provideBlogInvitationFactory(
 			BlogInvitationFactoryImpl blogInvitationFactory) {
 		return blogInvitationFactory;
 	}
@@ -149,7 +151,7 @@ public class SharingModule {
 	}
 
 	@Provides
-	InvitationFactory<Forum> provideForumInvitationFactory(
+	InvitationFactory<Forum, ForumInvitationResponse> provideForumInvitationFactory(
 			ForumInvitationFactoryImpl forumInvitationFactory) {
 		return forumInvitationFactory;
 	}
