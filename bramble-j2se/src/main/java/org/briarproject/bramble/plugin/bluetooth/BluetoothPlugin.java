@@ -10,14 +10,14 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginException;
-import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
+import org.briarproject.bramble.api.plugin.duplex.AbstractBluetoothPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.util.OsUtils;
 import org.briarproject.bramble.util.StringUtils;
 
+import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.SecureRandom;
@@ -57,46 +57,22 @@ import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class BluetoothPlugin implements DuplexPlugin {
+class BluetoothPlugin<C, S> extends AbstractBluetoothPlugin<C, S> {
 
 	private static final Logger LOG =
 			Logger.getLogger(BluetoothPlugin.class.getName());
 
-	private final Executor ioExecutor;
-	private final SecureRandom secureRandom;
-	private final Backoff backoff;
-	private final DuplexPluginCallback callback;
-	private final int maxLatency;
 	private final Semaphore discoverySemaphore = new Semaphore(1);
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
-	private volatile boolean running = false;
 	private volatile StreamConnectionNotifier socket = null;
 	private volatile LocalDevice localDevice = null;
 
-	BluetoothPlugin(Executor ioExecutor, SecureRandom secureRandom,
-			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
-		this.ioExecutor = ioExecutor;
-		this.secureRandom = secureRandom;
-		this.backoff = backoff;
-		this.callback = callback;
-		this.maxLatency = maxLatency;
-	}
-
-	@Override
-	public TransportId getId() {
-		return ID;
-	}
-
-	@Override
-	public int getMaxLatency() {
-		return maxLatency;
-	}
-
-	@Override
-	public int getMaxIdleTime() {
-		// Bluetooth detects dead connections so we don't need keepalives
-		return Integer.MAX_VALUE;
+	BluetoothPlugin(Executor ioExecutor,
+			SecureRandom secureRandom,
+			Backoff backoff, int maxLatency,
+			DuplexPluginCallback callback) {
+		super(ioExecutor, secureRandom, backoff, maxLatency, callback);
 	}
 
 	@Override
@@ -139,7 +115,7 @@ class BluetoothPlugin implements DuplexPlugin {
 					return;
 				}
 				if (!running) {
-					tryToClose(ss);
+					tryToClose((S)ss);
 					return;
 				}
 				socket = ss;
@@ -153,29 +129,16 @@ class BluetoothPlugin implements DuplexPlugin {
 	private String makeUrl(String address, String uuid) {
 		return "btspp://" + address + ":" + uuid + ";name=RFCOMM";
 	}
-
-	private String getUuid() {
-		String uuid = callback.getLocalProperties().get(PROP_UUID);
-		if (uuid == null) {
-			byte[] random = new byte[UUID_BYTES];
-			secureRandom.nextBytes(random);
-			uuid = UUID.nameUUIDFromBytes(random).toString();
-			TransportProperties p = new TransportProperties();
-			p.put(PROP_UUID, uuid);
-			callback.mergeLocalProperties(p);
-		}
-		return uuid;
-	}
-
-	private void tryToClose(@Nullable StreamConnectionNotifier ss) {
-		try {
-			if (ss != null) ss.close();
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} finally {
-			callback.transportDisabled();
-		}
-	}
+//
+//	private void tryToClose(@Nullable StreamConnectionNotifier ss) {
+//		try {
+//			if (ss != null) ss.close();
+//		} catch (IOException e) {
+//			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+//		} finally {
+//			callback.transportDisabled();
+//		}
+//	}
 
 	private void acceptContactConnections(StreamConnectionNotifier ss) {
 		while (true) {
@@ -196,54 +159,33 @@ class BluetoothPlugin implements DuplexPlugin {
 	private DuplexTransportConnection wrapSocket(StreamConnection s) {
 		return new BluetoothTransportConnection(this, s);
 	}
+//
+//	@Override
+//	public void stop() {
+//		running = false;
+//		tryToClose(socket);
+//	}
 
 	@Override
-	public void stop() {
-		running = false;
-		tryToClose(socket);
+	protected void close(S ss) throws IOException {
+		((StreamConnection)ss).close();
 	}
 
 	@Override
-	public boolean isRunning() {
-		return running;
-	}
+	public Runnable returnPollRunnable(final String address, final String uuid,
+			final ContactId c) {
 
-	@Override
-	public boolean shouldPoll() {
-		return true;
-	}
-
-	@Override
-	public int getPollingInterval() {
-		return backoff.getPollingInterval();
-	}
-
-	@Override
-	public void poll(final Collection<ContactId> connected) {
-		if (!running) return;
-		backoff.increment();
-		// Try to connect to known devices in parallel
-		Map<ContactId, TransportProperties> remote =
-				callback.getRemoteProperties();
-		for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
-			final ContactId c = e.getKey();
-			if (connected.contains(c)) continue;
-			final String address = e.getValue().get(PROP_ADDRESS);
-			if (StringUtils.isNullOrEmpty(address)) continue;
-			final String uuid = e.getValue().get(PROP_UUID);
-			if (StringUtils.isNullOrEmpty(uuid)) continue;
-			ioExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					if (!running) return;
-					StreamConnection s = connect(makeUrl(address, uuid));
-					if (s != null) {
-						backoff.reset();
-						callback.outgoingConnectionCreated(c, wrapSocket(s));
-					}
+		return new Runnable() {
+			@Override
+			public void run() {
+				if (!running) return;
+				StreamConnection s = connect(makeUrl(address, uuid));
+				if (s != null) {
+					backoff.reset();
+					callback.outgoingConnectionCreated(c, wrapSocket(s));
 				}
-			});
-		}
+			}
+		};
 	}
 
 	private StreamConnection connect(String url) {
@@ -259,23 +201,11 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	@Override
-	public DuplexTransportConnection createConnection(ContactId c) {
-		if (!running) return null;
-		TransportProperties p = callback.getRemoteProperties().get(c);
-		if (p == null) return null;
-		String address = p.get(PROP_ADDRESS);
-		if (StringUtils.isNullOrEmpty(address)) return null;
-		String uuid = p.get(PROP_UUID);
-		if (StringUtils.isNullOrEmpty(uuid)) return null;
-		String url = makeUrl(address, uuid);
+	protected DuplexTransportConnection connectToAddress(String address, String uuid) {
+			String url = makeUrl(address, uuid);
 		StreamConnection s = connect(url);
 		if (s == null) return null;
 		return new BluetoothTransportConnection(this, s);
-	}
-
-	@Override
-	public boolean supportsInvitations() {
-		return true;
 	}
 
 	@Override
@@ -297,7 +227,7 @@ class BluetoothPlugin implements DuplexPlugin {
 			return null;
 		}
 		if (!running) {
-			tryToClose(ss);
+			tryToClose((S)ss);
 			return null;
 		}
 		// Create the background tasks
@@ -330,7 +260,7 @@ class BluetoothPlugin implements DuplexPlugin {
 			return null;
 		} finally {
 			// Closing the socket will terminate the listener task
-			tryToClose(ss);
+			tryToClose((S)ss);
 			closeSockets(futures, chosen);
 		}
 	}
@@ -363,11 +293,6 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	@Override
-	public boolean supportsKeyAgreement() {
-		return true;
-	}
-
-	@Override
 	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
 		if (!running) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
@@ -385,7 +310,7 @@ class BluetoothPlugin implements DuplexPlugin {
 			return null;
 		}
 		if (!running) {
-			tryToClose(ss);
+			tryToClose((S)ss);
 			return null;
 		}
 		BdfList descriptor = new BdfList();
@@ -393,33 +318,6 @@ class BluetoothPlugin implements DuplexPlugin {
 		String address = localDevice.getBluetoothAddress();
 		descriptor.add(StringUtils.macToBytes(address));
 		return new BluetoothKeyAgreementListener(descriptor, ss);
-	}
-
-	@Override
-	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, BdfList descriptor, long timeout) {
-		if (!isRunning()) return null;
-		String address;
-		try {
-			address = parseAddress(descriptor);
-		} catch (FormatException e) {
-			LOG.info("Invalid address in key agreement descriptor");
-			return null;
-		}
-		// No truncation necessary because COMMIT_LENGTH = 16
-		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
-		if (LOG.isLoggable(INFO))
-			LOG.info("Connecting to key agreement UUID " + uuid);
-		String url = makeUrl(address, uuid);
-		StreamConnection s = connect(url);
-		if (s == null) return null;
-		return new BluetoothTransportConnection(this, s);
-	}
-
-	private String parseAddress(BdfList descriptor) throws FormatException {
-		byte[] mac = descriptor.getRaw(1);
-		if (mac.length != 6) throw new FormatException();
-		return StringUtils.macToString(mac);
 	}
 
 	private void makeDeviceDiscoverable() {

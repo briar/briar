@@ -19,8 +19,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginException;
-import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
+import org.briarproject.bramble.api.plugin.duplex.AbstractBluetoothPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -75,7 +74,8 @@ import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class DroidtoothPlugin implements DuplexPlugin {
+class DroidtoothPlugin<C, S>
+		extends AbstractBluetoothPlugin<C, S>{
 
 	private static final Logger LOG =
 			Logger.getLogger(DroidtoothPlugin.class.getName());
@@ -84,16 +84,10 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private static final String DISCOVERY_FINISHED =
 			"android.bluetooth.adapter.action.DISCOVERY_FINISHED";
 
-	private final Executor ioExecutor;
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
-	private final SecureRandom secureRandom;
-	private final Backoff backoff;
-	private final DuplexPluginCallback callback;
-	private final int maxLatency;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
-	private volatile boolean running = false;
 	private volatile boolean wasEnabledByUs = false;
 	private volatile BluetoothStateReceiver receiver = null;
 	private volatile BluetoothServerSocket socket = null;
@@ -104,29 +98,15 @@ class DroidtoothPlugin implements DuplexPlugin {
 	DroidtoothPlugin(Executor ioExecutor, AndroidExecutor androidExecutor,
 			Context appContext, SecureRandom secureRandom, Backoff backoff,
 			DuplexPluginCallback callback, int maxLatency) {
-		this.ioExecutor = ioExecutor;
+
+		super(ioExecutor, secureRandom, backoff, maxLatency, callback);
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
-		this.secureRandom = secureRandom;
-		this.backoff = backoff;
-		this.callback = callback;
-		this.maxLatency = maxLatency;
 	}
 
 	@Override
-	public TransportId getId() {
-		return ID;
-	}
-
-	@Override
-	public int getMaxLatency() {
-		return maxLatency;
-	}
-
-	@Override
-	public int getMaxIdleTime() {
-		// Bluetooth detects dead connections so we don't need keepalives
-		return Integer.MAX_VALUE;
+	protected void close(S ss) throws IOException {
+		((BluetoothServerSocket)ss).close();
 	}
 
 	@Override
@@ -194,14 +174,14 @@ class DroidtoothPlugin implements DuplexPlugin {
 				BluetoothServerSocket ss;
 				try {
 					ss = adapter.listenUsingInsecureRfcommWithServiceRecord(
-							"RFCOMM", getUuid());
+							"RFCOMM", UUID.fromString(getUuid()));
 				} catch (IOException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 					return;
 				}
 				if (!isRunning()) {
-					tryToClose(ss);
+					tryToClose((S)ss);
 					return;
 				}
 				LOG.info("Socket bound");
@@ -211,29 +191,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 				acceptContactConnections();
 			}
 		});
-	}
-
-	private UUID getUuid() {
-		String uuid = callback.getLocalProperties().get(PROP_UUID);
-		if (uuid == null) {
-			byte[] random = new byte[UUID_BYTES];
-			secureRandom.nextBytes(random);
-			uuid = UUID.nameUUIDFromBytes(random).toString();
-			TransportProperties p = new TransportProperties();
-			p.put(PROP_UUID, uuid);
-			callback.mergeLocalProperties(p);
-		}
-		return UUID.fromString(uuid);
-	}
-
-	private void tryToClose(@Nullable BluetoothServerSocket ss) {
-		try {
-			if (ss != null) ss.close();
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} finally {
-			callback.transportDisabled();
-		}
 	}
 
 	private void acceptContactConnections() {
@@ -261,9 +218,9 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	@Override
 	public void stop() {
-		running = false;
+		this.running = false;
 		if (receiver != null) appContext.unregisterReceiver(receiver);
-		tryToClose(socket);
+		tryToClose((S)socket);
 		// Disable Bluetooth if we enabled it and it's still enabled
 		if (wasEnabledByUs && adapter.isEnabled()) {
 			if (adapter.disable()) LOG.info("Disabling Bluetooth");
@@ -276,42 +233,20 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return running && adapter != null && adapter.isEnabled();
 	}
 
-	@Override
-	public boolean shouldPoll() {
-		return true;
-	}
-
-	@Override
-	public int getPollingInterval() {
-		return backoff.getPollingInterval();
-	}
-
-	@Override
-	public void poll(Collection<ContactId> connected) {
-		if (!isRunning()) return;
-		backoff.increment();
-		// Try to connect to known devices in parallel
-		Map<ContactId, TransportProperties> remote =
-				callback.getRemoteProperties();
-		for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
-			final ContactId c = e.getKey();
-			if (connected.contains(c)) continue;
-			final String address = e.getValue().get(PROP_ADDRESS);
-			if (StringUtils.isNullOrEmpty(address)) continue;
-			final String uuid = e.getValue().get(PROP_UUID);
-			if (StringUtils.isNullOrEmpty(uuid)) continue;
-			ioExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					if (!running) return;
-					BluetoothSocket s = connect(address, uuid);
-					if (s != null) {
-						backoff.reset();
-						callback.outgoingConnectionCreated(c, wrapSocket(s));
-					}
+	protected Runnable returnPollRunnable(final String address, final String uuid,
+			final ContactId c) {
+		return new Runnable() {
+			@Override
+			public void run() {
+				if (!running) return;
+				BluetoothSocket s = connect(address, uuid);
+				if (s != null) {
+					backoff.reset();
+					callback.outgoingConnectionCreated(c, wrapSocket(s));
 				}
-			});
-		}
+			}
+
+		};
 	}
 
 	@Nullable
@@ -347,37 +282,17 @@ class DroidtoothPlugin implements DuplexPlugin {
 				LOG.info("Failed to connect to " + scrubMacAddress(address)
 						+ ": " + e);
 			}
-			tryToClose(s);
+			tryToClose((S)s);
 			return null;
 		}
 	}
 
-	private void tryToClose(@Nullable Closeable c) {
-		try {
-			if (c != null) c.close();
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
-	}
 
-	@Override
-	public DuplexTransportConnection createConnection(ContactId c) {
-		if (!isRunning()) return null;
-		TransportProperties p = callback.getRemoteProperties().get(c);
-		if (p == null) return null;
-		String address = p.get(PROP_ADDRESS);
-		if (StringUtils.isNullOrEmpty(address)) return null;
-		String uuid = p.get(PROP_UUID);
-		if (StringUtils.isNullOrEmpty(uuid)) return null;
+	public DuplexTransportConnection connectToAddress(String address, String uuid) {
 		BluetoothSocket s = connect(address, uuid);
-		if (s == null) return null;
-		return new DroidtoothTransportConnection(this, s);
+		return s == null ? null : wrapSocket(s);
 	}
 
-	@Override
-	public boolean supportsInvitations() {
-		return true;
-	}
 
 	@Override
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
@@ -426,7 +341,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			return null;
 		} finally {
 			// Closing the socket will terminate the listener task
-			tryToClose(ss);
+			tryToClose((S)ss);
 			closeSockets(futures, chosen);
 		}
 	}
@@ -459,11 +374,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	@Override
-	public boolean supportsKeyAgreement() {
-		return true;
-	}
-
-	@Override
 	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
 		if (!isRunning()) return null;
 		// There's no point listening if we can't discover our own address
@@ -487,31 +397,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return new BluetoothKeyAgreementListener(descriptor, ss);
 	}
 
-	@Override
-	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, BdfList descriptor, long timeout) {
-		if (!isRunning()) return null;
-		String address;
-		try {
-			address = parseAddress(descriptor);
-		} catch (FormatException e) {
-			LOG.info("Invalid address in key agreement descriptor");
-			return null;
-		}
-		// No truncation necessary because COMMIT_LENGTH = 16
-		UUID uuid = UUID.nameUUIDFromBytes(commitment);
-		if (LOG.isLoggable(INFO))
-			LOG.info("Connecting to key agreement UUID " + uuid);
-		BluetoothSocket s = connect(address, uuid.toString());
-		if (s == null) return null;
-		return new DroidtoothTransportConnection(this, s);
-	}
-
-	private String parseAddress(BdfList descriptor) throws FormatException {
-		byte[] mac = descriptor.getRaw(1);
-		if (mac.length != 6) throw new FormatException();
-		return StringUtils.macToString(mac);
-	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
 
@@ -523,7 +408,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				bind();
 			} else if (state == STATE_OFF) {
 				LOG.info("Bluetooth disabled");
-				tryToClose(socket);
+				tryToClose((S)socket);
 			}
 			int scanMode = intent.getIntExtra(EXTRA_SCAN_MODE, 0);
 			if (scanMode == SCAN_MODE_NONE) {
