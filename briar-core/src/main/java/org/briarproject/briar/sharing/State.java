@@ -10,7 +10,7 @@ import javax.annotation.concurrent.Immutable;
 enum State {
 
 	START(0), LOCAL_INVITED(1), REMOTE_INVITED(2), SHARING(3), LOCAL_LEFT(4),
-	REMOTE_LEFT(5),	REMOTE_HANGING(6), ERROR(7);
+	REMOTE_HANGING(5), ERROR(6);
 
 	private final int value;
 
@@ -23,7 +23,7 @@ enum State {
 	}
 
 	public boolean canInvite() {
-		return this == START || this == REMOTE_LEFT;
+		return this == START;
 	}
 
 	static State fromValue(int value) throws FormatException {
