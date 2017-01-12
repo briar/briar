@@ -1,5 +1,6 @@
 package org.briarproject.bramble.crypto;
 
+import org.briarproject.bramble.TimeLoggingExecutor;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
@@ -49,8 +50,8 @@ public class CryptoModule {
 		RejectedExecutionHandler policy =
 				new ThreadPoolExecutor.DiscardPolicy();
 		// Create a limited # of threads and keep them in the pool for 60 secs
-		cryptoExecutor = new ThreadPoolExecutor(0, MAX_EXECUTOR_THREADS,
-				60, SECONDS, queue, policy);
+		cryptoExecutor = new TimeLoggingExecutor("CryptoExecutor", 0,
+				MAX_EXECUTOR_THREADS, 60, SECONDS, queue, policy);
 	}
 
 	@Provides

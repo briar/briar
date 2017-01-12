@@ -67,6 +67,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
@@ -130,8 +131,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		// Don't allow reentrant locking
 		if (lock.getReadHoldCount() > 0) throw new IllegalStateException();
 		if (lock.getWriteHoldCount() > 0) throw new IllegalStateException();
+		long start = System.currentTimeMillis();
 		if (readOnly) lock.readLock().lock();
 		else lock.writeLock().lock();
+		if (LOG.isLoggable(FINE)) {
+			long duration = System.currentTimeMillis() - start;
+			if (readOnly) LOG.fine("Waited " + duration + " ms for read lock");
+			else LOG.fine("Waited " + duration + " ms for write lock");
+		}
 		try {
 			return new Transaction(db.startTransaction(), readOnly);
 		} catch (DbException e) {
