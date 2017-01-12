@@ -25,7 +25,6 @@ import org.briarproject.bramble.test.TestSeedProviderModule;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
-import org.briarproject.briar.api.client.MessageQueueManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumSharingManager;
@@ -132,8 +131,6 @@ public interface BriarIntegrationTestComponent {
 	IntroductionManager getIntroductionManager();
 
 	MessageTracker getMessageTracker();
-
-	MessageQueueManager getMessageQueueManager();
 
 	PrivateGroupManager getPrivateGroupManager();
 

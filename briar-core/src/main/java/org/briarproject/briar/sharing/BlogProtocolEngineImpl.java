@@ -14,7 +14,6 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogManager;
-import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -74,8 +73,8 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 	}
 
 	@Override
-	protected ClientId getClientId() {
-		return BlogSharingManager.CLIENT_ID;
+	protected ClientId getShareableClientId() {
+		return BlogManager.CLIENT_ID;
 	}
 
 	@Override
