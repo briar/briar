@@ -32,7 +32,7 @@ public class CryptoModule {
 	public static class EagerSingletons {
 		@Inject
 		@CryptoExecutor
-		Executor cryptoExecutor;
+		ExecutorService cryptoExecutor;
 	}
 
 	/**
@@ -86,8 +86,15 @@ public class CryptoModule {
 	@Provides
 	@Singleton
 	@CryptoExecutor
-	Executor getCryptoExecutor(LifecycleManager lifecycleManager) {
+	ExecutorService getCryptoExecutorService(
+			LifecycleManager lifecycleManager) {
 		lifecycleManager.registerForShutdown(cryptoExecutor);
+		return cryptoExecutor;
+	}
+
+	@Provides
+	@CryptoExecutor
+	Executor getCryptoExecutor() {
 		return cryptoExecutor;
 	}
 
