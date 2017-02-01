@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Briar einrichten</string>
-  <string name="setup_explanation">Dein Briar-Konto wird verschlüsselt auf Deinem Gerät gespeichert und nicht mit der \"Cloud\" synchronisiert. Wenn Du Briar deinstallierst oder Dein Passwort vergisst, könenn das Konto und Deine Daten nicht wiederhergestellt werden.</string>
+  <string name="setup_explanation">Dein Briar-Konto wird verschlüsselt auf Deinem Gerät gespeichert und nicht mit der \"Cloud\" synchronisiert. Wenn Du Briar deinstallierst oder Dein Passwort vergisst, können das Konto und Deine Daten nicht wiederhergestellt werden.</string>
   <string name="choose_nickname">Wähle Deinen Benutzernamen</string>
   <string name="choose_password">Wähle Dein Passwort</string>
   <string name="confirm_password">Passwort bestätigen</string>
@@ -35,17 +35,21 @@
   <!--Transports-->
   <string name="transport_tor">Internet</string>
   <string name="transport_bt">Bluetooth</string>
-  <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan">WLAN</string>
   <!--Notifications-->
   <string name="ongoing_notification_title">In Briar angemeldet</string>
-  <string name="ongoing_notification_text">Berühren, um Briar zu öffnen</string>
+  <string name="ongoing_notification_text">Berühren, um Briar zu öffnen.</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">Neue private Nachricht.</item>
-    <item quantity="other">%d neue private Nachrichten</item>
+    <item quantity="other">%d neue private Nachrichten.</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="one">Neue Gruppennachricht.</item>
+    <item quantity="other">%d neue Gruppennachrichten.</item>
   </plurals>
   <plurals name="forum_post_notification_text">
-    <item quantity="one">Neuer Forenbeitrag</item>
-    <item quantity="other">%d neue Forenbeiträge</item>
+    <item quantity="one">Neuer Forenbeitrag.</item>
+    <item quantity="other">%d neue Forenbeiträge.</item>
   </plurals>
   <plurals name="blog_post_notification_text">
     <item quantity="one">Neuer Blogeintrag.</item>
@@ -60,6 +64,7 @@
   <string name="delete">Löschen</string>
   <string name="accept">Annehmen</string>
   <string name="decline">Ablehnen</string>
+  <string name="options">Optionen</string>
   <string name="online">Online</string>
   <string name="offline">Offline</string>
   <string name="send">Senden</string>
@@ -132,7 +137,8 @@
     <item quantity="one">%d Nachrichten</item>
     <item quantity="other">%d Nachrichten</item>
   </plurals>
-  <string name="groups_group_is_empty">Diese Gruppe ist leer.</string>
+  <string name="groups_group_is_empty">Diese Gruppe ist leer</string>
+  <string name="groups_group_is_dissolved">Diese Gruppe wurde aufgelöst</string>
   <string name="groups_remove">Entfernen</string>
   <string name="groups_create_group_title">Private Gruppe erstellen</string>
   <string name="groups_create_group_button">Gruppe erstellen</string>
@@ -140,10 +146,12 @@
   <string name="groups_create_group_hint">Gebe Deiner privaten Gruppe einen Namen</string>
   <string name="groups_compose_message">Nachricht erstellen</string>
   <string name="groups_message_sent">Nachricht gesendet</string>
-  <string name="groups_message_received">Nachricht erhalten</string>
   <string name="groups_member_list">Mitglieder</string>
   <string name="groups_invite_members">Mitglieder einladen</string>
+  <string name="groups_member_joined_you">Du bist der Gruppe beigetreten</string>
+  <string name="groups_member_joined">%s ist der Gruppe beigetreten</string>
   <string name="groups_leave">Gruppe verlassen</string>
+  <string name="groups_leave_dialog_message">Bist Du sicher, dass Du die Gruppe verlassen willst?</string>
   <string name="groups_dissolve">Gruppe auflösen</string>
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">Gruppeneinladungen</string>
@@ -165,9 +173,9 @@
   </plurals>
   <string name="forum_compose_post">Neuer Forenbeitrag</string>
   <string name="forum_new_entry_posted">Forenbeitrag wurde veröffentlicht.</string>
-  <string name="forum_new_entry_received">Neuer Forenbeitrag</string>
   <string name="forum_new_message_hint">Neuer Eintrag</string>
   <string name="forum_message_reply_hint">Neue Antwort</string>
+  <string name="btn_reply">Antworten</string>
   <plurals name="message_replies">
     <item quantity="one">%1$d Antwort</item>
     <item quantity="other">%1$d Antworten</item>
@@ -215,7 +223,7 @@
   <string name="blogs_feed_empty_state">Dies ist die globale Blog-Zeitleiste.\n\nOffensichtlich hat noch niemand etwas veröffentlicht.\n\nSei die oder der erste und tipp auf das Stift-Icon, um einen neuen Blogbeitrag zu verfassen.</string>
   <string name="blogs_personal_blog">%ss persönliches Blog</string>
   <string name="blogs_remove_blog">Blog entfernen</string>
-  <string name="blogs_remove_blog_dialog_message">Bist du sicher, dass du diesen Blog und alle dazugehörigen Beiträge löschen möchtest?\nBeachte, dass dies nicht den Blog auf Geräten anderer Leute löscht.</string>
+  <string name="blogs_remove_blog_dialog_message">Bist Du sicher, dass Du diesen Blog und alle dazugehörigen Beiträge löschen möchtest?\nBeachte, dass dies nicht den Blog auf Geräten anderer Leute löscht.</string>
   <string name="blogs_remove_blog_ok">Blog entfernen</string>
   <string name="blogs_blog_removed">Blog wurde entfernt</string>
   <string name="blogs_reblog_comment_hint">Füge optionalen Kommentar hinzu</string>
@@ -252,8 +260,8 @@
   <string name="bluetooth_setting_enabled">Sobald Kontakte in der Nähe sind</string>
   <string name="bluetooth_setting_disabled">Nur beim Hinzufügen von Kontakten</string>
   <string name="tor_mobile_setting">Über Tor verbinden</string>
-  <string name="tor_mobile_setting_enabled">Wenn Wi-Fi oder Mobildaten verwendet werden</string>
-  <string name="tor_mobile_setting_disabled">Nur wenn über Wi-Fi verbunden</string>
+  <string name="tor_mobile_setting_enabled">Wenn WLAN oder Mobildaten verwendet werden</string>
+  <string name="tor_mobile_setting_disabled">Nur wenn über WLAN verbunden</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicherheit</string>
   <string name="change_password">Passwort ändern</string>
@@ -269,7 +277,7 @@
   <string name="panic_app_setting_summary">Keine App eingerichtet</string>
   <string name="panic_app_setting_none">Keine</string>
   <string name="dialog_title_connect_panic_app">Bestätige Panik-App</string>
-  <string name="dialog_message_connect_panic_app">Bist du sicher, dass du %1$s erlauben willst, Panik-Button-Ereignisse auszulösen? Dies kann zum Löschen von Daten führen.</string>
+  <string name="dialog_message_connect_panic_app">Bist Du sicher, dass Du %1$s erlauben willst, Panik-Button-Ereignisse auszulösen? Dies kann zum Löschen von Daten führen.</string>
   <string name="lock_setting_title">Abmelden</string>
   <string name="lock_setting_summary">Von Briar abmelden, wenn ein Panik-Button aktiviert wird</string>
   <string name="purge_setting_title">Konto löschen</string>
@@ -279,6 +287,7 @@
   <!--Settings Notifications-->
   <string name="notification_settings_title">Benachrichtigungen</string>
   <string name="notify_private_messages_setting">Benachrichtigungen für private Nachrichten anzeigen</string>
+  <string name="notify_group_messages_setting">Benachrichtigungen für Gruppennachrichten anzeigen</string>
   <string name="notify_forum_posts_setting">Benachrichtigungen für Forenbeiträge anzeigen</string>
   <string name="notify_blog_posts_setting">Benachrichtigungen für Blog-Beiträge anzeigen</string>
   <string name="notify_vibration_setting">Vibration</string>
@@ -309,7 +318,7 @@
   <string name="could_not_load_report_data">Konnte Daten des Berichts nicht laden</string>
   <string name="send_report">Bericht abschicken</string>
   <string name="close">Schließen</string>
-  <string name="dev_report_saved">Der Bericht wurde gespeichert. Er wird verschickt, wenn Du Dich das nächste Mal bei Briar anmeldest</string>
+  <string name="dev_report_saved">Der Bericht wurde gespeichert. Er wird verschickt, wenn Du Dich das nächste Mal bei Briar anmeldest.</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Von Briar abmelden ...</string>
 </resources>

@@ -117,7 +117,6 @@
   <string name="groups_create_group_button">Crea gruppo</string>
   <string name="groups_create_group_invitation_button">Invia invito</string>
   <string name="groups_message_sent">Messaggio inviato</string>
-  <string name="groups_message_received">Messaggio ricevuto</string>
   <string name="groups_member_list">Lista membri</string>
   <string name="groups_invite_members">Invita Membri</string>
   <string name="groups_leave">Lascia gruppo</string>

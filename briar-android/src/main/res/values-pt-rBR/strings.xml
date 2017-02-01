@@ -61,6 +61,7 @@
   <string name="hide">Esconder</string>
   <string name="ok">OK</string>
   <string name="cancel">Cancelar</string>
+  <string name="got_it">Entendi</string>
   <string name="delete">Deletar</string>
   <string name="accept">Aceitar</string>
   <string name="decline">Recusar</string>
@@ -69,6 +70,7 @@
   <string name="offline">Offline</string>
   <string name="send">Enviar</string>
   <string name="allow">Permitir</string>
+  <string name="open">Abrir</string>
   <string name="no_data">Nenhum dado</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">O texto entrado é muito grande</string>
@@ -151,7 +153,6 @@
   <string name="groups_invitation_sent">Convite do Grupo enviado </string>
   <string name="groups_compose_message">Escrever Mensagem</string>
   <string name="groups_message_sent">Mensagem enviada</string>
-  <string name="groups_message_received">Mensagem recebida</string>
   <string name="groups_member_list">Lista de membros</string>
   <string name="groups_invite_members">Convidar membros</string>
   <string name="groups_member_created_you">Você criou o grupo</string>
@@ -202,7 +203,6 @@
   </plurals>
   <string name="forum_compose_post">Nova postagem em fórum</string>
   <string name="forum_new_entry_posted">postada com sucesso</string>
-  <string name="forum_new_entry_received">Novo tópico no fórum </string>
   <string name="forum_new_message_hint">Novo tópico</string>
   <string name="forum_message_reply_hint">Nova resposta</string>
   <string name="btn_reply">Responder</string>
@@ -236,6 +236,7 @@
   <string name="forum_invitation_response_accepted_received">%s aceitou o convite de fórum.</string>
   <string name="forum_invitation_response_declined_received">%s recusou o convite de fórum.</string>
   <string name="sharing_status">Status de compartilhamento</string>
+  <string name="shared_with">Compartilhado com %1$d (%2$d online)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d fórum compartilhado por contatos</item>
     <item quantity="other">%d fóruns compartilhados por contatos</item>

@@ -153,7 +153,6 @@
   <string name="groups_invitation_sent">Ftesa e grupit u dërgua</string>
   <string name="groups_compose_message">Hartoni Mesazh</string>
   <string name="groups_message_sent">Mesazhi u dërgua</string>
-  <string name="groups_message_received">Mesazhi u mor</string>
   <string name="groups_member_list">Listë Anëtarësh</string>
   <string name="groups_invite_members">Ftoni Anëtarë</string>
   <string name="groups_member_created_you">E krijuat grupin</string>
@@ -204,7 +203,6 @@
   </plurals>
   <string name="forum_compose_post">Postim i Ri Forumi</string>
   <string name="forum_new_entry_posted">U postua zë forumi</string>
-  <string name="forum_new_entry_received">Zë i ri forumi</string>
   <string name="forum_new_message_hint">Zë i Ri</string>
   <string name="forum_message_reply_hint">Përgjigje e Re</string>
   <string name="btn_reply">Përgjigju</string>

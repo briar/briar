@@ -61,6 +61,7 @@
   <string name="hide">Ocultar</string>
   <string name="ok">De acuerdo</string>
   <string name="cancel">Cancelar</string>
+  <string name="got_it">Entendido</string>
   <string name="delete">Borrar</string>
   <string name="accept">Aceptar</string>
   <string name="decline">Rechazar</string>
@@ -69,6 +70,7 @@
   <string name="offline">Desconectado</string>
   <string name="send">Enviar</string>
   <string name="allow">Permitir</string>
+  <string name="open">Abrir</string>
   <string name="no_data">Sin datos</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">El texto es demasiado largo</string>
@@ -151,7 +153,6 @@
   <string name="groups_invitation_sent">Se ha mandado la invitación de grupo</string>
   <string name="groups_compose_message">Escribir mensaje</string>
   <string name="groups_message_sent">Mensaje enviado</string>
-  <string name="groups_message_received">Mensaje recibido</string>
   <string name="groups_member_list">Integrantes</string>
   <string name="groups_invite_members">Invitar miembros</string>
   <string name="groups_member_created_you">Tú creaste el grupo</string>
@@ -202,7 +203,6 @@
   </plurals>
   <string name="forum_compose_post">Nueva publicación en el foro</string>
   <string name="forum_new_entry_posted">Entrada en el foro publicada</string>
-  <string name="forum_new_entry_received">Nueva entrada en el foro</string>
   <string name="forum_new_message_hint">Nueva entrada</string>
   <string name="forum_message_reply_hint">Nueva respuesta</string>
   <string name="btn_reply">Responder</string>
@@ -236,6 +236,7 @@
   <string name="forum_invitation_response_accepted_received">%s aceptó la invitación al foro.</string>
   <string name="forum_invitation_response_declined_received">%s rechazó la invitación al foro.</string>
   <string name="sharing_status">Estado de la compartición</string>
+  <string name="shared_with">Compartido con %1$d (%2$d en línea)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d foro compartido por contactos</item>
     <item quantity="other">%d foros compartidos por contactos</item>
