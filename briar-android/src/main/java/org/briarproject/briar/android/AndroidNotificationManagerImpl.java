@@ -73,8 +73,6 @@ import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_CONTACTS;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_FORUMS;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_GROUPS;
-import static org.briarproject.briar.android.settings.SettingsFragment.PREF_NOTIFY_BLOG;
-import static org.briarproject.briar.android.settings.SettingsFragment.PREF_NOTIFY_GROUP;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 
 @ThreadSafe
@@ -92,13 +90,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	// Content URIs to differentiate between pending intents
 	private static final String CONTACT_URI =
-			"content://org.briarproject/contact";
+			"content://org.briarproject.briar/contact";
 	private static final String GROUP_URI =
-			"content://org.briarproject/group";
+			"content://org.briarproject.briar/group";
 	private static final String FORUM_URI =
-			"content://org.briarproject/forum";
+			"content://org.briarproject.briar/forum";
 	private static final String BLOG_URI =
-			"content://org.briarproject/blog";
+			"content://org.briarproject.briar/blog";
 
 	// Actions for intents that are broadcast when notifications are dismissed
 	private static final String CLEAR_PRIVATE_MESSAGE_ACTION =
@@ -325,17 +323,18 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private void updateContactNotification() {
 		if (contactTotal == 0) {
 			clearContactNotification();
-		} else if (settings.getBoolean("notifyPrivateMessages", true)) {
+		} else if (settings.getBoolean(PREF_NOTIFY_PRIVATE, true)) {
 			NotificationCompat.Builder b =
 					new NotificationCompat.Builder(appContext);
 			b.setSmallIcon(R.drawable.notification_private_message);
-			b.setColor(ContextCompat.getColor(appContext, R.color.briar_primary));
+			b.setColor(ContextCompat.getColor(appContext,
+					R.color.briar_primary));
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.private_message_notification_text, contactTotal,
 					contactTotal));
-			boolean sound = settings.getBoolean("notifySound", true);
-			String ringtoneUri = settings.get("notifyRingtoneUri");
+			boolean sound = settings.getBoolean(PREF_NOTIFY_SOUND, true);
+			String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
 			if (sound && !StringUtils.isNullOrEmpty(ringtoneUri))
 				b.setSound(Uri.parse(ringtoneUri));
 			b.setDefaults(getDefaults());
@@ -381,11 +380,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@UiThread
 	private int getDefaults() {
 		int defaults = DEFAULT_LIGHTS;
-		boolean sound = settings.getBoolean("notifySound", true);
-		String ringtoneUri = settings.get("notifyRingtoneUri");
+		boolean sound = settings.getBoolean(PREF_NOTIFY_SOUND, true);
+		String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
 		if (sound && StringUtils.isNullOrEmpty(ringtoneUri))
 			defaults |= DEFAULT_SOUND;
-		if (settings.getBoolean("notifyVibration", true))
+		if (settings.getBoolean(PREF_NOTIFY_VIBRATION, true))
 			defaults |= DEFAULT_VIBRATE;
 		return defaults;
 	}
@@ -438,12 +437,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			NotificationCompat.Builder b =
 					new NotificationCompat.Builder(appContext);
 			b.setSmallIcon(R.drawable.notification_private_group);
-			b.setColor(ContextCompat.getColor(appContext, R.color.briar_primary));
+			b.setColor(ContextCompat.getColor(appContext,
+					R.color.briar_primary));
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.group_message_notification_text, groupTotal,
 					groupTotal));
-			String ringtoneUri = settings.get("notifyRingtoneUri");
+			String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
 			if (!StringUtils.isNullOrEmpty(ringtoneUri))
 				b.setSound(Uri.parse(ringtoneUri));
 			b.setDefaults(getDefaults());
@@ -530,16 +530,17 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private void updateForumPostNotification() {
 		if (forumTotal == 0) {
 			clearForumPostNotification();
-		} else if (settings.getBoolean("notifyForumPosts", true)) {
+		} else if (settings.getBoolean(PREF_NOTIFY_FORUM, true)) {
 			NotificationCompat.Builder b =
 					new NotificationCompat.Builder(appContext);
 			b.setSmallIcon(R.drawable.notification_forum);
-			b.setColor(ContextCompat.getColor(appContext, R.color.briar_primary));
+			b.setColor(ContextCompat.getColor(appContext,
+					R.color.briar_primary));
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.forum_post_notification_text, forumTotal,
 					forumTotal));
-			String ringtoneUri = settings.get("notifyRingtoneUri");
+			String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
 			if (!StringUtils.isNullOrEmpty(ringtoneUri))
 				b.setSound(Uri.parse(ringtoneUri));
 			b.setDefaults(getDefaults());
@@ -630,12 +631,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			NotificationCompat.Builder b =
 					new NotificationCompat.Builder(appContext);
 			b.setSmallIcon(R.drawable.notification_blog);
-			b.setColor(ContextCompat.getColor(appContext, R.color.briar_primary));
+			b.setColor(ContextCompat.getColor(appContext,
+					R.color.briar_primary));
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.blog_post_notification_text, blogTotal,
 					blogTotal));
-			String ringtoneUri = settings.get("notifyRingtoneUri");
+			String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
 			if (!StringUtils.isNullOrEmpty(ringtoneUri))
 				b.setSound(Uri.parse(ringtoneUri));
 			b.setDefaults(getDefaults());
@@ -696,7 +698,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		b.setContentText(appContext.getResources().getQuantityString(
 				R.plurals.introduction_notification_text, introductionTotal,
 				introductionTotal));
-		String ringtoneUri = settings.get("notifyRingtoneUri");
+		String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
 		if (!StringUtils.isNullOrEmpty(ringtoneUri))
 			b.setSound(Uri.parse(ringtoneUri));
 		b.setDefaults(getDefaults());

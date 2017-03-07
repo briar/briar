@@ -22,6 +22,8 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.plugin.BluetoothConstants;
+import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
@@ -45,7 +47,17 @@ import static android.media.RingtoneManager.TYPE_NOTIFICATION;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_BLOG;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_FORUM;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_GROUP;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_PRIVATE;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_RINGTONE_NAME;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_RINGTONE_URI;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_SOUND;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_VIBRATION;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -53,8 +65,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		implements EventListener, Preference.OnPreferenceChangeListener {
 
 	public static final String SETTINGS_NAMESPACE = "android-ui";
-	public static final String PREF_NOTIFY_GROUP = "notifyGroupMessages";
-	public static final String PREF_NOTIFY_BLOG = "notifyBlogPosts";
+	public static final String BT_NAMESPACE = BluetoothConstants.ID.getString();
+	public static final String TOR_NAMESPACE = TorConstants.ID.getString();
 
 	private static final Logger LOG =
 			Logger.getLogger(SettingsFragment.class.getName());
@@ -62,7 +74,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private SettingsActivity listener;
 	private AndroidExecutor androidExecutor;
 	private ListPreference enableBluetooth;
-	private ListPreference torOverMobile;
+	private ListPreference torNetwork;
 	private CheckBoxPreference notifyPrivateMessages;
 	private CheckBoxPreference notifyGroupMessages;
 	private CheckBoxPreference notifyForumPosts;
@@ -74,7 +86,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private volatile SettingsManager settingsManager;
 	private volatile EventBus eventBus;
 	private volatile Settings settings;
-	private volatile boolean bluetoothSetting = false, torSetting = false;
 
 	@Override
 	public void onAttach(Context context) {
@@ -90,10 +101,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void onCreatePreferences(Bundle bundle, String s) {
 		addPreferencesFromResource(R.xml.settings);
 
-		enableBluetooth =
-				(ListPreference) findPreference("pref_key_bluetooth");
-		torOverMobile =
-				(ListPreference) findPreference("pref_key_tor_mobile");
+		enableBluetooth = (ListPreference) findPreference("pref_key_bluetooth");
+		torNetwork = (ListPreference) findPreference("pref_key_tor_network");
 		notifyPrivateMessages = (CheckBoxPreference) findPreference(
 				"pref_key_notify_private_messages");
 		notifyGroupMessages = (CheckBoxPreference) findPreference(
@@ -107,7 +116,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		notifySound = findPreference("pref_key_notify_sound");
 
 		enableBluetooth.setOnPreferenceChangeListener(this);
-		torOverMobile.setOnPreferenceChangeListener(this);
+		torNetwork.setOnPreferenceChangeListener(this);
 		notifyPrivateMessages.setOnPreferenceChangeListener(this);
 		notifyGroupMessages.setOnPreferenceChangeListener(this);
 		notifyForumPosts.setOnPreferenceChangeListener(this);
@@ -126,10 +135,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 						i.putExtra(EXTRA_RINGTONE_DEFAULT_URI,
 								DEFAULT_NOTIFICATION_URI);
 						i.putExtra(EXTRA_RINGTONE_SHOW_SILENT, true);
-						if (settings.getBoolean("notifySound", true)) {
+						if (settings.getBoolean(PREF_NOTIFY_SOUND, true)) {
 							Uri uri;
 							String ringtoneUri =
-									settings.get("notifyRingtoneUri");
+									settings.get(PREF_NOTIFY_RINGTONE_URI);
 							if (StringUtils.isNullOrEmpty(ringtoneUri))
 								uri = DEFAULT_NOTIFICATION_URI;
 							else uri = Uri.parse(ringtoneUri);
@@ -181,14 +190,17 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				try {
 					long now = System.currentTimeMillis();
 					settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
-					Settings btSettings = settingsManager.getSettings("bt");
-					Settings torSettings = settingsManager.getSettings("tor");
+					Settings btSettings =
+							settingsManager.getSettings(BT_NAMESPACE);
+					Settings torSettings =
+							settingsManager.getSettings(TOR_NAMESPACE);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading settings took " + duration + " ms");
-					bluetoothSetting = btSettings.getBoolean("enable", false);
-					torSetting = torSettings.getBoolean("torOverMobile", true);
-					displaySettings();
+					boolean btSetting =
+							btSettings.getBoolean(PREF_BT_ENABLE, false);
+					int torSetting = torSettings.getInt(PREF_TOR_NETWORK, 2);
+					displaySettings(btSetting, torSetting);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -197,31 +209,33 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		});
 	}
 
-	private void displaySettings() {
+	private void displaySettings(final boolean btSetting,
+			final int torSetting) {
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				enableBluetooth.setValue(Boolean.toString(bluetoothSetting));
-				torOverMobile.setValue(Boolean.toString(torSetting));
+				enableBluetooth.setValue(Boolean.toString(btSetting));
+				torNetwork.setValue(Integer.toString(torSetting));
 
 				notifyPrivateMessages.setChecked(settings.getBoolean(
-						"notifyPrivateMessages", true));
+						PREF_NOTIFY_PRIVATE, true));
 
 				notifyGroupMessages.setChecked(settings.getBoolean(
 						PREF_NOTIFY_GROUP, true));
 
 				notifyForumPosts.setChecked(settings.getBoolean(
-						"notifyForumPosts", true));
+						PREF_NOTIFY_FORUM, true));
 
 				notifyBlogPosts.setChecked(settings.getBoolean(
 						PREF_NOTIFY_BLOG, true));
 
 				notifyVibration.setChecked(settings.getBoolean(
-						"notifyVibration", true));
+						PREF_NOTIFY_VIBRATION, true));
 
 				String text;
-				if (settings.getBoolean("notifySound", true)) {
-					String ringtoneName = settings.get("notifyRingtoneName");
+				if (settings.getBoolean(PREF_NOTIFY_SOUND, true)) {
+					String ringtoneName =
+							settings.get(PREF_NOTIFY_RINGTONE_NAME);
 					if (StringUtils.isNullOrEmpty(ringtoneName)) {
 						text = getString(R.string.notify_sound_setting_default);
 					} else {
@@ -248,15 +262,15 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object o) {
 		if (preference == enableBluetooth) {
-			bluetoothSetting = Boolean.valueOf((String) o);
-			enableOrDisableBluetooth(bluetoothSetting);
-			storeBluetoothSettings();
-		} else if (preference == torOverMobile) {
-			torSetting = Boolean.valueOf((String) o);
-			storeTorSettings();
+			boolean btSetting = Boolean.valueOf((String) o);
+			enableOrDisableBluetooth(btSetting);
+			storeBluetoothSettings(btSetting);
+		} else if (preference == torNetwork) {
+			int torSetting = Integer.valueOf((String) o);
+			storeTorSettings(torSetting);
 		} else if (preference == notifyPrivateMessages) {
 			Settings s = new Settings();
-			s.putBoolean("notifyPrivateMessages", (Boolean) o);
+			s.putBoolean(PREF_NOTIFY_PRIVATE, (Boolean) o);
 			storeSettings(s);
 		} else if (preference == notifyGroupMessages) {
 			Settings s = new Settings();
@@ -264,7 +278,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			storeSettings(s);
 		} else if (preference == notifyForumPosts) {
 			Settings s = new Settings();
-			s.putBoolean("notifyForumPosts", (Boolean) o);
+			s.putBoolean(PREF_NOTIFY_FORUM, (Boolean) o);
 			storeSettings(s);
 		} else if (preference == notifyBlogPosts) {
 			Settings s = new Settings();
@@ -272,7 +286,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			storeSettings(s);
 		} else if (preference == notifyVibration) {
 			Settings s = new Settings();
-			s.putBoolean("notifyVibration", (Boolean) o);
+			s.putBoolean(PREF_NOTIFY_VIBRATION, (Boolean) o);
 			storeSettings(s);
 		}
 		return true;
@@ -291,15 +305,15 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		}
 	}
 
-	private void storeTorSettings() {
+	private void storeTorSettings(final int torSetting) {
 		listener.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					Settings s = new Settings();
-					s.putBoolean("torOverMobile", torSetting);
+					s.putInt(PREF_TOR_NETWORK, torSetting);
 					long now = System.currentTimeMillis();
-					settingsManager.mergeSettings(s, "tor");
+					settingsManager.mergeSettings(s, TOR_NAMESPACE);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Merging settings took " + duration + " ms");
@@ -311,15 +325,15 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		});
 	}
 
-	private void storeBluetoothSettings() {
+	private void storeBluetoothSettings(final boolean btSetting) {
 		listener.runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					Settings s = new Settings();
-					s.putBoolean("enable", bluetoothSetting);
+					s.putBoolean(PREF_BT_ENABLE, btSetting);
 					long now = System.currentTimeMillis();
-					settingsManager.mergeSettings(s, "bt");
+					settingsManager.mergeSettings(s, BT_NAMESPACE);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))
 						LOG.info("Merging settings took " + duration + " ms");
@@ -357,21 +371,21 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			Uri uri = data.getParcelableExtra(EXTRA_RINGTONE_PICKED_URI);
 			if (uri == null) {
 				// The user chose silence
-				s.putBoolean("notifySound", false);
-				s.put("notifyRingtoneName", "");
-				s.put("notifyRingtoneUri", "");
+				s.putBoolean(PREF_NOTIFY_SOUND, false);
+				s.put(PREF_NOTIFY_RINGTONE_NAME, "");
+				s.put(PREF_NOTIFY_RINGTONE_URI, "");
 			} else if (RingtoneManager.isDefault(uri)) {
 				// The user chose the default
-				s.putBoolean("notifySound", true);
-				s.put("notifyRingtoneName", "");
-				s.put("notifyRingtoneUri", "");
+				s.putBoolean(PREF_NOTIFY_SOUND, true);
+				s.put(PREF_NOTIFY_RINGTONE_NAME, "");
+				s.put(PREF_NOTIFY_RINGTONE_URI, "");
 			} else {
 				// The user chose a ringtone other than the default
 				Ringtone r = RingtoneManager.getRingtone(getContext(), uri);
 				String name = r.getTitle(getContext());
-				s.putBoolean("notifySound", true);
-				s.put("notifyRingtoneName", name);
-				s.put("notifyRingtoneUri", uri.toString());
+				s.putBoolean(PREF_NOTIFY_SOUND, true);
+				s.put(PREF_NOTIFY_RINGTONE_NAME, name);
+				s.put(PREF_NOTIFY_RINGTONE_URI, uri.toString());
 			}
 			storeSettings(s);
 		}
@@ -381,7 +395,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void eventOccurred(Event e) {
 		if (e instanceof SettingsUpdatedEvent) {
 			String namespace = ((SettingsUpdatedEvent) e).getNamespace();
-			if (namespace.equals("bt") || namespace.equals("tor")
+			if (namespace.equals(BT_NAMESPACE)
+					|| namespace.equals(TOR_NAMESPACE)
 					|| namespace.equals(SETTINGS_NAMESPACE)) {
 				LOG.info("Settings updated");
 				loadSettings();

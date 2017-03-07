@@ -8,8 +8,14 @@
 		<item>@string/bluetooth_setting_enabled</item>
 		<item>@string/bluetooth_setting_disabled</item>
 	</string-array>
-	<string-array name="tor_mobile_setting_names">
-		<item>@string/tor_mobile_setting_enabled</item>
-		<item>@string/tor_mobile_setting_disabled</item>
+	<string-array name="tor_network_setting_names">
+		<item>@string/tor_network_setting_never</item>
+		<item>@string/tor_network_setting_wifi</item>
+		<item>@string/tor_network_setting_always</item>
+	</string-array>
+	<string-array name="tor_network_setting_values">
+		<item>0</item>
+		<item>1</item>
+		<item>2</item>
 	</string-array>
 </resources>
