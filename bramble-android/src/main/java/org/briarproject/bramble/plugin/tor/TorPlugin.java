@@ -183,7 +183,11 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		String configPath = configFile.getAbsolutePath();
 		String pid = String.valueOf(android.os.Process.myPid());
 		String[] cmd = {torPath, "-f", configPath, OWNER, pid};
-		String[] env = {"HOME=" + torDirectory.getAbsolutePath()};
+		String[] env = {
+				"HOME=" + torDirectory.getAbsolutePath(),
+				"ANDROID_ROOT=/system",
+				"ANDROID_DATA=/data"
+		};
 		Process torProcess;
 		try {
 			torProcess = Runtime.getRuntime().exec(cmd, env, torDirectory);
