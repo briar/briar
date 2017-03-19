@@ -10,5 +10,6 @@ public interface RequestCodes {
 	int REQUEST_WRITE_BLOG_POST = 6;
 	int REQUEST_SHARE_BLOG = 7;
 	int REQUEST_RINGTONE = 8;
+	int REQUEST_PERMISSION_CAMERA = 9;
 
 }

@@ -114,6 +114,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
+
 		return inflater.inflate(R.layout.fragment_keyagreement_qr, container,
 				false);
 	}
@@ -143,13 +144,11 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	@Override
 	public void onStart() {
 		super.onStart();
-
 		try {
 			cameraView.start();
 		} catch (CameraException e) {
 			logCameraExceptionAndFinish(e);
 		}
-
 		// Listen for changes to the Bluetooth state
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_STATE_CHANGED);
@@ -157,7 +156,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		getActivity().registerReceiver(receiver, filter);
 
 		// Enable BT adapter if it is not already on.
-		final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+		final BluetoothAdapter adapter =
+				BluetoothAdapter.getDefaultAdapter();
 		if (adapter != null && !adapter.isEnabled()) {
 			waitingForBluetooth = true;
 			androidExecutor.runOnBackgroundThread(new Runnable() {

@@ -1,6 +1,11 @@
 package org.briarproject.briar.android.util;
 
 import android.content.Context;
+
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -18,12 +23,14 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
 
 import javax.annotation.Nullable;
 
+import static android.content.Intent.*;
 import static android.text.format.DateUtils.DAY_IN_MILLIS;
 import static android.text.format.DateUtils.FORMAT_ABBREV_MONTH;
 import static android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE;
@@ -31,6 +38,7 @@ import static android.text.format.DateUtils.FORMAT_ABBREV_TIME;
 import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.WEEK_IN_MILLIS;
+import static org.briarproject.briar.BuildConfig.*;
 import static org.briarproject.briar.android.BriarApplication.EXPIRY_DATE;
 
 public class UiUtils {
@@ -126,5 +134,19 @@ public class UiUtils {
 	public static String getBulbTransitionName(ContactId c) {
 		return "bulb" + c.getInt();
 	}
-	
+
+	public static OnClickListener getGoToSettingsListener(
+			final Context context) {
+		return new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Intent i = new Intent();
+				i.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");
+				i.addCategory(CATEGORY_DEFAULT);
+				i.setData(Uri.parse("package:" + APPLICATION_ID));
+				i.addFlags(FLAG_ACTIVITY_NEW_TASK);
+				context.startActivity(i);
+			}
+		};
+	}
 }

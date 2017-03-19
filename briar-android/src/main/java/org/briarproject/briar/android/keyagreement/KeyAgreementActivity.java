@@ -1,6 +1,15 @@
 package org.briarproject.briar.android.keyagreement;
 
+import android.Manifest;
+import android.Manifest.permission;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.UiThread;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -19,19 +28,24 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementFinishedEvent
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.R.string;
+import org.briarproject.briar.R.style;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.keyagreement.IntroFragment.IntroScreenSeenListener;
+import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -50,6 +64,8 @@ public class KeyAgreementActivity extends BriarActivity implements
 	volatile ContactExchangeTask contactExchangeTask;
 	@Inject
 	volatile IdentityManager identityManager;
+
+	private boolean continueClicked, gotCameraPermission;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -97,14 +113,100 @@ public class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	@Override
+	protected void onPostResume() {
+		super.onPostResume();
+		//Workaround for https://code.google.com/p/android/issues/detail?id=190966
+		if (continueClicked && gotCameraPermission) {
+			showQrCodeFragment();
+		}
+	}
+
+	@Override
 	public void showNextScreen() {
 		// FIXME #824
 //		showNextFragment(ShowQrCodeFragment.newInstance());
+		continueClicked = true;
+		if (checkPermissions()) {
+			showQrCodeFragment();
+		}
+	}
+
+	private void showQrCodeFragment() {
 		BaseFragment f = ShowQrCodeFragment.newInstance();
 		getSupportFragmentManager().beginTransaction()
 				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
 				.addToBackStack(f.getUniqueTag())
 				.commit();
+	}
+
+	private boolean checkPermissions() {
+		if (ContextCompat.checkSelfPermission(this, permission.CAMERA) !=
+				PackageManager.PERMISSION_GRANTED) {
+			// Should we show an explanation?
+			if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+					permission.CAMERA)) {
+				OnClickListener proceedListener = new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						requestPermission();
+					}
+				};
+				Builder builder = new Builder(this, style.BriarDialogTheme);
+				builder.setTitle(string.permission_camera_title);
+				builder.setMessage(string.permission_camera_request_text);
+				builder.setNeutralButton(string.continue_button,
+						proceedListener);
+				builder.show();
+			} else {
+				requestPermission();
+			}
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	private void requestPermission() {
+		ActivityCompat.requestPermissions(this,
+				new String[] {permission.CAMERA},
+				REQUEST_PERMISSION_CAMERA);
+	}
+
+	@Override
+	@UiThread
+	public void onRequestPermissionsResult(int requestCode,
+			String permissions[], int[] grantResults) {
+		if (requestCode == REQUEST_PERMISSION_CAMERA) {
+			// If request is cancelled, the result arrays are empty.
+			if (grantResults.length > 0 &&
+					grantResults[0] == PERMISSION_GRANTED) {
+				gotCameraPermission = true;
+			} else {
+				if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
+						permission.CAMERA)) {
+					Builder builder = new Builder(this, style.BriarDialogTheme);
+					builder.setTitle(string.permission_camera_title);
+					builder.setMessage(string.permission_camera_perm_denied);
+					builder.setPositiveButton(string.open_settings,
+							UiUtils.getGoToSettingsListener(
+									this));
+					builder.setNegativeButton(string.cancel,
+							new OnClickListener() {
+								@Override
+								public void onClick(
+										DialogInterface dialog,
+										int which) {
+									supportFinishAfterTransition();
+								}
+							});
+					builder.show();
+				} else {
+					Toast.makeText(this, string.permission_camera_denied_toast,
+							LENGTH_LONG).show();
+					supportFinishAfterTransition();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -189,5 +291,4 @@ public class KeyAgreementActivity extends BriarActivity implements
 			}
 		});
 	}
-
 }
