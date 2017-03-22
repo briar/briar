@@ -6,9 +6,11 @@ import org.briarproject.bramble.util.IoUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.Arrays;
 
 class SocksSocket extends Socket {
 
@@ -23,6 +25,8 @@ class SocksSocket extends Socket {
 			"Command not supported",
 			"Address type not supported"
 	};
+
+	private static final byte[] UNSPECIFIED_ADDRESS = new byte[4];
 
 	private final SocketAddress proxy;
 	private final int connectToProxyTimeout;
@@ -40,6 +44,11 @@ class SocksSocket extends Socket {
 		if (!(endpoint instanceof InetSocketAddress))
 			throw new IllegalArgumentException();
 		InetSocketAddress inet = (InetSocketAddress) endpoint;
+		InetAddress address = inet.getAddress();
+		if (address != null
+				&& !Arrays.equals(address.getAddress(), UNSPECIFIED_ADDRESS)) {
+				throw new IllegalArgumentException();
+		}
 		String host = inet.getHostName();
 		if (host.length() > 255) throw new IllegalArgumentException();
 		int port = inet.getPort();
