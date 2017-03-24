@@ -39,6 +39,8 @@ import org.briarproject.briar.api.feed.FeedManager;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,6 +57,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 import javax.net.SocketFactory;
 
+import okhttp3.Dns;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -77,6 +80,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	private static final Logger LOG =
 			Logger.getLogger(FeedManagerImpl.class.getName());
 
+	private static final byte[] UNSPECIFIED_ADDRESS = new byte[4];
 	private static final int CONNECT_TIMEOUT = 60 * 1000; // Milliseconds
 
 	private final ScheduledExecutorService scheduler;
@@ -347,9 +351,21 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	}
 
 	private InputStream getFeedInputStream(String url) throws IOException {
+		// Don't make local DNS lookups
+		Dns noLookups = new Dns() {
+			@Override
+			public List<InetAddress> lookup(String hostname)
+					throws UnknownHostException {
+				InetAddress unspecified =
+						InetAddress.getByAddress(hostname, UNSPECIFIED_ADDRESS);
+				return Collections.singletonList(unspecified);
+			}
+		};
+
 		// Build HTTP Client
 		OkHttpClient client = new OkHttpClient.Builder()
 				.socketFactory(torSocketFactory)
+				.dns(noLookups)
 				.connectTimeout(CONNECT_TIMEOUT, MILLISECONDS)
 				.build();
 

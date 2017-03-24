@@ -6,11 +6,27 @@ import org.briarproject.bramble.util.IoUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.Arrays;
 
 class SocksSocket extends Socket {
+
+	private static final String[] ERRORS = {
+			"Succeeded",
+			"General SOCKS server failure",
+			"Connection not allowed by ruleset",
+			"Network unreachable",
+			"Host unreachable",
+			"Connection refused",
+			"TTL expired",
+			"Command not supported",
+			"Address type not supported"
+	};
+
+	private static final byte[] UNSPECIFIED_ADDRESS = new byte[4];
 
 	private final SocketAddress proxy;
 	private final int connectToProxyTimeout;
@@ -28,6 +44,11 @@ class SocksSocket extends Socket {
 		if (!(endpoint instanceof InetSocketAddress))
 			throw new IllegalArgumentException();
 		InetSocketAddress inet = (InetSocketAddress) endpoint;
+		InetAddress address = inet.getAddress();
+		if (address != null
+				&& !Arrays.equals(address.getAddress(), UNSPECIFIED_ADDRESS)) {
+				throw new IllegalArgumentException();
+		}
 		String host = inet.getHostName();
 		if (host.length() > 255) throw new IllegalArgumentException();
 		int port = inet.getPort();
@@ -93,13 +114,16 @@ class SocksSocket extends Socket {
 	private void receiveConnectResponse(InputStream in) throws IOException {
 		byte[] connectResponse = new byte[4];
 		IoUtils.read(in, connectResponse);
-		byte version = connectResponse[0];
-		byte reply = connectResponse[1];
-		byte addressType = connectResponse[3];
+		int version = connectResponse[0] & 0xFF;
+		int reply = connectResponse[1] & 0xFF;
+		int addressType = connectResponse[3] & 0xFF;
 		if (version != 5)
 			throw new IOException("Unsupported SOCKS version: " + version);
-		if (reply != 0)
-			throw new IOException("Connection failed: " + reply);
+		if (reply != 0) {
+			if (reply < ERRORS.length)
+				throw new IOException("Connection failed: " + ERRORS[reply]);
+			else throw new IOException("Connection failed: " + reply);
+		}
 		if (addressType == 1) IoUtils.read(in, new byte[4]); // IPv4
 		else if (addressType == 4) IoUtils.read(in, new byte[16]); // IPv6
 		else throw new IOException("Unsupported address type: " + addressType);
