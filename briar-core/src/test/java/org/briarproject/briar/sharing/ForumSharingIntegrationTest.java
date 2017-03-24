@@ -3,11 +3,14 @@ package org.briarproject.briar.sharing;
 import net.jodah.concurrentunit.Waiter;
 
 import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationRequest;
@@ -42,6 +45,7 @@ public class ForumSharingIntegrationTest
 		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
 	private ForumManager forumManager0, forumManager1;
+	private MessageEncoder messageEncoder;
 	private SharerListener listener0, listener2;
 	private InviteeListener listener1;
 	private Forum forum0;
@@ -67,6 +71,7 @@ public class ForumSharingIntegrationTest
 		forumSharingManager0 = c0.getForumSharingManager();
 		forumSharingManager1 = c1.getForumSharingManager();
 		forumSharingManager2 = c2.getForumSharingManager();
+		messageEncoder = new MessageEncoderImpl(clientHelper, messageFactory);
 
 		// initialize waiter fresh for each test
 		eventWaiter = new Waiter();
@@ -684,6 +689,74 @@ public class ForumSharingIntegrationTest
 			}
 		}
 		assertTrue(found);
+	}
+
+	@Test
+	public void testSessionResetAfterAbort() throws Exception {
+		// initialize and let invitee accept all requests
+		listenToEvents(true);
+
+		// send invitation
+		forumSharingManager0
+				.sendInvitation(forum0.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
+
+		// sync first request message
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener1.requestReceived);
+
+		// get invitation MessageId for later
+		MessageId invitationId = null;
+		for (InvitationMessage m : forumSharingManager1
+				.getInvitationMessages(contactId0From1)) {
+			if (m instanceof ForumInvitationRequest) {
+				invitationId = m.getId();
+			}
+		}
+		assertNotNull(invitationId);
+
+		// sync response back
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener0.responseReceived);
+
+		// forum is shared mutually
+		assertTrue(forumSharingManager0.getSharedWith(forum0.getId())
+				.contains(contact1From0));
+		assertTrue(forumSharingManager1.getSharedWith(forum0.getId())
+				.contains(contact0From1));
+
+		// send an accept message for the same forum
+		Message m = messageEncoder.encodeAcceptMessage(
+				forumSharingManager0.getContactGroup(contact1From0).getId(),
+				forum0.getId(), clock.currentTimeMillis(), invitationId);
+		c0.getClientHelper().addLocalMessage(m, new BdfDictionary(), true);
+
+		// sync unexpected message and the expected abort message back
+		sync0To1(1, true);
+		sync1To0(1, true);
+
+		// forum is no longer shared mutually
+		assertFalse(forumSharingManager0.getSharedWith(forum0.getId())
+				.contains(contact1From0));
+		assertFalse(forumSharingManager1.getSharedWith(forum0.getId())
+				.contains(contact0From1));
+
+		// new invitation is possible now
+		forumSharingManager0
+				.sendInvitation(forum0.getId(), contactId1From0, null,
+						clock.currentTimeMillis());
+		sync0To1(1, true);
+
+		// and can be answered
+		sync1To0(1, true);
+
+		// forum is shared mutually again
+		assertTrue(forumSharingManager0.getSharedWith(forum0.getId())
+				.contains(contact1From0));
+		assertTrue(forumSharingManager1.getSharedWith(forum0.getId())
+				.contains(contact0From1));
 	}
 
 	@NotNullByDefault

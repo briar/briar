@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
@@ -99,6 +100,8 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	protected ClientHelper clientHelper;
 	@Inject
 	protected AuthorFactory authorFactory;
+	@Inject
+	protected MessageFactory messageFactory;
 	@Inject
 	protected ContactGroupFactory contactGroupFactory;
 	@Inject

@@ -10,7 +10,7 @@ import javax.annotation.concurrent.Immutable;
 enum State {
 
 	START(0), LOCAL_INVITED(1), REMOTE_INVITED(2), SHARING(3), LOCAL_LEFT(4),
-	REMOTE_HANGING(5), ERROR(6);
+	REMOTE_HANGING(5);
 
 	private final int value;
 

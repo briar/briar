@@ -15,7 +15,6 @@ import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager;
-import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.forum.event.ForumInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.sharing.InvitationRequest;
@@ -74,8 +73,8 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 	}
 
 	@Override
-	protected ClientId getClientId() {
-		return ForumSharingManager.CLIENT_ID;
+	protected ClientId getShareableClientId() {
+		return ForumManager.CLIENT_ID;
 	}
 
 	@Override
