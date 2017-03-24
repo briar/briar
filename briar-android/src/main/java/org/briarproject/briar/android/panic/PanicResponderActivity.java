@@ -60,7 +60,7 @@ public class PanicResponderActivity extends BriarActivity {
 					LOG.info("Panic Trigger came from connected app.");
 					LOG.info("Performing destructive responses...");
 
-					// Performing destructive panic responses
+					// Performing panic responses
 					if (sharedPref.getBoolean(KEY_UNINSTALL, false)) {
 						LOG.info("Purging all data...");
 						deleteAllData();
@@ -73,15 +73,10 @@ public class PanicResponderActivity extends BriarActivity {
 					} else if (sharedPref.getBoolean(KEY_PURGE, false)) {
 						LOG.info("Purging all data...");
 						deleteAllData();
-					} else if (sharedPref.getBoolean(KEY_LOCK, true)) {
+					} else if (sharedPref.getBoolean(KEY_LOCK, false)) {
 						LOG.info("Signing out...");
 						signOut(true);
 					}
-				}
-				// Performing non-destructive default panic response
-				else if (sharedPref.getBoolean(KEY_LOCK, true)) {
-					LOG.info("Signing out...");
-					signOut(true);
 				}
 			}
 		}

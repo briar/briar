@@ -103,12 +103,14 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 						showPanicApp(packageName);
 
 						if (packageName.equals(Panic.PACKAGE_NAME_NONE)) {
+							lockPref.setEnabled(false);
 							purgePref.setChecked(false);
 							purgePref.setEnabled(false);
 							uninstallPref.setChecked(false);
 							uninstallPref.setEnabled(false);
 							getActivity().setResult(Activity.RESULT_CANCELED);
 						} else {
+							lockPref.setEnabled(true);
 							purgePref.setEnabled(true);
 							uninstallPref.setEnabled(true);
 						}
@@ -185,6 +187,8 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 			panicAppPref.setIcon(
 					android.R.drawable.ic_menu_close_clear_cancel);
 
+			// disable panic actions
+			lockPref.setEnabled(false);
 			purgePref.setEnabled(false);
 			uninstallPref.setEnabled(false);
 		} else {
@@ -196,6 +200,8 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 				panicAppPref.setIcon(
 						pm.getApplicationIcon(triggerPackageName));
 
+				// enable panic actions
+				lockPref.setEnabled(true);
 				purgePref.setEnabled(true);
 				uninstallPref.setEnabled(true);
 			} catch (PackageManager.NameNotFoundException e) {
