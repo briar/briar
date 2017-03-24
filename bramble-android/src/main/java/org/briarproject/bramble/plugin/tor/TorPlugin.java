@@ -197,8 +197,17 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		// Log the process's standard output until it detaches
 		if (LOG.isLoggable(INFO)) {
 			Scanner stdout = new Scanner(torProcess.getInputStream());
-			while (stdout.hasNextLine()) LOG.info(stdout.nextLine());
+			Scanner stderr = new Scanner(torProcess.getErrorStream());
+			while (stdout.hasNextLine() || stderr.hasNextLine()){
+				if(stdout.hasNextLine()) {
+					LOG.info(stdout.nextLine());
+				}
+				if(stderr.hasNextLine()){
+					LOG.info(stderr.nextLine());
+				}
+			}
 			stdout.close();
+			stderr.close();
 		}
 		try {
 			// Wait for the process to detach or exit
