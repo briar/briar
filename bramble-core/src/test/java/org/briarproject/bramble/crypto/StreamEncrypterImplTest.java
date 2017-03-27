@@ -9,9 +9,13 @@ import java.io.ByteArrayOutputStream;
 
 import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAC_LENGTH;
+import static org.briarproject.bramble.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static org.briarproject.bramble.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_IV_LENGTH;
+import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class StreamEncrypterImplTest extends BrambleTestCase {
 
@@ -28,6 +32,58 @@ public class StreamEncrypterImplTest extends BrambleTestCase {
 		tag = TestUtils.getRandomBytes(TAG_LENGTH);
 		streamHeaderIv = TestUtils.getRandomBytes(STREAM_HEADER_IV_LENGTH);
 		payload = TestUtils.getRandomBytes(payloadLength);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testRejectsNegativePayloadLength() throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, tag, streamHeaderIv, streamHeaderKey, frameKey);
+
+		s.writeFrame(payload, -1, 0, false);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testRejectsNegativePaddingLength() throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, tag, streamHeaderIv, streamHeaderKey, frameKey);
+
+		s.writeFrame(payload, 0, -1, false);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testRejectsMaxPayloadPlusPadding() throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, tag, streamHeaderIv, streamHeaderKey, frameKey);
+
+		byte[] bigPayload = new byte[MAX_PAYLOAD_LENGTH + 1];
+		s.writeFrame(bigPayload, MAX_PAYLOAD_LENGTH, 1, false);
+	}
+
+	@Test
+	public void testAcceptsMaxPayloadIncludingPadding() throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, tag, streamHeaderIv, streamHeaderKey, frameKey);
+
+		byte[] bigPayload = new byte[MAX_PAYLOAD_LENGTH];
+		s.writeFrame(bigPayload, MAX_PAYLOAD_LENGTH - 1, 1, false);
+		assertEquals(TAG_LENGTH + STREAM_HEADER_LENGTH + MAX_FRAME_LENGTH,
+				out.size());
+	}
+
+	@Test
+	public void testAcceptsMaxPayloadWithoutPadding() throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		StreamEncrypterImpl s = new StreamEncrypterImpl(out, cipher,
+				streamNumber, tag, streamHeaderIv, streamHeaderKey, frameKey);
+
+		byte[] bigPayload = new byte[MAX_PAYLOAD_LENGTH];
+		s.writeFrame(bigPayload, MAX_PAYLOAD_LENGTH, 0, false);
+		assertEquals(TAG_LENGTH + STREAM_HEADER_LENGTH + MAX_FRAME_LENGTH,
+				out.size());
 	}
 
 	@Test
