@@ -8,12 +8,14 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
+import android.support.annotation.UiThread;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.util.SparseArray;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
@@ -38,6 +40,8 @@ import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class EmojiProvider {
 
 	private static volatile EmojiProvider INSTANCE = null;
@@ -64,7 +68,7 @@ public class EmojiProvider {
 	private static final int EMOJI_PER_ROW = 32;
 
 	private final Context context;
-	private final float decodeScale, verticalPad;
+	private final float decodeScale;
 	private final List<EmojiPageModel> staticPages;
 
 	static EmojiProvider getInstance(Context context) {
@@ -86,7 +90,6 @@ public class EmojiProvider {
 		float drawerSize =
 				context.getResources().getDimension(R.dimen.emoji_drawer_size);
 		decodeScale = Math.min(1f, drawerSize / EMOJI_RAW_HEIGHT);
-		verticalPad = EMOJI_VERT_PAD * this.decodeScale;
 		staticPages = EmojiPages.getPages(context);
 		for (EmojiPageModel page : staticPages) {
 			if (page.hasSpriteMap()) {
@@ -100,8 +103,8 @@ public class EmojiProvider {
 	}
 
 	@Nullable
-	Spannable emojify(@Nullable CharSequence text,
-			@NonNull TextView tv) {
+	@UiThread
+	Spannable emojify(@Nullable CharSequence text, TextView tv) {
 		if (text == null) return null;
 		Matcher matches = EMOJI_RANGE.matcher(text);
 		SpannableStringBuilder builder = new SpannableStringBuilder(text);
@@ -118,12 +121,13 @@ public class EmojiProvider {
 	}
 
 	@Nullable
+	@UiThread
 	Drawable getEmojiDrawable(int emojiCode) {
 		return getEmojiDrawable(offsets.get(emojiCode));
 	}
 
 	@Nullable
-	private Drawable getEmojiDrawable(DrawInfo drawInfo) {
+	private Drawable getEmojiDrawable(@Nullable DrawInfo drawInfo) {
 		if (drawInfo == null) {
 			return null;
 		}
@@ -154,10 +158,10 @@ public class EmojiProvider {
 	}
 
 
-	class EmojiDrawable extends Drawable {
+	static class EmojiDrawable extends Drawable {
 
 		private final DrawInfo info;
-		private final float intrinsicWidth, intrinsicHeight;
+		private final float intrinsicWidth, intrinsicHeight, verticalPad;
 
 		private Bitmap bmp;
 
@@ -165,6 +169,7 @@ public class EmojiProvider {
 			this.info = info;
 			intrinsicWidth = EMOJI_RAW_WIDTH * decodeScale;
 			intrinsicHeight = EMOJI_RAW_HEIGHT * decodeScale;
+			verticalPad = EMOJI_VERT_PAD * decodeScale;
 		}
 
 		@Override
@@ -178,7 +183,7 @@ public class EmojiProvider {
 		}
 
 		@Override
-		public void draw(@NonNull Canvas canvas) {
+		public void draw(Canvas canvas) {
 			if (bmp == null) {
 				return;
 			}
@@ -212,7 +217,7 @@ public class EmojiProvider {
 		}
 
 		@Override
-		public void setColorFilter(ColorFilter cf) {
+		public void setColorFilter(@Nullable ColorFilter cf) {
 		}
 	}
 
@@ -245,49 +250,46 @@ public class EmojiProvider {
 			this.model = model;
 		}
 
+		@UiThread
 		private ListenableFutureTask<Bitmap> get() {
-			if (bitmapReference != null && bitmapReference.get() != null) {
-				return new ListenableFutureTask<>(bitmapReference.get());
-			} else if (task != null) {
-				return task;
-			} else {
-				Callable<Bitmap> callable = new Callable<Bitmap>() {
-					@Override
-					@Nullable
-					public Bitmap call() throws Exception {
-						try {
-							if (LOG.isLoggable(INFO))
-								LOG.info("Loading page " + model.getSprite());
-							return loadPage();
-						} catch (IOException ioe) {
-							LOG.log(WARNING, ioe.toString(), ioe);
-						}
-						return null;
-					}
-				};
-				task = new ListenableFutureTask<>(callable);
-				new AsyncTask<Void, Void, Void>() {
-					@Override
-					protected Void doInBackground(Void... params) {
-						task.run();
-						return null;
-					}
-
-					@Override
-					protected void onPostExecute(Void aVoid) {
-						task = null;
-					}
-				}.execute();
+			if (bitmapReference != null) {
+				Bitmap bitmap = bitmapReference.get();
+				if (bitmap != null) return new ListenableFutureTask<>(bitmap);
 			}
+			if (task != null) return task;
+			Callable<Bitmap> callable = new Callable<Bitmap>() {
+				@Override
+				@Nullable
+				public Bitmap call() throws Exception {
+					if (LOG.isLoggable(INFO))
+						LOG.info("Loading page " + model.getSprite());
+					return loadPage();
+				}
+			};
+			task = new ListenableFutureTask<>(callable);
+			new AsyncTask<Void, Void, Void>() {
+				@Override
+				protected Void doInBackground(Void... params) {
+					task.run();
+					return null;
+				}
+
+				@Override
+				protected void onPostExecute(Void aVoid) {
+					task = null;
+				}
+			}.execute();
 			return task;
 		}
 
 		private Bitmap loadPage() throws IOException {
-			if (bitmapReference != null && bitmapReference.get() != null)
-				return bitmapReference.get();
+			if (bitmapReference != null) {
+				Bitmap bitmap = bitmapReference.get();
+				if (bitmap != null) return bitmap;
+			}
 
 			try {
-				final Bitmap bitmap = BitmapUtil.createScaledBitmap(context,
+				Bitmap bitmap = BitmapUtil.createScaledBitmap(context,
 						"file:///android_asset/" + model.getSprite(),
 						decodeScale);
 				bitmapReference = new SoftReference<>(bitmap);
