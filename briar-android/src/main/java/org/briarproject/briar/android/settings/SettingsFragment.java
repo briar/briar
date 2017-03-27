@@ -49,6 +49,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_ALWAYS;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_BLOG;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_FORUM;
@@ -199,7 +200,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 						LOG.info("Loading settings took " + duration + " ms");
 					boolean btSetting =
 							btSettings.getBoolean(PREF_BT_ENABLE, false);
-					int torSetting = torSettings.getInt(PREF_TOR_NETWORK, 2);
+					int torSetting = torSettings.getInt(PREF_TOR_NETWORK,
+							PREF_TOR_NETWORK_ALWAYS);
 					displaySettings(btSetting, torSetting);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))

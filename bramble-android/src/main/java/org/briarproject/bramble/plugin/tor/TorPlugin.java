@@ -81,6 +81,9 @@ import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_ALWAYS;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_NEVER;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_WIFI;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
 
@@ -705,7 +708,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
 						country);
 				Settings s = callback.getSettings();
-				int network = s.getInt(PREF_TOR_NETWORK, 2);
+				int network = s.getInt(PREF_TOR_NETWORK,
+						PREF_TOR_NETWORK_ALWAYS);
 
 				if (LOG.isLoggable(INFO)) {
 					LOG.info("Online: " + online + ", wifi: " + wifi);
@@ -720,7 +724,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 					} else if (blocked) {
 						LOG.info("Disabling network, country is blocked");
 						enableNetwork(false);
-					} else if (network == 0 || (network == 1 && !wifi)) {
+					} else if (network == PREF_TOR_NETWORK_NEVER
+							|| (network == PREF_TOR_NETWORK_WIFI && !wifi)) {
 						LOG.info("Disabling network due to data setting");
 						enableNetwork(false);
 					} else {
