@@ -79,6 +79,12 @@ import static java.util.logging.Level.WARNING;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
+import static org.briarproject.bramble.api.plugin.TorConstants.ID;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_ALWAYS;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_NEVER;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_WIFI;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
 
 @MethodsNotNullByDefault
@@ -379,7 +385,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			@Override
 			public void run() {
 				// If there's already a port number stored in config, reuse it
-				String portString = callback.getSettings().get("port");
+				String portString = callback.getSettings().get(PREF_TOR_PORT);
 				int port;
 				if (StringUtils.isNullOrEmpty(portString)) port = 0;
 				else port = Integer.parseInt(portString);
@@ -402,7 +408,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				// Store the port number
 				final String localPort = String.valueOf(ss.getLocalPort());
 				Settings s = new Settings();
-				s.put("port", localPort);
+				s.put(PREF_TOR_PORT, localPort);
 				callback.mergeSettings(s);
 				// Create a hidden service if necessary
 				ioExecutor.execute(new Runnable() {
@@ -679,7 +685,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof SettingsUpdatedEvent) {
-			if (((SettingsUpdatedEvent) e).getNamespace().equals("tor")) {
+			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
+			if (s.getNamespace().equals(ID.getString())) {
 				LOG.info("Tor settings updated");
 				updateConnectionStatus();
 			}
@@ -701,7 +708,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
 						country);
 				Settings s = callback.getSettings();
-				boolean useMobileData = s.getBoolean("torOverMobile", true);
+				int network = s.getInt(PREF_TOR_NETWORK,
+						PREF_TOR_NETWORK_ALWAYS);
 
 				if (LOG.isLoggable(INFO)) {
 					LOG.info("Online: " + online + ", wifi: " + wifi);
@@ -716,7 +724,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 					} else if (blocked) {
 						LOG.info("Disabling network, country is blocked");
 						enableNetwork(false);
-					} else if (!wifi && !useMobileData) {
+					} else if (network == PREF_TOR_NETWORK_NEVER
+							|| (network == PREF_TOR_NETWORK_WIFI && !wifi)) {
 						LOG.info("Disabling network due to data setting");
 						enableNetwork(false);
 					} else {

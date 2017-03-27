@@ -67,6 +67,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_BLUETOOTH;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
+import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_ADDRESS;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_UUID;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
@@ -164,7 +165,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			bind();
 		} else {
 			// Enable Bluetooth if settings allow
-			if (callback.getSettings().getBoolean("enable", false)) {
+			if (callback.getSettings().getBoolean(PREF_BT_ENABLE, false)) {
 				wasEnabledByUs = true;
 				if (adapter.enable()) LOG.info("Enabling Bluetooth");
 				else LOG.info("Could not enable Bluetooth");

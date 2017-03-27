@@ -34,6 +34,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
+import static org.briarproject.bramble.api.plugin.LanTcpConstants.PREF_LAN_IP_PORTS;
 import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
 
@@ -82,19 +83,19 @@ class LanTcpPlugin extends TcpPlugin {
 	private List<InetSocketAddress> parseSocketAddresses(String ipPorts) {
 		if (StringUtils.isNullOrEmpty(ipPorts)) return Collections.emptyList();
 		String[] split = ipPorts.split(SEPARATOR);
-		List<InetSocketAddress> remotes = new ArrayList<InetSocketAddress>();
+		List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>();
 		for (String ipPort : split) {
 			InetSocketAddress a = parseSocketAddress(ipPort);
-			if (a != null) remotes.add(a);
+			if (a != null) addresses.add(a);
 		}
-		return remotes;
+		return addresses;
 	}
 
 	@Override
 	protected void setLocalSocketAddress(InetSocketAddress a) {
 		String ipPort = getIpPortString(a);
 		// Get the list of recently used addresses
-		String setting = callback.getSettings().get(PROP_IP_PORTS);
+		String setting = callback.getSettings().get(PREF_LAN_IP_PORTS);
 		List<String> recent = new ArrayList<String>();
 		if (!StringUtils.isNullOrEmpty(setting))
 			Collections.addAll(recent, setting.split(SEPARATOR));
@@ -120,7 +121,7 @@ class LanTcpPlugin extends TcpPlugin {
 		}
 		// Save the setting
 		Settings settings = new Settings();
-		settings.put(PROP_IP_PORTS, setting);
+		settings.put(PREF_LAN_IP_PORTS, setting);
 		callback.mergeSettings(settings);
 	}
 

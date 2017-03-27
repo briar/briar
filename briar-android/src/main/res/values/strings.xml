@@ -310,9 +310,10 @@
 	<string name="bluetooth_setting">Connect via Bluetooth</string>
 	<string name="bluetooth_setting_enabled">Whenever contacts are nearby</string>
 	<string name="bluetooth_setting_disabled">Only when adding contacts</string>
-	<string name="tor_mobile_setting">Connect via Tor</string>
-	<string name="tor_mobile_setting_enabled">When using Wi-Fi or mobile data</string>
-	<string name="tor_mobile_setting_disabled">Only when using Wi-Fi</string>
+	<string name="tor_network_setting">Connect via Tor</string>
+	<string name="tor_network_setting_never">Never</string>
+	<string name="tor_network_setting_wifi">Only when using Wi-Fi</string>
+	<string name="tor_network_setting_always">When using Wi-Fi or mobile data</string>
 
 	<!-- Settings Security and Panic -->
 	<string name="security_settings_title">Security</string>
