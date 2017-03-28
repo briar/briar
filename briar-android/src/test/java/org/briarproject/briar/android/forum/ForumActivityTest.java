@@ -117,12 +117,16 @@ public class ForumActivityTest {
 		assertEquals(6, adapter.getItemCount());
 		assertTrue(dummyData.get(0).getText()
 				.equals(adapter.getItemAt(0).getText()));
-		assertTrue(dummyData.get(5).getText()
+		assertTrue(dummyData.get(1).getText()
 				.equals(adapter.getItemAt(1).getText()));
 		assertTrue(dummyData.get(2).getText()
 				.equals(adapter.getItemAt(2).getText()));
+		assertTrue(dummyData.get(3).getText()
+				.equals(adapter.getItemAt(3).getText()));
 		assertTrue(dummyData.get(4).getText()
 				.equals(adapter.getItemAt(4).getText()));
+		assertTrue(dummyData.get(5).getText()
+				.equals(adapter.getItemAt(5).getText()));
 	}
 
 }
