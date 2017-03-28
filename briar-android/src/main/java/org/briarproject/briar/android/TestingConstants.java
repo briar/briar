@@ -1,5 +1,7 @@
 package org.briarproject.briar.android;
 
+import org.briarproject.briar.BuildConfig;
+
 import java.util.logging.Level;
 
 import static java.util.logging.Level.INFO;
@@ -11,7 +13,7 @@ public interface TestingConstants {
 	 * Whether this is an alpha or beta build. This should be set to false for
 	 * release builds.
 	 */
-	boolean TESTING = true;
+	boolean TESTING = BuildConfig.DEBUG;
 
 	/** Default log level. */
 	Level DEFAULT_LOG_LEVEL = TESTING ? INFO : OFF;
