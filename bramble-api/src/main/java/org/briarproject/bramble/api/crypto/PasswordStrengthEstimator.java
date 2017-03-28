@@ -6,9 +6,9 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 public interface PasswordStrengthEstimator {
 
 	float NONE = 0;
-	float WEAK = 0.4f;
-	float QUITE_WEAK = 0.6f;
-	float QUITE_STRONG = 0.8f;
+	float WEAK = 0.25f;
+	float QUITE_WEAK = 0.5f;
+	float QUITE_STRONG = 0.75f;
 	float STRONG = 1;
 
 	/**
