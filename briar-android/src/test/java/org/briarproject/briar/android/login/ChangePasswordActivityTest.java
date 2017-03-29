@@ -193,7 +193,7 @@ public class ChangePasswordActivityTest {
 		// Mock answers for UI testing only
 		when(mockedController.estimatePasswordStrength("strong")).thenReturn(
 				STRONG);
-		when(mockedController.estimatePasswordStrength("qstring")).thenReturn(
+		when(mockedController.estimatePasswordStrength("qstrong")).thenReturn(
 				QUITE_STRONG);
 		when(mockedController.estimatePasswordStrength("qweak")).thenReturn(
 				QUITE_WEAK);
@@ -205,9 +205,9 @@ public class ChangePasswordActivityTest {
 		testStrengthMeter("strong", STRONG, StrengthMeter.GREEN);
 		Mockito.verify(mockedController, Mockito.times(1))
 				.estimatePasswordStrength(eq("strong"));
-		testStrengthMeter("qstring", QUITE_STRONG, StrengthMeter.LIME);
+		testStrengthMeter("qstrong", QUITE_STRONG, StrengthMeter.LIME);
 		Mockito.verify(mockedController, Mockito.times(1))
-				.estimatePasswordStrength(eq("qstring"));
+				.estimatePasswordStrength(eq("qstrong"));
 		testStrengthMeter("qweak", QUITE_WEAK, StrengthMeter.YELLOW);
 		Mockito.verify(mockedController, Mockito.times(1))
 				.estimatePasswordStrength(eq("qweak"));

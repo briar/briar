@@ -28,7 +28,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.WEAK;
+import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
 public class SetupActivity extends BaseActivity implements OnClickListener,
@@ -115,13 +115,13 @@ public class SetupActivity extends BaseActivity implements OnClickListener,
 				nicknameLength > MAX_AUTHOR_NAME_LENGTH);
 		UiUtils.setError(passwordEntryWrapper,
 				getString(R.string.password_too_weak),
-				firstPassword.length() > 0 && strength < WEAK);
+				firstPassword.length() > 0 && strength < QUITE_WEAK);
 		UiUtils.setError(passwordConfirmationWrapper,
 				getString(R.string.passwords_do_not_match),
 				secondPassword.length() > 0 && !passwordsMatch);
 		createAccountButton.setEnabled(nicknameLength > 0
 				&& nicknameLength <= MAX_AUTHOR_NAME_LENGTH
-				&& passwordsMatch && strength >= WEAK);
+				&& passwordsMatch && strength >= QUITE_WEAK);
 	}
 
 	@Override

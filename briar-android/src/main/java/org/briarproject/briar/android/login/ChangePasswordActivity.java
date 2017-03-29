@@ -25,7 +25,7 @@ import javax.inject.Inject;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.WEAK;
+import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 
 public class ChangePasswordActivity extends BaseActivity
 		implements OnClickListener, OnEditorActionListener {
@@ -109,13 +109,13 @@ public class ChangePasswordActivity extends BaseActivity
 		strengthMeter.setStrength(strength);
 		UiUtils.setError(newPasswordEntryWrapper,
 				getString(R.string.password_too_weak),
-				firstPassword.length() > 0 && strength < WEAK);
+				firstPassword.length() > 0 && strength < QUITE_WEAK);
 		UiUtils.setError(newPasswordConfirmationWrapper,
 				getString(R.string.passwords_do_not_match),
 				secondPassword.length() > 0 && !passwordsMatch);
 		changePasswordButton.setEnabled(
 				!currentPassword.getText().toString().isEmpty() &&
-						passwordsMatch && strength >= WEAK);
+						passwordsMatch && strength >= QUITE_WEAK);
 	}
 
 	@Override
