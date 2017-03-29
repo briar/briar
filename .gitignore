@@ -9,17 +9,17 @@ Thumbs.db
 .DS_Store
 
 # Eclipse project files
-#.classpath
-#.project
+.classpath
+.project
+.settings
 
 # Local configuration file (sdk path, etc)
 local.properties
 
 # Android Studio
 .idea/*
+!.idea/runConfigurations/
 !.idea/codeStyleSettings.xml
 .gradle
 build/
 *.iml
-.gitignore
-src/test/
