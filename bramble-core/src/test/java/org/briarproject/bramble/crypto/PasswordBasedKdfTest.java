@@ -1,7 +1,7 @@
 package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestSeedProvider;
+import org.briarproject.bramble.test.TestSecureRandomProvider;
 import org.briarproject.bramble.test.TestUtils;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
 public class PasswordBasedKdfTest extends BrambleTestCase {
 
 	private final CryptoComponentImpl crypto =
-			new CryptoComponentImpl(new TestSeedProvider());
+			new CryptoComponentImpl(new TestSecureRandomProvider());
 
 	@Test
 	public void testEncryptionAndDecryption() {

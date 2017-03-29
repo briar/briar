@@ -5,7 +5,7 @@ import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestSeedProvider;
+import org.briarproject.bramble.test.TestSecureRandomProvider;
 import org.briarproject.bramble.test.TestUtils;
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 public class KeyEncodingAndParsingTest extends BrambleTestCase {
 
 	private final CryptoComponentImpl crypto =
-			new CryptoComponentImpl(new TestSeedProvider());
+			new CryptoComponentImpl(new TestSecureRandomProvider());
 
 	@Test
 	public void testAgreementPublicKeyLength() throws Exception {

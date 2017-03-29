@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.crypto.StreamDecrypterFactory;
 import org.briarproject.bramble.api.crypto.StreamEncrypterFactory;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.system.SeedProvider;
+import org.briarproject.bramble.api.system.SecureRandomProvider;
 
 import java.security.SecureRandom;
 import java.util.concurrent.BlockingQueue;
@@ -60,8 +60,9 @@ public class CryptoModule {
 
 	@Provides
 	@Singleton
-	CryptoComponent provideCryptoComponent(SeedProvider seedProvider) {
-		return new CryptoComponentImpl(seedProvider);
+	CryptoComponent provideCryptoComponent(
+			SecureRandomProvider secureRandomProvider) {
+		return new CryptoComponentImpl(secureRandomProvider);
 	}
 
 	@Provides

@@ -3,7 +3,7 @@ package org.briarproject.bramble.crypto;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestSeedProvider;
+import org.briarproject.bramble.test.TestSecureRandomProvider;
 import org.briarproject.bramble.test.TestUtils;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class SignatureTest extends BrambleTestCase {
 	private final byte[] inputBytes = TestUtils.getRandomBytes(123);
 
 	public SignatureTest() {
-		crypto = new CryptoComponentImpl(new TestSeedProvider());
+		crypto = new CryptoComponentImpl(new TestSecureRandomProvider());
 		KeyPair k = crypto.generateSignatureKeyPair();
 		publicKey = k.getPublic().getEncoded();
 		privateKey = k.getPrivate().getEncoded();

@@ -4,7 +4,7 @@ import android.app.Application;
 
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.LocationUtils;
-import org.briarproject.bramble.api.system.SeedProvider;
+import org.briarproject.bramble.api.system.SecureRandomProvider;
 
 import javax.inject.Singleton;
 
@@ -16,8 +16,8 @@ public class AndroidSystemModule {
 
 	@Provides
 	@Singleton
-	SeedProvider provideSeedProvider(Application app) {
-		return new AndroidSeedProvider(app);
+	SecureRandomProvider provideSecureRandomProvider(Application app) {
+		return new AndroidSecureRandomProvider(app);
 	}
 
 	@Provides

@@ -8,7 +8,7 @@ import org.briarproject.bramble.api.crypto.PseudoRandom;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.system.SeedProvider;
+import org.briarproject.bramble.api.system.SecureRandomProvider;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeys;
@@ -29,7 +29,10 @@ import org.spongycastle.crypto.params.KeyParameter;
 
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -101,16 +104,26 @@ class CryptoComponentImpl implements CryptoComponent {
 	private final MessageEncrypter messageEncrypter;
 
 	@Inject
-	CryptoComponentImpl(SeedProvider seedProvider) {
-		if (!FortunaSecureRandom.selfTest()) throw new RuntimeException();
-		SecureRandom platformSecureRandom = new SecureRandom();
+	CryptoComponentImpl(SecureRandomProvider secureRandomProvider) {
 		if (LOG.isLoggable(INFO)) {
-			String provider = platformSecureRandom.getProvider().getName();
-			String algorithm = platformSecureRandom.getAlgorithm();
-			LOG.info("Default SecureRandom: " + provider + " " + algorithm);
+			SecureRandom defaultSecureRandom = new SecureRandom();
+			String name = defaultSecureRandom.getProvider().getName();
+			String algorithm = defaultSecureRandom.getAlgorithm();
+			LOG.info("Default SecureRandom: " + name + " " + algorithm);
 		}
-		SecureRandom fortuna = new FortunaSecureRandom(seedProvider.getSeed());
-		secureRandom = new CombinedSecureRandom(platformSecureRandom, fortuna);
+		Provider provider = secureRandomProvider.getProvider();
+		if (provider == null) {
+			LOG.info("Using default");
+		} else {
+			installSecureRandomProvider(provider);
+			if (LOG.isLoggable(INFO)) {
+				SecureRandom installedSecureRandom = new SecureRandom();
+				String name = installedSecureRandom.getProvider().getName();
+				String algorithm = installedSecureRandom.getAlgorithm();
+				LOG.info("Installed SecureRandom: " + name + " " + algorithm);
+			}
+		}
+		secureRandom = new SecureRandom();
 		ECKeyGenerationParameters params = new ECKeyGenerationParameters(
 				PARAMETERS, secureRandom);
 		agreementKeyPairGenerator = new ECKeyPairGenerator();
@@ -124,6 +137,31 @@ class CryptoComponentImpl implements CryptoComponent {
 		messageEncrypter = new MessageEncrypter(secureRandom);
 	}
 
+	// Based on https://android-developers.googleblog.com/2013/08/some-securerandom-thoughts.html
+	private void installSecureRandomProvider(Provider provider) {
+		Provider[] providers = Security.getProviders("SecureRandom.SHA1PRNG");
+		if (providers == null || providers.length == 0
+				|| !provider.getClass().equals(providers[0].getClass())) {
+			Security.insertProviderAt(provider, 1);
+		}
+		// Check the new provider is the default when no algorithm is specified
+		SecureRandom random = new SecureRandom();
+		if (!provider.getClass().equals(random.getProvider().getClass())) {
+			throw new SecurityException("Wrong SecureRandom provider: "
+					+ random.getProvider().getClass());
+		}
+		// Check the new provider is the default when SHA1PRNG is specified
+		try {
+			random = SecureRandom.getInstance("SHA1PRNG");
+		} catch (NoSuchAlgorithmException e) {
+			throw new SecurityException(e);
+		}
+		if (!provider.getClass().equals(random.getProvider().getClass())) {
+			throw new SecurityException("Wrong SHA1PRNG provider: "
+					+ random.getProvider().getClass());
+		}
+	}
+
 	@Override
 	public SecretKey generateSecretKey() {
 		byte[] b = new byte[SecretKey.LENGTH];
@@ -133,7 +171,10 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	@Override
 	public PseudoRandom getPseudoRandom(int seed1, int seed2) {
-		return new PseudoRandomImpl(seed1, seed2);
+		byte[] seed = new byte[INT_32_BYTES * 2];
+		ByteUtils.writeUint32(seed1, seed, 0);
+		ByteUtils.writeUint32(seed2, seed, INT_32_BYTES);
+		return new PseudoRandomImpl(seed);
 	}
 
 	@Override
@@ -296,7 +337,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	public SecretKey deriveMasterSecret(byte[] theirPublicKey,
 			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
 		return deriveMasterSecret(deriveSharedSecret(
-				theirPublicKey,ourKeyPair, alice));
+				theirPublicKey, ourKeyPair, alice));
 	}
 
 	@Override
@@ -607,7 +648,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	private long sampleRunningTime(int iterations) {
-		byte[] password = { 'p', 'a', 's', 's', 'w', 'o', 'r', 'd' };
+		byte[] password = {'p', 'a', 's', 's', 'w', 'o', 'r', 'd'};
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		int keyLengthInBits = SecretKey.LENGTH * 8;
 		long start = System.nanoTime();

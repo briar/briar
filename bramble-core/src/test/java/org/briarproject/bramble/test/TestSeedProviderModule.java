@@ -1,6 +1,6 @@
 package org.briarproject.bramble.test;
 
-import org.briarproject.bramble.api.system.SeedProvider;
+import org.briarproject.bramble.api.system.SecureRandomProvider;
 
 import javax.inject.Singleton;
 
@@ -12,7 +12,7 @@ public class TestSeedProviderModule {
 
 	@Provides
 	@Singleton
-	SeedProvider provideSeedProvider() {
-		return new TestSeedProvider();
+	SecureRandomProvider provideSeedProvider() {
+		return new TestSecureRandomProvider();
 	}
 }

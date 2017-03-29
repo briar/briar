@@ -1,20 +1,24 @@
 package org.briarproject.bramble.crypto;
 
+import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestSeedProvider;
+import org.briarproject.bramble.test.TestSecureRandomProvider;
 import org.briarproject.bramble.test.TestUtils;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class KeyDerivationTest extends BrambleTestCase {
 
@@ -23,7 +27,7 @@ public class KeyDerivationTest extends BrambleTestCase {
 	private final SecretKey master;
 
 	public KeyDerivationTest() {
-		crypto = new CryptoComponentImpl(new TestSeedProvider());
+		crypto = new CryptoComponentImpl(new TestSecureRandomProvider());
 		master = TestUtils.getSecretKey();
 	}
 
@@ -156,11 +160,7 @@ public class KeyDerivationTest extends BrambleTestCase {
 	}
 
 	private void assertAllDifferent(List<SecretKey> keys) {
-		for (SecretKey ki : keys) {
-			for (SecretKey kj : keys) {
-				if (ki == kj) assertArrayEquals(ki.getBytes(), kj.getBytes());
-				else assertFalse(Arrays.equals(ki.getBytes(), kj.getBytes()));
-			}
-		}
+		Set<Bytes> set = new HashSet<Bytes>();
+		for (SecretKey k : keys) assertTrue(set.add(new Bytes(k.getBytes())));
 	}
 }
