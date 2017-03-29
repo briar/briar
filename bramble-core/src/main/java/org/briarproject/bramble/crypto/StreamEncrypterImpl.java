@@ -62,6 +62,8 @@ class StreamEncrypterImpl implements StreamEncrypter {
 	@Override
 	public void writeFrame(byte[] payload, int payloadLength,
 			int paddingLength, boolean finalFrame) throws IOException {
+		if (payloadLength < 0 || paddingLength < 0)
+			throw new IllegalArgumentException();
 		if (payloadLength + paddingLength > MAX_PAYLOAD_LENGTH)
 			throw new IllegalArgumentException();
 		// Don't allow the frame counter to wrap
