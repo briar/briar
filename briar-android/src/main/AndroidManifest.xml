@@ -333,7 +333,8 @@
 		<activity
 			android:name=".android.settings.SettingsActivity"
 			android:label="@string/settings_button"
-			android:parentActivityName=".android.navdrawer.NavDrawerActivity">
+			android:parentActivityName=".android.navdrawer.NavDrawerActivity"
+			android:permission="android.permission.READ_NETWORK_USAGE_HISTORY">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.navdrawer.NavDrawerActivity"
