@@ -27,7 +27,6 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
-import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 
 @SuppressLint("Registered")
@@ -61,7 +60,6 @@ public abstract class BriarActivity extends BaseActivity {
 		super.onStart();
 		if (!briarController.hasEncryptionKey() && !isFinishing()) {
 			Intent i = new Intent(this, PasswordActivity.class);
-			i.setFlags(FLAG_ACTIVITY_SINGLE_TOP);
 			startActivityForResult(i, REQUEST_PASSWORD);
 		}
 	}

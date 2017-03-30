@@ -19,6 +19,7 @@ import android.widget.TextView.OnEditorActionListener;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
+import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.util.UiUtils;
 
@@ -26,13 +27,18 @@ import javax.inject.Inject;
 
 import static android.content.Intent.ACTION_MAIN;
 import static android.content.Intent.CATEGORY_HOME;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 public class PasswordActivity extends BaseActivity {
 
 	@Inject
-	protected PasswordController passwordController;
+	PasswordController passwordController;
+
+	@Inject
+	BriarController briarController;
 
 	private Button signInButton;
 	private ProgressBar progress;
@@ -83,6 +89,16 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	@Override
+	public void onStart() {
+		super.onStart();
+		// If the user has already signed in, clean up this instance
+		if (briarController.hasEncryptionKey()) {
+			setResult(RESULT_OK);
+			finish();
+		}
+	}
+
+	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
 	}
@@ -98,8 +114,9 @@ public class PasswordActivity extends BaseActivity {
 	private void deleteAccount() {
 		passwordController.deleteAccount(this);
 		setResult(RESULT_CANCELED);
-		startActivity(new Intent(this, SetupActivity.class));
-		supportFinishAfterTransition();
+		Intent i = new Intent(this, SetupActivity.class);
+		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);
+		startActivity(i);
 	}
 
 	public void onSignInClick(View v) {
