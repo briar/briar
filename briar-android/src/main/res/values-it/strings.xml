@@ -57,12 +57,16 @@
   <string name="delete">Cancella</string>
   <string name="accept">Accetta</string>
   <string name="decline">Declina</string>
+  <string name="options">Opzioni</string>
   <string name="online">Connesso</string>
   <string name="offline">Disconnesso</string>
   <string name="send">Invia</string>
+  <string name="allow">Abilita</string>
+  <string name="open">Apri</string>
   <string name="no_data">Nessun dato</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Il testo inserito è troppo lungo</string>
+  <string name="show_onboarding">Mostra l\'aiuto</string>
   <!--Contacts and Private Conversations-->
   <string name="date_no_private_messages">Nessun messaggio.</string>
   <string name="message_hint">Scrivi un messaggio</string>
@@ -112,15 +116,30 @@
   </plurals>
   <!--Private Groups-->
   <string name="groups_created_by">Creato da %s</string>
+  <string name="groups_group_is_empty">Questo gruppo e\' vuoto</string>
+  <string name="groups_group_is_dissolved">Questo gruppo e\' stato sciolto</string>
   <string name="groups_remove">Rimuovere</string>
   <string name="groups_create_group_title">Crea gruppo privato</string>
   <string name="groups_create_group_button">Crea gruppo</string>
   <string name="groups_create_group_invitation_button">Invia invito</string>
+  <string name="groups_create_group_hint">Inserisci un nome per il tuo gruppo privato</string>
+  <string name="groups_invitation_sent">Invito a partecipare al gruppo spedito</string>
+  <string name="groups_compose_message">Scrivi un messaggio</string>
   <string name="groups_message_sent">Messaggio inviato</string>
   <string name="groups_member_list">Lista membri</string>
   <string name="groups_invite_members">Invita Membri</string>
+  <string name="groups_member_created_you">Hai creato un nuovo gruppo</string>
+  <string name="groups_member_created">%s e\' il creatore del gruppo.</string>
   <string name="groups_leave">Lascia gruppo</string>
+  <string name="groups_leave_dialog_title">Abbandonare il gruppo</string>
+  <string name="groups_leave_dialog_message">Sei sicuro di voler abbandonare questo gruppo?</string>
+  <string name="groups_dissolve">Sciogli il gruppo</string>
+  <string name="groups_dissolve_dialog_title">Conferma lo scioglimento del gruppo</string>
+  <string name="groups_dissolve_button">Sciogli</string>
   <!--Private Group Invitations-->
+  <string name="groups_invitations_title">Inviti spediti</string>
+  <string name="groups_invitations_joined">Unito al gruppo</string>
+  <string name="groups_invitations_declined">Invito al gruppo rifiutato</string>
   <!--Private Groups Revealing Contacts-->
   <!--Forums-->
   <string name="create_forum_title">Nuovo Forum</string>
@@ -143,12 +162,14 @@
   <string name="forum_left_toast">Forum lasciato</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Condividi Forum</string>
+  <string name="contacts_selected">Contatti selezionati</string>
   <string name="activity_share_toolbar_header">Scegli Contatti</string>
   <string name="forum_shared_snackbar">Forum condiviso con i contatti scelti</string>
   <string name="forum_share_error">C\'è stato un errore nella condivisione di questo forum.</string>
   <string name="forum_invitation_received">%1$s ha condiviso il forum \"%2$s\" con te.</string>
   <string name="forum_invitation_sent">Hai condiviso il forum \"%1$s\" con %2$s.</string>
   <string name="forum_invitations_title">Inviti Forum</string>
+  <string name="forum_joined_toast">Unito al forum</string>
   <string name="forum_declined_toast">Invito al forum declinato</string>
   <string name="shared_by_format">Condiviso da %s</string>
   <string name="forum_invitation_already_sharing">Già in condivisione</string>
@@ -201,9 +222,6 @@
   <string name="network_settings_title">Network</string>
   <string name="bluetooth_setting">Connessione attraverso Bluetooth</string>
   <string name="bluetooth_setting_disabled">Solo con l\'aggiunta di contatti</string>
-  <string name="tor_mobile_setting">Connetti via Tor</string>
-  <string name="tor_mobile_setting_enabled">Nel caso di uso Wi-Fi o dati mobile</string>
-  <string name="tor_mobile_setting_disabled">Solo quando in uso il Wi-Fi</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicurezza</string>
   <string name="change_password">Cambia password</string>
@@ -214,6 +232,8 @@
   <string name="panic_setting_title">Pulsante panico</string>
   <string name="unknown_app">un\'app sconosciuta</string>
   <string name="panic_app_setting_summary">Nessun app è stata impostata</string>
+  <string name="panic_app_setting_none">Nessuno</string>
+  <string name="lock_setting_title">Esci</string>
   <string name="purge_setting_title">Elimina Account</string>
   <string name="uninstall_setting_title">Disinstalla Briar</string>
   <!--Settings Notifications-->
@@ -224,6 +244,7 @@
   <string name="notify_vibration_setting">Vibrazione</string>
   <string name="notify_sound_setting">Suono</string>
   <string name="notify_sound_setting_default">Suoneria di default</string>
+  <string name="notify_sound_setting_disabled">Nessuno</string>
   <string name="choose_ringtone_title">Scegli suoneria</string>
   <!--Settings Feedback-->
   <!--Link Warning-->

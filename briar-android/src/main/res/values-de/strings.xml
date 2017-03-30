@@ -61,6 +61,7 @@
   <string name="hide">Ausblenden</string>
   <string name="ok">OK</string>
   <string name="cancel">Abbrechen</string>
+  <string name="got_it">Okay, verstanden.</string>
   <string name="delete">Löschen</string>
   <string name="accept">Annehmen</string>
   <string name="decline">Ablehnen</string>
@@ -68,9 +69,12 @@
   <string name="online">Online</string>
   <string name="offline">Offline</string>
   <string name="send">Senden</string>
+  <string name="allow">Erlauben</string>
+  <string name="open">Öffnen</string>
   <string name="no_data">Keine Daten</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Der eingegebene Text ist leider zu lang</string>
+  <string name="show_onboarding">Hilfe anzeigen</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nVerwende das \"+\"-Icon am oberen Bildschirmrand an und folge den Anweisungen um Freunde zu deiner Kontaktliste hinzuzufügen.\n\nDenke daran dass Du neue Kontakte nur dann hinzufügen kannst, wenn Du ihnen physisch begegnest. Das hindert andere daran, sich als Deine Person auszugeben oder Deine Nachrichten zu lesen.</string>
   <string name="date_no_private_messages">Keine Nachrichten.</string>
@@ -83,6 +87,7 @@
   <!--Adding Contacts-->
   <string name="add_contact_title">Kontakt hinzufügen</string>
   <string name="your_nickname">Wähle die zu verwendende Identität:</string>
+  <string name="face_to_face">Um einen neuen Kontakt hinzufügen zu können, ist eine reale Begegnung erforderlich.\n\nDadurch wird eine betrügerische Impersonation und der unautorisierte Zugriff auf die Kommunikation verhindert.</string>
   <string name="continue_button">Weiter</string>
   <string name="your_invitation_code">Dein Einladungs-Code ist</string>
   <string name="enter_invitation_code">Bitte gib den Einladungs-Code Deines Kontakts an:</string>
@@ -95,6 +100,7 @@
   <string name="your_confirmation_code">Dein Bestätigungscode ist</string>
   <string name="enter_confirmation_code">Bitte gebe den Bestätigungscode Deines Kontakts ein:</string>
   <string name="waiting_for_contact">Warte auf Kontakt\u2026</string>
+  <string name="waiting_for_contact_to_scan">Warte auf Scan und Verbindung mit dem Kontakt\u2026</string>
   <string name="exchanging_contact_details">Kontaktdetails werden ausgetauscht\u2026</string>
   <string name="codes_do_not_match">Codes stimmen nicht überein</string>
   <string name="interfering">Möglicherweise stört jemand Deine Verbindung</string>
@@ -144,21 +150,38 @@
   <string name="groups_create_group_button">Gruppe erstellen</string>
   <string name="groups_create_group_invitation_button">Einladung schicken</string>
   <string name="groups_create_group_hint">Gebe Deiner privaten Gruppe einen Namen</string>
+  <string name="groups_invitation_sent">Gruppeneinladung versendet</string>
   <string name="groups_compose_message">Nachricht erstellen</string>
   <string name="groups_message_sent">Nachricht gesendet</string>
   <string name="groups_member_list">Mitglieder</string>
   <string name="groups_invite_members">Mitglieder einladen</string>
+  <string name="groups_member_created_you">Du hast diese Gruppe erstellt</string>
+  <string name="groups_member_created">%s hat diese Gruppe erstellt</string>
   <string name="groups_member_joined_you">Du bist der Gruppe beigetreten</string>
   <string name="groups_member_joined">%s ist der Gruppe beigetreten</string>
   <string name="groups_leave">Gruppe verlassen</string>
+  <string name="groups_leave_dialog_title">Verlassen der Gruppe bestätigen</string>
   <string name="groups_leave_dialog_message">Bist Du sicher, dass Du die Gruppe verlassen willst?</string>
   <string name="groups_dissolve">Gruppe auflösen</string>
+  <string name="groups_dissolve_dialog_title">Auflösung der Gruppe bestätigen</string>
+  <string name="groups_dissolve_dialog_message">Willst Du wirklich diese Gruppe auflösen?\n\nAlle anderen Teilnehmer verlieren die Möglichkeit der Kommunikation ohne möglicherweise die neuesten Nachrichten erhalten zu haben.</string>
+  <string name="groups_dissolve_button">Auflösen</string>
+  <string name="groups_dissolved_dialog_title">Gruppe wurde aufgelöst</string>
+  <string name="groups_dissolved_dialog_message">Der Ersteller dieser Gruppe hat dieselbe aufgelöst.\n\nEs können keine weiteren Nachrichten mehr in dieser Gruppe geschrieben werden und möglicherweise wurden noch nicht alle Nachrichten empfangen.</string>
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">Gruppeneinladungen</string>
+  <string name="groups_invitations_invitation_sent">%1$s wurde in die Gruppe \"%2$s\" eingeladen.</string>
   <string name="groups_invitations_invitation_received">%1$s hat dich eingeladen der Gruppe \"%2$s\" beizutreten.</string>
   <string name="groups_invitations_joined">Gruppe beigetreten</string>
   <string name="groups_invitations_declined">Gruppeneinladung abgelehnt</string>
+  <string name="groups_invitations_response_accepted_sent">Gruppeneinladung von %s angenommen.</string>
+  <string name="groups_invitations_response_declined_sent">Gruppeneinladung von %s abgelehnt.</string>
+  <string name="groups_invitations_response_accepted_received">%s hat die Einladung zur Gruppe angenommen.</string>
+  <string name="groups_invitations_response_declined_received">%s hat die Einladung zur Gruppe abgelehnt.</string>
   <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">Kontakte teilen</string>
+  <string name="groups_reveal_dialog_message">Kontakte können mit allen derzeitigen und zukünftigen Mitgliedern dieser Gruppe geteilt werden.\n\nDas beschleunigt die Verbindung zu der Gruppe und macht sie zusätzlich zuverlässiger, da Kommunikation mit den Mitgliedern auch dann erfolgen kann, wenn der Ersteller der Gruppe offline ist.</string>
+  <string name="groups_reveal_visible">Verbindung zum Kontakt ist für die Gruppe sichtbar</string>
   <!--Forums-->
   <string name="no_forums">Du hast noch keine Foren.\n\nWarum erstellst du nicht einfach selbst ein neues Forum, indem du auf das \"+\"-Icon am oberen Bildschirmrand tippst?\n\nDu kannst auch deine Kontakte auffordern, Foren mit dir zu teilen.</string>
   <string name="create_forum_title">Neues Forum</string>
@@ -259,9 +282,6 @@
   <string name="bluetooth_setting">Über Bluetooth verbinden</string>
   <string name="bluetooth_setting_enabled">Sobald Kontakte in der Nähe sind</string>
   <string name="bluetooth_setting_disabled">Nur beim Hinzufügen von Kontakten</string>
-  <string name="tor_mobile_setting">Über Tor verbinden</string>
-  <string name="tor_mobile_setting_enabled">Wenn WLAN oder Mobildaten verwendet werden</string>
-  <string name="tor_mobile_setting_disabled">Nur wenn über WLAN verbunden</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicherheit</string>
   <string name="change_password">Passwort ändern</string>

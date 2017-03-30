@@ -290,9 +290,10 @@
   <string name="bluetooth_setting">Lidhu përmes Bluetooth-i</string>
   <string name="bluetooth_setting_enabled">Kurdo që kontaktet janë këtej pari</string>
   <string name="bluetooth_setting_disabled">Vetëm kur shtohen kontakte</string>
-  <string name="tor_mobile_setting">Lidhu përmes Tor-i</string>
-  <string name="tor_mobile_setting_enabled">Kur përdoret Wi-Fi ose të dhëna celulari</string>
-  <string name="tor_mobile_setting_disabled">Vetëm kur përdoret Wi-Fi</string>
+  <string name="tor_network_setting">Lidhu përmes Tor-i</string>
+  <string name="tor_network_setting_never">Kurrë</string>
+  <string name="tor_network_setting_wifi">Vetëm kur përdoret Wi-Fi</string>
+  <string name="tor_network_setting_always">Kur përdoret Wi-Fi ose të dhëna celulari</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Siguri</string>
   <string name="change_password">Ndryshoni fjalëkalimin</string>

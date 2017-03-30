@@ -290,9 +290,6 @@
   <string name="bluetooth_setting">Connectar mediante Bluetooth</string>
   <string name="bluetooth_setting_enabled">Cuando haya contactos cerca</string>
   <string name="bluetooth_setting_disabled">Solo al añadir contactos</string>
-  <string name="tor_mobile_setting">Conectar mediante Tor</string>
-  <string name="tor_mobile_setting_enabled">Cuando se use Wi-Fi o datos móviles</string>
-  <string name="tor_mobile_setting_disabled">Solo usando Wi-Fi</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguridad</string>
   <string name="change_password">Cambiar contraseña</string>

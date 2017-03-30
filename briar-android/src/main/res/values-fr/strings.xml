@@ -22,7 +22,7 @@
   <string name="startup_failed_activity_title">Echec de démarrage de Briar.</string>
   <string name="startup_failed_db_error">Pour une raison indéterminée, votre base de donnée Briar est corrompue et irrécupérable. Vos comptes, données et contacts sont perdus. Vous devez malheureusement réinstaller Briar et configurer un nouveau compte.</string>
   <string name="startup_failed_service_error">Briar n\'a pas pu démarrer un module nécessaire. Réinstaller Briar résout généralement ce problème. Veuillez noter que vous perdrez votre compte et toutes les données associées puisque Briar n\'utilise pas de serveurs centralisés pour enregistrer les données.</string>
-  <string name="expiry_warning">Ce logiciel est arrivé à expiration.\n Veuillez installer une version plus récente.</string>
+  <string name="expiry_warning">Ce logiciel est arrivé à expiration.\nVeuillez installer une version plus récente.</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Ouvrir le panneau de navigation</string>
   <string name="nav_drawer_close_description">Fermer le panneau de navigation</string>
@@ -110,8 +110,8 @@
   <string name="qr_code_invalid">Le code QR n\'est pas valide</string>
   <string name="connecting_to_device">Connexion à l\'appareil\u2026</string>
   <string name="authenticating_with_device">Autentification avec l\'appareil\u2026</string>
-  <string name="connection_aborted_local">Nous avons interrompu la conversation ! Il est possible que quelqu\'un tente d\'interférer avec votre connexion</string>
-  <string name="connection_aborted_remote">Votre contact a interrompu la conversation ! Il est possible que quelqu\'un tente d\'interférer avec votre connexion</string>
+  <string name="connection_aborted_local">Nous avons interrompu la connexion ! Il est possible que quelqu\'un tente d\'interférer avec celle-ci</string>
+  <string name="connection_aborted_remote">Votre contact a interrompu la connexion ! Il est possible que quelqu\'un tente d\'interférer avec celle-ci</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introduire vos contacts</string>
   <string name="introduction_onboarding_text">Vous pouvez introduire vos contacts les uns les autres, ils n\'ont donc pas besoin de se rencontrer pour se connecter avec Briar.</string>
@@ -290,9 +290,10 @@
   <string name="bluetooth_setting">Connecter par Bluetooth</string>
   <string name="bluetooth_setting_enabled">Lorsque des contacts sont à proximité</string>
   <string name="bluetooth_setting_disabled">Uniquement lors de l\'ajout de contacts</string>
-  <string name="tor_mobile_setting">Connecté via Tor</string>
-  <string name="tor_mobile_setting_enabled">En Wifi ou en données mobiles</string>
-  <string name="tor_mobile_setting_disabled">Uniquement en Wifi</string>
+  <string name="tor_network_setting">Connecter via Tor</string>
+  <string name="tor_network_setting_never">Jamais</string>
+  <string name="tor_network_setting_wifi">Seulement par Wi-Fi</string>
+  <string name="tor_network_setting_always">Par Wi-Fi ou données mobiles</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sécurité</string>
   <string name="change_password">Modifier le mot de passe</string>
@@ -300,10 +301,10 @@
   <string name="choose_new_password">Choisir le nouveau mot de passe :</string>
   <string name="confirm_new_password">Confirmer le nouveau mot de passe :</string>
   <string name="password_changed">Le mot de passe a été changé.</string>
-  <string name="panic_setting">Paramètres du bouton Panique.</string>
+  <string name="panic_setting">Paramètres du bouton Panique</string>
   <string name="panic_setting_title">Bouton Panique</string>
-  <string name="panic_setting_hint">Configurer Briar pour l\'utilisation de l\'application du bouton Panique.</string>
-  <string name="panic_app_setting_title">Application bouton Panique.</string>
+  <string name="panic_setting_hint">Configurer Briar pour l\'utilisation de l\'application du bouton Panique</string>
+  <string name="panic_app_setting_title">Application bouton Panique</string>
   <string name="unknown_app">une application inconnue</string>
   <string name="panic_app_setting_summary">Aucune application définie</string>
   <string name="panic_app_setting_none">Aucune</string>
@@ -351,5 +352,5 @@
   <string name="close">Fermer</string>
   <string name="dev_report_saved">Rapport enregistré. Il sera envoyé lors de votre prochaine connexion à Briar.</string>
   <!--Sign Out-->
-  <string name="progress_title_logout">Déconnexion de Briar</string>
+  <string name="progress_title_logout">Déconnexion de Briar ...</string>
 </resources>
