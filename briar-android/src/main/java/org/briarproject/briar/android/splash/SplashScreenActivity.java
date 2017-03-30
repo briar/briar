@@ -83,6 +83,10 @@ public class SplashScreenActivity extends BaseActivity {
 		}
 	}
 
+	@Override
+	protected void showNewScreenFilterWarning() {
+	}
+
 	private void enableStrictMode() {
 		if (TESTING) {
 			ThreadPolicy.Builder threadPolicy = new ThreadPolicy.Builder();

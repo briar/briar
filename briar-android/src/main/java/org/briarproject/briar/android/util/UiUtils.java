@@ -120,5 +120,5 @@ public class UiUtils {
 	public static String getBulbTransitionName(ContactId c) {
 		return "bulb" + c.getInt();
 	}
-
+	
 }
