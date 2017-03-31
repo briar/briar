@@ -357,13 +357,12 @@
 
 		<activity
 			android:name=".android.panic.PanicPreferencesActivity"
-			android:label="@string/panic_setting">
-			<intent-filter>
-				<action android:name="info.guardianproject.panic.action.CONNECT"/>
-				<action android:name="info.guardianproject.panic.action.DISCONNECT"/>
-
-				<category android:name="android.intent.category.DEFAULT"/>
-			</intent-filter>
+			android:label="@string/panic_setting"
+			android:parentActivityName=".android.settings.SettingsActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.settings.SettingsActivity"
+				/>
 		</activity>
 
 		<activity
