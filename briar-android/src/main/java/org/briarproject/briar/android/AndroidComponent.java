@@ -43,6 +43,8 @@ import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.thoughtcrime.securesms.components.emoji.EmojiProvider;
+import org.thoughtcrime.securesms.components.emoji.RecentEmojiPageModel;
 
 import java.util.concurrent.Executor;
 
@@ -138,9 +140,13 @@ public interface AndroidComponent
 	@IoExecutor
 	Executor ioExecutor();
 
-	void inject(BriarService activity);
+	void inject(BriarService briarService);
 
 	void inject(BriarReportSender briarReportSender);
+
+	void inject(EmojiProvider emojiProvider);
+
+	void inject(RecentEmojiPageModel recentEmojiPageModel);
 
 	// Eager singleton load
 	void inject(AppModule.EagerSingletons init);
