@@ -22,7 +22,6 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
-import org.briarproject.briar.util.HtmlUtils;
 
 import static android.text.format.DateUtils.DAY_IN_MILLIS;
 import static android.text.format.DateUtils.FORMAT_ABBREV_MONTH;
@@ -31,7 +30,6 @@ import static android.text.format.DateUtils.FORMAT_ABBREV_TIME;
 import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.WEEK_IN_MILLIS;
-import static org.briarproject.briar.util.HtmlUtils.ARTICLE;
 
 public class UiUtils {
 
@@ -87,7 +85,7 @@ public class UiUtils {
 	}
 
 	public static Spanned getSpanned(String s) {
-		return Html.fromHtml(HtmlUtils.clean(s, ARTICLE));
+		return Html.fromHtml(s);
 	}
 
 	public static void makeLinksClickable(TextView v) {
