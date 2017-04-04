@@ -2,11 +2,8 @@ package org.briarproject.briar.android;
 
 import android.app.Application;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.UiThread;
@@ -98,18 +95,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private static final String BLOG_URI =
 			"content://org.briarproject.briar/blog";
 
-	// Actions for intents that are broadcast when notifications are dismissed
-	private static final String CLEAR_PRIVATE_MESSAGE_ACTION =
-			"org.briarproject.briar.CLEAR_PRIVATE_MESSAGE_NOTIFICATION";
-	private static final String CLEAR_GROUP_ACTION =
-			"org.briarproject.briar.CLEAR_GROUP_NOTIFICATION";
-	private static final String CLEAR_FORUM_ACTION =
-			"org.briarproject.briar.CLEAR_FORUM_NOTIFICATION";
-	private static final String CLEAR_BLOG_ACTION =
-			"org.briarproject.briar.CLEAR_BLOG_NOTIFICATION";
-	private static final String CLEAR_INTRODUCTION_ACTION =
-			"org.briarproject.briar.CLEAR_INTRODUCTION_NOTIFICATION";
-
 	private static final Logger LOG =
 			Logger.getLogger(AndroidNotificationManagerImpl.class.getName());
 
@@ -117,7 +102,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private final SettingsManager settingsManager;
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
-	private final BroadcastReceiver receiver = new DeleteIntentReceiver();
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	// The following must only be accessed on the main UI thread
@@ -155,30 +139,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		} catch (DbException e) {
 			throw new ServiceException(e);
 		}
-		// Register a broadcast receiver for notifications being dismissed
-		Future<Void> f = androidExecutor.runOnUiThread(new Callable<Void>() {
-			@Override
-			public Void call() {
-				IntentFilter filter = new IntentFilter();
-				filter.addAction(CLEAR_PRIVATE_MESSAGE_ACTION);
-				filter.addAction(CLEAR_GROUP_ACTION);
-				filter.addAction(CLEAR_FORUM_ACTION);
-				filter.addAction(CLEAR_BLOG_ACTION);
-				filter.addAction(CLEAR_INTRODUCTION_ACTION);
-				appContext.registerReceiver(receiver, filter);
-				return null;
-			}
-		});
-		try {
-			f.get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new ServiceException(e);
-		}
 	}
 
 	@Override
 	public void stopService() throws ServiceException {
-		// Clear all notifications and unregister the broadcast receiver
+		// Clear all notifications
 		Future<Void> f = androidExecutor.runOnUiThread(new Callable<Void>() {
 			@Override
 			public Void call() {
@@ -187,7 +152,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				clearForumPostNotification();
 				clearBlogPostNotification();
 				clearIntroductionSuccessNotification();
-				appContext.unregisterReceiver(receiver);
 				return null;
 			}
 		});
@@ -340,11 +304,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			b.setDefaults(getDefaults());
 			b.setOnlyAlertOnce(true);
 			b.setAutoCancel(true);
-			// Clear the counters if the notification is dismissed
-			Intent clear = new Intent(CLEAR_PRIVATE_MESSAGE_ACTION);
-			PendingIntent delete = PendingIntent.getBroadcast(appContext, 0,
-					clear, 0);
-			b.setDeleteIntent(delete);
 			if (contactCounts.size() == 1) {
 				// Touching the notification shows the relevant conversation
 				Intent i = new Intent(appContext, ConversationActivity.class);
@@ -449,11 +408,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			b.setDefaults(getDefaults());
 			b.setOnlyAlertOnce(true);
 			b.setAutoCancel(true);
-			// Clear the counters if the notification is dismissed
-			Intent clear = new Intent(CLEAR_GROUP_ACTION);
-			PendingIntent delete = PendingIntent.getBroadcast(appContext, 0,
-					clear, 0);
-			b.setDeleteIntent(delete);
 			if (groupCounts.size() == 1) {
 				// Touching the notification shows the relevant group
 				Intent i = new Intent(appContext, GroupActivity.class);
@@ -546,11 +500,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			b.setDefaults(getDefaults());
 			b.setOnlyAlertOnce(true);
 			b.setAutoCancel(true);
-			// Clear the counters if the notification is dismissed
-			Intent clear = new Intent(CLEAR_FORUM_ACTION);
-			PendingIntent delete = PendingIntent.getBroadcast(appContext, 0,
-					clear, 0);
-			b.setDeleteIntent(delete);
 			if (forumCounts.size() == 1) {
 				// Touching the notification shows the relevant forum
 				Intent i = new Intent(appContext, ForumActivity.class);
@@ -643,11 +592,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			b.setDefaults(getDefaults());
 			b.setOnlyAlertOnce(true);
 			b.setAutoCancel(true);
-			// Clear the counters if the notification is dismissed
-			Intent clear = new Intent(CLEAR_BLOG_ACTION);
-			PendingIntent delete = PendingIntent.getBroadcast(appContext, 0,
-					clear, 0);
-			b.setDeleteIntent(delete);
 			// Touching the notification shows the combined blog feed
 			Intent i = new Intent(appContext, NavDrawerActivity.class);
 			i.putExtra(INTENT_BLOGS, true);
@@ -704,11 +648,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		b.setDefaults(getDefaults());
 		b.setOnlyAlertOnce(true);
 		b.setAutoCancel(true);
-		// Clear the counter if the notification is dismissed
-		Intent clear = new Intent(CLEAR_INTRODUCTION_ACTION);
-		PendingIntent delete = PendingIntent.getBroadcast(appContext, 0,
-				clear, 0);
-		b.setDeleteIntent(delete);
 		// Touching the notification shows the contact list
 		Intent i = new Intent(appContext, NavDrawerActivity.class);
 		i.putExtra(INTENT_CONTACTS, true);
@@ -849,27 +788,4 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
-	private class DeleteIntentReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			final String action = intent.getAction();
-			androidExecutor.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					if (CLEAR_PRIVATE_MESSAGE_ACTION.equals(action)) {
-						clearContactNotification();
-					} else if (CLEAR_GROUP_ACTION.equals(action)) {
-						clearGroupMessageNotification();
-					} else if (CLEAR_FORUM_ACTION.equals(action)) {
-						clearForumPostNotification();
-					} else if (CLEAR_BLOG_ACTION.equals(action)) {
-						clearBlogPostNotification();
-					} else if (CLEAR_INTRODUCTION_ACTION.equals(action)) {
-						clearIntroductionSuccessNotification();
-					}
-				}
-			});
-		}
-	}
 }
