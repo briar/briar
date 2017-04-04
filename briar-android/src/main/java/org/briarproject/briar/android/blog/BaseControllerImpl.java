@@ -21,6 +21,7 @@ import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogCommentHeader;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPostHeader;
+import org.briarproject.briar.util.HtmlUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,7 @@ import javax.annotation.Nullable;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.briar.util.HtmlUtils.ARTICLE;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -229,6 +231,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 		return header;
 	}
 
+	@DatabaseExecutor
 	private BlogPostItem getItem(BlogPostHeader h) throws DbException {
 		String body;
 		if (h instanceof BlogCommentHeader) {
@@ -243,10 +246,11 @@ abstract class BaseControllerImpl extends DbControllerImpl
 		}
 	}
 
+	@DatabaseExecutor
 	private String getPostBody(MessageId m) throws DbException {
 		String body = bodyCache.get(m);
 		if (body == null) {
-			body = blogManager.getPostBody(m);
+			body = HtmlUtils.clean(blogManager.getPostBody(m), ARTICLE);
 			bodyCache.put(m, body);
 		}
 		//noinspection ConstantConditions
