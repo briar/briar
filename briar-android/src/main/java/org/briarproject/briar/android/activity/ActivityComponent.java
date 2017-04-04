@@ -64,8 +64,6 @@ import org.briarproject.briar.android.sharing.ShareForumFragment;
 import org.briarproject.briar.android.sharing.ShareForumMessageFragment;
 import org.briarproject.briar.android.sharing.SharingModule;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
-import org.thoughtcrime.securesms.components.emoji.EmojiProvider;
-import org.thoughtcrime.securesms.components.emoji.RecentEmojiPageModel;
 
 import dagger.Component;
 
@@ -150,10 +148,6 @@ public interface ActivityComponent {
 	void inject(RssFeedImportActivity activity);
 
 	void inject(RssFeedManageActivity activity);
-
-	void inject(EmojiProvider emojiProvider);
-
-	void inject(RecentEmojiPageModel recentEmojiPageModel);
 
 	// Fragments
 	void inject(ContactListFragment fragment);

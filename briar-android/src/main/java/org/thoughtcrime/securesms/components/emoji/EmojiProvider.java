@@ -18,7 +18,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.activity.BaseActivity;
+import org.briarproject.briar.android.BriarApplication;
 import org.thoughtcrime.securesms.components.util.FutureTaskListener;
 import org.thoughtcrime.securesms.components.util.ListenableFutureTask;
 import org.thoughtcrime.securesms.util.BitmapDecodingException;
@@ -35,6 +35,8 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static android.graphics.Paint.ANTI_ALIAS_FLAG;
+import static android.graphics.Paint.FILTER_BITMAP_FLAG;
 import static android.graphics.PixelFormat.TRANSLUCENT;
 import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 import static java.util.logging.Level.INFO;
@@ -47,7 +49,7 @@ public class EmojiProvider {
 	private static volatile EmojiProvider INSTANCE = null;
 
 	private static final Paint PAINT =
-			new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
+			new Paint(FILTER_BITMAP_FLAG | ANTI_ALIAS_FLAG);
 
 	@Inject
 	AndroidExecutor androidExecutor;
@@ -77,8 +79,9 @@ public class EmojiProvider {
 				if (INSTANCE == null) {
 					LOG.info("Creating new instance of EmojiProvider");
 					INSTANCE = new EmojiProvider(context);
-					((BaseActivity) context).getActivityComponent()
-							.inject(INSTANCE);
+					BriarApplication app =
+							(BriarApplication) context.getApplicationContext();
+					app.getApplicationComponent().inject(INSTANCE);
 				}
 			}
 		}
@@ -93,7 +96,7 @@ public class EmojiProvider {
 		staticPages = EmojiPages.getPages(context);
 		for (EmojiPageModel page : staticPages) {
 			if (page.hasSpriteMap()) {
-				final EmojiPageBitmap pageBitmap = new EmojiPageBitmap(page);
+				EmojiPageBitmap pageBitmap = new EmojiPageBitmap(page);
 				for (int i = 0; i < page.getEmoji().length; i++) {
 					offsets.put(Character.codePointAt(page.getEmoji()[i], 0),
 							new DrawInfo(pageBitmap, i));

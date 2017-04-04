@@ -2,19 +2,21 @@ package org.thoughtcrime.securesms.components.emoji;
 
 import android.content.Context;
 import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.UiThread;
 
+import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.activity.BaseActivity;
-import org.briarproject.briar.android.controller.DbController;
+import org.briarproject.briar.android.BriarApplication;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -23,7 +25,8 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 
-@UiThread
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class RecentEmojiPageModel implements EmojiPageModel {
 
 	private static final Logger LOG =
@@ -32,27 +35,27 @@ public class RecentEmojiPageModel implements EmojiPageModel {
 	private static final String EMOJI_LRU_PREFERENCE = "pref_emoji_recent";
 	private static final int EMOJI_LRU_SIZE = 50;
 
-	private final LinkedHashSet<String> recentlyUsed;
-	private Settings settings;
+	private final LinkedHashSet<String> recentlyUsed; // UI thread
 
 	@Inject
 	SettingsManager settingsManager;
+
 	@Inject
-	DbController dbController;
+	@DatabaseExecutor
+	Executor dbExecutor;
 
 	RecentEmojiPageModel(Context context) {
-		if (!(context instanceof BaseActivity)) {
-			throw new IllegalArgumentException(
-					"Needs to be created from BaseActivity");
-		}
-		((BaseActivity) context).getActivityComponent().inject(this);
+		BriarApplication app =
+				(BriarApplication) context.getApplicationContext();
+		app.getApplicationComponent().inject(this);
 		recentlyUsed = getPersistedCache();
 	}
 
 	private LinkedHashSet<String> getPersistedCache() {
 		String serialized;
 		try {
-			settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
+			// FIXME: Don't make DB calls on the UI thread
+			Settings settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
 			serialized = settings.get(EMOJI_LRU_PREFERENCE);
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -67,7 +70,6 @@ public class RecentEmojiPageModel implements EmojiPageModel {
 		return R.drawable.ic_emoji_recent;
 	}
 
-	@NonNull
 	@Override
 	public String[] getEmoji() {
 		return toReversePrimitiveArray(recentlyUsed);
@@ -92,31 +94,26 @@ public class RecentEmojiPageModel implements EmojiPageModel {
 			iterator.next();
 			iterator.remove();
 		}
-		save(recentlyUsed);
+		save(serialize(recentlyUsed));
 	}
 
 	private String serialize(LinkedHashSet<String> emojis) {
-		String result = "";
-		for (String emoji : emojis) {
-			result += emoji + ";";
-		}
-		if (!emojis.isEmpty())
-			result = result.substring(0, result.length() - 1);
-		return result;
+		return StringUtils.join(emojis, ";");
 	}
 
-	private LinkedHashSet<String> deserialize(@Nullable String str) {
-		String[] list = str == null ? new String[] {} : str.split(";");
+	private LinkedHashSet<String> deserialize(@Nullable String serialized) {
+		if (serialized == null) return new LinkedHashSet<>();
+		String[] list = serialized.split(";");
 		LinkedHashSet<String> result = new LinkedHashSet<>(list.length);
 		Collections.addAll(result, list);
 		return result;
 	}
 
-	private void save(final LinkedHashSet<String> recentlyUsed) {
-		dbController.runOnDbThread(new Runnable() {
+	private void save(final String serialized) {
+		dbExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				String serialized = serialize(recentlyUsed);
+				Settings settings = new Settings();
 				settings.put(EMOJI_LRU_PREFERENCE, serialized);
 				try {
 					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
@@ -128,8 +125,7 @@ public class RecentEmojiPageModel implements EmojiPageModel {
 		});
 	}
 
-	private String[] toReversePrimitiveArray(
-			@NonNull LinkedHashSet<String> emojiSet) {
+	private String[] toReversePrimitiveArray(LinkedHashSet<String> emojiSet) {
 		String[] emojis = new String[emojiSet.size()];
 		int i = emojiSet.size() - 1;
 		for (String emoji : emojiSet) {
