@@ -2,7 +2,7 @@ package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestSeedProvider;
+import org.briarproject.bramble.test.TestSecureRandomProvider;
 import org.briarproject.bramble.test.TestUtils;
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ public class HashTest extends BrambleTestCase {
 	private final byte[] inputBytes2 = new byte[0];
 
 	public HashTest() {
-		crypto = new CryptoComponentImpl(new TestSeedProvider());
+		crypto = new CryptoComponentImpl(new TestSecureRandomProvider());
 	}
 
 	@Test

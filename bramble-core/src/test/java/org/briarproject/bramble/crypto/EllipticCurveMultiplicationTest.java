@@ -45,7 +45,7 @@ public class EllipticCurveMultiplicationTest extends BrambleTestCase {
 		byte[] seed = new byte[32];
 		new SecureRandom().nextBytes(seed);
 		// Montgomery ladder multiplier
-		SecureRandom random = new FortunaSecureRandom(seed);
+		SecureRandom random = new PseudoSecureRandom(seed);
 		ECKeyGenerationParameters montgomeryGeneratorParams =
 				new ECKeyGenerationParameters(PARAMETERS, random);
 		ECKeyPairGenerator montgomeryGenerator = new ECKeyPairGenerator();
@@ -63,7 +63,7 @@ public class EllipticCurveMultiplicationTest extends BrambleTestCase {
 		ECPublicKeyParameters montgomeryPublic2 =
 				(ECPublicKeyParameters) montgomeryKeyPair2.getPublic();
 		// Default multiplier
-		random = new FortunaSecureRandom(seed);
+		random = new PseudoSecureRandom(seed);
 		ECKeyGenerationParameters defaultGeneratorParams =
 				new ECKeyGenerationParameters(defaultParameters, random);
 		ECKeyPairGenerator defaultGenerator = new ECKeyPairGenerator();
