@@ -28,6 +28,7 @@ import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.reporting.BriarReportSender;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.ReferenceManager;
+import org.briarproject.briar.api.android.ScreenFilterMonitor;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.blog.BlogSharingManager;
@@ -88,6 +89,8 @@ public interface AndroidComponent
 	InvitationTaskFactory invitationTaskFactory();
 
 	AndroidNotificationManager androidNotificationManager();
+
+	ScreenFilterMonitor screenFilterMonitor();
 
 	ConnectionRegistry connectionRegistry();
 

@@ -13,11 +13,15 @@ import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.DestroyableContext;
 import org.briarproject.briar.android.controller.ActivityLifecycleController;
 import org.briarproject.briar.android.forum.ForumModule;
+import org.briarproject.briar.android.fragment.SFDialogFragment;
+import org.briarproject.briar.api.android.ScreenFilterMonitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
@@ -25,12 +29,15 @@ import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOT
 
 public abstract class BaseActivity extends AppCompatActivity
 		implements DestroyableContext {
-
 	protected ActivityComponent activityComponent;
 
 	private final List<ActivityLifecycleController> lifecycleControllers =
 			new ArrayList<>();
 	private boolean destroyed = false;
+
+	@Inject
+	protected ScreenFilterMonitor screenFilterMonitor;
+	private SFDialogFragment dialogFrag;
 
 	public abstract void injectActivity(ActivityComponent component);
 
@@ -58,6 +65,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityCreate(this);
 		}
+
 	}
 
 	public ActivityComponent getActivityComponent() {
@@ -87,6 +95,35 @@ public abstract class BaseActivity extends AppCompatActivity
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityStop();
 		}
+	}
+
+	@Override
+	protected void onPostResume() {
+		super.onPostResume();
+		showNewScreenFilterWarning();
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (dialogFrag != null) {
+			dialogFrag.dismiss();
+			dialogFrag = null;
+		}
+	}
+
+	protected void showNewScreenFilterWarning() {
+		final Set<String> apps = screenFilterMonitor.getApps();
+		if (apps.isEmpty()) {
+			return;
+		}
+		dialogFrag = SFDialogFragment.newInstance(new ArrayList<>(apps));
+		dialogFrag.setCancelable(false);
+		dialogFrag.show(getSupportFragmentManager(), "SFDialog");
+	}
+
+	public void rememberShownApps(ArrayList<String> s, boolean permanent) {
+		screenFilterMonitor.storeAppsAsShown(s, permanent);
 	}
 
 	@Override

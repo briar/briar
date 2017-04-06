@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:filterTouchesWhenObscured="false"
+              android:orientation="vertical">
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		android:fadeScrollbars="false"
+		android:paddingLeft="20dp"
+		android:paddingRight="20dp"
+		android:paddingStart="20dp"
+		android:paddingTop="20dp"
+		android:theme="@style/BriarTheme">
+
+		<TextView
+			android:id="@+id/alert_dialog_text"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingLeft="3dp"
+			android:paddingRight="6dp"
+			android:text="TextView"
+			android:textAppearance="@style/BriarTextBody"
+			android:theme="@+theme/BriarDialogTheme"/>
+	</ScrollView>
+
+	<CheckBox
+		android:id="@+id/checkBox_screen_filter_reminder"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="15dp"
+		android:layout_marginStart="15dp"
+		android:layout_weight="0"
+		android:filterTouchesWhenObscured="false"
+		android:text="@string/checkbox_dont_show_again"
+		android:textAppearance="@style/BriarTextBody"/>
+</LinearLayout>

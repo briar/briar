@@ -14,6 +14,7 @@
 		<item name="android:textColorTertiaryInverse">@color/briar_text_tertiary_inverse</item>
 		<item name="android:textColorLink">@color/briar_text_link</item>
 		<item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
+		<item name="android:filterTouchesWhenObscured">true</item>
 
 		<!-- These fix a long-standing UI bug in the support preference library -->
 		<item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
@@ -47,6 +48,12 @@
 		<item name="android:textColorTertiaryInverse">@color/briar_text_tertiary_inverse</item>
 		<item name="android:textColorLink">@color/briar_text_link</item>
 		<item name="android:windowAnimationStyle">@style/DialogAnimation</item>
+		<item name="android:filterTouchesWhenObscured">true</item>
+	</style>
+
+	<!-- Use this with care. Only used for the screen filter warning dialog -->
+	<style name="BriarDialogThemeNoFilter" parent="BriarDialogTheme">
+		<item name="android:filterTouchesWhenObscured">false</item>
 	</style>
 
 	<style name="DialogAnimation" parent="@android:style/Animation.Dialog">

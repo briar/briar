@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.ui.UiCallback;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.ReferenceManager;
+import org.briarproject.briar.api.android.ScreenFilterMonitor;
 
 import java.io.File;
 import java.security.GeneralSecurityException;
@@ -37,6 +38,8 @@ public class AppModule {
 	static class EagerSingletons {
 		@Inject
 		AndroidNotificationManager androidNotificationManager;
+		@Inject
+		ScreenFilterMonitor screenFilterMonitor;
 	}
 
 	private final Application application;
@@ -165,5 +168,13 @@ public class AppModule {
 		lifecycleManager.registerService(notificationManager);
 		eventBus.addListener(notificationManager);
 		return notificationManager;
+	}
+
+	@Provides
+	@Singleton
+	ScreenFilterMonitor provideScreenFilterMonitor(
+			LifecycleManager lifecycleManager, ScreenFilterMonitorImpl sfm) {
+		lifecycleManager.registerService(sfm);
+		return sfm;
 	}
 }
