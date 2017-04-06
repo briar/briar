@@ -22,7 +22,7 @@ public class IntroductionMessage extends BaseMessageHeader {
 			GroupId groupId, int role, long time, boolean local, boolean sent,
 			boolean seen, boolean read) {
 
-		super(messageId, groupId, time, local, read, sent, seen);
+		super(messageId, groupId, time, local, sent, seen, read);
 		this.sessionId = sessionId;
 		this.messageId = messageId;
 		this.role = role;

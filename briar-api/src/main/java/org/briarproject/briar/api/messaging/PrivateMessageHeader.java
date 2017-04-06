@@ -14,7 +14,7 @@ public class PrivateMessageHeader extends BaseMessageHeader {
 	public PrivateMessageHeader(MessageId id, GroupId groupId, long timestamp,
 			boolean local, boolean read, boolean sent, boolean seen) {
 
-		super(id, groupId, timestamp, local, read, sent, seen);
+		super(id, groupId, timestamp, local, sent, seen, read);
 	}
 
 }
