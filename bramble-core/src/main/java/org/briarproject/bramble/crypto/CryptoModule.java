@@ -37,6 +37,9 @@ public class CryptoModule {
 
 	/**
 	 * The maximum number of executor threads.
+	 * <p>
+	 * The number of available processors can change during the lifetime of the
+	 * JVM, so this is just a reasonable guess.
 	 */
 	private static final int MAX_EXECUTOR_THREADS =
 			Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
