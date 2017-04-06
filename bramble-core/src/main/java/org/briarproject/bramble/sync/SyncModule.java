@@ -36,7 +36,7 @@ public class SyncModule {
 	 * executor concurrently.
 	 */
 	private static final int MAX_CONCURRENT_VALIDATION_TASKS =
-			Runtime.getRuntime().availableProcessors();
+			Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
 
 	@Provides
 	GroupFactory provideGroupFactory(CryptoComponent crypto) {

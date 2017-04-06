@@ -39,7 +39,7 @@ public class CryptoModule {
 	 * The maximum number of executor threads.
 	 */
 	private static final int MAX_EXECUTOR_THREADS =
-			Runtime.getRuntime().availableProcessors();
+			Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
 
 	private final ExecutorService cryptoExecutor;
 
