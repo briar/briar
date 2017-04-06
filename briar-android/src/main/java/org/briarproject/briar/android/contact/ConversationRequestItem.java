@@ -21,7 +21,8 @@ class ConversationRequestItem extends ConversationNoticeInItem {
 	private final GroupId requestedGroupId;
 	private final RequestType requestType;
 	private final SessionId sessionId;
-	private final boolean answered, canBeOpened;
+	private final boolean canBeOpened;
+	private boolean answered;
 
 	ConversationRequestItem(MessageId id, GroupId groupId,
 			RequestType requestType, SessionId sessionId, String text,
@@ -51,6 +52,10 @@ class ConversationRequestItem extends ConversationNoticeInItem {
 
 	boolean wasAnswered() {
 		return answered;
+	}
+
+	void setAnswered(boolean answered) {
+		this.answered = answered;
 	}
 
 	public boolean canBeOpened() {
