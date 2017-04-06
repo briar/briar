@@ -1,20 +1,20 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="All tests" type="AndroidJUnit" factoryName="Android JUnit">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-    <module name="" />
+    <module name="briar-android" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="package" />
-    <option name="VM_PARAMETERS" value="" />
+    <option name="VM_PARAMETERS" value="-ea" />
     <option name="PARAMETERS" value="" />
-    <option name="WORKING_DIRECTORY" value="" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/briar-android" />
     <option name="ENV_VARIABLES" />
     <option name="PASS_PARENT_ENVS" value="true" />
     <option name="TEST_SEARCH_SCOPE">
-      <value defaultName="wholeProject" />
+      <value defaultName="singleModule" />
     </option>
     <envs />
     <patterns />
@@ -23,7 +23,6 @@
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in bramble-core" run_configuration_type="AndroidJUnit" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in bramble-j2se" run_configuration_type="AndroidJUnit" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in briar-core" run_configuration_type="AndroidJUnit" />
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in briar-android" run_configuration_type="AndroidJUnit" />
     </method>
   </configuration>
 </component>
