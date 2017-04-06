@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -49,8 +50,11 @@ class AndroidSecureRandomProvider extends LinuxSecureRandomProvider {
 		Parcel parcel = Parcel.obtain();
 		WifiManager wm =
 				(WifiManager) appContext.getSystemService(WIFI_SERVICE);
-		for (WifiConfiguration config : wm.getConfiguredNetworks())
-			parcel.writeParcelable(config, 0);
+		List<WifiConfiguration> configs = wm.getConfiguredNetworks();
+		if (configs != null) {
+			for (WifiConfiguration config : configs)
+				parcel.writeParcelable(config, 0);
+		}
 		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
 		if (bt != null) {
 			for (BluetoothDevice device : bt.getBondedDevices())
