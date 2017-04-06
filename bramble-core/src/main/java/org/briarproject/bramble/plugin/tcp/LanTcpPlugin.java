@@ -44,7 +44,7 @@ class LanTcpPlugin extends TcpPlugin {
 	private static final Logger LOG =
 			Logger.getLogger(LanTcpPlugin.class.getName());
 
-	private static final int MAX_ADDRESSES = 5;
+	private static final int MAX_ADDRESSES = 4;
 	private static final String PROP_IP_PORTS = "ipPorts";
 	private static final String SEPARATOR = ",";
 
