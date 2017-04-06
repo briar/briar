@@ -1,6 +1,8 @@
 package org.briarproject.bramble.sync;
 
+import org.briarproject.bramble.PoliteExecutor;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.event.EventBus;
@@ -28,6 +30,16 @@ public class SyncModule {
 		@Inject
 		ValidationManager validationManager;
 	}
+
+	/**
+	 * The maximum number of validation tasks to delegate to the crypto
+	 * executor concurrently.
+	 * <p>
+	 * The number of available processors can change during the lifetime of the
+	 * JVM, so this is just a reasonable guess.
+	 */
+	private static final int MAX_CONCURRENT_VALIDATION_TASKS =
+			Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
 
 	@Provides
 	GroupFactory provideGroupFactory(CryptoComponent crypto) {
@@ -62,10 +74,20 @@ public class SyncModule {
 
 	@Provides
 	@Singleton
-	ValidationManager getValidationManager(LifecycleManager lifecycleManager,
-			EventBus eventBus, ValidationManagerImpl validationManager) {
+	ValidationManager provideValidationManager(
+			LifecycleManager lifecycleManager, EventBus eventBus,
+			ValidationManagerImpl validationManager) {
 		lifecycleManager.registerService(validationManager);
 		eventBus.addListener(validationManager);
 		return validationManager;
+	}
+
+	@Provides
+	@Singleton
+	@ValidationExecutor
+	Executor provideValidationExecutor(
+			@CryptoExecutor Executor cryptoExecutor) {
+		return new PoliteExecutor("ValidationExecutor", cryptoExecutor,
+				MAX_CONCURRENT_VALIDATION_TASKS);
 	}
 }

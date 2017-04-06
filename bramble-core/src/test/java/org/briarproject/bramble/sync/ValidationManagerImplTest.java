@@ -19,12 +19,12 @@ import org.briarproject.bramble.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.bramble.api.sync.ValidationManager.MessageValidator;
 import org.briarproject.bramble.api.sync.ValidationManager.State;
 import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
-import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.ByteUtils;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -38,8 +38,18 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 
-public class ValidationManagerImplTest extends BrambleTestCase {
+public class ValidationManagerImplTest extends BrambleMockTestCase {
 
+	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
+	private final MessageFactory messageFactory =
+			context.mock(MessageFactory.class);
+	private final MessageValidator validator =
+			context.mock(MessageValidator.class);
+	private final IncomingMessageHook hook =
+			context.mock(IncomingMessageHook.class);
+
+	private final Executor dbExecutor = new ImmediateExecutor();
+	private final Executor validationExecutor = new ImmediateExecutor();
 	private final ClientId clientId =
 			new ClientId(TestUtils.getRandomString(5));
 	private final MessageId messageId = new MessageId(TestUtils.getRandomId());
@@ -63,23 +73,58 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 	private final MessageContext validResultWithDependencies =
 			new MessageContext(metadata, Collections.singletonList(messageId1));
 
+	private ValidationManagerImpl vm;
+
 	public ValidationManagerImplTest() {
 		// Encode the messages
 		System.arraycopy(groupId.getBytes(), 0, raw, 0, UniqueId.LENGTH);
 		ByteUtils.writeUint64(timestamp, raw, UniqueId.LENGTH);
 	}
 
+	@Before
+	public void setUp() {
+		vm = new ValidationManagerImpl(db, dbExecutor, validationExecutor,
+				messageFactory);
+		vm.registerMessageValidator(clientId, validator);
+		vm.registerIncomingMessageHook(clientId, hook);
+	}
+
+	@Test
+	public void testStartAndStop() throws Exception {
+		final Transaction txn = new Transaction(null, true);
+		final Transaction txn1 = new Transaction(null, true);
+		final Transaction txn2 = new Transaction(null, true);
+
+		context.checking(new Expectations() {{
+			// validateOutstandingMessages()
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn));
+			oneOf(db).getMessagesToValidate(txn, clientId);
+			will(returnValue(Collections.emptyList()));
+			oneOf(db).commitTransaction(txn);
+			oneOf(db).endTransaction(txn);
+			// deliverOutstandingMessages()
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn1));
+			oneOf(db).getPendingMessages(txn1, clientId);
+			will(returnValue(Collections.emptyList()));
+			oneOf(db).commitTransaction(txn1);
+			oneOf(db).endTransaction(txn1);
+			// shareOutstandingMessages()
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn2));
+			oneOf(db).getMessagesToShare(txn2, clientId);
+			will(returnValue(Collections.emptyList()));
+			oneOf(db).commitTransaction(txn2);
+			oneOf(db).endTransaction(txn2);
+		}});
+
+		vm.startService();
+		vm.stopService();
+	}
+
 	@Test
 	public void testMessagesAreValidatedAtStartup() throws Exception {
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null, true);
 		final Transaction txn1 = new Transaction(null, true);
 		final Transaction txn2 = new Transaction(null, false);
@@ -87,6 +132,7 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 		final Transaction txn4 = new Transaction(null, false);
 		final Transaction txn5 = new Transaction(null, true);
 		final Transaction txn6 = new Transaction(null, true);
+
 		context.checking(new Expectations() {{
 			// Get messages to validate
 			oneOf(db).startTransaction(true);
@@ -165,26 +211,11 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn6);
 		}});
 
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.startService();
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testPendingMessagesAreDeliveredAtStartup() throws Exception {
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null, true);
 		final Transaction txn1 = new Transaction(null, true);
 		final Transaction txn2 = new Transaction(null, false);
@@ -266,26 +297,11 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn4);
 		}});
 
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.startService();
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testMessagesAreSharedAtStartup() throws Exception {
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null, true);
 		final Transaction txn1 = new Transaction(null, true);
 		final Transaction txn2 = new Transaction(null, true);
@@ -333,29 +349,15 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn4);
 		}});
 
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.startService();
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testIncomingMessagesAreShared() throws Exception {
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null, true);
 		final Transaction txn1 = new Transaction(null, false);
 		final Transaction txn2 = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			// Load the group
 			oneOf(db).startTransaction(true);
@@ -396,33 +398,19 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn2);
 		}});
 
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testValidationContinuesAfterNoSuchMessageException()
 			throws Exception {
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null, true);
 		final Transaction txn1 = new Transaction(null, true);
 		final Transaction txn2 = new Transaction(null, true);
 		final Transaction txn3 = new Transaction(null, false);
 		final Transaction txn4 = new Transaction(null, true);
 		final Transaction txn5 = new Transaction(null, true);
+
 		context.checking(new Expectations() {{
 			// Get messages to validate
 			oneOf(db).startTransaction(true);
@@ -481,33 +469,19 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn5);
 		}});
 
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.startService();
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testValidationContinuesAfterNoSuchGroupException()
 			throws Exception {
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null, true);
 		final Transaction txn1 = new Transaction(null, true);
 		final Transaction txn2 = new Transaction(null, true);
 		final Transaction txn3 = new Transaction(null, false);
 		final Transaction txn4 = new Transaction(null, true);
 		final Transaction txn5 = new Transaction(null, true);
+
 		context.checking(new Expectations() {{
 			// Get messages to validate
 			oneOf(db).startTransaction(true);
@@ -571,28 +545,14 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn5);
 		}});
 
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.startService();
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testNonLocalMessagesAreValidatedWhenAdded() throws Exception {
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null, true);
 		final Transaction txn1 = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			// Load the group
 			oneOf(db).startTransaction(true);
@@ -619,51 +579,20 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn1);
 		}});
 
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testLocalMessagesAreNotValidatedWhenAdded() throws Exception {
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
-
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, null));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testMessagesWithUndeliveredDependenciesArePending()
 			throws Exception {
-
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null, true);
 		final Transaction txn1 = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			// Load the group
 			oneOf(db).startTransaction(true);
@@ -688,29 +617,15 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn1);
 		}});
 
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testMessagesWithDeliveredDependenciesGetDelivered()
 			throws Exception {
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null, true);
 		final Transaction txn1 = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			// Load the group
 			oneOf(db).startTransaction(true);
@@ -741,30 +656,16 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn1);
 		}});
 
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testMessagesWithInvalidDependenciesAreInvalid()
 			throws Exception {
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
 		final Transaction txn = new Transaction(null, true);
 		final Transaction txn1 = new Transaction(null, false);
 		final Transaction txn2 = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			// Load the group
 			oneOf(db).startTransaction(true);
@@ -809,26 +710,11 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn2);
 		}});
 
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testRecursiveInvalidation() throws Exception {
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
 		final MessageId messageId3 = new MessageId(TestUtils.getRandomId());
 		final MessageId messageId4 = new MessageId(TestUtils.getRandomId());
 		final Map<MessageId, State> twoDependents =
@@ -842,6 +728,7 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 		final Transaction txn4 = new Transaction(null, false);
 		final Transaction txn5 = new Transaction(null, false);
 		final Transaction txn6 = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			// Load the group
 			oneOf(db).startTransaction(true);
@@ -927,26 +814,11 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn6);
 		}});
 
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testPendingDependentsGetDelivered() throws Exception {
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
 		final MessageId messageId3 = new MessageId(TestUtils.getRandomId());
 		final MessageId messageId4 = new MessageId(TestUtils.getRandomId());
 		final Message message3 = new Message(messageId3, groupId, timestamp,
@@ -968,6 +840,7 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 		final Transaction txn4 = new Transaction(null, false);
 		final Transaction txn5 = new Transaction(null, false);
 		final Transaction txn6 = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			// Load the group
 			oneOf(db).startTransaction(true);
@@ -1100,26 +973,11 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn6);
 		}});
 
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testOnlyReadyPendingDependentsGetDelivered() throws Exception {
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
 		final Map<MessageId, State> twoDependencies =
 				new LinkedHashMap<MessageId, State>();
 		twoDependencies.put(messageId, DELIVERED);
@@ -1127,6 +985,7 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 		final Transaction txn = new Transaction(null, true);
 		final Transaction txn1 = new Transaction(null, false);
 		final Transaction txn2 = new Transaction(null, false);
+
 		context.checking(new Expectations() {{
 			// Load the group
 			oneOf(db).startTransaction(true);
@@ -1162,86 +1021,6 @@ public class ValidationManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn2);
 		}});
 
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
-
-		context.assertIsSatisfied();
 	}
-
-	@Test
-	public void testMessageDependencyCycle() throws Exception {
-		final MessageContext cycleContext = new MessageContext(metadata,
-				Collections.singletonList(messageId));
-
-		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Executor dbExecutor = new ImmediateExecutor();
-		final Executor cryptoExecutor = new ImmediateExecutor();
-		final MessageFactory messageFactory =
-				context.mock(MessageFactory.class);
-		final MessageValidator validator = context.mock(MessageValidator.class);
-		final IncomingMessageHook hook =
-				context.mock(IncomingMessageHook.class);
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, false);
-		final Transaction txn2 = new Transaction(null, true);
-		final Transaction txn3 = new Transaction(null, false);
-		context.checking(new Expectations() {{
-			// Load the group
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
-			oneOf(db).getGroup(txn, groupId);
-			will(returnValue(group));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
-			// Validate the message: valid
-			oneOf(validator).validateMessage(message, group);
-			will(returnValue(validResultWithDependencies));
-			// Store the validation result
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
-			oneOf(db).addMessageDependencies(txn1, message,
-					validResultWithDependencies.getDependencies());
-			oneOf(db).getMessageDependencies(txn1, messageId);
-			will(returnValue(Collections.singletonMap(messageId1, UNKNOWN)));
-			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
-			oneOf(db).setMessageState(txn1, messageId, PENDING);
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
-			// Second message is coming in
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn2));
-			oneOf(db).getGroup(txn2, groupId);
-			will(returnValue(group));
-			oneOf(db).commitTransaction(txn2);
-			oneOf(db).endTransaction(txn2);
-			// Validate the message: valid
-			oneOf(validator).validateMessage(message1, group);
-			will(returnValue(cycleContext));
-			// Store the validation result
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn3));
-			oneOf(db).addMessageDependencies(txn3, message1,
-					cycleContext.getDependencies());
-			oneOf(db).getMessageDependencies(txn3, messageId1);
-			will(returnValue(Collections.singletonMap(messageId, PENDING)));
-			oneOf(db).mergeMessageMetadata(txn3, messageId1, metadata);
-			oneOf(db).setMessageState(txn3, messageId1, PENDING);
-			oneOf(db).commitTransaction(txn3);
-			oneOf(db).endTransaction(txn3);
-		}});
-
-		ValidationManagerImpl vm = new ValidationManagerImpl(db, dbExecutor,
-				cryptoExecutor, messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
-		vm.eventOccurred(new MessageAddedEvent(message, contactId));
-		vm.eventOccurred(new MessageAddedEvent(message1, contactId));
-
-		context.assertIsSatisfied();
-	}
-
 }

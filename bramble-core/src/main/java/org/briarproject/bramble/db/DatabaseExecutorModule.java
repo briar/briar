@@ -1,5 +1,6 @@
 package org.briarproject.bramble.db;
 
+import org.briarproject.bramble.TimeLoggingExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 
@@ -36,8 +37,8 @@ public class DatabaseExecutorModule {
 		RejectedExecutionHandler policy =
 				new ThreadPoolExecutor.DiscardPolicy();
 		// Use a single thread and keep it in the pool for 60 secs
-		databaseExecutor = new ThreadPoolExecutor(0, 1, 60, SECONDS, queue,
-				policy);
+		databaseExecutor = new TimeLoggingExecutor("DatabaseExecutor", 0, 1,
+				60, SECONDS, queue, policy);
 	}
 
 	@Provides

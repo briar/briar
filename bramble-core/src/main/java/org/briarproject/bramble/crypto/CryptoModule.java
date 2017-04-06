@@ -1,5 +1,6 @@
 package org.briarproject.bramble.crypto;
 
+import org.briarproject.bramble.TimeLoggingExecutor;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
@@ -31,14 +32,17 @@ public class CryptoModule {
 	public static class EagerSingletons {
 		@Inject
 		@CryptoExecutor
-		Executor cryptoExecutor;
+		ExecutorService cryptoExecutor;
 	}
 
 	/**
 	 * The maximum number of executor threads.
+	 * <p>
+	 * The number of available processors can change during the lifetime of the
+	 * JVM, so this is just a reasonable guess.
 	 */
 	private static final int MAX_EXECUTOR_THREADS =
-			Runtime.getRuntime().availableProcessors();
+			Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
 
 	private final ExecutorService cryptoExecutor;
 
@@ -49,8 +53,8 @@ public class CryptoModule {
 		RejectedExecutionHandler policy =
 				new ThreadPoolExecutor.DiscardPolicy();
 		// Create a limited # of threads and keep them in the pool for 60 secs
-		cryptoExecutor = new ThreadPoolExecutor(0, MAX_EXECUTOR_THREADS,
-				60, SECONDS, queue, policy);
+		cryptoExecutor = new TimeLoggingExecutor("CryptoExecutor", 0,
+				MAX_EXECUTOR_THREADS, 60, SECONDS, queue, policy);
 	}
 
 	@Provides
@@ -85,8 +89,15 @@ public class CryptoModule {
 	@Provides
 	@Singleton
 	@CryptoExecutor
-	Executor getCryptoExecutor(LifecycleManager lifecycleManager) {
+	ExecutorService getCryptoExecutorService(
+			LifecycleManager lifecycleManager) {
 		lifecycleManager.registerForShutdown(cryptoExecutor);
+		return cryptoExecutor;
+	}
+
+	@Provides
+	@CryptoExecutor
+	Executor getCryptoExecutor() {
 		return cryptoExecutor;
 	}
 
