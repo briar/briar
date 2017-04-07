@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<TextView
+		android:id="@+id/info"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:drawableLeft="@drawable/ic_info"
+		android:drawablePadding="@dimen/margin_medium"
+		android:padding="@dimen/margin_medium"
+		android:textColor="?android:textColorSecondary"
+		android:textSize="@dimen/text_size_tiny"
+		tools:text="@string/sharing_status_forum"/>
+
+	<View style="@style/Divider.Horizontal"/>
+
+	<org.briarproject.briar.android.view.BriarRecyclerView
+		android:id="@+id/list"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		app:scrollToEnd="false"
+		tools:listitem="@layout/list_item_contact"/>
+
+</LinearLayout>

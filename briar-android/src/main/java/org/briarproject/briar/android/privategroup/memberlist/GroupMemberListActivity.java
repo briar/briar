@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -40,7 +41,7 @@ public class GroupMemberListActivity extends BriarActivity {
 	public void onCreate(@Nullable final Bundle state) {
 		super.onCreate(state);
 
-		setContentView(R.layout.list);
+		setContentView(R.layout.activity_sharing_status);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
@@ -52,6 +53,9 @@ public class GroupMemberListActivity extends BriarActivity {
 		list.setLayoutManager(linearLayoutManager);
 		adapter = new MemberListAdapter(this);
 		list.setAdapter(adapter);
+
+		TextView info = (TextView) findViewById(R.id.info);
+		info.setText(R.string.sharing_status_groups);
 	}
 
 	@Override
