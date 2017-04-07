@@ -194,6 +194,7 @@
 	<string name="groups_invitations_response_declined_sent">You declined the group invitation from %s.</string>
 	<string name="groups_invitations_response_accepted_received">%s accepted the group invitation.</string>
 	<string name="groups_invitations_response_declined_received">%s declined the group invitation.</string>
+	<string name="sharing_status_groups">Only the creator can invite new members to the group. Below are all current members of the group.</string>
 
 	<!-- Private Groups Revealing Contacts -->
 	<string name="groups_reveal_contacts">Reveal Contacts</string>
@@ -252,6 +253,7 @@
 	<string name="forum_invitation_response_declined_received">%s declined the forum invitation.</string>
 
 	<string name="sharing_status">Sharing Status</string>
+	<string name="sharing_status_forum">Any member of a forum can share it with their contacts. You are sharing this forum with the following contacts. There may also be other members who you can\'t see.</string>
 	<string name="shared_with">Shared with %1$d (%2$d online)</string>
 	<plurals name="forums_shared">
 		<item quantity="one">%d forum shared by contacts</item>
@@ -291,6 +293,7 @@
 	<string name="blogs_sharing_invitations_title">Blog Invitations</string>
 	<string name="blogs_sharing_joined_toast">Subscribed to Blog</string>
 	<string name="blogs_sharing_declined_toast">Blog Invitation Declined</string>
+	<string name="sharing_status_blog">Anyone who subscribes to a blog can share it with their contacts. You are sharing this blog with the following contacts. There may also be other subscribers who you can\'t see.</string>
 
 	<!-- RSS Feeds -->
 	<string name="blogs_rss_feeds_import">Import RSS Feed</string>

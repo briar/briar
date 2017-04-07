@@ -3,8 +3,10 @@ package org.briarproject.briar.android.sharing;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -45,7 +47,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.list);
+		setContentView(R.layout.activity_sharing_status);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
@@ -57,6 +59,9 @@ abstract class SharingStatusActivity extends BriarActivity {
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.nobody));
+
+		TextView info = (TextView) findViewById(R.id.info);
+		info.setText(getInfoText());
 	}
 
 	@Override
@@ -83,6 +88,9 @@ abstract class SharingStatusActivity extends BriarActivity {
 				return super.onOptionsItemSelected(item);
 		}
 	}
+
+	@StringRes
+	abstract int getInfoText();
 
 	@DatabaseExecutor
 	abstract protected Collection<Contact> getSharedWith() throws DbException;
