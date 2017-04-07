@@ -11,7 +11,7 @@
 		android:layout_height="@dimen/blogs_avatar_normal_size"
 		android:layout_alignTop="@+id/authorName"
 		android:layout_marginRight="@dimen/margin_medium"
-		tools:src="@drawable/ic_launcher"/>
+		tools:src="@mipmap/ic_launcher_round"/>
 
 	<ImageView
 		android:id="@+id/avatarIcon"

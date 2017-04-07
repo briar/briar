@@ -23,7 +23,7 @@
 	<application
 		android:name=".android.BriarApplicationImpl"
 		android:allowBackup="false"
-		android:icon="@drawable/ic_launcher"
+		android:icon="@mipmap/ic_launcher_round"
 		android:label="@string/app_name"
 		android:logo="@mipmap/ic_launcher_round"
 		android:theme="@style/BriarTheme">

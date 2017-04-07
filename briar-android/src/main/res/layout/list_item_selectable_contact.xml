@@ -20,7 +20,7 @@
 			android:layout_alignParentLeft="true"
 			android:layout_alignParentStart="true"
 			android:layout_centerVertical="true"
-			tools:src="@drawable/ic_launcher"/>
+			tools:src="@mipmap/ic_launcher_round"/>
 
 		<LinearLayout
 			android:layout_width="wrap_content"

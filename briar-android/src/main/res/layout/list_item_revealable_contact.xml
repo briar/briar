@@ -25,7 +25,7 @@
 			android:layout_alignParentStart="true"
 			android:layout_marginEnd="@dimen/listitem_horizontal_margin"
 			android:layout_marginRight="@dimen/listitem_horizontal_margin"
-			tools:src="@drawable/ic_launcher"/>
+			tools:src="@mipmap/ic_launcher_round"/>
 
 		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 			android:id="@+id/nameView"

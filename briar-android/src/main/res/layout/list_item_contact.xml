@@ -29,7 +29,7 @@
 				android:layout_width="@dimen/listitem_picture_size"
 				android:layout_height="@dimen/listitem_picture_size"
 				android:layout_gravity="bottom|left"
-				tools:src="@drawable/ic_launcher"/>
+				tools:src="@mipmap/ic_launcher_round"/>
 
 			<TextView
 				android:id="@+id/unreadCountView"
