@@ -14,7 +14,7 @@ import android.view.Window;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.DbController;
-import org.briarproject.briar.android.controller.handler.UiResultHandler;
+import org.briarproject.briar.android.controller.handler.ResultHandler;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.login.PasswordActivity;
 import org.briarproject.briar.android.panic.ExitActivity;
@@ -116,17 +116,28 @@ public abstract class BriarActivity extends BaseActivity {
 	}
 
 	protected void signOut(final boolean removeFromRecentApps) {
-		briarController.signOut(new UiResultHandler<Void>(this) {
-			@Override
-			public void onResultUi(Void result) {
-				if (removeFromRecentApps) startExitActivity();
-				else finishAndExit();
-			}
-		});
+		if (briarController.hasEncryptionKey()) {
+			// Don't use UiResultHandler because we want the result even if
+			// this activity has been destroyed
+			briarController.signOut(new ResultHandler<Void>() {
+				@Override
+				public void onResult(Void result) {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							exit(removeFromRecentApps);
+						}
+					});
+				}
+			});
+		} else {
+			exit(removeFromRecentApps);
+		}
 	}
 
-	protected void signOut() {
-		signOut(false);
+	private void exit(boolean removeFromRecentApps) {
+		if (removeFromRecentApps) startExitActivity();
+		else finishAndExit();
 	}
 
 	private void startExitActivity() {

@@ -57,8 +57,7 @@ public class PanicResponderActivity extends BriarActivity {
 				LOG.info("Received Panic Trigger...");
 
 				if (PanicResponder.receivedTriggerFromConnectedApp(this)) {
-					LOG.info("Panic Trigger came from connected app.");
-					LOG.info("Performing destructive responses...");
+					LOG.info("Panic Trigger came from connected app");
 
 					// Performing panic responses
 					if (sharedPref.getBoolean(KEY_UNINSTALL, false)) {
@@ -73,19 +72,11 @@ public class PanicResponderActivity extends BriarActivity {
 					} else if (sharedPref.getBoolean(KEY_PURGE, false)) {
 						LOG.info("Purging all data...");
 						deleteAllData();
-					} else if (sharedPref.getBoolean(KEY_LOCK, false)) {
+					} else if (sharedPref.getBoolean(KEY_LOCK, true)) {
 						LOG.info("Signing out...");
 						signOut(true);
 					}
 				}
-			}
-		}
-		// received intent from non-trusted app
-		else {
-			intent = getIntent();
-			if (intent != null && Panic.isTriggerIntent(intent)) {
-				LOG.info("Signing out...");
-				signOut(true);
 			}
 		}
 
