@@ -188,7 +188,7 @@ public class NavDrawerActivity extends BriarActivity implements
 		} else if (getSupportFragmentManager().getBackStackEntryCount() == 0 &&
 				getSupportFragmentManager()
 						.findFragmentByTag(ContactListFragment.TAG) == null) {
-			/**
+			/*
 			 * This Makes sure that the first fragment (ContactListFragment) the
 			 * user sees is the same as the last fragment the user sees before
 			 * exiting. This models the typical Google navigation behaviour such
@@ -212,11 +212,10 @@ public class NavDrawerActivity extends BriarActivity implements
 		drawerToggle.onConfigurationChanged(newConfig);
 	}
 
-	@Override
-	protected void signOut() {
+	private void signOut() {
 		drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED);
 		startFragment(new SignOutFragment());
-		super.signOut();
+		signOut(false);
 	}
 
 	private void startFragment(BaseFragment fragment, int itemId){
