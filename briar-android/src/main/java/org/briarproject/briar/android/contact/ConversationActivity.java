@@ -946,6 +946,7 @@ public class ConversationActivity extends BriarActivity
 	@Override
 	public void respondToRequest(final ConversationRequestItem item,
 			final boolean accept) {
+		item.setAnswered(true);
 		int position = adapter.findItemPosition(item);
 		if (position != INVALID_POSITION) {
 			adapter.notifyItemChanged(position, item);

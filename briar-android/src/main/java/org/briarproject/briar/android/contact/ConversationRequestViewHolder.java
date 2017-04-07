@@ -51,6 +51,8 @@ class ConversationRequestViewHolder extends ConversationNoticeInViewHolder {
 			acceptButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
+					acceptButton.setEnabled(false);
+					declineButton.setEnabled(false);
 					listener.respondToRequest(item, true);
 				}
 			});
@@ -58,6 +60,8 @@ class ConversationRequestViewHolder extends ConversationNoticeInViewHolder {
 			declineButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
+					acceptButton.setEnabled(false);
+					declineButton.setEnabled(false);
 					listener.respondToRequest(item, false);
 				}
 			});
