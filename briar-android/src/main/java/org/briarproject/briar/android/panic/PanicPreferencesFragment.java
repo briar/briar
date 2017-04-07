@@ -128,7 +128,12 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 							Intent intent = new Intent(Intent.ACTION_VIEW);
 							intent.setData(Uri.parse(
 									"market://details?id=info.guardianproject.ripple"));
-							startActivity(intent);
+							intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+							if (intent.resolveActivity(
+									getActivity().getPackageManager()) !=
+									null) {
+								startActivity(intent);
+							}
 							return true;
 						}
 					});
@@ -236,7 +241,7 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 				};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext(),
-						R.style.BriarDialogTheme);
+				R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_connect_panic_app));
 
 		CharSequence app = getString(R.string.unknown_app);
