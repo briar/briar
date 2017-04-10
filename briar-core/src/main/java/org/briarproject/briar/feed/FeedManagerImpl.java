@@ -39,8 +39,6 @@ import org.briarproject.briar.api.feed.FeedManager;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,7 +79,6 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	private static final Logger LOG =
 			Logger.getLogger(FeedManagerImpl.class.getName());
 
-	private static final byte[] UNSPECIFIED_ADDRESS = new byte[4];
 	private static final int CONNECT_TIMEOUT = 60 * 1000; // Milliseconds
 
 	private final ScheduledExecutorService scheduler;
@@ -94,6 +91,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	private final FeedFactory feedFactory;
 	private final SocketFactory torSocketFactory;
 	private final Clock clock;
+	private final Dns noDnsLookups;
 	private final AtomicBoolean fetcherStarted = new AtomicBoolean(false);
 
 	@Inject
@@ -102,7 +100,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 			ContactGroupFactory contactGroupFactory, ClientHelper clientHelper,
 			BlogManager blogManager, BlogPostFactory blogPostFactory,
 			FeedFactory feedFactory, SocketFactory torSocketFactory,
-			Clock clock) {
+			Clock clock, Dns noDnsLookups) {
 
 		this.scheduler = scheduler;
 		this.ioExecutor = ioExecutor;
@@ -114,6 +112,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		this.feedFactory = feedFactory;
 		this.torSocketFactory = torSocketFactory;
 		this.clock = clock;
+		this.noDnsLookups = noDnsLookups;
 	}
 
 	@Override
@@ -374,21 +373,10 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	}
 
 	private InputStream getFeedInputStream(String url) throws IOException {
-		// Don't make local DNS lookups
-		Dns noLookups = new Dns() {
-			@Override
-			public List<InetAddress> lookup(String hostname)
-					throws UnknownHostException {
-				InetAddress unspecified =
-						InetAddress.getByAddress(hostname, UNSPECIFIED_ADDRESS);
-				return Collections.singletonList(unspecified);
-			}
-		};
-
 		// Build HTTP Client
 		OkHttpClient client = new OkHttpClient.Builder()
 				.socketFactory(torSocketFactory)
-				.dns(noLookups)
+				.dns(noDnsLookups) // Don't make local DNS lookups
 				.connectTimeout(CONNECT_TIMEOUT, MILLISECONDS)
 				.build();
 
