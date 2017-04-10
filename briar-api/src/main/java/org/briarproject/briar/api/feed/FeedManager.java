@@ -23,7 +23,7 @@ public interface FeedManager {
 	/**
 	 * Removes an RSS feed.
 	 */
-	void removeFeed(String url) throws DbException;
+	void removeFeed(Feed feed) throws DbException;
 
 	/**
 	 * Returns a list of all added RSS feeds

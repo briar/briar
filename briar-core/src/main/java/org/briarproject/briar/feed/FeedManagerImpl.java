@@ -203,22 +203,20 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	}
 
 	@Override
-	public void removeFeed(String url) throws DbException {
+	public void removeFeed(Feed feed) throws DbException {
 		LOG.info("Removing RSS feed...");
 		Transaction txn = db.startTransaction(false);
 		try {
 			List<Feed> feeds = getFeeds(txn);
-			Feed feed = null;
 			for (Feed f : feeds) {
-				if (f.getUrl().equals(url)) {
+				if (f.getBlogId().equals(feed.getBlogId())) {
 					feed = f;
 					feeds.remove(f);
 					break;
 				}
 			}
-			if (feed == null) throw new DbException();
 			storeFeeds(txn, feeds);
-			// TODO blogManager.removeBlog(txn, feed.getBlog());
+			blogManager.removeBlog(txn, feed.getBlog());
 			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);

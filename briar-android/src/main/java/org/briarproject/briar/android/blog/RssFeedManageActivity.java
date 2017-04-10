@@ -1,15 +1,16 @@
 package org.briarproject.briar.android.blog;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -34,7 +35,6 @@ public class RssFeedManageActivity extends BriarActivity
 
 	private BriarRecyclerView list;
 	private RssFeedAdapter adapter;
-	private GroupId groupId;
 
 	@Inject
 	@SuppressWarnings("WeakerAccess")
@@ -43,12 +43,6 @@ public class RssFeedManageActivity extends BriarActivity
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		// GroupId from Intent
-		Intent i = getIntent();
-		byte[] b = i.getByteArrayExtra(GROUP_ID);
-		if (b == null) throw new IllegalStateException("No Group in intent.");
-		groupId = new GroupId(b);
 
 		setContentView(R.layout.activity_rss_feed_manage);
 
@@ -101,19 +95,22 @@ public class RssFeedManageActivity extends BriarActivity
 
 	@Override
 	public void onDeleteClick(final Feed feed) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					feedManager.removeFeed(feed.getUrl());
-					onFeedDeleted(feed);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					onDeleteError();
-				}
-			}
-		});
+		DialogInterface.OnClickListener okListener =
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						deleteFeed(feed);
+					}
+				};
+		AlertDialog.Builder builder = new AlertDialog.Builder(this,
+				R.style.BriarDialogTheme);
+		builder.setTitle(getString(R.string.blogs_rss_remove_feed));
+		builder.setMessage(
+				getString(R.string.blogs_rss_remove_feed_dialog_message));
+		builder.setPositiveButton(R.string.cancel, null);
+		builder.setNegativeButton(R.string.blogs_rss_remove_feed_ok,
+				okListener);
+		builder.show();
 	}
 
 	private void loadFeeds() {
@@ -143,6 +140,22 @@ public class RssFeedManageActivity extends BriarActivity
 				} else {
 					LOG.info("Concurrent update, reloading");
 					loadFeeds();
+				}
+			}
+		});
+	}
+
+	private void deleteFeed(final Feed feed) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					feedManager.removeFeed(feed);
+					onFeedDeleted(feed);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					onDeleteError();
 				}
 			}
 		});

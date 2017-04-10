@@ -224,6 +224,11 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		}
 	}
 
+	@Override
+	public void removeBlog(Transaction txn, Blog b) throws DbException {
+		removeBlog(txn, b, false);
+	}
+
 	private void removeBlog(Transaction txn, Blog b, boolean forced)
 			throws DbException {
 		if (!forced && !canBeRemoved(txn, b.getId()))
