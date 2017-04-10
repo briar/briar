@@ -179,7 +179,6 @@ public class FeedFragment extends BaseFragment implements
 			case R.id.action_rss_feeds_import:
 				Intent i2 =
 						new Intent(getActivity(), RssFeedImportActivity.class);
-				i2.putExtra(GROUP_ID, personalBlog.getId().getBytes());
 				startActivity(i2);
 				return true;
 			case R.id.action_rss_feeds_manage:

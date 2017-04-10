@@ -18,7 +18,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -88,9 +87,9 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	private final DatabaseComponent db;
 	private final ContactGroupFactory contactGroupFactory;
 	private final ClientHelper clientHelper;
-	private final IdentityManager identityManager;
 	private final BlogManager blogManager;
 	private final BlogPostFactory blogPostFactory;
+	private final FeedFactory feedFactory;
 	private final SocketFactory torSocketFactory;
 	private final Clock clock;
 	private final AtomicBoolean fetcherStarted = new AtomicBoolean(false);
@@ -99,8 +98,8 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	FeedManagerImpl(@Scheduler ScheduledExecutorService scheduler,
 			@IoExecutor Executor ioExecutor, DatabaseComponent db,
 			ContactGroupFactory contactGroupFactory, ClientHelper clientHelper,
-			IdentityManager identityManager, BlogManager blogManager,
-			BlogPostFactory blogPostFactory, SocketFactory torSocketFactory,
+			BlogManager blogManager, BlogPostFactory blogPostFactory,
+			FeedFactory feedFactory, SocketFactory torSocketFactory,
 			Clock clock) {
 
 		this.scheduler = scheduler;
@@ -108,9 +107,9 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		this.db = db;
 		this.contactGroupFactory = contactGroupFactory;
 		this.clientHelper = clientHelper;
-		this.identityManager = identityManager;
 		this.blogManager = blogManager;
 		this.blogPostFactory = blogPostFactory;
+		this.feedFactory = feedFactory;
 		this.torSocketFactory = torSocketFactory;
 		this.clock = clock;
 	}
@@ -158,21 +157,22 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 	}
 
 	@Override
-	public void addFeed(String url, GroupId g) throws DbException, IOException {
-		LOG.info("Adding new RSS feed...");
-
+	public void addFeed(String url) throws DbException, IOException {
 		// TODO check for existing feed?
-		// fetch feed to get its metadata
-		Feed feed = new Feed(url, g, clock.currentTimeMillis());
+		// fetch syndication feed to get its metadata
+		SyndFeed f;
 		try {
-			feed = fetchFeed(feed, false);
+			f = fetchSyndFeed(url);
 		} catch (FeedException e) {
 			throw new IOException(e);
 		}
 
-		// store feed
+		Feed feed = feedFactory.createFeed(url, f);
+
+		// store feed and new blog
 		Transaction txn = db.startTransaction(false);
 		try {
+			blogManager.addBlog(txn, feed.getBlog());
 			List<Feed> feeds = getFeeds(txn);
 			feeds.add(feed);
 			storeFeeds(txn, feeds);
@@ -181,10 +181,10 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 			db.endTransaction(txn);
 		}
 
-		// fetch feed again, post entries this time
+		// fetch feed again and post entries
 		Feed updatedFeed;
 		try {
-			updatedFeed = fetchFeed(feed, true);
+			updatedFeed = fetchFeed(feed);
 		} catch (FeedException e) {
 			throw new IOException(e);
 		}
@@ -208,16 +208,17 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		Transaction txn = db.startTransaction(false);
 		try {
 			List<Feed> feeds = getFeeds(txn);
-			boolean found = false;
-			for (Feed feed : feeds) {
-				if (feed.getUrl().equals(url)) {
-					found = true;
-					feeds.remove(feed);
+			Feed feed = null;
+			for (Feed f : feeds) {
+				if (f.getUrl().equals(url)) {
+					feed = f;
+					feeds.remove(f);
 					break;
 				}
 			}
-			if (!found) throw new DbException();
+			if (feed == null) throw new DbException();
 			storeFeeds(txn, feeds);
+			// TODO blogManager.removeBlog(txn, feed.getBlog());
 			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
@@ -246,7 +247,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 			for (Object object : d.getList(KEY_FEEDS)) {
 				if (!(object instanceof BdfDictionary))
 					throw new FormatException();
-				feeds.add(Feed.from((BdfDictionary) object));
+				feeds.add(feedFactory.createFeed((BdfDictionary) object));
 			}
 		} catch (FormatException e) {
 			throw new DbException(e);
@@ -259,7 +260,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 
 		BdfList feedList = new BdfList();
 		for (Feed feed : feeds) {
-			feedList.add(feed.toBdfDictionary());
+			feedList.add(feedFactory.feedToBdfDictionary(feed));
 		}
 		BdfDictionary gm = BdfDictionary.of(new BdfEntry(KEY_FEEDS, feedList));
 		try {
@@ -300,7 +301,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		List<Feed> newFeeds = new ArrayList<Feed>(feeds.size());
 		for (Feed feed : feeds) {
 			try {
-				newFeeds.add(fetchFeed(feed, true));
+				newFeeds.add(fetchFeed(feed));
 			} catch (FeedException e) {
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, e.toString(), e);
@@ -323,31 +324,45 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		LOG.info("Done updating RSS feeds");
 	}
 
-	private Feed fetchFeed(Feed feed, boolean post)
-			throws FeedException, IOException, DbException {
-		String title, description, author;
-		long updated = clock.currentTimeMillis();
-		long lastEntryTime = feed.getLastEntryTime();
-
-		SyndFeed f = getSyndFeed(getFeedInputStream(feed.getUrl()));
-		title = StringUtils.isNullOrEmpty(f.getTitle()) ? null : f.getTitle();
-		if (title != null) title = clean(title, STRIP_ALL);
-		description = StringUtils.isNullOrEmpty(f.getDescription()) ? null :
-				f.getDescription();
-		if (description != null) description = clean(description, STRIP_ALL);
-		author =
-				StringUtils.isNullOrEmpty(f.getAuthor()) ? null : f.getAuthor();
-		if (author != null) author = clean(author, STRIP_ALL);
+	private SyndFeed fetchSyndFeed(String url)
+			throws FeedException, IOException {
+		// fetch feed
+		SyndFeed f = getSyndFeed(getFeedInputStream(url));
 
 		if (f.getEntries().size() == 0)
 			throw new FeedException("Feed has no entries");
 
+		// clean title
+		String title =
+				StringUtils.isNullOrEmpty(f.getTitle()) ? null : f.getTitle();
+		if (title != null) title = clean(title, STRIP_ALL);
+		f.setTitle(title);
+
+		// clean description
+		String description =
+				StringUtils.isNullOrEmpty(f.getDescription()) ? null :
+						f.getDescription();
+		if (description != null) description = clean(description, STRIP_ALL);
+		f.setDescription(description);
+
+		// clean author
+		String author =
+				StringUtils.isNullOrEmpty(f.getAuthor()) ? null : f.getAuthor();
+		if (author != null) author = clean(author, STRIP_ALL);
+		f.setAuthor(author);
+
+		return f;
+	}
+
+	private Feed fetchFeed(Feed feed)
+			throws FeedException, IOException, DbException {
+		// fetch and clean feed
+		SyndFeed f = fetchSyndFeed(feed.getUrl());
+
 		// sort and add new entries
-		if (post) {
-			lastEntryTime = postFeedEntries(feed, f.getEntries());
-		}
-		return new Feed(feed.getUrl(), feed.getBlogId(), title, description,
-				author, feed.getAdded(), updated, lastEntryTime);
+		long lastEntryTime = postFeedEntries(feed, f.getEntries());
+
+		return feedFactory.createFeed(feed, f, lastEntryTime);
 	}
 
 	private InputStream getFeedInputStream(String url) throws IOException {
@@ -461,9 +476,9 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		String body = getPostBody(b.toString());
 		try {
 			// create and store post
-			LocalAuthor author = identityManager.getLocalAuthor(txn);
+			LocalAuthor localAuthor = feed.getLocalAuthor();
 			BlogPost post = blogPostFactory
-					.createBlogPost(groupId, time, null, author, body);
+					.createBlogPost(groupId, time, null, localAuthor, body);
 			blogManager.addLocalPost(txn, post);
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING))

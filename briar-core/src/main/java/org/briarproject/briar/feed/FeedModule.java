@@ -28,4 +28,9 @@ public class FeedModule {
 		return feedManager;
 	}
 
+	@Provides
+	FeedFactory provideFeedFactory(FeedFactoryImpl feedFactory) {
+		return feedFactory;
+	}
+
 }

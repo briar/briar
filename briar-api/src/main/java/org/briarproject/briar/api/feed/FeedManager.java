@@ -3,7 +3,6 @@ package org.briarproject.briar.api.feed;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
-import org.briarproject.bramble.api.sync.GroupId;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,9 +16,9 @@ public interface FeedManager {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.feed");
 
 	/**
-	 * Adds an RSS feed.
+	 * Adds an RSS feed as a new dedicated blog.
 	 */
-	void addFeed(String url, GroupId g) throws DbException, IOException;
+	void addFeed(String url) throws DbException, IOException;
 
 	/**
 	 * Removes an RSS feed.

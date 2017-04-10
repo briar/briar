@@ -87,7 +87,6 @@ public class RssFeedManageActivity extends BriarActivity
 				return true;
 			case R.id.action_rss_feeds_import:
 				Intent i = new Intent(this, RssFeedImportActivity.class);
-				i.putExtra(GROUP_ID, groupId.getBytes());
 				startActivity(i);
 				return true;
 			default:
