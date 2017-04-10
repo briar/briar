@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.briarproject.briar.R;
@@ -75,6 +75,14 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 		} else {
 			ui.description.setVisibility(GONE);
 		}
+
+		// Open feed's blog when clicked
+		ui.layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				listener.onFeedClick(item);
+			}
+		});
 	}
 
 	@Override
@@ -99,8 +107,9 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 	}
 
 	static class FeedViewHolder extends RecyclerView.ViewHolder {
+		private final View layout;
 		private final TextView title;
-		private final ImageView delete;
+		private final ImageButton delete;
 		private final TextView imported;
 		private final TextView updated;
 		private final TextView author;
@@ -110,8 +119,9 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 		private FeedViewHolder(View v) {
 			super(v);
 
+			layout = v;
 			title = (TextView) v.findViewById(R.id.titleView);
-			delete = (ImageView) v.findViewById(R.id.deleteButton);
+			delete = (ImageButton) v.findViewById(R.id.deleteButton);
 			imported = (TextView) v.findViewById(R.id.importedView);
 			updated = (TextView) v.findViewById(R.id.updatedView);
 			author = (TextView) v.findViewById(R.id.authorView);
@@ -121,6 +131,7 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 	}
 
 	interface RssFeedListener {
+		void onFeedClick(Feed feed);
 		void onDeleteClick(Feed feed);
 	}
 

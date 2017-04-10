@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
 
@@ -91,6 +92,14 @@ public class RssFeedManageActivity extends BriarActivity
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+	}
+
+	@Override
+	public void onFeedClick(Feed feed) {
+		Intent i = new Intent(this, BlogActivity.class);
+		i.putExtra(GROUP_ID, feed.getBlogId().getBytes());
+		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(i);
 	}
 
 	@Override
