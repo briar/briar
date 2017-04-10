@@ -33,15 +33,25 @@ class BlogFactoryImpl implements BlogFactory {
 
 	@Override
 	public Blog createBlog(Author a) {
+		return createBlog(a, false);
+	}
+
+	@Override
+	public Blog createFeedBlog(Author a) {
+		return createBlog(a, true);
+	}
+
+	private Blog createBlog(Author a, boolean rssFeed) {
 		try {
 			BdfList blog = BdfList.of(
 					a.getName(),
-					a.getPublicKey()
+					a.getPublicKey(),
+					rssFeed
 			);
 			byte[] descriptor = clientHelper.toByteArray(blog);
 			Group g = groupFactory
 					.createGroup(BlogManagerImpl.CLIENT_ID, descriptor);
-			return new Blog(g, a);
+			return new Blog(g, a, rssFeed);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
@@ -54,7 +64,7 @@ class BlogFactoryImpl implements BlogFactory {
 		BdfList blog = clientHelper.toList(descriptor);
 		Author a =
 				authorFactory.createAuthor(blog.getString(0), blog.getRaw(1));
-		return new Blog(g, a);
+		return new Blog(g, a, blog.getBoolean(2));
 	}
 
 }

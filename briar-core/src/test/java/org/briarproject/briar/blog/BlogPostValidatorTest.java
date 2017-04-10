@@ -79,7 +79,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 				new BdfEntry(KEY_AUTHOR_NAME, author.getName()),
 				new BdfEntry(KEY_PUBLIC_KEY, author.getPublicKey())
 		);
-		blog = new Blog(group, author);
+		blog = new Blog(group, author, false);
 
 		MessageId messageId = new MessageId(TestUtils.getRandomId());
 		long timestamp = System.currentTimeMillis();

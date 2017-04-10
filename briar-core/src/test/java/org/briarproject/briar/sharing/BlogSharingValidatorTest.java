@@ -23,8 +23,8 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	private final byte[] publicKey =
 			TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 	private final Author author = new Author(authorId, authorName, publicKey);
-	private final Blog blog = new Blog(group, author);
-	private final BdfList descriptor = BdfList.of(authorName, publicKey);
+	private final Blog blog = new Blog(group, author, false);
+	private final BdfList descriptor = BdfList.of(authorName, publicKey, false);
 	private final String content =
 			TestUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH);
 
@@ -64,7 +64,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNullBlogName() throws Exception {
-		BdfList invalidDescriptor = BdfList.of(null, publicKey);
+		BdfList invalidDescriptor = BdfList.of(null, publicKey, false);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
@@ -72,7 +72,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonStringBlogName() throws Exception {
-		BdfList invalidDescriptor = BdfList.of(123, publicKey);
+		BdfList invalidDescriptor = BdfList.of(123, publicKey, false);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
@@ -80,7 +80,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortBlogName() throws Exception {
-		BdfList invalidDescriptor = BdfList.of("", publicKey);
+		BdfList invalidDescriptor = BdfList.of("", publicKey, false);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
@@ -89,7 +89,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	@Test
 	public void testAcceptsMinLengthBlogName() throws Exception {
 		String shortBlogName = TestUtils.getRandomString(1);
-		BdfList validDescriptor = BdfList.of(shortBlogName, publicKey);
+		BdfList validDescriptor = BdfList.of(shortBlogName, publicKey, false);
 		expectCreateBlog(shortBlogName, publicKey);
 		expectEncodeMetadata(INVITE);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
@@ -102,7 +102,8 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	public void testRejectsTooLongBlogName() throws Exception {
 		String invalidBlogName =
 				TestUtils.getRandomString(MAX_BLOG_NAME_LENGTH + 1);
-		BdfList invalidDescriptor = BdfList.of(invalidBlogName, publicKey);
+		BdfList invalidDescriptor =
+				BdfList.of(invalidBlogName, publicKey, false);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
@@ -110,7 +111,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNullPublicKey() throws Exception {
-		BdfList invalidDescriptor = BdfList.of(authorName, null);
+		BdfList invalidDescriptor = BdfList.of(authorName, null, false);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
@@ -118,7 +119,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonRawPublicKey() throws Exception {
-		BdfList invalidDescriptor = BdfList.of(authorName, 123);
+		BdfList invalidDescriptor = BdfList.of(authorName, 123, false);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
@@ -127,7 +128,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongPublicKey() throws Exception {
 		byte[] invalidKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1);
-		BdfList invalidDescriptor = BdfList.of(authorName, invalidKey);
+		BdfList invalidDescriptor = BdfList.of(authorName, invalidKey, false);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
 						null));
@@ -136,7 +137,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	@Test
 	public void testAcceptsMinLengthPublicKey() throws Exception {
 		byte[] key = TestUtils.getRandomBytes(1);
-		BdfList validDescriptor = BdfList.of(authorName, key);
+		BdfList validDescriptor = BdfList.of(authorName, key, false);
 
 		expectCreateBlog(authorName, key);
 		expectEncodeMetadata(INVITE);

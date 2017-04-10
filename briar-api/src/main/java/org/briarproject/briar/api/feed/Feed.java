@@ -93,21 +93,9 @@ public class Feed {
 		if (this == o) return true;
 		if (o instanceof Feed) {
 			Feed f = (Feed) o;
-			return url.equals(f.url) && blog.equals(f.blog) &&
-					equalsWithNull(title, f.title) &&
-					equalsWithNull(description, f.description) &&
-					equalsWithNull(author, f.author) &&
-					added == f.added &&
-					updated == f.updated &&
-					lastEntryTime == f.lastEntryTime;
+			return blog.equals(f.blog);
 		}
 		return false;
-	}
-
-	private boolean equalsWithNull(@Nullable Object a, @Nullable Object b) {
-		if (a == b) return true;
-		if (a == null || b == null) return false;
-		return a.equals(b);
 	}
 
 }

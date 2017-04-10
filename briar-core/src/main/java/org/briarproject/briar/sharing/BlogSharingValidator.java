@@ -39,14 +39,20 @@ class BlogSharingValidator extends SharingValidator {
 	@Override
 	protected GroupId validateDescriptor(BdfList descriptor)
 			throws FormatException {
-		checkSize(descriptor, 2);
+		checkSize(descriptor, 3);
 		String name = descriptor.getString(0);
 		checkLength(name, 1, MAX_AUTHOR_NAME_LENGTH);
 		byte[] publicKey = descriptor.getRaw(1);
 		checkLength(publicKey, 1, MAX_PUBLIC_KEY_LENGTH);
+		boolean rssFeed = descriptor.getBoolean(2);
 
 		Author author = authorFactory.createAuthor(name, publicKey);
-		Blog blog = blogFactory.createBlog(author);
+		Blog blog;
+		if (rssFeed) {
+			blog = blogFactory.createFeedBlog(author);
+		} else {
+			blog = blogFactory.createBlog(author);
+		}
 		return blog.getId();
 	}
 

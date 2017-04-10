@@ -52,7 +52,7 @@ class FeedFactoryImpl implements FeedFactory {
 				.createLocalAuthor(syndFeed.getTitle(),
 						keyPair.getPublic().getEncoded(),
 						keyPair.getPrivate().getEncoded());
-		Blog blog = blogFactory.createBlog(localAuthor);
+		Blog blog = blogFactory.createFeedBlog(localAuthor);
 		long added = clock.currentTimeMillis();
 
 		return new Feed(url, blog, localAuthor, added);
@@ -75,7 +75,7 @@ class FeedFactoryImpl implements FeedFactory {
 		byte[] privateKey = d.getRaw(KEY_PRIVATE_KEY);
 		LocalAuthor localAuthor = authorFactory
 				.createLocalAuthor(blogTitle, publicKey, privateKey);
-		Blog blog = blogFactory.createBlog(localAuthor);
+		Blog blog = blogFactory.createFeedBlog(localAuthor);
 
 		String title = d.getOptionalString(KEY_FEED_TITLE);
 		String desc = d.getOptionalString(KEY_FEED_DESC);

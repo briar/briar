@@ -14,6 +14,11 @@ public interface BlogFactory {
 	Blog createBlog(Author author);
 
 	/**
+	 * Creates a RSS feed blog for a given author.
+	 */
+	Blog createFeedBlog(Author author);
+
+	/**
 	 * Parses a blog with the given Group
 	 */
 	Blog parseBlog(Group g) throws FormatException;

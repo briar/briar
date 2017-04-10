@@ -30,6 +30,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.Scheduler;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
@@ -74,7 +75,8 @@ import static org.briarproject.briar.util.HtmlUtils.clean;
 
 @ThreadSafe
 @NotNullByDefault
-class FeedManagerImpl implements FeedManager, Client, EventListener {
+class FeedManagerImpl implements FeedManager, Client, EventListener,
+		BlogManager.RemoveBlogHook {
 
 	private static final Logger LOG =
 			Logger.getLogger(FeedManagerImpl.class.getName());
@@ -158,7 +160,6 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 
 	@Override
 	public void addFeed(String url) throws DbException, IOException {
-		// TODO check for existing feed?
 		// fetch syndication feed to get its metadata
 		SyndFeed f;
 		try {
@@ -207,20 +208,29 @@ class FeedManagerImpl implements FeedManager, Client, EventListener {
 		LOG.info("Removing RSS feed...");
 		Transaction txn = db.startTransaction(false);
 		try {
-			List<Feed> feeds = getFeeds(txn);
-			for (Feed f : feeds) {
-				if (f.getBlogId().equals(feed.getBlogId())) {
-					feed = f;
-					feeds.remove(f);
-					break;
-				}
-			}
-			storeFeeds(txn, feeds);
+			// this will call removingBlog() where the feed itself gets removed
 			blogManager.removeBlog(txn, feed.getBlog());
 			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
+	}
+
+	@Override
+	public void removingBlog(Transaction txn, Blog b) throws DbException {
+		if (!b.isRssFeed()) return;
+
+		// delete blog's RSS feed if we have it
+		boolean found = false;
+		List<Feed> feeds = getFeeds(txn);
+		for (Feed f : feeds) {
+			if (f.getBlogId().equals(b.getId())) {
+				found = true;
+				feeds.remove(f);
+				break;
+			}
+		}
+		if (found) storeFeeds(txn, feeds);
 	}
 
 	@Override
