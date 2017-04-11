@@ -127,7 +127,7 @@ public class AuthorView extends RelativeLayout {
 	public void setPersona(int persona) {
 		switch (persona) {
 			case NORMAL:
-				avatarIcon.setVisibility(VISIBLE);
+				avatarIcon.setVisibility(INVISIBLE);
 				date.setVisibility(VISIBLE);
 				setAvatarSize(R.dimen.blogs_avatar_normal_size);
 				setTextSize(authorName, R.dimen.text_size_small);
