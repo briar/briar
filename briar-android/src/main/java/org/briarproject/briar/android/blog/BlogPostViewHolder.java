@@ -108,7 +108,8 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		author.setAuthor(a);
 		author.setAuthorStatus(post.getAuthorStatus());
 		author.setDate(post.getTimestamp());
-		author.setPersona(AuthorView.NORMAL);
+		author.setPersona(
+				item.isRssFeed() ? AuthorView.RSS_FEED : AuthorView.NORMAL);
 		// TODO make author clickable more often #624
 		if (item.getHeader().getType() == POST) {
 			author.setBlogLink(post.getGroupId());
@@ -168,7 +169,9 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		reblogger.setVisibility(VISIBLE);
 		reblogger.setPersona(AuthorView.REBLOGGER);
 
-		author.setPersona(AuthorView.COMMENTER);
+		author.setPersona(item.getHeader().getParent().isRssFeed() ?
+				AuthorView.RSS_FEED_REBLOGGED :
+				AuthorView.COMMENTER);
 
 		// comments
 		for (BlogCommentHeader c : item.getComments()) {

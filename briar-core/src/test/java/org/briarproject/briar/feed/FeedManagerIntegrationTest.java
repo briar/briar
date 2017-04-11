@@ -12,6 +12,7 @@ import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
+import org.briarproject.briar.api.blog.BlogPostHeader;
 import org.briarproject.briar.api.feed.Feed;
 import org.briarproject.briar.api.feed.FeedManager;
 import org.briarproject.briar.blog.BlogModule;
@@ -87,6 +88,13 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 				feed.getDescription());
 		assertEquals(feed.getTitle(), feed.getBlog().getName());
 		assertEquals(feed.getTitle(), feed.getLocalAuthor().getName());
+
+		// check the feed entries have been added to the blog as expected
+		Collection<BlogPostHeader> headers =
+				blogManager.getPostHeaders(feedBlog.getId());
+		for (BlogPostHeader header : headers) {
+			assertTrue(header.isRssFeed());
+		}
 
 		// now let's remove the feed's blog again
 		blogManager.removeBlog(feedBlog);

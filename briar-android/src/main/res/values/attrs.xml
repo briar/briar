@@ -12,6 +12,8 @@
 			<enum name="reblogger" value="1"/>
 			<enum name="commenter" value="2"/>
 			<enum name="list" value="3"/>
+			<enum name="rss_feed" value="4"/>
+			<enum name="rss_feed_reblogged" value="5"/>
 		</attr>
 	</declare-styleable>
 

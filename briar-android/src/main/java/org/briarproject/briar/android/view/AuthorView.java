@@ -40,6 +40,8 @@ public class AuthorView extends RelativeLayout {
 	public static final int REBLOGGER = 1;
 	public static final int COMMENTER = 2;
 	public static final int LIST = 3;
+	public static final int RSS_FEED = 4;
+	public static final int RSS_FEED_REBLOGGED = 5;
 
 	private final CircleImageView avatar;
 	private final ImageView avatarIcon;
@@ -124,6 +126,12 @@ public class AuthorView extends RelativeLayout {
 		setOnClickListener(null);
 	}
 
+	/**
+	 * Styles this view for a different persona.
+	 *
+	 * Attention: If used in a RecyclerView with RSS_FEED,
+	 *            call this after setAuthor()
+	 */
 	public void setPersona(int persona) {
 		switch (persona) {
 			case NORMAL:
@@ -157,6 +165,24 @@ public class AuthorView extends RelativeLayout {
 				setTextSize(authorName, R.dimen.text_size_medium);
 				setCenterVertical(authorName, true);
 				setCenterVertical(trustIndicator, true);
+				break;
+			case RSS_FEED:
+				avatarIcon.setVisibility(INVISIBLE);
+				date.setVisibility(VISIBLE);
+				avatar.setImageResource(R.drawable.ic_rss_feed);
+				setAvatarSize(R.dimen.blogs_avatar_normal_size);
+				setTextSize(authorName, R.dimen.text_size_small);
+				setCenterVertical(authorName, false);
+				setCenterVertical(trustIndicator, false);
+				break;
+			case RSS_FEED_REBLOGGED:
+				avatarIcon.setVisibility(INVISIBLE);
+				date.setVisibility(VISIBLE);
+				avatar.setImageResource(R.drawable.ic_rss_feed);
+				setAvatarSize(R.dimen.blogs_avatar_comment_size);
+				setTextSize(authorName, R.dimen.text_size_tiny);
+				setCenterVertical(authorName, false);
+				setCenterVertical(trustIndicator, false);
 				break;
 		}
 	}

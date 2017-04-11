@@ -48,6 +48,10 @@ public class BlogPostItem implements Comparable<BlogPostItem> {
 		return body;
 	}
 
+	public boolean isRssFeed() {
+		return header.isRssFeed();
+	}
+
 	public boolean isRead() {
 		return read;
 	}
