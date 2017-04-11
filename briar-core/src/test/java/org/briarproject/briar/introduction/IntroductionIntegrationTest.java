@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Group;
@@ -359,6 +360,14 @@ public class IntroductionIntegrationTest
 		sync1To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response1Received);
+
+		// sync fake transport properties back to 1, so Message ACK can arrive
+		// and the assertDefaultUiMessages() check at the end will not fail
+		TransportProperties tp = new TransportProperties(
+				Collections.singletonMap("key", "value"));
+		c0.getTransportPropertyManager()
+				.mergeLocalProperties(new TransportId("fake"), tp);
+		sync0To1(1, true);
 
 		// sync second response
 		sync2To0(1, true);
@@ -836,14 +845,32 @@ public class IntroductionIntegrationTest
 	}
 
 	private void assertDefaultUiMessages() throws DbException {
-		assertEquals(2, introductionManager0.getIntroductionMessages(
-				contactId1From0).size());
-		assertEquals(2, introductionManager0.getIntroductionMessages(
-				contactId2From0).size());
-		assertEquals(2, introductionManager1.getIntroductionMessages(
-				contactId0From1).size());
-		assertEquals(2, introductionManager2.getIntroductionMessages(
-				contactId0From2).size());
+		Collection<IntroductionMessage> messages =
+				introductionManager0.getIntroductionMessages(contactId1From0);
+		assertEquals(2, messages.size());
+		assertMessagesAreAcked(messages);
+
+		messages = introductionManager0.getIntroductionMessages(
+				contactId2From0);
+		assertEquals(2, messages.size());
+		assertMessagesAreAcked(messages);
+
+		messages = introductionManager1.getIntroductionMessages(
+				contactId0From1);
+		assertEquals(2, messages.size());
+		assertMessagesAreAcked(messages);
+
+		messages = introductionManager2.getIntroductionMessages(
+				contactId0From2);
+		assertEquals(2, messages.size());
+		assertMessagesAreAcked(messages);
+	}
+
+	private void assertMessagesAreAcked(
+			Collection<IntroductionMessage> messages) {
+		for (IntroductionMessage msg : messages) {
+			if (msg.isLocal()) assertTrue(msg.isSeen());
+		}
 	}
 
 	private void addListeners(boolean accept1, boolean accept2) {

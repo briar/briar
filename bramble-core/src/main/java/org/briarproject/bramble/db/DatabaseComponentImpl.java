@@ -668,7 +668,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				acked.add(m);
 			}
 		}
-		transaction.attach(new MessagesAckedEvent(c, acked));
+		if (acked.size() > 0) {
+			transaction.attach(new MessagesAckedEvent(c, acked));
+		}
 	}
 
 	@Override
