@@ -8,6 +8,7 @@ public interface TorConstants {
 	int CONTROL_PORT = 59051;
 
 	int CONNECT_TO_PROXY_TIMEOUT = 5000; // Milliseconds
+	int EXTRA_SOCKET_TIMEOUT = 30000; // Milliseconds
 
 	String PREF_TOR_NETWORK = "network";
 	String PREF_TOR_PORT = "port";

@@ -11,16 +11,18 @@ import javax.net.SocketFactory;
 class SocksSocketFactory extends SocketFactory {
 
 	private final SocketAddress proxy;
-	private final int connectToProxyTimeout;
+	private final int connectToProxyTimeout, extraSocketTimeout;
 
-	SocksSocketFactory(SocketAddress proxy, int connectToProxyTimeout) {
+	SocksSocketFactory(SocketAddress proxy, int connectToProxyTimeout,
+			int extraSocketTimeout) {
 		this.proxy = proxy;
 		this.connectToProxyTimeout = connectToProxyTimeout;
+		this.extraSocketTimeout = extraSocketTimeout;
 	}
 
 	@Override
 	public Socket createSocket() {
-		return new SocksSocket(proxy, connectToProxyTimeout);
+		return new SocksSocket(proxy, connectToProxyTimeout, extraSocketTimeout);
 	}
 
 	@Override
