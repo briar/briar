@@ -16,18 +16,16 @@ public class Feed {
 	private final Blog blog;
 	private final LocalAuthor localAuthor;
 	@Nullable
-	private final String title, description, author;
+	private final String description, author;
 	private final long added, updated, lastEntryTime;
 
 	public Feed(String url, Blog blog, LocalAuthor localAuthor,
-			@Nullable String title, @Nullable String description,
-			@Nullable String author, long added, long updated,
-			long lastEntryTime) {
+			@Nullable String description, @Nullable String author, long added,
+			long updated, long lastEntryTime) {
 
 		this.url = url;
 		this.blog = blog;
 		this.localAuthor = localAuthor;
-		this.title = title;
 		this.description = description;
 		this.author = author;
 		this.added = added;
@@ -36,13 +34,12 @@ public class Feed {
 	}
 
 	public Feed(String url, Blog blog, LocalAuthor localAuthor,
-			@Nullable String title, @Nullable String description,
-			@Nullable String author, long added) {
-		this(url, blog, localAuthor, title, description, author, added, 0L, 0L);
+			@Nullable String description, @Nullable String author, long added) {
+		this(url, blog, localAuthor, description, author, added, 0L, 0L);
 	}
 
 	public Feed(String url, Blog blog, LocalAuthor localAuthor, long added) {
-		this(url, blog, localAuthor, null, null, null, added, 0L, 0L);
+		this(url, blog, localAuthor, null, null, added, 0L, 0L);
 	}
 
 	public String getUrl() {
@@ -61,9 +58,8 @@ public class Feed {
 		return localAuthor;
 	}
 
-	@Nullable
 	public String getTitle() {
-		return title;
+		return blog.getName();
 	}
 
 	@Nullable

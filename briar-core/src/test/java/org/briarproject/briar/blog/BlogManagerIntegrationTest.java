@@ -1,6 +1,7 @@
 package org.briarproject.briar.blog;
 
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.blog.Blog;
@@ -417,6 +418,7 @@ public class BlogManagerIntegrationTest
 		assertEquals(1, headers.size());
 		BlogPostHeader header = headers.iterator().next();
 		assertEquals(POST, header.getType());
+		assertEquals(Author.Status.NONE, header.getAuthorStatus());
 		assertTrue(header.isRssFeed());
 	}
 
@@ -454,7 +456,7 @@ public class BlogManagerIntegrationTest
 		for (BlogPostHeader h: headers) {
 			assertTrue(h instanceof BlogCommentHeader);
 			assertEquals(COMMENT, h.getType());
-			assertTrue(((BlogCommentHeader) h).getParent().isRssFeed());
+			assertTrue(((BlogCommentHeader) h).getRootPost().isRssFeed());
 		}
 	}
 

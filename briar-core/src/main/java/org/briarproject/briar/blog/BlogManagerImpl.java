@@ -606,7 +606,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		boolean isFeedPost = meta.getBoolean(KEY_RSS_FEED, false);
 		Status authorStatus;
 		if (isFeedPost) {
-			authorStatus = Status.UNKNOWN;
+			authorStatus = Status.NONE;
 		} else if (authorStatuses.containsKey(authorId)) {
 			authorStatus = authorStatuses.get(authorId);
 		} else {

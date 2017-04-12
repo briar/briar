@@ -39,12 +39,7 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 		if (item == null) return;
 
 		// Feed Title
-		if (item.getTitle() != null) {
-			ui.title.setText(item.getTitle());
-			ui.title.setVisibility(VISIBLE);
-		} else {
-			ui.title.setVisibility(GONE);
-		}
+		ui.title.setText(item.getTitle());
 
 		// Delete Button
 		ui.delete.setOnClickListener(new OnClickListener() {

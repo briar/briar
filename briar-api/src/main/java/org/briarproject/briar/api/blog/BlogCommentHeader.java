@@ -41,8 +41,12 @@ public class BlogCommentHeader extends BlogPostHeader {
 	}
 
 	public BlogPostHeader getParent() {
+		return parent;
+	}
+
+	public BlogPostHeader getRootPost() {
 		if (parent instanceof BlogCommentHeader)
-			return ((BlogCommentHeader) parent).getParent();
+			return ((BlogCommentHeader) parent).getRootPost();
 		return parent;
 	}
 

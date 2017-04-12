@@ -21,7 +21,6 @@ public interface FeedConstants {
 	String KEY_BLOG_TITLE = "blogTitle";
 	String KEY_PUBLIC_KEY = "publicKey";
 	String KEY_PRIVATE_KEY = "privateKey";
-	String KEY_FEED_TITLE = "feedTitle";
 	String KEY_FEED_DESC = "feedDesc";
 	String KEY_FEED_AUTHOR = "feedAuthor";
 	String KEY_FEED_ADDED = "feedAdded";

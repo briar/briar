@@ -30,6 +30,7 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.graphics.Typeface.BOLD;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
+import static org.briarproject.bramble.api.identity.Author.Status.NONE;
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 
@@ -85,7 +86,13 @@ public class AuthorView extends RelativeLayout {
 	}
 
 	public void setAuthorStatus(Status status) {
-		trustIndicator.setTrustLevel(status);
+		if (status != NONE) {
+			trustIndicator.setTrustLevel(status);
+			trustIndicator.setVisibility(VISIBLE);
+		} else {
+			trustIndicator.setVisibility(GONE);
+		}
+
 		if (status == OURSELVES) {
 			authorName.setTypeface(authorNameTypeface, BOLD);
 		} else {
@@ -129,8 +136,9 @@ public class AuthorView extends RelativeLayout {
 	/**
 	 * Styles this view for a different persona.
 	 *
-	 * Attention: If used in a RecyclerView with RSS_FEED,
-	 *            call this after setAuthor()
+	 * Attention: RSS_FEED and RSS_FEED_REBLOGGED change the avatar
+	 *            and override the one set by
+	 *            {@link AuthorView#setAuthor(Author)}.
 	 */
 	public void setPersona(int persona) {
 		switch (persona) {

@@ -10,18 +10,19 @@ import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.feed.Feed;
 
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_BLOG_TITLE;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_ADDED;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_AUTHOR;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_DESC;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_LAST_ENTRY;
-import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_TITLE;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_UPDATED;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_URL;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_PRIVATE_KEY;
@@ -45,11 +46,13 @@ class FeedFactoryImpl implements FeedFactory {
 
 	@Override
 	public Feed createFeed(String url, SyndFeed syndFeed) {
-		if (syndFeed.getTitle() == null) syndFeed.setTitle("RSS feed");
+		String title = syndFeed.getTitle();
+		if (title == null) title = "RSS";
+		title = StringUtils.truncateUtf8(title, MAX_AUTHOR_NAME_LENGTH);
 
 		KeyPair keyPair = cryptoComponent.generateSignatureKeyPair();
 		LocalAuthor localAuthor = authorFactory
-				.createLocalAuthor(syndFeed.getTitle(),
+				.createLocalAuthor(title,
 						keyPair.getPublic().getEncoded(),
 						keyPair.getPrivate().getEncoded());
 		Blog blog = blogFactory.createFeedBlog(localAuthor);
@@ -62,8 +65,8 @@ class FeedFactoryImpl implements FeedFactory {
 	public Feed createFeed(Feed feed, SyndFeed f, long lastEntryTime) {
 		long updated = clock.currentTimeMillis();
 		return new Feed(feed.getUrl(), feed.getBlog(), feed.getLocalAuthor(),
-				f.getTitle(), f.getDescription(), f.getAuthor(),
-				feed.getAdded(), updated, lastEntryTime);
+				f.getDescription(), f.getAuthor(), feed.getAdded(), updated,
+				lastEntryTime);
 	}
 
 	@Override
@@ -77,14 +80,13 @@ class FeedFactoryImpl implements FeedFactory {
 				.createLocalAuthor(blogTitle, publicKey, privateKey);
 		Blog blog = blogFactory.createFeedBlog(localAuthor);
 
-		String title = d.getOptionalString(KEY_FEED_TITLE);
 		String desc = d.getOptionalString(KEY_FEED_DESC);
 		String author = d.getOptionalString(KEY_FEED_AUTHOR);
 		long added = d.getLong(KEY_FEED_ADDED, 0L);
 		long updated = d.getLong(KEY_FEED_UPDATED, 0L);
 		long lastEntryTime = d.getLong(KEY_FEED_LAST_ENTRY, 0L);
 
-		return new Feed(url, blog, localAuthor, title, desc, author, added,
+		return new Feed(url, blog, localAuthor, desc, author, added,
 				updated, lastEntryTime);
 	}
 
@@ -101,7 +103,6 @@ class FeedFactoryImpl implements FeedFactory {
 				new BdfEntry(KEY_FEED_UPDATED, feed.getUpdated()),
 				new BdfEntry(KEY_FEED_LAST_ENTRY, feed.getLastEntryTime())
 		);
-		if (feed.getTitle() != null) d.put(KEY_FEED_TITLE, feed.getTitle());
 		if (feed.getDescription() != null)
 			d.put(KEY_FEED_DESC, feed.getDescription());
 		if (feed.getAuthor() != null) d.put(KEY_FEED_AUTHOR, feed.getAuthor());

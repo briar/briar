@@ -169,7 +169,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		reblogger.setVisibility(VISIBLE);
 		reblogger.setPersona(AuthorView.REBLOGGER);
 
-		author.setPersona(item.getHeader().getParent().isRssFeed() ?
+		author.setPersona(item.getHeader().getRootPost().isRssFeed() ?
 				AuthorView.RSS_FEED_REBLOGGED :
 				AuthorView.COMMENTER);
 

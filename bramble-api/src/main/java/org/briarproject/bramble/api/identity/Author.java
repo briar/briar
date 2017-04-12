@@ -13,7 +13,9 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class Author {
 
-	public enum Status {ANONYMOUS, UNKNOWN, UNVERIFIED, VERIFIED, OURSELVES}
+	public enum Status {
+		NONE, ANONYMOUS, UNKNOWN, UNVERIFIED, VERIFIED, OURSELVES
+	}
 
 	private final AuthorId id;
 	private final String name;

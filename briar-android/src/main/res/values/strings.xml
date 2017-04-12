@@ -305,7 +305,7 @@
 	<string name="blogs_rss_feeds_manage_author">Author:</string>
 	<string name="blogs_rss_feeds_manage_updated">Last Updated:</string>
 	<string name="blogs_rss_remove_feed">Remove Feed</string>
-	<string name="blogs_rss_remove_feed_dialog_message">Are you sure that you want to remove this feed and all its posts?\nNote that this will not remove the feed\'s blog from other people\'s devices.</string>
+	<string name="blogs_rss_remove_feed_dialog_message">Are you sure you want to remove this feed and all its posts?\nAny posts you have shared will not be removed from other people\'s devices.</string>
 	<string name="blogs_rss_remove_feed_ok">Remove Feed</string>
 	<string name="blogs_rss_feeds_manage_delete_error">The feed could not be deleted!</string>
 	<string name="blogs_rss_feeds_manage_empty_state">You haven\'t imported any RSS feeds.\n\nWhy don\'t you click the plus in the top right screen corner to add your first?</string>

@@ -433,9 +433,8 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 
 		// build post body
 		StringBuilder b = new StringBuilder();
-		if (feed.getTitle() != null) {
-			b.append("<h3>").append(feed.getTitle()).append("</h3>");
-		}
+		b.append("<h3>").append(feed.getTitle()).append("</h3>");
+
 		if (!StringUtils.isNullOrEmpty(entry.getTitle())) {
 			b.append("<h1>").append(entry.getTitle()).append("</h1>");
 		}
