@@ -201,6 +201,7 @@ class BlogPostValidator extends BdfMessageValidator {
 		// Get and Validate the Wrapped Message
 		Group wGroup = groupFactory
 				.createGroup(BlogManagerImpl.CLIENT_ID, descriptor);
+		Blog wBlog = blogFactory.parseBlog(wGroup);
 		BdfList wBodyList = BdfList.of(POST.getInt(), content, signature);
 		byte[] wBody = clientHelper.toByteArray(wBodyList);
 		Message wMessage =
@@ -213,6 +214,7 @@ class BlogPostValidator extends BdfMessageValidator {
 		meta.put(KEY_ORIGINAL_MSG_ID, wMessage.getId());
 		meta.put(KEY_TIMESTAMP, wTimestamp);
 		meta.put(KEY_AUTHOR, c.getDictionary().getDictionary(KEY_AUTHOR));
+		meta.put(KEY_RSS_FEED, wBlog.isRssFeed());
 		return new BdfMessageContext(meta);
 	}
 
