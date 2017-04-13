@@ -34,7 +34,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SHARE_FORUM;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
@@ -122,13 +121,13 @@ public class ForumActivity extends
 				return true;
 			case R.id.action_forum_share:
 				Intent i2 = new Intent(this, ShareForumActivity.class);
-				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
 				startActivityForResult(i2, REQUEST_SHARE_FORUM);
 				return true;
 			case R.id.action_forum_sharing_status:
 				Intent i3 = new Intent(this, ForumSharingStatusActivity.class);
-				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
 				startActivity(i3);
 				return true;
