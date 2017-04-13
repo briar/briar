@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
@@ -136,4 +137,5 @@ public interface BriarIntegrationTestComponent {
 
 	TransportPropertyManager getTransportPropertyManager();
 
+	AuthorFactory getAuthorFactory();
 }
