@@ -42,6 +42,11 @@ public interface BlogManager {
 	void removeBlog(Blog b) throws DbException;
 
 	/**
+	 * Removes and deletes a blog with the given {@link Transaction}.
+	 */
+	void removeBlog(Transaction txn, Blog b) throws DbException;
+
+	/**
 	 * Stores a local blog post.
 	 */
 	void addLocalPost(BlogPost p) throws DbException;

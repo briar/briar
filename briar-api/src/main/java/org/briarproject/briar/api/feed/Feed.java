@@ -1,40 +1,31 @@
 package org.briarproject.briar.api.feed;
 
-import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.data.BdfDictionary;
-import org.briarproject.bramble.api.data.BdfEntry;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.briar.api.blog.Blog;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
-import static org.briarproject.briar.api.feed.FeedConstants.KEY_BLOG_GROUP_ID;
-import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_ADDED;
-import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_AUTHOR;
-import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_DESC;
-import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_LAST_ENTRY;
-import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_TITLE;
-import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_UPDATED;
-import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_URL;
 
 @Immutable
 @NotNullByDefault
 public class Feed {
 
 	private final String url;
-	private final GroupId blogId;
+	private final Blog blog;
+	private final LocalAuthor localAuthor;
 	@Nullable
-	private final String title, description, author;
+	private final String description, author;
 	private final long added, updated, lastEntryTime;
 
-	public Feed(String url, GroupId blogId, @Nullable String title,
-			@Nullable String description, @Nullable String author,
-			long added, long updated, long lastEntryTime) {
+	public Feed(String url, Blog blog, LocalAuthor localAuthor,
+			@Nullable String description, @Nullable String author, long added,
+			long updated, long lastEntryTime) {
 
 		this.url = url;
-		this.blogId = blogId;
-		this.title = title;
+		this.blog = blog;
+		this.localAuthor = localAuthor;
 		this.description = description;
 		this.author = author;
 		this.added = added;
@@ -42,13 +33,13 @@ public class Feed {
 		this.lastEntryTime = lastEntryTime;
 	}
 
-	public Feed(String url, GroupId blogId, @Nullable String title,
+	public Feed(String url, Blog blog, LocalAuthor localAuthor,
 			@Nullable String description, @Nullable String author, long added) {
-		this(url, blogId, title, description, author, added, 0L, 0L);
+		this(url, blog, localAuthor, description, author, added, 0L, 0L);
 	}
 
-	public Feed(String url, GroupId blogId, long added) {
-		this(url, blogId, null, null, null, added, 0L, 0L);
+	public Feed(String url, Blog blog, LocalAuthor localAuthor, long added) {
+		this(url, blog, localAuthor, null, null, added, 0L, 0L);
 	}
 
 	public String getUrl() {
@@ -56,39 +47,19 @@ public class Feed {
 	}
 
 	public GroupId getBlogId() {
-		return blogId;
+		return blog.getId();
 	}
 
-	public BdfDictionary toBdfDictionary() {
-		BdfDictionary d = BdfDictionary.of(
-				new BdfEntry(KEY_FEED_URL, url),
-				new BdfEntry(KEY_BLOG_GROUP_ID, blogId.getBytes()),
-				new BdfEntry(KEY_FEED_ADDED, added),
-				new BdfEntry(KEY_FEED_UPDATED, updated),
-				new BdfEntry(KEY_FEED_LAST_ENTRY, lastEntryTime)
-		);
-		if (title != null) d.put(KEY_FEED_TITLE, title);
-		if (description != null) d.put(KEY_FEED_DESC, description);
-		if (author != null) d.put(KEY_FEED_AUTHOR, author);
-		return d;
+	public Blog getBlog() {
+		return blog;
 	}
 
-	public static Feed from(BdfDictionary d) throws FormatException {
-		String url = d.getString(KEY_FEED_URL);
-		GroupId blogId = new GroupId(d.getRaw(KEY_BLOG_GROUP_ID));
-		String title = d.getOptionalString(KEY_FEED_TITLE);
-		String desc = d.getOptionalString(KEY_FEED_DESC);
-		String author = d.getOptionalString(KEY_FEED_AUTHOR);
-		long added = d.getLong(KEY_FEED_ADDED, 0L);
-		long updated = d.getLong(KEY_FEED_UPDATED, 0L);
-		long lastEntryTime = d.getLong(KEY_FEED_LAST_ENTRY, 0L);
-		return new Feed(url, blogId, title, desc, author, added, updated,
-				lastEntryTime);
+	public LocalAuthor getLocalAuthor() {
+		return localAuthor;
 	}
 
-	@Nullable
 	public String getTitle() {
-		return title;
+		return blog.getName();
 	}
 
 	@Nullable
@@ -118,20 +89,9 @@ public class Feed {
 		if (this == o) return true;
 		if (o instanceof Feed) {
 			Feed f = (Feed) o;
-			return url.equals(f.url) && blogId.equals(f.getBlogId()) &&
-					equalsWithNull(title, f.getTitle()) &&
-					equalsWithNull(description, f.getDescription()) &&
-					equalsWithNull(author, f.getAuthor()) &&
-					added == f.getAdded() &&
-					updated == f.getUpdated() &&
-					lastEntryTime == f.getLastEntryTime();
+			return blog.equals(f.blog);
 		}
 		return false;
 	}
 
-	private boolean equalsWithNull(@Nullable Object a, @Nullable Object b) {
-		if (a == b) return true;
-		if (a == null || b == null) return false;
-		return a.equals(b);
-	}
 }

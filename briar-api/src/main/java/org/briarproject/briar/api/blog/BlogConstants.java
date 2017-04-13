@@ -28,6 +28,7 @@ public interface BlogConstants {
 	String KEY_AUTHOR_NAME = "name";
 	String KEY_PUBLIC_KEY = "publicKey";
 	String KEY_AUTHOR = "author";
+	String KEY_RSS_FEED = "rssFeed";
 	String KEY_READ = "read";
 	String KEY_COMMENT = "comment";
 	String KEY_ORIGINAL_MSG_ID = "originalMessageId";

@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.blog;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -15,7 +14,6 @@ import android.widget.ProgressBar;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -44,9 +42,6 @@ public class RssFeedImportActivity extends BriarActivity {
 	@IoExecutor
 	Executor ioExecutor;
 
-	// Fields that are accessed from background threads must be volatile
-	private volatile GroupId groupId = null;
-
 	@Inject
 	@SuppressWarnings("WeakerAccess")
 	volatile FeedManager feedManager;
@@ -54,12 +49,6 @@ public class RssFeedImportActivity extends BriarActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		// GroupId from Intent
-		Intent i = getIntent();
-		byte[] b = i.getByteArrayExtra(GROUP_ID);
-		if (b == null) throw new IllegalStateException("No Group in intent.");
-		groupId = new GroupId(b);
 
 		setContentView(R.layout.activity_rss_feed_import);
 
@@ -128,7 +117,7 @@ public class RssFeedImportActivity extends BriarActivity {
 			@Override
 			public void run() {
 				try {
-					feedManager.addFeed(url, groupId);
+					feedManager.addFeed(url);
 					feedImported();
 				} catch (DbException | IOException e) {
 					if (LOG.isLoggable(WARNING))

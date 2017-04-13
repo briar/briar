@@ -61,6 +61,7 @@ import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_PARENT_
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_PARENT_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_READ;
+import static org.briarproject.briar.api.blog.BlogConstants.KEY_RSS_FEED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIMESTAMP;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIME_RECEIVED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TYPE;
@@ -224,6 +225,11 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		}
 	}
 
+	@Override
+	public void removeBlog(Transaction txn, Blog b) throws DbException {
+		removeBlog(txn, b, false);
+	}
+
 	private void removeBlog(Transaction txn, Blog b, boolean forced)
 			throws DbException {
 		if (!forced && !canBeRemoved(txn, b.getId()))
@@ -248,15 +254,18 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	@Override
 	public void addLocalPost(Transaction txn, BlogPost p) throws DbException {
 		try {
+			GroupId groupId = p.getMessage().getGroupId();
+			Blog b = getBlog(txn, groupId);
+
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(KEY_TYPE, POST.getInt());
 			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
 			meta.put(KEY_AUTHOR, authorToBdfDictionary(p.getAuthor()));
 			meta.put(KEY_READ, true);
+			meta.put(KEY_RSS_FEED, b.isRssFeed());
 			clientHelper.addLocalMessage(txn, p.getMessage(), meta, true);
 
 			// broadcast event about new post
-			GroupId groupId = p.getMessage().getGroupId();
 			MessageId postId = p.getMessage().getId();
 			BlogPostHeader h =
 					getPostHeaderFromMetadata(txn, groupId, postId, meta);
@@ -345,6 +354,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			wMessage = blogPostFactory
 					.wrapPost(groupId, wDescriptor, wTimestamp, body);
 			meta.put(KEY_TYPE, WRAPPED_POST.getInt());
+			meta.put(KEY_RSS_FEED, pOriginalHeader.isRssFeed());
 		} else if (type == COMMENT) {
 			Group wGroup = db.getGroup(txn, pOriginalHeader.getGroupId());
 			byte[] wDescriptor = wGroup.getDescriptor();
@@ -593,8 +603,11 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		String name = d.getString(KEY_AUTHOR_NAME);
 		byte[] publicKey = d.getRaw(KEY_PUBLIC_KEY);
 		Author author = new Author(authorId, name, publicKey);
+		boolean isFeedPost = meta.getBoolean(KEY_RSS_FEED, false);
 		Status authorStatus;
-		if (authorStatuses.containsKey(authorId)) {
+		if (isFeedPost) {
+			authorStatus = Status.NONE;
+		} else if (authorStatuses.containsKey(authorId)) {
 			authorStatus = authorStatuses.get(authorId);
 		} else {
 			authorStatus = identityManager.getAuthorStatus(txn, authorId);
@@ -611,7 +624,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 					timestamp, timeReceived, author, authorStatus, read);
 		} else {
 			return new BlogPostHeader(type, groupId, id, timestamp,
-					timeReceived, author, authorStatus, read);
+					timeReceived, author, authorStatus, isFeedPost, read);
 		}
 	}
 

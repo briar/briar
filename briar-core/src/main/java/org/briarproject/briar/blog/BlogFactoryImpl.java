@@ -14,6 +14,9 @@ import org.briarproject.briar.api.blog.BlogFactory;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+
 @Immutable
 @NotNullByDefault
 class BlogFactoryImpl implements BlogFactory {
@@ -33,28 +36,46 @@ class BlogFactoryImpl implements BlogFactory {
 
 	@Override
 	public Blog createBlog(Author a) {
+		return createBlog(a, false);
+	}
+
+	@Override
+	public Blog createFeedBlog(Author a) {
+		return createBlog(a, true);
+	}
+
+	private Blog createBlog(Author a, boolean rssFeed) {
 		try {
 			BdfList blog = BdfList.of(
 					a.getName(),
-					a.getPublicKey()
+					a.getPublicKey(),
+					rssFeed
 			);
 			byte[] descriptor = clientHelper.toByteArray(blog);
 			Group g = groupFactory
 					.createGroup(BlogManagerImpl.CLIENT_ID, descriptor);
-			return new Blog(g, a);
+			return new Blog(g, a, rssFeed);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
-	public Blog parseBlog(Group g) throws FormatException {
-		byte[] descriptor = g.getDescriptor();
+	public Blog parseBlog(Group group) throws FormatException {
+		byte[] descriptor = group.getDescriptor();
 		// Author Name, Public Key
 		BdfList blog = clientHelper.toList(descriptor);
-		Author a =
-				authorFactory.createAuthor(blog.getString(0), blog.getRaw(1));
-		return new Blog(g, a);
+		String name = blog.getString(0);
+		if (name.length() > MAX_AUTHOR_NAME_LENGTH)
+			throw new IllegalArgumentException();
+		byte[] publicKey = blog.getRaw(1);
+		if (publicKey.length > MAX_PUBLIC_KEY_LENGTH)
+			throw new IllegalArgumentException();
+
+		Author author =
+				authorFactory.createAuthor(name, publicKey);
+		boolean rssFeed = blog.getBoolean(2);
+		return new Blog(group, author, rssFeed);
 	}
 
 }

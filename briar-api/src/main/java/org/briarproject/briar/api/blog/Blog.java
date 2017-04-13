@@ -13,14 +13,20 @@ import javax.annotation.concurrent.Immutable;
 public class Blog extends BaseGroup implements Shareable {
 
 	private final Author author;
+	private final boolean rssFeed;
 
-	public Blog(Group group, Author author) {
+	public Blog(Group group, Author author, boolean rssFeed) {
 		super(group);
 		this.author = author;
+		this.rssFeed = rssFeed;
 	}
 
 	public Author getAuthor() {
 		return author;
+	}
+
+	public boolean isRssFeed() {
+		return rssFeed;
 	}
 
 	@Override

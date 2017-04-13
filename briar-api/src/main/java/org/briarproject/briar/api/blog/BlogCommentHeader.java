@@ -26,7 +26,7 @@ public class BlogCommentHeader extends BlogPostHeader {
 			Status authorStatus, boolean read) {
 
 		super(type, groupId, id, parent.getId(), timestamp,
-				timeReceived, author, authorStatus, read);
+				timeReceived, author, authorStatus, false, read);
 
 		if (type != COMMENT && type != WRAPPED_COMMENT)
 			throw new IllegalArgumentException("Incompatible Message Type");
@@ -43,4 +43,11 @@ public class BlogCommentHeader extends BlogPostHeader {
 	public BlogPostHeader getParent() {
 		return parent;
 	}
+
+	public BlogPostHeader getRootPost() {
+		if (parent instanceof BlogCommentHeader)
+			return ((BlogCommentHeader) parent).getRootPost();
+		return parent;
+	}
+
 }

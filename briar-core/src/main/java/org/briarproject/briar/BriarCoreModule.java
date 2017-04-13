@@ -2,6 +2,7 @@ package org.briarproject.briar;
 
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
+import org.briarproject.briar.feed.DnsModule;
 import org.briarproject.briar.feed.FeedModule;
 import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.introduction.IntroductionModule;
@@ -16,6 +17,7 @@ import dagger.Module;
 		BlogModule.class,
 		BriarClientModule.class,
 		FeedModule.class,
+		DnsModule.class,
 		ForumModule.class,
 		GroupInvitationModule.class,
 		IntroductionModule.class,

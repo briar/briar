@@ -39,6 +39,7 @@ import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_PARENT_
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_PARENT_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_READ;
+import static org.briarproject.briar.api.blog.BlogConstants.KEY_RSS_FEED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIMESTAMP;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIME_RECEIVED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TYPE;
@@ -123,6 +124,7 @@ class BlogPostValidator extends BdfMessageValidator {
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(KEY_ORIGINAL_MSG_ID, m.getId());
 		meta.put(KEY_AUTHOR, authorToBdfDictionary(a));
+		meta.put(KEY_RSS_FEED, b.isRssFeed());
 		return new BdfMessageContext(meta);
 	}
 

@@ -297,7 +297,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		final LocalAuthor localAuthor =
 				new LocalAuthor(authorId, "Author", publicKey, privateKey,
 						created);
-		return new Blog(group, localAuthor);
+		return new Blog(group, localAuthor, false);
 	}
 
 	private BdfDictionary authorToBdfDictionary(Author a) {

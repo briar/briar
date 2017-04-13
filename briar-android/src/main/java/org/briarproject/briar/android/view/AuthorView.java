@@ -30,6 +30,7 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.graphics.Typeface.BOLD;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
+import static org.briarproject.bramble.api.identity.Author.Status.NONE;
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 
@@ -40,6 +41,8 @@ public class AuthorView extends RelativeLayout {
 	public static final int REBLOGGER = 1;
 	public static final int COMMENTER = 2;
 	public static final int LIST = 3;
+	public static final int RSS_FEED = 4;
+	public static final int RSS_FEED_REBLOGGED = 5;
 
 	private final CircleImageView avatar;
 	private final ImageView avatarIcon;
@@ -83,7 +86,13 @@ public class AuthorView extends RelativeLayout {
 	}
 
 	public void setAuthorStatus(Status status) {
-		trustIndicator.setTrustLevel(status);
+		if (status != NONE) {
+			trustIndicator.setTrustLevel(status);
+			trustIndicator.setVisibility(VISIBLE);
+		} else {
+			trustIndicator.setVisibility(GONE);
+		}
+
 		if (status == OURSELVES) {
 			authorName.setTypeface(authorNameTypeface, BOLD);
 		} else {
@@ -124,10 +133,17 @@ public class AuthorView extends RelativeLayout {
 		setOnClickListener(null);
 	}
 
+	/**
+	 * Styles this view for a different persona.
+	 *
+	 * Attention: RSS_FEED and RSS_FEED_REBLOGGED change the avatar
+	 *            and override the one set by
+	 *            {@link AuthorView#setAuthor(Author)}.
+	 */
 	public void setPersona(int persona) {
 		switch (persona) {
 			case NORMAL:
-				avatarIcon.setVisibility(VISIBLE);
+				avatarIcon.setVisibility(INVISIBLE);
 				date.setVisibility(VISIBLE);
 				setAvatarSize(R.dimen.blogs_avatar_normal_size);
 				setTextSize(authorName, R.dimen.text_size_small);
@@ -157,6 +173,24 @@ public class AuthorView extends RelativeLayout {
 				setTextSize(authorName, R.dimen.text_size_medium);
 				setCenterVertical(authorName, true);
 				setCenterVertical(trustIndicator, true);
+				break;
+			case RSS_FEED:
+				avatarIcon.setVisibility(INVISIBLE);
+				date.setVisibility(VISIBLE);
+				avatar.setImageResource(R.drawable.ic_rss_feed);
+				setAvatarSize(R.dimen.blogs_avatar_normal_size);
+				setTextSize(authorName, R.dimen.text_size_small);
+				setCenterVertical(authorName, false);
+				setCenterVertical(trustIndicator, false);
+				break;
+			case RSS_FEED_REBLOGGED:
+				avatarIcon.setVisibility(INVISIBLE);
+				date.setVisibility(VISIBLE);
+				avatar.setImageResource(R.drawable.ic_rss_feed);
+				setAvatarSize(R.dimen.blogs_avatar_comment_size);
+				setTextSize(authorName, R.dimen.text_size_tiny);
+				setCenterVertical(authorName, false);
+				setCenterVertical(trustIndicator, false);
 				break;
 		}
 	}

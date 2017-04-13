@@ -1,5 +1,7 @@
 package org.briarproject.briar.blog;
 
+import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.blog.Blog;
@@ -32,7 +34,7 @@ public class BlogManagerIntegrationTest
 		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
 	private BlogManager blogManager0, blogManager1;
-	private Blog blog0, blog1;
+	private Blog blog0, blog1, rssBlog;
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
@@ -50,6 +52,12 @@ public class BlogManagerIntegrationTest
 
 		blog0 = blogFactory.createBlog(author0);
 		blog1 = blogFactory.createBlog(author1);
+
+		rssBlog = blogFactory.createFeedBlog(author0);
+		Transaction txn = db0.startTransaction(false);
+		blogManager0.addBlog(txn, rssBlog);
+		db0.commitTransaction(txn);
+		db0.endTransaction(txn);
 	}
 
 	@Override
@@ -391,6 +399,65 @@ public class BlogManagerIntegrationTest
 		Collection<BlogPostHeader> headers0 =
 				blogManager0.getPostHeaders(blog1.getId());
 		assertEquals(2, headers0.size());
+	}
+
+	@Test
+	public void testFeedPost() throws Exception {
+		assertTrue(rssBlog.isRssFeed());
+
+		// add a feed post to rssBlog
+		final String body = getRandomString(42);
+		BlogPost p = blogPostFactory
+				.createBlogPost(rssBlog.getId(), clock.currentTimeMillis(),
+						null, author0, body);
+		blogManager0.addLocalPost(p);
+
+		// make sure it got saved as an RSS feed post
+		Collection<BlogPostHeader> headers =
+				blogManager0.getPostHeaders(rssBlog.getId());
+		assertEquals(1, headers.size());
+		BlogPostHeader header = headers.iterator().next();
+		assertEquals(POST, header.getType());
+		assertEquals(Author.Status.NONE, header.getAuthorStatus());
+		assertTrue(header.isRssFeed());
+	}
+
+	@Test
+	public void testFeedReblog() throws Exception {
+		// add a feed post to rssBlog
+		final String body = getRandomString(42);
+		BlogPost p = blogPostFactory
+				.createBlogPost(rssBlog.getId(), clock.currentTimeMillis(),
+						null, author0, body);
+		blogManager0.addLocalPost(p);
+
+		// reblog feed post to own blog
+		Collection<BlogPostHeader> headers =
+				blogManager0.getPostHeaders(rssBlog.getId());
+		assertEquals(1, headers.size());
+		BlogPostHeader header = headers.iterator().next();
+		blogManager0.addLocalComment(author0, blog0.getId(), null, header);
+
+		// make sure it got saved as an RSS feed post
+		headers = blogManager0.getPostHeaders(blog0.getId());
+		assertEquals(1, headers.size());
+		BlogCommentHeader commentHeader =
+				(BlogCommentHeader) headers.iterator().next();
+		assertEquals(COMMENT, commentHeader.getType());
+		assertTrue(commentHeader.getParent().isRssFeed());
+
+		// reblog reblogged post again to own blog
+		blogManager0
+				.addLocalComment(author0, blog0.getId(), null, commentHeader);
+
+		// make sure it got saved as an RSS feed post
+		headers = blogManager0.getPostHeaders(blog0.getId());
+		assertEquals(2, headers.size());
+		for (BlogPostHeader h: headers) {
+			assertTrue(h instanceof BlogCommentHeader);
+			assertEquals(COMMENT, h.getType());
+			assertTrue(((BlogCommentHeader) h).getRootPost().isRssFeed());
+		}
 	}
 
 }
