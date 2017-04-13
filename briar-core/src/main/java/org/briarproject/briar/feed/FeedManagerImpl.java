@@ -467,7 +467,11 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 
 		// get other information for post
 		GroupId groupId = feed.getBlogId();
-		long time = clock.currentTimeMillis();
+		long time;
+		Date date = entry.getUpdatedDate();
+		if (date == null) date = entry.getPublishedDate();
+		if (date == null) time = clock.currentTimeMillis();
+		else time = date.getTime();
 		String body = getPostBody(b.toString());
 		try {
 			// create and store post
