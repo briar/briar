@@ -102,7 +102,7 @@
 
 	<style name="DiscussionLevelIndicator">
 		<item name="android:layout_marginLeft">4dp</item>
-		<item name="android:background">@color/divider</item>
+		<item name="android:background">@color/thread_indicator</item>
 	</style>
 
 	<style name="BriarTabLayout" parent="Widget.Design.TabLayout">
