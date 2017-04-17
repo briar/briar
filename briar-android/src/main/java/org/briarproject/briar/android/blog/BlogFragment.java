@@ -43,7 +43,6 @@ import javax.inject.Inject;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SHARE_BLOG;
@@ -149,14 +148,14 @@ public class BlogFragment extends BaseFragment
 				return true;
 			case R.id.action_blog_share:
 				Intent i2 = new Intent(getActivity(), ShareBlogActivity.class);
-				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
 				startActivityForResult(i2, REQUEST_SHARE_BLOG);
 				return true;
 			case R.id.action_blog_sharing_status:
 				Intent i3 = new Intent(getActivity(),
 						BlogSharingStatusActivity.class);
-				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
 				startActivity(i3);
 				return true;

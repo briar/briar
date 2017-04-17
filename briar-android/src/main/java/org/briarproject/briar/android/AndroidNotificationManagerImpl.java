@@ -59,7 +59,6 @@ import static android.app.Notification.DEFAULT_SOUND;
 import static android.app.Notification.DEFAULT_VIBRATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static android.support.v4.app.NotificationCompat.CATEGORY_MESSAGE;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SOCIAL;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
@@ -310,7 +309,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				ContactId c = contactCounts.keySet().iterator().next();
 				i.putExtra(CONTACT_ID, c.getInt());
 				i.setData(Uri.parse(CONTACT_URI + "/" + c.getInt()));
-				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(ConversationActivity.class);
 				t.addNextIntent(i);
@@ -319,7 +318,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				// Touching the notification shows the contact list
 				Intent i = new Intent(appContext, NavDrawerActivity.class);
 				i.putExtra(INTENT_CONTACTS, true);
-				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				i.setData(Uri.parse(CONTACT_URI));
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(NavDrawerActivity.class);
@@ -415,7 +414,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				i.putExtra(GROUP_ID, g.getBytes());
 				String idHex = StringUtils.toHexString(g.getBytes());
 				i.setData(Uri.parse(GROUP_URI + "/" + idHex));
-				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(GroupActivity.class);
 				t.addNextIntent(i);
@@ -424,7 +423,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				// Touching the notification shows the group list
 				Intent i = new Intent(appContext, NavDrawerActivity.class);
 				i.putExtra(INTENT_GROUPS, true);
-				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				i.setData(Uri.parse(GROUP_URI));
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(NavDrawerActivity.class);
@@ -507,7 +506,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				i.putExtra(GROUP_ID, g.getBytes());
 				String idHex = StringUtils.toHexString(g.getBytes());
 				i.setData(Uri.parse(FORUM_URI + "/" + idHex));
-				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(ForumActivity.class);
 				t.addNextIntent(i);
@@ -516,7 +515,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				// Touching the notification shows the forum list
 				Intent i = new Intent(appContext, NavDrawerActivity.class);
 				i.putExtra(INTENT_FORUMS, true);
-				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				i.setData(Uri.parse(FORUM_URI));
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(NavDrawerActivity.class);
@@ -595,7 +594,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			// Touching the notification shows the combined blog feed
 			Intent i = new Intent(appContext, NavDrawerActivity.class);
 			i.putExtra(INTENT_BLOGS, true);
-			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 			i.setData(Uri.parse(BLOG_URI));
 			TaskStackBuilder t = TaskStackBuilder.create(appContext);
 			t.addParentStack(NavDrawerActivity.class);
@@ -651,7 +650,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		// Touching the notification shows the contact list
 		Intent i = new Intent(appContext, NavDrawerActivity.class);
 		i.putExtra(INTENT_CONTACTS, true);
-		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
+		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 		i.setData(Uri.parse(CONTACT_URI));
 		TaskStackBuilder t = TaskStackBuilder.create(appContext);
 		t.addParentStack(NavDrawerActivity.class);
