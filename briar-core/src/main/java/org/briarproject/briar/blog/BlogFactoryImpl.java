@@ -63,7 +63,7 @@ class BlogFactoryImpl implements BlogFactory {
 	@Override
 	public Blog parseBlog(Group group) throws FormatException {
 		byte[] descriptor = group.getDescriptor();
-		// Author Name, Public Key
+		// Author name, public key, RSS feed
 		BdfList blog = clientHelper.toList(descriptor);
 		String name = blog.getString(0);
 		if (name.length() > MAX_AUTHOR_NAME_LENGTH)
@@ -72,8 +72,7 @@ class BlogFactoryImpl implements BlogFactory {
 		if (publicKey.length > MAX_PUBLIC_KEY_LENGTH)
 			throw new IllegalArgumentException();
 
-		Author author =
-				authorFactory.createAuthor(name, publicKey);
+		Author author = authorFactory.createAuthor(name, publicKey);
 		boolean rssFeed = blog.getBoolean(2);
 		return new Blog(group, author, rssFeed);
 	}

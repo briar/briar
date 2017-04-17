@@ -373,6 +373,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			// Re-wrap wrapped post without adding another wrapping layer
 			wMessage = blogPostFactory.rewrapWrappedPost(groupId, body);
 			meta.put(KEY_TYPE, WRAPPED_POST.getInt());
+			meta.put(KEY_RSS_FEED, pOriginalHeader.isRssFeed());
 		} else if (type == WRAPPED_COMMENT) {
 			BlogCommentHeader wComment = (BlogCommentHeader) pOriginalHeader;
 			MessageId wrappedId =

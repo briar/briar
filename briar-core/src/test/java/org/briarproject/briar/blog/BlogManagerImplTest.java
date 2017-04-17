@@ -44,6 +44,7 @@ import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_READ;
+import static org.briarproject.briar.api.blog.BlogConstants.KEY_RSS_FEED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIMESTAMP;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIME_RECEIVED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TYPE;
@@ -198,12 +199,17 @@ public class BlogManagerImplTest extends BriarTestCase {
 				new BdfEntry(KEY_TYPE, POST.getInt()),
 				new BdfEntry(KEY_TIMESTAMP, message.getTimestamp()),
 				new BdfEntry(KEY_AUTHOR, authorMeta),
-				new BdfEntry(KEY_READ, true)
+				new BdfEntry(KEY_READ, true),
+				new BdfEntry(KEY_RSS_FEED, false)
 		);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));
+			oneOf(db).getGroup(txn, blog1.getId());
+			will(returnValue(blog1.getGroup()));
+			oneOf(blogFactory).parseBlog(blog1.getGroup());
+			will(returnValue(blog1));
 			oneOf(clientHelper)
 					.addLocalMessage(txn, message, meta, true);
 			oneOf(identityManager)

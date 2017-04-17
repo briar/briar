@@ -2,6 +2,7 @@ package org.briarproject.briar.blog;
 
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.blog.Blog;
@@ -22,6 +23,9 @@ import java.util.Iterator;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomString;
 import static org.briarproject.briar.api.blog.MessageType.COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.POST;
@@ -35,6 +39,7 @@ public class BlogManagerIntegrationTest
 
 	private BlogManager blogManager0, blogManager1;
 	private Blog blog0, blog1, rssBlog;
+	private LocalAuthor rssAuthor;
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
@@ -46,6 +51,10 @@ public class BlogManagerIntegrationTest
 
 		author0 = identityManager0.getLocalAuthor();
 		author1 = identityManager1.getLocalAuthor();
+		rssAuthor = c0.getAuthorFactory().createLocalAuthor(
+				getRandomString(MAX_AUTHOR_NAME_LENGTH),
+				getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
+				getRandomBytes(123));
 
 		blogManager0 = c0.getBlogManager();
 		blogManager1 = c1.getBlogManager();
@@ -53,7 +62,7 @@ public class BlogManagerIntegrationTest
 		blog0 = blogFactory.createBlog(author0);
 		blog1 = blogFactory.createBlog(author1);
 
-		rssBlog = blogFactory.createFeedBlog(author0);
+		rssBlog = blogFactory.createFeedBlog(rssAuthor);
 		Transaction txn = db0.startTransaction(false);
 		blogManager0.addBlog(txn, rssBlog);
 		db0.commitTransaction(txn);
@@ -82,11 +91,12 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testPersonalBlogInitialisation() throws Exception {
 		Collection<Blog> blogs0 = blogManager0.getBlogs();
-		assertEquals(3, blogs0.size());
+		assertEquals(4, blogs0.size());
 		Iterator<Blog> i0 = blogs0.iterator();
 		assertEquals(author0, i0.next().getAuthor());
 		assertEquals(author1, i0.next().getAuthor());
 		assertEquals(author2, i0.next().getAuthor());
+		assertEquals(rssAuthor, i0.next().getAuthor());
 
 		Collection<Blog> blogs1 = blogManager1.getBlogs();
 		assertEquals(2, blogs1.size());
@@ -103,11 +113,14 @@ public class BlogManagerIntegrationTest
 		assertEquals(blog0, blogManager1.getBlog(blog0.getId()));
 		assertEquals(blog1, blogManager0.getBlog(blog1.getId()));
 		assertEquals(blog1, blogManager1.getBlog(blog1.getId()));
+		assertEquals(rssBlog, blogManager0.getBlog(rssBlog.getId()));
 
 		assertEquals(1, blogManager0.getBlogs(author0).size());
 		assertEquals(1, blogManager1.getBlogs(author0).size());
 		assertEquals(1, blogManager0.getBlogs(author1).size());
 		assertEquals(1, blogManager1.getBlogs(author1).size());
+		assertEquals(1, blogManager0.getBlogs(rssAuthor).size());
+		assertEquals(0, blogManager1.getBlogs(rssAuthor).size());
 	}
 
 	@Test
@@ -287,9 +300,8 @@ public class BlogManagerIntegrationTest
 		assertEquals(POST, headers1.iterator().next().getType());
 
 		// 1 reblogs that blog post
-		blogManager1
-				.addLocalComment(author1, blog1.getId(), null,
-						headers1.iterator().next());
+		blogManager1.addLocalComment(author1, blog1.getId(), null,
+				headers1.iterator().next());
 
 		// sync comment over
 		sync1To0(2, true);
@@ -312,8 +324,7 @@ public class BlogManagerIntegrationTest
 		sync0To1(3, true);
 
 		// check that comment arrived
-		headers1 =
-				blogManager1.getPostHeaders(blog0.getId());
+		headers1 = blogManager1.getPostHeaders(blog0.getId());
 		assertEquals(2, headers1.size());
 
 		// get header of comment
@@ -453,7 +464,7 @@ public class BlogManagerIntegrationTest
 		// make sure it got saved as an RSS feed post
 		headers = blogManager0.getPostHeaders(blog0.getId());
 		assertEquals(2, headers.size());
-		for (BlogPostHeader h: headers) {
+		for (BlogPostHeader h : headers) {
 			assertTrue(h instanceof BlogCommentHeader);
 			assertEquals(COMMENT, h.getType());
 			assertTrue(((BlogCommentHeader) h).getRootPost().isRssFeed());
