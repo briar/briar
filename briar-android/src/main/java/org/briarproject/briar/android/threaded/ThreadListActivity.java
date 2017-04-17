@@ -43,8 +43,6 @@ import javax.inject.Inject;
 import static android.support.design.widget.Snackbar.make;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.briar.android.threaded.ThreadItemAdapter.UnreadCount;
 
@@ -55,7 +53,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		implements ThreadListListener<H>, TextInputListener, SharingListener,
 		ThreadItemListener<I> {
 
-	protected static final String KEY_INPUT_VISIBILITY = "inputVisibility";
 	protected static final String KEY_REPLY_ID = "replyId";
 
 	private static final Logger LOG =
@@ -89,7 +86,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		getController().setGroupId(groupId);
 
 		textInput = (TextInputView) findViewById(R.id.text_input_container);
-		textInput.setVisibility(GONE);
 		textInput.setListener(this);
 		list = (BriarRecyclerView) findViewById(R.id.list);
 		layoutManager = new LinearLayoutManager(this);
@@ -181,8 +177,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 							} else {
 								adapter.setItems(items);
 								list.showData();
-								if (replyId != null)
-									adapter.setHighlightedItem(replyId);
+								updateTextInput(replyId);
 							}
 						} else {
 							LOG.info("Concurrent update, reloading");
@@ -232,17 +227,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	}
 
 	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-		super.onRestoreInstanceState(savedInstanceState);
-		boolean visible = savedInstanceState.getBoolean(KEY_INPUT_VISIBILITY);
-		textInput.setVisibility(visible ? VISIBLE : GONE);
-	}
-
-	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		boolean visible = textInput.getVisibility() == VISIBLE;
-		outState.putBoolean(KEY_INPUT_VISIBILITY, visible);
 		ThreadItem replyItem = adapter.getHighlightedItem();
 		if (replyItem != null) {
 			outState.putByteArray(KEY_REPLY_ID, replyItem.getId().getBytes());
@@ -262,9 +248,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 
 	@Override
 	public void onBackPressed() {
-		if (textInput.getVisibility() == VISIBLE) {
-			textInput.setVisibility(GONE);
-			adapter.setHighlightedItem(null);
+		if (adapter.getHighlightedItem() != null) {
+			updateTextInput(null);
 		} else {
 			super.onBackPressed();
 		}
@@ -280,7 +265,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 
 	@Override
 	public void onReplyClick(final I item) {
-		showTextInput(item);
+		updateTextInput(item.getId());
 		if (textInput.isKeyboardOpen()) {
 			scrollToItemAtTop(item);
 		} else {
@@ -330,20 +315,15 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		snackbar.show();
 	}
 
-	protected void showTextInput(@Nullable I replyItem) {
-		// An animation here would be an overkill because of the keyboard
-		// popping up.
-		// only clear the text when the input container was not visible
-		if (textInput.getVisibility() != VISIBLE) {
-			textInput.setVisibility(VISIBLE);
-			textInput.setText("");
+	private void updateTextInput(@Nullable MessageId replyItemId) {
+		if (replyItemId != null) {
+			textInput.setHint(R.string.forum_message_reply_hint);
+			textInput.requestFocus();
+			textInput.showSoftKeyboard();
+		} else {
+			textInput.setHint(R.string.forum_new_message_hint);
 		}
-		textInput.requestFocus();
-		textInput.showSoftKeyboard();
-		textInput.setHint(replyItem == null ? R.string.forum_new_message_hint :
-				R.string.forum_message_reply_hint);
-		adapter.setHighlightedItem(
-				replyItem == null ? null : replyItem.getId());
+		adapter.setHighlightedItem(replyItemId);
 	}
 
 	@Override
@@ -369,9 +349,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 				};
 		getController().createAndStoreMessage(text, replyItem, handler);
 		textInput.hideSoftKeyboard();
-		textInput.setVisibility(GONE);
 		textInput.setText("");
-		adapter.setHighlightedItem(null);
+		updateTextInput(null);
 	}
 
 	protected abstract int getMaxBodyLength();

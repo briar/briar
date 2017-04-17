@@ -34,7 +34,6 @@
 	<!-- this is needed as preference_category_material layout uses this color as the text color -->
 	<color name="preference_fallback_accent_color">@color/briar_accent</color>
 	<color name="divider">#c1c1c1</color>
-	<color name="default_separator_inverted">#ffffff</color>
 	<color name="menu_background">#FFFFFF</color>
 
 	<color name="spinner_border">#61000000</color> <!-- 38% Black -->

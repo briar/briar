@@ -116,9 +116,6 @@ public class ForumActivity extends
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
-			case R.id.action_forum_compose_post:
-				showTextInput(null);
-				return true;
 			case R.id.action_forum_share:
 				Intent i2 = new Intent(this, ShareForumActivity.class);
 				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
