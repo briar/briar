@@ -246,7 +246,6 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			addLocalPost(txn, p);
 			db.commitTransaction(txn);
 		} finally {
-			//noinspection ThrowFromFinallyBlock
 			db.endTransaction(txn);
 		}
 	}
@@ -269,8 +268,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			MessageId postId = p.getMessage().getId();
 			BlogPostHeader h =
 					getPostHeaderFromMetadata(txn, groupId, postId, meta);
-			BlogPostAddedEvent event =
-					new BlogPostAddedEvent(groupId, h, true);
+			BlogPostAddedEvent event = new BlogPostAddedEvent(groupId, h, true);
 			txn.attach(event);
 		} catch (FormatException e) {
 			throw new DbException(e);
@@ -279,42 +277,39 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 	@Override
 	public void addLocalComment(LocalAuthor author, GroupId groupId,
-			@Nullable String comment, BlogPostHeader pOriginalHeader)
+			@Nullable String comment, BlogPostHeader parentHeader)
 			throws DbException {
 
-		MessageType type = pOriginalHeader.getType();
+		MessageType type = parentHeader.getType();
 		if (type != POST && type != COMMENT)
 			throw new IllegalArgumentException("Comment on unknown type!");
 
 		Transaction txn = db.startTransaction(false);
 		try {
 			// Wrap post that we are commenting on
-			MessageId parentId = wrapMessage(txn, groupId, pOriginalHeader);
-
-			// Get ID of new parent's original message.
-			// Assumes that pOriginalHeader is a POST or COMMENT
-			MessageId pOriginalId = pOriginalHeader.getId();
+			MessageId parentOriginalId =
+					getOriginalMessageId(txn, parentHeader);
+			MessageId parentCurrentId =
+					wrapMessage(txn, groupId, parentHeader, parentOriginalId);
 
 			// Create actual comment
-			Message message = blogPostFactory
-					.createBlogComment(groupId, author, comment, pOriginalId,
-							parentId);
+			Message message = blogPostFactory.createBlogComment(groupId, author,
+					comment, parentOriginalId, parentCurrentId);
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(KEY_TYPE, COMMENT.getInt());
 			if (comment != null) meta.put(KEY_COMMENT, comment);
 			meta.put(KEY_TIMESTAMP, message.getTimestamp());
 			meta.put(KEY_ORIGINAL_MSG_ID, message.getId());
-			meta.put(KEY_ORIGINAL_PARENT_MSG_ID, pOriginalId);
-			meta.put(KEY_PARENT_MSG_ID, parentId);
+			meta.put(KEY_ORIGINAL_PARENT_MSG_ID, parentOriginalId);
+			meta.put(KEY_PARENT_MSG_ID, parentCurrentId);
 			meta.put(KEY_AUTHOR, authorToBdfDictionary(author));
 
 			// Send comment
 			clientHelper.addLocalMessage(txn, message, meta, true);
 
 			// broadcast event
-			BlogPostHeader h =
-					getPostHeaderFromMetadata(txn, groupId, message.getId(),
-							meta);
+			BlogPostHeader h = getPostHeaderFromMetadata(txn, groupId,
+					message.getId(), meta);
 			BlogPostAddedEvent event = new BlogPostAddedEvent(groupId, h, true);
 			txn.attach(event);
 			db.commitTransaction(txn);
@@ -323,81 +318,94 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		} catch (GeneralSecurityException e) {
 			throw new IllegalArgumentException("Invalid key of author", e);
 		} finally {
-			//noinspection ThrowFromFinallyBlock
 			db.endTransaction(txn);
 		}
 	}
 
+	private MessageId getOriginalMessageId(Transaction txn, BlogPostHeader h)
+			throws DbException, FormatException {
+		MessageType type = h.getType();
+		if (type == POST || type == COMMENT) return h.getId();
+		BdfDictionary meta = clientHelper.getMessageMetadataAsDictionary(txn,
+				h.getId());
+		return new MessageId(meta.getRaw(KEY_ORIGINAL_MSG_ID));
+	}
+
 	private MessageId wrapMessage(Transaction txn, GroupId groupId,
-			BlogPostHeader pOriginalHeader)
+			BlogPostHeader header, MessageId originalId)
 			throws DbException, FormatException {
 
-		if (groupId.equals(pOriginalHeader.getGroupId())) {
+		if (groupId.equals(header.getGroupId())) {
 			// We are trying to wrap a post that is already in our group.
 			// This is unnecessary, so just return the post's MessageId
-			return pOriginalHeader.getId();
+			return header.getId();
 		}
 
 		// Get body of message to be wrapped
-		BdfList body =
-				clientHelper.getMessageAsList(txn, pOriginalHeader.getId());
+		BdfList body = clientHelper.getMessageAsList(txn, header.getId());
 		if (body == null) throw new DbException();
-		long wTimestamp = pOriginalHeader.getTimestamp();
-		Message wMessage;
+		long timestamp = header.getTimestamp();
+		Message wrappedMessage;
 
 		BdfDictionary meta = new BdfDictionary();
-		MessageType type = pOriginalHeader.getType();
+		MessageType type = header.getType();
 		if (type == POST) {
-			Group wGroup = db.getGroup(txn, pOriginalHeader.getGroupId());
-			byte[] wDescriptor = wGroup.getDescriptor();
 			// Wrap post
-			wMessage = blogPostFactory
-					.wrapPost(groupId, wDescriptor, wTimestamp, body);
+			Group group = db.getGroup(txn, header.getGroupId());
+			byte[] descriptor = group.getDescriptor();
+			wrappedMessage = blogPostFactory.wrapPost(groupId, descriptor,
+					timestamp, body);
 			meta.put(KEY_TYPE, WRAPPED_POST.getInt());
-			meta.put(KEY_RSS_FEED, pOriginalHeader.isRssFeed());
+			meta.put(KEY_RSS_FEED, header.isRssFeed());
 		} else if (type == COMMENT) {
-			Group wGroup = db.getGroup(txn, pOriginalHeader.getGroupId());
-			byte[] wDescriptor = wGroup.getDescriptor();
-			BlogCommentHeader wComment = (BlogCommentHeader) pOriginalHeader;
-			MessageId wrappedId =
-					wrapMessage(txn, groupId, wComment.getParent());
+			// Recursively wrap parent
+			BlogCommentHeader commentHeader = (BlogCommentHeader) header;
+			BlogPostHeader parentHeader = commentHeader.getParent();
+			MessageId parentOriginalId =
+					getOriginalMessageId(txn, parentHeader);
+			MessageId parentCurrentId =
+					wrapMessage(txn, groupId, parentHeader, parentOriginalId);
 			// Wrap comment
-			wMessage = blogPostFactory
-					.wrapComment(groupId, wDescriptor, wTimestamp,
-							body, wrappedId);
+			Group group = db.getGroup(txn, header.getGroupId());
+			byte[] descriptor = group.getDescriptor();
+			wrappedMessage = blogPostFactory.wrapComment(groupId, descriptor,
+					timestamp, body, parentCurrentId);
 			meta.put(KEY_TYPE, WRAPPED_COMMENT.getInt());
-			if (wComment.getComment() != null)
-				meta.put(KEY_COMMENT, wComment.getComment());
-			meta.put(KEY_PARENT_MSG_ID, wrappedId);
+			if (commentHeader.getComment() != null)
+				meta.put(KEY_COMMENT, commentHeader.getComment());
+			meta.put(KEY_PARENT_MSG_ID, parentCurrentId);
 		} else if (type == WRAPPED_POST) {
 			// Re-wrap wrapped post without adding another wrapping layer
-			wMessage = blogPostFactory.rewrapWrappedPost(groupId, body);
+			wrappedMessage = blogPostFactory.rewrapWrappedPost(groupId, body);
 			meta.put(KEY_TYPE, WRAPPED_POST.getInt());
-			meta.put(KEY_RSS_FEED, pOriginalHeader.isRssFeed());
+			meta.put(KEY_RSS_FEED, header.isRssFeed());
 		} else if (type == WRAPPED_COMMENT) {
-			BlogCommentHeader wComment = (BlogCommentHeader) pOriginalHeader;
-			MessageId wrappedId =
-					wrapMessage(txn, groupId, wComment.getParent());
+			// Recursively wrap parent
+			BlogCommentHeader commentHeader = (BlogCommentHeader) header;
+			BlogPostHeader parentHeader = commentHeader.getParent();
+			MessageId parentOriginalId =
+					getOriginalMessageId(txn, parentHeader);
+			MessageId parentCurrentId =
+					wrapMessage(txn, groupId, parentHeader, parentOriginalId);
 			// Re-wrap wrapped comment
-			wMessage = blogPostFactory
-					.rewrapWrappedComment(groupId, body, wrappedId);
+			wrappedMessage = blogPostFactory.rewrapWrappedComment(groupId, body,
+					parentCurrentId);
 			meta.put(KEY_TYPE, WRAPPED_COMMENT.getInt());
-			if (wComment.getComment() != null)
-				meta.put(KEY_COMMENT, wComment.getComment());
-			meta.put(KEY_PARENT_MSG_ID, wrappedId);
+			if (commentHeader.getComment() != null)
+				meta.put(KEY_COMMENT, commentHeader.getComment());
+			meta.put(KEY_PARENT_MSG_ID, parentCurrentId);
 		} else {
 			throw new IllegalArgumentException(
 					"Unknown Message Type: " + type);
 		}
-		meta.put(KEY_ORIGINAL_MSG_ID, pOriginalHeader.getId());
-		meta.put(KEY_AUTHOR,
-				authorToBdfDictionary(pOriginalHeader.getAuthor()));
-		meta.put(KEY_TIMESTAMP, pOriginalHeader.getTimestamp());
-		meta.put(KEY_TIME_RECEIVED, pOriginalHeader.getTimeReceived());
+		meta.put(KEY_ORIGINAL_MSG_ID, originalId);
+		meta.put(KEY_AUTHOR, authorToBdfDictionary(header.getAuthor()));
+		meta.put(KEY_TIMESTAMP, header.getTimestamp());
+		meta.put(KEY_TIME_RECEIVED, header.getTimeReceived());
 
 		// Send wrapped message and store metadata
-		clientHelper.addLocalMessage(txn, wMessage, meta, true);
-		return wMessage.getId();
+		clientHelper.addLocalMessage(txn, wrappedMessage, meta, true);
+		return wrappedMessage.getId();
 	}
 
 	@Override

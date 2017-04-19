@@ -1,6 +1,7 @@
 package org.briarproject.bramble.api;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -51,6 +52,12 @@ public class Bytes implements Comparable<Bytes> {
 			if (aUnsigned > bUnsigned) return 1;
 		}
 		return aBytes.length - bBytes.length;
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() +
+				"(" + StringUtils.toHexString(getBytes()) + ")";
 	}
 
 	public static class BytesComparator implements Comparator<Bytes> {

@@ -65,7 +65,8 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 
 	@Override
 	public Message createBlogComment(GroupId groupId, LocalAuthor author,
-			@Nullable String comment, MessageId pOriginalId, MessageId parentId)
+			@Nullable String comment, MessageId parentOriginalId,
+			MessageId parentCurrentId)
 			throws FormatException, GeneralSecurityException {
 
 		if (comment != null) {
@@ -78,22 +79,20 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 		long timestamp = clock.currentTimeMillis();
 
 		// Generate the signature
-		BdfList signed =
-				BdfList.of(groupId, timestamp, comment, pOriginalId, parentId);
+		BdfList signed = BdfList.of(groupId, timestamp, comment,
+				parentOriginalId, parentCurrentId);
 		byte[] sig = clientHelper
 				.sign(SIGNING_LABEL_COMMENT, signed, author.getPrivateKey());
 
 		// Serialise the signed message
-		BdfList message =
-				BdfList.of(COMMENT.getInt(), comment, pOriginalId, parentId,
-						sig);
+		BdfList message = BdfList.of(COMMENT.getInt(), comment,
+				parentOriginalId, parentCurrentId, sig);
 		return clientHelper.createMessage(groupId, timestamp, message);
 	}
 
 	@Override
 	public Message wrapPost(GroupId groupId, byte[] descriptor,
-			long timestamp, BdfList body)
-			throws FormatException {
+			long timestamp, BdfList body) throws FormatException {
 
 		if (getType(body) != POST)
 			throw new IllegalArgumentException("Needs to wrap a POST");
@@ -101,9 +100,8 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 		// Serialise the message
 		String content = body.getString(1);
 		byte[] signature = body.getRaw(2);
-		BdfList message =
-				BdfList.of(WRAPPED_POST.getInt(), descriptor, timestamp,
-						content, signature);
+		BdfList message = BdfList.of(WRAPPED_POST.getInt(), descriptor,
+				timestamp, content, signature);
 		return clientHelper
 				.createMessage(groupId, clock.currentTimeMillis(), message);
 	}
@@ -120,16 +118,15 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 		long timestamp = body.getLong(2);
 		String content = body.getString(3);
 		byte[] signature = body.getRaw(4);
-		BdfList message =
-				BdfList.of(WRAPPED_POST.getInt(), descriptor, timestamp,
-						content, signature);
+		BdfList message = BdfList.of(WRAPPED_POST.getInt(), descriptor,
+				timestamp, content, signature);
 		return clientHelper
 				.createMessage(groupId, clock.currentTimeMillis(), message);
 	}
 
 	@Override
 	public Message wrapComment(GroupId groupId, byte[] descriptor,
-			long timestamp, BdfList body, MessageId parentId)
+			long timestamp, BdfList body, MessageId parentCurrentId)
 			throws FormatException {
 
 		if (getType(body) != COMMENT)
@@ -140,16 +137,16 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 		byte[] pOriginalId = body.getRaw(2);
 		byte[] oldParentId = body.getRaw(3);
 		byte[] signature = body.getRaw(4);
-		BdfList message =
-				BdfList.of(WRAPPED_COMMENT.getInt(), descriptor, timestamp,
-						comment, pOriginalId, oldParentId, signature, parentId);
+		BdfList message = BdfList.of(WRAPPED_COMMENT.getInt(), descriptor,
+				timestamp, comment, pOriginalId, oldParentId, signature,
+				parentCurrentId);
 		return clientHelper
 				.createMessage(groupId, clock.currentTimeMillis(), message);
 	}
 
 	@Override
 	public Message rewrapWrappedComment(GroupId groupId, BdfList body,
-			MessageId parentId) throws FormatException {
+			MessageId parentCurrentId) throws FormatException {
 
 		if (getType(body) != WRAPPED_COMMENT)
 			throw new IllegalArgumentException(
@@ -162,9 +159,9 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 		byte[] pOriginalId = body.getRaw(4);
 		byte[] oldParentId = body.getRaw(5);
 		byte[] signature = body.getRaw(6);
-		BdfList message =
-				BdfList.of(WRAPPED_COMMENT.getInt(), descriptor, timestamp,
-						comment, pOriginalId, oldParentId, signature, parentId);
+		BdfList message = BdfList.of(WRAPPED_COMMENT.getInt(), descriptor,
+				timestamp, comment, pOriginalId, oldParentId, signature,
+				parentCurrentId);
 		return clientHelper
 				.createMessage(groupId, clock.currentTimeMillis(), message);
 	}

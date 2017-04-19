@@ -25,7 +25,8 @@ public interface BlogPostFactory {
 			throws FormatException, GeneralSecurityException;
 
 	Message createBlogComment(GroupId groupId, LocalAuthor author,
-			@Nullable String comment, MessageId originalId, MessageId wrappedId)
+			@Nullable String comment, MessageId parentOriginalId,
+			MessageId parentCurrentId)
 			throws FormatException, GeneralSecurityException;
 
 	/**
@@ -44,11 +45,11 @@ public interface BlogPostFactory {
 	 * Wraps a blog comment
 	 */
 	Message wrapComment(GroupId groupId, byte[] descriptor, long timestamp,
-			BdfList body, MessageId currentId) throws FormatException;
+			BdfList body, MessageId parentCurrentId) throws FormatException;
 
 	/**
 	 * Re-wraps a previously wrapped comment
 	 */
 	Message rewrapWrappedComment(GroupId groupId, BdfList body,
-			MessageId currentId) throws FormatException;
+			MessageId parentCurrentId) throws FormatException;
 }
