@@ -29,11 +29,13 @@ class SocksSocket extends Socket {
 	private static final byte[] UNSPECIFIED_ADDRESS = new byte[4];
 
 	private final SocketAddress proxy;
-	private final int connectToProxyTimeout;
+	private final int connectToProxyTimeout, extraSocketTimeout;
 
-	SocksSocket(SocketAddress proxy, int connectToProxyTimeout) {
+	SocksSocket(SocketAddress proxy, int connectToProxyTimeout,
+			int extraSocketTimeout) {
 		this.proxy = proxy;
 		this.connectToProxyTimeout = connectToProxyTimeout;
+		this.extraSocketTimeout = extraSocketTimeout;
 	}
 
 	@Override
@@ -47,7 +49,7 @@ class SocksSocket extends Socket {
 		InetAddress address = inet.getAddress();
 		if (address != null
 				&& !Arrays.equals(address.getAddress(), UNSPECIFIED_ADDRESS)) {
-				throw new IllegalArgumentException();
+			throw new IllegalArgumentException();
 		}
 		String host = inet.getHostName();
 		if (host.length() > 255) throw new IllegalArgumentException();
@@ -62,16 +64,16 @@ class SocksSocket extends Socket {
 		sendMethodRequest(out);
 		receiveMethodResponse(in);
 
-		// Use the supplied timeout temporarily
+		// Use the supplied timeout temporarily, plus any configured extra
 		int oldTimeout = getSoTimeout();
-		setSoTimeout(timeout);
+		setSoTimeout(timeout + extraSocketTimeout);
 
 		// Connect to the endpoint via the proxy
 		sendConnectRequest(out, host, port);
 		receiveConnectResponse(in);
 
-		// Restore the old timeout
-		setSoTimeout(oldTimeout);
+		// Restore the old timeout, plus any configured extra
+		setSoTimeout(oldTimeout + extraSocketTimeout);
 	}
 
 	private void sendMethodRequest(OutputStream out) throws IOException {
