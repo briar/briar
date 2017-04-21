@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.threaded;
 
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,6 +27,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	protected final NestedTreeList<I> items = new NestedTreeList<>();
 	private final ThreadItemListener<I> listener;
 	private final LinearLayoutManager layoutManager;
+	private final Handler handler = new Handler();
 
 	private volatile int revision = 0;
 
@@ -62,6 +64,31 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	@Override
 	public void incrementRevision() {
 		revision++;
+	}
+
+	void setBottomItem(MessageId messageId) {
+		if (messageId != null) {
+			int pos = 0;
+			for (I item : items) {
+				if (item.getId().equals(messageId)) {
+					scrollToPosition(pos);
+					break;
+
+				}
+				pos++;
+			}
+		}
+	}
+
+	private void scrollToPosition(final int pos) {
+		// Post call ensures that the list scrolls AFTER it has been propagated
+		// and the layout has been calculated.
+		handler.post(new Runnable() {
+			@Override
+			public void run() {
+				layoutManager.scrollToPosition(pos);
+			}
+		});
 	}
 
 	public void setItems(Collection<I> items) {

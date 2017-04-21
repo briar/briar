@@ -13,11 +13,13 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTracker;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.briar.client.MessageTrackerConstants.GROUP_KEY_LATEST_MSG;
 import static org.briarproject.briar.client.MessageTrackerConstants.GROUP_KEY_MSG_COUNT;
+import static org.briarproject.briar.client.MessageTrackerConstants.GROUP_KEY_STORED_MESSAGE_ID;
 import static org.briarproject.briar.client.MessageTrackerConstants.GROUP_KEY_UNREAD_COUNT;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
@@ -55,6 +57,30 @@ class MessageTrackerImpl implements MessageTracker {
 		long latestMsgTime = Math.max(c.getLatestMsgTime(), time);
 		storeGroupCount(txn, g, new GroupCount(msgCount, unreadCount,
 				latestMsgTime));
+	}
+
+	@Nullable
+	@Override
+	public MessageId loadStoredMessageId(GroupId g) throws DbException {
+		try {
+			BdfDictionary d = clientHelper.getGroupMetadataAsDictionary(g);
+			byte[] msgBytes = d.getOptionalRaw(GROUP_KEY_STORED_MESSAGE_ID);
+			return msgBytes != null? new MessageId(msgBytes) : null;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void storeMessageId(GroupId g, MessageId m) throws DbException {
+		BdfDictionary d = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_STORED_MESSAGE_ID, m)
+		);
+		try {
+			clientHelper.mergeGroupMetadata(g, d);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 	}
 
 	@Override

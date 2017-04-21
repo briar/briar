@@ -7,6 +7,8 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 
+import javax.annotation.Nullable;
+
 @NotNullByDefault
 public interface MessageTracker {
 
@@ -37,6 +39,19 @@ public interface MessageTracker {
 	 */
 	void trackMessage(Transaction txn, GroupId g, long timestamp, boolean read)
 			throws DbException;
+
+	/**
+	 *  Loads the stored message id for the respective group id or returns null
+	 *  if none is available.
+	 */
+	@Nullable
+	MessageId loadStoredMessageId(GroupId g) throws DbException;
+
+	/**
+	 * Stores the message id for the respective group id. Exactly one message id
+	 * can be stored for any group id at any time, older values are overwritten.
+	 */
+	void storeMessageId(GroupId g, MessageId m) throws DbException;
 
 	/**
 	 * Marks a message as read or unread and updates the group count.

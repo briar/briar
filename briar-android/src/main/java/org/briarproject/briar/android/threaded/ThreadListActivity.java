@@ -26,6 +26,7 @@ import org.briarproject.briar.android.controller.SharingController;
 import org.briarproject.briar.android.controller.SharingController.SharingListener;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
+import org.briarproject.briar.android.threaded.ThreadListController.ThreadListDataSource;
 import org.briarproject.briar.android.threaded.ThreadListController.ThreadListListener;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.TextInputView;
@@ -51,7 +52,7 @@ import static org.briarproject.briar.android.threaded.ThreadItemAdapter.UnreadCo
 public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadItemAdapter<I>, I extends ThreadItem, H extends PostHeader>
 		extends BriarActivity
 		implements ThreadListListener<H>, TextInputListener, SharingListener,
-		ThreadItemListener<I> {
+		ThreadItemListener<I>, ThreadListDataSource {
 
 	protected static final String KEY_REPLY_ID = "replyId";
 
@@ -68,6 +69,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	private MessageId replyId;
 
 	protected abstract ThreadListController<G, I, H> getController();
+
 	@Inject
 	protected SharingController sharingController;
 
@@ -104,6 +106,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 							updateUnreadCount();
 						}
 					}
+
 					@Override
 					public void onScrollStateChanged(RecyclerView recyclerView,
 							int newState) {
@@ -144,6 +147,16 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		loadSharingContacts();
 	}
 
+	@Override
+	public MessageId getBottomVisibleMessageId() {
+		if (layoutManager != null && adapter != null) {
+			int position =
+					layoutManager.findLastCompletelyVisibleItemPosition();
+			return adapter.getItemAt(position).getId();
+		}
+		return null;
+	}
+
 	protected abstract A createAdapter(LinearLayoutManager layoutManager);
 
 	protected void loadNamedGroup() {
@@ -167,15 +180,18 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	protected void loadItems() {
 		final int revision = adapter.getRevision();
 		getController().loadItems(
-				new UiResultExceptionHandler<Collection<I>, DbException>(this) {
+				new UiResultExceptionHandler<ThreadItemList<I>, DbException>(
+						this) {
 					@Override
-					public void onResultUi(Collection<I> items) {
+					public void onResultUi(ThreadItemList<I> items) {
 						if (revision == adapter.getRevision()) {
 							adapter.incrementRevision();
 							if (items.isEmpty()) {
 								list.showData();
 							} else {
 								adapter.setItems(items);
+								adapter.setBottomItem(
+										items.getBottomVisibleItemId());
 								list.showData();
 								updateTextInput(replyId);
 							}

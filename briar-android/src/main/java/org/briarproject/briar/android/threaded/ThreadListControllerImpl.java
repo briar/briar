@@ -22,18 +22,19 @@ import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadListController.ThreadListListener;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.NamedGroup;
 import org.briarproject.briar.api.client.PostHeader;
 import org.briarproject.briar.api.client.ThreadedMessage;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -56,6 +57,9 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected final Executor cryptoExecutor;
 	protected final Clock clock;
 	protected volatile L listener;
+	@Inject
+	MessageTracker messageTracker;
+	private ThreadListDataSource source;
 
 	protected ThreadListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
@@ -79,6 +83,13 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	@Override
 	public void onActivityCreate(Activity activity) {
 		listener = (L) activity;
+		if (activity instanceof ThreadListDataSource) {
+			source = (ThreadListDataSource) activity;
+		} else {
+			throw new ClassCastException(
+					"Activity " + activity.getClass().getSimpleName() +
+							" must implement ThreadListDataSource");
+		}
 	}
 
 	@CallSuper
@@ -97,6 +108,13 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@Override
 	public void onActivityDestroy() {
+		try {
+			messageTracker
+					.storeMessageId(groupId,
+							source.getBottomVisibleMessageId());
+		} catch (DbException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@CallSuper
@@ -144,7 +162,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@Override
 	public void loadItems(
-			final ResultExceptionHandler<Collection<I>, DbException> handler) {
+			final ResultExceptionHandler<ThreadItemList<I>, DbException> handler) {
 		checkGroupId();
 		runOnDbThread(new Runnable() {
 			@Override
@@ -293,10 +311,18 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	@DatabaseExecutor
 	protected abstract void deleteNamedGroup(G groupItem) throws DbException;
 
-	private List<I> buildItems(Collection<H> headers) {
-		List<I> items = new ArrayList<>();
+	private ThreadItemList<I> buildItems(Collection<H> headers) {
+		ThreadItemList<I> items = new ThreadItemListImpl<>();
 		for (H h : headers) {
 			items.add(buildItem(h, bodyCache.get(h.getId())));
+		}
+		try {
+			MessageId msgId = messageTracker.loadStoredMessageId(groupId);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Loaded last top visible message id " + msgId);
+			items.setBottomVisibleItemId(msgId);
+		} catch (DbException e) {
+			e.printStackTrace();
 		}
 		return items;
 	}
