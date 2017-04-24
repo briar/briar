@@ -148,7 +148,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	}
 
 	@Override
-	public MessageId getBottomVisibleMessageId() {
+	@Nullable
+	public MessageId getLastVisibleMessageId() {
 		if (layoutManager != null && adapter != null) {
 			int position =
 					layoutManager.findLastCompletelyVisibleItemPosition();
@@ -190,7 +191,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 								list.showData();
 							} else {
 								adapter.setItems(items);
-								adapter.setBottomItem(
+								adapter.postSetItemWithIdVisible(
 										items.getBottomVisibleItemId());
 								list.showData();
 								updateTextInput(replyId);

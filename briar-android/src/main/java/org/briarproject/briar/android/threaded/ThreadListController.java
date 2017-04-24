@@ -42,7 +42,7 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 
 	void deleteNamedGroup(ExceptionHandler<DbException> handler);
 
-	interface ThreadListListener<H> extends DestroyableContext {
+	interface ThreadListListener<H> extends ThreadListDataSource {
 		@UiThread
 		void onHeaderReceived(H header);
 
@@ -53,10 +53,10 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 		void onInvitationAccepted(ContactId c);
 	}
 
-	interface ThreadListDataSource {
+	interface ThreadListDataSource extends DestroyableContext {
 
 		@UiThread @Nullable
-		MessageId getBottomVisibleMessageId();
+		MessageId getLastVisibleMessageId();
 	}
 
 }

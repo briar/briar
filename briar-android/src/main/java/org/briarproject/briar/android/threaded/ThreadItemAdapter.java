@@ -66,29 +66,27 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		revision++;
 	}
 
-	void setBottomItem(MessageId messageId) {
+	// Useful when the adapter has not calculated the dimension yet
+	void postSetItemWithIdVisible(@Nullable final MessageId messageId) {
+		new Handler().post(new Runnable() {
+			@Override
+			public void run() {
+				setItemWithIdVisible(messageId);
+			}
+		});
+	}
+
+	void setItemWithIdVisible(@Nullable MessageId messageId) {
 		if (messageId != null) {
 			int pos = 0;
 			for (I item : items) {
 				if (item.getId().equals(messageId)) {
-					scrollToPosition(pos);
+					layoutManager.scrollToPosition(pos);
 					break;
-
 				}
 				pos++;
 			}
 		}
-	}
-
-	private void scrollToPosition(final int pos) {
-		// Post call ensures that the list scrolls AFTER it has been propagated
-		// and the layout has been calculated.
-		handler.post(new Runnable() {
-			@Override
-			public void run() {
-				layoutManager.scrollToPosition(pos);
-			}
-		});
 	}
 
 	public void setItems(Collection<I> items) {

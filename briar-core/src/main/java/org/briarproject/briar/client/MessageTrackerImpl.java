@@ -65,7 +65,7 @@ class MessageTrackerImpl implements MessageTracker {
 		try {
 			BdfDictionary d = clientHelper.getGroupMetadataAsDictionary(g);
 			byte[] msgBytes = d.getOptionalRaw(GROUP_KEY_STORED_MESSAGE_ID);
-			return msgBytes != null? new MessageId(msgBytes) : null;
+			return msgBytes != null ? new MessageId(msgBytes) : null;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

@@ -59,7 +59,6 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected volatile L listener;
 	@Inject
 	MessageTracker messageTracker;
-	private ThreadListDataSource source;
 
 	protected ThreadListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
@@ -83,13 +82,6 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	@Override
 	public void onActivityCreate(Activity activity) {
 		listener = (L) activity;
-		if (activity instanceof ThreadListDataSource) {
-			source = (ThreadListDataSource) activity;
-		} else {
-			throw new ClassCastException(
-					"Activity " + activity.getClass().getSimpleName() +
-							" must implement ThreadListDataSource");
-		}
 	}
 
 	@CallSuper
@@ -111,9 +103,10 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 		try {
 			messageTracker
 					.storeMessageId(groupId,
-							source.getBottomVisibleMessageId());
+							listener.getLastVisibleMessageId());
 		} catch (DbException e) {
-			e.printStackTrace();
+			if (LOG.isLoggable(WARNING))
+				LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
