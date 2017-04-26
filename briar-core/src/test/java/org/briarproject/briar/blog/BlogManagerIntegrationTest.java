@@ -21,7 +21,6 @@ import org.junit.rules.ExpectedException;
 import java.util.Collection;
 import java.util.Iterator;
 
-import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
@@ -185,19 +184,19 @@ public class BlogManagerIntegrationTest
 	}
 
 	@Test
-	public void testCanNotRemoveContactsPersonalBlog() throws Exception {
-		assertFalse(blogManager0.canBeRemoved(blog1.getId()));
-		assertFalse(blogManager1.canBeRemoved(blog0.getId()));
+	public void testCanRemoveContactsPersonalBlog() throws Exception {
+		assertTrue(blogManager0.canBeRemoved(blog1));
+		assertTrue(blogManager1.canBeRemoved(blog0));
 
-		// the following two calls should throw a DbException now
-		thrown.expect(IllegalArgumentException.class);
+		assertEquals(4, blogManager0.getBlogs().size());
+		assertEquals(2, blogManager1.getBlogs().size());
 
 		blogManager0.removeBlog(blog1);
 		blogManager1.removeBlog(blog0);
 
-		// blogs have not been removed
-		assertEquals(2, blogManager0.getBlogs().size());
-		assertEquals(2, blogManager1.getBlogs().size());
+		// blogs have been removed
+		assertEquals(3, blogManager0.getBlogs().size());
+		assertEquals(1, blogManager1.getBlogs().size());
 	}
 
 	@Test
