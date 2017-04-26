@@ -5,5 +5,5 @@
 
 	<stroke
 		android:width="2dp"
-		android:color="@color/forum_discussion_nested_line"/>
+		android:color="@color/thread_indicator"/>
 </shape>
