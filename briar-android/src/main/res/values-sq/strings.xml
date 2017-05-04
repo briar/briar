@@ -151,7 +151,6 @@
   <string name="groups_create_group_invitation_button">Dërgoje Ftesën</string>
   <string name="groups_create_group_hint">Shtoni një emër për grupin tuaj privat</string>
   <string name="groups_invitation_sent">Ftesa e grupit u dërgua</string>
-  <string name="groups_compose_message">Hartoni Mesazh</string>
   <string name="groups_message_sent">Mesazhi u dërgua</string>
   <string name="groups_member_list">Listë Anëtarësh</string>
   <string name="groups_invite_members">Ftoni Anëtarë</string>
@@ -182,6 +181,7 @@
   <string name="groups_invitations_response_declined_sent">Hodhët poshtë ftesën e grupit nga %s.</string>
   <string name="groups_invitations_response_accepted_received">%s e pranoi ftesën e grupit.</string>
   <string name="groups_invitations_response_declined_received">%s e hodhi poshtë ftesën e grupit.</string>
+  <string name="sharing_status_groups">Vetëm krijuesi mund të ftojë anëtarë të rinj në grup. Më poshtë gjenden tërë anëtarët e tanishëm të grupit.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Shfaqua Kontaktet</string>
   <string name="groups_reveal_dialog_message">Mund të zgjidhni t’ua shfaqni ose jo kontaktet krejt anëtarëve të tanishëm dhe të ardhshëm të këtij grupi.\n\nShfaqja e kontakteve e bën lidhjen tuaj me grupin më të shpejtë dhe më të besueshme, ngaqë mund të komunikoni me kontaktet e shfaqura edhe kur krijuesi i grupit s’është në linjë.</string>
@@ -201,15 +201,10 @@
     <item quantity="one">%d postim</item>
     <item quantity="other">%d postime</item>
   </plurals>
-  <string name="forum_compose_post">Postim i Ri Forumi</string>
   <string name="forum_new_entry_posted">U postua zë forumi</string>
   <string name="forum_new_message_hint">Zë i Ri</string>
   <string name="forum_message_reply_hint">Përgjigje e Re</string>
   <string name="btn_reply">Përgjigju</string>
-  <plurals name="message_replies">
-    <item quantity="one">%1$d përgjigje</item>
-    <item quantity="other">%1$d përgjigje</item>
-  </plurals>
   <string name="forum_leave">Braktiseni Forumin</string>
   <string name="dialog_title_leave_forum">Ripohoni Braktisjen e Forumit</string>
   <string name="dialog_message_leave_forum">Jeni i sigurt se doni ta braktisni këtë forum? Kontaktet me të cilët e keni ndarë këtë forum mundet të mbeten jashtë marrjes së përditësimeve nga ky forum.</string>
@@ -236,6 +231,7 @@
   <string name="forum_invitation_response_accepted_received">%s pranoi ftesën e forumit.</string>
   <string name="forum_invitation_response_declined_received">%s e hodhi poshtë ftesën e forumit.</string>
   <string name="sharing_status">Gjendje Ndarjeje Me të Tjerë</string>
+  <string name="sharing_status_forum">Cilido anëtar i grupit mund ta ndajë me të tjerët. Këtë forum po e ndani me kontaktet vijuese. Mund të ketë edhe anëtarë të tjerët, të cilët s’mund t’i shihni.</string>
   <string name="shared_with">E ndarë me %1$d (%2$d në linjë)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d forum ndarë nga kontakte</item>
@@ -273,6 +269,7 @@
   <string name="blogs_sharing_invitations_title">Ftesa Blogu</string>
   <string name="blogs_sharing_joined_toast">U pajtuat te Blogu</string>
   <string name="blogs_sharing_declined_toast">Ftesa e Blogut u Hodh Poshtë</string>
+  <string name="sharing_status_blog">Cilido që pajtohet te një blog mund ta ndajë atë me kontaktet e veta. Këtë blog po e ndani me kontaktet vijuese. Mund të ketë edhe pajtimtarë të tjerë, të cilët s’mund t’i shihni.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importoni Prurje RSS</string>
   <string name="blogs_rss_feeds_import_button">Importo</string>
@@ -282,6 +279,9 @@
   <string name="blogs_rss_feeds_manage_imported">Të importuara:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Përditësuar Së Fundi:</string>
+  <string name="blogs_rss_remove_feed">Hiqe Prurjen</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Jeni i sigurt se doni të hiqet kjo prurje dhe krejt postimet e saj?\nÇfarëdo postimi që keni ndarë me të tjerët, nuk do të hiqet nga pajisjet e personave të tjerë.</string>
+  <string name="blogs_rss_remove_feed_ok">Hiqe Prurjen</string>
   <string name="blogs_rss_feeds_manage_delete_error">S’u fshi dot prurja!</string>
   <string name="blogs_rss_feeds_manage_empty_state">S’keni importuar ende ndonjë prurje RSS.\n\nPse nuk klikoni mbi shenjën plus në cepin e sipërm djathtas që të shtoni të parën tuaj?</string>
   <string name="blogs_rss_feeds_manage_error">Pati një problem me ngarkimin e prurjeve tuaja. Ju lutemi, riprovoni më vonë.</string>
@@ -353,4 +353,9 @@
   <string name="dev_report_saved">Njoftimi u ruajt. Do të dërgohet herën tjetër që do të hyni në Briar.</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Po dilet nga Briar-i…</string>
+  <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_title">U pikas filtër ekrani</string>
+  <string name="screen_filter_body">Aplikacionet vijuese kanë leje të vizatojnë përmbi aplikacione të tjera:\n\n%1$s \n\nBriar-i nuk do të reagojë ndaj prekjesh,  kur mbi të po vizaton një tjetër aplikacion.
+Nëse hasni probleme, provoni t’i mbyllni këto aplikacione, kur përdorni Briar-in.\n</string>
+  <string name="checkbox_dont_show_again">Mos më sinjalizo më për këto aplikacione</string>
 </resources>

@@ -124,7 +124,6 @@
   <string name="groups_create_group_invitation_button">Invia invito</string>
   <string name="groups_create_group_hint">Inserisci un nome per il tuo gruppo privato</string>
   <string name="groups_invitation_sent">Invito a partecipare al gruppo spedito</string>
-  <string name="groups_compose_message">Scrivi un messaggio</string>
   <string name="groups_message_sent">Messaggio inviato</string>
   <string name="groups_member_list">Lista membri</string>
   <string name="groups_invite_members">Invita Membri</string>
@@ -152,10 +151,6 @@
     <item quantity="other">%d post</item>
   </plurals>
   <string name="forum_message_reply_hint">Nuova Risposta</string>
-  <plurals name="message_replies">
-    <item quantity="one">risposta di %1$d</item>
-    <item quantity="other">risposte di %1$d</item>
-  </plurals>
   <string name="forum_leave">Lascia Forum</string>
   <string name="dialog_title_leave_forum">Conferma l\'abbandono del forum</string>
   <string name="dialog_button_leave">Lascia</string>
@@ -261,4 +256,5 @@
   <string name="send_report">Invia report</string>
   <string name="close">Chiudi</string>
   <!--Sign Out-->
+  <!--Screen Filters & Tapjacking-->
 </resources>

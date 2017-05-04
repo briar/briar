@@ -19,7 +19,7 @@
   <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil et non sur le \"cloud\", par conséquent, votre mot de passe ne peut être réinitialisé. Voulez-vous supprimer votre compte et démarrer à nouveau ?\n\nAttention : vos identités, contacts et messages seront définitivement perdus.</string>
   <string name="startup_failed_notification_title">Briar n\'a pas pu démarrer</string>
   <string name="startup_failed_notification_text">Vous devrez peut-être réinstaller Briar.</string>
-  <string name="startup_failed_activity_title">Echec de démarrage de Briar.</string>
+  <string name="startup_failed_activity_title">Échec de démarrage de Briar</string>
   <string name="startup_failed_db_error">Pour une raison indéterminée, votre base de donnée Briar est corrompue et irrécupérable. Vos comptes, données et contacts sont perdus. Vous devez malheureusement réinstaller Briar et configurer un nouveau compte.</string>
   <string name="startup_failed_service_error">Briar n\'a pas pu démarrer un module nécessaire. Réinstaller Briar résout généralement ce problème. Veuillez noter que vous perdrez votre compte et toutes les données associées puisque Briar n\'utilise pas de serveurs centralisés pour enregistrer les données.</string>
   <string name="expiry_warning">Ce logiciel est arrivé à expiration.\nVeuillez installer une version plus récente.</string>
@@ -151,7 +151,6 @@
   <string name="groups_create_group_invitation_button">Envoyer invitation</string>
   <string name="groups_create_group_hint">Ajouter un nom au groupe privé</string>
   <string name="groups_invitation_sent">Invitation envoyée au groupe</string>
-  <string name="groups_compose_message">Composer message</string>
   <string name="groups_message_sent">Message envoyé</string>
   <string name="groups_member_list">Liste de participants</string>
   <string name="groups_invite_members">Inviter des participants</string>
@@ -182,6 +181,7 @@
   <string name="groups_invitations_response_declined_sent">Vous avez refusé l\'invitation du groupe de %s.</string>
   <string name="groups_invitations_response_accepted_received">%s a accepté l\'invitation du groupe.</string>
   <string name="groups_invitations_response_declined_received">%s a décliné l\'invitation du groupe.</string>
+  <string name="sharing_status_groups">Seul l\'initiateur du groupe peut inviter de nouveaux membres. Voici la liste des membres actuels.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Dévoiler les contacts</string>
   <string name="groups_reveal_dialog_message">Vous pouvez choisir de dévoiler les contacts à tous les membres actuels et futurs de ce groupe.\n\nDévoiler les contacts vous assure une connexion au groupe plus rapide et plus fiable car vous pouvez communiquer avec les contacts dévoilés même si l\'initiateur du groupe est hors ligne.</string>
@@ -201,15 +201,10 @@
     <item quantity="one">%d message</item>
     <item quantity="other">%d messages</item>
   </plurals>
-  <string name="forum_compose_post">Nouveau post de forum</string>
   <string name="forum_new_entry_posted">Entrée de forum postée</string>
   <string name="forum_new_message_hint">Nouvelle entrée</string>
   <string name="forum_message_reply_hint">Nouvelle réponse</string>
   <string name="btn_reply">Répondre</string>
-  <plurals name="message_replies">
-    <item quantity="one">%1$d réponse</item>
-    <item quantity="other">%1$d réponses</item>
-  </plurals>
   <string name="forum_leave">Quitter le forum</string>
   <string name="dialog_title_leave_forum">Confirmer la sortie du forum</string>
   <string name="dialog_message_leave_forum">Êtes-vous sûr de vouloir quitter ce forum ? Les contacts avec qui vous l\'avez partagé pourraient ne plus recevoir ses mises à jour.</string>
@@ -236,6 +231,7 @@
   <string name="forum_invitation_response_accepted_received">%s a accepté l\'invitation au forum.</string>
   <string name="forum_invitation_response_declined_received">%s a décliné l\'invitation au forum.</string>
   <string name="sharing_status">Etat de partage</string>
+  <string name="sharing_status_forum">Tous les participants d\'un forum peuvent le partager avec leurs contacts. Vous partagez ce forum avec les contacts suivants. Il y a peut-être d\'autres participants que vous ne pouvez voir.</string>
   <string name="shared_with">Partagé avec %1$d (%2$d en ligne)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d forum partagé par des contacts</item>
@@ -273,6 +269,7 @@
   <string name="blogs_sharing_invitations_title">Invitations au blog</string>
   <string name="blogs_sharing_joined_toast">Abonné au Blog</string>
   <string name="blogs_sharing_declined_toast">Invitation au blog refusée</string>
+  <string name="sharing_status_blog">Quiconque est abonné à un blog peut le partager avec ses contacts. Vous partagez ce blog avec les contacts suivants. Il y a peut-être d\'autres abonnés que vous ne pouvez voir.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Import de flux RSS</string>
   <string name="blogs_rss_feeds_import_button">Importer</string>
@@ -282,6 +279,9 @@
   <string name="blogs_rss_feeds_manage_imported">Importé :</string>
   <string name="blogs_rss_feeds_manage_author">Auteur :</string>
   <string name="blogs_rss_feeds_manage_updated">Dernière mise à jour :</string>
+  <string name="blogs_rss_remove_feed">Supprimer le flux</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Êtes-vous sûr de vouloir supprimer ce flux et tous ses messages ?\nLes postes que vous avez partagés ne seront pas supprimés des appareils des autres personnes.</string>
+  <string name="blogs_rss_remove_feed_ok">Supprimer le flux</string>
   <string name="blogs_rss_feeds_manage_delete_error">Le flux n\'a pas pu être supprimé !</string>
   <string name="blogs_rss_feeds_manage_empty_state">Vous n\'avez importé aucun flux RSS.\n\nPourquoi ne pas cliquer le plus dans le coin en haut à droite pour ajouter votre premier ?</string>
   <string name="blogs_rss_feeds_manage_error">Problème lors du chargement de vos flux. Réessayer ultérieurement.</string>
@@ -353,4 +353,9 @@
   <string name="dev_report_saved">Rapport enregistré. Il sera envoyé lors de votre prochaine connexion à Briar.</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Déconnexion de Briar ...</string>
+  <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_title">Filtre d\'écran détecté</string>
+  <string name="screen_filter_body">Les applications suivantes ont l\'autorisation de s\'afficher par dessus d\'autres :\n\n%1$s \n\nBriar ne répondra pas aux touches lorsqu\'une autre application s\'affiche par dessus.
+En cas de problèmes, essayer d\'arrêter ces applications durant l\'utilisation de Briar.\n</string>
+  <string name="checkbox_dont_show_again">Ne plus m\'avertir à propos de ces applications</string>
 </resources>
