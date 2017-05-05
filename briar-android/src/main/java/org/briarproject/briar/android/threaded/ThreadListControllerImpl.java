@@ -34,8 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -56,20 +54,21 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected final AndroidNotificationManager notificationManager;
 	protected final Executor cryptoExecutor;
 	protected final Clock clock;
+	private final MessageTracker messageTracker;
 	protected volatile L listener;
-	@Inject
-	MessageTracker messageTracker;
 
 	protected ThreadListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor, EventBus eventBus,
-			Clock clock, AndroidNotificationManager notificationManager) {
+			Clock clock, AndroidNotificationManager notificationManager,
+			MessageTracker messageTracker) {
 		super(dbExecutor, lifecycleManager);
 		this.identityManager = identityManager;
 		this.cryptoExecutor = cryptoExecutor;
 		this.notificationManager = notificationManager;
 		this.clock = clock;
 		this.eventBus = eventBus;
+		this.messageTracker = messageTracker;
 	}
 
 	@Override
@@ -100,14 +99,19 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@Override
 	public void onActivityDestroy() {
-		try {
-			messageTracker
-					.storeMessageId(groupId,
-							listener.getLastVisibleMessageId());
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e.toString(), e);
-		}
+		dbExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					messageTracker
+							.storeMessageId(groupId,
+									listener.getFirstVisibleMessageId());
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
 	}
 
 	@CallSuper
@@ -304,19 +308,16 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	@DatabaseExecutor
 	protected abstract void deleteNamedGroup(G groupItem) throws DbException;
 
-	private ThreadItemList<I> buildItems(Collection<H> headers) {
+	private ThreadItemList<I> buildItems(Collection<H> headers)
+			throws DbException {
 		ThreadItemList<I> items = new ThreadItemListImpl<>();
 		for (H h : headers) {
 			items.add(buildItem(h, bodyCache.get(h.getId())));
 		}
-		try {
-			MessageId msgId = messageTracker.loadStoredMessageId(groupId);
-			if (LOG.isLoggable(INFO))
-				LOG.info("Loaded last top visible message id " + msgId);
-			items.setBottomVisibleItemId(msgId);
-		} catch (DbException e) {
-			e.printStackTrace();
-		}
+		MessageId msgId = messageTracker.loadStoredMessageId(groupId);
+		if (LOG.isLoggable(INFO))
+			LOG.info("Loaded last top visible message id " + msgId);
+		items.setBottomVisibleItemId(msgId);
 		return items;
 	}
 

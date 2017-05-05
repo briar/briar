@@ -56,7 +56,7 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 	interface ThreadListDataSource extends DestroyableContext {
 
 		@UiThread @Nullable
-		MessageId getLastVisibleMessageId();
+		MessageId getFirstVisibleMessageId();
 	}
 
 }

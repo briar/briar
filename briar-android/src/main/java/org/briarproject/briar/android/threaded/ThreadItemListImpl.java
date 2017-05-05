@@ -12,7 +12,7 @@ public class ThreadItemListImpl<I extends ThreadItem> extends ArrayList<I>
 	private MessageId bottomVisibleItemId;
 
 	@Override
-	public MessageId getBottomVisibleItemId() {
+	public MessageId getFirstVisibleItemId() {
 		return bottomVisibleItemId;
 	}
 

@@ -17,7 +17,7 @@ public class DbControllerImpl implements DbController {
 	private static final Logger LOG =
 			Logger.getLogger(DbControllerImpl.class.getName());
 
-	private final Executor dbExecutor;
+	protected final Executor dbExecutor;
 	private final LifecycleManager lifecycleManager;
 
 	@Inject

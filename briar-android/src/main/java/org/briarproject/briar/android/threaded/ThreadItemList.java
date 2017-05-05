@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 public interface ThreadItemList<I extends ThreadItem> extends List<I> {
 
 	@Nullable
-	MessageId getBottomVisibleItemId();
+	MessageId getFirstVisibleItemId();
 
 	void setBottomVisibleItemId(@Nullable MessageId bottomVisibleItemId);
 }

@@ -66,17 +66,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		revision++;
 	}
 
-	// Useful when the adapter has not calculated the dimension yet
-	void postSetItemWithIdVisible(@Nullable final MessageId messageId) {
-		new Handler().post(new Runnable() {
-			@Override
-			public void run() {
-				setItemWithIdVisible(messageId);
-			}
-		});
-	}
-
-	void setItemWithIdVisible(@Nullable MessageId messageId) {
+	void setItemWithIdVisible(MessageId messageId) {
 		if (messageId != null) {
 			int pos = 0;
 			for (I item : items) {
@@ -169,7 +159,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	/**
 	 * Returns the position of the first unread item below the current viewport
 	 */
-	public int getVisibleUnreadPosBottom() {
+	int getVisibleUnreadPosBottom() {
 		final int positionBottom = layoutManager.findLastVisibleItemPosition();
 		if (positionBottom == NO_POSITION) return NO_POSITION;
 		for (int i = positionBottom + 1; i < items.size(); i++) {
@@ -181,7 +171,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	/**
 	 * Returns the position of the first unread item above the current viewport
 	 */
-	public int getVisibleUnreadPosTop() {
+	int getVisibleUnreadPosTop() {
 		final int positionTop = layoutManager.findFirstVisibleItemPosition();
 		int position = NO_POSITION;
 		for (int i = 0; i < items.size(); i++) {

@@ -1,10 +1,7 @@
 package org.briarproject.briar.forum;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumPost;
@@ -13,7 +10,6 @@ import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -225,20 +221,6 @@ public class ForumManagerTest
 		// the next line is critical, makes sure post doesn't show up
 		assertEquals(0, forumManager1.getPostHeaders(groupId0).size());
 		assertEquals(1, forumManager1.getPostHeaders(g1).size());
-	}
-
-	@Test
-	public void testMessageStoreAndLoad() {
-		MessageId msgId = new MessageId(TestUtils.getRandomId());
-		MessageId loadedId = null;
-		try {
-			messageTracker0.storeMessageId(groupId0, msgId);
-			loadedId = messageTracker0.loadStoredMessageId(groupId0);
-		} catch (DbException e) {
-			e.printStackTrace();
-		}
-		Assert.assertNotNull(loadedId);
-		Assert.assertTrue(msgId.equals(loadedId));
 	}
 
 }

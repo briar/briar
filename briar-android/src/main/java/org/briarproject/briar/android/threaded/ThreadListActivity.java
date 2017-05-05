@@ -149,11 +149,12 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 
 	@Override
 	@Nullable
-	public MessageId getLastVisibleMessageId() {
+	public MessageId getFirstVisibleMessageId() {
 		if (layoutManager != null && adapter != null) {
 			int position =
-					layoutManager.findLastCompletelyVisibleItemPosition();
-			return adapter.getItemAt(position).getId();
+					layoutManager.findFirstVisibleItemPosition();
+			I i = adapter.getItemAt(position);
+			return i == null ? null : adapter.getItemAt(position).getId();
 		}
 		return null;
 	}
@@ -190,10 +191,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 							if (items.isEmpty()) {
 								list.showData();
 							} else {
-								adapter.setItems(items);
-								adapter.postSetItemWithIdVisible(
-										items.getBottomVisibleItemId());
-								list.showData();
+								initList(items);
 								updateTextInput(replyId);
 							}
 						} else {
@@ -207,6 +205,15 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 						handleDbException(exception);
 					}
 				});
+	}
+
+	private void initList(final ThreadItemList<I> items) {
+		adapter.setItems(items);
+		MessageId messageId = items.getFirstVisibleItemId();
+		if (messageId != null)
+			adapter.setItemWithIdVisible(messageId);
+		updateUnreadCount();
+		list.showData();
 	}
 
 	protected void loadSharingContacts() {
