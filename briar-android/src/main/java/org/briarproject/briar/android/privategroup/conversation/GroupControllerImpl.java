@@ -17,6 +17,7 @@ import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.android.privategroup.conversation.GroupController.GroupListener;
 import org.briarproject.briar.android.threaded.ThreadListControllerImpl;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.privategroup.GroupMember;
 import org.briarproject.briar.api.privategroup.GroupMessage;
@@ -60,9 +61,10 @@ class GroupControllerImpl extends
 			@CryptoExecutor Executor cryptoExecutor,
 			PrivateGroupManager privateGroupManager,
 			GroupMessageFactory groupMessageFactory, EventBus eventBus,
-			Clock clock, AndroidNotificationManager notificationManager) {
+			MessageTracker messageTracker, Clock clock,
+			AndroidNotificationManager notificationManager) {
 		super(dbExecutor, lifecycleManager, identityManager, cryptoExecutor,
-				eventBus, clock, notificationManager);
+				eventBus, clock, notificationManager, messageTracker);
 		this.privateGroupManager = privateGroupManager;
 		this.groupMessageFactory = groupMessageFactory;
 	}

@@ -36,8 +36,7 @@ public class UnreadMessageButton extends FrameLayout {
 
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		inflater
-				.inflate(R.layout.unread_message_button, this, true);
+		inflater.inflate(R.layout.unread_message_button, this, true);
 
 		fab = (FloatingActionButton) findViewById(R.id.fab);
 		unread = (TextView) findViewById(R.id.unreadCountView);
@@ -64,15 +63,11 @@ public class UnreadMessageButton extends FrameLayout {
 
 	public void setUnreadCount(int count) {
 		if (count == 0) {
-			fab.setVisibility(GONE);
-//			fab.hide();
-			unread.setVisibility(GONE);
+			setVisibility(INVISIBLE);
 		} else {
 			// FIXME: Use animations when upgrading to support library 24.2.0
 			//        https://code.google.com/p/android/issues/detail?id=216469
-			fab.setVisibility(VISIBLE);
-//			if (!fab.isShown()) fab.show();
-			unread.setVisibility(VISIBLE);
+			setVisibility(VISIBLE);
 			unread.setText(String.valueOf(count));
 		}
 	}

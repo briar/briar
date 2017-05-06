@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.DestroyableContext;
 import org.briarproject.briar.android.controller.ActivityLifecycleController;
 import org.briarproject.briar.android.controller.handler.ExceptionHandler;
@@ -30,7 +31,7 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 
 	void loadItem(H header, ResultExceptionHandler<I, DbException> handler);
 
-	void loadItems(ResultExceptionHandler<Collection<I>, DbException> handler);
+	void loadItems(ResultExceptionHandler<ThreadItemList<I>, DbException> handler);
 
 	void markItemRead(I item);
 
@@ -41,7 +42,7 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 
 	void deleteNamedGroup(ExceptionHandler<DbException> handler);
 
-	interface ThreadListListener<H> extends DestroyableContext {
+	interface ThreadListListener<H> extends ThreadListDataSource {
 		@UiThread
 		void onHeaderReceived(H header);
 
@@ -50,6 +51,12 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 
 		@UiThread
 		void onInvitationAccepted(ContactId c);
+	}
+
+	interface ThreadListDataSource extends DestroyableContext {
+
+		@UiThread @Nullable
+		MessageId getFirstVisibleMessageId();
 	}
 
 }

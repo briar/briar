@@ -13,6 +13,8 @@ import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.android.TestBriarApplication;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter;
+import org.briarproject.briar.android.threaded.ThreadItemList;
+import org.briarproject.briar.android.threaded.ThreadItemListImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,10 +25,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -81,7 +80,7 @@ public class ForumActivityTest {
 
 	private TestForumActivity forumActivity;
 	@Captor
-	private ArgumentCaptor<UiResultExceptionHandler<Collection<ForumItem>, DbException>>
+	private ArgumentCaptor<UiResultExceptionHandler<ThreadItemList<ForumItem>, DbException>>
 			rc;
 
 	@Before
@@ -93,7 +92,7 @@ public class ForumActivityTest {
 				.withIntent(intent).create().resume().get();
 	}
 
-	private List<ForumItem> getDummyData() {
+	private ThreadItemList<ForumItem> getDummyData() {
 		ForumItem[] forumItems = new ForumItem[6];
 		for (int i = 0; i < forumItems.length; i++) {
 			AuthorId authorId = new AuthorId(TestUtils.getRandomId());
@@ -103,13 +102,15 @@ public class ForumActivityTest {
 					AUTHORS[i], System.currentTimeMillis(), author, UNKNOWN);
 			forumItems[i].setLevel(LEVELS[i]);
 		}
-		return new ArrayList<>(Arrays.asList(forumItems));
+		ThreadItemList<ForumItem> list = new ThreadItemListImpl<>();
+		list.addAll(Arrays.asList(forumItems));
+		return list;
 	}
 
 	@Test
 	public void testNestedEntries() {
 		ForumController mc = forumActivity.getController();
-		List<ForumItem> dummyData = getDummyData();
+		ThreadItemList<ForumItem> dummyData = getDummyData();
 		verify(mc, times(1)).loadItems(rc.capture());
 		rc.getValue().onResult(dummyData);
 		ThreadItemAdapter<ForumItem> adapter = forumActivity.getAdapter();
