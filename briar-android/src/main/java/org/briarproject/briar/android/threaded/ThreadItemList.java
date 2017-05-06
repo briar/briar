@@ -11,5 +11,5 @@ public interface ThreadItemList<I extends ThreadItem> extends List<I> {
 	@Nullable
 	MessageId getFirstVisibleItemId();
 
-	void setBottomVisibleItemId(@Nullable MessageId bottomVisibleItemId);
+	void setFirstVisibleId(@Nullable MessageId bottomVisibleItemId);
 }

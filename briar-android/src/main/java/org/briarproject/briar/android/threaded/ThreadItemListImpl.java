@@ -16,7 +16,7 @@ public class ThreadItemListImpl<I extends ThreadItem> extends ArrayList<I>
 		return bottomVisibleItemId;
 	}
 
-	public void setBottomVisibleItemId(@Nullable MessageId bottomVisibleItemId) {
+	public void setFirstVisibleId(@Nullable MessageId bottomVisibleItemId) {
 		this.bottomVisibleItemId = bottomVisibleItemId;
 	}
 }

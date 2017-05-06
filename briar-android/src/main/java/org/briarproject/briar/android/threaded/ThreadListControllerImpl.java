@@ -317,7 +317,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 		MessageId msgId = messageTracker.loadStoredMessageId(groupId);
 		if (LOG.isLoggable(INFO))
 			LOG.info("Loaded last top visible message id " + msgId);
-		items.setBottomVisibleItemId(msgId);
+		items.setFirstVisibleId(msgId);
 		return items;
 	}
 
