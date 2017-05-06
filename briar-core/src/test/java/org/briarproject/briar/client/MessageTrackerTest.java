@@ -6,20 +6,17 @@ import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.client.MessageTracker;
-import org.briarproject.briar.test.BriarTestCase;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 import static org.briarproject.briar.client.MessageTrackerConstants.GROUP_KEY_STORED_MESSAGE_ID;
 
-public class MessageTrackerTest extends BriarTestCase {
+public class MessageTrackerTest extends BrambleMockTestCase {
 
-	protected final Mockery context = new Mockery();
 	protected final GroupId groupId = new GroupId(TestUtils.getRandomId());
 	protected final ClientHelper clientHelper =
 			context.mock(ClientHelper.class);
@@ -50,8 +47,4 @@ public class MessageTrackerTest extends BriarTestCase {
 		Assert.assertTrue(messageId.equals(loadedId));
 	}
 
-	@After
-	public void checkExpectations() {
-		context.assertIsSatisfied();
-	}
 }

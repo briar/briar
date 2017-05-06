@@ -67,15 +67,13 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	}
 
 	void setItemWithIdVisible(MessageId messageId) {
-		if (messageId != null) {
-			int pos = 0;
-			for (I item : items) {
-				if (item.getId().equals(messageId)) {
-					layoutManager.scrollToPosition(pos);
-					break;
-				}
-				pos++;
+		int pos = 0;
+		for (I item : items) {
+			if (item.getId().equals(messageId)) {
+				layoutManager.scrollToPosition(pos);
+				break;
 			}
+			pos++;
 		}
 	}
 

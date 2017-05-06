@@ -154,7 +154,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 			int position =
 					layoutManager.findFirstVisibleItemPosition();
 			I i = adapter.getItemAt(position);
-			return i == null ? null : adapter.getItemAt(position).getId();
+			return i == null ? null : i.getId();
 		}
 		return null;
 	}
