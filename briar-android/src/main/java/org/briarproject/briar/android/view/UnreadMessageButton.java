@@ -2,7 +2,6 @@ package org.briarproject.briar.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
@@ -12,6 +11,8 @@ import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+
+import javax.annotation.Nullable;
 
 @UiThread
 @NotNullByDefault

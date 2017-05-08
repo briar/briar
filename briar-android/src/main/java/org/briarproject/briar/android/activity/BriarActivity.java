@@ -3,7 +3,6 @@ package org.briarproject.briar.android.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
-import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.transition.Slide;
@@ -21,6 +20,7 @@ import org.briarproject.briar.android.panic.ExitActivity;
 
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;

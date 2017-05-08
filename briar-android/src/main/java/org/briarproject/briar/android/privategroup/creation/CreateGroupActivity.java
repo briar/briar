@@ -2,7 +2,6 @@ package org.briarproject.briar.android.privategroup.creation;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -13,6 +12,8 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.sharing.BaseMessageFragment.MessageFragmentListener;
+
+import javax.annotation.Nullable;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

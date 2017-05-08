@@ -10,7 +10,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
-import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v7.preference.PreferenceManager;
 
@@ -38,6 +37,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.Manifest.permission.SYSTEM_ALERT_WINDOW;
