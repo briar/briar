@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
@@ -62,8 +61,6 @@ public class BlogManagerImplTest extends BriarTestCase {
 	private final IdentityManager identityManager =
 			context.mock(IdentityManager.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
-	private final ContactManager contactManager =
-			context.mock(ContactManager.class);
 	private final BlogFactory blogFactory = context.mock(BlogFactory.class);
 
 	private final Blog blog1, blog2;
@@ -74,7 +71,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		MetadataParser metadataParser = context.mock(MetadataParser.class);
 		BlogPostFactory blogPostFactory = context.mock(BlogPostFactory.class);
 		blogManager = new BlogManagerImpl(db, identityManager, clientHelper,
-				metadataParser, contactManager, blogFactory, blogPostFactory);
+				metadataParser, blogFactory, blogPostFactory);
 
 		blog1 = createBlog();
 		blog2 = createBlog();
@@ -126,6 +123,8 @@ public class BlogManagerImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(blogFactory).createBlog(blog2.getAuthor());
 			will(returnValue(blog2));
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(blog1.getAuthor()));
 			oneOf(db).removeGroup(txn, blog2.getGroup());
 		}});
 
@@ -173,13 +172,11 @@ public class BlogManagerImplTest extends BriarTestCase {
 	public void testRemoveBlog() throws Exception {
 		final Transaction txn = new Transaction(null, false);
 
-		checkGetBlogExpectations(txn, false, blog1);
 		context.checking(new Expectations() {{
+			oneOf(db).startTransaction(false);
+			will(returnValue(txn));
 			oneOf(identityManager).getLocalAuthor(txn);
 			will(returnValue(blog2.getAuthor()));
-			oneOf(contactManager).contactExists(txn, blog1.getAuthor().getId(),
-					blog2.getAuthor().getId());
-			will(returnValue(false));
 			oneOf(db).removeGroup(txn, blog1.getGroup());
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
@@ -240,57 +237,29 @@ public class BlogManagerImplTest extends BriarTestCase {
 	public void testBlogCanBeRemoved() throws Exception {
 		// check that own personal blogs can not be removed
 		final Transaction txn = new Transaction(null, true);
-		checkGetBlogExpectations(txn, true, blog1);
 		context.checking(new Expectations() {{
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn));
 			oneOf(identityManager).getLocalAuthor(txn);
 			will(returnValue(blog1.getAuthor()));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
-		assertFalse(blogManager.canBeRemoved(blog1.getId()));
+		assertFalse(blogManager.canBeRemoved(blog1));
 		context.assertIsSatisfied();
 
-		// check that blogs of contacts can not be removed
+		// check that blogs of contacts can be removed
 		final Transaction txn2 = new Transaction(null, true);
-		checkGetBlogExpectations(txn2, true, blog1);
 		context.checking(new Expectations() {{
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn2));
 			oneOf(identityManager).getLocalAuthor(txn2);
 			will(returnValue(blog2.getAuthor()));
-			oneOf(contactManager).contactExists(txn2, blog1.getAuthor().getId(),
-					blog2.getAuthor().getId());
-			will(returnValue(true));
 			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 		}});
-		assertFalse(blogManager.canBeRemoved(blog1.getId()));
+		assertTrue(blogManager.canBeRemoved(blog1));
 		context.assertIsSatisfied();
-
-		// check that blogs can be removed if they don't belong to a contact
-		final Transaction txn3 = new Transaction(null, true);
-		checkGetBlogExpectations(txn3, true, blog1);
-		context.checking(new Expectations() {{
-			oneOf(identityManager).getLocalAuthor(txn3);
-			will(returnValue(blog2.getAuthor()));
-			oneOf(contactManager).contactExists(txn3, blog1.getAuthor().getId(),
-					blog2.getAuthor().getId());
-			will(returnValue(false));
-			oneOf(db).commitTransaction(txn3);
-			oneOf(db).endTransaction(txn3);
-		}});
-		assertTrue(blogManager.canBeRemoved(blog1.getId()));
-		context.assertIsSatisfied();
-	}
-
-	private void checkGetBlogExpectations(final Transaction txn,
-			final boolean readOnly, final Blog blog) throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(readOnly);
-			will(returnValue(txn));
-			oneOf(db).getGroup(txn, blog.getId());
-			will(returnValue(blog.getGroup()));
-			oneOf(blogFactory).parseBlog(blog.getGroup());
-			will(returnValue(blog));
-		}});
 	}
 
 	private Blog createBlog() {

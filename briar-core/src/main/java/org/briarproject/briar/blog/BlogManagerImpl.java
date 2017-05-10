@@ -3,7 +3,6 @@ package org.briarproject.briar.blog;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
@@ -76,7 +75,6 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		AddContactHook, RemoveContactHook, Client {
 
 	private final IdentityManager identityManager;
-	private final ContactManager contactManager;
 	private final BlogFactory blogFactory;
 	private final BlogPostFactory blogPostFactory;
 	private final List<RemoveBlogHook> removeHooks;
@@ -84,12 +82,10 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	@Inject
 	BlogManagerImpl(DatabaseComponent db, IdentityManager identityManager,
 			ClientHelper clientHelper, MetadataParser metadataParser,
-			ContactManager contactManager, BlogFactory blogFactory,
-			BlogPostFactory blogPostFactory) {
+			BlogFactory blogFactory, BlogPostFactory blogPostFactory) {
 		super(db, clientHelper, metadataParser);
 
 		this.identityManager = identityManager;
-		this.contactManager = contactManager;
 		this.blogFactory = blogFactory;
 		this.blogPostFactory = blogPostFactory;
 		removeHooks = new CopyOnWriteArrayList<RemoveBlogHook>();
@@ -120,7 +116,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
 		Blog b = blogFactory.createBlog(c.getAuthor());
-		removeBlog(txn, b, true);
+		removeBlog(txn, b);
 	}
 
 	@Override
@@ -191,10 +187,10 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
-	public boolean canBeRemoved(GroupId g) throws DbException {
+	public boolean canBeRemoved(Blog b) throws DbException {
 		Transaction txn = db.startTransaction(true);
 		try {
-			boolean canBeRemoved = canBeRemoved(txn, g);
+			boolean canBeRemoved = canBeRemoved(txn, b);
 			db.commitTransaction(txn);
 			return canBeRemoved;
 		} finally {
@@ -202,23 +198,18 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		}
 	}
 
-	private boolean canBeRemoved(Transaction txn, GroupId g)
+	private boolean canBeRemoved(Transaction txn, Blog b)
 			throws DbException {
-		boolean canBeRemoved;
-		Blog b = getBlog(txn, g);
 		AuthorId authorId = b.getAuthor().getId();
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
-		if (localAuthor.getId().equals(authorId)) return false;
-		canBeRemoved = !contactManager
-				.contactExists(txn, authorId, localAuthor.getId());
-		return canBeRemoved;
+		return !localAuthor.getId().equals(authorId);
 	}
 
 	@Override
 	public void removeBlog(Blog b) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
-			removeBlog(txn, b, false);
+			removeBlog(txn, b);
 			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
@@ -227,12 +218,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 	@Override
 	public void removeBlog(Transaction txn, Blog b) throws DbException {
-		removeBlog(txn, b, false);
-	}
-
-	private void removeBlog(Transaction txn, Blog b, boolean forced)
-			throws DbException {
-		if (!forced && !canBeRemoved(txn, b.getId()))
+		if (!canBeRemoved(txn, b))
 			throw new IllegalArgumentException();
 		for (RemoveBlogHook hook : removeHooks)
 			hook.removingBlog(txn, b);

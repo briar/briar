@@ -41,7 +41,7 @@ import static org.junit.Assert.fail;
 public class BlogSharingIntegrationTest
 		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
-	private BlogManager blogManager1;
+	private BlogManager blogManager0, blogManager1;
 	private Blog blog0, blog1, blog2;
 	private SharerListener listener0;
 	private InviteeListener listener1;
@@ -60,7 +60,7 @@ public class BlogSharingIntegrationTest
 	public void setUp() throws Exception {
 		super.setUp();
 
-		BlogManager blogManager0 = c0.getBlogManager();
+		blogManager0 = c0.getBlogManager();
 		blogManager1 = c1.getBlogManager();
 		blogSharingManager0 = c0.getBlogSharingManager();
 		blogSharingManager1 = c1.getBlogSharingManager();
@@ -370,7 +370,7 @@ public class BlogSharingIntegrationTest
 		assertEquals(contact0From1, sharedBy.iterator().next());
 
 		// shared blog can be removed
-		assertTrue(blogManager1.canBeRemoved(blog2.getId()));
+		assertTrue(blogManager1.canBeRemoved(blog2));
 
 		// invitee removes blog again
 		blogManager1.removeBlog(blog2);
@@ -386,44 +386,33 @@ public class BlogSharingIntegrationTest
 	}
 
 	@Test
-	public void testSharedBlogBecomesPermanent() throws Exception {
+	public void testRemovePreSharedBlog() throws Exception {
 		// let invitee accept all requests
 		listenToEvents(true);
 
-		// invitee only sees two blogs
-		assertEquals(2, blogManager1.getBlogs().size());
+		// 0 and 1 are sharing blog 1 with each other
+		assertTrue(blogSharingManager0.getSharedWith(blog1.getId())
+				.contains(contact1From0));
+		assertTrue(blogSharingManager1.getSharedWith(blog1.getId())
+				.contains(contact0From1));
 
-		// sharer sends invitation for 2's blog to 1
-		blogSharingManager0
-				.sendInvitation(blog2.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+		// 0 removes blog 1
+		assertTrue(blogManager0.getBlogs().contains(blog1));
+		blogManager0.removeBlog(blog1);
+		assertFalse(blogManager0.getBlogs().contains(blog1));
 
-		// sync first request message
+		// sync leave message to 0
 		sync0To1(1, true);
-		eventWaiter.await(TIMEOUT, 1);
-		assertTrue(listener1.requestReceived);
 
-		// make sure blog2 is shared by 0
-		Collection<Contact> contacts =
-				blogSharingManager1.getSharedWith(blog2.getId());
-		assertEquals(1, contacts.size());
-		assertTrue(contacts.contains(contact0From1));
+		// 0 and 1 are no longer sharing blog 1 with each other
+		assertFalse(blogSharingManager0.getSharedWith(blog1.getId())
+				.contains(contact1From0));
+		assertFalse(blogSharingManager1.getSharedWith(blog1.getId())
+				.contains(contact0From1));
 
-		// sync response back
-		sync1To0(1, true);
-		eventWaiter.await(TIMEOUT, 1);
-		assertTrue(listener0.responseReceived);
-
-		// blog was added and can be removed
-		assertEquals(3, blogManager1.getBlogs().size());
-		assertTrue(blogManager1.canBeRemoved(blog2.getId()));
-
-		// 1 and 2 are adding each other
-		addContacts1And2();
-		assertEquals(3, blogManager1.getBlogs().size());
-
-		// now blog can not be removed anymore
-		assertFalse(blogManager1.canBeRemoved(blog2.getId()));
+		// 1 can again share blog 1 with 0
+		assertTrue(
+				blogSharingManager1.canBeShared(blog1.getId(), contact0From1));
 	}
 
 	@Test

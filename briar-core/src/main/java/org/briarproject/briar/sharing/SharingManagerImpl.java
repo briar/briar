@@ -48,6 +48,7 @@ import static org.briarproject.briar.sharing.MessageType.DECLINE;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 import static org.briarproject.briar.sharing.MessageType.LEAVE;
 import static org.briarproject.briar.sharing.SharingConstants.GROUP_KEY_CONTACT_ID;
+import static org.briarproject.briar.sharing.State.SHARING;
 
 @NotNullByDefault
 abstract class SharingManagerImpl<S extends Shareable>
@@ -136,6 +137,16 @@ abstract class SharingManagerImpl<S extends Shareable>
 		// Store the updated session
 		storeSession(txn, storageId, session);
 		return false;
+	}
+
+	protected void initializeSharedSession(Transaction txn, Contact c,
+			S shareable) throws DbException, FormatException {
+		GroupId contactGroupId = getContactGroup(c).getId();
+		Session session =
+				new Session(SHARING, contactGroupId, shareable.getId(), null,
+						null, 0, 0);
+		MessageId storageId = createStorageId(txn, contactGroupId);
+		storeSession(txn, storageId, session);
 	}
 
 	private SessionId getSessionId(GroupId shareableId) {
@@ -414,7 +425,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 		}
 	}
 
-	protected boolean canBeShared(Transaction txn, GroupId g, Contact c)
+	private boolean canBeShared(Transaction txn, GroupId g, Contact c)
 			throws DbException {
 		GroupId contactGroupId = getContactGroup(c).getId();
 		SessionId sessionId = getSessionId(g);
