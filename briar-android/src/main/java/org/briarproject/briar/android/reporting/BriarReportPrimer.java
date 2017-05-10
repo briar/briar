@@ -146,7 +146,7 @@ public class BriarReportPrimer implements ReportPrimer {
 			NetworkInfo wifi = cm.getNetworkInfo(TYPE_WIFI);
 			boolean wifiAvailable = wifi != null && wifi.isAvailable();
 			// Is wifi enabled?
-			o = ctx.getSystemService(WIFI_SERVICE);
+			o = ctx.getApplicationContext().getSystemService(WIFI_SERVICE);
 			WifiManager wm = (WifiManager) o;
 			boolean wifiEnabled = wm != null &&
 					wm.getWifiState() == WIFI_STATE_ENABLED;
