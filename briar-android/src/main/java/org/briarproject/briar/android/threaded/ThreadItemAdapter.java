@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.threaded;
 
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +13,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.VersionedAdapter;
 
 import java.util.Collection;
+
+import javax.annotation.Nullable;
 
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 

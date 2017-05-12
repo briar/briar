@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.contact;
 
-import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -12,6 +11,8 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
+
+import javax.annotation.Nullable;
 
 import im.delight.android.identicons.IdenticonDrawable;
 
