@@ -60,7 +60,7 @@ public interface BlogManager {
 	 * Adds a comment to an existing blog post or reblogs it.
 	 */
 	void addLocalComment(LocalAuthor author, GroupId groupId,
-			@Nullable String comment, BlogPostHeader wHeader)
+			@Nullable String comment, BlogPostHeader parentHeader)
 			throws DbException;
 
 	/**
