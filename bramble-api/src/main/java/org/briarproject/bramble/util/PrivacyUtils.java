@@ -19,7 +19,7 @@ public class PrivacyUtils {
 
 	@Nullable
 	public static String scrubMacAddress(@Nullable String address) {
-		if (address == null) return null;
+		if (address == null || address.length() == 0) return null;
 		// this is a fake address we need to know about
 		if (address.equals("02:00:00:00:00:00")) return address;
 		// keep first and last octet of MAC address
