@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.controller;
 
-import android.support.annotation.Nullable;
-
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
@@ -15,6 +13,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 @NotNullByDefault

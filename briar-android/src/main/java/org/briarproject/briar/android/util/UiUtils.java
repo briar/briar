@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.util;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -22,6 +21,8 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
+
+import javax.annotation.Nullable;
 
 import static android.text.format.DateUtils.DAY_IN_MILLIS;
 import static android.text.format.DateUtils.FORMAT_ABBREV_MONTH;

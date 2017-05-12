@@ -162,7 +162,6 @@
 	<string name="groups_create_group_invitation_button">Send Invitation</string>
 	<string name="groups_create_group_hint">Add a name for your private group</string>
 	<string name="groups_invitation_sent">Group invitation has been sent</string>
-	<string name="groups_compose_message">Compose Message</string>
 	<string name="groups_message_sent">Message sent</string>
 	<string name="groups_member_list">Member List</string>
 	<string name="groups_invite_members">Invite Members</string>
@@ -216,15 +215,10 @@
 		<item quantity="one">%d post</item>
 		<item quantity="other">%d posts</item>
 	</plurals>
-	<string name="forum_compose_post">New Forum Post</string>
 	<string name="forum_new_entry_posted">Forum entry posted</string>
 	<string name="forum_new_message_hint">New Entry</string>
 	<string name="forum_message_reply_hint">New Reply</string>
 	<string name="btn_reply">Reply</string>
-	<plurals name="message_replies">
-		<item quantity="one">%1$d reply</item>
-		<item quantity="other">%1$d replies</item>
-	</plurals>
 	<string name="forum_leave">Leave Forum</string>
 	<string name="dialog_title_leave_forum">Confirm Leaving Forum</string>
 	<string name="dialog_message_leave_forum">Are you sure that you want to leave this forum? Contacts you have shared this forum with might get cut off from receiving updates for this forum.</string>

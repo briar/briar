@@ -34,7 +34,7 @@ public interface BlogManager {
 	/**
 	 * Returns true if a blog can be removed.
 	 */
-	boolean canBeRemoved(GroupId g) throws DbException;
+	boolean canBeRemoved(Blog b) throws DbException;
 
 	/**
 	 * Removes and deletes a blog.

@@ -37,6 +37,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_GROUP_INVITE;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
 
@@ -50,8 +51,8 @@ public class GroupActivity extends
 	GroupController controller;
 
 	private boolean isCreator, isDissolved = false;
-	private MenuItem writeMenuItem, revealMenuItem, inviteMenuItem,
-			leaveMenuItem, dissolveMenuItem;
+	private MenuItem revealMenuItem, inviteMenuItem, leaveMenuItem,
+			dissolveMenuItem;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -139,7 +140,6 @@ public class GroupActivity extends
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.group_actions, menu);
 
-		writeMenuItem = menu.findItem(R.id.action_group_compose_message);
 		revealMenuItem = menu.findItem(R.id.action_group_reveal);
 		inviteMenuItem = menu.findItem(R.id.action_group_invite);
 		leaveMenuItem = menu.findItem(R.id.action_group_leave);
@@ -152,9 +152,6 @@ public class GroupActivity extends
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.action_group_compose_message:
-				showTextInput(null);
-				return true;
 			case R.id.action_group_member_list:
 				Intent i1 = new Intent(this, GroupMemberListActivity.class);
 				i1.putExtra(GROUP_ID, groupId.getBytes());
@@ -205,7 +202,6 @@ public class GroupActivity extends
 
 	private void setGroupEnabled(boolean enabled) {
 		isDissolved = !enabled;
-		if (writeMenuItem != null) writeMenuItem.setVisible(enabled);
 		textInput.setSendButtonEnabled(enabled);
 		list.getRecyclerView().setAlpha(enabled ? 1f : 0.5f);
 
@@ -213,6 +209,8 @@ public class GroupActivity extends
 			textInput.setVisibility(GONE);
 			if (textInput.isKeyboardOpen()) textInput.hideSoftKeyboard();
 			if (textInput.isEmojiDrawerOpen()) textInput.hideEmojiDrawer();
+		} else {
+			textInput.setVisibility(VISIBLE);
 		}
 	}
 
@@ -229,7 +227,6 @@ public class GroupActivity extends
 			leaveMenuItem.setVisible(true);
 			dissolveMenuItem.setVisible(false);
 		}
-		writeMenuItem.setVisible(!isDissolved);
 	}
 
 	private void showLeaveGroupDialog() {

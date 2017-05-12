@@ -5,14 +5,8 @@
 		<item name="colorPrimary">@color/briar_primary</item>
 		<item name="colorPrimaryDark">@color/briar_primary_dark</item>
 		<item name="colorAccent">@color/briar_accent</item>
-		<item name="android:windowBackground">@color/window_background</item>
-		<item name="android:textColorPrimary">@color/briar_text_primary</item>
-		<item name="android:textColorPrimaryInverse">@color/briar_text_primary_inverse</item>
-		<item name="android:textColorSecondary">@color/briar_text_secondary</item>
-		<item name="android:textColorSecondaryInverse">@color/briar_text_secondary_inverse</item>
-		<item name="android:textColorTertiary">@color/briar_text_tertiary</item>
-		<item name="android:textColorTertiaryInverse">@color/briar_text_tertiary_inverse</item>
 		<item name="android:textColorLink">@color/briar_text_link</item>
+		<item name="android:windowBackground">@color/window_background</item>
 		<item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
 		<item name="android:filterTouchesWhenObscured">true</item>
 
@@ -40,12 +34,6 @@
 		<item name="colorAccent">@color/briar_accent</item>
 		<item name="buttonBarPositiveButtonStyle">@style/BriarButtonFlat.Positive</item>
 		<item name="buttonBarNegativeButtonStyle">@style/BriarButtonFlat.Negative</item>
-		<item name="android:textColorPrimary">@color/briar_text_primary</item>
-		<item name="android:textColorPrimaryInverse">@color/briar_text_primary_inverse</item>
-		<item name="android:textColorSecondary">@color/briar_text_secondary</item>
-		<item name="android:textColorSecondaryInverse">@color/briar_text_secondary_inverse</item>
-		<item name="android:textColorTertiary">@color/briar_text_tertiary</item>
-		<item name="android:textColorTertiaryInverse">@color/briar_text_tertiary_inverse</item>
 		<item name="android:textColorLink">@color/briar_text_link</item>
 		<item name="android:windowAnimationStyle">@style/DialogAnimation</item>
 		<item name="android:filterTouchesWhenObscured">true</item>

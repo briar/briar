@@ -17,6 +17,7 @@ import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.android.forum.ForumController.ForumListener;
 import org.briarproject.briar.android.threaded.ThreadListControllerImpl;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
@@ -55,10 +56,10 @@ class ForumControllerImpl extends
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor,
 			ForumManager forumManager, ForumSharingManager forumSharingManager,
-			EventBus eventBus, Clock clock,
+			EventBus eventBus, Clock clock, MessageTracker messageTracker,
 			AndroidNotificationManager notificationManager) {
 		super(dbExecutor, lifecycleManager, identityManager, cryptoExecutor,
-				eventBus, clock, notificationManager);
+				eventBus, clock, notificationManager, messageTracker);
 		this.forumManager = forumManager;
 		this.forumSharingManager = forumSharingManager;
 	}

@@ -3,7 +3,6 @@ package org.briarproject.briar.android.threaded;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
-import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
@@ -26,6 +25,7 @@ import org.briarproject.briar.android.controller.SharingController;
 import org.briarproject.briar.android.controller.SharingController.SharingListener;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
+import org.briarproject.briar.android.threaded.ThreadListController.ThreadListDataSource;
 import org.briarproject.briar.android.threaded.ThreadListController.ThreadListListener;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.TextInputView;
@@ -38,13 +38,12 @@ import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 import java.util.Collection;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.make;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.briar.android.threaded.ThreadItemAdapter.UnreadCount;
 
@@ -53,9 +52,8 @@ import static org.briarproject.briar.android.threaded.ThreadItemAdapter.UnreadCo
 public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadItemAdapter<I>, I extends ThreadItem, H extends PostHeader>
 		extends BriarActivity
 		implements ThreadListListener<H>, TextInputListener, SharingListener,
-		ThreadItemListener<I> {
+		ThreadItemListener<I>, ThreadListDataSource {
 
-	protected static final String KEY_INPUT_VISIBILITY = "inputVisibility";
 	protected static final String KEY_REPLY_ID = "replyId";
 
 	private static final Logger LOG =
@@ -71,6 +69,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	private MessageId replyId;
 
 	protected abstract ThreadListController<G, I, H> getController();
+
 	@Inject
 	protected SharingController sharingController;
 
@@ -89,7 +88,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		getController().setGroupId(groupId);
 
 		textInput = (TextInputView) findViewById(R.id.text_input_container);
-		textInput.setVisibility(GONE);
 		textInput.setListener(this);
 		list = (BriarRecyclerView) findViewById(R.id.list);
 		layoutManager = new LinearLayoutManager(this);
@@ -108,6 +106,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 							updateUnreadCount();
 						}
 					}
+
 					@Override
 					public void onScrollStateChanged(RecyclerView recyclerView,
 							int newState) {
@@ -148,6 +147,18 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		loadSharingContacts();
 	}
 
+	@Override
+	@Nullable
+	public MessageId getFirstVisibleMessageId() {
+		if (layoutManager != null && adapter != null) {
+			int position =
+					layoutManager.findFirstVisibleItemPosition();
+			I i = adapter.getItemAt(position);
+			return i == null ? null : i.getId();
+		}
+		return null;
+	}
+
 	protected abstract A createAdapter(LinearLayoutManager layoutManager);
 
 	protected void loadNamedGroup() {
@@ -171,18 +182,17 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	protected void loadItems() {
 		final int revision = adapter.getRevision();
 		getController().loadItems(
-				new UiResultExceptionHandler<Collection<I>, DbException>(this) {
+				new UiResultExceptionHandler<ThreadItemList<I>, DbException>(
+						this) {
 					@Override
-					public void onResultUi(Collection<I> items) {
+					public void onResultUi(ThreadItemList<I> items) {
 						if (revision == adapter.getRevision()) {
 							adapter.incrementRevision();
 							if (items.isEmpty()) {
 								list.showData();
 							} else {
-								adapter.setItems(items);
-								list.showData();
-								if (replyId != null)
-									adapter.setHighlightedItem(replyId);
+								initList(items);
+								updateTextInput(replyId);
 							}
 						} else {
 							LOG.info("Concurrent update, reloading");
@@ -195,6 +205,15 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 						handleDbException(exception);
 					}
 				});
+	}
+
+	private void initList(final ThreadItemList<I> items) {
+		adapter.setItems(items);
+		MessageId messageId = items.getFirstVisibleItemId();
+		if (messageId != null)
+			adapter.setItemWithIdVisible(messageId);
+		updateUnreadCount();
+		list.showData();
 	}
 
 	protected void loadSharingContacts() {
@@ -232,17 +251,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	}
 
 	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-		super.onRestoreInstanceState(savedInstanceState);
-		boolean visible = savedInstanceState.getBoolean(KEY_INPUT_VISIBILITY);
-		textInput.setVisibility(visible ? VISIBLE : GONE);
-	}
-
-	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		boolean visible = textInput.getVisibility() == VISIBLE;
-		outState.putBoolean(KEY_INPUT_VISIBILITY, visible);
 		ThreadItem replyItem = adapter.getHighlightedItem();
 		if (replyItem != null) {
 			outState.putByteArray(KEY_REPLY_ID, replyItem.getId().getBytes());
@@ -262,9 +272,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 
 	@Override
 	public void onBackPressed() {
-		if (textInput.getVisibility() == VISIBLE) {
-			textInput.setVisibility(GONE);
-			adapter.setHighlightedItem(null);
+		if (adapter.getHighlightedItem() != null) {
+			updateTextInput(null);
 		} else {
 			super.onBackPressed();
 		}
@@ -280,7 +289,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 
 	@Override
 	public void onReplyClick(final I item) {
-		showTextInput(item);
+		updateTextInput(item.getId());
 		if (textInput.isKeyboardOpen()) {
 			scrollToItemAtTop(item);
 		} else {
@@ -330,20 +339,15 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		snackbar.show();
 	}
 
-	protected void showTextInput(@Nullable I replyItem) {
-		// An animation here would be an overkill because of the keyboard
-		// popping up.
-		// only clear the text when the input container was not visible
-		if (textInput.getVisibility() != VISIBLE) {
-			textInput.setVisibility(VISIBLE);
-			textInput.setText("");
+	private void updateTextInput(@Nullable MessageId replyItemId) {
+		if (replyItemId != null) {
+			textInput.setHint(R.string.forum_message_reply_hint);
+			textInput.requestFocus();
+			textInput.showSoftKeyboard();
+		} else {
+			textInput.setHint(R.string.forum_new_message_hint);
 		}
-		textInput.requestFocus();
-		textInput.showSoftKeyboard();
-		textInput.setHint(replyItem == null ? R.string.forum_new_message_hint :
-				R.string.forum_message_reply_hint);
-		adapter.setHighlightedItem(
-				replyItem == null ? null : replyItem.getId());
+		adapter.setHighlightedItem(replyItemId);
 	}
 
 	@Override
@@ -369,9 +373,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 				};
 		getController().createAndStoreMessage(text, replyItem, handler);
 		textInput.hideSoftKeyboard();
-		textInput.setVisibility(GONE);
 		textInput.setText("");
-		adapter.setHighlightedItem(null);
+		updateTextInput(null);
 	}
 
 	protected abstract int getMaxBodyLength();

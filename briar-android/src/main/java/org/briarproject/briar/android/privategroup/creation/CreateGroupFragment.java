@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
@@ -84,9 +85,9 @@ public class CreateGroupFragment extends BaseFragment {
 
 	private void validateName() {
 		String name = this.name.getText().toString();
-		if (name.length() < 1 || name.length() > MAX_GROUP_NAME_LENGTH)
+		if (name.length() < 1 || StringUtils.utf8IsTooLong(name, MAX_GROUP_NAME_LENGTH))
 			button.setEnabled(false);
-		else if(!button.isEnabled())
+		else if (!button.isEnabled())
 			button.setEnabled(true);
 	}
 

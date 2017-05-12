@@ -1,5 +1,6 @@
 package org.briarproject.briar.sharing;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
@@ -11,7 +12,6 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogManager;
@@ -52,18 +52,17 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 	}
 
 	@Override
-	protected boolean canBeShared(Transaction txn, GroupId shareableId,
-			Contact c) throws DbException {
-		// check if shareableId belongs to our personal blog
-		LocalAuthor author = identityManager.getLocalAuthor(txn);
-		Blog b = blogManager.getPersonalBlog(author);
-		if (b.getId().equals(shareableId)) return false;
-
-		// check if shareableId belongs to c's personal blog
-		b = blogManager.getPersonalBlog(c.getAuthor());
-		if (b.getId().equals(shareableId)) return false;
-
-		return super.canBeShared(txn, shareableId, c);
+	public void addingContact(Transaction txn, Contact c) throws DbException {
+		super.addingContact(txn, c);
+		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
+		Blog ourBlog = blogManager.getPersonalBlog(localAuthor);
+		Blog theirBlog = blogManager.getPersonalBlog(c.getAuthor());
+		try {
+			initializeSharedSession(txn, c, ourBlog);
+			initializeSharedSession(txn, c, theirBlog);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 	}
 
 	@Override

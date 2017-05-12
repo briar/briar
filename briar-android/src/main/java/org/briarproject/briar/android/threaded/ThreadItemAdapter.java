@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.threaded;
 
-import android.support.annotation.Nullable;
+import android.os.Handler;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +14,8 @@ import org.briarproject.briar.android.util.VersionedAdapter;
 
 import java.util.Collection;
 
+import javax.annotation.Nullable;
+
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 @UiThread
@@ -26,6 +28,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	protected final NestedTreeList<I> items = new NestedTreeList<>();
 	private final ThreadItemListener<I> listener;
 	private final LinearLayoutManager layoutManager;
+	private final Handler handler = new Handler();
 
 	private volatile int revision = 0;
 
@@ -62,6 +65,17 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	@Override
 	public void incrementRevision() {
 		revision++;
+	}
+
+	void setItemWithIdVisible(MessageId messageId) {
+		int pos = 0;
+		for (I item : items) {
+			if (item.getId().equals(messageId)) {
+				layoutManager.scrollToPosition(pos);
+				break;
+			}
+			pos++;
+		}
 	}
 
 	public void setItems(Collection<I> items) {
@@ -144,7 +158,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	/**
 	 * Returns the position of the first unread item below the current viewport
 	 */
-	public int getVisibleUnreadPosBottom() {
+	int getVisibleUnreadPosBottom() {
 		final int positionBottom = layoutManager.findLastVisibleItemPosition();
 		if (positionBottom == NO_POSITION) return NO_POSITION;
 		for (int i = positionBottom + 1; i < items.size(); i++) {
@@ -156,7 +170,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	/**
 	 * Returns the position of the first unread item above the current viewport
 	 */
-	public int getVisibleUnreadPosTop() {
+	int getVisibleUnreadPosTop() {
 		final int positionTop = layoutManager.findFirstVisibleItemPosition();
 		int position = NO_POSITION;
 		for (int i = 0; i < items.size(); i++) {

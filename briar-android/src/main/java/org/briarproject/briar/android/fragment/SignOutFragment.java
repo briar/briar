@@ -1,13 +1,14 @@
 package org.briarproject.briar.android.fragment;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
+
+import javax.annotation.Nullable;
 
 public class SignOutFragment extends BaseFragment {
 

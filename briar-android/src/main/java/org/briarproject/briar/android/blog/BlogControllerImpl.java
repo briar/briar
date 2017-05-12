@@ -169,7 +169,7 @@ class BlogControllerImpl extends BaseControllerImpl
 					LocalAuthor a = identityManager.getLocalAuthor();
 					Blog b = blogManager.getBlog(groupId);
 					boolean ours = a.getId().equals(b.getAuthor().getId());
-					boolean removable = blogManager.canBeRemoved(groupId);
+					boolean removable = blogManager.canBeRemoved(b);
 					BlogItem blog = new BlogItem(b, ours, removable);
 					long duration = System.currentTimeMillis() - now;
 					if (LOG.isLoggable(INFO))

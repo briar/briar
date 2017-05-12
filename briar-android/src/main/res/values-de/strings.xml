@@ -151,7 +151,6 @@
   <string name="groups_create_group_invitation_button">Einladung schicken</string>
   <string name="groups_create_group_hint">Gebe Deiner privaten Gruppe einen Namen</string>
   <string name="groups_invitation_sent">Gruppeneinladung versendet</string>
-  <string name="groups_compose_message">Nachricht erstellen</string>
   <string name="groups_message_sent">Nachricht gesendet</string>
   <string name="groups_member_list">Mitglieder</string>
   <string name="groups_invite_members">Mitglieder einladen</string>
@@ -174,14 +173,22 @@
   <string name="groups_invitations_invitation_received">%1$s hat dich eingeladen der Gruppe \"%2$s\" beizutreten.</string>
   <string name="groups_invitations_joined">Gruppe beigetreten</string>
   <string name="groups_invitations_declined">Gruppeneinladung abgelehnt</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="one">%d offene Gruppeneinladung</item>
+    <item quantity="other">%d offene Gruppeneinladungen</item>
+  </plurals>
   <string name="groups_invitations_response_accepted_sent">Gruppeneinladung von %s angenommen.</string>
   <string name="groups_invitations_response_declined_sent">Gruppeneinladung von %s abgelehnt.</string>
   <string name="groups_invitations_response_accepted_received">%s hat die Einladung zur Gruppe angenommen.</string>
   <string name="groups_invitations_response_declined_received">%s hat die Einladung zur Gruppe abgelehnt.</string>
+  <string name="sharing_status_groups">Nur der Ersteller kann neue Mitglieder zu einer Gruppe einladen. HIer alle aktuellen Mitglieder dieser Gruppe.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Kontakte teilen</string>
   <string name="groups_reveal_dialog_message">Kontakte können mit allen derzeitigen und zukünftigen Mitgliedern dieser Gruppe geteilt werden.\n\nDas beschleunigt die Verbindung zu der Gruppe und macht sie zusätzlich zuverlässiger, da Kommunikation mit den Mitgliedern auch dann erfolgen kann, wenn der Ersteller der Gruppe offline ist.</string>
   <string name="groups_reveal_visible">Verbindung zum Kontakt ist für die Gruppe sichtbar</string>
+  <string name="groups_reveal_visible_revealed_by_us">Beziehung zum Kontakt ist für diese Gruppe sichtbar (selbst offengelegt)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">Beziehung zum Kontakt ist für diese Gruppe sichtbar (offengelegt durch %s)</string>
+  <string name="groups_reveal_invisible">Beziehung zum Kontakt ist für diese Gruppe nicht sichtbar</string>
   <!--Forums-->
   <string name="no_forums">Du hast noch keine Foren.\n\nWarum erstellst du nicht einfach selbst ein neues Forum, indem du auf das \"+\"-Icon am oberen Bildschirmrand tippst?\n\nDu kannst auch deine Kontakte auffordern, Foren mit dir zu teilen.</string>
   <string name="create_forum_title">Neues Forum</string>
@@ -194,15 +201,10 @@
     <item quantity="one">%d Beitrag</item>
     <item quantity="other">%d Beiträge</item>
   </plurals>
-  <string name="forum_compose_post">Neuer Forenbeitrag</string>
   <string name="forum_new_entry_posted">Forenbeitrag wurde veröffentlicht.</string>
   <string name="forum_new_message_hint">Neuer Eintrag</string>
   <string name="forum_message_reply_hint">Neue Antwort</string>
   <string name="btn_reply">Antworten</string>
-  <plurals name="message_replies">
-    <item quantity="one">%1$d Antwort</item>
-    <item quantity="other">%1$d Antworten</item>
-  </plurals>
   <string name="forum_leave">Forum verlassen</string>
   <string name="dialog_title_leave_forum">Verlassen des Forums bestätigen</string>
   <string name="dialog_message_leave_forum">Bist du sicher, dass du dieses Forum verlassen willst? Kontakte, die du mit diesem Forum geteilt hast, werden keine Updates von diesem Forum mehr bekommen.</string>
@@ -229,6 +231,8 @@
   <string name="forum_invitation_response_accepted_received">%s hat die Forumeinladung akzeptiert.</string>
   <string name="forum_invitation_response_declined_received">%s hat die Forumseinladung abgelehnt.</string>
   <string name="sharing_status">Sharing Status</string>
+  <string name="sharing_status_forum">Jedes Mitglied eines Forums kann dieses mit seinen Kontakten teilen. Du teilst dieses Forum mit den folgenden Kontakten. Möglicherweise gibt es Mitglieder die nicht sichtbar sind.</string>
+  <string name="shared_with">Geteilt mit %1$d (%2$d online)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d Forum von Kontaken geteilt</item>
     <item quantity="other">%d Foren von Kontakten geteilt</item>
@@ -265,6 +269,7 @@
   <string name="blogs_sharing_invitations_title">Blogeinladungen</string>
   <string name="blogs_sharing_joined_toast">Blog abonniert</string>
   <string name="blogs_sharing_declined_toast">Blogeinladung abgelehnt</string>
+  <string name="sharing_status_blog">Jeder Abonnent eines Blogs kann diesen mit seinen Kontakten teilen. Du teilst diesen Blog mit den folgenden Kontakten. Möglicherweise gibt es Abonnenten die nicht sichtbar sind.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">RSS-Feed importieren</string>
   <string name="blogs_rss_feeds_import_button">Importieren</string>
@@ -274,6 +279,9 @@
   <string name="blogs_rss_feeds_manage_imported">Importiert:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Letzte Aktualisierung:</string>
+  <string name="blogs_rss_remove_feed">Feed entfernen</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Soll der Feed mit allen Posts wirklich gelöscht werden?\nGeteilte Posts werden dabei nicht von anderen Geräten gelöscht.</string>
+  <string name="blogs_rss_remove_feed_ok">Feed entfernen</string>
   <string name="blogs_rss_feeds_manage_delete_error">Der Feed konnte nicht gelöscht werden!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Du hast bisher noch keine RSS Feeds importiert. Tippe auf das \"+\"-Icon am oberen Bildschirmrand um einen neuen Feed hinzuzufügen.</string>
   <string name="blogs_rss_feeds_manage_error">Es gab ein Problem beim Laden deiner Feeds. Bitte versuche es später erneut.</string>
@@ -282,6 +290,10 @@
   <string name="bluetooth_setting">Über Bluetooth verbinden</string>
   <string name="bluetooth_setting_enabled">Sobald Kontakte in der Nähe sind</string>
   <string name="bluetooth_setting_disabled">Nur beim Hinzufügen von Kontakten</string>
+  <string name="tor_network_setting">Über Tor verbinden</string>
+  <string name="tor_network_setting_never">Nie</string>
+  <string name="tor_network_setting_wifi">Nur WLAN</string>
+  <string name="tor_network_setting_always">WLAN oder mobile Datenverbindung</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicherheit</string>
   <string name="change_password">Passwort ändern</string>
@@ -341,4 +353,9 @@
   <string name="dev_report_saved">Der Bericht wurde gespeichert. Er wird verschickt, wenn Du Dich das nächste Mal bei Briar anmeldest.</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Von Briar abmelden ...</string>
+  <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_title">Bildschirmfilter erkannt</string>
+  <string name="screen_filter_body">Diese Apps können andere Apps überlagern:\n\n%1$s \n\nBriar reagiert im Fall einer Überlagerung nicht auf Benutzereingaben.
+Falls dadurch Probleme in der Verwendung von Briar entstehen, versuche diese Apps zu deaktivieren.\n</string>
+  <string name="checkbox_dont_show_again">Nicht noch einmal für diese Apps warnen</string>
 </resources>

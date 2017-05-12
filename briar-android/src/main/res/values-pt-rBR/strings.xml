@@ -151,7 +151,6 @@
   <string name="groups_create_group_invitation_button">Enviar Convite</string>
   <string name="groups_create_group_hint">Adicionar um nome para seu grupo privado</string>
   <string name="groups_invitation_sent">Convite do Grupo enviado </string>
-  <string name="groups_compose_message">Escrever Mensagem</string>
   <string name="groups_message_sent">Mensagem enviada</string>
   <string name="groups_member_list">Lista de membros</string>
   <string name="groups_invite_members">Convidar membros</string>
@@ -201,15 +200,10 @@
     <item quantity="one">%d Post</item>
     <item quantity="other">%d Posts</item>
   </plurals>
-  <string name="forum_compose_post">Nova postagem em fórum</string>
   <string name="forum_new_entry_posted">postada com sucesso</string>
   <string name="forum_new_message_hint">Novo tópico</string>
   <string name="forum_message_reply_hint">Nova resposta</string>
   <string name="btn_reply">Responder</string>
-  <plurals name="message_replies">
-    <item quantity="one">%1$d resposta</item>
-    <item quantity="other">%1$d respostas</item>
-  </plurals>
   <string name="forum_leave">Sair do fórum</string>
   <string name="dialog_title_leave_forum">Confirmar saída do fórum</string>
   <string name="dialog_message_leave_forum">Você tem certeza que deseja sair deste fórum? Seus contatos com quem você o compartilhou podem deixar de receber notificações dele.</string>
@@ -349,4 +343,5 @@
   <string name="dev_report_saved">Relatório salvo. Ele será enviado na próxima vez em que você entrar no Briar.</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Saindo do Briar…</string>
+  <!--Screen Filters & Tapjacking-->
 </resources>
