@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
 	package="org.briarproject.briar"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:versionCode="13"
-	android:versionName="0.13">
+	xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<uses-feature android:name="android.hardware.bluetooth"/>
 	<uses-feature android:name="android.hardware.camera" />
