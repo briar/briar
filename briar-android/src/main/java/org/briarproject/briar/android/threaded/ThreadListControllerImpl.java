@@ -99,19 +99,21 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@Override
 	public void onActivityDestroy() {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					messageTracker
-							.storeMessageId(groupId,
-									listener.getFirstVisibleMessageId());
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
+		final MessageId messageId = listener.getFirstVisibleMessageId();
+		if (messageId != null) {
+			dbExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						messageTracker
+								.storeMessageId(groupId, messageId);
+					} catch (DbException e) {
+						if (LOG.isLoggable(WARNING))
+							LOG.log(WARNING, e.toString(), e);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	@CallSuper
