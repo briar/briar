@@ -26,6 +26,11 @@ public class StartupFailureActivity extends BaseActivity {
 
 	}
 
+	@Override
+	protected void showNewScreenFilterWarning() {
+		// Don't show here, service might not be available
+	}
+
 	private void handleIntent(Intent i) {
 		StartResult result = (StartResult) i.getSerializableExtra("briar.START_RESULT");
 		int notificationId = i.getIntExtra("briar.FAILURE_NOTIFICATION_ID", -1);
