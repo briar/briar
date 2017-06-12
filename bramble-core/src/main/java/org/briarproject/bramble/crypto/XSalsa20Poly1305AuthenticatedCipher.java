@@ -70,25 +70,7 @@ class XSalsa20Poly1305AuthenticatedCipher implements AuthenticatedCipher {
 			byte[] subKey = new byte[SUBKEY_LENGTH];
 			xSalsa20Engine.processBytes(zero, 0, SUBKEY_LENGTH, subKey, 0);
 
-			// Reverse the order of the Poly130 subkey
-			//
-			// NaCl and libsodium use the first 32 bytes of XSalsa20 as the
-			// subkey for crypto_onetimeauth_poly1305, which interprets it
-			// as r[0] ... r[15], k[0] ... k[15]. See section 9 of the NaCl
-			// paper (http://cr.yp.to/highspeed/naclcrypto-20090310.pdf),
-			// where the XSalsa20 output is defined as (r, s, t, ...).
-			//
-			// BC's Poly1305 implementation interprets the subkey as
-			// k[0] ... k[15], r[0] ... r[15] (per poly1305_aes_clamp in
-			// the reference implementation).
-			//
-			// To be NaCl-compatible, we reverse the subkey.
-			System.arraycopy(subKey, 0, zero, 0, SUBKEY_LENGTH / 2);
-			System.arraycopy(subKey, SUBKEY_LENGTH / 2, subKey, 0,
-					SUBKEY_LENGTH / 2);
-			System.arraycopy(zero, 0, subKey, SUBKEY_LENGTH / 2,
-					SUBKEY_LENGTH / 2);
-			// Now we can clamp the correct part of the subkey
+			// Clamp the subkey
 			Poly1305KeyGenerator.clamp(subKey);
 
 			// Initialize Poly1305 with the subkey

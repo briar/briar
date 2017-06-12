@@ -1,8 +1,9 @@
 plugins {
-	id "java"
-	id "net.ltgt.apt" version "0.9"
-	id "idea"
+	id 'java'
+	id 'net.ltgt.apt' version '0.9'
+	id 'idea'
 }
+
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
@@ -10,11 +11,10 @@ apply plugin: 'witness'
 
 dependencies {
 	compile project(':briar-api')
-	compile fileTree(dir: 'libs', include: '*.jar')
-	compile 'com.rometools:rome:1.7.0'
+	compile 'com.rometools:rome:1.7.3'
 	compile 'org.jdom:jdom2:2.0.6'
-	compile 'com.squareup.okhttp3:okhttp:3.3.1'
-	compile 'org.jsoup:jsoup:1.9.2'
+	compile 'com.squareup.okhttp3:okhttp:3.8.0'
+	compile 'org.jsoup:jsoup:1.10.3'
 
 	testCompile project(':bramble-core')
 	testCompile project(path: ':bramble-core', configuration: 'testOutput')
@@ -24,12 +24,11 @@ dependencies {
 
 dependencyVerification {
 	verify = [
-			'com.rometools:rome:3096b7a36c0e54f59b8193c431d28494c6bfa85c72ef3c5f341cdf09eae815e6',
+			'com.rometools:rome:077367bf8fa01b211c9da712c2aa862724195773c5693fd4d97d61d6457e96c6',
 			'org.jdom:jdom2:1345f11ba606d15603d6740551a8c21947c0215640770ec67271fe78bea97cf5',
-			'com.squareup.okhttp3:okhttp:a47f4efa166551cd5acc04f1071d82dafbf05638c21f9ca13068bc6633e3bff6',
-			'com.rometools:rome-utils:2be18a1edc601c31fe49c2000bb5484dd75182309270c2a2561d71888d81587a',
-			'com.squareup.okio:okio:5cfea5afe6c6e441a4dbf6053a07a733b1249d1009382eb44ac2255ccedd0c15',
-			'org.jsoup:jsoup:9c1885f1b182256e06f1e30b8451caed0c0dee96299d6348f968d18b54d0a46a',
-			'org.slf4j:slf4j-api:e56288031f5e60652c06e7bb6e9fa410a61231ab54890f7b708fc6adc4107c5b'
+			'com.squareup.okhttp3:okhttp:19e1db51787716ff0046fa19e408fb34ed32a6274baa0c07475bf724b4eb6800',
+			'org.jsoup:jsoup:a0784e793d7f518eb1defb47b428da011cd483c5da32d49c569bf491e4f1579a',
+			'org.slf4j:slf4j-api:e56288031f5e60652c06e7bb6e9fa410a61231ab54890f7b708fc6adc4107c5b',
+			'com.squareup.okio:okio:734269c3ebc5090e3b23566db558f421f0b4027277c79ad5d176b8ec168bb850',
 	]
 }

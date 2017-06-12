@@ -1,8 +1,9 @@
 plugins {
-	id "java"
-	id "net.ltgt.apt" version "0.9"
-	id "idea"
+	id 'java'
+	id 'net.ltgt.apt' version '0.9'
+	id 'idea'
 }
+
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
@@ -10,17 +11,18 @@ apply plugin: 'witness'
 
 dependencies {
 	compile project(':bramble-api')
-	compile fileTree(dir: 'libs', include: '*.jar')
-	compile 'com.madgag.spongycastle:core:1.54.0.0'
-	compile 'com.h2database:h2:1.4.190'
+	compile 'com.madgag.spongycastle:core:1.56.0.0'
+	compile 'com.h2database:h2:1.4.196'
+	compile 'org.bitlet:weupnp:0.1.4'
 
 	testCompile project(path: ':bramble-api', configuration: 'testOutput')
 }
 
 dependencyVerification {
 	verify = [
-			'com.madgag.spongycastle:core:1e7fa4b19ccccd1011364ab838d0b4702470c178bbbdd94c5c90b2d4d749ea1e',
-			'com.h2database:h2:23ba495a07bbbb3bd6c3084d10a96dad7a23741b8b6d64b213459a784195a98c'
+			'com.madgag.spongycastle:core:5e791b0eaa9e0c4594231b44f616a52adddb7dccedeb0ad9ad74887e19499a23',
+			'com.h2database:h2:0a05f4a0d5b85840148aadce63a423b5d3c36ef44756389b4faad08d2733faf5',
+			'org.bitlet:weupnp:88df7e6504929d00bdb832863761385c68ab92af945b04f0770b126270a444fb',
 	]
 }
 
