@@ -7,8 +7,17 @@ apply plugin: 'witness'
 dependencies {
 	compile project(':bramble-core')
 	compile fileTree(dir: 'libs', include: '*.jar')
+	compile 'net.java.dev.jna:jna:4.4.0'
+	compile 'net.java.dev.jna:jna-platform:4.4.0'
 
 	testCompile project(path: ':bramble-core', configuration: 'testOutput')
+}
+
+dependencyVerification {
+	verify = [
+			'net.java.dev.jna:jna:c4dadeeecaa90c8847902082aee5eb107fcf59c5d0e63a17fcaf273c0e2d2bd1',
+			'net.java.dev.jna:jna-platform:e9dda9e884fc107eb6367710540789a12dfa8ad28be9326b22ca6e352e325499',
+	]
 }
 
 tasks.withType(Test) {
