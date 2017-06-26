@@ -142,7 +142,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 			if (replyIdBytes != null) replyId = new MessageId(replyIdBytes);
 		}
 
-		loadItems();
 		sharingController.setSharingListener(this);
 		loadSharingContacts();
 	}
@@ -239,6 +238,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	public void onStart() {
 		super.onStart();
 		sharingController.onStart();
+		loadItems();
 		list.startPeriodicUpdate();
 	}
 
