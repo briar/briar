@@ -15,7 +15,7 @@
 		android:layout_weight="1"
 		android:gravity="top"
 		android:hint="@string/blogs_rss_feeds_import_hint"
-		android:inputType="textMultiLine|textUri"/>
+		android:inputType="textUri"/>
 
 	<Button
 		android:id="@+id/importButton"
