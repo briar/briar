@@ -11,5 +11,5 @@ public interface ScreenFilterMonitor {
 	Set<String> getApps();
 
 	@UiThread
-	void storeAppsAsShown(Collection<String> s, boolean persistent);
+	void storeAppsAsShown(Collection<String> shown);
 }

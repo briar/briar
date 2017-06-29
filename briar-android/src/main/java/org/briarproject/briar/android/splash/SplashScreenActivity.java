@@ -84,7 +84,8 @@ public class SplashScreenActivity extends BaseActivity {
 	}
 
 	@Override
-	protected void showNewScreenFilterWarning() {
+	protected void showScreenFilterWarning() {
+		// Ignore touches until the next activity is shown
 	}
 
 	private void enableStrictMode() {

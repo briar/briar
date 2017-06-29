@@ -183,15 +183,13 @@ public class ScreenFilterMonitorImpl extends BroadcastReceiver
 
 	@Override
 	@UiThread
-	public void storeAppsAsShown(Collection<String> s, boolean persistent) {
-		HashSet<String> buf = new HashSet<>(s);
-		shownApps.addAll(buf);
-		if (persistent && !s.isEmpty()) {
-			buf.addAll(getShownScreenFilterApps());
-			prefs.edit()
-					.putStringSet(PREF_SCREEN_FILTER_APPS, buf)
-					.apply();
-		}
+	public void storeAppsAsShown(Collection<String> shown) {
+		shownApps.addAll(shown);
+		HashSet<String> buf = new HashSet<>(shown);
+		buf.addAll(getShownScreenFilterApps());
+		prefs.edit()
+				.putStringSet(PREF_SCREEN_FILTER_APPS, buf)
+				.apply();
 	}
 
 	private Set<String> getInstalledScreenFilterApps() {

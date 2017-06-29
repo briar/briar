@@ -27,7 +27,7 @@ public class StartupFailureActivity extends BaseActivity {
 	}
 
 	@Override
-	protected void showNewScreenFilterWarning() {
+	protected void showScreenFilterWarning() {
 		// Don't show here, service might not be available
 	}
 
