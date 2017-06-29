@@ -123,10 +123,6 @@ public abstract class BaseActivity extends AppCompatActivity
 		dialogFrag.show(getSupportFragmentManager(), dialogFrag.getTag());
 	}
 
-	public void rememberShownApps(ArrayList<String> s) {
-		screenFilterMonitor.storeAppsAsShown(s);
-	}
-
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();

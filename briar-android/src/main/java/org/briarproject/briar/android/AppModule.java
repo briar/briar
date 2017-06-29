@@ -38,8 +38,6 @@ public class AppModule {
 	static class EagerSingletons {
 		@Inject
 		AndroidNotificationManager androidNotificationManager;
-		@Inject
-		ScreenFilterMonitor screenFilterMonitor;
 	}
 
 	private final Application application;
@@ -171,10 +169,8 @@ public class AppModule {
 	}
 
 	@Provides
-	@Singleton
 	ScreenFilterMonitor provideScreenFilterMonitor(
-			LifecycleManager lifecycleManager, ScreenFilterMonitorImpl sfm) {
-		lifecycleManager.registerService(sfm);
-		return sfm;
+			ScreenFilterMonitorImpl screenFilterMonitor) {
+		return screenFilterMonitor;
 	}
 }
