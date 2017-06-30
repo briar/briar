@@ -4,11 +4,15 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
@@ -22,8 +26,9 @@ public class CreateGroupFragment extends BaseFragment {
 	public final static String TAG = CreateGroupFragment.class.getName();
 
 	private CreateGroupListener listener;
-	private EditText name;
-	private Button button;
+	private EditText nameEntry;
+	private Button createGroupButton;
+	private TextView feedback;
 
 	@Override
 	public void onAttach(Context context) {
@@ -35,32 +40,42 @@ public class CreateGroupFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		// inflate view
 		View v = inflater.inflate(R.layout.fragment_create_group, container,
 				false);
-		name = (EditText) v.findViewById(R.id.name);
-		name.addTextChangedListener(new TextWatcher() {
+		nameEntry = (EditText) v.findViewById(R.id.name);
+		nameEntry.addTextChangedListener(new TextWatcher() {
+
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
 					int after) {
 			}
 
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-				validateName();
+			public void onTextChanged(CharSequence s, int start,
+					int lengthBefore, int lengthAfter) {
+				enableOrDisableCreateButton();
 			}
 
 			@Override
 			public void afterTextChanged(Editable s) {
 			}
 		});
-		button = (Button) v.findViewById(R.id.button);
-		button.setOnClickListener(new View.OnClickListener() {
+		nameEntry.setOnEditorActionListener(new OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId,
+					KeyEvent e) {
+				createGroup();
+				return true;
+			}
+		});
+
+		feedback = (TextView) v.findViewById(R.id.feedback);
+
+		createGroupButton = (Button) v.findViewById(R.id.button);
+		createGroupButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				listener.hideSoftKeyboard(name);
-				listener.onGroupNameChosen(name.getText().toString());
+				createGroup();
 			}
 		});
 
@@ -70,7 +85,7 @@ public class CreateGroupFragment extends BaseFragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		listener.showSoftKeyboard(name);
+		listener.showSoftKeyboard(nameEntry);
 	}
 
 	@Override
@@ -83,12 +98,25 @@ public class CreateGroupFragment extends BaseFragment {
 		return TAG;
 	}
 
-	private void validateName() {
-		String name = this.name.getText().toString();
-		if (name.length() < 1 || StringUtils.utf8IsTooLong(name, MAX_GROUP_NAME_LENGTH))
-			button.setEnabled(false);
-		else if (!button.isEnabled())
-			button.setEnabled(true);
+	private void enableOrDisableCreateButton() {
+		if (createGroupButton == null) return; // Not created yet
+		createGroupButton.setEnabled(validateName());
 	}
 
+	private boolean validateName() {
+		String name = nameEntry.getText().toString();
+		int length = StringUtils.toUtf8(name).length;
+		if (length > MAX_GROUP_NAME_LENGTH) {
+			feedback.setText(R.string.name_too_long);
+			return false;
+		}
+		feedback.setText("");
+		return length > 0;
+	}
+
+	private void createGroup() {
+		if (!validateName()) return;
+		listener.hideSoftKeyboard(nameEntry);
+		listener.onGroupNameChosen(nameEntry.getText().toString());
+	}
 }
