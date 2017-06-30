@@ -10,16 +10,16 @@
 		app:showAsAction="ifRoom"/>
 
 	<item
-		android:id="@+id/action_group_reveal"
-		android:icon="@drawable/ic_visibility_white"
-		android:title="@string/groups_reveal_contacts"
+		android:id="@+id/action_group_invite"
+		android:icon="@drawable/social_share_white"
+		android:title="@string/groups_invite_members"
 		app:showAsAction="ifRoom"/>
 
 	<item
-		android:id="@+id/action_group_invite"
-		android:icon="@drawable/ic_add_white"
-		android:title="@string/groups_invite_members"
-		app:showAsAction="ifRoom"/>
+		android:id="@+id/action_group_reveal"
+		android:icon="@drawable/ic_visibility_white"
+		android:title="@string/groups_reveal_contacts"
+		app:showAsAction="never"/>
 
 	<item
 		android:id="@+id/action_group_leave"

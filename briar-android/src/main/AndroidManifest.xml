@@ -179,7 +179,7 @@
 			android:name=".android.forum.CreateForumActivity"
 			android:label="@string/create_forum_title"
 			android:parentActivityName=".android.navdrawer.NavDrawerActivity"
-			android:windowSoftInputMode="stateVisible">
+			android:windowSoftInputMode="adjustResize">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.navdrawer.NavDrawerActivity"
