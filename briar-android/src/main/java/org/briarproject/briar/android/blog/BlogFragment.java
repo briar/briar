@@ -27,7 +27,6 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.BlogController.BlogSharingListener;
-import org.briarproject.briar.android.blog.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.briar.android.controller.SharingController;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.fragment.BaseFragment;
@@ -214,6 +213,15 @@ public class BlogFragment extends BaseFragment
 	public void onBlogPostClick(BlogPostItem post) {
 		BlogPostFragment f = BlogPostFragment.newInstance(post.getId());
 		showNextFragment(f);
+	}
+
+	@Override
+	public void onAuthorClick(BlogPostItem post) {
+		if (post.getGroupId().equals(groupId)) return; // We're already there
+		Intent i = new Intent(getContext(), BlogActivity.class);
+		i.putExtra(GROUP_ID, post.getGroupId().getBytes());
+		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+		getContext().startActivity(i);
 	}
 
 	private void loadBlogPosts(final boolean reload) {
