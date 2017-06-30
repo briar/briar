@@ -157,9 +157,30 @@ public class BlogManagerImplTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(blogFactory).createBlog(blog2.getAuthor());
 			will(returnValue(blog2));
+			oneOf(db).containsGroup(txn, blog2.getId());
+			will(returnValue(true));
 			oneOf(identityManager).getLocalAuthor(txn);
 			will(returnValue(blog1.getAuthor()));
 			oneOf(db).removeGroup(txn, blog2.getGroup());
+		}});
+
+		blogManager.removingContact(txn, contact);
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testRemovingContactAfterRemovingBlog() throws DbException {
+		final Transaction txn = new Transaction(null, false);
+
+		final ContactId contactId = new ContactId(0);
+		Contact contact = new Contact(contactId, blog2.getAuthor(),
+				blog1.getAuthor().getId(), true, true);
+
+		context.checking(new Expectations() {{
+			oneOf(blogFactory).createBlog(blog2.getAuthor());
+			will(returnValue(blog2));
+			oneOf(db).containsGroup(txn, blog2.getId());
+			will(returnValue(false));
 		}});
 
 		blogManager.removingContact(txn, contact);

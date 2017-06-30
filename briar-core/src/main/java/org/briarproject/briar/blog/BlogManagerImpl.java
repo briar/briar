@@ -116,7 +116,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
 		Blog b = blogFactory.createBlog(c.getAuthor());
-		removeBlog(txn, b);
+		if (db.containsGroup(txn, b.getId())) removeBlog(txn, b);
 	}
 
 	@Override
