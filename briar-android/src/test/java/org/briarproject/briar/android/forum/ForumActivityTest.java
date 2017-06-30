@@ -89,7 +89,7 @@ public class ForumActivityTest {
 		Intent intent = new Intent();
 		intent.putExtra("briar.GROUP_ID", TestUtils.getRandomId());
 		forumActivity = Robolectric.buildActivity(TestForumActivity.class)
-				.withIntent(intent).create().resume().get();
+				.withIntent(intent).create().start().resume().get();
 	}
 
 	private ThreadItemList<ForumItem> getDummyData() {
