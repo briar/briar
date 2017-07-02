@@ -86,6 +86,14 @@
 			android:summary="@string/notify_blog_posts_setting_summary"/>
 
 		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="pref_key_notify_lock_screen"
+			android:persistent="false"
+			android:title="@string/notify_lock_screen_setting_title"
+			android:summary="@string/notify_lock_screen_setting_summary"
+			android:visibility="gone"/>
+
+		<CheckBoxPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_vibration"
 			android:persistent="false"

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
@@ -54,6 +55,7 @@ import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGT
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_BLOG;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_FORUM;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_GROUP;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_LOCK_SCREEN;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_PRIVATE;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_RINGTONE_NAME;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_RINGTONE_URI;
@@ -81,6 +83,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private CheckBoxPreference notifyForumPosts;
 	private CheckBoxPreference notifyBlogPosts;
 	private CheckBoxPreference notifyVibration;
+	private CheckBoxPreference notifyLockscreen;
+
 	private Preference notifySound;
 
 	// Fields that are accessed from background threads must be volatile
@@ -114,6 +118,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				"pref_key_notify_blog_posts");
 		notifyVibration = (CheckBoxPreference) findPreference(
 				"pref_key_notify_vibration");
+		notifyLockscreen = (CheckBoxPreference) findPreference(
+				"pref_key_notify_lock_screen");
 		notifySound = findPreference("pref_key_notify_sound");
 
 		enableBluetooth.setOnPreferenceChangeListener(this);
@@ -123,7 +129,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		notifyForumPosts.setOnPreferenceChangeListener(this);
 		notifyBlogPosts.setOnPreferenceChangeListener(this);
 		notifyVibration.setOnPreferenceChangeListener(this);
-
+		if (Build.VERSION.SDK_INT >= 21) {
+			notifyLockscreen.setVisible(true);
+			notifyLockscreen.setOnPreferenceChangeListener(this);
+		}
 		notifySound.setOnPreferenceClickListener(
 				new Preference.OnPreferenceClickListener() {
 					@Override
@@ -234,6 +243,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				notifyVibration.setChecked(settings.getBoolean(
 						PREF_NOTIFY_VIBRATION, true));
 
+				notifyLockscreen.setChecked(settings.getBoolean(
+						PREF_NOTIFY_LOCK_SCREEN, false));
+
 				String text;
 				if (settings.getBoolean(PREF_NOTIFY_SOUND, true)) {
 					String ringtoneName =
@@ -289,6 +301,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		} else if (preference == notifyVibration) {
 			Settings s = new Settings();
 			s.putBoolean(PREF_NOTIFY_VIBRATION, (Boolean) o);
+			storeSettings(s);
+		} else if (preference == notifyLockscreen) {
+			Settings s = new Settings();
+			s.putBoolean(PREF_NOTIFY_LOCK_SCREEN, (Boolean) o);
 			storeSettings(s);
 		}
 		return true;

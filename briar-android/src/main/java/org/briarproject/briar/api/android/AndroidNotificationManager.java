@@ -18,22 +18,15 @@ public interface AndroidNotificationManager {
 	String PREF_NOTIFY_RINGTONE_NAME = "notifyRingtoneName";
 	String PREF_NOTIFY_RINGTONE_URI = "notifyRingtoneUri";
 	String PREF_NOTIFY_VIBRATION = "notifyVibration";
+	String PREF_NOTIFY_LOCK_SCREEN = "notifyLockScreen";
 
 	void clearContactNotification(ContactId c);
 
-	void clearAllContactNotifications();
-
 	void clearGroupMessageNotification(GroupId g);
-
-	void clearAllGroupMessageNotifications();
 
 	void clearForumPostNotification(GroupId g);
 
-	void clearAllForumPostNotifications();
-
 	void clearBlogPostNotification(GroupId g);
-
-	void clearAllBlogPostNotifications();
 
 	void blockContactNotification(ContactId c);
 
@@ -42,20 +35,4 @@ public interface AndroidNotificationManager {
 	void blockNotification(GroupId g);
 
 	void unblockNotification(GroupId g);
-
-	void blockAllContactNotifications();
-
-	void unblockAllContactNotifications();
-
-	void blockAllGroupMessageNotifications();
-
-	void unblockAllGroupMessageNotifications();
-
-	void blockAllForumPostNotifications();
-
-	void unblockAllForumPostNotifications();
-
-	void blockAllBlogPostNotifications();
-
-	void unblockAllBlogPostNotifications();
 }
