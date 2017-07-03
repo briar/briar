@@ -127,8 +127,7 @@
 	<string name="introduction_onboarding_text">You can introduce your contacts to each other, so they don\'t need to meet in person to connect on Briar.</string>
 	<string name="introduction_activity_title">Select Contact</string>
 	<string name="introduction_message_title">Introduce Contacts</string>
-	<string name="introduction_message_text">You can compose a message that will be sent to %1$s and %2$s along with your introduction:</string>
-	<string name="introduction_message_hint">Type message (optional)</string>
+	<string name="introduction_message_hint">Add a message (optional)</string>
 	<string name="introduction_button">Make Introduction</string>
 	<string name="introduction_sent">Your introduction has been sent.</string>
 	<string name="introduction_error">There was an error making the introduction.</string>
@@ -160,7 +159,7 @@
 	<string name="groups_create_group_title">Create Private Group</string>
 	<string name="groups_create_group_button">Create Group</string>
 	<string name="groups_create_group_invitation_button">Send Invitation</string>
-	<string name="groups_create_group_hint">Add a name for your private group</string>
+	<string name="groups_create_group_hint">Choose a name for your private group</string>
 	<string name="groups_invitation_sent">Group invitation has been sent</string>
 	<string name="groups_message_sent">Message sent</string>
 	<string name="groups_member_list">Member List</string>
@@ -231,7 +230,7 @@
 	<string name="activity_share_toolbar_header">Choose Contacts</string>
 	<string name="no_contacts_selector">It seems that you are new here and have no contacts yet.\n\nPlease come back here after you added your first contact.</string>
 	<string name="forum_shared_snackbar">Forum shared with chosen contacts</string>
-	<string name="forum_share_message">You may compose an optional invitation message that will be sent to the selected contacts.</string>
+	<string name="forum_share_message">Add a message (optional)</string>
 	<string name="forum_share_error">There was an error sharing this forum.</string>
 	<string name="forum_invitation_received">%1$s has shared the forum \"%2$s\" with you.</string>
 	<string name="forum_invitation_sent">You have shared the forum \"%1$s\" with %2$s.</string>
@@ -270,7 +269,7 @@
 	<string name="blogs_remove_blog_dialog_message">Are you sure that you want to remove this blog and all posts?\nNote that this will not remove the blog from other people\'s devices.</string>
 	<string name="blogs_remove_blog_ok">Remove Blog</string>
 	<string name="blogs_blog_removed">Blog Removed</string>
-	<string name="blogs_reblog_comment_hint">Add an optional comment</string>
+	<string name="blogs_reblog_comment_hint">Add a comment (optional)</string>
 	<string name="blogs_reblog_button">Reblog</string>
 
 	<!-- Blog Sharing -->
