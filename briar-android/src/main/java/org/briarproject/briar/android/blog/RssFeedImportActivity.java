@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,9 +21,12 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.api.feed.FeedManager;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.view.View.GONE;
@@ -98,10 +102,17 @@ public class RssFeedImportActivity extends BriarActivity {
 
 	private void enableOrDisableImportButton() {
 		String url = urlInput.getText().toString();
-		if (url.startsWith("http://") || url.startsWith("https://"))
-			importButton.setEnabled(true);
-		else
-			importButton.setEnabled(false);
+		importButton.setEnabled(validateAndNormaliseUrl(url) != null);
+	}
+
+	@Nullable
+	private String validateAndNormaliseUrl(String url) {
+		if (!Patterns.WEB_URL.matcher(url).matches()) return null;
+		try {
+			return new URL(url).toString();
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 
 	private void publish() {
@@ -109,7 +120,9 @@ public class RssFeedImportActivity extends BriarActivity {
 		importButton.setVisibility(GONE);
 		progressBar.setVisibility(VISIBLE);
 
-		importFeed(urlInput.getText().toString());
+		String url = validateAndNormaliseUrl(urlInput.getText().toString());
+		if (url == null) throw new AssertionError();
+		importFeed(url);
 	}
 
 	private void importFeed(final String url) {
