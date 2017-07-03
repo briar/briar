@@ -83,11 +83,6 @@ public class SplashScreenActivity extends BaseActivity {
 		}
 	}
 
-	@Override
-	protected void showScreenFilterWarning() {
-		// Ignore touches until the next activity is shown
-	}
-
 	private void enableStrictMode() {
 		if (TESTING) {
 			ThreadPolicy.Builder threadPolicy = new ThreadPolicy.Builder();

@@ -113,7 +113,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		}
 	}
 
-	protected void showScreenFilterWarning() {
+	private void showScreenFilterWarning() {
 		if (dialogFrag != null && dialogFrag.isVisible()) return;
 		Set<String> apps = screenFilterMonitor.getApps();
 		if (apps.isEmpty()) return;
