@@ -19,56 +19,14 @@
 		android:textStyle="italic"
 		tools:text="@string/groups_member_joined"/>
 
-	<ImageView
-		android:id="@+id/icon"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignBottom="@+id/info"
-		android:layout_alignLeft="@+id/text"
-		android:layout_alignTop="@+id/info"
-		android:layout_below="@+id/text"
-		android:layout_marginRight="@dimen/margin_medium"
-		android:scaleType="center"
-		tools:ignore="ContentDescription"
-		tools:src="@drawable/ic_visibility"/>
-
-	<TextView
-		android:id="@+id/info"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignEnd="@+id/text"
-		android:layout_alignRight="@+id/text"
-		android:layout_below="@+id/text"
-		android:layout_marginBottom="@dimen/margin_medium"
-		android:layout_toRightOf="@+id/icon"
-		android:gravity="center_vertical"
-		android:minHeight="24dp"
-		android:textColor="@color/briar_text_secondary"
-		android:textIsSelectable="true"
-		android:textSize="@dimen/text_size_tiny"
-		android:textStyle="italic"
-		tools:text="@string/groups_reveal_visible_revealed_by_contact"/>
-
 	<org.briarproject.briar.android.view.AuthorView
 		android:id="@+id/author"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignLeft="@+id/text"
-		android:layout_below="@+id/info"
-		android:layout_toLeftOf="@+id/optionsButton"
+		android:layout_alignStart="@+id/text"
+		android:layout_below="@+id/text"
 		app:persona="commenter"/>
-
-	<Button
-		android:id="@+id/optionsButton"
-		style="@style/BriarButtonFlat.Positive.Tiny"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignBottom="@+id/author"
-		android:layout_alignEnd="@+id/text"
-		android:layout_alignRight="@+id/text"
-		android:layout_below="@+id/info"
-		android:gravity="right|center_vertical"
-		android:text="@string/options"/>
 
 	<View
 		style="@style/Divider.ThreadItem"
