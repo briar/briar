@@ -34,6 +34,7 @@ import java.util.Collection;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
+import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -115,7 +116,7 @@ public class SyncIntegrationTest extends BrambleTestCase {
 	private void read(byte[] connectionData) throws Exception {
 		// Calculate the expected tag
 		byte[] expectedTag = new byte[TAG_LENGTH];
-		crypto.encodeTag(expectedTag, tagKey, streamNumber);
+		crypto.encodeTag(expectedTag, tagKey, PROTOCOL_VERSION, streamNumber);
 
 		// Read the tag
 		InputStream in = new ByteArrayInputStream(connectionData);

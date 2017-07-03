@@ -13,7 +13,8 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_IV_LENGTH;
+import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
+import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_NONCE_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 
 @Immutable
@@ -36,22 +37,22 @@ class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 		AuthenticatedCipher cipher = cipherProvider.get();
 		long streamNumber = ctx.getStreamNumber();
 		byte[] tag = new byte[TAG_LENGTH];
-		crypto.encodeTag(tag, ctx.getTagKey(), streamNumber);
-		byte[] streamHeaderIv = new byte[STREAM_HEADER_IV_LENGTH];
-		crypto.getSecureRandom().nextBytes(streamHeaderIv);
+		crypto.encodeTag(tag, ctx.getTagKey(), PROTOCOL_VERSION, streamNumber);
+		byte[] streamHeaderNonce = new byte[STREAM_HEADER_NONCE_LENGTH];
+		crypto.getSecureRandom().nextBytes(streamHeaderNonce);
 		SecretKey frameKey = crypto.generateSecretKey();
 		return new StreamEncrypterImpl(out, cipher, streamNumber, tag,
-				streamHeaderIv, ctx.getHeaderKey(), frameKey);
+				streamHeaderNonce, ctx.getHeaderKey(), frameKey);
 	}
 
 	@Override
 	public StreamEncrypter createInvitationStreamEncrypter(OutputStream out,
 			SecretKey headerKey) {
 		AuthenticatedCipher cipher = cipherProvider.get();
-		byte[] streamHeaderIv = new byte[STREAM_HEADER_IV_LENGTH];
-		crypto.getSecureRandom().nextBytes(streamHeaderIv);
+		byte[] streamHeaderNonce = new byte[STREAM_HEADER_NONCE_LENGTH];
+		crypto.getSecureRandom().nextBytes(streamHeaderNonce);
 		SecretKey frameKey = crypto.generateSecretKey();
-		return new StreamEncrypterImpl(out, cipher, 0, null, streamHeaderIv,
+		return new StreamEncrypterImpl(out, cipher, 0, null, streamHeaderNonce,
 				headerKey, frameKey);
 	}
 }

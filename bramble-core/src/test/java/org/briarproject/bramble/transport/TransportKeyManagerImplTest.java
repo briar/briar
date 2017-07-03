@@ -33,6 +33,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
+import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.util.ByteUtils.MAX_32_BIT_UNSIGNED;
@@ -86,7 +87,7 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			// Encode the tags (3 sets per contact)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(6).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(i));
+						with(tagKey), with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Save the keys that were rotated
@@ -133,7 +134,7 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(i));
+						with(tagKey), with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Save the keys
@@ -199,7 +200,7 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(i));
+						with(tagKey), with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Rotate the transport keys (the keys are unaffected)
@@ -247,7 +248,7 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(i));
+						with(tagKey), with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Rotate the transport keys (the keys are unaffected)
@@ -306,7 +307,7 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(i));
+						with(tagKey), with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Rotate the transport keys (the keys are unaffected)
@@ -355,7 +356,7 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(i));
+						with(tagKey), with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction(tags));
 			}
 			// Rotate the transport keys (the keys are unaffected)
@@ -365,7 +366,8 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
 			// Encode a new tag after sliding the window
 			oneOf(crypto).encodeTag(with(any(byte[].class)),
-					with(tagKey), with((long) REORDERING_WINDOW_SIZE));
+					with(tagKey), with(PROTOCOL_VERSION),
+					with((long) REORDERING_WINDOW_SIZE));
 			will(new EncodeTagAction(tags));
 			// Save the reordering window (previous rotation period, base 1)
 			oneOf(db).setReorderingWindow(txn, contactId, transportId, 999,
@@ -428,7 +430,7 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(i));
+						with(tagKey), with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Schedule key rotation at the start of the next rotation period
@@ -450,7 +452,7 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(i));
+						with(tagKey), with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Save the keys that were rotated

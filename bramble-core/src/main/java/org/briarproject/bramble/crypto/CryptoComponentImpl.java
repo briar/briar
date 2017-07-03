@@ -45,8 +45,10 @@ import static org.briarproject.bramble.api.invitation.InvitationConstants.CODE_B
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.crypto.EllipticCurveConstants.PARAMETERS;
+import static org.briarproject.bramble.util.ByteUtils.INT_16_BYTES;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
 import static org.briarproject.bramble.util.ByteUtils.INT_64_BYTES;
+import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
 import static org.briarproject.bramble.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 class CryptoComponentImpl implements CryptoComponent {
@@ -412,8 +414,11 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public void encodeTag(byte[] tag, SecretKey tagKey, long streamNumber) {
+	public void encodeTag(byte[] tag, SecretKey tagKey, int protocolVersion,
+			long streamNumber) {
 		if (tag.length < TAG_LENGTH) throw new IllegalArgumentException();
+		if (protocolVersion < 0 || protocolVersion > MAX_16_BIT_UNSIGNED)
+			throw new IllegalArgumentException();
 		if (streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		// Initialise the PRF
@@ -421,10 +426,14 @@ class CryptoComponentImpl implements CryptoComponent {
 		// The output of the PRF must be long enough to use as a tag
 		int macLength = prf.getDigestSize();
 		if (macLength < TAG_LENGTH) throw new IllegalStateException();
-		// The input is the stream number as a 64-bit integer
-		byte[] input = new byte[INT_64_BYTES];
-		ByteUtils.writeUint64(streamNumber, input, 0);
-		prf.update(input, 0, input.length);
+		// The input is the protocol version as a 16-bit integer, followed by
+		// the stream number as a 64-bit integer
+		byte[] protocolVersionBytes = new byte[INT_16_BYTES];
+		ByteUtils.writeUint16(protocolVersion, protocolVersionBytes, 0);
+		prf.update(protocolVersionBytes, 0, protocolVersionBytes.length);
+		byte[] streamNumberBytes = new byte[INT_64_BYTES];
+		ByteUtils.writeUint64(streamNumber, streamNumberBytes, 0);
+		prf.update(streamNumberBytes, 0, streamNumberBytes.length);
 		byte[] mac = new byte[macLength];
 		prf.doFinal(mac, 0);
 		// The output is the first TAG_LENGTH bytes of the MAC

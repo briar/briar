@@ -5,6 +5,11 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 public interface TransportConstants {
 
 	/**
+	 * The current version of the transport protocol.
+	 */
+	int PROTOCOL_VERSION = 3;
+
+	/**
 	 * The length of the pseudo-random tag in bytes.
 	 */
 	int TAG_LENGTH = 16;
@@ -15,20 +20,21 @@ public interface TransportConstants {
 	int STREAM_HEADER_NONCE_LENGTH = 24;
 
 	/**
-	 * The length of the stream header initialisation vector (IV) in bytes.
-	 */
-	int STREAM_HEADER_IV_LENGTH = STREAM_HEADER_NONCE_LENGTH - 8;
-
-	/**
 	 * The length of the message authentication code (MAC) in bytes.
 	 */
 	int MAC_LENGTH = 16;
 
 	/**
+	 * The length of the stream header plaintext in bytes. The stream header
+	 * contains the protocol version, stream number and frame key.
+	 */
+	int STREAM_HEADER_PLAINTEXT_LENGTH = 2 + 8 + SecretKey.LENGTH;
+
+	/**
 	 * The length of the stream header in bytes.
 	 */
-	int STREAM_HEADER_LENGTH = STREAM_HEADER_IV_LENGTH + SecretKey.LENGTH
-			+ MAC_LENGTH;
+	int STREAM_HEADER_LENGTH = STREAM_HEADER_NONCE_LENGTH
+			+ STREAM_HEADER_PLAINTEXT_LENGTH + MAC_LENGTH;
 
 	/**
 	 * The length of the frame nonce in bytes.
