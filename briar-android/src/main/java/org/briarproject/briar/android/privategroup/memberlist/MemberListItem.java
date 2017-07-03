@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.Author.Status;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.privategroup.GroupMember;
-import org.briarproject.briar.api.privategroup.Visibility;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -37,10 +36,6 @@ class MemberListItem {
 	@Nullable
 	ContactId getContactId() {
 		return groupMember.getContactId();
-	}
-
-	Visibility getVisibility() {
-		return groupMember.getVisibility();
 	}
 
 	boolean isOnline() {

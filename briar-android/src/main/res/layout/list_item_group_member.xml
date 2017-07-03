@@ -13,11 +13,13 @@
 		android:id="@+id/authorView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_alignParentStart="true"
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentTop="true"
 		android:layout_marginBottom="@dimen/margin_small"
 		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
 		android:layout_marginRight="@dimen/listitem_horizontal_margin"
+		android:layout_toStartOf="@+id/bulbView"
 		android:layout_toLeftOf="@+id/bulbView"
 		app:persona="list"/>
 
@@ -29,6 +31,7 @@
 		android:layout_alignParentEnd="true"
 		android:layout_alignParentRight="true"
 		android:layout_alignTop="@+id/authorView"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
 		android:layout_marginRight="@dimen/listitem_horizontal_margin"
 		tools:src="@drawable/contact_connected"/>
 
@@ -39,40 +42,16 @@
 		android:layout_below="@+id/authorView"
 		android:layout_marginBottom="@dimen/margin_small"
 		android:layout_marginLeft="@dimen/listitem_group_member_indentation"
+		android:layout_marginStart="@dimen/listitem_group_member_indentation"
 		android:text="@string/groups_member_created_you"
 		android:textColor="@color/briar_text_secondary"
 		tools:visibility="visible"/>
 
-	<ImageView
-		android:id="@+id/icon"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_below="@+id/creatorView"
-		android:layout_marginLeft="@dimen/listitem_group_member_indentation"
-		android:layout_marginRight="@dimen/margin_small"
-		android:contentDescription="@string/forum_invitation_already_sharing"
-		android:src="@drawable/ic_visibility"/>
-
-	<TextView
-		android:id="@+id/info"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_below="@+id/creatorView"
-		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
-		android:layout_marginRight="@dimen/listitem_horizontal_margin"
-		android:layout_toRightOf="@+id/icon"
-		android:gravity="center_vertical"
-		android:minHeight="24dp"
-		android:textColor="@color/briar_text_secondary"
-		android:textIsSelectable="true"
-		android:textSize="@dimen/text_size_tiny"
-		android:textStyle="italic"
-		tools:text="@string/groups_reveal_visible_revealed_by_us"/>
-
 	<View
 		android:id="@+id/divider"
 		style="@style/Divider.ContactList"
-		android:layout_below="@+id/info"
+		android:layout_below="@+id/creatorView"
+		android:layout_marginStart="@dimen/listitem_group_member_indentation"
 		android:layout_marginLeft="@dimen/listitem_group_member_indentation"
 		android:layout_marginTop="@dimen/margin_medium"/>
 
