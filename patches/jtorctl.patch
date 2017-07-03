@@ -1,3 +1,16 @@
+diff --git a/README.md b/README.md
+index 902d727..359cc69 100644
+--- a/README.md
++++ b/README.md
+@@ -1,7 +1,4 @@
+-
+ A Java library for controlling a Tor instance via its control port.  It is
+ used in the Android app Orbot as well as others.
+ 
+-To add this library to a gradle project:
+-
+-    compile 'net.freehaven.tor.control:jtorctl:0.2'
++This fork includes patches for managing onion services.
 diff --git a/net/freehaven/tor/control/TorControlCommands.java b/net/freehaven/tor/control/TorControlCommands.java
 index 36482d5..14486e3 100644
 --- a/net/freehaven/tor/control/TorControlCommands.java
@@ -12,10 +25,64 @@ index 36482d5..14486e3 100644
  }
  
 diff --git a/net/freehaven/tor/control/TorControlConnection.java b/net/freehaven/tor/control/TorControlConnection.java
-index 9524612..c0f2070 100644
+index 9524612..eacdd66 100644
 --- a/net/freehaven/tor/control/TorControlConnection.java
 +++ b/net/freehaven/tor/control/TorControlConnection.java
-@@ -736,11 +736,111 @@ public class TorControlConnection implements TorControlCommands {
+@@ -40,10 +40,14 @@ public class TorControlConnection implements TorControlCommands {
+     static class Waiter {
+     
+         List<ReplyLine> response; // Locking: this
++        boolean interrupted;
+     
+         synchronized List<ReplyLine> getResponse() throws InterruptedException {
+                 while (response == null) {
+                     wait();
++                    if (interrupted) {
++                        throw new InterruptedException();
++                    }
+                 }
+             return response;
+         }
+@@ -52,6 +56,11 @@ public class TorControlConnection implements TorControlCommands {
+             this.response = response;
+             notifyAll();
+         }
++
++        synchronized void interrupt() {
++            interrupted = true;
++            notifyAll();
++        }
+     }
+ 
+     static class ReplyLine {
+@@ -171,7 +180,7 @@ public class TorControlConnection implements TorControlCommands {
+ 
+     protected synchronized List<ReplyLine> sendAndWaitForResponse(String s,
+         String rest) throws IOException {
+-        if(parseThreadException != null) throw parseThreadException;
++        if (parseThreadException != null) throw parseThreadException;
+         checkThread();
+         Waiter w = new Waiter();
+         if (debugOutput != null)
+@@ -305,8 +314,15 @@ public class TorControlConnection implements TorControlCommands {
+         while (true) {
+             ArrayList<ReplyLine> lst = readReply();
+             if (lst.isEmpty()) {
+-                // connection has been closed remotely! end the loop!
+-                return;
++                // interrupted queued waiters, there won't be any response.
++                synchronized (waiters) {
++                    if (!waiters.isEmpty()) {
++                        for (Waiter w : waiters) {
++                            w.interrupt();
++                        }
++                    }
++                }
++                throw new IOException("Tor is no longer running");
+             }
+             if ((lst.get(0)).status.startsWith("6"))
+                 handleEvent(lst);
+@@ -736,11 +752,111 @@ public class TorControlConnection implements TorControlCommands {
          sendAndWaitForResponse("TAKEOWNERSHIP\r\n", null);
      }
  
