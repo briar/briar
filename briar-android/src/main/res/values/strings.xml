@@ -340,10 +340,14 @@
 
 	<!-- Settings Notifications -->
 	<string name="notification_settings_title">Notifications</string>
-	<string name="notify_private_messages_setting">Show alerts for private messages</string>
-	<string name="notify_group_messages_setting">Show alerts for group messages</string>
-	<string name="notify_forum_posts_setting">Show alerts for forum posts</string>
-	<string name="notify_blog_posts_setting">Show alerts for blog posts</string>
+	<string name="notify_private_messages_setting_title">Private messages</string>
+	<string name="notify_private_messages_setting_summary">Show alerts for private messages</string>
+	<string name="notify_group_messages_setting_title">Group messages</string>
+	<string name="notify_group_messages_setting_summary">Show alerts for group messages</string>
+	<string name="notify_forum_posts_setting_title">Forum posts</string>
+	<string name="notify_forum_posts_setting_summary">Show alerts for forum posts</string>
+	<string name="notify_blog_posts_setting_title">Blog posts</string>
+	<string name="notify_blog_posts_setting_summary">Show alerts for blog posts</string>
 	<string name="notify_vibration_setting">Vibrate</string>
 	<string name="notify_sound_setting">Sound</string>
 	<string name="notify_sound_setting_default">Default ringtone</string>
