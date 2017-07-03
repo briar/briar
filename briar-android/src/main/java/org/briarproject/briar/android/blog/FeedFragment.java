@@ -19,7 +19,6 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.blog.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.briar.android.blog.FeedController.FeedListener;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.fragment.BaseFragment;
@@ -34,6 +33,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_WRITE_BLOG_POST;
@@ -221,6 +221,14 @@ public class FeedFragment extends BaseFragment implements
 		FeedPostFragment f =
 				FeedPostFragment.newInstance(post.getGroupId(), post.getId());
 		showNextFragment(f);
+	}
+
+	@Override
+	public void onAuthorClick(BlogPostItem post) {
+		Intent i = new Intent(getContext(), BlogActivity.class);
+		i.putExtra(GROUP_ID, post.getGroupId().getBytes());
+		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+		getContext().startActivity(i);
 	}
 
 	@Override

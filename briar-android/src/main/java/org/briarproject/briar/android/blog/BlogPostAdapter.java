@@ -48,8 +48,4 @@ class BlogPostAdapter
 		return a.getId().equals(b.getId());
 	}
 
-	interface OnBlogPostClickListener {
-		void onBlogPostClick(BlogPostItem post);
-	}
-
 }

@@ -20,7 +20,6 @@ import android.widget.TextView;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.blog.BlogPostAdapter.OnBlogPostClickListener;
 import org.briarproject.briar.android.view.AuthorView;
 import org.briarproject.briar.api.blog.BlogCommentHeader;
 import org.briarproject.briar.api.blog.BlogPostHeader;
@@ -49,6 +48,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 	private final TextView body;
 	private final ViewGroup commentContainer;
 
+	@Nullable
 	private OnBlogPostClickListener listener;
 
 	BlogPostViewHolder(View v) {
@@ -111,10 +111,15 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		author.setPersona(
 				item.isRssFeed() ? AuthorView.RSS_FEED : AuthorView.NORMAL);
 		// TODO make author clickable more often #624
-		if (item.getHeader().getType() == POST) {
-			author.setBlogLink(post.getGroupId());
+		if (listener != null && item.getHeader().getType() == POST) {
+			author.setAuthorClickable(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					listener.onAuthorClick(item);
+				}
+			});
 		} else {
-			author.unsetBlogLink();
+			author.setAuthorNotClickable();
 		}
 
 		// post body
@@ -165,7 +170,14 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		reblogger.setAuthor(item.getAuthor());
 		reblogger.setAuthorStatus(item.getAuthorStatus());
 		reblogger.setDate(item.getTimestamp());
-		reblogger.setBlogLink(item.getGroupId());
+		if (listener != null) {
+			reblogger.setAuthorClickable(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					listener.onAuthorClick(item);
+				}
+			});
+		}
 		reblogger.setVisibility(VISIBLE);
 		reblogger.setPersona(AuthorView.REBLOGGER);
 

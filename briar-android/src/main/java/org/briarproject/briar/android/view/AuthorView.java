@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.view;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.support.annotation.DimenRes;
@@ -16,9 +15,7 @@ import android.widget.TextView;
 
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.Author.Status;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.util.UiUtils;
 
 import javax.annotation.Nullable;
@@ -27,12 +24,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.graphics.Typeface.BOLD;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
 import static org.briarproject.bramble.api.identity.Author.Status.NONE;
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
-import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 
 @UiThread
 public class AuthorView extends RelativeLayout {
@@ -110,24 +105,16 @@ public class AuthorView extends RelativeLayout {
 		requestLayout();
 	}
 
-	public void setBlogLink(final GroupId groupId) {
+	public void setAuthorClickable(OnClickListener listener) {
 		setClickable(true);
 		TypedValue outValue = new TypedValue();
 		getContext().getTheme().resolveAttribute(
 				android.R.attr.selectableItemBackground, outValue, true);
 		setBackgroundResource(outValue.resourceId);
-		setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent i = new Intent(getContext(), BlogActivity.class);
-				i.putExtra(GROUP_ID, groupId.getBytes());
-				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-				getContext().startActivity(i);
-			}
-		});
+		setOnClickListener(listener);
 	}
 
-	public void unsetBlogLink() {
+	public void setAuthorNotClickable() {
 		setClickable(false);
 		setBackgroundResource(android.R.color.transparent);
 		setOnClickListener(null);

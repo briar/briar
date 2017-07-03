@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.blog;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -20,8 +21,10 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.util.UiUtils.MIN_DATE_RESOLUTION;
 
 @UiThread
@@ -58,6 +61,20 @@ abstract class BasePostFragment extends BaseFragment {
 		progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
 		progressBar.setVisibility(VISIBLE);
 		ui = new BlogPostViewHolder(view);
+		ui.setOnBlogPostClickListener(new OnBlogPostClickListener() {
+			@Override
+			public void onBlogPostClick(BlogPostItem post) {
+				// We're already there
+			}
+
+			@Override
+			public void onAuthorClick(BlogPostItem post) {
+				Intent i = new Intent(getContext(), BlogActivity.class);
+				i.putExtra(GROUP_ID, post.getGroupId().getBytes());
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+				getContext().startActivity(i);
+			}
+		});
 		return view;
 	}
 
