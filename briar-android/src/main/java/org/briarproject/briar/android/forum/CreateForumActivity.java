@@ -91,6 +91,7 @@ public class CreateForumActivity extends BriarActivity {
 		createForumButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				createForum();
 			}
 		});
 
