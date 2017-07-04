@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string translatable="false" name="app_name">Briar</string>
+	<string translatable="false" name="app_name">Briar Beta</string>
 
 	<!-- Setup -->
 	<string name="setup_title">Briar Setup</string>
