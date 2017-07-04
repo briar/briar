@@ -6,7 +6,7 @@ import dagger.Module;
 import dagger.Provides;
 
 @Module
-public class GroupCreateModule {
+public class CreateGroupModule {
 
 	@ActivityScope
 	@Provides

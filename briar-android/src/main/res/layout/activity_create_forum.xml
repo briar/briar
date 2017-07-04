@@ -1,37 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:gravity="center_horizontal"
-	android:padding="20dp" >
-
-	<TextView
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:gravity="center"
-		android:textSize="@dimen/text_size_medium"
-		android:text="@string/choose_forum_name" />
+	android:orientation="vertical"
+	android:layout_margin="@dimen/margin_large">
 
 	<EditText
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:id="@+id/createForumNameEntry"
 		android:maxLines="1"
-		android:inputType="text|textCapSentences" />
+		android:inputType="text|textCapSentences"
+		android:hint="@string/choose_forum_hint" />
 
 	<TextView
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:id="@+id/createForumFeedback"
-		android:gravity="center"
-		android:paddingLeft="50dp"
-		android:paddingRight="50dp" />
+		android:gravity="center" />
 
 	<Button
 		style="@style/BriarButton"
 		android:id="@+id/createForumButton"
+		android:enabled="false"
 		android:text="@string/create_forum_button" />
 
 	<ProgressBar

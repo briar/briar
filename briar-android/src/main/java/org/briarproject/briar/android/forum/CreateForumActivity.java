@@ -38,8 +38,7 @@ import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LEN
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class CreateForumActivity extends BriarActivity
-		implements OnEditorActionListener, OnClickListener {
+public class CreateForumActivity extends BriarActivity {
 
 	private static final Logger LOG =
 			Logger.getLogger(CreateForumActivity.class.getName());
@@ -60,11 +59,7 @@ public class CreateForumActivity extends BriarActivity
 		setContentView(R.layout.activity_create_forum);
 
 		nameEntry = (EditText) findViewById(R.id.createForumNameEntry);
-		TextWatcher nameEntryWatcher = new TextWatcher() {
-
-			@Override
-			public void afterTextChanged(Editable s) {
-			}
+		nameEntry.addTextChangedListener(new TextWatcher() {
 
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
@@ -72,21 +67,41 @@ public class CreateForumActivity extends BriarActivity
 			}
 
 			@Override
-			public void onTextChanged(CharSequence text, int start,
+			public void onTextChanged(CharSequence s, int start,
 					int lengthBefore, int lengthAfter) {
 				enableOrDisableCreateButton();
 			}
-		};
-		nameEntry.setOnEditorActionListener(this);
-		nameEntry.addTextChangedListener(nameEntryWatcher);
+
+			@Override
+			public void afterTextChanged(Editable s) {
+			}
+		});
+		nameEntry.setOnEditorActionListener(new OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId,
+					KeyEvent e) {
+				createForum();
+				return true;
+			}
+		});
 
 		feedback = (TextView) findViewById(R.id.createForumFeedback);
 
 		createForumButton = (Button) findViewById(R.id.createForumButton);
-		createForumButton.setOnClickListener(this);
+		createForumButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				createForum();
+			}
+		});
 
 		progress = (ProgressBar) findViewById(R.id.createForumProgressBar);
+	}
 
+	@Override
+	public void onStart() {
+		super.onStart();
+		showSoftKeyboard(nameEntry);
 	}
 
 	@Override
@@ -95,14 +110,8 @@ public class CreateForumActivity extends BriarActivity
 	}
 
 	private void enableOrDisableCreateButton() {
-		if (progress == null) return; // Not created yet
+		if (createForumButton == null) return; // Not created yet
 		createForumButton.setEnabled(validateName());
-	}
-
-	@Override
-	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
-		hideSoftKeyboard(textView);
-		return true;
 	}
 
 	private boolean validateName() {
@@ -116,15 +125,12 @@ public class CreateForumActivity extends BriarActivity
 		return length > 0;
 	}
 
-	@Override
-	public void onClick(View view) {
-		if (view == createForumButton) {
-			hideSoftKeyboard(view);
-			if (!validateName()) return;
-			createForumButton.setVisibility(GONE);
-			progress.setVisibility(VISIBLE);
-			storeForum(nameEntry.getText().toString());
-		}
+	private void createForum() {
+		if (!validateName()) return;
+		hideSoftKeyboard(nameEntry);
+		createForumButton.setVisibility(GONE);
+		progress.setVisibility(VISIBLE);
+		storeForum(nameEntry.getText().toString());
 	}
 
 	private void storeForum(final String name) {

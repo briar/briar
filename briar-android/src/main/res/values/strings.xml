@@ -204,8 +204,8 @@
 
 	<!-- Forums -->
 	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>
-	<string name="create_forum_title">New Forum</string>
-	<string name="choose_forum_name">Choose a name for your forum:</string>
+	<string name="create_forum_title">Create Forum</string>
+	<string name="choose_forum_hint">Choose a name for your forum</string>
 	<string name="create_forum_button">Create Forum</string>
 	<string name="forum_created_toast">Forum created</string>
 	<string name="no_forum_posts">This forum is empty.\n\nUse the pen icon at the top to compose the first post.\n\nFeeling lonely here? Share this forum with more of your contacts!</string>

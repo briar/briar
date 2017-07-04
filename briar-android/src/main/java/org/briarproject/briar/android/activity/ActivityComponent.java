@@ -39,7 +39,7 @@ import org.briarproject.briar.android.privategroup.conversation.GroupConversatio
 import org.briarproject.briar.android.privategroup.creation.CreateGroupActivity;
 import org.briarproject.briar.android.privategroup.creation.CreateGroupFragment;
 import org.briarproject.briar.android.privategroup.creation.CreateGroupMessageFragment;
-import org.briarproject.briar.android.privategroup.creation.GroupCreateModule;
+import org.briarproject.briar.android.privategroup.creation.CreateGroupModule;
 import org.briarproject.briar.android.privategroup.creation.GroupInviteActivity;
 import org.briarproject.briar.android.privategroup.creation.GroupInviteFragment;
 import org.briarproject.briar.android.privategroup.invitation.GroupInvitationActivity;
@@ -71,7 +71,7 @@ import dagger.Component;
 @Component(
 		modules = {ActivityModule.class, ForumModule.class, SharingModule.class,
 				BlogModule.class, ContactModule.class, GroupListModule.class,
-				GroupCreateModule.class, GroupInvitationModule.class,
+				CreateGroupModule.class, GroupInvitationModule.class,
 				GroupConversationModule.class, GroupMemberModule.class,
 				GroupRevealModule.class},
 		dependencies = AndroidComponent.class)
