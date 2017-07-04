@@ -31,6 +31,7 @@ import static org.briarproject.briar.api.blog.MessageType.POST;
 import static org.briarproject.briar.api.blog.MessageType.WRAPPED_COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.WRAPPED_POST;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class BlogManagerIntegrationTest
@@ -468,6 +469,19 @@ public class BlogManagerIntegrationTest
 			assertEquals(COMMENT, h.getType());
 			assertTrue(((BlogCommentHeader) h).getRootPost().isRssFeed());
 		}
+	}
+
+	@Test
+	public void testRemoveContacts() throws Exception {
+		// 0 removes 1
+		assertTrue(blogManager0.getBlogs().contains(blog1));
+		contactManager0.removeContact(contactId1From0);
+		assertFalse(blogManager0.getBlogs().contains(blog1));
+
+		// 1 removes 0
+		assertTrue(blogManager1.getBlogs().contains(blog0));
+		contactManager1.removeContact(contactId0From1);
+		assertFalse(blogManager1.getBlogs().contains(blog0));
 	}
 
 }
