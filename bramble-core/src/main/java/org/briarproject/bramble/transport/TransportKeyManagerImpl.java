@@ -127,7 +127,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		for (long streamNumber : inKeys.getWindow().getUnseen()) {
 			TagContext tagCtx = new TagContext(c, inKeys, streamNumber);
 			byte[] tag = new byte[TAG_LENGTH];
-			crypto.encodeTag(tag, inKeys.getTagKey(),PROTOCOL_VERSION,
+			crypto.encodeTag(tag, inKeys.getTagKey(), PROTOCOL_VERSION,
 					streamNumber);
 			inContexts.put(new Bytes(tag), tagCtx);
 		}
