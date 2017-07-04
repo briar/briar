@@ -15,6 +15,38 @@
 
 		<include layout="@layout/toolbar"/>
 
+		<RelativeLayout
+			android:id="@+id/expiryWarning"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="@color/briar_warning_background"
+			android:orientation="horizontal"
+			android:padding="@dimen/margin_medium"
+			android:visibility="gone"
+			tools:visibility="visible">
+
+			<TextView
+				android:id="@+id/expiryWarningText"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/expiryWarningClose"
+				android:text="@string/expiry_warning"
+				android:textColor="@color/briar_text_primary_inverse"
+				android:textSize="@dimen/text_size_small"/>
+
+			<ImageView
+				android:id="@+id/expiryWarningClose"
+				android:layout_width="24dp"
+				android:layout_height="24dp"
+				android:layout_alignParentRight="true"
+				android:layout_centerInParent="true"
+				android:contentDescription="@string/close"
+				android:scaleType="center"
+				android:src="@drawable/ic_close"
+				android:tint="@color/briar_text_tertiary_inverse"/>
+
+		</RelativeLayout>
+
 		<FrameLayout
 			android:id="@+id/fragmentContainer"
 			android:layout_width="match_parent"

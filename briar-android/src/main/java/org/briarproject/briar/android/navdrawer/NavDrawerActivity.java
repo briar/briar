@@ -29,6 +29,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.FeedFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
+import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.forum.ForumListFragment;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
@@ -45,6 +46,9 @@ import javax.inject.Inject;
 import static android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 import static android.support.v4.view.GravityCompat.START;
 import static android.support.v4.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
 
 public class NavDrawerActivity extends BriarActivity implements
 		BaseFragmentListener, TransportStateListener,
@@ -128,6 +132,12 @@ public class NavDrawerActivity extends BriarActivity implements
 	public void onStart() {
 		super.onStart();
 		updateTransports();
+		controller.showExpiryWarning(new UiResultHandler<Boolean>(this) {
+			@Override
+			public void onResultUi(Boolean showWarning) {
+				if (showWarning) showExpiryWarning();
+			}
+		});
 	}
 
 	private void exitIfStartupFailed(Intent intent) {
@@ -252,6 +262,34 @@ public class NavDrawerActivity extends BriarActivity implements
 	@Override
 	public void handleDbException(DbException e) {
 		// Do nothing for now
+	}
+
+	@SuppressWarnings("ConstantConditions")
+	private void showExpiryWarning() {
+		int daysUntilExpiry = getDaysUntilExpiry();
+		if (daysUntilExpiry < 0) signOut();
+
+		// show expiry warning text
+		final ViewGroup
+				expiryWarning = (ViewGroup) findViewById(R.id.expiryWarning);
+		TextView expiryWarningText =
+				(TextView) expiryWarning.findViewById(R.id.expiryWarningText);
+		expiryWarningText.setText(getResources()
+				.getQuantityString(R.plurals.expiry_warning, daysUntilExpiry,
+						daysUntilExpiry));
+
+		// make close button functional
+		ImageView expiryWarningClose =
+				(ImageView) expiryWarning.findViewById(R.id.expiryWarningClose);
+		expiryWarningClose.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				controller.expiryWarningDismissed();
+				expiryWarning.setVisibility(GONE);
+			}
+		});
+
+		expiryWarning.setVisibility(VISIBLE);
 	}
 
 	private void initializeTransports(final LayoutInflater inflater) {

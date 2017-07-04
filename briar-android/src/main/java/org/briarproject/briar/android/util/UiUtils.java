@@ -31,6 +31,7 @@ import static android.text.format.DateUtils.FORMAT_ABBREV_TIME;
 import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.WEEK_IN_MILLIS;
+import static org.briarproject.briar.android.BriarApplication.EXPIRY_DATE;
 
 public class UiUtils {
 
@@ -62,6 +63,12 @@ public class UiUtils {
 		return DateUtils.getRelativeTimeSpanString(time,
 				System.currentTimeMillis(),
 				MIN_DATE_RESOLUTION, flags).toString();
+	}
+
+	public static int getDaysUntilExpiry() {
+		long now = System.currentTimeMillis();
+		long daysBeforeExpiry = (EXPIRY_DATE - now) / 1000 / 60 / 60 / 24;
+		return (int) daysBeforeExpiry;
 	}
 
 	public static SpannableStringBuilder getTeaser(Context ctx, Spanned body) {

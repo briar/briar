@@ -5,5 +5,5 @@
 	android:layout_height="match_parent"
 	android:layout_gravity="center"
 	android:gravity="center"
-	android:text="@string/expiry_warning"
+	android:text="@string/expiry_date_reached"
 	android:textSize="@dimen/text_size_large"/>
