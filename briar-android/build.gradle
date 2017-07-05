@@ -80,6 +80,7 @@ android {
 		targetSdkVersion 22
 		versionCode 15
 		versionName "0.15"
+		applicationId "org.briarproject.briar.beta"
 		resValue "string", "app_package", "org.briarproject.briar.beta"
 		buildConfigField "String", "GitHash", "\"${getGitHash()}\""
 	}

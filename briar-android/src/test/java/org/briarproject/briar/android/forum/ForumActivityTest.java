@@ -36,7 +36,8 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21,
-		application = TestBriarApplication.class)
+		application = TestBriarApplication.class,
+		packageName = "org.briarproject.briar")
 public class ForumActivityTest {
 
 	private final static String AUTHOR_1 = "Author 1";
