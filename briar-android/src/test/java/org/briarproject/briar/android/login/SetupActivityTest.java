@@ -47,7 +47,8 @@ import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21,
-		application = TestBriarApplication.class)
+		application = TestBriarApplication.class,
+		packageName = "org.briarproject.briar")
 public class SetupActivityTest {
 
 	private static final int TIMEOUT_MS = 10 * 1000;

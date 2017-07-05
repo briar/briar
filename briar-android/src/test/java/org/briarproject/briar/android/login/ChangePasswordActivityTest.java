@@ -41,7 +41,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21,
-		application = TestBriarApplication.class)
+		application = TestBriarApplication.class,
+		packageName = "org.briarproject.briar")
 public class ChangePasswordActivityTest {
 
 	private static final int TIMEOUT_MS = 10 * 1000;
