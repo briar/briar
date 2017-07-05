@@ -49,11 +49,11 @@
   </plurals>
   <plurals name="forum_post_notification_text">
     <item quantity="one">Nouveau post de forum.</item>
-    <item quantity="other">%d nouveaux posts de forum.</item>
+    <item quantity="other">%d nouveaux messages de forum.</item>
   </plurals>
   <plurals name="blog_post_notification_text">
     <item quantity="one">Nouveau post de blog.</item>
-    <item quantity="other">%d Nouveaux posts de blog.</item>
+    <item quantity="other">%d Nouveaux messages de blog.</item>
   </plurals>
   <!--Misc-->
   <string name="now">Maintenant</string>
@@ -97,7 +97,7 @@
   <string name="try_again_button">Essayer à nouveau</string>
   <string name="connected_to_contact">Connecté au contact</string>
   <string name="calculating_confirmation_code">Calcul du code de confirmation\u2026</string>
-  <string name="your_confirmation_code">Votre code d\'invitation est </string>
+  <string name="your_confirmation_code">Votre code de confirmation est </string>
   <string name="enter_confirmation_code">Veuillez saisir le code de confirmation de votre contact :</string>
   <string name="waiting_for_contact">Attente du contact\u2026</string>
   <string name="waiting_for_contact_to_scan">En attente de scan et de la connexion du contact\u2026</string>
@@ -117,8 +117,7 @@
   <string name="introduction_onboarding_text">Vous pouvez introduire vos contacts les uns les autres, ils n\'ont donc pas besoin de se rencontrer pour se connecter avec Briar.</string>
   <string name="introduction_activity_title">Sélectionner contact </string>
   <string name="introduction_message_title">Introduire des contacts</string>
-  <string name="introduction_message_text">Vous pouvez composer un message qui sera envoyé à %1$s et %2$s avec votre introduction :</string>
-  <string name="introduction_message_hint">Taper le message (optionnel) </string>
+  <string name="introduction_message_hint">Ajouter un message (optionnel)</string>
   <string name="introduction_button">Effectuer l\'introduction</string>
   <string name="introduction_sent">Votre admission a été envoyée.</string>
   <string name="introduction_error">Une erreur s\'est produite lors de l\'admission.</string>
@@ -149,7 +148,7 @@
   <string name="groups_create_group_title">Créer un groupe privé</string>
   <string name="groups_create_group_button">Créer un groupe</string>
   <string name="groups_create_group_invitation_button">Envoyer invitation</string>
-  <string name="groups_create_group_hint">Ajouter un nom au groupe privé</string>
+  <string name="groups_create_group_hint">Choisissez un nom pour votre groupe privé</string>
   <string name="groups_invitation_sent">Invitation envoyée au groupe</string>
   <string name="groups_message_sent">Message envoyé</string>
   <string name="groups_member_list">Liste de participants</string>
@@ -191,17 +190,15 @@
   <string name="groups_reveal_invisible">Votre lien avec le contact est invisible par le groupe</string>
   <!--Forums-->
   <string name="no_forums">Vous n\'avez pas de forums.\n\nPourquoi ne pas en créer un en touchant l\'icône + en haut ?\n\nVous pouvez aussi demander à vos contacts d\'en partager avec vous.</string>
-  <string name="create_forum_title">Nouveau forum</string>
-  <string name="choose_forum_name">Choisissez un nom pour votre forum :</string>
   <string name="create_forum_button">Créer un forum</string>
   <string name="forum_created_toast">Forum créé</string>
-  <string name="no_forum_posts">Ce forum est vide.\n\nUtilisez l\'icône crayon, en haut pour écrire le premier post.\n\nVous sentez-vous seul, ici? Partager ce forum avec d\'autres contacts !</string>
-  <string name="no_posts">Aucun post</string>
+  <string name="no_forum_posts">Ce forum est vide.\n\nUtilisez l\'icône crayon, en haut pour écrire le premier message.\n\nVous sentez-vous seul, ici? Partager ce forum avec d\'autres contacts !</string>
+  <string name="no_posts">Aucun message</string>
   <plurals name="posts">
     <item quantity="one">%d message</item>
     <item quantity="other">%d messages</item>
   </plurals>
-  <string name="forum_new_entry_posted">Entrée de forum postée</string>
+  <string name="forum_new_entry_posted">Message de forum saisi</string>
   <string name="forum_new_message_hint">Nouvelle entrée</string>
   <string name="forum_message_reply_hint">Nouvelle réponse</string>
   <string name="btn_reply">Répondre</string>
@@ -216,7 +213,7 @@
   <string name="activity_share_toolbar_header">Choisissez des contacts</string>
   <string name="no_contacts_selector">Vous semblez être nouveau ici et n\'avez pas encore de contacts.\n\nRevenez lorsque vous aurez ajouté votre premier contact.</string>
   <string name="forum_shared_snackbar">Forum partagé avec les contacts choisis</string>
-  <string name="forum_share_message">Vous pouvez composer un message d\'invitation optionnel qui sera envoyé aux contacts choisis.</string>
+  <string name="forum_share_message">Ajouter un message (optionnel)</string>
   <string name="forum_share_error">Une erreur s\'est produite lors du partage du forum.</string>
   <string name="forum_invitation_received">%1$s a partagé le forum \"%2$s\" avec vous.</string>
   <string name="forum_invitation_sent">Vous avez partagé le forum \"%1$s\" avec %2$s.</string>
@@ -239,21 +236,21 @@
   </plurals>
   <string name="nobody">Personne</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Ce blog est actuellement vide.\n\nSoit l\'auteur n\'a encore rien écrit, soit la personne qui l\'a partagé avec vous doit venir en ligne pour que les posts soient synchronisés.</string>
+  <string name="blogs_other_blog_empty_state">Ce blog est actuellement vide.\n\nSoit l\'auteur n\'a encore rien écrit, soit la personne qui l\'a partagé avec vous doit venir en ligne pour que les messages soient synchronisés.</string>
   <string name="read_more">Lire la suite</string>
-  <string name="blogs_write_blog_post">Écrire un post de blog</string>
-  <string name="blogs_write_blog_post_body_hint">Saisir ici votre post de blog</string>
+  <string name="blogs_write_blog_post">Écrire un message de blog</string>
+  <string name="blogs_write_blog_post_body_hint">Saisir ici votre message de blog</string>
   <string name="blogs_publish_blog_post">Publier</string>
-  <string name="blogs_blog_post_created">Post de blog créé</string>
-  <string name="blogs_blog_post_received">Nouveau post de blog reçu</string>
+  <string name="blogs_blog_post_created">Message de blog créé</string>
+  <string name="blogs_blog_post_received">Nouveau message de blog reçu</string>
   <string name="blogs_blog_post_scroll_to">Défiler jusqu\'à</string>
-  <string name="blogs_feed_empty_state">Ceci est le flux global des blogs.\n\nIl semble que personne n\'ait encore rien écrit.\n\nSoyez le premier et touchez l\'icône stylet pour écrire un post de blog.</string>
+  <string name="blogs_feed_empty_state">Ceci est le flux global des blogs.\n\nIl semble que personne n\'ait encore rien écrit.\n\nSoyez le premier et touchez l\'icône stylet pour écrire un message de blog.</string>
   <string name="blogs_personal_blog">Blog personnel de %s</string>
   <string name="blogs_remove_blog">Supprimer le blog</string>
-  <string name="blogs_remove_blog_dialog_message">Êtes-vous sûr de vouloir supprimer ce blog et tous ses posts ?\nNotez que ceci ne supprimera pas le blog sur les appareils des autres personnes.</string>
+  <string name="blogs_remove_blog_dialog_message">Êtes-vous sûr de vouloir supprimer ce blog et tous ses messages ?\nNotez que ceci ne supprimera pas le blog sur les appareils des autres personnes.</string>
   <string name="blogs_remove_blog_ok">Supprimer le blog</string>
   <string name="blogs_blog_removed">Blog supprimé</string>
-  <string name="blogs_reblog_comment_hint">Ajouter un commentaire optionnel</string>
+  <string name="blogs_reblog_comment_hint">Ajouter un commentaire (optionnel)</string>
   <string name="blogs_reblog_button">Reblog</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Partager le blog</string>
@@ -280,7 +277,7 @@
   <string name="blogs_rss_feeds_manage_author">Auteur :</string>
   <string name="blogs_rss_feeds_manage_updated">Dernière mise à jour :</string>
   <string name="blogs_rss_remove_feed">Supprimer le flux</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Êtes-vous sûr de vouloir supprimer ce flux et tous ses messages ?\nLes postes que vous avez partagés ne seront pas supprimés des appareils des autres personnes.</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Êtes-vous sûr de vouloir supprimer ce flux et tous ses messages ?\nLes messages que vous avez partagés ne seront pas supprimés des appareils des autres personnes.</string>
   <string name="blogs_rss_remove_feed_ok">Supprimer le flux</string>
   <string name="blogs_rss_feeds_manage_delete_error">Le flux n\'a pas pu être supprimé !</string>
   <string name="blogs_rss_feeds_manage_empty_state">Vous n\'avez importé aucun flux RSS.\n\nPourquoi ne pas cliquer le plus dans le coin en haut à droite pour ajouter votre premier ?</string>
@@ -318,10 +315,14 @@
   <string name="uninstall_setting_summary">Ceci nécessite une confirmation manuelle en cas d\'événement de panique</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notifications</string>
-  <string name="notify_private_messages_setting">Afficher les alertes pour les messages privés</string>
-  <string name="notify_group_messages_setting">Afficher les alertes pour les messages de groupe</string>
-  <string name="notify_forum_posts_setting">Afficher les alertes pour les posts de forum</string>
-  <string name="notify_blog_posts_setting">Afficher les alertes pour les posts de blog</string>
+  <string name="notify_private_messages_setting_title">Messages privés</string>
+  <string name="notify_private_messages_setting_summary">Afficher les notifications pour les messages privés</string>
+  <string name="notify_group_messages_setting_title">Messages de groupe</string>
+  <string name="notify_group_messages_setting_summary">Afficher les notifications pour les messages de groupe</string>
+  <string name="notify_forum_posts_setting_title">Messages de forum</string>
+  <string name="notify_forum_posts_setting_summary">Afficher les notifications des messages de forum</string>
+  <string name="notify_blog_posts_setting_title">Messages de blog</string>
+  <string name="notify_blog_posts_setting_summary">Afficher les notifications pour les messages de blog</string>
   <string name="notify_vibration_setting">Vibration</string>
   <string name="notify_sound_setting">Sonnerie</string>
   <string name="notify_sound_setting_default">Sonnerie par défaut</string>
@@ -354,8 +355,6 @@
   <!--Sign Out-->
   <string name="progress_title_logout">Déconnexion de Briar ...</string>
   <!--Screen Filters & Tapjacking-->
-  <string name="screen_filter_title">Filtre d\'écran détecté</string>
-  <string name="screen_filter_body">Les applications suivantes ont l\'autorisation de s\'afficher par dessus d\'autres :\n\n%1$s \n\nBriar ne répondra pas aux touches lorsqu\'une autre application s\'affiche par dessus.
-En cas de problèmes, essayer d\'arrêter ces applications durant l\'utilisation de Briar.\n</string>
-  <string name="checkbox_dont_show_again">Ne plus m\'avertir à propos de ces applications</string>
+  <string name="screen_filter_title">Superposition d\'écran détectée</string>
+  <string name="screen_filter_body">Une autre app s\'affiche par dessus Briar. Pour protéger votre sécurité, Briar ne répond pas au toucher lorsqu\'une autre app s\'affiche par dessus.\n\nEssayer de fermer les applications suivantes lorsque vous utilisez Briar :\n\n%1$s</string>
 </resources>

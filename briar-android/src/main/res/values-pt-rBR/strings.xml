@@ -117,8 +117,6 @@
   <string name="introduction_onboarding_text">Você pode apresentar seus contatos entre si, assim eles não precisam se encontrar pessoalmente para se comunicar no Briar.</string>
   <string name="introduction_activity_title">Selecionar contato</string>
   <string name="introduction_message_title">Apresentar contatos</string>
-  <string name="introduction_message_text">Você pode escrever uma mensagem que será enviada para %1$s e %2$s junto com sua apresentação:</string>
-  <string name="introduction_message_hint">Digitar mensagem (opcional)</string>
   <string name="introduction_button">Fazer apresentação</string>
   <string name="introduction_sent">Sua Introdução foi enviada.</string>
   <string name="introduction_error">Houve um erro ao fazer a apresentação</string>
@@ -149,7 +147,6 @@
   <string name="groups_create_group_title">Criar Grupo Privado</string>
   <string name="groups_create_group_button">Criar Grupo</string>
   <string name="groups_create_group_invitation_button">Enviar Convite</string>
-  <string name="groups_create_group_hint">Adicionar um nome para seu grupo privado</string>
   <string name="groups_invitation_sent">Convite do Grupo enviado </string>
   <string name="groups_message_sent">Mensagem enviada</string>
   <string name="groups_member_list">Lista de membros</string>
@@ -190,8 +187,6 @@
   <string name="groups_reveal_invisible">Relação de contatos não visível para o Grupo </string>
   <!--Forums-->
   <string name="no_forums">Você não tem nenhum fórum.\nPor que não cria um novo você mesmo, Clicando o ícone + no topo?\nVocê também pode pedir que seus contatos compartilhem fóruns com você.</string>
-  <string name="create_forum_title">Novo fórum</string>
-  <string name="choose_forum_name">Escolha um nome para o seu fórum:</string>
   <string name="create_forum_button">Criar fórum</string>
   <string name="forum_created_toast">Fórum criado</string>
   <string name="no_forum_posts">Esse fórum está vazio.\nUse o ícone da caneta no topo para escrever o primeiro Post.\nSe sentido sozinho aqui? Compartilhe esse fórum com seus contatos!</string>
@@ -215,7 +210,6 @@
   <string name="activity_share_toolbar_header">Escolher contatos</string>
   <string name="no_contacts_selector">Parece que você é novo aqui e não tem nenhum contato ainda.\nPor favor volte aqui depois de adicionar um contato.</string>
   <string name="forum_shared_snackbar">Fòrum compartilhado com os contatos escolhidos</string>
-  <string name="forum_share_message">Você pode escrever um convite que será enviado aos contatos selecionados.</string>
   <string name="forum_share_error">Houve um erro em compartilhar esse fórum.</string>
   <string name="forum_invitation_received">%1$s compartilhou o fórum \"%2$s\" com você.</string>
   <string name="forum_invitation_sent">Você compartilhou o fórum \"%1$s\" com %2$s.</string>
@@ -251,7 +245,6 @@
   <string name="blogs_remove_blog_dialog_message">Você ter certeza que quer remover esse Blog e todos seus Posts?\nNote que isso não irá remover o Blog dos dispositivos de outras pessoas. </string>
   <string name="blogs_remove_blog_ok">Remover Blog</string>
   <string name="blogs_blog_removed">Blog Deletado</string>
-  <string name="blogs_reblog_comment_hint">Adicione um comentario (opcional)</string>
   <string name="blogs_reblog_button">Reblog</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Compartilhar Blog</string>
@@ -308,10 +301,6 @@
   <string name="uninstall_setting_summary">Isso requer configuração manual em um evento de pânico</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificações</string>
-  <string name="notify_private_messages_setting">Mostrar alertas para mensagens privadas</string>
-  <string name="notify_group_messages_setting">Mostrar alertas para mensagens nos Grupos </string>
-  <string name="notify_forum_posts_setting">Mostrar alertas para postagens nos fórums</string>
-  <string name="notify_blog_posts_setting">Mostrar alertas para postagens nos blogs</string>
   <string name="notify_vibration_setting">Vibrar</string>
   <string name="notify_sound_setting">Som</string>
   <string name="notify_sound_setting_default">Toque padrão</string>

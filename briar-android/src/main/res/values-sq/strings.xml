@@ -117,8 +117,6 @@
   <string name="introduction_onboarding_text">Kontaktet tuaja mund t’ia prezantoni njëri-tjetrit, që kështu të mos u duhet të takohen realisht për të mundur të lidhen në Briar.</string>
   <string name="introduction_activity_title">Përzgjidhni Kontakt</string>
   <string name="introduction_message_title">Prezantoni Kontakte</string>
-  <string name="introduction_message_text">Mund të hartoni një mesazh për t’u dërguar te %1$s dhe %2$s tok me prezantimin tuaj:</string>
-  <string name="introduction_message_hint">Shtypni mesazh (në daçi)</string>
   <string name="introduction_button">Bëje prezantimin</string>
   <string name="introduction_sent">Prezantimi juaj u dërgua.</string>
   <string name="introduction_error">Pati një gabim me bërjen e prezantimit.</string>
@@ -149,7 +147,6 @@
   <string name="groups_create_group_title">Krijoni Grup Privat</string>
   <string name="groups_create_group_button">Krijoje Grupin</string>
   <string name="groups_create_group_invitation_button">Dërgoje Ftesën</string>
-  <string name="groups_create_group_hint">Shtoni një emër për grupin tuaj privat</string>
   <string name="groups_invitation_sent">Ftesa e grupit u dërgua</string>
   <string name="groups_message_sent">Mesazhi u dërgua</string>
   <string name="groups_member_list">Listë Anëtarësh</string>
@@ -191,8 +188,6 @@
   <string name="groups_reveal_invisible">Marrëdhënia e kontaktit s’është e dukshme për grupin</string>
   <!--Forums-->
   <string name="no_forums">Ende s’keni forume.\n\nPse nuk krijoni vetë një të tillë duke prekur ikonën + në krye?\n\nMund edhe t’u kërkoni kontakteve tuaj të ndajnë me ju forume.</string>
-  <string name="create_forum_title">Forum i Ri</string>
-  <string name="choose_forum_name">Zgjidhni një emër për forumin tuaj:</string>
   <string name="create_forum_button">Krijoje Forumin</string>
   <string name="forum_created_toast">Forumi u krijua</string>
   <string name="no_forum_posts">Ky forum është i zbrazët.\n\nPërdorni ikonën penë që të hartoni postimin tuaj të parë.\n\nNdiheni vetëm? Ndajeni këtë forum me kontaktet tuaj!</string>
@@ -216,7 +211,6 @@
   <string name="activity_share_toolbar_header">Zgjidhni Kontakte</string>
   <string name="no_contacts_selector">Duket se jeni i ri këtu dhe s’keni ende kontakte.\n\nJu lutemi, rikthehuni këtu pasi të keni shtuar kontaktin tuaj të parë.</string>
   <string name="forum_shared_snackbar">Forumi u nda me kontaktet e zgjedhur</string>
-  <string name="forum_share_message">Mundeni të hartoni një mesazh ftese (në daçi) që do t’u dërgohet kontakteve të përzgjedhur.</string>
   <string name="forum_share_error">Pati një gabim në ndarjen e këtij forumi me të tjerët.</string>
   <string name="forum_invitation_received">%1$s ndau me ju forumin \"%2$s\".</string>
   <string name="forum_invitation_sent">Ndatë me \"%2$s\" forumin %1$s.</string>
@@ -253,7 +247,6 @@
   <string name="blogs_remove_blog_dialog_message">Jeni i sigurt se doni të hiqet ky blog dhe krejt postimet?\nMbani parasysh që kjo nuk do ta heqë blogun nga pajisjet e personave të tjerë.</string>
   <string name="blogs_remove_blog_ok">Hiqe Blogun</string>
   <string name="blogs_blog_removed">Blogu u Hoq</string>
-  <string name="blogs_reblog_comment_hint">Shtoni një koment opsional</string>
   <string name="blogs_reblog_button">Riblogojeni</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Ndajeni Blogun Me të Tjerë</string>
@@ -318,10 +311,6 @@
   <string name="uninstall_setting_summary">Kjo lyp ripohim dorazi, në rast akti paniku</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Njoftime</string>
-  <string name="notify_private_messages_setting">Shfaq sinjalizime për mesazhe private</string>
-  <string name="notify_group_messages_setting">Shfaq sinjalizime për mesazhe grupi</string>
-  <string name="notify_forum_posts_setting">Shfaq sinjalizime për postime forumi</string>
-  <string name="notify_blog_posts_setting">Shfaq sinjalizime për postime blogu</string>
   <string name="notify_vibration_setting">Dridhu</string>
   <string name="notify_sound_setting">Tingull</string>
   <string name="notify_sound_setting_default">Zilja parazgjedhje</string>
@@ -354,8 +343,4 @@
   <!--Sign Out-->
   <string name="progress_title_logout">Po dilet nga Briar-i…</string>
   <!--Screen Filters & Tapjacking-->
-  <string name="screen_filter_title">U pikas filtër ekrani</string>
-  <string name="screen_filter_body">Aplikacionet vijuese kanë leje të vizatojnë përmbi aplikacione të tjera:\n\n%1$s \n\nBriar-i nuk do të reagojë ndaj prekjesh,  kur mbi të po vizaton një tjetër aplikacion.
-Nëse hasni probleme, provoni t’i mbyllni këto aplikacione, kur përdorni Briar-in.\n</string>
-  <string name="checkbox_dont_show_again">Mos më sinjalizo më për këto aplikacione</string>
 </resources>

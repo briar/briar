@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Configuración de Briar</string>
-  <string name="setup_explanation">Tu cuenta de Briar se almacena de manera cifrada en tu teléfono y no en ninguna nube. Si desinstalas Briar u olvidas tu contraseña, no podrás recuperar ni tu cuenta, ni tus datos.</string>
+  <string name="setup_explanation">Tu cuenta de Briar se almacena de manera cifrada en tu dispositivo y no en ninguna nube. Si desinstalas Briar u olvidas tu contraseña, no podrás recuperar ni tu cuenta ni tus datos.</string>
   <string name="choose_nickname">Elige tu nombre de usuario</string>
   <string name="choose_password">Elige tu contraseña</string>
   <string name="confirm_password">Confirma tu contraseña</string>
@@ -13,10 +13,10 @@
   <!--Login-->
   <string name="enter_password">Introduce tu contraseña:</string>
   <string name="try_again">Contraseña incorrecta, inténtalo de nuevo</string>
-  <string name="sign_in_button">Registrarse</string>
+  <string name="sign_in_button">Identificarse</string>
   <string name="forgotten_password">Olvidé mi contraseña</string>
   <string name="dialog_title_lost_password">Contraseña olvidada</string>
-  <string name="dialog_message_lost_password">Tu cuenta de Briar se almacena de manera cifrada en tu teléfono y no en ninguna nube, así que no podemos reiniciar tu contraseña. ¿Deseas eliminar tu cuenta y empezar de nuevo?\n\nAdvertencia: Tus identidades, contactos y mensajes se perderán para siempre.</string>
+  <string name="dialog_message_lost_password">Tu cuenta de Briar se almacena de manera cifrada en tu dispositivo y no en ninguna nube, así que no podemos reiniciar tu contraseña. ¿Deseas eliminar tu cuenta y empezar de nuevo?\n\nAdvertencia: tus identidades, contactos y mensajes se perderán para siempre.</string>
   <string name="startup_failed_notification_title">Briar no pudo iniciarse</string>
   <string name="startup_failed_notification_text">Quizá tengas que reinstalar Briar.</string>
   <string name="startup_failed_activity_title">Fallo al iniciar Briar</string>
@@ -44,8 +44,8 @@
     <item quantity="other">Tienes %d nuevos mensajes privados.</item>
   </plurals>
   <plurals name="group_message_notification_text">
-    <item quantity="one"> h</item>
-    <item quantity="other">%d mensajes de grupo nuevos.</item>
+    <item quantity="one">Tienes un nuevo mensaje de grupo.</item>
+    <item quantity="other">Tienes %d nuevos mensajes de grupo.</item>
   </plurals>
   <plurals name="forum_post_notification_text">
     <item quantity="one">Hay una nueva publicación en el foro.</item>
@@ -76,9 +76,9 @@
   <string name="text_too_long">El texto es demasiado largo</string>
   <string name="show_onboarding">Mostrar diálogo de ayuda</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Parece que eres nuevo por aquí y no tienes aún contactos.\n\nPulsa el ícono + en la parte superior y sigue las instrucciones para añadir amigos a tu lista.\n\nPor favor, recuerda: sólo puedes añadir nuevos contactos cara a cara para evitar que nadie suplante tu identidad o lea tus mensajes en el futuro. </string>
+  <string name="no_contacts">Parece que eres nuevo por aquí y no tienes aún contactos.\n\nPulsa el signo + en la parte superior y sigue las instrucciones para añadir amigos a tu lista.\n\nPor favor, recuerda: sólo puedes añadir nuevos contactos cara a cara para evitar que nadie suplante tu identidad o lea tus mensajes en el futuro. </string>
   <string name="date_no_private_messages">Sin mensajes.</string>
-  <string name="no_private_messages">Ésta es la vista de conversación.\n\nParece que aún no hay ninguna.\n\nPulsa el campo de texto en la parte inferior para empezar la conversación.</string>
+  <string name="no_private_messages">Esta es la vista de conversación.\n\nParece que aún no hay ninguna.\n\nPulsa el campo de texto en la parte inferior para empezar la conversación.</string>
   <string name="message_hint">Escribe un mensaje</string>
   <string name="delete_contact">Eliminar contacto</string>
   <string name="dialog_title_delete_contact">Confirmar eliminación de contacto</string>
@@ -108,7 +108,7 @@
   <string name="contact_already_exists">El contacto %s ya existe</string>
   <string name="contact_exchange_failed">El intercambio del contacto falló</string>
   <string name="qr_code_invalid">El código QR no es válido</string>
-  <string name="connecting_to_device">Conectado al dispositivo\u2026</string>
+  <string name="connecting_to_device">Conectando al dispositivo\u2026</string>
   <string name="authenticating_with_device">Autentificándose con el dispositivo\u2026</string>
   <string name="connection_aborted_local">¡Hemos interumpido la conexión! Esto podría significar que alguien está intentando interceptar la conexión</string>
   <string name="connection_aborted_remote">¡La conexión ha sido interrumpida por tu contacto! Esto podría significar que alguien está intentando interceptar la conexión</string>
@@ -117,8 +117,7 @@
   <string name="introduction_onboarding_text">Presenta a tus contactos entre sí para ahorrarles encontrarse en persona para poder conectar mediante Briar.</string>
   <string name="introduction_activity_title">Seleccionar contacto</string>
   <string name="introduction_message_title">Presentar a dos contactos</string>
-  <string name="introduction_message_text">Puedes redactar un mensaje que se enviará a %1$s y a %2$s junto con tu presentación:</string>
-  <string name="introduction_message_hint">Escribe un mensaje (opcional)</string>
+  <string name="introduction_message_hint">Añade un mensaje (opcional)</string>
   <string name="introduction_button">Realizar la presentación</string>
   <string name="introduction_sent">Tu presentación se ha mandado.</string>
   <string name="introduction_error">Ocurrió un error realizando la presentación.</string>
@@ -137,7 +136,7 @@
     <item quantity="other">%d nuevos contactos añadido</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Aún no participas en ningún grupo.\n\nCrea un grupo pulsando en el ícono + arriba o pide a tus contactos que te inviten a uno de sus grupos.</string>
+  <string name="groups_list_empty">Aún no participas en ningún grupo.\n\nCrea un grupo pulsando en el signo + arriba o pide a tus contactos que te inviten a uno de sus grupos.</string>
   <string name="groups_created_by">Creado por %s</string>
   <plurals name="messages">
     <item quantity="one">%d mensaje</item>
@@ -149,7 +148,7 @@
   <string name="groups_create_group_title">Crear grupo privado</string>
   <string name="groups_create_group_button">Crear grupo</string>
   <string name="groups_create_group_invitation_button">Enviar invitación</string>
-  <string name="groups_create_group_hint">Dar nombre al grupo privado</string>
+  <string name="groups_create_group_hint">Elige un nombre para tu grupo privado</string>
   <string name="groups_invitation_sent">Se ha mandado la invitación de grupo</string>
   <string name="groups_message_sent">Mensaje enviado</string>
   <string name="groups_member_list">Integrantes</string>
@@ -169,7 +168,7 @@
   <string name="groups_dissolved_dialog_message">El creador de este grupo lo ha disuelto.\n\nYa no puedes escribir mensajes al grupo y puede que no recibas todas las publicaciones que se hayan escrito.</string>
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">Invitaciones de grupo</string>
-  <string name="groups_invitations_invitation_sent">Has invitado a %1$s a ingresar en el grupo \"%2$s\".</string>
+  <string name="groups_invitations_invitation_sent">Has invitado a %1$s a ingresar en el grupo «%2$s».</string>
   <string name="groups_invitations_invitation_received">%1$s te ha invitado a unirte al grupo «%2$s».</string>
   <string name="groups_invitations_joined">Te uniste al grupo</string>
   <string name="groups_invitations_declined">Invitación de grupo declinada</string>
@@ -190,12 +189,10 @@
   <string name="groups_reveal_visible_revealed_by_contact">Las relaciones entre los contactos son visibles al grupo (las reveló %s)</string>
   <string name="groups_reveal_invisible">Las relaciones entre los contactos no son visibles al grupo</string>
   <!--Forums-->
-  <string name="no_forums">No tienes ningún foro aún.\n\n¿Por qué no creas uno pulsando el ícono + de la parte superior?\n\nTambién puedes pedirle a tus contactos que compartan foros contigo.</string>
-  <string name="create_forum_title">Nuevo foro</string>
-  <string name="choose_forum_name">Elige un nombre para tu foro:</string>
+  <string name="no_forums">No tienes ningún foro aún.\n\n¿Por qué no creas uno pulsando el signo + de la parte superior?\n\nTambién puedes pedirle a tus contactos que compartan foros contigo.</string>
   <string name="create_forum_button">Crear foro</string>
   <string name="forum_created_toast">Foro creado</string>
-  <string name="no_forum_posts">Este foro está vacío.\n\nUsa el ícono del lápiz de la parte superior para redactar una primera publicación.\n\n¿No te sientes un poco solo aquí? ¡Comparte este foro con más contactos!</string>
+  <string name="no_forum_posts">Este foro está vacío.\n\nUsa el signo del lápiz de la parte superior para redactar una primera publicación.\n\n¿No te sientes un poco solo aquí? ¡Comparte este foro con más contactos!</string>
   <string name="no_posts">Sin publicaciones</string>
   <plurals name="posts">
     <item quantity="one">%d publicación</item>
@@ -216,7 +213,7 @@
   <string name="activity_share_toolbar_header">Elige contactos</string>
   <string name="no_contacts_selector">Parece que eres nuevo aquí y no tienes contactos aún.\n\nPor favor, vuelve cuando hayas añadido tu primer contacto.</string>
   <string name="forum_shared_snackbar">Foro compartido con los contactos seleccionados</string>
-  <string name="forum_share_message">Puedes redactar un mensaje de invitación opcional que se enviará a los contactos seleccionados.</string>
+  <string name="forum_share_message">Añade un mensaje (opcional)</string>
   <string name="forum_share_error">Hubo un error compartiendo este foro.</string>
   <string name="forum_invitation_received">%1$s ha compartido el foro \"%2$s\" contigo.</string>
   <string name="forum_invitation_sent">Has compartido el foro \"%1$s\" con %2$s.</string>
@@ -247,13 +244,13 @@
   <string name="blogs_blog_post_created">Creado artículo del blog</string>
   <string name="blogs_blog_post_received">Recibido nuevo artículo del blog</string>
   <string name="blogs_blog_post_scroll_to">Desplazarse hasta</string>
-  <string name="blogs_feed_empty_state">Esta es la lista global de entradas del blog.\n\nParece que nadie ha publicado nada todavía.\n\nSé el primero: pulsa el icono del lápiz para escribir una nueva entrada de blog.</string>
+  <string name="blogs_feed_empty_state">Esta es la lista global de entradas de blogs.\n\nParece que nadie ha publicado nada todavía.\n\nSé el primero: pulsa el signo del lápiz para escribir una nueva entrada de blog.</string>
   <string name="blogs_personal_blog">Blog personal de %s</string>
   <string name="blogs_remove_blog">Eliminar blog</string>
   <string name="blogs_remove_blog_dialog_message">¿Seguro que quieres eliminar este blog y todos sus artículos?\nTen en cuenta que no se eliminará el blog de los dispositivos de otras personas.</string>
   <string name="blogs_remove_blog_ok">Eliminar blog</string>
   <string name="blogs_blog_removed">Blog eliminado</string>
-  <string name="blogs_reblog_comment_hint">Añade un comentario opcional</string>
+  <string name="blogs_reblog_comment_hint">Añade un comentario (opcional)</string>
   <string name="blogs_reblog_button">Rebloguear</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Compartir blog</string>
@@ -318,13 +315,17 @@
   <string name="uninstall_setting_summary">Requerirá confirmación manual en el momento de pánico</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificaciones</string>
-  <string name="notify_private_messages_setting">Mostrar alertas para mensajes privados</string>
-  <string name="notify_group_messages_setting">Mostrar alertas para mensajes de grupo</string>
-  <string name="notify_forum_posts_setting">Mostrar alertas para publicaciones de foros</string>
-  <string name="notify_blog_posts_setting">Mostrar alertas para artículos de blogs</string>
+  <string name="notify_private_messages_setting_title">Mensajes privados</string>
+  <string name="notify_private_messages_setting_summary">Notificar mensajes privados</string>
+  <string name="notify_group_messages_setting_title">Mensajes de grupo</string>
+  <string name="notify_group_messages_setting_summary">Notificar mensajes de grupo</string>
+  <string name="notify_forum_posts_setting_title">Publicaciones en foros</string>
+  <string name="notify_forum_posts_setting_summary">Notificar publicaciones en foros</string>
+  <string name="notify_blog_posts_setting_title">Entradas de blog</string>
+  <string name="notify_blog_posts_setting_summary">Notificar entradas de blog</string>
   <string name="notify_vibration_setting">Vibrar</string>
   <string name="notify_sound_setting">Sonar</string>
-  <string name="notify_sound_setting_default">Alerta sonora predeterminada</string>
+  <string name="notify_sound_setting_default">Tono de notificación predeterminado</string>
   <string name="notify_sound_setting_disabled">Ninguna</string>
   <string name="choose_ringtone_title">Elegir alerta sonora</string>
   <!--Settings Feedback-->
@@ -354,8 +355,6 @@
   <!--Sign Out-->
   <string name="progress_title_logout">Saliendo de Briar…</string>
   <!--Screen Filters & Tapjacking-->
-  <string name="screen_filter_title">Filtro de pantalla detectado</string>
-  <string name="screen_filter_body">Las siguientes aplicaciones pueden mostrarse por encima de otras:\n\n%1$s \n\nBriar no reaccionará a los toques mientras otra aplicación se muestre encima.
-Si experiencia algún problema, pruebe a desactivar esas aplicaciones cuando use Briar.\n</string>
-  <string name="checkbox_dont_show_again">No mostrar más para estas aplicaciones</string>
+  <string name="screen_filter_title">Superposición de pantalla detectada</string>
+  <string name="screen_filter_body">Otra aplicación se está mostrando encima de Briar. Por seguridad, Briar no responderá a los toques mientras se muestre otra aplicación encima.\n\nIntenta apagar las siguientes aplicaciones cuando uses Briar:\n\n%1$s</string>
 </resources>

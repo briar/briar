@@ -76,7 +76,7 @@
   <string name="text_too_long">Der eingegebene Text ist leider zu lang</string>
   <string name="show_onboarding">Hilfe anzeigen</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nVerwende das \"+\"-Icon am oberen Bildschirmrand an und folge den Anweisungen um Freunde zu deiner Kontaktliste hinzuzufügen.\n\nDenke daran dass Du neue Kontakte nur dann hinzufügen kannst, wenn Du ihnen physisch begegnest. Das hindert andere daran, sich als Deine Person auszugeben oder Deine Nachrichten zu lesen.</string>
+  <string name="no_contacts">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nTippe auf das \"+\"-Symbol am oberen Bildschirmrand an und folge den Anweisungen, um Freunde zu deiner Kontaktliste hinzuzufügen.\n\nDenke daran, dass du neue Kontakte nur dann hinzufügen kannst, wenn du ihnen persönlich begegnest. Das hindert andere daran, sich als deine Person auszugeben oder deine Nachrichten zu lesen.</string>
   <string name="date_no_private_messages">Keine Nachrichten.</string>
   <string name="no_private_messages">Das ist die Gesprächsansicht.\n\nEs scheint hier einen Mangel an Gesprächsthemen zu geben.\n\nUm ein neues Gespräch zu beginnen, verwende einfach das Eingabefeld am unteren Bildschirmrand.</string>
   <string name="message_hint">Nachricht eingeben</string>
@@ -117,8 +117,6 @@
   <string name="introduction_onboarding_text">Du kannst Deine Kontakte untereinander bekannt machen. So können sie sich über Briar verbinden, ohne sich persönlich treffen zu müssen.</string>
   <string name="introduction_activity_title">Kontakt auswählen</string>
   <string name="introduction_message_title">Kontakte untereinander bekannt machen</string>
-  <string name="introduction_message_text">Du kannst eine Nachricht erstellen die mit Deiner Kontaktempfehlung an %1$s und %2$s mitgesendet wird:</string>
-  <string name="introduction_message_hint">Gib eine Nachricht ein (optional)</string>
   <string name="introduction_button">Kontaktempfehlung abgeben</string>
   <string name="introduction_sent">Deine Kontaktempfehlung wurde verschickt</string>
   <string name="introduction_error">Es gab einen Fehler beim Versuch, die Kontaktempfehlung zu verschicken</string>
@@ -137,7 +135,7 @@
     <item quantity="other">%d neue Kontakte hinzugefügt.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Du bist in keiner Gruppe Mitglied.\n\nVerwende das + Symbol am oberen Rand um eine Gruppe zu erstellen oder frage bitte Deine Kontakte um Aufnahme in einer deren Gruppen.</string>
+  <string name="groups_list_empty">Du bist in keiner Gruppe Mitglied.\n\nTippe auf das \"+\"-Symbol am oberen Bildschirmrand, um eine Gruppe zu erstellen, oder frage deine Kontakte um Aufnahme in einer ihrer Gruppen.</string>
   <string name="groups_created_by">Erstellt durch %s</string>
   <plurals name="messages">
     <item quantity="one">%d Nachrichten</item>
@@ -149,7 +147,6 @@
   <string name="groups_create_group_title">Private Gruppe erstellen</string>
   <string name="groups_create_group_button">Gruppe erstellen</string>
   <string name="groups_create_group_invitation_button">Einladung schicken</string>
-  <string name="groups_create_group_hint">Gebe Deiner privaten Gruppe einen Namen</string>
   <string name="groups_invitation_sent">Gruppeneinladung versendet</string>
   <string name="groups_message_sent">Nachricht gesendet</string>
   <string name="groups_member_list">Mitglieder</string>
@@ -190,9 +187,7 @@
   <string name="groups_reveal_visible_revealed_by_contact">Beziehung zum Kontakt ist für diese Gruppe sichtbar (offengelegt durch %s)</string>
   <string name="groups_reveal_invisible">Beziehung zum Kontakt ist für diese Gruppe nicht sichtbar</string>
   <!--Forums-->
-  <string name="no_forums">Du hast noch keine Foren.\n\nWarum erstellst du nicht einfach selbst ein neues Forum, indem du auf das \"+\"-Icon am oberen Bildschirmrand tippst?\n\nDu kannst auch deine Kontakte auffordern, Foren mit dir zu teilen.</string>
-  <string name="create_forum_title">Neues Forum</string>
-  <string name="choose_forum_name">Wähle einen Namen für dein Forum:</string>
+  <string name="no_forums">Du hast noch keine Foren.\n\nWarum erstellst du nicht einfach selbst ein neues Forum, indem du auf das \"+\"-Symbol am oberen Bildschirmrand tippst?\n\nDu kannst auch deine Kontakte auffordern, Foren mit dir zu teilen.</string>
   <string name="create_forum_button">Forum erstellen</string>
   <string name="forum_created_toast">Forum wurde erstellt</string>
   <string name="no_forum_posts">Dieses Forum ist leer.\n\nBenutze das Stift-Icon am oberen Bildschirmrand um den ersten Beitrag zu verfassen.\n\nFühlst du dich einsam hier? Dann teile das Forum mit weiteren Kontakten!</string>
@@ -216,7 +211,6 @@
   <string name="activity_share_toolbar_header">Kontakte auswählen</string>
   <string name="no_contacts_selector">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nBitte komm zurück, wenn du deinen ersten Kontakt hinzugefügt hast.</string>
   <string name="forum_shared_snackbar">Forum mit gewählten Kontakten geteilt</string>
-  <string name="forum_share_message">Du kannst eine optionale Einladungsnachricht verfassen, die an die ausgewählten Kontakte geschickt wird.</string>
   <string name="forum_share_error">Es gab einen Fehler beim Versuch, dieses Forum zu teilen.</string>
   <string name="forum_invitation_received">%1$s hat das Forum \"%2$s\" mit dir geteilt.</string>
   <string name="forum_invitation_sent">Du hast das Forum \"%1$s\" mit %2$s geteilt.</string>
@@ -253,7 +247,6 @@
   <string name="blogs_remove_blog_dialog_message">Bist Du sicher, dass Du diesen Blog und alle dazugehörigen Beiträge löschen möchtest?\nBeachte, dass dies nicht den Blog auf Geräten anderer Leute löscht.</string>
   <string name="blogs_remove_blog_ok">Blog entfernen</string>
   <string name="blogs_blog_removed">Blog wurde entfernt</string>
-  <string name="blogs_reblog_comment_hint">Füge optionalen Kommentar hinzu</string>
   <string name="blogs_reblog_button">Rebloggen</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Blog teilen</string>
@@ -318,10 +311,6 @@
   <string name="uninstall_setting_summary">Diese Aktion benötigt manuelle Bestätigung im Falle eines Panik-Ereignisses</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Benachrichtigungen</string>
-  <string name="notify_private_messages_setting">Benachrichtigungen für private Nachrichten anzeigen</string>
-  <string name="notify_group_messages_setting">Benachrichtigungen für Gruppennachrichten anzeigen</string>
-  <string name="notify_forum_posts_setting">Benachrichtigungen für Forenbeiträge anzeigen</string>
-  <string name="notify_blog_posts_setting">Benachrichtigungen für Blog-Beiträge anzeigen</string>
   <string name="notify_vibration_setting">Vibration</string>
   <string name="notify_sound_setting">Tonsignal</string>
   <string name="notify_sound_setting_default">Standardklingelton</string>
@@ -354,8 +343,4 @@
   <!--Sign Out-->
   <string name="progress_title_logout">Von Briar abmelden ...</string>
   <!--Screen Filters & Tapjacking-->
-  <string name="screen_filter_title">Bildschirmfilter erkannt</string>
-  <string name="screen_filter_body">Diese Apps können andere Apps überlagern:\n\n%1$s \n\nBriar reagiert im Fall einer Überlagerung nicht auf Benutzereingaben.
-Falls dadurch Probleme in der Verwendung von Briar entstehen, versuche diese Apps zu deaktivieren.\n</string>
-  <string name="checkbox_dont_show_again">Nicht noch einmal für diese Apps warnen</string>
 </resources>
