@@ -178,8 +178,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	@Override
 	public void onStart() {
 		super.onStart();
-		notificationManager.blockAllContactNotifications();
-		notificationManager.clearAllContactNotifications();
 		eventBus.addListener(this);
 		loadContacts();
 		list.startPeriodicUpdate();
@@ -189,7 +187,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	public void onStop() {
 		super.onStop();
 		eventBus.removeListener(this);
-		notificationManager.unblockAllContactNotifications();
 		adapter.clear();
 		list.showProgressBar();
 		list.stopPeriodicUpdate();

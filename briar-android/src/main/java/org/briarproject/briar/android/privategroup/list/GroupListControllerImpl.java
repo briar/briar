@@ -79,15 +79,12 @@ class GroupListControllerImpl extends DbControllerImpl
 			throw new IllegalStateException(
 					"GroupListListener needs to be attached");
 		eventBus.addListener(this);
-		notificationManager.blockAllGroupMessageNotifications();
-		notificationManager.clearAllGroupMessageNotifications();
 	}
 
 	@Override
 	@CallSuper
 	public void onStop() {
 		eventBus.removeListener(this);
-		notificationManager.unblockAllGroupMessageNotifications();
 	}
 
 	@Override

@@ -61,6 +61,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.support.v4.app.NotificationCompat.CATEGORY_MESSAGE;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SOCIAL;
+import static android.support.v4.app.NotificationCompat.VISIBILITY_PRIVATE;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
@@ -327,7 +328,12 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			}
 			if (Build.VERSION.SDK_INT >= 21) {
 				b.setCategory(CATEGORY_MESSAGE);
-				b.setVisibility(VISIBILITY_SECRET);
+				boolean showOnLockScreen =
+						settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
+				if (showOnLockScreen)
+					b.setVisibility(VISIBILITY_PRIVATE);
+				else
+					b.setVisibility(VISIBILITY_SECRET);
 			}
 			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 			NotificationManager nm = (NotificationManager) o;
@@ -345,17 +351,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		if (settings.getBoolean(PREF_NOTIFY_VIBRATION, true))
 			defaults |= DEFAULT_VIBRATE;
 		return defaults;
-	}
-
-	@Override
-	public void clearAllContactNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				clearContactNotification();
-				clearIntroductionSuccessNotification();
-			}
-		});
 	}
 
 	@UiThread
@@ -432,22 +427,17 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			}
 			if (Build.VERSION.SDK_INT >= 21) {
 				b.setCategory(CATEGORY_SOCIAL);
-				b.setVisibility(VISIBILITY_SECRET);
+				boolean showOnLockScreen =
+						settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
+				if (showOnLockScreen)
+					b.setVisibility(VISIBILITY_PRIVATE);
+				else
+					b.setVisibility(VISIBILITY_SECRET);
 			}
 			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 			NotificationManager nm = (NotificationManager) o;
 			nm.notify(GROUP_MESSAGE_NOTIFICATION_ID, b.build());
 		}
-	}
-
-	@Override
-	public void clearAllGroupMessageNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				clearGroupMessageNotification();
-			}
-		});
 	}
 
 	@UiThread
@@ -524,22 +514,17 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			}
 			if (Build.VERSION.SDK_INT >= 21) {
 				b.setCategory(CATEGORY_SOCIAL);
-				b.setVisibility(VISIBILITY_SECRET);
+				boolean showOnLockScreen =
+						settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
+				if (showOnLockScreen)
+					b.setVisibility(VISIBILITY_PRIVATE);
+				else
+					b.setVisibility(VISIBILITY_SECRET);
 			}
 			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 			NotificationManager nm = (NotificationManager) o;
 			nm.notify(FORUM_POST_NOTIFICATION_ID, b.build());
 		}
-	}
-
-	@Override
-	public void clearAllForumPostNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				clearForumPostNotification();
-			}
-		});
 	}
 
 	@UiThread
@@ -602,22 +587,17 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			if (Build.VERSION.SDK_INT >= 21) {
 				b.setCategory(CATEGORY_SOCIAL);
-				b.setVisibility(VISIBILITY_SECRET);
+				boolean showOnLockScreen =
+						settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
+				if (showOnLockScreen)
+					b.setVisibility(VISIBILITY_PRIVATE);
+				else
+					b.setVisibility(VISIBILITY_SECRET);
 			}
 			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 			NotificationManager nm = (NotificationManager) o;
 			nm.notify(BLOG_POST_NOTIFICATION_ID, b.build());
 		}
-	}
-
-	@Override
-	public void clearAllBlogPostNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				clearBlogPostNotification();
-			}
-		});
 	}
 
 	private void showIntroductionNotification() {
@@ -658,7 +638,12 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 		if (Build.VERSION.SDK_INT >= 21) {
 			b.setCategory(CATEGORY_MESSAGE);
-			b.setVisibility(VISIBILITY_SECRET);
+			boolean showOnLockScreen =
+					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
+			if (showOnLockScreen)
+				b.setVisibility(VISIBILITY_PRIVATE);
+			else
+				b.setVisibility(VISIBILITY_SECRET);
 		}
 		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
@@ -704,87 +689,4 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			}
 		});
 	}
-
-	@Override
-	public void blockAllContactNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				blockContacts = true;
-				blockIntroductions = true;
-			}
-		});
-	}
-
-	@Override
-	public void unblockAllContactNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				blockContacts = false;
-				blockIntroductions = false;
-			}
-		});
-	}
-
-	@Override
-	public void blockAllGroupMessageNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				blockGroups = true;
-			}
-		});
-	}
-
-	@Override
-	public void unblockAllGroupMessageNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				blockGroups = false;
-			}
-		});
-	}
-
-	@Override
-	public void blockAllForumPostNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				blockForums = true;
-			}
-		});
-	}
-
-	@Override
-	public void unblockAllForumPostNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				blockForums = false;
-			}
-		});
-	}
-
-	@Override
-	public void blockAllBlogPostNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				blockBlogs = true;
-			}
-		});
-	}
-
-	@Override
-	public void unblockAllBlogPostNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				blockBlogs = false;
-			}
-		});
-	}
-
 }
