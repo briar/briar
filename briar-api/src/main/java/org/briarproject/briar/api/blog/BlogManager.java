@@ -22,9 +22,9 @@ public interface BlogManager {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.blog");
 
 	/**
-	 * Adds a blog from the given author.
+	 * Adds the given {@link Blog).}
 	 */
-	Blog addBlog(Author author) throws DbException;
+	void addBlog(Blog b) throws DbException;
 
 	/**
 	 * Adds the given {@link Blog} within the given {@link Transaction}.

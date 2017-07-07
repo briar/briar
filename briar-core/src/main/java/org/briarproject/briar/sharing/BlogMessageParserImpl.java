@@ -32,8 +32,10 @@ class BlogMessageParserImpl extends MessageParserImpl<Blog> {
 			throws FormatException {
 		String name = descriptor.getString(0);
 		byte[] publicKey = descriptor.getRaw(1);
+		boolean rssFeed = descriptor.getBoolean(2);
 		Author author = authorFactory.createAuthor(name, publicKey);
-		return blogFactory.createBlog(author);
+		if (rssFeed) return blogFactory.createFeedBlog(author);
+		else return blogFactory.createBlog(author);
 	}
 
 }

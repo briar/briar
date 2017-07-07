@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.blog.Blog;
+import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogInvitationRequest;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogManager;
@@ -42,7 +43,7 @@ public class BlogSharingIntegrationTest
 		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
 	private BlogManager blogManager0, blogManager1;
-	private Blog blog0, blog1, blog2;
+	private Blog blog0, blog1, blog2, rssBlog;
 	private SharerListener listener0;
 	private InviteeListener listener1;
 
@@ -69,6 +70,8 @@ public class BlogSharingIntegrationTest
 		blog0 = blogManager0.getPersonalBlog(author0);
 		blog1 = blogManager0.getPersonalBlog(author1);
 		blog2 = blogManager0.getPersonalBlog(author2);
+		BlogFactory blogFactory = c0.getBlogFactory();
+		rssBlog = blogFactory.createFeedBlog(author0);
 
 		// initialize waiters fresh for each test
 		eventWaiter = new Waiter();
@@ -127,8 +130,7 @@ public class BlogSharingIntegrationTest
 
 		// get sharing group and assert group message count
 		GroupId g = contactGroupFactory.createContactGroup(CLIENT_ID,
-				contact1From0)
-				.getId();
+				contact1From0).getId();
 		assertGroupCount(messageTracker0, g, 1, 0);
 
 		// sync first request message
@@ -146,6 +148,7 @@ public class BlogSharingIntegrationTest
 		// blog was added successfully
 		assertEquals(0, blogSharingManager0.getInvitations().size());
 		assertEquals(3, blogManager1.getBlogs().size());
+		assertTrue(blogManager1.getBlogs().contains(blog2));
 
 		// invitee has one invitation message from sharer
 		List<InvitationMessage> list =
@@ -160,6 +163,7 @@ public class BlogSharingIntegrationTest
 				assertFalse(invitation.isAvailable());
 				assertEquals(blog2.getAuthor().getName(),
 						invitation.getBlogAuthorName());
+				assertFalse(invitation.getShareable().isRssFeed());
 				assertEquals(contactId1From0, invitation.getContactId());
 				assertEquals("Hi!", invitation.getMessage());
 			} else {
@@ -178,6 +182,81 @@ public class BlogSharingIntegrationTest
 		assertFalse(blogSharingManager0.canBeShared(blog2.getId(),
 				contact1From0));
 		assertFalse(blogSharingManager1.canBeShared(blog2.getId(),
+				contact0From1));
+
+		// group message count is still correct
+		assertGroupCount(messageTracker0, g, 2, 1);
+		assertGroupCount(messageTracker1, g, 2, 1);
+	}
+
+	@Test
+	public void testSuccessfulSharingWithRssBlog() throws Exception {
+		// initialize and let invitee accept all requests
+		listenToEvents(true);
+
+		// subscribe to RSS blog
+		blogManager0.addBlog(rssBlog);
+
+		// send invitation
+		blogSharingManager0.sendInvitation(rssBlog.getId(), contactId1From0,
+				"Hi!", clock.currentTimeMillis());
+
+		// invitee has own blog and that of the sharer
+		assertEquals(2, blogManager1.getBlogs().size());
+
+		// get sharing group and assert group message count
+		GroupId g = contactGroupFactory.createContactGroup(CLIENT_ID,
+				contact1From0).getId();
+		assertGroupCount(messageTracker0, g, 1, 0);
+
+		// sync first request message
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener1.requestReceived);
+		assertGroupCount(messageTracker1, g, 2, 1);
+
+		// sync response back
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener0.responseReceived);
+		assertGroupCount(messageTracker0, g, 2, 1);
+
+		// blog was added successfully
+		assertEquals(0, blogSharingManager0.getInvitations().size());
+		assertEquals(3, blogManager1.getBlogs().size());
+		assertTrue(blogManager1.getBlogs().contains(rssBlog));
+
+		// invitee has one invitation message from sharer
+		List<InvitationMessage> list =
+				new ArrayList<InvitationMessage>(blogSharingManager1
+						.getInvitationMessages(contactId0From1));
+		assertEquals(2, list.size());
+		// check other things are alright with the message
+		for (InvitationMessage m : list) {
+			if (m instanceof BlogInvitationRequest) {
+				BlogInvitationRequest invitation =
+						(BlogInvitationRequest) m;
+				assertFalse(invitation.isAvailable());
+				assertEquals(rssBlog.getAuthor().getName(),
+						invitation.getBlogAuthorName());
+				assertTrue(invitation.getShareable().isRssFeed());
+				assertEquals(contactId1From0, invitation.getContactId());
+				assertEquals("Hi!", invitation.getMessage());
+			} else {
+				BlogInvitationResponse response =
+						(BlogInvitationResponse) m;
+				assertEquals(contactId0From1, response.getContactId());
+				assertTrue(response.wasAccepted());
+				assertTrue(response.isLocal());
+			}
+		}
+		// sharer has own invitation message and response
+		assertEquals(2, blogSharingManager0.getInvitationMessages(
+				contactId1From0).size());
+		// blog can not be shared again
+		assertFalse(blogSharingManager0.canBeShared(rssBlog.getId(),
+				contact1From0));
+		assertFalse(blogSharingManager1.canBeShared(rssBlog.getId(),
 				contact0From1));
 
 		// group message count is still correct
