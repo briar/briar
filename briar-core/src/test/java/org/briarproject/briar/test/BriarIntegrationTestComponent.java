@@ -24,6 +24,7 @@ import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestSeedProviderModule;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -138,4 +139,6 @@ public interface BriarIntegrationTestComponent {
 	TransportPropertyManager getTransportPropertyManager();
 
 	AuthorFactory getAuthorFactory();
+
+	BlogFactory getBlogFactory();
 }

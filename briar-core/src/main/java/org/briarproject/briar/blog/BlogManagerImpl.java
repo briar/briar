@@ -168,9 +168,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
-	public Blog addBlog(Author author) throws DbException {
-		Blog b = blogFactory.createBlog(author);
-
+	public void addBlog(Blog b) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
 			db.addGroup(txn, b.getGroup());
@@ -178,7 +176,6 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		} finally {
 			db.endTransaction(txn);
 		}
-		return b;
 	}
 
 	@Override
