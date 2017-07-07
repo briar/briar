@@ -600,6 +600,16 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		}
 	}
 
+	@Override
+	public void clearAllBlogPostNotifications() {
+		androidExecutor.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				clearBlogPostNotification();
+			}
+		});
+	}
+
 	private void showIntroductionNotification() {
 		androidExecutor.runOnUiThread(new Runnable() {
 			@Override
@@ -686,6 +696,26 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			@Override
 			public void run() {
 				if (c.equals(blockedContact)) blockedContact = null;
+			}
+		});
+	}
+
+	@Override
+	public void blockAllBlogPostNotifications() {
+		androidExecutor.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				blockBlogs = true;
+			}
+		});
+	}
+
+	@Override
+	public void unblockAllBlogPostNotifications() {
+		androidExecutor.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				blockBlogs = false;
 			}
 		});
 	}
