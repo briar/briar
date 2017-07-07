@@ -53,11 +53,14 @@ class FeedControllerImpl extends BaseControllerImpl
 	public void onStart() {
 		super.onStart();
 		if (listener == null) throw new IllegalStateException();
+		notificationManager.blockAllBlogPostNotifications();
+		notificationManager.clearAllBlogPostNotifications();
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
+		notificationManager.unblockAllBlogPostNotifications();
 	}
 
 	@Override

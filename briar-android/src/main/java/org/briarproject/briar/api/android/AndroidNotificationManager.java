@@ -28,6 +28,8 @@ public interface AndroidNotificationManager {
 
 	void clearBlogPostNotification(GroupId g);
 
+	void clearAllBlogPostNotifications();
+
 	void blockContactNotification(ContactId c);
 
 	void unblockContactNotification(ContactId c);
@@ -35,4 +37,8 @@ public interface AndroidNotificationManager {
 	void blockNotification(GroupId g);
 
 	void unblockNotification(GroupId g);
+
+	void blockAllBlogPostNotifications();
+
+	void unblockAllBlogPostNotifications();
 }
