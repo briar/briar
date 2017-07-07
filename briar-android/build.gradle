@@ -106,5 +106,6 @@ android {
 	lintOptions {
 		warning 'MissingTranslation'
 		warning 'ImpliedQuantity'
+		warning 'ExtraTranslation'
 	}
 }
