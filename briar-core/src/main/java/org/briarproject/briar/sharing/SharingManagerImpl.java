@@ -139,12 +139,11 @@ abstract class SharingManagerImpl<S extends Shareable>
 		return false;
 	}
 
-	protected void initializeSharedSession(Transaction txn, Contact c,
-			S shareable) throws DbException, FormatException {
+	void initializeSharedSession(Transaction txn, Contact c, S shareable)
+			throws DbException, FormatException {
 		GroupId contactGroupId = getContactGroup(c).getId();
-		Session session =
-				new Session(SHARING, contactGroupId, shareable.getId(), null,
-						null, 0, 0);
+		Session session = new Session(SHARING, contactGroupId,
+				shareable.getId(), null, null, 0, 0);
 		MessageId storageId = createStorageId(txn, contactGroupId);
 		storeSession(txn, storageId, session);
 	}
@@ -442,8 +441,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 		}
 	}
 
-	protected void removingShareable(Transaction txn, S shareable)
-			throws DbException {
+	void removingShareable(Transaction txn, S shareable) throws DbException {
 		SessionId sessionId = getSessionId(shareable.getId());
 		// If we have any sessions in progress, tell the contacts we're leaving
 		try {

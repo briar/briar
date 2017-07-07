@@ -226,8 +226,8 @@ public class BlogFragment extends BaseFragment
 
 	private void loadBlogPosts(final boolean reload) {
 		blogController.loadBlogPosts(
-				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
-						this) {
+				new UiResultExceptionHandler<Collection<BlogPostItem>,
+						DbException>(this) {
 					@Override
 					public void onResultUi(Collection<BlogPostItem> posts) {
 						if (posts.isEmpty()) {
@@ -265,13 +265,13 @@ public class BlogFragment extends BaseFragment
 	}
 
 	private void setToolbarTitle(Author a) {
-		String title = getString(R.string.blogs_personal_blog, a.getName());
-		getActivity().setTitle(title);
+		getActivity().setTitle(a.getName());
 	}
 
 	private void loadSharedContacts() {
 		blogController.loadSharingContacts(
-				new UiResultExceptionHandler<Collection<ContactId>, DbException>(this) {
+				new UiResultExceptionHandler<Collection<ContactId>,
+						DbException>(this) {
 					@Override
 					public void onResultUi(Collection<ContactId> contacts) {
 						sharingController.addAll(contacts);

@@ -268,7 +268,6 @@
 	<string name="blogs_blog_post_received">New Blog Post Received</string>
 	<string name="blogs_blog_post_scroll_to">Scroll To</string>
 	<string name="blogs_feed_empty_state">This is the global blog feed.\n\nIt looks like nobody blogged anything, yet.\n\nBe the first and tap the pen icon to write a new blog post.</string>
-	<string name="blogs_personal_blog">%s\'s Personal Blog</string>
 	<string name="blogs_remove_blog">Remove Blog</string>
 	<string name="blogs_remove_blog_dialog_message">Are you sure that you want to remove this blog and all posts?\nNote that this will not remove the blog from other people\'s devices.</string>
 	<string name="blogs_remove_blog_ok">Remove Blog</string>
@@ -285,8 +284,8 @@
 	<string name="blogs_sharing_response_declined_sent">You declined the blog invitation from %s.</string>
 	<string name="blogs_sharing_response_accepted_received">%s accepted the blog invitation.</string>
 	<string name="blogs_sharing_response_declined_received">%s declined the blog invitation.</string>
-	<string name="blogs_sharing_invitation_received">%1$s has shared the personal blog of %2$s with you.</string>
-	<string name="blogs_sharing_invitation_sent">You have shared the personal blog of %1$s with %2$s.</string>
+	<string name="blogs_sharing_invitation_received">%1$s has shared the blog \"%2$s\" with you.</string>
+	<string name="blogs_sharing_invitation_sent">You have shared the blog \"%1$s\" with %2$s.</string>
 	<string name="blogs_sharing_invitations_title">Blog Invitations</string>
 	<string name="blogs_sharing_joined_toast">Subscribed to Blog</string>
 	<string name="blogs_sharing_declined_toast">Blog Invitation Declined</string>
