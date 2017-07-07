@@ -3,6 +3,7 @@ package org.briarproject.briar.android.navdrawer;
 import android.app.Activity;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -14,7 +15,10 @@ import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.TransportDisabledEvent;
 import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
+import org.briarproject.bramble.api.settings.Settings;
+import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.briar.android.controller.DbControllerImpl;
+import org.briarproject.briar.android.controller.handler.ResultHandler;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -22,6 +26,9 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.briar.android.BriarApplication.EXPIRY_DATE;
+import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -30,18 +37,21 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 
 	private static final Logger LOG =
 			Logger.getLogger(NavDrawerControllerImpl.class.getName());
+	private static final String EXPIRY_DATE_WARNING = "expiryDateWarning";
 
 	private final PluginManager pluginManager;
+	private final SettingsManager settingsManager;
 	private final EventBus eventBus;
 
 	private volatile TransportStateListener listener;
 
 	@Inject
 	NavDrawerControllerImpl(@DatabaseExecutor Executor dbExecutor,
-			LifecycleManager lifecycleManager,
-			PluginManager pluginManager, EventBus eventBus) {
+			LifecycleManager lifecycleManager, PluginManager pluginManager,
+			SettingsManager settingsManager, EventBus eventBus) {
 		super(dbExecutor, lifecycleManager);
 		this.pluginManager = pluginManager;
+		this.settingsManager = settingsManager;
 		this.eventBus = eventBus;
 	}
 
@@ -88,6 +98,63 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 			@Override
 			public void run() {
 				listener.stateUpdate(id, enabled);
+			}
+		});
+	}
+
+	@Override
+	public void showExpiryWarning(final ResultHandler<Boolean> handler) {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Settings settings =
+							settingsManager.getSettings(SETTINGS_NAMESPACE);
+					int warningInt = settings.getInt(EXPIRY_DATE_WARNING, 0);
+
+					if (warningInt == 0) {
+						// we have not warned before
+						handler.onResult(true);
+					} else {
+						long warningLong = warningInt * 1000L;
+						long now = System.currentTimeMillis();
+						long daysSinceLastWarning =
+								(now - warningLong) / 1000 / 60 / 60 / 24;
+						long daysBeforeExpiry =
+								(EXPIRY_DATE - now) / 1000 / 60 / 60 / 24;
+
+						if (daysSinceLastWarning >= 30) {
+							handler.onResult(true);
+							return;
+						}
+						if (daysBeforeExpiry <= 3 && daysSinceLastWarning > 0) {
+							handler.onResult(true);
+							return;
+						}
+						handler.onResult(false);
+					}
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
+	}
+
+	@Override
+	public void expiryWarningDismissed() {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Settings settings = new Settings();
+					int date = (int) (System.currentTimeMillis() / 1000L);
+					settings.putInt(EXPIRY_DATE_WARNING, date);
+					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
 			}
 		});
 	}

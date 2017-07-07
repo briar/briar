@@ -25,7 +25,11 @@
 	<string name="startup_failed_activity_title">Briar Startup Failure</string>
 	<string name="startup_failed_db_error">For some reason, your Briar database is corrupted beyond repair. Your account, your data and all your contact connections are lost. Unfortunately, you need to reinstall Briar und set up a new account.</string>
 	<string name="startup_failed_service_error">Briar was unable to start a required plugin. Reinstalling Briar usually solves this problem. However, please note that you will then lose your account and all data associated with it since Briar is not using central servers to store your data on.</string>
-	<string name="expiry_warning">This software has expired.\nPlease install a newer version.</string>
+	<plurals name="expiry_warning">
+		<item quantity="one">This is a beta version of Briar. Your account will expire in %d day and cannot be renewed.</item>
+		<item quantity="other">This is a beta version of Briar. Your account will expire in %d days and cannot be renewed.</item>
+	</plurals>
+	<string name="expiry_date_reached">This software has expired.\nThank you for testing!</string>
 
 	<!-- Navigation Drawer -->
 	<string name="nav_drawer_open_description">Open the navigation drawer</string>

@@ -12,7 +12,7 @@
   <string name="enter_password">Masukkan kata laluan anda:</string>
   <string name="startup_failed_notification_title">Briar gagal dimulakan</string>
   <string name="startup_failed_notification_text">Anda perlu pasang ulang Briar.</string>
-  <string name="expiry_warning">Aplikasi ini telah tamat tempoh.\nSila pasang ulang versi baru.</string>
+  <string name="expiry_date_reached">Aplikasi ini telah tamat tempoh.\nSila pasang ulang versi baru.</string>
   <!--Navigation Drawer-->
   <string name="contact_list_button">Kenalan</string>
   <string name="forums_button">Forum</string>

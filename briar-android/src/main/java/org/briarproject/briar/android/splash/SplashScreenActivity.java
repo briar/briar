@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static org.briarproject.briar.android.BriarApplication.EXPIRY_DATE;
 import static org.briarproject.briar.android.TestingConstants.DEFAULT_LOG_LEVEL;
 import static org.briarproject.briar.android.TestingConstants.TESTING;
 
@@ -29,9 +30,6 @@ public class SplashScreenActivity extends BaseActivity {
 
 	private static final Logger LOG =
 			Logger.getLogger(SplashScreenActivity.class.getName());
-
-	// This build expires on 1 September 2017
-	private static final long EXPIRY_DATE = 1504220400 * 1000L;
 
 	@Inject
 	protected ConfigController configController;
