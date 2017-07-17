@@ -124,7 +124,7 @@ class StreamEncrypterImpl implements StreamEncrypter {
 		System.arraycopy(frameKey.getBytes(), 0, streamHeaderPlaintext,
 				INT_16_BYTES + INT_64_BYTES, SecretKey.LENGTH);
 		byte[] streamHeaderCiphertext = new byte[STREAM_HEADER_LENGTH];
-		System.arraycopy(this.streamHeaderNonce, 0, streamHeaderCiphertext, 0,
+		System.arraycopy(streamHeaderNonce, 0, streamHeaderCiphertext, 0,
 				STREAM_HEADER_NONCE_LENGTH);
 		// Encrypt and authenticate the stream header key
 		try {
