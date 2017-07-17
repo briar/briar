@@ -51,15 +51,23 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 		return CLIENT_ID;
 	}
 
+	/**
+	 * This is called during each startup for each existing Contact.
+	 */
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
+		// creates a group to share with the contact
 		super.addingContact(txn, c);
+
+		// get our blog and that of Contact c
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		Blog ourBlog = blogManager.getPersonalBlog(localAuthor);
 		Blog theirBlog = blogManager.getPersonalBlog(c.getAuthor());
+
+		// pre-share both blogs, if they have not been shared already
 		try {
-			initializeSharedSession(txn, c, ourBlog);
-			initializeSharedSession(txn, c, theirBlog);
+			preShareShareable(txn, c, ourBlog);
+			preShareShareable(txn, c, theirBlog);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

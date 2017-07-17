@@ -48,9 +48,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.contact.ContactManager.AddContactHook;
 import static org.briarproject.bramble.api.contact.ContactManager.RemoveContactHook;
-import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_NAME;
@@ -72,7 +70,7 @@ import static org.briarproject.briar.blog.BlogPostValidator.authorToBdfDictionar
 
 @NotNullByDefault
 class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
-		AddContactHook, RemoveContactHook, Client {
+		RemoveContactHook, Client {
 
 	private final IdentityManager identityManager;
 	private final BlogFactory blogFactory;
@@ -96,26 +94,13 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		// Create our personal blog if necessary
 		LocalAuthor a = identityManager.getLocalAuthor(txn);
 		Blog b = blogFactory.createBlog(a);
-		db.addGroup(txn, b.getGroup());
-		// Ensure that we have the personal blogs of all contacts
-		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
-	}
-
-	@Override
-	public void addingContact(Transaction txn, Contact c) throws DbException {
-		// Add the personal blog of the contact and share it with the contact
-		Blog b = blogFactory.createBlog(c.getAuthor());
-		addBlog(txn, b);
-		db.setGroupVisibility(txn, c.getId(), b.getId(), SHARED);
-		// Share our personal blog with the contact
-		LocalAuthor a = identityManager.getLocalAuthor(txn);
-		Blog b2 = blogFactory.createBlog(a);
-		db.setGroupVisibility(txn, c.getId(), b2.getId(), SHARED);
+		db.addGroup(txn, b.getGroup());  // does nothing, if group exists
 	}
 
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
 		Blog b = blogFactory.createBlog(c.getAuthor());
+		// TODO we might want to reconsider removing b, if otherwise shared
 		if (db.containsGroup(txn, b.getId())) removeBlog(txn, b);
 	}
 
