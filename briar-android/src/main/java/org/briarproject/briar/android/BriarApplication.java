@@ -6,8 +6,8 @@ package org.briarproject.briar.android;
  */
 public interface BriarApplication {
 
-	// This build expires on 1 October 2017
-	long EXPIRY_DATE = 1506812400 * 1000L;
+	// This build expires on 15 October 2017
+	long EXPIRY_DATE = 1508022000 * 1000L;
 
 	AndroidComponent getApplicationComponent();
 
