@@ -137,7 +137,8 @@ public interface CryptoComponent {
 	TransportKeys rotateTransportKeys(TransportKeys k, long rotationPeriod);
 
 	/** Encodes the pseudo-random tag that is used to recognise a stream. */
-	void encodeTag(byte[] tag, SecretKey tagKey, long streamNumber);
+	void encodeTag(byte[] tag, SecretKey tagKey, int protocolVersion,
+			long streamNumber);
 
 	/**
 	 * Signs the given byte[] with the given PrivateKey.

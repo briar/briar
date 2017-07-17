@@ -18,9 +18,11 @@ import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_NO
 import static org.briarproject.bramble.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
-import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_IV_LENGTH;
+import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_NONCE_LENGTH;
+import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_PLAINTEXT_LENGTH;
+import static org.briarproject.bramble.util.ByteUtils.INT_16_BYTES;
 import static org.briarproject.bramble.util.ByteUtils.INT_64_BYTES;
 
 @NotThreadSafe
@@ -33,7 +35,7 @@ class StreamEncrypterImpl implements StreamEncrypter {
 	private final long streamNumber;
 	@Nullable
 	private final byte[] tag;
-	private final byte[] streamHeaderIv;
+	private final byte[] streamHeaderNonce;
 	private final byte[] frameNonce, frameHeader;
 	private final byte[] framePlaintext, frameCiphertext;
 
@@ -41,13 +43,13 @@ class StreamEncrypterImpl implements StreamEncrypter {
 	private boolean writeTag, writeStreamHeader;
 
 	StreamEncrypterImpl(OutputStream out, AuthenticatedCipher cipher,
-			long streamNumber, @Nullable byte[] tag, byte[] streamHeaderIv,
+			long streamNumber, @Nullable byte[] tag, byte[] streamHeaderNonce,
 			SecretKey streamHeaderKey, SecretKey frameKey) {
 		this.out = out;
 		this.cipher = cipher;
 		this.streamNumber = streamNumber;
 		this.tag = tag;
-		this.streamHeaderIv = streamHeaderIv;
+		this.streamHeaderNonce = streamHeaderNonce;
 		this.streamHeaderKey = streamHeaderKey;
 		this.frameKey = frameKey;
 		frameNonce = new byte[FRAME_NONCE_LENGTH];
@@ -114,22 +116,23 @@ class StreamEncrypterImpl implements StreamEncrypter {
 	}
 
 	private void writeStreamHeader() throws IOException {
-		// The nonce consists of the stream number followed by the IV
-		byte[] streamHeaderNonce = new byte[STREAM_HEADER_NONCE_LENGTH];
-		ByteUtils.writeUint64(streamNumber, streamHeaderNonce, 0);
-		System.arraycopy(streamHeaderIv, 0, streamHeaderNonce, INT_64_BYTES,
-				STREAM_HEADER_IV_LENGTH);
-		byte[] streamHeaderPlaintext = frameKey.getBytes();
+		// The header contains the protocol version, stream number and frame key
+		byte[] streamHeaderPlaintext = new byte[STREAM_HEADER_PLAINTEXT_LENGTH];
+		ByteUtils.writeUint16(PROTOCOL_VERSION, streamHeaderPlaintext, 0);
+		ByteUtils.writeUint64(streamNumber, streamHeaderPlaintext,
+				INT_16_BYTES);
+		System.arraycopy(frameKey.getBytes(), 0, streamHeaderPlaintext,
+				INT_16_BYTES + INT_64_BYTES, SecretKey.LENGTH);
 		byte[] streamHeaderCiphertext = new byte[STREAM_HEADER_LENGTH];
-		System.arraycopy(streamHeaderIv, 0, streamHeaderCiphertext, 0,
-				STREAM_HEADER_IV_LENGTH);
-		// Encrypt and authenticate the frame key
+		System.arraycopy(streamHeaderNonce, 0, streamHeaderCiphertext, 0,
+				STREAM_HEADER_NONCE_LENGTH);
+		// Encrypt and authenticate the stream header key
 		try {
 			cipher.init(true, streamHeaderKey, streamHeaderNonce);
 			int encrypted = cipher.process(streamHeaderPlaintext, 0,
-					SecretKey.LENGTH, streamHeaderCiphertext,
-					STREAM_HEADER_IV_LENGTH);
-			if (encrypted != SecretKey.LENGTH + MAC_LENGTH)
+					STREAM_HEADER_PLAINTEXT_LENGTH, streamHeaderCiphertext,
+					STREAM_HEADER_NONCE_LENGTH);
+			if (encrypted != STREAM_HEADER_PLAINTEXT_LENGTH + MAC_LENGTH)
 				throw new RuntimeException();
 		} catch (GeneralSecurityException badCipher) {
 			throw new RuntimeException(badCipher);

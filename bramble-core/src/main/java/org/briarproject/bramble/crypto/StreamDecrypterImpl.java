@@ -20,9 +20,11 @@ import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_NO
 import static org.briarproject.bramble.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
-import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_IV_LENGTH;
+import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_NONCE_LENGTH;
+import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_PLAINTEXT_LENGTH;
+import static org.briarproject.bramble.util.ByteUtils.INT_16_BYTES;
 import static org.briarproject.bramble.util.ByteUtils.INT_64_BYTES;
 
 @NotThreadSafe
@@ -117,7 +119,7 @@ class StreamDecrypterImpl implements StreamDecrypter {
 
 	private void readStreamHeader() throws IOException {
 		byte[] streamHeaderCiphertext = new byte[STREAM_HEADER_LENGTH];
-		byte[] streamHeaderPlaintext = new byte[SecretKey.LENGTH];
+		byte[] streamHeaderPlaintext = new byte[STREAM_HEADER_PLAINTEXT_LENGTH];
 		// Read the stream header
 		int offset = 0;
 		while (offset < STREAM_HEADER_LENGTH) {
@@ -126,21 +128,35 @@ class StreamDecrypterImpl implements StreamDecrypter {
 			if (read == -1) throw new EOFException();
 			offset += read;
 		}
-		// The nonce consists of the stream number followed by the IV
+		// Extract the nonce
 		byte[] streamHeaderNonce = new byte[STREAM_HEADER_NONCE_LENGTH];
-		ByteUtils.writeUint64(streamNumber, streamHeaderNonce, 0);
-		System.arraycopy(streamHeaderCiphertext, 0, streamHeaderNonce,
-				INT_64_BYTES, STREAM_HEADER_IV_LENGTH);
+		System.arraycopy(streamHeaderCiphertext, 0, streamHeaderNonce, 0,
+				STREAM_HEADER_NONCE_LENGTH);
 		// Decrypt and authenticate the stream header
 		try {
 			cipher.init(false, streamHeaderKey, streamHeaderNonce);
 			int decrypted = cipher.process(streamHeaderCiphertext,
-					STREAM_HEADER_IV_LENGTH, SecretKey.LENGTH + MAC_LENGTH,
+					STREAM_HEADER_NONCE_LENGTH,
+					STREAM_HEADER_PLAINTEXT_LENGTH + MAC_LENGTH,
 					streamHeaderPlaintext, 0);
-			if (decrypted != SecretKey.LENGTH) throw new RuntimeException();
+			if (decrypted != STREAM_HEADER_PLAINTEXT_LENGTH)
+				throw new RuntimeException();
 		} catch (GeneralSecurityException e) {
 			throw new FormatException();
 		}
-		frameKey = new SecretKey(streamHeaderPlaintext);
+		// Check the protocol version
+		int receivedProtocolVersion =
+				ByteUtils.readUint16(streamHeaderPlaintext, 0);
+		if (receivedProtocolVersion != PROTOCOL_VERSION)
+			throw new FormatException();
+		// Check the stream number
+		long receivedStreamNumber = ByteUtils.readUint64(streamHeaderPlaintext,
+				INT_16_BYTES);
+		if (receivedStreamNumber != streamNumber) throw new FormatException();
+		// Extract the frame key
+		byte[] frameKeyBytes = new byte[SecretKey.LENGTH];
+		System.arraycopy(streamHeaderPlaintext, INT_16_BYTES + INT_64_BYTES,
+				frameKeyBytes, 0, SecretKey.LENGTH);
+		frameKey = new SecretKey(frameKeyBytes);
 	}
 }

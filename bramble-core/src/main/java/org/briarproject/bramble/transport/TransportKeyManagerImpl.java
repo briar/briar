@@ -29,6 +29,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
+import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
@@ -126,7 +127,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		for (long streamNumber : inKeys.getWindow().getUnseen()) {
 			TagContext tagCtx = new TagContext(c, inKeys, streamNumber);
 			byte[] tag = new byte[TAG_LENGTH];
-			crypto.encodeTag(tag, inKeys.getTagKey(), streamNumber);
+			crypto.encodeTag(tag, inKeys.getTagKey(), PROTOCOL_VERSION,
+					streamNumber);
 			inContexts.put(new Bytes(tag), tagCtx);
 		}
 	}
@@ -242,7 +244,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			// Add tags for any stream numbers added to the window
 			for (long streamNumber : change.getAdded()) {
 				byte[] addTag = new byte[TAG_LENGTH];
-				crypto.encodeTag(addTag, inKeys.getTagKey(), streamNumber);
+				crypto.encodeTag(addTag, inKeys.getTagKey(), PROTOCOL_VERSION,
+						streamNumber);
 				inContexts.put(new Bytes(addTag), new TagContext(
 						tagCtx.contactId, inKeys, streamNumber));
 			}
@@ -250,7 +253,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			for (long streamNumber : change.getRemoved()) {
 				if (streamNumber == tagCtx.streamNumber) continue;
 				byte[] removeTag = new byte[TAG_LENGTH];
-				crypto.encodeTag(removeTag, inKeys.getTagKey(), streamNumber);
+				crypto.encodeTag(removeTag, inKeys.getTagKey(),
+						PROTOCOL_VERSION, streamNumber);
 				inContexts.remove(new Bytes(removeTag));
 			}
 			// Write the window back to the DB
