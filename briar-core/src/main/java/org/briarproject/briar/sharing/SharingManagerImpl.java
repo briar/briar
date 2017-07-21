@@ -139,9 +139,24 @@ abstract class SharingManagerImpl<S extends Shareable>
 		return false;
 	}
 
-	void initializeSharedSession(Transaction txn, Contact c, S shareable)
+	/**
+	 * Adds the given Shareable and initializes a session between us
+	 * and the Contact c in state SHARING.
+	 * If a session already exists, this does nothing.
+	 */
+	void preShareShareable(Transaction txn, Contact c, S shareable)
 			throws DbException, FormatException {
+		// return if a session already exists with that Contact
 		GroupId contactGroupId = getContactGroup(c).getId();
+		StoredSession existingSession = getSession(txn, contactGroupId,
+				getSessionId(shareable.getId()));
+		if (existingSession != null) return;
+
+		// add and shares the shareable with the Contact
+		db.addGroup(txn, shareable.getGroup());
+		db.setGroupVisibility(txn, c.getId(), shareable.getId(), SHARED);
+
+		// initialize session in sharing state
 		Session session = new Session(SHARING, contactGroupId,
 				shareable.getId(), null, null, 0, 0);
 		MessageId storageId = createStorageId(txn, contactGroupId);

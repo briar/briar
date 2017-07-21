@@ -31,15 +31,11 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import static org.briarproject.bramble.api.identity.Author.Status.NONE;
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.Author.Status.VERIFIED;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -117,29 +113,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 	public void testCreateLocalState() throws DbException {
 		final Transaction txn = new Transaction(null, false);
 
-		final ContactId contactId = new ContactId(0);
-
-		Contact contact = new Contact(contactId, blog2.getAuthor(),
-				blog1.getAuthor().getId(), true, true);
-		final Collection<Contact> contacts = Collections.singletonList(contact);
-
 		context.checking(new Expectations() {{
 			oneOf(identityManager).getLocalAuthor(txn);
 			will(returnValue(blog1.getAuthor()));
 			oneOf(blogFactory).createBlog(blog1.getAuthor());
 			will(returnValue(blog1));
 			oneOf(db).addGroup(txn, blog1.getGroup());
-			oneOf(db).getContacts(txn);
-			will(returnValue(contacts));
-			oneOf(blogFactory).createBlog(blog2.getAuthor());
-			will(returnValue(blog2));
-			oneOf(db).addGroup(txn, blog2.getGroup());
-			oneOf(db).setGroupVisibility(txn, contactId, blog2.getId(), SHARED);
-			oneOf(identityManager).getLocalAuthor(txn);
-			will(returnValue(blog1.getAuthor()));
-			oneOf(blogFactory).createBlog(blog1.getAuthor());
-			will(returnValue(blog1));
-			oneOf(db).setGroupVisibility(txn, contactId, blog1.getId(), SHARED);
 		}});
 
 		blogManager.createLocalState(txn);

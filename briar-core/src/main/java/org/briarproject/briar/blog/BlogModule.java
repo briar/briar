@@ -38,7 +38,6 @@ public class BlogModule {
 			ValidationManager validationManager) {
 
 		lifecycleManager.registerClient(blogManager);
-		contactManager.registerAddContactHook(blogManager);
 		contactManager.registerRemoveContactHook(blogManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, blogManager);
 		return blogManager;
