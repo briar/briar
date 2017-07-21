@@ -5,7 +5,6 @@ import net.jodah.concurrentunit.Waiter;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchGroupException;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -493,26 +492,6 @@ public class BlogSharingIntegrationTest
 		// 1 can again share blog 1 with 0
 		assertTrue(
 				blogSharingManager1.canBeShared(blog1.getId(), contact0From1));
-
-		// re-create local state (simulates sign-out and sign-in)
-		Transaction txn0 = db0.startTransaction(false);
-		((BlogSharingManagerImpl) blogSharingManager0).createLocalState(txn0);
-		db0.commitTransaction(txn0);
-		db0.endTransaction(txn0);
-		Transaction txn1 = db1.startTransaction(false);
-		((BlogSharingManagerImpl) blogSharingManager1).createLocalState(txn1);
-		db1.commitTransaction(txn1);
-		db1.endTransaction(txn1);
-
-		// ensure there's no error with the sessions by checking shareability
-		assertFalse(
-				blogSharingManager0.canBeShared(blog1.getId(), contact1From0));
-		assertTrue(
-				blogSharingManager1.canBeShared(blog1.getId(), contact0From1));
-
-		// contacts should still be able to remove each other without errors
-		contactManager0.removeContact(contactId1From0);
-		contactManager1.removeContact(contactId0From1);
 	}
 
 	@Test
