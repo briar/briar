@@ -1,37 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:gravity="center_horizontal"
 	android:orientation="vertical"
-	android:layout_margin="@dimen/margin_large">
+	android:padding="@dimen/margin_large">
 
-	<EditText
+	<android.support.design.widget.TextInputLayout
+		android:id="@+id/createForumNameLayout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:id="@+id/createForumNameEntry"
-		android:maxLines="1"
-		android:inputType="text|textCapSentences"
-		android:hint="@string/choose_forum_hint" />
+		app:errorEnabled="true">
 
-	<TextView
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:id="@+id/createForumFeedback"
-		android:gravity="center" />
+		<EditText
+			android:id="@+id/createForumNameEntry"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/choose_forum_hint"
+			android:inputType="text|textCapSentences"
+			android:maxLines="1"/>
+
+	</android.support.design.widget.TextInputLayout>
 
 	<Button
-		style="@style/BriarButton"
 		android:id="@+id/createForumButton"
+		style="@style/BriarButton"
 		android:enabled="false"
-		android:text="@string/create_forum_button" />
+		android:text="@string/create_forum_button"/>
 
 	<ProgressBar
 		android:id="@+id/createForumProgressBar"
-		android:layout_height="wrap_content"
 		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
 		android:indeterminate="true"
-		android:visibility="gone" />
+		android:visibility="gone"
+		tools:visibility="visible"/>
 
 </LinearLayout>
