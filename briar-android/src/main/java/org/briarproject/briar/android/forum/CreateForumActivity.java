@@ -2,6 +2,7 @@ package org.briarproject.briar.android.forum;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -43,10 +44,10 @@ public class CreateForumActivity extends BriarActivity {
 	private static final Logger LOG =
 			Logger.getLogger(CreateForumActivity.class.getName());
 
+	private TextInputLayout nameEntryLayout;
 	private EditText nameEntry;
 	private Button createForumButton;
 	private ProgressBar progress;
-	private TextView feedback;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -58,6 +59,8 @@ public class CreateForumActivity extends BriarActivity {
 
 		setContentView(R.layout.activity_create_forum);
 
+		nameEntryLayout =
+				(TextInputLayout) findViewById(R.id.createForumNameLayout);
 		nameEntry = (EditText) findViewById(R.id.createForumNameEntry);
 		nameEntry.addTextChangedListener(new TextWatcher() {
 
@@ -84,8 +87,6 @@ public class CreateForumActivity extends BriarActivity {
 				return true;
 			}
 		});
-
-		feedback = (TextView) findViewById(R.id.createForumFeedback);
 
 		createForumButton = (Button) findViewById(R.id.createForumButton);
 		createForumButton.setOnClickListener(new OnClickListener() {
@@ -118,10 +119,10 @@ public class CreateForumActivity extends BriarActivity {
 		String name = nameEntry.getText().toString();
 		int length = StringUtils.toUtf8(name).length;
 		if (length > MAX_FORUM_NAME_LENGTH) {
-			feedback.setText(R.string.name_too_long);
+			nameEntryLayout.setError(getString(R.string.name_too_long));
 			return false;
 		}
-		feedback.setText("");
+		nameEntryLayout.setError(null);
 		return length > 0;
 	}
 

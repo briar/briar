@@ -2,6 +2,7 @@ package org.briarproject.briar.android.privategroup.creation;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -11,6 +12,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -19,6 +21,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 
 public class CreateGroupFragment extends BaseFragment {
@@ -28,7 +32,8 @@ public class CreateGroupFragment extends BaseFragment {
 	private CreateGroupListener listener;
 	private EditText nameEntry;
 	private Button createGroupButton;
-	private TextView feedback;
+	private TextInputLayout nameLayout;
+	private ProgressBar progress;
 
 	@Override
 	public void onAttach(Context context) {
@@ -69,7 +74,7 @@ public class CreateGroupFragment extends BaseFragment {
 			}
 		});
 
-		feedback = (TextView) v.findViewById(R.id.feedback);
+		nameLayout = (TextInputLayout) v.findViewById(R.id.nameLayout);
 
 		createGroupButton = (Button) v.findViewById(R.id.button);
 		createGroupButton.setOnClickListener(new OnClickListener() {
@@ -78,6 +83,8 @@ public class CreateGroupFragment extends BaseFragment {
 				createGroup();
 			}
 		});
+
+		progress = (ProgressBar) v.findViewById(R.id.progressBar);
 
 		return v;
 	}
@@ -107,16 +114,18 @@ public class CreateGroupFragment extends BaseFragment {
 		String name = nameEntry.getText().toString();
 		int length = StringUtils.toUtf8(name).length;
 		if (length > MAX_GROUP_NAME_LENGTH) {
-			feedback.setText(R.string.name_too_long);
+			nameLayout.setError(getString(R.string.name_too_long));
 			return false;
 		}
-		feedback.setText("");
+		nameLayout.setError(null);
 		return length > 0;
 	}
 
 	private void createGroup() {
 		if (!validateName()) return;
 		listener.hideSoftKeyboard(nameEntry);
+		createGroupButton.setVisibility(GONE);
+		progress.setVisibility(VISIBLE);
 		listener.onGroupNameChosen(nameEntry.getText().toString());
 	}
 }
