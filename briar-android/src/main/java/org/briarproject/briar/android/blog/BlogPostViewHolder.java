@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -47,12 +48,16 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 	private final ImageView reblogButton;
 	private final TextView body;
 	private final ViewGroup commentContainer;
+	private final boolean fullText;
 
-	@Nullable
-	private OnBlogPostClickListener listener;
+	@NonNull
+	private final OnBlogPostClickListener listener;
 
-	BlogPostViewHolder(View v) {
+	BlogPostViewHolder(View v, boolean fullText,
+			@NonNull OnBlogPostClickListener listener) {
 		super(v);
+		this.fullText = fullText;
+		this.listener = listener;
 
 		ctx = v.getContext();
 		layout = (ViewGroup) v.findViewById(R.id.postLayout);
@@ -62,10 +67,6 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		body = (TextView) v.findViewById(R.id.bodyView);
 		commentContainer =
 				(ViewGroup) v.findViewById(R.id.commentContainer);
-	}
-
-	void setOnBlogPostClickListener(OnBlogPostClickListener listener) {
-		this.listener = listener;
 	}
 
 	void setVisibility(int visibility) {
@@ -92,7 +93,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		if (item == null) return;
 
 		setTransitionName(item.getId());
-		if (listener != null) {
+		if (!fullText) {
 			layout.setClickable(true);
 			layout.setOnClickListener(new OnClickListener() {
 				@Override
@@ -111,7 +112,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		author.setPersona(
 				item.isRssFeed() ? AuthorView.RSS_FEED : AuthorView.NORMAL);
 		// TODO make author clickable more often #624
-		if (listener != null && item.getHeader().getType() == POST) {
+		if (!fullText && item.getHeader().getType() == POST) {
 			author.setAuthorClickable(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -124,7 +125,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 		// post body
 		Spanned bodyText = getSpanned(item.getBody());
-		if (listener == null) {
+		if (fullText) {
 			body.setText(bodyText);
 			body.setTextIsSelectable(true);
 			makeLinksClickable(body);
@@ -170,7 +171,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		reblogger.setAuthor(item.getAuthor());
 		reblogger.setAuthorStatus(item.getAuthorStatus());
 		reblogger.setDate(item.getTimestamp());
-		if (listener != null) {
+		if (!fullText) {
 			reblogger.setAuthorClickable(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -200,7 +201,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			// TODO make author clickable #624
 
 			body.setText(c.getComment());
-			if (listener == null) body.setTextIsSelectable(true);
+			if (fullText) body.setTextIsSelectable(true);
 
 			commentContainer.addView(v);
 		}

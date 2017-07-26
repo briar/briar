@@ -60,8 +60,7 @@ abstract class BasePostFragment extends BaseFragment {
 				false);
 		progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
 		progressBar.setVisibility(VISIBLE);
-		ui = new BlogPostViewHolder(view);
-		ui.setOnBlogPostClickListener(new OnBlogPostClickListener() {
+		ui = new BlogPostViewHolder(view, true, new OnBlogPostClickListener() {
 			@Override
 			public void onBlogPostClick(BlogPostItem post) {
 				// We're already there

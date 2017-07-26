@@ -23,8 +23,7 @@ class BlogPostAdapter
 			int viewType) {
 		View v = LayoutInflater.from(ctx).inflate(
 				R.layout.list_item_blog_post, parent, false);
-		BlogPostViewHolder ui = new BlogPostViewHolder(v);
-		ui.setOnBlogPostClickListener(listener);
+		BlogPostViewHolder ui = new BlogPostViewHolder(v, false, listener);
 		return ui;
 	}
 
