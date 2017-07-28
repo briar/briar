@@ -10,13 +10,21 @@ import static java.util.logging.Level.OFF;
 public interface TestingConstants {
 
 	/**
-	 * Whether this is an alpha or beta build. This should be set to false for
+	 * Whether this is a debug build.
+	 */
+	boolean IS_DEBUG_BUILD = BuildConfig.DEBUG;
+
+	/**
+	 * Whether this is a beta build. This should be set to false for final
 	 * release builds.
 	 */
-	boolean TESTING = BuildConfig.DEBUG;
+	boolean IS_BETA_BUILD = true;
 
-	/** Default log level. */
-	Level DEFAULT_LOG_LEVEL = TESTING ? INFO : OFF;
+	/**
+	 * Default log level. Disable logging for final release builds.
+	 */
+	@SuppressWarnings("ConstantConditions")
+	Level DEFAULT_LOG_LEVEL = IS_DEBUG_BUILD || IS_BETA_BUILD ? INFO : OFF;
 
 	/**
 	 * Whether to prevent screenshots from being taken. Setting this to true
@@ -24,5 +32,5 @@ public interface TestingConstants {
 	 * Unfortunately this also prevents the user from taking screenshots
 	 * intentionally.
 	 */
-	boolean PREVENT_SCREENSHOTS = !TESTING;
+	boolean PREVENT_SCREENSHOTS = !IS_DEBUG_BUILD;
 }

@@ -2,6 +2,9 @@ package org.briarproject.briar.android;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.StrictMode;
+import android.os.StrictMode.ThreadPolicy;
+import android.os.StrictMode.VmPolicy;
 
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
@@ -33,6 +36,8 @@ import static org.acra.ReportField.REPORT_ID;
 import static org.acra.ReportField.STACK_TRACE;
 import static org.acra.ReportField.USER_APP_START_DATE;
 import static org.acra.ReportField.USER_CRASH_DATE;
+import static org.briarproject.briar.android.TestingConstants.DEFAULT_LOG_LEVEL;
+import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 
 @ReportsCrashes(
 		reportPrimerClass = BriarReportPrimer.class,
@@ -72,6 +77,9 @@ public class BriarApplicationImpl extends Application
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		if (IS_DEBUG_BUILD) enableStrictMode();
+		Logger.getLogger("").setLevel(DEFAULT_LOG_LEVEL);
 		LOG.info("Created");
 
 		applicationComponent = DaggerAndroidComponent.builder()
@@ -83,6 +91,17 @@ public class BriarApplicationImpl extends Application
 		BrambleCoreModule.initEagerSingletons(applicationComponent);
 		BriarCoreModule.initEagerSingletons(applicationComponent);
 		AndroidEagerSingletons.initEagerSingletons(applicationComponent);
+	}
+
+	private void enableStrictMode() {
+		ThreadPolicy.Builder threadPolicy = new ThreadPolicy.Builder();
+		threadPolicy.detectAll();
+		threadPolicy.penaltyLog();
+		StrictMode.setThreadPolicy(threadPolicy.build());
+		VmPolicy.Builder vmPolicy = new VmPolicy.Builder();
+		vmPolicy.detectAll();
+		vmPolicy.penaltyLog();
+		StrictMode.setVmPolicy(vmPolicy.build());
 	}
 
 	@Override
