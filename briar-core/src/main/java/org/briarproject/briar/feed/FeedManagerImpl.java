@@ -59,6 +59,7 @@ import okhttp3.Dns;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
@@ -334,7 +335,9 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	private SyndFeed fetchSyndFeed(String url)
 			throws FeedException, IOException {
 		// fetch feed
-		SyndFeed f = getSyndFeed(getFeedInputStream(url));
+		InputStream stream = getFeedInputStream(url);
+		SyndFeed f = getSyndFeed(stream);
+		stream.close();
 
 		if (f.getEntries().size() == 0)
 			throw new FeedException("Feed has no entries");
@@ -387,7 +390,9 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 
 		// Execute Request
 		Response response = client.newCall(request).execute();
-		return response.body().byteStream();
+		ResponseBody body = response.body();
+		if (body != null) return body.byteStream();
+		throw new IOException("Empty response body");
 	}
 
 	private SyndFeed getSyndFeed(InputStream stream)
