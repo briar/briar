@@ -78,8 +78,8 @@ android {
 	defaultConfig {
 		minSdkVersion 14
 		targetSdkVersion 22
-		versionCode 1603
-		versionName "0.16.3"
+		versionCode 1604
+		versionName "0.16.4"
 		applicationId "org.briarproject.briar.beta"
 		resValue "string", "app_package", "org.briarproject.briar.beta"
 		buildConfigField "String", "GitHash", "\"${getGitHash()}\""
