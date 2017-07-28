@@ -32,7 +32,7 @@ public class RecentEmojiPageModel implements EmojiPageModel {
 	private static final Logger LOG =
 			Logger.getLogger(RecentEmojiPageModel.class.getName());
 
-	private static final String EMOJI_LRU_PREFERENCE = "pref_emoji_recent";
+	private static final String EMOJI_LRU_PREFERENCE = "pref_emoji_recent2";
 	private static final int EMOJI_LRU_SIZE = 50;
 
 	private final LinkedHashSet<String> recentlyUsed; // UI thread
@@ -98,12 +98,12 @@ public class RecentEmojiPageModel implements EmojiPageModel {
 	}
 
 	private String serialize(LinkedHashSet<String> emojis) {
-		return StringUtils.join(emojis, ";");
+		return StringUtils.join(emojis, "\t");
 	}
 
 	private LinkedHashSet<String> deserialize(@Nullable String serialized) {
 		if (serialized == null) return new LinkedHashSet<>();
-		String[] list = serialized.split(";");
+		String[] list = serialized.split("\t");
 		LinkedHashSet<String> result = new LinkedHashSet<>(list.length);
 		Collections.addAll(result, list);
 		return result;

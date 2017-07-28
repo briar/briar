@@ -104,8 +104,9 @@ public class EmojiPageView extends FrameLayout {
 								emojiSize + 2 * pad));
 				view = emojiView;
 			}
+			String emoji = model.getEmoji()[position];
+			view.setEmoji(emoji);
 
-			view.setEmoji(model.getEmoji()[position]);
 			return view;
 		}
 	}
