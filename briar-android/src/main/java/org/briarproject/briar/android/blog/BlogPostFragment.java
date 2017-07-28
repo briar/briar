@@ -8,14 +8,16 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.blog.BaseController.BlogListener;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.briar.api.blog.BlogPostHeader;
 
 import javax.inject.Inject;
 
 @UiThread
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class BlogPostFragment extends BasePostFragment {
+public class BlogPostFragment extends BasePostFragment implements BlogListener {
 
 	private static final String TAG = BlogPostFragment.class.getName();
 
@@ -40,6 +42,7 @@ public class BlogPostFragment extends BasePostFragment {
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		blogController.setBlogListener(this);
 	}
 
 	@Override
@@ -59,4 +62,15 @@ public class BlogPostFragment extends BasePostFragment {
 					}
 				});
 	}
+
+	@Override
+	public void onBlogPostAdded(BlogPostHeader header, boolean local) {
+		// doesn't matter here
+	}
+
+	@Override
+	public void onBlogRemoved() {
+		finish();
+	}
+
 }
