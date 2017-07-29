@@ -22,7 +22,11 @@
   <string name="startup_failed_activity_title">Échec de démarrage de Briar</string>
   <string name="startup_failed_db_error">Pour une raison indéterminée, votre base de donnée Briar est corrompue et irrécupérable. Vos comptes, données et contacts sont perdus. Vous devez malheureusement réinstaller Briar et configurer un nouveau compte.</string>
   <string name="startup_failed_service_error">Briar n\'a pas pu démarrer un module nécessaire. Réinstaller Briar résout généralement ce problème. Veuillez noter que vous perdrez votre compte et toutes les données associées puisque Briar n\'utilise pas de serveurs centralisés pour enregistrer les données.</string>
-  <string name="expiry_warning">Ce logiciel est arrivé à expiration.\nVeuillez installer une version plus récente.</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">Ceci est une version béta de Briar. Votre compte expirera dans %d jour et ne peut pas être renouvelé.</item>
+    <item quantity="other">Ceci est une version béta de Briar. Votre compte expirera dans %d jours et ne peut pas être renouvelé.</item>
+  </plurals>
+  <string name="expiry_date_reached">Ce logiciel a expiré.\nMerci de l\'avoir testé!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Ouvrir le panneau de navigation</string>
   <string name="nav_drawer_close_description">Fermer le panneau de navigation</string>
@@ -190,6 +194,8 @@
   <string name="groups_reveal_invisible">Votre lien avec le contact est invisible par le groupe</string>
   <!--Forums-->
   <string name="no_forums">Vous n\'avez pas de forums.\n\nPourquoi ne pas en créer un en touchant l\'icône + en haut ?\n\nVous pouvez aussi demander à vos contacts d\'en partager avec vous.</string>
+  <string name="create_forum_title">Créer un forum</string>
+  <string name="choose_forum_hint">Choisir un nom pour le Forum </string>
   <string name="create_forum_button">Créer un forum</string>
   <string name="forum_created_toast">Forum créé</string>
   <string name="no_forum_posts">Ce forum est vide.\n\nUtilisez l\'icône crayon, en haut pour écrire le premier message.\n\nVous sentez-vous seul, ici? Partager ce forum avec d\'autres contacts !</string>
@@ -245,7 +251,6 @@
   <string name="blogs_blog_post_received">Nouveau message de blog reçu</string>
   <string name="blogs_blog_post_scroll_to">Défiler jusqu\'à</string>
   <string name="blogs_feed_empty_state">Ceci est le flux global des blogs.\n\nIl semble que personne n\'ait encore rien écrit.\n\nSoyez le premier et touchez l\'icône stylet pour écrire un message de blog.</string>
-  <string name="blogs_personal_blog">Blog personnel de %s</string>
   <string name="blogs_remove_blog">Supprimer le blog</string>
   <string name="blogs_remove_blog_dialog_message">Êtes-vous sûr de vouloir supprimer ce blog et tous ses messages ?\nNotez que ceci ne supprimera pas le blog sur les appareils des autres personnes.</string>
   <string name="blogs_remove_blog_ok">Supprimer le blog</string>
@@ -261,8 +266,8 @@
   <string name="blogs_sharing_response_declined_sent">Vous avez refusé l\'invitation au blog de %s.</string>
   <string name="blogs_sharing_response_accepted_received">%s a accepté l\'invitation au blog.</string>
   <string name="blogs_sharing_response_declined_received">%s a décliné l\'invitation au blog.</string>
-  <string name="blogs_sharing_invitation_received">%1$s a partagé le blog personnel de %2$s avec vous.</string>
-  <string name="blogs_sharing_invitation_sent">Vous avez partagé le blog personnel de %1$s avec %2$s.</string>
+  <string name="blogs_sharing_invitation_received">%1$s a partagé le blog \"%2$s\" avec vous.</string>
+  <string name="blogs_sharing_invitation_sent">Vous avez partagé le blog \"%1$s\" avec %2$s.</string>
   <string name="blogs_sharing_invitations_title">Invitations au blog</string>
   <string name="blogs_sharing_joined_toast">Abonné au Blog</string>
   <string name="blogs_sharing_declined_toast">Invitation au blog refusée</string>
@@ -324,6 +329,8 @@
   <string name="notify_blog_posts_setting_title">Messages de blog</string>
   <string name="notify_blog_posts_setting_summary">Afficher les notifications pour les messages de blog</string>
   <string name="notify_vibration_setting">Vibration</string>
+  <string name="notify_lock_screen_setting_title">Verrouiller l\'écran</string>
+  <string name="notify_lock_screen_setting_summary">Afficher les notifications sur l\'écran verrouillé</string>
   <string name="notify_sound_setting">Sonnerie</string>
   <string name="notify_sound_setting_default">Sonnerie par défaut</string>
   <string name="notify_sound_setting_disabled">Aucune</string>
