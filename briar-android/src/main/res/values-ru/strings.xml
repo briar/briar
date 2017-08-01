@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_title">Настройка Briar</string>
+  <string name="setup_explanation">Ваш аккаунт Briar хранится зашифрованным в вашем устройстве, а не в облачном сервисе. Если вы удалите Briar или удалите ваш пароль, нельзя будет восстановить ваш аккаунт или ваши данные.</string>
+  <string name="choose_nickname">Выберите ваше имя пользователя</string>
+  <string name="choose_password">Выберите ваш пароль</string>
+  <string name="confirm_password">Подтвердите ваш пароль</string>
+  <string name="name_too_long">Имя слишком длинное</string>
+  <string name="password_too_weak">Пароль слишком слабый</string>
+  <string name="passwords_do_not_match">Пароли не совпадают</string>
+  <string name="create_account_button">Создать аккаунт</string>
+  <!--Login-->
+  <string name="enter_password">Введите ваш пароль:</string>
+  <string name="try_again">Неверный пароль, повторите попытку</string>
+  <string name="sign_in_button">Войти</string>
+  <string name="forgotten_password">Я забыл свой пароль</string>
+  <string name="dialog_title_lost_password">Потерялся пароль</string>
+  <string name="dialog_message_lost_password">Ваш аккаунт Briar хранится зашифрованным в вашем устройстве, а не в облачном сервисе, поэтому мы не можем восстановить ваш пароль. Хотите ли вы удалить ваш аккаунт и начать заново? Осторожно: Ваши личности, контакты и сообщения будут навсегда потеряны.</string>
+  <string name="startup_failed_notification_title">Briar не может запуститься</string>
+  <string name="startup_failed_notification_text">Возможно, вам нужно переустановить Briar.</string>
+  <string name="startup_failed_activity_title">Ошибка запуска Briar</string>
+  <string name="startup_failed_db_error">По какой-то причине, ваша база данных Briar повреждена без возможности восстановления. Ваш аккаунт, ваши данные и все ваши связи с контактами потеряны.
+К сожалению, вам нужно переустановить Briar и создать новый аккаунт.</string>
+  <string name="startup_failed_service_error">Briar не смог запустить требуемый плагин. Переустановка Briar обычно решает эту проблему. Однако, пожалуйста имейте в виду, что тогда вы потеряете ваш аккаунт и все связанные с ним данные, так как Briar не использует центральных серверов для хранения ваших данных.</string>
+  <string name="expiry_date_reached">Это программное обеспечение истекло.\n Спасибо за тестирование!</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">Открыть навигационную панель</string>
+  <string name="nav_drawer_close_description">Закрыть навигационную панель</string>
+  <string name="contact_list_button">Контакты</string>
+  <string name="groups_button">Приватные группы</string>
+  <string name="forums_button">Форумы</string>
+  <string name="blogs_button">Блоги</string>
+  <string name="settings_button">Настройки</string>
+  <string name="sign_out_button">Выйти</string>
+  <!--Transports-->
+  <string name="transport_tor">Интернет</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">Выполнен вход в Briar</string>
+  <string name="ongoing_notification_text">Коснитесь, чтобы открыть Briar</string>
+  <!--Misc-->
+  <string name="now">сейчас</string>
+  <string name="show">Показать</string>
+  <string name="hide">Скрыть</string>
+  <string name="ok">OK</string>
+  <string name="cancel">Отменить</string>
+  <string name="got_it">Получено</string>
+  <string name="delete">Удалить</string>
+  <string name="accept">Принять</string>
+  <string name="decline">Отклонить</string>
+  <string name="options">Опции</string>
+  <string name="online">В сети</string>
+  <string name="offline">Вне сети</string>
+  <string name="send">Послать</string>
+  <string name="allow">Разрешить</string>
+  <string name="open">Открыть</string>
+  <string name="no_data">Нет данных</string>
+  <string name="ellipsis">...</string>
+  <string name="text_too_long">Введенный текст слишком длинный</string>
+  <string name="show_onboarding">Показать справку</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Видимо, вы впервые здесь и пока что не имеете контактов.
+Нажмите на значок + наверху и следуйте инструкциям, чтобы добавить несколько друзей в ваш список.
+Пожалуйста, помните: вы можете добавлять новые контакты только лично, лицо к лицу, чтобы в будущем не позволить никому выдать себя за вас или читать ваши сообщения.</string>
+  <string name="date_no_private_messages">Сообщений нет.</string>
+  <string name="message_hint">Печатает сообщение</string>
+  <string name="delete_contact">Удалить контакт</string>
+  <string name="dialog_title_delete_contact">Подтвердите удаление контакта</string>
+  <string name="dialog_message_delete_contact">Вы уверены, что хотите удалить этот контакт и все связанные с ним сообщения?</string>
+  <string name="contact_deleted_toast">Контакт удален</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">Добавить контакт</string>
+  <string name="your_nickname">Выберите идентификатор, который вы хотите использовать:</string>
+  <string name="face_to_face">Вы должны встретиться с человеком, которого хотите добавить в качестве контакта.\n\nЭто не позволит кому-либо выдать себя за вас или читать ваши сообщения в будущем.</string>
+  <string name="continue_button">Продолжить</string>
+  <string name="your_invitation_code">Ваш код приглашения</string>
+  <string name="enter_invitation_code">Введите код приглашения вашего контакта:</string>
+  <string name="searching_format">Поиск контакта с кодом приглашения %06d \u2026</string>
+  <string name="connection_failed">Ошибка подключения</string>
+  <string name="could_not_find_contact">Briar не смог найти ваш контакт поблизости</string>
+  <string name="try_again_button">Попробовать снова</string>
+  <string name="connected_to_contact">Подключено к контакту</string>
+  <string name="calculating_confirmation_code">Вычисление кода подтверждения\u2026</string>
+  <string name="your_confirmation_code">Ваш код подтвержения</string>
+  <string name="enter_confirmation_code">Пожалуйста, введите код подтверждения вашего контакта:</string>
+  <string name="waiting_for_contact">Ожидание контакта\u2026</string>
+  <string name="waiting_for_contact_to_scan">Ожидание контакта для сканирования и подключения\u2026</string>
+  <string name="exchanging_contact_details">Обмен контактными данными\u2026</string>
+  <string name="codes_do_not_match">Коды не совпадают</string>
+  <string name="interfering">Это может означать, что кто-то пытается помешать вашему соединению</string>
+  <string name="contact_added_toast">Контакт добавлен: %s</string>
+  <string name="contact_already_exists">Контакт %s уже существует</string>
+  <string name="contact_exchange_failed">Обмен контактами не удался</string>
+  <string name="qr_code_invalid">Неверный QR-код</string>
+  <string name="connecting_to_device">Подключение к устройству\u2026</string>
+  <string name="authenticating_with_device">Аутентификация с устройством\u2026</string>
+  <string name="connection_aborted_local">Соединение прервано нами! Это может означать, что кто-то пытается помешать вашему соединению</string>
+  <string name="connection_aborted_remote">Соединение прервано вашим контактом! Это может означать, что кто-то пытается помешать вашему соединению</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_title">Укажите ваши контакты</string>
+  <string name="introduction_onboarding_text">Вы можете предоставить свои контакты друг другу, поэтому им не нужно встречаться лично, чтобы подключиться к Briar.</string>
+  <string name="introduction_activity_title">Выберите контакт</string>
+  <string name="introduction_message_title">Ввести контакты</string>
+  <string name="introduction_message_hint">Добавить сообщение (опционально)</string>
+  <string name="introduction_button">Сделать введение</string>
+  <!--Private Groups-->
+  <string name="groups_group_is_empty">Эта группа пуста</string>
+  <string name="groups_group_is_dissolved">Эта группа была аннулирована</string>
+  <string name="groups_remove">Удалить</string>
+  <string name="groups_create_group_title">Создать приватную группу</string>
+  <string name="groups_create_group_button">Создать группу</string>
+  <string name="groups_create_group_invitation_button">Отправить приглашение</string>
+  <string name="groups_create_group_hint">Выберите имя для своей приватной группы</string>
+  <string name="groups_invitation_sent">Групповое приглашение было отправлено</string>
+  <string name="groups_message_sent">Сообщение отправлено</string>
+  <string name="groups_member_list">Список участников</string>
+  <string name="groups_invite_members">Пригласить участников</string>
+  <string name="groups_member_created_you">Вы создали группу</string>
+  <string name="groups_member_created">%s создал группу</string>
+  <string name="groups_member_joined_you">Вы присоединились к группе</string>
+  <string name="groups_member_joined">%s присоединился к группе</string>
+  <string name="groups_leave">Покинуть группу</string>
+  <string name="groups_leave_dialog_title">Подтверждение</string>
+  <string name="groups_leave_dialog_message">Вы уверены, что хотите покинуть эту группу?</string>
+  <string name="groups_dissolve">Аннулировать группу</string>
+  <string name="groups_dissolve_dialog_title">Подтверждение</string>
+  <string name="groups_dissolve_dialog_message">Вы уверены, что хотите аннулировать эту группу?\n\nДругие участники не смогут продолжить разговор и могут не получить последние сообщения.</string>
+  <string name="groups_dissolve_button">Аннулировать</string>
+  <string name="groups_dissolved_dialog_title">Группа была аннулирована</string>
+  <string name="groups_dissolved_dialog_message">Создатель этой группы аннулировал ее.\n\nВы больше не можете писать сообщения в группу и можете получить не все сообщения, которые были написаны.</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">Групповые приглашения</string>
+  <string name="groups_invitations_invitation_sent">Вы предложили %1$s присоединиться к группе \"%2$s\".</string>
+  <string name="groups_invitations_invitation_received">%1$s приглашает вас присоединиться к группе \"%2$s\".</string>
+  <string name="groups_invitations_joined">Присоединился к группе</string>
+  <string name="groups_invitations_declined">Групповое приглашение отклонено</string>
+  <!--Private Groups Revealing Contacts-->
+  <!--Forums-->
+  <!--Forum Sharing-->
+  <!--Blogs-->
+  <!--Blog Sharing-->
+  <!--RSS Feeds-->
+  <!--Settings Network-->
+  <!--Settings Security and Panic-->
+  <!--Settings Notifications-->
+  <!--Settings Feedback-->
+  <!--Link Warning-->
+  <!--Crash Reporter-->
+  <!--Sign Out-->
+  <!--Screen Filters & Tapjacking-->
+</resources>

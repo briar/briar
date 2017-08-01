@@ -22,7 +22,6 @@
   <string name="startup_failed_activity_title">Dështim Nisjeje i Briar-it</string>
   <string name="startup_failed_db_error">Për ndonjë arsye, baza e të dhënave e Briar-it tuaj është aq e dëmtuar, sa s’mund të ndreqet. Llogaria juaj, të dhënat tuaja dhe krejt lidhjet tuaja me kontaktet kanë humbur. Mjerisht lypset të ri-instaloni Briar-in dhe të rregulloni një llogari të re.</string>
   <string name="startup_failed_service_error">Briar-i s’arriti të nisë një shtojcë të domosdoshme. Ri-instalimi i Briar-it zakonisht e zgjidh këtë problem. Por, ju lutemi, kini parasysh se me të do të humbni llogarinë tuaj dhe krejt të dhënat e lidhura me të, ngaqë Briar nuk përdor shërbyes qendrorë për të depozituar në ta të dhënat tuaja.</string>
-  <string name="expiry_warning">Ky software ka skaduar.\nJu lutemi, instaloni një version më të ri.</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Hap sirtarin e lëvizjeve</string>
   <string name="nav_drawer_close_description">Mbylle sirtarin e lëvizjeve</string>
@@ -242,7 +241,6 @@
   <string name="blogs_blog_post_received">U morën Postime të Reja Blogu</string>
   <string name="blogs_blog_post_scroll_to">Kalo Te</string>
   <string name="blogs_feed_empty_state">Kjo është prurja globale e blogjeve.\n\nDuket se askush s’ka shkruar gjë në ndonjë blog.\n\nBëhuni ju i pari dhe prekni ikonën penë që të shkruani postimin e parë të një blogu të ri.</string>
-  <string name="blogs_personal_blog">Blogu Personal i %s</string>
   <string name="blogs_remove_blog">hiqe Blogun</string>
   <string name="blogs_remove_blog_dialog_message">Jeni i sigurt se doni të hiqet ky blog dhe krejt postimet?\nMbani parasysh që kjo nuk do ta heqë blogun nga pajisjet e personave të tjerë.</string>
   <string name="blogs_remove_blog_ok">Hiqe Blogun</string>
@@ -257,8 +255,6 @@
   <string name="blogs_sharing_response_declined_sent">Hodhët poshtë ftesën e blogut nga %s.</string>
   <string name="blogs_sharing_response_accepted_received">%s pranoi ftesën e blogut.</string>
   <string name="blogs_sharing_response_declined_received">%s hodhi poshtë ftesën e blogut.</string>
-  <string name="blogs_sharing_invitation_received">%1$s ka ndarë me ju blogun personal të %2$s.</string>
-  <string name="blogs_sharing_invitation_sent">Keni ndarë me %2$s blogun personal të %1$s.</string>
   <string name="blogs_sharing_invitations_title">Ftesa Blogu</string>
   <string name="blogs_sharing_joined_toast">U pajtuat te Blogu</string>
   <string name="blogs_sharing_declined_toast">Ftesa e Blogut u Hodh Poshtë</string>

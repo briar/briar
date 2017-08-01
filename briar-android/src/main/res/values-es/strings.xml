@@ -22,7 +22,11 @@
   <string name="startup_failed_activity_title">Fallo al iniciar Briar</string>
   <string name="startup_failed_db_error">Por alguna razón, la base de datos de Briar ha sufrido daños irreparables. Tu cuenta, tus datos y todos tus contactos se han perdido. Desafortunadamente, tendrás que reinstalar Briar y registrar una nueva cuenta.</string>
   <string name="startup_failed_service_error">Briar no pudo iniciar un complemento necesario. Reinstalar Briar suele solucionar el problema. Sin embargo, ten en cuenta que perderás tu cuenta y todos los datos asociados ya que Briar no almacena esta información en ningún servidor central.</string>
-  <string name="expiry_warning">Esta versión ha caducado.\nInstala una más reciente, por favor.</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">Esta es una versión preliminar de Briar. Tu cuenta caducará en %d día y no podrá renovarse.</item>
+    <item quantity="other">Esta es una versión preliminar de Briar. Tu cuenta caducará en %d días y no podrá renovarse.</item>
+  </plurals>
+  <string name="expiry_date_reached">Esta versión ha caducado.\n¡Gracias por probarla!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Abrir el panel de navegación</string>
   <string name="nav_drawer_close_description">Cierra el panel de navegación</string>
@@ -76,7 +80,7 @@
   <string name="text_too_long">El texto es demasiado largo</string>
   <string name="show_onboarding">Mostrar diálogo de ayuda</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Parece que eres nuevo por aquí y no tienes aún contactos.\n\nPulsa el signo + en la parte superior y sigue las instrucciones para añadir amigos a tu lista.\n\nPor favor, recuerda: sólo puedes añadir nuevos contactos cara a cara para evitar que nadie suplante tu identidad o lea tus mensajes en el futuro. </string>
+  <string name="no_contacts">Parece que eres nuevo por aquí y no tienes aún contactos.\n\nPulsa el signo + en la parte superior y sigue las instrucciones para añadir amigos a tu lista.\n\nPor favor, recuerda: sólo puedes añadir nuevos contactos cara a cara para evitar que nadie suplante tu identidad o lea tus mensajes en el futuro. </string>
   <string name="date_no_private_messages">Sin mensajes.</string>
   <string name="no_private_messages">Esta es la vista de conversación.\n\nParece que aún no hay ninguna.\n\nPulsa el campo de texto en la parte inferior para empezar la conversación.</string>
   <string name="message_hint">Escribe un mensaje</string>
@@ -118,7 +122,7 @@
   <string name="introduction_activity_title">Seleccionar contacto</string>
   <string name="introduction_message_title">Presentar a dos contactos</string>
   <string name="introduction_message_hint">Añade un mensaje (opcional)</string>
-  <string name="introduction_button">Realizar la presentación</string>
+  <string name="introduction_button">Presentarle a</string>
   <string name="introduction_sent">Tu presentación se ha mandado.</string>
   <string name="introduction_error">Ocurrió un error realizando la presentación.</string>
   <string name="introduction_response_error">Error al responder a la presentación</string>
@@ -136,7 +140,7 @@
     <item quantity="other">%d nuevos contactos añadido</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Aún no participas en ningún grupo.\n\nCrea un grupo pulsando en el signo + arriba o pide a tus contactos que te inviten a uno de sus grupos.</string>
+  <string name="groups_list_empty">Aún no participas en ningún grupo.\n\nCrea un grupo pulsando en el signo + arriba o pide a tus contactos que te inviten a uno de sus grupos.</string>
   <string name="groups_created_by">Creado por %s</string>
   <plurals name="messages">
     <item quantity="one">%d mensaje</item>
@@ -189,7 +193,9 @@
   <string name="groups_reveal_visible_revealed_by_contact">Las relaciones entre los contactos son visibles al grupo (las reveló %s)</string>
   <string name="groups_reveal_invisible">Las relaciones entre los contactos no son visibles al grupo</string>
   <!--Forums-->
-  <string name="no_forums">No tienes ningún foro aún.\n\n¿Por qué no creas uno pulsando el signo + de la parte superior?\n\nTambién puedes pedirle a tus contactos que compartan foros contigo.</string>
+  <string name="no_forums">No tienes ningún foro aún.\n\n¿Por qué no creas uno pulsando el signo + de la parte superior?\n\nTambién puedes pedirle a tus contactos que compartan foros contigo.</string>
+  <string name="create_forum_title">Crear foro</string>
+  <string name="choose_forum_hint">Elige un nombre para el foro</string>
   <string name="create_forum_button">Crear foro</string>
   <string name="forum_created_toast">Foro creado</string>
   <string name="no_forum_posts">Este foro está vacío.\n\nUsa el signo del lápiz de la parte superior para redactar una primera publicación.\n\n¿No te sientes un poco solo aquí? ¡Comparte este foro con más contactos!</string>
@@ -245,7 +251,6 @@
   <string name="blogs_blog_post_received">Recibido nuevo artículo del blog</string>
   <string name="blogs_blog_post_scroll_to">Desplazarse hasta</string>
   <string name="blogs_feed_empty_state">Esta es la lista global de entradas de blogs.\n\nParece que nadie ha publicado nada todavía.\n\nSé el primero: pulsa el signo del lápiz para escribir una nueva entrada de blog.</string>
-  <string name="blogs_personal_blog">Blog personal de %s</string>
   <string name="blogs_remove_blog">Eliminar blog</string>
   <string name="blogs_remove_blog_dialog_message">¿Seguro que quieres eliminar este blog y todos sus artículos?\nTen en cuenta que no se eliminará el blog de los dispositivos de otras personas.</string>
   <string name="blogs_remove_blog_ok">Eliminar blog</string>
@@ -261,8 +266,8 @@
   <string name="blogs_sharing_response_declined_sent">Rechazaste la invitación al blog de %s.</string>
   <string name="blogs_sharing_response_accepted_received">%s aceptó la invitación al blog.</string>
   <string name="blogs_sharing_response_declined_received">%s rechazó la invitación al blog.</string>
-  <string name="blogs_sharing_invitation_received">%1$s ha compartido el blog personal de %2$s contigo.</string>
-  <string name="blogs_sharing_invitation_sent">Has compartido el blog personal de %1$s con %2$s.</string>
+  <string name="blogs_sharing_invitation_received">%1$s ha compartido el blog \"%2$s\" contigo.</string>
+  <string name="blogs_sharing_invitation_sent">Has compartido el blog \"%1$s\" con %2$s.</string>
   <string name="blogs_sharing_invitations_title">Invitaciones a blogs</string>
   <string name="blogs_sharing_joined_toast">Suscrito al blog</string>
   <string name="blogs_sharing_declined_toast">Rechazada invitación al blog</string>
@@ -284,7 +289,7 @@
   <string name="blogs_rss_feeds_manage_error">Hubo un problema cargando tus canales RSS. Por favor, prueba más tarde.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Redes</string>
-  <string name="bluetooth_setting">Connectar mediante Bluetooth</string>
+  <string name="bluetooth_setting">Conectar mediante Bluetooth</string>
   <string name="bluetooth_setting_enabled">Cuando haya contactos cerca</string>
   <string name="bluetooth_setting_disabled">Solo al añadir contactos</string>
   <string name="tor_network_setting">Conectar a través de Tor</string>
@@ -324,6 +329,8 @@
   <string name="notify_blog_posts_setting_title">Entradas de blog</string>
   <string name="notify_blog_posts_setting_summary">Notificar entradas de blog</string>
   <string name="notify_vibration_setting">Vibrar</string>
+  <string name="notify_lock_screen_setting_title">Pantalla de bloqueo</string>
+  <string name="notify_lock_screen_setting_summary">Notificaciones en la pantalla de bloqueo</string>
   <string name="notify_sound_setting">Sonar</string>
   <string name="notify_sound_setting_default">Tono de notificación predeterminado</string>
   <string name="notify_sound_setting_disabled">Ninguna</string>

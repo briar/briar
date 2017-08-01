@@ -22,7 +22,11 @@
   <string name="startup_failed_activity_title">Fallimento Avvio Briar</string>
   <string name="startup_failed_db_error">Per alcune reagioni, il tuo database Briar si è corrotto in modo irreparabile. Il tuo account, i tuoi dati e tutte le connessioni ai tuoi contatti sono andati persi. Sfortunatamente, devi reinstallare Briar per creare un nuovo account.</string>
   <string name="startup_failed_service_error">Briar non è stato in grado di caricare un plugin richiesto. Reinstallare Briar di solito sistema questo problema. Però ricorda che perderai il tuo account e tutti i dati ad esso associati poichè Briar non usa server centralizzati per mantenere i tuoi dati.</string>
-  <string name="expiry_warning">Questo software è scaduto.\nSi prega di installare una nuova versione.</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">Questa è una versione beta di Briar. Il tuo account scadrà in %d giorno e non può essere rinnovato.</item>
+    <item quantity="other">Questa è una versione beta di Briar. Il tuo account scadrà in %d giorni e non può essere rinnovato.</item>
+  </plurals>
+  <string name="expiry_date_reached">Questo software è scaduto.\nGrazie per il test!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Apri la barra di navigazione</string>
   <string name="nav_drawer_close_description">Chiudi la barra di navigazione</string>
@@ -117,6 +121,7 @@
   <string name="introduction_onboarding_text">Puoi presentare i tuoi contatti fra di loro, così non hanno bisogno di incontrarsi di persona per connettersi a Briar.</string>
   <string name="introduction_activity_title">Seleziona Contatto</string>
   <string name="introduction_message_title">Introduzione Contatti</string>
+  <string name="introduction_message_hint">Aggiungi un messaggio (facoltativo)</string>
   <string name="introduction_button">Crea l\'introduzione</string>
   <string name="introduction_sent">La tua introduzione è stata inviata.</string>
   <string name="introduction_error">C\'è stato un errore nella creazione dell\'introduzione</string>
@@ -147,6 +152,7 @@
   <string name="groups_create_group_title">Crea gruppo privato</string>
   <string name="groups_create_group_button">Crea gruppo</string>
   <string name="groups_create_group_invitation_button">Invia invito</string>
+  <string name="groups_create_group_hint">Scegli un nome per il tuo gruppi privato</string>
   <string name="groups_invitation_sent">Invito a partecipare al gruppo spedito</string>
   <string name="groups_message_sent">Messaggio inviato</string>
   <string name="groups_member_list">Lista membri</string>
@@ -188,6 +194,8 @@
   <string name="groups_reveal_invisible">La relazione fra i contatti non è visibile al gruppo</string>
   <!--Forums-->
   <string name="no_forums">Non hai ancora alcun forum.\n\nPerchè non ne crei uno nuovo tu premendo l\' icona + in alto?\n\nPuoi anche chiedere ai tuoi contatti di condividere forums con te.</string>
+  <string name="create_forum_title">Crea Forum</string>
+  <string name="choose_forum_hint">Scegli un nome per il tuo forum</string>
   <string name="create_forum_button">Crea Forum</string>
   <string name="forum_created_toast">Forum creato</string>
   <string name="no_forum_posts">Questo forum è vuoto.\n\nUsa l\' icona penna in alto per comporre il primo post.\n\nTi senti solo qui? Condividi questo forum con i tuoi contatti!</string>
@@ -199,7 +207,7 @@
   <string name="forum_new_entry_posted">Nuova inserzione sul forum</string>
   <string name="forum_new_message_hint">Nuova inserzione</string>
   <string name="forum_message_reply_hint">Nuova Risposta</string>
-  <string name="btn_reply">Rispondere</string>
+  <string name="btn_reply">Rispondi</string>
   <string name="forum_leave">Lascia Forum</string>
   <string name="dialog_title_leave_forum">Conferma l\'abbandono del forum</string>
   <string name="dialog_message_leave_forum">Sei sicuro di voler lasciare questo forum? I contatti che hai condiviso in questo forum potrebbero essere tagliati fuori dalla ricezione di aggiornamenti di questo forum.</string>
@@ -211,6 +219,7 @@
   <string name="activity_share_toolbar_header">Scegli Contatti</string>
   <string name="no_contacts_selector">Sembra che tu sia nuovo qui e non hai alcun contatto ancora.\n\nPer favore torna dopo aver aggiunto il tuo primo contatto.</string>
   <string name="forum_shared_snackbar">Forum condiviso con i contatti scelti</string>
+  <string name="forum_share_message">Aggiungi un messaggio (facoltativo)</string>
   <string name="forum_share_error">C\'è stato un errore nella condivisione di questo forum.</string>
   <string name="forum_invitation_received">%1$s ha condiviso il forum \"%2$s\" con te.</string>
   <string name="forum_invitation_sent">Hai condiviso il forum \"%1$s\" con %2$s.</string>
@@ -242,11 +251,11 @@
   <string name="blogs_blog_post_received">Ricevuto nuovo post del blog</string>
   <string name="blogs_blog_post_scroll_to">Scorri a</string>
   <string name="blogs_feed_empty_state">Questo è il feed globale del blog.\n\nSembra che nessuno abbia ancora scritto nulla.\n\nSii il primo e tocca l\'icona della penna per scrivere un nuovo post sul blog.</string>
-  <string name="blogs_personal_blog">Il blog personale di %s</string>
   <string name="blogs_remove_blog">Rimuovi Blog</string>
   <string name="blogs_remove_blog_dialog_message">Sei sicuro di voler rimuovere questo blog e tutti i post?\nTieni presente che questo non rimuoverà il blog dai dispositivi degli altri.</string>
   <string name="blogs_remove_blog_ok">Rimuovi Blog</string>
   <string name="blogs_blog_removed">Blog Rimosso</string>
+  <string name="blogs_reblog_comment_hint">Aggiungi un commento (facoltativo)</string>
   <string name="blogs_reblog_button">Reblog</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Condividi Blog</string>
@@ -257,8 +266,8 @@
   <string name="blogs_sharing_response_declined_sent">Hai declinato l\'invito al blog da %s.</string>
   <string name="blogs_sharing_response_accepted_received">%s ha accettato l\'invito al blog.</string>
   <string name="blogs_sharing_response_declined_received">%s ha declinato l\'invito al blog.</string>
-  <string name="blogs_sharing_invitation_received">%1$s ha condiviso il blog personale di %2$s con te.</string>
-  <string name="blogs_sharing_invitation_sent">Hai condiviso il tuo blog personale di %1$s con %2$s.</string>
+  <string name="blogs_sharing_invitation_received">%1$s ha condiviso il blog \"%2$s\" con te.</string>
+  <string name="blogs_sharing_invitation_sent">Hai condiviso il blog \"%1$s\" con %2$s.</string>
   <string name="blogs_sharing_invitations_title">Inviti Blog</string>
   <string name="blogs_sharing_joined_toast">Iscritto al Blog</string>
   <string name="blogs_sharing_declined_toast">Invito al blog declinato</string>
@@ -311,7 +320,17 @@
   <string name="uninstall_setting_summary">Questo richiede una conferma manuale in un evento panico</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notifiche</string>
+  <string name="notify_private_messages_setting_title">Messaggi privati</string>
+  <string name="notify_private_messages_setting_summary">Mostra avvisi per i messaggi privati</string>
+  <string name="notify_group_messages_setting_title">Messaggi di gruppo</string>
+  <string name="notify_group_messages_setting_summary">Mostra avvisi per messaggi di gruppo</string>
+  <string name="notify_forum_posts_setting_title">Post di forum</string>
+  <string name="notify_forum_posts_setting_summary">Mostra avvisi per i post di forum</string>
+  <string name="notify_blog_posts_setting_title">Post di blog</string>
+  <string name="notify_blog_posts_setting_summary">Mostra avvisi per post di blog</string>
   <string name="notify_vibration_setting">Vibrazione</string>
+  <string name="notify_lock_screen_setting_title">Blocca schermo</string>
+  <string name="notify_lock_screen_setting_summary">Mostra notifiche sul blocca schermo</string>
   <string name="notify_sound_setting">Suono</string>
   <string name="notify_sound_setting_default">Suoneria di default</string>
   <string name="notify_sound_setting_disabled">Nessuno</string>
@@ -343,4 +362,6 @@
   <!--Sign Out-->
   <string name="progress_title_logout">Uscire da Briar ...</string>
   <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_title">È stata rilevata un\'overlay sullo schermo</string>
+  <string name="screen_filter_body">Un\'altra app sta disegnando sopra a Briar. Per proteggere la tua sicurezza, Briar non risponderà ai tocchi quando un\'altra app vi starà disegnando sopra.\n\nProva a spegnere le seguenti app mentre usi Briar:\n\n%1$s</string>
 </resources>

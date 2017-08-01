@@ -22,7 +22,7 @@
   <string name="startup_failed_activity_title">Inicialização do Briar falhou</string>
   <string name="startup_failed_db_error">Por alguma razão, seus dados do Briar estão corrompidos e não podem ser reparados. Sua conta, seus dados e todas suas conexões com contatos estão perdidas. Infelizmente você terá que resintalar o Briar e criar uma nova conta.</string>
   <string name="startup_failed_service_error">O Briar não pode iniciar devido a um plugin. Reinstalar o Briar geralmente resolve esse problema. Porém, note que ao fazer isso você perderá sua conta e todos os dados associados a ela,  já que o Briar não usa um servidor central para armazenar seus dados.</string>
-  <string name="expiry_warning">Esse programa expirou.\nPor favor instale uma versão mais recente.</string>
+  <string name="expiry_date_reached">Este software expirou.\nObrigado por testar!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Abrir aba de navegação</string>
   <string name="nav_drawer_close_description">Fechar aba de navegação</string>
@@ -117,6 +117,7 @@
   <string name="introduction_onboarding_text">Você pode apresentar seus contatos entre si, assim eles não precisam se encontrar pessoalmente para se comunicar no Briar.</string>
   <string name="introduction_activity_title">Selecionar contato</string>
   <string name="introduction_message_title">Apresentar contatos</string>
+  <string name="introduction_message_hint">Adicione uma mensagem (opcional)</string>
   <string name="introduction_button">Fazer apresentação</string>
   <string name="introduction_sent">Sua Introdução foi enviada.</string>
   <string name="introduction_error">Houve um erro ao fazer a apresentação</string>
@@ -147,6 +148,7 @@
   <string name="groups_create_group_title">Criar Grupo Privado</string>
   <string name="groups_create_group_button">Criar Grupo</string>
   <string name="groups_create_group_invitation_button">Enviar Convite</string>
+  <string name="groups_create_group_hint">Escolha um nome para o seu grupo privado</string>
   <string name="groups_invitation_sent">Convite do Grupo enviado </string>
   <string name="groups_message_sent">Mensagem enviada</string>
   <string name="groups_member_list">Lista de membros</string>
@@ -178,6 +180,7 @@
   <string name="groups_invitations_response_declined_sent">Você recusou o convite do Grupo de %s.</string>
   <string name="groups_invitations_response_accepted_received">%s aceitou o convite do Grupo.</string>
   <string name="groups_invitations_response_declined_received">%s recusou o convite do Grupo.</string>
+  <string name="sharing_status_groups">Apenas o criador pode convidar novas pessoas para o grupo. Abaixo estão os atuais membros do grupo.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Revelar contatos</string>
   <string name="groups_reveal_dialog_message">Você pode escolher revelar seus contatos para todos os membros presentes e futuros desse Grupo.\n\nRevelar seus contatos torna sua conexão com o grupo mais rápida e confiável, porque você pode comunicar com os contatos revelados mesmo se o criador do Grupo está offline</string>
@@ -187,6 +190,8 @@
   <string name="groups_reveal_invisible">Relação de contatos não visível para o Grupo </string>
   <!--Forums-->
   <string name="no_forums">Você não tem nenhum fórum.\nPor que não cria um novo você mesmo, Clicando o ícone + no topo?\nVocê também pode pedir que seus contatos compartilhem fóruns com você.</string>
+  <string name="create_forum_title">Criar Fórum</string>
+  <string name="choose_forum_hint">Escolha um nome para o seu fórum</string>
   <string name="create_forum_button">Criar fórum</string>
   <string name="forum_created_toast">Fórum criado</string>
   <string name="no_forum_posts">Esse fórum está vazio.\nUse o ícone da caneta no topo para escrever o primeiro Post.\nSe sentido sozinho aqui? Compartilhe esse fórum com seus contatos!</string>
@@ -210,6 +215,7 @@
   <string name="activity_share_toolbar_header">Escolher contatos</string>
   <string name="no_contacts_selector">Parece que você é novo aqui e não tem nenhum contato ainda.\nPor favor volte aqui depois de adicionar um contato.</string>
   <string name="forum_shared_snackbar">Fòrum compartilhado com os contatos escolhidos</string>
+  <string name="forum_share_message">Adicionar uma mensagem (opcional)</string>
   <string name="forum_share_error">Houve um erro em compartilhar esse fórum.</string>
   <string name="forum_invitation_received">%1$s compartilhou o fórum \"%2$s\" com você.</string>
   <string name="forum_invitation_sent">Você compartilhou o fórum \"%1$s\" com %2$s.</string>
@@ -224,6 +230,7 @@
   <string name="forum_invitation_response_accepted_received">%s aceitou o convite de fórum.</string>
   <string name="forum_invitation_response_declined_received">%s recusou o convite de fórum.</string>
   <string name="sharing_status">Status de compartilhamento</string>
+  <string name="sharing_status_forum">Qualquer membro do fórum pode compartilhá-lo com seus contatos. Você está compartilhando este fórum com os seguintes contatos. Também podem existir outros membros que você não consegue visualizar.</string>
   <string name="shared_with">Compartilhado com %1$d (%2$d online)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d fórum compartilhado por contatos</item>
@@ -240,11 +247,11 @@
   <string name="blogs_blog_post_received">Novo Post de Blog recebido</string>
   <string name="blogs_blog_post_scroll_to">Role Para</string>
   <string name="blogs_feed_empty_state">Esse é o feed de blog global.\nParece que ninguém postou nada, ainda.\nSeja o primeiro a postar e clique no ícone da caneta para escrever um novo Post pro Blog.</string>
-  <string name="blogs_personal_blog">Blog pessoal do(a) %s</string>
   <string name="blogs_remove_blog">Remover Blog</string>
   <string name="blogs_remove_blog_dialog_message">Você ter certeza que quer remover esse Blog e todos seus Posts?\nNote que isso não irá remover o Blog dos dispositivos de outras pessoas. </string>
   <string name="blogs_remove_blog_ok">Remover Blog</string>
   <string name="blogs_blog_removed">Blog Deletado</string>
+  <string name="blogs_reblog_comment_hint">Adicionar um comentário (opcional)</string>
   <string name="blogs_reblog_button">Reblog</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Compartilhar Blog</string>
@@ -255,11 +262,12 @@
   <string name="blogs_sharing_response_declined_sent">Você recusou o convite de Blog de %s.</string>
   <string name="blogs_sharing_response_accepted_received">%s aceitou o convite de Blog.</string>
   <string name="blogs_sharing_response_declined_received">%s recusou o convite de Fórum.</string>
-  <string name="blogs_sharing_invitation_received">%1$s compartilhou o blog %2$s com você.</string>
-  <string name="blogs_sharing_invitation_sent">Você compartilhou o blog de %1$s com %2$s.</string>
+  <string name="blogs_sharing_invitation_received">%1$s compartilhou o blog \"%2$s\" com você.</string>
+  <string name="blogs_sharing_invitation_sent">Você compartilhou o blog \"%1$s\" com %2$s.</string>
   <string name="blogs_sharing_invitations_title">Convites para Fóruns</string>
   <string name="blogs_sharing_joined_toast">Inscrito neste Blog</string>
   <string name="blogs_sharing_declined_toast">Convite do Blog recusado</string>
+  <string name="sharing_status_blog">Qualquer pessoa que se inscreva em um blog pode compartilhá-lo com seus contatos. Você está compartilhando este blog com os seguintes contatos. Também podem haver outras pessoas inscritas que você não consegue visualizar.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importar Feed RSS</string>
   <string name="blogs_rss_feeds_import_button">Importar</string>
@@ -269,6 +277,9 @@
   <string name="blogs_rss_feeds_manage_imported">Importado:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Última Atualização:</string>
+  <string name="blogs_rss_remove_feed">Remover Feed</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Você tem certeza que quer remover este feed e todas suas postagens?\nAs postagens que você compartilhou não serão removidas dos dispositivos de outras pessoas.</string>
+  <string name="blogs_rss_remove_feed_ok">Remover Feed</string>
   <string name="blogs_rss_feeds_manage_delete_error">O Feed não pode ser deletado!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Você ainda não importou nenhum feed RSS. Por que não clica no símbolo de mais no canto superior direito para adicionar o primeiro? </string>
   <string name="blogs_rss_feeds_manage_error">Houve um problema ao carregar seus Feeds. Por favor tente novamente.</string>
@@ -277,6 +288,10 @@
   <string name="bluetooth_setting">Conectar via Bluetooth</string>
   <string name="bluetooth_setting_enabled">Sempre que estiver perto de contatos</string>
   <string name="bluetooth_setting_disabled">Somente quando adicionando contatos</string>
+  <string name="tor_network_setting">Conectar via Tor</string>
+  <string name="tor_network_setting_never">Nunca</string>
+  <string name="tor_network_setting_wifi">Apenas ao usar Wi-Fi</string>
+  <string name="tor_network_setting_always">Quando usar Wi-Fi ou dados móveis</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Segurança</string>
   <string name="change_password">Mudar Senha</string>
@@ -301,7 +316,17 @@
   <string name="uninstall_setting_summary">Isso requer configuração manual em um evento de pânico</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificações</string>
+  <string name="notify_private_messages_setting_title">Mensagens privadas</string>
+  <string name="notify_private_messages_setting_summary">Mostrar alertas para mensagens privadas</string>
+  <string name="notify_group_messages_setting_title">Mensagens de Grupo</string>
+  <string name="notify_group_messages_setting_summary">Mostrar alertas para mensagens de Grupos</string>
+  <string name="notify_forum_posts_setting_title">Postagens do fórum</string>
+  <string name="notify_forum_posts_setting_summary">Mostrar alertas para postagens nos fóruns</string>
+  <string name="notify_blog_posts_setting_title">Posts do blog</string>
+  <string name="notify_blog_posts_setting_summary">Mostrar alertas para postagens nos blogs</string>
   <string name="notify_vibration_setting">Vibrar</string>
+  <string name="notify_lock_screen_setting_title">Bloquear a tela</string>
+  <string name="notify_lock_screen_setting_summary">Mostrar notificações enquanto a tela estiver bloqueada</string>
   <string name="notify_sound_setting">Som</string>
   <string name="notify_sound_setting_default">Toque padrão</string>
   <string name="notify_sound_setting_disabled">Nenhum</string>
@@ -333,4 +358,5 @@
   <!--Sign Out-->
   <string name="progress_title_logout">Saindo do Briar…</string>
   <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_body">Outro aplicativo está rodando por cima do Briar. Para proteger sua segurança, o Briar não irá responder por toques quando outro aplicativo estiver por cima.\n\nTente desligar os seguintes aplicativos quando for usar o Briar:\n\n %1$s</string>
 </resources>

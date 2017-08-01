@@ -1,0 +1,342 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_title">Briar Kurulum</string>
+  <string name="setup_explanation">Briar hesabınız bulutta değil, cihazınızda şifreli olarak saklanır. Briar\'ı kaldırırsanız veya şifrenizi unutursanız, hesabınızı ve verilerinizi kurtarmanın bir yolu yoktur.</string>
+  <string name="choose_nickname">Kullanıcı adınızı belirleyin</string>
+  <string name="choose_password">Parolanızı belirleyin</string>
+  <string name="confirm_password">Parolanızı doğrulayın</string>
+  <string name="name_too_long">İsim çok uzun</string>
+  <string name="password_too_weak">Parola çok zayıf</string>
+  <string name="passwords_do_not_match">Girdiğiniz iki parola uyuşmuyor</string>
+  <string name="create_account_button">Hesabı Oluştur</string>
+  <!--Login-->
+  <string name="enter_password">Parolanızı girin</string>
+  <string name="try_again">Parola yanlış, tekrar deneyin</string>
+  <string name="sign_in_button">Giriş Yap</string>
+  <string name="forgotten_password">Parolamı unuttum</string>
+  <string name="dialog_title_lost_password">Kayıp Parola</string>
+  <string name="dialog_message_lost_password">Briar hesabınız, bulutta değil şifreli olarak cihazınızda saklanır, bu nedenle şifrenizi sıfırlayamıyoruz. Hesabınızı silmek ve tekrar başlamak ister misiniz? \n\nUyarı: Kimlikleriniz, kişileriniz ve iletileriniz kaybolur.</string>
+  <string name="startup_failed_notification_title">Briar başlayamadı</string>
+  <string name="startup_failed_notification_text">Briar\'ı tekrar kurmanız gerekli.</string>
+  <string name="startup_failed_activity_title">Briar Başlangıç Hatası</string>
+  <string name="startup_failed_db_error">Bazı nedenlerden dolayı, Briar veritabanınız onarılamayacak kadar bozuk. Hesabınız, verileriniz ve tüm iletişim bağlantılarınız kayboldu. Ne yazık ki, Briar\'ı yeniden yükleyip yeni bir hesap oluşturmanız gerekiyor.</string>
+  <string name="startup_failed_service_error">Briar gerekli bir eklentiyi başlatamadı. Briar\'ı yeniden yüklemek genellikle bu sorunu çözer. Bununla birlikte, lütfen Briar\'ın verilerinizi depolamak için merkezi sunucuları kullanmadığından hesabınızı ve onunla ilişkili tüm verileri kaybedeceğinizi unutmayın.</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">Gezinme çekmecesini aç</string>
+  <string name="nav_drawer_close_description">Gezinme çekmecesini kapat</string>
+  <string name="contact_list_button">Kişiler</string>
+  <string name="groups_button">Özel Gruplar</string>
+  <string name="forums_button">Forumlar</string>
+  <string name="blogs_button">Bloglar</string>
+  <string name="settings_button">Ayarlar</string>
+  <string name="sign_out_button">Oturumu Kapat</string>
+  <!--Transports-->
+  <string name="transport_tor">İnternet</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">Briar\'a giriş yapıldı</string>
+  <string name="ongoing_notification_text">Briar\'ı açmak için dokunun</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="one">Yeni özel mesaj.</item>
+    <item quantity="other">%d yeni özel mesaj.</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="one">Yeni grup mesajı.</item>
+    <item quantity="other">%d yeni grup mesajı.</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one">Yeni forum iletisi.</item>
+    <item quantity="other">%d yeni forum iletisi.</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">Yeni blog iletisi.</item>
+    <item quantity="other">%d yeni blog iletisi.</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">şimdi</string>
+  <string name="show">Göster</string>
+  <string name="hide">Gizle</string>
+  <string name="ok">Tamam</string>
+  <string name="cancel">İptal</string>
+  <string name="got_it">Anladım</string>
+  <string name="delete">Sil</string>
+  <string name="accept">Onayla</string>
+  <string name="decline">Reddet</string>
+  <string name="options">Seçenekler</string>
+  <string name="online">Çevrimiçi</string>
+  <string name="offline">Çevrimdışı</string>
+  <string name="send">Gönder</string>
+  <string name="allow">İzin ver</string>
+  <string name="open">Aç</string>
+  <string name="no_data">Bilgi yok</string>
+  <string name="ellipsis">…</string>
+  <string name="text_too_long">Girilen metin çok uzun</string>
+  <string name="show_onboarding">Yardım Penceresini Göster</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Görünüşe göre burada yeni başladınız ve henüz bir iletişim kurmadınız.\n\n en üstte bulunan + simgesine dokunun ve talimatları izleyerek listenize bazı arkadaşlar ekleyin.\n\nLütfen unutmayın: Gelecekte başkalarının kimliğinize bürünmesini veya mesajlarınızı okumasını önlemek için yeni kişileri sadece yüz yüze ekleyebilirsiniz.</string>
+  <string name="date_no_private_messages">Hiç mesaj yok.</string>
+  <string name="no_private_messages">Bu görüşme penceresidir.\n\n Henüz hiç bir şey yazılmamış gibi görünüyor.\n\nBir konuşmaya başlamak için alt taraftaki giriş alanına hafifçe dokunun.</string>
+  <string name="message_hint">Mesaj yazın</string>
+  <string name="delete_contact">Kişiyi sil</string>
+  <string name="dialog_title_delete_contact">Kişi Silmeyi Onayla</string>
+  <string name="dialog_message_delete_contact">Bu kişiyi ve bu kişiyle ilgili tüm iletileri kaldırmak istediğinize emin misiniz?</string>
+  <string name="contact_deleted_toast">Kişi silindi</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">Kişi ekle</string>
+  <string name="your_nickname">Kullanmak istediğiniz kimliğinizi seçin:</string>
+  <string name="face_to_face">Kişi olarak eklemek istediğiniz kişiyle buluşmanız gerekir.\n\nBu, gelecekte başkalarının sizin kimliğinize bürünmesini veya mesajlarınızı okumasını engelleyecektir.</string>
+  <string name="continue_button">Devam et</string>
+  <string name="your_invitation_code">Davetiye kodunuz</string>
+  <string name="enter_invitation_code">Lütfen kişinizin davetiye kodunu girin:</string>
+  <string name="searching_format">Davet kodu ile kişi arama %06d\u2026</string>
+  <string name="connection_failed">Bağlantı hatası</string>
+  <string name="could_not_find_contact">Briar yakınınızda bulunduğunuz kişiyi bulamadı.</string>
+  <string name="try_again_button">Tekrar deneyin</string>
+  <string name="connected_to_contact">Kişiye bağlanıldı</string>
+  <string name="calculating_confirmation_code">Doğrulama kodu hesaplanıyor\u2026</string>
+  <string name="your_confirmation_code">Doğrulama kodunuz</string>
+  <string name="enter_confirmation_code">Lütfen kişinizin doğrulama kodunu girin:</string>
+  <string name="waiting_for_contact">Şu kişi için bekleniyor:\u2026</string>
+  <string name="waiting_for_contact_to_scan">Kişinin QR kodu taraması ve bağlantı kurması bekleniyor\u2026</string>
+  <string name="exchanging_contact_details">Kişi ayrıntıları karşılıklı paylaşılıyor\u2026</string>
+  <string name="codes_do_not_match">Kodlar uyuşmadı</string>
+  <string name="interfering">Bu, birisinin bağlantınızı kesmeye çalıştığı anlamına gelebilir</string>
+  <string name="contact_added_toast">Kişi eklendi: %s</string>
+  <string name="contact_already_exists"> %s kişisi zaten var</string>
+  <string name="contact_exchange_failed">Kişi değişimi hatası</string>
+  <string name="qr_code_invalid">QR kod hatalı</string>
+  <string name="connecting_to_device">Cihaza bağlanıyor\u2026</string>
+  <string name="authenticating_with_device">Cihazla kimlik doğrulama\u2026</string>
+  <string name="connection_aborted_local">Bağlantı bizim tarafımızca iptal edildi! Bu, birisinin bağlantınızı kesmeye çalıştığı anlamına gelebilir</string>
+  <string name="connection_aborted_remote">Bağlantı kişi tarafından kesildi! Bu, birisinin bağlantınızı kesmeye çalıştığı anlamına gelebilir</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_title">Kişilerinizi tanıştırın</string>
+  <string name="introduction_onboarding_text">Kişilerinizi birbirinize tanıtabilirsiniz, bu nedenle Briar\'a bağlanmak için şahsen bir araya gelmeniz gerekmez.</string>
+  <string name="introduction_activity_title">Kişi seç</string>
+  <string name="introduction_message_title">Kişileri Tanıştırın</string>
+  <string name="introduction_button">Tanıştır</string>
+  <string name="introduction_sent">Tanıştırma isteğiniz gönderildi.</string>
+  <string name="introduction_error">Tanıştırma isteği yaparken bir hata oluştu.</string>
+  <string name="introduction_response_error">Tanışma isteğine yanıt verirken hata oluştu</string>
+  <string name="introduction_request_sent">%1$s ile %2$s kişilerini tanıştırmak istediniz.</string>
+  <string name="introduction_request_received"> %1$s sizi %2$s ile tanıştırmak istedi. Kişi listesine %2$s kişisini eklemek ister misiniz?</string>
+  <string name="introduction_request_exists_received">%1$s sizi %2$s ile tanıştırmak istiyor, ancak %2$s  zaten kişi listenizde ekli. %1$s, bunu bilmediğinden, siz yine de yanıt verebilirsiniz:</string>
+  <string name="introduction_request_answered_received">%1$s sizi %2$s ile tanıştırmak istedi.</string>
+  <string name="introduction_response_accepted_sent">%1$s kişisinin tanıştırma isteğini kabul ettiniz.</string>
+  <string name="introduction_response_declined_sent">%1$s kişisinin tanıştırma isteğini reddettiniz.</string>
+  <string name="introduction_response_accepted_received">%1$s, %2$s ile tanışmayı kabul etti.</string>
+  <string name="introduction_response_declined_received">%1$s, %2$s ile tanışmayı reddetti.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s, %2$s kişisinin tanışmayı reddettiğini söyledi.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">Yeni kişi eklendi.</item>
+    <item quantity="other">%d yeni kişi eklendi.</item>
+  </plurals>
+  <!--Private Groups-->
+  <string name="groups_list_empty">Şu anda herhangi bir gruba katılamazsınız.\n\n Kendiniz bir grup oluşturmak için + simgesini tıklayın veya kişilerinizden sizi gruplarından birine davet etmesini isteyin.</string>
+  <string name="groups_created_by">%s tarafından oluşturuldu</string>
+  <plurals name="messages">
+    <item quantity="one">%d mesaj</item>
+    <item quantity="other">%d mesaj</item>
+  </plurals>
+  <string name="groups_group_is_empty">Bu grup boş</string>
+  <string name="groups_group_is_dissolved">Bu grup dağıldı</string>
+  <string name="groups_remove">Sil</string>
+  <string name="groups_create_group_title">Özel Grup Oluştur</string>
+  <string name="groups_create_group_button">Grup Oluştur</string>
+  <string name="groups_create_group_invitation_button">Davetiye Gönder</string>
+  <string name="groups_invitation_sent">Grup davetiyesi gönderildi</string>
+  <string name="groups_message_sent">Mesaj gönderildi</string>
+  <string name="groups_member_list">Üye Listesi</string>
+  <string name="groups_invite_members">Üyeleri Davet Edin</string>
+  <string name="groups_member_created_you">Grubu siz oluşturdunuz</string>
+  <string name="groups_member_created">Grubu %s oluşturdu</string>
+  <string name="groups_member_joined_you">Gruba katıldınız</string>
+  <string name="groups_member_joined">%s gruba katıldı</string>
+  <string name="groups_leave">Gruptan Ayrıl</string>
+  <string name="groups_leave_dialog_title">Gruptan Ayrılmayı Onayla</string>
+  <string name="groups_leave_dialog_message">Bu gruptan ayrılmak istediğinizden emin misiniz?</string>
+  <string name="groups_dissolve">Grubu Dağıt</string>
+  <string name="groups_dissolve_dialog_title">Grubu Dağıtmayı Onayla</string>
+  <string name="groups_dissolve_dialog_message">Bu grubu dağıtmak istediğinizden emin misiniz?\n\nDiğer tüm üyeler sohbetlerine devam edemeyecek ve en yeni mesajları alamayacak.</string>
+  <string name="groups_dissolve_button">Dağıt</string>
+  <string name="groups_dissolved_dialog_title">Grup Dağıtıldı</string>
+  <string name="groups_dissolved_dialog_message">Bu grubun kurucusu, grubu dağıttı.\n\nArtık gruba mesaj yazamazsınız ve yazılmış olan mesajları alamayabilirsiniz.</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">Grup Davetleri</string>
+  <string name="groups_invitations_invitation_sent">%1$s kişisini \"%2$s\" grubuna davet ettiniz.</string>
+  <string name="groups_invitations_invitation_received">%1$s sizi \"%2$s\" grubuna davet etti.</string>
+  <string name="groups_invitations_joined">Gruba katıldı</string>
+  <string name="groups_invitations_declined">Grup davetiyesi reddedildi</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="one">%d açık grup davetiyesi</item>
+    <item quantity="other">%d açık grup davetiyesi</item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">%s kişisinden gelen grup davetini kabul ettiniz.</string>
+  <string name="groups_invitations_response_declined_sent">%s kişisinden gelen grup davetini reddettiniz.</string>
+  <string name="groups_invitations_response_accepted_received">%s grup davetini kabul etti.</string>
+  <string name="groups_invitations_response_declined_received">%s grup davetini reddetti.</string>
+  <string name="sharing_status_groups">Sadece grubu oluşturan kişi gruba yeni üyeler davet edebilir. Aşağıda, grubun şimdiki üyeleri bulunmaktadır.</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">Kişileri Göster</string>
+  <string name="groups_reveal_dialog_message">Kişileri bu grubun şimdiki ve gelecekteki üyelerinin tümüne gösterip göstermeyeceğinizi seçebilirsiniz.\n\nKişileri görünür yapmak , grupla olan bağlantınızı daha hızlı ve güvenilir hale getirir, çünkü grubun oluşturucusu çevrimdışı olduğunda bile görünen kişilerle iletişim kurabilirsiniz.</string>
+  <string name="groups_reveal_visible">Kişi ilişkisi grup tarafından görülebilir</string>
+  <string name="groups_reveal_visible_revealed_by_us">Kişi ilişkisi grup tarafından görülebilir (siz bildirdiniz)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">Kişi ilişkileri grup tarafından görülebilir (%s görünür yaptı)</string>
+  <string name="groups_reveal_invisible">Kişi ilişkisi grup tarafından görülemez</string>
+  <!--Forums-->
+  <string name="no_forums">Şu anda hiç forumunuz yok.\n\nÜstteki + simgesine dokunarak neden kendiniz yeni bir tane oluşturmuyorsunuz?\n\nAyrıca kişilerinizden sizinle forum paylaşmalarını isteyebilirsiniz.</string>
+  <string name="create_forum_button">Forumu Ouştur</string>
+  <string name="forum_created_toast">Forum Oluşturuldu</string>
+  <string name="no_forum_posts">Bu forum boş\n\nİlk gönderiyi oluşturmak için üstteki kalem simgesini kullanın.\n\nBurada kendinizi yalnız hissediyor musunuz? Bu forumu daha fazla kişiyle paylaşın!</string>
+  <string name="no_posts">Gönderi yok</string>
+  <plurals name="posts">
+    <item quantity="one">%d gönderi</item>
+    <item quantity="other">%d gönderi</item>
+  </plurals>
+  <string name="forum_new_entry_posted">Forum girdisi gönderildi</string>
+  <string name="forum_new_message_hint">Yeni Girdi</string>
+  <string name="forum_message_reply_hint">Yeni Cevap</string>
+  <string name="btn_reply">Cevapla</string>
+  <string name="forum_leave">Forumdan Ayrıl</string>
+  <string name="dialog_title_leave_forum">Forumdan Ayrılmayı Onayla</string>
+  <string name="dialog_message_leave_forum">Bu forumdan ayrılmak istediğinizden emin misiniz? Bu forumu paylaştığınız kişilerin, bu foruma ilişkin güncellemeleri almaları kesilebilir.</string>
+  <string name="dialog_button_leave">Ayrıl</string>
+  <string name="forum_left_toast">Forumdan Ayrıl</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">Forumu Paylaş</string>
+  <string name="contacts_selected">Kişiler Seçildi</string>
+  <string name="activity_share_toolbar_header">Kişi Seç</string>
+  <string name="no_contacts_selector">Görünüşe göre burada yenisiniz ve henüz iletişim kuramıyorsunuz.\n\nİlk kişinizi ekledikten sonra lütfen buraya geri gelin.</string>
+  <string name="forum_shared_snackbar">Forum, seçilen kişiler ile paylaşıldı</string>
+  <string name="forum_share_error">Forumu paylaşırken bir hata meydana geldi.</string>
+  <string name="forum_invitation_received">%1$s sizinle \"%2$s\" forumunu paylaştı.</string>
+  <string name="forum_invitation_sent">\"%1$s\" forumunu %2$s ile paylaştınız.</string>
+  <string name="forum_invitations_title">Forum Davetleri</string>
+  <string name="forum_invitation_exists">Zaten bu foruma ait bir  davetiyeyi kabul ettiniz. Daha fazla daveti kabul etmek forumda iletişimi artıracak ve güçlenecektir.</string>
+  <string name="forum_joined_toast">Foruma Katınıldı</string>
+  <string name="forum_declined_toast">Forum Daveti Reddedildi</string>
+  <string name="shared_by_format">%s tarafından paylaşıldı</string>
+  <string name="forum_invitation_already_sharing">Zaten paylaşılıyor</string>
+  <string name="forum_invitation_response_accepted_sent">%s tarafından yapılan forum davetini kabul ettiniz.</string>
+  <string name="forum_invitation_response_declined_sent">%s tarafından yapılan forum davetini reddettiniz.</string>
+  <string name="forum_invitation_response_accepted_received">%s forum davetini kabul etti.</string>
+  <string name="forum_invitation_response_declined_received">%s forum davetini reddetti.</string>
+  <string name="sharing_status">Paylaşım Durumu</string>
+  <string name="sharing_status_forum">Bir forumun herhangi bir üyesi o forumu arkadaşlarıyla paylaşabilir. Bu forumu aşağıdaki kişilerle paylaşıyorsunuz. Göremediğiniz diğer üyeler de olabilir</string>
+  <string name="shared_with">%1$d ile paylaşıldı (%2$d çevrimiçi)</string>
+  <plurals name="forums_shared">
+    <item quantity="one">%d kişiler tarafından paylaşılan forum</item>
+    <item quantity="other">%d kişiler tarafından paylaşılan forum.</item>
+  </plurals>
+  <string name="nobody">Hiç kimse</string>
+  <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">Bu blog şu anda boş.\n\n Yazar henüz bir şey yazmadı ya da sizinle bu blogu paylaşan kişinin çevrimiçi olması gerekiyor, böylece gönderiler senkronize edilecektir.</string>
+  <string name="read_more">daha fazlasını oku</string>
+  <string name="blogs_write_blog_post">Blog Gönderisi Yaz</string>
+  <string name="blogs_write_blog_post_body_hint">Metninizi buraya yazın</string>
+  <string name="blogs_publish_blog_post">Yayınla</string>
+  <string name="blogs_blog_post_created">Blog Gönderisi Oluşturuldu</string>
+  <string name="blogs_blog_post_received">Yeni Blog Gönderisi Alındı</string>
+  <string name="blogs_blog_post_scroll_to">Kaydırma</string>
+  <string name="blogs_feed_empty_state">Bu, global blog yayınıdır\n\nHenüz birileri birşeyler yazmış gibi gibi görünmüyor\n\nİlk gönderiyi yazmak için kalem simgesine dokunun.</string>
+  <string name="blogs_remove_blog">Blog\'u sil</string>
+  <string name="blogs_remove_blog_dialog_message">Bu blog\'u ve tüm yayınları kaldırmak istediğinizden emin misiniz? Bu, blog\'u başkalarının cihazlarından kaldırmaz.</string>
+  <string name="blogs_remove_blog_ok">Blog\'u Sil</string>
+  <string name="blogs_blog_removed">Blog Silindi</string>
+  <string name="blogs_reblog_button">Tekrar Blogla</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">Blog\'u Paylaş</string>
+  <string name="blogs_sharing_error">Blog\'u paylaşırken bir hata meydana geldi.</string>
+  <string name="blogs_sharing_button">Blog\'u Paylaş</string>
+  <string name="blogs_sharing_snackbar">Blog seçilen kişilerle paylaşıldı</string>
+  <string name="blogs_sharing_response_accepted_sent">%s kişisinden gelen blog davetini kabul ettiniz.</string>
+  <string name="blogs_sharing_response_declined_sent">%s kişisinden gelen blog davetini reddettiniz.</string>
+  <string name="blogs_sharing_response_accepted_received">%s blog davetini kabul etti.</string>
+  <string name="blogs_sharing_response_declined_received">%s blog davetini reddetti.</string>
+  <string name="blogs_sharing_invitations_title">Blog Davetleri</string>
+  <string name="blogs_sharing_joined_toast">Blog Takip Edildi</string>
+  <string name="blogs_sharing_declined_toast">Blog Daveti Reddedildi</string>
+  <string name="sharing_status_blog">Bir blog\'a abone olan herkes, blog\'u kişileriyle paylaşabilir. Bu blog\'u şu kişilerle paylaşıyorsunuz. Göremediğiniz diğer aboneler de olabilir.</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">RSS kaynaklarını içeri aktar</string>
+  <string name="blogs_rss_feeds_import_button">İçeri Aktar</string>
+  <string name="blogs_rss_feeds_import_hint">URL ya da RSS kaynağı girin</string>
+  <string name="blogs_rss_feeds_import_error">Üzgünüz! RSS beslemenizi içe aktarırken bir hata oluştu.</string>
+  <string name="blogs_rss_feeds_manage">RSS\'leri Yönet</string>
+  <string name="blogs_rss_feeds_manage_imported">İçeri Aktarıldı:</string>
+  <string name="blogs_rss_feeds_manage_author">Yazar:</string>
+  <string name="blogs_rss_feeds_manage_updated">Son Güncelleme:</string>
+  <string name="blogs_rss_remove_feed">Kaynağı Sil</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Bu yayını ve tüm yayınlarını kaldırmak istediğinizden emin misiniz? \nPaylaştığınız yayınlar diğer kullanıcıların cihazlarından kaldırılamaz.</string>
+  <string name="blogs_rss_remove_feed_ok">Kaynağı Sil</string>
+  <string name="blogs_rss_feeds_manage_delete_error">Besleme silinemedi!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">İçeri aktarılmış herhangi bir RSS beslemeniz yok.\n\nBir tane eklemek için neden ekranın üst tarafındaki + simgesini kullanmıyorsunuz?</string>
+  <string name="blogs_rss_feeds_manage_error">Beslemeleriniz yüklenirken bir hata meydana geldi. Lütfen daha sonra tekrar deneyin.</string>
+  <!--Settings Network-->
+  <string name="network_settings_title">Ağlar</string>
+  <string name="bluetooth_setting">Bluetooth ile Bağlan</string>
+  <string name="bluetooth_setting_enabled">Yakınlardaki her kişi</string>
+  <string name="bluetooth_setting_disabled">Yalnızca kişi eklerken</string>
+  <string name="tor_network_setting">Tor ile Bağlan</string>
+  <string name="tor_network_setting_never">Asla</string>
+  <string name="tor_network_setting_wifi">Yanlızca Wi-Fi kullanırken</string>
+  <string name="tor_network_setting_always">Mobil veri veya Wi-Fi kullanırken</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">Güvenlik</string>
+  <string name="change_password">Parola değiştir</string>
+  <string name="current_password">Geçerli parolanızı girin:</string>
+  <string name="choose_new_password">Yeni parolanızı girin:</string>
+  <string name="confirm_new_password">Yeni parolanızı tekrar girin:</string>
+  <string name="password_changed">Parolanız başarıyla değişti.</string>
+  <string name="panic_setting">Panik buton ayarları</string>
+  <string name="panic_setting_title">Panik butonu</string>
+  <string name="panic_setting_hint">Panik düğmesi uygulaması kullandığınızda Briar\'ın nasıl tepki vereceğini yapılandırma</string>
+  <string name="panic_app_setting_title">Panik Butonu Uygulaması</string>
+  <string name="unknown_app">bilinmeyen bir uygulama</string>
+  <string name="panic_app_setting_summary">Kurulmuş bir uygulama yok</string>
+  <string name="panic_app_setting_none">Yok</string>
+  <string name="dialog_title_connect_panic_app">Panik Uygulaması Doğrulama</string>
+  <string name="dialog_message_connect_panic_app">%1$s kişisinin yıkıcı panik düğmesi eylemlerini tetiklemesine izin vermek istediğinizden emin misiniz?</string>
+  <string name="lock_setting_title">Çıkış Yap</string>
+  <string name="lock_setting_summary">Panik Butonuna basıldığında Briar\'dan çıkış yap</string>
+  <string name="purge_setting_title">Hesabı Sil</string>
+  <string name="purge_setting_summary">Bir panik düğmesine basıldığında Briar hesabınızı silin. Dikkat: Bu, kimliklerinizi, kayıtlarınızı ve iletilerinizi kalıcı olarak silecektir.</string>
+  <string name="uninstall_setting_title">Briar\'ı Kaldır</string>
+  <string name="uninstall_setting_summary">Bu, bir panik olayında manuel onay gerektirir</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">Bildirimler</string>
+  <string name="notify_vibration_setting">Titretişim</string>
+  <string name="notify_sound_setting">Ses</string>
+  <string name="notify_sound_setting_default">Varsayılan zil sesi</string>
+  <string name="notify_sound_setting_disabled">Yok</string>
+  <string name="choose_ringtone_title">Zil sesi seçin</string>
+  <!--Settings Feedback-->
+  <string name="feedback_settings_title">Geri bildirim</string>
+  <string name="send_feedback">Geri bildirim gönder</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">Uyarı Bağlantısı</string>
+  <string name="link_warning_intro">Aşağıdaki bağlantıyı harici bir uygulamayla açmak üzeresiniz.</string>
+  <string name="link_warning_text">Bu kimliğinizi ele geçirmek için kullanılabilir. Bu bağlantıyı gönderen kişiye güvenip güvenmediğinize karar verin ve Orfox ile açmayı deneyin.</string>
+  <string name="link_warning_open_link">Bağlantı Aç</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">Briar Çökme Raporu</string>
+  <string name="briar_crashed">Üzgünüz, Briar çöktü.</string>
+  <string name="not_your_fault">Bu senin hatan değil.</string>
+  <string name="please_send_report">Bize bir çökme raporu göndererek Briar\'ı daha iyi bir hale getirmemize yardımcı olun.</string>
+  <string name="report_is_encrypted">Raporun şifrelendiğine ve güvenli bir şekilde gönderildiğine söz veriyoruz.</string>
+  <string name="feedback_title">Geri bildirim</string>
+  <string name="describe_crash">Ne olduğunu bize anlatın (isteğe bağlı)</string>
+  <string name="enter_feedback">Geri bildiriminizi girin</string>
+  <string name="optional_contact_email">E-posta adresiniz (isteğe bağlı)</string>
+  <string name="include_debug_report_crash">Çökme ile  ilgili anonim verileri içerir</string>
+  <string name="include_debug_report_feedback">Bu cihazla ilgili anonim verileri içerir</string>
+  <string name="could_not_load_report_data">Rapor verileri yüklenemedi.</string>
+  <string name="send_report">Raporu gönder</string>
+  <string name="close">Kapat</string>
+  <string name="dev_report_saved">Rapor kaydedildi. Briar\'a bir sonraki girişinizde gönderilecektir.</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">Briar\'dan çıkılıyor...</string>
+  <!--Screen Filters & Tapjacking-->
+</resources>

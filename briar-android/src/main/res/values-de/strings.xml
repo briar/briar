@@ -2,9 +2,9 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Briar einrichten</string>
-  <string name="setup_explanation">Dein Briar-Konto wird verschlüsselt auf Deinem Gerät gespeichert und nicht mit der \"Cloud\" synchronisiert. Wenn Du Briar deinstallierst oder Dein Passwort vergisst, können das Konto und Deine Daten nicht wiederhergestellt werden.</string>
-  <string name="choose_nickname">Wähle Deinen Benutzernamen</string>
-  <string name="choose_password">Wähle Dein Passwort</string>
+  <string name="setup_explanation">Dein Briar-Konto wird verschlüsselt auf deinem Gerät gespeichert und nicht mit der \"Cloud\" synchronisiert. Wenn du Briar deinstallierst oder dein Passwort vergisst, können das Konto und deine Daten nicht wiederhergestellt werden.</string>
+  <string name="choose_nickname">Wähle deinen Benutzernamen</string>
+  <string name="choose_password">Wähle dein Passwort</string>
   <string name="confirm_password">Passwort bestätigen</string>
   <string name="name_too_long">Name zu lang</string>
   <string name="password_too_weak">Passwort zu schwach</string>
@@ -22,7 +22,11 @@
   <string name="startup_failed_activity_title">Fehler beim Starten von Briar</string>
   <string name="startup_failed_db_error">Deine Briar-Datenbank ist korrupt. Briar-Konto, Daten und alle Verbindungen zu Kontakten können nicht mehr wiederhergestellt werden. Deinstalliere Briar und erstelle nach Installation der aktuellen Briar-Version ein neues Konto.</string>
   <string name="startup_failed_service_error">Briar konnte ein benötigtes Plugin nicht starten. Normalerweise kann das Problem durch eine Neuinstallation von Briar gelöst werden. Eine Neuinstallation führt jedoch zum Verlust des Kontos und aller dazugehörigen Daten, da Briar deine Daten nicht auf zentralen Servern speichert</string>
-  <string name="expiry_warning">Diese Version von Briar ist nicht mehr aktuell.\nBitte installiere eine neuere Version.</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">Dies ist eine Beta-Version von Briar. Dein Konto läuft in %d Tag ab und kann nicht verlängert werden.</item>
+    <item quantity="other">Dies ist eine Beta-Version von Briar. Dein Konto läuft in %d Tagen ab und kann nicht verlängert werden.</item>
+  </plurals>
+  <string name="expiry_date_reached">Diese Software ist abgelaufen.\nDanke dass Du Briar getestet hast!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Navigationsleiste öffnen</string>
   <string name="nav_drawer_close_description">Navigationsleiste schliessen</string>
@@ -117,6 +121,7 @@
   <string name="introduction_onboarding_text">Du kannst Deine Kontakte untereinander bekannt machen. So können sie sich über Briar verbinden, ohne sich persönlich treffen zu müssen.</string>
   <string name="introduction_activity_title">Kontakt auswählen</string>
   <string name="introduction_message_title">Kontakte untereinander bekannt machen</string>
+  <string name="introduction_message_hint">Nachricht hinzufügen (optional)</string>
   <string name="introduction_button">Kontaktempfehlung abgeben</string>
   <string name="introduction_sent">Deine Kontaktempfehlung wurde verschickt</string>
   <string name="introduction_error">Es gab einen Fehler beim Versuch, die Kontaktempfehlung zu verschicken</string>
@@ -147,6 +152,7 @@
   <string name="groups_create_group_title">Private Gruppe erstellen</string>
   <string name="groups_create_group_button">Gruppe erstellen</string>
   <string name="groups_create_group_invitation_button">Einladung schicken</string>
+  <string name="groups_create_group_hint">Wähle einen Namen für deine private Gruppe</string>
   <string name="groups_invitation_sent">Gruppeneinladung versendet</string>
   <string name="groups_message_sent">Nachricht gesendet</string>
   <string name="groups_member_list">Mitglieder</string>
@@ -188,6 +194,8 @@
   <string name="groups_reveal_invisible">Beziehung zum Kontakt ist für diese Gruppe nicht sichtbar</string>
   <!--Forums-->
   <string name="no_forums">Du hast noch keine Foren.\n\nWarum erstellst du nicht einfach selbst ein neues Forum, indem du auf das \"+\"-Symbol am oberen Bildschirmrand tippst?\n\nDu kannst auch deine Kontakte auffordern, Foren mit dir zu teilen.</string>
+  <string name="create_forum_title">Forum erstellen</string>
+  <string name="choose_forum_hint">Wähle einen Namen für Dein Forum</string>
   <string name="create_forum_button">Forum erstellen</string>
   <string name="forum_created_toast">Forum wurde erstellt</string>
   <string name="no_forum_posts">Dieses Forum ist leer.\n\nBenutze das Stift-Icon am oberen Bildschirmrand um den ersten Beitrag zu verfassen.\n\nFühlst du dich einsam hier? Dann teile das Forum mit weiteren Kontakten!</string>
@@ -211,6 +219,7 @@
   <string name="activity_share_toolbar_header">Kontakte auswählen</string>
   <string name="no_contacts_selector">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nBitte komm zurück, wenn du deinen ersten Kontakt hinzugefügt hast.</string>
   <string name="forum_shared_snackbar">Forum mit gewählten Kontakten geteilt</string>
+  <string name="forum_share_message">Nachricht hinzufügen (optional)</string>
   <string name="forum_share_error">Es gab einen Fehler beim Versuch, dieses Forum zu teilen.</string>
   <string name="forum_invitation_received">%1$s hat das Forum \"%2$s\" mit dir geteilt.</string>
   <string name="forum_invitation_sent">Du hast das Forum \"%1$s\" mit %2$s geteilt.</string>
@@ -242,11 +251,11 @@
   <string name="blogs_blog_post_received">Neuen Blogbeitrag empfangen</string>
   <string name="blogs_blog_post_scroll_to">Scrolle zu</string>
   <string name="blogs_feed_empty_state">Dies ist die globale Blog-Zeitleiste.\n\nOffensichtlich hat noch niemand etwas veröffentlicht.\n\nSei die oder der erste und tipp auf das Stift-Icon, um einen neuen Blogbeitrag zu verfassen.</string>
-  <string name="blogs_personal_blog">%ss persönliches Blog</string>
   <string name="blogs_remove_blog">Blog entfernen</string>
   <string name="blogs_remove_blog_dialog_message">Bist Du sicher, dass Du diesen Blog und alle dazugehörigen Beiträge löschen möchtest?\nBeachte, dass dies nicht den Blog auf Geräten anderer Leute löscht.</string>
   <string name="blogs_remove_blog_ok">Blog entfernen</string>
   <string name="blogs_blog_removed">Blog wurde entfernt</string>
+  <string name="blogs_reblog_comment_hint">Kommentar hinzufügen (optional)</string>
   <string name="blogs_reblog_button">Rebloggen</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Blog teilen</string>
@@ -257,8 +266,8 @@
   <string name="blogs_sharing_response_declined_sent">Du hast die Blogeinladung von %s abgelehnt.</string>
   <string name="blogs_sharing_response_accepted_received">%s hat die Blogeinladung akzeptiert.</string>
   <string name="blogs_sharing_response_declined_received">%s hat die Blogeinladung abgelehnt.</string>
-  <string name="blogs_sharing_invitation_received">%1$s hat das persönliche Blog von %2$s mit dir geteilt.</string>
-  <string name="blogs_sharing_invitation_sent">Du hast das persönliche Blog von %1$s mit %2$s geteilt.</string>
+  <string name="blogs_sharing_invitation_received">%1$shat den Blog \"%2$s\" mit Dir geteilt.</string>
+  <string name="blogs_sharing_invitation_sent">Du teilst den Blog \"%1$s\" mit %2$s.</string>
   <string name="blogs_sharing_invitations_title">Blogeinladungen</string>
   <string name="blogs_sharing_joined_toast">Blog abonniert</string>
   <string name="blogs_sharing_declined_toast">Blogeinladung abgelehnt</string>
@@ -276,7 +285,7 @@
   <string name="blogs_rss_remove_feed_dialog_message">Soll der Feed mit allen Posts wirklich gelöscht werden?\nGeteilte Posts werden dabei nicht von anderen Geräten gelöscht.</string>
   <string name="blogs_rss_remove_feed_ok">Feed entfernen</string>
   <string name="blogs_rss_feeds_manage_delete_error">Der Feed konnte nicht gelöscht werden!</string>
-  <string name="blogs_rss_feeds_manage_empty_state">Du hast bisher noch keine RSS Feeds importiert. Tippe auf das \"+\"-Icon am oberen Bildschirmrand um einen neuen Feed hinzuzufügen.</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Du hast bisher noch keine RSS-Feeds importiert. Tippe auf das \"+\"-Icon am oberen Bildschirmrand, um einen neuen Feed hinzuzufügen.</string>
   <string name="blogs_rss_feeds_manage_error">Es gab ein Problem beim Laden deiner Feeds. Bitte versuche es später erneut.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Netzwerke</string>
@@ -311,7 +320,17 @@
   <string name="uninstall_setting_summary">Diese Aktion benötigt manuelle Bestätigung im Falle eines Panik-Ereignisses</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Benachrichtigungen</string>
+  <string name="notify_private_messages_setting_title">Private Nachrichten</string>
+  <string name="notify_private_messages_setting_summary">Zeige Benachrichtigungen für private Nachrichten</string>
+  <string name="notify_group_messages_setting_title">Gruppennachrichten</string>
+  <string name="notify_group_messages_setting_summary">Benachrichtigungen für Gruppennachrichten anzeigen</string>
+  <string name="notify_forum_posts_setting_title">Forenbeiträge</string>
+  <string name="notify_forum_posts_setting_summary">Benachrichtigungen für Forenbeiträge anzeigen</string>
+  <string name="notify_blog_posts_setting_title">Blogbeiträge</string>
+  <string name="notify_blog_posts_setting_summary">Benachrichtigungen für Blogbeiträge anzeigen</string>
   <string name="notify_vibration_setting">Vibration</string>
+  <string name="notify_lock_screen_setting_title">Sperrbildschirm</string>
+  <string name="notify_lock_screen_setting_summary">Zeigt Benachrichtigungen auf dem Sperrbildschirm an</string>
   <string name="notify_sound_setting">Tonsignal</string>
   <string name="notify_sound_setting_default">Standardklingelton</string>
   <string name="notify_sound_setting_disabled">Keine</string>
@@ -327,7 +346,7 @@
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar-Absturzbericht</string>
   <string name="briar_crashed">Es tut uns leid, Briar ist abgestürzt.</string>
-  <string name="not_your_fault">Das ist nicht Deine Schuld.</string>
+  <string name="not_your_fault">Das ist nicht deine Schuld.</string>
   <string name="please_send_report">Bitte hilf uns, Briar zu verbessern, indem Du einen Absturzbericht sendest.</string>
   <string name="report_is_encrypted">Wir versprechen, dass der Bericht verschlüsselt ist und über eine sichere Verbindung geschickt wird.</string>
   <string name="feedback_title">Feedback</string>
@@ -343,4 +362,6 @@
   <!--Sign Out-->
   <string name="progress_title_logout">Von Briar abmelden ...</string>
   <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_title">Bildschirmüberlagerung erkannt</string>
+  <string name="screen_filter_body">Eine andere App überlagert Briar. Um deine Sicherheit zu gewährleisten, reagiert Briar in diesem Fall nicht auf deine Eingaben.\n\nBeende deswegen die folgenden Apps während der Verwendung von Briar:\n\n%1$s</string>
 </resources>
