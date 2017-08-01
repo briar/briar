@@ -22,6 +22,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 @SuppressWarnings("deprecation")
 @MethodsNotNullByDefault
@@ -60,8 +61,12 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
 		if (camera == this.camera) {
-			Size size = camera.getParameters().getPreviewSize();
-			new DecoderTask(data, size.width, size.height).execute();
+			try {
+				Size size = camera.getParameters().getPreviewSize();
+				new DecoderTask(data, size.width, size.height).execute();
+			} catch (RuntimeException e) {
+				LOG.log(WARNING, "Error getting camera parameters.", e);
+			}
 		}
 	}
 
@@ -70,7 +75,7 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 		private final byte[] data;
 		private final int width, height;
 
-		DecoderTask(byte[] data, int width, int height) {
+		private DecoderTask(byte[] data, int width, int height) {
 			this.data = data;
 			this.width = width;
 			this.height = height;
