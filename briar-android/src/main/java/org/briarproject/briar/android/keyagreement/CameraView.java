@@ -225,7 +225,11 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		setFocusMode(params);
 		params.setFlashMode(FLASH_MODE_OFF);
 		setPreviewSize(params);
-		camera.setParameters(params);
+		try {
+			camera.setParameters(params);
+		} catch (RuntimeException e) {
+			LOG.log(WARNING, "Error setting best camera parameters", e);
+		}
 		return camera.getParameters();
 	}
 
