@@ -87,6 +87,8 @@ android {
 
 	buildTypes {
 		debug {
+			applicationIdSuffix ".debug"
+			resValue "string", "app_package", "org.briarproject.briar.beta.debug"
 			shrinkResources false
 			minifyEnabled true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
