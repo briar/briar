@@ -18,8 +18,8 @@ public class ReblogActivity extends BriarActivity implements
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		setSceneTransitionAnimation();
+		super.onCreate(savedInstanceState);
 
 		Intent intent = getIntent();
 		byte[] groupId = intent.getByteArrayExtra(GROUP_ID);

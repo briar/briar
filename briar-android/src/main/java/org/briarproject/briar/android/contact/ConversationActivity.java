@@ -186,8 +186,8 @@ public class ConversationActivity extends BriarActivity
 	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void onCreate(@Nullable Bundle state) {
-		super.onCreate(state);
 		setSceneTransitionAnimation();
+		super.onCreate(state);
 
 		Intent i = getIntent();
 		int id = i.getIntExtra(CONTACT_ID, -1);
