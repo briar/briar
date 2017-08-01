@@ -5,11 +5,8 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.UiThread;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.content.ContextCompat;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -25,12 +22,14 @@ import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.ConversationActivity;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
+import org.briarproject.briar.android.util.BriarNotificationBuilder;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
@@ -48,6 +47,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -61,8 +61,6 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.support.v4.app.NotificationCompat.CATEGORY_MESSAGE;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SOCIAL;
-import static android.support.v4.app.NotificationCompat.VISIBILITY_PRIVATE;
-import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
@@ -95,6 +93,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private static final String BLOG_URI =
 			"content://org.briarproject.briar/blog";
 
+	private static final long SOUND_DELAY = TimeUnit.SECONDS.toMillis(2);
+
 	private static final Logger LOG =
 			Logger.getLogger(AndroidNotificationManagerImpl.class.getName());
 
@@ -102,6 +102,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private final SettingsManager settingsManager;
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
+	private final Clock clock;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	// The following must only be accessed on the main UI thread
@@ -117,16 +118,18 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private boolean blockContacts = false, blockGroups = false;
 	private boolean blockForums = false, blockBlogs = false;
 	private boolean blockIntroductions = false;
+	private long lastSound = 0;
 
 	private volatile Settings settings = new Settings();
 
 	@Inject
 	AndroidNotificationManagerImpl(@DatabaseExecutor Executor dbExecutor,
 			SettingsManager settingsManager, AndroidExecutor androidExecutor,
-			Application app) {
+			Application app, Clock clock) {
 		this.dbExecutor = dbExecutor;
 		this.settingsManager = settingsManager;
 		this.androidExecutor = androidExecutor;
+		this.clock = clock;
 		appContext = app.getApplicationContext();
 	}
 
@@ -288,22 +291,19 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		if (contactTotal == 0) {
 			clearContactNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_PRIVATE, true)) {
-			NotificationCompat.Builder b =
-					new NotificationCompat.Builder(appContext);
+			BriarNotificationBuilder b =
+					new BriarNotificationBuilder(appContext);
 			b.setSmallIcon(R.drawable.notification_private_message);
-			b.setColor(ContextCompat.getColor(appContext,
-					R.color.briar_primary));
+			b.setColorRes(R.color.briar_primary);
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.private_message_notification_text, contactTotal,
 					contactTotal));
-			boolean sound = settings.getBoolean(PREF_NOTIFY_SOUND, true);
-			String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
-			if (sound && !StringUtils.isNullOrEmpty(ringtoneUri))
-				b.setSound(Uri.parse(ringtoneUri));
-			b.setDefaults(getDefaults());
-			b.setOnlyAlertOnce(true);
-			b.setAutoCancel(true);
+			b.setNumber(contactTotal);
+			boolean showOnLockScreen =
+					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
+			b.setLockscreenVisibility(CATEGORY_MESSAGE, showOnLockScreen);
+			playSound(b);
 			if (contactCounts.size() == 1) {
 				// Touching the notification shows the relevant conversation
 				Intent i = new Intent(appContext, ConversationActivity.class);
@@ -326,18 +326,24 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			}
-			if (Build.VERSION.SDK_INT >= 21) {
-				b.setCategory(CATEGORY_MESSAGE);
-				boolean showOnLockScreen =
-						settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
-				if (showOnLockScreen)
-					b.setVisibility(VISIBILITY_PRIVATE);
-				else
-					b.setVisibility(VISIBILITY_SECRET);
-			}
 			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 			NotificationManager nm = (NotificationManager) o;
 			nm.notify(PRIVATE_MESSAGE_NOTIFICATION_ID, b.build());
+		}
+	}
+
+	@UiThread
+	private void playSound(BriarNotificationBuilder b) {
+		boolean sound = settings.getBoolean(PREF_NOTIFY_SOUND, true);
+		if (!sound) return;
+
+		long currentTime = clock.currentTimeMillis();
+		if (currentTime - lastSound > SOUND_DELAY) {
+			String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
+			if (!StringUtils.isNullOrEmpty(ringtoneUri))
+				b.setSound(Uri.parse(ringtoneUri));
+			b.setDefaults(getDefaults());
+			lastSound = clock.currentTimeMillis();
 		}
 	}
 
@@ -387,21 +393,19 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		if (groupTotal == 0) {
 			clearGroupMessageNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_GROUP, true)) {
-			NotificationCompat.Builder b =
-					new NotificationCompat.Builder(appContext);
+			BriarNotificationBuilder b =
+					new BriarNotificationBuilder(appContext);
 			b.setSmallIcon(R.drawable.notification_private_group);
-			b.setColor(ContextCompat.getColor(appContext,
-					R.color.briar_primary));
+			b.setColorRes(R.color.briar_primary);
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.group_message_notification_text, groupTotal,
 					groupTotal));
-			String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
-			if (!StringUtils.isNullOrEmpty(ringtoneUri))
-				b.setSound(Uri.parse(ringtoneUri));
-			b.setDefaults(getDefaults());
-			b.setOnlyAlertOnce(true);
-			b.setAutoCancel(true);
+			b.setNumber(groupTotal);
+			boolean showOnLockScreen =
+					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
+			b.setLockscreenVisibility(CATEGORY_SOCIAL, showOnLockScreen);
+			playSound(b);
 			if (groupCounts.size() == 1) {
 				// Touching the notification shows the relevant group
 				Intent i = new Intent(appContext, GroupActivity.class);
@@ -424,15 +428,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				t.addParentStack(NavDrawerActivity.class);
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
-			}
-			if (Build.VERSION.SDK_INT >= 21) {
-				b.setCategory(CATEGORY_SOCIAL);
-				boolean showOnLockScreen =
-						settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
-				if (showOnLockScreen)
-					b.setVisibility(VISIBILITY_PRIVATE);
-				else
-					b.setVisibility(VISIBILITY_SECRET);
 			}
 			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 			NotificationManager nm = (NotificationManager) o;
@@ -474,21 +469,19 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		if (forumTotal == 0) {
 			clearForumPostNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_FORUM, true)) {
-			NotificationCompat.Builder b =
-					new NotificationCompat.Builder(appContext);
+			BriarNotificationBuilder b =
+					new BriarNotificationBuilder(appContext);
 			b.setSmallIcon(R.drawable.notification_forum);
-			b.setColor(ContextCompat.getColor(appContext,
-					R.color.briar_primary));
+			b.setColorRes(R.color.briar_primary);
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.forum_post_notification_text, forumTotal,
 					forumTotal));
-			String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
-			if (!StringUtils.isNullOrEmpty(ringtoneUri))
-				b.setSound(Uri.parse(ringtoneUri));
-			b.setDefaults(getDefaults());
-			b.setOnlyAlertOnce(true);
-			b.setAutoCancel(true);
+			b.setNumber(forumTotal);
+			boolean showOnLockScreen =
+					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
+			b.setLockscreenVisibility(CATEGORY_SOCIAL, showOnLockScreen);
+			playSound(b);
 			if (forumCounts.size() == 1) {
 				// Touching the notification shows the relevant forum
 				Intent i = new Intent(appContext, ForumActivity.class);
@@ -511,15 +504,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				t.addParentStack(NavDrawerActivity.class);
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
-			}
-			if (Build.VERSION.SDK_INT >= 21) {
-				b.setCategory(CATEGORY_SOCIAL);
-				boolean showOnLockScreen =
-						settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
-				if (showOnLockScreen)
-					b.setVisibility(VISIBILITY_PRIVATE);
-				else
-					b.setVisibility(VISIBILITY_SECRET);
 			}
 			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 			NotificationManager nm = (NotificationManager) o;
@@ -561,21 +545,19 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		if (blogTotal == 0) {
 			clearBlogPostNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_BLOG, true)) {
-			NotificationCompat.Builder b =
-					new NotificationCompat.Builder(appContext);
+			BriarNotificationBuilder b =
+					new BriarNotificationBuilder(appContext);
 			b.setSmallIcon(R.drawable.notification_blog);
-			b.setColor(ContextCompat.getColor(appContext,
-					R.color.briar_primary));
+			b.setColorRes(R.color.briar_primary);
 			b.setContentTitle(appContext.getText(R.string.app_name));
 			b.setContentText(appContext.getResources().getQuantityString(
 					R.plurals.blog_post_notification_text, blogTotal,
 					blogTotal));
-			String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
-			if (!StringUtils.isNullOrEmpty(ringtoneUri))
-				b.setSound(Uri.parse(ringtoneUri));
-			b.setDefaults(getDefaults());
-			b.setOnlyAlertOnce(true);
-			b.setAutoCancel(true);
+			b.setNumber(blogTotal);
+			boolean showOnLockScreen =
+					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
+			b.setLockscreenVisibility(CATEGORY_SOCIAL, showOnLockScreen);
+			playSound(b);
 			// Touching the notification shows the combined blog feed
 			Intent i = new Intent(appContext, NavDrawerActivity.class);
 			i.putExtra(INTENT_BLOGS, true);
@@ -585,15 +567,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			t.addParentStack(NavDrawerActivity.class);
 			t.addNextIntent(i);
 			b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
-			if (Build.VERSION.SDK_INT >= 21) {
-				b.setCategory(CATEGORY_SOCIAL);
-				boolean showOnLockScreen =
-						settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
-				if (showOnLockScreen)
-					b.setVisibility(VISIBILITY_PRIVATE);
-				else
-					b.setVisibility(VISIBILITY_SECRET);
-			}
+
 			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 			NotificationManager nm = (NotificationManager) o;
 			nm.notify(BLOG_POST_NOTIFICATION_ID, b.build());
@@ -623,20 +597,17 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@UiThread
 	private void updateIntroductionNotification() {
-		NotificationCompat.Builder b =
-				new NotificationCompat.Builder(appContext);
+		BriarNotificationBuilder b = new BriarNotificationBuilder(appContext);
 		b.setSmallIcon(R.drawable.notification_introduction);
-		b.setColor(ContextCompat.getColor(appContext, R.color.briar_primary));
+		b.setColorRes(R.color.briar_primary);
 		b.setContentTitle(appContext.getText(R.string.app_name));
 		b.setContentText(appContext.getResources().getQuantityString(
 				R.plurals.introduction_notification_text, introductionTotal,
 				introductionTotal));
-		String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
-		if (!StringUtils.isNullOrEmpty(ringtoneUri))
-			b.setSound(Uri.parse(ringtoneUri));
-		b.setDefaults(getDefaults());
-		b.setOnlyAlertOnce(true);
-		b.setAutoCancel(true);
+		boolean showOnLockScreen =
+				settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
+		b.setLockscreenVisibility(CATEGORY_MESSAGE, showOnLockScreen);
+		playSound(b);
 		// Touching the notification shows the contact list
 		Intent i = new Intent(appContext, NavDrawerActivity.class);
 		i.putExtra(INTENT_CONTACTS, true);
@@ -646,15 +617,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		t.addParentStack(NavDrawerActivity.class);
 		t.addNextIntent(i);
 		b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
-		if (Build.VERSION.SDK_INT >= 21) {
-			b.setCategory(CATEGORY_MESSAGE);
-			boolean showOnLockScreen =
-					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
-			if (showOnLockScreen)
-				b.setVisibility(VISIBILITY_PRIVATE);
-			else
-				b.setVisibility(VISIBILITY_SECRET);
-		}
+
 		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
 		nm.notify(INTRODUCTION_SUCCESS_NOTIFICATION_ID, b.build());
