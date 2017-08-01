@@ -56,6 +56,7 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -143,6 +144,12 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	public void onStart() {
 		super.onStart();
 
+		try {
+			cameraView.start();
+		} catch (CameraException e) {
+			logCameraExceptionAndFinish(e);
+		}
+
 		// Listen for changes to the Bluetooth state
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_STATE_CHANGED);
@@ -162,7 +169,6 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		} else {
 			startListening();
 		}
-		cameraView.start();
 	}
 
 	@Override
@@ -170,7 +176,19 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		super.onStop();
 		stopListening();
 		if (receiver != null) getActivity().unregisterReceiver(receiver);
-		cameraView.stop();
+		try {
+			cameraView.stop();
+		} catch (CameraException e) {
+			logCameraExceptionAndFinish(e);
+		}
+	}
+
+	@UiThread
+	private void logCameraExceptionAndFinish(CameraException e) {
+		if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		Toast.makeText(getActivity(), R.string.camera_error,
+				LENGTH_LONG).show();
+		finish();
 	}
 
 	@UiThread

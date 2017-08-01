@@ -121,6 +121,7 @@
 	<string name="contact_already_exists">Contact %s already exists</string>
 	<string name="contact_exchange_failed">Contact exchange failed</string>
 	<string name="qr_code_invalid">The QR code is invalid</string>
+	<string name="camera_error">Camera error</string>
 	<string name="connecting_to_device">Connecting to device\u2026</string>
 	<string name="authenticating_with_device">Authenticating with device\u2026</string>
 	<string name="connection_aborted_local">Connection aborted by us! This could mean that someone is trying to interfere with your connection</string>
