@@ -218,7 +218,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			statusView.setVisibility(VISIBLE);
 			status.setText(R.string.connecting_to_device);
 			task.connectAndRunProtocol(remotePayload);
-		} catch (IOException e) {
+		} catch (IOException | IllegalArgumentException e) {
 			// TODO show failure
 			Toast.makeText(getActivity(), R.string.qr_code_invalid,
 					LENGTH_LONG).show();
