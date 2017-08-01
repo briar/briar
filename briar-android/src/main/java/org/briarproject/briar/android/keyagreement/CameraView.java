@@ -7,6 +7,7 @@ import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.Size;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.view.Surface;
@@ -43,6 +44,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	private static final Logger LOG =
 			Logger.getLogger(CameraView.class.getName());
 
+	@Nullable
 	private Camera camera = null;
 	private PreviewConsumer previewConsumer = null;
 	private Surface surface = null;
@@ -86,6 +88,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		try {
 			LOG.info("Opening camera");
 			camera = Camera.open();
+			if (camera == null)
+				throw new RuntimeException("No back-facing camera.");
 		} catch (RuntimeException e) {
 			LOG.log(WARNING, "Error opening camera", e);
 			return;
@@ -129,6 +133,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	private void startPreview(SurfaceHolder holder) {
 		LOG.info("Starting preview");
 		try {
+			if (camera == null) throw new IOException("Camera is null.");
 			camera.setPreviewDisplay(holder);
 			camera.startPreview();
 			previewStarted = true;
@@ -142,6 +147,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	private void stopPreview() {
 		LOG.info("Stopping preview");
 		try {
+			if (camera == null) throw new RuntimeException("Camera is null.");
 			stopConsumer();
 			camera.stopPreview();
 		} catch (RuntimeException e) {
@@ -152,12 +158,14 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	@UiThread
 	private void startConsumer() {
+		if (camera == null) throw new RuntimeException("Camera is null");
 		if (autoFocus) camera.autoFocus(this);
 		previewConsumer.start(camera);
 	}
 
 	@UiThread
 	private void stopConsumer() {
+		if (camera == null) throw new RuntimeException("Camera is null");
 		if (autoFocus) camera.cancelAutoFocus();
 		previewConsumer.stop();
 	}
@@ -176,6 +184,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		if (LOG.isLoggable(INFO))
 			LOG.info("Display orientation " + orientation + " degrees");
 		try {
+			if (camera == null) throw new RuntimeException("Camera is null");
 			camera.setDisplayOrientation(orientation);
 		} catch (RuntimeException e) {
 			LOG.log(WARNING, "Error setting display orientation", e);
@@ -287,7 +296,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	@UiThread
 	private void logCameraParameters() {
-		if (LOG.isLoggable(INFO)) {
+		if (camera != null && LOG.isLoggable(INFO)) {
 			Parameters params = camera.getParameters();
 			if (Build.VERSION.SDK_INT >= 15) {
 				LOG.info("Video stabilisation enabled: "
