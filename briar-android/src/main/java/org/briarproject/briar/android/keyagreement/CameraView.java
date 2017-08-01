@@ -84,16 +84,14 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@UiThread
-	public void start() {
+	public void start() throws CameraException {
+		LOG.info("Opening camera");
 		try {
-			LOG.info("Opening camera");
 			camera = Camera.open();
-			if (camera == null)
-				throw new RuntimeException("No back-facing camera.");
 		} catch (RuntimeException e) {
-			LOG.log(WARNING, "Error opening camera", e);
-			return;
+			throw new CameraException(e);
 		}
+		if (camera == null) throw new CameraException("No back-facing camera");
 		setDisplayOrientation(0);
 		// Use barcode scene mode if it's available
 		Parameters params = camera.getParameters();
@@ -117,64 +115,81 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@UiThread
-	public void stop() {
+	public void stop() throws CameraException {
 		if (camera == null) return;
 		stopPreview();
+		LOG.info("Releasing camera");
 		try {
-			LOG.info("Releasing camera");
 			camera.release();
 		} catch (RuntimeException e) {
-			LOG.log(WARNING, "Error releasing camera", e);
+			throw new CameraException(e);
 		}
 		camera = null;
 	}
 
 	@UiThread
-	private void startPreview(SurfaceHolder holder) {
+	private void startPreview(SurfaceHolder holder) throws CameraException {
 		LOG.info("Starting preview");
+		if (camera == null) throw new CameraException("Camera is null");
 		try {
-			if (camera == null) throw new IOException("Camera is null.");
 			camera.setPreviewDisplay(holder);
 			camera.startPreview();
 			previewStarted = true;
 			startConsumer();
 		} catch (IOException | RuntimeException e) {
-			LOG.log(WARNING, "Error starting camera preview", e);
+			throw new CameraException(e);
 		}
 	}
 
 	@UiThread
-	private void stopPreview() {
+	private void stopPreview() throws CameraException {
 		LOG.info("Stopping preview");
+		if (camera == null) throw new CameraException("Camera is null");
 		try {
-			if (camera == null) throw new RuntimeException("Camera is null.");
 			stopConsumer();
 			camera.stopPreview();
 		} catch (RuntimeException e) {
-			LOG.log(WARNING, "Error stopping camera preview", e);
+			throw new CameraException(e);
 		}
 		previewStarted = false;
 	}
 
 	@UiThread
-	private void startConsumer() {
-		if (camera == null) throw new RuntimeException("Camera is null");
-		if (autoFocus) camera.autoFocus(this);
+	private void startConsumer() throws CameraException {
+		if (camera == null) throw new CameraException("Camera is null");
+		if (autoFocus) {
+			try {
+				camera.autoFocus(this);
+			} catch (RuntimeException e) {
+				throw new CameraException(e);
+			}
+		}
 		previewConsumer.start(camera);
 	}
 
 	@UiThread
-	private void stopConsumer() {
-		if (camera == null) throw new RuntimeException("Camera is null");
-		if (autoFocus) camera.cancelAutoFocus();
+	private void stopConsumer() throws CameraException {
+		if (camera == null) throw new CameraException("Camera is null");
+		if (autoFocus) {
+			try {
+				camera.cancelAutoFocus();
+			} catch (RuntimeException e) {
+				throw new CameraException(e);
+			}
+		}
 		previewConsumer.stop();
 	}
 
 	@UiThread
-	private void setDisplayOrientation(int rotationDegrees) {
+	private void setDisplayOrientation(int rotationDegrees)
+			throws CameraException {
 		int orientation;
 		CameraInfo info = new CameraInfo();
-		Camera.getCameraInfo(0, info);
+		try {
+			Camera.getCameraInfo(0, info);
+		} catch (RuntimeException e) {
+			throw new CameraException(e);
+		}
 		if (info.facing == CAMERA_FACING_FRONT) {
 			orientation = (info.orientation + rotationDegrees) % 360;
 			orientation = (360 - orientation) % 360;
@@ -183,54 +198,70 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		}
 		if (LOG.isLoggable(INFO))
 			LOG.info("Display orientation " + orientation + " degrees");
+		if (camera == null) throw new CameraException("Camera is null");
 		try {
-			if (camera == null) throw new RuntimeException("Camera is null");
 			camera.setDisplayOrientation(orientation);
 		} catch (RuntimeException e) {
-			LOG.log(WARNING, "Error setting display orientation", e);
+			throw new CameraException(e);
 		}
 		displayOrientation = orientation;
 	}
 
 	@UiThread
-	private Parameters setSceneMode(Camera camera, Parameters params) {
+	private Parameters setSceneMode(Camera camera, Parameters params)
+			throws CameraException {
 		List<String> sceneModes = params.getSupportedSceneModes();
 		if (sceneModes == null) return params;
 		if (LOG.isLoggable(INFO)) LOG.info("Scene modes: " + sceneModes);
 		if (sceneModes.contains(SCENE_MODE_BARCODE)) {
 			params.setSceneMode(SCENE_MODE_BARCODE);
-			camera.setParameters(params);
-			return camera.getParameters();
+			try {
+				camera.setParameters(params);
+				return camera.getParameters();
+			} catch (RuntimeException e) {
+				throw new CameraException(e);
+			}
 		}
 		return params;
 	}
 
 	@UiThread
-	private Parameters disableFlash(Camera camera, Parameters params) {
+	private Parameters disableFlash(Camera camera, Parameters params)
+			throws CameraException {
 		params.setFlashMode(FLASH_MODE_OFF);
-		camera.setParameters(params);
-		return camera.getParameters();
+		try {
+			camera.setParameters(params);
+			return camera.getParameters();
+		} catch (RuntimeException e) {
+			throw new CameraException(e);
+		}
 	}
 
 	@UiThread
-	private Parameters disableSceneMode(Camera camera, Parameters params) {
+	private Parameters disableSceneMode(Camera camera, Parameters params)
+			throws CameraException {
 		params.setSceneMode(SCENE_MODE_AUTO);
-		camera.setParameters(params);
-		return camera.getParameters();
+		try {
+			camera.setParameters(params);
+			return camera.getParameters();
+		} catch (RuntimeException e) {
+			throw new CameraException(e);
+		}
 	}
 
 	@UiThread
-	private Parameters setBestParameters(Camera camera, Parameters params) {
+	private Parameters setBestParameters(Camera camera, Parameters params)
+			throws CameraException {
 		setVideoStabilisation(params);
 		setFocusMode(params);
 		params.setFlashMode(FLASH_MODE_OFF);
 		setPreviewSize(params);
 		try {
 			camera.setParameters(params);
+			return camera.getParameters();
 		} catch (RuntimeException e) {
-			LOG.log(WARNING, "Error setting best camera parameters", e);
+			throw new CameraException(e);
 		}
-		return camera.getParameters();
 	}
 
 	@UiThread
@@ -299,9 +330,15 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@UiThread
-	private void logCameraParameters() {
-		if (camera != null && LOG.isLoggable(INFO)) {
-			Parameters params = camera.getParameters();
+	private void logCameraParameters() throws CameraException {
+		if (camera == null) throw new AssertionError();
+		if (LOG.isLoggable(INFO)) {
+			Parameters params;
+			try {
+				params = camera.getParameters();
+			} catch (RuntimeException e) {
+				throw new CameraException(e);
+			}
 			if (Build.VERSION.SDK_INT >= 15) {
 				LOG.info("Video stabilisation enabled: "
 						+ params.getVideoStabilization());
@@ -319,13 +356,18 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		post(new Runnable() {
 			@Override
 			public void run() {
-				surfaceCreatedUi(holder);
+				try {
+					surfaceCreatedUi(holder);
+				} catch (CameraException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
 			}
 		});
 	}
 
 	@UiThread
-	private void surfaceCreatedUi(SurfaceHolder holder) {
+	private void surfaceCreatedUi(SurfaceHolder holder) throws CameraException {
 		LOG.info("Surface created");
 		if (surface != null && surface != holder.getSurface()) {
 			LOG.info("Releasing old surface");
@@ -342,13 +384,19 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		post(new Runnable() {
 			@Override
 			public void run() {
-				surfaceChangedUi(holder, w, h);
+				try {
+					surfaceChangedUi(holder, w, h);
+				} catch (CameraException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
 			}
 		});
 	}
 
 	@UiThread
-	private void surfaceChangedUi(SurfaceHolder holder, int w, int h) {
+	private void surfaceChangedUi(SurfaceHolder holder, int w, int h)
+			throws CameraException {
 		if (LOG.isLoggable(INFO)) LOG.info("Surface changed: " + w + "x" + h);
 		if (surface != null && surface != holder.getSurface()) {
 			LOG.info("Releasing old surface");
@@ -365,7 +413,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			camera.setParameters(params);
 			logCameraParameters();
 		} catch (RuntimeException e) {
-			LOG.log(WARNING, "Error setting preview size", e);
+			throw new CameraException(e);
 		}
 		startPreview(holder);
 	}
