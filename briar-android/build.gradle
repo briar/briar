@@ -82,11 +82,15 @@ android {
 		versionName "0.16.8"
 		applicationId "org.briarproject.briar.beta"
 		resValue "string", "app_package", "org.briarproject.briar.beta"
+		resValue "string", "app_name", "Briar Beta"
 		buildConfigField "String", "GitHash", "\"${getGitHash()}\""
 	}
 
 	buildTypes {
 		debug {
+			applicationIdSuffix ".debug"
+			resValue "string", "app_package", "org.briarproject.briar.beta.debug"
+			resValue "string", "app_name", "Briar Debug"
 			shrinkResources false
 			minifyEnabled true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
