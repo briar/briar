@@ -291,8 +291,12 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	 * This method is called periodically from a background service.
 	 * It fetches all available feeds and posts new entries to the respective
 	 * blog.
+	 *
+	 * We can not do this within one database {@link Transaction},
+	 * because fetching can take a long time
+	 * and we can not block the database that long.
 	 */
-	private void fetchFeeds() {
+	void fetchFeeds() {
 		LOG.info("Updating RSS feeds...");
 
 		// Get current feeds
@@ -313,12 +317,15 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 			} catch (FeedException e) {
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, e.toString(), e);
+				newFeeds.add(feed);
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, e.toString(), e);
+				newFeeds.add(feed);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, e.toString(), e);
+				newFeeds.add(feed);
 			}
 		}
 
