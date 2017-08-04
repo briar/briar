@@ -122,7 +122,7 @@
   <string name="introduction_activity_title">Seleccionar contacto</string>
   <string name="introduction_message_title">Presentar a dos contactos</string>
   <string name="introduction_message_hint">Añade un mensaje (opcional)</string>
-  <string name="introduction_button">Presentarle a</string>
+  <string name="introduction_button">Presentar contactos</string>
   <string name="introduction_sent">Tu presentación se ha mandado.</string>
   <string name="introduction_error">Ocurrió un error realizando la presentación.</string>
   <string name="introduction_response_error">Error al responder a la presentación</string>
