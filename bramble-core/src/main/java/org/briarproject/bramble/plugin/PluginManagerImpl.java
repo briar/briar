@@ -165,14 +165,6 @@ class PluginManagerImpl implements PluginManager, Service {
 	}
 
 	@Override
-	public Collection<DuplexPlugin> getInvitationPlugins() {
-		List<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
-		for (DuplexPlugin d : duplexPlugins)
-			if (d.supportsInvitations()) supported.add(d);
-		return supported;
-	}
-
-	@Override
 	public Collection<DuplexPlugin> getKeyAgreementPlugins() {
 		List<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
 		for (DuplexPlugin d : duplexPlugins)

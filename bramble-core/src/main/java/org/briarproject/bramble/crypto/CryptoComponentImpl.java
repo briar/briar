@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PrivateKey;
-import org.briarproject.bramble.api.crypto.PseudoRandom;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -41,7 +40,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
-import static org.briarproject.bramble.api.invitation.InvitationConstants.CODE_BITS;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.crypto.EllipticCurveConstants.PARAMETERS;
@@ -68,9 +66,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		return s.getBytes(Charset.forName("US-ASCII"));
 	}
 
-	// KDF labels for bluetooth confirmation code derivation
-	private static final byte[] BT_A_CONFIRM = ascii("ALICE_CONFIRMATION_CODE");
-	private static final byte[] BT_B_CONFIRM = ascii("BOB_CONFIRMATION_CODE");
 	// KDF labels for contact exchange stream header key derivation
 	private static final byte[] A_INVITE = ascii("ALICE_INVITATION_KEY");
 	private static final byte[] B_INVITE = ascii("BOB_INVITATION_KEY");
@@ -172,14 +167,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public PseudoRandom getPseudoRandom(int seed1, int seed2) {
-		byte[] seed = new byte[INT_32_BYTES * 2];
-		ByteUtils.writeUint32(seed1, seed, 0);
-		ByteUtils.writeUint32(seed2, seed, INT_32_BYTES);
-		return new PseudoRandomImpl(seed);
-	}
-
-	@Override
 	public SecureRandom getSecureRandom() {
 		return secureRandom;
 	}
@@ -248,20 +235,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	@Override
 	public KeyParser getMessageKeyParser() {
 		return messageEncrypter.getKeyParser();
-	}
-
-	@Override
-	public int generateBTInvitationCode() {
-		int codeBytes = (CODE_BITS + 7) / 8;
-		byte[] random = new byte[codeBytes];
-		secureRandom.nextBytes(random);
-		return ByteUtils.readUint(random, CODE_BITS);
-	}
-
-	@Override
-	public int deriveBTConfirmationCode(SecretKey master, boolean alice) {
-		byte[] b = macKdf(master, alice ? BT_A_CONFIRM : BT_B_CONFIRM);
-		return ByteUtils.readUint(b, CODE_BITS);
 	}
 
 	@Override

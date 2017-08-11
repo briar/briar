@@ -17,7 +17,6 @@ import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.crypto.PseudoRandom;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
@@ -587,17 +586,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			tryToClose(s);
 			return null;
 		}
-	}
-
-	@Override
-	public boolean supportsInvitations() {
-		return false;
-	}
-
-	@Override
-	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
-			long timeout, boolean alice) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

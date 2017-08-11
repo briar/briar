@@ -32,7 +32,7 @@ class StreamDecrypterFactoryImpl implements StreamDecrypterFactory {
 	}
 
 	@Override
-	public StreamDecrypter createInvitationStreamDecrypter(InputStream in,
+	public StreamDecrypter createContactExchangeStreamDecrypter(InputStream in,
 			SecretKey headerKey) {
 		return new StreamDecrypterImpl(in, cipherProvider.get(), 0, headerKey);
 	}

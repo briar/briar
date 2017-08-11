@@ -80,7 +80,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 	private volatile boolean alice;
 
 	@Inject
-	public ContactExchangeTaskImpl(DatabaseComponent db,
+	ContactExchangeTaskImpl(DatabaseComponent db,
 			AuthorFactory authorFactory, BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, Clock clock,
 			ConnectionManager connectionManager, ContactManager contactManager,
@@ -146,12 +146,12 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 
 		// Create the readers
 		InputStream streamReader =
-				streamReaderFactory.createInvitationStreamReader(in,
+				streamReaderFactory.createContactExchangeStreamReader(in,
 						alice ? bobHeaderKey : aliceHeaderKey);
 		BdfReader r = bdfReaderFactory.createReader(streamReader);
 		// Create the writers
 		OutputStream streamWriter =
-				streamWriterFactory.createInvitationStreamWriter(out,
+				streamWriterFactory.createContactExchangeStreamWriter(out,
 						alice ? aliceHeaderKey : bobHeaderKey);
 		BdfWriter w = bdfWriterFactory.createWriter(streamWriter);
 

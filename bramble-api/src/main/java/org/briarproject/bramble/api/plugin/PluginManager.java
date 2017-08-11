@@ -33,11 +33,6 @@ public interface PluginManager {
 	Collection<DuplexPlugin> getDuplexPlugins();
 
 	/**
-	 * Returns any duplex plugins that support invitations.
-	 */
-	Collection<DuplexPlugin> getInvitationPlugins();
-
-	/**
 	 * Returns any duplex plugins that support key agreement.
 	 */
 	Collection<DuplexPlugin> getKeyAgreementPlugins();

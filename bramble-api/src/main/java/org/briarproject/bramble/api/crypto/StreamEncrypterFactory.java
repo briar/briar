@@ -14,8 +14,9 @@ public interface StreamEncrypterFactory {
 	StreamEncrypter createStreamEncrypter(OutputStream out, StreamContext ctx);
 
 	/**
-	 * Creates a {@link StreamEncrypter} for encrypting an invitation stream.
+	 * Creates a {@link StreamEncrypter} for encrypting a contact exchange
+	 * stream.
 	 */
-	StreamEncrypter createInvitationStreamEncrypter(OutputStream out,
+	StreamEncrypter createContactExchangeStreamDecrypter(OutputStream out,
 			SecretKey headerKey);
 }

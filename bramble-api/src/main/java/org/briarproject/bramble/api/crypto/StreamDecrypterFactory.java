@@ -14,8 +14,9 @@ public interface StreamDecrypterFactory {
 	StreamDecrypter createStreamDecrypter(InputStream in, StreamContext ctx);
 
 	/**
-	 * Creates a {@link StreamDecrypter} for decrypting an invitation stream.
+	 * Creates a {@link StreamDecrypter} for decrypting a contact exchange
+	 * stream.
 	 */
-	StreamDecrypter createInvitationStreamDecrypter(InputStream in,
+	StreamDecrypter createContactExchangeStreamDecrypter(InputStream in,
 			SecretKey headerKey);
 }

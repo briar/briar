@@ -15,9 +15,9 @@ public interface StreamReaderFactory {
 	InputStream createStreamReader(InputStream in, StreamContext ctx);
 
 	/**
-	 * Creates an {@link InputStream InputStream} for reading from an
-	 * invitation stream.
+	 * Creates an {@link InputStream InputStream} for reading from a contact
+	 * exchangestream.
 	 */
-	InputStream createInvitationStreamReader(InputStream in,
+	InputStream createContactExchangeStreamReader(InputStream in,
 			SecretKey headerKey);
 }

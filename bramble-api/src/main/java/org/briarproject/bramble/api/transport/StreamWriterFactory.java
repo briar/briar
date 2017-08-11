@@ -15,9 +15,9 @@ public interface StreamWriterFactory {
 	OutputStream createStreamWriter(OutputStream out, StreamContext ctx);
 
 	/**
-	 * Creates an {@link OutputStream OutputStream} for writing to an
-	 * invitation stream.
+	 * Creates an {@link OutputStream OutputStream} for writing to a contact
+	 * exchange stream.
 	 */
-	OutputStream createInvitationStreamWriter(OutputStream out,
+	OutputStream createContactExchangeStreamWriter(OutputStream out,
 			SecretKey headerKey);
 }

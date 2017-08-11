@@ -2,7 +2,6 @@ package org.briarproject.bramble.plugin.bluetooth;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.crypto.PseudoRandom;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
@@ -19,33 +18,23 @@ import org.briarproject.bramble.util.OsUtils;
 import org.briarproject.bramble.util.StringUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.Future;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.bluetooth.BluetoothStateException;
-import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static javax.bluetooth.DiscoveryAgent.GIAC;
@@ -67,7 +56,6 @@ class BluetoothPlugin implements DuplexPlugin {
 	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
 	private final int maxLatency;
-	private final Semaphore discoverySemaphore = new Semaphore(1);
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	private volatile boolean running = false;
@@ -274,95 +262,6 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	@Override
-	public boolean supportsInvitations() {
-		return true;
-	}
-
-	@Override
-	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
-			long timeout, boolean alice) {
-		if (!running) return null;
-		// Use the invitation codes to generate the UUID
-		byte[] b = r.nextBytes(UUID_BYTES);
-		String uuid = UUID.nameUUIDFromBytes(b).toString();
-		String url = makeUrl("localhost", uuid);
-		// Make the device discoverable if possible
-		makeDeviceDiscoverable();
-		// Bind a server socket for receiving invitation connections
-		final StreamConnectionNotifier ss;
-		try {
-			ss = (StreamConnectionNotifier) Connector.open(url);
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return null;
-		}
-		if (!running) {
-			tryToClose(ss);
-			return null;
-		}
-		// Create the background tasks
-		CompletionService<StreamConnection> complete =
-				new ExecutorCompletionService<>(ioExecutor);
-		List<Future<StreamConnection>> futures = new ArrayList<>();
-		if (alice) {
-			// Return the first connected socket
-			futures.add(complete.submit(new ListeningTask(ss)));
-			futures.add(complete.submit(new DiscoveryTask(uuid)));
-		} else {
-			// Return the first socket with readable data
-			futures.add(complete.submit(new ReadableTask(
-					new ListeningTask(ss))));
-			futures.add(complete.submit(new ReadableTask(
-					new DiscoveryTask(uuid))));
-		}
-		StreamConnection chosen = null;
-		try {
-			Future<StreamConnection> f = complete.poll(timeout, MILLISECONDS);
-			if (f == null) return null; // No task completed within the timeout
-			chosen = f.get();
-			return new BluetoothTransportConnection(this, chosen);
-		} catch (InterruptedException e) {
-			LOG.info("Interrupted while exchanging invitations");
-			Thread.currentThread().interrupt();
-			return null;
-		} catch (ExecutionException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return null;
-		} finally {
-			// Closing the socket will terminate the listener task
-			tryToClose(ss);
-			closeSockets(futures, chosen);
-		}
-	}
-
-	private void closeSockets(final List<Future<StreamConnection>> futures,
-			@Nullable final StreamConnection chosen) {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				for (Future<StreamConnection> f : futures) {
-					try {
-						if (f.cancel(true)) {
-							LOG.info("Cancelled task");
-						} else {
-							StreamConnection s = f.get();
-							if (s != null && s != chosen) {
-								LOG.info("Closing unwanted socket");
-								s.close();
-							}
-						}
-					} catch (InterruptedException e) {
-						LOG.info("Interrupted while closing sockets");
-						return;
-					} catch (ExecutionException | IOException e) {
-						if (LOG.isLoggable(INFO)) LOG.info(e.toString());
-					}
-				}
-			}
-		});
-	}
-
-	@Override
 	public boolean supportsKeyAgreement() {
 		return true;
 	}
@@ -376,7 +275,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		String url = makeUrl("localhost", uuid);
 		// Make the device discoverable if possible
 		makeDeviceDiscoverable();
-		// Bind a server socket for receiving invitation connections
+		// Bind a server socket for receiving key agreementconnections
 		final StreamConnectionNotifier ss;
 		try {
 			ss = (StreamConnectionNotifier) Connector.open(url);
@@ -428,77 +327,6 @@ class BluetoothPlugin implements DuplexPlugin {
 			localDevice.setDiscoverable(GIAC);
 		} catch (BluetoothStateException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
-	}
-
-	private class DiscoveryTask implements Callable<StreamConnection> {
-
-		private final String uuid;
-
-		private DiscoveryTask(String uuid) {
-			this.uuid = uuid;
-		}
-
-		@Override
-		public StreamConnection call() throws Exception {
-			// Repeat discovery until we connect or get interrupted
-			DiscoveryAgent discoveryAgent = localDevice.getDiscoveryAgent();
-			while (true) {
-				if (!discoverySemaphore.tryAcquire())
-					throw new Exception("Discovery is already in progress");
-				try {
-					InvitationListener listener =
-							new InvitationListener(discoveryAgent, uuid);
-					discoveryAgent.startInquiry(GIAC, listener);
-					String url = listener.waitForUrl();
-					if (url != null) {
-						StreamConnection s = connect(url);
-						if (s != null) {
-							LOG.info("Outgoing connection");
-							return s;
-						}
-					}
-				} finally {
-					discoverySemaphore.release();
-				}
-			}
-		}
-	}
-
-	private static class ListeningTask implements Callable<StreamConnection> {
-
-		private final StreamConnectionNotifier serverSocket;
-
-		private ListeningTask(StreamConnectionNotifier serverSocket) {
-			this.serverSocket = serverSocket;
-		}
-
-		@Override
-		public StreamConnection call() throws Exception {
-			StreamConnection s = serverSocket.acceptAndOpen();
-			LOG.info("Incoming connection");
-			return s;
-		}
-	}
-
-	private static class ReadableTask implements Callable<StreamConnection> {
-
-		private final Callable<StreamConnection> connectionTask;
-
-		private ReadableTask(Callable<StreamConnection> connectionTask) {
-			this.connectionTask = connectionTask;
-		}
-
-		@Override
-		public StreamConnection call() throws Exception {
-			StreamConnection s = connectionTask.call();
-			InputStream in = s.openInputStream();
-			while (in.available() == 0) {
-				LOG.info("Waiting for data");
-				Thread.sleep(1000);
-			}
-			LOG.info("Data available");
-			return s;
 		}
 	}
 

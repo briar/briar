@@ -29,10 +29,10 @@ class StreamReaderFactoryImpl implements StreamReaderFactory {
 	}
 
 	@Override
-	public InputStream createInvitationStreamReader(InputStream in,
+	public InputStream createContactExchangeStreamReader(InputStream in,
 			SecretKey headerKey) {
 		return new StreamReaderImpl(
-				streamDecrypterFactory.createInvitationStreamDecrypter(in,
+				streamDecrypterFactory.createContactExchangeStreamDecrypter(in,
 						headerKey));
 	}
 }

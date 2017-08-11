@@ -10,8 +10,6 @@ public interface CryptoComponent {
 
 	SecretKey generateSecretKey();
 
-	PseudoRandom getPseudoRandom(int seed1, int seed2);
-
 	SecureRandom getSecureRandom();
 
 	KeyPair generateAgreementKeyPair();
@@ -23,15 +21,6 @@ public interface CryptoComponent {
 	KeyParser getSignatureKeyParser();
 
 	KeyParser getMessageKeyParser();
-
-	/** Generates a random invitation code. */
-	int generateBTInvitationCode();
-
-	/**
-	 * Derives a confirmation code from the given master secret.
-	 * @param alice whether the code is for use by Alice or Bob.
-	 */
-	int deriveBTConfirmationCode(SecretKey master, boolean alice);
 
 	/**
 	 * Derives a stream header key from the given master secret.
