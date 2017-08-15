@@ -107,4 +107,8 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 		return orderedList;
 	}
 
+	@Override
+	public boolean contains(MessageId m) {
+		return nodeMap.containsKey(m);
+	}
 }

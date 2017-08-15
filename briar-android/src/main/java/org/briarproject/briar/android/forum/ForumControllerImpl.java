@@ -75,10 +75,10 @@ class ForumControllerImpl extends
 		super.eventOccurred(e);
 
 		if (e instanceof ForumPostReceivedEvent) {
-			ForumPostReceivedEvent pe = (ForumPostReceivedEvent) e;
-			if (pe.getGroupId().equals(getGroupId())) {
+			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
+			if (f.getGroupId().equals(getGroupId())) {
 				LOG.info("Forum post received, adding...");
-				onForumPostHeaderReceived(pe.getForumPostHeader());
+				onForumPostReceived(f.getHeader(), f.getBody());
 			}
 		} else if (e instanceof ForumInvitationResponseReceivedEvent) {
 			ForumInvitationResponseReceivedEvent f =
@@ -90,10 +90,10 @@ class ForumControllerImpl extends
 				onForumInvitationAccepted(r.getContactId());
 			}
 		} else if (e instanceof ContactLeftShareableEvent) {
-			ContactLeftShareableEvent s = (ContactLeftShareableEvent) e;
-			if (s.getGroupId().equals(getGroupId())) {
+			ContactLeftShareableEvent c = (ContactLeftShareableEvent) e;
+			if (c.getGroupId().equals(getGroupId())) {
 				LOG.info("Forum left by contact");
-				onForumLeft(s.getContactId());
+				onForumLeft(c.getContactId());
 			}
 		}
 	}
@@ -195,11 +195,12 @@ class ForumControllerImpl extends
 		return new ForumItem(header, body);
 	}
 
-	private void onForumPostHeaderReceived(final ForumPostHeader h) {
+	private void onForumPostReceived(ForumPostHeader h, String body) {
+		final ForumItem item = buildItem(h, body);
 		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 			@Override
 			public void run() {
-				listener.onHeaderReceived(h);
+				listener.onItemReceived(item);
 			}
 		});
 	}

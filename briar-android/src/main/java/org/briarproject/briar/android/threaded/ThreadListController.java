@@ -12,14 +12,13 @@ import org.briarproject.briar.android.controller.ActivityLifecycleController;
 import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.api.client.NamedGroup;
-import org.briarproject.briar.api.client.PostHeader;
 
 import java.util.Collection;
 
 import javax.annotation.Nullable;
 
 @NotNullByDefault
-public interface ThreadListController<G extends NamedGroup, I extends ThreadItem, H extends PostHeader>
+public interface ThreadListController<G extends NamedGroup, I extends ThreadItem>
 		extends ActivityLifecycleController {
 
 	void setGroupId(GroupId groupId);
@@ -29,9 +28,8 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 	void loadSharingContacts(
 			ResultExceptionHandler<Collection<ContactId>, DbException> handler);
 
-	void loadItem(H header, ResultExceptionHandler<I, DbException> handler);
-
-	void loadItems(ResultExceptionHandler<ThreadItemList<I>, DbException> handler);
+	void loadItems(
+			ResultExceptionHandler<ThreadItemList<I>, DbException> handler);
 
 	void markItemRead(I item);
 
@@ -42,9 +40,10 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 
 	void deleteNamedGroup(ExceptionHandler<DbException> handler);
 
-	interface ThreadListListener<H> extends ThreadListDataSource {
+	interface ThreadListListener<I> extends ThreadListDataSource {
+
 		@UiThread
-		void onHeaderReceived(H header);
+		void onItemReceived(I item);
 
 		@UiThread
 		void onGroupRemoved();

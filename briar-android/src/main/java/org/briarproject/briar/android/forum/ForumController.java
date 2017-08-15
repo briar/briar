@@ -6,13 +6,11 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.threaded.ThreadListController;
 import org.briarproject.briar.api.forum.Forum;
-import org.briarproject.briar.api.forum.ForumPostHeader;
 
 @NotNullByDefault
-interface ForumController
-		extends ThreadListController<Forum, ForumItem, ForumPostHeader> {
+interface ForumController extends ThreadListController<Forum, ForumItem> {
 
-	interface ForumListener extends ThreadListListener<ForumPostHeader> {
+	interface ForumListener extends ThreadListListener<ForumItem> {
 		@UiThread
 		void onForumLeft(ContactId c);
 	}

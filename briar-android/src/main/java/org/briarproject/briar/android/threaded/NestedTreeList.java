@@ -3,7 +3,9 @@ package org.briarproject.briar.android.threaded;
 import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTree;
+import org.briarproject.briar.api.client.MessageTree.MessageNode;
 import org.briarproject.briar.client.MessageTreeImpl;
 
 import java.util.ArrayList;
@@ -13,8 +15,7 @@ import java.util.List;
 
 @UiThread
 @NotNullByDefault
-public class NestedTreeList<T extends MessageTree.MessageNode>
-		implements Iterable<T> {
+public class NestedTreeList<T extends MessageNode> implements Iterable<T> {
 
 	private final MessageTree<T> tree = new MessageTreeImpl<>();
 	private List<T> depthFirstCollection = new ArrayList<>();
@@ -38,12 +39,12 @@ public class NestedTreeList<T extends MessageTree.MessageNode>
 		return depthFirstCollection.get(index);
 	}
 
-	public int indexOf(T elem) {
-		return depthFirstCollection.indexOf(elem);
-	}
-
 	public int size() {
 		return depthFirstCollection.size();
+	}
+
+	public boolean contains(MessageId m) {
+		return tree.contains(m);
 	}
 
 	@Override

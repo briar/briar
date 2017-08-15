@@ -4,15 +4,15 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
-		android:id="@+id/action_group_member_list"
-		android:icon="@drawable/ic_group_white"
-		android:title="@string/groups_member_list"
-		app:showAsAction="ifRoom"/>
-
-	<item
 		android:id="@+id/action_group_invite"
 		android:icon="@drawable/social_share_white"
 		android:title="@string/groups_invite_members"
+		app:showAsAction="ifRoom"/>
+
+	<item
+		android:id="@+id/action_group_member_list"
+		android:icon="@drawable/ic_group_white"
+		android:title="@string/groups_member_list"
 		app:showAsAction="ifRoom"/>
 
 	<item
