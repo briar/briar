@@ -36,6 +36,7 @@ import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.util.IoUtils;
+import org.briarproject.bramble.util.ScheduledExecutorServiceWakeLock;
 import org.briarproject.bramble.util.StringUtils;
 
 import java.io.Closeable;
@@ -119,10 +120,12 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final ConnectionStatus connectionStatus;
 	private final File torDirectory, torFile, geoIpFile, configFile;
 	private final File doneFile, cookieFile;
-	private final PowerManager.WakeLock wakeLock;
 	private final AtomicReference<Future<?>> connectivityCheck =
 			new AtomicReference<>();
 	private final AtomicBoolean used = new AtomicBoolean(false);
+	private final ScheduledExecutorServiceWakeLock scheduledExecutorServiceWakeLock;
+
+	private PowerManager.WakeLock wakeLock;
 
 	private volatile boolean running = false;
 	private volatile ServerSocket socket = null;
@@ -155,14 +158,27 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
-		Object o = appContext.getSystemService(POWER_SERVICE);
-		PowerManager pm = (PowerManager) o;
-		// This tag will prevent Huawei's powermanager from killing us.
-		wakeLock = pm.newWakeLock(PARTIAL_WAKE_LOCK, "LocationManagerService");
-		wakeLock.setReferenceCounted(false);
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor = new PoliteExecutor("TorPlugin",
 				ioExecutor, 1);
+		scheduledExecutorServiceWakeLock =
+				new ScheduledExecutorServiceWakeLock(appContext);
+		scheduledExecutorServiceWakeLock.setRunnable((Runnable) () -> {
+			LOG.info("Renewing wake lock");
+			wakeLock.release();
+			aquireWakeLock();
+		});
+		aquireWakeLock();
+	}
+
+	private void aquireWakeLock(){
+		LOG.info("Aquiring wake lock");
+		PowerManager pm = (PowerManager)
+				appContext.getSystemService(POWER_SERVICE);
+		// This tag will prevent Huawei's powermanager from killing us.
+		wakeLock = pm.newWakeLock(PARTIAL_WAKE_LOCK, "LocationManagerService");
+		wakeLock.setReferenceCounted(false);
+		scheduledExecutorServiceWakeLock.setAlarm(1800000, MILLISECONDS);
 	}
 
 	@Override
@@ -514,6 +530,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 		}
 		wakeLock.release();
+		scheduledExecutorServiceWakeLock.cancelAlarm();
 	}
 
 	@Override
