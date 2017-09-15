@@ -91,7 +91,7 @@
   <!--Adding Contacts-->
   <string name="add_contact_title">Kontakt hinzufügen</string>
   <string name="your_nickname">Wähle die zu verwendende Identität:</string>
-  <string name="face_to_face">Um einen neuen Kontakt hinzufügen zu können, ist eine reale Begegnung erforderlich.\n\nDadurch wird eine betrügerische Impersonation und der unautorisierte Zugriff auf die Kommunikation verhindert.</string>
+  <string name="face_to_face">Um einen neuen Kontakt hinzuzufügen, ist es notwendig, dass sich beide Kontakte an einem Ort treffen.\n\nDadurch wird betrügerische Identitätsvortäuschung und unautorisierter Kommunikationszugriff verhindert.</string>
   <string name="continue_button">Weiter</string>
   <string name="your_invitation_code">Dein Einladungs-Code ist</string>
   <string name="enter_invitation_code">Bitte gib den Einladungs-Code Deines Kontakts an:</string>
@@ -250,7 +250,7 @@
   <string name="blogs_blog_post_created">Blogbeitrag erstellt</string>
   <string name="blogs_blog_post_received">Neuen Blogbeitrag empfangen</string>
   <string name="blogs_blog_post_scroll_to">Scrolle zu</string>
-  <string name="blogs_feed_empty_state">Dies ist die globale Blog-Zeitleiste.\n\nOffensichtlich hat noch niemand etwas veröffentlicht.\n\nSei die oder der erste und tipp auf das Stift-Icon, um einen neuen Blogbeitrag zu verfassen.</string>
+  <string name="blogs_feed_empty_state">Dies ist die globale Blog-Zeitleiste.\n\nOffensichtlich hat noch niemand etwas veröffentlicht.\n\nSei die oder der Erste und tippe auf das Stift-Icon, um einen neuen Blogbeitrag zu verfassen.</string>
   <string name="blogs_remove_blog">Blog entfernen</string>
   <string name="blogs_remove_blog_dialog_message">Bist Du sicher, dass Du diesen Blog und alle dazugehörigen Beiträge löschen möchtest?\nBeachte, dass dies nicht den Blog auf Geräten anderer Leute löscht.</string>
   <string name="blogs_remove_blog_ok">Blog entfernen</string>
