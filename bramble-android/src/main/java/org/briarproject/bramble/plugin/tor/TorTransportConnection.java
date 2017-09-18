@@ -3,6 +3,7 @@ package org.briarproject.bramble.plugin.tor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.duplex.AbstractDuplexTransportConnection;
+import org.briarproject.bramble.util.IoUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,12 +22,12 @@ class TorTransportConnection extends AbstractDuplexTransportConnection {
 
 	@Override
 	protected InputStream getInputStream() throws IOException {
-		return socket.getInputStream();
+		return IoUtils.getInputStream(socket);
 	}
 
 	@Override
 	protected OutputStream getOutputStream() throws IOException {
-		return socket.getOutputStream();
+		return IoUtils.getOutputStream(socket);
 	}
 
 	@Override

@@ -57,8 +57,8 @@ class SocksSocket extends Socket {
 
 		// Connect to the proxy
 		super.connect(proxy, connectToProxyTimeout);
-		OutputStream out = getOutputStream();
-		InputStream in = getInputStream();
+		OutputStream out = IoUtils.getOutputStream(this);
+		InputStream in = IoUtils.getInputStream(this);
 
 		// Request SOCKS 5 with no authentication
 		sendMethodRequest(out);
