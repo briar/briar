@@ -1,6 +1,7 @@
 package org.briarproject.bramble.reporting;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.util.IoUtils;
 
 import java.io.Closeable;
 import java.io.File;
@@ -130,7 +131,7 @@ public class DevReportServer {
 			OutputStream out = null;
 			try {
 				socket.setSoTimeout(SOCKET_TIMEOUT_MS);
-				in = socket.getInputStream();
+				in = IoUtils.getInputStream(socket);
 				reportDir.mkdirs();
 				reportFile = File.createTempFile(FILE_PREFIX, FILE_SUFFIX,
 						reportDir);

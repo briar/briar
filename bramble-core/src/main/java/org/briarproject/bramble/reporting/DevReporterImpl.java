@@ -93,7 +93,7 @@ class DevReporterImpl implements DevReporter {
 			InputStream in = null;
 			try {
 				Socket s = connectToDevelopers();
-				out = s.getOutputStream();
+				out = IoUtils.getOutputStream(s);
 				in = new FileInputStream(f);
 				IoUtils.copyAndClose(in, out);
 				f.delete();
