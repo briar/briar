@@ -161,12 +161,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	@Override
 	public void addFeed(String url) throws DbException, IOException {
 		// fetch syndication feed to get its metadata
-		SyndFeed f;
-		try {
-			f = fetchSyndFeed(url);
-		} catch (FeedException e) {
-			throw new IOException(e);
-		}
+		SyndFeed f = fetchSyndFeed(url);
 
 		Feed feed = feedFactory.createFeed(url, f);
 
@@ -183,12 +178,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		}
 
 		// fetch feed again and post entries
-		Feed updatedFeed;
-		try {
-			updatedFeed = fetchFeed(feed);
-		} catch (FeedException e) {
-			throw new IOException(e);
-		}
+		Feed updatedFeed = fetchFeed(feed);
 
 		// store feed again to also store last added entry
 		txn = db.startTransaction(false);
@@ -314,10 +304,6 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		for (Feed feed : feeds) {
 			try {
 				newFeeds.add(fetchFeed(feed));
-			} catch (FeedException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
-				newFeeds.add(feed);
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, e.toString(), e);
@@ -339,15 +325,14 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		LOG.info("Done updating RSS feeds");
 	}
 
-	private SyndFeed fetchSyndFeed(String url)
-			throws FeedException, IOException {
+	private SyndFeed fetchSyndFeed(String url) throws IOException {
 		// fetch feed
 		InputStream stream = getFeedInputStream(url);
 		SyndFeed f = getSyndFeed(stream);
 		stream.close();
 
 		if (f.getEntries().size() == 0)
-			throw new FeedException("Feed has no entries");
+			throw new IOException("Feed has no entries");
 
 		// clean title
 		String title =
@@ -371,8 +356,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		return f;
 	}
 
-	private Feed fetchFeed(Feed feed)
-			throws FeedException, IOException, DbException {
+	private Feed fetchFeed(Feed feed) throws IOException, DbException {
 		// fetch and clean feed
 		SyndFeed f = fetchSyndFeed(feed.getUrl());
 
@@ -402,11 +386,16 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		throw new IOException("Empty response body");
 	}
 
-	private SyndFeed getSyndFeed(InputStream stream)
-			throws IOException, FeedException {
+	private SyndFeed getSyndFeed(InputStream stream) throws IOException {
 
 		SyndFeedInput input = new SyndFeedInput();
-		return input.build(new XmlReader(stream));
+		try {
+			return input.build(new XmlReader(stream));
+		} catch (IllegalArgumentException e) {
+			throw new IOException(e);
+		} catch (FeedException e) {
+			throw new IOException(e);
+		}
 	}
 
 	private long postFeedEntries(Feed feed, List<SyndEntry> entries)
