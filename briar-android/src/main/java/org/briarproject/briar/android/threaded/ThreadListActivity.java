@@ -191,7 +191,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 								list.showData();
 							} else {
 								initList(items);
-								updateTextInput(replyId);
+								updateTextInput();
 							}
 						} else {
 							LOG.info("Concurrent update, reloading");
@@ -253,9 +253,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		ThreadItem replyItem = adapter.getHighlightedItem();
-		if (replyItem != null) {
-			outState.putByteArray(KEY_REPLY_ID, replyItem.getId().getBytes());
+		if (replyId != null) {
+			outState.putByteArray(KEY_REPLY_ID, replyId.getBytes());
 		}
 	}
 
@@ -273,7 +272,9 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	@Override
 	public void onBackPressed() {
 		if (adapter.getHighlightedItem() != null) {
-			updateTextInput(null);
+			textInput.setText("");
+			replyId = null;
+			updateTextInput();
 		} else {
 			super.onBackPressed();
 		}
@@ -289,7 +290,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 
 	@Override
 	public void onReplyClick(final I item) {
-		updateTextInput(item.getId());
+		replyId = item.getId();
+		updateTextInput();
 		if (textInput.isKeyboardOpen()) {
 			scrollToItemAtTop(item);
 		} else {
@@ -339,15 +341,15 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		snackbar.show();
 	}
 
-	private void updateTextInput(@Nullable MessageId replyItemId) {
-		if (replyItemId != null) {
+	private void updateTextInput() {
+		if (replyId != null) {
 			textInput.setHint(R.string.forum_message_reply_hint);
 			textInput.requestFocus();
 			textInput.showSoftKeyboard();
 		} else {
 			textInput.setHint(R.string.forum_new_message_hint);
 		}
-		adapter.setHighlightedItem(replyItemId);
+		adapter.setHighlightedItem(replyId);
 	}
 
 	@Override
@@ -374,7 +376,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		getController().createAndStoreMessage(text, replyItem, handler);
 		textInput.hideSoftKeyboard();
 		textInput.setText("");
-		updateTextInput(null);
+		replyId = null;
+		updateTextInput();
 	}
 
 	protected abstract int getMaxBodyLength();
