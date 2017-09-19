@@ -22,7 +22,7 @@
 	<string name="startup_failed_notification_title">Briar could not start</string>
 	<string name="startup_failed_notification_text">You may need to reinstall Briar.</string>
 	<string name="startup_failed_activity_title">Briar Startup Failure</string>
-	<string name="startup_failed_db_error">For some reason, your Briar database is corrupted beyond repair. Your account, your data and all your contacts are lost. Unfortunately, you need to reinstall Briar und set up a new account.</string>
+	<string name="startup_failed_db_error">For some reason, your Briar database is corrupted beyond repair. Your account, your data and all your contacts are lost. Unfortunately, you need to reinstall Briar and set up a new account.</string>
 	<string name="startup_failed_service_error">Briar was unable to start a required plugin. Reinstalling Briar usually solves this problem. However, please note that you will then lose your account and all data associated with it since Briar is not using central servers to store your data on.</string>
 	<plurals name="expiry_warning">
 		<item quantity="one">This is a beta version of Briar. Your account will expire in %d day and cannot be renewed.</item>
@@ -111,7 +111,7 @@
 	<string name="camera_error">Camera error</string>
 	<string name="connecting_to_device">Connecting to device\u2026</string>
 	<string name="authenticating_with_device">Authenticating with device\u2026</string>
-	<string name="connection_aborted_local">Connection aborted on your side! This could mean that someone is trying to interfere with your connection</string>
+	<string name="connection_aborted_local">Connection aborted! This could mean that someone is trying to interfere with your connection</string>
 	<string name="connection_aborted_remote">Connection aborted by your contact! This could mean that someone is trying to interfere with your connection</string>
 
 	<!-- Introductions -->
