@@ -1,0 +1,367 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_title">Oppsett av Briar</string>
+  <string name="setup_explanation">Din Briar-konto er lagret kryptert på din enhet, ikke i skyen. Hvis du avinstallerer Briar eller glemmer passordet ditt, går det ikke an å gjenopprette kontoen og dataen din.</string>
+  <string name="choose_nickname">Velg kallenavn</string>
+  <string name="choose_password">Velg passord</string>
+  <string name="confirm_password">Bekreft passord</string>
+  <string name="name_too_long">For langt navn</string>
+  <string name="password_too_weak">Passordet er for svakt</string>
+  <string name="passwords_do_not_match">Passordene samsvarer ikke</string>
+  <string name="create_account_button">Opprett konto</string>
+  <!--Login-->
+  <string name="enter_password">Skriv inn passord:</string>
+  <string name="try_again">Feil passord, prøv igjen</string>
+  <string name="sign_in_button">Logg inn</string>
+  <string name="forgotten_password">Jeg har glemt passordet mitt</string>
+  <string name="dialog_title_lost_password">Tapt passord</string>
+  <string name="dialog_message_lost_password">Din Briar-konto er lagret kryptert på din enhet, ikke i skyen, så du kan ikke tilbakestille passordet ditt. Ønsker du å slette kontoen og starte igjen?\n\nMerk: Identitetene dine, kontaktene og meldingene vil gå tapt for alltid.</string>
+  <string name="startup_failed_notification_title">Briar kunne ikke starte</string>
+  <string name="startup_failed_notification_text">Det kan hende du må reinstallere Briar.</string>
+  <string name="startup_failed_activity_title">Oppstartsfeil med Briar</string>
+  <string name="startup_failed_db_error">Av ukjent brunn, er din Briar-database skadet og kan ikke repareres. Kontoen din, alle data, og din kontakter har gått tapt for alltid. Beklageligvis må du reinstallere Briar og sette opp en ny konto.</string>
+  <string name="startup_failed_service_error">Briar kunne ikke starte det nødvendige programtillegget. Reinstallasjon av Briar fikser vanligvis dette problemet. Merk deg dog at kontoen og all data tilknyttet den vil gå tapt for godt siden Briar ikke bruker sentrale tjenere å lagre dataen din på.</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">Dette er en betaversjon av Briar. Din konto vil utløpe om %d dag og kan ikke fornyes.</item>
+    <item quantity="other">Dette er en betaversjon av Briar. Din konto vil utløpe om %d dager og kan ikke fornyes.</item>
+  </plurals>
+  <string name="expiry_date_reached">Denne programvaren har utløpt.\nTakk for at du testet den.</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">Åpne navigasjonsskuffen</string>
+  <string name="nav_drawer_close_description">Lukk navigasjonsskuffen</string>
+  <string name="contact_list_button">Kontakter</string>
+  <string name="groups_button">Private grupper</string>
+  <string name="forums_button">Forum</string>
+  <string name="blogs_button">Blogger</string>
+  <string name="settings_button">Innstillinger</string>
+  <string name="sign_out_button">Logg ut</string>
+  <!--Transports-->
+  <string name="transport_tor">Internett</string>
+  <string name="transport_bt">Blåtann</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">Logget inn på Briar</string>
+  <string name="ongoing_notification_text">Trykk for å åpne Briar.</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="one">Ny privat melding.</item>
+    <item quantity="other">%d nye private meldinger.</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="one">Ny gruppemelding.</item>
+    <item quantity="other">%d nye gruppemelindger.</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one">Ny forumpost.</item>
+    <item quantity="other">%d nye forumposter.</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">Ny bloggpost.</item>
+    <item quantity="other">%d nye bloggposter.</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">nå</string>
+  <string name="show">Vis</string>
+  <string name="hide">Skjul</string>
+  <string name="ok">OK</string>
+  <string name="cancel">Avbryt</string>
+  <string name="got_it">Skjønner</string>
+  <string name="delete">Slett</string>
+  <string name="accept">Godta</string>
+  <string name="decline">Avslå</string>
+  <string name="options">Valg</string>
+  <string name="online">Pålogget</string>
+  <string name="offline">Frakoblet</string>
+  <string name="send">Send</string>
+  <string name="allow">Tillat</string>
+  <string name="open">Åpne</string>
+  <string name="no_data">Ingen data</string>
+  <string name="ellipsis">…</string>
+  <string name="text_too_long">Innskrevet tekst er for lang</string>
+  <string name="show_onboarding">Vis hjelpedialogvindu</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Det later til at du er ny her og ikke har noen kontakter enda.\n\nTrykk på \"+\"-ikonet på toppen og følg instruksjonene for å legge til noen venner på listen din.\n\nHusk: Du kan bare legge til nye kontakter ansikt-til-ansikt for å forhindre noen fra å etterligne deg eller fra å lese meldingene dine i framtiden.</string>
+  <string name="date_no_private_messages">Ingen meldinger.</string>
+  <string name="no_private_messages">Dette er samtaleoversikten.\n\nDet ser ut til at det er mangel på samtaler.\n\nTrykk på inndatafeltet på bunnen for å starte en samtale.</string>
+  <string name="message_hint">Skriv melding</string>
+  <string name="delete_contact">Slett kontakt</string>
+  <string name="dialog_title_delete_contact">Bekreft sletting av kontakt</string>
+  <string name="dialog_message_delete_contact">Er du sikker på at du vil fjerne denne kontakten og alle meldinger utvekslet med denne kontakten?</string>
+  <string name="contact_deleted_toast">Kontakt slettet</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">Legg til en kontakt</string>
+  <string name="your_nickname">Velg identiteten du ønsker å bruke:</string>
+  <string name="face_to_face">Du må møte personen du ønsker å legge til som kontakt.\n\nDette vil forhindre folk fra å etterligne deg eller lese meldingene dine i fremtiden.</string>
+  <string name="continue_button">Fortsett</string>
+  <string name="your_invitation_code">Din invitasjonskode er</string>
+  <string name="enter_invitation_code">Skriv inn invitasjonskoden fra din kontakt:</string>
+  <string name="searching_format">Søker etter kontakt med invitasjonskode %06d\u2026</string>
+  <string name="connection_failed">Tilkobling mislyktes</string>
+  <string name="could_not_find_contact">Briar kunne ikke finne kontakten din nærheten</string>
+  <string name="try_again_button">Prøv igjen</string>
+  <string name="connected_to_contact">Tilkoblet kontakt</string>
+  <string name="calculating_confirmation_code">Regner ut bekreftelseskode\u2026</string>
+  <string name="your_confirmation_code">Din bekreftelseskode er</string>
+  <string name="enter_confirmation_code">Skriv inn din kontakts bekreftelseskode:</string>
+  <string name="waiting_for_contact">Venter på kontakt\u2026</string>
+  <string name="waiting_for_contact_to_scan">Venter på at kontakten skal skanne og koble til\u2026</string>
+  <string name="exchanging_contact_details">Utveksler kontaktdetaljer\u2026</string>
+  <string name="codes_do_not_match">Kodene samsvarer ikke</string>
+  <string name="interfering">Dette kan bety at noen prøver å tukle med tilkoblingen</string>
+  <string name="contact_added_toast">Kontakt lagt til: %s</string>
+  <string name="contact_already_exists">Kontakten %s finnes allerede</string>
+  <string name="contact_exchange_failed">Kontaktutveksling mislyktes</string>
+  <string name="qr_code_invalid">QR-koden er ugyldig</string>
+  <string name="connecting_to_device">Kobler til enhet\u2026</string>
+  <string name="authenticating_with_device">Autentiserer med enhet\u2026</string>
+  <string name="connection_aborted_local">Tilkoblingen ble avbrutt på din side! Dette kan bety at noen prøver å tukle med tilkoblingen din</string>
+  <string name="connection_aborted_remote">Tilkobling avbrutt av din kontakt! Dette kan bety at noen prøver å tukle med vedkommendes tilkobling</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_title">Introduser kontaktene dine</string>
+  <string name="introduction_onboarding_text">Du kan introdusere dine kontakter til hverandre, slik at de ikke trenger å møtes personlig for å treffes på Briar.</string>
+  <string name="introduction_activity_title">Velg kontakt</string>
+  <string name="introduction_message_title">Introduser kontakter</string>
+  <string name="introduction_message_hint">Legg til melding (valgfritt)</string>
+  <string name="introduction_button">Introduser ovenfor hverandre</string>
+  <string name="introduction_sent">Din introduksjon har blitt sendt.</string>
+  <string name="introduction_error">Feil under utstedelse av introduksjon.</string>
+  <string name="introduction_response_error">Feil under svar på introduksjon</string>
+  <string name="introduction_request_sent">Du har spurt %1$s om å bli introdusert ovenfor %2$s.</string>
+  <string name="introduction_request_received">%1$s har spurt om å introdusere deg ovenfor %2$s. Ønsker du å legge til %2$s på din kontaktliste?</string>
+  <string name="introduction_request_exists_received">%1$s har spurt om å introdusere deg ovenfor %2$s, men %2$s er allerede på din kontaktliste. Siden %1$s kanskje ikke vet dette, kan du fremdeles svare:</string>
+  <string name="introduction_request_answered_received">%1$s har spurt om å introdusere deg ovenfor %2$s.</string>
+  <string name="introduction_response_accepted_sent">Du er nå bekjent %1$s.</string>
+  <string name="introduction_response_declined_sent">Du avslo introduksjonen med %1$s.</string>
+  <string name="introduction_response_accepted_received">%1$s er nå bekjent %2$s.</string>
+  <string name="introduction_response_declined_received">%1$s avslo introduksjonen med %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s sier at %2$s avslo introduksjonen.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">Ny kontakt lagt til.</item>
+    <item quantity="other">%d nye kontakter lagt til.</item>
+  </plurals>
+  <!--Private Groups-->
+  <string name="groups_list_empty">Du deltar ikke i noen grupper.\n\nTrykk på \"+\"-ikonet på toppen for å opprette en gruppe selv, eller spørre noen av kontaktene dine om å bli invitert inn i en av deres grupper.</string>
+  <string name="groups_created_by">Opprettet av %s</string>
+  <plurals name="messages">
+    <item quantity="one">%d melding</item>
+    <item quantity="other">%d meldinger</item>
+  </plurals>
+  <string name="groups_group_is_empty">Denne gruppen er tom</string>
+  <string name="groups_group_is_dissolved">Denne gruppen har blitt oppløst</string>
+  <string name="groups_remove">Fjern</string>
+  <string name="groups_create_group_title">Opprett privat gruppe</string>
+  <string name="groups_create_group_button">Opprett gruppe</string>
+  <string name="groups_create_group_invitation_button">Send invitasjon</string>
+  <string name="groups_create_group_hint">Velg et navn for din private gruppe</string>
+  <string name="groups_invitation_sent">Gruppeinvitasjon sendt</string>
+  <string name="groups_message_sent">Melding sendt</string>
+  <string name="groups_member_list">Medlemsliste</string>
+  <string name="groups_invite_members">Inviter medlemmer</string>
+  <string name="groups_member_created_you">Du opprettet gruppen</string>
+  <string name="groups_member_created">%s opprettet gruppen</string>
+  <string name="groups_member_joined_you">Du tok del i gruppen</string>
+  <string name="groups_member_joined">%s tok del i gruppen</string>
+  <string name="groups_leave">Forlat gruppe</string>
+  <string name="groups_leave_dialog_title">Bekreft at du vil forlate gruppen</string>
+  <string name="groups_leave_dialog_message">Er du sikker på at du vil forlate denne gruppen?</string>
+  <string name="groups_dissolve">Oppløs gruppe</string>
+  <string name="groups_dissolve_dialog_title">Bekreft oppløsning av gruppe</string>
+  <string name="groups_dissolve_dialog_message">Er du sikker på at du vil oppløse denne gruppen?\n\nAlle andre medlemmer vil ikke kunne fortsette deres samtaler, og vil kanskje ikke motta de seneste meldingene.</string>
+  <string name="groups_dissolve_button">Oppløs</string>
+  <string name="groups_dissolved_dialog_title">Gruppen har blitt oppløst</string>
+  <string name="groups_dissolved_dialog_message">Oppretteren av denne gruppen har oppløst den.\n\nDu kan ikke lenger skrive meldinger til gruppen, og vil kanskje ikke få alle poster som har blitt skrevet.</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">Gruppeinvitasjoner</string>
+  <string name="groups_invitations_invitation_sent">Du har invitert %1$s til å ta del i gruppen \"%2$s\".</string>
+  <string name="groups_invitations_invitation_received">%1$s har inviter deg til å ta del i gruppen \"%2$s\".</string>
+  <string name="groups_invitations_joined">Tok del i gruppe</string>
+  <string name="groups_invitations_declined">Gruppeinvitasjon avslått</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="one">%d åpen gruppeinvitasjon</item>
+    <item quantity="other">%d åpne gruppeinvitasjoner</item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">Du godtok gruppeinvitasjonen fra %s.</string>
+  <string name="groups_invitations_response_declined_sent">Du avslo gruppeinvitasjoner fra %s.</string>
+  <string name="groups_invitations_response_accepted_received">%s godtok gruppeinvitasjonen.</string>
+  <string name="groups_invitations_response_declined_received">%s avslo gruppeinvitasjonen</string>
+  <string name="sharing_status_groups">Bare grunnleggeren kan invitere nye medlemmer til gruppen. Nedenfor har du alle medlemmene i den.</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">Avslør kontakter</string>
+  <string name="groups_reveal_dialog_message">Du kan velge hvorvidt du vil tilkjennegi kontakter ovenfor alle nåværende og fremtidige medlemmer av denne gruppen.\n\nDette gjør tilkoblingen til gruppen raskere og mer pålitelig, fordi du kan kommunisere med tilkjennegitte kontakter selv om grunnleggeren av gruppen er frakoblet.</string>
+  <string name="groups_reveal_visible">Kontaktforhold er synlige for gruppen</string>
+  <string name="groups_reveal_visible_revealed_by_us">Kontaktforhold er synlige for gruppen (avslørt av deg)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">Kontaktforhold er synlige for gruppen (avslørt av %s)</string>
+  <string name="groups_reveal_invisible">Kontaktforhold er ikke synlige for gruppen</string>
+  <!--Forums-->
+  <string name="no_forums">Du har ingen forum enda.\n\nHvorfor oppretter du ikke et selv ved å trukke på \"+\"-ikonet på toppen?\n\nDu kan også spørre dine kontakter om å dele forum med deg.</string>
+  <string name="create_forum_title">Opprett forum</string>
+  <string name="choose_forum_hint">Velg et navn for ditt forum</string>
+  <string name="create_forum_button">Opprett forum</string>
+  <string name="forum_created_toast">Forum opprettet</string>
+  <string name="no_forum_posts">Dette forumet er tomt.\n\nBruk penneikonet på toppen for å føre den første posten i pennen.\n\nEr det ensomt her? Del dette forumet med flere av dine kontakter!</string>
+  <string name="no_posts">Ingen poster</string>
+  <plurals name="posts">
+    <item quantity="one">%d post</item>
+    <item quantity="other">%d poster</item>
+  </plurals>
+  <string name="forum_new_entry_posted">Forumoppføring postet</string>
+  <string name="forum_new_message_hint">Ny oppføring</string>
+  <string name="forum_message_reply_hint">Nytt svar</string>
+  <string name="btn_reply">Svar</string>
+  <string name="forum_leave">Forlat forum</string>
+  <string name="dialog_title_leave_forum">Bekreft forlating av forum</string>
+  <string name="dialog_message_leave_forum">Er du sikker på at du vil forlate dette forumet? Kontakter du har delt dette forumet med kan bli forhindret fra å motta oppdateringer fra dette forumet.</string>
+  <string name="dialog_button_leave">Forlat</string>
+  <string name="forum_left_toast">Forlot forum</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">Del forum</string>
+  <string name="contacts_selected">Kontakter valgt</string>
+  <string name="activity_share_toolbar_header">Velg kontakter</string>
+  <string name="no_contacts_selector">Det later til at du er ny her og ikke har noen kontakter enda.\n\nKom tilbake hit etter at du har lagt til din første kontakt.</string>
+  <string name="forum_shared_snackbar">Forum delt med valgte kontakter</string>
+  <string name="forum_share_message">Legg til melding (valgfritt)</string>
+  <string name="forum_share_error">Feil ved deling av dette forumet.</string>
+  <string name="forum_invitation_received">%1$s har delt forumet \"%2$s\" med deg.</string>
+  <string name="forum_invitation_sent">Du har det forumet \"%1$s\" med %2$s.</string>
+  <string name="forum_invitations_title">Foruminvitasjoner</string>
+  <string name="forum_invitation_exists">Du godtok invitasjonen til dette forumet allerede. Å godta flere kontakter vil bidra til og styrke kommunikasjonen på forumet.</string>
+  <string name="forum_joined_toast">Tok del i forumet</string>
+  <string name="forum_declined_toast">Foruminvitasjon avslått</string>
+  <string name="shared_by_format">Delt av %s</string>
+  <string name="forum_invitation_already_sharing">Deler allerede</string>
+  <string name="forum_invitation_response_accepted_sent">Du godtok foruminvitasjonen fra %s.</string>
+  <string name="forum_invitation_response_declined_sent">Du avslo foruminvitasjonen fra %s.</string>
+  <string name="forum_invitation_response_accepted_received">%s godtok foruminvitasjonen.</string>
+  <string name="forum_invitation_response_declined_received">%s avslo foruminvitasjonen.</string>
+  <string name="sharing_status">Delingsstatus</string>
+  <string name="sharing_status_forum">Ethvert medlem av et forum kan dele det med sine kontakter. Du deler dette forumet med følgende kontakter. Det kan også være andre medlemmer du ikke kan se.</string>
+  <string name="shared_with">Delt med %1$d (%2$d pålogget)</string>
+  <plurals name="forums_shared">
+    <item quantity="one">%d forum delt av kontakter</item>
+    <item quantity="other">%d forum delt av kontakter</item>
+  </plurals>
+  <string name="nobody">Ingen</string>
+  <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">Denne bloggen er foreløpig tom.\n\nEnten har forfatteren ikke skrevet noe enda, eller så må personen som delte denne bloggen med deg logge på, slik at postene kan synkroniseres.</string>
+  <string name="read_more">les mer</string>
+  <string name="blogs_write_blog_post">Skriv bloggpost</string>
+  <string name="blogs_write_blog_post_body_hint">Skriv din bloggpost her</string>
+  <string name="blogs_publish_blog_post">Offentliggjør</string>
+  <string name="blogs_blog_post_created">Bloggpost opprettet</string>
+  <string name="blogs_blog_post_received">Ny bloggpost opprettet</string>
+  <string name="blogs_blog_post_scroll_to">Rull til</string>
+  <string name="blogs_feed_empty_state">Dette er en verdensomspennende bloggstrøm.\n\nDet ser ikke ut til at noen har blogget noe enda.\n\nVær den første til å trykke på pennesymbolet for å føre en blogg i pennen.</string>
+  <string name="blogs_remove_blog">Fjern blogg</string>
+  <string name="blogs_remove_blog_dialog_message">Er du sikker på at du ønsker å fjerne denne bloggen og alle bloggposter?\nMerk at dette ikke vil fjerne bloggen fra andre folks enheter.</string>
+  <string name="blogs_remove_blog_ok">Fjern blogg</string>
+  <string name="blogs_blog_removed">Blogg fjernet</string>
+  <string name="blogs_reblog_comment_hint">Legg til en kommentar (valgfritt)</string>
+  <string name="blogs_reblog_button">Blogg dette</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">Del blogg</string>
+  <string name="blogs_sharing_error">Feil under deling av denne bloggen.</string>
+  <string name="blogs_sharing_button">Del blogg</string>
+  <string name="blogs_sharing_snackbar">Blogg delt med valgte kontakter</string>
+  <string name="blogs_sharing_response_accepted_sent">Du godtok blogg-invitasjonen fra %s.</string>
+  <string name="blogs_sharing_response_declined_sent">Du avslo blogg-invitasjonen fra %s.</string>
+  <string name="blogs_sharing_response_accepted_received">%s godtok blogg-invitasjonen.</string>
+  <string name="blogs_sharing_response_declined_received">%s avslo blogg-invitasjonen.</string>
+  <string name="blogs_sharing_invitation_received">%1$s har delt bloggen \"%2$s\" med deg.</string>
+  <string name="blogs_sharing_invitation_sent">Du har delt bloggen \"%1$s\" med %2$s.</string>
+  <string name="blogs_sharing_invitations_title">Blogginvitasjoner</string>
+  <string name="blogs_sharing_joined_toast">Abonnerte på blogg</string>
+  <string name="blogs_sharing_declined_toast">Blogginvitasjon avslått</string>
+  <string name="sharing_status_blog">Enhver som abonnerer på bloggen kan dele den med sine kontakter. Du deler denne bloggen med følgende kontakter. Det kan også være andre abonnementer du ikke kan se.</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">Importer RSS-strøm</string>
+  <string name="blogs_rss_feeds_import_button">Importer</string>
+  <string name="blogs_rss_feeds_import_hint">Skriv inn nettadresse for RSS-strøm</string>
+  <string name="blogs_rss_feeds_import_error">Vi beklager! Feil under importering av strøm.</string>
+  <string name="blogs_rss_feeds_manage">Behandle RSS-strømmer</string>
+  <string name="blogs_rss_feeds_manage_imported">Importert:</string>
+  <string name="blogs_rss_feeds_manage_author">Forfatter:</string>
+  <string name="blogs_rss_feeds_manage_updated">Sist oppdatert:</string>
+  <string name="blogs_rss_remove_feed">Fjern strøm</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Er du sikker på at du vil fjerne denne strømmen og alle dens poster?\nAlle poster du har delt vil ikke fjernes fra andre folks enheter.</string>
+  <string name="blogs_rss_remove_feed_ok">Fjern strøm</string>
+  <string name="blogs_rss_feeds_manage_delete_error">Strømmen kunne ikke fjernes!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Du har ikke importert noen RSS-strømmer enda.\n\nKlikk på \"+\"-tegnet øverst til høyre på skjermen for å legge til din først.</string>
+  <string name="blogs_rss_feeds_manage_error">Feil ved lasting av dine strømmer. Prøv igjen senere.</string>
+  <!--Settings Network-->
+  <string name="network_settings_title">Nettverk</string>
+  <string name="bluetooth_setting">Koble til via Blåtann</string>
+  <string name="bluetooth_setting_enabled">Når kontakter er i nærheten</string>
+  <string name="bluetooth_setting_disabled">Bare når kontakter legges til</string>
+  <string name="tor_network_setting">Koble til via Tor</string>
+  <string name="tor_network_setting_never">Aldri</string>
+  <string name="tor_network_setting_wifi">Bare på Wi-Fi</string>
+  <string name="tor_network_setting_always">Når Wi-Fi eller mobildata brukes</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">Sikkerhet</string>
+  <string name="change_password">Endre passord</string>
+  <string name="current_password">Skriv inn nåværende passord:</string>
+  <string name="choose_new_password">Velg ditt nye passord:</string>
+  <string name="confirm_new_password">Bekreft ditt nye passord:</string>
+  <string name="password_changed">Passordet har blitt endret.</string>
+  <string name="panic_setting">Oppsett av panikk-knapp</string>
+  <string name="panic_setting_title">Panikk-knapp</string>
+  <string name="panic_setting_hint">Sett opp hvordan Briar vil reagere når du bruker panikk-knapp-programmet</string>
+  <string name="panic_app_setting_title">Panikk-knapp-program</string>
+  <string name="unknown_app">et ukjent program</string>
+  <string name="panic_app_setting_summary">Inget program har blitt satt</string>
+  <string name="panic_app_setting_none">Inget</string>
+  <string name="dialog_title_connect_panic_app">Bekreft panikk-knapp-program</string>
+  <string name="dialog_message_connect_panic_app">Er du sikker på at du vil tillate %1$s å utløse destruktive panikk-knapp-handlinger?</string>
+  <string name="lock_setting_title">Logg ut</string>
+  <string name="lock_setting_summary">Logg ut av Briar hvis panikk-knappen trykkes</string>
+  <string name="purge_setting_title">Slett konto</string>
+  <string name="purge_setting_summary">Slett Briar-kontoen din hvis panikk-knappen trykkes. Advarsel: Dette vil slette dine identiteter, kontakter og meldinger for godt.</string>
+  <string name="uninstall_setting_title">Avinstaller Briar</string>
+  <string name="uninstall_setting_summary">Dette krever manuell bekreftelse i panikkfall</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">Merknader</string>
+  <string name="notify_private_messages_setting_title">Private meldinger</string>
+  <string name="notify_private_messages_setting_summary">Vis varsler for private meldinger</string>
+  <string name="notify_group_messages_setting_title">Gruppemeldinger</string>
+  <string name="notify_group_messages_setting_summary">Vis varsler for gruppemeldinger</string>
+  <string name="notify_forum_posts_setting_title">Forumposter</string>
+  <string name="notify_forum_posts_setting_summary">Vis varsler for forumposter</string>
+  <string name="notify_blog_posts_setting_title">Bloggposter</string>
+  <string name="notify_blog_posts_setting_summary">Vis varsler for bloggposter</string>
+  <string name="notify_vibration_setting">Vibrer</string>
+  <string name="notify_lock_screen_setting_title">Låseskjerm</string>
+  <string name="notify_lock_screen_setting_summary">Vis merknader på låseskjermen</string>
+  <string name="notify_sound_setting">Lyd</string>
+  <string name="notify_sound_setting_default">Forvalgt ringetone</string>
+  <string name="notify_sound_setting_disabled">Ingen</string>
+  <string name="choose_ringtone_title">Velg ringetone</string>
+  <!--Settings Feedback-->
+  <string name="feedback_settings_title">Tilbakemelding</string>
+  <string name="send_feedback">Send tilbakemelding</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">Lenkeadvarsel</string>
+  <string name="link_warning_intro">Du er i ferd med å følge en lenke med et eksternt program.</string>
+  <string name="link_warning_text">Dette kan brukes for å identifisere deg. Tenk deg om hvorvidt du stoler på personen som sendte denne lenken til deg, og overvei å åpne den i Orfox.</string>
+  <string name="link_warning_open_link">Åpne lenke</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">Kræsjrapport for Briar</string>
+  <string name="briar_crashed">Beklager, Briar har kræsjet.</string>
+  <string name="not_your_fault">Dette er ikke din feil.</string>
+  <string name="please_send_report">Hjelp til med å forbedre Briar ved å sende en kræsjrapport.</string>
+  <string name="report_is_encrypted">Kræsjrapporten vil sendes kryptert og sikkert.</string>
+  <string name="feedback_title">Tilbakemelding</string>
+  <string name="describe_crash">Beskriv hva som skjedde (valgfritt)</string>
+  <string name="enter_feedback">Skriv inn din tilbakemelding</string>
+  <string name="optional_contact_email">Din e-postadresse (valgfri)</string>
+  <string name="include_debug_report_crash">Inkluder anonym data om kræsjet</string>
+  <string name="include_debug_report_feedback">Inkluder anonym data om denne enheten</string>
+  <string name="could_not_load_report_data">Kunne ikke laste inn kræsjrapportdata.</string>
+  <string name="send_report">Send kræsjrapport</string>
+  <string name="close">Lukk</string>
+  <string name="dev_report_saved">Kræsjrapport lagret. Den vil bli sendt neste gang du logger inn i Briar.</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">Logger ut av Briar…</string>
+  <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_title">Skjermoverlag oppdaget</string>
+  <string name="screen_filter_body">Et annet program tegner på toppen av Briar. For å beskytte din sikkerhet, vil Briar ikke reagere på trykk når et annet program tegner over det.\n\nPrøv å skru av følgende programmer når du bruker Briar.\n\n%1$s</string>
+</resources>
