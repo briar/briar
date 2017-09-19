@@ -21,6 +21,8 @@ public interface MessageTree<T extends MessageTree.MessageNode> {
 
 	Collection<T> depthFirstOrder();
 
+	boolean contains(MessageId m);
+
 	@NotNullByDefault
 	interface MessageNode {
 

@@ -28,7 +28,6 @@ import org.briarproject.briar.android.threaded.ThreadItemAdapter;
 import org.briarproject.briar.android.threaded.ThreadListActivity;
 import org.briarproject.briar.android.threaded.ThreadListController;
 import org.briarproject.briar.api.forum.Forum;
-import org.briarproject.briar.api.forum.ForumPostHeader;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -41,7 +40,7 @@ import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BOD
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ForumActivity extends
-		ThreadListActivity<Forum, ThreadItemAdapter<ForumItem>, ForumItem, ForumPostHeader>
+		ThreadListActivity<Forum, ForumItem, ThreadItemAdapter<ForumItem>>
 		implements ForumListener {
 
 	@Inject
@@ -53,7 +52,7 @@ public class ForumActivity extends
 	}
 
 	@Override
-	protected ThreadListController<Forum, ForumItem, ForumPostHeader> getController() {
+	protected ThreadListController<Forum, ForumItem> getController() {
 		return forumController;
 	}
 

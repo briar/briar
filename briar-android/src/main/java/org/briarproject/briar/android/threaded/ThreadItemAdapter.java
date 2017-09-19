@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.threaded;
 
-import android.os.Handler;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,7 +27,6 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	protected final NestedTreeList<I> items = new NestedTreeList<>();
 	private final ThreadItemListener<I> listener;
 	private final LinearLayoutManager layoutManager;
-	private final Handler handler = new Handler();
 
 	private volatile int revision = 0;
 
@@ -102,6 +100,10 @@ public class ThreadItemAdapter<I extends ThreadItem>
 			if (items.get(i).equals(item)) return i;
 		}
 		return NO_POSITION; // Not found
+	}
+
+	boolean contains(MessageId m) {
+		return items.contains(m);
 	}
 
 	/**
@@ -184,6 +186,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	}
 
 	static class UnreadCount {
+
 		final int top, bottom;
 
 		private UnreadCount(int top, int bottom) {
@@ -193,6 +196,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	}
 
 	public interface ThreadItemListener<I> {
+
 		void onUnreadItemVisible(I item);
 
 		void onReplyClick(I item);

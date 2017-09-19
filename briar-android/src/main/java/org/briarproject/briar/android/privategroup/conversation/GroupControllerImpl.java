@@ -80,14 +80,15 @@ class GroupControllerImpl extends
 		super.eventOccurred(e);
 
 		if (e instanceof GroupMessageAddedEvent) {
-			GroupMessageAddedEvent gmae = (GroupMessageAddedEvent) e;
-			if (!gmae.isLocal() && gmae.getGroupId().equals(getGroupId())) {
+			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
+			if (!g.isLocal() && g.getGroupId().equals(getGroupId())) {
 				LOG.info("Group message received, adding...");
-				final GroupMessageHeader h = gmae.getHeader();
+				final GroupMessageItem item =
+						buildItem(g.getHeader(), g.getBody());
 				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
 					@Override
 					public void run() {
-						listener.onHeaderReceived(h);
+						listener.onItemReceived(item);
 					}
 				});
 			}

@@ -14,21 +14,26 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class ForumPostReceivedEvent extends Event {
 
-	private final ForumPostHeader forumPostHeader;
 	private final GroupId groupId;
+	private final ForumPostHeader header;
+	private final String body;
 
-	public ForumPostReceivedEvent(ForumPostHeader forumPostHeader,
-			GroupId groupId) {
-
-		this.forumPostHeader = forumPostHeader;
+	public ForumPostReceivedEvent(GroupId groupId, ForumPostHeader header,
+			String body) {
 		this.groupId = groupId;
-	}
-
-	public ForumPostHeader getForumPostHeader() {
-		return forumPostHeader;
+		this.header = header;
+		this.body = body;
 	}
 
 	public GroupId getGroupId() {
 		return groupId;
+	}
+
+	public ForumPostHeader getHeader() {
+		return header;
+	}
+
+	public String getBody() {
+		return body;
 	}
 }

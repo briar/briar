@@ -45,7 +45,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.identity.Author.Status.ANONYMOUS;
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_ID;
@@ -85,9 +84,10 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 		messageTracker.trackIncomingMessage(txn, m);
 
-		ForumPostHeader post = getForumPostHeader(txn, m.getId(), meta);
+		ForumPostHeader header = getForumPostHeader(txn, m.getId(), meta);
+		String postBody = getPostBody(body);
 		ForumPostReceivedEvent event =
-				new ForumPostReceivedEvent(post, m.getGroupId());
+				new ForumPostReceivedEvent(m.getGroupId(), header, postBody);
 		txn.attach(event);
 
 		// share message
@@ -215,12 +215,17 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	public String getPostBody(MessageId m) throws DbException {
 		try {
 			// Parent ID, author, forum post body, signature
-			BdfList message = clientHelper.getMessageAsList(m);
-			if (message == null) throw new DbException();
-			return message.getString(2);
+			BdfList body = clientHelper.getMessageAsList(m);
+			if (body == null) throw new DbException();
+			return getPostBody(body);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	private String getPostBody(BdfList body) throws FormatException {
+		// Parent ID, author, forum post body, signature
+		return body.getString(2);
 	}
 
 	@Override
@@ -294,24 +299,17 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			throws DbException, FormatException {
 
 		long timestamp = meta.getLong(KEY_TIMESTAMP);
-		Author author = null;
-		Status status = ANONYMOUS;
 		MessageId parentId = null;
 		if (meta.containsKey(KEY_PARENT))
 			parentId = new MessageId(meta.getRaw(KEY_PARENT));
-		// TODO: Remove support for anonymous forum posts
-		BdfDictionary d1 = meta.getDictionary(KEY_AUTHOR, null);
-		if (d1 != null) {
-			AuthorId authorId = new AuthorId(d1.getRaw(KEY_ID));
-			String name = d1.getString(KEY_NAME);
-			byte[] publicKey = d1.getRaw(KEY_PUBLIC_NAME);
-			author = new Author(authorId, name, publicKey);
-			if (statuses.containsKey(authorId)) {
-				status = statuses.get(authorId);
-			} else {
-				status = identityManager.getAuthorStatus(txn, author.getId());
-			}
-		}
+		BdfDictionary authorDict = meta.getDictionary(KEY_AUTHOR);
+		AuthorId authorId = new AuthorId(authorDict.getRaw(KEY_ID));
+		String name = authorDict.getString(KEY_NAME);
+		byte[] publicKey = authorDict.getRaw(KEY_PUBLIC_NAME);
+		Author author = new Author(authorId, name, publicKey);
+		Status status = statuses.get(authorId);
+		if (status == null)
+			status = identityManager.getAuthorStatus(txn, author.getId());
 		boolean read = meta.getBoolean(MSG_KEY_READ);
 
 		return new ForumPostHeader(id, parentId, timestamp, author, status,

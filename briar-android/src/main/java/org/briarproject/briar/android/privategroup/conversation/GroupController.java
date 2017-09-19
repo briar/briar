@@ -8,13 +8,11 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadListController;
-import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.Visibility;
 
 public interface GroupController
-		extends
-		ThreadListController<PrivateGroup, GroupMessageItem, GroupMessageHeader> {
+		extends ThreadListController<PrivateGroup, GroupMessageItem> {
 
 	void loadLocalAuthor(
 			ResultExceptionHandler<LocalAuthor, DbException> handler);
@@ -22,7 +20,8 @@ public interface GroupController
 	void isDissolved(
 			ResultExceptionHandler<Boolean, DbException> handler);
 
-	interface GroupListener extends ThreadListListener<GroupMessageHeader> {
+	interface GroupListener extends ThreadListListener<GroupMessageItem> {
+
 		@UiThread
 		void onContactRelationshipRevealed(AuthorId memberId,
 				ContactId contactId, Visibility v);

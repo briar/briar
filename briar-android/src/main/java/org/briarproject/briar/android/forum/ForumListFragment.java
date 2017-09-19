@@ -254,7 +254,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		} else if (e instanceof ForumPostReceivedEvent) {
 			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
 			LOG.info("Forum post added, updating item");
-			updateItem(f.getGroupId(), f.getForumPostHeader());
+			updateItem(f.getGroupId(), f.getHeader());
 		} else if (e instanceof ForumInvitationRequestReceivedEvent) {
 			LOG.info("Forum invitation received, reloading available forums");
 			loadAvailableForums();

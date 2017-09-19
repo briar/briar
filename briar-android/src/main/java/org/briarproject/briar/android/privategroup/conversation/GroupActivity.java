@@ -29,7 +29,6 @@ import org.briarproject.briar.android.privategroup.memberlist.GroupMemberListAct
 import org.briarproject.briar.android.privategroup.reveal.RevealContactsActivity;
 import org.briarproject.briar.android.threaded.ThreadListActivity;
 import org.briarproject.briar.android.threaded.ThreadListController;
-import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.Visibility;
 
@@ -44,7 +43,7 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class GroupActivity extends
-		ThreadListActivity<PrivateGroup, GroupMessageAdapter, GroupMessageItem, GroupMessageHeader>
+		ThreadListActivity<PrivateGroup, GroupMessageItem, GroupMessageAdapter>
 		implements GroupListener, OnClickListener {
 
 	@Inject
@@ -60,7 +59,7 @@ public class GroupActivity extends
 	}
 
 	@Override
-	protected ThreadListController<PrivateGroup, GroupMessageItem, GroupMessageHeader> getController() {
+	protected ThreadListController<PrivateGroup, GroupMessageItem> getController() {
 		return controller;
 	}
 
@@ -276,7 +275,7 @@ public class GroupActivity extends
 	public void onGroupDissolved() {
 		setGroupEnabled(false);
 		AlertDialog.Builder builder =
-			new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.groups_dissolved_dialog_title));
 		builder.setMessage(getString(R.string.groups_dissolved_dialog_message));
 		builder.setNeutralButton(R.string.ok, null);

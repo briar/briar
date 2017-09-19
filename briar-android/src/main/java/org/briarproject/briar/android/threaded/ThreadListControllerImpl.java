@@ -39,9 +39,9 @@ import static java.util.logging.Level.WARNING;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends ThreadItem, H extends PostHeader, M extends ThreadedMessage, L extends ThreadListListener<H>>
+public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends ThreadItem, H extends PostHeader, M extends ThreadedMessage, L extends ThreadListListener<I>>
 		extends DbControllerImpl
-		implements ThreadListController<G, I, H>, EventListener {
+		implements ThreadListController<G, I>, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ThreadListControllerImpl.class.getName());
@@ -202,35 +202,6 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@DatabaseExecutor
 	protected abstract String loadMessageBody(H header) throws DbException;
-
-	@Override
-	public void loadItem(final H header,
-			final ResultExceptionHandler<I, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					String body;
-					if (!bodyCache.containsKey(header.getId())) {
-						body = loadMessageBody(header);
-						bodyCache.put(header.getId(), body);
-					} else {
-						body = bodyCache.get(header.getId());
-					}
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading item took " + duration + " ms");
-					I item = buildItem(header, body);
-					handler.onResult(item);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
-			}
-		});
-	}
 
 	@Override
 	public void markItemRead(I item) {

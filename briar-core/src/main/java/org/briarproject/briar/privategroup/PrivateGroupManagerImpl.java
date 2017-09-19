@@ -307,14 +307,18 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	@Override
 	public String getMessageBody(MessageId m) throws DbException {
 		try {
-			// type(0), member_name(1), member_public_key(2), parent_id(3),
-			// previous_message_id(4), content(5), signature(6)
 			BdfList body = clientHelper.getMessageAsList(m);
 			if (body == null) throw new DbException();
-			return body.getString(5);
+			return getMessageBody(body);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	private String getMessageBody(BdfList body) throws FormatException {
+			// type(0), member_name(1), member_public_key(2), parent_id(3),
+			// previous_message_id(4), content(5), signature(6)
+			return body.getString(5);
 	}
 
 	@Override
@@ -579,21 +583,20 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	private void attachGroupMessageAddedEvent(Transaction txn, Message m,
 			BdfDictionary meta, boolean local)
 			throws DbException, FormatException {
-		GroupMessageHeader h =
-				getGroupMessageHeader(txn, m.getGroupId(), m.getId(), meta,
-						Collections.<AuthorId, Status>emptyMap());
-		Event e = new GroupMessageAddedEvent(m.getGroupId(), h, local);
-		txn.attach(e);
+		GroupMessageHeader header = getGroupMessageHeader(txn, m.getGroupId(),
+				m.getId(), meta, Collections.<AuthorId, Status>emptyMap());
+		String body = getMessageBody(clientHelper.toList(m));
+		txn.attach(new GroupMessageAddedEvent(m.getGroupId(), header, body,
+				local));
 	}
 
 	private void attachJoinMessageAddedEvent(Transaction txn, Message m,
 			BdfDictionary meta, boolean local, Visibility v)
 			throws DbException, FormatException {
-		JoinMessageHeader h =
-				getJoinMessageHeader(txn, m.getGroupId(), m.getId(), meta,
-						Collections.<AuthorId, Status>emptyMap(), v);
-		Event e = new GroupMessageAddedEvent(m.getGroupId(), h, local);
-		txn.attach(e);
+		JoinMessageHeader header = getJoinMessageHeader(txn, m.getGroupId(),
+				m.getId(), meta, Collections.<AuthorId, Status>emptyMap(), v);
+		txn.attach(new GroupMessageAddedEvent(m.getGroupId(), header, "",
+				local));
 	}
 
 	private void addMember(Transaction txn, GroupId g, Author a, Visibility v)

@@ -32,7 +32,6 @@ import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.TextInputListener;
 import org.briarproject.briar.android.view.UnreadMessageButton;
 import org.briarproject.briar.api.client.NamedGroup;
-import org.briarproject.briar.api.client.PostHeader;
 import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 
 import java.util.Collection;
@@ -49,9 +48,9 @@ import static org.briarproject.briar.android.threaded.ThreadItemAdapter.UnreadCo
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadItemAdapter<I>, I extends ThreadItem, H extends PostHeader>
+public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadItem, A extends ThreadItemAdapter<I>>
 		extends BriarActivity
-		implements ThreadListListener<H>, TextInputListener, SharingListener,
+		implements ThreadListListener<I>, TextInputListener, SharingListener,
 		ThreadItemListener<I>, ThreadListDataSource {
 
 	protected static final String KEY_REPLY_ID = "replyId";
@@ -68,7 +67,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	@Nullable
 	private MessageId replyId;
 
-	protected abstract ThreadListController<G, I, H> getController();
+	protected abstract ThreadListController<G, I> getController();
 
 	@Inject
 	protected SharingController sharingController;
@@ -190,7 +189,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 							if (items.isEmpty()) {
 								list.showData();
 							} else {
-								initList(items);
+								displayItems(items);
 								updateTextInput();
 							}
 						} else {
@@ -206,7 +205,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 				});
 	}
 
-	private void initList(final ThreadItemList<I> items) {
+	private void displayItems(final ThreadItemList<I> items) {
 		adapter.setItems(items);
 		MessageId messageId = items.getFirstVisibleItemId();
 		if (messageId != null)
@@ -383,19 +382,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 	protected abstract int getMaxBodyLength();
 
 	@Override
-	public void onHeaderReceived(H header) {
-		getController().loadItem(header,
-				new UiResultExceptionHandler<I, DbException>(this) {
-					@Override
-					public void onResultUi(final I result) {
-						addItem(result, false);
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
-					}
-				});
+	public void onItemReceived(I item) {
+		addItem(item, false);
 	}
 
 	@Override
@@ -403,8 +391,15 @@ public abstract class ThreadListActivity<G extends NamedGroup, A extends ThreadI
 		supportFinishAfterTransition();
 	}
 
-	protected void addItem(I item, boolean isLocal) {
+	private void addItem(I item, boolean isLocal) {
 		adapter.incrementRevision();
+		MessageId parent = item.getParentId();
+		if (parent != null && !adapter.contains(parent)) {
+			// We've incremented the adapter's revision, so the item will be
+			// loaded when its parent has been loaded
+			LOG.info("Ignoring item with missing parent");
+			return;
+		}
 		adapter.add(item);
 
 		if (isLocal) {
