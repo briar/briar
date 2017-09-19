@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
@@ -379,7 +380,7 @@ public class ForumSharingIntegrationTest
 		assertEquals(1, forumManager1.getForums().size());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testSharingSameForumWithEachOther() throws Exception {
 		// initialize and let invitee accept all requests
 		listenToEvents(true);
@@ -399,6 +400,13 @@ public class ForumSharingIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.responseReceived);
 
+		// response and invitation got tracked
+		Group group = contactGroupFactory
+				.createContactGroup(ForumSharingManager.CLIENT_ID,
+						contact0From1);
+		assertEquals(2, c1.getMessageTracker().getGroupCount(group.getId())
+				.getMsgCount());
+
 		// forum was added successfully
 		assertEquals(1, forumManager1.getForums().size());
 
@@ -407,6 +415,40 @@ public class ForumSharingIntegrationTest
 				contactId0From1,
 				"I am re-sharing this forum with you.",
 				clock.currentTimeMillis());
+
+		// assert that the last invitation wasn't send
+		assertEquals(2, c1.getMessageTracker().getGroupCount(group.getId())
+				.getMsgCount());
+	}
+
+	@Test
+	public void testSharingSameForumWithEachOtherBeforeAccept()
+			throws Exception {
+		// send invitation
+		forumSharingManager0
+				.sendInvitation(forum0.getId(), contactId1From0, "Hi!",
+						clock.currentTimeMillis());
+		sync0To1(1, true);
+
+		// ensure that invitee has received the invitations
+		assertEquals(1, forumSharingManager1.getInvitations().size());
+
+		// assert that the invitation arrived
+		Group group = contactGroupFactory
+				.createContactGroup(ForumSharingManager.CLIENT_ID,
+						contact0From1);
+		assertEquals(1, c1.getMessageTracker().getGroupCount(group.getId())
+				.getMsgCount());
+
+		// invitee now shares same forum back
+		forumSharingManager1.sendInvitation(forum0.getId(),
+				contactId0From1,
+				"I am re-sharing this forum with you.",
+				clock.currentTimeMillis());
+
+		// assert that the last invitation wasn't send
+		assertEquals(1, c1.getMessageTracker().getGroupCount(group.getId())
+				.getMsgCount());
 	}
 
 	@Test
