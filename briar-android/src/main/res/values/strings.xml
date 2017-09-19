@@ -357,6 +357,7 @@
 	<string name="notify_sound_setting_default">Default ringtone</string>
 	<string name="notify_sound_setting_disabled">None</string>
 	<string name="choose_ringtone_title">Choose ringtone</string>
+	<string name="cannot_load_ringtone">Cannot load ringtone</string>
 
 	<!-- Settings Feedback -->
 	<string name="feedback_settings_title">Feedback</string>

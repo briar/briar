@@ -15,6 +15,7 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.acra.ACRA;
 import org.briarproject.bramble.api.db.DbException;
@@ -46,6 +47,7 @@ import static android.media.RingtoneManager.EXTRA_RINGTONE_TITLE;
 import static android.media.RingtoneManager.EXTRA_RINGTONE_TYPE;
 import static android.media.RingtoneManager.TYPE_NOTIFICATION;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
+import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
@@ -400,10 +402,15 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			} else {
 				// The user chose a ringtone other than the default
 				Ringtone r = RingtoneManager.getRingtone(getContext(), uri);
-				String name = r.getTitle(getContext());
-				s.putBoolean(PREF_NOTIFY_SOUND, true);
-				s.put(PREF_NOTIFY_RINGTONE_NAME, name);
-				s.put(PREF_NOTIFY_RINGTONE_URI, uri.toString());
+				if (r == null) {
+					Toast.makeText(getContext(), R.string.cannot_load_ringtone,
+							LENGTH_SHORT).show();
+				} else {
+					String name = r.getTitle(getContext());
+					s.putBoolean(PREF_NOTIFY_SOUND, true);
+					s.put(PREF_NOTIFY_RINGTONE_NAME, name);
+					s.put(PREF_NOTIFY_RINGTONE_URI, uri.toString());
+				}
 			}
 			storeSettings(s);
 		}
