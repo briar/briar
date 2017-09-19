@@ -46,8 +46,8 @@ class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 	}
 
 	@Override
-	public StreamEncrypter createInvitationStreamEncrypter(OutputStream out,
-			SecretKey headerKey) {
+	public StreamEncrypter createContactExchangeStreamDecrypter(
+			OutputStream out, SecretKey headerKey) {
 		AuthenticatedCipher cipher = cipherProvider.get();
 		byte[] streamHeaderNonce = new byte[STREAM_HEADER_NONCE_LENGTH];
 		crypto.getSecureRandom().nextBytes(streamHeaderNonce);

@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.invitation.InvitationTaskFactory;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementTaskFactory;
 import org.briarproject.bramble.api.keyagreement.PayloadEncoder;
 import org.briarproject.bramble.api.keyagreement.PayloadParser;
@@ -88,8 +87,6 @@ public interface AndroidComponent
 	PluginManager pluginManager();
 
 	EventBus eventBus();
-
-	InvitationTaskFactory invitationTaskFactory();
 
 	AndroidNotificationManager androidNotificationManager();
 

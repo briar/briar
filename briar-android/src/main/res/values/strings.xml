@@ -98,24 +98,12 @@
 
 	<!-- Adding Contacts -->
 	<string name="add_contact_title">Add a Contact</string>
-	<string name="your_nickname">Choose the identity you want to use:</string>
 	<string name="face_to_face">You must meet up with the person you want to add as a contact.\n\nThis will prevent anyone from impersonating you or reading your messages in future.</string>
 	<string name="continue_button">Continue</string>
-	<string name="your_invitation_code">Your invitation code is</string>
-	<string name="enter_invitation_code">Please enter your contact\'s invitation code:</string>
-	<string name="searching_format">Searching for contact with invitation code %06d\u2026</string>
 	<string name="connection_failed">Connection failed</string>
-	<string name="could_not_find_contact">Briar could not find your contact nearby</string>
 	<string name="try_again_button">Try Again</string>
-	<string name="connected_to_contact">Connected to contact</string>
-	<string name="calculating_confirmation_code">Calculating confirmation code\u2026</string>
-	<string name="your_confirmation_code">Your confirmation code is</string>
-	<string name="enter_confirmation_code">Please enter your contact\'s confirmation code:</string>
-	<string name="waiting_for_contact">Waiting for contact\u2026</string>
 	<string name="waiting_for_contact_to_scan">Waiting for contact to scan and connect\u2026</string>
 	<string name="exchanging_contact_details">Exchanging contact details\u2026</string>
-	<string name="codes_do_not_match">Codes do not match</string>
-	<string name="interfering">This could mean that someone is trying to interfere with your connection</string>
 	<string name="contact_added_toast">Contact added: %s</string>
 	<string name="contact_already_exists">Contact %s already exists</string>
 	<string name="contact_exchange_failed">Contact exchange failed</string>

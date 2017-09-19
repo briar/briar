@@ -1,7 +1,6 @@
 package org.briarproject.bramble.plugin.modem;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.crypto.PseudoRandom;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -165,17 +164,6 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			return null;
 		}
 		return new ModemTransportConnection();
-	}
-
-	@Override
-	public boolean supportsInvitations() {
-		return false;
-	}
-
-	@Override
-	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
-			long timeout, boolean alice) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

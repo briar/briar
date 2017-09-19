@@ -24,7 +24,6 @@ import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.introduction.ContactChooserFragment;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.introduction.IntroductionMessageFragment;
-import org.briarproject.briar.android.invitation.AddContactActivity;
 import org.briarproject.briar.android.keyagreement.IntroFragment;
 import org.briarproject.briar.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.briar.android.keyagreement.ShowQrCodeFragment;
@@ -90,8 +89,6 @@ public interface ActivityComponent {
 	void inject(PanicResponderActivity activity);
 
 	void inject(PanicPreferencesActivity activity);
-
-	void inject(AddContactActivity activity);
 
 	void inject(KeyAgreementActivity activity);
 

@@ -1,7 +1,5 @@
 package org.briarproject.bramble.crypto;
 
-import org.briarproject.bramble.api.crypto.PseudoRandom;
-
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.SecureRandomSpi;
@@ -19,7 +17,7 @@ class PseudoSecureRandom extends SecureRandom {
 		private final PseudoRandom pseudoRandom;
 
 		private PseudoSecureRandomSpi(byte[] seed) {
-			pseudoRandom = new PseudoRandomImpl(seed);
+			pseudoRandom = new PseudoRandom(seed);
 		}
 
 		@Override

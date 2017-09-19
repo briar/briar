@@ -30,10 +30,10 @@ class StreamWriterFactoryImpl implements StreamWriterFactory {
 	}
 
 	@Override
-	public OutputStream createInvitationStreamWriter(OutputStream out,
+	public OutputStream createContactExchangeStreamWriter(OutputStream out,
 			SecretKey headerKey) {
 		return new StreamWriterImpl(
-				streamEncrypterFactory.createInvitationStreamEncrypter(out,
+				streamEncrypterFactory.createContactExchangeStreamDecrypter(out,
 						headerKey));
 	}
 }

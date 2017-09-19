@@ -1,7 +1,6 @@
 package org.briarproject.bramble.plugin.tcp;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.crypto.PseudoRandom;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -279,17 +278,6 @@ abstract class TcpPlugin implements DuplexPlugin {
 				LOG.warning("Invalid port: " + port);
 			return null;
 		}
-	}
-
-	@Override
-	public boolean supportsInvitations() {
-		return false;
-	}
-
-	@Override
-	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
-			long timeout, boolean alice) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
