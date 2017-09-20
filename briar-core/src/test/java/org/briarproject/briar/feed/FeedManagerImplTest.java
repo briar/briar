@@ -1,5 +1,8 @@
 package org.briarproject.briar.feed;
 
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndEntryImpl;
+
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.data.BdfDictionary;
@@ -11,17 +14,23 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
+import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.feed.Feed;
 import org.jmock.Expectations;
 import org.junit.Test;
 
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -91,6 +100,36 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		expectStoreFeed(feedList);
 
 		feedManager.fetchFeeds();
+	}
+
+	@Test
+	public void testPostFeedEntriesEmptyDate() throws Exception {
+		final Transaction txn = new Transaction(null, false);
+		List<SyndEntry> entries = new ArrayList<SyndEntry>();
+		entries.add(new SyndEntryImpl());
+		final SyndEntry entry = new SyndEntryImpl();
+		entry.setUpdatedDate(new Date());
+		entries.add(entry);
+		final String body =
+				"<p> (" + entry.getUpdatedDate().toString() + ")</p>";
+		Message msg = new Message(new MessageId(getRandomId()), blogGroupId, 0,
+				getRandomBytes(42));
+		final BlogPost post = new BlogPost(msg, null, localAuthor);
+
+		context.checking(new Expectations() {{
+			oneOf(db).startTransaction(false);
+			will(returnValue(txn));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(42L));
+			oneOf(blogPostFactory)
+					.createBlogPost(feed.getBlogId(), 42L, null, localAuthor,
+							body);
+			will(returnValue(post));
+			oneOf(blogManager).addLocalPost(txn, post);
+			oneOf(db).commitTransaction(txn);
+			oneOf(db).endTransaction(txn);
+		}});
+		feedManager.postFeedEntries(feed, entries);
 	}
 
 	private void expectGetLocalGroup() {

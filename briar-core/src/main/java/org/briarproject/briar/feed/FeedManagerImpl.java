@@ -398,7 +398,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		}
 	}
 
-	private long postFeedEntries(Feed feed, List<SyndEntry> entries)
+	long postFeedEntries(Feed feed, List<SyndEntry> entries)
 			throws DbException {
 
 		long lastEntryTime = feed.getLastEntryTime();
@@ -501,25 +501,20 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		return StringUtils.truncateUtf8(text, MAX_BLOG_POST_BODY_LENGTH);
 	}
 
-	/**
-	 * This Comparator assumes that SyndEntry returns a valid Date either for
-	 * getPublishedDate() or getUpdatedDate().
-	 */
 	private Comparator<SyndEntry> getEntryComparator() {
 		return new Comparator<SyndEntry>() {
 			@Override
 			public int compare(SyndEntry e1, SyndEntry e2) {
-				if (e1.getPublishedDate() == null &&
-						e1.getUpdatedDate() == null) {
-					// we will be ignoring such entries anyway
-					return 0;
-				}
 				Date d1 =
 						e1.getPublishedDate() != null ? e1.getPublishedDate() :
 								e1.getUpdatedDate();
 				Date d2 =
 						e2.getPublishedDate() != null ? e2.getPublishedDate() :
 								e2.getUpdatedDate();
+				if (d1 == null && d2 == null) return 0;
+				if (d1 == null) return -1;
+				if (d2 == null) return 1;
+
 				if (d1.after(d2)) return 1;
 				if (d1.before(d2)) return -1;
 				return 0;
