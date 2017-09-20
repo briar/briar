@@ -238,7 +238,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 		try {
 			Contact contact = db.getContact(txn, contactId);
 			if (!canBeShared(txn, shareableId, contact))
-				throw new IllegalArgumentException();
+				// we might have received an invitation in the meantime
+				return;
 			// Look up the session, if there is one
 			GroupId contactGroupId = getContactGroup(contact).getId();
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);

@@ -96,7 +96,7 @@ public class BlogSharingIntegrationTest
 		injectEagerSingletons(c2);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testPersonalBlogCannotBeSharedWithOwner() throws Exception {
 		listenToEvents(true);
 
@@ -108,11 +108,6 @@ public class BlogSharingIntegrationTest
 				contact0From1));
 		assertFalse(blogSharingManager2.canBeShared(blog0.getId(),
 				contact0From2));
-
-		// create invitation
-		blogSharingManager0
-				.sendInvitation(blog1.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
 	}
 
 	@Test
