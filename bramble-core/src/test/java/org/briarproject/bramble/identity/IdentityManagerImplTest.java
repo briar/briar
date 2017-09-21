@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.jmock.Expectations;
 import org.junit.Test;
 
@@ -31,8 +32,9 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	private final Transaction txn = new Transaction(null, false);
 	private final LocalAuthor localAuthor =
 			new LocalAuthor(new AuthorId(TestUtils.getRandomId()),
-					TestUtils.getRandomString(8), TestUtils.getRandomBytes(42),
-					TestUtils.getRandomBytes(42), 0);
+					StringUtils.getRandomString(8),
+					TestUtils.getRandomBytes(42), TestUtils.getRandomBytes(42),
+					0);
 	private final Collection<LocalAuthor> localAuthors =
 			Collections.singletonList(localAuthor);
 
@@ -93,7 +95,7 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 		assertEquals(UNKNOWN, identityManager.getAuthorStatus(authorId));
 
 		// add one unverified contact
-		Author author = new Author(authorId, TestUtils.getRandomString(8),
+		Author author = new Author(authorId, StringUtils.getRandomString(8),
 				TestUtils.getRandomBytes(42));
 		Contact contact =
 				new Contact(new ContactId(1), author, localAuthor.getId(),

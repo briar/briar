@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.system.SystemClock;
 import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.test.BriarTestCase;
@@ -64,7 +65,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	private final BlogFactory blogFactory = context.mock(BlogFactory.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
 	private final Author author;
-	private final String body = TestUtils.getRandomString(42);
+	private final String body = StringUtils.getRandomString(42);
 
 	public BlogPostValidatorTest() {
 		GroupId groupId = new GroupId(TestUtils.getRandomId());

@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.test.ValidatorTestCase;
+import org.briarproject.bramble.util.StringUtils;
 import org.jmock.Expectations;
 import org.junit.Test;
 
@@ -30,12 +31,12 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 
 	private final MessageId parentId = new MessageId(TestUtils.getRandomId());
 	private final String authorName =
-			TestUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH);
+			StringUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH);
 	private final byte[] authorPublicKey =
 			TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 	private final BdfList authorList = BdfList.of(authorName, authorPublicKey);
 	private final String content =
-			TestUtils.getRandomString(MAX_FORUM_POST_BODY_LENGTH);
+			StringUtils.getRandomString(MAX_FORUM_POST_BODY_LENGTH);
 	private final byte[] signature =
 			TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH);
 	private final AuthorId authorId = new AuthorId(TestUtils.getRandomId());
@@ -165,7 +166,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 
 	@Test
 	public void testAcceptsMinLengthAuthorName() throws Exception {
-		final String shortAuthorName = TestUtils.getRandomString(1);
+		final String shortAuthorName = StringUtils.getRandomString(1);
 		BdfList shortNameAuthorList =
 				BdfList.of(shortAuthorName, authorPublicKey);
 		final Author shortNameAuthor =
@@ -190,7 +191,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongAuthorName() throws Exception {
 		String invalidAuthorName =
-				TestUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH + 1);
+				StringUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH + 1);
 		BdfList invalidAuthorList =
 				BdfList.of(invalidAuthorName, authorPublicKey);
 		ForumPostValidator v = new ForumPostValidator(authorFactory,
@@ -278,7 +279,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongContent() throws Exception {
 		String invalidContent =
-				TestUtils.getRandomString(MAX_FORUM_POST_BODY_LENGTH + 1);
+				StringUtils.getRandomString(MAX_FORUM_POST_BODY_LENGTH + 1);
 
 		context.checking(new Expectations() {{
 			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);

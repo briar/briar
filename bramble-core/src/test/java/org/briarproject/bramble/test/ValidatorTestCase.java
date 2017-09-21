@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.util.StringUtils;
 
 public abstract class ValidatorTestCase extends BrambleMockTestCase {
 
@@ -28,7 +29,7 @@ public abstract class ValidatorTestCase extends BrambleMockTestCase {
 	protected final Message message =
 			new Message(messageId, groupId, timestamp, raw);
 	protected final ClientId clientId =
-			new ClientId(TestUtils.getRandomString(123));
+			new ClientId(StringUtils.getRandomString(123));
 	protected final byte[] descriptor = TestUtils.getRandomBytes(123);
 	protected final Group group = new Group(groupId, clientId, descriptor);
 

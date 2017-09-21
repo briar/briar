@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.BdfMessageContext;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.forum.Forum;
 import org.jmock.Expectations;
 import org.junit.Test;
@@ -16,12 +17,12 @@ import static org.briarproject.briar.sharing.MessageType.INVITE;
 public class ForumSharingValidatorTest extends SharingValidatorTest {
 
 	private final String forumName =
-			TestUtils.getRandomString(MAX_FORUM_NAME_LENGTH);
+			StringUtils.getRandomString(MAX_FORUM_NAME_LENGTH);
 	private final byte[] salt = TestUtils.getRandomBytes(FORUM_SALT_LENGTH);
 	private final Forum forum = new Forum(group, forumName, salt);
 	private final BdfList descriptor = BdfList.of(forumName, salt);
 	private final String content =
-			TestUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH);
+			StringUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH);
 
 	@Override
 	SharingValidator getValidator() {
@@ -83,7 +84,7 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 
 	@Test
 	public void testAcceptsMinLengthForumName() throws Exception {
-		String shortForumName = TestUtils.getRandomString(1);
+		String shortForumName = StringUtils.getRandomString(1);
 		BdfList validDescriptor = BdfList.of(shortForumName, salt);
 		expectCreateForum(shortForumName);
 		expectEncodeMetadata(INVITE);
@@ -96,7 +97,7 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongForumName() throws Exception {
 		String invalidForumName =
-				TestUtils.getRandomString(MAX_FORUM_NAME_LENGTH + 1);
+				StringUtils.getRandomString(MAX_FORUM_NAME_LENGTH + 1);
 		BdfList invalidDescriptor = BdfList.of(invalidForumName, salt);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, invalidDescriptor,
@@ -157,7 +158,7 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongContent() throws Exception {
 		String invalidContent =
-				TestUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH + 1);
+				StringUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH + 1);
 		expectCreateForum(forumName);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,

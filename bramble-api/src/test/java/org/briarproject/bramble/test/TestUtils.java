@@ -34,13 +34,6 @@ public class TestUtils {
 		return getRandomBytes(UniqueId.LENGTH);
 	}
 
-	public static String getRandomString(int length) {
-		char[] c = new char[length];
-		for (int i = 0; i < length; i++)
-			c[i] = (char) ('a' + random.nextInt(26));
-		return new String(c);
-	}
-
 	public static SecretKey getSecretKey() {
 		return new SecretKey(getRandomBytes(SecretKey.LENGTH));
 	}

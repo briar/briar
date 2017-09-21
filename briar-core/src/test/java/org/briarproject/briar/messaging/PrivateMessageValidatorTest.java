@@ -4,8 +4,8 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.BdfMessageContext;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.test.ValidatorTestCase;
+import org.briarproject.bramble.util.StringUtils;
 import org.junit.Test;
 
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
@@ -48,7 +48,7 @@ public class PrivateMessageValidatorTest extends ValidatorTestCase {
 		PrivateMessageValidator v = new PrivateMessageValidator(clientHelper,
 				metadataEncoder, clock);
 		String invalidContent =
-				TestUtils.getRandomString(MAX_PRIVATE_MESSAGE_BODY_LENGTH + 1);
+				StringUtils.getRandomString(MAX_PRIVATE_MESSAGE_BODY_LENGTH + 1);
 		v.validateMessage(message, group, BdfList.of(invalidContent));
 	}
 
@@ -57,7 +57,7 @@ public class PrivateMessageValidatorTest extends ValidatorTestCase {
 		PrivateMessageValidator v = new PrivateMessageValidator(clientHelper,
 				metadataEncoder, clock);
 		String content =
-				TestUtils.getRandomString(MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+				StringUtils.getRandomString(MAX_PRIVATE_MESSAGE_BODY_LENGTH);
 		BdfMessageContext messageContext =
 				v.validateMessage(message, group, BdfList.of(content));
 		assertExpectedContext(messageContext);

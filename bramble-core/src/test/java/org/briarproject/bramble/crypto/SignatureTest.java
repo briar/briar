@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestSecureRandomProvider;
 import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -18,7 +19,7 @@ public class SignatureTest extends BrambleTestCase {
 	private final CryptoComponent crypto;
 
 	private final byte[] publicKey, privateKey;
-	private final String label = TestUtils.getRandomString(42);
+	private final String label = StringUtils.getRandomString(42);
 	private final byte[] inputBytes = TestUtils.getRandomBytes(123);
 
 	public SignatureTest() {
@@ -64,7 +65,7 @@ public class SignatureTest extends BrambleTestCase {
 	public void testDifferentLabelsProduceDifferentSignatures()
 			throws Exception {
 		// Generate a second label
-		String label2 = TestUtils.getRandomString(42);
+		String label2 = StringUtils.getRandomString(42);
 		// Calculate the signature with different inputs
 		// the results should be different
 		byte[] sig1 = crypto.sign(label, inputBytes, privateKey);
@@ -100,7 +101,7 @@ public class SignatureTest extends BrambleTestCase {
 	@Test
 	public void testDifferentLabelFailsVerification() throws Exception {
 		// Generate a second label
-		String label2 = TestUtils.getRandomString(42);
+		String label2 = StringUtils.getRandomString(42);
 		// calculate the signature with different label, should fail to verify
 		byte[] sig = crypto.sign(label, inputBytes, privateKey);
 		assertFalse(crypto.verify(label2, inputBytes, publicKey, sig));

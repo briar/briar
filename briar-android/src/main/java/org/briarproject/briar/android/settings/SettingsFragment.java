@@ -34,8 +34,11 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.UserFeedback;
 import org.briarproject.briar.android.widget.PreferenceDividerDecoration;
+import org.briarproject.briar.api.test.TestDataCreator;
 
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import static android.app.Activity.RESULT_OK;
 import static android.media.RingtoneManager.ACTION_RINGTONE_PICKER;
@@ -53,6 +56,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_ALWAYS;
+import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_BLOG;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_FORUM;
@@ -77,7 +81,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			Logger.getLogger(SettingsFragment.class.getName());
 
 	private SettingsActivity listener;
-	private AndroidExecutor androidExecutor;
 	private ListPreference enableBluetooth;
 	private ListPreference torNetwork;
 	private CheckBoxPreference notifyPrivateMessages;
@@ -90,18 +93,24 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private Preference notifySound;
 
 	// Fields that are accessed from background threads must be volatile
-	private volatile SettingsManager settingsManager;
-	private volatile EventBus eventBus;
-	private volatile Settings settings;
+	volatile Settings settings;
+	@Inject
+	volatile SettingsManager settingsManager;
+	@Inject
+	volatile EventBus eventBus;
+
+	@Inject
+	AndroidExecutor androidExecutor;
+	@Inject
+	TestDataCreator testDataCreator;
 
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-
 		listener = (SettingsActivity) context;
-		androidExecutor = listener.getAndroidExecutor();
-		settingsManager = listener.getSettingsManager();
-		eventBus = listener.getEventBus();
+		// we need to inject here,
+		// because onActivityCreated() is called after onCreatePreferences()
+		listener.getActivityComponent().inject(this);
 	}
 
 	@Override
@@ -169,6 +178,23 @@ public class SettingsFragment extends PreferenceFragmentCompat
 						return true;
 					}
 				});
+
+		Preference testData = findPreference("pref_key_test_data");
+		if (IS_DEBUG_BUILD) {
+			testData.setOnPreferenceClickListener(
+					new Preference.OnPreferenceClickListener() {
+						@Override
+						public boolean onPreferenceClick(
+								Preference preference) {
+							LOG.info("Creating test data");
+							testDataCreator.createTestData();
+							getActivity().finish();
+							return true;
+						}
+					});
+		} else {
+			testData.setVisible(false);
+		}
 
 		loadSettings();
 	}
@@ -428,4 +454,5 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			}
 		}
 	}
+
 }

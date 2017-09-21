@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.sync.ValidationManager.MessageValidator;
 import org.briarproject.bramble.test.CaptureArgumentAction;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.ByteUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.client.MessageQueueManager.IncomingQueueMessageHook;
 import org.briarproject.briar.api.client.MessageQueueManager.QueueMessageValidator;
 import org.briarproject.briar.api.client.QueueMessage;
@@ -45,7 +46,7 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 
 	private final GroupId groupId = new GroupId(TestUtils.getRandomId());
 	private final ClientId clientId =
-			new ClientId(TestUtils.getRandomString(5));
+			new ClientId(StringUtils.getRandomString(5));
 	private final byte[] descriptor = new byte[0];
 	private final Group group = new Group(groupId, clientId, descriptor);
 	private final long timestamp = System.currentTimeMillis();

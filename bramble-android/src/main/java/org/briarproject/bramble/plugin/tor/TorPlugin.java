@@ -84,13 +84,13 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_NEVER;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_WIFI;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
+import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
-	private static final String PROP_ONION = "onion";
 	private static final String[] EVENTS = {
 			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
 	};

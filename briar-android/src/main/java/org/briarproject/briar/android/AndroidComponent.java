@@ -26,7 +26,6 @@ import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.reporting.BriarReportSender;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
-import org.briarproject.briar.api.android.ReferenceManager;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPostFactory;
@@ -44,6 +43,7 @@ import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.briar.api.test.TestDataCreator;
 import org.thoughtcrime.securesms.components.emoji.EmojiProvider;
 import org.thoughtcrime.securesms.components.emoji.RecentEmojiPageModel;
 
@@ -72,8 +72,6 @@ public interface AndroidComponent
 	CryptoComponent cryptoComponent();
 
 	DatabaseConfig databaseConfig();
-
-	ReferenceManager referenceMangager();
 
 	@DatabaseExecutor
 	Executor databaseExecutor();
@@ -139,6 +137,8 @@ public interface AndroidComponent
 	FeedManager feedManager();
 
 	Clock clock();
+
+	TestDataCreator testDataCreator();
 
 	@IoExecutor
 	Executor ioExecutor();

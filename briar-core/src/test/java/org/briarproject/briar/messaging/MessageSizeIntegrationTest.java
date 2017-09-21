@@ -65,7 +65,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 	@Test
 	public void testForumPostFitsIntoPacket() throws Exception {
 		// Create a maximum-length author
-		String authorName = TestUtils.getRandomString(
+		String authorName = StringUtils.getRandomString(
 				MAX_AUTHOR_NAME_LENGTH);
 		byte[] authorPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
 		PrivateKey privateKey = crypto.generateSignatureKeyPair().getPrivate();
@@ -76,7 +76,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		GroupId groupId = new GroupId(getRandomId());
 		long timestamp = Long.MAX_VALUE;
 		MessageId parent = new MessageId(getRandomId());
-		String body = TestUtils.getRandomString(MAX_FORUM_POST_BODY_LENGTH);
+		String body = StringUtils.getRandomString(MAX_FORUM_POST_BODY_LENGTH);
 		ForumPost post = forumPostFactory.createPost(groupId,
 				timestamp, parent, author, body);
 		// Check the size of the serialised message

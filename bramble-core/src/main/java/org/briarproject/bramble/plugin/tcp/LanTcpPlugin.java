@@ -35,6 +35,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PREF_LAN_IP_PORTS;
+import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_IP_PORTS;
 import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
 
@@ -45,7 +46,6 @@ class LanTcpPlugin extends TcpPlugin {
 			Logger.getLogger(LanTcpPlugin.class.getName());
 
 	private static final int MAX_ADDRESSES = 4;
-	private static final String PROP_IP_PORTS = "ipPorts";
 	private static final String SEPARATOR = ",";
 
 	LanTcpPlugin(Executor ioExecutor, Backoff backoff,

@@ -8,6 +8,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.Collection;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
@@ -27,6 +28,7 @@ public class StringUtils {
 			'0', '1', '2', '3', '4', '5', '6', '7',
 			'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 	};
+	private static final Random random = new Random();
 
 	public static boolean isNullOrEmpty(@Nullable String s) {
 		return s == null || s.length() == 0;
@@ -139,4 +141,12 @@ public class StringUtils {
 		}
 		return s.toString();
 	}
+
+	public static String getRandomString(int length) {
+		char[] c = new char[length];
+		for (int i = 0; i < length; i++)
+			c[i] = (char) ('a' + random.nextInt(26));
+		return new String(c);
+	}
+
 }

@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.test.BriarTestCase;
@@ -81,7 +82,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		introducee2 =
 				new Contact(contactId2, author2, localAuthorId2, true, true);
 
-		ClientId clientId = new ClientId(TestUtils.getRandomString(5));
+		ClientId clientId = new ClientId(StringUtils.getRandomString(5));
 		introductionGroup1 = new Group(new GroupId(TestUtils.getRandomId()),
 				clientId, new byte[0]);
 		introductionGroup2 = new Group(new GroupId(TestUtils.getRandomId()),

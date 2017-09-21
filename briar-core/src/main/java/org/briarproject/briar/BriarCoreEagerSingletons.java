@@ -26,4 +26,5 @@ public interface BriarCoreEagerSingletons {
 	void inject(PrivateGroupModule.EagerSingletons init);
 
 	void inject(SharingModule.EagerSingletons init);
+
 }

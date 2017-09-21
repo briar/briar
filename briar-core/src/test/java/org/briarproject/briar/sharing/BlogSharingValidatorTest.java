@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.blog.Blog;
 import org.jmock.Expectations;
 import org.junit.Test;
@@ -19,14 +20,14 @@ import static org.briarproject.briar.sharing.MessageType.INVITE;
 public class BlogSharingValidatorTest extends SharingValidatorTest {
 
 	private final AuthorId authorId = new AuthorId(getRandomId());
-	private final String authorName = TestUtils.getRandomString(42);
+	private final String authorName = StringUtils.getRandomString(42);
 	private final byte[] publicKey =
 			TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 	private final Author author = new Author(authorId, authorName, publicKey);
 	private final Blog blog = new Blog(group, author, false);
 	private final BdfList descriptor = BdfList.of(authorName, publicKey, false);
 	private final String content =
-			TestUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH);
+			StringUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH);
 
 	@Override
 	SharingValidator getValidator() {
@@ -88,7 +89,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 
 	@Test
 	public void testAcceptsMinLengthBlogName() throws Exception {
-		String shortBlogName = TestUtils.getRandomString(1);
+		String shortBlogName = StringUtils.getRandomString(1);
 		BdfList validDescriptor = BdfList.of(shortBlogName, publicKey, false);
 		expectCreateBlog(shortBlogName, publicKey);
 		expectEncodeMetadata(INVITE);
@@ -101,7 +102,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongBlogName() throws Exception {
 		String invalidBlogName =
-				TestUtils.getRandomString(MAX_BLOG_NAME_LENGTH + 1);
+				StringUtils.getRandomString(MAX_BLOG_NAME_LENGTH + 1);
 		BdfList invalidDescriptor =
 				BdfList.of(invalidBlogName, publicKey, false);
 		v.validateMessage(message, group,
@@ -167,7 +168,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongContent() throws Exception {
 		String invalidContent =
-				TestUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH + 1);
+				StringUtils.getRandomString(MAX_INVITATION_MESSAGE_LENGTH + 1);
 		expectCreateBlog(authorName, publicKey);
 		v.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,

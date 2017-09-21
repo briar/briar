@@ -114,4 +114,8 @@
 
 	</PreferenceCategory>
 
+	<Preference
+		android:key="pref_key_test_data"
+		android:title="Create Test Data"/>
+
 </PreferenceScreen>
