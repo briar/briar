@@ -232,6 +232,30 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES transports (transportId)"
 					+ " ON DELETE CASCADE)";
 
+	private static final String INDEX_CONTACTS_BY_AUTHOR_ID =
+			"CREATE INDEX IF NOT EXISTS contactsByAuthorId"
+					+ " ON contacts (authorId)";
+
+	private static final String INDEX_MESSAGES_BY_GROUP_ID =
+			"CREATE INDEX IF NOT EXISTS messagesByGroupId"
+					+ " ON messages (groupId)";
+
+	private static final String INDEX_OFFERS_BY_CONTACT_ID =
+			"CREATE INDEX IF NOT EXISTS offersByContactId"
+					+ " ON offers (contactId)";
+
+	private static final String INDEX_GROUPS_BY_CLIENT_ID =
+			"CREATE INDEX IF NOT EXISTS groupsByClientId"
+					+ " ON groups (clientId)";
+
+	private static final String INDEX_MESSAGE_METADATA_BY_MESSAGE_ID =
+			"CREATE INDEX IF NOT EXISTS messageMetadataByMessageId"
+					+ " ON messageMetadata (messageId)";
+
+	private static final String INDEX_GROUP_METADATA_BY_GROUP_ID =
+			"CREATE INDEX IF NOT EXISTS groupMetadataByGroupId"
+					+ " ON groupMetadata (groupId)";
+
 	private static final Logger LOG =
 			Logger.getLogger(JdbcDatabase.class.getName());
 
@@ -267,7 +291,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch (ClassNotFoundException e) {
 			throw new DbException(e);
 		}
-		// Open the database and create the tables if necessary
+		// Open the database and create the tables and indexes if necessary
 		Connection txn = startTransaction();
 		try {
 			if (reopen) {
@@ -276,6 +300,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				createTables(txn);
 				storeSchemaVersion(txn);
 			}
+			createIndexes(txn);
 			commitTransaction(txn);
 		} catch (DbException e) {
 			abortTransaction(txn);
@@ -333,6 +358,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORTS));
 			s.executeUpdate(insertTypeNames(CREATE_INCOMING_KEYS));
 			s.executeUpdate(insertTypeNames(CREATE_OUTGOING_KEYS));
+			s.close();
+		} catch (SQLException e) {
+			tryToClose(s);
+			throw new DbException(e);
+		}
+	}
+
+	private void createIndexes(Connection txn) throws DbException {
+		Statement s = null;
+		try {
+			s = txn.createStatement();
+			s.executeUpdate(INDEX_CONTACTS_BY_AUTHOR_ID);
+			s.executeUpdate(INDEX_MESSAGES_BY_GROUP_ID);
+			s.executeUpdate(INDEX_OFFERS_BY_CONTACT_ID);
+			s.executeUpdate(INDEX_GROUPS_BY_CLIENT_ID);
+			s.executeUpdate(INDEX_MESSAGE_METADATA_BY_MESSAGE_ID);
+			s.executeUpdate(INDEX_GROUP_METADATA_BY_GROUP_ID);
 			s.close();
 		} catch (SQLException e) {
 			tryToClose(s);
