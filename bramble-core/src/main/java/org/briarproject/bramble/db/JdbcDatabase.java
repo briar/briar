@@ -1,5 +1,32 @@
 package org.briarproject.bramble.db;
 
+import static org.briarproject.bramble.api.db.DatabaseComponent.NO_CLEANUP_DEADLINE;
+import static org.briarproject.bramble.api.db.DatabaseComponent.TIMER_NOT_STARTED;
+import static org.briarproject.bramble.api.db.Metadata.REMOVE;
+import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
+import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
+import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
+import static org.briarproject.bramble.api.sync.validation.MessageState.UNKNOWN;
+import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
+import static org.briarproject.bramble.db.DatabaseConstants.DIRTY_KEY;
+import static org.briarproject.bramble.db.DatabaseConstants.SCHEMA_VERSION_KEY;
+import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
+import static org.briarproject.bramble.db.JdbcUtils.tryToClose;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
+import static java.sql.Types.BINARY;
+import static java.sql.Types.BOOLEAN;
+import static java.sql.Types.INTEGER;
+import static java.sql.Types.VARCHAR;
+import static java.util.Arrays.asList;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
@@ -64,33 +91,6 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
-
-import static java.sql.Types.BINARY;
-import static java.sql.Types.BOOLEAN;
-import static java.sql.Types.INTEGER;
-import static java.sql.Types.VARCHAR;
-import static java.util.Arrays.asList;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.db.DatabaseComponent.NO_CLEANUP_DEADLINE;
-import static org.briarproject.bramble.api.db.DatabaseComponent.TIMER_NOT_STARTED;
-import static org.briarproject.bramble.api.db.Metadata.REMOVE;
-import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
-import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
-import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
-import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
-import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
-import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
-import static org.briarproject.bramble.api.sync.validation.MessageState.UNKNOWN;
-import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
-import static org.briarproject.bramble.db.DatabaseConstants.DIRTY_KEY;
-import static org.briarproject.bramble.db.DatabaseConstants.SCHEMA_VERSION_KEY;
-import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
-import static org.briarproject.bramble.db.JdbcUtils.tryToClose;
-import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.bramble.util.LogUtils.now;
 
 /**
  * A generic database implementation that can be used with any JDBC-compatible
@@ -415,6 +415,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			createIndexes(txn);
 			setDirty(txn, true);
+			if (LOG.isLoggable(INFO)) countAndLogRows(txn);
 			commitTransaction(txn);
 		} catch (DbException e) {
 			abortTransaction(txn);
@@ -563,6 +564,40 @@ abstract class JdbcDatabase implements Database<Connection> {
 			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);
 		}
+	}
+
+	private void countAndLogRows(Connection txn) throws DbException {
+		Statement s = null;
+		try {
+			s = txn.createStatement();
+			countAndLogRows(s, "settings");
+			countAndLogRows(s, "localAuthors");
+			countAndLogRows(s, "contacts");
+			countAndLogRows(s, "groups");
+			countAndLogRows(s, "groupMetadata");
+			countAndLogRows(s, "groupVisibilities");
+			countAndLogRows(s, "messages");
+			countAndLogRows(s, "messageMetadata");
+			countAndLogRows(s, "messageDependencies");
+			countAndLogRows(s, "offers");
+			countAndLogRows(s, "statuses");
+			countAndLogRows(s, "transports");
+			countAndLogRows(s, "incomingKeys");
+			countAndLogRows(s, "outgoingKeys");
+			s.close();
+		} catch (SQLException e) {
+			tryToClose(s, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	private void countAndLogRows(Statement s, String tableName)
+			throws SQLException {
+		ResultSet rs = s.executeQuery("SELECT COUNT (*) FROM " + tableName);
+		if (rs.next())
+			LOG.info("Table " + tableName + ": " + rs.getInt(1) + " rows");
+		else LOG.warning("Table " + tableName + " could not be counted");
+		rs.close();
 	}
 
 	@Override
