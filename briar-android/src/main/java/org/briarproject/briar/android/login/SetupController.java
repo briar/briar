@@ -6,9 +6,25 @@ import org.briarproject.briar.android.controller.handler.ResultHandler;
 @NotNullByDefault
 public interface SetupController {
 
+	void setSetupActivity(SetupActivity setupActivity);
+
+	boolean needsDozeWhitelisting();
+
+	void setAuthorName(String authorName);
+
+	void setPassword(String password);
+
 	float estimatePasswordStrength(String password);
 
-	void storeAuthorInfo(String nickname, String password,
-			ResultHandler<Void> resultHandler);
+	/**
+	 * This should be called after the author name and the password have been
+	 * set. It decides whether to ask for doze exception or create the account
+	 * right away.
+	 */
+	void showDozeOrCreateAccount();
+
+	void createAccount();
+
+	void createAccount(final ResultHandler<Void> resultHandler);
 
 }

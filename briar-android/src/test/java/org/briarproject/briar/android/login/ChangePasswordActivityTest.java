@@ -57,8 +57,6 @@ public class ChangePasswordActivityTest {
 
 	@Mock
 	private PasswordController passwordController;
-	@Mock
-	private SetupController setupController;
 	@Captor
 	private ArgumentCaptor<ResultHandler<Boolean>> resultCaptor;
 
@@ -71,14 +69,18 @@ public class ChangePasswordActivityTest {
 				.findViewById(R.id.new_password_confirm_wrapper);
 		currentPassword = (EditText) changePasswordActivity
 				.findViewById(R.id.current_password_entry);
-		newPassword = (EditText) changePasswordActivity
-				.findViewById(R.id.new_password_entry);
-		newPasswordConfirmation = (EditText) changePasswordActivity
-				.findViewById(R.id.new_password_confirm);
-		strengthMeter = (StrengthMeter) changePasswordActivity
-				.findViewById(R.id.strength_meter);
-		changePasswordButton = (Button) changePasswordActivity
-				.findViewById(R.id.change_password);
+		newPassword =
+				(EditText) changePasswordActivity
+						.findViewById(R.id.new_password_entry);
+		newPasswordConfirmation =
+				(EditText) changePasswordActivity
+						.findViewById(R.id.new_password_confirm);
+		strengthMeter =
+				(StrengthMeter) changePasswordActivity
+						.findViewById(R.id.strength_meter);
+		changePasswordButton =
+				(Button) changePasswordActivity
+						.findViewById(R.id.change_password);
 	}
 
 	private void testStrengthMeter(String pass, float strength, int color) {
@@ -110,12 +112,9 @@ public class ChangePasswordActivityTest {
 
 	@Test
 	public void testChangePasswordUI() {
-		PasswordController mockedPasswordController = this.passwordController;
-		SetupController mockedSetupController = this.setupController;
-		changePasswordActivity.setPasswordController(mockedPasswordController);
-		changePasswordActivity.setSetupController(mockedSetupController);
+		changePasswordActivity.setPasswordController(passwordController);
 		// Mock strong password strength answer
-		when(mockedSetupController.estimatePasswordStrength(anyString()))
+		when(passwordController.estimatePasswordStrength(anyString()))
 				.thenReturn(STRONG);
 		String curPass = "old.password";
 		String safePass = "really.safe.password";
@@ -127,7 +126,7 @@ public class ChangePasswordActivityTest {
 		changePasswordButton.performClick();
 		// Verify that the controller's method was called with the correct
 		// params and get the callback
-		verify(mockedPasswordController, times(1))
+		verify(passwordController, times(1))
 				.changePassword(eq(curPass), eq(safePass),
 						resultCaptor.capture());
 		// execute the callbacks
@@ -139,23 +138,24 @@ public class ChangePasswordActivityTest {
 	public void testPasswordChange() {
 		PasswordController passwordController =
 				changePasswordActivity.getPasswordController();
-		SetupController setupController =
-				changePasswordActivity.getSetupController();
+
+		TestSetupActivity setupActivity =
+				Robolectric.setupActivity(TestSetupActivity.class);
+		SetupController setupController = setupActivity.getController();
+		setupController.setAuthorName("nick");
+		setupController.setPassword("some.old.pass");
 		// mock a resulthandler
-		ResultHandler<Void> resultHandler =
-				(ResultHandler<Void>) mock(ResultHandler.class);
-		setupController.storeAuthorInfo("nick", "some.old.pass", resultHandler);
-		// blocking verification call with timeout that waits until the mocked
-		// result gets called with handle 0L, the expected value
+		ResultHandler<Void> resultHandler = mock(ResultHandler.class);
+		setupController.createAccount(resultHandler);
 		verify(resultHandler, timeout(TIMEOUT_MS).times(1)).onResult(null);
+
 		SharedPreferences prefs = changePasswordActivity
 				.getSharedPreferences("db", Context.MODE_PRIVATE);
 		// Confirm database key
 		assertTrue(prefs.contains("key"));
 		String oldKey = prefs.getString("key", null);
 		// mock a resulthandler
-		ResultHandler<Boolean> resultHandler2 =
-				(ResultHandler<Boolean>) mock(ResultHandler.class);
+		ResultHandler<Boolean> resultHandler2 = mock(ResultHandler.class);
 		passwordController.changePassword("some.old.pass", "some.strong.pass",
 				resultHandler2);
 		// blocking verification call with timeout that waits until the mocked
@@ -164,14 +164,14 @@ public class ChangePasswordActivityTest {
 		// Confirm database key
 		assertTrue(prefs.contains("key"));
 		assertNotEquals(oldKey, prefs.getString("key", null));
-		// Note that Robolectric uses its own persistant storage that it
+		// Note that Robolectric uses its own persistent storage that it
 		// wipes clean after each test run, no need to clean up manually.
 	}
 
 	@Test
 	public void testStrengthMeter() {
-		SetupController controller =
-				changePasswordActivity.getSetupController();
+		PasswordController controller =
+				changePasswordActivity.getPasswordController();
 
 		String strongPass = "very.strong.password.123";
 		String weakPass = "we";
@@ -188,9 +188,9 @@ public class ChangePasswordActivityTest {
 	@Test
 	public void testStrengthMeterUI() {
 		Assert.assertNotNull(changePasswordActivity);
-		// replace the setup controller with our mocked copy
-		SetupController mockedController = this.setupController;
-		changePasswordActivity.setSetupController(mockedController);
+		// replace the password controller with our mocked copy
+		PasswordController mockedController = this.passwordController;
+		changePasswordActivity.setPasswordController(mockedController);
 		// Mock answers for UI testing only
 		when(mockedController.estimatePasswordStrength("strong")).thenReturn(
 				STRONG);
@@ -220,4 +220,5 @@ public class ChangePasswordActivityTest {
 		Mockito.verify(mockedController, Mockito.times(1))
 				.estimatePasswordStrength(eq("empty"));
 	}
+
 }

@@ -1,14 +1,18 @@
 package org.briarproject.briar.android.util;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
-
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.os.PowerManager;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.Spannable;
@@ -23,14 +27,16 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
 
 import javax.annotation.Nullable;
 
-import static android.content.Intent.*;
+import static android.content.Context.POWER_SERVICE;
+import static android.content.Intent.CATEGORY_DEFAULT;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
 import static android.text.format.DateUtils.DAY_IN_MILLIS;
 import static android.text.format.DateUtils.FORMAT_ABBREV_MONTH;
 import static android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE;
@@ -38,7 +44,7 @@ import static android.text.format.DateUtils.FORMAT_ABBREV_TIME;
 import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.WEEK_IN_MILLIS;
-import static org.briarproject.briar.BuildConfig.*;
+import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.BriarApplication.EXPIRY_DATE;
 
 public class UiUtils {
@@ -149,4 +155,37 @@ public class UiUtils {
 			}
 		};
 	}
+
+	public static void showOnboardingDialog(Context ctx, String text) {
+		new AlertDialog.Builder(ctx, R.style.OnboardingDialogTheme)
+				.setMessage(text)
+				.setNeutralButton(R.string.got_it,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								dialog.cancel();
+							}
+						})
+				.show();
+	}
+
+	public static boolean needsDozeWhitelisting(Context ctx) {
+		if (Build.VERSION.SDK_INT < 23) return false;
+		PowerManager pm =
+				(PowerManager) ctx.getSystemService(POWER_SERVICE);
+		String packageName = ctx.getPackageName();
+		if (pm == null) throw new AssertionError();
+		return !pm.isIgnoringBatteryOptimizations(packageName);
+	}
+
+	@TargetApi(23)
+	@SuppressLint("BatteryLife")
+	public static Intent getDozeWhitelistingIntent(Context ctx) {
+		Intent i = new Intent();
+		i.setAction(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+		i.setData(Uri.parse("package:" + ctx.getPackageName()));
+		return i;
+	}
+
 }

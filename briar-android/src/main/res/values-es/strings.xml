@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Configuración de Briar</string>
-  <string name="setup_explanation">Tu cuenta de Briar se almacena de manera cifrada en tu dispositivo y no en ninguna nube. Si desinstalas Briar u olvidas tu contraseña, no podrás recuperar ni tu cuenta ni tus datos.</string>
+  <string name="setup_password_explanation">Tu cuenta de Briar se almacena de manera cifrada en tu dispositivo y no en ninguna nube. Si desinstalas Briar u olvidas tu contraseña, no podrás recuperar ni tu cuenta ni tus datos.</string>
   <string name="choose_nickname">Elige tu nombre de usuario</string>
   <string name="choose_password">Elige tu contraseña</string>
   <string name="confirm_password">Confirma tu contraseña</string>

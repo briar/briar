@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">安装 Briar</string>
-  <string name="setup_explanation">您的 Briar 账号只会被加密储存在您的设备上，不会被上传。如果您卸载了 Briar 或忘记了密码，将无法恢复您的账号和数据。</string>
+  <string name="setup_password_explanation">您的 Briar 账号只会被加密储存在您的设备上，不会被上传。如果您卸载了 Briar 或忘记了密码，将无法恢复您的账号和数据。</string>
   <string name="choose_nickname">设置昵称</string>
   <string name="choose_password">设置密码</string>
   <string name="confirm_password">确认密码</string>

@@ -10,15 +10,8 @@ public class TestChangePasswordActivity extends ChangePasswordActivity {
 		return passwordController;
 	}
 
-	public SetupController getSetupController() {
-		return setupController;
-	}
-
 	public void setPasswordController(PasswordController passwordController) {
 		this.passwordController = passwordController;
 	}
 
-	public void setSetupController(SetupController setupController) {
-		this.setupController = setupController;
-	}
 }

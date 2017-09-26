@@ -1,14 +1,19 @@
 package org.briarproject.briar.android.navdrawer;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -49,9 +54,12 @@ import static android.support.v4.view.GravityCompat.START;
 import static android.support.v4.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
 import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
+import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingIntent;
+import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
 public class NavDrawerActivity extends BriarActivity implements
 		BaseFragmentListener, TransportStateListener,
@@ -134,6 +142,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	}
 
 	@Override
+	@SuppressLint("NewApi")
 	public void onStart() {
 		super.onStart();
 		updateTransports();
@@ -143,6 +152,7 @@ public class NavDrawerActivity extends BriarActivity implements
 				if (expiry != NO) showExpiryWarning(expiry);
 			}
 		});
+		if (needsDozeWhitelisting(this)) requestDozeWhitelisting();
 	}
 
 	private void exitIfStartupFailed(Intent intent) {
@@ -178,7 +188,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	}
 
 	@Override
-	public boolean onNavigationItemSelected(MenuItem item) {
+	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 		drawerLayout.closeDrawer(START);
 		clearBackStack();
 		loadFragment(item.getItemId());
@@ -309,6 +319,24 @@ public class NavDrawerActivity extends BriarActivity implements
 		});
 
 		expiryWarning.setVisibility(VISIBLE);
+	}
+
+	@TargetApi(23)
+	private void requestDozeWhitelisting() {
+		new AlertDialog.Builder(this, R.style.BriarDialogTheme)
+				.setMessage(R.string.setup_doze_intro)
+				.setPositiveButton(R.string.ok,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								Intent i = getDozeWhitelistingIntent(
+										NavDrawerActivity.this);
+								startActivityForResult(i,
+										REQUEST_DOZE_WHITELISTING);
+							}
+						})
+				.show();
 	}
 
 	private void initializeTransports(final LayoutInflater inflater) {

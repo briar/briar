@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Configuration de Briar</string>
-  <string name="setup_explanation">Votre compte Briar est enregistré chiffré sur votre appareil et non sur le nuage. Si vous désinstallez Briar ou oubliez votre mot de passe, votre compte et vos données sont irrécupérables.</string>
+  <string name="setup_password_explanation">Votre compte Briar est enregistré chiffré sur votre appareil et non sur le nuage. Si vous désinstallez Briar ou oubliez votre mot de passe, votre compte et vos données sont irrécupérables.</string>
   <string name="choose_nickname">Choisir votre pseudonyme</string>
   <string name="choose_password">Choisir votre mot de passe</string>
   <string name="confirm_password">Confirmer votre mot de passe</string>

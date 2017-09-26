@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Briar регистрация</string>
-  <string name="setup_explanation">Briar профилът се съхранява криптиран във вашето устройство, а не в облака. Ако деинсталирате Briar или забравите паролата си, няма как да възстановите профила и данните си.</string>
+  <string name="setup_password_explanation">Briar профилът се съхранява криптиран във вашето устройство, а не в облака. Ако деинсталирате Briar или забравите паролата си, няма как да възстановите профила и данните си.</string>
   <string name="choose_nickname">Изберете име</string>
   <string name="choose_password">Изберете парола</string>
   <string name="confirm_password">Потвърдете парола</string>

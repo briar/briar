@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.login;
 
 import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
@@ -9,6 +10,8 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
+import org.briarproject.briar.android.controller.handler.UiResultHandler;
+import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.concurrent.Executor;
 
@@ -18,29 +21,75 @@ import javax.inject.Inject;
 public class SetupControllerImpl extends PasswordControllerImpl
 		implements SetupController {
 
-	private final PasswordStrengthEstimator strengthEstimator;
+	@Nullable
+	private String authorName, password;
+	@Nullable
+	private SetupActivity setupActivity;
 
 	@Inject
 	SetupControllerImpl(SharedPreferences briarPrefs,
 			DatabaseConfig databaseConfig,
 			@CryptoExecutor Executor cryptoExecutor, CryptoComponent crypto,
 			PasswordStrengthEstimator strengthEstimator) {
-		super(briarPrefs, databaseConfig, cryptoExecutor, crypto);
-		this.strengthEstimator = strengthEstimator;
+		super(briarPrefs, databaseConfig, cryptoExecutor, crypto,
+				strengthEstimator);
 	}
 
 	@Override
-	public float estimatePasswordStrength(String password) {
-		return strengthEstimator.estimateStrength(password);
+	public void setSetupActivity(SetupActivity setupActivity) {
+		this.setupActivity = setupActivity;
 	}
 
 	@Override
-	public void storeAuthorInfo(final String nickname, final String password,
-			final ResultHandler<Void> resultHandler) {
+	public boolean needsDozeWhitelisting() {
+		if (setupActivity == null) throw new IllegalStateException();
+		return UiUtils.needsDozeWhitelisting(setupActivity);
+	}
+
+	@Override
+	public void setAuthorName(String authorName) {
+		this.authorName = authorName;
+		if (setupActivity == null) throw new IllegalStateException();
+		setupActivity.showPasswordFragment();
+	}
+
+	@Override
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	@Override
+	public void showDozeOrCreateAccount() {
+		if (setupActivity == null) throw new IllegalStateException();
+		if (needsDozeWhitelisting()) {
+			setupActivity.showDozeFragment();
+		} else {
+			createAccount();
+		}
+	}
+
+	@Override
+	public void createAccount() {
+		final UiResultHandler<Void> resultHandler =
+				new UiResultHandler<Void>(setupActivity) {
+					@Override
+					public void onResultUi(Void result) {
+						if (setupActivity == null)
+							throw new IllegalStateException();
+						setupActivity.showApp();
+					}
+				};
+		createAccount(resultHandler);
+	}
+
+	@Override
+	public void createAccount(final ResultHandler<Void> resultHandler) {
+		if (authorName == null || password == null)
+			throw new IllegalStateException();
 		cryptoExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				databaseConfig.setLocalAuthorName(nickname);
+				databaseConfig.setLocalAuthorName(authorName);
 				SecretKey key = crypto.generateSecretKey();
 				databaseConfig.setEncryptionKey(key);
 				String hex = encryptDatabaseKey(key, password);

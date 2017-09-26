@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Configuració de Briar</string>
-  <string name="setup_explanation">El teu compte de Briar està encriptat al teu dispositiu, no al núvol. Si desinstal·les Briar o oblides la contrasenya, no hi ha manera de recuperar el teu compte i les teves dades.</string>
+  <string name="setup_password_explanation">El teu compte de Briar està encriptat al teu dispositiu, no al núvol. Si desinstal·les Briar o oblides la contrasenya, no hi ha manera de recuperar el teu compte i les teves dades.</string>
   <string name="choose_nickname">Trieu el sobrenom</string>
   <string name="choose_password">Trieu la contrasenya</string>
   <string name="confirm_password">Confirmeu la contrasenya</string>
