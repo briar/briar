@@ -8,9 +8,9 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
+import java.sql.Statement;
 
-public class BasicH2Test extends BasicDatabaseTest {
+public class BasicHyperSqlTest extends BasicDatabaseTest {
 
 	private final SecretKey key = TestUtils.getSecretKey();
 
@@ -21,27 +21,28 @@ public class BasicH2Test extends BasicDatabaseTest {
 
 	@Override
 	protected String getDriverName() {
-		return "org.h2.Driver";
+		return "org.hsqldb.jdbc.JDBCDriver";
 	}
 
 	@Override
 	protected Connection openConnection(File db, boolean encrypt)
 			throws SQLException {
-		String url = "jdbc:h2:split:" + db.getAbsolutePath()
-				+ ";DB_CLOSE_ON_EXIT=false";
-		Properties props = new Properties();
-		props.setProperty("user", "user");
+		String url = "jdbc:hsqldb:file:" + db.getAbsolutePath() +
+				";sql.enforce_size=false;allow_empty_batch=true";
 		if (encrypt) {
-			url += ";CIPHER=AES";
 			String hex = StringUtils.toHexString(key.getBytes());
-			props.setProperty("password", hex + " password");
+			url += ";encrypt_lobs=true;crypt_type=AES;crypt_key=" + hex;
 		}
-		return DriverManager.getConnection(url, props);
+		return DriverManager.getConnection(url);
 	}
 
 	@Override
 	protected void shutdownDatabase(File db, boolean encrypt)
 			throws SQLException {
-		// The DB is closed automatically when the connection is closed
+		Connection c = openConnection(db, encrypt);
+		Statement s = c.createStatement();
+		s.executeQuery("SHUTDOWN");
+		s.close();
+		c.close();
 	}
 }

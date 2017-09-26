@@ -9,13 +9,14 @@ apply plugin: 'witness'
 dependencies {
 	implementation project(path: ':bramble-api', configuration: 'default')
 	implementation 'com.madgag.spongycastle:core:1.58.0.0'
-	implementation 'com.h2database:h2:1.4.192' // This is the last version that supports Java 1.6
+	implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
 	implementation 'org.bitlet:weupnp:0.1.4'
 	implementation 'net.i2p.crypto:eddsa:0.2.0'
 
 	apt 'com.google.dagger:dagger-compiler:2.0.2'
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	testImplementation 'org.hsqldb:hsqldb:2.3.5' // The last version that supports Java 1.6
 	testImplementation 'junit:junit:4.12'
 	testImplementation "org.jmock:jmock:2.8.2"
 	testImplementation "org.jmock:jmock-junit4:2.8.2"

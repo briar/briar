@@ -19,7 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class TransactionIsolationTest extends BrambleTestCase {
+public class H2TransactionIsolationTest extends BrambleTestCase {
 
 	private static final String DROP_TABLE = "DROP TABLE foo IF EXISTS";
 	private static final String CREATE_TABLE = "CREATE TABLE foo"
@@ -34,10 +34,10 @@ public class TransactionIsolationTest extends BrambleTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File db = new File(testDir, "db");
-	private final String withMvcc = "jdbc:h2:" + db.getAbsolutePath()
-			+ ";MV_STORE=TRUE;MVCC=TRUE";
-	private final String withoutMvcc = "jdbc:h2:" + db.getAbsolutePath()
-			+ ";MV_STORE=FALSE;MVCC=FALSE;LOCK_MODE=1";
+	private final String withMvcc = "jdbc:h2:split:" + db.getAbsolutePath()
+			+ ";MV_STORE=TRUE;MVCC=TRUE;DB_CLOSE_ON_EXIT=false";
+	private final String withoutMvcc = "jdbc:h2:split:" + db.getAbsolutePath()
+			+ ";MV_STORE=FALSE;MVCC=FALSE;LOCK_MODE=1;DB_CLOSE_ON_EXIT=false";
 
 	@Before
 	public void setUp() throws Exception {
