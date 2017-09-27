@@ -107,6 +107,10 @@ android {
 		targetCompatibility JavaVersion.VERSION_1_7
 	}
 
+	aaptOptions {
+		cruncherEnabled = false
+	}
+
 	lintOptions {
 		warning 'MissingTranslation'
 		warning 'ImpliedQuantity'
