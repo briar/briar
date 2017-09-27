@@ -11,7 +11,7 @@ apply plugin: 'witness'
 
 dependencies {
 	compile project(':bramble-api')
-	compile 'com.madgag.spongycastle:core:1.56.0.0'
+	compile 'com.madgag.spongycastle:core:1.58.0.0'
 	compile 'com.h2database:h2:1.4.192' // This is the last version that supports Java 1.6
 	compile 'org.bitlet:weupnp:0.1.4'
 
@@ -20,7 +20,7 @@ dependencies {
 
 dependencyVerification {
 	verify = [
-			'com.madgag.spongycastle:core:5e791b0eaa9e0c4594231b44f616a52adddb7dccedeb0ad9ad74887e19499a23',
+			'com.madgag.spongycastle:core:199617dd5698c5a9312b898c0a4cec7ce9dd8649d07f65d91629f58229d72728',
 			'com.h2database:h2:225b22e9857235c46c93861410b60b8c81c10dc8985f4faf188985ba5445126c',
 			'org.bitlet:weupnp:88df7e6504929d00bdb832863761385c68ab92af945b04f0770b126270a444fb',
 	]
