@@ -174,7 +174,7 @@
   <string name="groups_invitations_title">Invitaciones de grupo</string>
   <string name="groups_invitations_invitation_sent">Has invitado a %1$s a ingresar en el grupo «%2$s».</string>
   <string name="groups_invitations_invitation_received">%1$s te ha invitado a unirte al grupo «%2$s».</string>
-  <string name="groups_invitations_joined">Te uniste al grupo</string>
+  <string name="groups_invitations_joined">Te has unido al grupo</string>
   <string name="groups_invitations_declined">Invitación de grupo declinada</string>
   <plurals name="groups_invitations_open">
     <item quantity="one">%d invitación de grupo sin responder</item>
