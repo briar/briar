@@ -20,6 +20,8 @@
 			android:background="@color/menu_background"
 			app:elevation="0dp"
 			app:headerLayout="@layout/navigation_header"
+			app:itemIconTint="@color/briar_text_primary"
+			app:itemTextColor="@color/briar_text_primary"
 			app:menu="@menu/navigation_drawer"/>
 
 		<View
