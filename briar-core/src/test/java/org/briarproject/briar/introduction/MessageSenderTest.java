@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.client.MessageQueueManager;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.test.BriarTestCase;
@@ -60,7 +61,7 @@ public class MessageSenderTest extends BriarTestCase {
 		final Transaction txn = new Transaction(null, false);
 		final Group privateGroup =
 				new Group(new GroupId(TestUtils.getRandomId()),
-						new ClientId(TestUtils.getRandomString(5)),
+						new ClientId(StringUtils.getRandomString(5)),
 						new byte[0]);
 		final SessionId sessionId = new SessionId(TestUtils.getRandomId());
 		byte[] mac = TestUtils.getRandomBytes(42);

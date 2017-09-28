@@ -27,6 +27,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionMessage;
@@ -479,7 +480,7 @@ public class IntroductionIntegrationTest
 				new BdfEntry(TYPE, TYPE_REQUEST),
 				new BdfEntry(SESSION_ID, sessionId),
 				new BdfEntry(GROUP_ID, group.getId()),
-				new BdfEntry(NAME, TestUtils.getRandomString(42)),
+				new BdfEntry(NAME, StringUtils.getRandomString(42)),
 				new BdfEntry(PUBLIC_KEY,
 						TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH))
 		);

@@ -49,6 +49,7 @@ import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -94,7 +95,7 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 	private final Contact contact;
 
 	public DatabaseComponentImplTest() {
-		clientId = new ClientId(TestUtils.getRandomString(5));
+		clientId = new ClientId(StringUtils.getRandomString(5));
 		groupId = new GroupId(TestUtils.getRandomId());
 		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
 		group = new Group(groupId, clientId, descriptor);

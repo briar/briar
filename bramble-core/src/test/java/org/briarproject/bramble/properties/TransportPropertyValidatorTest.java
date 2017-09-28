@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.jmock.Mockery;
 import org.junit.Test;
 
@@ -36,7 +37,7 @@ public class TransportPropertyValidatorTest extends BrambleTestCase {
 		bdfDictionary = new BdfDictionary();
 
 		GroupId groupId = new GroupId(TestUtils.getRandomId());
-		ClientId clientId = new ClientId(TestUtils.getRandomString(5));
+		ClientId clientId = new ClientId(StringUtils.getRandomString(5));
 		byte[] descriptor = TestUtils.getRandomBytes(12);
 		group = new Group(groupId, clientId, descriptor);
 
@@ -85,7 +86,7 @@ public class TransportPropertyValidatorTest extends BrambleTestCase {
 	public void testValidateLongTransportId() throws IOException {
 
 		String wrongTransportIdString =
-				TestUtils.getRandomString(MAX_TRANSPORT_ID_LENGTH + 1);
+				StringUtils.getRandomString(MAX_TRANSPORT_ID_LENGTH + 1);
 		BdfList body = BdfList.of(wrongTransportIdString, 4, bdfDictionary);
 		tpv.validateMessage(message, group, body);
 	}

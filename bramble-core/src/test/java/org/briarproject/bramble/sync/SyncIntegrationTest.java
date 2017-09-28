@@ -22,6 +22,7 @@ import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -78,7 +79,7 @@ public class SyncIntegrationTest extends BrambleTestCase {
 		headerKey = TestUtils.getSecretKey();
 		streamNumber = 123;
 		// Create a group
-		ClientId clientId = new ClientId(TestUtils.getRandomString(5));
+		ClientId clientId = new ClientId(StringUtils.getRandomString(5));
 		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
 		Group group = groupFactory.createGroup(clientId, descriptor);
 		// Add two messages to the group

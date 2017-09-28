@@ -23,6 +23,7 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.ByteUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +52,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	private final Executor dbExecutor = new ImmediateExecutor();
 	private final Executor validationExecutor = new ImmediateExecutor();
 	private final ClientId clientId =
-			new ClientId(TestUtils.getRandomString(5));
+			new ClientId(StringUtils.getRandomString(5));
 	private final MessageId messageId = new MessageId(TestUtils.getRandomId());
 	private final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 	private final MessageId messageId2 = new MessageId(TestUtils.getRandomId());

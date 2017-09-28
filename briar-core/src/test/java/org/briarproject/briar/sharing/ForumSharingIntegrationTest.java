@@ -37,7 +37,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.briarproject.bramble.test.TestUtils.getRandomString;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

@@ -4,6 +4,8 @@ public interface TorConstants {
 
 	TransportId ID = new TransportId("org.briarproject.bramble.tor");
 
+	String PROP_ONION = "onion";
+
 	int SOCKS_PORT = 59050;
 	int CONTROL_PORT = 59051;
 
@@ -16,4 +18,5 @@ public interface TorConstants {
 	int PREF_TOR_NETWORK_NEVER = 0;
 	int PREF_TOR_NETWORK_WIFI = 1;
 	int PREF_TOR_NETWORK_ALWAYS = 2;
+
 }

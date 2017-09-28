@@ -2,6 +2,7 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.bramble.util.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,8 +49,8 @@ public class BasicH2Test extends BrambleTestCase {
 		createTable(connection);
 		// Generate an ID and two names
 		byte[] id = TestUtils.getRandomId();
-		String oldName = TestUtils.getRandomString(50);
-		String newName = TestUtils.getRandomString(50);
+		String oldName = StringUtils.getRandomString(50);
+		String newName = StringUtils.getRandomString(50);
 		// Insert the ID and old name into the table
 		insertRow(id, oldName);
 		// Check that the old name can be retrieved using the ID
@@ -78,8 +79,8 @@ public class BasicH2Test extends BrambleTestCase {
 		String[] newNames = new String[BATCH_SIZE];
 		for (int i = 0; i < BATCH_SIZE; i++) {
 			ids[i] = TestUtils.getRandomId();
-			oldNames[i] = TestUtils.getRandomString(50);
-			newNames[i] = TestUtils.getRandomString(50);
+			oldNames[i] = StringUtils.getRandomString(50);
+			newNames[i] = StringUtils.getRandomString(50);
 		}
 		// Insert the IDs and old names into the table as a batch
 		insertBatch(ids, oldNames);
