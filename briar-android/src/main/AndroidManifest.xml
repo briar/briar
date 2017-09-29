@@ -32,6 +32,11 @@
 			</intent-filter>
 		</service>
 
+		<service
+			android:name="org.briarproject.briar.android.NotificationCleanupService"
+			android:exported="false">
+		</service>
+
 		<activity
 			android:name="org.briarproject.briar.android.reporting.DevReportActivity"
 			android:excludeFromRecents="true"

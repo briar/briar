@@ -119,6 +119,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public void onStart() {
 		super.onStart();
+		notificationManager.clearAllForumPostNotifications();
 		loadForums();
 		loadAvailableForums();
 		list.startPeriodicUpdate();

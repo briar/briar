@@ -2,6 +2,7 @@ package org.briarproject.briar.android;
 
 import android.app.Application;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -82,16 +83,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private static final int FORUM_POST_NOTIFICATION_ID = 5;
 	private static final int BLOG_POST_NOTIFICATION_ID = 6;
 	private static final int INTRODUCTION_SUCCESS_NOTIFICATION_ID = 7;
-
-	// Content URIs to differentiate between pending intents
-	private static final String CONTACT_URI =
-			"content://org.briarproject.briar/contact";
-	private static final String GROUP_URI =
-			"content://org.briarproject.briar/group";
-	private static final String FORUM_URI =
-			"content://org.briarproject.briar/forum";
-	private static final String BLOG_URI =
-			"content://org.briarproject.briar/blog";
 
 	private static final long SOUND_DELAY = TimeUnit.SECONDS.toMillis(2);
 
@@ -268,7 +259,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				if (count == null) contactCounts.put(c, 1);
 				else contactCounts.put(c, count + 1);
 				contactTotal++;
-				updateContactNotification();
+				updateContactNotification(true);
 			}
 		});
 	}
@@ -281,13 +272,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				Integer count = contactCounts.remove(c);
 				if (count == null) return; // Already cleared
 				contactTotal -= count;
-				updateContactNotification();
+				updateContactNotification(false);
 			}
 		});
 	}
 
 	@UiThread
-	private void updateContactNotification() {
+	private void updateContactNotification(boolean mayAlertAgain) {
 		if (contactTotal == 0) {
 			clearContactNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_PRIVATE, true)) {
@@ -303,7 +294,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			boolean showOnLockScreen =
 					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
 			b.setLockscreenVisibility(CATEGORY_MESSAGE, showOnLockScreen);
-			playSound(b);
+			if (mayAlertAgain) setAlertProperties(b);
+			setDeleteIntent(b, CONTACT_URI);
 			if (contactCounts.size() == 1) {
 				// Touching the notification shows the relevant conversation
 				Intent i = new Intent(appContext, ConversationActivity.class);
@@ -333,17 +325,15 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@UiThread
-	private void playSound(BriarNotificationBuilder b) {
-		boolean sound = settings.getBoolean(PREF_NOTIFY_SOUND, true);
-		if (!sound) return;
-
+	private void setAlertProperties(BriarNotificationBuilder b) {
 		long currentTime = clock.currentTimeMillis();
 		if (currentTime - lastSound > SOUND_DELAY) {
+			boolean sound = settings.getBoolean(PREF_NOTIFY_SOUND, true);
 			String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
-			if (!StringUtils.isNullOrEmpty(ringtoneUri))
+			if (sound && !StringUtils.isNullOrEmpty(ringtoneUri))
 				b.setSound(Uri.parse(ringtoneUri));
 			b.setDefaults(getDefaults());
-			lastSound = clock.currentTimeMillis();
+			lastSound = currentTime;
 		}
 	}
 
@@ -359,6 +349,23 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		return defaults;
 	}
 
+	private void setDeleteIntent(BriarNotificationBuilder b, String uri) {
+		Intent i = new Intent(appContext, NotificationCleanupService.class);
+		i.setData(Uri.parse(uri));
+		b.setDeleteIntent(PendingIntent.getService(appContext, nextRequestId++,
+				i, 0));
+	}
+
+	@Override
+	public void clearAllContactNotifications() {
+		androidExecutor.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				clearContactNotification();
+			}
+		});
+	}
+
 	@UiThread
 	private void showGroupMessageNotification(final GroupId g) {
 		androidExecutor.runOnUiThread(new Runnable() {
@@ -370,7 +377,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				if (count == null) groupCounts.put(g, 1);
 				else groupCounts.put(g, count + 1);
 				groupTotal++;
-				updateGroupMessageNotification();
+				updateGroupMessageNotification(true);
 			}
 		});
 	}
@@ -383,13 +390,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				Integer count = groupCounts.remove(g);
 				if (count == null) return; // Already cleared
 				groupTotal -= count;
-				updateGroupMessageNotification();
+				updateGroupMessageNotification(false);
 			}
 		});
 	}
 
 	@UiThread
-	private void updateGroupMessageNotification() {
+	private void updateGroupMessageNotification(boolean mayAlertAgain) {
 		if (groupTotal == 0) {
 			clearGroupMessageNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_GROUP, true)) {
@@ -405,7 +412,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			boolean showOnLockScreen =
 					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
 			b.setLockscreenVisibility(CATEGORY_SOCIAL, showOnLockScreen);
-			playSound(b);
+			if (mayAlertAgain) setAlertProperties(b);
+			setDeleteIntent(b, GROUP_URI);
 			if (groupCounts.size() == 1) {
 				// Touching the notification shows the relevant group
 				Intent i = new Intent(appContext, GroupActivity.class);
@@ -435,6 +443,16 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		}
 	}
 
+	@Override
+	public void clearAllGroupMessageNotifications() {
+		androidExecutor.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				clearGroupMessageNotification();
+			}
+		});
+	}
+
 	@UiThread
 	private void showForumPostNotification(final GroupId g) {
 		androidExecutor.runOnUiThread(new Runnable() {
@@ -446,7 +464,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				if (count == null) forumCounts.put(g, 1);
 				else forumCounts.put(g, count + 1);
 				forumTotal++;
-				updateForumPostNotification();
+				updateForumPostNotification(true);
 			}
 		});
 	}
@@ -459,13 +477,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				Integer count = forumCounts.remove(g);
 				if (count == null) return; // Already cleared
 				forumTotal -= count;
-				updateForumPostNotification();
+				updateForumPostNotification(false);
 			}
 		});
 	}
 
 	@UiThread
-	private void updateForumPostNotification() {
+	private void updateForumPostNotification(boolean mayAlertAgain) {
 		if (forumTotal == 0) {
 			clearForumPostNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_FORUM, true)) {
@@ -481,7 +499,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			boolean showOnLockScreen =
 					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
 			b.setLockscreenVisibility(CATEGORY_SOCIAL, showOnLockScreen);
-			playSound(b);
+			if (mayAlertAgain) setAlertProperties(b);
+			setDeleteIntent(b, FORUM_URI);
 			if (forumCounts.size() == 1) {
 				// Touching the notification shows the relevant forum
 				Intent i = new Intent(appContext, ForumActivity.class);
@@ -511,6 +530,16 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		}
 	}
 
+	@Override
+	public void clearAllForumPostNotifications() {
+		androidExecutor.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				clearForumPostNotification();
+			}
+		});
+	}
+
 	@UiThread
 	private void showBlogPostNotification(final GroupId g) {
 		androidExecutor.runOnUiThread(new Runnable() {
@@ -522,7 +551,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				if (count == null) blogCounts.put(g, 1);
 				else blogCounts.put(g, count + 1);
 				blogTotal++;
-				updateBlogPostNotification();
+				updateBlogPostNotification(true);
 			}
 		});
 	}
@@ -535,13 +564,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				Integer count = blogCounts.remove(g);
 				if (count == null) return; // Already cleared
 				blogTotal -= count;
-				updateBlogPostNotification();
+				updateBlogPostNotification(false);
 			}
 		});
 	}
 
 	@UiThread
-	private void updateBlogPostNotification() {
+	private void updateBlogPostNotification(boolean mayAlertAgain) {
 		if (blogTotal == 0) {
 			clearBlogPostNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_BLOG, true)) {
@@ -557,7 +586,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			boolean showOnLockScreen =
 					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
 			b.setLockscreenVisibility(CATEGORY_SOCIAL, showOnLockScreen);
-			playSound(b);
+			if (mayAlertAgain) setAlertProperties(b);
+			setDeleteIntent(b, BLOG_URI);
 			// Touching the notification shows the combined blog feed
 			Intent i = new Intent(appContext, NavDrawerActivity.class);
 			i.putExtra(INTENT_BLOGS, true);
@@ -607,7 +637,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		boolean showOnLockScreen =
 				settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
 		b.setLockscreenVisibility(CATEGORY_MESSAGE, showOnLockScreen);
-		playSound(b);
+		setAlertProperties(b);
+		setDeleteIntent(b, INTRODUCTION_URI);
 		// Touching the notification shows the contact list
 		Intent i = new Intent(appContext, NavDrawerActivity.class);
 		i.putExtra(INTENT_CONTACTS, true);
@@ -621,6 +652,16 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
 		nm.notify(INTRODUCTION_SUCCESS_NOTIFICATION_ID, b.build());
+	}
+
+	@Override
+	public void clearAllIntroductionNotifications() {
+		androidExecutor.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				clearIntroductionSuccessNotification();
+			}
+		});
 	}
 
 	@Override

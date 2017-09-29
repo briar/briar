@@ -151,6 +151,8 @@ public interface AndroidComponent
 
 	void inject(RecentEmojiPageModel recentEmojiPageModel);
 
+	void inject(NotificationCleanupService notificationCleanupService);
+
 	// Eager singleton load
 	void inject(AppModule.EagerSingletons init);
 }
