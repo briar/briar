@@ -6,7 +6,6 @@ import android.support.annotation.ColorRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
 
-import static android.support.v4.app.NotificationCompat.CATEGORY_MESSAGE;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_PRIVATE;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 
@@ -15,6 +14,8 @@ public class BriarNotificationBuilder extends NotificationCompat.Builder {
 
 	public BriarNotificationBuilder(Context context) {
 		super(context);
+		// Auto-cancel does not fire the delete intent, see
+		// https://issuetracker.google.com/issues/36961721
 		setAutoCancel(true);
 	}
 
@@ -27,10 +28,8 @@ public class BriarNotificationBuilder extends NotificationCompat.Builder {
 			boolean show) {
 		if (Build.VERSION.SDK_INT >= 21) {
 			setCategory(category);
-			if (show)
-				setVisibility(VISIBILITY_PRIVATE);
-			else
-				setVisibility(VISIBILITY_SECRET);
+			if (show) setVisibility(VISIBILITY_PRIVATE);
+			else setVisibility(VISIBILITY_SECRET);
 		}
 		return this;
 	}

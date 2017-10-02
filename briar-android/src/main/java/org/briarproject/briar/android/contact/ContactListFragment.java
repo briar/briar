@@ -179,6 +179,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	public void onStart() {
 		super.onStart();
 		eventBus.addListener(this);
+		notificationManager.clearAllContactNotifications();
+		notificationManager.clearAllIntroductionNotifications();
 		loadContacts();
 		list.startPeriodicUpdate();
 	}
