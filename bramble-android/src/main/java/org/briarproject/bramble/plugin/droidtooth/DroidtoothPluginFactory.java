@@ -2,6 +2,7 @@ package org.briarproject.bramble.plugin.droidtooth;
 
 import android.content.Context;
 
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
@@ -31,15 +32,18 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
 	private final SecureRandom secureRandom;
+	private final EventBus eventBus;
 	private final BackoffFactory backoffFactory;
 
 	public DroidtoothPluginFactory(Executor ioExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
-			SecureRandom secureRandom, BackoffFactory backoffFactory) {
+			SecureRandom secureRandom, EventBus eventBus,
+			BackoffFactory backoffFactory) {
 		this.ioExecutor = ioExecutor;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.secureRandom = secureRandom;
+		this.eventBus = eventBus;
 		this.backoffFactory = backoffFactory;
 	}
 
@@ -57,7 +61,10 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		return new DroidtoothPlugin(ioExecutor, androidExecutor, appContext,
-				secureRandom, backoff, callback, MAX_LATENCY);
+		DroidtoothPlugin plugin = new DroidtoothPlugin(ioExecutor,
+				androidExecutor, appContext, secureRandom, backoff, callback,
+				MAX_LATENCY);
+		eventBus.addListener(plugin);
+		return plugin;
 	}
 }

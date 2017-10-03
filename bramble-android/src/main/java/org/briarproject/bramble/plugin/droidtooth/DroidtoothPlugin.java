@@ -12,6 +12,8 @@ import android.content.IntentFilter;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -22,6 +24,8 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
+import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.util.AndroidUtils;
@@ -63,7 +67,7 @@ import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class DroidtoothPlugin implements DuplexPlugin {
+class DroidtoothPlugin implements DuplexPlugin, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(DroidtoothPlugin.class.getName());
@@ -150,9 +154,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		} else {
 			// Enable Bluetooth if settings allow
 			if (callback.getSettings().getBoolean(PREF_BT_ENABLE, false)) {
-				wasEnabledByUs = true;
-				if (adapter.enable()) LOG.info("Enabling Bluetooth");
-				else LOG.info("Could not enable Bluetooth");
+				enableAdapter();
 			} else {
 				LOG.info("Not enabling Bluetooth");
 			}
@@ -243,13 +245,27 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return new DroidtoothTransportConnection(this, s);
 	}
 
+	private void enableAdapter() {
+		if (adapter != null && !adapter.isEnabled()) {
+			if (adapter.enable()) {
+				LOG.info("Enabling Bluetooth");
+				wasEnabledByUs = true;
+			} else {
+				LOG.info("Could not enable Bluetooth");
+			}
+		}
+	}
+
 	@Override
 	public void stop() {
 		running = false;
 		if (receiver != null) appContext.unregisterReceiver(receiver);
 		tryToClose(socket);
-		// Disable Bluetooth if we enabled it and it's still enabled
-		if (wasEnabledByUs && adapter.isEnabled()) {
+		disableAdapter();
+	}
+
+	private void disableAdapter() {
+		if (adapter != null && adapter.isEnabled() && wasEnabledByUs) {
 			if (adapter.disable()) LOG.info("Disabling Bluetooth");
 			else LOG.info("Could not disable Bluetooth");
 		}
@@ -411,6 +427,33 @@ class DroidtoothPlugin implements DuplexPlugin {
 		byte[] mac = descriptor.getRaw(1);
 		if (mac.length != 6) throw new FormatException();
 		return StringUtils.macToString(mac);
+	}
+
+	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof EnableBluetoothEvent) {
+			enableAdapterAsync();
+		} else if (e instanceof DisableBluetoothEvent) {
+			disableAdapterAsync();
+		}
+	}
+
+	private void enableAdapterAsync() {
+		ioExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				enableAdapter();
+			}
+		});
+	}
+
+	private void disableAdapterAsync() {
+		ioExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				disableAdapter();
+			}
+		});
 	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
