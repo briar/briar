@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.google.zxing.Result;
 
 import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementTask;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementTaskFactory;
 import org.briarproject.bramble.api.keyagreement.Payload;
@@ -36,7 +37,7 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementWaitingEvent;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseEventFragment;
@@ -73,10 +74,10 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	@Inject
 	PayloadParser payloadParser;
 	@Inject
-	AndroidExecutor androidExecutor;
-	@Inject
 	@IoExecutor
 	Executor ioExecutor;
+	@Inject
+	EventBus eventBus;
 
 	private CameraView cameraView;
 	private View statusView;
@@ -160,12 +161,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if (adapter != null && !adapter.isEnabled()) {
 			waitingForBluetooth = true;
-			androidExecutor.runOnBackgroundThread(new Runnable() {
-				@Override
-				public void run() {
-					adapter.enable();
-				}
-			});
+			eventBus.broadcast(new EnableBluetoothEvent());
 		} else {
 			startListening();
 		}
@@ -385,7 +381,6 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		public void onReceive(Context ctx, Intent intent) {
 			int state = intent.getIntExtra(EXTRA_STATE, 0);
 			if (state == STATE_ON && waitingForBluetooth) {
-				LOG.info("Bluetooth enabled");
 				waitingForBluetooth = false;
 				startListening();
 			}

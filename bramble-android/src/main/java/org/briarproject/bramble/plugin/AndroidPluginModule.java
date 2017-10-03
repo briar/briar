@@ -39,7 +39,7 @@ public class AndroidPluginModule {
 			EventBus eventBus) {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth = new DroidtoothPluginFactory(ioExecutor,
-				androidExecutor, appContext, random, backoffFactory);
+				androidExecutor, appContext, random, eventBus, backoffFactory);
 		DuplexPluginFactory tor = new TorPluginFactory(ioExecutor, appContext,
 				locationUtils, reporter, eventBus, torSocketFactory,
 				backoffFactory);

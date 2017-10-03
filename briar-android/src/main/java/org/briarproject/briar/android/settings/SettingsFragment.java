@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.settings;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.media.Ringtone;
@@ -26,6 +25,8 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.TorConstants;
+import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
+import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
@@ -338,17 +339,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		return true;
 	}
 
-	private void enableOrDisableBluetooth(final boolean enable) {
-		final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-		if (adapter != null) {
-			androidExecutor.runOnBackgroundThread(new Runnable() {
-				@Override
-				public void run() {
-					if (enable) adapter.enable();
-					else adapter.disable();
-				}
-			});
-		}
+	private void enableOrDisableBluetooth(boolean enable) {
+		if (enable) eventBus.broadcast(new EnableBluetoothEvent());
+		else eventBus.broadcast(new DisableBluetoothEvent());
 	}
 
 	private void storeTorSettings(final int torSetting) {
