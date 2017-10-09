@@ -16,6 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import javax.annotation.Nullable;
+
 import static org.briarproject.bramble.api.plugin.WanTcpConstants.ID;
 
 @MethodsNotNullByDefault
@@ -78,9 +80,8 @@ class WanTcpPlugin extends TcpPlugin {
 	}
 
 	@Override
-	protected List<InetSocketAddress> getRemoteSocketAddresses(ContactId c) {
-		TransportProperties p = callback.getRemoteProperties().get(c);
-		if (p == null) return Collections.emptyList();
+	protected List<InetSocketAddress> getRemoteSocketAddresses(
+			TransportProperties p) {
 		InetSocketAddress parsed = parseSocketAddress(p.get(PROP_IP_PORT));
 		if (parsed == null) return Collections.emptyList();
 		return Collections.singletonList(parsed);
