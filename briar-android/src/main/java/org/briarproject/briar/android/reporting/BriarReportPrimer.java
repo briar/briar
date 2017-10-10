@@ -33,6 +33,7 @@ import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.content.Context.ACTIVITY_SERVICE;
 import static android.content.Context.CONNECTIVITY_SERVICE;
+import static android.content.Context.WIFI_P2P_SERVICE;
 import static android.content.Context.WIFI_SERVICE;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_WIFI;
@@ -162,6 +163,12 @@ public class BriarReportPrimer implements ReportPrimer {
 			else wifiStatus += "not connected";
 			customData.put("Wi-Fi status", wifiStatus);
 
+			// Is wifi direct supported?
+			String wifiDirectStatus = "Supported";
+			if (ctx.getSystemService(WIFI_P2P_SERVICE) == null)
+				wifiDirectStatus = "Not supported";
+			customData.put("Wi-Fi Direct", wifiDirectStatus);
+
 			if (wm != null) {
 				WifiInfo wifiInfo = wm.getConnectionInfo();
 				if (wifiInfo != null) {
@@ -189,6 +196,13 @@ public class BriarReportPrimer implements ReportPrimer {
 			// Is Bluetooth discoverable?
 			boolean btDiscoverable = bt != null &&
 					bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+			// Is Bluetooth LE scanning and advertising supported?
+			boolean btLeApi = false, btLeScan = false, btLeAdvertise = false;
+			if (bt != null && Build.VERSION.SDK_INT >= 21) {
+				btLeApi = true;
+				btLeScan = bt.getBluetoothLeScanner() != null;
+				btLeAdvertise = bt.getBluetoothLeAdvertiser() != null;
+			}
 
 			String btStatus;
 			if (btAvailable) btStatus = "Available, ";
@@ -200,6 +214,14 @@ public class BriarReportPrimer implements ReportPrimer {
 			if (btDiscoverable) btStatus += "discoverable";
 			else btStatus += "not discoverable";
 			customData.put("Bluetooth status", btStatus);
+			if (btLeApi) {
+				String btLeStatus;
+				if (btLeScan) btLeStatus = "Scanning, ";
+				else btLeStatus = "No scanning, ";
+				if (btLeAdvertise) btLeStatus += "advertising";
+				else btLeStatus += "no advertising";
+				customData.put("Bluetooth LE status", btLeStatus);
+			}
 
 			if (bt != null)
 				customData.put("Bluetooth address",
