@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -209,8 +210,9 @@ abstract class TcpPlugin implements DuplexPlugin {
 	public void poll(Collection<ContactId> connected) {
 		if (!isRunning()) return;
 		backoff.increment();
-		for (Entry<ContactId, TransportProperties> e :
-				callback.getRemoteProperties().entrySet()) {
+		Map<ContactId, TransportProperties> remote =
+				callback.getRemoteProperties();
+		for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
 			ContactId c = e.getKey();
 			if (!connected.contains(c)) connectAndCallBack(c, e.getValue());
 		}
@@ -234,8 +236,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	@Override
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if (!isRunning()) return null;
-		TransportProperties p = callback.getRemoteProperties().get(c);
-		return p == null ? null : createConnection(p);
+		return createConnection(callback.getRemoteProperties(c));
 	}
 
 	@Nullable

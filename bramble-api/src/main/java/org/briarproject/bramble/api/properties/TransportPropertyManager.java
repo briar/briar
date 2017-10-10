@@ -50,6 +50,13 @@ public interface TransportPropertyManager {
 			throws DbException;
 
 	/**
+	 * Returns the remote transport properties for the given contact and
+	 * transport.
+	 */
+	TransportProperties getRemoteProperties(ContactId c, TransportId t)
+			throws DbException;
+
+	/**
 	 * Merges the given properties with the existing local properties for the
 	 * given transport.
 	 */

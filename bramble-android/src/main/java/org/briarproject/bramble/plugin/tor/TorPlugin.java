@@ -55,6 +55,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -538,16 +539,21 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	public void poll(Collection<ContactId> connected) {
 		if (!isRunning()) return;
 		backoff.increment();
-		// TODO: Pass properties to connectAndCallBack()
-		for (ContactId c : callback.getRemoteProperties().keySet())
-			if (!connected.contains(c)) connectAndCallBack(c);
+		Map<ContactId, TransportProperties> remote =
+				callback.getRemoteProperties();
+		for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
+			ContactId c = e.getKey();
+			if (!connected.contains(c)) connectAndCallBack(c, e.getValue());
+		}
 	}
 
-	private void connectAndCallBack(final ContactId c) {
+	private void connectAndCallBack(final ContactId c,
+			final TransportProperties p) {
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				DuplexTransportConnection d = createConnection(c);
+				if (!isRunning()) return;
+				DuplexTransportConnection d = createConnection(p);
 				if (d != null) {
 					backoff.reset();
 					callback.outgoingConnectionCreated(c, d);
@@ -559,8 +565,11 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if (!isRunning()) return null;
-		TransportProperties p = callback.getRemoteProperties().get(c);
-		if (p == null) return null;
+		return createConnection(callback.getRemoteProperties(c));
+	}
+
+	@Nullable
+	private DuplexTransportConnection createConnection(TransportProperties p) {
 		String onion = p.get(PROP_ONION);
 		if (StringUtils.isNullOrEmpty(onion)) return null;
 		if (!ONION.matcher(onion).matches()) {

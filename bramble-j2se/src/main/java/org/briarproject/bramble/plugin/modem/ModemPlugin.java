@@ -145,8 +145,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		String fromIso = callback.getLocalProperties().get("iso3166");
 		if (StringUtils.isNullOrEmpty(fromIso)) return null;
 		// Get the ISO 3166 code for the callee's country
-		TransportProperties properties = callback.getRemoteProperties().get(c);
-		if (properties == null) return null;
+		TransportProperties properties = callback.getRemoteProperties(c);
 		String toIso = properties.get("iso3166");
 		if (StringUtils.isNullOrEmpty(toIso)) return null;
 		// Get the callee's phone number

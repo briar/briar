@@ -9,8 +9,6 @@ import org.jmock.Mockery;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -65,12 +63,10 @@ public class ModemPluginTest extends BrambleTestCase {
 		final Modem modem = context.mock(Modem.class);
 		final TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
-		TransportProperties p = new TransportProperties();
-		p.put("iso3166", ISO_1336);
-		p.put("number", NUMBER);
-		ContactId contactId = new ContactId(234);
-		final Map<ContactId, TransportProperties> remote =
-				Collections.singletonMap(contactId, p);
+		final TransportProperties remote = new TransportProperties();
+		remote.put("iso3166", ISO_1336);
+		remote.put("number", NUMBER);
+		final ContactId contactId = new ContactId(234);
 		context.checking(new Expectations() {{
 			// start()
 			oneOf(serialPortList).getPortNames();
@@ -82,7 +78,7 @@ public class ModemPluginTest extends BrambleTestCase {
 			// createConnection()
 			oneOf(callback).getLocalProperties();
 			will(returnValue(local));
-			oneOf(callback).getRemoteProperties();
+			oneOf(callback).getRemoteProperties(contactId);
 			will(returnValue(remote));
 			oneOf(modem).dial(NUMBER);
 			will(returnValue(true));
@@ -106,12 +102,10 @@ public class ModemPluginTest extends BrambleTestCase {
 		final Modem modem = context.mock(Modem.class);
 		final TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
-		TransportProperties p = new TransportProperties();
-		p.put("iso3166", ISO_1336);
-		p.put("number", NUMBER);
-		ContactId contactId = new ContactId(234);
-		final Map<ContactId, TransportProperties> remote =
-				Collections.singletonMap(contactId, p);
+		final TransportProperties remote = new TransportProperties();
+		remote.put("iso3166", ISO_1336);
+		remote.put("number", NUMBER);
+		final ContactId contactId = new ContactId(234);
 		context.checking(new Expectations() {{
 			// start()
 			oneOf(serialPortList).getPortNames();
@@ -123,7 +117,7 @@ public class ModemPluginTest extends BrambleTestCase {
 			// createConnection()
 			oneOf(callback).getLocalProperties();
 			will(returnValue(local));
-			oneOf(callback).getRemoteProperties();
+			oneOf(callback).getRemoteProperties(contactId);
 			will(returnValue(remote));
 			oneOf(modem).dial(NUMBER);
 			will(returnValue(false));
@@ -147,12 +141,10 @@ public class ModemPluginTest extends BrambleTestCase {
 		final Modem modem = context.mock(Modem.class);
 		final TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
-		TransportProperties p = new TransportProperties();
-		p.put("iso3166", ISO_1336);
-		p.put("number", NUMBER);
-		ContactId contactId = new ContactId(234);
-		final Map<ContactId, TransportProperties> remote =
-				Collections.singletonMap(contactId, p);
+		final TransportProperties remote = new TransportProperties();
+		remote.put("iso3166", ISO_1336);
+		remote.put("number", NUMBER);
+		final ContactId contactId = new ContactId(234);
 		context.checking(new Expectations() {{
 			// start()
 			oneOf(serialPortList).getPortNames();
@@ -164,7 +156,7 @@ public class ModemPluginTest extends BrambleTestCase {
 			// createConnection()
 			oneOf(callback).getLocalProperties();
 			will(returnValue(local));
-			oneOf(callback).getRemoteProperties();
+			oneOf(callback).getRemoteProperties(contactId);
 			will(returnValue(remote));
 			oneOf(modem).dial(NUMBER);
 			will(throwException(new IOException()));
