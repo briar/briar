@@ -1,0 +1,367 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_title">ब्रियर सेटअप</string>
+  <string name="setup_explanation">आपका ब्रियर खाता आपके डिवाइस पर एन्क्रिप्ट किया गया है, न कि क्लाउड में। यदि आप बिअर की स्थापना रद्द करते हैं या अपना पासवर्ड भूल जाते हैं, तो आपके खाता और आपके डेटा को पुनर्प्राप्त करने का कोई तरीका नहीं है।</string>
+  <string name="choose_nickname">आपका मुंहबोला नाम चुनें</string>
+  <string name="choose_password">अपना पासवर्ड चुनें</string>
+  <string name="confirm_password">अपने पासवर्ड की पुष्टि करें</string>
+  <string name="name_too_long">नाम बहुत लंबा है</string>
+  <string name="password_too_weak">पासवर्ड बहुत कमजोर है</string>
+  <string name="passwords_do_not_match">पासवर्ड मेल नहीं खाते</string>
+  <string name="create_account_button">खाता बनाएं</string>
+  <!--Login-->
+  <string name="enter_password">अपना पासवर्ड डालें:</string>
+  <string name="try_again">गलत पासवर्ड, फिर से प्रयास करें</string>
+  <string name="sign_in_button">साइन इन करें</string>
+  <string name="forgotten_password">मुझे अपना पासवर्ड याद नहीं है</string>
+  <string name="dialog_title_lost_password">पासवर्ड खो गया</string>
+  <string name="dialog_message_lost_password">आपका ब्रियर खाता आपके डिवाइस पर एन्क्रिप्ट किया गया है, बादल में नहीं, इसलिए हम आपका पासवर्ड रीसेट नहीं कर सकते। क्या आप अपना खाता हटाना चाहते हैं और फिर से शुरू करना चाहते हैं? \ N \ n सावधानी: आपकी पहचान, संपर्क और संदेश स्थायी रूप से खो जाएंगे</string>
+  <string name="startup_failed_notification_title">बियर शुरू नहीं हो सका</string>
+  <string name="startup_failed_notification_text">आपको ब्रियर को पुनर्स्थापित करने की आवश्यकता हो सकती है</string>
+  <string name="startup_failed_activity_title">ब्रियर स्टार्टअप विफलता</string>
+  <string name="startup_failed_db_error">किसी कारण से, आपके ब्रियर डेटाबेस की मरम्मत से परे भ्रष्ट है। आपका खाता, आपका डेटा और आपके सभी संपर्क कनेक्शन खो जाते हैं। दुर्भाग्य से, आपको ब्रियर को पुनर्स्थापित करना होगा और एक नया खाता सेट अप करना होगा।</string>
+  <string name="startup_failed_service_error">ब्रियर एक आवश्यक प्लगइन प्रारंभ करने में असमर्थ था बरिअर को पुनः स्थापित करना आमतौर पर इस समस्या को हल करता है हालांकि, कृपया ध्यान दें कि बियर आपके डेटा को स्टोर करने के लिए केंद्रीय सर्वर का उपयोग नहीं कर रहा है, इसके बाद आप अपने खाता और उसके साथ जुड़े सभी डेटा खो देंगे।</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">यह बियर का बीटा संस्करण है आपका खाता%d दिनों में समाप्त हो जाएगा और नवीनीकरण नहीं किया जा सकता है।</item>
+    <item quantity="other">यह बियर का बीटा संस्करण है आपका खाता%d दिनों में समाप्त हो जाएगा और नवीनीकरण नहीं किया जा सकता है।</item>
+  </plurals>
+  <string name="expiry_date_reached">यह सॉफ्टवेयर समाप्त हो गया है। \n परीक्षण के लिए धन्यवाद!</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">नेविगेशन ड्रॉवर खोलें</string>
+  <string name="nav_drawer_close_description">नेविगेशन ड्रॉवर को बंद करें</string>
+  <string name="contact_list_button">संपर्क</string>
+  <string name="groups_button">निजी समूह</string>
+  <string name="forums_button">मंच</string>
+  <string name="blogs_button">ब्लॉग</string>
+  <string name="settings_button">सेटिंग्स</string>
+  <string name="sign_out_button">साइन आउट</string>
+  <!--Transports-->
+  <string name="transport_tor">इंटरनेट</string>
+  <string name="transport_bt">ब्लूटूथ</string>
+  <string name="transport_lan">वाई - फाई</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">ब्रायर में हस्ताक्षर किए</string>
+  <string name="ongoing_notification_text">ब्रियर को खोलने के लिए स्पर्श करें</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="one">नया निजी संदेश</item>
+    <item quantity="other">%dनया निजी संदेश</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="one">नया समूह संदेश</item>
+    <item quantity="other">%dनया समूह संदेश</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one">नया मंच पोस्ट</item>
+    <item quantity="other">%dनया मंच पोस्ट</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">नए ब्लॉग पोस्ट</item>
+    <item quantity="other">%dनए ब्लॉग पोस्ट</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">अभी व</string>
+  <string name="show">दिखाना</string>
+  <string name="hide">छिपाना</string>
+  <string name="ok">ठीक</string>
+  <string name="cancel">रद्द करना</string>
+  <string name="got_it">समझ गया</string>
+  <string name="delete">हटाना</string>
+  <string name="accept">स्वीकारें</string>
+  <string name="decline">पतन</string>
+  <string name="options">विकल्प</string>
+  <string name="online">ऑनलाइन</string>
+  <string name="offline">ऑफलाइन</string>
+  <string name="send">भेजना</string>
+  <string name="allow">अनुमति दें</string>
+  <string name="open">खोलें </string>
+  <string name="no_data">नो डाटा </string>
+  <string name="ellipsis">…</string>
+  <string name="text_too_long">प्रवेश किया हुआ पाठ बहुत लंबा है</string>
+  <string name="show_onboarding">सहायता संवाद दिखाएं</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">ऐसा लगता है कि आप यहां नए हैं और अभी तक कोई संपर्क नहीं है। \ N \ n शीर्ष पर + आइकन टैप करें और कुछ मित्रों को अपनी सूची में जोड़ने के लिए निर्देशों का पालन करें। \ N \ n कृपया याद रखें: आप केवल नए संपर्कों को आमने-सामने जोड़ सकते हैं किसी भी व्यक्ति को भविष्य में आपके प्रतिरूपण या पढ़ने से रोकने के लिए -फाइल</string>
+  <string name="date_no_private_messages">कोई संदेश नहीं।</string>
+  <string name="no_private_messages">यह वार्तालाप दृश्य है। \ N \ n वार्तालाप की कमी महसूस होती है। \ N \ n वार्तालाप शुरू करने के लिए बस नीचे इनपुट फ़ील्ड को टैप करें।</string>
+  <string name="message_hint">संदेश लिखें</string>
+  <string name="delete_contact">संपर्क मिटा दें</string>
+  <string name="dialog_title_delete_contact">संपर्क हटाने की पुष्टि करें</string>
+  <string name="dialog_message_delete_contact">क्या आप निश्चित हैं कि आप इस संपर्क और सभी संदेशों को इस संपर्क से निकाला जाना चाहते हैं?</string>
+  <string name="contact_deleted_toast">संपर्क हटा दिया गया</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">संपर्क जोड़ना</string>
+  <string name="your_nickname">वह पहचान चुनें जिसे आप उपयोग करना चाहते हैं:</string>
+  <string name="face_to_face">आपको उस व्यक्ति के साथ मिलना चाहिए जिसे आप संपर्क के रूप में जोड़ना चाहते हैं। \ N \ n यह किसी को भविष्य में आपके प्रतिरूपण या पढ़ने के बाद से किसी को भी रोकेगा।</string>
+  <string name="continue_button">जारी रहना</string>
+  <string name="your_invitation_code">आपका निमंत्रण कोड है</string>
+  <string name="enter_invitation_code">कृपया अपने संपर्क के निमंत्रण कोड को दर्ज करें:</string>
+  <string name="searching_format">निमंत्रण कोड%06d\ u2026 के साथ संपर्क के लिए खोज रहे हैं</string>
+  <string name="connection_failed">कनेक्शन विफल</string>
+  <string name="could_not_find_contact">ब्रियर आपके संपर्क के पास नहीं मिल सका</string>
+  <string name="try_again_button">पुनः प्रयास करें</string>
+  <string name="connected_to_contact">संपर्क से कनेक्ट किया गया</string>
+  <string name="calculating_confirmation_code">पुष्टि कोड की गणना \ u2026</string>
+  <string name="your_confirmation_code">आपका पुष्टिकरण कोड है</string>
+  <string name="enter_confirmation_code">कृपया अपने संपर्क का पुष्टिकरण कोड दर्ज करें:</string>
+  <string name="waiting_for_contact">संपर्क की प्रतीक्षा कर रहा है \ u2026</string>
+  <string name="waiting_for_contact_to_scan">स्कैन करने और कनेक्ट करने के लिए संपर्क की प्रतीक्षा कर रहा है \ u2026</string>
+  <string name="exchanging_contact_details">संपर्क विवरणों का आदान-प्रदान करें \ u2026</string>
+  <string name="codes_do_not_match">कोड मेल नहीं खाते हैं</string>
+  <string name="interfering">इसका मतलब यह हो सकता है कि कोई आपके कनेक्शन में हस्तक्षेप करने का प्रयास कर रहा है</string>
+  <string name="contact_added_toast">संपर्क जोड़ा गया:%s</string>
+  <string name="contact_already_exists">संपर्क%s पहले से मौजूद है</string>
+  <string name="contact_exchange_failed">संपर्क विनिमय विफल</string>
+  <string name="qr_code_invalid">QR कोड अमान्य है</string>
+  <string name="connecting_to_device">उपकरण \ u2026 से कनेक्ट हो रहा है</string>
+  <string name="authenticating_with_device">डिवाइस के साथ प्रमाणीकरण \ u2026</string>
+  <string name="connection_aborted_local">कनेक्शन हमारे द्वारा निरस्त कर दिया! इसका मतलब यह हो सकता है कि कोई आपके कनेक्शन में हस्तक्षेप करने का प्रयास कर रहा है</string>
+  <string name="connection_aborted_remote">आपके संपर्क से कनेक्शन निरस्त! इसका मतलब यह हो सकता है कि कोई आपके कनेक्शन में हस्तक्षेप करने का प्रयास कर रहा है</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_title">अपने संपर्कों का परिचय दें</string>
+  <string name="introduction_onboarding_text">आप अपने संपर्कों को एक दूसरे से जोड़ सकते हैं, इसलिए उन्हें ब्रियर से जुड़ने के लिए व्यक्तिगत रूप से मिलने की जरूरत नहीं है।</string>
+  <string name="introduction_activity_title">संपर्क का चयन करें</string>
+  <string name="introduction_message_title">संपर्कों का परिचय</string>
+  <string name="introduction_message_hint">एक संदेश जोड़ें (वैकल्पिक)</string>
+  <string name="introduction_button">परिचय करें</string>
+  <string name="introduction_sent">आपका परिचय भेजा गया है।</string>
+  <string name="introduction_error">परिचय बनाने में एक त्रुटि हुई।</string>
+  <string name="introduction_response_error">परिचय का जवाब देने में त्रुटि</string>
+  <string name="introduction_request_sent">आपने%2$s से%1$s का परिचय देने के लिए कहा है</string>
+  <string name="introduction_request_received">%1$sने आपको%2$s में पेश करने को कहा है क्या आप अपनी संपर्क सूची में%2$s जोड़ना चाहते हैं?</string>
+  <string name="introduction_request_exists_received">%1$sने आपको%2$s में लाने के लिए कहा है, लेकिन%2$s आपकी संपर्क सूची में पहले से मौजूद है। चूंकि%1$s शायद यह नहीं जान पाए, आप फिर भी जवाब दे सकते हैं:</string>
+  <string name="introduction_request_answered_received">%1$sने आपको%2$s में पेश करने को कहा है</string>
+  <string name="introduction_response_accepted_sent">आपने%1$s की शुरूआत स्वीकार कर ली है</string>
+  <string name="introduction_response_declined_sent">आपने%1$s की शुरुआत करने से मना कर दिया</string>
+  <string name="introduction_response_accepted_received">%1$s%2$s की शुरूआत स्वीकार कर ली</string>
+  <string name="introduction_response_declined_received">%1$s%2$sकी शुरूआत में गिरावट आई</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$sकहते हैं कि%2$sने परिचय को अस्वीकार कर दिया</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">नया संपर्क जोड़ा।</item>
+    <item quantity="other">%dनया संपर्क जोड़ा।</item>
+  </plurals>
+  <!--Private Groups-->
+  <string name="groups_list_empty">आप किसी भी समूह में भाग नहीं ले रहे हैं। \ N \ n शीर्ष पर + आइकन टैप करें, खुद को समूह बनाएं या अपने संपर्कों से अपने समूह में से किसी एक को आमंत्रित करें।</string>
+  <string name="groups_created_by">के द्वारा बनाई गई%s</string>
+  <plurals name="messages">
+    <item quantity="one">संदेशों%d</item>
+    <item quantity="other">संदेशों %d</item>
+  </plurals>
+  <string name="groups_group_is_empty">यह समूह खाली है</string>
+  <string name="groups_group_is_dissolved">यह समूह भंग कर दिया गया है</string>
+  <string name="groups_remove">हटाना</string>
+  <string name="groups_create_group_title">निजी समूह बनाएं</string>
+  <string name="groups_create_group_button">समूह बनाएँ</string>
+  <string name="groups_create_group_invitation_button">निमंत्रण भेजना</string>
+  <string name="groups_create_group_hint">अपने निजी समूह के लिए एक नाम चुनें</string>
+  <string name="groups_invitation_sent">समूह आमंत्रण भेजा गया है</string>
+  <string name="groups_message_sent">मैसेज बेजा गया</string>
+  <string name="groups_member_list">सदस्य सूची</string>
+  <string name="groups_invite_members">सदस्यों को आमंत्रित करो</string>
+  <string name="groups_member_created_you">आपने समूह बनाया है</string>
+  <string name="groups_member_created">%sसमूह बनाया</string>
+  <string name="groups_member_joined_you">आप समूह में शामिल हो गए</string>
+  <string name="groups_member_joined">%sसमूह में शामिल हो गए</string>
+  <string name="groups_leave">समूह छोड़ दें</string>
+  <string name="groups_leave_dialog_title">समूह छोड़ने की पुष्टि करें</string>
+  <string name="groups_leave_dialog_message">क्या आप वाकई इस समूह को छोड़ना चाहते हैं?</string>
+  <string name="groups_dissolve">समूह भंग करें</string>
+  <string name="groups_dissolve_dialog_title">डिसोल्विंग ग्रुप की पुष्टि करें</string>
+  <string name="groups_dissolve_dialog_message">क्या आप निश्चित हैं कि आप इस समूह को भंग करना चाहते हैं? \ N \ n अन्य सभी सदस्य अपनी बातचीत जारी नहीं रख पाएंगे और शायद नवीनतम संदेश प्राप्त न हो जाएंगे।</string>
+  <string name="groups_dissolve_button">भंग</string>
+  <string name="groups_dissolved_dialog_title">समूह भंग कर दिया गया है</string>
+  <string name="groups_dissolved_dialog_message">इस समूह के निर्माता ने उसे भंग कर दिया है। \ N \ n आप अब समूह को संदेश नहीं लिख सकते हैं और जो सभी पोस्ट लिखी गई हैं उन्हें प्राप्त नहीं हो सकता है।</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">समूह आमंत्रण</string>
+  <string name="groups_invitations_invitation_sent">आपने समूह \"%2$s\" में शामिल होने के लिए %1$sको आमंत्रित किया है</string>
+  <string name="groups_invitations_invitation_received">%1$sने आपको \"%2$s\" समूह में शामिल होने के लिए आमंत्रित किया है</string>
+  <string name="groups_invitations_joined">समूह में शामिल</string>
+  <string name="groups_invitations_declined">समूह आमंत्रण अस्वीकृत हुआ</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="one">%dखुला समूह आमंत्रण</item>
+    <item quantity="other">%dखुला समूह आमंत्रण</item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">आपने%s से समूह निमंत्रण स्वीकार कर लिया है</string>
+  <string name="groups_invitations_response_declined_sent">आपने%s से समूह निमंत्रण को मना कर दिया</string>
+  <string name="groups_invitations_response_accepted_received">%sसमूह निमंत्रण से मना कर दिया</string>
+  <string name="groups_invitations_response_declined_received">%sसमूह निमंत्रण से मना कर दिया</string>
+  <string name="sharing_status_groups">केवल निर्माता समूह में नए सदस्यों को आमंत्रित कर सकता है। नीचे समूह के सभी मौजूदा सदस्य हैं</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">संपर्क प्रकट करें</string>
+  <string name="groups_reveal_dialog_message">आप यह समूह चुन सकते हैं कि इस समूह के सभी वर्तमान और भविष्य के सदस्यों के संपर्कों को प्रकट करना है। \ N \ n संपर्कों का स्वागत करते हुए समूह से आपका कनेक्शन तेज़ और अधिक विश्वसनीय बना देता है, क्योंकि आप समूह के निर्माता ऑफ़लाइन होने पर भी पता चला संपर्कों के साथ संवाद कर सकते हैं।</string>
+  <string name="groups_reveal_visible">संपर्क संबंध समूह को दिखाई देता है</string>
+  <string name="groups_reveal_visible_revealed_by_us">संपर्क संबंध समूह को दिखाई देता है (आपके द्वारा पता चला है)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">संपर्क संबंध समूह को दिखाई देता है (%s द्वारा पता चला है)</string>
+  <string name="groups_reveal_invisible">संपर्क संबंध समूह को दिखाई नहीं दे रहा है</string>
+  <!--Forums-->
+  <string name="no_forums">आपके पास अभी तक कोई मंच नहीं है। \ N \ n शीर्ष पर + आइकन टैप करके आप अपने आप को एक नया क्यों नहीं बनाते? \ N \ n आप अपने संपर्कों को अपने साथ फ़ोरम साझा करने के लिए भी कह सकते हैं</string>
+  <string name="create_forum_title">फोरम बनाएँ</string>
+  <string name="choose_forum_hint">अपने मंच का नाम चुनें</string>
+  <string name="create_forum_button">फोरम बनाएँ</string>
+  <string name="forum_created_toast">फोरम बनाया</string>
+  <string name="no_forum_posts">यह फ़ोरम रिक्त है। \ N \ n पहली पोस्ट लिखने के लिए शीर्ष पर पेन आइकन का उपयोग करें। \ N \ n यहां अकेले आना? इस फोरम को अपने अधिक संपर्कों के साथ साझा करें!</string>
+  <string name="no_posts">कोई पोस्ट नहीं</string>
+  <plurals name="posts">
+    <item quantity="one">%dपदों</item>
+    <item quantity="other">%dपदों</item>
+  </plurals>
+  <string name="forum_new_entry_posted">फ़ोरम प्रविष्टि पोस्ट की गई</string>
+  <string name="forum_new_message_hint">नविन प्रवेश</string>
+  <string name="forum_message_reply_hint">नया उत्तर</string>
+  <string name="btn_reply">जवाब दें</string>
+  <string name="forum_leave">फोरम छोड़ें</string>
+  <string name="dialog_title_leave_forum">फोरम छोड़ने की पुष्टि करें</string>
+  <string name="dialog_message_leave_forum">क्या आप वाकई इस मंच को छोड़ना चाहते हैं? जिन संपर्कों ने आप इस मंच को साझा किया है, वे इस फ़ोरम के अपडेट प्राप्त करने से कट हो सकते हैं।</string>
+  <string name="dialog_button_leave">छोड़ना</string>
+  <string name="forum_left_toast">वाम फोरम</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">शेयर फ़ोरम</string>
+  <string name="contacts_selected">संपर्क चयनित</string>
+  <string name="activity_share_toolbar_header">संपर्क चुनें</string>
+  <string name="no_contacts_selector">ऐसा लगता है कि आप यहां नए हैं और अभी तक कोई संपर्क नहीं है। \ N \ n कृपया अपना पहला संपर्क जोड़ने के बाद यहां वापस आएँ।</string>
+  <string name="forum_shared_snackbar">चयनित संपर्कों के साथ फ़ोरम साझा किया गया</string>
+  <string name="forum_share_message">एक संदेश जोड़ें (वैकल्पिक)</string>
+  <string name="forum_share_error">इस फ़ोरम को साझा करने में कोई त्रुटि थी।</string>
+  <string name="forum_invitation_received">%1$sने आपके साथ \"%2$s\" मंच साझा किया है</string>
+  <string name="forum_invitation_sent">आपने%2$s के साथ \"%1$s\" मंच साझा किया है</string>
+  <string name="forum_invitations_title">फोरम निमंत्रण</string>
+  <string name="forum_invitation_exists">आपने पहले से ही इस मंच के लिए एक आमंत्रण स्वीकार कर लिया है। अधिक निमंत्रण स्वीकार करना मंच में संचार बढ़ेगा और मजबूत करेगा।</string>
+  <string name="forum_joined_toast">फ़ोरम में शामिल</string>
+  <string name="forum_declined_toast">फोरम आमंत्रण अस्वीकृत</string>
+  <string name="shared_by_format">%s द्वारा साझा किया गया</string>
+  <string name="forum_invitation_already_sharing">पहले से ही साझा करना</string>
+  <string name="forum_invitation_response_accepted_sent">आपने%s से मंच निमंत्रण स्वीकार कर लिया है</string>
+  <string name="forum_invitation_response_declined_sent">आपने%s से मंच निमंत्रण को अस्वीकार कर दिया है</string>
+  <string name="forum_invitation_response_accepted_received">%sमंच निमंत्रण स्वीकार कर लिया</string>
+  <string name="forum_invitation_response_declined_received">%sमंच निमंत्रण मना कर दिया</string>
+  <string name="sharing_status">शेयरिंग स्थिति</string>
+  <string name="sharing_status_forum">फ़ोरम के किसी भी सदस्य को अपने संपर्कों के साथ साझा कर सकते हैं आप इस फ़ोरम को निम्नलिखित संपर्कों के साथ साझा कर रहे हैं ऐसे अन्य सदस्य भी हो सकते हैं जिन्हें आप नहीं देख सकते हैं</string>
+  <string name="shared_with">%1$d (%2$d ऑनलाइन) के साथ साझा किया गया</string>
+  <plurals name="forums_shared">
+    <item quantity="one">%dसंपर्कों द्वारा साझा मंच</item>
+    <item quantity="other">%dसंपर्कों द्वारा साझा मंच</item>
+  </plurals>
+  <string name="nobody">कोई भी नहीं</string>
+  <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">यह ब्लॉग वर्तमान में खाली है। \ N \ n या तो लेखक ने अभी तक कुछ भी लिखा नहीं है, या जिस व्यक्ति ने आपके साथ इस ब्लॉग को साझा किया है, वह ऑनलाइन आना होगा, ताकि पोस्ट सिंक्रनाइज़ हो सकें।</string>
+  <string name="read_more">अधिक पढ़ें</string>
+  <string name="blogs_write_blog_post">ब्लॉग पोस्ट लिखें</string>
+  <string name="blogs_write_blog_post_body_hint">अपना ब्लॉग पोस्ट यहाँ लिखें</string>
+  <string name="blogs_publish_blog_post">प्रकाशित करना</string>
+  <string name="blogs_blog_post_created">ब्लॉग पोस्ट बनाया</string>
+  <string name="blogs_blog_post_received">नया ब्लॉग पोस्ट प्राप्त हुआ</string>
+  <string name="blogs_blog_post_scroll_to">स्क्रॉल टू</string>
+  <string name="blogs_feed_empty_state">यह वैश्विक ब्लॉग फीड है। \ N \ n ऐसा लगता है कि कोई भी ब्लॉग को कुछ भी नहीं, फिर भी। \ N \ n एक नया ब्लॉग पोस्ट लिखने के लिए पहले और कलम आइकन टैप करें।</string>
+  <string name="blogs_remove_blog">ब्लॉग निकालें</string>
+  <string name="blogs_remove_blog_dialog_message">क्या आप वाकई इस ब्लॉग और सभी पोस्ट को हटाना चाहते हैं? \ नोट यह ब्लॉग को अन्य लोगों के उपकरणों से नहीं हटाएगा</string>
+  <string name="blogs_remove_blog_ok">ब्लॉग निकालें</string>
+  <string name="blogs_blog_removed">ब्लॉग निकाला गया</string>
+  <string name="blogs_reblog_comment_hint">एक टिप्पणी जोड़ें (वैकल्पिक)</string>
+  <string name="blogs_reblog_button">पुनः ब्लॉग</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">ब्लॉग शेयर करें</string>
+  <string name="blogs_sharing_error">इस ब्लॉग को साझा करने में एक त्रुटि थी</string>
+  <string name="blogs_sharing_button">ब्लॉग शेयरकरें</string>
+  <string name="blogs_sharing_snackbar">चयनित संपर्कों के साथ साझा ब्लॉग</string>
+  <string name="blogs_sharing_response_accepted_sent">आपने%s से ब्लॉग निमंत्रण स्वीकार कर लिया है</string>
+  <string name="blogs_sharing_response_declined_sent">आपने ब्लॉग आमंत्रण से इनकार कर दिया%s</string>
+  <string name="blogs_sharing_response_accepted_received">%sब्लॉग निमंत्रण स्वीकार कर लिया</string>
+  <string name="blogs_sharing_response_declined_received">%sब्लॉग आमंत्रण को अस्वीकार कर दिया</string>
+  <string name="blogs_sharing_invitation_received">%1$sने आपके साथ \"%2$s\" ब्लॉग को साझा किया है</string>
+  <string name="blogs_sharing_invitation_sent">आपने %1$s को%2$s के साथ साझा किया है</string>
+  <string name="blogs_sharing_invitations_title">ब्लॉग आमंत्रण</string>
+  <string name="blogs_sharing_joined_toast">ब्लॉग के लिए सदस्यता लिया</string>
+  <string name="blogs_sharing_declined_toast">ब्लॉग आमंत्रण अस्वीकृत</string>
+  <string name="sharing_status_blog">जो कोई भी ब्लॉग के लिए सदस्यता लेता है, उसे अपने संपर्कों के साथ साझा कर सकता है आप इस ब्लॉग को निम्नलिखित संपर्कों के साथ साझा कर रहे हैं। ऐसे अन्य सदस्य भी हो सकते हैं जिन्हें आप नहीं देख सकते हैं।</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">आरएसएस फ़ीड आयात करें</string>
+  <string name="blogs_rss_feeds_import_button">आयात</string>
+  <string name="blogs_rss_feeds_import_hint">आरएसएस फ़ीड का यूआरएल दर्ज करें</string>
+  <string name="blogs_rss_feeds_import_error">हमें खेद है! आपकी फ़ीड आयात करने में एक त्रुटि हुई</string>
+  <string name="blogs_rss_feeds_manage">आरएसएस फ़ीड प्रबंधित करें</string>
+  <string name="blogs_rss_feeds_manage_imported">आयातित:</string>
+  <string name="blogs_rss_feeds_manage_author">लेखक:</string>
+  <string name="blogs_rss_feeds_manage_updated">आखरी अपडेट:</string>
+  <string name="blogs_rss_remove_feed">फ़ीड निकालें</string>
+  <string name="blogs_rss_remove_feed_dialog_message">क्या आप वाकई इस फ़ीड और सभी पदों को निकालना चाहते हैं? \ N आपके द्वारा साझा की गईं अन्य पोस्ट अन्य लोगों के डिवाइस से नहीं हटाई जाएंगी</string>
+  <string name="blogs_rss_remove_feed_ok">फ़ीड निकालें</string>
+  <string name="blogs_rss_feeds_manage_delete_error">फीड हटाया नहीं जा सका!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">आपने किसी भी आरएसएस फ़ीड का आयात नहीं किया है। \ N \ n आप पहली बार जोड़ने के लिए शीर्ष दाएं स्क्रीन कोने में प्लस क्यों नहीं क्लिक करते हैं?</string>
+  <string name="blogs_rss_feeds_manage_error">आपकी फ़ीड लोड करने में एक समस्या थी बाद में पुन: प्रयास करें।</string>
+  <!--Settings Network-->
+  <string name="network_settings_title">नेटवर्क</string>
+  <string name="bluetooth_setting">ब्लूटूथ के माध्यम से कनेक्ट करें</string>
+  <string name="bluetooth_setting_enabled">जब भी संपर्क आस-पास हो</string>
+  <string name="bluetooth_setting_disabled">केवल जब संपर्क जोड़ते हैं</string>
+  <string name="tor_network_setting">टो के माध्यम से कनेक्ट करें</string>
+  <string name="tor_network_setting_never">कभी नहीँ</string>
+  <string name="tor_network_setting_wifi">केवल वाईफ़ाई का उपयोग करते समय</string>
+  <string name="tor_network_setting_always">वाई-फ़ाई या मोबाइल डेटा का उपयोग करते समय</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">सुरक्षा</string>
+  <string name="change_password">पासवर्ड बदलें</string>
+  <string name="current_password">अपना वर्तमान पासवर्ड दर्ज करें:</string>
+  <string name="choose_new_password">अपना नया पासवर्ड चुनें:</string>
+  <string name="confirm_new_password">अपने नए पासवर्ड की पुष्टि करें:</string>
+  <string name="password_changed">पासवर्ड बदला जा चुका है।</string>
+  <string name="panic_setting">आतंक बटन सेटअप</string>
+  <string name="panic_setting_title">घबराहट होना</string>
+  <string name="panic_setting_hint">कॉन्फ़िगर करें कि जब आप एक आतंक बटन ऐप का उपयोग करते हैं तो Briar कैसे प्रतिक्रिया करेगा</string>
+  <string name="panic_app_setting_title">आतंक बटन ऐप</string>
+  <string name="unknown_app">एक अज्ञात ऐप</string>
+  <string name="panic_app_setting_summary">कोई ऐप सेट नहीं किया गया है</string>
+  <string name="panic_app_setting_none">कुछ भी नहीं</string>
+  <string name="dialog_title_connect_panic_app">आतंक ऐप की पुष्टि करें</string>
+  <string name="dialog_message_connect_panic_app">क्या आप निश्चित हैं कि आप%1$s को विनाशकारी आतंक बटन क्रियाओं को ट्रिगर करने की अनुमति देना चाहते हैं?</string>
+  <string name="lock_setting_title">साइन आउट</string>
+  <string name="lock_setting_summary">यदि कोई आतंक बटन दबाया जाता है तो बियर से साइन आउट करें</string>
+  <string name="purge_setting_title">खाता हटा दो</string>
+  <string name="purge_setting_summary">यदि आपका आतंक बटन दबाया गया हो तो अपने ब्रियर खाते को हटा दें। सावधानी: यह आपकी पहचान, संपर्क और संदेश को स्थायी रूप से हटा देगा</string>
+  <string name="uninstall_setting_title">बरिअर की स्थापना रद्द करें</string>
+  <string name="uninstall_setting_summary">इसके लिए एक आतंक घटना में मैन्युअल पुष्टिकरण की आवश्यकता है</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">सूचनाएं</string>
+  <string name="notify_private_messages_setting_title">निजी संदेश</string>
+  <string name="notify_private_messages_setting_summary">निजी संदेशों के लिए अलर्ट दिखाएं</string>
+  <string name="notify_group_messages_setting_title">समूह संदेश</string>
+  <string name="notify_group_messages_setting_summary">समूह संदेशों के लिए अलर्ट्स दिखाएं</string>
+  <string name="notify_forum_posts_setting_title">फ़ोरम पोस्ट</string>
+  <string name="notify_forum_posts_setting_summary">फ़ोरम पोस्ट के लिए अलर्ट्स दिखाएं</string>
+  <string name="notify_blog_posts_setting_title">वेबदैनिकी डाक</string>
+  <string name="notify_blog_posts_setting_summary">ब्लॉग पोस्ट के लिए अलर्ट्स दिखाएं</string>
+  <string name="notify_vibration_setting">कांपना</string>
+  <string name="notify_lock_screen_setting_title">लॉक स्क्रीन</string>
+  <string name="notify_lock_screen_setting_summary">लॉक स्क्रीन पर सूचनाएं दिखाएं</string>
+  <string name="notify_sound_setting">ध्वनि</string>
+  <string name="notify_sound_setting_default">बकाया घंटी</string>
+  <string name="notify_sound_setting_disabled">कोई नहीं</string>
+  <string name="choose_ringtone_title">रिंगटोन चुनें</string>
+  <!--Settings Feedback-->
+  <string name="feedback_settings_title">प्रतिक्रिया</string>
+  <string name="send_feedback">प्रतिक्रिया भेजें</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">लिंक चेतावनी</string>
+  <string name="link_warning_intro">आप बाहरी एप्लिकेशन के साथ निम्न लिंक खोलने वाले हैं</string>
+  <string name="link_warning_text">इसका इस्तेमाल आपको पहचानने के लिए किया जा सकता है इस बारे में सोचें कि क्या आपको उस व्यक्ति पर भरोसा है जिसने आपको यह लिंक भेजा है और इसे ऑर्फ़ॉक्स के साथ खोलने पर विचार किया है।</string>
+  <string name="link_warning_open_link">खुली लिंक</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">ब्रियर क्रैश रिपोर्ट</string>
+  <string name="briar_crashed">क्षमा करें, बियर दुर्घटनाग्रस्त हो गया है।</string>
+  <string name="not_your_fault">यह आपकी गलती नहीं है</string>
+  <string name="please_send_report">कृपया हमें क्रैश रिपोर्ट भेजकर बेहतर बियर बनाने में हमारी सहायता करें</string>
+  <string name="report_is_encrypted">हम वादा करते हैं कि रिपोर्ट एन्क्रिप्ट की गई है और सुरक्षित रूप से भेजा गया है।</string>
+  <string name="feedback_title">प्रतिक्रिया</string>
+  <string name="describe_crash">वर्णन करें कि क्या हुआ (वैकल्पिक)</string>
+  <string name="enter_feedback">अपना फ़ीडबैक दर्ज करें</string>
+  <string name="optional_contact_email">आपका ईमेल पता (वैकल्पिक)</string>
+  <string name="include_debug_report_crash">दुर्घटना के बारे में अनाम डेटा शामिल करें</string>
+  <string name="include_debug_report_feedback">इस डिवाइस के बारे में अनाम डेटा शामिल करें</string>
+  <string name="could_not_load_report_data">रिपोर्ट डेटा लोड नहीं किया जा सका</string>
+  <string name="send_report">रिपोर्ट भेजो</string>
+  <string name="close">बंद करे</string>
+  <string name="dev_report_saved">रिपोर्ट सहेजी गई अगली बार जब आप ब्रियर में प्रवेश करेंगे तो उसे भेजा जाएगा।</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">ब्रियर से साइन आउट हो रहा है ...</string>
+  <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_title">स्क्रीन ओवरले का पता लगाया</string>
+  <string name="screen_filter_body">एक और ऐप ब्रियर के शीर्ष पर है। आपकी सुरक्षा की सुरक्षा के लिए, ब्रियर किसी अन्य ऐप को शीर्ष पर खींचने पर स्पर्श का जवाब नहीं देगा। \ N \ n बरिआर का उपयोग करते समय निम्नलिखित ऐप्स बंद कर दें: \ n \ n%1$s</string>
+</resources>

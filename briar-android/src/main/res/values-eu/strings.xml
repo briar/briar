@@ -1,0 +1,331 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_title">Briar ezarpena</string>
+  <string name="setup_explanation">Zure Briar kontua zure gailuan zifratuta gordetzen da, ez hodeian. Briar desinstalatzen baduzu edo pasahitza ahazten baduzu, ez dago zure kontua eta datuak berreskuratzeko modurik.</string>
+  <string name="choose_nickname">Hautatu zure ezizena</string>
+  <string name="choose_password">Hautatu zure pasahitza</string>
+  <string name="confirm_password">Berretsi zure pasahitza</string>
+  <string name="name_too_long">Izena luzeegia da</string>
+  <string name="password_too_weak">Pasahitza ahulegia da</string>
+  <string name="passwords_do_not_match">Pasahitzak ez datoz bat</string>
+  <string name="create_account_button">Sortu kontua</string>
+  <!--Login-->
+  <string name="enter_password">Sartu zure pasahitza:</string>
+  <string name="try_again">Pasahitz okerra, saiatu berriro</string>
+  <string name="sign_in_button">Hasi saioa</string>
+  <string name="forgotten_password">Nire pasahitza ahaztu dut</string>
+  <string name="dialog_title_lost_password">Pasahitz galdua</string>
+  <string name="dialog_message_lost_password">Zure Briar kontua zure gailuan zifratuta gordetzen da, ez hodeian, beraz ezin dugu zure pasahitza berrezarri. Zure kontua ezabatu eta berriro hasi nahi duzu?\n\nKontuz: Zure identitateak, kontaktuak eta mezuak betirako galduko dira.</string>
+  <string name="startup_failed_notification_title">Ezin izan da Briar abiatu</string>
+  <string name="startup_failed_notification_text">Agian Briar berrinstalatu behar duzu.</string>
+  <string name="startup_failed_activity_title">Briar abio-hutsegitea</string>
+  <string name="startup_failed_db_error">Arrazoiren bategatik, zure Briar datubasea hondatuta dago eta ezin da konpondu. Zure kontua, datuak eta kontaktuekin konexioak galdu dira. Zoritxarrez Briar berrinstalatu behar duzu kontu berria sortzeko.</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">Hau Briar aplikazioaren beta bertsio bat da. Zure kontua egun %d barru iraungitu da eta ezin da berritu.</item>
+    <item quantity="other">Hau Briar aplikazioaren beta bertsio bat da. Zure kontua  %d egun barru iraungitu da eta ezin da berritu.</item>
+  </plurals>
+  <string name="expiry_date_reached">Programa hau iraungitu da.\nEskerrik asko probatzeagatik!</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">Ireki nabigazio tiradera</string>
+  <string name="nav_drawer_close_description">Itxi nabigazio tiradera</string>
+  <string name="contact_list_button">Kontaktuak</string>
+  <string name="groups_button">Talde pribatuak</string>
+  <string name="forums_button">Foroak</string>
+  <string name="blogs_button">Blogak</string>
+  <string name="settings_button">Ezarpenak</string>
+  <string name="sign_out_button">Amaitu saioa</string>
+  <!--Transports-->
+  <string name="transport_tor">Internet</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">Briar saioa hasita</string>
+  <string name="ongoing_notification_text">Ukitu Briar irekitzeko</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="one">Mezu pribatu berri bat.</item>
+    <item quantity="other">%d mezu pribatu berri.</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="one">Talde mezu berri bat.</item>
+    <item quantity="other">%d talde mezu berri.</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one">Foro sarrera berri bat.</item>
+    <item quantity="other">%d foro sarrera berri.</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">Blog sarrera berri bat.</item>
+    <item quantity="other">%d blog sarrera berri.</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">orain</string>
+  <string name="show">Erakutsi</string>
+  <string name="hide">Ezkutatu</string>
+  <string name="ok">Ados</string>
+  <string name="cancel">Utzi</string>
+  <string name="got_it">Ulertu dut</string>
+  <string name="delete">Ezabatu</string>
+  <string name="accept">Onartu</string>
+  <string name="decline">Ukatu</string>
+  <string name="options">Aukerak</string>
+  <string name="online">Konektatuta</string>
+  <string name="offline">Deskonektatuta</string>
+  <string name="send">Bidali</string>
+  <string name="allow">Baimendu</string>
+  <string name="open">Ireki</string>
+  <string name="no_data">Daturik ez</string>
+  <string name="ellipsis">…</string>
+  <string name="text_too_long">Sartutako testua luzeegia da</string>
+  <string name="show_onboarding">Erakutsi laguntza elkarrizketa-koadroa</string>
+  <!--Contacts and Private Conversations-->
+  <string name="date_no_private_messages">Mezurik ez.</string>
+  <string name="message_hint">Idatzi mezua</string>
+  <string name="delete_contact">Ezabatu kontaktua</string>
+  <string name="dialog_title_delete_contact">Berretsi kontaktua ezabatzea</string>
+  <string name="contact_deleted_toast">Kontaktua ezabatuta</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">Gehitu kontaktua</string>
+  <string name="your_nickname">Hautatu erabili nahi duzun identitatea:</string>
+  <string name="continue_button">Jarraitu</string>
+  <string name="your_invitation_code">Zure gonbidapen kodea hau da</string>
+  <string name="enter_invitation_code">Sartu zure gonbidapen kodea:</string>
+  <string name="connection_failed">Konexioak huts egin du</string>
+  <string name="try_again_button">Saiatu berriro</string>
+  <string name="connected_to_contact">Kontaktura konektatuta</string>
+  <string name="calculating_confirmation_code">Berreste kode kalkulatzen\u2026</string>
+  <string name="your_confirmation_code">Zure berreste kodea hau da:</string>
+  <string name="enter_confirmation_code">Sartu zure kontaktuaren berreste kodea:</string>
+  <string name="waiting_for_contact">Kontaktuaren zain\u2026</string>
+  <string name="exchanging_contact_details">Kontaktu-xehetasunak trukatzen\u2016</string>
+  <string name="codes_do_not_match">Kodeak ez datoz bat</string>
+  <string name="contact_added_toast">Kontaktua gehituta: %s</string>
+  <string name="contact_already_exists">%s kontaktua badago aurretik</string>
+  <string name="contact_exchange_failed">Kontaktuen trukeak huts egin du</string>
+  <string name="qr_code_invalid">QR kodea baliogabea da</string>
+  <string name="connecting_to_device">Gailura konektatzen\u2026</string>
+  <string name="authenticating_with_device">Gailuarekin autentifikatzen\u2026</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_title">Aurkeztu zure kontaktuak</string>
+  <string name="introduction_onboarding_text">Zure kontaktuak bata besteari aurkeztu ditzakezu, horrela ez dute aurrez aurre elkartzeko beharra Briar erabiltzeko.</string>
+  <string name="introduction_activity_title">Hautatu kontaktua</string>
+  <string name="introduction_message_title">Aurkeztu kontaktuak</string>
+  <string name="introduction_message_hint">Gehitu mezu bat (aukerazkoa)</string>
+  <string name="introduction_button">Egin aurkezpena</string>
+  <string name="introduction_sent">Zure aurkezpena bidali da</string>
+  <string name="introduction_error">Errorea gertatu da aurkezpena egitean.</string>
+  <string name="introduction_response_error">Errorea aurkezpenari erantzutean</string>
+  <string name="introduction_request_sent">%1$s erabiltzailea %2$s erabiltzaileari aurkeztea eskatu duzu</string>
+  <string name="introduction_request_received">%1$s erabiltzaileak %2$s zuri aurkeztea eskatu dizu. %2$s Kontaktuen zerrendara gehitu nahi duzu?</string>
+  <string name="introduction_request_exists_received">%1$s erabiltzaileak %2$s zuri aurkeztea eskatu dizu, baina %2$s badago zure kontaktuen zerrendan. Agian %1$s erabiltzaileak ez daki, erantzun dezakezu:</string>
+  <string name="introduction_request_answered_received">%1$s erabiltzaileak %2$s zuri aurkeztea eskatu du.</string>
+  <string name="introduction_response_accepted_sent">%1$s erabiltzailearen aurkezpena onartu duzu.</string>
+  <string name="introduction_response_declined_sent">%1$s erabiltzailearen aurkezpena ukatu duzu.</string>
+  <string name="introduction_response_accepted_received">%1$s erabiltzaileak %2$s erabiltzailearen aurkezpena onartu du.</string>
+  <string name="introduction_response_declined_received">%1$s erabiltzaileak %2$s erabiltzailearen aurkezpena ukatu du.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s erabiltzaileak dio %2$s erabiltzaileak aurkezpena ukatu duela.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">Kontaktu berria gehituta.</item>
+    <item quantity="other">%d kontaktu berri gehituta.</item>
+  </plurals>
+  <!--Private Groups-->
+  <string name="groups_created_by">%s erabiltzaileak sortuta</string>
+  <plurals name="messages">
+    <item quantity="one">mezu %d</item>
+    <item quantity="other">%d mezu</item>
+  </plurals>
+  <string name="groups_group_is_empty">Talde hau hutsik dago</string>
+  <string name="groups_group_is_dissolved">Talde hau disolbatu da</string>
+  <string name="groups_remove">Kendu</string>
+  <string name="groups_create_group_title">Sortu talde pribatua</string>
+  <string name="groups_create_group_button">Sortu taldea</string>
+  <string name="groups_create_group_invitation_button">Bidali gonbidapena</string>
+  <string name="groups_create_group_hint">Aukeratu zure talde pribatuaren izena</string>
+  <string name="groups_invitation_sent">Talde gonbidapena bidali da</string>
+  <string name="groups_message_sent">Mezua bidalita</string>
+  <string name="groups_member_list">Kideen zerrenda</string>
+  <string name="groups_invite_members">Gonbidatu kideak</string>
+  <string name="groups_member_created_you">Zuk taldea sortu duzu</string>
+  <string name="groups_member_created"> %s erabiltzaileak taldea sortu du</string>
+  <string name="groups_member_joined_you">Zu taldera elkartu zara</string>
+  <string name="groups_member_joined">%s taldera elkartu da</string>
+  <string name="groups_leave">Utzi taldea</string>
+  <string name="groups_leave_dialog_title">Berretsi taldea uztea</string>
+  <string name="groups_leave_dialog_message">Ziur talde hau utzi nahi duzula?</string>
+  <string name="groups_dissolve">Disolbatu taldea</string>
+  <string name="groups_dissolve_dialog_title">Berretsi taldea disolbatzea</string>
+  <string name="groups_dissolve_button">Disolbatu</string>
+  <string name="groups_dissolved_dialog_title">Taldea disolbatu da</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">Talde gonbidapenak</string>
+  <string name="groups_invitations_invitation_sent">%1$s erabiltzailea \"%2$s\" taldera gonbidatu duzu.</string>
+  <string name="groups_invitations_invitation_received">%1$s erabiltzailea \"%2$s\" taldera gonbidatu zaitu.</string>
+  <string name="groups_invitations_joined">Taldera elkartuta</string>
+  <string name="groups_invitations_declined">Talde gonbidapena ukatuta</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="one">talde ireki gonbidapen %d</item>
+    <item quantity="other">%d talde ireki gonbidapen</item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">%s erabiltzailearen talde gonbidapena onartu duzu.</string>
+  <string name="groups_invitations_response_declined_sent">%s erabiltzailearen talde gonbidapena ukatu duzu. </string>
+  <string name="groups_invitations_response_accepted_received">%s erabiltzaileak talde gonbidapena onartu du.</string>
+  <string name="groups_invitations_response_declined_received">%s erabiltzaileak talde gonbidapena ukatu du.</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">Argitara eman kontaktuak</string>
+  <string name="groups_reveal_visible">Kontaktuen erlazioa taldean ikusgai dago</string>
+  <string name="groups_reveal_visible_revealed_by_us">Kontaktuen erlazioa taldean ikusgai dago (Zuk argitara emana)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">Kontaktuen erlazioa taldean ikusgai dago (%s erabiltzaileak argitara emana)</string>
+  <string name="groups_reveal_invisible">Kontaktuen erlazioa ez dago taldean ikusgai</string>
+  <!--Forums-->
+  <string name="create_forum_title">Sortu foroa</string>
+  <string name="choose_forum_hint">Hautatu zure foroaren izena</string>
+  <string name="create_forum_button">Sortu foroa</string>
+  <string name="forum_created_toast">Foroa sortuta</string>
+  <string name="no_posts">Sarrerarik ez</string>
+  <plurals name="posts">
+    <item quantity="one">Bidalketa %d</item>
+    <item quantity="other">%d sarrera</item>
+  </plurals>
+  <string name="forum_new_entry_posted">Foroko sarrera bidali da</string>
+  <string name="forum_new_message_hint">Sarrera berria</string>
+  <string name="forum_message_reply_hint">Erantzun berria</string>
+  <string name="btn_reply">Erantzun</string>
+  <string name="forum_leave">Utzi foroa</string>
+  <string name="dialog_title_leave_forum">Berretsi foroa uztea</string>
+  <string name="dialog_button_leave">Utzi</string>
+  <string name="forum_left_toast">Foroa utzita</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">Partekatu foroa</string>
+  <string name="contacts_selected">Kontaktuak hautatuta</string>
+  <string name="activity_share_toolbar_header">Hautatu kontaktuak</string>
+  <string name="forum_shared_snackbar">Foroa partekatuta hautatutako kontaktuekin</string>
+  <string name="forum_share_message">Gehitu mezua (aukerazkoa)</string>
+  <string name="forum_share_error">Errore bat egon da foro hau partekatzean.</string>
+  <string name="forum_invitations_title">Forora gonbidapenak</string>
+  <string name="forum_joined_toast">Forora elkartuta</string>
+  <string name="forum_declined_toast">Foro gonbidapena ukatuta</string>
+  <string name="shared_by_format">%s erabiltzaileak partekatuta</string>
+  <string name="forum_invitation_already_sharing">Dagoeneko partekatzen</string>
+  <string name="forum_invitation_response_accepted_sent"> %s erabiltzailearen foro gonbidapena onartu duzu.</string>
+  <string name="forum_invitation_response_declined_sent">%s erabiltzailearen foro gonbidapena ukatu duzu.</string>
+  <string name="forum_invitation_response_accepted_received">%s erabiltzaileak foro gonbidapena onartu du.</string>
+  <string name="forum_invitation_response_declined_received"> %s erabiltzaileak foro gonbidapena ukatu du.</string>
+  <string name="sharing_status">Partekatze egoera</string>
+  <string name="shared_with">%1$d erabiltzaileekin partekatuta (%2$d konektatuta)</string>
+  <plurals name="forums_shared">
+    <item quantity="one">Kontaktuek partekatutako foro %d</item>
+    <item quantity="other">Kontaktuek partekatutako %d foro</item>
+  </plurals>
+  <string name="nobody">Inor ez</string>
+  <!--Blogs-->
+  <string name="read_more">irakurri gehiago</string>
+  <string name="blogs_write_blog_post">Idatzi blog sarrera</string>
+  <string name="blogs_write_blog_post_body_hint">Idatzi zure blog sarrera hemen</string>
+  <string name="blogs_publish_blog_post">Argitaratu</string>
+  <string name="blogs_blog_post_created">Blog sarrera sortuta</string>
+  <string name="blogs_blog_post_received">Blog sarrera berria jasota</string>
+  <string name="blogs_blog_post_scroll_to">Korritu hona</string>
+  <string name="blogs_remove_blog">Kendu bloga</string>
+  <string name="blogs_remove_blog_ok">Kendu bloga</string>
+  <string name="blogs_blog_removed">Bloga kenduta</string>
+  <string name="blogs_reblog_comment_hint">Gehitu iruzkina (aukerazkoa)</string>
+  <string name="blogs_reblog_button">Birblogeatu</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">Partekatu bloga</string>
+  <string name="blogs_sharing_error">Errore bat egon da blog hau partekatzean.</string>
+  <string name="blogs_sharing_button">Partekatu bloga</string>
+  <string name="blogs_sharing_snackbar">Bloga hautatutako kontaktuekin partekatuta</string>
+  <string name="blogs_sharing_response_accepted_sent">%s erabiltzailearen blog gonbidapena onartu duzu.</string>
+  <string name="blogs_sharing_response_declined_sent">%s erabiltzailearen blog gonbidapena ukatu duzu.</string>
+  <string name="blogs_sharing_response_accepted_received">%s erabiltzaileak blog gonbidapena onartu du.</string>
+  <string name="blogs_sharing_response_declined_received">%s erabiltzaileak blog gonbidapena ukatu du.</string>
+  <string name="blogs_sharing_invitations_title">Blog gonbidapenak</string>
+  <string name="blogs_sharing_joined_toast">Blogera harpidetuta</string>
+  <string name="blogs_sharing_declined_toast">Blog gonbidapena ukatuta</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">Inportatu RSS jarioa</string>
+  <string name="blogs_rss_feeds_import_button">Inportatu</string>
+  <string name="blogs_rss_feeds_import_hint">Sartu RSS jarioaren URLa</string>
+  <string name="blogs_rss_feeds_manage">Kudeatu RSS jarioak</string>
+  <string name="blogs_rss_feeds_manage_imported">Inportatuta:</string>
+  <string name="blogs_rss_feeds_manage_author">Egilea:</string>
+  <string name="blogs_rss_feeds_manage_updated">Azken eguneraketa:</string>
+  <string name="blogs_rss_remove_feed">Kendu jarioa:</string>
+  <string name="blogs_rss_remove_feed_ok">Kendu jarioa</string>
+  <string name="blogs_rss_feeds_manage_delete_error">Ezin izan da jarioa ezabatu!</string>
+  <!--Settings Network-->
+  <string name="network_settings_title">Sareak</string>
+  <string name="bluetooth_setting">Bluetooth bidez konektatuta</string>
+  <string name="bluetooth_setting_enabled">Kontaktuak hurbil daudeneak</string>
+  <string name="bluetooth_setting_disabled">Kontaktuak gehitzean besterik ez</string>
+  <string name="tor_network_setting">Konektatu Tor bidez</string>
+  <string name="tor_network_setting_never">Inoiz ez</string>
+  <string name="tor_network_setting_wifi">Wi-Fi erabiltzean besterik ez</string>
+  <string name="tor_network_setting_always">Wi-Fi edo datu mugikorrak erabiltzean</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">Segurtasuna</string>
+  <string name="change_password">Aldatu pasahitza</string>
+  <string name="current_password">Sartu oraingo pasahitza:</string>
+  <string name="choose_new_password">Hautatu pasahitz berria:</string>
+  <string name="confirm_new_password">Berretsi pasahitz berria:</string>
+  <string name="password_changed">Pasahitza aldatu da.</string>
+  <string name="panic_setting">Larrialdi botoiaren ezarpena</string>
+  <string name="panic_setting_title">Larrialdi botoia</string>
+  <string name="panic_setting_hint">Konfiguratu Briar aplikazioak nola jokatuko duen larrialdi botoiaren aplikazioa erabiltzean</string>
+  <string name="panic_app_setting_title">Larrialdi botoiaren aplikazioa</string>
+  <string name="unknown_app">aplikazio ezezagun bat</string>
+  <string name="panic_app_setting_summary">Ez da aplikaziorik ezarri</string>
+  <string name="panic_app_setting_none">Bat ere ez</string>
+  <string name="dialog_title_connect_panic_app">Berretsi larrialdi-aplikazioa</string>
+  <string name="dialog_message_connect_panic_app">Ziur %1$s baimendu nahi duzula larrialdi botoiaren ekintza suntsitzaileak burutzea?</string>
+  <string name="lock_setting_title">Amaitu saioa</string>
+  <string name="lock_setting_summary">Amaitu saioa larrialdi botoia zapaltzen bada</string>
+  <string name="purge_setting_title">Ezabatu kontua</string>
+  <string name="purge_setting_summary">Ezabatu kontua Briar larrialdi botoia zapaltzen bada. Kontuz: Honek behin betiko ezabatuko ditu zure identitateak, kontaktuak eta mezuak</string>
+  <string name="uninstall_setting_title">Desinstalatu Briar</string>
+  <string name="uninstall_setting_summary">Honek eskuzko berrespena behar du larrialdi egoeran</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">Jakinarazpenak</string>
+  <string name="notify_private_messages_setting_title">Mezu pribatuak</string>
+  <string name="notify_private_messages_setting_summary">Erakutsi mezu pribatuen alertak</string>
+  <string name="notify_group_messages_setting_title">Talde mezuak</string>
+  <string name="notify_group_messages_setting_summary">Erakutsi taldeetako mezuen alertak</string>
+  <string name="notify_forum_posts_setting_title">Foroko sarrerak</string>
+  <string name="notify_forum_posts_setting_summary">Erakutsi foroko sarreren alertak</string>
+  <string name="notify_blog_posts_setting_title">Blog sarrerak</string>
+  <string name="notify_blog_posts_setting_summary">Erakutsi blog sarreren alertak</string>
+  <string name="notify_vibration_setting">Bibratu</string>
+  <string name="notify_lock_screen_setting_title">Blokeatu pantaila</string>
+  <string name="notify_lock_screen_setting_summary">Erakutsi jakinarazpenak blokeo-pantailan</string>
+  <string name="notify_sound_setting">Soinua</string>
+  <string name="notify_sound_setting_default">Lehenetsitako dei-doinua</string>
+  <string name="notify_sound_setting_disabled">Bat ere ez</string>
+  <string name="choose_ringtone_title">Hautatu dei-doinua</string>
+  <!--Settings Feedback-->
+  <string name="feedback_settings_title">Iruzkinak</string>
+  <string name="send_feedback">Bidali iruzkinak</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">Estekari buruzko abisua</string>
+  <string name="link_warning_intro">Honako esteka hau kanpo aplikazio batekin irekitzear zaude.</string>
+  <string name="link_warning_open_link">Ireki esteka</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">Briar kraskatze errorea</string>
+  <string name="briar_crashed">Briar kraskatu da.</string>
+  <string name="not_your_fault">Ez da zure errua.</string>
+  <string name="please_send_report">Lagundu Briar hobetzen kraskatze txostena guri bidaliz.</string>
+  <string name="report_is_encrypted">Txostena zifratuta dagoela eta modu seguruan bidaliko dela agintzen dizugu.</string>
+  <string name="feedback_title">Iruzkinak</string>
+  <string name="describe_crash">Deskribatu zer gertatu den (aukerazkoa)</string>
+  <string name="enter_feedback">Idatzi zure iruzkinak</string>
+  <string name="optional_contact_email">Zure e-mail helbidea (aukerazkoa)</string>
+  <string name="include_debug_report_crash">Gehitu kraskatzeari buruzko informazio anonimoa</string>
+  <string name="include_debug_report_feedback">Gehitu gailu honi buruzko informazio anonimoa</string>
+  <string name="could_not_load_report_data">Ezin izan dira kargatu txostenaren datuak.</string>
+  <string name="send_report">Bidali txostena</string>
+  <string name="close">Itxi</string>
+  <string name="dev_report_saved">Txostena gordeta. Briar saioa hasten duzunean bidaliko da.</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">Briar saioa amaitzen...</string>
+  <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_title">Pantaila gainjartzea antzeman da</string>
+</resources>
