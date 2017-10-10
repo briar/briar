@@ -8,9 +8,11 @@ import org.briarproject.briar.android.controller.handler.ResultHandler;
 @NotNullByDefault
 public interface NavDrawerController extends ActivityLifecycleController {
 
+	enum ExpiryWarning { SHOW, NO, UPDATE };
+
 	boolean isTransportRunning(TransportId transportId);
 
-	void showExpiryWarning(final ResultHandler<Boolean> handler);
+	void showExpiryWarning(final ResultHandler<ExpiryWarning> handler);
 
 	void expiryWarningDismissed();
 

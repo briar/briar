@@ -27,7 +27,11 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.briar.BuildConfig.VERSION_CODE;
 import static org.briarproject.briar.android.BriarApplication.EXPIRY_DATE;
+import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
+import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.SHOW;
+import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 
 @MethodsNotNullByDefault
@@ -38,6 +42,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(NavDrawerControllerImpl.class.getName());
 	private static final String EXPIRY_DATE_WARNING = "expiryDateWarning";
+	private static final String EXPIRY_DATE_VERSION = "expiryDateVersion";
 
 	private final PluginManager pluginManager;
 	private final SettingsManager settingsManager;
@@ -103,7 +108,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void showExpiryWarning(final ResultHandler<Boolean> handler) {
+	public void showExpiryWarning(final ResultHandler<ExpiryWarning> handler) {
 		runOnDbThread(new Runnable() {
 			@Override
 			public void run() {
@@ -111,10 +116,11 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 					Settings settings =
 							settingsManager.getSettings(SETTINGS_NAMESPACE);
 					int warningInt = settings.getInt(EXPIRY_DATE_WARNING, 0);
+					int versionCode = settings.getInt(EXPIRY_DATE_VERSION, 0);
 
 					if (warningInt == 0) {
 						// we have not warned before
-						handler.onResult(true);
+						handler.onResult(SHOW);
 					} else {
 						long warningLong = warningInt * 1000L;
 						long now = System.currentTimeMillis();
@@ -123,15 +129,14 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 						long daysBeforeExpiry =
 								(EXPIRY_DATE - now) / 1000 / 60 / 60 / 24;
 
-						if (daysSinceLastWarning >= 30) {
-							handler.onResult(true);
-							return;
-						}
-						if (daysBeforeExpiry <= 3 && daysSinceLastWarning > 0) {
-							handler.onResult(true);
-							return;
-						}
-						handler.onResult(false);
+						if (versionCode < 1611) {
+							handler.onResult(UPDATE);
+						} else if (daysSinceLastWarning >= 30) {
+							handler.onResult(SHOW);
+						} else if (daysBeforeExpiry <= 3 &&
+								daysSinceLastWarning > 0) {
+							handler.onResult(SHOW);
+						} else handler.onResult(NO);
 					}
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
@@ -150,6 +155,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 					Settings settings = new Settings();
 					int date = (int) (System.currentTimeMillis() / 1000L);
 					settings.putInt(EXPIRY_DATE_WARNING, date);
+					settings.putInt(EXPIRY_DATE_VERSION, VERSION_CODE);
 					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 				} catch (DbException e) {
 					if (LOG.isLoggable(WARNING))
