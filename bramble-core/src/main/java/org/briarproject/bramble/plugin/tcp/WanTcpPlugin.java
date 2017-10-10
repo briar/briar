@@ -1,6 +1,5 @@
 package org.briarproject.bramble.plugin.tcp;
 
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -15,8 +14,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
-
-import javax.annotation.Nullable;
 
 import static org.briarproject.bramble.api.plugin.WanTcpConstants.ID;
 
