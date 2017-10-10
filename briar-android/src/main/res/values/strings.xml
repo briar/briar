@@ -383,9 +383,8 @@
 
 	<!-- Permission Requests and Doze Mode -->
 	<string name="permission_camera_title">Camera permission</string>
-	<string name="permission_camera_request_text">To scan the QR code, Briar needs access to the camera.</string>
-	<string name="permission_camera_perm_denied">You have denied access to the camera, but adding contacts requires using the camera. Please consider granting access.</string>
+	<string name="permission_camera_request_body">To scan the QR code, Briar needs access to the camera.</string>
+	<string name="permission_camera_denied_body">You have denied access to the camera, but adding contacts requires using the camera.\n\nPlease consider granting access.</string>
 	<string name="permission_camera_denied_toast">Camera permission was not granted</string>
-	<string name="open_settings">Open Settings</string>
 
 </resources>
