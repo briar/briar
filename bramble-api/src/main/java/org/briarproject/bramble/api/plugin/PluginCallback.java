@@ -30,6 +30,11 @@ public interface PluginCallback {
 	Map<ContactId, TransportProperties> getRemoteProperties();
 
 	/**
+	 * Returns the plugin's remote transport properties for the given contact.
+	 */
+	TransportProperties getRemoteProperties(ContactId c);
+
+	/**
 	 * Merges the given settings with the namespaced settings
 	 */
 	void mergeSettings(Settings s);

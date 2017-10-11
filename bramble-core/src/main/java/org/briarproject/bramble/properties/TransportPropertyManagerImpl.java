@@ -160,33 +160,50 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Override
 	public Map<ContactId, TransportProperties> getRemoteProperties(
 			TransportId t) throws DbException {
+		Map<ContactId, TransportProperties> remote =
+				new HashMap<ContactId, TransportProperties>();
+		Transaction txn = db.startTransaction(true);
 		try {
-			Map<ContactId, TransportProperties> remote =
-					new HashMap<ContactId, TransportProperties>();
-			Transaction txn = db.startTransaction(true);
-			try {
-				for (Contact c : db.getContacts(txn)) {
-					// Don't return properties for inactive contacts
-					if (!c.isActive()) continue;
-					Group g = getContactGroup(c);
-					// Find the latest remote update
-					LatestUpdate latest = findLatest(txn, g.getId(), t, false);
-					if (latest != null) {
-						// Retrieve and parse the latest remote properties
-						BdfList message = clientHelper.getMessageAsList(txn,
-								latest.messageId);
-						if (message == null) throw new DbException();
-						remote.put(c.getId(), parseProperties(message));
-					}
-				}
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
-			return remote;
+			for (Contact c : db.getContacts(txn))
+				remote.put(c.getId(), getRemoteProperties(txn, c, t));
+			db.commitTransaction(txn);
+		} finally {
+			db.endTransaction(txn);
+		}
+		return remote;
+	}
+
+	private TransportProperties getRemoteProperties(Transaction txn, Contact c,
+			TransportId t) throws DbException {
+		// Don't return properties for inactive contacts
+		if (!c.isActive()) return new TransportProperties();
+		Group g = getContactGroup(c);
+		try {
+			// Find the latest remote update
+			LatestUpdate latest = findLatest(txn, g.getId(), t, false);
+			if (latest == null) return new TransportProperties();
+			// Retrieve and parse the latest remote properties
+			BdfList message =
+					clientHelper.getMessageAsList(txn, latest.messageId);
+			if (message == null) throw new DbException();
+			return parseProperties(message);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	@Override
+	public TransportProperties getRemoteProperties(ContactId c, TransportId t)
+			throws DbException {
+		TransportProperties p;
+		Transaction txn = db.startTransaction(true);
+		try {
+			p = getRemoteProperties(txn, db.getContact(txn, c), t);
+			db.commitTransaction(txn);
+		} finally {
+			db.endTransaction(txn);
+		}
+		return p;
 	}
 
 	@Override

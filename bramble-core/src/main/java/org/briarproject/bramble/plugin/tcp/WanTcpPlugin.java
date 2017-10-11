@@ -1,6 +1,5 @@
 package org.briarproject.bramble.plugin.tcp;
 
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -78,9 +77,8 @@ class WanTcpPlugin extends TcpPlugin {
 	}
 
 	@Override
-	protected List<InetSocketAddress> getRemoteSocketAddresses(ContactId c) {
-		TransportProperties p = callback.getRemoteProperties().get(c);
-		if (p == null) return Collections.emptyList();
+	protected List<InetSocketAddress> getRemoteSocketAddresses(
+			TransportProperties p) {
 		InetSocketAddress parsed = parseSocketAddress(p.get(PROP_IP_PORT));
 		if (parsed == null) return Collections.emptyList();
 		return Collections.singletonList(parsed);

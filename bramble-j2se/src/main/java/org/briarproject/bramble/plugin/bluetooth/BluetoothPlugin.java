@@ -249,8 +249,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	@Override
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if (!running) return null;
-		TransportProperties p = callback.getRemoteProperties().get(c);
-		if (p == null) return null;
+		TransportProperties p = callback.getRemoteProperties(c);
 		String address = p.get(PROP_ADDRESS);
 		if (StringUtils.isNullOrEmpty(address)) return null;
 		String uuid = p.get(PROP_UUID);

@@ -284,6 +284,16 @@ class PluginManagerImpl implements PluginManager, Service {
 		}
 
 		@Override
+		public TransportProperties getRemoteProperties(ContactId c) {
+			try {
+				return transportPropertyManager.getRemoteProperties(c, id);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				return new TransportProperties();
+			}
+		}
+
+		@Override
 		public void mergeSettings(Settings s) {
 			try {
 				settingsManager.mergeSettings(s, id.getString());

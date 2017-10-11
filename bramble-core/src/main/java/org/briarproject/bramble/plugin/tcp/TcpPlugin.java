@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.util.StringUtils;
 
 import java.io.IOException;
@@ -24,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
@@ -66,11 +69,11 @@ abstract class TcpPlugin implements DuplexPlugin {
 	protected abstract void setLocalSocketAddress(InetSocketAddress a);
 
 	/**
-	 * Returns zero or more socket addresses for connecting to the given
-	 * contact.
+	 * Returns zero or more socket addresses for connecting to a contact with
+	 * the given transport properties.
 	 */
 	protected abstract List<InetSocketAddress> getRemoteSocketAddresses(
-			ContactId c);
+			TransportProperties p);
 
 	/**
 	 * Returns true if connections to the given address can be attempted.
@@ -207,16 +210,21 @@ abstract class TcpPlugin implements DuplexPlugin {
 	public void poll(Collection<ContactId> connected) {
 		if (!isRunning()) return;
 		backoff.increment();
-		// TODO: Pass properties to connectAndCallBack()
-		for (ContactId c : callback.getRemoteProperties().keySet())
-			if (!connected.contains(c)) connectAndCallBack(c);
+		Map<ContactId, TransportProperties> remote =
+				callback.getRemoteProperties();
+		for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
+			ContactId c = e.getKey();
+			if (!connected.contains(c)) connectAndCallBack(c, e.getValue());
+		}
 	}
 
-	private void connectAndCallBack(final ContactId c) {
+	private void connectAndCallBack(final ContactId c,
+			final TransportProperties p) {
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				DuplexTransportConnection d = createConnection(c);
+				if (!isRunning()) return;
+				DuplexTransportConnection d = createConnection(p);
 				if (d != null) {
 					backoff.reset();
 					callback.outgoingConnectionCreated(c, d);
@@ -228,7 +236,12 @@ abstract class TcpPlugin implements DuplexPlugin {
 	@Override
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if (!isRunning()) return null;
-		for (InetSocketAddress remote : getRemoteSocketAddresses(c)) {
+		return createConnection(callback.getRemoteProperties(c));
+	}
+
+	@Nullable
+	private DuplexTransportConnection createConnection(TransportProperties p) {
+		for (InetSocketAddress remote : getRemoteSocketAddresses(p)) {
 			if (!isConnectable(remote)) {
 				if (LOG.isLoggable(INFO)) {
 					SocketAddress local = socket.getLocalSocketAddress();

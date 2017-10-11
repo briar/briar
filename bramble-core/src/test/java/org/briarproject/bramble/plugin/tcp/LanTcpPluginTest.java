@@ -312,6 +312,11 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		}
 
 		@Override
+		public TransportProperties getRemoteProperties(ContactId c) {
+			return remote.get(c);
+		}
+
+		@Override
 		public void mergeSettings(Settings s) {
 		}
 
