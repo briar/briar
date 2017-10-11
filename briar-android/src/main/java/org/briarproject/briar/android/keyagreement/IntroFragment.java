@@ -63,7 +63,7 @@ public class IntroFragment extends BaseFragment {
 
 		View v = inflater.inflate(R.layout.fragment_keyagreement_id, container,
 				false);
-		scrollView = (ScrollView) v.findViewById(R.id.scrollView);
+		scrollView = v.findViewById(R.id.scrollView);
 		View button = v.findViewById(R.id.continueButton);
 		button.setOnClickListener(view -> screenSeenListener.showNextScreen());
 		return v;

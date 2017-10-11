@@ -154,8 +154,8 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 		private final TextInputView input;
 
 		private ViewHolder(View v) {
-			scrollView = (ScrollView) v.findViewById(R.id.scrollView);
-			progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
+			scrollView = v.findViewById(R.id.scrollView);
+			progressBar = v.findViewById(R.id.progressBar);
 			post = new BlogPostViewHolder(v.findViewById(R.id.postLayout),
 					true, new OnBlogPostClickListener() {
 						@Override
@@ -168,7 +168,7 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 							// probably don't want to allow author clicks here
 						}
 					});
-			input = (TextInputView) v.findViewById(R.id.inputText);
+			input = v.findViewById(R.id.inputText);
 		}
 	}
 }

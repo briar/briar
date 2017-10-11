@@ -20,8 +20,8 @@ class ConversationRequestViewHolder extends ConversationNoticeInViewHolder {
 
 	ConversationRequestViewHolder(View v) {
 		super(v);
-		acceptButton = (Button) v.findViewById(R.id.acceptButton);
-		declineButton = (Button) v.findViewById(R.id.declineButton);
+		acceptButton = v.findViewById(R.id.acceptButton);
+		declineButton = v.findViewById(R.id.declineButton);
 	}
 
 	void bind(ConversationItem conversationItem,

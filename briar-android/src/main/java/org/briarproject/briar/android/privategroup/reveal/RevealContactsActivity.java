@@ -52,7 +52,7 @@ public class RevealContactsActivity extends ContactSelectorActivity
 		if (b == null) throw new IllegalStateException("No GroupId");
 		groupId = new GroupId(b);
 
-		button = (Button) findViewById(R.id.revealButton);
+		button = findViewById(R.id.revealButton);
 		button.setOnClickListener(this);
 		button.setEnabled(false);
 

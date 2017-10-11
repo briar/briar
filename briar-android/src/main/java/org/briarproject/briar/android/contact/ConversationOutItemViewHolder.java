@@ -16,7 +16,7 @@ abstract class ConversationOutItemViewHolder
 
 	ConversationOutItemViewHolder(View v) {
 		super(v);
-		status = (ImageView) v.findViewById(R.id.status);
+		status = v.findViewById(R.id.status);
 	}
 
 	@Override

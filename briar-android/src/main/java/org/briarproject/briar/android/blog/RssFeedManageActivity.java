@@ -49,7 +49,7 @@ public class RssFeedManageActivity extends BriarActivity
 
 		adapter = new RssFeedAdapter(this, this);
 
-		list = (BriarRecyclerView) findViewById(R.id.feedList);
+		list = findViewById(R.id.feedList);
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
 	}

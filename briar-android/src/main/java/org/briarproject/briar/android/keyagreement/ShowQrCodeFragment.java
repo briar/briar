@@ -124,14 +124,12 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		cameraView = (CameraView) view.findViewById(R.id.camera_view);
+		cameraView = view.findViewById(R.id.camera_view);
 		statusView = view.findViewById(R.id.status_container);
-		status = (TextView) view.findViewById(R.id.connect_status);
-		qrCode = (ImageView) view.findViewById(R.id.qr_code);
-		mainProgressTitle =
-				(TextView) view.findViewById(R.id.title_progress_bar);
-		mainProgressContainer =
-				(ViewGroup) view.findViewById(R.id.container_progress);
+		status = view.findViewById(R.id.connect_status);
+		qrCode = view.findViewById(R.id.qr_code);
+		mainProgressTitle = view.findViewById(R.id.title_progress_bar);
+		mainProgressContainer = view.findViewById(R.id.container_progress);
 	}
 
 	@Override

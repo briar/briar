@@ -31,10 +31,10 @@ public class ContactItemViewHolder<I extends ContactItem>
 		super(v);
 
 		layout = (ViewGroup) v;
-		avatar = (ImageView) v.findViewById(R.id.avatarView);
-		name = (TextView) v.findViewById(R.id.nameView);
+		avatar = v.findViewById(R.id.avatarView);
+		name = v.findViewById(R.id.nameView);
 		// this can be null as not all layouts that use this ViewHolder have it
-		bulb = (ImageView) v.findViewById(R.id.bulbView);
+		bulb = v.findViewById(R.id.bulbView);
 	}
 
 	protected void bind(I item, @Nullable OnContactClickListener<I> listener) {

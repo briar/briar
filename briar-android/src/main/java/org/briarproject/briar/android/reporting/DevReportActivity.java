@@ -90,15 +90,15 @@ public class DevReportActivity extends BaseCrashReportDialog
 
 		getDelegate().setContentView(R.layout.activity_dev_report);
 
-		Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar tb = findViewById(R.id.toolbar);
 		getDelegate().setSupportActionBar(tb);
 
 		View requestReport = findViewById(R.id.request_report);
-		userCommentView = (EditText) findViewById(R.id.user_comment);
-		userEmailView = (EditText) findViewById(R.id.user_email);
-		includeDebugReport = (CheckBox) findViewById(R.id.include_debug_report);
-		chevron = (Button) findViewById(R.id.chevron);
-		report = (LinearLayout) findViewById(R.id.report_content);
+		userCommentView = findViewById(R.id.user_comment);
+		userEmailView = findViewById(R.id.user_email);
+		includeDebugReport = findViewById(R.id.include_debug_report);
+		chevron = findViewById(R.id.chevron);
+		report = findViewById(R.id.report_content);
 		progress = findViewById(R.id.progress_wheel);
 
 		//noinspection ConstantConditions
@@ -262,7 +262,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 						boolean excluded = excludedFields.contains(field);
 						View v = inflater.inflate(R.layout.list_item_crash,
 								report, false);
-						CheckBox cb = (CheckBox) v
+						CheckBox cb = v
 								.findViewById(R.id.include_in_report);
 						cb.setTag(field);
 						cb.setChecked(required || !excluded);

@@ -14,7 +14,6 @@ import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -100,7 +99,7 @@ import javax.inject.Inject;
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
-import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.OnHidePromptListener;
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptStateChangeListener;
 
 import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
@@ -112,6 +111,8 @@ import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
+import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_DISMISSED;
+import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_FINISHED;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -199,23 +200,21 @@ public class ConversationActivity extends BriarActivity
 		// Custom Toolbar
 		toolbar = setUpCustomToolbar(true);
 		if (toolbar != null) {
-			toolbarAvatar =
-					(CircleImageView) toolbar.findViewById(R.id.contactAvatar);
-			toolbarStatus =
-					(ImageView) toolbar.findViewById(R.id.contactStatus);
-			toolbarTitle = (TextView) toolbar.findViewById(R.id.contactName);
+			toolbarAvatar = toolbar.findViewById(R.id.contactAvatar);
+			toolbarStatus = toolbar.findViewById(R.id.contactStatus);
+			toolbarTitle = toolbar.findViewById(R.id.contactName);
 		}
 
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
 		setTransitionName(toolbarStatus, getBulbTransitionName(contactId));
 
 		adapter = new ConversationAdapter(this, this);
-		list = (BriarRecyclerView) findViewById(R.id.conversationView);
+		list = findViewById(R.id.conversationView);
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_private_messages));
 
-		textInputView = (TextInputView) findViewById(R.id.text_input_container);
+		textInputView = findViewById(R.id.text_input_container);
 		textInputView.setListener(this);
 	}
 
@@ -393,7 +392,7 @@ public class ConversationActivity extends BriarActivity
 
 	/**
 	 * Creates ConversationItems from headers loaded from the database.
-	 *
+	 * <p>
 	 * Attention: Call this only after contactName has been initialized.
 	 */
 	@SuppressWarnings("ConstantConditions")
@@ -562,6 +561,7 @@ public class ConversationActivity extends BriarActivity
 					addConversationItem(item);
 				});
 			}
+
 			@Override
 			public void onFailure(Throwable exception) {
 				runOnUiThreadUnlessDestroyed(
@@ -580,6 +580,7 @@ public class ConversationActivity extends BriarActivity
 					addConversationItem(item);
 				});
 			}
+
 			@Override
 			public void onFailure(Throwable exception) {
 				runOnUiThreadUnlessDestroyed(
@@ -598,6 +599,7 @@ public class ConversationActivity extends BriarActivity
 					addConversationItem(item);
 				});
 			}
+
 			@Override
 			public void onFailure(Throwable exception) {
 				runOnUiThreadUnlessDestroyed(
@@ -616,6 +618,7 @@ public class ConversationActivity extends BriarActivity
 					addConversationItem(item);
 				});
 			}
+
 			@Override
 			public void onFailure(Throwable exception) {
 				runOnUiThreadUnlessDestroyed(
@@ -778,25 +781,25 @@ public class ConversationActivity extends BriarActivity
 				return;
 			}
 
-			OnHidePromptListener listener = new OnHidePromptListener() {
-				@Override
-				public void onHidePrompt(MotionEvent motionEvent,
-						boolean focalClicked) {
-					introductionOnboardingSeen();
-				}
+				PromptStateChangeListener listener = new PromptStateChangeListener() {
+					@Override
+					public void onPromptStateChanged(
+							MaterialTapTargetPrompt prompt, int state) {
+						if (state == STATE_DISMISSED ||
+					state == STATE_FINISHED) {
+introductionOnboardingSeen();
+					}
+					}
 
-				@Override
-				public void onHidePromptComplete() {
-				}
-			};
-			new MaterialTapTargetPrompt.Builder(ConversationActivity.this)
-					.setTarget(target)
-					.setPrimaryText(R.string.introduction_onboarding_title)
-					.setSecondaryText(R.string.introduction_onboarding_text)
-					.setBackgroundColourFromRes(R.color.briar_primary)
-					.setIcon(R.drawable.ic_more_vert_accent)
-					.setOnHidePromptListener(listener)
-					.show();
+				};
+				new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
+						R.style.OnboardingDialogTheme).setTarget(target)
+						.setPrimaryText(R.string.introduction_onboarding_title)
+						.setSecondaryText(R.string.introduction_onboarding_text)
+						.setIcon(R.drawable.ic_more_vert_accent)
+						.setPromptStateChangeListener(listener)
+						.show();
+
 		});
 	}
 

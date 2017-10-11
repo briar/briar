@@ -68,7 +68,7 @@ public class GroupListFragment extends BaseFragment implements
 		View v = inflater.inflate(R.layout.list, container, false);
 
 		adapter = new GroupListAdapter(getContext(), this);
-		list = (BriarRecyclerView) v.findViewById(R.id.list);
+		list = v.findViewById(R.id.list);
 		list.setEmptyText(R.string.groups_list_empty);
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);

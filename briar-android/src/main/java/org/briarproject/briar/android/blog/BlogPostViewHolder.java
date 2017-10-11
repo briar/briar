@@ -59,13 +59,12 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		this.listener = listener;
 
 		ctx = v.getContext();
-		layout = (ViewGroup) v.findViewById(R.id.postLayout);
-		reblogger = (AuthorView) v.findViewById(R.id.rebloggerView);
-		author = (AuthorView) v.findViewById(R.id.authorView);
-		reblogButton = (ImageView) v.findViewById(R.id.commentView);
-		body = (TextView) v.findViewById(R.id.bodyView);
-		commentContainer =
-				(ViewGroup) v.findViewById(R.id.commentContainer);
+		layout = v.findViewById(R.id.postLayout);
+		reblogger = v.findViewById(R.id.rebloggerView);
+		author = v.findViewById(R.id.authorView);
+		reblogButton = v.findViewById(R.id.commentView);
+		body = v.findViewById(R.id.bodyView);
+		commentContainer = v.findViewById(R.id.commentContainer);
 	}
 
 	void setVisibility(int visibility) {
@@ -135,7 +134,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 				ActivityOptionsCompat options =
 						makeSceneTransitionAnimation((Activity) ctx, layout,
 								getTransitionName(item.getId()));
-				ActivityCompat.startActivity((Activity) ctx, i,
+				ActivityCompat.startActivity(ctx, i,
 						options.toBundle());
 			} else {
 				// work-around for android bug #224270
@@ -173,8 +172,8 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 					.inflate(R.layout.list_item_blog_comment,
 							commentContainer, false);
 
-			AuthorView author = (AuthorView) v.findViewById(R.id.authorView);
-			TextView body = (TextView) v.findViewById(R.id.bodyView);
+			AuthorView author = v.findViewById(R.id.authorView);
+			TextView body = v.findViewById(R.id.bodyView);
 
 			author.setAuthor(c.getAuthor());
 			author.setAuthorStatus(c.getAuthorStatus());

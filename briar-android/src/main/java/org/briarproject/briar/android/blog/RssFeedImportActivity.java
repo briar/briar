@@ -54,7 +54,7 @@ public class RssFeedImportActivity extends BriarActivity {
 
 		setContentView(R.layout.activity_rss_feed_import);
 
-		urlInput = (EditText) findViewById(R.id.urlInput);
+		urlInput = findViewById(R.id.urlInput);
 		urlInput.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
@@ -72,10 +72,10 @@ public class RssFeedImportActivity extends BriarActivity {
 			}
 		});
 
-		importButton = (Button) findViewById(R.id.importButton);
+		importButton = findViewById(R.id.importButton);
 		importButton.setOnClickListener(v -> publish());
 
-		progressBar = (ProgressBar) findViewById(R.id.progressBar);
+		progressBar = findViewById(R.id.progressBar);
 	}
 
 	@Override

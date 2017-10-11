@@ -48,12 +48,12 @@ public class PasswordFragmentTest {
 		startFragment(passwordFragment, SetupActivity.class);
 
 		View v = passwordFragment.getView();
-		passwordEntry = (EditText) v.findViewById(R.id.password_entry);
-		passwordConfirmation = (EditText) v.findViewById(R.id.password_confirm);
+		passwordEntry = v.findViewById(R.id.password_entry);
+		passwordConfirmation = v.findViewById(R.id.password_confirm);
 		passwordConfirmationWrapper =
-				(TextInputLayout) v.findViewById(R.id.password_confirm_wrapper);
-		strengthMeter = (StrengthMeter) v.findViewById(R.id.strength_meter);
-		createAccountButton = (Button) v.findViewById(R.id.next);
+				v.findViewById(R.id.password_confirm_wrapper);
+		strengthMeter = v.findViewById(R.id.strength_meter);
+		createAccountButton = v.findViewById(R.id.next);
 	}
 
 	@Test

@@ -54,13 +54,13 @@ abstract class SharingStatusActivity extends BriarActivity {
 		if (b == null) throw new IllegalStateException("No GroupId");
 		groupId = new GroupId(b);
 
-		list = (BriarRecyclerView) findViewById(R.id.list);
+		list = findViewById(R.id.list);
 		adapter = new SharingStatusAdapter(this);
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.nobody));
 
-		TextView info = (TextView) findViewById(R.id.info);
+		TextView info = findViewById(R.id.info);
 		info.setText(getInfoText());
 	}
 

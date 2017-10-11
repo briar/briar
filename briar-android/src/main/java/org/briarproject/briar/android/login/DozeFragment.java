@@ -37,8 +37,8 @@ public class DozeFragment extends SetupFragment {
 		getActivity().setTitle(getString(R.string.setup_doze_title));
 		View v = inflater.inflate(R.layout.fragment_setup_doze, container,
 						false);
-		dozeButton = (Button) v.findViewById(R.id.dozeButton);
-		progressBar = (ProgressBar) v.findViewById(R.id.progress);
+		dozeButton = v.findViewById(R.id.dozeButton);
+		progressBar = v.findViewById(R.id.progress);
 
 		dozeButton.setOnClickListener(view -> askForDozeWhitelisting());
 

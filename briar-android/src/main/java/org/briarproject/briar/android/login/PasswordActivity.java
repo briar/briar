@@ -53,10 +53,10 @@ public class PasswordActivity extends BaseActivity {
 		}
 
 		setContentView(R.layout.activity_password);
-		signInButton = (Button) findViewById(R.id.btn_sign_in);
-		progress = (ProgressBar) findViewById(R.id.progress_wheel);
-		input = (TextInputLayout) findViewById(R.id.password_layout);
-		password = (EditText) findViewById(R.id.edit_password);
+		signInButton = findViewById(R.id.btn_sign_in);
+		progress = findViewById(R.id.progress_wheel);
+		input = findViewById(R.id.password_layout);
+		password = findViewById(R.id.edit_password);
 		password.setOnEditorActionListener((v, actionId, event) -> {
 			validatePassword();
 			return true;

@@ -193,9 +193,9 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		final EmojiDrawer emojiDrawer;
 
 		private ViewHolder() {
-			emojiToggle = (EmojiToggle) findViewById(R.id.emoji_toggle);
-			editText = (EmojiEditText) findViewById(R.id.input_text);
-			emojiDrawer = (EmojiDrawer) findViewById(R.id.emoji_drawer);
+			emojiToggle = findViewById(R.id.emoji_toggle);
+			editText = findViewById(R.id.input_text);
+			emojiDrawer = findViewById(R.id.emoji_drawer);
 			sendButton = findViewById(R.id.btn_send);
 		}
 	}

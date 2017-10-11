@@ -69,7 +69,7 @@ public class WriteBlogPostActivity extends BriarActivity
 
 		setContentView(R.layout.activity_write_blog_post);
 
-		input = (TextInputView) findViewById(R.id.bodyInput);
+		input = findViewById(R.id.bodyInput);
 		input.setSendButtonEnabled(false);
 		input.addTextChangedListener(new TextWatcher() {
 			@Override
@@ -89,7 +89,7 @@ public class WriteBlogPostActivity extends BriarActivity
 		});
 		input.setListener(this);
 
-		progressBar = (ProgressBar) findViewById(R.id.progressBar);
+		progressBar = findViewById(R.id.progressBar);
 	}
 
 	@Override

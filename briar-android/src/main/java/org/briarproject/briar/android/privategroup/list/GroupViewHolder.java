@@ -41,13 +41,13 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 		super(v);
 
 		layout = (ViewGroup) v;
-		avatar = (TextAvatarView) v.findViewById(R.id.avatarView);
-		name = (TextView) v.findViewById(R.id.nameView);
-		creator = (TextView) v.findViewById(R.id.creatorView);
-		postCount = (TextView) v.findViewById(R.id.messageCountView);
-		date = (TextView) v.findViewById(R.id.dateView);
-		status = (TextView) v.findViewById(R.id.statusView);
-		remove = (Button) v.findViewById(R.id.removeButton);
+		avatar = v.findViewById(R.id.avatarView);
+		name = v.findViewById(R.id.nameView);
+		creator = v.findViewById(R.id.creatorView);
+		postCount = v.findViewById(R.id.messageCountView);
+		date = v.findViewById(R.id.dateView);
+		status = v.findViewById(R.id.statusView);
+		remove = v.findViewById(R.id.removeButton);
 	}
 
 	void bindView(Context ctx, GroupItem group,

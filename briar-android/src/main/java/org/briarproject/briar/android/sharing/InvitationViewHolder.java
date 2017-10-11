@@ -29,12 +29,12 @@ public class InvitationViewHolder<I extends InvitationItem>
 	public InvitationViewHolder(View v) {
 		super(v);
 
-		avatar = (TextAvatarView) v.findViewById(R.id.avatarView);
-		name = (TextView) v.findViewById(R.id.forumNameView);
-		sharedBy = (TextView) v.findViewById(R.id.sharedByView);
-		subscribed = (TextView) v.findViewById(R.id.forumSubscribedView);
-		accept = (Button) v.findViewById(R.id.acceptButton);
-		decline = (Button) v.findViewById(R.id.declineButton);
+		avatar = v.findViewById(R.id.avatarView);
+		name = v.findViewById(R.id.forumNameView);
+		sharedBy = v.findViewById(R.id.sharedByView);
+		subscribed = v.findViewById(R.id.forumSubscribedView);
+		accept = v.findViewById(R.id.acceptButton);
+		decline = v.findViewById(R.id.declineButton);
 	}
 
 	@CallSuper

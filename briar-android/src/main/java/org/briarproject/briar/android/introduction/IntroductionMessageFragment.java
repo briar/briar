@@ -211,13 +211,12 @@ public class IntroductionMessageFragment extends BaseFragment
 		private final TextInputView message;
 
 		private ViewHolder(View v) {
-			progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
-			avatar1 = (CircleImageView) v.findViewById(R.id.avatarContact1);
-			avatar2 = (CircleImageView) v.findViewById(R.id.avatarContact2);
-			contactName1 = (TextView) v.findViewById(R.id.nameContact1);
-			contactName2 = (TextView) v.findViewById(R.id.nameContact2);
-			message = (TextInputView) v
-					.findViewById(R.id.introductionMessageView);
+			progressBar = v.findViewById(R.id.progressBar);
+			avatar1 = v.findViewById(R.id.avatarContact1);
+			avatar2 = v.findViewById(R.id.avatarContact2);
+			contactName1 = v.findViewById(R.id.nameContact1);
+			contactName2 = v.findViewById(R.id.nameContact2);
+			message = v.findViewById(R.id.introductionMessageView);
 		}
 	}
 }

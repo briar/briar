@@ -43,7 +43,7 @@ public class CreateGroupFragment extends BaseFragment {
 
 		View v = inflater.inflate(R.layout.fragment_create_group, container,
 				false);
-		nameEntry = (EditText) v.findViewById(R.id.name);
+		nameEntry = v.findViewById(R.id.name);
 		nameEntry.addTextChangedListener(new TextWatcher() {
 
 			@Override
@@ -66,12 +66,12 @@ public class CreateGroupFragment extends BaseFragment {
 			return true;
 		});
 
-		nameLayout = (TextInputLayout) v.findViewById(R.id.nameLayout);
+		nameLayout = v.findViewById(R.id.nameLayout);
 
-		createGroupButton = (Button) v.findViewById(R.id.button);
+		createGroupButton = v.findViewById(R.id.button);
 		createGroupButton.setOnClickListener(v1 -> createGroup());
 
-		progress = (ProgressBar) v.findViewById(R.id.progressBar);
+		progress = v.findViewById(R.id.progressBar);
 
 		return v;
 	}

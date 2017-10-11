@@ -45,10 +45,9 @@ public class SetupActivityTest {
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 		setupActivity = Robolectric.setupActivity(SetupActivity.class);
-		nicknameEntryWrapper = (TextInputLayout) setupActivity
-				.findViewById(R.id.nickname_entry_wrapper);
-		nicknameEntry =
-				(EditText) setupActivity.findViewById(R.id.nickname_entry);
+		nicknameEntryWrapper =
+				setupActivity.findViewById(R.id.nickname_entry_wrapper);
+		nicknameEntry = setupActivity.findViewById(R.id.nickname_entry);
 	}
 
 	@Test

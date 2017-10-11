@@ -24,8 +24,8 @@ class ContactListItemViewHolder extends ContactItemViewHolder<ContactListItem> {
 
 	ContactListItemViewHolder(View v) {
 		super(v);
-		unread = (TextView) v.findViewById(R.id.unreadCountView);
-		date = (TextView) v.findViewById(R.id.dateView);
+		unread = v.findViewById(R.id.unreadCountView);
+		date = v.findViewById(R.id.dateView);
 	}
 
 	@Override

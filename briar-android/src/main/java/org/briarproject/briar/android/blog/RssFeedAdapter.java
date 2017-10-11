@@ -104,13 +104,13 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 			super(v);
 
 			layout = v;
-			title = (TextView) v.findViewById(R.id.titleView);
-			delete = (ImageButton) v.findViewById(R.id.deleteButton);
-			imported = (TextView) v.findViewById(R.id.importedView);
-			updated = (TextView) v.findViewById(R.id.updatedView);
-			author = (TextView) v.findViewById(R.id.authorView);
-			authorLabel = (TextView) v.findViewById(R.id.author);
-			description = (TextView) v.findViewById(R.id.descriptionView);
+			title = v.findViewById(R.id.titleView);
+			delete = v.findViewById(R.id.deleteButton);
+			imported = v.findViewById(R.id.importedView);
+			updated = v.findViewById(R.id.updatedView);
+			author = v.findViewById(R.id.authorView);
+			authorLabel = v.findViewById(R.id.author);
+			description = v.findViewById(R.id.descriptionView);
 		}
 	}
 

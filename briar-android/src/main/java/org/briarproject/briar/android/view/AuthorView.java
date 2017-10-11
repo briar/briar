@@ -53,12 +53,12 @@ public class AuthorView extends RelativeLayout {
 				.getSystemService(LAYOUT_INFLATER_SERVICE);
 		inflater.inflate(R.layout.author_view, this, true);
 
-		avatar = (CircleImageView) findViewById(R.id.avatar);
-		avatarIcon = (ImageView) findViewById(R.id.avatarIcon);
-		authorName = (TextView) findViewById(R.id.authorName);
+		avatar = findViewById(R.id.avatar);
+		avatarIcon = findViewById(R.id.avatarIcon);
+		authorName = findViewById(R.id.authorName);
 		authorNameTypeface = authorName.getTypeface();
-		date = (TextView) findViewById(R.id.dateView);
-		trustIndicator = (TrustIndicatorView) findViewById(R.id.trustIndicator);
+		date = findViewById(R.id.dateView);
+		trustIndicator = findViewById(R.id.trustIndicator);
 
 		TypedArray attributes =
 				context.obtainStyledAttributes(attrs, R.styleable.AuthorView);

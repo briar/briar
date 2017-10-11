@@ -133,10 +133,10 @@ class ForumListAdapter
 			super(v);
 
 			layout = (ViewGroup) v;
-			avatar = (TextAvatarView) v.findViewById(R.id.avatarView);
-			name = (TextView) v.findViewById(R.id.forumNameView);
-			postCount = (TextView) v.findViewById(R.id.postCountView);
-			date = (TextView) v.findViewById(R.id.dateView);
+			avatar = v.findViewById(R.id.avatarView);
+			name = v.findViewById(R.id.forumNameView);
+			postCount = v.findViewById(R.id.postCountView);
+			date = v.findViewById(R.id.dateView);
 		}
 	}
 }

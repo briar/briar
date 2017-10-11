@@ -55,17 +55,17 @@ public class ChangePasswordActivityTest {
 		MockitoAnnotations.initMocks(this);
 		changePasswordActivity =
 				Robolectric.setupActivity(TestChangePasswordActivity.class);
-		passwordConfirmationWrapper = (TextInputLayout) changePasswordActivity
+		passwordConfirmationWrapper = changePasswordActivity
 				.findViewById(R.id.new_password_confirm_wrapper);
-		currentPassword = (EditText) changePasswordActivity
+		currentPassword = changePasswordActivity
 				.findViewById(R.id.current_password_entry);
-		newPassword = (EditText) changePasswordActivity
+		newPassword = changePasswordActivity
 				.findViewById(R.id.new_password_entry);
-		newPasswordConfirmation = (EditText) changePasswordActivity
+		newPasswordConfirmation = changePasswordActivity
 				.findViewById(R.id.new_password_confirm);
-		strengthMeter = (StrengthMeter) changePasswordActivity
+		strengthMeter = changePasswordActivity
 				.findViewById(R.id.strength_meter);
-		changePasswordButton = (Button) changePasswordActivity
+		changePasswordButton = changePasswordActivity
 				.findViewById(R.id.change_password);
 	}
 

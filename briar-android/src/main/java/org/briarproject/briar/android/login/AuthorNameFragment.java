@@ -35,11 +35,9 @@ public class AuthorNameFragment extends SetupFragment {
 		getActivity().setTitle(getString(R.string.setup_title));
 		View v = inflater.inflate(R.layout.fragment_setup_author_name,
 				container, false);
-		authorNameWrapper =
-				(TextInputLayout) v.findViewById(R.id.nickname_entry_wrapper);
-		authorNameInput =
-				(TextInputEditText) v.findViewById(R.id.nickname_entry);
-		nextButton = (Button) v.findViewById(R.id.next);
+		authorNameWrapper = v.findViewById(R.id.nickname_entry_wrapper);
+		authorNameInput = v.findViewById(R.id.nickname_entry);
+		nextButton = v.findViewById(R.id.next);
 
 		authorNameInput.addTextChangedListener(this);
 		nextButton.setOnClickListener(this);
