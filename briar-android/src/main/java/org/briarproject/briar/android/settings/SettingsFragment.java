@@ -11,9 +11,6 @@ import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import org.acra.ACRA;
@@ -34,7 +31,6 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.UserFeedback;
-import org.briarproject.briar.android.widget.PreferenceDividerDecoration;
 import org.briarproject.briar.api.test.TestDataCreator;
 
 import java.util.logging.Logger;
@@ -198,16 +194,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		}
 
 		loadSettings();
-	}
-
-	@Override
-	public RecyclerView onCreateRecyclerView(LayoutInflater inflater,
-			ViewGroup parent, Bundle savedInstanceState) {
-		RecyclerView list = super.onCreateRecyclerView(inflater, parent,
-				savedInstanceState);
-		list.addItemDecoration(
-				new PreferenceDividerDecoration(getContext()).drawBottom(true));
-		return list;
 	}
 
 	@Override
