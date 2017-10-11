@@ -105,6 +105,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private static final String OWNER = "__OwningControllerProcess";
 	private static final int COOKIE_TIMEOUT = 3000; // Milliseconds
 	private static final Pattern ONION = Pattern.compile("[a-z2-7]{16}");
+	// This tag will prevent Huawei's power manager from killing us
+	private static final String WAKE_LOCK_TAG = "LocationManagerService";
 	private static final Logger LOG =
 			Logger.getLogger(TorPlugin.class.getName());
 
@@ -161,9 +163,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				ioExecutor, 1);
 		PowerManager pm = (PowerManager)
 				appContext.getSystemService(POWER_SERVICE);
-		// This tag will prevent Huawei's power manager from killing us
 		wakeLock = new RenewableWakeLock(pm, scheduler, PARTIAL_WAKE_LOCK,
-				"LocationManagerService", 30, MINUTES);
+				WAKE_LOCK_TAG, 30, MINUTES);
 	}
 
 	@Override
