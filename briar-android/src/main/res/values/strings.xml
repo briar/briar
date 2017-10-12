@@ -28,6 +28,7 @@
 		<item quantity="one">This is a beta version of Briar. Your account will expire in %d day and cannot be renewed.</item>
 		<item quantity="other">This is a beta version of Briar. Your account will expire in %d days and cannot be renewed.</item>
 	</plurals>
+	<string name="expiry_update">The beta expiry date has been extended. Your account will now expire in %d days.</string>
 	<string name="expiry_date_reached">This software has expired.\nThank you for testing!</string>
 
 	<!-- Navigation Drawer -->

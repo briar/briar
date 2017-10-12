@@ -34,6 +34,7 @@ import org.briarproject.briar.android.forum.ForumListFragment;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.fragment.SignOutFragment;
+import org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning;
 import org.briarproject.briar.android.privategroup.list.GroupListFragment;
 import org.briarproject.briar.android.settings.SettingsActivity;
 
@@ -48,6 +49,8 @@ import static android.support.v4.view.GravityCompat.START;
 import static android.support.v4.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
+import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
 import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
 
 public class NavDrawerActivity extends BriarActivity implements
@@ -83,7 +86,8 @@ public class NavDrawerActivity extends BriarActivity implements
 		} else if (intent.getBooleanExtra(INTENT_FORUMS, false)) {
 			startFragment(ForumListFragment.newInstance(), R.id.nav_btn_forums);
 		} else if (intent.getBooleanExtra(INTENT_CONTACTS, false)) {
-			startFragment(ContactListFragment.newInstance(), R.id.nav_btn_contacts);
+			startFragment(ContactListFragment.newInstance(),
+					R.id.nav_btn_contacts);
 		} else if (intent.getBooleanExtra(INTENT_BLOGS, false)) {
 			startFragment(FeedFragment.newInstance(), R.id.nav_btn_blogs);
 		}
@@ -121,7 +125,8 @@ public class NavDrawerActivity extends BriarActivity implements
 		transportsView.setAdapter(transportsAdapter);
 
 		if (state == null) {
-			startFragment(ContactListFragment.newInstance(), R.id.nav_btn_contacts);
+			startFragment(ContactListFragment.newInstance(),
+					R.id.nav_btn_contacts);
 		}
 		if (getIntent() != null) {
 			onNewIntent(getIntent());
@@ -132,10 +137,10 @@ public class NavDrawerActivity extends BriarActivity implements
 	public void onStart() {
 		super.onStart();
 		updateTransports();
-		controller.showExpiryWarning(new UiResultHandler<Boolean>(this) {
+		controller.showExpiryWarning(new UiResultHandler<ExpiryWarning>(this) {
 			@Override
-			public void onResultUi(Boolean showWarning) {
-				if (showWarning) showExpiryWarning();
+			public void onResultUi(ExpiryWarning expiry) {
+				if (expiry != NO) showExpiryWarning(expiry);
 			}
 		});
 	}
@@ -178,7 +183,7 @@ public class NavDrawerActivity extends BriarActivity implements
 		clearBackStack();
 		loadFragment(item.getItemId());
 		//Don't display the Settings Item as checked
-		if (item.getItemId() == R.id.nav_btn_settings){
+		if (item.getItemId() == R.id.nav_btn_settings) {
 			return false;
 		}
 		return true;
@@ -204,7 +209,8 @@ public class NavDrawerActivity extends BriarActivity implements
 			 * exiting. This models the typical Google navigation behaviour such
 			 * as in Gmail/Inbox.
 			 */
-			startFragment(ContactListFragment.newInstance(), R.id.nav_btn_contacts);
+			startFragment(ContactListFragment.newInstance(),
+					R.id.nav_btn_contacts);
 		} else {
 			super.onBackPressed();
 		}
@@ -228,7 +234,7 @@ public class NavDrawerActivity extends BriarActivity implements
 		signOut(false);
 	}
 
-	private void startFragment(BaseFragment fragment, int itemId){
+	private void startFragment(BaseFragment fragment, int itemId) {
 		navigation.setCheckedItem(itemId);
 		startFragment(fragment);
 	}
@@ -265,7 +271,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	}
 
 	@SuppressWarnings("ConstantConditions")
-	private void showExpiryWarning() {
+	private void showExpiryWarning(ExpiryWarning expiry) {
 		int daysUntilExpiry = getDaysUntilExpiry();
 		if (daysUntilExpiry < 0) signOut();
 
@@ -274,13 +280,26 @@ public class NavDrawerActivity extends BriarActivity implements
 				expiryWarning = (ViewGroup) findViewById(R.id.expiryWarning);
 		TextView expiryWarningText =
 				(TextView) expiryWarning.findViewById(R.id.expiryWarningText);
-		expiryWarningText.setText(getResources()
-				.getQuantityString(R.plurals.expiry_warning, daysUntilExpiry,
-						daysUntilExpiry));
-
 		// make close button functional
 		ImageView expiryWarningClose =
 				(ImageView) expiryWarning.findViewById(R.id.expiryWarningClose);
+
+		// show a different snackbar in green if this is an update
+		if (expiry == UPDATE) {
+			expiryWarning.setBackgroundColor(
+					ContextCompat.getColor(this, R.color.briar_green_light));
+			expiryWarningText.setText(
+					getString(R.string.expiry_update, daysUntilExpiry));
+			expiryWarningText.setTextColor(
+					ContextCompat.getColor(this, android.R.color.black));
+			expiryWarningClose.setColorFilter(
+					ContextCompat.getColor(this, android.R.color.black));
+		} else {
+			expiryWarningText.setText(getResources()
+					.getQuantityString(R.plurals.expiry_warning,
+							daysUntilExpiry, daysUntilExpiry));
+		}
+
 		expiryWarningClose.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
