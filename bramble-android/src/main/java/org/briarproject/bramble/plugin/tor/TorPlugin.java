@@ -149,7 +149,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
 		Object o = appContext.getSystemService(POWER_SERVICE);
 		PowerManager pm = (PowerManager) o;
-		wakeLock = pm.newWakeLock(PARTIAL_WAKE_LOCK, "TorPlugin");
+		// This tag will prevent Huawei's powermanager from killing us.
+		wakeLock = pm.newWakeLock(PARTIAL_WAKE_LOCK, "LocationManagerService");
 		wakeLock.setReferenceCounted(false);
 	}
 
