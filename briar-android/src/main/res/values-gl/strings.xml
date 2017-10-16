@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_title">Configuración de Briar</string>
+  <string name="setup_explanation">Briar almacena a súa configuración encriptada no dispositivo, non na nube. Se desinstala Briar ou esquece a súa clave, non hai forma de recuperar a súa conta e datos.</string>
+  <string name="choose_nickname">Escolle o teu alcume</string>
+  <string name="choose_password">Escolle a túa clave</string>
+  <string name="confirm_password">Confirma a túa clave</string>
+  <string name="name_too_long">O nome é demasiado longo</string>
+  <string name="password_too_weak">A clave é demasiado débil</string>
+  <string name="passwords_do_not_match">As claves non coinciden</string>
+  <string name="create_account_button">Crea a conta</string>
+  <!--Login-->
+  <string name="enter_password">Introduce a túa clave:</string>
+  <string name="try_again">Clave incorrecta, tenteo de novo</string>
+  <string name="sign_in_button">Iniciar sesión</string>
+  <string name="forgotten_password">Esquecín a miña clave</string>
+  <string name="dialog_title_lost_password">Clave perdida</string>
+  <string name="dialog_message_lost_password">Briar almacena a súa configuración encriptada no dispositivo, non na nube, así que non podemos restabelecer a súa clave. Querrías borrar a túa conta e empezar de novo?\n\nPrecaución: As túas identidades, contactos e mensaxes serán eliminadas de forma permanente.</string>
+  <string name="startup_failed_notification_title">Briar non puido iniciarse</string>
+  <string name="startup_failed_notification_text">Pode que precises instalar Briar de novo</string>
+  <string name="startup_failed_activity_title">Fallo de Inicio de Briar</string>
+  <string name="startup_failed_db_error">A súa base de datos de Briar está corrompida ate o punto que é irreparábel. Perdeuse a súa conta, os seus datos e todos os contactos conectados. Por desgraza debes instalar de novo Briar e configurar unha nova conta.</string>
+  <string name="startup_failed_service_error"> Briar non puido iniciar un complemento necesario. Xeralmente reinstalar Briar resolve este problema. Teña en conta que entón perderá a súa conta e todos os datos asociados a esta pois Briar non está a utilizar servidores centrais para almacenar os seus datos.</string>
+  <string name="expiry_date_reached">Este software caducou.\nGrazas por probalo!</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">Abra a gaveta de navegación</string>
+  <string name="nav_drawer_close_description">Peche a gaveta de navegación</string>
+  <string name="contact_list_button">Contactos</string>
+  <string name="groups_button">Grupos Privados</string>
+  <string name="forums_button">Foros</string>
+  <string name="blogs_button">Blogues</string>
+  <string name="settings_button">Axustes</string>
+  <string name="sign_out_button">Finalizar sesión</string>
+  <!--Transports-->
+  <string name="transport_tor">Internet</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">Conectado a Briar</string>
+  <string name="ongoing_notification_text">Toque para abrir Briar</string>
+  <!--Misc-->
+  <string name="now">agora</string>
+  <string name="show">Amosar</string>
+  <string name="hide">Agochar</string>
+  <string name="ok">OK</string>
+  <string name="cancel">Cancelar</string>
+  <string name="got_it">Comprendido</string>
+  <string name="delete">Eliminar</string>
+  <string name="accept">Aceptar</string>
+  <string name="decline">Rexeitar</string>
+  <string name="options">Opcións</string>
+  <string name="online">Conectado</string>
+  <string name="offline">Desconectado</string>
+  <string name="send">Enviar</string>
+  <string name="allow">Permitir</string>
+  <string name="open">Abrir</string>
+  <string name="no_data">Sen datos</string>
+  <string name="ellipsis">...</string>
+  <string name="text_too_long">O texto inserido e demasiado longo</string>
+  <string name="show_onboarding">Amosar xanela de axuda</string>
+  <!--Contacts and Private Conversations-->
+  <string name="date_no_private_messages">Sen mensaxes</string>
+  <string name="message_hint">Esciba unha mensaxe</string>
+  <string name="delete_contact">Eliminar contacto</string>
+  <string name="dialog_title_delete_contact">Confirme a eliminación do contacto</string>
+  <string name="contact_deleted_toast">Contacto eliminado</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">Engada un contacto</string>
+  <string name="your_nickname">Escolla a identidade que quere usar:</string>
+  <string name="continue_button">Continuar</string>
+  <string name="your_invitation_code">O seu código de convite é</string>
+  <string name="enter_invitation_code">Por favor, insira o código de convite do seu contacto</string>
+  <string name="connection_failed">Fallou a conexión</string>
+  <string name="try_again_button">Tenteo de novo</string>
+  <string name="connected_to_contact">Conectado ao contacto</string>
+  <string name="your_confirmation_code">O seu código de confirmación é</string>
+  <string name="codes_do_not_match">Os códigos non coinciden</string>
+  <string name="qr_code_invalid">O código QR non é válido</string>
+  <!--Introductions-->
+  <string name="introduction_activity_title">Escoller contacto</string>
+  <string name="introduction_message_title">Introducir Contactos</string>
+  <string name="introduction_message_hint">Engadir unha mensaxe (opcional)</string>
+  <!--Private Groups-->
+  <string name="groups_group_is_empty">Este grupo está valeiro</string>
+  <string name="groups_group_is_dissolved">Este grupo foi disolto</string>
+  <string name="groups_remove">Eliminar</string>
+  <string name="groups_create_group_title">Crear Grupo Privado</string>
+  <string name="groups_create_group_button">Crear Grupo</string>
+  <string name="groups_create_group_invitation_button">Enviar Convite</string>
+  <string name="groups_create_group_hint">Escolla un nome para o seu grupo privado</string>
+  <string name="groups_message_sent">Mensaxe enviada</string>
+  <string name="groups_member_list">Lista de Membros</string>
+  <string name="groups_invite_members">Convidar a Membros</string>
+  <string name="groups_member_created_you">Vostede creou o grupo</string>
+  <string name="groups_member_joined_you">Vostede ingresou no grupo</string>
+  <string name="groups_leave">Deixar Grupo</string>
+  <string name="groups_leave_dialog_title">Confirme que deixa o Grupo</string>
+  <string name="groups_leave_dialog_message">Está certo de que quere deixar este grupo?</string>
+  <!--Private Group Invitations-->
+  <!--Private Groups Revealing Contacts-->
+  <!--Forums-->
+  <string name="create_forum_title">Crear Foro</string>
+  <string name="choose_forum_hint">Escolla un nome para o seu foro</string>
+  <string name="create_forum_button">Crear Foro</string>
+  <string name="forum_created_toast">Foro creado</string>
+  <string name="no_posts">Non hai mensaxes</string>
+  <string name="forum_new_message_hint">Nova Entrada</string>
+  <string name="forum_message_reply_hint">Nova Resposta</string>
+  <string name="btn_reply">Respostar</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">Compartir Foro</string>
+  <string name="activity_share_toolbar_header">Escolla Contactos</string>
+  <string name="forum_share_message">Engadir unha mensaxe (opcional)</string>
+  <!--Blogs-->
+  <string name="read_more">ler mais</string>
+  <string name="blogs_publish_blog_post">Publicar</string>
+  <!--Blog Sharing-->
+  <!--RSS Feeds-->
+  <!--Settings Network-->
+  <!--Settings Security and Panic-->
+  <!--Settings Notifications-->
+  <!--Settings Feedback-->
+  <!--Link Warning-->
+  <!--Crash Reporter-->
+  <!--Sign Out-->
+  <!--Screen Filters & Tapjacking-->
+</resources>

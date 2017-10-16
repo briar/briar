@@ -1,0 +1,221 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_title">Briar регистрация</string>
+  <string name="setup_explanation">Briar профилът се съхранява криптиран във вашето устройство, а не в облака. Ако деинсталирате Briar или забравите паролата си, няма как да възстановите профила и данните си.</string>
+  <string name="choose_nickname">Изберете име</string>
+  <string name="choose_password">Изберете парола</string>
+  <string name="confirm_password">Потвърдете парола</string>
+  <string name="name_too_long">Името е твърде дълго</string>
+  <string name="password_too_weak">Паролата е твърде слаба</string>
+  <string name="passwords_do_not_match">Паролите не съвпадат</string>
+  <string name="create_account_button">Създаване на профил</string>
+  <!--Login-->
+  <string name="enter_password">Въведете парола:</string>
+  <string name="try_again">Грешна парола, опитайте пак</string>
+  <string name="sign_in_button">Вход</string>
+  <string name="forgotten_password">Забравена парола</string>
+  <string name="dialog_title_lost_password">Забравена парола</string>
+  <string name="dialog_message_lost_password">Briar профилът се съхранява криптиран във вашето устройство, не в облака, така че не можем да зададем нова парола. Искате ли да изтриете профила си и да започнете отначало?\n\nВнимание: Вашият профил, контакти и съобщения ще бъдат изтрити завинаги.</string>
+  <string name="startup_failed_notification_title">Briar не можа да стартира</string>
+  <string name="startup_failed_notification_text">Може да се наложи да преинсталирате Briar.</string>
+  <string name="startup_failed_activity_title">Неуспешно стартиране</string>
+  <string name="startup_failed_db_error">Вашата база данни на Briar е повредена непоправимо. Вашият профил, данни и всички контакти са унищожени. За съжаление се налага да преинсталирате Briar и да създадете нов профил.</string>
+  <string name="startup_failed_service_error">Briar не успя да стартира задължителен плъгин. Обикновено преинсталирането на Briar решава този проблем. Моля, имайте предвид, че ще изгубите профила си и всички данни, асоциирани с него, тъй като Briar не съхранява данните ви в централни сървъри.</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">Това е бета версия на Briar. Профилът ви ще изгуби валидност след %d ден и не може да бъде подновен.</item>
+    <item quantity="other">Това е бета версия на Briar. Профилът ви ще изгуби валидност след %d дни и не може да бъде подновен.</item>
+  </plurals>
+  <string name="expiry_date_reached">Софтуерът е невалиден.\nБлагодарим ви за тестването!</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">Отвори навигационно чекмедже</string>
+  <string name="nav_drawer_close_description">Затвори навигационно чекмедже</string>
+  <string name="contact_list_button">Контакти</string>
+  <string name="groups_button">Частни групи</string>
+  <string name="forums_button">Форуми</string>
+  <string name="blogs_button">Блогове</string>
+  <string name="settings_button">Настройки</string>
+  <string name="sign_out_button">Отписване</string>
+  <!--Transports-->
+  <string name="transport_tor">Интернет</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">Вписан сте в Briar</string>
+  <string name="ongoing_notification_text">Докоснете, за да отворите Briar.</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="one">Ново лично съобщение.</item>
+    <item quantity="other">%d нови лични съобщения.</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="one">Ново групово съобщение.</item>
+    <item quantity="other">%d нови групови съобщения.</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one">Нов форумен пост.</item>
+    <item quantity="other">%d нови форумни публикации.</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">Нов блог пост.</item>
+    <item quantity="other">%d нови блог публикации.</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">сега</string>
+  <string name="show">Покажи</string>
+  <string name="hide">Скрий</string>
+  <string name="ok">ОК</string>
+  <string name="cancel">Отказ</string>
+  <string name="delete">Изтрий</string>
+  <string name="accept">Приеми</string>
+  <string name="decline">Откажи</string>
+  <string name="options">Опции</string>
+  <string name="online">Онлайн</string>
+  <string name="offline">Офлайн</string>
+  <string name="send">Изпрати</string>
+  <string name="allow">Позволи</string>
+  <string name="open">Отвори</string>
+  <string name="no_data">Няма данни</string>
+  <string name="ellipsis">...</string>
+  <string name="text_too_long">Въведеният текст е твърде дълъг</string>
+  <string name="show_onboarding">Показване на помощен диалог</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Няма добавени контакти.\n\nНатиснете плюса в горния десен ъгъл и следвайте инструкциите, за да добавите приятели.\n\nВнимание: Трябва да се срещнете лично с човека, когото искате да добавите в Контакти. По този начин никой не може да се представи за вас или да чете съобщенията ви в бъдеще.</string>
+  <string name="date_no_private_messages">Няма съобщения.</string>
+  <string name="message_hint">Напиши съобщение</string>
+  <string name="delete_contact">Изтрий контакт</string>
+  <string name="dialog_title_delete_contact">Потвърди изтриването на контакт</string>
+  <string name="dialog_message_delete_contact">Сигурни ли сте, че искате да изтриете този контакт и всички съобщения, обменени с този контакт?</string>
+  <string name="contact_deleted_toast">Контактът е изтрит</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">Добавяне на контакт</string>
+  <string name="face_to_face">Трябва да се срещнете лично с човека, когото искате да добавите в Контакти.\n\nПо този начин никой не може да се представи за вас или да чете съобщенията ви в бъдеще.</string>
+  <string name="continue_button">Напред</string>
+  <string name="connection_failed">Провалена връзка</string>
+  <string name="could_not_find_contact">Briar не можа да открие вашият контакт </string>
+  <string name="try_again_button">Опитай пак</string>
+  <string name="calculating_confirmation_code">Изчисляване на код за потвърждение\u2026</string>
+  <string name="your_confirmation_code">Кодът ви за потвърждение е</string>
+  <string name="enter_confirmation_code">Моля, въведете кодът за потвърждение на контакта ви</string>
+  <string name="waiting_for_contact">Изчакване на контакта\u2026</string>
+  <string name="codes_do_not_match">Кодовете не съвпадат</string>
+  <string name="contact_already_exists">Контактът %s вече съществува</string>
+  <string name="qr_code_invalid">QR кодът е невалиден</string>
+  <string name="connecting_to_device">Свързване с устройство\u2026</string>
+  <string name="authenticating_with_device">Удостоверяване с устройство\u2026</string>
+  <string name="connection_aborted_local">Връзката е прекъсната от нас! Това може да значи, че някой се опитва да попречи на свързването</string>
+  <string name="connection_aborted_remote">Връзката е прекъсната от контактът ви! Това може да значи, че някой се опитва да попречи на свързването</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_text">Можете да представите контактите си един на друг, за да не им се налага да се срещат лично, когато се свързват чрез Briar.</string>
+  <!--Private Groups-->
+  <string name="groups_created_by">Създаден от %s</string>
+  <plurals name="messages">
+    <item quantity="one">%d съобщение</item>
+    <item quantity="other">%d съобщения</item>
+  </plurals>
+  <string name="groups_group_is_empty">Групата е празна</string>
+  <string name="groups_group_is_dissolved">Групата се е разпаднала</string>
+  <string name="groups_member_created_you">Вие създадохте групата</string>
+  <string name="groups_member_created">%s създаде групата</string>
+  <string name="groups_member_joined_you">Включихте се в групата</string>
+  <string name="groups_member_joined">%s се включи в групата</string>
+  <string name="groups_leave">Напусни групата</string>
+  <string name="groups_leave_dialog_title">Потвърждение на напускането</string>
+  <string name="groups_leave_dialog_message">Сигурни ли сте, че искате да напуснете тази група?</string>
+  <!--Private Group Invitations-->
+  <!--Private Groups Revealing Contacts-->
+  <!--Forums-->
+  <string name="forum_leave">Напусни форума</string>
+  <string name="dialog_message_leave_forum">Сигурни ли сте, че искате да напуснете този форум? Контактите, с които сте споделили този форум, ще престанат да получават ъпдейти от него.</string>
+  <string name="dialog_button_leave">Напускане</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_error">Възникна грешка при споделянето на този форум.</string>
+  <!--Blogs-->
+  <string name="blogs_remove_blog_dialog_message">Сигурни ли сте, че искате да премахнете този блог и всички публикации?\nБлогът няма да бъдат премахнат от устройствата на други хора.</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_error">Възникна грешка при споделянето на този блог.</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">Внасяне на RSS емисия</string>
+  <string name="blogs_rss_feeds_import_button">Внасяне</string>
+  <string name="blogs_rss_feeds_import_hint">Въведете URL адреса на RSS емисията</string>
+  <string name="blogs_rss_feeds_import_error">Възникна грешка при внасянето на емисия.</string>
+  <string name="blogs_rss_feeds_manage">Управление на RSS емисии</string>
+  <string name="blogs_rss_feeds_manage_imported">Внесена:</string>
+  <string name="blogs_rss_feeds_manage_author">Автор:</string>
+  <string name="blogs_rss_feeds_manage_updated">Последно актуализиране:</string>
+  <string name="blogs_rss_remove_feed">Премахване на емисия</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Сигурни ли сте, че искате да премахнете тази емисия и всички нейни публикации?\nВсички споделени от вас публикации няма да бъдат премахнати от устройствата на други хора.</string>
+  <string name="blogs_rss_feeds_manage_delete_error">Емисията не можа да бъде изтрита!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Нямате добавени RSS емисии.\n\nНатиснете плюса в горния десен ъгъл на екрана, за да добавите нова емисия.</string>
+  <string name="blogs_rss_feeds_manage_error">Възникна проблем при зареждането на емисиите ви. Моля, опитайте пак по-късно.</string>
+  <!--Settings Network-->
+  <string name="network_settings_title">Мрежа</string>
+  <string name="bluetooth_setting">Свързване чрез Bluetooth</string>
+  <string name="bluetooth_setting_enabled">Когато контактите са наблизо</string>
+  <string name="bluetooth_setting_disabled">Само при добавяне на контакти</string>
+  <string name="tor_network_setting">Свързване чрез Tor</string>
+  <string name="tor_network_setting_never">Никога</string>
+  <string name="tor_network_setting_wifi">Само при активна Wi-Fi връзка</string>
+  <string name="tor_network_setting_always">През Wi-Fi или мобилни данни</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">Сигурност</string>
+  <string name="change_password">Промяна на паролата</string>
+  <string name="current_password">Въведете сегашната си парола:</string>
+  <string name="choose_new_password">Изберете нова парола:</string>
+  <string name="confirm_new_password">Потвърдете нова парола:</string>
+  <string name="password_changed">Паролата е променена.</string>
+  <string name="panic_setting">Настройка на паник бутон</string>
+  <string name="panic_setting_title">Паник бутон</string>
+  <string name="panic_setting_hint">Конфигурация на приложение за паник бутон</string>
+  <string name="panic_app_setting_title">Приложение за паник бутон</string>
+  <string name="unknown_app">непознато приложение</string>
+  <string name="panic_app_setting_summary">Няма зададено приложение</string>
+  <string name="dialog_title_connect_panic_app">Потвърждение на паник приложение</string>
+  <string name="dialog_message_connect_panic_app">Сигурни ли сте, че искате да позволите на %1$s да задейства унищожителни действия на паник бутон?</string>
+  <string name="lock_setting_title">Отписване</string>
+  <string name="lock_setting_summary">Отписване от Briar, ако паник бутонът е натиснат</string>
+  <string name="purge_setting_title">Изтриване на профил</string>
+  <string name="purge_setting_summary">Изтриване на Briar профила, ако паник бутонът е натиснат. Внимание: Изтрива завинаги вашия профил, контакти и съобщения</string>
+  <string name="uninstall_setting_title">Деинсталиране на Briar</string>
+  <string name="uninstall_setting_summary">Изисква ръчно потвърждение в паник случай</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">Известия</string>
+  <string name="notify_private_messages_setting_title">Лични съобщения</string>
+  <string name="notify_private_messages_setting_summary">Показвай известия за лични съобщения</string>
+  <string name="notify_group_messages_setting_title">Групови съобщения</string>
+  <string name="notify_group_messages_setting_summary">Показвай известия за групови съобщения</string>
+  <string name="notify_forum_posts_setting_title">Форумни публикации</string>
+  <string name="notify_forum_posts_setting_summary">Показвай известия за форумни публикации</string>
+  <string name="notify_blog_posts_setting_title">Блог публикации</string>
+  <string name="notify_blog_posts_setting_summary">Показвай известия за блог публикации</string>
+  <string name="notify_vibration_setting">Вибрация</string>
+  <string name="notify_lock_screen_setting_title">Заключен екран</string>
+  <string name="notify_lock_screen_setting_summary">Показвай известия за на заключен екран</string>
+  <string name="notify_sound_setting_default">Мелодия по подразбиране</string>
+  <string name="choose_ringtone_title">Изберете рингтон</string>
+  <!--Settings Feedback-->
+  <string name="feedback_settings_title">Отзиви</string>
+  <string name="send_feedback">Изпращане на отзиви</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">Предупреждение за линк</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">Доклад на срив</string>
+  <string name="briar_crashed">Извинете, Briar се срина.</string>
+  <string name="not_your_fault">Не е по ваша вина.</string>
+  <string name="please_send_report">Моля, помогнете да изградим по-добър Briar, като ни изпратите доклад.</string>
+  <string name="report_is_encrypted">Гарантираме, че докладът е криптиран и изпратен безопасно.</string>
+  <string name="feedback_title">Отзиви</string>
+  <string name="describe_crash">Опишете станалото (незадължително)</string>
+  <string name="enter_feedback">Въведете отзив</string>
+  <string name="optional_contact_email">Имейл адресът ви (незадължително)</string>
+  <string name="include_debug_report_crash">Добави анонимни данни за срива</string>
+  <string name="include_debug_report_feedback">Добави анонимни данни за това устройствo</string>
+  <string name="could_not_load_report_data">Данните за доклада не можаха да заредят.</string>
+  <string name="send_report">Изпращане на доклад</string>
+  <string name="close">Затваряне</string>
+  <string name="dev_report_saved">Докладът е запазен. Ще бъде изпратен при следващото влизане в Briar.</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">Отписване от Briar...</string>
+  <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_title">Открит е овърлей на екрана</string>
+  <string name="screen_filter_body">Друго приложение чертае върху Briar. За да защити вашата сигурност, Briar няма да реагира на докосване, докато друго приложение чертае отгоре.\n\nОпитайте да изключите следните приложения, когато използвате Briar:\n\n%1$s</string>
+</resources>
