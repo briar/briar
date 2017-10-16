@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Configuracion de Briar</string>
-  <string name="setup_explanation">Vòstre compte Briar es salvat e chifrat sus vòstre aparelh, non pas sus en un servidor alunhat \"cloud\". Se desinstalletz Briar o oblidetz vòstre senhal, vòstre compte e vòstras donadas seràn irrecuperables.</string>
+  <string name="setup_explanation">Vòstre compte Briar es salvat e chifrat sus vòstre aparelh, non pas sus un servidor alonhat \"cloud\". Se desinstalletz Briar o oblidetz vòstre senhal, vòstre compte e vòstras donadas serà pas possible de los recuperar.</string>
   <string name="choose_nickname">Causir un escais-nom</string>
   <string name="choose_password">Causir un senhal</string>
   <string name="confirm_password">Confirmar lo senhal</string>
@@ -16,13 +16,13 @@
   <string name="sign_in_button">Se connectar</string>
   <string name="forgotten_password">Senhal oblidat</string>
   <string name="dialog_title_lost_password">Senhal oblidat</string>
-  <string name="dialog_message_lost_password">Vòstre compte Briar es salvat e chifrat sus vòstre aparelh, non pas sus en un servidor alunhat \"cloud\". De fècte podèm pas reïnicializar vòstre senhal.
+  <string name="dialog_message_lost_password">Vòstre compte Briar es salvat e chifrat sus vòstre aparelh, non pas sus un servidor alonhat \"cloud\". De efècte podèm pas reïnicializar vòstre senhal.
 Volètz suprimir vòstre compte e ne crear un nòu ?\n
 \nMèfi : vòstra identitat, vòstres contactes e messatges seràn perduts per totjorn.</string>
   <string name="startup_failed_notification_title">Briar a pas pogut aviar</string>
   <string name="startup_failed_notification_text">Benlèu que vos cal tornar installar Briar.</string>
   <string name="startup_failed_activity_title">Fracàs de l’aviada de Briar.</string>
-  <string name="startup_failed_db_error">Per una rason desconeguda vòstra basa de donadas Briar es pas utilizabla e irrecuperabla. Vòstres comptes, donadas e contactes son perduts. Per malastre vos cal tornar installar Briar e configurar un compte nòu.</string>
+  <string name="startup_failed_db_error">Per una rason desconeguda vòstra basa de donadas Briar es pas utilizabla nimai recuperabla. Vòstres comptes, donadas e contactes son perduts. Per malastre vos cal tornar installar Briar e configurar un compte nòu.</string>
   <string name="startup_failed_service_error">Briar a pas pogut aviar un modul necessari. Tornar installar Briar pòt resolver aquò. Que aquò siá dich : perdretz vòstre compte e totas las donadas ligadas a aqueste. Briar utiliza pas de servidor centralizat per salvar sas donadas.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Aquò es una version Beta de Briar. Vòstre compte s’acabarà dins %d jorn e poirà pas èsser renovat.</item>

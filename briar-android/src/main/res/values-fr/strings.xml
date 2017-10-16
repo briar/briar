@@ -16,7 +16,7 @@
   <string name="sign_in_button">Connexion</string>
   <string name="forgotten_password">J\'ai oublié mon mot de passe</string>
   <string name="dialog_title_lost_password">Mot de passe oublié</string>
-  <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil et non sur le nuage et nous ne pouvons donc pas réinitialiser votre mot de passe. Voulez-vous supprimer votre compte et recommencer ?\n\nAttention : vos identités, contacts et messages seront perdus irrémédiablement.</string>
+  <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil, pas dans le nuage, et nous ne pouvons donc pas réinitialiser votre mot de passe. Voulez-vous supprimer votre compte et recommencer ?\n\nAttention : vos identités, contacts et messages seront perdus irrémédiablement.</string>
   <string name="startup_failed_notification_title">Impossible de démarrer Briar</string>
   <string name="startup_failed_notification_text">Il vous faudra peut-être réinstaller Briar.</string>
   <string name="startup_failed_activity_title">Échec de démarrage de Briar</string>
@@ -249,7 +249,7 @@
   <string name="blogs_publish_blog_post">Publier</string>
   <string name="blogs_blog_post_created">L\'article de blogue a été créé</string>
   <string name="blogs_blog_post_received">Un nouvel article de blogue a été reçu</string>
-  <string name="blogs_blog_post_scroll_to">Faire défiler jusqu\'à</string>
+  <string name="blogs_blog_post_scroll_to">Atteindre</string>
   <string name="blogs_feed_empty_state">Ceci est le flux global des blogues.\n\nIl semble que personne n\'ait encore rien écrit.\n\nSoyez le premier et touchez l\'icône de crayon pour rédiger un nouvel article de blogue.</string>
   <string name="blogs_remove_blog">Supprimer le blogue</string>
   <string name="blogs_remove_blog_dialog_message">Voulez-vous vraiment supprimer ce blogue et tous ses messages ?\nNotez que cela ne le supprimera pas des appareils d\'autrui.</string>
@@ -321,7 +321,7 @@
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notifications</string>
   <string name="notify_private_messages_setting_title">Messages privés</string>
-  <string name="notify_private_messages_setting_summary">Afficher des alertes pour les messages privés</string>
+  <string name="notify_private_messages_setting_summary">Afficher des notifications pour les messages privés</string>
   <string name="notify_group_messages_setting_title">Messages de groupe</string>
   <string name="notify_group_messages_setting_summary">Afficher des alertes pour les messages de groupe</string>
   <string name="notify_forum_posts_setting_title">Articles de forum</string>
