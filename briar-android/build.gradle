@@ -3,8 +3,8 @@ apply plugin: 'witness'
 
 dependencies {
 	def supportVersion = '23.2.1'
-	compile project(':briar-core')
-	compile project(':bramble-android')
+	compile project(path: ':briar-core', configuration: 'default')
+	compile project(path: ':bramble-android', configuration: 'default')
 	compile "com.android.support:support-v4:$supportVersion"
 	compile("com.android.support:appcompat-v7:$supportVersion") {
 		exclude module: 'support-v4'
@@ -73,7 +73,7 @@ def getGitHash = { ->
 
 android {
 	compileSdkVersion 23
-	buildToolsVersion "23.0.3"
+	buildToolsVersion '25.0.0'
 
 	defaultConfig {
 		minSdkVersion 14
