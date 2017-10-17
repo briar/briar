@@ -5,5 +5,5 @@ targetCompatibility = 1.6
 apply plugin: 'witness'
 
 dependencies {
-	compile project(':bramble-api')
+	compile project(path: ':bramble-api', configuration: 'default')
 }

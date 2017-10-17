@@ -10,7 +10,7 @@ targetCompatibility = 1.6
 apply plugin: 'witness'
 
 dependencies {
-	compile project(':bramble-api')
+	compile project(path: ':bramble-api', configuration: 'default')
 	compile 'com.madgag.spongycastle:core:1.58.0.0'
 	compile 'com.h2database:h2:1.4.192' // This is the last version that supports Java 1.6
 	compile 'org.bitlet:weupnp:0.1.4'

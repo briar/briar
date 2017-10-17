@@ -7,7 +7,7 @@ apply plugin: 'de.undercouch.download'
 
 android {
 	compileSdkVersion 23
-	buildToolsVersion "23.0.3"
+	buildToolsVersion '25.0.0'
 
 	defaultConfig {
 		minSdkVersion 14
@@ -24,7 +24,7 @@ android {
 }
 
 dependencies {
-	compile project(':bramble-core')
+	compile project(path: ':bramble-core', configuration: 'default')
 	compile fileTree(dir: 'libs', include: '*.jar')
 	provided 'javax.annotation:jsr250-api:1.0'
 }

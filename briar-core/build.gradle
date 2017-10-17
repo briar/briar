@@ -10,13 +10,13 @@ targetCompatibility = 1.6
 apply plugin: 'witness'
 
 dependencies {
-	compile project(':briar-api')
+	compile project(path: ':briar-api', configuration: 'default')
 	compile 'com.rometools:rome:1.7.3'
 	compile 'org.jdom:jdom2:2.0.6'
 	compile 'com.squareup.okhttp3:okhttp:3.8.0'
 	compile 'org.jsoup:jsoup:1.10.3'
 
-	testCompile project(':bramble-core')
+	testCompile project(path: ':bramble-core', configuration: 'default')
 	testCompile project(path: ':bramble-core', configuration: 'testOutput')
 	testCompile project(path: ':bramble-api', configuration: 'testOutput')
 	testCompile 'net.jodah:concurrentunit:0.4.2'
