@@ -22,6 +22,10 @@
   <string name="startup_failed_activity_title">Inicialização do Briar falhou</string>
   <string name="startup_failed_db_error">Por alguma razão, seus dados do Briar estão corrompidos e não podem ser reparados. Sua conta, seus dados e todas suas conexões com contatos estão perdidas. Infelizmente você terá que resintalar o Briar e criar uma nova conta.</string>
   <string name="startup_failed_service_error">O Briar não pode iniciar devido a um plugin. Reinstalar o Briar geralmente resolve esse problema. Porém, note que ao fazer isso você perderá sua conta e todos os dados associados a ela,  já que o Briar não usa um servidor central para armazenar seus dados.</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">Esta é uma versão beta do Briar. Sua conta irá expirar em %d dias e não poderá ser renovada.</item>
+    <item quantity="other">Esta é uma versão beta do Briar. Sua conta irá expirar em %d dias e não poderá ser renovada.</item>
+  </plurals>
   <string name="expiry_date_reached">Este software expirou.\nObrigado por testar!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Abrir aba de navegação</string>

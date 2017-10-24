@@ -65,6 +65,7 @@
   <string name="hide">Скрий</string>
   <string name="ok">ОК</string>
   <string name="cancel">Отказ</string>
+  <string name="got_it">Разбрах</string>
   <string name="delete">Изтрий</string>
   <string name="accept">Приеми</string>
   <string name="decline">Откажи</string>
@@ -79,8 +80,9 @@
   <string name="text_too_long">Въведеният текст е твърде дълъг</string>
   <string name="show_onboarding">Показване на помощен диалог</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Няма добавени контакти.\n\nНатиснете плюса в горния десен ъгъл и следвайте инструкциите, за да добавите приятели.\n\nВнимание: Трябва да се срещнете лично с човека, когото искате да добавите в Контакти. По този начин никой не може да се представи за вас или да чете съобщенията ви в бъдеще.</string>
+  <string name="no_contacts">Няма добавени контакти.\n\nНатиснете плюса и следвайте инструкциите, за да добавите приятели.\n\nВнимание: Трябва да се срещнете лично с човека, когото искате да добавите в Контакти. По този начин никой не може да се представи за вас или да чете съобщенията ви в бъдеще.</string>
   <string name="date_no_private_messages">Няма съобщения.</string>
+  <string name="no_private_messages">Тук се показват съобщенията ви.\n\nНяма съобщения.</string>
   <string name="message_hint">Напиши съобщение</string>
   <string name="delete_contact">Изтрий контакт</string>
   <string name="dialog_title_delete_contact">Потвърди изтриването на контакт</string>
@@ -88,25 +90,57 @@
   <string name="contact_deleted_toast">Контактът е изтрит</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Добавяне на контакт</string>
+  <string name="your_nickname">Изберете профил:</string>
   <string name="face_to_face">Трябва да се срещнете лично с човека, когото искате да добавите в Контакти.\n\nПо този начин никой не може да се представи за вас или да чете съобщенията ви в бъдеще.</string>
   <string name="continue_button">Напред</string>
-  <string name="connection_failed">Провалена връзка</string>
+  <string name="your_invitation_code">Кодът ви за покана е</string>
+  <string name="enter_invitation_code">Моля, въведете кодът за покана на контакта ви:</string>
+  <string name="searching_format">Търсене на контакт с код за покана %06d\u2026</string>
+  <string name="connection_failed">Неуспешна връзка</string>
   <string name="could_not_find_contact">Briar не можа да открие вашият контакт </string>
   <string name="try_again_button">Опитай пак</string>
+  <string name="connected_to_contact">Свързан с контакт</string>
   <string name="calculating_confirmation_code">Изчисляване на код за потвърждение\u2026</string>
   <string name="your_confirmation_code">Кодът ви за потвърждение е</string>
   <string name="enter_confirmation_code">Моля, въведете кодът за потвърждение на контакта ви</string>
   <string name="waiting_for_contact">Изчакване на контакта\u2026</string>
+  <string name="waiting_for_contact_to_scan">Изчакване контактът да сканира и да се свърже\u2026</string>
+  <string name="exchanging_contact_details">Обмен на данни за контакт\u2026</string>
   <string name="codes_do_not_match">Кодовете не съвпадат</string>
+  <string name="interfering">Това може да значи, че някой се опитва да попречи на свързването.</string>
+  <string name="contact_added_toast">Добавен конктакт: %s</string>
   <string name="contact_already_exists">Контактът %s вече съществува</string>
+  <string name="contact_exchange_failed">Неуспех при обмен на контакти</string>
   <string name="qr_code_invalid">QR кодът е невалиден</string>
   <string name="connecting_to_device">Свързване с устройство\u2026</string>
   <string name="authenticating_with_device">Удостоверяване с устройство\u2026</string>
   <string name="connection_aborted_local">Връзката е прекъсната от нас! Това може да значи, че някой се опитва да попречи на свързването</string>
-  <string name="connection_aborted_remote">Връзката е прекъсната от контактът ви! Това може да значи, че някой се опитва да попречи на свързването</string>
+  <string name="connection_aborted_remote">Връзката е прекъсната от контакта ви! Това може да значи, че някой се опитва да попречи на свързването</string>
   <!--Introductions-->
+  <string name="introduction_onboarding_title">Представете контактите си</string>
   <string name="introduction_onboarding_text">Можете да представите контактите си един на друг, за да не им се налага да се срещат лично, когато се свързват чрез Briar.</string>
+  <string name="introduction_activity_title">Избери контакт</string>
+  <string name="introduction_message_title">Представи контакти</string>
+  <string name="introduction_message_hint">Добавете съобщение (незадължително)</string>
+  <string name="introduction_button">Представи</string>
+  <string name="introduction_sent">Представянето ви е изпратено.</string>
+  <string name="introduction_error">Възникна грешка при представянето.</string>
+  <string name="introduction_response_error">Грешка при отговор на представянето</string>
+  <string name="introduction_request_sent">Помолихте да представите %1$s на %2$s.</string>
+  <string name="introduction_request_received">%1$s помоли да ви представи %2$s. Искате ли да добавите %2$s към контактите си?</string>
+  <string name="introduction_request_exists_received">%1$s помоли да ви представи на %2$s, но %2$s вече е в списъка ви с контакти. Тъй като %1$s може би не знае, все пак можете да отговорите:</string>
+  <string name="introduction_request_answered_received">%1$s помоли да ви представи на %2$s.</string>
+  <string name="introduction_response_accepted_sent">Приехте представянето на %1$s.</string>
+  <string name="introduction_response_declined_sent">Отказахте представянето на %1$s.</string>
+  <string name="introduction_response_accepted_received">%1$s прие представянето на %2$s.</string>
+  <string name="introduction_response_declined_received">%1$s отказа представянето на %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s казва, че %2$s отказва представянето.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">Добавен нов контакт.</item>
+    <item quantity="other">%d добавени нови контакти.</item>
+  </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">Не сте включен в група.\n\nНатиснете плюса, за да създадете своя група, или помолете контактите си да ви добавят в техните групи.</string>
   <string name="groups_created_by">Създаден от %s</string>
   <plurals name="messages">
     <item quantity="one">%d съобщение</item>
@@ -114,6 +148,15 @@
   </plurals>
   <string name="groups_group_is_empty">Групата е празна</string>
   <string name="groups_group_is_dissolved">Групата се е разпаднала</string>
+  <string name="groups_remove">Премахни</string>
+  <string name="groups_create_group_title">Създаване на група</string>
+  <string name="groups_create_group_button">Създай група</string>
+  <string name="groups_create_group_invitation_button">Изпрати покана</string>
+  <string name="groups_create_group_hint">Изберете име за групата</string>
+  <string name="groups_invitation_sent">Поканата в група е изпратена</string>
+  <string name="groups_message_sent">Съобщението е изпратено</string>
+  <string name="groups_member_list">Списък с участници</string>
+  <string name="groups_invite_members">Поканете участници</string>
   <string name="groups_member_created_you">Вие създадохте групата</string>
   <string name="groups_member_created">%s създаде групата</string>
   <string name="groups_member_joined_you">Включихте се в групата</string>
@@ -121,18 +164,113 @@
   <string name="groups_leave">Напусни групата</string>
   <string name="groups_leave_dialog_title">Потвърждение на напускането</string>
   <string name="groups_leave_dialog_message">Сигурни ли сте, че искате да напуснете тази група?</string>
+  <string name="groups_dissolve">Затвори групата</string>
+  <string name="groups_dissolve_dialog_title">Потвърди затварянето на групата</string>
+  <string name="groups_dissolve_dialog_message">Сигурни ли сте, че искате да затворите групата?\n\nВсички други участници няма да могат да продължат разговора и може да не получат най-новите съобщения. </string>
+  <string name="groups_dissolve_button">Затвори</string>
+  <string name="groups_dissolved_dialog_title">Групата е затворена</string>
+  <string name="groups_dissolved_dialog_message">Групата е затворена от създателя.\n\nНе можете да пишете нови съобщения в груповия чат и може да не получите най-новите съобщения. </string>
   <!--Private Group Invitations-->
+  <string name="groups_invitations_title">Покани в група</string>
+  <string name="groups_invitations_invitation_sent">Поканихте %1$s в групата \"%2$s\"</string>
+  <string name="groups_invitations_invitation_received">%1$s ви покани в групата \"%2$s\".</string>
+  <string name="groups_invitations_joined">Включихте се в групата</string>
+  <string name="groups_invitations_declined">Отказана покана в група</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="one">%d отворена покана в група</item>
+    <item quantity="other">%d отворени покани в група</item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">Приехте поканата в група на %s.</string>
+  <string name="groups_invitations_response_declined_sent">Отказахте поканата в група на %s.</string>
+  <string name="groups_invitations_response_accepted_received">%s прие поканата в група.</string>
+  <string name="groups_invitations_response_declined_received">%s отказа поканата в група. </string>
+  <string name="sharing_status_groups">Само създателят може да покани нови участници в групата. По-долу са изброени сегашните участници в групата.</string>
   <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">Разкрий контакти</string>
+  <string name="groups_reveal_dialog_message">Може да изберете да разкриете контактите на всички сегашни и бъдещи участници в тази група.\n\nРазкриването на контактите прави връзката с групата по-бърза и сигурна, тъй като можете да общувате с разкрити контакти, дори когато създателят на групата е офлайн.</string>
+  <string name="groups_reveal_visible">Връзка с контакта се вижда от групата</string>
+  <string name="groups_reveal_visible_revealed_by_us">Връзка с контакта се вижда от групата (разкрита от вас)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">Връзка с контакта се вижда от групата (разкрита от %s)</string>
+  <string name="groups_reveal_invisible">Връзка с контакта не се вижда от групата</string>
   <!--Forums-->
+  <string name="no_forums">Няма добавени форуми.\n\nНатиснете плюса, за да създадете нов форум.\n\nМожете също да помолите контактите си да споделят форуми с вас.</string>
+  <string name="create_forum_title">Създаване на форум</string>
+  <string name="choose_forum_hint">Изберете име за форума</string>
+  <string name="create_forum_button">Създай форум</string>
+  <string name="forum_created_toast">Форумът е създаден</string>
+  <string name="no_forum_posts">Форумът е празен.\n\nВъведете текст, за да съставите първата публикация.\n\nСподелете този форум с други ваши контакти!</string>
+  <string name="no_posts">Няма публикации</string>
+  <plurals name="posts">
+    <item quantity="one">%d публикация</item>
+    <item quantity="other">%d публикации</item>
+  </plurals>
+  <string name="forum_new_entry_posted">Публикувано</string>
+  <string name="forum_new_message_hint">Нова публикация</string>
+  <string name="forum_message_reply_hint">Нов отговор</string>
+  <string name="btn_reply">Отговори</string>
   <string name="forum_leave">Напусни форума</string>
+  <string name="dialog_title_leave_forum">Потвърдете напускането на форума</string>
   <string name="dialog_message_leave_forum">Сигурни ли сте, че искате да напуснете този форум? Контактите, с които сте споделили този форум, ще престанат да получават ъпдейти от него.</string>
-  <string name="dialog_button_leave">Напускане</string>
+  <string name="dialog_button_leave">Напусни</string>
+  <string name="forum_left_toast">Напуснахте форума</string>
   <!--Forum Sharing-->
+  <string name="forum_share_button">Сподели форум</string>
+  <string name="contacts_selected">Избрани контакти</string>
+  <string name="activity_share_toolbar_header">Избиране на контакти</string>
+  <string name="no_contacts_selector">Няма добавени контакти.\n\nМоля, върнете се тук, когато добавите първия си контакт.</string>
+  <string name="forum_shared_snackbar">Форумът е споделен с избраните контакти</string>
+  <string name="forum_share_message">Добавете съобщение (незадължително)</string>
   <string name="forum_share_error">Възникна грешка при споделянето на този форум.</string>
+  <string name="forum_invitation_received">%1$s сподели форума \"%2$s\" с вас.</string>
+  <string name="forum_invitation_sent">Споделихте форума \"%1$s\" с %2$s.</string>
+  <string name="forum_invitations_title">Покани във форум</string>
+  <string name="forum_invitation_exists">Вече приехте поканата за този форум. Приемането на още покани ще подпомогне развитието на форума. </string>
+  <string name="forum_joined_toast">Включихте се във форума</string>
+  <string name="forum_declined_toast">Поканата във форум е отказана</string>
+  <string name="shared_by_format">Споделен от %s</string>
+  <string name="forum_invitation_already_sharing">Вече е споделен</string>
+  <string name="forum_invitation_response_accepted_sent">Приехте поканата за форум на %s.</string>
+  <string name="forum_invitation_response_declined_sent">Отказахте поканата във форум от %s.</string>
+  <string name="forum_invitation_response_accepted_received">%s прие поканата във форум.</string>
+  <string name="forum_invitation_response_declined_received">%s отказа поканата във форум.</string>
+  <string name="sharing_status">Статус на споделянето</string>
+  <string name="sharing_status_forum">Всеки участник във форума може да го сподели с контактите си. Споделяте този форум със следните контакти. Възможно е да има и други, които не можете да видите.</string>
+  <string name="shared_with">Споделен с %1$d (%2$d онлайн)</string>
+  <plurals name="forums_shared">
+    <item quantity="one">%d форум, споделен от контакти</item>
+    <item quantity="other">%d форума, споделени от контакти</item>
+  </plurals>
+  <string name="nobody">Никого</string>
   <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">Блогът е празен.\n\nИли авторът още не е публикувал нищо, или е нужно да е онлайн човекът, който е споделил този блог с вас, за да се синхронизират публикациите.</string>
+  <string name="read_more">прочети още</string>
+  <string name="blogs_write_blog_post">Нова блог публикация</string>
+  <string name="blogs_write_blog_post_body_hint">Въведете новата публикация тук</string>
+  <string name="blogs_publish_blog_post">Публикуване</string>
+  <string name="blogs_blog_post_created">Блог публикацията е създадена</string>
+  <string name="blogs_blog_post_received">Нова блог публикация</string>
+  <string name="blogs_feed_empty_state">Това е глобалната блог емисия.\n\nНикой още не е публикувал нищо.\n\nБъдете първия и натиснете писалката, за да напишете първата блог публикация.</string>
+  <string name="blogs_remove_blog">Премахване на блог</string>
   <string name="blogs_remove_blog_dialog_message">Сигурни ли сте, че искате да премахнете този блог и всички публикации?\nБлогът няма да бъдат премахнат от устройствата на други хора.</string>
+  <string name="blogs_remove_blog_ok">Премахни блог</string>
+  <string name="blogs_blog_removed">Блогът е премахнат</string>
+  <string name="blogs_reblog_comment_hint">Добавете съобщение (незадължително)</string>
+  <string name="blogs_reblog_button">Реблог</string>
   <!--Blog Sharing-->
+  <string name="blogs_sharing_share">Споделяне на блог</string>
   <string name="blogs_sharing_error">Възникна грешка при споделянето на този блог.</string>
+  <string name="blogs_sharing_button">Сподели блог</string>
+  <string name="blogs_sharing_snackbar">Блогът е споделен с избраните контакти</string>
+  <string name="blogs_sharing_response_accepted_sent">Приехте поканата в блог от %s.</string>
+  <string name="blogs_sharing_response_declined_sent">Отказахте поканата в блог от %s.</string>
+  <string name="blogs_sharing_response_accepted_received">%s прие поканата в блог.</string>
+  <string name="blogs_sharing_response_declined_received">%s отказа поканата в блог.</string>
+  <string name="blogs_sharing_invitation_received">%1$s сподели блога \"%2$s\" с вас.</string>
+  <string name="blogs_sharing_invitation_sent">Споделихте блога \"%1$s\" с %2$s.</string>
+  <string name="blogs_sharing_invitations_title">Блог покани</string>
+  <string name="blogs_sharing_joined_toast">Абонирахте се за блога</string>
+  <string name="blogs_sharing_declined_toast">Поканата в блог е отказана</string>
+  <string name="sharing_status_blog">Всеки абонат на блога може да го сподели с контактите си. Споделяте този блог със следните контакти. Възможно е да има и други, които не можете да видите.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Внасяне на RSS емисия</string>
   <string name="blogs_rss_feeds_import_button">Внасяне</string>
@@ -144,6 +282,7 @@
   <string name="blogs_rss_feeds_manage_updated">Последно актуализиране:</string>
   <string name="blogs_rss_remove_feed">Премахване на емисия</string>
   <string name="blogs_rss_remove_feed_dialog_message">Сигурни ли сте, че искате да премахнете тази емисия и всички нейни публикации?\nВсички споделени от вас публикации няма да бъдат премахнати от устройствата на други хора.</string>
+  <string name="blogs_rss_remove_feed_ok">Емисията е премахната</string>
   <string name="blogs_rss_feeds_manage_delete_error">Емисията не можа да бъде изтрита!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Нямате добавени RSS емисии.\n\nНатиснете плюса в горния десен ъгъл на екрана, за да добавите нова емисия.</string>
   <string name="blogs_rss_feeds_manage_error">Възникна проблем при зареждането на емисиите ви. Моля, опитайте пак по-късно.</string>
@@ -169,6 +308,7 @@
   <string name="panic_app_setting_title">Приложение за паник бутон</string>
   <string name="unknown_app">непознато приложение</string>
   <string name="panic_app_setting_summary">Няма зададено приложение</string>
+  <string name="panic_app_setting_none">Няма</string>
   <string name="dialog_title_connect_panic_app">Потвърждение на паник приложение</string>
   <string name="dialog_message_connect_panic_app">Сигурни ли сте, че искате да позволите на %1$s да задейства унищожителни действия на паник бутон?</string>
   <string name="lock_setting_title">Отписване</string>
@@ -190,13 +330,18 @@
   <string name="notify_vibration_setting">Вибрация</string>
   <string name="notify_lock_screen_setting_title">Заключен екран</string>
   <string name="notify_lock_screen_setting_summary">Показвай известия за на заключен екран</string>
+  <string name="notify_sound_setting">Звук</string>
   <string name="notify_sound_setting_default">Мелодия по подразбиране</string>
+  <string name="notify_sound_setting_disabled">Никакви</string>
   <string name="choose_ringtone_title">Изберете рингтон</string>
   <!--Settings Feedback-->
   <string name="feedback_settings_title">Отзиви</string>
   <string name="send_feedback">Изпращане на отзиви</string>
   <!--Link Warning-->
   <string name="link_warning_title">Предупреждение за линк</string>
+  <string name="link_warning_intro">Линкът ще се отвори във външно приложение.</string>
+  <string name="link_warning_text">Линкът може да се използва, за да ви идентифицира. Помислете дали имате доверие на човека, който ви изпраща линка, и обмислете дали да не го отворите с Orfox.</string>
+  <string name="link_warning_open_link">Отвори линк</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Доклад на срив</string>
   <string name="briar_crashed">Извинете, Briar се срина.</string>

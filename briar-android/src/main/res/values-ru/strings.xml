@@ -26,7 +26,7 @@
     <item quantity="one">Это бета-версия Briar. Срок действия вашей учетной записи истекает через %d день и не может быть продлен.</item>
     <item quantity="few">Это бета-версия Briar. Срок действия вашей учетной записи истекает через %d дней и не может быть продлен.</item>
     <item quantity="many">Это бета-версия Briar. Срок действия вашей учетной записи истекает через %d дней и не может быть продлен.</item>
-    <item quantity="other">Это бета-версия Briar. Срок действия вашей учетной записи истекает через %d дней и не может быть продлен.</item>
+    <item quantity="other">Это бета-версия Briar. Срок действия вашей учетной записи истечет через %d дней и не может быть продлен.</item>
   </plurals>
   <string name="expiry_date_reached">Срок действия этого программного обеспечения истек.\nСпасибо за тестирование!</string>
   <!--Navigation Drawer-->
@@ -90,7 +90,7 @@
   <string name="text_too_long">Введенный текст слишком длинный</string>
   <string name="show_onboarding">Показать справку</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Видимо, вы здесь новенький и пока что не имеете контактов.\n\nКоснитесь значка + вверху и следуйте инструкциям, чтобы добавить друзей в список.\n\nПомните: вы можете добавлять новые контакты только лично, чтобы никто не выдал себя за вас и не мог читать ваши сообщения.</string>
+  <string name="no_contacts">Кажется, вы здесь новенький и у вас нет контактов.\n\nКоснитесь значка + вверху и следуйте инструкциям, чтобы добавить друзей в список.\n\nПомните: вы можете добавлять новые контакты только лично, чтобы никто не выдал себя за вас и не мог читать ваши сообщения.</string>
   <string name="date_no_private_messages">Нет сообщений.</string>
   <string name="no_private_messages">Это представление беседы.\n\nКажется, у нас нет беседы.\n\nПросто коснитесь поля ввода внизу, чтобы начать беседу.</string>
   <string name="message_hint">Печатает сообщение</string>
@@ -101,7 +101,7 @@
   <!--Adding Contacts-->
   <string name="add_contact_title">Добавить контакт</string>
   <string name="your_nickname">Выберите идентификатор, который хотите использовать:</string>
-  <string name="face_to_face">Необходимо встретиться с человеком, который требуется добавить в качестве контакта.\n\nЭто не позволит кому-либо выдать себя за вас или читать ваши сообщения.</string>
+  <string name="face_to_face">Вы должны встретиться с человеком, которого хотите добавить в контакты.\n\nЭто не позволит кому-либо выдать себя за вас или читать ваши сообщения.</string>
   <string name="continue_button">Продолжить</string>
   <string name="your_invitation_code">Ваш код приглашения</string>
   <string name="enter_invitation_code">Введите код приглашения вашего контакта:</string>
@@ -209,12 +209,12 @@
   <string name="groups_reveal_visible_revealed_by_contact">Связь между контактами видна группе (раскрывается %s)</string>
   <string name="groups_reveal_invisible">Связь между контактами не видна группе</string>
   <!--Forums-->
-  <string name="no_forums">У вас еще нет форумов.\n\nПочему бы вам не создать новый, коснувшись значка + вверху?\n\nВы также можете попросить свои контакты поделиться с вами форумами.</string>
+  <string name="no_forums">У вас еще нет форумов.\n\nПочему бы вам не создать новый, коснувшись значка + вверху?\n\nМожно также попросить контакты поделиться с вами форумами.</string>
   <string name="create_forum_title">Создать форум</string>
   <string name="choose_forum_hint">Выберите имя для вашего форума</string>
   <string name="create_forum_button">Создать форум</string>
   <string name="forum_created_toast">Форум создан</string>
-  <string name="no_forum_posts">Этот форум пуст.\n\nИспользуйте значок пера вверху, чтобы создать первый пост.\n\nЧувствуете одиночество? Поделитесь этим форумом с вашими контактами!</string>
+  <string name="no_forum_posts">Этот форум пуст.\n\nСоздайте свою первую запись.\n\nЧувствуете одиночество? Поделитесь этим форумом с вашими контактами!</string>
   <string name="no_posts">Нет постов</string>
   <plurals name="posts">
     <item quantity="one">%d пост</item>
@@ -235,7 +235,7 @@
   <string name="forum_share_button">Поделиться форумом</string>
   <string name="contacts_selected">Выбранные контакты</string>
   <string name="activity_share_toolbar_header">Выбор контактов</string>
-  <string name="no_contacts_selector">Кажется, вы здесь новенький и не имеете контактов.\n\nПожалуйста, вернитесь сюда после того, как добавите свой первый контакт.</string>
+  <string name="no_contacts_selector">Кажется, вы здесь новенький и у вас нет контактов.\n\nПожалуйста, вернитесь сюда после того, как добавите свой первый контакт.</string>
   <string name="forum_shared_snackbar">Поделиться форумом совместно с выбранными контактами</string>
   <string name="forum_share_message">Добавить сообщение (необязательно)</string>
   <string name="forum_share_error">Произошла ошибка при при попытке поделиться этим форумом.</string>
@@ -291,7 +291,7 @@
   <string name="blogs_sharing_invitations_title">Приглашения в блог</string>
   <string name="blogs_sharing_joined_toast">Подписался на блог</string>
   <string name="blogs_sharing_declined_toast">Приглашение в блог отклонено</string>
-  <string name="sharing_status_blog">Любой, кто подписывается на блог, может поделиться им со своими контактами. Вы делитесь этим блогом со следующими контактами. Также могут быть и другие подписчики, которых вы не видите.</string>
+  <string name="sharing_status_blog">Любой, кто подписывается на блог, может поделиться им со своими контактами. Вы делитесь этим блогом со следующими контактами. Могут быть и другие подписчики, которых вы не видите.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Импорт RSS-канала</string>
   <string name="blogs_rss_feeds_import_button">Импорт</string>
