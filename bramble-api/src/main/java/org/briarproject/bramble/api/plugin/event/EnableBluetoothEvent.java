@@ -10,5 +10,12 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @NotNullByDefault
-public class EnableBluetoothEvent extends Event {
+public class EnableBluetoothEvent extends BluetoothEvent {
+	public EnableBluetoothEvent(){
+		super(false);
+	}
+
+	public EnableBluetoothEvent(boolean force){
+		super(force);
+	}
 }

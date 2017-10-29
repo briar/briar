@@ -83,6 +83,7 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 
 	private volatile boolean running = false;
 	private volatile boolean wasEnabledByUs = false;
+	private volatile boolean forceEnabled = false;
 	private volatile BluetoothStateReceiver receiver = null;
 	private volatile BluetoothServerSocket socket = null;
 
@@ -154,7 +155,7 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 		} else {
 			// Enable Bluetooth if settings allow
 			if (callback.getSettings().getBoolean(PREF_BT_ENABLE, false)) {
-				enableAdapter();
+				enableAdapter(true);
 			} else {
 				LOG.info("Not enabling Bluetooth");
 			}
@@ -245,11 +246,12 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 		return new DroidtoothTransportConnection(this, s);
 	}
 
-	private void enableAdapter() {
+	private void enableAdapter(boolean force) {
 		if (adapter != null && !adapter.isEnabled()) {
 			if (adapter.enable()) {
 				LOG.info("Enabling Bluetooth");
 				wasEnabledByUs = true;
+				if(force) forceEnabled = true;
 			} else {
 				LOG.info("Could not enable Bluetooth");
 			}
@@ -261,11 +263,14 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 		running = false;
 		if (receiver != null) appContext.unregisterReceiver(receiver);
 		tryToClose(socket);
-		disableAdapter();
+		disableAdapter(true);
 	}
 
-	private void disableAdapter() {
-		if (adapter != null && adapter.isEnabled() && wasEnabledByUs) {
+	private void disableAdapter(boolean force) {
+		if (adapter != null && adapter.isEnabled() && wasEnabledByUs
+				&& (!forceEnabled || force)) {
+			if(force) forceEnabled = false;
+
 			if (adapter.disable()) LOG.info("Disabling Bluetooth");
 			else LOG.info("Could not disable Bluetooth");
 		}
@@ -431,26 +436,28 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof EnableBluetoothEvent) {
-			enableAdapterAsync();
+			EnableBluetoothEvent enable = (EnableBluetoothEvent) e;
+			enableAdapterAsync(enable.isForced());
 		} else if (e instanceof DisableBluetoothEvent) {
-			disableAdapterAsync();
+			DisableBluetoothEvent disable = (DisableBluetoothEvent) e;
+			disableAdapterAsync(disable.isForced());
 		}
 	}
 
-	private void enableAdapterAsync() {
+	private void enableAdapterAsync(final boolean force) {
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				enableAdapter();
+				enableAdapter(force);
 			}
 		});
 	}
 
-	private void disableAdapterAsync() {
+	private void disableAdapterAsync(final boolean force) {
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				disableAdapter();
+				disableAdapter(force);
 			}
 		});
 	}

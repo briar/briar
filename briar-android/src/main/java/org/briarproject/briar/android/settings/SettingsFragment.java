@@ -326,8 +326,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	private void enableOrDisableBluetooth(boolean enable) {
-		if (enable) eventBus.broadcast(new EnableBluetoothEvent());
-		else eventBus.broadcast(new DisableBluetoothEvent());
+		if (enable) eventBus.broadcast(new EnableBluetoothEvent(true));
+		else eventBus.broadcast(new DisableBluetoothEvent(true));
 	}
 
 	private void storeTorSettings(final int torSetting) {
