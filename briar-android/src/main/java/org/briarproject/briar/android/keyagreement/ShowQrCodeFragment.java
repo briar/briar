@@ -37,6 +37,7 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementWaitingEvent;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
 import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -170,6 +171,13 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	@Override
 	public void onStop() {
 		super.onStop();
+
+		//Disable BT adapter if we enabled it
+		final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+		if(adapter != null && adapter.isEnabled()){
+			eventBus.broadcast(new DisableBluetoothEvent());
+		}
+
 		stopListening();
 		if (receiver != null) getActivity().unregisterReceiver(receiver);
 		try {
