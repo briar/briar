@@ -2,6 +2,7 @@ package org.briarproject.bramble.api.plugin.event;
 
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.BluetoothEnableDisableReason;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -11,11 +12,7 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 @NotNullByDefault
 public class EnableBluetoothEvent extends BluetoothEvent {
-	public EnableBluetoothEvent(){
-		super(false);
-	}
-
-	public EnableBluetoothEvent(boolean force){
-		super(force);
+	public EnableBluetoothEvent(BluetoothEnableDisableReason reason){
+		super(reason);
 	}
 }

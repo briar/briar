@@ -1,20 +1,20 @@
 package org.briarproject.bramble.api.plugin.event;
 
 import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.plugin.BluetoothEnableDisableReason;
 
 /**
- * to force enable and disable bluetooth
- * force enable means that the bluetooth adapter stay enabled until a force DisableBluetoothEvent is called
  * force disable stop the bluetooth adapter only when we turned it on
  */
 abstract class BluetoothEvent extends Event {
+	private BluetoothEnableDisableReason selectedReason;
 	private boolean force;
 
-	BluetoothEvent(boolean force){
-		this.force = force;
+	BluetoothEvent(BluetoothEnableDisableReason reason){
+		selectedReason = reason;
 	}
 
-	public boolean isForced(){
-		return force;
+	public BluetoothEnableDisableReason getReason(){
+		return selectedReason;
 	}
 }

@@ -37,6 +37,7 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementWaitingEvent;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.plugin.BluetoothEnableDisableReason;
 import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
 import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.briar.R;
@@ -162,7 +163,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 				BluetoothAdapter.getDefaultAdapter();
 		if (adapter != null && !adapter.isEnabled()) {
 			waitingForBluetooth = true;
-			eventBus.broadcast(new EnableBluetoothEvent());
+			eventBus.broadcast(new EnableBluetoothEvent(
+					BluetoothEnableDisableReason.ADD_CONTACT));
 		} else {
 			startListening();
 		}
@@ -175,7 +177,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		//Disable BT adapter if we enabled it
 		final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if(adapter != null && adapter.isEnabled()){
-			eventBus.broadcast(new DisableBluetoothEvent());
+			eventBus.broadcast(new DisableBluetoothEvent(
+					BluetoothEnableDisableReason.ADD_CONTACT));
 		}
 
 		stopListening();
