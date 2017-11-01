@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.widget.ArrayAdapter;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -19,6 +20,7 @@ import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.BluetoothEnableDisableReason;
 import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
@@ -34,6 +36,7 @@ import org.briarproject.bramble.util.StringUtils;
 import java.io.Closeable;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -83,7 +86,8 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 
 	private volatile boolean running = false;
 	private volatile boolean wasEnabledByUs = false;
-	private volatile boolean forceEnabled = false;
+	private volatile ArrayList<BluetoothEnableDisableReason>
+			enableDisableReasons = new ArrayList<>();
 	private volatile BluetoothStateReceiver receiver = null;
 	private volatile BluetoothServerSocket socket = null;
 
@@ -155,7 +159,7 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 		} else {
 			// Enable Bluetooth if settings allow
 			if (callback.getSettings().getBoolean(PREF_BT_ENABLE, false)) {
-				enableAdapter(true);
+				enableAdapter(BluetoothEnableDisableReason.COMMUNICATION);
 			} else {
 				LOG.info("Not enabling Bluetooth");
 			}
@@ -246,12 +250,15 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 		return new DroidtoothTransportConnection(this, s);
 	}
 
-	private void enableAdapter(boolean force) {
+	private void enableAdapter(BluetoothEnableDisableReason reason) {
 		if (adapter != null && !adapter.isEnabled()) {
 			if (adapter.enable()) {
 				LOG.info("Enabling Bluetooth");
 				wasEnabledByUs = true;
-				if(force) forceEnabled = true;
+
+				if(!enableDisableReasons.contains(reason)) {
+					enableDisableReasons.add(reason);
+				}
 			} else {
 				LOG.info("Could not enable Bluetooth");
 			}
@@ -266,10 +273,18 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 		disableAdapter(true);
 	}
 
-	private void disableAdapter(boolean force) {
+	private void disableAdapter(boolean force){
+		disableAdapter(null, force);
+	}
+
+	private void disableAdapter(BluetoothEnableDisableReason reason,
+			boolean force) {
 		if (adapter != null && adapter.isEnabled() && wasEnabledByUs
-				&& (!forceEnabled || force)) {
-			if(force) forceEnabled = false;
+				&& (enableDisableReasons.contains(reason) || force)) {
+
+			if(enableDisableReasons.contains(reason)){
+				enableDisableReasons.remove(reason);
+			}
 
 			if (adapter.disable()) LOG.info("Disabling Bluetooth");
 			else LOG.info("Could not disable Bluetooth");
@@ -437,27 +452,28 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 	public void eventOccurred(Event e) {
 		if (e instanceof EnableBluetoothEvent) {
 			EnableBluetoothEvent enable = (EnableBluetoothEvent) e;
-			enableAdapterAsync(enable.isForced());
+			enableAdapterAsync(enable.getReason());
 		} else if (e instanceof DisableBluetoothEvent) {
 			DisableBluetoothEvent disable = (DisableBluetoothEvent) e;
-			disableAdapterAsync(disable.isForced());
+			disableAdapterAsync(disable.getReason(), disable.isForced());
 		}
 	}
 
-	private void enableAdapterAsync(final boolean force) {
+	private void enableAdapterAsync(final BluetoothEnableDisableReason reason) {
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				enableAdapter(force);
+				enableAdapter(reason);
 			}
 		});
 	}
 
-	private void disableAdapterAsync(final boolean force) {
+	private void disableAdapterAsync(final BluetoothEnableDisableReason reason,
+			final boolean force) {
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				disableAdapter(force);
+				disableAdapter(reason, force);
 			}
 		});
 	}
