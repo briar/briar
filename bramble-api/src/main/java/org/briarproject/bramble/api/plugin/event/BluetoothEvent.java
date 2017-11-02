@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.plugin.BluetoothEnableDisableReason;
  */
 abstract class BluetoothEvent extends Event {
 	private BluetoothEnableDisableReason selectedReason;
-	private boolean force;
 
 	BluetoothEvent(BluetoothEnableDisableReason reason){
 		selectedReason = reason;
