@@ -224,7 +224,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 					if (LOG.isLoggable(INFO))
 						LOG.info("Loading settings took " + duration + " ms");
 					boolean btSetting =
-							btSettings.getBoolean(PREF_BT_ENABLE, false);
+							btSettings.getBoolean(PREF_BT_ENABLE, true);
 					int torSetting = torSettings.getInt(PREF_TOR_NETWORK,
 							PREF_TOR_NETWORK_ALWAYS);
 					displaySettings(btSetting, torSetting);

@@ -158,7 +158,7 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 			bind();
 		} else {
 			// Enable Bluetooth if settings allow
-			if (callback.getSettings().getBoolean(PREF_BT_ENABLE, false)) {
+			if (callback.getSettings().getBoolean(PREF_BT_ENABLE, true)) {
 				enableAdapter(BluetoothEnableDisableReason.COMMUNICATION);
 			} else {
 				LOG.info("Not enabling Bluetooth");
