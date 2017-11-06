@@ -455,7 +455,7 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 			enableAdapterAsync(enable.getReason());
 		} else if (e instanceof DisableBluetoothEvent) {
 			DisableBluetoothEvent disable = (DisableBluetoothEvent) e;
-			disableAdapterAsync(disable.getReason(), disable.isForced());
+			disableAdapterAsync(disable.getReason());
 		}
 	}
 
@@ -468,12 +468,11 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 		});
 	}
 
-	private void disableAdapterAsync(final BluetoothEnableDisableReason reason,
-			final boolean force) {
+	private void disableAdapterAsync(final BluetoothEnableDisableReason reason) {
 		ioExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				disableAdapter(reason, force);
+				disableAdapter(reason, false);
 			}
 		});
 	}

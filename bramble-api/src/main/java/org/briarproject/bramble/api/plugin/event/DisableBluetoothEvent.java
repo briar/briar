@@ -12,19 +12,7 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 @NotNullByDefault
 public class DisableBluetoothEvent extends BluetoothEvent {
-	private boolean force;
-
 	public DisableBluetoothEvent(BluetoothEnableDisableReason reason) {
 		super(reason);
-		force = false;
-	}
-
-	public DisableBluetoothEvent(boolean force){
-		super(null);
-		this.force = force;
-	}
-
-	public boolean isForced(){
-		return force;
 	}
 }
