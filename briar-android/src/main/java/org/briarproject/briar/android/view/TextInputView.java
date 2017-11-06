@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.view.KeyEvent.KEYCODE_BACK;
+import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 
 @UiThread
@@ -82,14 +83,20 @@ public class TextInputView extends KeyboardAwareLinearLayout
 				hideEmojiDrawer();
 				return true;
 			}
+			if (keyCode == KEYCODE_ENTER && event.isCtrlPressed()) {
+				trySendMessage();
+				return true;
+			}
 			return false;
 		});
-		ui.sendButton.setOnClickListener(v -> {
-			if (listener != null) {
-				listener.onSendClick(ui.editText.getText().toString());
-			}
-		});
+		ui.sendButton.setOnClickListener(v -> trySendMessage());
 		ui.emojiDrawer.setEmojiEventListener(this);
+	}
+
+	private void trySendMessage() {
+		if (listener != null) {
+			listener.onSendClick(ui.editText.getText().toString());
+		}
 	}
 
 	@Override
