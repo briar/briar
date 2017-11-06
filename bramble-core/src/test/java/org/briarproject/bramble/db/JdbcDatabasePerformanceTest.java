@@ -1,14 +1,15 @@
 package org.briarproject.bramble.db;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
+import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
-import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.ValidationManager.State;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.system.SystemClock;
@@ -23,24 +24,20 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMean;
 import static org.briarproject.bramble.test.TestUtils.getMedian;
+import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
-import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getStandardDeviation;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -50,33 +47,58 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 
 	private static final int ONE_MEGABYTE = 1024 * 1024;
 	private static final int MAX_SIZE = 100 * ONE_MEGABYTE;
-	private static final int CLIENT_ID_LENGTH = 100;
-	private static final int METADATA_KEY_LENGTH = 100;
+
+	/**
+	 * How many contacts to simulate.
+	 */
+	private static final int CONTACTS = 20;
+
+	/**
+	 * How many clients to simulate. Briar has nine: transport properties,
+	 * introductions, messaging, forums, forum sharing, blogs,
+	 * blog sharing, private groups, and private group sharing.
+	 */
+	private static final int CLIENTS = 10;
+	private static final int CLIENT_ID_LENGTH = 50;
+
+	/**
+	 * How many groups to simulate for each contact. Briar has seven:
+	 * transport properties, introductions, messaging, forum sharing, blog
+	 * sharing, private group sharing, and the contact's blog.
+	 */
+	private static final int GROUPS_PER_CONTACT = 10;
+
+	/**
+	 * How many local groups to simulate. Briar has three: transport
+	 * properties, introductions and RSS feeds.
+	 */
+	private static final int LOCAL_GROUPS = 5;
+
+	private static final int MESSAGES_PER_GROUP = 20;
+	private static final int METADATA_KEYS_PER_GROUP = 5;
+	private static final int METADATA_KEYS_PER_MESSAGE = 5;
+	private static final int METADATA_KEY_LENGTH = 10;
 	private static final int METADATA_VALUE_LENGTH = 100;
 
 	/**
-	 * Skip test cases that create more than this many rows.
+	 * How many times to run each benchmark before measuring, to warm up the
+	 * JIT and DB indices.
 	 */
-	private static final int MAX_ROWS = 100 * 1000;
+	private static final int WARMUP_ITERATIONS = 1000;
 
 	/**
-	 * How many times to run the benchmark before measuring, to warm up the JIT.
-	 */
-	private static final int WARMUP_ITERATIONS = 100;
-
-	/**
-	 * How many times to run the benchmark while measuring.
+	 * How many times to run each benchmark while measuring.
 	 */
 	private static final int MEASUREMENT_ITERATIONS = 100;
 
-	/**
-	 * How much time to allow for background operations to complete after
-	 * preparing the benchmark.
-	 */
-	private static final int SLEEP_BEFORE_MEASUREMENT_MS = 500;
-
 	private final File testDir = getTestDirectory();
 	private final File resultsFile = getResultsFile();
+	private final Random random = new Random();
+
+	private List<ClientId> clientIds;
+	private List<Group> groups;
+	private List<Message> messages;
+	private Map<GroupId, List<Metadata>> messageMeta;
 
 	protected abstract String getTestName();
 
@@ -99,625 +121,139 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testAddContact() throws Exception {
-		for (int contacts : new int[] {0, 1, 10, 100, 1000}) {
-			testAddContact(contacts);
-		}
-	}
-
-	private void testAddContact(final int contacts) throws Exception {
-		String name = "addContact(T, Author, AuthorId, boolean, boolean)";
-		Map<String, Object> args =
-				Collections.<String, Object>singletonMap("contacts", contacts);
-
-		benchmark(name, args, new BenchmarkTask<Connection>() {
-
-			private final LocalAuthor localAuthor = getLocalAuthor();
-
-			@Override
-			public void prepareBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				db.addLocalAuthor(txn, localAuthor);
-				for (int i = 0; i < contacts; i++) {
-					db.addContact(txn, getAuthor(), localAuthor.getId(), true,
-							true);
-				}
-				db.commitTransaction(txn);
-			}
-
-			@Override
-			public void runBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				db.addContact(txn, getAuthor(), localAuthor.getId(), true,
-						true);
-				db.commitTransaction(txn);
-			}
-		});
-	}
-
-	@Test
-	public void testAddGroup() throws Exception {
-		for (int groups : new int[] {0, 1, 10, 100, 1000}) {
-			testAddGroup(groups);
-		}
-	}
-
-	private void testAddGroup(final int groups) throws Exception {
-		String name = "addGroup(T, group)";
-		Map<String, Object> args =
-				Collections.<String, Object>singletonMap("groups", groups);
-
-		benchmark(name, args, new BenchmarkTask<Connection>() {
-
-			private final ClientId clientId = getClientId();
-
-			@Override
-			public void prepareBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				for (int i = 0; i < groups; i++)
-					db.addGroup(txn, getGroup(clientId));
-				db.commitTransaction(txn);
-			}
-
-			@Override
-			public void runBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				db.addGroup(txn, getGroup(clientId));
-				db.commitTransaction(txn);
-			}
-		});
-	}
-
-	@Test
 	public void testGetContacts() throws Exception {
-		for (int contacts : new int[] {1, 10, 100, 1000}) {
-			testGetContacts(contacts);
-		}
-	}
-
-	private void testGetContacts(final int contacts) throws Exception {
 		String name = "getContacts(T)";
-		Map<String, Object> args =
-				Collections.<String, Object>singletonMap("contacts", contacts);
-
-		benchmark(name, args, new BenchmarkTask<Connection>() {
-
-			@Override
-			public void prepareBenchmark(Database<Connection> db)
-					throws DbException {
-				LocalAuthor localAuthor = getLocalAuthor();
-				Connection txn = db.startTransaction();
-				db.addLocalAuthor(txn, localAuthor);
-				for (int i = 0; i < contacts; i++) {
-					db.addContact(txn, getAuthor(), localAuthor.getId(), true,
-							true);
-				}
-				db.commitTransaction(txn);
-			}
-
-			@Override
-			public void runBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				db.getContacts(txn);
-				db.commitTransaction(txn);
-			}
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getContacts(txn);
+			db.commitTransaction(txn);
 		});
 	}
 
 	@Test
 	public void testGetRawMessage() throws Exception {
-		for (int messages : new int[] {1, 100, 10000}) {
-			testGetRawMessage(messages);
-		}
-	}
-
-	private void testGetRawMessage(final int messages) throws Exception {
 		String name = "getRawMessage(T, MessageId)";
-		Map<String, Object> args =
-				Collections.<String, Object>singletonMap("messages", messages);
-
-		benchmark(name, args, new BenchmarkTask<Connection>() {
-
-			private MessageId messageId;
-
-			@Override
-			public void prepareBenchmark(Database<Connection> db)
-					throws DbException {
-				Group group = getGroup(getClientId());
-				Connection txn = db.startTransaction();
-				db.addGroup(txn, group);
-				for (int i = 0; i < messages; i++) {
-					Message m = getMessage(group.getId());
-					if (i == 0) messageId = m.getId();
-					db.addMessage(txn, m, DELIVERED, false);
-				}
-				db.commitTransaction(txn);
-			}
-
-			@Override
-			public void runBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				db.getRawMessage(txn, messageId);
-				db.commitTransaction(txn);
-			}
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getRawMessage(txn, pickRandom(messages).getId());
+			db.commitTransaction(txn);
 		});
 	}
 
 	@Test
 	public void testGetMessageIds() throws Exception {
-		for (int groups : new int[] {1, 10, 100}) {
-			for (int messagesPerGroup : new int[] {1, 10, 100}) {
-				int rows = groups * messagesPerGroup;
-				if (rows > MAX_ROWS) continue;
-				testGetMessageIds(groups, messagesPerGroup);
-			}
-		}
-	}
-
-	private void testGetMessageIds(final int groups, final int messagesPerGroup)
-			throws Exception {
 		String name = "getMessageIds(T, GroupId)";
-		Map<String, Object> args = new LinkedHashMap<String, Object>();
-		args.put("groups", groups);
-		args.put("messagesPerGroup", messagesPerGroup);
-
-		benchmark(name, args, new BenchmarkTask<Connection>() {
-
-			private GroupId groupId;
-
-			@Override
-			public void prepareBenchmark(Database<Connection> db)
-					throws DbException {
-				ClientId clientId = getClientId();
-				Connection txn = db.startTransaction();
-				for (int i = 0; i < groups; i++) {
-					Group g = getGroup(clientId);
-					if (i == 0) groupId = g.getId();
-					db.addGroup(txn, g);
-					for (int j = 0; j < messagesPerGroup; j++) {
-						Message m = getMessage(g.getId());
-						db.addMessage(txn, m, DELIVERED, false);
-					}
-				}
-				db.commitTransaction(txn);
-			}
-
-			@Override
-			public void runBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				db.getMessageIds(txn, groupId);
-				db.commitTransaction(txn);
-			}
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessageIds(txn, pickRandom(groups).getId());
+			db.commitTransaction(txn);
 		});
 	}
 
 	@Test
-	public void testGetMessageIdsWithQuery() throws Exception {
-		for (int groups : new int[] {1, 10, 100}) {
-			for (int messagesPerGroup : new int[] {1, 10, 100}) {
-				for (int keysPerMessage : new int[] {1, 10, 100}) {
-					int rows = groups * messagesPerGroup * keysPerMessage;
-					if (rows > MAX_ROWS) continue;
-					for (int keysPerQuery : new int[] {1, 10}) {
-						testGetMessageIdsWithQuery(groups, messagesPerGroup,
-								keysPerMessage, keysPerQuery);
-					}
-				}
-			}
-		}
+	public void testGetMessageIdsWithMatchingQuery() throws Exception {
+		String name = "getMessageIds(T, GroupId, Metadata)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			GroupId g = pickRandom(groups).getId();
+			db.getMessageIds(txn, g, pickRandom(messageMeta.get(g)));
+			db.commitTransaction(txn);
+		});
 	}
 
-	private void testGetMessageIdsWithQuery(final int groups,
-			final int messagesPerGroup, final int keysPerMessage,
-			final int keysPerQuery) throws Exception {
+	@Test
+	public void testGetMessageIdsWithNonMatchingQuery() throws Exception {
 		String name = "getMessageIds(T, GroupId, Metadata)";
-		Map<String, Object> args = new LinkedHashMap<String, Object>();
-		args.put("groups", groups);
-		args.put("messagesPerGroup", messagesPerGroup);
-		args.put("keysPerMessage", keysPerMessage);
-		args.put("keysPerQuery", keysPerQuery);
-
-		benchmark(name, args, new BenchmarkTask<Connection>() {
-
-			private final Metadata query = getMetadata(keysPerQuery);
-			private GroupId groupId;
-
-			@Override
-			public void prepareBenchmark(Database<Connection> db)
-					throws DbException {
-				ClientId clientId = getClientId();
-				Connection txn = db.startTransaction();
-				for (int i = 0; i < groups; i++) {
-					Group g = getGroup(clientId);
-					if (i == 0) groupId = g.getId();
-					db.addGroup(txn, g);
-					for (int j = 0; j < messagesPerGroup; j++) {
-						Message m = getMessage(g.getId());
-						db.addMessage(txn, m, DELIVERED, false);
-						Metadata meta = getMetadata(keysPerMessage);
-						db.mergeMessageMetadata(txn, m.getId(), meta);
-					}
-				}
-				db.commitTransaction(txn);
-			}
-
-			@Override
-			public void runBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				db.getMessageIds(txn, groupId, query);
-				db.commitTransaction(txn);
-			}
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			Metadata query = getMetadata(METADATA_KEYS_PER_MESSAGE);
+			db.getMessageIds(txn, pickRandom(groups).getId(), query);
+			db.commitTransaction(txn);
 		});
 	}
 
 	@Test
 	public void testGetGroupMetadata() throws Exception {
-		for (int groups : new int[] {1, 10, 100, 1000}) {
-			for (int keysPerGroup : new int[] {1, 10, 100}) {
-				int rows = groups * keysPerGroup;
-				if (rows > MAX_ROWS) continue;
-				testGetGroupMetadata(groups, keysPerGroup);
-			}
-		}
-	}
-
-	private void testGetGroupMetadata(final int groups, final int keysPerGroup)
-			throws Exception {
 		String name = "getGroupMetadata(T, GroupId)";
-		Map<String, Object> args = new LinkedHashMap<String, Object>();
-		args.put("groups", groups);
-		args.put("keysPerGroup", keysPerGroup);
-
-		benchmark(name, args, new BenchmarkTask<Connection>() {
-
-			private GroupId groupId;
-
-			@Override
-			public void prepareBenchmark(Database<Connection> db)
-					throws DbException {
-				ClientId clientId = getClientId();
-				Connection txn = db.startTransaction();
-				for (int i = 0; i < groups; i++) {
-					Group g = getGroup(clientId);
-					if (i == 0) groupId = g.getId();
-					db.addGroup(txn, g);
-					Metadata meta = getMetadata(keysPerGroup);
-					db.mergeGroupMetadata(txn, g.getId(), meta);
-				}
-				db.commitTransaction(txn);
-			}
-
-			@Override
-			public void runBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				db.getGroupMetadata(txn, groupId);
-				db.commitTransaction(txn);
-			}
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getGroupMetadata(txn, pickRandom(groups).getId());
+			db.commitTransaction(txn);
 		});
 	}
 
 	@Test
 	public void testGetMessageMetadataForGroup() throws Exception {
-		for (int groups : new int[] {1, 10, 100}) {
-			for (int messagesPerGroup : new int[] {1, 10, 100}) {
-				for (int keysPerMessage : new int[] {1, 10, 100}) {
-					int rows = groups * messagesPerGroup * keysPerMessage;
-					if (rows > MAX_ROWS) continue;
-					testGetMessageMetadataForGroup(groups, messagesPerGroup,
-							keysPerMessage);
-				}
-			}
-		}
-	}
-
-	private void testGetMessageMetadataForGroup(final int groups,
-			final int messagesPerGroup, final int keysPerMessage)
-			throws Exception {
 		String name = "getMessageMetadata(T, GroupId)";
-		Map<String, Object> args = new LinkedHashMap<String, Object>();
-		args.put("groups", groups);
-		args.put("messagesPerGroup", messagesPerGroup);
-		args.put("keysPerMessage", keysPerMessage);
-
-		benchmark(name, args, new BenchmarkTask<Connection>() {
-
-			private GroupId groupId;
-
-			@Override
-			public void prepareBenchmark(Database<Connection> db)
-					throws DbException {
-				ClientId clientId = getClientId();
-				Connection txn = db.startTransaction();
-				for (int i = 0; i < groups; i++) {
-					Group g = getGroup(clientId);
-					if (i == 0) groupId = g.getId();
-					db.addGroup(txn, g);
-					for (int j = 0; j < messagesPerGroup; j++) {
-						Message m = getMessage(g.getId());
-						db.addMessage(txn, m, DELIVERED, false);
-						Metadata meta = getMetadata(keysPerMessage);
-						db.mergeMessageMetadata(txn, m.getId(), meta);
-					}
-				}
-				db.commitTransaction(txn);
-			}
-
-			@Override
-			public void runBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				db.getMessageMetadata(txn, groupId);
-				db.commitTransaction(txn);
-			}
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessageMetadata(txn, pickRandom(groups).getId());
+			db.commitTransaction(txn);
 		});
 	}
 
 	@Test
 	public void testGetMessageMetadataForMessage() throws Exception {
-		for (int messages : new int[] {1, 100, 10000}) {
-			for (int keysPerMessage : new int[] {1, 10, 100}) {
-				int rows = messages * keysPerMessage;
-				if (rows > MAX_ROWS) continue;
-				testGetMessageMetadataForMessage(messages, keysPerMessage);
-			}
-		}
-	}
-
-	private void testGetMessageMetadataForMessage(final int messages,
-			final int keysPerMessage) throws Exception {
 		String name = "getMessageMetadata(T, MessageId)";
-		Map<String, Object> args = new LinkedHashMap<String, Object>();
-		args.put("messages", messages);
-		args.put("keysPerMessage", keysPerMessage);
-
-		benchmark(name, args, new BenchmarkTask<Connection>() {
-
-			private MessageId messageId;
-
-			@Override
-			public void prepareBenchmark(Database<Connection> db)
-					throws DbException {
-				Group g = getGroup(getClientId());
-				Connection txn = db.startTransaction();
-				db.addGroup(txn, g);
-				for (int i = 0; i < messages; i++) {
-					Message m = getMessage(g.getId());
-					if (i == 0) messageId = m.getId();
-					db.addMessage(txn, m, DELIVERED, false);
-					Metadata meta = getMetadata(keysPerMessage);
-					db.mergeMessageMetadata(txn, m.getId(), meta);
-				}
-				db.commitTransaction(txn);
-			}
-
-			@Override
-			public void runBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				db.getMessageMetadata(txn, messageId);
-				db.commitTransaction(txn);
-			}
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessageMetadata(txn, pickRandom(messages).getId());
+			db.commitTransaction(txn);
 		});
 	}
 
 	@Test
 	public void testGetMessagesToShare() throws Exception {
-		for (int clients : new int[] {1, 10, 100}) {
-			for (int groupsPerClient : new int[] {1, 10, 100}) {
-				for (int messagesPerGroup : new int[] {1, 10, 100}) {
-					int rows = clients * groupsPerClient * messagesPerGroup;
-					if (rows > MAX_ROWS) continue;
-					testGetMessagesToShare(clients, groupsPerClient,
-							messagesPerGroup);
-				}
-			}
-		}
-	}
-
-	private void testGetMessagesToShare(final int clients,
-			final int groupsPerClient, final int messagesPerGroup)
-			throws Exception {
 		String name = "getMessagesToShare(T, ClientId)";
-		Map<String, Object> args = new LinkedHashMap<String, Object>();
-		args.put("clients", clients);
-		args.put("groupsPerClient", groupsPerClient);
-		args.put("messagesPerGroup", messagesPerGroup);
-
-		benchmark(name, args, new BenchmarkTask<Connection>() {
-
-			private ClientId clientId;
-
-			@Override
-			public void prepareBenchmark(Database<Connection> db)
-					throws DbException {
-				Random random = new Random();
-				Connection txn = db.startTransaction();
-				for (int i = 0; i < clients; i++) {
-					ClientId c = getClientId();
-					if (i == 0) clientId = c;
-					for (int j = 0; j < groupsPerClient; j++) {
-						Group g = getGroup(c);
-						db.addGroup(txn, g);
-						MessageId lastMessageId = null;
-						for (int k = 0; k < messagesPerGroup; k++) {
-							Message m = getMessage(g.getId());
-							boolean shared = random.nextBoolean();
-							db.addMessage(txn, m, DELIVERED, shared);
-							if (lastMessageId != null) {
-								db.addMessageDependency(txn, g.getId(),
-										m.getId(), lastMessageId);
-							}
-							lastMessageId = m.getId();
-						}
-					}
-				}
-				db.commitTransaction(txn);
-			}
-
-			@Override
-			public void runBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				db.getMessagesToShare(txn, clientId);
-				db.commitTransaction(txn);
-			}
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessagesToShare(txn, pickRandom(clientIds));
+			db.commitTransaction(txn);
 		});
 	}
 
 	@Test
 	public void testGetMessagesToValidate() throws Exception {
-		for (int clients : new int[] {1, 10, 100}) {
-			for (int groupsPerClient : new int[] {1, 10, 100}) {
-				for (int messagesPerGroup : new int[] {1, 10, 100}) {
-					int rows = clients * groupsPerClient * messagesPerGroup;
-					if (rows > MAX_ROWS) continue;
-					testGetMessagesToValidate(clients, groupsPerClient,
-							messagesPerGroup);
-				}
-			}
-		}
-	}
-
-	private void testGetMessagesToValidate(final int clients,
-			final int groupsPerClient, final int messagesPerGroup)
-			throws Exception {
 		String name = "getMessagesToValidate(T, ClientId)";
-		Map<String, Object> args = new LinkedHashMap<String, Object>();
-		args.put("clients", clients);
-		args.put("groupsPerClient", groupsPerClient);
-		args.put("messagesPerGroup", messagesPerGroup);
-
-		benchmark(name, args, new BenchmarkTask<Connection>() {
-
-			private ClientId clientId;
-
-			@Override
-			public void prepareBenchmark(Database<Connection> db)
-					throws DbException {
-				Random random = new Random();
-				Connection txn = db.startTransaction();
-				for (int i = 0; i < clients; i++) {
-					ClientId c = getClientId();
-					if (i == 0) clientId = c;
-					for (int j = 0; j < groupsPerClient; j++) {
-						Group g = getGroup(c);
-						db.addGroup(txn, g);
-						for (int k = 0; k < messagesPerGroup; k++) {
-							Message m = getMessage(g.getId());
-							State s = random.nextBoolean() ? UNKNOWN : PENDING;
-							db.addMessage(txn, m, s, false);
-						}
-					}
-				}
-				db.commitTransaction(txn);
-			}
-
-			@Override
-			public void runBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				db.getMessagesToValidate(txn, clientId);
-				db.commitTransaction(txn);
-			}
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessagesToValidate(txn, pickRandom(clientIds));
+			db.commitTransaction(txn);
 		});
 	}
 
 	@Test
 	public void testGetPendingMessages() throws Exception {
-		for (int clients : new int[] {1, 10, 100}) {
-			for (int groupsPerClient : new int[] {1, 10, 100}) {
-				for (int messagesPerGroup : new int[] {1, 10, 100}) {
-					int rows = clients * groupsPerClient * messagesPerGroup;
-					if (rows > MAX_ROWS) continue;
-					testGetPendingMessages(clients, groupsPerClient,
-							messagesPerGroup);
-				}
-			}
-		}
-	}
-
-	private void testGetPendingMessages(final int clients,
-			final int groupsPerClient, final int messagesPerGroup)
-			throws Exception {
 		String name = "getPendingMessages(T, ClientId)";
-		Map<String, Object> args = new LinkedHashMap<String, Object>();
-		args.put("clients", clients);
-		args.put("groupsPerClient", groupsPerClient);
-		args.put("messagesPerGroup", messagesPerGroup);
-
-		benchmark(name, args, new BenchmarkTask<Connection>() {
-
-			private ClientId clientId;
-
-			@Override
-			public void prepareBenchmark(Database<Connection> db)
-					throws DbException {
-				Random random = new Random();
-				Connection txn = db.startTransaction();
-				for (int i = 0; i < clients; i++) {
-					ClientId c = getClientId();
-					if (i == 0) clientId = c;
-					for (int j = 0; j < groupsPerClient; j++) {
-						Group g = getGroup(c);
-						db.addGroup(txn, g);
-						for (int k = 0; k < messagesPerGroup; k++) {
-							Message m = getMessage(g.getId());
-							State s = random.nextBoolean() ? UNKNOWN : PENDING;
-							db.addMessage(txn, m, s, false);
-						}
-					}
-				}
-				db.commitTransaction(txn);
-			}
-
-			@Override
-			public void runBenchmark(Database<Connection> db)
-					throws DbException {
-				Connection txn = db.startTransaction();
-				db.getPendingMessages(txn, clientId);
-				db.commitTransaction(txn);
-			}
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getPendingMessages(txn, pickRandom(clientIds));
+			db.commitTransaction(txn);
 		});
 	}
 
-	private void benchmark(String name, Map<String, Object> args,
-			BenchmarkTask<Connection> task) throws Exception {
-		for (int i = 0; i < WARMUP_ITERATIONS; i++) {
-			Database<Connection> db = open();
-			try {
-				task.prepareBenchmark(db);
-				task.runBenchmark(db);
-			} finally {
-				db.close();
-			}
-		}
-		List<Long> durations = new ArrayList<Long>(MEASUREMENT_ITERATIONS);
+	private <T> T pickRandom(List<T> list) {
+		return list.get(random.nextInt(list.size()));
+	}
+
+	private void benchmark(String name,
+			BenchmarkTask<Database<Connection>> task) throws Exception {
+		deleteTestDirectory(testDir);
+		Database<Connection> db = openDatabase();
+		populateDatabase(db);
+		db.close();
+		db = openDatabase();
+		List<Long> durations = new ArrayList<>(MEASUREMENT_ITERATIONS);
+		for (int i = 0; i < WARMUP_ITERATIONS; i++) task.run(db);
 		for (int i = 0; i < MEASUREMENT_ITERATIONS; i++) {
-			Database<Connection> db = open();
-			try {
-				task.prepareBenchmark(db);
-				Thread.sleep(SLEEP_BEFORE_MEASUREMENT_MS);
-				long start = System.nanoTime();
-				task.runBenchmark(db);
-				durations.add(System.nanoTime() - start);
-			} finally {
-				db.close();
-			}
+			long start = System.nanoTime();
+			task.run(db);
+			durations.add(System.nanoTime() - start);
 		}
-		double meanMillis = getMean(durations) / 1000 / 1000;
-		double medianMillis = getMedian(durations) / 1000 / 1000;
-		double stdDevMillis = getStandardDeviation(durations) / 1000 / 1000;
-		String result = name + '\t' + args + '\t' + meanMillis
-				+ '\t' + medianMillis + '\t' + stdDevMillis;
+		db.close();
+		String result = String.format("%s\t%,d\t%,d\t%,d", name,
+				(long) getMean(durations), (long) getMedian(durations),
+				(long) getStandardDeviation(durations));
 		System.out.println(result);
 		PrintWriter out =
 				new PrintWriter(new FileOutputStream(resultsFile, true), true);
@@ -725,23 +261,68 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 		out.close();
 	}
 
-	private Database<Connection> open() throws DbException {
-		deleteTestDirectory(testDir);
+	private Database<Connection> openDatabase() throws DbException {
 		Database<Connection> db = createDatabase(
 				new TestDatabaseConfig(testDir, MAX_SIZE), new SystemClock());
 		db.open();
 		return db;
 	}
 
-	private ClientId getClientId() {
-		return new ClientId(getRandomString(CLIENT_ID_LENGTH));
+	private void populateDatabase(Database<Connection> db) throws DbException {
+		clientIds = new ArrayList<>();
+		groups = new ArrayList<>();
+		messages = new ArrayList<>();
+		messageMeta = new HashMap<>();
+
+		for (int i = 0; i < CLIENTS; i++) clientIds.add(getClientId());
+
+		Connection txn = db.startTransaction();
+		LocalAuthor localAuthor = getLocalAuthor();
+		db.addLocalAuthor(txn, localAuthor);
+		for (int i = 0; i < CONTACTS; i++) {
+			Author a = getAuthor();
+			ContactId contactId = db.addContact(txn, a, localAuthor.getId(),
+					random.nextBoolean(), true);
+			for (int j = 0; j < GROUPS_PER_CONTACT; j++) {
+				Group g = getGroup(clientIds.get(j % CLIENTS));
+				groups.add(g);
+				messageMeta.put(g.getId(), new ArrayList<>());
+				db.addGroup(txn, g);
+				db.addGroupVisibility(txn, contactId, g.getId(), true);
+				Metadata gm = getMetadata(METADATA_KEYS_PER_GROUP);
+				db.mergeGroupMetadata(txn, g.getId(), gm);
+				for (int k = 0; k < MESSAGES_PER_GROUP; k++) {
+					Message m = getMessage(g.getId());
+					messages.add(m);
+					State state = State.fromValue(random.nextInt(4));
+					db.addMessage(txn, m, state, random.nextBoolean());
+					Metadata mm = getMetadata(METADATA_KEYS_PER_MESSAGE);
+					messageMeta.get(g.getId()).add(mm);
+					db.mergeMessageMetadata(txn, m.getId(), mm);
+				}
+			}
+		}
+		for (int i = 0; i < LOCAL_GROUPS; i++) {
+			Group g = getGroup(clientIds.get(i % CLIENTS));
+			groups.add(g);
+			messageMeta.put(g.getId(), new ArrayList<>());
+			db.addGroup(txn, g);
+			Metadata gm = getMetadata(METADATA_KEYS_PER_GROUP);
+			db.mergeGroupMetadata(txn, g.getId(), gm);
+			for (int j = 0; j < MESSAGES_PER_GROUP; j++) {
+				Message m = getMessage(g.getId());
+				messages.add(m);
+				db.addMessage(txn, m, DELIVERED, false);
+				Metadata mm = getMetadata(METADATA_KEYS_PER_MESSAGE);
+				messageMeta.get(g.getId()).add(mm);
+				db.mergeMessageMetadata(txn, m.getId(), mm);
+			}
+		}
+		db.commitTransaction(txn);
 	}
 
-	private Message getMessage(GroupId groupId) {
-		MessageId id = new MessageId(getRandomId());
-		byte[] raw = getRandomBytes(MAX_MESSAGE_LENGTH);
-		long timestamp = System.currentTimeMillis();
-		return new Message(id, groupId, timestamp, raw);
+	private ClientId getClientId() {
+		return new ClientId(getRandomString(CLIENT_ID_LENGTH));
 	}
 
 	private Metadata getMetadata(int keys) {
