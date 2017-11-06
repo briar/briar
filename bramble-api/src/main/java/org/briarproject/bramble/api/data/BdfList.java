@@ -3,15 +3,17 @@ package org.briarproject.bramble.api.data;
 import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.FormatException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
 
-public class BdfList extends Vector<Object> {
+@NotThreadSafe
+public class BdfList extends ArrayList<Object> {
 
 	/**
 	 * Factory method for constructing lists inline.

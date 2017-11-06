@@ -4,11 +4,14 @@ import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.FormatException;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
 
-public class BdfDictionary extends ConcurrentSkipListMap<String, Object> {
+@NotThreadSafe
+public class BdfDictionary extends TreeMap<String, Object> {
 
 	public static final Object NULL_VALUE = new Object();
 

@@ -1,11 +1,11 @@
 package org.briarproject.bramble.api.db;
 
-import java.util.Hashtable;
+import java.util.TreeMap;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.NotThreadSafe;
 
-@ThreadSafe
-public class Metadata extends Hashtable<String, byte[]> {
+@NotThreadSafe
+public class Metadata extends TreeMap<String, byte[]> {
 
 	/**
 	 * Special value to indicate that a key is being removed.
