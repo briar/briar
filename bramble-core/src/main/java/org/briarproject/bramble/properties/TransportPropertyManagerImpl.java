@@ -9,8 +9,10 @@ import org.briarproject.bramble.api.contact.ContactManager.AddContactHook;
 import org.briarproject.bramble.api.contact.ContactManager.RemoveContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -19,8 +21,10 @@ import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.bramble.api.system.Clock;
 
 import java.util.HashMap;
@@ -36,20 +40,22 @@ import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 @Immutable
 @NotNullByDefault
 class TransportPropertyManagerImpl implements TransportPropertyManager,
-		Client, AddContactHook, RemoveContactHook {
+		Client, AddContactHook, RemoveContactHook, IncomingMessageHook {
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
+	private final MetadataParser metadataParser;
 	private final ContactGroupFactory contactGroupFactory;
 	private final Clock clock;
 	private final Group localGroup;
 
 	@Inject
 	TransportPropertyManagerImpl(DatabaseComponent db,
-			ClientHelper clientHelper, ContactGroupFactory contactGroupFactory,
-			Clock clock) {
+			ClientHelper clientHelper, MetadataParser metadataParser,
+			ContactGroupFactory contactGroupFactory, Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
+		this.metadataParser = metadataParser;
 		this.contactGroupFactory = contactGroupFactory;
 		this.clock = clock;
 		localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID);
@@ -85,6 +91,31 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	}
 
 	@Override
+	public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
+			throws DbException, InvalidMessageException {
+		try {
+			// Find the latest update for this transport, if any
+			BdfDictionary d = metadataParser.parse(meta);
+			TransportId t = new TransportId(d.getString("transportId"));
+			LatestUpdate latest = findLatest(txn, m.getGroupId(), t, false);
+			if (latest != null) {
+				if (d.getLong("version") > latest.version) {
+					// This update is newer - delete the previous update
+					db.deleteMessage(txn, latest.messageId);
+					db.deleteMessageMetadata(txn, latest.messageId);
+				} else {
+					// We've already received a newer update - delete this one
+					db.deleteMessage(txn, m.getId());
+					db.deleteMessageMetadata(txn, m.getId());
+				}
+			}
+		} catch (FormatException e) {
+			throw new InvalidMessageException(e);
+		}
+		return false;
+	}
+
+	@Override
 	public void addRemoteProperties(Transaction txn, ContactId c,
 			Map<TransportId, TransportProperties> props) throws DbException {
 		Group g = getContactGroup(db.getContact(txn, c));
@@ -115,8 +146,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			Map<TransportId, TransportProperties> local =
 					new HashMap<TransportId, TransportProperties>();
 			// Find the latest local update for each transport
-			Map<TransportId, LatestUpdate> latest = findLatest(txn,
-					localGroup.getId(), true);
+			Map<TransportId, LatestUpdate> latest = findLatestLocal(txn);
 			// Retrieve and parse the latest local properties
 			for (Entry<TransportId, LatestUpdate> e : latest.entrySet()) {
 				BdfList message = clientHelper.getMessageAsList(txn,
@@ -234,6 +264,11 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 					long version = latest == null ? 1 : latest.version + 1;
 					storeMessage(txn, localGroup.getId(), t, merged, version,
 							true, false);
+					// Delete the previous update, if any
+					if (latest != null) {
+						db.deleteMessage(txn, latest.messageId);
+						db.deleteMessageMetadata(txn, latest.messageId);
+					}
 					// Store the merged properties in each contact's group
 					for (Contact c : db.getContacts(txn)) {
 						Group g = getContactGroup(c);
@@ -241,6 +276,11 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 						version = latest == null ? 1 : latest.version + 1;
 						storeMessage(txn, g.getId(), t, merged, version,
 								true, true);
+						// Delete the previous update, if any
+						if (latest != null) {
+							db.deleteMessage(txn, latest.messageId);
+							db.deleteMessageMetadata(txn, latest.messageId);
+						}
 					}
 				}
 				db.commitTransaction(txn);
@@ -278,20 +318,29 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		return BdfList.of(t.getString(), version, p);
 	}
 
-	private Map<TransportId, LatestUpdate> findLatest(Transaction txn,
-			GroupId g, boolean local) throws DbException, FormatException {
+	private Map<TransportId, LatestUpdate> findLatestLocal(Transaction txn)
+			throws DbException, FormatException {
+		// TODO: This can be simplified before 1.0
 		Map<TransportId, LatestUpdate> latestUpdates =
 				new HashMap<TransportId, LatestUpdate>();
-		Map<MessageId, BdfDictionary> metadata =
-				clientHelper.getMessageMetadataAsDictionary(txn, g);
+		Map<MessageId, BdfDictionary> metadata = clientHelper
+				.getMessageMetadataAsDictionary(txn, localGroup.getId());
 		for (Entry<MessageId, BdfDictionary> e : metadata.entrySet()) {
 			BdfDictionary meta = e.getValue();
-			if (meta.getBoolean("local") == local) {
-				TransportId t = new TransportId(meta.getString("transportId"));
-				long version = meta.getLong("version");
-				LatestUpdate latest = latestUpdates.get(t);
-				if (latest == null || version > latest.version)
-					latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
+			TransportId t = new TransportId(meta.getString("transportId"));
+			long version = meta.getLong("version");
+			LatestUpdate latest = latestUpdates.get(t);
+			if (latest == null) {
+				latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
+			} else if (version > latest.version) {
+				// This update is newer - delete the previous one
+				db.deleteMessage(txn, latest.messageId);
+				db.deleteMessageMetadata(txn, latest.messageId);
+				latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
+			} else {
+				// We've already found a newer update - delete this one
+				db.deleteMessage(txn, e.getKey());
+				db.deleteMessageMetadata(txn, e.getKey());
 			}
 		}
 		return latestUpdates;
@@ -300,6 +349,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Nullable
 	private LatestUpdate findLatest(Transaction txn, GroupId g, TransportId t,
 			boolean local) throws DbException, FormatException {
+		// TODO: This can be simplified before 1.0
 		LatestUpdate latest = null;
 		Map<MessageId, BdfDictionary> metadata =
 				clientHelper.getMessageMetadataAsDictionary(txn, g);
@@ -308,8 +358,18 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			if (meta.getString("transportId").equals(t.getString())
 					&& meta.getBoolean("local") == local) {
 				long version = meta.getLong("version");
-				if (latest == null || version > latest.version)
+				if (latest == null) {
 					latest = new LatestUpdate(e.getKey(), version);
+				} else if (version > latest.version) {
+					// This update is newer - delete the previous one
+					db.deleteMessage(txn, latest.messageId);
+					db.deleteMessageMetadata(txn, latest.messageId);
+					latest = new LatestUpdate(e.getKey(), version);
+				} else {
+					// We've already found a newer update - delete this one
+					db.deleteMessage(txn, e.getKey());
+					db.deleteMessageMetadata(txn, e.getKey());
+				}
 			}
 		}
 		return latest;
