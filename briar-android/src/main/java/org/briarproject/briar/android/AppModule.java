@@ -38,6 +38,8 @@ public class AppModule {
 	static class EagerSingletons {
 		@Inject
 		AndroidNotificationManager androidNotificationManager;
+		@Inject
+		NetworkUsageLogger networkUsageLogger;
 	}
 
 	private final Application application;
@@ -172,5 +174,13 @@ public class AppModule {
 	ScreenFilterMonitor provideScreenFilterMonitor(
 			ScreenFilterMonitorImpl screenFilterMonitor) {
 		return screenFilterMonitor;
+	}
+
+	@Provides
+	NetworkUsageLogger provideNetworkUsageLogger(
+			LifecycleManager lifecycleManager) {
+		NetworkUsageLogger networkUsageLogger = new NetworkUsageLogger();
+		lifecycleManager.registerService(networkUsageLogger);
+		return networkUsageLogger;
 	}
 }
