@@ -35,6 +35,7 @@ dependencies {
 
 	testCompile project(path: ':bramble-core', configuration: 'testOutput')
 	testCompile 'org.robolectric:robolectric:3.0'
+	testCompile 'org.robolectric:shadows-support-v4:3.0'
 	testCompile 'org.mockito:mockito-core:2.8.9'
 }
 

@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.login;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.design.widget.TextInputLayout;
 import android.widget.Button;
@@ -14,7 +13,6 @@ import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.TestBriarApplication;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
-import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,11 +21,8 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowLooper;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.NONE;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_STRONG;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
@@ -37,7 +32,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21,
@@ -96,32 +90,6 @@ public class SetupActivityTest {
 				setupActivity.getString(R.string.passwords_do_not_match));
 		// Passwords match, so button should be enabled
 		assertEquals(createAccountButton.isEnabled(), true);
-	}
-
-	@Test
-	public void testCreateAccountUI() {
-		proceedToPasswordFragment();
-		String safePass = "really.safe.password";
-		passwordEntry.setText(safePass);
-		passwordConfirmation.setText(safePass);
-		// Confirm that the create account button is clickable
-		assertEquals(createAccountButton.isEnabled(), true);
-		createAccountButton.performClick();
-		// wait a second since there's no easy way to get a callback
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		ShadowLooper.runUiThreadTasks();
-		// execute the callback
-		assertTrue(setupActivity.isFinishing());
-		// Confirm that the correct Activity has been started
-		ShadowActivity shadowActivity = shadowOf(setupActivity);
-		Intent intent = shadowActivity.peekNextStartedActivity();
-		assertNotNull(intent.getComponent());
-		assertEquals(intent.getComponent().getClassName(),
-				NavDrawerActivity.class.getName());
 	}
 
 	@Test

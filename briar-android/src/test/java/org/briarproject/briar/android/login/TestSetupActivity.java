@@ -10,7 +10,4 @@ public class TestSetupActivity extends SetupActivity {
 		return setupController;
 	}
 
-	void setController(SetupController setupController) {
-		this.setupController = setupController;
-	}
 }
