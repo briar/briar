@@ -129,7 +129,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	public Map<TransportId, TransportProperties> getLocalProperties()
 			throws DbException {
 		Map<TransportId, TransportProperties> local;
-		Transaction txn = db.startTransaction(true);
+		// TODO: Transaction can be read-only when code is simplified
+		Transaction txn = db.startTransaction(false);
 		try {
 			local = getLocalProperties(txn);
 			db.commitTransaction(txn);
@@ -165,7 +166,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			throws DbException {
 		try {
 			TransportProperties p = null;
-			Transaction txn = db.startTransaction(true);
+			// TODO: Transaction can be read-only when code is simplified
+			Transaction txn = db.startTransaction(false);
 			try {
 				// Find the latest local update
 				LatestUpdate latest = findLatest(txn, localGroup.getId(), t,
@@ -192,7 +194,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			TransportId t) throws DbException {
 		Map<ContactId, TransportProperties> remote =
 				new HashMap<ContactId, TransportProperties>();
-		Transaction txn = db.startTransaction(true);
+		// TODO: Transaction can be read-only when code is simplified
+		Transaction txn = db.startTransaction(false);
 		try {
 			for (Contact c : db.getContacts(txn))
 				remote.put(c.getId(), getRemoteProperties(txn, c, t));
@@ -226,7 +229,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	public TransportProperties getRemoteProperties(ContactId c, TransportId t)
 			throws DbException {
 		TransportProperties p;
-		Transaction txn = db.startTransaction(true);
+		// TODO: Transaction can be read-only when code is simplified
+		Transaction txn = db.startTransaction(false);
 		try {
 			p = getRemoteProperties(txn, db.getContact(txn, c), t);
 			db.commitTransaction(txn);
