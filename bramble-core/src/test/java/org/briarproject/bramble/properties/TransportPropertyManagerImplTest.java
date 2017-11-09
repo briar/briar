@@ -587,8 +587,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			expectStoreMessage(txn, localGroup.getId(), "foo",
 					fooPropertiesDict, 2, true, false);
 			// Delete the previous update
-			oneOf(db).deleteMessage(txn, localGroupUpdateId);
-			oneOf(db).deleteMessageMetadata(txn, localGroupUpdateId);
+			oneOf(db).removeMessage(txn, localGroupUpdateId);
 			// Store the merged properties in each contact's group, version 2
 			oneOf(db).getContacts(txn);
 			will(returnValue(Collections.singletonList(contact)));
@@ -600,8 +599,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			expectStoreMessage(txn, contactGroup.getId(), "foo",
 					fooPropertiesDict, 2, true, true);
 			// Delete the previous update
-			oneOf(db).deleteMessage(txn, contactGroupUpdateId);
-			oneOf(db).deleteMessageMetadata(txn, contactGroupUpdateId);
+			oneOf(db).removeMessage(txn, contactGroupUpdateId);
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
@@ -676,10 +674,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
 			will(returnValue(messageMetadata));
-			oneOf(db).deleteMessage(txn, barVersion1);
-			oneOf(db).deleteMessageMetadata(txn, barVersion1);
-			oneOf(db).deleteMessage(txn, barVersion2);
-			oneOf(db).deleteMessageMetadata(txn, barVersion2);
+			oneOf(db).removeMessage(txn, barVersion1);
+			oneOf(db).removeMessage(txn, barVersion2);
 			// Retrieve and parse the latest local properties
 			oneOf(clientHelper).getMessageAsList(txn, fooVersion999);
 			will(returnValue(fooUpdate));

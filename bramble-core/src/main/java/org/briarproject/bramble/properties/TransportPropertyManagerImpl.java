@@ -269,10 +269,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 					storeMessage(txn, localGroup.getId(), t, merged, version,
 							true, false);
 					// Delete the previous update, if any
-					if (latest != null) {
-						db.deleteMessage(txn, latest.messageId);
-						db.deleteMessageMetadata(txn, latest.messageId);
-					}
+					if (latest != null)
+						db.removeMessage(txn, latest.messageId);
 					// Store the merged properties in each contact's group
 					for (Contact c : db.getContacts(txn)) {
 						Group g = getContactGroup(c);
@@ -281,10 +279,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 						storeMessage(txn, g.getId(), t, merged, version,
 								true, true);
 						// Delete the previous update, if any
-						if (latest != null) {
-							db.deleteMessage(txn, latest.messageId);
-							db.deleteMessageMetadata(txn, latest.messageId);
-						}
+						if (latest != null)
+							db.removeMessage(txn, latest.messageId);
 					}
 				}
 				db.commitTransaction(txn);
@@ -338,13 +334,11 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
 			} else if (version > latest.version) {
 				// This update is newer - delete the previous one
-				db.deleteMessage(txn, latest.messageId);
-				db.deleteMessageMetadata(txn, latest.messageId);
+				db.removeMessage(txn, latest.messageId);
 				latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
 			} else {
 				// We've already found a newer update - delete this one
-				db.deleteMessage(txn, e.getKey());
-				db.deleteMessageMetadata(txn, e.getKey());
+				db.removeMessage(txn, e.getKey());
 			}
 		}
 		return latestUpdates;
@@ -366,13 +360,21 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 					latest = new LatestUpdate(e.getKey(), version);
 				} else if (version > latest.version) {
 					// This update is newer - delete the previous one
-					db.deleteMessage(txn, latest.messageId);
-					db.deleteMessageMetadata(txn, latest.messageId);
+					if (local) {
+						db.removeMessage(txn, latest.messageId);
+					} else {
+						db.deleteMessage(txn, latest.messageId);
+						db.deleteMessageMetadata(txn, latest.messageId);
+					}
 					latest = new LatestUpdate(e.getKey(), version);
 				} else {
 					// We've already found a newer update - delete this one
-					db.deleteMessage(txn, e.getKey());
-					db.deleteMessageMetadata(txn, e.getKey());
+					if (local) {
+						db.removeMessage(txn, e.getKey());
+					} else {
+						db.deleteMessage(txn, e.getKey());
+						db.deleteMessageMetadata(txn, e.getKey());
+					}
 				}
 			}
 		}
