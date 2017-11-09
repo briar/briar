@@ -771,6 +771,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void removeMessage(Transaction transaction, MessageId m)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		db.removeMessage(txn, m);
+	}
+
+	@Override
 	public void removeTransport(Transaction transaction, TransportId t)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();

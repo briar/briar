@@ -40,9 +40,12 @@ public class PropertiesModule {
 	@Provides
 	@Singleton
 	TransportPropertyManager getTransportPropertyManager(
-			LifecycleManager lifecycleManager, ContactManager contactManager,
+			LifecycleManager lifecycleManager,
+			ValidationManager validationManager, ContactManager contactManager,
 			TransportPropertyManagerImpl transportPropertyManager) {
 		lifecycleManager.registerClient(transportPropertyManager);
+		validationManager.registerIncomingMessageHook(CLIENT_ID,
+				transportPropertyManager);
 		contactManager.registerAddContactHook(transportPropertyManager);
 		contactManager.registerRemoveContactHook(transportPropertyManager);
 		return transportPropertyManager;

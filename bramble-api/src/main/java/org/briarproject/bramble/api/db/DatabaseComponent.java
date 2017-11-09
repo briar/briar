@@ -122,8 +122,9 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Deletes the message with the given ID. The message ID and any other
-	 * associated data are not deleted.
+	 * Deletes the message with the given ID. Unlike
+	 * {@link #removeMessage(Transaction, MessageId)}, the message ID and any
+	 * other associated data are not deleted.
 	 */
 	void deleteMessage(Transaction txn, MessageId m) throws DbException;
 
@@ -451,6 +452,11 @@ public interface DatabaseComponent {
 	 * Removes a local pseudonym (and all associated state) from the database.
 	 */
 	void removeLocalAuthor(Transaction txn, AuthorId a) throws DbException;
+
+	/**
+	 * Removes a message (and all associated state) from the database.
+	 */
+	void removeMessage(Transaction txn, MessageId m) throws DbException;
 
 	/**
 	 * Removes a transport (and all associated state) from the database.
