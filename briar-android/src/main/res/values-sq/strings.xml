@@ -187,6 +187,7 @@
   <string name="groups_reveal_invisible">Marrëdhënia e kontaktit s’është e dukshme për grupin</string>
   <!--Forums-->
   <string name="no_forums">Ende s’keni forume.\n\nPse nuk krijoni vetë një të tillë duke prekur ikonën + në krye?\n\nMund edhe t’u kërkoni kontakteve tuaj të ndajnë me ju forume.</string>
+  <string name="create_forum_title">Krijoje Forumin</string>
   <string name="create_forum_button">Krijoje Forumin</string>
   <string name="forum_created_toast">Forumi u krijua</string>
   <string name="no_forum_posts">Ky forum është i zbrazët.\n\nPërdorni ikonën penë që të hartoni postimin tuaj të parë.\n\nNdiheni vetëm? Ndajeni këtë forum me kontaktet tuaj!</string>
@@ -307,6 +308,11 @@
   <string name="uninstall_setting_summary">Kjo lyp ripohim dorazi, në rast akti paniku</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Njoftime</string>
+  <string name="notify_private_messages_setting_title">Mesazhe private</string>
+  <string name="notify_private_messages_setting_summary">Shfaq sinjalizime për mesazhe private</string>
+  <string name="notify_group_messages_setting_summary">Shfaq sinjalizime për mesazhe grupi</string>
+  <string name="notify_forum_posts_setting_summary">Shfaq sinjalizime për postime forumi</string>
+  <string name="notify_blog_posts_setting_summary">Shfaq sinjalizime për postime blogu</string>
   <string name="notify_vibration_setting">Dridhu</string>
   <string name="notify_sound_setting">Tingull</string>
   <string name="notify_sound_setting_default">Zilja parazgjedhje</string>

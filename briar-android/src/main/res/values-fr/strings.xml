@@ -14,19 +14,19 @@
   <string name="enter_password">Saisir votre mot de passe :</string>
   <string name="try_again">Le mot de passe est erroné, ressayez</string>
   <string name="sign_in_button">Connexion</string>
-  <string name="forgotten_password">J\'ai oublié mon mot de passe</string>
+  <string name="forgotten_password">J’ai oublié mon mot de passe</string>
   <string name="dialog_title_lost_password">Mot de passe oublié</string>
   <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil, pas dans le nuage, et nous ne pouvons donc pas réinitialiser votre mot de passe. Voulez-vous supprimer votre compte et recommencer ?\n\nAttention : vos identités, contacts et messages seront perdus irrémédiablement.</string>
   <string name="startup_failed_notification_title">Impossible de démarrer Briar</string>
   <string name="startup_failed_notification_text">Il vous faudra peut-être réinstaller Briar.</string>
   <string name="startup_failed_activity_title">Échec de démarrage de Briar</string>
   <string name="startup_failed_db_error">Pour une raison indéterminée, votre base de données Briar est corrompue sans espoir de récupération. Vos comptes, données et contacts sont perdus. Vous devez malheureusement réinstaller Briar et configurer un nouveau compte.</string>
-  <string name="startup_failed_service_error">Briar n\'a pas pu démarrer un greffon exigé. Réinstaller Briar résout généralement ce problème. Veuillez cependant noter que vous perdrez votre compte et toutes données relatives puisque Briar n\'utilise pas de serveurs centralisés sur lesquels enregistrer vos données.</string>
+  <string name="startup_failed_service_error">Briar n’a pas pu démarrer un greffon exigé. Réinstaller Briar résout généralement ce problème. Veuillez cependant noter que vous perdrez votre compte et toutes données relatives puisque Briar n’utilise pas de serveurs centralisés sur lesquels enregistrer vos données.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Ceci est une version bêta de Briar. Votre compte arrivera à expiration dans %d jour et ne peut pas être renouvelé.</item>
     <item quantity="other">Ceci est une version bêta de Briar. Votre compte arrivera à expiration dans %d jours et ne peut pas être renouvelé.</item>
   </plurals>
-  <string name="expiry_date_reached">Ce logiciel est arrivé à expiration.\nMerci de l\'avoir testé !</string>
+  <string name="expiry_date_reached">Ce logiciel est arrivé à expiration.\nMerci de l’avoir testé !</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Ouvrir le tiroir de navigation</string>
   <string name="nav_drawer_close_description">Fermer le tiroir de navigation</string>
@@ -44,11 +44,11 @@
   <string name="ongoing_notification_title">Connecté à Briar</string>
   <string name="ongoing_notification_text">Toucher pour ouvrir Briar.</string>
   <plurals name="private_message_notification_text">
-    <item quantity="one">Un nouveau message privé.</item>
+    <item quantity="one">Nouveau message privé.</item>
     <item quantity="other">%d nouveaux messages privés.</item>
   </plurals>
   <plurals name="group_message_notification_text">
-    <item quantity="one">Un nouveau message de groupe.</item>
+    <item quantity="one">Nouveau message de groupe.</item>
     <item quantity="other">%d nouveaux messages de groupe.</item>
   </plurals>
   <plurals name="forum_post_notification_text">
@@ -56,7 +56,7 @@
     <item quantity="other">%d nouveaux articles de forum.</item>
   </plurals>
   <plurals name="blog_post_notification_text">
-    <item quantity="one">Un nouveau billet de blogue.</item>
+    <item quantity="one">Nouveau billet de blogue.</item>
     <item quantity="other">%d nouveaux billets de blogue.</item>
   </plurals>
   <!--Misc-->
@@ -78,11 +78,11 @@
   <string name="no_data">Aucune donnée</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">Le texte saisi est trop long</string>
-  <string name="show_onboarding">Afficher la fenêtre d\'aide</string>
+  <string name="show_onboarding">Afficher la fenêtre d’aide</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Il semble que soyez nouveau ici, sans encore aucun contact.\n\nTouchez l\'icône + en haut et suivez les instructions pour ajouter des amis à votre liste.\n\nVeuillez ne pas oublier que vous pouvez seulement ajouter des contacts en les rencontrant directement, afin d\'éviter que quelqu\'un se fasse passer pour vous et puisse lire vos messages à l\'avenir.</string>
+  <string name="no_contacts">Il semble que soyez nouveau ici, sans encore aucun contact.\n\nTouchez l’icône + en haut et suivez les instructions pour ajouter des amis à votre liste.\n\nVeuillez ne pas oublier que vous pouvez seulement ajouter des contacts en les rencontrant directement, afin d’éviter que quelqu’un se fasse passer pour vous et puisse lire vos messages à l’avenir.</string>
   <string name="date_no_private_messages">Aucun message.</string>
-  <string name="no_private_messages">Ceci est la vue des conversations.\n\nIl semble ne pas y en avoir.\n\nIl suffit de toucher le champ de saisie, en bas, pour en démarrer une.</string>
+  <string name="no_private_messages">Ceci est la vue des conversations.\n\nIl semble ne pas y en avoir.\n\nIl suffit de toucher le champ de saisie ci-bas pour en démarrer une.</string>
   <string name="message_hint">Rédiger le message</string>
   <string name="delete_contact">Supprimer le contact</string>
   <string name="dialog_title_delete_contact">Confirmer la suppression du contact</string>
@@ -90,35 +90,35 @@
   <string name="contact_deleted_toast">Le contact a été supprimé</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Ajouter un contact</string>
-  <string name="your_nickname">Choisir l\'identité que vous souhaitez utiliser :</string>
-  <string name="face_to_face">Vous devez rencontrer la personne que vous voulez ajouter comme contact, afin d\'éviter que quelqu\'un se fasse passer pour vous et puisse lire vos messages à l\'avenir.</string>
+  <string name="your_nickname">Choisir l’identité que vous souhaitez utiliser :</string>
+  <string name="face_to_face">Vous devez rencontrer la personne que vous voulez ajouter comme contact, afin d’éviter que quelqu’un se fasse passer pour vous et puisse lire vos messages à l’avenir.</string>
   <string name="continue_button">Continuer</string>
-  <string name="your_invitation_code">Votre code d\'invitation est</string>
-  <string name="enter_invitation_code">Veuillez saisir le code d\'invitation de votre contact :</string>
-  <string name="searching_format">Recherche de contacts avec le code d\'invitation %06d\u2026</string>
+  <string name="your_invitation_code">Votre code d’invitation est</string>
+  <string name="enter_invitation_code">Veuillez saisir le code d’invitation de votre contact :</string>
+  <string name="searching_format">Recherche de contacts avec le code d’invitation %06d\u2026</string>
   <string name="connection_failed">Échec de connexion</string>
-  <string name="could_not_find_contact">Briar n\'a pas trouvé votre contact à proximité</string>
+  <string name="could_not_find_contact">Briar n’a pas trouvé votre contact à proximité</string>
   <string name="try_again_button">Ressayer</string>
   <string name="connected_to_contact">Connecté au contact</string>
   <string name="calculating_confirmation_code">Calcul du code de confirmation\u2026</string>
   <string name="your_confirmation_code">Votre code de confirmation est</string>
   <string name="enter_confirmation_code">Veuillez saisir le code de confirmation de votre contact :</string>
   <string name="waiting_for_contact">En attente du contact\u2026</string>
-  <string name="waiting_for_contact_to_scan">En attente de recherche et de connexion du contact\u2026</string>
+  <string name="waiting_for_contact_to_scan">En attente de lecture du code QR par le contact et de sa connexion\u2026</string>
   <string name="exchanging_contact_details">Échange des renseignements de contact\u2026</string>
   <string name="codes_do_not_match">Les codes ne correspondent pas</string>
-  <string name="interfering">Cela pourrait signer que quelqu\'un tente d\'interférer avec votre connexion</string>
+  <string name="interfering">Cela pourrait signifier que quelqu’un tente d’interférer avec votre connexion</string>
   <string name="contact_added_toast">Contact ajouté : %s</string>
   <string name="contact_already_exists">Le contact %s existe déjà</string>
-  <string name="contact_exchange_failed">Échec d\'échange de contacts</string>
+  <string name="contact_exchange_failed">Échec d’échange de contacts</string>
   <string name="qr_code_invalid">Le code QR est invalide</string>
-  <string name="connecting_to_device">Connexion à l\'appareil\u2026</string>
-  <string name="authenticating_with_device">Autentification avec l\'appareil\u2026</string>
-  <string name="connection_aborted_local">Nous avons interrompu la connexion ! Cela pourrait signer que quelqu\'un tente d\'interférer avec votre connexion</string>
-  <string name="connection_aborted_remote">Votre contact a interrompu la connexion ! Cela pourrait signer que quelqu\'un tente d\'interférer avec votre connexion</string>
+  <string name="connecting_to_device">Connexion à l’appareil\u2026</string>
+  <string name="authenticating_with_device">Autentification avec l’appareil\u2026</string>
+  <string name="connection_aborted_local">Nous avons interrompu la connexion ! Cela pourrait signer que quelqu’un tente d’interférer avec votre connexion</string>
+  <string name="connection_aborted_remote">Votre contact a interrompu la connexion ! Cela pourrait signer que quelqu’un tente d’interférer avec votre connexion</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Présenter vos contacts</string>
-  <string name="introduction_onboarding_text">Vous pouvez présenter vos contacts mutuellement, afin qu\'ils n\'aient pas à se rencontrer en personne pour se connecter les uns aux autres avec Briar.</string>
+  <string name="introduction_onboarding_text">Vous pouvez présenter vos contacts mutuellement, afin qu’ils n’aient pas à se rencontrer en personne pour se connecter les uns aux autres avec Briar.</string>
   <string name="introduction_activity_title">Sélectionner un contact </string>
   <string name="introduction_message_title">Présenter des contacts</string>
   <string name="introduction_message_hint">Ajouter un message (facultatif)</string>
@@ -130,17 +130,17 @@
   <string name="introduction_request_received">%1$s a demandé de vous présenter à %2$s. Souhaitez-vous ajouter %2$s à votre liste de contacts ?</string>
   <string name="introduction_request_exists_received">%1$s a demandé de vous présenter à %2$s, mais %2$s est déjà dans votre liste de contacts. Puisque %1$s pourrait ne pas le savoir, vous pouvez tout de même répondre :</string>
   <string name="introduction_request_answered_received">%1$s a demandé de vous présenter à %2$s.</string>
-  <string name="introduction_response_accepted_sent">Vous avez accepté d\'être présenté à %1$s.</string>
-  <string name="introduction_response_declined_sent">Vous avez refusé d\'être présenté à %1$s.</string>
-  <string name="introduction_response_accepted_received">%1$s a accepté d\'être présenté à %2$s.</string>
-  <string name="introduction_response_declined_received">%1$s a refusé d\'être présenté à %2$s.</string>
+  <string name="introduction_response_accepted_sent">Vous avez accepté d’être présenté à %1$s.</string>
+  <string name="introduction_response_declined_sent">Vous avez refusé d’être présenté à %1$s.</string>
+  <string name="introduction_response_accepted_received">%1$s a accepté d’être présenté à %2$s.</string>
+  <string name="introduction_response_declined_received">%1$s a refusé d’être présenté à %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s annonce que %2$s a refusé la présentation.</string>
   <plurals name="introduction_notification_text">
     <item quantity="one">Un nouveau contact a été ajouté.</item>
     <item quantity="other">%d nouveaux contacts ont été ajoutés.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Vous ne participez à aucun groupe.\n\nTouchez l\'icône +, en haut, pour en créer un ou demandez à vos contacts de vous inviter dans l\'un des  leurs.</string>
+  <string name="groups_list_empty">Vous ne participez à aucun groupe.\n\nTouchez l’icône + ci-haut pour en créer un ou demandez à vos contacts de vous inviter dans l’un des  leurs.</string>
   <string name="groups_created_by">Créé par %s</string>
   <plurals name="messages">
     <item quantity="one">%d message</item>
@@ -153,14 +153,14 @@
   <string name="groups_create_group_button">Créer un groupe</string>
   <string name="groups_create_group_invitation_button">Envoyer une invitation</string>
   <string name="groups_create_group_hint">Choisir un nom pour votre groupe privé</string>
-  <string name="groups_invitation_sent">L\'invitation de groupe a été envoyée</string>
+  <string name="groups_invitation_sent">L’invitation de groupe a été envoyée</string>
   <string name="groups_message_sent">Le message a été envoyé</string>
   <string name="groups_member_list">Liste des participants</string>
   <string name="groups_invite_members">Inviter des participants</string>
   <string name="groups_member_created_you">Vous avez créé le groupe</string>
   <string name="groups_member_created">%s a créé le groupe</string>
   <string name="groups_member_joined_you">Vous vous êtes joint au groupe</string>
-  <string name="groups_member_joined">%s s\'est joint au groupe</string>
+  <string name="groups_member_joined">%s s’est joint au groupe</string>
   <string name="groups_leave">Quitter le groupe</string>
   <string name="groups_leave_dialog_title">Confirmer la sortie du groupe</string>
   <string name="groups_leave_dialog_message">Voulez-vous vraiment quitter ce groupe ?</string>
@@ -169,21 +169,21 @@
   <string name="groups_dissolve_dialog_message">Voulez-vous vraiment dissoudre ce groupe ?\n\nLes autres participants ne pourront pas poursuivre leur conversation et ne recevront peut-être pas les derniers messages.</string>
   <string name="groups_dissolve_button">Dissoudre</string>
   <string name="groups_dissolved_dialog_title">Le groupe a été dissous</string>
-  <string name="groups_dissolved_dialog_message">Le créateur de ce groupe l\'a dissous.\n\nVous ne pouvez plus écrire de messages au groupe et ne recevrez peut-être pas tous ceux qui y ont été publiés.</string>
+  <string name="groups_dissolved_dialog_message">Le créateur de ce groupe l’a dissous.\n\nVous ne pouvez plus écrire de messages au groupe et ne recevrez peut-être pas tous ceux qui y ont été publiés.</string>
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">Invitations de groupe</string>
   <string name="groups_invitations_invitation_sent">Vous avez invité %1$s à se joindre au groupe « %2$s ».</string>
   <string name="groups_invitations_invitation_received">%1$s vous a invité à vous joindre au groupe « %2$s ».</string>
-  <string name="groups_invitations_joined">S\'est joint au groupe</string>
-  <string name="groups_invitations_declined">L\'invitation de groupe a été refusée</string>
+  <string name="groups_invitations_joined">S’est joint au groupe</string>
+  <string name="groups_invitations_declined">L’invitation de groupe a été refusée</string>
   <plurals name="groups_invitations_open">
     <item quantity="one">%d invitation de groupe en attente</item>
     <item quantity="other">%d invitations de groupe en attente</item>
   </plurals>
-  <string name="groups_invitations_response_accepted_sent">Vous avez accepté l\'invitation de groupe de %s.</string>
-  <string name="groups_invitations_response_declined_sent">Vous avez refusé l\'invitation de groupe de %s.</string>
-  <string name="groups_invitations_response_accepted_received">%s a accepté l\'invitation de groupe.</string>
-  <string name="groups_invitations_response_declined_received">%s a refusé l\'invitation de groupe.</string>
+  <string name="groups_invitations_response_accepted_sent">Vous avez accepté l’invitation de groupe de %s.</string>
+  <string name="groups_invitations_response_declined_sent">Vous avez refusé l’invitation de groupe de %s.</string>
+  <string name="groups_invitations_response_accepted_received">%s a accepté l’invitation de groupe.</string>
+  <string name="groups_invitations_response_declined_received">%s a refusé l’invitation de groupe.</string>
   <string name="sharing_status_groups">Seul le créateur peut inviter de nouveaux participants. Voici la liste des membres actuels du groupe.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Dévoiler les contacts</string>
@@ -191,26 +191,26 @@
   <string name="groups_reveal_visible">Votre lien avec le contact est visible par le groupe</string>
   <string name="groups_reveal_visible_revealed_by_us">Votre lien avec le contact est visible par le groupe (dévoilé par vous)</string>
   <string name="groups_reveal_visible_revealed_by_contact">Votre lien avec le contact est visible par le groupe (dévoilé par %s)</string>
-  <string name="groups_reveal_invisible">Votre lien avec le contact n\'est pas visible par le groupe</string>
+  <string name="groups_reveal_invisible">Votre lien avec le contact n’est pas visible par le groupe</string>
   <!--Forums-->
-  <string name="no_forums">Vous n\'avez pas encore de forums.\n\nPourquoi ne pas en créer un en touchant l\'icône + située en haut ?\n\nVous pouvez aussi demander à vos contacts d\'en partager avec vous.</string>
+  <string name="no_forums">Vous n’avez pas encore de forums.\n\nPourquoi ne pas en créer un en touchant l’icône + ci-haut ?\n\nVous pouvez aussi demander à vos contacts d’en partager avec vous.</string>
   <string name="create_forum_title">Créer un forum</string>
   <string name="choose_forum_hint">Choisir un nom pour votre forum </string>
   <string name="create_forum_button">Créer un forum</string>
   <string name="forum_created_toast">Le forum a été créé</string>
-  <string name="no_forum_posts">Ce forum est vide.\n\nUtilisez l\'icône de crayon, en haut, pour rédiger le premier article.\n\nVous sentez-vous seul ici ? Partagez ce forum avec vos contacts !</string>
+  <string name="no_forum_posts">Ce forum est vide.\n\nUtilisez l’icône de crayon ci-haut pour rédiger le premier article.\n\nVous sentez-vous seul ici ? Partagez ce forum avec vos contacts !</string>
   <string name="no_posts">Aucun article</string>
   <plurals name="posts">
     <item quantity="one">%d article</item>
     <item quantity="other">%d articles</item>
   </plurals>
-  <string name="forum_new_entry_posted">L\'entrée de forum a été publiée</string>
+  <string name="forum_new_entry_posted">L’entrée de forum a été publiée</string>
   <string name="forum_new_message_hint">Nouvelle entrée</string>
   <string name="forum_message_reply_hint">Nouvelle réponse</string>
   <string name="btn_reply">Répondre</string>
   <string name="forum_leave">Quitter le forum</string>
   <string name="dialog_title_leave_forum">Confirmer la sortie du forum</string>
-  <string name="dialog_message_leave_forum">Voulez-vous vraiment quitter ce forum ? Les contacts avec qui vous l\'avez partagé pourraient ne plus en recevoir les mises à jour.</string>
+  <string name="dialog_message_leave_forum">Voulez-vous vraiment quitter ce forum ? Les contacts avec qui vous l’avez partagé pourraient ne plus en recevoir les mises à jour.</string>
   <string name="dialog_button_leave">Quitter</string>
   <string name="forum_left_toast">A quitté le forum</string>
   <!--Forum Sharing-->
@@ -224,17 +224,17 @@
   <string name="forum_invitation_received">%1$s a partagé le forum « %2$s » avec vous.</string>
   <string name="forum_invitation_sent">Vous avez partagé le forum « %1$s » avec %2$s.</string>
   <string name="forum_invitations_title">Invitations au forum</string>
-  <string name="forum_invitation_exists">Vous avez déjà accepté une invitation à ce forum. En acceptant d\'autres invitations, vous augmenterez et renforcerez la communication de ce forum.</string>
+  <string name="forum_invitation_exists">Vous avez déjà accepté une invitation à ce forum. En acceptant d’autres invitations, vous augmenterez et renforcerez la communication de ce forum.</string>
   <string name="forum_joined_toast">Vous vous êtes joint au forum</string>
-  <string name="forum_declined_toast">L\'invitation au forum a été refusée</string>
+  <string name="forum_declined_toast">L’invitation au forum a été refusée</string>
   <string name="shared_by_format">Partagé par %s</string>
   <string name="forum_invitation_already_sharing">Le forum est déjà partagé</string>
-  <string name="forum_invitation_response_accepted_sent">Vous avez accepté l\'invitation de %s au forum.</string>
-  <string name="forum_invitation_response_declined_sent">Vous avez refusé l\'invitation de %s au forum.</string>
-  <string name="forum_invitation_response_accepted_received">%s a accepté l\'invitation au forum.</string>
-  <string name="forum_invitation_response_declined_received">%s a refusé l\'invitation au forum.</string>
+  <string name="forum_invitation_response_accepted_sent">Vous avez accepté l’invitation de %s au forum.</string>
+  <string name="forum_invitation_response_declined_sent">Vous avez refusé l’invitation de %s au forum.</string>
+  <string name="forum_invitation_response_accepted_received">%s a accepté l’invitation au forum.</string>
+  <string name="forum_invitation_response_declined_received">%s a refusé l’invitation au forum.</string>
   <string name="sharing_status">État de partage</string>
-  <string name="sharing_status_forum">Tous les participants d\'un forum peuvent le partager avec leurs contacts. Vous partagez ce forum avec les contacts suivants. Il peut aussi y avoir d\'autres participants que vous ne pouvez pas voir.</string>
+  <string name="sharing_status_forum">Tous les participants d’un forum peuvent le partager avec leurs contacts. Vous partagez ce forum avec les contacts suivants. Il peut aussi y avoir d’autres participants que vous ne pouvez pas voir.</string>
   <string name="shared_with">Partagé avec %1$d (%2$d en ligne)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d forum partagé par des contacts</item>
@@ -242,17 +242,17 @@
   </plurals>
   <string name="nobody">Personne</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Ce blogue est actuellement vide.\n\nSoit l\'auteur n\'a encore rien écrit, soit la personne qui l\'a partagé avec vous doit se connecter pour que les articles soient synchronisés.</string>
+  <string name="blogs_other_blog_empty_state">Ce blogue est actuellement vide.\n\nSoit l’auteur n’a encore rien écrit, soit la personne qui l’a partagé avec vous doit se connecter pour que les articles soient synchronisés.</string>
   <string name="read_more">en lire davantage</string>
   <string name="blogs_write_blog_post">Écrire un article de blogue</string>
   <string name="blogs_write_blog_post_body_hint">Saisir votre message de blogue ici</string>
   <string name="blogs_publish_blog_post">Publier</string>
-  <string name="blogs_blog_post_created">L\'article de blogue a été créé</string>
+  <string name="blogs_blog_post_created">L’article de blogue a été créé</string>
   <string name="blogs_blog_post_received">Un nouvel article de blogue a été reçu</string>
   <string name="blogs_blog_post_scroll_to">Atteindre</string>
-  <string name="blogs_feed_empty_state">Ceci est le flux global des blogues.\n\nIl semble que personne n\'ait encore rien écrit.\n\nSoyez le premier et touchez l\'icône de crayon pour rédiger un nouvel article de blogue.</string>
+  <string name="blogs_feed_empty_state">Ceci est le fil global des blogues.\n\nIl semble que personne n’ait encore rien écrit.\n\nSoyez le premier et touchez l’icône de crayon pour rédiger un nouvel article de blogue.</string>
   <string name="blogs_remove_blog">Supprimer le blogue</string>
-  <string name="blogs_remove_blog_dialog_message">Voulez-vous vraiment supprimer ce blogue et tous ses messages ?\nNotez que cela ne le supprimera pas des appareils d\'autrui.</string>
+  <string name="blogs_remove_blog_dialog_message">Voulez-vous vraiment supprimer ce blogue et tous ses messages ?\nNotez que cela ne le supprimera pas des appareils d’autrui.</string>
   <string name="blogs_remove_blog_ok">Supprimer le blogue</string>
   <string name="blogs_blog_removed">Le blogue a été supprimé</string>
   <string name="blogs_reblog_comment_hint">Ajouter un commentaire (facultatif)</string>
@@ -262,36 +262,36 @@
   <string name="blogs_sharing_error">Une erreur est survenue lors du partage du blogue.</string>
   <string name="blogs_sharing_button">Partager le blogue</string>
   <string name="blogs_sharing_snackbar">Le blogue a été partagé avec les contacts choisis</string>
-  <string name="blogs_sharing_response_accepted_sent">Vous avez accepté l\'invitation de %s au blogue.</string>
-  <string name="blogs_sharing_response_declined_sent">Vous avez refusé l\'invitation de %s au blogue.</string>
-  <string name="blogs_sharing_response_accepted_received">%s a accepté l\'invitation au blogue.</string>
-  <string name="blogs_sharing_response_declined_received">%s a refusé l\'invitation au blogue.</string>
+  <string name="blogs_sharing_response_accepted_sent">Vous avez accepté l’invitation de %s au blogue.</string>
+  <string name="blogs_sharing_response_declined_sent">Vous avez refusé l’invitation de %s au blogue.</string>
+  <string name="blogs_sharing_response_accepted_received">%s a accepté l’invitation au blogue.</string>
+  <string name="blogs_sharing_response_declined_received">%s a refusé l’invitation au blogue.</string>
   <string name="blogs_sharing_invitation_received">%1$s a partagé le blogue « %2$s » avec vous.</string>
   <string name="blogs_sharing_invitation_sent">Vous avez partagé le blogue « %1$s » avec %2$s.</string>
   <string name="blogs_sharing_invitations_title">Invitations au blogue</string>
   <string name="blogs_sharing_joined_toast">Est abonné au blogue</string>
-  <string name="blogs_sharing_declined_toast">L\'invitation au blogue a été refusée</string>
-  <string name="sharing_status_blog">Quiconque est abonné à un blogue peut le partager avec ses contacts. Vous partagez ce blogue avec les contacts suivants. Il peut aussi y avoir d\'autres abonnés que vous ne pouvez pas voir.</string>
+  <string name="blogs_sharing_declined_toast">L’invitation au blogue a été refusée</string>
+  <string name="sharing_status_blog">Quiconque est abonné à un blogue peut le partager avec ses contacts. Vous partagez ce blogue avec les contacts suivants. Il peut aussi y avoir d’autres abonnés que vous ne pouvez pas voir.</string>
   <!--RSS Feeds-->
-  <string name="blogs_rss_feeds_import">Importer un flux RSS</string>
+  <string name="blogs_rss_feeds_import">Importer un fil RSS</string>
   <string name="blogs_rss_feeds_import_button">Importer</string>
-  <string name="blogs_rss_feeds_import_hint">Saisir l\'URL du flux RSS</string>
-  <string name="blogs_rss_feeds_import_error">Nous sommes désolé ! Une erreur est survenue lors de l’importation de votre flux.</string>
-  <string name="blogs_rss_feeds_manage">Gérer les flux RSS</string>
+  <string name="blogs_rss_feeds_import_hint">Saisir l’URL du fil RSS</string>
+  <string name="blogs_rss_feeds_import_error">Nous sommes désolé ! Une erreur est survenue lors de l’importation de votre fil.</string>
+  <string name="blogs_rss_feeds_manage">Gérer les fils RSS</string>
   <string name="blogs_rss_feeds_manage_imported">Importés :</string>
   <string name="blogs_rss_feeds_manage_author">Auteur :</string>
   <string name="blogs_rss_feeds_manage_updated">Dernière mise à jour :</string>
-  <string name="blogs_rss_remove_feed">Supprimer le flux</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Voulez-vous vraiment supprimer ce flux et tous ses messages ?\nLes articles que vous avez partagés ne seront pas supprimés des appareils d\'autrui.</string>
-  <string name="blogs_rss_remove_feed_ok">Supprimer le flux</string>
-  <string name="blogs_rss_feeds_manage_delete_error">Impossible de supprimer le flux !</string>
-  <string name="blogs_rss_feeds_manage_empty_state">Vous n\'avez pas encore importé de flux RSS.\n\nPourquoi ne pas cliquer sur l\'icône +, en haut à droite, pour ajouter votre premier flux ?</string>
-  <string name="blogs_rss_feeds_manage_error">Un problème est survenu lors du chargement de vos flux. Veuillez ressayer ultérieurement.</string>
+  <string name="blogs_rss_remove_feed">Supprimer le fil</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Voulez-vous vraiment supprimer ce fil et tous ses messages ?\nLes articles que vous avez partagés ne seront pas supprimés des appareils d’autrui.</string>
+  <string name="blogs_rss_remove_feed_ok">Supprimer le fil</string>
+  <string name="blogs_rss_feeds_manage_delete_error">Impossible de supprimer le fil !</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Vous n’avez encore importé aucun fil RSS.\n\nPourquoi ne pas cliquer sur l’icône + en haut à droite pour ajouter votre premier fil ?</string>
+  <string name="blogs_rss_feeds_manage_error">Un problème est survenu lors du chargement de vos fils. Veuillez ressayer ultérieurement.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Réseaux</string>
   <string name="bluetooth_setting">Se connecter par Bluetooth</string>
   <string name="bluetooth_setting_enabled">Lorsque des contacts sont à proximité</string>
-  <string name="bluetooth_setting_disabled">Uniquement lors de l\'ajout de contacts</string>
+  <string name="bluetooth_setting_disabled">Uniquement lors de l’ajout de contacts</string>
   <string name="tor_network_setting">Se connecter avec Tor</string>
   <string name="tor_network_setting_never">Jamais</string>
   <string name="tor_network_setting_wifi">Seulement par Wi-Fi</string>
@@ -303,21 +303,21 @@
   <string name="choose_new_password">Choisir votre nouveau mot de passe :</string>
   <string name="confirm_new_password">Confirmer votre nouveau mot de passe :</string>
   <string name="password_changed">Le mot de passe a été changé.</string>
-  <string name="panic_setting">Paramètres du bouton d\'urgence</string>
-  <string name="panic_setting_title">Bouton d\'urgence</string>
-  <string name="panic_setting_hint">Configurer la réaction de Briar lorsque vous utilisez une application de bouton d\'urgence</string>
-  <string name="panic_app_setting_title">Application de bouton d\'urgence</string>
+  <string name="panic_setting">Paramètres du bouton d’urgence</string>
+  <string name="panic_setting_title">Bouton d’urgence</string>
+  <string name="panic_setting_hint">Configurer la réaction de Briar lorsque vous utilisez une application de bouton d’urgence</string>
+  <string name="panic_app_setting_title">Application de bouton d’urgence</string>
   <string name="unknown_app">une appli inconnue</string>
-  <string name="panic_app_setting_summary">Aucune appli n\'a été définie</string>
+  <string name="panic_app_setting_summary">Aucune appli n’a été définie</string>
   <string name="panic_app_setting_none">Aucune</string>
-  <string name="dialog_title_connect_panic_app">Confirmer l\'application d\'urgence</string>
-  <string name="dialog_message_connect_panic_app">Voulez-vous vraiment autoriser %1$s à déclencher les actions destructrices du bouton d\'urgence ?</string>
+  <string name="dialog_title_connect_panic_app">Confirmer l’application d’urgence</string>
+  <string name="dialog_message_connect_panic_app">Voulez-vous vraiment autoriser %1$s à déclencher les actions destructrices du bouton d’urgence ?</string>
   <string name="lock_setting_title">Déconnexion</string>
-  <string name="lock_setting_summary">Se déconnecter de Briar lorsqu\'on appuie sur un bouton d\'urgence</string>
+  <string name="lock_setting_summary">Se déconnecter de Briar lorsqu’on appuie sur un bouton d’urgence</string>
   <string name="purge_setting_title">Supprimer le compte</string>
-  <string name="purge_setting_summary">Supprimer votre compte Briar lorsqu\'on appuie sur un bouton d\'urgence. Attention : cela supprimera définitivement vos identités, contacts et messages</string>
+  <string name="purge_setting_summary">Supprimer votre compte Briar lorsqu’on appuie sur un bouton d’urgence. Attention : cela supprimera définitivement vos identités, contacts et messages</string>
   <string name="uninstall_setting_title">Désinstaller Briar</string>
-  <string name="uninstall_setting_summary">Une confirmation manuelle est exigée en cas d\'événement d\'urgence</string>
+  <string name="uninstall_setting_summary">Une confirmation manuelle est exigée en cas d’événement d’urgence</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notifications</string>
   <string name="notify_private_messages_setting_title">Messages privés</string>
@@ -330,7 +330,7 @@
   <string name="notify_blog_posts_setting_summary">Afficher des alertes pour pour les articles de blogue</string>
   <string name="notify_vibration_setting">Vibrer</string>
   <string name="notify_lock_screen_setting_title">Écran de verrouillage</string>
-  <string name="notify_lock_screen_setting_summary">Afficher les notifications sur l\'écran de verrouillage</string>
+  <string name="notify_lock_screen_setting_summary">Afficher les notifications sur l’écran de verrouillage</string>
   <string name="notify_sound_setting">Son</string>
   <string name="notify_sound_setting_default">Sonnerie par défaut</string>
   <string name="notify_sound_setting_disabled">Aucun</string>
@@ -340,19 +340,19 @@
   <string name="send_feedback">Envoyer une rétroaction</string>
   <!--Link Warning-->
   <string name="link_warning_title">Avertissement de lien</string>
-  <string name="link_warning_intro">Vous êtes sur le point d\'ouvrir le lien suivant avec une appli externe.</string>
-  <string name="link_warning_text">Cela pourrait être utilisé pour vous identifier. Décidez si vous faites confiance à la personne qui vous a envoyé ce lien et envisagez de l\'ouvrir avec Orfox.</string>
+  <string name="link_warning_intro">Vous êtes sur le point d’ouvrir le lien suivant avec une appli externe.</string>
+  <string name="link_warning_text">Cela pourrait être utilisé pour vous identifier. Décidez si vous faites confiance à la personne qui vous a envoyé ce lien et envisagez de l’ouvrir avec Orfox.</string>
   <string name="link_warning_open_link">Ouvrir le lien</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Rapport de plantage de Briar</string>
   <string name="briar_crashed">Désolé, Briar a planté.</string>
-  <string name="not_your_fault">Vous n\'y êtes pour rien.</string>
+  <string name="not_your_fault">Vous n’y êtes pour rien.</string>
   <string name="please_send_report">Veuillez nous aider à améliorer Briar en nous envoyant un rapport de plantage.</string>
   <string name="report_is_encrypted">Nous promettons que le rapport est chiffré et envoyé en toute sécurité. </string>
   <string name="feedback_title">Rétroaction</string>
-  <string name="describe_crash">Décrivez ce qui s\'est produit (facultatif)</string>
+  <string name="describe_crash">Décrivez ce qui s’est produit (facultatif)</string>
   <string name="enter_feedback">Saisir votre rétroaction</string>
-  <string name="optional_contact_email">Votre adresse courriel (facultatif)</string>
+  <string name="optional_contact_email">Votre adresse courriel (facultative)</string>
   <string name="include_debug_report_crash">Inclure des données anonymes concernant le plantage</string>
   <string name="include_debug_report_feedback">Inclure des données anonymes concernant cet appareil</string>
   <string name="could_not_load_report_data">Impossible de charger les données du rapport.</string>
@@ -362,6 +362,6 @@
   <!--Sign Out-->
   <string name="progress_title_logout">Déconnexion de Briar…</string>
   <!--Screen Filters & Tapjacking-->
-  <string name="screen_filter_title">Une superposition d\'écran a été détectée</string>
-  <string name="screen_filter_body">Une autre appli s\'affiche par dessus Briar. Pour protéger votre sécurité, Briar ne répondra pas au toucher si autre appli s\'affiche par dessus.\n\nEssayez de fermer les applis suivantes lorsque vous utilisez Briar :\n\n%1$s</string>
+  <string name="screen_filter_title">Une superposition d’écran a été détectée</string>
+  <string name="screen_filter_body">Une autre appli s’affiche par dessus Briar. Pour protéger votre sécurité, Briar ne répondra pas au toucher si autre appli s’affiche par dessus.\n\nEssayez de fermer les applis suivantes lorsque vous utilisez Briar :\n\n%1$s</string>
 </resources>

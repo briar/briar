@@ -20,7 +20,7 @@
   <string name="startup_failed_notification_title">Briar kunne ikke starte</string>
   <string name="startup_failed_notification_text">Det kan hende du må reinstallere Briar.</string>
   <string name="startup_failed_activity_title">Oppstartsfeil med Briar</string>
-  <string name="startup_failed_db_error">Av ukjent brunn, er din Briar-database skadet og kan ikke repareres. Kontoen din, alle data, og din kontakter har gått tapt for alltid. Beklageligvis må du reinstallere Briar og sette opp en ny konto.</string>
+  <string name="startup_failed_db_error">Av ukjent grunn, er din Briar-database skadet og kan ikke repareres. Kontoen din, alle data, og din kontakter har gått tapt for alltid. Beklageligvis må du reinstallere Briar og sette opp en ny konto.</string>
   <string name="startup_failed_service_error">Briar kunne ikke starte det nødvendige programtillegget. Reinstallasjon av Briar fikser vanligvis dette problemet. Merk deg dog at kontoen og all data tilknyttet den vil gå tapt for godt siden Briar ikke bruker sentrale tjenere å lagre dataen din på.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Dette er en betaversjon av Briar. Din konto vil utløpe om %d dag og kan ikke fornyes.</item>

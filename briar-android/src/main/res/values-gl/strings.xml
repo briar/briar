@@ -117,12 +117,18 @@
   <string name="blogs_publish_blog_post">Publicar</string>
   <!--Blog Sharing-->
   <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_manage_author">Autor/a:</string>
+  <string name="blogs_rss_feeds_manage_updated">Última actualización:</string>
   <!--Settings Network-->
   <!--Settings Security and Panic-->
+  <string name="panic_app_setting_none">Ningún</string>
+  <string name="lock_setting_title">Finalizar sesión</string>
   <!--Settings Notifications-->
+  <string name="notify_sound_setting_disabled">Ningún</string>
   <!--Settings Feedback-->
   <!--Link Warning-->
   <!--Crash Reporter-->
+  <string name="close">Pechar</string>
   <!--Sign Out-->
   <!--Screen Filters & Tapjacking-->
 </resources>

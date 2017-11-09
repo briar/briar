@@ -187,6 +187,7 @@
   <string name="groups_reveal_invisible">Kişi ilişkisi grup tarafından görülemez</string>
   <!--Forums-->
   <string name="no_forums">Şu anda hiç forumunuz yok.\n\nÜstteki + simgesine dokunarak neden kendiniz yeni bir tane oluşturmuyorsunuz?\n\nAyrıca kişilerinizden sizinle forum paylaşmalarını isteyebilirsiniz.</string>
+  <string name="create_forum_title">Forumu Ouştur</string>
   <string name="create_forum_button">Forumu Ouştur</string>
   <string name="forum_created_toast">Forum Oluşturuldu</string>
   <string name="no_forum_posts">Bu forum boş\n\nİlk gönderiyi oluşturmak için üstteki kalem simgesini kullanın.\n\nBurada kendinizi yalnız hissediyor musunuz? Bu forumu daha fazla kişiyle paylaşın!</string>
@@ -307,6 +308,11 @@
   <string name="uninstall_setting_summary">Bu, bir panik olayında manuel onay gerektirir</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Bildirimler</string>
+  <string name="notify_private_messages_setting_title">Özel Mesajlar</string>
+  <string name="notify_private_messages_setting_summary">Özel mesajlar için uyarıları göster</string>
+  <string name="notify_group_messages_setting_summary">Grup mesajları için uyarıları göster</string>
+  <string name="notify_forum_posts_setting_summary">Forum gönderileri için uyarıları göster</string>
+  <string name="notify_blog_posts_setting_summary">Blog gönderileri için uyarıları göster</string>
   <string name="notify_vibration_setting">Titretişim</string>
   <string name="notify_sound_setting">Ses</string>
   <string name="notify_sound_setting_default">Varsayılan zil sesi</string>

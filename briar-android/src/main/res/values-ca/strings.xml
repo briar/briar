@@ -153,6 +153,7 @@
   <string name="groups_invitations_title">Invitacions al grup</string>
   <string name="groups_invitations_invitation_sent">Heu convidat a 1%1$s al grup \"%2$s \".</string>
   <string name="groups_invitations_invitation_received">1%1$s us ha convidat a unir-vos al grup \" 2%2$s \".</string>
+  <string name="groups_invitations_joined">Us heu unit al grup</string>
   <string name="sharing_status_groups">Només el creador del grup pot convidar a nous membres. Tot seguit hi ha la llista dels membres del grup.</string>
   <!--Private Groups Revealing Contacts-->
   <!--Forums-->
@@ -183,6 +184,7 @@
   <string name="blogs_rss_feeds_import_button">Importa</string>
   <string name="blogs_rss_feeds_manage_imported">Importat:</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
+  <string name="blogs_rss_feeds_manage_updated">Darrera actualització:</string>
   <!--Settings Network-->
   <string name="bluetooth_setting">Connecta via bluetooth</string>
   <string name="tor_network_setting">Connecta via Tor</string>
@@ -198,6 +200,7 @@
   <string name="panic_setting">Configuració del botó del pànic</string>
   <string name="panic_setting_title">Botó de pànic</string>
   <string name="panic_setting_hint">Configureu com reaccionarà Briar quan feu servir una aplicació del pànic</string>
+  <string name="panic_app_setting_none">Cap</string>
   <string name="lock_setting_title">Tanca la sessió</string>
   <string name="purge_setting_title">Esborra el compte</string>
   <string name="uninstall_setting_title">Desinstal·la Briar</string>
@@ -207,6 +210,7 @@
   <string name="notify_vibration_setting">Vibra</string>
   <string name="notify_lock_screen_setting_title">Bloca la pantalla</string>
   <string name="notify_sound_setting">So</string>
+  <string name="notify_sound_setting_disabled">Cap</string>
   <!--Settings Feedback-->
   <!--Link Warning-->
   <string name="link_warning_intro">L\'enllaç s\'obrirà amb una aplicació externa.</string>
