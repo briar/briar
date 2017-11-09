@@ -68,15 +68,15 @@ import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 @NotNullByDefault
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 30;
-	private static final int MIN_SCHEMA_VERSION = 30;
+	private static final int SCHEMA_VERSION = 31;
+	private static final int MIN_SCHEMA_VERSION = 31;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
 					+ " (namespace _STRING NOT NULL,"
-					+ " \"key\" _STRING NOT NULL,"
+					+ " settingKey _STRING NOT NULL,"
 					+ " value _STRING NOT NULL,"
-					+ " PRIMARY KEY (namespace, \"key\"))";
+					+ " PRIMARY KEY (namespace, settingKey))";
 
 	private static final String CREATE_LOCAL_AUTHORS =
 			"CREATE TABLE localAuthors"
@@ -111,9 +111,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_GROUP_METADATA =
 			"CREATE TABLE groupMetadata"
 					+ " (groupId _HASH NOT NULL,"
-					+ " \"key\" _STRING NOT NULL,"
+					+ " metaKey _STRING NOT NULL,"
 					+ " value _BINARY NOT NULL,"
-					+ " PRIMARY KEY (groupId, \"key\"),"
+					+ " PRIMARY KEY (groupId, metaKey),"
 					+ " FOREIGN KEY (groupId)"
 					+ " REFERENCES groups (groupId)"
 					+ " ON DELETE CASCADE)";
@@ -148,9 +148,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_MESSAGE_METADATA =
 			"CREATE TABLE messageMetadata"
 					+ " (messageId _HASH NOT NULL,"
-					+ " \"key\" _STRING NOT NULL,"
+					+ " metaKey _STRING NOT NULL,"
 					+ " value _BINARY NOT NULL,"
-					+ " PRIMARY KEY (messageId, \"key\"),"
+					+ " PRIMARY KEY (messageId, metaKey),"
 					+ " FOREIGN KEY (messageId)"
 					+ " REFERENCES messages (messageId)"
 					+ " ON DELETE CASCADE)";
@@ -203,12 +203,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE TABLE incomingKeys"
 					+ " (contactId INT NOT NULL,"
 					+ " transportId _STRING NOT NULL,"
-					+ " \"period\" BIGINT NOT NULL,"
+					+ " rotationPeriod BIGINT NOT NULL,"
 					+ " tagKey _SECRET NOT NULL,"
 					+ " headerKey _SECRET NOT NULL,"
 					+ " base BIGINT NOT NULL,"
 					+ " bitmap _BINARY NOT NULL,"
-					+ " PRIMARY KEY (contactId, transportId, \"period\"),"
+					+ " PRIMARY KEY (contactId, transportId, rotationPeriod),"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE,"
@@ -220,7 +220,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE TABLE outgoingKeys"
 					+ " (contactId INT NOT NULL,"
 					+ " transportId _STRING NOT NULL,"
-					+ " \"period\" BIGINT NOT NULL,"
+					+ " rotationPeriod BIGINT NOT NULL,"
 					+ " tagKey _SECRET NOT NULL,"
 					+ " headerKey _SECRET NOT NULL,"
 					+ " stream BIGINT NOT NULL,"
@@ -395,7 +395,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public Connection startTransaction() throws DbException {
-		Connection txn = null;
+		Connection txn;
 		connectionsLock.lock();
 		try {
 			if (closed) throw new DbClosedException();
@@ -723,7 +723,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			// Store the incoming keys
 			String sql = "INSERT INTO incomingKeys (contactId, transportId,"
-					+ " \"period\", tagKey, headerKey, base, bitmap)"
+					+ " rotationPeriod, tagKey, headerKey, base, bitmap)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -759,7 +759,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Store the outgoing keys
 			sql = "INSERT INTO outgoingKeys (contactId, transportId,"
-					+ " \"period\", tagKey, headerKey, stream)"
+					+ " rotationPeriod, tagKey, headerKey, stream)"
 					+ " VALUES (?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -1339,7 +1339,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN messageMetadata AS md"
 					+ " ON m.messageId = md.messageId"
 					+ " WHERE state = ? AND groupId = ?"
-					+ " AND \"key\" = ? AND value = ?";
+					+ " AND metaKey = ? AND value = ?";
 			for (Entry<String, byte[]> e : query.entrySet()) {
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, DELIVERED.getValue());
@@ -1371,7 +1371,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT m.messageId, \"key\", value"
+			String sql = "SELECT m.messageId, metaKey, value"
 					+ " FROM messages AS m"
 					+ " JOIN messageMetadata AS md"
 					+ " ON m.messageId = md.messageId"
@@ -1421,7 +1421,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT \"key\", value FROM groupMetadata"
+			String sql = "SELECT metaKey, value FROM groupMetadata"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
@@ -1444,7 +1444,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT \"key\", value FROM messageMetadata AS md"
+			String sql = "SELECT metaKey, value FROM messageMetadata AS md"
 					+ " JOIN messages AS m"
 					+ " ON m.messageId = md.messageId"
 					+ " WHERE m.state = ? AND md.messageId = ?";
@@ -1470,7 +1470,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT \"key\", value FROM messageMetadata AS md"
+			String sql = "SELECT metaKey, value FROM messageMetadata AS md"
 					+ " JOIN messages AS m"
 					+ " ON m.messageId = md.messageId"
 					+ " WHERE (m.state = ? OR m.state = ?)"
@@ -1908,7 +1908,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT \"key\", value FROM settings"
+			String sql = "SELECT settingKey, value FROM settings"
 					+ " WHERE namespace = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, namespace);
@@ -1932,10 +1932,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			// Retrieve the incoming keys
-			String sql = "SELECT \"period\", tagKey, headerKey, base, bitmap"
+			String sql = "SELECT rotationPeriod, tagKey, headerKey,"
+					+ " base, bitmap"
 					+ " FROM incomingKeys"
 					+ " WHERE transportId = ?"
-					+ " ORDER BY contactId, \"period\"";
+					+ " ORDER BY contactId, rotationPeriod";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
@@ -1952,10 +1953,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			// Retrieve the outgoing keys in the same order
-			sql = "SELECT contactId, \"period\", tagKey, headerKey, stream"
+			sql = "SELECT contactId, rotationPeriod, tagKey, headerKey, stream"
 					+ " FROM outgoingKeys"
 					+ " WHERE transportId = ?"
-					+ " ORDER BY contactId, \"period\"";
+					+ " ORDER BY contactId, rotationPeriod";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
@@ -1993,7 +1994,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "UPDATE outgoingKeys SET stream = stream + 1"
 					+ " WHERE contactId = ? AND transportId = ?"
-					+ " AND \"period\" = ?";
+					+ " AND rotationPeriod = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setString(2, t.getString());
@@ -2087,7 +2088,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			// Delete any keys that are being removed
 			if (!removed.isEmpty()) {
 				String sql = "DELETE FROM " + tableName
-						+ " WHERE " + columnName + " = ? AND \"key\" = ?";
+						+ " WHERE " + columnName + " = ? AND metaKey = ?";
 				ps = txn.prepareStatement(sql);
 				ps.setBytes(1, id);
 				for (String key : removed) {
@@ -2106,7 +2107,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (retained.isEmpty()) return;
 			// Update any keys that already exist
 			String sql = "UPDATE " + tableName + " SET value = ?"
-					+ " WHERE " + columnName + " = ? AND \"key\" = ?";
+					+ " WHERE " + columnName + " = ? AND metaKey = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(2, id);
 			for (Entry<String, byte[]> e : retained.entrySet()) {
@@ -2123,7 +2124,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			// Insert any keys that don't already exist
 			sql = "INSERT INTO " + tableName
-					+ " (" + columnName + ", \"key\", value)"
+					+ " (" + columnName + ", metaKey, value)"
 					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, id);
@@ -2155,7 +2156,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			// Update any settings that already exist
 			String sql = "UPDATE settings SET value = ?"
-					+ " WHERE namespace = ? AND \"key\" = ?";
+					+ " WHERE namespace = ? AND settingKey = ?";
 			ps = txn.prepareStatement(sql);
 			for (Entry<String, String> e : s.entrySet()) {
 				ps.setString(1, e.getValue());
@@ -2170,7 +2171,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (rows > 1) throw new DbStateException();
 			}
 			// Insert any settings that don't already exist
-			sql = "INSERT INTO settings (namespace, \"key\", value)"
+			sql = "INSERT INTO settings (namespace, settingKey, value)"
 					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			int updateIndex = 0, inserted = 0;
@@ -2535,7 +2536,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "UPDATE incomingKeys SET base = ?, bitmap = ?"
 					+ " WHERE contactId = ? AND transportId = ?"
-					+ " AND \"period\" = ?";
+					+ " AND rotationPeriod = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, base);
 			ps.setBytes(2, bitmap);
