@@ -27,8 +27,7 @@ public class BasicH2Test extends BasicDatabaseTest {
 	@Override
 	protected Connection openConnection(File db, boolean encrypt)
 			throws SQLException {
-		String url = "jdbc:h2:split:" + db.getAbsolutePath()
-				+ ";DB_CLOSE_ON_EXIT=false";
+		String url = "jdbc:h2:split:" + db.getAbsolutePath();
 		Properties props = new Properties();
 		props.setProperty("user", "user");
 		if (encrypt) {
