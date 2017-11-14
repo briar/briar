@@ -192,11 +192,8 @@ public class NavDrawerActivity extends BriarActivity implements
 		drawerLayout.closeDrawer(START);
 		clearBackStack();
 		loadFragment(item.getItemId());
-		//Don't display the Settings Item as checked
-		if (item.getItemId() == R.id.nav_btn_settings) {
-			return false;
-		}
-		return true;
+		// Don't display the Settings item as checked
+		return item.getItemId() != R.id.nav_btn_settings;
 	}
 
 	@Override
@@ -214,7 +211,7 @@ public class NavDrawerActivity extends BriarActivity implements
 				getSupportFragmentManager()
 						.findFragmentByTag(ContactListFragment.TAG) == null) {
 			/*
-			 * This Makes sure that the first fragment (ContactListFragment) the
+			 * This makes sure that the first fragment (ContactListFragment) the
 			 * user sees is the same as the last fragment the user sees before
 			 * exiting. This models the typical Google navigation behaviour such
 			 * as in Gmail/Inbox.

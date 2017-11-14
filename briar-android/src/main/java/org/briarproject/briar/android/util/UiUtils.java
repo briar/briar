@@ -172,8 +172,7 @@ public class UiUtils {
 
 	public static boolean needsDozeWhitelisting(Context ctx) {
 		if (Build.VERSION.SDK_INT < 23) return false;
-		PowerManager pm =
-				(PowerManager) ctx.getSystemService(POWER_SERVICE);
+		PowerManager pm = (PowerManager) ctx.getSystemService(POWER_SERVICE);
 		String packageName = ctx.getPackageName();
 		if (pm == null) throw new AssertionError();
 		return !pm.isIgnoringBatteryOptimizations(packageName);

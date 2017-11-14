@@ -42,18 +42,20 @@ abstract class SetupFragment extends BaseFragment implements TextWatcher,
 	protected abstract String getHelpText();
 
 	@Override
-	public void beforeTextChanged(CharSequence charSequence, int i, int i1,
-			int i2) {
+	public void beforeTextChanged(CharSequence s, int start, int count,
+			int after) {
 		// noop
 	}
 
 	@Override
-	public void onTextChanged(CharSequence authorName, int i, int i1, int i2) {
+	public void onTextChanged(CharSequence s, int start, int before,
+			int count) {
 		// noop
 	}
 
 	@Override
-	public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+	public boolean onEditorAction(TextView textView, int actionId,
+			KeyEvent keyEvent) {
 		onClick(textView);
 		return true;
 	}

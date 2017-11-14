@@ -37,8 +37,7 @@ public class PasswordFragment extends SetupFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		getActivity().setTitle(getString(R.string.setup_password_intro));
-		View v =
-				inflater.inflate(R.layout.fragment_setup_password, container,
+		View v = inflater.inflate(R.layout.fragment_setup_password, container,
 						false);
 
 		strengthMeter = (StrengthMeter) v.findViewById(R.id.strength_meter);

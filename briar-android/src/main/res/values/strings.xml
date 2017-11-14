@@ -3,7 +3,7 @@
 
 	<!-- Setup -->
 	<string name="setup_title">Welcome to Briar</string>
-	<string name="setup_name_explanation">Choose your user name wisely. You can not change it later and it will be shown next to content you post.\n\nWhen this content is shared, strangers might see your name.</string>
+	<string name="setup_name_explanation">Your nickname will be shown next to any content you post. You can\'t change it after creating your account.</string>
 	<string name="setup_next">Next</string>
 	<string name="setup_password_intro">Choose a Password</string>
 	<string name="setup_password_explanation">Your Briar account is stored encrypted on your device, not in the cloud. If you forget your password or uninstall Briar, there\'s no way to recover your account.\n\nChoose a long password that\'s hard to guess, such as four random words, or ten random letters, numbers and symbols.</string>

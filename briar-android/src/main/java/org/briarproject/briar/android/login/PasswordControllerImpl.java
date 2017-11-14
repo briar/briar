@@ -91,7 +91,7 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 		return StringUtils.fromHexString(hex);
 	}
 
-	// Call inside cryptoExecutor
+	@CryptoExecutor
 	String encryptDatabaseKey(SecretKey key, String password) {
 		long now = System.currentTimeMillis();
 		byte[] encrypted = crypto.encryptWithPassword(key.getBytes(), password);
