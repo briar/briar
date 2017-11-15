@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.android.TestBriarApplication;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter;
@@ -22,7 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.Arrays;
@@ -34,9 +33,8 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_K
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 21,
-		application = TestBriarApplication.class,
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = 21, application = TestBriarApplication.class,
 		packageName = "org.briarproject.briar")
 public class ForumActivityTest {
 
@@ -89,8 +87,8 @@ public class ForumActivityTest {
 		MockitoAnnotations.initMocks(this);
 		Intent intent = new Intent();
 		intent.putExtra("briar.GROUP_ID", TestUtils.getRandomId());
-		forumActivity = Robolectric.buildActivity(TestForumActivity.class)
-				.withIntent(intent).create().start().resume().get();
+		forumActivity = Robolectric.buildActivity(TestForumActivity.class,
+				intent).create().start().resume().get();
 	}
 
 	private ThreadItemList<ForumItem> getDummyData() {
