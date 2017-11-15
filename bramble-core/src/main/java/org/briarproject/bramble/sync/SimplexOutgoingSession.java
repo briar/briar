@@ -71,7 +71,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		this.maxLatency = maxLatency;
 		this.recordWriter = recordWriter;
 		outstandingQueries = new AtomicInteger(2); // One per type of record
-		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
+		writerTasks = new LinkedBlockingQueue<>();
 	}
 
 	@IoExecutor

@@ -179,7 +179,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry("local", false)
 		);
 		final Map<MessageId, BdfDictionary> messageMetadata =
-				new LinkedHashMap<MessageId, BdfDictionary>();
+				new LinkedHashMap<>();
 		// A remote update for another transport should be ignored
 		MessageId barUpdateId = new MessageId(getRandomId());
 		messageMetadata.put(barUpdateId, BdfDictionary.of(
@@ -221,7 +221,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry("local", false)
 		);
 		final Map<MessageId, BdfDictionary> messageMetadata =
-				new LinkedHashMap<MessageId, BdfDictionary>();
+				new LinkedHashMap<>();
 		// Old remote updates for the same transport should be deleted
 		final MessageId fooVersion2 = new MessageId(getRandomId());
 		messageMetadata.put(fooVersion2, BdfDictionary.of(
@@ -274,7 +274,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry("local", false)
 		);
 		final Map<MessageId, BdfDictionary> messageMetadata =
-				new LinkedHashMap<MessageId, BdfDictionary>();
+				new LinkedHashMap<>();
 		// Old remote updates for the same transport should be deleted
 		final MessageId fooVersion2 = new MessageId(getRandomId());
 		messageMetadata.put(fooVersion2, BdfDictionary.of(
@@ -322,7 +322,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		final Group contactGroup = getGroup();
 		final Transaction txn = new Transaction(null, false);
 		Map<TransportId, TransportProperties> properties =
-				new LinkedHashMap<TransportId, TransportProperties>();
+				new LinkedHashMap<>();
 		properties.put(new TransportId("foo"), fooProperties);
 		properties.put(new TransportId("bar"), barProperties);
 
@@ -359,7 +359,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			throws Exception {
 		final Transaction txn = new Transaction(null, false);
 		final Map<MessageId, BdfDictionary> messageMetadata =
-				new LinkedHashMap<MessageId, BdfDictionary>();
+				new LinkedHashMap<>();
 		// A local update for another transport should be ignored
 		MessageId barUpdateId = new MessageId(getRandomId());
 		messageMetadata.put(barUpdateId, BdfDictionary.of(
@@ -386,7 +386,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testReturnsLocalProperties() throws Exception {
 		final Transaction txn = new Transaction(null, false);
 		final Map<MessageId, BdfDictionary> messageMetadata =
-				new LinkedHashMap<MessageId, BdfDictionary>();
+				new LinkedHashMap<>();
 		// A local update for another transport should be ignored
 		MessageId barUpdateId = new MessageId(getRandomId());
 		messageMetadata.put(barUpdateId, BdfDictionary.of(
@@ -432,7 +432,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		final Group contactGroup2 = getGroup();
 		final Group contactGroup3 = getGroup();
 		final Map<MessageId, BdfDictionary> messageMetadata3 =
-				new LinkedHashMap<MessageId, BdfDictionary>();
+				new LinkedHashMap<>();
 		// A remote update for another transport should be ignored
 		MessageId barUpdateId = new MessageId(getRandomId());
 		messageMetadata3.put(barUpdateId, BdfDictionary.of(
@@ -641,7 +641,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	private void expectGetLocalProperties(final Transaction txn)
 			throws Exception {
 		final Map<MessageId, BdfDictionary> messageMetadata =
-				new LinkedHashMap<MessageId, BdfDictionary>();
+				new LinkedHashMap<>();
 		// The only update for transport "foo" should be returned
 		final MessageId fooVersion999 = new MessageId(getRandomId());
 		messageMetadata.put(fooVersion999, BdfDictionary.of(

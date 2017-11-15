@@ -172,7 +172,7 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 		assertExpectedMessageContext(messageContext, JOIN, creator,
-				Collections.<MessageId>emptyList());
+				Collections.emptyList());
 		assertTrue(messageContext.getDictionary()
 				.getBoolean(KEY_INITIAL_JOIN_MSG));
 	}
@@ -325,7 +325,7 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 		assertExpectedMessageContext(messageContext, JOIN, member,
-				Collections.<MessageId>emptyList());
+				Collections.emptyList());
 		assertFalse(messageContext.getDictionary()
 				.getBoolean(KEY_INITIAL_JOIN_MSG));
 	}

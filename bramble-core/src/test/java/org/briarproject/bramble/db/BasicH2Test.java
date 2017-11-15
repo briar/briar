@@ -323,7 +323,7 @@ public class BasicH2Test extends BrambleTestCase {
 
 	private List<String> getNames() throws SQLException {
 		String sql = "SELECT name FROM foo ORDER BY uniqueId";
-		List<String> names = new ArrayList<String>();
+		List<String> names = new ArrayList<>();
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();

@@ -48,7 +48,7 @@ public class CryptoModule {
 
 	public CryptoModule() {
 		// Use an unbounded queue
-		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
+		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 		// Discard tasks that are submitted during shutdown
 		RejectedExecutionHandler policy =
 				new ThreadPoolExecutor.DiscardPolicy();

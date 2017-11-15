@@ -99,7 +99,7 @@ public class MetadataEncoderParserIntegrationTest extends BrambleTestCase {
 
 	@Test
 	public void testList() throws FormatException {
-		List<Long> l = new ArrayList<Long>(4);
+		List<Long> l = new ArrayList<>(4);
 		l.add(42L);
 		l.add(1337L);
 		l.add(Long.MIN_VALUE);
@@ -114,7 +114,7 @@ public class MetadataEncoderParserIntegrationTest extends BrambleTestCase {
 
 	@Test
 	public void testDictionary() throws FormatException {
-		Map<String, Boolean> m = new HashMap<String, Boolean>();
+		Map<String, Boolean> m = new HashMap<>();
 		m.put("1", true);
 		m.put("2", false);
 
@@ -130,19 +130,19 @@ public class MetadataEncoderParserIntegrationTest extends BrambleTestCase {
 
 	@Test
 	public void testComplexDictionary() throws FormatException {
-		Map<String, List> m = new HashMap<String, List>();
-		List<String> one = new ArrayList<String>(3);
+		Map<String, List> m = new HashMap<>();
+		List<String> one = new ArrayList<>(3);
 		one.add("\uFDD0");
 		one.add("\uFDD1");
 		one.add("\uFDD2");
 		m.put("One", one);
-		List<String> two = new ArrayList<String>(2);
+		List<String> two = new ArrayList<>(2);
 		two.add("\u0080");
 		two.add("\uD800\uDC00");
 		m.put("Two", two);
 		d.put("test", m);
 
-		Map<String, Boolean> m2 = new HashMap<String, Boolean>();
+		Map<String, Boolean> m2 = new HashMap<>();
 		m2.put("should be true", true);
 		d.put("another test", m2);
 

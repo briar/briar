@@ -870,7 +870,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 		assertEquals(0, db.countOfferedMessages(txn, contactId));
 
 		// Add some offered messages and count them
-		List<MessageId> ids = new ArrayList<MessageId>();
+		List<MessageId> ids = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			MessageId m = new MessageId(TestUtils.getRandomId());
 			db.addOfferedMessage(txn, contactId, m);

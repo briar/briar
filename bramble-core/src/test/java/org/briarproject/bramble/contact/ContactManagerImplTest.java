@@ -132,8 +132,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testActiveContacts() throws Exception {
 		Collection<Contact> activeContacts = Collections.singletonList(contact);
-		final Collection<Contact> contacts =
-				new ArrayList<Contact>(activeContacts);
+		final Collection<Contact> contacts = new ArrayList<>(activeContacts);
 		contacts.add(new Contact(new ContactId(3), remote, local, true, false));
 		final Transaction txn = new Transaction(null, true);
 		context.checking(new Expectations() {{

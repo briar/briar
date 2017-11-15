@@ -276,8 +276,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 
 	private Map<TransportId, TransportProperties> receiveTransportProperties(
 			BdfReader r) throws IOException {
-		Map<TransportId, TransportProperties> remote =
-				new HashMap<TransportId, TransportProperties>();
+		Map<TransportId, TransportProperties> remote = new HashMap<>();
 		r.readListStart();
 		while (!r.hasListEnd()) {
 			r.readListStart();

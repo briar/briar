@@ -24,7 +24,7 @@ public class PoliteExecutorTest extends BrambleTestCase {
 		Executor delegate = Executors.newSingleThreadExecutor();
 		// Allow all the tasks to be delegated straight away
 		PoliteExecutor polite = new PoliteExecutor(TAG, delegate, TASKS * 2);
-		final List<Integer> list = new Vector<Integer>();
+		final List<Integer> list = new Vector<>();
 		final CountDownLatch latch = new CountDownLatch(TASKS);
 		for (int i = 0; i < TASKS; i++) {
 			final int result = i;
@@ -49,7 +49,7 @@ public class PoliteExecutorTest extends BrambleTestCase {
 		Executor delegate = Executors.newSingleThreadExecutor();
 		// Allow two tasks to be delegated at a time
 		PoliteExecutor polite = new PoliteExecutor(TAG, delegate, 2);
-		final List<Integer> list = new Vector<Integer>();
+		final List<Integer> list = new Vector<>();
 		final CountDownLatch latch = new CountDownLatch(TASKS);
 		for (int i = 0; i < TASKS; i++) {
 			final int result = i;
@@ -73,7 +73,7 @@ public class PoliteExecutorTest extends BrambleTestCase {
 		Executor delegate = Executors.newCachedThreadPool();
 		// Allow all the tasks to be delegated straight away
 		PoliteExecutor polite = new PoliteExecutor(TAG, delegate, TASKS * 2);
-		final List<Integer> list = new Vector<Integer>();
+		final List<Integer> list = new Vector<>();
 		final CountDownLatch[] latches = new CountDownLatch[TASKS];
 		for (int i = 0; i < TASKS; i++) latches[i] = new CountDownLatch(1);
 		for (int i = 0; i < TASKS; i++) {
@@ -104,7 +104,7 @@ public class PoliteExecutorTest extends BrambleTestCase {
 		Executor delegate = Executors.newCachedThreadPool();
 		// Allow one task to be delegated at a time
 		PoliteExecutor polite = new PoliteExecutor(TAG, delegate, 1);
-		final List<Integer> list = new Vector<Integer>();
+		final List<Integer> list = new Vector<>();
 		final CountDownLatch latch = new CountDownLatch(TASKS);
 		for (int i = 0; i < TASKS; i++) {
 			final int result = i;

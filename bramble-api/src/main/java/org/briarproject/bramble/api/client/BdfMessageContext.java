@@ -23,7 +23,7 @@ public class BdfMessageContext {
 	}
 
 	public BdfMessageContext(BdfDictionary dictionary) {
-		this(dictionary, Collections.<MessageId>emptyList());
+		this(dictionary, Collections.emptyList());
 	}
 
 	public BdfDictionary getDictionary() {

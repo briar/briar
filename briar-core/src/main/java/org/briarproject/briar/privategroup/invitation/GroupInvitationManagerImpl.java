@@ -366,7 +366,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
-			messages = new ArrayList<InvitationMessage>(results.size());
+			messages = new ArrayList<>(results.size());
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();
 				MessageMetadata meta =
@@ -427,7 +427,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	@Override
 	public Collection<GroupInvitationItem> getInvitations() throws DbException {
-		List<GroupInvitationItem> items = new ArrayList<GroupInvitationItem>();
+		List<GroupInvitationItem> items = new ArrayList<>();
 		BdfDictionary query = messageParser.getInvitesAvailableToAnswerQuery();
 		Transaction txn = db.startTransaction(true);
 		try {

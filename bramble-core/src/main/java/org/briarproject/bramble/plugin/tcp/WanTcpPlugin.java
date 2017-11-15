@@ -43,7 +43,7 @@ class WanTcpPlugin extends TcpPlugin {
 		// Use the same address and port as last time if available
 		TransportProperties p = callback.getLocalProperties();
 		InetSocketAddress old = parseSocketAddress(p.get(PROP_IP_PORT));
-		List<InetSocketAddress> addrs = new LinkedList<InetSocketAddress>();
+		List<InetSocketAddress> addrs = new LinkedList<>();
 		for (InetAddress a : getLocalIpAddresses()) {
 			if (isAcceptableAddress(a)) {
 				// If this is the old address, try to use the same port

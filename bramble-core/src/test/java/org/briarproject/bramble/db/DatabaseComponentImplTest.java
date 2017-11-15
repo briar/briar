@@ -120,8 +120,8 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 
 	private DatabaseComponent createDatabaseComponent(Database<Object> database,
 			EventBus eventBus, ShutdownManager shutdown) {
-		return new DatabaseComponentImpl<Object>(database, Object.class,
-				eventBus, shutdown);
+		return new DatabaseComponentImpl<>(database, Object.class, eventBus,
+				shutdown);
 	}
 
 	@Test
@@ -1703,7 +1703,7 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			db.addLocalMessage(transaction, message, metadata, true);
-			Collection<MessageId> dependencies = new ArrayList<MessageId>(2);
+			Collection<MessageId> dependencies = new ArrayList<>(2);
 			dependencies.add(messageId1);
 			dependencies.add(messageId2);
 			db.addMessageDependencies(transaction, message, dependencies);

@@ -602,8 +602,8 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	// Package access for testing
 	int chooseIterationCount(int targetMillis) {
-		List<Long> quickSamples = new ArrayList<Long>(PBKDF_SAMPLES);
-		List<Long> slowSamples = new ArrayList<Long>(PBKDF_SAMPLES);
+		List<Long> quickSamples = new ArrayList<>(PBKDF_SAMPLES);
+		List<Long> slowSamples = new ArrayList<>(PBKDF_SAMPLES);
 		long iterationNanos = 0, initNanos = 0;
 		while (iterationNanos <= 0 || initNanos <= 0) {
 			// Sample the running time with one iteration and two iterations

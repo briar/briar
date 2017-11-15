@@ -165,8 +165,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testGetMessageMetadataAsDictionaryMap() throws Exception {
-		final Map<MessageId, BdfDictionary> map =
-				new HashMap<MessageId, BdfDictionary>();
+		final Map<MessageId, BdfDictionary> map = new HashMap<>();
 		map.put(messageId, dictionary);
 		final Transaction txn = new Transaction(null, true);
 
@@ -188,8 +187,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testGetMessageMetadataAsDictionaryQuery() throws Exception {
-		final Map<MessageId, BdfDictionary> map =
-				new HashMap<MessageId, BdfDictionary>();
+		final Map<MessageId, BdfDictionary> map = new HashMap<>();
 		map.put(messageId, dictionary);
 		final BdfDictionary query =
 				BdfDictionary.of(new BdfEntry("query", "me"));

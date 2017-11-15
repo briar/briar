@@ -24,7 +24,7 @@ public class PoliteExecutor implements Executor {
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
-	private final Queue<Runnable> queue = new LinkedList<Runnable>();
+	private final Queue<Runnable> queue = new LinkedList<>();
 	private final Executor delegate;
 	private final int maxConcurrentTasks;
 	private final Logger log;

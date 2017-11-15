@@ -100,7 +100,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		this.contactManager = contactManager;
 		this.identityManager = identityManager;
 		this.messageTracker = messageTracker;
-		hooks = new CopyOnWriteArrayList<PrivateGroupHook>();
+		hooks = new CopyOnWriteArrayList<>();
 	}
 
 	@Override
@@ -284,7 +284,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		}
 		try {
 			Collection<PrivateGroup> privateGroups =
-					new ArrayList<PrivateGroup>(groups.size());
+					new ArrayList<>(groups.size());
 			for (Group g : groups) {
 				privateGroups.add(privateGroupFactory.parsePrivateGroup(g));
 			}
@@ -324,20 +324,19 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	@Override
 	public Collection<GroupMessageHeader> getHeaders(GroupId g)
 			throws DbException {
-		Collection<GroupMessageHeader> headers =
-				new ArrayList<GroupMessageHeader>();
+		Collection<GroupMessageHeader> headers = new ArrayList<>();
 		Transaction txn = db.startTransaction(true);
 		try {
 			Map<MessageId, BdfDictionary> metadata =
 					clientHelper.getMessageMetadataAsDictionary(txn, g);
 			// get all authors we need to get the status for
-			Set<AuthorId> authors = new HashSet<AuthorId>();
+			Set<AuthorId> authors = new HashSet<>();
 			for (BdfDictionary meta : metadata.values()) {
 				byte[] idBytes = meta.getRaw(KEY_MEMBER_ID);
 				authors.add(new AuthorId(idBytes));
 			}
 			// get statuses for all authors
-			Map<AuthorId, Status> statuses = new HashMap<AuthorId, Status>();
+			Map<AuthorId, Status> statuses = new HashMap<>();
 			for (AuthorId id : authors) {
 				statuses.put(id, identityManager.getAuthorStatus(txn, id));
 			}
@@ -404,7 +403,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	public Collection<GroupMember> getMembers(GroupId g) throws DbException {
 		Transaction txn = db.startTransaction(true);
 		try {
-			Collection<GroupMember> members = new ArrayList<GroupMember>();
+			Collection<GroupMember> members = new ArrayList<>();
 			Map<Author, Visibility> authors = getMembers(txn, g);
 			LocalAuthor la = identityManager.getLocalAuthor(txn);
 			PrivateGroup privateGroup = getPrivateGroup(txn, g);
@@ -434,8 +433,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			BdfDictionary meta =
 					clientHelper.getGroupMetadataAsDictionary(txn, g);
 			BdfList list = meta.getList(GROUP_KEY_MEMBERS);
-			Map<Author, Visibility> members =
-					new HashMap<Author, Visibility>(list.size());
+			Map<Author, Visibility> members = new HashMap<>(list.size());
 			for (int i = 0; i < list.size(); i++) {
 				BdfDictionary d = list.getDictionary(i);
 				Author member = getAuthor(d);
@@ -584,7 +582,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			BdfDictionary meta, boolean local)
 			throws DbException, FormatException {
 		GroupMessageHeader header = getGroupMessageHeader(txn, m.getGroupId(),
-				m.getId(), meta, Collections.<AuthorId, Status>emptyMap());
+				m.getId(), meta, Collections.emptyMap());
 		String body = getMessageBody(clientHelper.toList(m));
 		txn.attach(new GroupMessageAddedEvent(m.getGroupId(), header, body,
 				local));
@@ -594,7 +592,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			BdfDictionary meta, boolean local, Visibility v)
 			throws DbException, FormatException {
 		JoinMessageHeader header = getJoinMessageHeader(txn, m.getGroupId(),
-				m.getId(), meta, Collections.<AuthorId, Status>emptyMap(), v);
+				m.getId(), meta, Collections.emptyMap(), v);
 		txn.attach(new GroupMessageAddedEvent(m.getGroupId(), header, "",
 				local));
 	}

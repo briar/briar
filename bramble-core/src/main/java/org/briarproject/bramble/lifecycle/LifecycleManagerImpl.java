@@ -63,9 +63,9 @@ class LifecycleManagerImpl implements LifecycleManager {
 		this.crypto = crypto;
 		this.authorFactory = authorFactory;
 		this.identityManager = identityManager;
-		services = new CopyOnWriteArrayList<Service>();
-		clients = new CopyOnWriteArrayList<Client>();
-		executors = new CopyOnWriteArrayList<ExecutorService>();
+		services = new CopyOnWriteArrayList<>();
+		clients = new CopyOnWriteArrayList<>();
+		executors = new CopyOnWriteArrayList<>();
 	}
 
 	@Override

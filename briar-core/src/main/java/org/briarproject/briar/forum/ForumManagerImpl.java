@@ -75,7 +75,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		this.forumFactory = forumFactory;
 		this.forumPostFactory = forumPostFactory;
 		this.messageTracker = messageTracker;
-		removeHooks = new CopyOnWriteArrayList<RemoveForumHook>();
+		removeHooks = new CopyOnWriteArrayList<>();
 	}
 
 	@Override
@@ -203,7 +203,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			} finally {
 				db.endTransaction(txn);
 			}
-			List<Forum> forums = new ArrayList<Forum>();
+			List<Forum> forums = new ArrayList<>();
 			for (Group g : groups) forums.add(parseForum(g));
 			return forums;
 		} catch (FormatException e) {
@@ -232,13 +232,13 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	public Collection<ForumPostHeader> getPostHeaders(GroupId g)
 			throws DbException {
 
-		Collection<ForumPostHeader> headers = new ArrayList<ForumPostHeader>();
+		Collection<ForumPostHeader> headers = new ArrayList<>();
 		Transaction txn = db.startTransaction(true);
 		try {
 			Map<MessageId, BdfDictionary> metadata =
 					clientHelper.getMessageMetadataAsDictionary(txn, g);
 			// get all authors we need to get the status for
-			Set<AuthorId> authors = new HashSet<AuthorId>();
+			Set<AuthorId> authors = new HashSet<>();
 			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
 				BdfDictionary d =
 						entry.getValue().getDictionary(KEY_AUTHOR, null);
@@ -246,7 +246,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 					authors.add(new AuthorId(d.getRaw(KEY_ID)));
 			}
 			// get statuses for all authors
-			Map<AuthorId, Status> statuses = new HashMap<AuthorId, Status>();
+			Map<AuthorId, Status> statuses = new HashMap<>();
 			for (AuthorId id : authors) {
 				statuses.put(id, identityManager.getAuthorStatus(txn, id));
 			}
@@ -290,8 +290,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	private ForumPostHeader getForumPostHeader(Transaction txn, MessageId id,
 			BdfDictionary meta) throws DbException, FormatException {
-		return getForumPostHeader(txn, id, meta,
-				Collections.<AuthorId, Status>emptyMap());
+		return getForumPostHeader(txn, id, meta, Collections.emptyMap());
 	}
 
 	private ForumPostHeader getForumPostHeader(Transaction txn, MessageId id,

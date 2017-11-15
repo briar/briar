@@ -42,7 +42,7 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 		this.executor = executor;
 		this.clock = clock;
 		this.writeHandler = writeHandler;
-		writes = new LinkedBlockingQueue<byte[]>();
+		writes = new LinkedBlockingQueue<>();
 	}
 
 	@Override

@@ -105,7 +105,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testPostFeedEntriesEmptyDate() throws Exception {
 		final Transaction txn = new Transaction(null, false);
-		List<SyndEntry> entries = new ArrayList<SyndEntry>();
+		List<SyndEntry> entries = new ArrayList<>();
 		entries.add(new SyndEntryImpl());
 		final SyndEntry entry = new SyndEntryImpl();
 		entry.setUpdatedDate(new Date());

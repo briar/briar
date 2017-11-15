@@ -311,7 +311,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
-			messages = new ArrayList<InvitationMessage>(results.size());
+			messages = new ArrayList<>(results.size());
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();
 				MessageMetadata meta =
@@ -367,11 +367,9 @@ abstract class SharingManagerImpl<S extends Shareable>
 	@Override
 	public Collection<SharingInvitationItem> getInvitations()
 			throws DbException {
-		List<SharingInvitationItem> items =
-				new ArrayList<SharingInvitationItem>();
+		List<SharingInvitationItem> items = new ArrayList<>();
 		BdfDictionary query = messageParser.getInvitesAvailableToAnswerQuery();
-		Map<S, Collection<Contact>> sharers =
-				new HashMap<S, Collection<Contact>>();
+		Map<S, Collection<Contact>> sharers = new HashMap<>();
 		Transaction txn = db.startTransaction(true);
 		try {
 			// get invitations from each contact
@@ -387,7 +385,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 					if (sharers.containsKey(s)) {
 						sharers.get(s).add(c);
 					} else {
-						Collection<Contact> contacts = new ArrayList<Contact>();
+						Collection<Contact> contacts = new ArrayList<>();
 						contacts.add(c);
 						sharers.put(s, contacts);
 					}
@@ -414,7 +412,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 	@Override
 	public Collection<Contact> getSharedWith(GroupId g) throws DbException {
 		// TODO report also pending invitations
-		Collection<Contact> contacts = new ArrayList<Contact>();
+		Collection<Contact> contacts = new ArrayList<>();
 		Transaction txn = db.startTransaction(true);
 		try {
 			for (Contact c : db.getContacts(txn)) {

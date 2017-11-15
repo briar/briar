@@ -83,7 +83,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
 		this.recordWriter = recordWriter;
-		writerTasks = new LinkedBlockingQueue<ThrowingRunnable<IOException>>();
+		writerTasks = new LinkedBlockingQueue<>();
 	}
 
 	@IoExecutor

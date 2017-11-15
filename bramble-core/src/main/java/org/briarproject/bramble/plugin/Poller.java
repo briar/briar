@@ -66,7 +66,7 @@ class Poller implements EventListener {
 		this.random = random;
 		this.clock = clock;
 		lock = new ReentrantLock();
-		tasks = new HashMap<TransportId, PollTask>();
+		tasks = new HashMap<>();
 	}
 
 	@Override

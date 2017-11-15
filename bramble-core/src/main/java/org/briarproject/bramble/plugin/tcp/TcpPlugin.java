@@ -317,7 +317,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return Collections.emptyList();
 		}
-		List<InetAddress> addrs = new ArrayList<InetAddress>();
+		List<InetAddress> addrs = new ArrayList<>();
 		for (NetworkInterface iface : ifaces)
 			addrs.addAll(Collections.list(iface.getInetAddresses()));
 		return addrs;

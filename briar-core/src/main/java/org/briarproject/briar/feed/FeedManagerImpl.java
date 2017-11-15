@@ -154,7 +154,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		db.addGroup(txn, g);
 
 		// Add initial metadata
-		List<Feed> feeds = new ArrayList<Feed>(0);
+		List<Feed> feeds = new ArrayList<>(0);
 		storeFeeds(txn, feeds);
 	}
 
@@ -237,7 +237,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	}
 
 	private List<Feed> getFeeds(Transaction txn) throws DbException {
-		List<Feed> feeds = new ArrayList<Feed>();
+		List<Feed> feeds = new ArrayList<>();
 		Group g = getLocalGroup();
 		try {
 			BdfDictionary d =
@@ -300,7 +300,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		}
 
 		// Fetch and update all feeds
-		List<Feed> newFeeds = new ArrayList<Feed>(feeds.size());
+		List<Feed> newFeeds = new ArrayList<>(feeds.size());
 		for (Feed feed : feeds) {
 			try {
 				newFeeds.add(fetchFeed(feed));

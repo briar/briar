@@ -336,8 +336,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	public Collection<IntroductionMessage> getIntroductionMessages(
 			ContactId contactId) throws DbException {
 
-		Collection<IntroductionMessage> list =
-				new ArrayList<IntroductionMessage>();
+		Collection<IntroductionMessage> list = new ArrayList<>();
 
 		Map<MessageId, BdfDictionary> metadata;
 		Collection<MessageStatus> statuses;

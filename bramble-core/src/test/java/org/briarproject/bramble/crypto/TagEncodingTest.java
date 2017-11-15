@@ -28,7 +28,7 @@ public class TagEncodingTest extends BrambleTestCase {
 
 	@Test
 	public void testKeyAffectsTag() throws Exception {
-		Set<Bytes> set = new HashSet<Bytes>();
+		Set<Bytes> set = new HashSet<>();
 		for (int i = 0; i < 100; i++) {
 			byte[] tag = new byte[TAG_LENGTH];
 			SecretKey tagKey = TestUtils.getSecretKey();
@@ -39,7 +39,7 @@ public class TagEncodingTest extends BrambleTestCase {
 
 	@Test
 	public void testProtocolVersionAffectsTag() throws Exception {
-		Set<Bytes> set = new HashSet<Bytes>();
+		Set<Bytes> set = new HashSet<>();
 		for (int i = 0; i < 100; i++) {
 			byte[] tag = new byte[TAG_LENGTH];
 			crypto.encodeTag(tag, tagKey, PROTOCOL_VERSION + i, streamNumber);
@@ -49,7 +49,7 @@ public class TagEncodingTest extends BrambleTestCase {
 
 	@Test
 	public void testStreamNumberAffectsTag() throws Exception {
-		Set<Bytes> set = new HashSet<Bytes>();
+		Set<Bytes> set = new HashSet<>();
 		for (int i = 0; i < 100; i++) {
 			byte[] tag = new byte[TAG_LENGTH];
 			crypto.encodeTag(tag, tagKey, PROTOCOL_VERSION, streamNumber + i);

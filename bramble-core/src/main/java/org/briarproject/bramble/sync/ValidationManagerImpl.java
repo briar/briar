@@ -64,8 +64,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		this.dbExecutor = dbExecutor;
 		this.validationExecutor = validationExecutor;
 		this.messageFactory = messageFactory;
-		validators = new ConcurrentHashMap<ClientId, MessageValidator>();
-		hooks = new ConcurrentHashMap<ClientId, IncomingMessageHook>();
+		validators = new ConcurrentHashMap<>();
+		hooks = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -105,7 +105,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void validateOutstandingMessages(ClientId c) {
 		try {
-			Queue<MessageId> unvalidated = new LinkedList<MessageId>();
+			Queue<MessageId> unvalidated = new LinkedList<>();
 			Transaction txn = db.startTransaction(true);
 			try {
 				unvalidated.addAll(db.getMessagesToValidate(txn, c));
@@ -170,7 +170,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void deliverOutstandingMessages(ClientId c) {
 		try {
-			Queue<MessageId> pending = new LinkedList<MessageId>();
+			Queue<MessageId> pending = new LinkedList<>();
 			Transaction txn = db.startTransaction(true);
 			try {
 				pending.addAll(db.getPendingMessages(txn, c));
@@ -229,8 +229,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 							pending.addAll(getPendingDependents(txn, id));
 							if (result.share) {
 								db.setMessageShared(txn, id);
-								toShare = new LinkedList<MessageId>(
-										states.keySet());
+								toShare = new LinkedList<>(states.keySet());
 							}
 						} else {
 							invalidate = getDependentsToInvalidate(txn, id);
@@ -277,7 +276,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			} catch (InvalidMessageException e) {
 				if (LOG.isLoggable(INFO))
 					LOG.log(INFO, e.toString(), e);
-				Queue<MessageId> invalidate = new LinkedList<MessageId>();
+				Queue<MessageId> invalidate = new LinkedList<>();
 				invalidate.add(m.getId());
 				invalidateNextMessageAsync(invalidate);
 			}
@@ -331,8 +330,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 							pending = getPendingDependents(txn, id);
 							if (result.share) {
 								db.setMessageShared(txn, id);
-								toShare =
-										new LinkedList<MessageId>(dependencies);
+								toShare = new LinkedList<>(dependencies);
 							}
 						} else {
 							invalidate = getDependentsToInvalidate(txn, id);
@@ -378,7 +376,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private Queue<MessageId> getPendingDependents(Transaction txn, MessageId m)
 			throws DbException {
-		Queue<MessageId> pending = new LinkedList<MessageId>();
+		Queue<MessageId> pending = new LinkedList<>();
 		Map<MessageId, State> states = db.getMessageDependents(txn, m);
 		for (Entry<MessageId, State> e : states.entrySet()) {
 			if (e.getValue() == PENDING) pending.add(e.getKey());
@@ -398,7 +396,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void shareOutstandingMessages(ClientId c) {
 		try {
-			Queue<MessageId> toShare = new LinkedList<MessageId>();
+			Queue<MessageId> toShare = new LinkedList<>();
 			Transaction txn = db.startTransaction(true);
 			try {
 				toShare.addAll(db.getMessagesToShare(txn, c));
@@ -496,7 +494,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private Queue<MessageId> getDependentsToInvalidate(Transaction txn,
 			MessageId m) throws DbException {
-		Queue<MessageId> invalidate = new LinkedList<MessageId>();
+		Queue<MessageId> invalidate = new LinkedList<>();
 		Map<MessageId, State> states = db.getMessageDependents(txn, m);
 		for (Entry<MessageId, State> e : states.entrySet()) {
 			if (e.getValue() != INVALID) invalidate.add(e.getKey());

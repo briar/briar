@@ -82,10 +82,10 @@ class PluginManagerImpl implements PluginManager, Service {
 		this.settingsManager = settingsManager;
 		this.transportPropertyManager = transportPropertyManager;
 		this.uiCallback = uiCallback;
-		plugins = new ConcurrentHashMap<TransportId, Plugin>();
-		simplexPlugins = new CopyOnWriteArrayList<SimplexPlugin>();
-		duplexPlugins = new CopyOnWriteArrayList<DuplexPlugin>();
-		startLatches = new ConcurrentHashMap<TransportId, CountDownLatch>();
+		plugins = new ConcurrentHashMap<>();
+		simplexPlugins = new CopyOnWriteArrayList<>();
+		duplexPlugins = new CopyOnWriteArrayList<>();
+		startLatches = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -156,17 +156,17 @@ class PluginManagerImpl implements PluginManager, Service {
 
 	@Override
 	public Collection<SimplexPlugin> getSimplexPlugins() {
-		return new ArrayList<SimplexPlugin>(simplexPlugins);
+		return new ArrayList<>(simplexPlugins);
 	}
 
 	@Override
 	public Collection<DuplexPlugin> getDuplexPlugins() {
-		return new ArrayList<DuplexPlugin>(duplexPlugins);
+		return new ArrayList<>(duplexPlugins);
 	}
 
 	@Override
 	public Collection<DuplexPlugin> getKeyAgreementPlugins() {
-		List<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
+		List<DuplexPlugin> supported = new ArrayList<>();
 		for (DuplexPlugin d : duplexPlugins)
 			if (d.supportsKeyAgreement()) supported.add(d);
 		return supported;

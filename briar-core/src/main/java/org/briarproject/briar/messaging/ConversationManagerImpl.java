@@ -24,7 +24,7 @@ class ConversationManagerImpl implements ConversationManager {
 	@Inject
 	ConversationManagerImpl(DatabaseComponent db) {
 		this.db = db;
-		clients = new CopyOnWriteArraySet<ConversationClient>();
+		clients = new CopyOnWriteArraySet<>();
 	}
 
 	@Override

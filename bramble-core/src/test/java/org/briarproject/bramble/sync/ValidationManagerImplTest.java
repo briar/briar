@@ -718,8 +718,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	public void testRecursiveInvalidation() throws Exception {
 		final MessageId messageId3 = new MessageId(TestUtils.getRandomId());
 		final MessageId messageId4 = new MessageId(TestUtils.getRandomId());
-		final Map<MessageId, State> twoDependents =
-				new LinkedHashMap<MessageId, State>();
+		final Map<MessageId, State> twoDependents = new LinkedHashMap<>();
 		twoDependents.put(messageId1, PENDING);
 		twoDependents.put(messageId2, PENDING);
 		final Transaction txn = new Transaction(null, true);
@@ -826,12 +825,10 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 				raw);
 		final Message message4 = new Message(messageId4, groupId, timestamp,
 				raw);
-		final Map<MessageId, State> twoDependents =
-				new LinkedHashMap<MessageId, State>();
+		final Map<MessageId, State> twoDependents = new LinkedHashMap<>();
 		twoDependents.put(messageId1, PENDING);
 		twoDependents.put(messageId2, PENDING);
-		final Map<MessageId, State> twoDependencies =
-				new LinkedHashMap<MessageId, State>();
+		final Map<MessageId, State> twoDependencies = new LinkedHashMap<>();
 		twoDependencies.put(messageId1, DELIVERED);
 		twoDependencies.put(messageId2, DELIVERED);
 		final Transaction txn = new Transaction(null, true);
@@ -979,8 +976,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testOnlyReadyPendingDependentsGetDelivered() throws Exception {
-		final Map<MessageId, State> twoDependencies =
-				new LinkedHashMap<MessageId, State>();
+		final Map<MessageId, State> twoDependencies = new LinkedHashMap<>();
 		twoDependencies.put(messageId, DELIVERED);
 		twoDependencies.put(messageId2, UNKNOWN);
 		final Transaction txn = new Transaction(null, true);

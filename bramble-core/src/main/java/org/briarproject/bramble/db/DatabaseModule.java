@@ -26,7 +26,7 @@ public class DatabaseModule {
 	@Singleton
 	DatabaseComponent provideDatabaseComponent(Database<Connection> db,
 			EventBus eventBus, ShutdownManager shutdown) {
-		return new DatabaseComponentImpl<Connection>(db, Connection.class,
-				eventBus, shutdown);
+		return new DatabaseComponentImpl<>(db, Connection.class, eventBus,
+				shutdown);
 	}
 }

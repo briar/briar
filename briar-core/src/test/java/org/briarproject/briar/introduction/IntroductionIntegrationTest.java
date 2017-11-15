@@ -464,7 +464,7 @@ public class IntroductionIntegrationTest
 		assertTrue(listener1.requestReceived);
 
 		// get SessionId
-		List<IntroductionMessage> list = new ArrayList<IntroductionMessage>(
+		List<IntroductionMessage> list = new ArrayList<>(
 				introductionManager1.getIntroductionMessages(contactId0From1));
 		assertEquals(2, list.size());
 		assertTrue(list.get(0) instanceof IntroductionRequest);

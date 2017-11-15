@@ -34,8 +34,8 @@ class ContactManagerImpl implements ContactManager {
 	ContactManagerImpl(DatabaseComponent db, KeyManager keyManager) {
 		this.db = db;
 		this.keyManager = keyManager;
-		addHooks = new CopyOnWriteArrayList<AddContactHook>();
-		removeHooks = new CopyOnWriteArrayList<RemoveContactHook>();
+		addHooks = new CopyOnWriteArrayList<>();
+		removeHooks = new CopyOnWriteArrayList<>();
 	}
 
 	@Override
@@ -125,7 +125,7 @@ class ContactManagerImpl implements ContactManager {
 		} finally {
 			db.endTransaction(txn);
 		}
-		List<Contact> active = new ArrayList<Contact>(contacts.size());
+		List<Contact> active = new ArrayList<>(contacts.size());
 		for (Contact c : contacts) if (c.isActive()) active.add(c);
 		return active;
 	}

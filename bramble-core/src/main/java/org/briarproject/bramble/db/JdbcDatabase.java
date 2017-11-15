@@ -263,8 +263,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final String hashType, binaryType, counterType, secretType;
 	private final Clock clock;
 
-	private final LinkedList<Connection> connections =
-			new LinkedList<Connection>(); // Locking: connectionsLock
+	// Locking: connectionsLock
+	private final LinkedList<Connection> connections = new LinkedList<>();
 
 	private int openConnections = 0; // Locking: connectionsLock
 	private boolean closed = false; // Locking: connectionsLock
@@ -1035,7 +1035,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " FROM contacts";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			List<Contact> contacts = new ArrayList<Contact>();
+			List<Contact> contacts = new ArrayList<>();
 			while (rs.next()) {
 				ContactId contactId = new ContactId(rs.getInt(1));
 				AuthorId authorId = new AuthorId(rs.getBytes(2));
@@ -1069,7 +1069,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, local.getBytes());
 			rs = ps.executeQuery();
-			List<ContactId> ids = new ArrayList<ContactId>();
+			List<ContactId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new ContactId(rs.getInt(1)));
 			rs.close();
 			ps.close();
@@ -1094,7 +1094,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, remote.getBytes());
 			rs = ps.executeQuery();
-			List<Contact> contacts = new ArrayList<Contact>();
+			List<Contact> contacts = new ArrayList<>();
 			while (rs.next()) {
 				ContactId c = new ContactId(rs.getInt(1));
 				String name = rs.getString(2);
@@ -1150,7 +1150,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, c.getString());
 			rs = ps.executeQuery();
-			List<Group> groups = new ArrayList<Group>();
+			List<Group> groups = new ArrayList<>();
 			while (rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
 				byte[] descriptor = rs.getBytes(2);
@@ -1203,7 +1203,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
-			List<ContactId> visible = new ArrayList<ContactId>();
+			List<ContactId> visible = new ArrayList<>();
 			while (rs.next()) visible.add(new ContactId(rs.getInt(1)));
 			rs.close();
 			ps.close();
@@ -1255,7 +1255,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " FROM localAuthors";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			List<LocalAuthor> authors = new ArrayList<LocalAuthor>();
+			List<LocalAuthor> authors = new ArrayList<>();
 			while (rs.next()) {
 				AuthorId authorId = new AuthorId(rs.getBytes(1));
 				String name = rs.getString(2);
@@ -1285,7 +1285,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
+			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
@@ -1308,7 +1308,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, state.getValue());
 			ps.setBytes(2, g.getBytes());
 			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
+			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
@@ -1343,7 +1343,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.setString(3, e.getKey());
 				ps.setBytes(4, e.getValue());
 				rs = ps.executeQuery();
-				Set<MessageId> ids = new HashSet<MessageId>();
+				Set<MessageId> ids = new HashSet<>();
 				while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 				rs.close();
 				ps.close();
@@ -1377,7 +1377,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, DELIVERED.getValue());
 			ps.setBytes(2, g.getBytes());
 			rs = ps.executeQuery();
-			Map<MessageId, Metadata> all = new HashMap<MessageId, Metadata>();
+			Map<MessageId, Metadata> all = new HashMap<>();
 			Metadata metadata = null;
 			MessageId lastMessageId = null;
 			while (rs.next()) {
@@ -1406,8 +1406,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Collection<MessageId> matches = getMessageIds(txn, g, query);
 		if (matches.isEmpty()) return Collections.emptyMap();
 		// Retrieve the metadata for each match
-		Map<MessageId, Metadata> all = new HashMap<MessageId, Metadata>(
-				matches.size());
+		Map<MessageId, Metadata> all = new HashMap<>(matches.size());
 		for (MessageId m : matches) all.put(m, getMessageMetadata(txn, m));
 		return all;
 	}
@@ -1505,7 +1504,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(1, g.getBytes());
 			ps.setInt(2, c.getInt());
 			rs = ps.executeQuery();
-			List<MessageStatus> statuses = new ArrayList<MessageStatus>();
+			List<MessageStatus> statuses = new ArrayList<>();
 			while (rs.next()) {
 				MessageId messageId = new MessageId(rs.getBytes(1));
 				boolean sent = rs.getBoolean(2);
@@ -1564,7 +1563,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
-			Map<MessageId, State> dependencies = new HashMap<MessageId, State>();
+			Map<MessageId, State> dependencies = new HashMap<>();
 			while (rs.next()) {
 				MessageId dependency = new MessageId(rs.getBytes(1));
 				State state = State.fromValue(rs.getInt(2));
@@ -1602,7 +1601,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
-			Map<MessageId, State> dependents = new HashMap<MessageId, State>();
+			Map<MessageId, State> dependents = new HashMap<>();
 			while (rs.next()) {
 				MessageId dependent = new MessageId(rs.getBytes(1));
 				State state = State.fromValue(rs.getInt(2));
@@ -1654,7 +1653,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, maxMessages);
 			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
+			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
@@ -1690,7 +1689,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(3, now);
 			ps.setInt(4, maxMessages);
 			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
+			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
@@ -1715,7 +1714,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, maxMessages);
 			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
+			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
@@ -1750,7 +1749,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(2, DELIVERED.getValue());
 			ps.setLong(3, now);
 			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
+			List<MessageId> ids = new ArrayList<>();
 			int total = 0;
 			while (rs.next()) {
 				int length = rs.getInt(1);
@@ -1792,7 +1791,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, state.getValue());
 			ps.setString(2, c.getString());
 			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
+			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
@@ -1822,7 +1821,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, c.getString());
 			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
+			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
@@ -1881,7 +1880,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(2, DELIVERED.getValue());
 			ps.setLong(3, now);
 			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
+			List<MessageId> ids = new ArrayList<>();
 			int total = 0;
 			while (rs.next()) {
 				int length = rs.getInt(1);
@@ -1935,7 +1934,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
-			List<IncomingKeys> inKeys = new ArrayList<IncomingKeys>();
+			List<IncomingKeys> inKeys = new ArrayList<>();
 			while (rs.next()) {
 				long rotationPeriod = rs.getLong(1);
 				SecretKey tagKey = new SecretKey(rs.getBytes(2));
@@ -1955,8 +1954,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
-			Map<ContactId, TransportKeys> keys =
-					new HashMap<ContactId, TransportKeys>();
+			Map<ContactId, TransportKeys> keys = new HashMap<>();
 			for (int i = 0; rs.next(); i++) {
 				// There should be three times as many incoming keys
 				if (inKeys.size() < (i + 1) * 3) throw new DbStateException();
@@ -2074,8 +2072,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			// Determine which keys are being removed
-			List<String> removed = new ArrayList<String>();
-			Map<String, byte[]> retained = new HashMap<String, byte[]>();
+			List<String> removed = new ArrayList<>();
+			Map<String, byte[]> retained = new HashMap<>();
 			for (Entry<String, byte[]> e : meta.entrySet()) {
 				if (e.getValue() == REMOVE) removed.add(e.getKey());
 				else retained.put(e.getKey(), e.getValue());

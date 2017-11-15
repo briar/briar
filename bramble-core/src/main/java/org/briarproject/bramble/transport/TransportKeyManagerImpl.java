@@ -65,9 +65,9 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		this.transportId = transportId;
 		rotationPeriodLength = maxLatency + MAX_CLOCK_DIFFERENCE;
 		lock = new ReentrantLock();
-		inContexts = new HashMap<Bytes, TagContext>();
-		outContexts = new HashMap<ContactId, MutableOutgoingKeys>();
-		keys = new HashMap<ContactId, MutableTransportKeys>();
+		inContexts = new HashMap<>();
+		outContexts = new HashMap<>();
+		keys = new HashMap<>();
 	}
 
 	@Override
@@ -272,8 +272,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		lock.lock();
 		try {
 			// Rotate the keys to the current rotation period
-			Map<ContactId, TransportKeys> snapshot =
-					new HashMap<ContactId, TransportKeys>();
+			Map<ContactId, TransportKeys> snapshot = new HashMap<>();
 			for (Entry<ContactId, MutableTransportKeys> e : keys.entrySet())
 				snapshot.put(e.getKey(), e.getValue().snapshot());
 			RotationResult rotationResult = rotateKeys(snapshot, now);
@@ -311,8 +310,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		private final Map<ContactId, TransportKeys> current, rotated;
 
 		private RotationResult() {
-			current = new HashMap<ContactId, TransportKeys>();
-			rotated = new HashMap<ContactId, TransportKeys>();
+			current = new HashMap<>();
+			rotated = new HashMap<>();
 		}
 	}
 }

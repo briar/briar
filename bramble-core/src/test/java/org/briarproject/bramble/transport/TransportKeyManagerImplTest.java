@@ -63,8 +63,7 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 				context.mock(ScheduledExecutorService.class);
 		final Clock clock = context.mock(Clock.class);
 
-		final Map<ContactId, TransportKeys> loaded =
-				new LinkedHashMap<ContactId, TransportKeys>();
+		final Map<ContactId, TransportKeys> loaded = new LinkedHashMap<>();
 		final TransportKeys shouldRotate = createTransportKeys(900, 0);
 		final TransportKeys shouldNotRotate = createTransportKeys(1000, 0);
 		loaded.put(contactId, shouldRotate);
@@ -343,7 +342,7 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 		final boolean alice = true;
 		final TransportKeys transportKeys = createTransportKeys(1000, 0);
 		// Keep a copy of the tags
-		final List<byte[]> tags = new ArrayList<byte[]>();
+		final List<byte[]> tags = new ArrayList<>();
 		final Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{

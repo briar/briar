@@ -50,10 +50,9 @@ class KeyAgreementConnector {
 	private final PluginManager pluginManager;
 	private final CompletionService<KeyAgreementConnection> connect;
 
-	private final List<KeyAgreementListener> listeners =
-			new ArrayList<KeyAgreementListener>();
+	private final List<KeyAgreementListener> listeners = new ArrayList<>();
 	private final List<Future<KeyAgreementConnection>> pending =
-			new ArrayList<Future<KeyAgreementConnection>>();
+			new ArrayList<>();
 
 	private volatile boolean connecting = false;
 	private volatile boolean alice = false;
@@ -65,8 +64,7 @@ class KeyAgreementConnector {
 		this.clock = clock;
 		this.crypto = crypto;
 		this.pluginManager = pluginManager;
-		connect = new ExecutorCompletionService<KeyAgreementConnection>(
-				ioExecutor);
+		connect = new ExecutorCompletionService<>(ioExecutor);
 	}
 
 	public Payload listen(KeyPair localKeyPair) {
@@ -75,8 +73,7 @@ class KeyAgreementConnector {
 		byte[] commitment = crypto.deriveKeyCommitment(
 				localKeyPair.getPublic().getEncoded());
 		// Start all listeners and collect their descriptors
-		List<TransportDescriptor> descriptors =
-				new ArrayList<TransportDescriptor>();
+		List<TransportDescriptor> descriptors = new ArrayList<>();
 		for (DuplexPlugin plugin : pluginManager.getKeyAgreementPlugins()) {
 			KeyAgreementListener l =
 					plugin.createKeyAgreementListener(commitment);

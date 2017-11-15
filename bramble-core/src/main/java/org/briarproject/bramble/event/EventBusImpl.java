@@ -15,7 +15,7 @@ import javax.annotation.concurrent.ThreadSafe;
 class EventBusImpl implements EventBus {
 
 	private final Collection<EventListener> listeners =
-			new CopyOnWriteArrayList<EventListener>();
+			new CopyOnWriteArrayList<>();
 
 	@Override
 	public void addListener(EventListener l) {

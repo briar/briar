@@ -81,7 +81,7 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGetAuthorStatus() throws DbException {
 		final AuthorId authorId = new AuthorId(TestUtils.getRandomId());
-		final Collection<Contact> contacts = new ArrayList<Contact>();
+		final Collection<Contact> contacts = new ArrayList<>();
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);

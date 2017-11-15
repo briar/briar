@@ -539,8 +539,7 @@ class IntroduceeManager {
 	private Map<TransportId, TransportProperties> parseTransportProperties(
 			BdfDictionary d) throws FormatException {
 
-		Map<TransportId, TransportProperties> tpMap =
-				new HashMap<TransportId, TransportProperties>();
+		Map<TransportId, TransportProperties> tpMap = new HashMap<>();
 		BdfDictionary tpMapDict = d.getDictionary(TRANSPORT);
 		for (String key : tpMapDict.keySet()) {
 			TransportId transportId = new TransportId(key);

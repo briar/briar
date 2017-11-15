@@ -202,7 +202,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 
 		// The parent post, if any,
 		// and the member's previous message are dependencies
-		Collection<MessageId> dependencies = new ArrayList<MessageId>();
+		Collection<MessageId> dependencies = new ArrayList<>();
 		if (parentId != null) dependencies.add(new MessageId(parentId));
 		dependencies.add(new MessageId(previousMessageId));
 

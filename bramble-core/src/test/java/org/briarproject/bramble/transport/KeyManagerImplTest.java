@@ -63,7 +63,7 @@ public class KeyManagerImplTest extends BrambleTestCase {
 		Author remoteAuthor = new Author(remoteAuthorId, "author",
 				getRandomBytes(42));
 		AuthorId localAuthorId = new AuthorId(getRandomId());
-		final Collection<Contact> contacts = new ArrayList<Contact>();
+		final Collection<Contact> contacts = new ArrayList<>();
 		contacts.add(new Contact(contactId, remoteAuthor, localAuthorId, true,
 				true));
 		contacts.add(new Contact(inactiveContactId, remoteAuthor, localAuthorId,

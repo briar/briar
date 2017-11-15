@@ -631,8 +631,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		final BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
 		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
 		final BdfDictionary meta2 = BdfDictionary.of(new BdfEntry("m2", "e"));
-		final Map<MessageId, BdfDictionary> results =
-				new HashMap<MessageId, BdfDictionary>();
+		final Map<MessageId, BdfDictionary> results = new HashMap<>();
 		results.put(message.getId(), meta);
 		results.put(messageId2, meta2);
 		final long time1 = 1L, time2 = 2L;
@@ -705,8 +704,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		final BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
 		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
 		final BdfDictionary meta2 = BdfDictionary.of(new BdfEntry("m2", "e"));
-		final Map<MessageId, BdfDictionary> results =
-				new HashMap<MessageId, BdfDictionary>();
+		final Map<MessageId, BdfDictionary> results = new HashMap<>();
 		results.put(message.getId(), meta);
 		results.put(messageId2, meta2);
 		final Message message2 = new Message(messageId2, contactGroup.getId(),

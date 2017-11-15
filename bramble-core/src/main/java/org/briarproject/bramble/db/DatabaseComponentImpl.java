@@ -331,7 +331,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
 		Collection<MessageId> ids = db.getMessagesToSend(txn, c, maxLength);
-		List<byte[]> messages = new ArrayList<byte[]>(ids.size());
+		List<byte[]> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
 			messages.add(db.getRawMessage(txn, m));
 			db.updateExpiryTime(txn, c, m, maxLatency);
@@ -381,7 +381,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchContactException();
 		Collection<MessageId> ids = db.getRequestedMessagesToSend(txn, c,
 				maxLength);
-		List<byte[]> messages = new ArrayList<byte[]>(ids.size());
+		List<byte[]> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
 			messages.add(db.getRawMessage(txn, m));
 			db.updateExpiryTime(txn, c, m, maxLatency);
@@ -661,7 +661,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		Collection<MessageId> acked = new ArrayList<MessageId>();
+		Collection<MessageId> acked = new ArrayList<>();
 		for (MessageId m : a.getMessageIds()) {
 			if (db.containsVisibleMessage(txn, c, m)) {
 				db.raiseSeenFlag(txn, c, m);
@@ -896,8 +896,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			Map<ContactId, TransportKeys> keys) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		Map<ContactId, TransportKeys> filtered =
-				new HashMap<ContactId, TransportKeys>();
+		Map<ContactId, TransportKeys> filtered = new HashMap<>();
 		for (Entry<ContactId, TransportKeys> e : keys.entrySet()) {
 			ContactId c = e.getKey();
 			TransportKeys k = e.getValue();

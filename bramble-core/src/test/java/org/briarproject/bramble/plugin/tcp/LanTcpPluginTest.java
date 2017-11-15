@@ -194,8 +194,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 				plugin.createKeyAgreementListener(new byte[COMMIT_LENGTH]);
 		assertNotNull(kal);
 		Callable<KeyAgreementConnection> c = kal.listen();
-		FutureTask<KeyAgreementConnection> f =
-				new FutureTask<KeyAgreementConnection>(c);
+		FutureTask<KeyAgreementConnection> f = new FutureTask<>(c);
 		new Thread(f).start();
 		// The plugin should have bound a socket and stored the port number
 		BdfList descriptor = kal.getDescriptor();
@@ -291,7 +290,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	private static class Callback implements DuplexPluginCallback {
 
 		private final Map<ContactId, TransportProperties> remote =
-				new Hashtable<ContactId, TransportProperties>();
+				new Hashtable<>();
 		private final CountDownLatch propertiesLatch = new CountDownLatch(1);
 		private final CountDownLatch connectionsLatch = new CountDownLatch(1);
 		private final TransportProperties local = new TransportProperties();

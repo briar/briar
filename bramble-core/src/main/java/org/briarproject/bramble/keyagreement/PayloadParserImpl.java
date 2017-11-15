@@ -51,8 +51,7 @@ class PayloadParserImpl implements PayloadParser {
 		byte[] commitment = payload.getRaw(1);
 		if (commitment.length != COMMIT_LENGTH) throw new FormatException();
 		// Remaining elements: transport descriptors
-		List<TransportDescriptor> recognised =
-				new ArrayList<TransportDescriptor>();
+		List<TransportDescriptor> recognised = new ArrayList<>();
 		for (int i = 2; i < payload.size(); i++) {
 			BdfList descriptor = payload.getList(i);
 			long transportId = descriptor.getLong(0);

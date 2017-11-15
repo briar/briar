@@ -106,7 +106,7 @@ class IntroduceeEngine
 				else return abortSession(currentState, localState);
 			}
 
-			List<BdfDictionary> messages = new ArrayList<BdfDictionary>(1);
+			List<BdfDictionary> messages = new ArrayList<>(1);
 			if (action == LOCAL_ACCEPT || action == LOCAL_DECLINE) {
 				localState.put(STATE, nextState.getValue());
 				localState.put(ANSWERED, true);
@@ -136,8 +136,7 @@ class IntroduceeEngine
 				throw new IllegalArgumentException();
 			}
 			List<Event> events = Collections.emptyList();
-			return new StateUpdate<BdfDictionary, BdfDictionary>(false,
-					false,
+			return new StateUpdate<>(false, false,
 					localState, messages, events);
 		} catch (FormatException e) {
 			throw new IllegalArgumentException(e);
@@ -204,16 +203,15 @@ class IntroduceeEngine
 			}
 			// we are done (probably declined response), ignore & delete message
 			else if (currentState == FINISHED) {
-				return new StateUpdate<BdfDictionary, BdfDictionary>(true,
-						false, localState,
+				return new StateUpdate<>(true, false, localState,
 						Collections.<BdfDictionary>emptyList(),
-						Collections.<Event>emptyList());
+						Collections.emptyList());
 			}
 			// this should not happen
 			else {
 				throw new IllegalArgumentException();
 			}
-			return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
+			return new StateUpdate<>(false, false,
 					localState, messages, events);
 		} catch (FormatException e) {
 			throw new IllegalArgumentException(e);
@@ -361,15 +359,14 @@ class IntroduceeEngine
 		Event event = new IntroductionAbortedEvent(contactId, sessionId);
 		List<Event> events = Collections.singletonList(event);
 
-		return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
-				localState, messages, events);
+		return new StateUpdate<>(false, false, localState, messages, events);
 	}
 
 	private StateUpdate<BdfDictionary, BdfDictionary> noUpdate(
 			BdfDictionary localState) throws FormatException {
 
-		return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
-				localState, Collections.<BdfDictionary>emptyList(),
-				Collections.<Event>emptyList());
+		return new StateUpdate<>(false, false, localState,
+				Collections.<BdfDictionary>emptyList(),
+				Collections.emptyList());
 	}
 }

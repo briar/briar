@@ -46,7 +46,7 @@ class Sender {
 	Sender(Clock clock, WriteHandler writeHandler) {
 		this.clock = clock;
 		this.writeHandler = writeHandler;
-		outstanding = new LinkedList<Outstanding>();
+		outstanding = new LinkedList<>();
 	}
 
 	void sendAck(long sequenceNumber, int windowSize) throws IOException {
@@ -136,7 +136,7 @@ class Sender {
 					if (now - o.lastTransmitted > rto) {
 						it.remove();
 						if (retransmit == null)
-							retransmit = new ArrayList<Outstanding>();
+							retransmit = new ArrayList<>();
 						retransmit.add(o);
 						// Update the retransmission timeout
 						rto <<= 1;

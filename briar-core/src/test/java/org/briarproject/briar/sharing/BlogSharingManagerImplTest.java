@@ -94,23 +94,20 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testAddingContactFreshState() throws Exception {
-		Map<MessageId, BdfDictionary> sessions =
-				new HashMap<MessageId, BdfDictionary>(0);
+		Map<MessageId, BdfDictionary> sessions = new HashMap<>(0);
 		testAddingContact(sessions);
 	}
 
 	@Test
 	public void testAddingContactExistingState() throws Exception {
-		Map<MessageId, BdfDictionary> sessions =
-				new HashMap<MessageId, BdfDictionary>(1);
+		Map<MessageId, BdfDictionary> sessions = new HashMap<>(1);
 		sessions.put(new MessageId(getRandomId()), new BdfDictionary());
 		testAddingContact(sessions);
 	}
 
 	@Test(expected = DbException.class)
 	public void testAddingContactMultipleSessions() throws Exception {
-		Map<MessageId, BdfDictionary> sessions =
-				new HashMap<MessageId, BdfDictionary>(2);
+		Map<MessageId, BdfDictionary> sessions = new HashMap<>(2);
 		sessions.put(new MessageId(getRandomId()), new BdfDictionary());
 		sessions.put(new MessageId(getRandomId()), new BdfDictionary());
 		testAddingContact(sessions);
@@ -118,23 +115,20 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testRemovingBlogFreshState() throws Exception {
-		Map<MessageId, BdfDictionary> sessions =
-				new HashMap<MessageId, BdfDictionary>(0);
+		Map<MessageId, BdfDictionary> sessions = new HashMap<>(0);
 		testRemovingBlog(sessions);
 	}
 
 	@Test
 	public void testRemovingBlogExistingState() throws Exception {
-		Map<MessageId, BdfDictionary> sessions =
-				new HashMap<MessageId, BdfDictionary>(1);
+		Map<MessageId, BdfDictionary> sessions = new HashMap<>(1);
 		sessions.put(new MessageId(getRandomId()), new BdfDictionary());
 		testRemovingBlog(sessions);
 	}
 
 	@Test(expected = DbException.class)
 	public void testRemovingBlogMultipleSessions() throws Exception {
-		Map<MessageId, BdfDictionary> sessions =
-				new HashMap<MessageId, BdfDictionary>(2);
+		Map<MessageId, BdfDictionary> sessions = new HashMap<>(2);
 		sessions.put(new MessageId(getRandomId()), new BdfDictionary());
 		sessions.put(new MessageId(getRandomId()), new BdfDictionary());
 		testRemovingBlog(sessions);

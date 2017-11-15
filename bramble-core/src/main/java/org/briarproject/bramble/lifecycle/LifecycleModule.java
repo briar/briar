@@ -37,7 +37,7 @@ public class LifecycleModule {
 
 	public LifecycleModule() {
 		// The thread pool is unbounded, so use direct handoff
-		BlockingQueue<Runnable> queue = new SynchronousQueue<Runnable>();
+		BlockingQueue<Runnable> queue = new SynchronousQueue<>();
 		// Discard tasks that are submitted during shutdown
 		RejectedExecutionHandler policy =
 				new ThreadPoolExecutor.DiscardPolicy();
