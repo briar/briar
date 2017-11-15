@@ -1,7 +1,17 @@
 apply plugin: 'java'
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
 	compile project(path: ':bramble-api', configuration: 'default')
+}
+
+// If a Java 6 JRE is available, check we're not using any Java 7 or 8 APIs
+tasks.withType(JavaCompile) {
+	doFirst {
+		def home = System.env.JAVA_6_HOME;
+		if (home != null && !home.isEmpty()) {
+			options.bootstrapClasspath = files("${home}/jre/lib/rt.jar", "${home}/jre/lib/jsse.jar")
+		}
+	}
 }

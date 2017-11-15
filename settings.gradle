@@ -1,5 +1,6 @@
-include ':bramble-api', ':bramble-android'
+include ':bramble-api'
 include ':bramble-core'
+include ':bramble-android'
 include ':bramble-j2se'
 include ':briar-api'
 include ':briar-core'
