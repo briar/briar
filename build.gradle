@@ -11,11 +11,14 @@ buildscript {
 	repositories {
 		jcenter()
 		mavenLocal()
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
 	}
 
 	dependencies {
 		classpath 'com.android.tools.build:gradle:2.3.3'
-		classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+		classpath 'net.ltgt.gradle:gradle-apt-plugin:0.9'
 		classpath 'de.undercouch:gradle-download-task:3.2.0'
 		classpath files('libs/gradle-witness.jar')
 	}

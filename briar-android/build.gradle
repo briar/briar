@@ -30,6 +30,8 @@ dependencies {
 	compile 'com.github.bumptech.glide:glide:3.8.0'
 	compile 'uk.co.samuelwall:material-tap-target-prompt:1.9.2'
 
+	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
+
 	provided 'javax.annotation:jsr250-api:1.0'
 
 	testCompile project(path: ':bramble-core', configuration: 'testOutput')

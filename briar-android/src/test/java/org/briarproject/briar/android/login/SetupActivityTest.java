@@ -7,9 +7,6 @@ import android.support.design.widget.TextInputLayout;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.common.base.Strings;
-
-import org.briarproject.bramble.api.identity.AuthorConstants;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.TestBriarApplication;
@@ -35,6 +32,8 @@ import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUIT
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.STRONG;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.WEAK;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -145,9 +144,7 @@ public class SetupActivityTest {
 	@Test
 	public void testNicknameUI() {
 		Assert.assertNotNull(setupActivity);
-		String longNick =
-				Strings.padEnd("*", AuthorConstants.MAX_AUTHOR_NAME_LENGTH + 1,
-						'*');
+		String longNick = getRandomString(MAX_AUTHOR_NAME_LENGTH + 1);
 		nicknameEntry.setText(longNick);
 		// Nickname should be too long
 		assertEquals(nicknameEntryWrapper.getError(),
