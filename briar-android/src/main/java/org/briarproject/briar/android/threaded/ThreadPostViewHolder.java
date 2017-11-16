@@ -50,12 +50,7 @@ public class ThreadPostViewHolder<I extends ThreadItem>
 			lvlText.setVisibility(GONE);
 		}
 
-		replyButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				listener.onReplyClick(item);
-			}
-		});
+		replyButton.setOnClickListener(v -> listener.onReplyClick(item));
 	}
 
 }

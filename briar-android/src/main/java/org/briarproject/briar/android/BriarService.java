@@ -112,33 +112,30 @@ public class BriarService extends Service {
 	}
 
 	private void showStartupFailureNotification(final StartResult result) {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				NotificationCompat.Builder b =
-						new NotificationCompat.Builder(BriarService.this);
-				b.setSmallIcon(android.R.drawable.stat_notify_error);
-				b.setContentTitle(getText(
-						R.string.startup_failed_notification_title));
-				b.setContentText(getText(
-						R.string.startup_failed_notification_text));
-				Intent i = new Intent(BriarService.this,
-						StartupFailureActivity.class);
-				i.setFlags(FLAG_ACTIVITY_NEW_TASK);
-				i.putExtra("briar.START_RESULT", result);
-				i.putExtra("briar.FAILURE_NOTIFICATION_ID",
-						FAILURE_NOTIFICATION_ID);
-				b.setContentIntent(PendingIntent.getActivity(BriarService.this,
-						0, i, FLAG_UPDATE_CURRENT));
-				Object o = getSystemService(NOTIFICATION_SERVICE);
-				NotificationManager nm = (NotificationManager) o;
-				nm.notify(FAILURE_NOTIFICATION_ID, b.build());
-				// Bring the dashboard to the front to clear the back stack
-				i = new Intent(BriarService.this, NavDrawerActivity.class);
-				i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
-				i.putExtra("briar.STARTUP_FAILED", true);
-				startActivity(i);
-			}
+		androidExecutor.runOnUiThread(() -> {
+			NotificationCompat.Builder b =
+					new NotificationCompat.Builder(BriarService.this);
+			b.setSmallIcon(android.R.drawable.stat_notify_error);
+			b.setContentTitle(getText(
+					R.string.startup_failed_notification_title));
+			b.setContentText(getText(
+					R.string.startup_failed_notification_text));
+			Intent i = new Intent(BriarService.this,
+					StartupFailureActivity.class);
+			i.setFlags(FLAG_ACTIVITY_NEW_TASK);
+			i.putExtra("briar.START_RESULT", result);
+			i.putExtra("briar.FAILURE_NOTIFICATION_ID",
+					FAILURE_NOTIFICATION_ID);
+			b.setContentIntent(PendingIntent.getActivity(BriarService.this,
+					0, i, FLAG_UPDATE_CURRENT));
+			Object o = getSystemService(NOTIFICATION_SERVICE);
+			NotificationManager nm = (NotificationManager) o;
+			nm.notify(FAILURE_NOTIFICATION_ID, b.build());
+			// Bring the dashboard to the front to clear the back stack
+			i = new Intent(BriarService.this, NavDrawerActivity.class);
+			i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
+			i.putExtra("briar.STARTUP_FAILED", true);
+			startActivity(i);
 		});
 	}
 

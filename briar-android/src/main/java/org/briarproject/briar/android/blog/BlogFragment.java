@@ -331,12 +331,7 @@ public class BlogFragment extends BaseFragment
 				Snackbar.make(list, stringId, Snackbar.LENGTH_LONG);
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
 		if (scroll) {
-			View.OnClickListener onClick = new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					list.smoothScrollToPosition(0);
-				}
-			};
+			View.OnClickListener onClick = v -> list.smoothScrollToPosition(0);
 			snackbar.setActionTextColor(ContextCompat
 					.getColor(getContext(),
 							R.color.briar_button_positive));
@@ -347,12 +342,7 @@ public class BlogFragment extends BaseFragment
 
 	private void showDeleteDialog() {
 		DialogInterface.OnClickListener okListener =
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						deleteBlog();
-					}
-				};
+				(dialog, which) -> deleteBlog();
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),
 				R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.blogs_remove_blog));

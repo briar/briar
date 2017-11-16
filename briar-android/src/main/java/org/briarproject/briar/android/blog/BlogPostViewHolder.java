@@ -13,7 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -95,12 +94,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		setTransitionName(item.getId());
 		if (!fullText) {
 			layout.setClickable(true);
-			layout.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					listener.onBlogPostClick(item);
-				}
-			});
+			layout.setOnClickListener(v -> listener.onBlogPostClick(item));
 		}
 
 		// author and date
@@ -113,12 +107,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 				item.isRssFeed() ? AuthorView.RSS_FEED : AuthorView.NORMAL);
 		// TODO make author clickable more often #624
 		if (!fullText && item.getHeader().getType() == POST) {
-			author.setAuthorClickable(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					listener.onAuthorClick(item);
-				}
-			});
+			author.setAuthorClickable(v -> listener.onAuthorClick(item));
 		} else {
 			author.setAuthorNotClickable();
 		}
@@ -137,23 +126,20 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		}
 
 		// reblog button
-		reblogButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent i = new Intent(ctx, ReblogActivity.class);
-				i.putExtra(GROUP_ID, item.getGroupId().getBytes());
-				i.putExtra(POST_ID, item.getId().getBytes());
+		reblogButton.setOnClickListener(v -> {
+			Intent i = new Intent(ctx, ReblogActivity.class);
+			i.putExtra(GROUP_ID, item.getGroupId().getBytes());
+			i.putExtra(POST_ID, item.getId().getBytes());
 
-				if (Build.VERSION.SDK_INT >= 23) {
-					ActivityOptionsCompat options =
-							makeSceneTransitionAnimation((Activity) ctx, layout,
-									getTransitionName(item.getId()));
-					ActivityCompat.startActivity((Activity) ctx, i,
-							options.toBundle());
-				} else {
-					// work-around for android bug #224270
-					ctx.startActivity(i);
-				}
+			if (Build.VERSION.SDK_INT >= 23) {
+				ActivityOptionsCompat options =
+						makeSceneTransitionAnimation((Activity) ctx, layout,
+								getTransitionName(item.getId()));
+				ActivityCompat.startActivity((Activity) ctx, i,
+						options.toBundle());
+			} else {
+				// work-around for android bug #224270
+				ctx.startActivity(i);
 			}
 		});
 
@@ -172,12 +158,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		reblogger.setAuthorStatus(item.getAuthorStatus());
 		reblogger.setDate(item.getTimestamp());
 		if (!fullText) {
-			reblogger.setAuthorClickable(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					listener.onAuthorClick(item);
-				}
-			});
+			reblogger.setAuthorClickable(v -> listener.onAuthorClick(item));
 		}
 		reblogger.setVisibility(VISIBLE);
 		reblogger.setPersona(AuthorView.REBLOGGER);

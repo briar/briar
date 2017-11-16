@@ -23,12 +23,8 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	private final List<T> roots = new ArrayList<>();
 	private final List<List<T>> unsortedLists = new ArrayList<>();
 
-	private Comparator<T> comparator = new Comparator<T>() {
-		@Override
-		public int compare(T o1, T o2) {
-			return Long.valueOf(o1.getTimestamp()).compareTo(o2.getTimestamp());
-		}
-	};
+	private Comparator<T> comparator = (o1, o2) ->
+			Long.valueOf(o1.getTimestamp()).compareTo(o2.getTimestamp());
 
 	@Override
 	public synchronized void clear() {

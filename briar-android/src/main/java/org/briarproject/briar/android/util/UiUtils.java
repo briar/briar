@@ -3,7 +3,6 @@ package org.briarproject.briar.android.util;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
@@ -143,16 +142,13 @@ public class UiUtils {
 
 	public static OnClickListener getGoToSettingsListener(
 			final Context context) {
-		return new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Intent i = new Intent();
-				i.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");
-				i.addCategory(CATEGORY_DEFAULT);
-				i.setData(Uri.parse("package:" + APPLICATION_ID));
-				i.addFlags(FLAG_ACTIVITY_NEW_TASK);
-				context.startActivity(i);
-			}
+		return (dialog, which) -> {
+			Intent i = new Intent();
+			i.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");
+			i.addCategory(CATEGORY_DEFAULT);
+			i.setData(Uri.parse("package:" + APPLICATION_ID));
+			i.addFlags(FLAG_ACTIVITY_NEW_TASK);
+			context.startActivity(i);
 		};
 	}
 
@@ -160,13 +156,7 @@ public class UiUtils {
 		new AlertDialog.Builder(ctx, R.style.OnboardingDialogTheme)
 				.setMessage(text)
 				.setNeutralButton(R.string.got_it,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								dialog.cancel();
-							}
-						})
+						(dialog, which) -> dialog.cancel())
 				.show();
 	}
 

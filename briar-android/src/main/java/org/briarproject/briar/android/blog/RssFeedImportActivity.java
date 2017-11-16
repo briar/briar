@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.blog;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -8,7 +7,6 @@ import android.text.TextWatcher;
 import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -75,12 +73,7 @@ public class RssFeedImportActivity extends BriarActivity {
 		});
 
 		importButton = (Button) findViewById(R.id.importButton);
-		importButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				publish();
-			}
-		});
+		importButton.setOnClickListener(v -> publish());
 
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
 	}
@@ -126,54 +119,37 @@ public class RssFeedImportActivity extends BriarActivity {
 	}
 
 	private void importFeed(final String url) {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					feedManager.addFeed(url);
-					feedImported();
-				} catch (DbException | IOException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					importFailed();
-				}
+		ioExecutor.execute(() -> {
+			try {
+				feedManager.addFeed(url);
+				feedImported();
+			} catch (DbException | IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				importFailed();
 			}
 		});
 	}
 
 	private void feedImported() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				supportFinishAfterTransition();
-			}
-		});
+		runOnUiThreadUnlessDestroyed(this::supportFinishAfterTransition);
 	}
 
 	private void importFailed() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				// hide progress bar, show publish button
-				progressBar.setVisibility(GONE);
-				importButton.setVisibility(VISIBLE);
+		runOnUiThreadUnlessDestroyed(() -> {
+			// hide progress bar, show publish button
+			progressBar.setVisibility(GONE);
+			importButton.setVisibility(VISIBLE);
 
-				// show error dialog
-				AlertDialog.Builder builder =
-						new AlertDialog.Builder(RssFeedImportActivity.this,
-								R.style.BriarDialogTheme);
-				builder.setMessage(R.string.blogs_rss_feeds_import_error);
-				builder.setNegativeButton(R.string.cancel, null);
-				builder.setPositiveButton(R.string.try_again_button,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								publish();
-							}
-						});
-				AlertDialog dialog = builder.create();
-				dialog.show();
-			}
+			// show error dialog
+			AlertDialog.Builder builder =
+					new AlertDialog.Builder(RssFeedImportActivity.this,
+							R.style.BriarDialogTheme);
+			builder.setMessage(R.string.blogs_rss_feeds_import_error);
+			builder.setNegativeButton(R.string.cancel, null);
+			builder.setPositiveButton(R.string.try_again_button,
+					(dialog, which) -> publish());
+			AlertDialog dialog = builder.create();
+			dialog.show();
 		});
 	}
 

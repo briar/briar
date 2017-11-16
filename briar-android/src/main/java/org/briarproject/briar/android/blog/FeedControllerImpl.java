@@ -91,40 +91,31 @@ class FeedControllerImpl extends BaseControllerImpl
 	}
 
 	private void onBlogAdded() {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.onBlogAdded();
-			}
-		});
+		listener.runOnUiThreadUnlessDestroyed(() -> listener.onBlogAdded());
 	}
 
 	@Override
 	public void loadBlogPosts(
 			final ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					Collection<BlogPostItem> posts = new ArrayList<>();
-					for (Blog b : blogManager.getBlogs()) {
-						try {
-							posts.addAll(loadItems(b.getId()));
-						} catch (NoSuchGroupException | NoSuchMessageException e) {
-							if (LOG.isLoggable(WARNING))
-								LOG.log(WARNING, e.toString(), e);
-						}
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				Collection<BlogPostItem> posts = new ArrayList<>();
+				for (Blog b : blogManager.getBlogs()) {
+					try {
+						posts.addAll(loadItems(b.getId()));
+					} catch (NoSuchGroupException | NoSuchMessageException e) {
+						if (LOG.isLoggable(WARNING))
+							LOG.log(WARNING, e.toString(), e);
 					}
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading all posts took " + duration + " ms");
-					handler.onResult(posts);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
 				}
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading all posts took " + duration + " ms");
+				handler.onResult(posts);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
@@ -132,22 +123,18 @@ class FeedControllerImpl extends BaseControllerImpl
 	@Override
 	public void loadPersonalBlog(
 			final ResultExceptionHandler<Blog, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					Author a = identityManager.getLocalAuthor();
-					Blog b = blogManager.getPersonalBlog(a);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading blog took " + duration + " ms");
-					handler.onResult(b);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				Author a = identityManager.getLocalAuthor();
+				Blog b = blogManager.getPersonalBlog(a);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading blog took " + duration + " ms");
+				handler.onResult(b);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}

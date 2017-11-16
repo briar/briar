@@ -152,11 +152,8 @@ public abstract class BaseActivity extends AppCompatActivity
 
 	@Override
 	public void runOnUiThreadUnlessDestroyed(final Runnable r) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (!destroyed && !isFinishing()) r.run();
-			}
+		runOnUiThread(() -> {
+			if (!destroyed && !isFinishing()) r.run();
 		});
 	}
 

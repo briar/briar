@@ -134,32 +134,22 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	private void scheduleKeyRotation(long now) {
-		Runnable task = new Runnable() {
-			@Override
-			public void run() {
-				rotateKeys();
-			}
-		};
 		long delay = rotationPeriodLength - now % rotationPeriodLength;
-		scheduler.schedule(task, delay, MILLISECONDS);
+		scheduler.schedule((Runnable) this::rotateKeys, delay, MILLISECONDS);
 	}
 
 	private void rotateKeys() {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
+		dbExecutor.execute(() -> {
+			try {
+				Transaction txn = db.startTransaction(false);
 				try {
-					Transaction txn = db.startTransaction(false);
-					try {
-						rotateKeys(txn);
-						db.commitTransaction(txn);
-					} finally {
-						db.endTransaction(txn);
-					}
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
+					rotateKeys(txn);
+					db.commitTransaction(txn);
+				} finally {
+					db.endTransaction(txn);
 				}
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}

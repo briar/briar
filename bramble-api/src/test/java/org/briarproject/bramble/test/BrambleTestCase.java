@@ -8,12 +8,9 @@ public abstract class BrambleTestCase {
 
 	public BrambleTestCase() {
 		// Ensure exceptions thrown on worker threads cause tests to fail
-		UncaughtExceptionHandler fail = new UncaughtExceptionHandler() {
-			@Override
-			public void uncaughtException(Thread thread, Throwable throwable) {
-				throwable.printStackTrace();
-				fail();
-			}
+		UncaughtExceptionHandler fail = (thread, throwable) -> {
+			throwable.printStackTrace();
+			fail();
 		};
 		Thread.setDefaultUncaughtExceptionHandler(fail);
 	}

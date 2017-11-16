@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.keyagreement;
 
-import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
@@ -144,12 +143,8 @@ public class KeyAgreementActivity extends BriarActivity implements
 			// Should we show an explanation?
 			if (ActivityCompat.shouldShowRequestPermissionRationale(this,
 					CAMERA)) {
-				OnClickListener continueListener = new OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						requestPermission();
-					}
-				};
+				OnClickListener continueListener =
+						(dialog, which) -> requestPermission();
 				Builder builder = new Builder(this, style.BriarDialogTheme);
 				builder.setTitle(string.permission_camera_title);
 				builder.setMessage(string.permission_camera_request_body);
@@ -183,12 +178,8 @@ public class KeyAgreementActivity extends BriarActivity implements
 				if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
 						CAMERA)) {
 					// The user has permanently denied the request
-					OnClickListener cancelListener = new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							supportFinishAfterTransition();
-						}
-					};
+					OnClickListener cancelListener =
+							(dialog, which) -> supportFinishAfterTransition();
 					Builder builder = new Builder(this, style.BriarDialogTheme);
 					builder.setTitle(string.permission_camera_title);
 					builder.setMessage(string.permission_camera_denied_body);
@@ -214,77 +205,57 @@ public class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	private void keyAgreementFinished(final KeyAgreementResult result) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				startContactExchange(result);
-			}
-		});
+		runOnUiThreadUnlessDestroyed(() -> startContactExchange(result));
 	}
 
 	private void startContactExchange(final KeyAgreementResult result) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				LocalAuthor localAuthor;
-				// Load the local pseudonym
-				try {
-					localAuthor = identityManager.getLocalAuthor();
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					contactExchangeFailed();
-					return;
-				}
-
-				// Exchange contact details
-				contactExchangeTask.startExchange(KeyAgreementActivity.this,
-						localAuthor, result.getMasterKey(),
-						result.getConnection(), result.getTransportId(),
-						result.wasAlice());
+		runOnDbThread(() -> {
+			LocalAuthor localAuthor;
+			// Load the local pseudonym
+			try {
+				localAuthor = identityManager.getLocalAuthor();
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				contactExchangeFailed();
+				return;
 			}
+
+			// Exchange contact details
+			contactExchangeTask.startExchange(KeyAgreementActivity.this,
+					localAuthor, result.getMasterKey(),
+					result.getConnection(), result.getTransportId(),
+					result.wasAlice());
 		});
 	}
 
 	@Override
 	public void contactExchangeSucceeded(final Author remoteAuthor) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				String contactName = remoteAuthor.getName();
-				String format = getString(R.string.contact_added_toast);
-				String text = String.format(format, contactName);
-				Toast.makeText(KeyAgreementActivity.this, text, LENGTH_LONG)
-						.show();
-				supportFinishAfterTransition();
-			}
+		runOnUiThreadUnlessDestroyed(() -> {
+			String contactName = remoteAuthor.getName();
+			String format = getString(string.contact_added_toast);
+			String text = String.format(format, contactName);
+			Toast.makeText(KeyAgreementActivity.this, text, LENGTH_LONG).show();
+			supportFinishAfterTransition();
 		});
 	}
 
 	@Override
 	public void duplicateContact(final Author remoteAuthor) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				String contactName = remoteAuthor.getName();
-				String format = getString(R.string.contact_already_exists);
-				String text = String.format(format, contactName);
-				Toast.makeText(KeyAgreementActivity.this, text, LENGTH_LONG)
-						.show();
-				finish();
-			}
+		runOnUiThreadUnlessDestroyed(() -> {
+			String contactName = remoteAuthor.getName();
+			String format = getString(string.contact_already_exists);
+			String text = String.format(format, contactName);
+			Toast.makeText(KeyAgreementActivity.this, text, LENGTH_LONG).show();
+			finish();
 		});
 	}
 
 	@Override
 	public void contactExchangeFailed() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				Toast.makeText(KeyAgreementActivity.this,
-						R.string.contact_exchange_failed, LENGTH_LONG).show();
-				finish();
-			}
+		runOnUiThreadUnlessDestroyed(() -> {
+			Toast.makeText(KeyAgreementActivity.this,
+					string.contact_exchange_failed, LENGTH_LONG).show();
+			finish();
 		});
 	}
 }

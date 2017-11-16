@@ -5,16 +5,12 @@ import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
@@ -65,24 +61,15 @@ public class CreateGroupFragment extends BaseFragment {
 			public void afterTextChanged(Editable s) {
 			}
 		});
-		nameEntry.setOnEditorActionListener(new OnEditorActionListener() {
-			@Override
-			public boolean onEditorAction(TextView v, int actionId,
-					KeyEvent e) {
-				createGroup();
-				return true;
-			}
+		nameEntry.setOnEditorActionListener((v1, actionId, e) -> {
+			createGroup();
+			return true;
 		});
 
 		nameLayout = (TextInputLayout) v.findViewById(R.id.nameLayout);
 
 		createGroupButton = (Button) v.findViewById(R.id.button);
-		createGroupButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				createGroup();
-			}
-		});
+		createGroupButton.setOnClickListener(v1 -> createGroup());
 
 		progress = (ProgressBar) v.findViewById(R.id.progressBar);
 

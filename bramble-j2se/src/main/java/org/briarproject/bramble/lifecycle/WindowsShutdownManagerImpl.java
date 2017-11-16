@@ -113,17 +113,13 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 				final User32 user32 = (User32) Native.loadLibrary("user32",
 						User32.class, options);
 				// Create a callback to handle the WM_QUERYENDSESSION message
-				WindowProc proc = new WindowProc() {
-					@Override
-					public LRESULT callback(HWND hwnd, int msg, WPARAM wp,
-							LPARAM lp) {
-						if (msg == WM_QUERYENDSESSION) {
-							// It's safe to delay returning from this message
-							runShutdownHooks();
-						}
-						// Pass the message to the default window procedure
-						return user32.DefWindowProc(hwnd, msg, wp, lp);
+				WindowProc proc = (hwnd, msg, wp, lp) -> {
+					if (msg == WM_QUERYENDSESSION) {
+						// It's safe to delay returning from this message
+						runShutdownHooks();
 					}
+					// Pass the message to the default window procedure
+					return user32.DefWindowProc(hwnd, msg, wp, lp);
 				};
 				// Create a native window
 				HWND hwnd = user32.CreateWindowEx(0, "STATIC", "", WS_MINIMIZE,

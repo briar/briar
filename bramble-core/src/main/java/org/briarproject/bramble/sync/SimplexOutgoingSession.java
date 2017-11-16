@@ -43,12 +43,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	private static final Logger LOG =
 			Logger.getLogger(SimplexOutgoingSession.class.getName());
 
-	private static final ThrowingRunnable<IOException> CLOSE =
-			new ThrowingRunnable<IOException>() {
-				@Override
-				public void run() {
-				}
-			};
+	private static final ThrowingRunnable<IOException> CLOSE = () -> {};
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;

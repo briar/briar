@@ -101,16 +101,12 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	public void onActivityDestroy() {
 		final MessageId messageId = listener.getFirstVisibleMessageId();
 		if (messageId != null) {
-			dbExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						messageTracker
-								.storeMessageId(groupId, messageId);
-					} catch (DbException e) {
-						if (LOG.isLoggable(WARNING))
-							LOG.log(WARNING, e.toString(), e);
-					}
+			dbExecutor.execute(() -> {
+				try {
+					messageTracker.storeMessageId(groupId, messageId);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
 				}
 			});
 		}
@@ -123,12 +119,8 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 			GroupRemovedEvent s = (GroupRemovedEvent) e;
 			if (s.getGroup().getId().equals(getGroupId())) {
 				LOG.info("Group removed");
-				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						listener.onGroupRemoved();
-					}
-				});
+				listener.runOnUiThreadUnlessDestroyed(
+						() -> listener.onGroupRemoved());
 			}
 		}
 	}
@@ -137,21 +129,18 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	public void loadNamedGroup(
 			final ResultExceptionHandler<G, DbException> handler) {
 		checkGroupId();
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					G groupItem = loadNamedGroup();
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading group took " + duration + " ms");
-					handler.onResult(groupItem);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				G groupItem = loadNamedGroup();
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading group took " + duration + " ms");
+				handler.onResult(groupItem);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
@@ -163,36 +152,32 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	public void loadItems(
 			final ResultExceptionHandler<ThreadItemList<I>, DbException> handler) {
 		checkGroupId();
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// Load headers
-					long now = System.currentTimeMillis();
-					Collection<H> headers = loadHeaders();
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading headers took " + duration + " ms");
+		runOnDbThread(() -> {
+			try {
+				// Load headers
+				long now = System.currentTimeMillis();
+				Collection<H> headers = loadHeaders();
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading headers took " + duration + " ms");
 
-					// Load bodies into cache
-					now = System.currentTimeMillis();
-					for (H header : headers) {
-						if (!bodyCache.containsKey(header.getId())) {
-							bodyCache.put(header.getId(),
-									loadMessageBody(header));
-						}
+				// Load bodies into cache
+				now = System.currentTimeMillis();
+				for (H header : headers) {
+					if (!bodyCache.containsKey(header.getId())) {
+						bodyCache.put(header.getId(),
+								loadMessageBody(header));
 					}
-					duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading bodies took " + duration + " ms");
-
-					// Build and hand over items
-					handler.onResult(buildItems(headers));
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
 				}
+				duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading bodies took " + duration + " ms");
+
+				// Build and hand over items
+				handler.onResult(buildItems(headers));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
@@ -210,21 +195,17 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@Override
 	public void markItemsRead(final Collection<I> items) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					for (I i : items) {
-						markRead(i.getId());
-					}
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Marking read took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				for (I i : items) {
+					markRead(i.getId());
 				}
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Marking read took " + duration + " ms");
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
@@ -234,22 +215,18 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	protected void storePost(final M msg, final String body,
 			final ResultExceptionHandler<I, DbException> resultHandler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					H header = addLocalMessage(msg);
-					bodyCache.put(msg.getMessage().getId(), body);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Storing message took " + duration + " ms");
-					resultHandler.onResult(buildItem(header, body));
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					resultHandler.onException(e);
-				}
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				H header = addLocalMessage(msg);
+				bodyCache.put(msg.getMessage().getId(), body);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Storing message took " + duration + " ms");
+				resultHandler.onResult(buildItem(header, body));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				resultHandler.onException(e);
 			}
 		});
 	}
@@ -259,21 +236,17 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@Override
 	public void deleteNamedGroup(final ExceptionHandler<DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					G groupItem = loadNamedGroup();
-					deleteNamedGroup(groupItem);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Removing group took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				G groupItem = loadNamedGroup();
+				deleteNamedGroup(groupItem);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Removing group took " + duration + " ms");
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}

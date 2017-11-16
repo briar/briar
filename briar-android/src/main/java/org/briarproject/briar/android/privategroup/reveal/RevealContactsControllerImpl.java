@@ -62,18 +62,12 @@ class RevealContactsControllerImpl extends DbControllerImpl
 	public void loadContacts(final GroupId g,
 			final Collection<ContactId> selection,
 			final ResultExceptionHandler<Collection<RevealableContactItem>, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Collection<RevealableContactItem> items =
-							getItems(g, selection);
-					handler.onResult(items);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			try {
+				handler.onResult(getItems(g, selection));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
@@ -105,38 +99,31 @@ class RevealContactsControllerImpl extends DbControllerImpl
 	@Override
 	public void isOnboardingNeeded(
 			final ResultExceptionHandler<Boolean, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Settings settings =
-							settingsManager.getSettings(SETTINGS_NAMESPACE);
-					handler.onResult(
-							settings.getBoolean(SHOW_ONBOARDING_REVEAL_CONTACTS,
-									true));
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
-
+		runOnDbThread(() -> {
+			try {
+				Settings settings =
+						settingsManager.getSettings(SETTINGS_NAMESPACE);
+				handler.onResult(
+						settings.getBoolean(SHOW_ONBOARDING_REVEAL_CONTACTS,
+								true));
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
+
 		});
 	}
 
 	@Override
 	public void onboardingShown(ExceptionHandler<DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Settings settings = new Settings();
-					settings.putBoolean(SHOW_ONBOARDING_REVEAL_CONTACTS, false);
-					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+		runOnDbThread(() -> {
+			try {
+				Settings settings = new Settings();
+				settings.putBoolean(SHOW_ONBOARDING_REVEAL_CONTACTS, false);
+				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
@@ -144,22 +131,19 @@ class RevealContactsControllerImpl extends DbControllerImpl
 	@Override
 	public void reveal(final GroupId g, final Collection<ContactId> contacts,
 			final ExceptionHandler<DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				for (ContactId c : contacts) {
-					try {
-						groupInvitationManager.revealRelationship(c, g);
-					} catch (ProtocolStateException e) {
-						// action is outdated, move to next contact
-						if (LOG.isLoggable(INFO))
-							LOG.log(INFO, e.toString(), e);
-					} catch (DbException e) {
-						if (LOG.isLoggable(WARNING))
-							LOG.log(WARNING, e.toString(), e);
-						handler.onException(e);
-						break;
-					}
+		runOnDbThread(() -> {
+			for (ContactId c : contacts) {
+				try {
+					groupInvitationManager.revealRelationship(c, g);
+				} catch (ProtocolStateException e) {
+					// action is outdated, move to next contact
+					if (LOG.isLoggable(INFO))
+						LOG.log(INFO, e.toString(), e);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					handler.onException(e);
+					break;
 				}
 			}
 		});

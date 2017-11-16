@@ -256,12 +256,9 @@ public class BriarReportPrimer implements ReportPrimer {
 			Looper.prepare();
 			Handler handler = new Handler();
 			handler.post(runnable);
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					Looper looper = Looper.myLooper();
-					if (looper != null) looper.quit();
-				}
+			handler.post(() -> {
+				Looper looper = Looper.myLooper();
+				if (looper != null) looper.quit();
 			});
 			Looper.loop();
 		}

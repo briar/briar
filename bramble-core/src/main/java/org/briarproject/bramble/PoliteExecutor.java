@@ -50,18 +50,15 @@ public class PoliteExecutor implements Executor {
 	@Override
 	public void execute(final Runnable r) {
 		final long submitted = System.currentTimeMillis();
-		Runnable wrapped = new Runnable() {
-			@Override
-			public void run() {
-				if (log.isLoggable(LOG_LEVEL)) {
-					long queued = System.currentTimeMillis() - submitted;
-					log.log(LOG_LEVEL, "Queue time " + queued + " ms");
-				}
-				try {
-					r.run();
-				} finally {
-					scheduleNext();
-				}
+		Runnable wrapped = () -> {
+			if (log.isLoggable(LOG_LEVEL)) {
+				long queued = System.currentTimeMillis() - submitted;
+				log.log(LOG_LEVEL, "Queue time " + queued + " ms");
+			}
+			try {
+				r.run();
+			} finally {
+				scheduleNext();
 			}
 		};
 		synchronized (lock) {

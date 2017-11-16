@@ -3,7 +3,6 @@ package org.briarproject.briar.android.blog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -41,16 +40,12 @@ public class BlogActivity extends BriarActivity
 
 		// Open Sharing Status on Toolbar click
 		if (toolbar != null) {
-			toolbar.setOnClickListener(
-					new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							Intent i = new Intent(BlogActivity.this,
-									BlogSharingStatusActivity.class);
-							i.putExtra(GROUP_ID, groupId.getBytes());
-							startActivity(i);
-						}
-					});
+			toolbar.setOnClickListener(v -> {
+				Intent i1 = new Intent(BlogActivity.this,
+						BlogSharingStatusActivity.class);
+				i1.putExtra(GROUP_ID, groupId.getBytes());
+				startActivity(i1);
+			});
 		}
 
 		if (state == null) {

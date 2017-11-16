@@ -390,15 +390,12 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 						lock.unlock();
 					}
 				} else if (s.equals("RING")) {
-					ioExecutor.execute(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								answer();
-							} catch (IOException e) {
-								if (LOG.isLoggable(WARNING))
-									LOG.log(WARNING, e.toString(), e);
-							}
+					ioExecutor.execute(() -> {
+						try {
+							answer();
+						} catch (IOException e) {
+							if (LOG.isLoggable(WARNING))
+								LOG.log(WARNING, e.toString(), e);
 						}
 					});
 				}

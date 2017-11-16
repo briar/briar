@@ -99,13 +99,10 @@ abstract class BasePostFragment extends BaseFragment {
 	}
 
 	private void startPeriodicUpdate() {
-		refresher = new Runnable() {
-			@Override
-			public void run() {
-				LOG.info("Updating Content...");
-				ui.updateDate(post.getTimestamp());
-				handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
-			}
+		refresher = () -> {
+			LOG.info("Updating Content...");
+			ui.updateDate(post.getTimestamp());
+			handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
 		};
 		LOG.info("Adding Handler Callback");
 		handler.postDelayed(refresher, MIN_DATE_RESOLUTION);

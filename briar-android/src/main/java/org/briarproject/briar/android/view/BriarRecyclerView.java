@@ -94,24 +94,13 @@ public class BriarRecyclerView extends FrameLayout {
 	}
 
 	private void addLayoutChangeListener() {
-		recyclerView.addOnLayoutChangeListener(
-				new OnLayoutChangeListener() {
-					@Override
-					public void onLayoutChange(View v, int left, int top,
-							int right, int bottom, int oldLeft, int oldTop,
-							int oldRight, int oldBottom) {
-						if (bottom < oldBottom) {
-							recyclerView.postDelayed(new Runnable() {
-								@Override
-								public void run() {
-									scrollToPosition(
-											recyclerView.getAdapter()
-													.getItemCount() - 1);
-								}
-							}, 100);
-						}
-					}
-				});
+		recyclerView.addOnLayoutChangeListener((v, left, top, right, bottom,
+				oldLeft, oldTop, oldRight, oldBottom) -> {
+			if (bottom < oldBottom) {
+				recyclerView.postDelayed(() -> scrollToPosition(
+						recyclerView.getAdapter().getItemCount() - 1), 100);
+			}
+		});
 	}
 
 	public void setLayoutManager(RecyclerView.LayoutManager layout) {
@@ -191,14 +180,11 @@ public class BriarRecyclerView extends FrameLayout {
 		if (recyclerView == null || recyclerView.getAdapter() == null) {
 			throw new IllegalStateException("Need to call setAdapter() first!");
 		}
-		refresher = new Runnable() {
-			@Override
-			public void run() {
-				LOG.info("Updating Content...");
-				Adapter adapter = recyclerView.getAdapter();
-				adapter.notifyItemRangeChanged(0, adapter.getItemCount());
-				handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
-			}
+		refresher = () -> {
+			LOG.info("Updating Content...");
+			Adapter adapter = recyclerView.getAdapter();
+			adapter.notifyItemRangeChanged(0, adapter.getItemCount());
+			handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
 		};
 		LOG.info("Adding Handler Callback");
 		handler.postDelayed(refresher, MIN_DATE_RESOLUTION);

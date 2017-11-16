@@ -112,29 +112,23 @@ class Poller implements EventListener {
 	}
 
 	private void connectToContact(final ContactId c, final SimplexPlugin p) {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				TransportId t = p.getId();
-				if (!connectionRegistry.isConnected(c, t)) {
-					TransportConnectionWriter w = p.createWriter(c);
-					if (w != null)
-						connectionManager.manageOutgoingConnection(c, t, w);
-				}
+		ioExecutor.execute(() -> {
+			TransportId t = p.getId();
+			if (!connectionRegistry.isConnected(c, t)) {
+				TransportConnectionWriter w = p.createWriter(c);
+				if (w != null)
+					connectionManager.manageOutgoingConnection(c, t, w);
 			}
 		});
 	}
 
 	private void connectToContact(final ContactId c, final DuplexPlugin p) {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				TransportId t = p.getId();
-				if (!connectionRegistry.isConnected(c, t)) {
-					DuplexTransportConnection d = p.createConnection(c);
-					if (d != null)
-						connectionManager.manageOutgoingConnection(c, t, d);
-				}
+		ioExecutor.execute(() -> {
+			TransportId t = p.getId();
+			if (!connectionRegistry.isConnected(c, t)) {
+				DuplexTransportConnection d = p.createConnection(c);
+				if (d != null)
+					connectionManager.manageOutgoingConnection(c, t, d);
 			}
 		});
 	}
@@ -161,12 +155,8 @@ class Poller implements EventListener {
 			if (scheduled == null || due < scheduled.due) {
 				final PollTask task = new PollTask(p, due, randomiseNext);
 				tasks.put(t, task);
-				scheduler.schedule(new Runnable() {
-					@Override
-					public void run() {
-						ioExecutor.execute(task);
-					}
-				}, delay, MILLISECONDS);
+				scheduler.schedule(
+						() -> ioExecutor.execute(task), delay, MILLISECONDS);
 			}
 		} finally {
 			lock.unlock();

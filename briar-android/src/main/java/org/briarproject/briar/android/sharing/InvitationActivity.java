@@ -123,20 +123,17 @@ public abstract class InvitationActivity<I extends InvitationItem>
 
 	protected void displayInvitations(final int revision,
 			final Collection<I> invitations, final boolean clear) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				if (invitations.isEmpty()) {
-					LOG.info("No more invitations available, finishing");
-					supportFinishAfterTransition();
-				} else if (revision == adapter.getRevision()) {
-					adapter.incrementRevision();
-					if (clear) adapter.setItems(invitations);
-					else adapter.addAll(invitations);
-				} else {
-					LOG.info("Concurrent update, reloading");
-					loadInvitations(clear);
-				}
+		runOnUiThreadUnlessDestroyed(() -> {
+			if (invitations.isEmpty()) {
+				LOG.info("No more invitations available, finishing");
+				supportFinishAfterTransition();
+			} else if (revision == adapter.getRevision()) {
+				adapter.incrementRevision();
+				if (clear) adapter.setItems(invitations);
+				else adapter.addAll(invitations);
+			} else {
+				LOG.info("Concurrent update, reloading");
+				loadInvitations(clear);
 			}
 		});
 	}

@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.fragment;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -35,12 +34,7 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 		builder.setMessage(getString(R.string.screen_filter_body,
 				TextUtils.join("\n", apps)));
 		builder.setNeutralButton(R.string.continue_button,
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
+				(dialog, which) -> dialog.dismiss());
 		return builder.create();
 	}
 }

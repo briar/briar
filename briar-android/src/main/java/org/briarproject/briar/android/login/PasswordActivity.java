@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.login;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,13 +7,10 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -61,13 +57,9 @@ public class PasswordActivity extends BaseActivity {
 		progress = (ProgressBar) findViewById(R.id.progress_wheel);
 		input = (TextInputLayout) findViewById(R.id.password_layout);
 		password = (EditText) findViewById(R.id.edit_password);
-		password.setOnEditorActionListener(new OnEditorActionListener() {
-			@Override
-			public boolean onEditorAction(TextView v, int actionId,
-					KeyEvent event) {
-				validatePassword();
-				return true;
-			}
+		password.setOnEditorActionListener((v, actionId, event) -> {
+			validatePassword();
+			return true;
 		});
 		password.addTextChangedListener(new TextWatcher() {
 
@@ -131,12 +123,7 @@ public class PasswordActivity extends BaseActivity {
 		builder.setMessage(R.string.dialog_message_lost_password);
 		builder.setPositiveButton(R.string.cancel, null);
 		builder.setNegativeButton(R.string.delete,
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						deleteAccount();
-					}
-				});
+				(dialog, which) -> deleteAccount());
 		AlertDialog dialog = builder.create();
 		dialog.show();
 	}

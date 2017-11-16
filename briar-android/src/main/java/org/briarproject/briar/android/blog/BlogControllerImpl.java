@@ -126,21 +126,12 @@ class BlogControllerImpl extends BaseControllerImpl
 	}
 
 	private void onBlogInvitationAccepted(final ContactId c) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.onBlogInvitationAccepted(c);
-			}
-		});
+		listener.runOnUiThreadUnlessDestroyed(
+				() -> listener.onBlogInvitationAccepted(c));
 	}
 
 	private void onBlogLeft(final ContactId c) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.onBlogLeft(c);
-			}
-		});
+		listener.runOnUiThreadUnlessDestroyed(() -> listener.onBlogLeft(c));
 	}
 
 	@Override
@@ -161,25 +152,22 @@ class BlogControllerImpl extends BaseControllerImpl
 	public void loadBlog(
 			final ResultExceptionHandler<BlogItem, DbException> handler) {
 		if (groupId == null) throw new IllegalStateException();
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					LocalAuthor a = identityManager.getLocalAuthor();
-					Blog b = blogManager.getBlog(groupId);
-					boolean ours = a.getId().equals(b.getAuthor().getId());
-					boolean removable = blogManager.canBeRemoved(b);
-					BlogItem blog = new BlogItem(b, ours, removable);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading blog took " + duration + " ms");
-					handler.onResult(blog);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				LocalAuthor a = identityManager.getLocalAuthor();
+				Blog b = blogManager.getBlog(groupId);
+				boolean ours = a.getId().equals(b.getAuthor().getId());
+				boolean removable = blogManager.canBeRemoved(b);
+				BlogItem blog = new BlogItem(b, ours, removable);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading blog took " + duration + " ms");
+				handler.onResult(blog);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
@@ -188,22 +176,19 @@ class BlogControllerImpl extends BaseControllerImpl
 	public void deleteBlog(
 			final ResultExceptionHandler<Void, DbException> handler) {
 		if (groupId == null) throw new IllegalStateException();
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					Blog b = blogManager.getBlog(groupId);
-					blogManager.removeBlog(b);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Removing blog took " + duration + " ms");
-					handler.onResult(null);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				Blog b = blogManager.getBlog(groupId);
+				blogManager.removeBlog(b);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Removing blog took " + duration + " ms");
+				handler.onResult(null);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
@@ -212,21 +197,18 @@ class BlogControllerImpl extends BaseControllerImpl
 	public void loadSharingContacts(
 			final ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
 		if (groupId == null) throw new IllegalStateException();
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Collection<Contact> contacts =
-							blogSharingManager.getSharedWith(groupId);
-					Collection<ContactId> contactIds =
-							new ArrayList<>(contacts.size());
-					for (Contact c : contacts) contactIds.add(c.getId());
-					handler.onResult(contactIds);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			try {
+				Collection<Contact> contacts =
+						blogSharingManager.getSharedWith(groupId);
+				Collection<ContactId> contactIds =
+						new ArrayList<>(contacts.size());
+				for (Contact c : contacts) contactIds.add(c.getId());
+				handler.onResult(contactIds);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}

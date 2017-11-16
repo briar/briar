@@ -98,71 +98,59 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 
 	private void transportStateUpdate(final TransportId id,
 			final boolean enabled) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.stateUpdate(id, enabled);
-			}
-		});
+		listener.runOnUiThreadUnlessDestroyed(
+				() -> listener.stateUpdate(id, enabled));
 	}
 
 	@Override
 	public void showExpiryWarning(final ResultHandler<ExpiryWarning> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Settings settings =
-							settingsManager.getSettings(SETTINGS_NAMESPACE);
-					int warningInt = settings.getInt(EXPIRY_DATE_WARNING, 0);
-					boolean showUpdate =
-							settings.getBoolean(EXPIRY_SHOW_UPDATE, true);
+		runOnDbThread(() -> {
+			try {
+				Settings settings =
+						settingsManager.getSettings(SETTINGS_NAMESPACE);
+				int warningInt = settings.getInt(EXPIRY_DATE_WARNING, 0);
+				boolean showUpdate =
+						settings.getBoolean(EXPIRY_SHOW_UPDATE, true);
 
-					if (warningInt == 0) {
-						// we have not warned before
+				if (warningInt == 0) {
+					// we have not warned before
+					handler.onResult(SHOW);
+				} else {
+					long warningLong = warningInt * 1000L;
+					long now = System.currentTimeMillis();
+					long daysSinceLastWarning =
+							(now - warningLong) / 1000 / 60 / 60 / 24;
+					long daysBeforeExpiry =
+							(EXPIRY_DATE - now) / 1000 / 60 / 60 / 24;
+
+					if (showUpdate) {
+						handler.onResult(UPDATE);
+					} else if (daysSinceLastWarning >= 30) {
+						handler.onResult(SHOW);
+					} else if (daysBeforeExpiry <= 3 &&
+							daysSinceLastWarning > 0) {
 						handler.onResult(SHOW);
 					} else {
-						long warningLong = warningInt * 1000L;
-						long now = System.currentTimeMillis();
-						long daysSinceLastWarning =
-								(now - warningLong) / 1000 / 60 / 60 / 24;
-						long daysBeforeExpiry =
-								(EXPIRY_DATE - now) / 1000 / 60 / 60 / 24;
-
-						if (showUpdate) {
-							handler.onResult(UPDATE);
-						} else if (daysSinceLastWarning >= 30) {
-							handler.onResult(SHOW);
-						} else if (daysBeforeExpiry <= 3 &&
-								daysSinceLastWarning > 0) {
-							handler.onResult(SHOW);
-						} else {
-							handler.onResult(NO);
-						}
+						handler.onResult(NO);
 					}
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
 				}
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
 	@Override
 	public void expiryWarningDismissed() {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Settings settings = new Settings();
-					int date = (int) (System.currentTimeMillis() / 1000L);
-					settings.putInt(EXPIRY_DATE_WARNING, date);
-					settings.putBoolean(EXPIRY_SHOW_UPDATE, false);
-					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+		runOnDbThread(() -> {
+			try {
+				Settings settings = new Settings();
+				int date = (int) (System.currentTimeMillis() / 1000L);
+				settings.putInt(EXPIRY_DATE_WARNING, date);
+				settings.putBoolean(EXPIRY_SHOW_UPDATE, false);
+				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}

@@ -28,12 +28,9 @@ public class PoliteExecutorTest extends BrambleTestCase {
 		final CountDownLatch latch = new CountDownLatch(TASKS);
 		for (int i = 0; i < TASKS; i++) {
 			final int result = i;
-			polite.execute(new Runnable() {
-				@Override
-				public void run() {
-					list.add(result);
-					latch.countDown();
-				}
+			polite.execute(() -> {
+				list.add(result);
+				latch.countDown();
 			});
 		}
 		// Wait for all the tasks to finish
@@ -53,12 +50,9 @@ public class PoliteExecutorTest extends BrambleTestCase {
 		final CountDownLatch latch = new CountDownLatch(TASKS);
 		for (int i = 0; i < TASKS; i++) {
 			final int result = i;
-			polite.execute(new Runnable() {
-				@Override
-				public void run() {
-					list.add(result);
-					latch.countDown();
-				}
+			polite.execute(() -> {
+				list.add(result);
+				latch.countDown();
 			});
 		}
 		// Wait for all the tasks to finish
@@ -78,18 +72,15 @@ public class PoliteExecutorTest extends BrambleTestCase {
 		for (int i = 0; i < TASKS; i++) latches[i] = new CountDownLatch(1);
 		for (int i = 0; i < TASKS; i++) {
 			final int result = i;
-			polite.execute(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						// Each task waits for the next task, if any, to finish
-						if (result < TASKS - 1) latches[result + 1].await();
-						list.add(result);
-					} catch (InterruptedException e) {
-						fail();
-					}
-					latches[result].countDown();
+			polite.execute(() -> {
+				try {
+					// Each task waits for the next task, if any, to finish
+					if (result < TASKS - 1) latches[result + 1].await();
+					list.add(result);
+				} catch (InterruptedException e) {
+					fail();
 				}
+				latches[result].countDown();
 			});
 		}
 		// Wait for all the tasks to finish
@@ -108,18 +99,15 @@ public class PoliteExecutorTest extends BrambleTestCase {
 		final CountDownLatch latch = new CountDownLatch(TASKS);
 		for (int i = 0; i < TASKS; i++) {
 			final int result = i;
-			polite.execute(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						// Each task runs faster than the previous task
-						Thread.sleep(TASKS - result);
-						list.add(result);
-					} catch (InterruptedException e) {
-						fail();
-					}
-					latch.countDown();
+			polite.execute(() -> {
+				try {
+					// Each task runs faster than the previous task
+					Thread.sleep(TASKS - result);
+					list.add(result);
+				} catch (InterruptedException e) {
+					fail();
 				}
+				latch.countDown();
 			});
 		}
 		// Wait for all the tasks to finish

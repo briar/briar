@@ -307,12 +307,9 @@ public class NavDrawerActivity extends BriarActivity implements
 							daysUntilExpiry, daysUntilExpiry));
 		}
 
-		expiryWarningClose.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				controller.expiryWarningDismissed();
-				expiryWarning.setVisibility(GONE);
-			}
+		expiryWarningClose.setOnClickListener(v -> {
+			controller.expiryWarningDismissed();
+			expiryWarning.setVisibility(GONE);
 		});
 
 		expiryWarning.setVisibility(VISIBLE);
@@ -411,16 +408,13 @@ public class NavDrawerActivity extends BriarActivity implements
 	}
 
 	private void setTransport(final TransportId id, final boolean enabled) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				if (transports == null || transportsAdapter == null) return;
-				for (Transport t : transports) {
-					if (t.id.equals(id)) {
-						t.enabled = enabled;
-						transportsAdapter.notifyDataSetChanged();
-						break;
-					}
+		runOnUiThreadUnlessDestroyed(() -> {
+			if (transports == null || transportsAdapter == null) return;
+			for (Transport t : transports) {
+				if (t.id.equals(id)) {
+					t.enabled = enabled;
+					transportsAdapter.notifyDataSetChanged();
+					break;
 				}
 			}
 		});

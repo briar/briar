@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.reporting;
 
-import android.content.Context;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,6 +36,7 @@ import java.util.logging.Logger;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static android.view.inputmethod.InputMethodManager.SHOW_FORCED;
 import static java.util.logging.Level.WARNING;
 import static org.acra.ACRAConstants.EXTRA_REPORT_FILE;
 import static org.acra.ReportField.ANDROID_VERSION;
@@ -115,37 +115,22 @@ public class DevReportActivity extends BaseCrashReportDialog
 			includeDebugReport.setChecked(true);
 		}
 
-		findViewById(R.id.acceptButton).setOnClickListener(
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						reviewing = true;
-						requestReport.setVisibility(GONE);
-						((InputMethodManager) getSystemService(
-								Context.INPUT_METHOD_SERVICE))
-								.showSoftInput(userCommentView,
-										InputMethodManager.SHOW_FORCED);
-					}
-				});
-		findViewById(R.id.declineButton).setOnClickListener(
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						closeReport();
-					}
-				});
-		chevron.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				boolean show =
-						chevron.getText().equals(getString(R.string.show));
-				if (show) {
-					chevron.setText(R.string.hide);
-					refresh();
-				} else {
-					chevron.setText(R.string.show);
-					report.setVisibility(GONE);
-				}
+		findViewById(R.id.acceptButton).setOnClickListener(v -> {
+			reviewing = true;
+			requestReport.setVisibility(GONE);
+			((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
+					.showSoftInput(userCommentView, SHOW_FORCED);
+		});
+		findViewById(R.id.declineButton).setOnClickListener(v -> closeReport());
+		chevron.setOnClickListener(v -> {
+			boolean show =
+					chevron.getText().equals(getString(R.string.show));
+			if (show) {
+				chevron.setText(R.string.hide);
+				refresh();
+			} else {
+				chevron.setText(R.string.show);
+				report.setVisibility(GONE);
 			}
 		});
 

@@ -54,11 +54,8 @@ public class ContactItemViewHolder<I extends ContactItem>
 			}
 		}
 
-		layout.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (listener != null) listener.onItemClick(avatar, item);
-			}
+		layout.setOnClickListener(v -> {
+			if (listener != null) listener.onItemClick(avatar, item);
 		});
 	}
 

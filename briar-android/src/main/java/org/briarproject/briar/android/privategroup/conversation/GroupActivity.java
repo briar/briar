@@ -11,7 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
@@ -76,16 +75,12 @@ public class GroupActivity extends
 
 		// Open member list on Toolbar click
 		if (toolbar != null) {
-			toolbar.setOnClickListener(
-					new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							Intent i = new Intent(GroupActivity.this,
-									GroupMemberListActivity.class);
-							i.putExtra(GROUP_ID, groupId.getBytes());
-							startActivity(i);
-						}
-					});
+			toolbar.setOnClickListener(v -> {
+				Intent i1 = new Intent(GroupActivity.this,
+						GroupMemberListActivity.class);
+				i1.putExtra(GROUP_ID, groupId.getBytes());
+				startActivity(i1);
+			});
 		}
 
 		setGroupEnabled(false);

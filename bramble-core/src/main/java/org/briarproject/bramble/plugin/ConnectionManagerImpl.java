@@ -266,12 +266,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			contactId = ctx.getContactId();
 			connectionRegistry.registerConnection(contactId, transportId, true);
 			// Start the outgoing session on another thread
-			ioExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					runOutgoingSession();
-				}
-			});
+			ioExecutor.execute(this::runOutgoingSession);
 			try {
 				// Create and run the incoming session
 				incomingSession = createIncomingSession(ctx, reader);
@@ -368,12 +363,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				return;
 			}
 			// Start the incoming session on another thread
-			ioExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					runIncomingSession();
-				}
-			});
+			ioExecutor.execute(this::runIncomingSession);
 			try {
 				// Create and run the outgoing session
 				outgoingSession = createDuplexOutgoingSession(ctx, writer);

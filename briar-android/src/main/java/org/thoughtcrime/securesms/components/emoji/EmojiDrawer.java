@@ -18,7 +18,6 @@ import com.astuetz.PagerSlidingTabStrip.CustomTabProvider;
 
 import org.briarproject.briar.R;
 import org.thoughtcrime.securesms.components.RepeatableImageKey;
-import org.thoughtcrime.securesms.components.RepeatableImageKey.KeyEventListener;
 import org.thoughtcrime.securesms.components.emoji.EmojiPageView.EmojiSelectionListener;
 
 import java.util.LinkedList;
@@ -78,11 +77,8 @@ public class EmojiDrawer extends LinearLayout {
 
 		RepeatableImageKey backspace =
 				(RepeatableImageKey) v.findViewById(R.id.backspace);
-		backspace.setOnKeyEventListener(new KeyEventListener() {
-			@Override
-			public void onKeyEvent() {
-				if (listener != null) listener.onKeyEvent(DELETE_KEY_EVENT);
-			}
+		backspace.setOnKeyEventListener(() -> {
+			if (listener != null) listener.onKeyEvent(DELETE_KEY_EVENT);
 		});
 	}
 
@@ -107,14 +103,10 @@ public class EmojiDrawer extends LinearLayout {
 	}
 
 	private void initializeEmojiGrid() {
-		pager.setAdapter(new EmojiPagerAdapter(getContext(),
-				models,
-				new EmojiSelectionListener() {
-					@Override
-					public void onEmojiSelected(String emoji) {
-						recentModel.onCodePointSelected(emoji);
-						if (listener != null) listener.onEmojiSelected(emoji);
-					}
+		pager.setAdapter(new EmojiPagerAdapter(getContext(), models,
+				emoji -> {
+					recentModel.onCodePointSelected(emoji);
+					if (listener != null) listener.onEmojiSelected(emoji);
 				}));
 
 		if (recentModel.getEmoji().length == 0) {

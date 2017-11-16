@@ -10,7 +10,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
-import android.view.View;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
@@ -117,22 +116,16 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 				});
 		upButton = (UnreadMessageButton) findViewById(R.id.upButton);
 		downButton = (UnreadMessageButton) findViewById(R.id.downButton);
-		upButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				int position = adapter.getVisibleUnreadPosTop();
-				if (position != NO_POSITION) {
-					list.getRecyclerView().scrollToPosition(position);
-				}
+		upButton.setOnClickListener(v -> {
+			int position = adapter.getVisibleUnreadPosTop();
+			if (position != NO_POSITION) {
+				list.getRecyclerView().scrollToPosition(position);
 			}
 		});
-		downButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				int position = adapter.getVisibleUnreadPosBottom();
-				if (position != NO_POSITION) {
-					list.getRecyclerView().scrollToPosition(position);
-				}
+		downButton.setOnClickListener(v -> {
+			int position = adapter.getVisibleUnreadPosBottom();
+			if (position != NO_POSITION) {
+				list.getRecyclerView().scrollToPosition(position);
 			}
 		});
 

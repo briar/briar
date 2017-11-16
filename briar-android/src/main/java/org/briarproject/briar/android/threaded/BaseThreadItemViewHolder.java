@@ -85,13 +85,8 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 			public void onAnimationRepeat(Animator animation) {
 			}
 		});
-		anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-			@Override
-			public void onAnimationUpdate(ValueAnimator valueAnimator) {
-				layout.setBackgroundColor(
-						(Integer) valueAnimator.getAnimatedValue());
-			}
-		});
+		anim.addUpdateListener(valueAnimator -> layout.setBackgroundColor(
+				(Integer) valueAnimator.getAnimatedValue()));
 		anim.setDuration(ANIMATION_DURATION);
 		anim.start();
 	}

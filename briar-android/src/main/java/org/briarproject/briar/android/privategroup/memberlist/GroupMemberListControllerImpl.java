@@ -42,26 +42,22 @@ class GroupMemberListControllerImpl extends DbControllerImpl
 	@Override
 	public void loadMembers(final GroupId groupId, final
 			ResultExceptionHandler<Collection<MemberListItem>, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Collection<MemberListItem> items = new ArrayList<>();
-					Collection<GroupMember> members =
-							privateGroupManager.getMembers(groupId);
-					for (GroupMember m : members) {
-						ContactId c = m.getContactId();
-						boolean online = false;
-						if (c != null)
-							online = connectionRegistry.isConnected(c);
-						items.add(new MemberListItem(m, online));
-					}
-					handler.onResult(items);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
+		runOnDbThread(() -> {
+			try {
+				Collection<MemberListItem> items = new ArrayList<>();
+				Collection<GroupMember> members =
+						privateGroupManager.getMembers(groupId);
+				for (GroupMember m : members) {
+					ContactId c = m.getContactId();
+					boolean online = false;
+					if (c != null)
+						online = connectionRegistry.isConnected(c);
+					items.add(new MemberListItem(m, online));
 				}
+				handler.onResult(items);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}

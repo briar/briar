@@ -77,15 +77,12 @@ class ForumListAdapter
 		}
 
 		// Open Forum on Click
-		ui.layout.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent i = new Intent(ctx, ForumActivity.class);
-				Forum f = item.getForum();
-				i.putExtra(GROUP_ID, f.getId().getBytes());
-				i.putExtra(GROUP_NAME, f.getName());
-				ctx.startActivity(i);
-			}
+		ui.layout.setOnClickListener(v -> {
+			Intent i = new Intent(ctx, ForumActivity.class);
+			Forum f = item.getForum();
+			i.putExtra(GROUP_ID, f.getId().getBytes());
+			i.putExtra(GROUP_NAME, f.getName());
+			ctx.startActivity(i);
 		});
 	}
 

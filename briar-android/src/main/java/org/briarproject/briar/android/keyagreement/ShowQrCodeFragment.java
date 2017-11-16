@@ -192,23 +192,17 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		final KeyAgreementTask oldTask = task;
 		final KeyAgreementTask newTask = keyAgreementTaskFactory.createTask();
 		task = newTask;
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				if (oldTask != null) oldTask.stopListening();
-				newTask.listen();
-			}
+		ioExecutor.execute(() -> {
+			if (oldTask != null) oldTask.stopListening();
+			newTask.listen();
 		});
 	}
 
 	@UiThread
 	private void stopListening() {
 		final KeyAgreementTask oldTask = task;
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				if (oldTask != null) oldTask.stopListening();
-			}
+		ioExecutor.execute(() -> {
+			if (oldTask != null) oldTask.stopListening();
 		});
 	}
 
@@ -255,13 +249,9 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			KeyAgreementAbortedEvent event = (KeyAgreementAbortedEvent) e;
 			keyAgreementAborted(event.didRemoteAbort());
 		} else if (e instanceof KeyAgreementFinishedEvent) {
-			runOnUiThreadUnlessDestroyed(new Runnable() {
-				@Override
-				public void run() {
-					mainProgressContainer.setVisibility(VISIBLE);
-					mainProgressTitle.setText(
-							R.string.exchanging_contact_details);
-				}
+			runOnUiThreadUnlessDestroyed(() -> {
+				mainProgressContainer.setVisibility(VISIBLE);
+				mainProgressTitle.setText(R.string.exchanging_contact_details);
 			});
 		}
 	}
@@ -297,75 +287,54 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	private void setQrCode(final Payload localPayload) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				generateBitmapQR(localPayload);
-			}
-		});
+		runOnUiThreadUnlessDestroyed(() -> generateBitmapQR(localPayload));
 	}
 
 	private void keyAgreementFailed() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				reset();
-				// TODO show failure somewhere persistent?
-				Toast.makeText(getActivity(), R.string.connection_failed,
-						LENGTH_LONG).show();
-			}
+		runOnUiThreadUnlessDestroyed(() -> {
+			reset();
+			// TODO show failure somewhere persistent?
+			Toast.makeText(getActivity(), R.string.connection_failed,
+					LENGTH_LONG).show();
 		});
 	}
 
 	private void keyAgreementWaiting() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				status.setText(R.string.waiting_for_contact_to_scan);
-			}
-		});
+		runOnUiThreadUnlessDestroyed(
+				() -> status.setText(R.string.waiting_for_contact_to_scan));
 	}
 
 	private void keyAgreementStarted() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				mainProgressContainer.setVisibility(VISIBLE);
-				mainProgressTitle.setText(R.string.authenticating_with_device);
-			}
+		runOnUiThreadUnlessDestroyed(() -> {
+			mainProgressContainer.setVisibility(VISIBLE);
+			mainProgressTitle.setText(R.string.authenticating_with_device);
 		});
 	}
 
 	private void keyAgreementAborted(final boolean remoteAborted) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				reset();
-				mainProgressContainer.setVisibility(INVISIBLE);
-				mainProgressTitle.setText("");
-				// TODO show abort somewhere persistent?
-				Toast.makeText(getActivity(),
-						remoteAborted ? R.string.connection_aborted_remote :
-								R.string.connection_aborted_local, LENGTH_LONG)
-						.show();
-			}
+		runOnUiThreadUnlessDestroyed(() -> {
+			reset();
+			mainProgressContainer.setVisibility(INVISIBLE);
+			mainProgressTitle.setText("");
+			// TODO show abort somewhere persistent?
+			Toast.makeText(getActivity(),
+					remoteAborted ? R.string.connection_aborted_remote :
+							R.string.connection_aborted_local, LENGTH_LONG)
+					.show();
 		});
 	}
 
 	@Override
 	public void handleResult(final Result result) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				LOG.info("Got result from decoder");
-				// Ignore results until the KeyAgreementTask is ready
-				if (!gotLocalPayload) {
-					return;
-				}
-				if (!gotRemotePayload) {
-					gotRemotePayload = true;
-					qrCodeScanned(result.getText());
-				}
+		runOnUiThreadUnlessDestroyed(() -> {
+			LOG.info("Got result from decoder");
+			// Ignore results until the KeyAgreementTask is ready
+			if (!gotLocalPayload) {
+				return;
+			}
+			if (!gotRemotePayload) {
+				gotRemotePayload = true;
+				qrCodeScanned(result.getText());
 			}
 		});
 	}

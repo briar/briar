@@ -54,36 +54,32 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 		inputStream = new ReceiverInputStream(receiver);
 		outputStream = new SenderOutputStream(sender);
 		running = true;
-		executor.execute(new Runnable() {
-			@Override
-			public void run() {
-				long now = clock.currentTimeMillis();
-				long next = now + TICK_INTERVAL;
-				try {
-					while (running) {
-						byte[] b = null;
-						while (now < next && b == null) {
-							b = writes.poll(next - now, MILLISECONDS);
-							if (!running) return;
-							now = clock.currentTimeMillis();
-						}
-						if (b == null) {
-							sender.tick();
-							while (next <= now) next += TICK_INTERVAL;
-						} else {
-							if (b.length == 0) return; // Poison pill
-							writeHandler.handleWrite(b);
-						}
+		executor.execute(() -> {
+			long now = clock.currentTimeMillis();
+			long next = now + TICK_INTERVAL;
+			try {
+				while (running) {
+					byte[] b = null;
+					while (now < next && b == null) {
+						b = writes.poll(next - now, MILLISECONDS);
+						if (!running) return;
+						now = clock.currentTimeMillis();
 					}
-				} catch (InterruptedException e) {
-					LOG.warning("Interrupted while waiting to write");
-					Thread.currentThread().interrupt();
-					running = false;
-				} catch (IOException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					running = false;
+					if (b == null) {
+						sender.tick();
+						while (next <= now) next += TICK_INTERVAL;
+					} else {
+						if (b.length == 0) return; // Poison pill
+						writeHandler.handleWrite(b);
+					}
 				}
+			} catch (InterruptedException e) {
+				LOG.warning("Interrupted while waiting to write");
+				Thread.currentThread().interrupt();
+				running = false;
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				running = false;
 			}
 		});
 	}

@@ -50,12 +50,7 @@ class PortMapperImpl implements PortMapper {
 			succeeded = gateway.addPortMapping(port, port,
 					getHostAddress(internal), "TCP", "TCP");
 			if (succeeded) {
-				shutdownManager.addShutdownHook(new Runnable() {
-					@Override
-					public void run() {
-						deleteMapping(port);
-					}
-				});
+				shutdownManager.addShutdownHook(() -> deleteMapping(port));
 			}
 			String externalString = gateway.getExternalIPAddress();
 			if (LOG.isLoggable(INFO))

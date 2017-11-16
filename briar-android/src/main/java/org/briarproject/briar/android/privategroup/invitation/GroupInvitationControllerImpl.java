@@ -67,18 +67,14 @@ class GroupInvitationControllerImpl
 	public void respondToInvitation(final GroupInvitationItem item,
 			final boolean accept,
 			final ExceptionHandler<DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					PrivateGroup g = item.getShareable();
-					ContactId c = item.getCreator().getId();
-					groupInvitationManager.respondToInvitation(c, g, accept);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			try {
+				PrivateGroup g = item.getShareable();
+				ContactId c = item.getCreator().getId();
+				groupInvitationManager.respondToInvitation(c, g, accept);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}

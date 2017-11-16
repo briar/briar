@@ -108,33 +108,30 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	private void bind() {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				if (!running) return;
-				// Advertise the Bluetooth address to contacts
-				TransportProperties p = new TransportProperties();
-				p.put(PROP_ADDRESS, localDevice.getBluetoothAddress());
-				callback.mergeLocalProperties(p);
-				// Bind a server socket to accept connections from contacts
-				String url = makeUrl("localhost", getUuid());
-				StreamConnectionNotifier ss;
-				try {
-					ss = (StreamConnectionNotifier) Connector.open(url);
-				} catch (IOException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					return;
-				}
-				if (!running) {
-					tryToClose(ss);
-					return;
-				}
-				socket = ss;
-				backoff.reset();
-				callback.transportEnabled();
-				acceptContactConnections(ss);
+		ioExecutor.execute(() -> {
+			if (!running) return;
+			// Advertise the Bluetooth address to contacts
+			TransportProperties p = new TransportProperties();
+			p.put(PROP_ADDRESS, localDevice.getBluetoothAddress());
+			callback.mergeLocalProperties(p);
+			// Bind a server socket to accept connections from contacts
+			String url = makeUrl("localhost", getUuid());
+			StreamConnectionNotifier ss;
+			try {
+				ss = (StreamConnectionNotifier) Connector.open(url);
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+				return;
 			}
+			if (!running) {
+				tryToClose(ss);
+				return;
+			}
+			socket = ss;
+			backoff.reset();
+			callback.transportEnabled();
+			acceptContactConnections(ss);
 		});
 	}
 
@@ -220,20 +217,18 @@ class BluetoothPlugin implements DuplexPlugin {
 			if (StringUtils.isNullOrEmpty(address)) continue;
 			final String uuid = e.getValue().get(PROP_UUID);
 			if (StringUtils.isNullOrEmpty(uuid)) continue;
-			ioExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					if (!running) return;
-					StreamConnection s = connect(makeUrl(address, uuid));
-					if (s != null) {
-						backoff.reset();
-						callback.outgoingConnectionCreated(c, wrapSocket(s));
-					}
+			ioExecutor.execute(() -> {
+				if (!running) return;
+				StreamConnection s = connect(makeUrl(address, uuid));
+				if (s != null) {
+					backoff.reset();
+					callback.outgoingConnectionCreated(c, wrapSocket(s));
 				}
 			});
 		}
 	}
 
+	@Nullable
 	private StreamConnection connect(String url) {
 		if (LOG.isLoggable(INFO)) LOG.info("Connecting to " + url);
 		try {
@@ -341,16 +336,13 @@ class BluetoothPlugin implements DuplexPlugin {
 
 		@Override
 		public Callable<KeyAgreementConnection> listen() {
-			return new Callable<KeyAgreementConnection>() {
-				@Override
-				public KeyAgreementConnection call() throws Exception {
-					StreamConnection s = ss.acceptAndOpen();
-					if (LOG.isLoggable(INFO))
-						LOG.info(ID.getString() + ": Incoming connection");
-					return new KeyAgreementConnection(
-							new BluetoothTransportConnection(
-									BluetoothPlugin.this, s), ID);
-				}
+			return () -> {
+				StreamConnection s = ss.acceptAndOpen();
+				if (LOG.isLoggable(INFO))
+					LOG.info(ID.getString() + ": Incoming connection");
+				return new KeyAgreementConnection(
+						new BluetoothTransportConnection(
+								BluetoothPlugin.this, s), ID);
 			};
 		}
 

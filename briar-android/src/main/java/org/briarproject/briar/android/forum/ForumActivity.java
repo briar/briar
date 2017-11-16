@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.forum;
 
-import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,7 +10,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.contact.ContactId;
@@ -69,16 +67,12 @@ public class ForumActivity extends
 
 		// Open member list on Toolbar click
 		if (toolbar != null) {
-			toolbar.setOnClickListener(
-					new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							Intent i = new Intent(ForumActivity.this,
-									ForumSharingStatusActivity.class);
-							i.putExtra(GROUP_ID, groupId.getBytes());
-							startActivity(i);
-						}
-					});
+			toolbar.setOnClickListener(v -> {
+				Intent i1 = new Intent(ForumActivity.this,
+						ForumSharingStatusActivity.class);
+				i1.putExtra(GROUP_ID, groupId.getBytes());
+				startActivity(i1);
+			});
 		}
 	}
 
@@ -147,12 +141,7 @@ public class ForumActivity extends
 	}
 
 	private void showUnsubscribeDialog() {
-		OnClickListener okListener = new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				deleteForum();
-			}
-		};
+		OnClickListener okListener = (dialog, which) -> deleteForum();
 		AlertDialog.Builder builder = new AlertDialog.Builder(this,
 				R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_leave_forum));

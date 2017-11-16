@@ -94,12 +94,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	private void validateOutstandingMessagesAsync(final ClientId c) {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				validateOutstandingMessages(c);
-			}
-		});
+		dbExecutor.execute(() -> validateOutstandingMessages(c));
 	}
 
 	@DatabaseExecutor
@@ -121,12 +116,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	private void validateNextMessageAsync(final Queue<MessageId> unvalidated) {
 		if (unvalidated.isEmpty()) return;
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				validateNextMessage(unvalidated);
-			}
-		});
+		dbExecutor.execute(() -> validateNextMessage(unvalidated));
 	}
 
 	@DatabaseExecutor
@@ -159,12 +149,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	private void deliverOutstandingMessagesAsync(final ClientId c) {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				deliverOutstandingMessages(c);
-			}
-		});
+		dbExecutor.execute(() -> deliverOutstandingMessages(c));
 	}
 
 	@DatabaseExecutor
@@ -187,12 +172,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	private void deliverNextPendingMessageAsync(
 			final Queue<MessageId> pending) {
 		if (pending.isEmpty()) return;
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				deliverNextPendingMessage(pending);
-			}
-		});
+		dbExecutor.execute(() -> deliverNextPendingMessage(pending));
 	}
 
 	@DatabaseExecutor
@@ -255,12 +235,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	private void validateMessageAsync(final Message m, final Group g) {
-		validationExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				validateMessage(m, g);
-			}
-		});
+		validationExecutor.execute(() -> validateMessage(m, g));
 	}
 
 	@ValidationExecutor
@@ -285,12 +260,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	private void storeMessageContextAsync(final Message m, final ClientId c,
 			final MessageContext result) {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				storeMessageContext(m, c, result);
-			}
-		});
+		dbExecutor.execute(() -> storeMessageContext(m, c, result));
 	}
 
 	@DatabaseExecutor
@@ -385,12 +355,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	private void shareOutstandingMessagesAsync(final ClientId c) {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				shareOutstandingMessages(c);
-			}
-		});
+		dbExecutor.execute(() -> shareOutstandingMessages(c));
 	}
 
 	@DatabaseExecutor
@@ -418,12 +383,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	 */
 	private void shareNextMessageAsync(final Queue<MessageId> toShare) {
 		if (toShare.isEmpty()) return;
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				shareNextMessage(toShare);
-			}
-		});
+		dbExecutor.execute(() -> shareNextMessage(toShare));
 	}
 
 	@DatabaseExecutor
@@ -452,12 +412,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	private void invalidateNextMessageAsync(final Queue<MessageId> invalidate) {
 		if (invalidate.isEmpty()) return;
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				invalidateNextMessage(invalidate);
-			}
-		});
+		dbExecutor.execute(() -> invalidateNextMessage(invalidate));
 	}
 
 	@DatabaseExecutor
@@ -513,12 +468,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	private void loadGroupAndValidateAsync(final Message m) {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				loadGroupAndValidate(m);
-			}
-		});
+		dbExecutor.execute(() -> loadGroupAndValidate(m));
 	}
 
 	@DatabaseExecutor

@@ -76,17 +76,13 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	@Override
 	public void createGroup(final String name,
 			final ResultExceptionHandler<GroupId, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					LocalAuthor author = identityManager.getLocalAuthor();
-					createGroupAndMessages(author, name, handler);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			try {
+				LocalAuthor author = identityManager.getLocalAuthor();
+				createGroupAndMessages(author, name, handler);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
@@ -94,36 +90,29 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	private void createGroupAndMessages(final LocalAuthor author,
 			final String name,
 			final ResultExceptionHandler<GroupId, DbException> handler) {
-		cryptoExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				LOG.info("Creating group...");
-				PrivateGroup group =
-						groupFactory.createPrivateGroup(name, author);
-				LOG.info("Creating new join announcement...");
-				GroupMessage joinMsg = groupMessageFactory
-						.createJoinMessage(group.getId(),
-								clock.currentTimeMillis(), author);
-				storeGroup(group, joinMsg, handler);
-			}
+		cryptoExecutor.execute(() -> {
+			LOG.info("Creating group...");
+			PrivateGroup group =
+					groupFactory.createPrivateGroup(name, author);
+			LOG.info("Creating new join announcement...");
+			GroupMessage joinMsg =
+					groupMessageFactory.createJoinMessage(group.getId(),
+							clock.currentTimeMillis(), author);
+			storeGroup(group, joinMsg, handler);
 		});
 	}
 
 	private void storeGroup(final PrivateGroup group,
 			final GroupMessage joinMsg,
 			final ResultExceptionHandler<GroupId, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				LOG.info("Adding group to database...");
-				try {
-					groupManager.addPrivateGroup(group, joinMsg, true);
-					handler.onResult(group.getId());
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			LOG.info("Adding group to database...");
+			try {
+				groupManager.addPrivateGroup(group, joinMsg, true);
+				handler.onResult(group.getId());
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
@@ -137,25 +126,21 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	public void sendInvitation(final GroupId g,
 			final Collection<ContactId> contactIds, final String message,
 			final ResultExceptionHandler<Void, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					LocalAuthor localAuthor = identityManager.getLocalAuthor();
-					List<Contact> contacts = new ArrayList<>();
-					for (ContactId c : contactIds) {
-						try {
-							contacts.add(contactManager.getContact(c));
-						} catch (NoSuchContactException e) {
-							// Continue
-						}
+		runOnDbThread(() -> {
+			try {
+				LocalAuthor localAuthor = identityManager.getLocalAuthor();
+				List<Contact> contacts = new ArrayList<>();
+				for (ContactId c : contactIds) {
+					try {
+						contacts.add(contactManager.getContact(c));
+					} catch (NoSuchContactException e) {
+						// Continue
 					}
-					signInvitations(g, localAuthor, contacts, message, handler);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
 				}
+				signInvitations(g, localAuthor, contacts, message, handler);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
@@ -163,46 +148,39 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	private void signInvitations(final GroupId g, final LocalAuthor localAuthor,
 			final Collection<Contact> contacts, final String message,
 			final ResultExceptionHandler<Void, DbException> handler) {
-		cryptoExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				long timestamp = clock.currentTimeMillis();
-				List<InvitationContext> contexts = new ArrayList<>();
-				for (Contact c : contacts) {
-					byte[] signature = groupInvitationFactory.signInvitation(c,
-							g, timestamp, localAuthor.getPrivateKey());
-					contexts.add(new InvitationContext(c.getId(), timestamp,
-							signature));
-				}
-				sendInvitations(g, contexts, message, handler);
+		cryptoExecutor.execute(() -> {
+			long timestamp = clock.currentTimeMillis();
+			List<InvitationContext> contexts = new ArrayList<>();
+			for (Contact c : contacts) {
+				byte[] signature = groupInvitationFactory.signInvitation(c, g,
+						timestamp, localAuthor.getPrivateKey());
+				contexts.add(new InvitationContext(c.getId(), timestamp,
+						signature));
 			}
+			sendInvitations(g, contexts, message, handler);
 		});
 	}
 
 	private void sendInvitations(final GroupId g,
 			final Collection<InvitationContext> contexts, final String message,
 			final ResultExceptionHandler<Void, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					String msg = message.isEmpty() ? null : message;
-					for (InvitationContext context : contexts) {
-						try {
-							groupInvitationManager.sendInvitation(g,
-									context.contactId, msg, context.timestamp,
-									context.signature);
-						} catch (NoSuchContactException e) {
-							// Continue
-						}
+		runOnDbThread(() -> {
+			try {
+				String msg = message.isEmpty() ? null : message;
+				for (InvitationContext context : contexts) {
+					try {
+						groupInvitationManager.sendInvitation(g,
+								context.contactId, msg, context.timestamp,
+								context.signature);
+					} catch (NoSuchContactException e) {
+						// Continue
 					}
-					//noinspection ConstantConditions
-					handler.onResult(null);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
 				}
+				//noinspection ConstantConditions
+				handler.onResult(null);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}

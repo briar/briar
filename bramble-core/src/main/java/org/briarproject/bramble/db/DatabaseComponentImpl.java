@@ -103,15 +103,11 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public boolean open() throws DbException {
-		Runnable shutdownHook = new Runnable() {
-			@Override
-			public void run() {
-				try {
-					close();
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+		Runnable shutdownHook = () -> {
+			try {
+				close();
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		};
 		boolean reopened = db.open();

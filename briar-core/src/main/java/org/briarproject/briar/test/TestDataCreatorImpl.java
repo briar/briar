@@ -118,16 +118,12 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	public void createTestData() {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					createTestDataOnDbExecutor();
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING)) {
-						LOG.log(WARNING, "Creating test data failed", e);
-					}
-				}
+		ioExecutor.execute(() -> {
+			try {
+				createTestDataOnDbExecutor();
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, "Creating test data failed", e);
 			}
 		});
 	}

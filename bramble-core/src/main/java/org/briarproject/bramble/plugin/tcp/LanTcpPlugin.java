@@ -260,16 +260,12 @@ class LanTcpPlugin extends TcpPlugin {
 
 		@Override
 		public Callable<KeyAgreementConnection> listen() {
-			return new Callable<KeyAgreementConnection>() {
-				@Override
-				public KeyAgreementConnection call() throws IOException {
-					Socket s = ss.accept();
-					if (LOG.isLoggable(INFO))
-						LOG.info(ID.getString() + ": Incoming connection");
-					return new KeyAgreementConnection(
-							new TcpTransportConnection(LanTcpPlugin.this, s),
-							ID);
-				}
+			return () -> {
+				Socket s = ss.accept();
+				if (LOG.isLoggable(INFO))
+					LOG.info(ID.getString() + ": Incoming connection");
+				return new KeyAgreementConnection(
+						new TcpTransportConnection(LanTcpPlugin.this, s), ID);
 			};
 		}
 

@@ -41,26 +41,21 @@ public abstract class ContactSelectorControllerImpl
 	public void loadContacts(final GroupId g,
 			final Collection<ContactId> selection,
 			final ResultExceptionHandler<Collection<SelectableContactItem>, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Collection<SelectableContactItem> contacts =
-							new ArrayList<>();
-					for (Contact c : contactManager.getActiveContacts()) {
-						// was this contact already selected?
-						boolean selected = selection.contains(c.getId());
-						// can this contact be selected?
-						boolean disabled = isDisabled(g, c);
-						contacts.add(new SelectableContactItem(c, selected,
-								disabled));
-					}
-					handler.onResult(contacts);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
+		runOnDbThread(() -> {
+			try {
+				Collection<SelectableContactItem> contacts = new ArrayList<>();
+				for (Contact c : contactManager.getActiveContacts()) {
+					// was this contact already selected?
+					boolean selected = selection.contains(c.getId());
+					// can this contact be selected?
+					boolean disabled = isDisabled(g, c);
+					contacts.add(new SelectableContactItem(c, selected,
+							disabled));
 				}
+				handler.onResult(contacts);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}

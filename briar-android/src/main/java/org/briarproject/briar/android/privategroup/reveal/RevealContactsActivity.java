@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.privategroup.reveal;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -110,19 +109,8 @@ public class RevealContactsActivity extends ContactSelectorActivity
 		new AlertDialog.Builder(this, R.style.OnboardingDialogTheme)
 				.setMessage(getString(R.string.groups_reveal_dialog_message))
 				.setNeutralButton(R.string.got_it,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								dialog.cancel();
-							}
-						})
-				.setOnCancelListener(new DialogInterface.OnCancelListener() {
-					@Override
-					public void onCancel(DialogInterface dialog) {
-						onboardingShown();
-					}
-				})
+						(dialog, which) -> dialog.cancel())
+				.setOnCancelListener(dialog -> onboardingShown())
 				.show();
 	}
 

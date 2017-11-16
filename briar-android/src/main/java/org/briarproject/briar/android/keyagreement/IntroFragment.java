@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 
@@ -66,24 +65,14 @@ public class IntroFragment extends BaseFragment {
 				false);
 		scrollView = (ScrollView) v.findViewById(R.id.scrollView);
 		View button = v.findViewById(R.id.continueButton);
-		button.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				screenSeenListener.showNextScreen();
-			}
-		});
+		button.setOnClickListener(view -> screenSeenListener.showNextScreen());
 		return v;
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-		scrollView.post(new Runnable() {
-			@Override
-			public void run() {
-				scrollView.fullScroll(FOCUS_DOWN);
-			}
-		});
+		scrollView.post(() -> scrollView.fullScroll(FOCUS_DOWN));
 	}
 
 }

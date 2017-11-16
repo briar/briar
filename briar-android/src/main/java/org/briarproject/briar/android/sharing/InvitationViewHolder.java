@@ -53,18 +53,8 @@ public class InvitationViewHolder<I extends InvitationItem>
 			subscribed.setVisibility(GONE);
 		}
 
-		accept.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				listener.onItemClick(item, true);
-			}
-		});
-		decline.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				listener.onItemClick(item, false);
-			}
-		});
+		accept.setOnClickListener(v -> listener.onItemClick(item, true));
+		decline.setOnClickListener(v -> listener.onItemClick(item, false));
 	}
 
 }

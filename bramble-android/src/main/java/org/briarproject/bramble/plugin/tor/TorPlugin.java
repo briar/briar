@@ -370,57 +370,45 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void sendDevReports() {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				// TODO: Trigger this with a TransportEnabledEvent
-				File reportDir = AndroidUtils.getReportDir(appContext);
-				reporter.sendReports(reportDir);
-			}
+		ioExecutor.execute(() -> {
+			// TODO: Trigger this with a TransportEnabledEvent
+			File reportDir = AndroidUtils.getReportDir(appContext);
+			reporter.sendReports(reportDir);
 		});
 	}
 
 	private void bind() {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				// If there's already a port number stored in config, reuse it
-				String portString = callback.getSettings().get(PREF_TOR_PORT);
-				int port;
-				if (StringUtils.isNullOrEmpty(portString)) port = 0;
-				else port = Integer.parseInt(portString);
-				// Bind a server socket to receive connections from Tor
-				ServerSocket ss = null;
-				try {
-					ss = new ServerSocket();
-					ss.bind(new InetSocketAddress("127.0.0.1", port));
-				} catch (IOException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					tryToClose(ss);
-					return;
-				}
-				if (!running) {
-					tryToClose(ss);
-					return;
-				}
-				socket = ss;
-				// Store the port number
-				final String localPort = String.valueOf(ss.getLocalPort());
-				Settings s = new Settings();
-				s.put(PREF_TOR_PORT, localPort);
-				callback.mergeSettings(s);
-				// Create a hidden service if necessary
-				ioExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						publishHiddenService(localPort);
-					}
-				});
-				backoff.reset();
-				// Accept incoming hidden service connections from Tor
-				acceptContactConnections(ss);
+		ioExecutor.execute(() -> {
+			// If there's already a port number stored in config, reuse it
+			String portString = callback.getSettings().get(PREF_TOR_PORT);
+			int port;
+			if (StringUtils.isNullOrEmpty(portString)) port = 0;
+			else port = Integer.parseInt(portString);
+			// Bind a server socket to receive connections from Tor
+			ServerSocket ss = null;
+			try {
+				ss = new ServerSocket();
+				ss.bind(new InetSocketAddress("127.0.0.1", port));
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				tryToClose(ss);
+				return;
 			}
+			if (!running) {
+				tryToClose(ss);
+				return;
+			}
+			socket = ss;
+			// Store the port number
+			final String localPort = String.valueOf(ss.getLocalPort());
+			Settings s = new Settings();
+			s.put(PREF_TOR_PORT, localPort);
+			callback.mergeSettings(s);
+			// Create a hidden service if necessary
+			ioExecutor.execute(() -> publishHiddenService(localPort));
+			backoff.reset();
+			// Accept incoming hidden service connections from Tor
+			acceptContactConnections(ss);
 		});
 	}
 
@@ -550,15 +538,12 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private void connectAndCallBack(final ContactId c,
 			final TransportProperties p) {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				if (!isRunning()) return;
-				DuplexTransportConnection d = createConnection(p);
-				if (d != null) {
-					backoff.reset();
-					callback.outgoingConnectionCreated(c, d);
-				}
+		ioExecutor.execute(() -> {
+			if (!isRunning()) return;
+			DuplexTransportConnection d = createConnection(p);
+			if (d != null) {
+				backoff.reset();
+				callback.outgoingConnectionCreated(c, d);
 			}
 		});
 	}
@@ -691,48 +676,43 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void updateConnectionStatus() {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				if (!running) return;
+		ioExecutor.execute(() -> {
+			if (!running) return;
 
-				Object o = appContext.getSystemService(CONNECTIVITY_SERVICE);
-				ConnectivityManager cm = (ConnectivityManager) o;
-				NetworkInfo net = cm.getActiveNetworkInfo();
-				boolean online = net != null && net.isConnected();
-				boolean wifi = online && net.getType() == TYPE_WIFI;
-				String country = locationUtils.getCurrentCountry();
-				boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
-						country);
-				Settings s = callback.getSettings();
-				int network = s.getInt(PREF_TOR_NETWORK,
-						PREF_TOR_NETWORK_ALWAYS);
+			Object o = appContext.getSystemService(CONNECTIVITY_SERVICE);
+			ConnectivityManager cm = (ConnectivityManager) o;
+			NetworkInfo net = cm.getActiveNetworkInfo();
+			boolean online = net != null && net.isConnected();
+			boolean wifi = online && net.getType() == TYPE_WIFI;
+			String country = locationUtils.getCurrentCountry();
+			boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
+					country);
+			Settings s = callback.getSettings();
+			int network = s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_ALWAYS);
 
-				if (LOG.isLoggable(INFO)) {
-					LOG.info("Online: " + online + ", wifi: " + wifi);
-					if ("".equals(country)) LOG.info("Country code unknown");
-					else LOG.info("Country code: " + country);
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Online: " + online + ", wifi: " + wifi);
+				if ("".equals(country)) LOG.info("Country code unknown");
+				else LOG.info("Country code: " + country);
+			}
+
+			try {
+				if (!online) {
+					LOG.info("Disabling network, device is offline");
+					enableNetwork(false);
+				} else if (blocked) {
+					LOG.info("Disabling network, country is blocked");
+					enableNetwork(false);
+				} else if (network == PREF_TOR_NETWORK_NEVER
+						|| (network == PREF_TOR_NETWORK_WIFI && !wifi)) {
+					LOG.info("Disabling network due to data setting");
+					enableNetwork(false);
+				} else {
+					LOG.info("Enabling network");
+					enableNetwork(true);
 				}
-
-				try {
-					if (!online) {
-						LOG.info("Disabling network, device is offline");
-						enableNetwork(false);
-					} else if (blocked) {
-						LOG.info("Disabling network, country is blocked");
-						enableNetwork(false);
-					} else if (network == PREF_TOR_NETWORK_NEVER
-							|| (network == PREF_TOR_NETWORK_WIFI && !wifi)) {
-						LOG.info("Disabling network due to data setting");
-						enableNetwork(false);
-					} else {
-						LOG.info("Enabling network");
-						enableNetwork(true);
-					}
-				} catch (IOException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}

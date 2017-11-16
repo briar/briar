@@ -82,14 +82,11 @@ public abstract class BaseFragment extends Fragment
 	public void runOnUiThreadUnlessDestroyed(final Runnable r) {
 		final Activity activity = getActivity();
 		if (activity != null) {
-			activity.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					// Note that we don't have to check if the activity has
-					// been destroyed as the Fragment has not been detached yet
-					if (!isDetached() && !activity.isFinishing()) {
-						r.run();
-					}
+			activity.runOnUiThread(() -> {
+				// Note that we don't have to check if the activity has
+				// been destroyed as the Fragment has not been detached yet
+				if (!isDetached() && !activity.isFinishing()) {
+					r.run();
 				}
 			});
 		}

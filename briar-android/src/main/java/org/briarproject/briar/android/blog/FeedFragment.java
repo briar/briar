@@ -246,12 +246,7 @@ public class FeedFragment extends BaseFragment implements
 		Snackbar s = Snackbar.make(list, stringRes, LENGTH_LONG);
 		s.getView().setBackgroundResource(R.color.briar_primary);
 		if (scroll) {
-			OnClickListener onClick = new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					list.smoothScrollToPosition(0);
-				}
-			};
+			OnClickListener onClick = v -> list.smoothScrollToPosition(0);
 			s.setActionTextColor(ContextCompat
 					.getColor(getContext(),
 							R.color.briar_button_positive));

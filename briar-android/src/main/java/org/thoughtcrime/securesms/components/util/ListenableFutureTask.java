@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 Open Whisper Systems
  *
  * This program is free software: you can redistribute it and/or modify
@@ -46,12 +46,7 @@ public class ListenableFutureTask<V> extends FutureTask<V> {
 	}
 
 	private ListenableFutureTask(final V result, @Nullable Object identifier) {
-		super(new Callable<V>() {
-			@Override
-			public V call() throws Exception {
-				return result;
-			}
-		});
+		super(() -> result);
 		this.identifier = identifier;
 		this.run();
 	}

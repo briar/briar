@@ -129,17 +129,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	private void startFeedExecutor() {
 		if (fetcherStarted.getAndSet(true)) return;
 		LOG.info("Tor started, scheduling RSS feed fetcher");
-		Runnable fetcher = new Runnable() {
-			@Override
-			public void run() {
-				ioExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						fetchFeeds();
-					}
-				});
-			}
-		};
+		Runnable fetcher = () -> ioExecutor.execute(this::fetchFeeds);
 		scheduler.scheduleWithFixedDelay(fetcher, FETCH_DELAY_INITIAL,
 				FETCH_INTERVAL, FETCH_UNIT);
 	}
@@ -502,23 +492,18 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	}
 
 	private Comparator<SyndEntry> getEntryComparator() {
-		return new Comparator<SyndEntry>() {
-			@Override
-			public int compare(SyndEntry e1, SyndEntry e2) {
-				Date d1 =
-						e1.getPublishedDate() != null ? e1.getPublishedDate() :
-								e1.getUpdatedDate();
-				Date d2 =
-						e2.getPublishedDate() != null ? e2.getPublishedDate() :
-								e2.getUpdatedDate();
-				if (d1 == null && d2 == null) return 0;
-				if (d1 == null) return -1;
-				if (d2 == null) return 1;
+		return (e1, e2) -> {
+			Date d1 = e1.getPublishedDate() != null ? e1.getPublishedDate() :
+							e1.getUpdatedDate();
+			Date d2 = e2.getPublishedDate() != null ? e2.getPublishedDate() :
+							e2.getUpdatedDate();
+			if (d1 == null && d2 == null) return 0;
+			if (d1 == null) return -1;
+			if (d2 == null) return 1;
 
-				if (d1.after(d2)) return 1;
-				if (d1.before(d2)) return -1;
-				return 0;
-			}
+			if (d1.after(d2)) return 1;
+			if (d1.before(d2)) return -1;
+			return 0;
 		};
 	}
 

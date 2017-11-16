@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -42,12 +41,7 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 		ui.title.setText(item.getTitle());
 
 		// Delete Button
-		ui.delete.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				listener.onDeleteClick(item);
-			}
-		});
+		ui.delete.setOnClickListener(v -> listener.onDeleteClick(item));
 
 		// Author
 		if (item.getAuthor() != null) {
@@ -72,12 +66,7 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 		}
 
 		// Open feed's blog when clicked
-		ui.layout.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				listener.onFeedClick(item);
-			}
-		});
+		ui.layout.setOnClickListener(v -> listener.onFeedClick(item));
 	}
 
 	@Override

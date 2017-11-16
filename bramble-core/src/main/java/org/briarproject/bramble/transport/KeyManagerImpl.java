@@ -157,12 +157,8 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 
 	private void removeContact(final ContactId c) {
 		activeContacts.remove(c);
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				for (TransportKeyManager m : managers.values())
-					m.removeContact(c);
-			}
+		dbExecutor.execute(() -> {
+			for (TransportKeyManager m : managers.values()) m.removeContact(c);
 		});
 	}
 }

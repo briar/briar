@@ -114,12 +114,7 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 
 		ui.input.setListener(this);
 		ui.input.setSendButtonEnabled(true);
-		ui.scrollView.post(new Runnable() {
-			@Override
-			public void run() {
-				ui.scrollView.fullScroll(FOCUS_DOWN);
-			}
-		});
+		ui.scrollView.post(() -> ui.scrollView.fullScroll(FOCUS_DOWN));
 	}
 
 	@Override

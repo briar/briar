@@ -141,44 +141,35 @@ public class WriteBlogPostActivity extends BriarActivity
 	}
 
 	private void storePost(final String body) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				long now = System.currentTimeMillis();
-				try {
-					LocalAuthor author = identityManager.getLocalAuthor();
-					BlogPost p = blogPostFactory
-							.createBlogPost(groupId, now, null, author, body);
-					blogManager.addLocalPost(p);
-					postPublished();
-				} catch (DbException | GeneralSecurityException | FormatException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					postFailedToPublish();
-				}
+		runOnDbThread(() -> {
+			long now = System.currentTimeMillis();
+			try {
+				LocalAuthor author = identityManager.getLocalAuthor();
+				BlogPost p = blogPostFactory
+						.createBlogPost(groupId, now, null, author, body);
+				blogManager.addLocalPost(p);
+				postPublished();
+			} catch (DbException | GeneralSecurityException
+					| FormatException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				postFailedToPublish();
 			}
 		});
 	}
 
 	private void postPublished() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				setResult(RESULT_OK);
-				supportFinishAfterTransition();
-			}
+		runOnUiThreadUnlessDestroyed(() -> {
+			setResult(RESULT_OK);
+			supportFinishAfterTransition();
 		});
 	}
 
 	private void postFailedToPublish() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				// hide progress bar, show publish button
-				progressBar.setVisibility(GONE);
-				input.setVisibility(VISIBLE);
-				// TODO show error
-			}
+		runOnUiThreadUnlessDestroyed(() -> {
+			// hide progress bar, show publish button
+			progressBar.setVisibility(GONE);
+			input.setVisibility(VISIBLE);
+			// TODO show error
 		});
 	}
 }

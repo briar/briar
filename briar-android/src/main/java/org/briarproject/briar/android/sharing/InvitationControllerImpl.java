@@ -93,23 +93,18 @@ public abstract class InvitationControllerImpl<I extends InvitationItem>
 	@Override
 	public void loadInvitations(final boolean clear,
 			final ResultExceptionHandler<Collection<I>, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				Collection<I> invitations = new ArrayList<>();
-				try {
-					long now = System.currentTimeMillis();
-					invitations.addAll(getInvitations());
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info(
-								"Loading invitations took " + duration + " ms");
-					handler.onResult(invitations);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			Collection<I> invitations = new ArrayList<>();
+			try {
+				long now = System.currentTimeMillis();
+				invitations.addAll(getInvitations());
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading invitations took " + duration + " ms");
+				handler.onResult(invitations);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
