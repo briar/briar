@@ -58,9 +58,7 @@ class PortMapperImpl implements PortMapper {
 						"External address " + scrubInetAddress(externalString));
 			if (externalString != null)
 				external = InetAddress.getByName(externalString);
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (SAXException e) {
+		} catch (IOException | SAXException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		return new MappingResult(internal, external, port, succeeded);
@@ -77,11 +75,7 @@ class PortMapperImpl implements PortMapper {
 		GatewayDiscover d = new GatewayDiscover();
 		try {
 			d.discover();
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (SAXException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (ParserConfigurationException e) {
+		} catch (IOException | SAXException | ParserConfigurationException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		gateway = d.getValidGateway();
@@ -92,9 +86,7 @@ class PortMapperImpl implements PortMapper {
 			gateway.deletePortMapping(port, "TCP");
 			if (LOG.isLoggable(INFO))
 				LOG.info("Deleted mapping for port " + port);
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (SAXException e) {
+		} catch (IOException | SAXException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}

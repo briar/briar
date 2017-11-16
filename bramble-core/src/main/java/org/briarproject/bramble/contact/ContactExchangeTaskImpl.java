@@ -184,12 +184,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			// Close the outgoing stream and expect EOF on the incoming stream
 			w.close();
 			if (!r.eof()) LOG.warning("Unexpected data at end of connection");
-		} catch (GeneralSecurityException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			listener.contactExchangeFailed();
-			tryToClose(conn, true);
-			return;
-		} catch (IOException e) {
+		} catch (GeneralSecurityException | IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			listener.contactExchangeFailed();
 			tryToClose(conn, true);

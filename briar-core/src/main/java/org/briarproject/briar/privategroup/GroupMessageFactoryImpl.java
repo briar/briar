@@ -63,9 +63,7 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 			Message m = clientHelper.createMessage(groupId, timestamp, body);
 
 			return new GroupMessage(m, null, member);
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		} catch (FormatException e) {
+		} catch (GeneralSecurityException | FormatException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -91,9 +89,7 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 			Message m = clientHelper.createMessage(groupId, timestamp, body);
 
 			return new GroupMessage(m, parentId, author);
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		} catch (FormatException e) {
+		} catch (GeneralSecurityException | FormatException e) {
 			throw new RuntimeException(e);
 		}
 	}

@@ -324,9 +324,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 					.createBlogPost(blog.getId(), timestamp, null, author,
 							body);
 			blogManager.addLocalPost(blogPost);
-		} catch (FormatException e) {
-			throw new RuntimeException(e);
-		} catch (GeneralSecurityException e) {
+		} catch (FormatException | GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
 	}

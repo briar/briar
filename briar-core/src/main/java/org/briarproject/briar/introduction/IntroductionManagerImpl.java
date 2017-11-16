@@ -251,12 +251,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 						LOG.warning("Unknown role '" + role + "'");
 					throw new DbException();
 				}
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				if (role == ROLE_INTRODUCER) introducerManager.abort(txn, state);
-				else introduceeManager.abort(txn, state);
-			} catch (FormatException e) {
-				// FIXME necessary?
+			} catch (DbException | FormatException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				if (role == ROLE_INTRODUCER) introducerManager.abort(txn, state);
 				else introduceeManager.abort(txn, state);

@@ -134,9 +134,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		try {
 			p = forumPostFactory.createPost(groupId, timestamp, parentId,
 					author, body);
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		} catch (FormatException e) {
+		} catch (GeneralSecurityException | FormatException e) {
 			throw new RuntimeException(e);
 		}
 		return p;

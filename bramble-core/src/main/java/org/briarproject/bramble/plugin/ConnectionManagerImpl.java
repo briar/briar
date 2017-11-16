@@ -134,11 +134,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				byte[] tag = readTag(reader);
 				ctx = keyManager.getStreamContext(transportId, tag);
-			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				disposeReader(true, false);
-				return;
-			} catch (DbException e) {
+			} catch (IOException | DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, false);
 				return;
@@ -249,11 +245,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				byte[] tag = readTag(reader);
 				ctx = keyManager.getStreamContext(transportId, tag);
-			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				disposeReader(true, false);
-				return;
-			} catch (DbException e) {
+			} catch (IOException | DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, false);
 				return;
@@ -381,11 +373,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				byte[] tag = readTag(reader);
 				ctx = keyManager.getStreamContext(transportId, tag);
-			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				disposeReader(true, false);
-				return;
-			} catch (DbException e) {
+			} catch (IOException | DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				disposeReader(true, false);
 				return;

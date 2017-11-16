@@ -137,11 +137,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 		try {
 			return new Transaction(db.startTransaction(), readOnly);
-		} catch (DbException e) {
-			if (readOnly) lock.readLock().unlock();
-			else lock.writeLock().unlock();
-			throw e;
-		} catch (RuntimeException e) {
+		} catch (DbException | RuntimeException e) {
 			if (readOnly) lock.readLock().unlock();
 			else lock.writeLock().unlock();
 			throw e;

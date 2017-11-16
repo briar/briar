@@ -519,9 +519,7 @@ class IntroduceeManager {
 		try {
 			processStateUpdate(txn, null,
 					engine.onLocalAction(state, localAction));
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (IOException e) {
+		} catch (DbException | IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}

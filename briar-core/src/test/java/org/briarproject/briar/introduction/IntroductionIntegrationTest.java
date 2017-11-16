@@ -924,9 +924,7 @@ public class IntroductionIntegrationTest
 											time);
 						}
 					}
-				} catch (DbException exception) {
-					eventWaiter.rethrow(exception);
-				} catch (FormatException exception) {
+				} catch (DbException | FormatException exception) {
 					eventWaiter.rethrow(exception);
 				} finally {
 					eventWaiter.resume();

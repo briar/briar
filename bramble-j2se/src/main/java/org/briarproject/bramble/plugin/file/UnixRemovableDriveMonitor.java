@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.annotation.Nullable;
+
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 abstract class UnixRemovableDriveMonitor implements RemovableDriveMonitor,
@@ -34,13 +36,12 @@ JNotifyListener {
 
 	protected abstract String[] getPathsToWatch();
 
+	@Nullable
 	private static Throwable tryLoad() {
 		try {
 			Class.forName("net.contentobjects.jnotify.JNotify");
 			return null;
-		} catch (UnsatisfiedLinkError e) {
-			return e;
-		} catch (ClassNotFoundException e) {
+		} catch (UnsatisfiedLinkError | ClassNotFoundException e) {
 			return e;
 		}
 	}

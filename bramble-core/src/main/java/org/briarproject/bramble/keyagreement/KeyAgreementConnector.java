@@ -129,10 +129,7 @@ class KeyAgreementConnector {
 			LOG.info("Interrupted while waiting for connection");
 			Thread.currentThread().interrupt();
 			return null;
-		} catch (ExecutionException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return null;
-		} catch (IOException e) {
+		} catch (ExecutionException | IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		} finally {

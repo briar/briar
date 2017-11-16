@@ -203,9 +203,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Closing database took " + duration + " ms");
 			shutdownLatch.countDown();
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (ServiceException e) {
+		} catch (DbException | ServiceException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {
 			startStopSemaphore.release();

@@ -294,11 +294,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		for (Feed feed : feeds) {
 			try {
 				newFeeds.add(fetchFeed(feed));
-			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
-				newFeeds.add(feed);
-			} catch (DbException e) {
+			} catch (IOException | DbException e) {
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, e.toString(), e);
 				newFeeds.add(feed);
@@ -381,9 +377,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		SyndFeedInput input = new SyndFeedInput();
 		try {
 			return input.build(new XmlReader(stream));
-		} catch (IllegalArgumentException e) {
-			throw new IOException(e);
-		} catch (FeedException e) {
+		} catch (IllegalArgumentException | FeedException e) {
 			throw new IOException(e);
 		}
 	}
@@ -469,13 +463,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 			BlogPost post = blogPostFactory
 					.createBlogPost(groupId, time, null, localAuthor, body);
 			blogManager.addLocalPost(txn, post);
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e.toString(), e);
-		} catch (GeneralSecurityException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e.toString(), e);
-		} catch (FormatException e) {
+		} catch (DbException | GeneralSecurityException | FormatException e) {
 			if (LOG.isLoggable(WARNING))
 				LOG.log(WARNING, e.toString(), e);
 		} catch (IllegalArgumentException e) {
