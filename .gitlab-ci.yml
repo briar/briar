@@ -7,7 +7,13 @@ cache:
 
 before_script:
   - export GRADLE_USER_HOME=$PWD/.gradle
-  - echo y | /opt/android-sdk/tools/bin/sdkmanager "build-tools;23.0.3"
+  - JDK_FILE=openjdk-6-jre-headless_6b38-1.13.10-1~deb7u1_amd64.deb
+  - if [ ! -d openjdk ]
+  - then
+  - wget -q http://ftp.uk.debian.org/debian/pool/main/o/openjdk-6/$JDK_FILE
+  - dpkg-deb -x $JDK_FILE openjdk
+  - fi
+  - export JAVA_6_HOME=$PWD/openjdk/usr/lib/jvm/java-6-openjdk-amd64
 
 test:
   script:
