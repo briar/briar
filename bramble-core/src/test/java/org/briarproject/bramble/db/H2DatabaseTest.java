@@ -473,19 +473,16 @@ public class H2DatabaseTest extends BrambleTestCase {
 		// Start a transaction
 		Connection txn = db.startTransaction();
 		// In another thread, close the database
-		Thread close = new Thread() {
-			@Override
-			public void run() {
-				try {
-					closing.countDown();
-					db.close();
-					if (!transactionFinished.get()) error.set(true);
-					closed.countDown();
-				} catch (Exception e) {
-					error.set(true);
-				}
+		Thread close = new Thread(() -> {
+			try {
+				closing.countDown();
+				db.close();
+				if (!transactionFinished.get()) error.set(true);
+				closed.countDown();
+			} catch (Exception e) {
+				error.set(true);
 			}
-		};
+		});
 		close.start();
 		closing.await();
 		// Do whatever the transaction needs to do
@@ -510,19 +507,16 @@ public class H2DatabaseTest extends BrambleTestCase {
 		// Start a transaction
 		Connection txn = db.startTransaction();
 		// In another thread, close the database
-		Thread close = new Thread() {
-			@Override
-			public void run() {
-				try {
-					closing.countDown();
-					db.close();
-					if (!transactionFinished.get()) error.set(true);
-					closed.countDown();
-				} catch (Exception e) {
-					error.set(true);
-				}
+		Thread close = new Thread(() -> {
+			try {
+				closing.countDown();
+				db.close();
+				if (!transactionFinished.get()) error.set(true);
+				closed.countDown();
+			} catch (Exception e) {
+				error.set(true);
 			}
-		};
+		});
 		close.start();
 		closing.await();
 		// Do whatever the transaction needs to do
