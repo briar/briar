@@ -1,11 +1,11 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 apply plugin: 'witness'
 
 dependencies {
-	compile project(path: ':bramble-api', configuration: 'default')
+	implementation project(path: ':bramble-api', configuration: 'default')
 }
 
 dependencyVerification {
