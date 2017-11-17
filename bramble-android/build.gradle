@@ -32,6 +32,27 @@ dependencies {
 	provided 'javax.annotation:jsr250-api:1.0'
 }
 
+dependencyVerification {
+	verify = [
+			'com.google.code.findbugs:jsr305:3.0.2:jsr305-3.0.2.jar:766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7',
+			'com.google.dagger:dagger-compiler:2.0.2:dagger-compiler-2.0.2.jar:b74bc9de063dd4c6400b232231f2ef5056145b8fbecbf5382012007dd1c071b3',
+			'com.google.dagger:dagger-producers:2.0-beta:dagger-producers-2.0-beta.jar:99ec15e8a0507ba569e7655bc1165ee5e5ca5aa914b3c8f7e2c2458f724edd6b',
+			'com.google.dagger:dagger:2.0.2:dagger-2.0.2.jar:84c0282ed8be73a29e0475d639da030b55dee72369e58dd35ae7d4fe6243dcf9',
+			'com.google.guava:guava:18.0:guava-18.0.jar:d664fbfc03d2e5ce9cab2a44fb01f1d0bf9dfebeccc1a473b1f9ea31f79f6f99',
+			'com.h2database:h2:1.4.192:h2-1.4.192.jar:225b22e9857235c46c93861410b60b8c81c10dc8985f4faf188985ba5445126c',
+			'com.madgag.spongycastle:core:1.58.0.0:core-1.58.0.0.jar:199617dd5698c5a9312b898c0a4cec7ce9dd8649d07f65d91629f58229d72728',
+			'javax.annotation:jsr250-api:1.0:jsr250-api-1.0.jar:a1a922d0d9b6d183ed3800dfac01d1e1eb159f0e8c6f94736931c1def54a941f',
+			'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
+			'org.bitlet:weupnp:0.1.4:weupnp-0.1.4.jar:88df7e6504929d00bdb832863761385c68ab92af945b04f0770b126270a444fb',
+			'org.jacoco:org.jacoco.agent:0.7.4.201502262128:org.jacoco.agent-0.7.4.201502262128-runtime.jar:e357a0f1d573c2f702a273992b1b6cb661734f66311854efb3778a888515c5b5',
+			'org.jacoco:org.jacoco.agent:0.7.4.201502262128:org.jacoco.agent-0.7.4.201502262128.jar:47b4bec6df11a1118da3953da8b9fa1e7079d6fec857faa1a3cf912e53a6fd4e',
+			'org.jacoco:org.jacoco.ant:0.7.4.201502262128:org.jacoco.ant-0.7.4.201502262128.jar:013ce2a68ba57a3c59215ae0dec4df3498c078062a38c3b94c841fc14450f283',
+			'org.jacoco:org.jacoco.core:0.7.4.201502262128:org.jacoco.core-0.7.4.201502262128.jar:ec4c74554312fac5116350164786f91b35c9e082fa4ea598bfa42b5db05d7abb',
+			'org.jacoco:org.jacoco.report:0.7.4.201502262128:org.jacoco.report-0.7.4.201502262128.jar:7a3554c605e088e7e323b1084656243f0444fa353e2f2dee1f1a4204eb64ff09',
+			'org.ow2.asm:asm-debug-all:5.0.1:asm-debug-all-5.0.1.jar:4734de5b515a454b0096db6971fb068e5f70e6f10bbee2b3bd2fdfe5d978ed57',
+	]
+}
+
 ext.torBinaryDir = 'src/main/res/raw'
 ext.torVersion = '0.2.9.12'
 ext.geoipVersion = '2017-09-06'
@@ -47,11 +68,11 @@ def torBinaries = [
 
 def downloadBinary(name) {
 	return tasks.create("downloadBinary${name}", Download) {
-		src "$torDownloadUrl${name}.zip"
+		src "${torDownloadUrl}${name}.zip"
 				.replace('tor_', "tor-${torVersion}-")
 				.replace('geoip', "geoip-${geoipVersion}")
 				.replaceAll('_', '-')
-		dest "$torBinaryDir/${name}.zip"
+		dest "${torBinaryDir}/${name}.zip"
 		onlyIfNewer true
 	}
 }
@@ -61,7 +82,7 @@ def verifyBinary(name, chksum) {
 			name     : "verifyBinary${name}",
 			type     : Verify,
 			dependsOn: downloadBinary(name)]) {
-		src "$torBinaryDir/${name}.zip"
+		src "${torBinaryDir}/${name}.zip"
 		algorithm 'SHA-256'
 		checksum chksum
 	}
