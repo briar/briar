@@ -159,8 +159,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		groupInvitationManager.createLocalState(txn);
 	}
 
-	private void expectAddingContact(final Contact c,
-			final boolean contactExists) throws Exception {
+	private void expectAddingContact(Contact c, boolean contactExists)
+			throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, c);
 			will(returnValue(contactGroup));
@@ -169,7 +169,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		}});
 		if (contactExists) return;
 
-		final BdfDictionary meta = BdfDictionary
+		BdfDictionary meta = BdfDictionary
 				.of(new BdfEntry(GROUP_KEY_CONTACT_ID, c.getId().getInt()));
 		context.checking(new Expectations() {{
 			oneOf(db).addGroup(txn, contactGroup);
@@ -186,8 +186,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		expectAddingMember(privateGroup.getId(), c);
 	}
 
-	private void expectAddingMember(final GroupId g, final Contact c)
-			throws Exception {
+	private void expectAddingMember(GroupId g, Contact c) throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, c);
 			will(returnValue(contactGroup));
@@ -214,8 +213,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		}});
 	}
 
-	private void expectStoreSession(final Session session,
-			final MessageId storageId) throws Exception {
+	private void expectStoreSession(Session session, MessageId storageId)
+			throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(sessionEncoder).encodeSession(session);
 			will(returnValue(meta));
@@ -223,10 +222,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		}});
 	}
 
-	private void expectGetSession(final Map<MessageId, BdfDictionary> results,
-			final SessionId sessionId, final GroupId contactGroupId)
-			throws Exception {
-		final BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
+	private void expectGetSession(Map<MessageId, BdfDictionary> results,
+			SessionId sessionId, GroupId contactGroupId) throws Exception {
+		BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
 		context.checking(new Expectations() {{
 			oneOf(sessionParser).getSessionQuery(sessionId);
 			will(returnValue(query));
@@ -327,9 +325,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		expectIncomingMessageWithSession(role, type, bdfSession);
 	}
 
-	private void expectIncomingMessageWithSession(final Role role,
-			final MessageType type, final BdfDictionary bdfSession)
-			throws Exception {
+	private void expectIncomingMessageWithSession(Role role, MessageType type,
+			BdfDictionary bdfSession) throws Exception {
 		expectParseMessageMetadata();
 		expectGetSession(oneResult, sessionId, contactGroup.getId());
 		Session session = expectHandleMessage(role, messageMetadata, bdfSession,
@@ -339,7 +336,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	@Nullable
 	private Session expectHandleFirstMessage(Role role,
-			final MessageMetadata messageMetadata, final MessageType type)
+			MessageMetadata messageMetadata, MessageType type)
 			throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(messageMetadata).getPrivateGroupId();
@@ -367,9 +364,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Nullable
-	private Session expectHandleMessage(final Role role,
-			final MessageMetadata messageMetadata, final BdfDictionary state,
-			final MessageType type) throws Exception {
+	private Session expectHandleMessage(Role role,
+			MessageMetadata messageMetadata, BdfDictionary state,
+			MessageType type) throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(messageMetadata).getMessageType();
 			will(returnValue(type));
@@ -405,11 +402,10 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		}
 	}
 
-	private <S extends Session> void expectIndividualMessage(
-			final MessageType type, final ProtocolEngine<S> engine,
-			final S session) throws Exception {
+	private <S extends Session> void expectIndividualMessage(MessageType type,
+			ProtocolEngine<S> engine, S session) throws Exception {
 		if (type == INVITE) {
-			final InviteMessage msg = context.mock(InviteMessage.class);
+			InviteMessage msg = context.mock(InviteMessage.class);
 			context.checking(new Expectations() {{
 				oneOf(messageParser).parseInviteMessage(message, body);
 				will(returnValue(msg));
@@ -418,7 +414,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 				will(returnValue(session));
 			}});
 		} else if (type == JOIN) {
-			final JoinMessage msg = context.mock(JoinMessage.class);
+			JoinMessage msg = context.mock(JoinMessage.class);
 			context.checking(new Expectations() {{
 				oneOf(messageParser).parseJoinMessage(message, body);
 				will(returnValue(msg));
@@ -427,7 +423,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 				will(returnValue(session));
 			}});
 		} else if (type == LEAVE) {
-			final LeaveMessage msg = context.mock(LeaveMessage.class);
+			LeaveMessage msg = context.mock(LeaveMessage.class);
 			context.checking(new Expectations() {{
 				oneOf(messageParser).parseLeaveMessage(message, body);
 				will(returnValue(msg));
@@ -436,7 +432,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 				will(returnValue(session));
 			}});
 		} else if (type == ABORT) {
-			final AbortMessage msg = context.mock(AbortMessage.class);
+			AbortMessage msg = context.mock(AbortMessage.class);
 			context.checking(new Expectations() {{
 				oneOf(messageParser).parseAbortMessage(message, body);
 				will(returnValue(msg));
@@ -451,9 +447,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testSendFirstInvitation() throws Exception {
-		final String msg = "Invitation text for first invitation";
-		final long time = 42L;
-		final byte[] signature = getRandomBytes(42);
+		String msg = "Invitation text for first invitation";
+		long time = 42L;
+		byte[] signature = getRandomBytes(42);
 
 		expectGetSession(noResults, sessionId, contactGroup.getId());
 		context.checking(new Expectations() {{
@@ -482,9 +478,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testSendSubsequentInvitation() throws Exception {
-		final String msg = "Invitation text for subsequent invitation";
-		final long time = 43L;
-		final byte[] signature = getRandomBytes(43);
+		String msg = "Invitation text for subsequent invitation";
+		long time = 43L;
+		byte[] signature = getRandomBytes(43);
 
 		expectGetSession(oneResult, sessionId, contactGroup.getId());
 		context.checking(new Expectations() {{
@@ -513,7 +509,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRespondToInvitationWithoutSession() throws Exception {
-		final SessionId sessionId = new SessionId(getRandomId());
+		SessionId sessionId = new SessionId(getRandomId());
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
@@ -563,8 +559,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		groupInvitationManager.respondToInvitation(contactId, pg, false);
 	}
 
-	private void expectRespondToInvitation(final SessionId sessionId,
-			final boolean accept) throws Exception {
+	private void expectRespondToInvitation(SessionId sessionId, boolean accept)
+			throws Exception {
 		expectGetSession(oneResult, sessionId, contactGroup.getId());
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
@@ -628,24 +624,24 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testGetInvitationMessages() throws Exception {
-		final BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
-		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
-		final BdfDictionary meta2 = BdfDictionary.of(new BdfEntry("m2", "e"));
-		final Map<MessageId, BdfDictionary> results = new HashMap<>();
+		BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
+		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		BdfDictionary meta2 = BdfDictionary.of(new BdfEntry("m2", "e"));
+		Map<MessageId, BdfDictionary> results = new HashMap<>();
 		results.put(message.getId(), meta);
 		results.put(messageId2, meta2);
-		final long time1 = 1L, time2 = 2L;
-		final MessageMetadata messageMetadata1 =
+		long time1 = 1L, time2 = 2L;
+		MessageMetadata messageMetadata1 =
 				new MessageMetadata(INVITE, privateGroup.getId(), time1, true,
 						true, true, false, true);
-		final MessageMetadata messageMetadata2 =
+		MessageMetadata messageMetadata2 =
 				new MessageMetadata(JOIN, privateGroup.getId(), time2, true,
 						true, true, true, false);
-		final InviteMessage invite =
+		InviteMessage invite =
 				new InviteMessage(message.getId(), contactGroup.getId(),
 						privateGroup.getId(), time1, "name", author,
 						new byte[0], null, new byte[0]);
-		final PrivateGroup pg =
+		PrivateGroup pg =
 				new PrivateGroup(privateGroup, invite.getGroupName(),
 						invite.getCreator(), invite.getSalt());
 
@@ -701,28 +697,27 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testGetInvitations() throws Exception {
-		final BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
-		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
-		final BdfDictionary meta2 = BdfDictionary.of(new BdfEntry("m2", "e"));
-		final Map<MessageId, BdfDictionary> results = new HashMap<>();
+		BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
+		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		BdfDictionary meta2 = BdfDictionary.of(new BdfEntry("m2", "e"));
+		Map<MessageId, BdfDictionary> results = new HashMap<>();
 		results.put(message.getId(), meta);
 		results.put(messageId2, meta2);
-		final Message message2 = new Message(messageId2, contactGroup.getId(),
+		Message message2 = new Message(messageId2, contactGroup.getId(),
 				0L, getRandomBytes(MESSAGE_HEADER_LENGTH + 1));
 		long time1 = 1L, time2 = 2L;
-		final String groupName = getRandomString(MAX_GROUP_NAME_LENGTH);
-		final byte[] salt = getRandomBytes(GROUP_SALT_LENGTH);
-		final InviteMessage inviteMessage1 =
+		String groupName = getRandomString(MAX_GROUP_NAME_LENGTH);
+		byte[] salt = getRandomBytes(GROUP_SALT_LENGTH);
+		InviteMessage inviteMessage1 =
 				new InviteMessage(message.getId(), contactGroup.getId(),
 						privateGroup.getId(), time1, groupName, author, salt,
 						null, getRandomBytes(5));
-		final InviteMessage inviteMessage2 =
-				new InviteMessage(message.getId(), contactGroup.getId(),
+		InviteMessage inviteMessage2 =
+				new InviteMessage(message2.getId(), contactGroup.getId(),
 						privateGroup.getId(), time2, groupName, author, salt,
 						null, getRandomBytes(5));
-		final PrivateGroup pg = new PrivateGroup(privateGroup, groupName,
+		PrivateGroup pg = new PrivateGroup(privateGroup, groupName,
 				author, salt);
-		final BdfList body2 = BdfList.of("body2");
 
 		context.checking(new Expectations() {{
 			oneOf(messageParser).getInvitesAvailableToAnswerQuery();
@@ -794,7 +789,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 				.isInvitationAllowed(contact, privateGroup.getId()));
 	}
 
-	private void expectIsInvitationAllowed(final CreatorState state)
+	private void expectIsInvitationAllowed(CreatorState state)
 			throws Exception {
 		expectGetSession(oneResult, sessionId, contactGroup.getId());
 		context.checking(new Expectations() {{
@@ -824,23 +819,23 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testRemovingGroupEndsSessions() throws Exception {
-		final Contact contact2 = new Contact(new ContactId(2), author,
+		Contact contact2 = new Contact(new ContactId(2), author,
 				author.getId(), true, true);
-		final Contact contact3 = new Contact(new ContactId(3), author,
+		Contact contact3 = new Contact(new ContactId(3), author,
 				author.getId(), true, true);
-		final Collection<Contact> contacts =
+		Collection<Contact> contacts =
 				Arrays.asList(contact, contact2, contact3);
 
-		final Group contactGroup2 = new Group(new GroupId(getRandomId()),
+		Group contactGroup2 = new Group(new GroupId(getRandomId()),
 				CLIENT_ID, getRandomBytes(5));
-		final Group contactGroup3 = new Group(new GroupId(getRandomId()),
+		Group contactGroup3 = new Group(new GroupId(getRandomId()),
 				CLIENT_ID, getRandomBytes(5));
 
-		final MessageId storageId2 = new MessageId(getRandomId());
-		final MessageId storageId3 = new MessageId(getRandomId());
-		final BdfDictionary bdfSession2 =
+		MessageId storageId2 = new MessageId(getRandomId());
+		MessageId storageId3 = new MessageId(getRandomId());
+		BdfDictionary bdfSession2 =
 				BdfDictionary.of(new BdfEntry("f2", "o"));
-		final BdfDictionary bdfSession3 =
+		BdfDictionary bdfSession3 =
 				BdfDictionary.of(new BdfEntry("f3", "o"));
 
 		expectGetSession(oneResult, sessionId, contactGroup.getId());

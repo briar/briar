@@ -96,14 +96,13 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 		}
 	}
 
-	private void transportStateUpdate(final TransportId id,
-			final boolean enabled) {
+	private void transportStateUpdate(TransportId id, boolean enabled) {
 		listener.runOnUiThreadUnlessDestroyed(
 				() -> listener.stateUpdate(id, enabled));
 	}
 
 	@Override
-	public void showExpiryWarning(final ResultHandler<ExpiryWarning> handler) {
+	public void showExpiryWarning(ResultHandler<ExpiryWarning> handler) {
 		runOnDbThread(() -> {
 			try {
 				Settings settings =

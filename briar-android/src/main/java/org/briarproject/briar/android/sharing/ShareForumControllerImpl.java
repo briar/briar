@@ -55,9 +55,8 @@ class ShareForumControllerImpl extends ContactSelectorControllerImpl
 	}
 
 	@Override
-	public void share(final GroupId g, final Collection<ContactId> contacts,
-			final String message,
-			final ExceptionHandler<DbException> handler) {
+	public void share(GroupId g, Collection<ContactId> contacts,
+			String message, ExceptionHandler<DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				String msg = isNullOrEmpty(message) ? null : message;

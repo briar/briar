@@ -30,8 +30,8 @@ class QrCodeUtils {
 		int smallestDimen = Math.min(dm.widthPixels, dm.heightPixels);
 		try {
 			// Generate QR code
-			final BitMatrix encoded = new QRCodeWriter().encode(
-					input, QR_CODE, smallestDimen, smallestDimen);
+			BitMatrix encoded = new QRCodeWriter().encode(input, QR_CODE,
+					smallestDimen, smallestDimen);
 			// Convert QR code to Bitmap
 			int width = encoded.getWidth();
 			int height = encoded.getHeight();

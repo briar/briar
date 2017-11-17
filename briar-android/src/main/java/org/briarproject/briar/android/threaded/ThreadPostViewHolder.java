@@ -37,7 +37,7 @@ public class ThreadPostViewHolder<I extends ThreadItem>
 	}
 
 	@Override
-	public void bind(final I item, final ThreadItemListener<I> listener) {
+	public void bind(I item, ThreadItemListener<I> listener) {
 		super.bind(item, listener);
 
 		for (int i = 0; i < lvls.length; i++) {

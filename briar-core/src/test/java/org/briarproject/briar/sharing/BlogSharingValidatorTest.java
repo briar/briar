@@ -175,7 +175,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 						invalidContent));
 	}
 
-	private void expectCreateBlog(final String name, final byte[] key) {
+	private void expectCreateBlog(String name, byte[] key) {
 		context.checking(new Expectations() {{
 			oneOf(authorFactory).createAuthor(name, key);
 			will(returnValue(author));

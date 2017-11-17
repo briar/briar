@@ -14,7 +14,7 @@ public class StreamWriterImplTest extends BrambleTestCase {
 	@Test
 	public void testCloseWithoutWritingWritesFinalFrame() throws Exception {
 		Mockery context = new Mockery();
-		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
+		StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
 		context.checking(new Expectations() {{
 			// Write an empty final frame
 			oneOf(encrypter).writeFrame(with(any(byte[].class)), with(0),
@@ -31,7 +31,7 @@ public class StreamWriterImplTest extends BrambleTestCase {
 	public void testFlushWithoutBufferedDataWritesFrameAndFlushes()
 			throws Exception {
 		Mockery context = new Mockery();
-		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
+		StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
 		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
 			// Write a non-final frame with an empty payload
@@ -58,7 +58,7 @@ public class StreamWriterImplTest extends BrambleTestCase {
 	public void testFlushWithBufferedDataWritesFrameAndFlushes()
 			throws Exception {
 		Mockery context = new Mockery();
-		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
+		StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
 		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
 			// Write a non-final frame with one payload byte
@@ -85,7 +85,7 @@ public class StreamWriterImplTest extends BrambleTestCase {
 	@Test
 	public void testSingleByteWritesWriteFullFrame() throws Exception {
 		Mockery context = new Mockery();
-		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
+		StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
 		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
 			// Write a full non-final frame
@@ -109,7 +109,7 @@ public class StreamWriterImplTest extends BrambleTestCase {
 	@Test
 	public void testMultiByteWritesWriteFullFrames() throws Exception {
 		Mockery context = new Mockery();
-		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
+		StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
 		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
 			// Write two full non-final frames
@@ -140,7 +140,7 @@ public class StreamWriterImplTest extends BrambleTestCase {
 	@Test
 	public void testLargeMultiByteWriteWritesFullFrames() throws Exception {
 		Mockery context = new Mockery();
-		final StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
+		StreamEncrypter encrypter = context.mock(StreamEncrypter.class);
 		StreamWriterImpl w = new StreamWriterImpl(encrypter);
 		context.checking(new Expectations() {{
 			// Write two full non-final frames

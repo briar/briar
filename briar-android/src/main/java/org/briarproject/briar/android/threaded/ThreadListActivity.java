@@ -171,7 +171,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	protected abstract void onNamedGroupLoaded(G groupItem);
 
 	protected void loadItems() {
-		final int revision = adapter.getRevision();
+		int revision = adapter.getRevision();
 		getController().loadItems(
 				new UiResultExceptionHandler<ThreadItemList<I>, DbException>(
 						this) {
@@ -198,7 +198,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 				});
 	}
 
-	private void displayItems(final ThreadItemList<I> items) {
+	private void displayItems(ThreadItemList<I> items) {
 		adapter.setItems(items);
 		MessageId messageId = items.getFirstVisibleItemId();
 		if (messageId != null)
@@ -281,7 +281,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	}
 
 	@Override
-	public void onReplyClick(final I item) {
+	public void onReplyClick(I item) {
 		replyId = item.getId();
 		updateTextInput();
 		if (textInput.isKeyboardOpen()) {

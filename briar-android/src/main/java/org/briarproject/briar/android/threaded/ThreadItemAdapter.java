@@ -140,8 +140,8 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	 *            because then the view port is unknown.
 	 */
 	public UnreadCount getUnreadCount() {
-		final int positionTop = layoutManager.findFirstVisibleItemPosition();
-		final int positionBottom = layoutManager.findLastVisibleItemPosition();
+		int positionTop = layoutManager.findFirstVisibleItemPosition();
+		int positionBottom = layoutManager.findLastVisibleItemPosition();
 		if (positionTop == NO_POSITION && positionBottom == NO_POSITION)
 			return new UnreadCount(0, 0);
 
@@ -161,7 +161,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	 * Returns the position of the first unread item below the current viewport
 	 */
 	int getVisibleUnreadPosBottom() {
-		final int positionBottom = layoutManager.findLastVisibleItemPosition();
+		int positionBottom = layoutManager.findLastVisibleItemPosition();
 		if (positionBottom == NO_POSITION) return NO_POSITION;
 		for (int i = positionBottom + 1; i < items.size(); i++) {
 			if (!items.get(i).isRead()) return i;
@@ -173,7 +173,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	 * Returns the position of the first unread item above the current viewport
 	 */
 	int getVisibleUnreadPosTop() {
-		final int positionTop = layoutManager.findFirstVisibleItemPosition();
+		int positionTop = layoutManager.findFirstVisibleItemPosition();
 		int position = NO_POSITION;
 		for (int i = 0; i < items.size(); i++) {
 			if (i < positionTop && !items.get(i).isRead()) {

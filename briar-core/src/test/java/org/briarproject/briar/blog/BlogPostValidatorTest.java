@@ -111,12 +111,12 @@ public class BlogPostValidatorTest extends BriarTestCase {
 
 	private void testValidateProperBlogPost(Blog b, boolean rssFeed)
 			throws IOException, GeneralSecurityException {
-		final byte[] sigBytes = TestUtils.getRandomBytes(42);
+		byte[] sigBytes = TestUtils.getRandomBytes(42);
 		BdfList m = BdfList.of(POST.getInt(), body, sigBytes);
 
 		BdfList signed = BdfList.of(b.getId(), message.getTimestamp(), body);
 		expectCrypto(b, SIGNING_LABEL_POST, signed, sigBytes);
-		final BdfDictionary result =
+		BdfDictionary result =
 				validator.validateMessage(message, group, m).getDictionary();
 
 		assertEquals(authorDict, result.getDictionary(KEY_AUTHOR));
@@ -150,14 +150,14 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		String comment = "This is a blog comment";
 		MessageId pOriginalId = new MessageId(TestUtils.getRandomId());
 		MessageId currentId = new MessageId(TestUtils.getRandomId());
-		final byte[] sigBytes = TestUtils.getRandomBytes(42);
+		byte[] sigBytes = TestUtils.getRandomBytes(42);
 		BdfList m = BdfList.of(COMMENT.getInt(), comment, pOriginalId,
 				currentId, sigBytes);
 
 		BdfList signed = BdfList.of(blog.getId(), message.getTimestamp(),
 				comment, pOriginalId, currentId);
 		expectCrypto(blog, SIGNING_LABEL_COMMENT, signed, sigBytes);
-		final BdfDictionary result =
+		BdfDictionary result =
 				validator.validateMessage(message, group, m).getDictionary();
 
 		assertEquals(comment, result.getString(KEY_COMMENT));
@@ -175,14 +175,14 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		// comment, parent_original_id, signature, parent_current_id
 		MessageId originalId = new MessageId(TestUtils.getRandomId());
 		MessageId currentId = new MessageId(TestUtils.getRandomId());
-		final byte[] sigBytes = TestUtils.getRandomBytes(42);
+		byte[] sigBytes = TestUtils.getRandomBytes(42);
 		BdfList m = BdfList.of(COMMENT.getInt(), null, originalId, currentId,
 				sigBytes);
 
 		BdfList signed = BdfList.of(blog.getId(), message.getTimestamp(), null,
 				originalId, currentId);
 		expectCrypto(blog, SIGNING_LABEL_COMMENT, signed, sigBytes);
-		final BdfDictionary result =
+		BdfDictionary result =
 				validator.validateMessage(message, group, m).getDictionary();
 
 		assertFalse(result.containsKey(KEY_COMMENT));
@@ -201,18 +201,18 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		testValidateProperWrappedPost(rssBlog, true);
 	}
 
-	private void testValidateProperWrappedPost(final Blog b, boolean rssFeed)
+	private void testValidateProperWrappedPost(Blog b, boolean rssFeed)
 			throws IOException, GeneralSecurityException {
 		// group descriptor, timestamp, content, signature
-		final byte[] sigBytes = TestUtils.getRandomBytes(42);
+		byte[] sigBytes = TestUtils.getRandomBytes(42);
 		BdfList m = BdfList.of(WRAPPED_POST.getInt(), descriptor,
 				message.getTimestamp(), body, sigBytes);
 
 		BdfList signed = BdfList.of(b.getId(), message.getTimestamp(), body);
 		expectCrypto(b, SIGNING_LABEL_POST, signed, sigBytes);
 
-		final BdfList originalList = BdfList.of(POST.getInt(), body, sigBytes);
-		final byte[] originalBody = TestUtils.getRandomBytes(42);
+		BdfList originalList = BdfList.of(POST.getInt(), body, sigBytes);
+		byte[] originalBody = TestUtils.getRandomBytes(42);
 
 		context.checking(new Expectations() {{
 			oneOf(groupFactory).createGroup(clientId, descriptor);
@@ -227,7 +227,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 			will(returnValue(message));
 		}});
 
-		final BdfDictionary result =
+		BdfDictionary result =
 				validator.validateMessage(message, group, m).getDictionary();
 
 		assertEquals(authorDict, result.getDictionary(KEY_AUTHOR));
@@ -243,7 +243,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		String comment = "This is another comment";
 		MessageId originalId = new MessageId(TestUtils.getRandomId());
 		MessageId oldId = new MessageId(TestUtils.getRandomId());
-		final byte[] sigBytes = TestUtils.getRandomBytes(42);
+		byte[] sigBytes = TestUtils.getRandomBytes(42);
 		MessageId currentId = new MessageId(TestUtils.getRandomId());
 		BdfList m = BdfList.of(WRAPPED_COMMENT.getInt(), descriptor,
 				message.getTimestamp(), comment, originalId, oldId, sigBytes,
@@ -253,9 +253,9 @@ public class BlogPostValidatorTest extends BriarTestCase {
 				comment, originalId, oldId);
 		expectCrypto(blog, SIGNING_LABEL_COMMENT, signed, sigBytes);
 
-		final BdfList originalList = BdfList.of(COMMENT.getInt(), comment,
+		BdfList originalList = BdfList.of(COMMENT.getInt(), comment,
 				originalId, oldId, sigBytes);
-		final byte[] originalBody = TestUtils.getRandomBytes(42);
+		byte[] originalBody = TestUtils.getRandomBytes(42);
 
 		context.checking(new Expectations() {{
 			oneOf(groupFactory).createGroup(clientId, descriptor);
@@ -268,7 +268,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 			will(returnValue(message));
 		}});
 
-		final BdfDictionary result =
+		BdfDictionary result =
 				validator.validateMessage(message, group, m).getDictionary();
 
 		assertEquals(comment, result.getString(KEY_COMMENT));
@@ -279,8 +279,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		context.assertIsSatisfied();
 	}
 
-	private void expectCrypto(final Blog b, final String label,
-			final BdfList signed, final byte[] sig)
+	private void expectCrypto(Blog b, String label, BdfList signed, byte[] sig)
 			throws IOException, GeneralSecurityException {
 		context.checking(new Expectations() {{
 			oneOf(blogFactory).parseBlog(group);

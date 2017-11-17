@@ -57,7 +57,7 @@ public class LinkDialogFragment extends DialogFragment {
 		List activities = packageManager.queryIntentActivities(i,
 				PackageManager.MATCH_DEFAULT_ONLY);
 		boolean choice = activities.size() > 1;
-		final Intent intent = choice ? Intent.createChooser(i,
+		Intent intent = choice ? Intent.createChooser(i,
 				getString(R.string.link_warning_open_link)) : i;
 
 		Button openButton = (Button) v.findViewById(R.id.openButton);

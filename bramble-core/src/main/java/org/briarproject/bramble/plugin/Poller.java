@@ -111,7 +111,7 @@ class Poller implements EventListener {
 			connectToContact(c, (DuplexPlugin) p);
 	}
 
-	private void connectToContact(final ContactId c, final SimplexPlugin p) {
+	private void connectToContact(ContactId c, SimplexPlugin p) {
 		ioExecutor.execute(() -> {
 			TransportId t = p.getId();
 			if (!connectionRegistry.isConnected(c, t)) {
@@ -122,7 +122,7 @@ class Poller implements EventListener {
 		});
 	}
 
-	private void connectToContact(final ContactId c, final DuplexPlugin p) {
+	private void connectToContact(ContactId c, DuplexPlugin p) {
 		ioExecutor.execute(() -> {
 			TransportId t = p.getId();
 			if (!connectionRegistry.isConnected(c, t)) {
@@ -153,7 +153,7 @@ class Poller implements EventListener {
 		try {
 			PollTask scheduled = tasks.get(t);
 			if (scheduled == null || due < scheduled.due) {
-				final PollTask task = new PollTask(p, due, randomiseNext);
+				PollTask task = new PollTask(p, due, randomiseNext);
 				tasks.put(t, task);
 				scheduler.schedule(
 						() -> ioExecutor.execute(task), delay, MILLISECONDS);
@@ -164,7 +164,7 @@ class Poller implements EventListener {
 	}
 
 	@IoExecutor
-	private void poll(final Plugin p) {
+	private void poll(Plugin p) {
 		TransportId t = p.getId();
 		if (LOG.isLoggable(INFO)) LOG.info("Polling plugin " + t);
 		p.poll(connectionRegistry.getConnectedContacts(t));

@@ -204,18 +204,18 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	@Override
-	public void poll(final Collection<ContactId> connected) {
+	public void poll(Collection<ContactId> connected) {
 		if (!running) return;
 		backoff.increment();
 		// Try to connect to known devices in parallel
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
 		for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
-			final ContactId c = e.getKey();
+			ContactId c = e.getKey();
 			if (connected.contains(c)) continue;
-			final String address = e.getValue().get(PROP_ADDRESS);
+			String address = e.getValue().get(PROP_ADDRESS);
 			if (StringUtils.isNullOrEmpty(address)) continue;
-			final String uuid = e.getValue().get(PROP_UUID);
+			String uuid = e.getValue().get(PROP_UUID);
 			if (StringUtils.isNullOrEmpty(uuid)) continue;
 			ioExecutor.execute(() -> {
 				if (!running) return;
@@ -270,7 +270,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		// Make the device discoverable if possible
 		makeDeviceDiscoverable();
 		// Bind a server socket for receiving key agreementconnections
-		final StreamConnectionNotifier ss;
+		StreamConnectionNotifier ss;
 		try {
 			ss = (StreamConnectionNotifier) Connector.open(url);
 		} catch (IOException e) {

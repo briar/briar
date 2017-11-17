@@ -117,7 +117,7 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 		onSelectionChanged();
 	}
 
-	private void loadContacts(final Collection<ContactId> selection) {
+	private void loadContacts(Collection<ContactId> selection) {
 		getController().loadContacts(groupId, selection,
 				new UiResultExceptionHandler<Collection<I>, DbException>(
 						this) {

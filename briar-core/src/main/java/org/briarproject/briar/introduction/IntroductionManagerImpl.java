@@ -272,7 +272,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	@Override
 	public void makeIntroduction(Contact c1, Contact c2, @Nullable String msg,
-			final long timestamp) throws DbException, FormatException {
+			long timestamp) throws DbException, FormatException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
@@ -288,9 +288,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public void acceptIntroduction(final ContactId contactId,
-			final SessionId sessionId, final long timestamp)
-			throws DbException, FormatException {
+	public void acceptIntroduction(ContactId contactId, SessionId sessionId,
+			long timestamp) throws DbException, FormatException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
@@ -308,9 +307,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public void declineIntroduction(final ContactId contactId,
-			final SessionId sessionId, final long timestamp)
-			throws DbException, FormatException {
+	public void declineIntroduction(ContactId contactId, SessionId sessionId,
+			long timestamp) throws DbException, FormatException {
 
 		Transaction txn = db.startTransaction(false);
 		try {

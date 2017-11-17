@@ -99,7 +99,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@Override
 	public void onActivityDestroy() {
-		final MessageId messageId = listener.getFirstVisibleMessageId();
+		MessageId messageId = listener.getFirstVisibleMessageId();
 		if (messageId != null) {
 			dbExecutor.execute(() -> {
 				try {
@@ -127,7 +127,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@Override
 	public void loadNamedGroup(
-			final ResultExceptionHandler<G, DbException> handler) {
+			ResultExceptionHandler<G, DbException> handler) {
 		checkGroupId();
 		runOnDbThread(() -> {
 			try {
@@ -150,7 +150,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@Override
 	public void loadItems(
-			final ResultExceptionHandler<ThreadItemList<I>, DbException> handler) {
+			ResultExceptionHandler<ThreadItemList<I>, DbException> handler) {
 		checkGroupId();
 		runOnDbThread(() -> {
 			try {
@@ -194,7 +194,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	}
 
 	@Override
-	public void markItemsRead(final Collection<I> items) {
+	public void markItemsRead(Collection<I> items) {
 		runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();
@@ -213,8 +213,8 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	@DatabaseExecutor
 	protected abstract void markRead(MessageId id) throws DbException;
 
-	protected void storePost(final M msg, final String body,
-			final ResultExceptionHandler<I, DbException> resultHandler) {
+	protected void storePost(M msg, String body,
+			ResultExceptionHandler<I, DbException> resultHandler) {
 		runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();
@@ -235,7 +235,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected abstract H addLocalMessage(M message) throws DbException;
 
 	@Override
-	public void deleteNamedGroup(final ExceptionHandler<DbException> handler) {
+	public void deleteNamedGroup(ExceptionHandler<DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();

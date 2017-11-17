@@ -58,9 +58,8 @@ class BlogInvitationControllerImpl
 	}
 
 	@Override
-	public void respondToInvitation(final SharingInvitationItem item,
-			final boolean accept,
-			final ExceptionHandler<DbException> handler) {
+	public void respondToInvitation(SharingInvitationItem item, boolean accept,
+			ExceptionHandler<DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				Blog f = (Blog) item.getShareable();

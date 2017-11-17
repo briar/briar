@@ -64,9 +64,8 @@ class GroupInvitationControllerImpl
 	}
 
 	@Override
-	public void respondToInvitation(final GroupInvitationItem item,
-			final boolean accept,
-			final ExceptionHandler<DbException> handler) {
+	public void respondToInvitation(GroupInvitationItem item, boolean accept,
+			ExceptionHandler<DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				PrivateGroup g = item.getShareable();

@@ -74,8 +74,8 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	}
 
 	@Override
-	public void createGroup(final String name,
-			final ResultExceptionHandler<GroupId, DbException> handler) {
+	public void createGroup(String name,
+			ResultExceptionHandler<GroupId, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				LocalAuthor author = identityManager.getLocalAuthor();
@@ -87,9 +87,8 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 		});
 	}
 
-	private void createGroupAndMessages(final LocalAuthor author,
-			final String name,
-			final ResultExceptionHandler<GroupId, DbException> handler) {
+	private void createGroupAndMessages(LocalAuthor author, String name,
+			ResultExceptionHandler<GroupId, DbException> handler) {
 		cryptoExecutor.execute(() -> {
 			LOG.info("Creating group...");
 			PrivateGroup group =
@@ -102,9 +101,8 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 		});
 	}
 
-	private void storeGroup(final PrivateGroup group,
-			final GroupMessage joinMsg,
-			final ResultExceptionHandler<GroupId, DbException> handler) {
+	private void storeGroup(PrivateGroup group, GroupMessage joinMsg,
+			ResultExceptionHandler<GroupId, DbException> handler) {
 		runOnDbThread(() -> {
 			LOG.info("Adding group to database...");
 			try {
@@ -123,9 +121,8 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	}
 
 	@Override
-	public void sendInvitation(final GroupId g,
-			final Collection<ContactId> contactIds, final String message,
-			final ResultExceptionHandler<Void, DbException> handler) {
+	public void sendInvitation(GroupId g, Collection<ContactId> contactIds,
+			String message, ResultExceptionHandler<Void, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				LocalAuthor localAuthor = identityManager.getLocalAuthor();
@@ -145,9 +142,9 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 		});
 	}
 
-	private void signInvitations(final GroupId g, final LocalAuthor localAuthor,
-			final Collection<Contact> contacts, final String message,
-			final ResultExceptionHandler<Void, DbException> handler) {
+	private void signInvitations(GroupId g, LocalAuthor localAuthor,
+			Collection<Contact> contacts, String message,
+			ResultExceptionHandler<Void, DbException> handler) {
 		cryptoExecutor.execute(() -> {
 			long timestamp = clock.currentTimeMillis();
 			List<InvitationContext> contexts = new ArrayList<>();
@@ -161,9 +158,9 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 		});
 	}
 
-	private void sendInvitations(final GroupId g,
-			final Collection<InvitationContext> contexts, final String message,
-			final ResultExceptionHandler<Void, DbException> handler) {
+	private void sendInvitations(GroupId g,
+			Collection<InvitationContext> contexts, String message,
+			ResultExceptionHandler<Void, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				String msg = message.isEmpty() ? null : message;

@@ -25,7 +25,7 @@ public abstract class ContactSelectorActivity
 		extends BriarActivity
 		implements BaseFragmentListener, ContactSelectorListener {
 
-	final static String CONTACTS = "contacts";
+	protected final static String CONTACTS = "contacts";
 
 	// Subclasses may initialise the group ID in different places
 	protected GroupId groupId;

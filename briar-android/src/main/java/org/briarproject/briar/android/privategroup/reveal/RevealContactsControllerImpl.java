@@ -59,9 +59,8 @@ class RevealContactsControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void loadContacts(final GroupId g,
-			final Collection<ContactId> selection,
-			final ResultExceptionHandler<Collection<RevealableContactItem>, DbException> handler) {
+	public void loadContacts(GroupId g, Collection<ContactId> selection,
+			ResultExceptionHandler<Collection<RevealableContactItem>, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				handler.onResult(getItems(g, selection));
@@ -98,7 +97,7 @@ class RevealContactsControllerImpl extends DbControllerImpl
 
 	@Override
 	public void isOnboardingNeeded(
-			final ResultExceptionHandler<Boolean, DbException> handler) {
+			ResultExceptionHandler<Boolean, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				Settings settings =
@@ -129,8 +128,8 @@ class RevealContactsControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void reveal(final GroupId g, final Collection<ContactId> contacts,
-			final ExceptionHandler<DbException> handler) {
+	public void reveal(GroupId g, Collection<ContactId> contacts,
+			ExceptionHandler<DbException> handler) {
 		runOnDbThread(() -> {
 			for (ContactId c : contacts) {
 				try {

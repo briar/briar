@@ -84,7 +84,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 		this.listener = listener;
 	}
 
-	void onBlogPostAdded(final BlogPostHeader h, final boolean local) {
+	void onBlogPostAdded(BlogPostHeader h, boolean local) {
 		listener.runOnUiThreadUnlessDestroyed(
 				() -> listener.onBlogPostAdded(h, local));
 	}
@@ -94,8 +94,8 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void loadBlogPosts(final GroupId groupId,
-			final ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
+	public void loadBlogPosts(GroupId groupId,
+			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				Collection<BlogPostItem> items = loadItems(groupId);
@@ -129,8 +129,8 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void loadBlogPost(final BlogPostHeader header,
-			final ResultExceptionHandler<BlogPostItem, DbException> handler) {
+	public void loadBlogPost(BlogPostHeader header,
+			ResultExceptionHandler<BlogPostItem, DbException> handler) {
 
 		String body = bodyCache.get(header.getId());
 		if (body != null) {
@@ -155,8 +155,8 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void loadBlogPost(final GroupId g, final MessageId m,
-			final ResultExceptionHandler<BlogPostItem, DbException> handler) {
+	public void loadBlogPost(GroupId g, MessageId m,
+			ResultExceptionHandler<BlogPostItem, DbException> handler) {
 
 		BlogPostHeader header = headerCache.get(m);
 		if (header != null) {
@@ -182,9 +182,8 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void repeatPost(final BlogPostItem item,
-			final @Nullable String comment,
-			final ExceptionHandler<DbException> handler) {
+	public void repeatPost(BlogPostItem item, @Nullable String comment,
+			ExceptionHandler<DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				LocalAuthor a = identityManager.getLocalAuthor();

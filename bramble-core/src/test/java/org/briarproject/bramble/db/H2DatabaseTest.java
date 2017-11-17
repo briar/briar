@@ -464,11 +464,11 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testCloseWaitsForCommit() throws Exception {
-		final CountDownLatch closing = new CountDownLatch(1);
-		final CountDownLatch closed = new CountDownLatch(1);
-		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
-		final AtomicBoolean error = new AtomicBoolean(false);
-		final Database<Connection> db = open(false);
+		CountDownLatch closing = new CountDownLatch(1);
+		CountDownLatch closed = new CountDownLatch(1);
+		AtomicBoolean transactionFinished = new AtomicBoolean(false);
+		AtomicBoolean error = new AtomicBoolean(false);
+		Database<Connection> db = open(false);
 
 		// Start a transaction
 		Connection txn = db.startTransaction();
@@ -501,11 +501,11 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testCloseWaitsForAbort() throws Exception {
-		final CountDownLatch closing = new CountDownLatch(1);
-		final CountDownLatch closed = new CountDownLatch(1);
-		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
-		final AtomicBoolean error = new AtomicBoolean(false);
-		final Database<Connection> db = open(false);
+		CountDownLatch closing = new CountDownLatch(1);
+		CountDownLatch closed = new CountDownLatch(1);
+		AtomicBoolean transactionFinished = new AtomicBoolean(false);
+		AtomicBoolean error = new AtomicBoolean(false);
+		Database<Connection> db = open(false);
 
 		// Start a transaction
 		Connection txn = db.startTransaction();

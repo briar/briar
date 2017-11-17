@@ -40,7 +40,7 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 	}
 
 	@CallSuper
-	public void bind(final I item, final ThreadItemListener<I> listener) {
+	public void bind(I item, ThreadItemListener<I> listener) {
 		textView.setText(StringUtils.trim(item.getText()));
 
 		author.setAuthor(item.getAuthor());

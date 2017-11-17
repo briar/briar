@@ -37,7 +37,7 @@ class PortMapperImpl implements PortMapper {
 	}
 
 	@Override
-	public MappingResult map(final int port) {
+	public MappingResult map(int port) {
 		if (!started.getAndSet(true)) start();
 		if (gateway == null) return null;
 		InetAddress internal = gateway.getLocalAddress();

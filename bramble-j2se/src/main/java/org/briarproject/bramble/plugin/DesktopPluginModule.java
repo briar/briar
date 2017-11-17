@@ -41,9 +41,9 @@ public class DesktopPluginModule extends PluginModule {
 				backoffFactory, shutdownManager);
 		SimplexPluginFactory removable =
 				new RemovableDrivePluginFactory(ioExecutor);
-		final Collection<SimplexPluginFactory> simplex =
+		Collection<SimplexPluginFactory> simplex =
 				Collections.singletonList(removable);
-		final Collection<DuplexPluginFactory> duplex =
+		Collection<DuplexPluginFactory> duplex =
 				Arrays.asList(bluetooth, modem, lan, wan);
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {

@@ -135,8 +135,8 @@ public class FeedFragment extends BaseFragment implements
 				});
 	}
 
-	private void loadBlogPosts(final boolean clear) {
-		final int revision = adapter.getRevision();
+	private void loadBlogPosts(boolean clear) {
+		int revision = adapter.getRevision();
 		feedController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>, DbException>(
 						this) {
@@ -167,7 +167,7 @@ public class FeedFragment extends BaseFragment implements
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		if (personalBlog == null) return false;
 		switch (item.getItemId()) {
 			case R.id.action_write_blog_post:
@@ -193,7 +193,7 @@ public class FeedFragment extends BaseFragment implements
 	}
 
 	@Override
-	public void onBlogPostAdded(BlogPostHeader header, final boolean local) {
+	public void onBlogPostAdded(BlogPostHeader header, boolean local) {
 		feedController.loadBlogPost(header,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
 						this) {

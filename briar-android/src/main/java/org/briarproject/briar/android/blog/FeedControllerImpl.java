@@ -96,7 +96,7 @@ class FeedControllerImpl extends BaseControllerImpl
 
 	@Override
 	public void loadBlogPosts(
-			final ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
+			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();
@@ -122,7 +122,7 @@ class FeedControllerImpl extends BaseControllerImpl
 
 	@Override
 	public void loadPersonalBlog(
-			final ResultExceptionHandler<Blog, DbException> handler) {
+			ResultExceptionHandler<Blog, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();

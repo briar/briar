@@ -33,8 +33,8 @@ public class EmojiEditText extends AppCompatEditText {
 	}
 
 	public void insertEmoji(String emoji) {
-		final int start = getSelectionStart();
-		final int end = getSelectionEnd();
+		int start = getSelectionStart();
+		int end = getSelectionEnd();
 
 		getText().replace(Math.min(start, end), Math.max(start, end), emoji);
 		setSelection(start + emoji.length());

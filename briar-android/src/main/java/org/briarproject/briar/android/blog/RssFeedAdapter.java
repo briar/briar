@@ -34,7 +34,7 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 
 	@Override
 	public void onBindViewHolder(FeedViewHolder ui, int position) {
-		final Feed item = getItemAt(position);
+		Feed item = getItemAt(position);
 		if (item == null) return;
 
 		// Feed Title

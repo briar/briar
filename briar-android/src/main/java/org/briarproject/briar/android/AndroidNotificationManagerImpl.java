@@ -242,7 +242,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		});
 	}
 
-	private void showContactNotification(final ContactId c) {
+	private void showContactNotification(ContactId c) {
 		androidExecutor.runOnUiThread(() -> {
 			if (blockContacts) return;
 			if (c.equals(blockedContact)) return;
@@ -255,7 +255,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@Override
-	public void clearContactNotification(final ContactId c) {
+	public void clearContactNotification(ContactId c) {
 		androidExecutor.runOnUiThread(() -> {
 			Integer count = contactCounts.remove(c);
 			if (count == null) return; // Already cleared
@@ -350,7 +350,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@UiThread
-	private void showGroupMessageNotification(final GroupId g) {
+	private void showGroupMessageNotification(GroupId g) {
 		androidExecutor.runOnUiThread(() -> {
 			if (blockGroups) return;
 			if (g.equals(blockedGroup)) return;
@@ -363,7 +363,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@Override
-	public void clearGroupMessageNotification(final GroupId g) {
+	public void clearGroupMessageNotification(GroupId g) {
 		androidExecutor.runOnUiThread(() -> {
 			Integer count = groupCounts.remove(g);
 			if (count == null) return; // Already cleared
@@ -427,7 +427,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@UiThread
-	private void showForumPostNotification(final GroupId g) {
+	private void showForumPostNotification(GroupId g) {
 		androidExecutor.runOnUiThread(() -> {
 			if (blockForums) return;
 			if (g.equals(blockedGroup)) return;
@@ -440,7 +440,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@Override
-	public void clearForumPostNotification(final GroupId g) {
+	public void clearForumPostNotification(GroupId g) {
 		androidExecutor.runOnUiThread(() -> {
 			Integer count = forumCounts.remove(g);
 			if (count == null) return; // Already cleared
@@ -504,7 +504,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@UiThread
-	private void showBlogPostNotification(final GroupId g) {
+	private void showBlogPostNotification(GroupId g) {
 		androidExecutor.runOnUiThread(() -> {
 			if (blockBlogs) return;
 			if (g.equals(blockedGroup)) return;
@@ -517,7 +517,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@Override
-	public void clearBlogPostNotification(final GroupId g) {
+	public void clearBlogPostNotification(GroupId g) {
 		androidExecutor.runOnUiThread(() -> {
 			Integer count = blogCounts.remove(g);
 			if (count == null) return; // Already cleared
@@ -611,24 +611,24 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@Override
-	public void blockNotification(final GroupId g) {
+	public void blockNotification(GroupId g) {
 		androidExecutor.runOnUiThread((Runnable) () -> blockedGroup = g);
 	}
 
 	@Override
-	public void unblockNotification(final GroupId g) {
+	public void unblockNotification(GroupId g) {
 		androidExecutor.runOnUiThread(() -> {
 			if (g.equals(blockedGroup)) blockedGroup = null;
 		});
 	}
 
 	@Override
-	public void blockContactNotification(final ContactId c) {
+	public void blockContactNotification(ContactId c) {
 		androidExecutor.runOnUiThread((Runnable) () -> blockedContact = c);
 	}
 
 	@Override
-	public void unblockContactNotification(final ContactId c) {
+	public void unblockContactNotification(ContactId c) {
 		androidExecutor.runOnUiThread(() -> {
 			if (c.equals(blockedContact)) blockedContact = null;
 		});

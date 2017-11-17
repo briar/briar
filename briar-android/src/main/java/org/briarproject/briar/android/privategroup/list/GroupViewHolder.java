@@ -50,8 +50,8 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 		remove = (Button) v.findViewById(R.id.removeButton);
 	}
 
-	void bindView(final Context ctx, final GroupItem group,
-			final OnGroupRemoveClickListener listener) {
+	void bindView(Context ctx, GroupItem group,
+			OnGroupRemoveClickListener listener) {
 		// Avatar
 		avatar.setText(group.getName().substring(0, 1));
 		avatar.setBackgroundBytes(group.getId().getBytes());

@@ -44,7 +44,7 @@ public abstract class BaseFragment extends Fragment
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				listener.onBackPressed();
@@ -79,8 +79,8 @@ public abstract class BaseFragment extends Fragment
 
 	@CallSuper
 	@Override
-	public void runOnUiThreadUnlessDestroyed(final Runnable r) {
-		final Activity activity = getActivity();
+	public void runOnUiThreadUnlessDestroyed(Runnable r) {
+		Activity activity = getActivity();
 		if (activity != null) {
 			activity.runOnUiThread(() -> {
 				// Note that we don't have to check if the activity has

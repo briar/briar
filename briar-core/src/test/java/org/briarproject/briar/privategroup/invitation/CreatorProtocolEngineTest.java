@@ -66,7 +66,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		assertSessionConstantsUnchanged(session, newSession);
 	}
 
-	private void expectOnLocalInvite(final String msg) throws Exception {
+	private void expectOnLocalInvite(String msg) throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(db).getGroup(txn, privateGroupId);
 			will(returnValue(privateGroupGroup));

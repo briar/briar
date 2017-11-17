@@ -108,7 +108,7 @@ abstract class FilePlugin implements SimplexPlugin {
 		}
 	}
 
-	protected void createReaderFromFile(final File f) {
+	protected void createReaderFromFile(File f) {
 		if (!running) return;
 		ioExecutor.execute(new ReaderCreator(f));
 	}

@@ -352,7 +352,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@Override
-	public void surfaceCreated(final SurfaceHolder holder) {
+	public void surfaceCreated(SurfaceHolder holder) {
 		post(() -> {
 			try {
 				surfaceCreatedUi(holder);
@@ -375,8 +375,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@Override
-	public void surfaceChanged(final SurfaceHolder holder, int format,
-			final int w, final int h) {
+	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
 		post(() -> {
 			try {
 				surfaceChangedUi(holder, w, h);
@@ -411,7 +410,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@Override
-	public void surfaceDestroyed(final SurfaceHolder holder) {
+	public void surfaceDestroyed(SurfaceHolder holder) {
 		post(() -> surfaceDestroyedUi(holder));
 	}
 
@@ -427,7 +426,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@Override
-	public void onAutoFocus(boolean success, final Camera camera) {
+	public void onAutoFocus(boolean success, Camera camera) {
 		LOG.info("Auto focus succeeded: " + success);
 		postDelayed(this::retryAutoFocus, AUTO_FOCUS_RETRY_DELAY);
 	}

@@ -134,7 +134,7 @@ public class ContactChooserFragment extends BaseFragment {
 		});
 	}
 
-	private void displayContacts(final List<ContactListItem> contacts) {
+	private void displayContacts(List<ContactListItem> contacts) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (contacts.isEmpty()) list.showData();
 			else adapter.addAll(contacts);

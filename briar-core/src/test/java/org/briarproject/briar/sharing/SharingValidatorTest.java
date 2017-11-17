@@ -143,7 +143,7 @@ public abstract class SharingValidatorTest extends ValidatorTestCase {
 				BdfList.of(ABORT.getValue(), groupId, previousMsgId, 123));
 	}
 
-	protected void expectEncodeMetadata(final MessageType type) {
+	protected void expectEncodeMetadata(MessageType type) {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder)
 					.encodeMetadata(type, groupId, timestamp, false, false,

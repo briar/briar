@@ -42,35 +42,35 @@ public class PollerTest extends BrambleTestCase {
 	public void testConnectOnContactStatusChanged() throws Exception {
 		Mockery context = new Mockery();
 		context.setImposteriser(ClassImposteriser.INSTANCE);
-		final Executor ioExecutor = new ImmediateExecutor();
-		final ScheduledExecutorService scheduler =
+		Executor ioExecutor = new ImmediateExecutor();
+		ScheduledExecutorService scheduler =
 				context.mock(ScheduledExecutorService.class);
-		final ConnectionManager connectionManager =
+		ConnectionManager connectionManager =
 				context.mock(ConnectionManager.class);
-		final ConnectionRegistry connectionRegistry =
+		ConnectionRegistry connectionRegistry =
 				context.mock(ConnectionRegistry.class);
-		final PluginManager pluginManager = context.mock(PluginManager.class);
-		final SecureRandom random = context.mock(SecureRandom.class);
-		final Clock clock = context.mock(Clock.class);
+		PluginManager pluginManager = context.mock(PluginManager.class);
+		SecureRandom random = context.mock(SecureRandom.class);
+		Clock clock = context.mock(Clock.class);
 
 		// Two simplex plugins: one supports polling, the other doesn't
-		final SimplexPlugin simplexPlugin = context.mock(SimplexPlugin.class);
-		final SimplexPlugin simplexPlugin1 =
+		SimplexPlugin simplexPlugin = context.mock(SimplexPlugin.class);
+		SimplexPlugin simplexPlugin1 =
 				context.mock(SimplexPlugin.class, "simplexPlugin1");
-		final TransportId simplexId1 = new TransportId("simplex1");
-		final List<SimplexPlugin> simplexPlugins = Arrays.asList(simplexPlugin,
+		TransportId simplexId1 = new TransportId("simplex1");
+		List<SimplexPlugin> simplexPlugins = Arrays.asList(simplexPlugin,
 				simplexPlugin1);
-		final TransportConnectionWriter simplexWriter =
+		TransportConnectionWriter simplexWriter =
 				context.mock(TransportConnectionWriter.class);
 
 		// Two duplex plugins: one supports polling, the other doesn't
-		final DuplexPlugin duplexPlugin = context.mock(DuplexPlugin.class);
-		final TransportId duplexId = new TransportId("duplex");
-		final DuplexPlugin duplexPlugin1 =
+		DuplexPlugin duplexPlugin = context.mock(DuplexPlugin.class);
+		TransportId duplexId = new TransportId("duplex");
+		DuplexPlugin duplexPlugin1 =
 				context.mock(DuplexPlugin.class, "duplexPlugin1");
-		final List<DuplexPlugin> duplexPlugins = Arrays.asList(duplexPlugin,
+		List<DuplexPlugin> duplexPlugins = Arrays.asList(duplexPlugin,
 				duplexPlugin1);
-		final DuplexTransportConnection duplexConnection =
+		DuplexTransportConnection duplexConnection =
 				context.mock(DuplexTransportConnection.class);
 
 		context.checking(new Expectations() {{
@@ -129,20 +129,20 @@ public class PollerTest extends BrambleTestCase {
 			throws Exception {
 		Mockery context = new Mockery();
 		context.setImposteriser(ClassImposteriser.INSTANCE);
-		final Executor ioExecutor = new ImmediateExecutor();
-		final ScheduledExecutorService scheduler =
+		Executor ioExecutor = new ImmediateExecutor();
+		ScheduledExecutorService scheduler =
 				context.mock(ScheduledExecutorService.class);
-		final ConnectionManager connectionManager =
+		ConnectionManager connectionManager =
 				context.mock(ConnectionManager.class);
-		final ConnectionRegistry connectionRegistry =
+		ConnectionRegistry connectionRegistry =
 				context.mock(ConnectionRegistry.class);
-		final PluginManager pluginManager = context.mock(PluginManager.class);
-		final SecureRandom random = context.mock(SecureRandom.class);
-		final Clock clock = context.mock(Clock.class);
+		PluginManager pluginManager = context.mock(PluginManager.class);
+		SecureRandom random = context.mock(SecureRandom.class);
+		Clock clock = context.mock(Clock.class);
 
-		final DuplexPlugin plugin = context.mock(DuplexPlugin.class);
-		final TransportId transportId = new TransportId("id");
-		final DuplexTransportConnection duplexConnection =
+		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
+		TransportId transportId = new TransportId("id");
+		DuplexTransportConnection duplexConnection =
 				context.mock(DuplexTransportConnection.class);
 
 		context.checking(new Expectations() {{
@@ -194,19 +194,19 @@ public class PollerTest extends BrambleTestCase {
 	public void testRescheduleOnConnectionOpened() throws Exception {
 		Mockery context = new Mockery();
 		context.setImposteriser(ClassImposteriser.INSTANCE);
-		final Executor ioExecutor = new ImmediateExecutor();
-		final ScheduledExecutorService scheduler =
+		Executor ioExecutor = new ImmediateExecutor();
+		ScheduledExecutorService scheduler =
 				context.mock(ScheduledExecutorService.class);
-		final ConnectionManager connectionManager =
+		ConnectionManager connectionManager =
 				context.mock(ConnectionManager.class);
-		final ConnectionRegistry connectionRegistry =
+		ConnectionRegistry connectionRegistry =
 				context.mock(ConnectionRegistry.class);
-		final PluginManager pluginManager = context.mock(PluginManager.class);
-		final SecureRandom random = context.mock(SecureRandom.class);
-		final Clock clock = context.mock(Clock.class);
+		PluginManager pluginManager = context.mock(PluginManager.class);
+		SecureRandom random = context.mock(SecureRandom.class);
+		Clock clock = context.mock(Clock.class);
 
-		final DuplexPlugin plugin = context.mock(DuplexPlugin.class);
-		final TransportId transportId = new TransportId("id");
+		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
+		TransportId transportId = new TransportId("id");
 
 		context.checking(new Expectations() {{
 			allowing(plugin).getId();
@@ -239,19 +239,19 @@ public class PollerTest extends BrambleTestCase {
 	public void testRescheduleDoesNotReplaceEarlierTask() throws Exception {
 		Mockery context = new Mockery();
 		context.setImposteriser(ClassImposteriser.INSTANCE);
-		final Executor ioExecutor = new ImmediateExecutor();
-		final ScheduledExecutorService scheduler =
+		Executor ioExecutor = new ImmediateExecutor();
+		ScheduledExecutorService scheduler =
 				context.mock(ScheduledExecutorService.class);
-		final ConnectionManager connectionManager =
+		ConnectionManager connectionManager =
 				context.mock(ConnectionManager.class);
-		final ConnectionRegistry connectionRegistry =
+		ConnectionRegistry connectionRegistry =
 				context.mock(ConnectionRegistry.class);
-		final PluginManager pluginManager = context.mock(PluginManager.class);
-		final SecureRandom random = context.mock(SecureRandom.class);
-		final Clock clock = context.mock(Clock.class);
+		PluginManager pluginManager = context.mock(PluginManager.class);
+		SecureRandom random = context.mock(SecureRandom.class);
+		Clock clock = context.mock(Clock.class);
 
-		final DuplexPlugin plugin = context.mock(DuplexPlugin.class);
-		final TransportId transportId = new TransportId("id");
+		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
+		TransportId transportId = new TransportId("id");
 
 		context.checking(new Expectations() {{
 			allowing(plugin).getId();
@@ -299,20 +299,20 @@ public class PollerTest extends BrambleTestCase {
 	public void testPollOnTransportEnabled() throws Exception {
 		Mockery context = new Mockery();
 		context.setImposteriser(ClassImposteriser.INSTANCE);
-		final Executor ioExecutor = new ImmediateExecutor();
-		final ScheduledExecutorService scheduler =
+		Executor ioExecutor = new ImmediateExecutor();
+		ScheduledExecutorService scheduler =
 				context.mock(ScheduledExecutorService.class);
-		final ConnectionManager connectionManager =
+		ConnectionManager connectionManager =
 				context.mock(ConnectionManager.class);
-		final ConnectionRegistry connectionRegistry =
+		ConnectionRegistry connectionRegistry =
 				context.mock(ConnectionRegistry.class);
-		final PluginManager pluginManager = context.mock(PluginManager.class);
-		final SecureRandom random = context.mock(SecureRandom.class);
-		final Clock clock = context.mock(Clock.class);
+		PluginManager pluginManager = context.mock(PluginManager.class);
+		SecureRandom random = context.mock(SecureRandom.class);
+		Clock clock = context.mock(Clock.class);
 
-		final Plugin plugin = context.mock(Plugin.class);
-		final TransportId transportId = new TransportId("id");
-		final List<ContactId> connected = Collections.singletonList(contactId);
+		Plugin plugin = context.mock(Plugin.class);
+		TransportId transportId = new TransportId("id");
+		List<ContactId> connected = Collections.singletonList(contactId);
 
 		context.checking(new Expectations() {{
 			allowing(plugin).getId();

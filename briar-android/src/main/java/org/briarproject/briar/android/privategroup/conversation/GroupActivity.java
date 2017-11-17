@@ -110,7 +110,7 @@ public class GroupActivity extends
 	}
 
 	@Override
-	protected void onNamedGroupLoaded(final PrivateGroup group) {
+	protected void onNamedGroupLoaded(PrivateGroup group) {
 		setTitle(group.getName());
 		controller.loadLocalAuthor(
 				new UiResultExceptionHandler<LocalAuthor, DbException>(this) {
@@ -144,7 +144,7 @@ public class GroupActivity extends
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_group_member_list:
 				Intent i1 = new Intent(this, GroupMemberListActivity.class);

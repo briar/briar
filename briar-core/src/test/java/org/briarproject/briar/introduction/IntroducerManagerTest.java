@@ -108,14 +108,14 @@ public class IntroducerManagerTest extends BriarTestCase {
 
 	@Test
 	public void testMakeIntroduction() throws DbException, FormatException {
-		final Transaction txn = new Transaction(null, false);
-		final long time = 42L;
+		Transaction txn = new Transaction(null, false);
+		long time = 42L;
 		context.setImposteriser(ClassImposteriser.INSTANCE);
-		final SecureRandom secureRandom = context.mock(SecureRandom.class);
-		final Bytes salt = new Bytes(new byte[64]);
-		final Message msg = new Message(new MessageId(TestUtils.getRandomId()),
+		SecureRandom secureRandom = context.mock(SecureRandom.class);
+		Bytes salt = new Bytes(new byte[64]);
+		Message msg = new Message(new MessageId(TestUtils.getRandomId()),
 				localGroup0.getId(), time, TestUtils.getRandomBytes(64));
-		final BdfDictionary state = new BdfDictionary();
+		BdfDictionary state = new BdfDictionary();
 		state.put(SESSION_ID, msg.getId());
 		state.put(STORAGE_ID, msg.getId());
 		state.put(STATE, PREPARE_REQUESTS.getValue());
@@ -128,25 +128,25 @@ public class IntroducerManagerTest extends BriarTestCase {
 		state.put(CONTACT_ID_2, introducee2.getId().getInt());
 		state.put(AUTHOR_ID_1, introducee1.getAuthor().getId());
 		state.put(AUTHOR_ID_2, introducee2.getAuthor().getId());
-		final BdfDictionary state2 = (BdfDictionary) state.clone();
+		BdfDictionary state2 = (BdfDictionary) state.clone();
 		state2.put(STATE, AWAIT_RESPONSES.getValue());
 
-		final BdfDictionary msg1 = new BdfDictionary();
+		BdfDictionary msg1 = new BdfDictionary();
 		msg1.put(TYPE, TYPE_REQUEST);
 		msg1.put(SESSION_ID, state.getRaw(SESSION_ID));
 		msg1.put(GROUP_ID, state.getRaw(GROUP_ID_1));
 		msg1.put(NAME, state.getString(CONTACT_2));
 		msg1.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
-		final BdfDictionary msg1send = (BdfDictionary) msg1.clone();
+		BdfDictionary msg1send = (BdfDictionary) msg1.clone();
 		msg1send.put(MESSAGE_TIME, time);
 
-		final BdfDictionary msg2 = new BdfDictionary();
+		BdfDictionary msg2 = new BdfDictionary();
 		msg2.put(TYPE, TYPE_REQUEST);
 		msg2.put(SESSION_ID, state.getRaw(SESSION_ID));
 		msg2.put(GROUP_ID, state.getRaw(GROUP_ID_2));
 		msg2.put(NAME, state.getString(CONTACT_1));
 		msg2.put(PUBLIC_KEY, introducee1.getAuthor().getPublicKey());
-		final BdfDictionary msg2send = (BdfDictionary) msg2.clone();
+		BdfDictionary msg2send = (BdfDictionary) msg2.clone();
 		msg2send.put(MESSAGE_TIME, time);
 
 		context.checking(new Expectations() {{

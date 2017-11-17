@@ -38,7 +38,7 @@ class ForumListAdapter
 
 	@Override
 	public void onBindViewHolder(ForumViewHolder ui, int position) {
-		final ForumListItem item = getItemAt(position);
+		ForumListItem item = getItemAt(position);
 		if (item == null) return;
 
 		// Avatar

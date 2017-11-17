@@ -64,7 +64,7 @@ public abstract class BaseMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				if (message.isKeyboardOpen()) message.hideSoftKeyboard();

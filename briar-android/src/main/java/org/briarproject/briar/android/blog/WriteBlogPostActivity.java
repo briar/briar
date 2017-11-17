@@ -140,7 +140,7 @@ public class WriteBlogPostActivity extends BriarActivity
 		storePost(body);
 	}
 
-	private void storePost(final String body) {
+	private void storePost(String body) {
 		runOnDbThread(() -> {
 			long now = System.currentTimeMillis();
 			try {

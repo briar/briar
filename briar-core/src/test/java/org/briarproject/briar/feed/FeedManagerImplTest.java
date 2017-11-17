@@ -89,7 +89,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testFetchFeedIoException() throws Exception {
-		final BdfDictionary feedDict= new BdfDictionary();
+		BdfDictionary feedDict= new BdfDictionary();
 		BdfList feedList = BdfList.of(feedDict);
 
 		expectGetFeeds(feedList);
@@ -104,17 +104,16 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testPostFeedEntriesEmptyDate() throws Exception {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 		List<SyndEntry> entries = new ArrayList<>();
 		entries.add(new SyndEntryImpl());
-		final SyndEntry entry = new SyndEntryImpl();
+		SyndEntry entry = new SyndEntryImpl();
 		entry.setUpdatedDate(new Date());
 		entries.add(entry);
-		final String body =
-				"<p> (" + entry.getUpdatedDate().toString() + ")</p>";
+		String body = "<p> (" + entry.getUpdatedDate().toString() + ")</p>";
 		Message msg = new Message(new MessageId(getRandomId()), blogGroupId, 0,
 				getRandomBytes(42));
-		final BlogPost post = new BlogPost(msg, null, localAuthor);
+		BlogPost post = new BlogPost(msg, null, localAuthor);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
@@ -139,9 +138,9 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		}});
 	}
 
-	private void expectGetFeeds(final BdfList feedList) throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final BdfDictionary feedsDict =
+	private void expectGetFeeds(BdfList feedList) throws Exception {
+		Transaction txn = new Transaction(null, true);
+		BdfDictionary feedsDict =
 				BdfDictionary.of(new BdfEntry(KEY_FEEDS, feedList));
 		expectGetLocalGroup();
 		context.checking(new Expectations() {{
@@ -158,8 +157,8 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		}});
 	}
 
-	private void expectStoreFeed(final BdfList feedList) throws Exception {
-		final BdfDictionary feedDict =
+	private void expectStoreFeed(BdfList feedList) throws Exception {
+		BdfDictionary feedDict =
 				BdfDictionary.of(new BdfEntry(KEY_FEEDS, feedList));
 		expectGetLocalGroup();
 		context.checking(new Expectations() {{

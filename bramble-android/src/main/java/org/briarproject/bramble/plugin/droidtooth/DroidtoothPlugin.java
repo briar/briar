@@ -285,11 +285,11 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
 		for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
-			final ContactId c = e.getKey();
+			ContactId c = e.getKey();
 			if (connected.contains(c)) continue;
-			final String address = e.getValue().get(PROP_ADDRESS);
+			String address = e.getValue().get(PROP_ADDRESS);
 			if (StringUtils.isNullOrEmpty(address)) continue;
-			final String uuid = e.getValue().get(PROP_UUID);
+			String uuid = e.getValue().get(PROP_UUID);
 			if (StringUtils.isNullOrEmpty(uuid)) continue;
 			ioExecutor.execute(() -> {
 				if (!running) return;

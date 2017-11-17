@@ -76,8 +76,8 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testAddLocalMessage() throws Exception {
-		final boolean shared = true;
-		final Transaction txn = new Transaction(null, false);
+		boolean shared = true;
+		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
@@ -95,7 +95,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testCreateMessage() throws Exception {
-		final byte[] bytes = expectToByteArray(list);
+		byte[] bytes = expectToByteArray(list);
 
 		context.checking(new Expectations() {{
 			oneOf(messageFactory).createMessage(groupId, timestamp, bytes);
@@ -107,7 +107,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testGetMessageAsList() throws Exception {
-		final Transaction txn = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
 
 		expectToList(true);
 		context.checking(new Expectations() {{
@@ -125,7 +125,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testGetGroupMetadataAsDictionary() throws Exception {
-		final Transaction txn = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
@@ -145,7 +145,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testGetMessageMetadataAsDictionary() throws Exception {
-		final Transaction txn = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
@@ -165,9 +165,9 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testGetMessageMetadataAsDictionaryMap() throws Exception {
-		final Map<MessageId, BdfDictionary> map = new HashMap<>();
+		Map<MessageId, BdfDictionary> map = new HashMap<>();
 		map.put(messageId, dictionary);
-		final Transaction txn = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
@@ -187,13 +187,13 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testGetMessageMetadataAsDictionaryQuery() throws Exception {
-		final Map<MessageId, BdfDictionary> map = new HashMap<>();
+		Map<MessageId, BdfDictionary> map = new HashMap<>();
 		map.put(messageId, dictionary);
-		final BdfDictionary query =
+		BdfDictionary query =
 				BdfDictionary.of(new BdfEntry("query", "me"));
-		final Metadata queryMetadata = new Metadata();
+		Metadata queryMetadata = new Metadata();
 		queryMetadata.put("query", getRandomBytes(42));
-		final Transaction txn = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
@@ -215,7 +215,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testMergeGroupMetadata() throws Exception {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
@@ -233,7 +233,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testMergeMessageMetadata() throws Exception {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
@@ -280,10 +280,10 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testSign() throws Exception {
-		final byte[] privateKey = getRandomBytes(42);
-		final byte[] signed = getRandomBytes(42);
+		byte[] privateKey = getRandomBytes(42);
+		byte[] signed = getRandomBytes(42);
 
-		final byte[] bytes = expectToByteArray(list);
+		byte[] bytes = expectToByteArray(list);
 		context.checking(new Expectations() {{
 			oneOf(cryptoComponent).sign(label, bytes, privateKey);
 			will(returnValue(signed));
@@ -295,8 +295,8 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testVerifySignature() throws Exception {
-		final byte[] publicKey = getRandomBytes(42);
-		final byte[] bytes = expectToByteArray(list);
+		byte[] publicKey = getRandomBytes(42);
+		byte[] bytes = expectToByteArray(list);
 
 		context.checking(new Expectations() {{
 			oneOf(cryptoComponent).verify(label, bytes, publicKey, rawMessage);
@@ -309,8 +309,8 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testVerifyWrongSignature() throws Exception {
-		final byte[] publicKey = getRandomBytes(42);
-		final byte[] bytes = expectToByteArray(list);
+		byte[] publicKey = getRandomBytes(42);
+		byte[] bytes = expectToByteArray(list);
 
 		context.checking(new Expectations() {{
 			oneOf(cryptoComponent).verify(label, bytes, publicKey, rawMessage);
@@ -327,8 +327,8 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		}
 	}
 
-	private byte[] expectToByteArray(final BdfList list) throws Exception {
-		final BdfWriter bdfWriter = context.mock(BdfWriter.class);
+	private byte[] expectToByteArray(BdfList list) throws Exception {
+		BdfWriter bdfWriter = context.mock(BdfWriter.class);
 
 		context.checking(new Expectations() {{
 			oneOf(bdfWriterFactory)
@@ -339,8 +339,8 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		return new byte[0];
 	}
 
-	private void expectToList(final boolean eof) throws Exception {
-		final BdfReader bdfReader = context.mock(BdfReader.class);
+	private void expectToList(boolean eof) throws Exception {
+		BdfReader bdfReader = context.mock(BdfReader.class);
 
 		context.checking(new Expectations() {{
 			oneOf(bdfReaderFactory)

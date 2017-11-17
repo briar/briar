@@ -97,7 +97,7 @@ public abstract class BriarActivity extends BaseActivity {
 		return toolbar;
 	}
 
-	protected void signOut(final boolean removeFromRecentApps) {
+	protected void signOut(boolean removeFromRecentApps) {
 		if (briarController.hasEncryptionKey()) {
 			// Don't use UiResultHandler because we want the result even if
 			// this activity has been destroyed

@@ -115,7 +115,7 @@ public class UiUtils {
 		for (URLSpan span : spans) {
 			int start = ssb.getSpanStart(span);
 			int end = ssb.getSpanEnd(span);
-			final String url = span.getURL();
+			String url = span.getURL();
 			ssb.removeSpan(span);
 			ClickableSpan cSpan = new ClickableSpan() {
 				@Override
@@ -140,8 +140,7 @@ public class UiUtils {
 		return "bulb" + c.getInt();
 	}
 
-	public static OnClickListener getGoToSettingsListener(
-			final Context context) {
+	public static OnClickListener getGoToSettingsListener(Context context) {
 		return (dialog, which) -> {
 			Intent i = new Intent();
 			i.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");

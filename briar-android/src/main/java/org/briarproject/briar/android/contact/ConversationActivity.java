@@ -268,7 +268,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case android.R.id.home:
@@ -338,7 +338,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void loadMessages() {
-		final int revision = adapter.getRevision();
+		int revision = adapter.getRevision();
 		runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();
@@ -370,10 +370,10 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void displayMessages(final int revision,
-			final Collection<PrivateMessageHeader> headers,
-			final Collection<IntroductionMessage> introductions,
-			final Collection<InvitationMessage> invitations) {
+	private void displayMessages(int revision,
+			Collection<PrivateMessageHeader> headers,
+			Collection<IntroductionMessage> introductions,
+			Collection<InvitationMessage> invitations) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
@@ -436,7 +436,7 @@ public class ConversationActivity extends BriarActivity
 		return items;
 	}
 
-	private void loadMessageBody(final MessageId m) {
+	private void loadMessageBody(MessageId m) {
 		runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();
@@ -451,7 +451,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void displayMessageBody(final MessageId m, final String body) {
+	private void displayMessageBody(MessageId m, String body) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			bodyCache.put(m, body);
 			SparseArray<ConversationItem> messages =
@@ -543,7 +543,7 @@ public class ConversationActivity extends BriarActivity
 		}
 	}
 
-	private void addConversationItem(final ConversationItem item) {
+	private void addConversationItem(ConversationItem item) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.incrementRevision();
 			adapter.add(item);
@@ -552,10 +552,10 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void handleIntroductionRequest(final IntroductionRequest m) {
+	private void handleIntroductionRequest(IntroductionRequest m) {
 		getContactNameTask().addListener(new FutureTaskListener<String>() {
 			@Override
-			public void onSuccess(final String contactName) {
+			public void onSuccess(String contactName) {
 				runOnUiThreadUnlessDestroyed(() -> {
 					ConversationItem item = ConversationItem
 							.from(ConversationActivity.this, contactName, m);
@@ -563,17 +563,17 @@ public class ConversationActivity extends BriarActivity
 				});
 			}
 			@Override
-			public void onFailure(final Throwable exception) {
+			public void onFailure(Throwable exception) {
 				runOnUiThreadUnlessDestroyed(
 						() -> handleDbException((DbException) exception));
 			}
 		});
 	}
 
-	private void handleIntroductionResponse(final IntroductionResponse m) {
+	private void handleIntroductionResponse(IntroductionResponse m) {
 		getContactNameTask().addListener(new FutureTaskListener<String>() {
 			@Override
-			public void onSuccess(final String contactName) {
+			public void onSuccess(String contactName) {
 				runOnUiThreadUnlessDestroyed(() -> {
 					ConversationItem item = ConversationItem
 							.from(ConversationActivity.this, contactName, m);
@@ -581,17 +581,17 @@ public class ConversationActivity extends BriarActivity
 				});
 			}
 			@Override
-			public void onFailure(final Throwable exception) {
+			public void onFailure(Throwable exception) {
 				runOnUiThreadUnlessDestroyed(
 						() -> handleDbException((DbException) exception));
 			}
 		});
 	}
 
-	private void handleInvitationRequest(final InvitationRequest m) {
+	private void handleInvitationRequest(InvitationRequest m) {
 		getContactNameTask().addListener(new FutureTaskListener<String>() {
 			@Override
-			public void onSuccess(final String contactName) {
+			public void onSuccess(String contactName) {
 				runOnUiThreadUnlessDestroyed(() -> {
 					ConversationItem item = ConversationItem
 							.from(ConversationActivity.this, contactName, m);
@@ -599,17 +599,17 @@ public class ConversationActivity extends BriarActivity
 				});
 			}
 			@Override
-			public void onFailure(final Throwable exception) {
+			public void onFailure(Throwable exception) {
 				runOnUiThreadUnlessDestroyed(
 						() -> handleDbException((DbException) exception));
 			}
 		});
 	}
 
-	private void handleInvitationResponse(final InvitationResponse m) {
+	private void handleInvitationResponse(InvitationResponse m) {
 		getContactNameTask().addListener(new FutureTaskListener<String>() {
 			@Override
-			public void onSuccess(final String contactName) {
+			public void onSuccess(String contactName) {
 				runOnUiThreadUnlessDestroyed(() -> {
 					ConversationItem item = ConversationItem
 							.from(ConversationActivity.this, contactName, m);
@@ -617,15 +617,15 @@ public class ConversationActivity extends BriarActivity
 				});
 			}
 			@Override
-			public void onFailure(final Throwable exception) {
+			public void onFailure(Throwable exception) {
 				runOnUiThreadUnlessDestroyed(
 						() -> handleDbException((DbException) exception));
 			}
 		});
 	}
 
-	private void markMessages(final Collection<MessageId> messageIds,
-			final boolean sent, final boolean seen) {
+	private void markMessages(Collection<MessageId> messageIds,
+			boolean sent, boolean seen) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.incrementRevision();
 			Set<MessageId> messages = new HashSet<>(messageIds);
@@ -659,7 +659,7 @@ public class ConversationActivity extends BriarActivity
 		return item == null ? 0 : item.getTime() + 1;
 	}
 
-	private void loadGroupId(final String body, final long timestamp) {
+	private void loadGroupId(String body, long timestamp) {
 		runOnDbThread(() -> {
 			try {
 				messagingGroupId =
@@ -672,7 +672,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void createMessage(final String body, final long timestamp) {
+	private void createMessage(String body, long timestamp) {
 		cryptoExecutor.execute(() -> {
 			try {
 				//noinspection ConstantConditions init in loadGroupId()
@@ -683,7 +683,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void storeMessage(final PrivateMessage m, final String body) {
+	private void storeMessage(PrivateMessage m, String body) {
 		runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();
@@ -739,7 +739,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void enableIntroductionActionIfAvailable(final MenuItem item) {
+	private void enableIntroductionActionIfAvailable(MenuItem item) {
 		runOnDbThread(() -> {
 			try {
 				if (contactManager.getActiveContacts().size() > 1) {
@@ -757,7 +757,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void enableIntroductionAction(final MenuItem item) {
+	private void enableIntroductionAction(MenuItem item) {
 		runOnUiThreadUnlessDestroyed(() -> item.setEnabled(true));
 	}
 
@@ -817,7 +817,7 @@ public class ConversationActivity extends BriarActivity
 		if (!item.isRead()) markMessageRead(item.getGroupId(), item.getId());
 	}
 
-	private void markMessageRead(final GroupId g, final MessageId m) {
+	private void markMessageRead(GroupId g, MessageId m) {
 		runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();
@@ -833,8 +833,7 @@ public class ConversationActivity extends BriarActivity
 
 	@UiThread
 	@Override
-	public void respondToRequest(final ConversationRequestItem item,
-			final boolean accept) {
+	public void respondToRequest(ConversationRequestItem item, boolean accept) {
 		item.setAnswered(true);
 		int position = adapter.findItemPosition(item);
 		if (position != INVALID_POSITION) {

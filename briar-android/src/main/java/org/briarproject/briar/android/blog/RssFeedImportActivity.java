@@ -118,7 +118,7 @@ public class RssFeedImportActivity extends BriarActivity {
 		importFeed(url);
 	}
 
-	private void importFeed(final String url) {
+	private void importFeed(String url) {
 		ioExecutor.execute(() -> {
 			try {
 				feedManager.addFeed(url);

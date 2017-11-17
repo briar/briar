@@ -26,10 +26,10 @@ public class PollingRemovableDriveMonitorTest extends BrambleTestCase {
 	@Test
 	public void testOneCallbackPerFile() throws Exception {
 		// Create a finder that returns no files the first time, then two files
-		final File file1 = new File("foo");
-		final File file2 = new File("bar");
+		File file1 = new File("foo");
+		File file2 = new File("bar");
 		@NotNullByDefault
-		final RemovableDriveFinder finder = new RemovableDriveFinder() {
+		RemovableDriveFinder finder = new RemovableDriveFinder() {
 
 			private AtomicBoolean firstCall = new AtomicBoolean(true);
 
@@ -40,8 +40,8 @@ public class PollingRemovableDriveMonitorTest extends BrambleTestCase {
 			}
 		};
 		// Create a callback that waits for two files
-		final CountDownLatch latch = new CountDownLatch(2);
-		final List<File> detected = new ArrayList<>();
+		CountDownLatch latch = new CountDownLatch(2);
+		List<File> detected = new ArrayList<>();
 		@NotNullByDefault
 		Callback callback = new Callback() {
 
@@ -57,7 +57,7 @@ public class PollingRemovableDriveMonitorTest extends BrambleTestCase {
 			}
 		};
 		// Create the monitor and start it
-		final RemovableDriveMonitor monitor = new PollingRemovableDriveMonitor(
+		RemovableDriveMonitor monitor = new PollingRemovableDriveMonitor(
 				Executors.newCachedThreadPool(), finder, 1);
 		monitor.start(callback);
 		// Wait for the monitor to detect the files
@@ -72,7 +72,7 @@ public class PollingRemovableDriveMonitorTest extends BrambleTestCase {
 	@Test
 	public void testExceptionCallback() throws Exception {
 		// Create a finder that throws an exception the second time it's polled
-		final RemovableDriveFinder finder = new RemovableDriveFinder() {
+		RemovableDriveFinder finder = new RemovableDriveFinder() {
 
 			private AtomicBoolean firstCall = new AtomicBoolean(true);
 
@@ -83,7 +83,7 @@ public class PollingRemovableDriveMonitorTest extends BrambleTestCase {
 			}
 		};
 		// Create a callback that waits for an exception
-		final CountDownLatch latch = new CountDownLatch(1);
+		CountDownLatch latch = new CountDownLatch(1);
 		@NotNullByDefault
 		Callback callback = new Callback() {
 
@@ -98,7 +98,7 @@ public class PollingRemovableDriveMonitorTest extends BrambleTestCase {
 			}
 		};
 		// Create the monitor and start it
-		final RemovableDriveMonitor monitor = new PollingRemovableDriveMonitor(
+		RemovableDriveMonitor monitor = new PollingRemovableDriveMonitor(
 				Executors.newCachedThreadPool(), finder, 1);
 		monitor.start(callback);
 		assertTrue(latch.await(10, SECONDS));

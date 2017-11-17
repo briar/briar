@@ -109,7 +109,7 @@ public class RecentEmojiPageModel implements EmojiPageModel {
 		return result;
 	}
 
-	private void save(final String serialized) {
+	private void save(String serialized) {
 		dbExecutor.execute(() -> {
 			Settings settings = new Settings();
 			settings.put(EMOJI_LRU_PREFERENCE, serialized);

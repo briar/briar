@@ -37,8 +37,7 @@ public class ContactItemViewHolder<I extends ContactItem>
 		bulb = (ImageView) v.findViewById(R.id.bulbView);
 	}
 
-	protected void bind(final I item,
-			@Nullable final OnContactClickListener<I> listener) {
+	protected void bind(I item, @Nullable OnContactClickListener<I> listener) {
 		Author author = item.getContact().getAuthor();
 		avatar.setImageDrawable(
 				new IdenticonDrawable(author.getId().getBytes()));

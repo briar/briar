@@ -400,7 +400,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 			socket = ss;
 			// Store the port number
-			final String localPort = String.valueOf(ss.getLocalPort());
+			String localPort = String.valueOf(ss.getLocalPort());
 			Settings s = new Settings();
 			s.put(PREF_TOR_PORT, localPort);
 			callback.mergeSettings(s);
@@ -536,8 +536,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
-	private void connectAndCallBack(final ContactId c,
-			final TransportProperties p) {
+	private void connectAndCallBack(ContactId c, TransportProperties p) {
 		ioExecutor.execute(() -> {
 			if (!isRunning()) return;
 			DuplexTransportConnection d = createConnection(p);

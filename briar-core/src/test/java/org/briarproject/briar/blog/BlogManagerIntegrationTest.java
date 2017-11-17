@@ -126,7 +126,7 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testBlogPost() throws Exception {
 		// check that blog0 has no posts
-		final String body = getRandomString(42);
+		String body = getRandomString(42);
 		Collection<BlogPostHeader> headers0 =
 				blogManager0.getPostHeaders(blog0.getId());
 		assertEquals(0, headers0.size());
@@ -164,7 +164,7 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testBlogPostInWrongBlog() throws Exception {
 		// add a post to blog1
-		final String body = getRandomString(42);
+		String body = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(blog1.getId(), clock.currentTimeMillis(), null,
 						author0, body);
@@ -203,7 +203,7 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testBlogComment() throws Exception {
 		// add a post to blog0
-		final String body = getRandomString(42);
+		String body = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
 						author0, body);
@@ -248,7 +248,7 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testBlogCommentOnOwnPost() throws Exception {
 		// add a post to blog0
-		final String body = getRandomString(42);
+		String body = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
 						author0, body);
@@ -284,7 +284,7 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testCommentOnComment() throws Exception {
 		// add a post to blog0
-		final String body = getRandomString(42);
+		String body = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
 						author0, body);
@@ -372,7 +372,7 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testCommentOnOwnComment() throws Exception {
 		// add a post to blog0
-		final String body = getRandomString(42);
+		String body = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
 						author0, body);
@@ -417,7 +417,7 @@ public class BlogManagerIntegrationTest
 		assertTrue(rssBlog.isRssFeed());
 
 		// add a feed post to rssBlog
-		final String body = getRandomString(42);
+		String body = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(rssBlog.getId(), clock.currentTimeMillis(),
 						null, author0, body);
@@ -436,7 +436,7 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testFeedReblog() throws Exception {
 		// add a feed post to rssBlog
-		final String body = getRandomString(42);
+		String body = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(rssBlog.getId(), clock.currentTimeMillis(),
 						null, author0, body);

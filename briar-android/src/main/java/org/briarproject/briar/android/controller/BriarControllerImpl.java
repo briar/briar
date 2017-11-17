@@ -66,7 +66,7 @@ public class BriarControllerImpl implements BriarController {
 	}
 
 	@Override
-	public void signOut(final ResultHandler<Void> eventHandler) {
+	public void signOut(ResultHandler<Void> eventHandler) {
 		new Thread() {
 			@Override
 			public void run() {

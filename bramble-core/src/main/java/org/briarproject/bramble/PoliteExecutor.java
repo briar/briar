@@ -48,8 +48,8 @@ public class PoliteExecutor implements Executor {
 	}
 
 	@Override
-	public void execute(final Runnable r) {
-		final long submitted = System.currentTimeMillis();
+	public void execute(Runnable r) {
+		long submitted = System.currentTimeMillis();
 		Runnable wrapped = () -> {
 			if (log.isLoggable(LOG_LEVEL)) {
 				long queued = System.currentTimeMillis() - submitted;

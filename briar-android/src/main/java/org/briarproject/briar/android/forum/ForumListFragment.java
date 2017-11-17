@@ -140,7 +140,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case R.id.action_create_forum:
@@ -154,7 +154,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	private void loadForums() {
-		final int revision = adapter.getRevision();
+		int revision = adapter.getRevision();
 		listener.runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();
@@ -178,8 +178,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		});
 	}
 
-	private void displayForums(final int revision,
-			final Collection<ForumListItem> forums) {
+	private void displayForums(int revision, Collection<ForumListItem> forums) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
@@ -207,7 +206,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		});
 	}
 
-	private void displayAvailableForums(final int availableCount) {
+	private void displayAvailableForums(int availableCount) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (availableCount == 0) {
 				snackbar.dismiss();
@@ -247,7 +246,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		}
 	}
 
-	private void updateItem(final GroupId g, final ForumPostHeader m) {
+	private void updateItem(GroupId g, ForumPostHeader m) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.incrementRevision();
 			int position = adapter.findItemPosition(g);
@@ -259,7 +258,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		});
 	}
 
-	private void removeForum(final GroupId g) {
+	private void removeForum(GroupId g) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.incrementRevision();
 			int position = adapter.findItemPosition(g);

@@ -32,7 +32,7 @@ public class BlogActivity extends BriarActivity
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No group ID in intent");
-		final GroupId groupId = new GroupId(b);
+		GroupId groupId = new GroupId(b);
 		blogController.setGroupId(groupId);
 
 		setContentView(R.layout.activity_fragment_container_toolbar);

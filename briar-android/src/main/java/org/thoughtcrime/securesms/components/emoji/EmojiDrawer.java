@@ -56,7 +56,7 @@ public class EmojiDrawer extends LinearLayout {
 	}
 
 	private void initView() {
-		final View v = LayoutInflater.from(getContext())
+		View v = LayoutInflater.from(getContext())
 				.inflate(R.layout.emoji_drawer, this, true);
 		initializeResources(v);
 		initializePageModels();

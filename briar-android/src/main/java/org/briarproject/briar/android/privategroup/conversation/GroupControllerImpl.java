@@ -83,13 +83,12 @@ class GroupControllerImpl extends
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
 			if (!g.isLocal() && g.getGroupId().equals(getGroupId())) {
 				LOG.info("Group message received, adding...");
-				final GroupMessageItem item =
-						buildItem(g.getHeader(), g.getBody());
+				GroupMessageItem item = buildItem(g.getHeader(), g.getBody());
 				listener.runOnUiThreadUnlessDestroyed(
 						() -> listener.onItemReceived(item));
 			}
 		} else if (e instanceof ContactRelationshipRevealedEvent) {
-			final ContactRelationshipRevealedEvent c =
+			ContactRelationshipRevealedEvent c =
 					(ContactRelationshipRevealedEvent) e;
 			if (getGroupId().equals(c.getGroupId())) {
 				listener.runOnUiThreadUnlessDestroyed(() ->
@@ -99,7 +98,7 @@ class GroupControllerImpl extends
 		} else if (e instanceof GroupInvitationResponseReceivedEvent) {
 			GroupInvitationResponseReceivedEvent g =
 					(GroupInvitationResponseReceivedEvent) e;
-			final GroupInvitationResponse r =
+			GroupInvitationResponse r =
 					(GroupInvitationResponse) g.getResponse();
 			if (getGroupId().equals(r.getShareableId()) && r.wasAccepted()) {
 				listener.runOnUiThreadUnlessDestroyed(
@@ -141,7 +140,7 @@ class GroupControllerImpl extends
 
 	@Override
 	public void loadSharingContacts(
-			final ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
+			ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				Collection<GroupMember> members =
@@ -160,9 +159,9 @@ class GroupControllerImpl extends
 	}
 
 	@Override
-	public void createAndStoreMessage(final String body,
-			@Nullable final GroupMessageItem parentItem,
-			final ResultExceptionHandler<GroupMessageItem, DbException> handler) {
+	public void createAndStoreMessage(String body,
+			@Nullable GroupMessageItem parentItem,
+			ResultExceptionHandler<GroupMessageItem, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				LocalAuthor author = identityManager.getLocalAuthor();
@@ -183,10 +182,10 @@ class GroupControllerImpl extends
 		});
 	}
 
-	private void createMessage(final String body, final long timestamp,
-			final @Nullable MessageId parentId, final LocalAuthor author,
-			final MessageId previousMsgId,
-			final ResultExceptionHandler<GroupMessageItem, DbException> handler) {
+	private void createMessage(String body, long timestamp,
+			@Nullable MessageId parentId, LocalAuthor author,
+			MessageId previousMsgId,
+			ResultExceptionHandler<GroupMessageItem, DbException> handler) {
 		cryptoExecutor.execute(() -> {
 			LOG.info("Creating group message...");
 			GroupMessage msg = groupMessageFactory
@@ -218,7 +217,7 @@ class GroupControllerImpl extends
 
 	@Override
 	public void loadLocalAuthor(
-			final ResultExceptionHandler<LocalAuthor, DbException> handler) {
+			ResultExceptionHandler<LocalAuthor, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				LocalAuthor author = identityManager.getLocalAuthor();

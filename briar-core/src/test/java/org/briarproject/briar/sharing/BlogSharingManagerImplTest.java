@@ -134,20 +134,20 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		testRemovingBlog(sessions);
 	}
 
-	private void testAddingContact(final Map<MessageId, BdfDictionary> sessions)
+	private void testAddingContact(Map<MessageId, BdfDictionary> sessions)
 			throws Exception {
-		final Transaction txn = new Transaction(null, false);
-		final LocalAuthor localAuthor =
+		Transaction txn = new Transaction(null, false);
+		LocalAuthor localAuthor =
 				new LocalAuthor(localAuthorId, "Local Author",
 						getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
 						getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
 						System.currentTimeMillis());
-		final BdfDictionary meta = BdfDictionary
+		BdfDictionary meta = BdfDictionary
 				.of(new BdfEntry(GROUP_KEY_CONTACT_ID, contactId.getInt()));
-		final Group localBlogGroup =
+		Group localBlogGroup =
 				new Group(new GroupId(getRandomId()), BlogManager.CLIENT_ID,
 						getRandomBytes(42));
-		final Blog localBlog = new Blog(localBlogGroup, localAuthor, false);
+		Blog localBlog = new Blog(localBlogGroup, localAuthor, false);
 
 		context.checking(new Expectations() {{
 			oneOf(db).getContacts(txn);
@@ -174,14 +174,14 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		blogSharingManager.createLocalState(txn);
 	}
 
-	private void expectPreShareShareable(final Transaction txn,
-			final Contact contact, final Blog blog,
-			final Map<MessageId, BdfDictionary> sessions) throws Exception {
-		final Group contactGroup =
+	private void expectPreShareShareable(Transaction txn, Contact contact,
+			Blog blog, Map<MessageId, BdfDictionary> sessions)
+			throws Exception {
+		Group contactGroup =
 				new Group(new GroupId(getRandomId()), CLIENT_ID,
 						getRandomBytes(42));
-		final BdfDictionary sessionDict = new BdfDictionary();
-		final Message message =
+		BdfDictionary sessionDict = new BdfDictionary();
+		Message message =
 				new Message(new MessageId(getRandomId()), contactGroup.getId(),
 						42L, getRandomBytes(1337));
 		context.checking(new Expectations() {{
@@ -211,11 +211,11 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		}});
 	}
 
-	private void testRemovingBlog(final Map<MessageId, BdfDictionary> sessions)
+	private void testRemovingBlog(Map<MessageId, BdfDictionary> sessions)
 			throws Exception {
-		final Transaction txn = new Transaction(null, false);
-		final BdfDictionary sessionDict = new BdfDictionary();
-		final Session session = new Session(contactGroup.getId(), blog.getId());
+		Transaction txn = new Transaction(null, false);
+		BdfDictionary sessionDict = new BdfDictionary();
+		Session session = new Session(contactGroup.getId(), blog.getId());
 
 		context.checking(new Expectations() {{
 			oneOf(db).getContacts(txn);

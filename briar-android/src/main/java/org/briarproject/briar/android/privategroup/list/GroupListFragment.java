@@ -113,7 +113,7 @@ public class GroupListFragment extends BaseFragment implements
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_add_group:
 				Intent i = new Intent(getContext(), CreateGroupActivity.class);
@@ -184,7 +184,7 @@ public class GroupListFragment extends BaseFragment implements
 	}
 
 	private void loadGroups() {
-		final int revision = adapter.getRevision();
+		int revision = adapter.getRevision();
 		controller.loadGroups(
 				new UiResultExceptionHandler<Collection<GroupItem>, DbException>(
 						this) {

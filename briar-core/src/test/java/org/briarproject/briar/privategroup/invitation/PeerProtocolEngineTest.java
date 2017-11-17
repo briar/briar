@@ -660,7 +660,7 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	// helper methods
 
-	private void expectRelationshipRevealed(final boolean byContact)
+	private void expectRelationshipRevealed(boolean byContact)
 			throws Exception {
 		expectGetContactId();
 		context.checking(new Expectations() {{

@@ -93,7 +93,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		hooks.put(c, hook);
 	}
 
-	private void validateOutstandingMessagesAsync(final ClientId c) {
+	private void validateOutstandingMessagesAsync(ClientId c) {
 		dbExecutor.execute(() -> validateOutstandingMessages(c));
 	}
 
@@ -114,7 +114,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void validateNextMessageAsync(final Queue<MessageId> unvalidated) {
+	private void validateNextMessageAsync(Queue<MessageId> unvalidated) {
 		if (unvalidated.isEmpty()) return;
 		dbExecutor.execute(() -> validateNextMessage(unvalidated));
 	}
@@ -148,7 +148,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void deliverOutstandingMessagesAsync(final ClientId c) {
+	private void deliverOutstandingMessagesAsync(ClientId c) {
 		dbExecutor.execute(() -> deliverOutstandingMessages(c));
 	}
 
@@ -169,8 +169,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void deliverNextPendingMessageAsync(
-			final Queue<MessageId> pending) {
+	private void deliverNextPendingMessageAsync(Queue<MessageId> pending) {
 		if (pending.isEmpty()) return;
 		dbExecutor.execute(() -> deliverNextPendingMessage(pending));
 	}
@@ -234,7 +233,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void validateMessageAsync(final Message m, final Group g) {
+	private void validateMessageAsync(Message m, Group g) {
 		validationExecutor.execute(() -> validateMessage(m, g));
 	}
 
@@ -258,8 +257,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void storeMessageContextAsync(final Message m, final ClientId c,
-			final MessageContext result) {
+	private void storeMessageContextAsync(Message m, ClientId c,
+			MessageContext result) {
 		dbExecutor.execute(() -> storeMessageContext(m, c, result));
 	}
 
@@ -354,7 +353,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		return pending;
 	}
 
-	private void shareOutstandingMessagesAsync(final ClientId c) {
+	private void shareOutstandingMessagesAsync(ClientId c) {
 		dbExecutor.execute(() -> shareOutstandingMessages(c));
 	}
 
@@ -381,7 +380,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	 * This method should only be called for messages that have all their
 	 * dependencies delivered and have been delivered themselves.
 	 */
-	private void shareNextMessageAsync(final Queue<MessageId> toShare) {
+	private void shareNextMessageAsync(Queue<MessageId> toShare) {
 		if (toShare.isEmpty()) return;
 		dbExecutor.execute(() -> shareNextMessage(toShare));
 	}
@@ -410,7 +409,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void invalidateNextMessageAsync(final Queue<MessageId> invalidate) {
+	private void invalidateNextMessageAsync(Queue<MessageId> invalidate) {
 		if (invalidate.isEmpty()) return;
 		dbExecutor.execute(() -> invalidateNextMessage(invalidate));
 	}
@@ -467,12 +466,12 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void loadGroupAndValidateAsync(final Message m) {
+	private void loadGroupAndValidateAsync(Message m) {
 		dbExecutor.execute(() -> loadGroupAndValidate(m));
 	}
 
 	@DatabaseExecutor
-	private void loadGroupAndValidate(final Message m) {
+	private void loadGroupAndValidate(Message m) {
 		try {
 			Group g;
 			Transaction txn = db.startTransaction(true);

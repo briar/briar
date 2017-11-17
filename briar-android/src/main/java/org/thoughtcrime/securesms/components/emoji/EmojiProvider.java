@@ -135,10 +135,10 @@ public class EmojiProvider {
 			return null;
 		}
 
-		final EmojiDrawable drawable = new EmojiDrawable(drawInfo, decodeScale);
+		EmojiDrawable drawable = new EmojiDrawable(drawInfo, decodeScale);
 		drawInfo.page.get().addListener(new FutureTaskListener<Bitmap>() {
 			@Override
-			public void onSuccess(final Bitmap result) {
+			public void onSuccess(Bitmap result) {
 				androidExecutor.runOnUiThread(() -> drawable.setBitmap(result));
 			}
 

@@ -78,7 +78,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case android.R.id.home:
@@ -115,7 +115,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 		});
 	}
 
-	private void displaySharedWith(final List<ContactItem> contacts) {
+	private void displaySharedWith(List<ContactItem> contacts) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (contacts.isEmpty()) list.showData();
 			else adapter.addAll(contacts);

@@ -145,11 +145,11 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		assertEquals(2, split.length);
 		String addrString = split[0];
 		// Listen on the same interface as the plugin
-		final ServerSocket ss = new ServerSocket();
+		ServerSocket ss = new ServerSocket();
 		ss.bind(new InetSocketAddress(addrString, 0), 10);
 		int port = ss.getLocalPort();
-		final CountDownLatch latch = new CountDownLatch(1);
-		final AtomicBoolean error = new AtomicBoolean(false);
+		CountDownLatch latch = new CountDownLatch(1);
+		AtomicBoolean error = new AtomicBoolean(false);
 		new Thread() {
 			@Override
 			public void run() {
@@ -239,10 +239,10 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		assertEquals(2, split.length);
 		String addrString = split[0];
 		// Listen on the same interface as the plugin
-		final ServerSocket ss = new ServerSocket();
+		ServerSocket ss = new ServerSocket();
 		ss.bind(new InetSocketAddress(addrString, 0), 10);
-		final CountDownLatch latch = new CountDownLatch(1);
-		final AtomicBoolean error = new AtomicBoolean(false);
+		CountDownLatch latch = new CountDownLatch(1);
+		AtomicBoolean error = new AtomicBoolean(false);
 		new Thread() {
 			@Override
 			public void run() {

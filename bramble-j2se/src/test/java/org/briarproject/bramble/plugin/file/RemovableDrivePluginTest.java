@@ -41,17 +41,17 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 
 	@Test
 	public void testWriterIsNullIfNoDrivesAreFound() throws Exception {
-		final List<File> drives = Collections.emptyList();
+		List<File> drives = Collections.emptyList();
 
 		Mockery context = new Mockery() {{
 			setThreadingPolicy(new Synchroniser());
 		}};
-		final Executor executor = context.mock(Executor.class);
-		final SimplexPluginCallback callback =
+		Executor executor = context.mock(Executor.class);
+		SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
-		final RemovableDriveFinder finder =
+		RemovableDriveFinder finder =
 				context.mock(RemovableDriveFinder.class);
-		final RemovableDriveMonitor monitor =
+		RemovableDriveMonitor monitor =
 				context.mock(RemovableDriveMonitor.class);
 
 		context.checking(new Expectations() {{
@@ -71,21 +71,21 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 
 	@Test
 	public void testWriterIsNullIfNoDriveIsChosen() throws Exception {
-		final File drive1 = new File(testDir, "1");
-		final File drive2 = new File(testDir, "2");
-		final List<File> drives = new ArrayList<>();
+		File drive1 = new File(testDir, "1");
+		File drive2 = new File(testDir, "2");
+		List<File> drives = new ArrayList<>();
 		drives.add(drive1);
 		drives.add(drive2);
 
 		Mockery context = new Mockery() {{
 			setThreadingPolicy(new Synchroniser());
 		}};
-		final Executor executor = context.mock(Executor.class);
-		final SimplexPluginCallback callback =
+		Executor executor = context.mock(Executor.class);
+		SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
-		final RemovableDriveFinder finder =
+		RemovableDriveFinder finder =
 				context.mock(RemovableDriveFinder.class);
-		final RemovableDriveMonitor monitor =
+		RemovableDriveMonitor monitor =
 				context.mock(RemovableDriveMonitor.class);
 
 		context.checking(new Expectations() {{
@@ -110,21 +110,21 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 
 	@Test
 	public void testWriterIsNullIfOutputDirDoesNotExist() throws Exception {
-		final File drive1 = new File(testDir, "1");
-		final File drive2 = new File(testDir, "2");
-		final List<File> drives = new ArrayList<>();
+		File drive1 = new File(testDir, "1");
+		File drive2 = new File(testDir, "2");
+		List<File> drives = new ArrayList<>();
 		drives.add(drive1);
 		drives.add(drive2);
 
 		Mockery context = new Mockery() {{
 			setThreadingPolicy(new Synchroniser());
 		}};
-		final Executor executor = context.mock(Executor.class);
-		final SimplexPluginCallback callback =
+		Executor executor = context.mock(Executor.class);
+		SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
-		final RemovableDriveFinder finder =
+		RemovableDriveFinder finder =
 				context.mock(RemovableDriveFinder.class);
-		final RemovableDriveMonitor monitor =
+		RemovableDriveMonitor monitor =
 				context.mock(RemovableDriveMonitor.class);
 
 		context.checking(new Expectations() {{
@@ -149,9 +149,9 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 
 	@Test
 	public void testWriterIsNullIfOutputDirIsAFile() throws Exception {
-		final File drive1 = new File(testDir, "1");
-		final File drive2 = new File(testDir, "2");
-		final List<File> drives = new ArrayList<>();
+		File drive1 = new File(testDir, "1");
+		File drive2 = new File(testDir, "2");
+		List<File> drives = new ArrayList<>();
 		drives.add(drive1);
 		drives.add(drive2);
 		// Create drive1 as a file rather than a directory
@@ -160,12 +160,12 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 		Mockery context = new Mockery() {{
 			setThreadingPolicy(new Synchroniser());
 		}};
-		final Executor executor = context.mock(Executor.class);
-		final SimplexPluginCallback callback =
+		Executor executor = context.mock(Executor.class);
+		SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
-		final RemovableDriveFinder finder =
+		RemovableDriveFinder finder =
 				context.mock(RemovableDriveFinder.class);
-		final RemovableDriveMonitor monitor =
+		RemovableDriveMonitor monitor =
 				context.mock(RemovableDriveMonitor.class);
 
 		context.checking(new Expectations() {{
@@ -190,9 +190,9 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 
 	@Test
 	public void testWriterIsNotNullIfOutputDirIsADir() throws Exception {
-		final File drive1 = new File(testDir, "1");
-		final File drive2 = new File(testDir, "2");
-		final List<File> drives = new ArrayList<>();
+		File drive1 = new File(testDir, "1");
+		File drive2 = new File(testDir, "2");
+		List<File> drives = new ArrayList<>();
 		drives.add(drive1);
 		drives.add(drive2);
 		// Create drive1 as a directory
@@ -201,12 +201,12 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 		Mockery context = new Mockery() {{
 			setThreadingPolicy(new Synchroniser());
 		}};
-		final Executor executor = context.mock(Executor.class);
-		final SimplexPluginCallback callback =
+		Executor executor = context.mock(Executor.class);
+		SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
-		final RemovableDriveFinder finder =
+		RemovableDriveFinder finder =
 				context.mock(RemovableDriveFinder.class);
-		final RemovableDriveMonitor monitor =
+		RemovableDriveMonitor monitor =
 				context.mock(RemovableDriveMonitor.class);
 
 		context.checking(new Expectations() {{
@@ -234,9 +234,9 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 
 	@Test
 	public void testWritingToWriter() throws Exception {
-		final File drive1 = new File(testDir, "1");
-		final File drive2 = new File(testDir, "2");
-		final List<File> drives = new ArrayList<>();
+		File drive1 = new File(testDir, "1");
+		File drive2 = new File(testDir, "2");
+		List<File> drives = new ArrayList<>();
 		drives.add(drive1);
 		drives.add(drive2);
 		// Create drive1 as a directory
@@ -245,12 +245,12 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 		Mockery context = new Mockery() {{
 			setThreadingPolicy(new Synchroniser());
 		}};
-		final Executor executor = context.mock(Executor.class);
-		final SimplexPluginCallback callback =
+		Executor executor = context.mock(Executor.class);
+		SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
-		final RemovableDriveFinder finder =
+		RemovableDriveFinder finder =
 				context.mock(RemovableDriveFinder.class);
-		final RemovableDriveMonitor monitor =
+		RemovableDriveMonitor monitor =
 				context.mock(RemovableDriveMonitor.class);
 
 		context.checking(new Expectations() {{
@@ -292,12 +292,12 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 		Mockery context = new Mockery() {{
 			setThreadingPolicy(new Synchroniser());
 		}};
-		final Executor executor = context.mock(Executor.class);
-		final SimplexPluginCallback callback =
+		Executor executor = context.mock(Executor.class);
+		SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
-		final RemovableDriveFinder finder =
+		RemovableDriveFinder finder =
 				context.mock(RemovableDriveFinder.class);
-		final RemovableDriveMonitor monitor =
+		RemovableDriveMonitor monitor =
 				context.mock(RemovableDriveMonitor.class);
 
 		context.checking(new Expectations() {{
@@ -318,12 +318,12 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 		Mockery context = new Mockery() {{
 			setThreadingPolicy(new Synchroniser());
 		}};
-		final Executor executor = context.mock(Executor.class);
-		final SimplexPluginCallback callback =
+		Executor executor = context.mock(Executor.class);
+		SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
-		final RemovableDriveFinder finder =
+		RemovableDriveFinder finder =
 				context.mock(RemovableDriveFinder.class);
-		final RemovableDriveMonitor monitor =
+		RemovableDriveMonitor monitor =
 				context.mock(RemovableDriveMonitor.class);
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
@@ -344,11 +344,11 @@ public class RemovableDrivePluginTest extends BrambleTestCase {
 		Mockery context = new Mockery() {{
 			setThreadingPolicy(new Synchroniser());
 		}};
-		final SimplexPluginCallback callback =
+		SimplexPluginCallback callback =
 				context.mock(SimplexPluginCallback.class);
-		final RemovableDriveFinder finder =
+		RemovableDriveFinder finder =
 				context.mock(RemovableDriveFinder.class);
-		final RemovableDriveMonitor monitor =
+		RemovableDriveMonitor monitor =
 				context.mock(RemovableDriveMonitor.class);
 
 		context.checking(new Expectations() {{

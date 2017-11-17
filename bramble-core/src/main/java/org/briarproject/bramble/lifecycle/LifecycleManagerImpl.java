@@ -88,7 +88,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 		executors.add(e);
 	}
 
-	private LocalAuthor createLocalAuthor(final String nickname) {
+	private LocalAuthor createLocalAuthor(String nickname) {
 		long now = System.currentTimeMillis();
 		KeyPair keyPair = crypto.generateSignatureKeyPair();
 		byte[] publicKey = keyPair.getPublic().getEncoded();

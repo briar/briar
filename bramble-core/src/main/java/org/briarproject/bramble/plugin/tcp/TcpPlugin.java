@@ -214,8 +214,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		}
 	}
 
-	private void connectAndCallBack(final ContactId c,
-			final TransportProperties p) {
+	private void connectAndCallBack(ContactId c, TransportProperties p) {
 		ioExecutor.execute(() -> {
 			if (!isRunning()) return;
 			DuplexTransportConnection d = createConnection(p);

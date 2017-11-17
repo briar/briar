@@ -158,7 +158,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case R.id.action_add_contact:
@@ -191,7 +191,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	private void loadContacts() {
-		final int revision = adapter.getRevision();
+		int revision = adapter.getRevision();
 		listener.runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();
@@ -218,8 +218,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		});
 	}
 
-	private void displayContacts(final int revision,
-			final List<ContactListItem> contacts) {
+	private void displayContacts(int revision, List<ContactListItem> contacts) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
@@ -282,7 +281,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		}
 	}
 
-	private void updateItem(final ContactId c, final BaseMessageHeader h) {
+	private void updateItem(ContactId c, BaseMessageHeader h) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.incrementRevision();
 			int position = adapter.findItemPosition(c);
@@ -295,7 +294,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		});
 	}
 
-	private void removeItem(final ContactId c) {
+	private void removeItem(ContactId c) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.incrementRevision();
 			int position = adapter.findItemPosition(c);
@@ -304,7 +303,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		});
 	}
 
-	private void setConnected(final ContactId c, final boolean connected) {
+	private void setConnected(ContactId c, boolean connected) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.incrementRevision();
 			int position = adapter.findItemPosition(c);

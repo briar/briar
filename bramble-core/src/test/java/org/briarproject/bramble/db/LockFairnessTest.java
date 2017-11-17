@@ -17,11 +17,11 @@ public class LockFairnessTest extends BrambleTestCase {
 	@Test
 	public void testReadersCanShareTheLock() throws Exception {
 		// Use a fair lock
-		final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
-		final CountDownLatch firstReaderHasLock = new CountDownLatch(1);
-		final CountDownLatch firstReaderHasFinished = new CountDownLatch(1);
-		final CountDownLatch secondReaderHasLock = new CountDownLatch(1);
-		final CountDownLatch secondReaderHasFinished = new CountDownLatch(1);
+		ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+		CountDownLatch firstReaderHasLock = new CountDownLatch(1);
+		CountDownLatch firstReaderHasFinished = new CountDownLatch(1);
+		CountDownLatch secondReaderHasLock = new CountDownLatch(1);
+		CountDownLatch secondReaderHasFinished = new CountDownLatch(1);
 		// First reader
 		Thread first = new Thread() {
 			@Override
@@ -76,13 +76,13 @@ public class LockFairnessTest extends BrambleTestCase {
 	@Test
 	public void testWritersDoNotStarve() throws Exception {
 		// Use a fair lock
-		final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
-		final CountDownLatch firstReaderHasLock = new CountDownLatch(1);
-		final CountDownLatch firstReaderHasFinished = new CountDownLatch(1);
-		final CountDownLatch secondReaderHasFinished = new CountDownLatch(1);
-		final CountDownLatch writerHasFinished = new CountDownLatch(1);
-		final AtomicBoolean secondReaderHasHeldLock = new AtomicBoolean(false);
-		final AtomicBoolean writerHasHeldLock = new AtomicBoolean(false);
+		ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+		CountDownLatch firstReaderHasLock = new CountDownLatch(1);
+		CountDownLatch firstReaderHasFinished = new CountDownLatch(1);
+		CountDownLatch secondReaderHasFinished = new CountDownLatch(1);
+		CountDownLatch writerHasFinished = new CountDownLatch(1);
+		AtomicBoolean secondReaderHasHeldLock = new AtomicBoolean(false);
+		AtomicBoolean writerHasHeldLock = new AtomicBoolean(false);
 		// First reader
 		Thread first = new Thread() {
 			@Override

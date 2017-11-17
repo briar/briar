@@ -120,7 +120,7 @@ public class CreateForumActivity extends BriarActivity {
 		storeForum(nameEntry.getText().toString());
 	}
 
-	private void storeForum(final String name) {
+	private void storeForum(String name) {
 		runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();
@@ -136,7 +136,7 @@ public class CreateForumActivity extends BriarActivity {
 		});
 	}
 
-	private void displayForum(final Forum f) {
+	private void displayForum(Forum f) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			Intent i = new Intent(CreateForumActivity.this,
 					ForumActivity.class);

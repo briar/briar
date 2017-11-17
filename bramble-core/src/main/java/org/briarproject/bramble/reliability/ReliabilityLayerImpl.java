@@ -48,7 +48,7 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 	@Override
 	public void start() {
 		SlipEncoder encoder = new SlipEncoder(this);
-		final Sender sender = new Sender(clock, encoder);
+		Sender sender = new Sender(clock, encoder);
 		receiver = new Receiver(clock, sender);
 		decoder = new SlipDecoder(receiver, Data.MAX_LENGTH);
 		inputStream = new ReceiverInputStream(receiver);

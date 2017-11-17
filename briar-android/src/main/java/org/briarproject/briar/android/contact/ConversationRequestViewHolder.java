@@ -25,10 +25,10 @@ class ConversationRequestViewHolder extends ConversationNoticeInViewHolder {
 	}
 
 	void bind(ConversationItem conversationItem,
-			final ConversationListener listener) {
+			ConversationListener listener) {
 		super.bind(conversationItem);
 
-		final ConversationRequestItem item =
+		ConversationRequestItem item =
 				(ConversationRequestItem) conversationItem;
 
 		if (item.wasAnswered() && item.canBeOpened()) {

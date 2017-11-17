@@ -118,8 +118,7 @@ public class IntroductionMessageFragment extends BaseFragment
 		return TAG;
 	}
 
-	private void prepareToSetUpViews(final int contactId1,
-			final int contactId2) {
+	private void prepareToSetUpViews(int contactId1, int contactId2) {
 		introductionActivity.runOnDbThread(() -> {
 			try {
 				Contact c1 = contactManager.getContact(
@@ -133,7 +132,7 @@ public class IntroductionMessageFragment extends BaseFragment
 		});
 	}
 
-	private void setUpViews(final Contact c1, final Contact c2) {
+	private void setUpViews(Contact c1, Contact c2) {
 		introductionActivity.runOnUiThreadUnlessDestroyed(() -> {
 			contact1 = c1;
 			contact2 = c2;
@@ -159,7 +158,7 @@ public class IntroductionMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				introductionActivity.hideSoftKeyboard(ui.message);
@@ -185,8 +184,7 @@ public class IntroductionMessageFragment extends BaseFragment
 		introductionActivity.supportFinishAfterTransition();
 	}
 
-	private void makeIntroduction(final Contact c1, final Contact c2,
-			final String msg) {
+	private void makeIntroduction(Contact c1, Contact c2, String msg) {
 		introductionActivity.runOnDbThread(() -> {
 			// actually make the introduction
 			try {

@@ -120,7 +120,7 @@ class ForumControllerImpl extends
 
 	@Override
 	public void loadSharingContacts(
-			final ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
+			ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				Collection<Contact> contacts =
@@ -137,9 +137,9 @@ class ForumControllerImpl extends
 	}
 
 	@Override
-	public void createAndStoreMessage(final String body,
-			@Nullable final ForumItem parentItem,
-			final ResultExceptionHandler<ForumItem, DbException> handler) {
+	public void createAndStoreMessage(String body,
+			@Nullable ForumItem parentItem,
+			ResultExceptionHandler<ForumItem, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				LocalAuthor author = identityManager.getLocalAuthor();
@@ -156,9 +156,9 @@ class ForumControllerImpl extends
 		});
 	}
 
-	private void createMessage(final String body, final long timestamp,
-			final @Nullable MessageId parentId, final LocalAuthor author,
-			final ResultExceptionHandler<ForumItem, DbException> handler) {
+	private void createMessage(String body, long timestamp,
+			@Nullable MessageId parentId, LocalAuthor author,
+			ResultExceptionHandler<ForumItem, DbException> handler) {
 		cryptoExecutor.execute(() -> {
 			LOG.info("Creating forum post...");
 			ForumPost msg = forumManager.createLocalPost(getGroupId(), body,
@@ -184,17 +184,17 @@ class ForumControllerImpl extends
 	}
 
 	private void onForumPostReceived(ForumPostHeader h, String body) {
-		final ForumItem item = buildItem(h, body);
+		ForumItem item = buildItem(h, body);
 		listener.runOnUiThreadUnlessDestroyed(
 				() -> listener.onItemReceived(item));
 	}
 
-	private void onForumInvitationAccepted(final ContactId c) {
+	private void onForumInvitationAccepted(ContactId c) {
 		listener.runOnUiThreadUnlessDestroyed(
 				() -> listener.onInvitationAccepted(c));
 	}
 
-	private void onForumLeft(final ContactId c) {
+	private void onForumLeft(ContactId c) {
 		listener.runOnUiThreadUnlessDestroyed(() -> listener.onForumLeft(c));
 	}
 

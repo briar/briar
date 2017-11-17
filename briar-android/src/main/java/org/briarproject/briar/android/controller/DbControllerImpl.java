@@ -28,7 +28,7 @@ public class DbControllerImpl implements DbController {
 	}
 
 	@Override
-	public void runOnDbThread(final Runnable task) {
+	public void runOnDbThread(Runnable task) {
 		dbExecutor.execute(() -> {
 			try {
 				lifecycleManager.waitForDatabase();

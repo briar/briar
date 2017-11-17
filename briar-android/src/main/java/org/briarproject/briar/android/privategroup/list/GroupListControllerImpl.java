@@ -119,7 +119,7 @@ class GroupListControllerImpl extends DbControllerImpl
 		}
 	}
 
-	private void onGroupMessageAdded(final GroupMessageHeader h) {
+	private void onGroupMessageAdded(GroupMessageHeader h) {
 		listener.runOnUiThreadUnlessDestroyed(
 				() -> listener.onGroupMessageAdded(h));
 	}
@@ -129,22 +129,22 @@ class GroupListControllerImpl extends DbControllerImpl
 				() -> listener.onGroupInvitationReceived());
 	}
 
-	private void onGroupAdded(final GroupId g) {
+	private void onGroupAdded(GroupId g) {
 		listener.runOnUiThreadUnlessDestroyed(() -> listener.onGroupAdded(g));
 	}
 
-	private void onGroupRemoved(final GroupId g) {
+	private void onGroupRemoved(GroupId g) {
 		listener.runOnUiThreadUnlessDestroyed(() -> listener.onGroupRemoved(g));
 	}
 
-	private void onGroupDissolved(final GroupId g) {
+	private void onGroupDissolved(GroupId g) {
 		listener.runOnUiThreadUnlessDestroyed(
 				() -> listener.onGroupDissolved(g));
 	}
 
 	@Override
 	public void loadGroups(
-			final ResultExceptionHandler<Collection<GroupItem>, DbException> handler) {
+			ResultExceptionHandler<Collection<GroupItem>, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();
@@ -173,8 +173,7 @@ class GroupListControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void removeGroup(final GroupId g,
-			final ExceptionHandler<DbException> handler) {
+	public void removeGroup(GroupId g, ExceptionHandler<DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();
@@ -191,7 +190,7 @@ class GroupListControllerImpl extends DbControllerImpl
 
 	@Override
 	public void loadAvailableGroups(
-			final ResultExceptionHandler<Integer, DbException> handler) {
+			ResultExceptionHandler<Integer, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				handler.onResult(

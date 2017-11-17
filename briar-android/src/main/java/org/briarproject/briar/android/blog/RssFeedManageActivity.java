@@ -103,7 +103,7 @@ public class RssFeedManageActivity extends BriarActivity
 	}
 
 	@Override
-	public void onDeleteClick(final Feed feed) {
+	public void onDeleteClick(Feed feed) {
 		DialogInterface.OnClickListener okListener =
 				(dialog, which) -> deleteFeed(feed);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this,
@@ -118,7 +118,7 @@ public class RssFeedManageActivity extends BriarActivity
 	}
 
 	private void loadFeeds() {
-		final int revision = adapter.getRevision();
+		int revision = adapter.getRevision();
 		runOnDbThread(() -> {
 			try {
 				displayFeeds(revision, feedManager.getFeeds());
@@ -129,7 +129,7 @@ public class RssFeedManageActivity extends BriarActivity
 		});
 	}
 
-	private void displayFeeds(final int revision, final List<Feed> feeds) {
+	private void displayFeeds(int revision, List<Feed> feeds) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
@@ -142,7 +142,7 @@ public class RssFeedManageActivity extends BriarActivity
 		});
 	}
 
-	private void deleteFeed(final Feed feed) {
+	private void deleteFeed(Feed feed) {
 		runOnDbThread(() -> {
 			try {
 				feedManager.removeFeed(feed);
@@ -161,7 +161,7 @@ public class RssFeedManageActivity extends BriarActivity
 		});
 	}
 
-	private void onFeedDeleted(final Feed feed) {
+	private void onFeedDeleted(Feed feed) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.incrementRevision();
 			adapter.remove(feed);

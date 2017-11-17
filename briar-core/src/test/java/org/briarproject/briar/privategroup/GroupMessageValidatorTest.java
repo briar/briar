@@ -330,7 +330,7 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 				.getBoolean(KEY_INITIAL_JOIN_MSG));
 	}
 
-	private void expectCreateAuthor(final Author member) {
+	private void expectCreateAuthor(Author member) {
 		context.checking(new Expectations() {{
 			oneOf(authorFactory).createAuthor(member.getName(),
 					member.getPublicKey());
@@ -345,10 +345,9 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 		}});
 	}
 
-	private void expectJoinMessage(final Author member, final BdfList invite,
-			final boolean creatorSigValid, final boolean memberSigValid)
-			throws Exception {
-		final BdfList signed = BdfList.of(group.getId(), message.getTimestamp(),
+	private void expectJoinMessage(Author member, BdfList invite,
+			boolean creatorSigValid, boolean memberSigValid) throws Exception {
+		BdfList signed = BdfList.of(group.getId(), message.getTimestamp(),
 				JOIN.getInt(), member.getName(), member.getPublicKey(), invite);
 		expectCreateAuthor(member);
 		expectParsePrivateGroup();
@@ -610,9 +609,9 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 				messageContext.getDictionary().containsKey(KEY_PARENT_MSG_ID));
 	}
 
-	private void expectPostMessage(final Author member,
-			final MessageId parentId, final boolean sigValid) throws Exception {
-		final BdfList signed = BdfList.of(group.getId(), message.getTimestamp(),
+	private void expectPostMessage(Author member, MessageId parentId,
+			boolean sigValid) throws Exception {
+		BdfList signed = BdfList.of(group.getId(), message.getTimestamp(),
 				POST.getInt(), member.getName(), member.getPublicKey(),
 				parentId == null ? null : parentId.getBytes(),
 				previousMsgId.getBytes(), postContent);

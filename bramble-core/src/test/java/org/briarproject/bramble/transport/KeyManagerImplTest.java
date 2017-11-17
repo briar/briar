@@ -58,21 +58,21 @@ public class KeyManagerImplTest extends BrambleTestCase {
 
 	@Before
 	public void testStartService() throws Exception {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 		AuthorId remoteAuthorId = new AuthorId(getRandomId());
 		Author remoteAuthor = new Author(remoteAuthorId, "author",
 				getRandomBytes(42));
 		AuthorId localAuthorId = new AuthorId(getRandomId());
-		final Collection<Contact> contacts = new ArrayList<>();
+		Collection<Contact> contacts = new ArrayList<>();
 		contacts.add(new Contact(contactId, remoteAuthor, localAuthorId, true,
 				true));
 		contacts.add(new Contact(inactiveContactId, remoteAuthor, localAuthorId,
 				true, false));
-		final SimplexPluginFactory pluginFactory =
+		SimplexPluginFactory pluginFactory =
 				context.mock(SimplexPluginFactory.class);
-		final Collection<SimplexPluginFactory> factories = Collections
+		Collection<SimplexPluginFactory> factories = Collections
 				.singletonList(pluginFactory);
-		final int maxLatency = 1337;
+		int maxLatency = 1337;
 
 		context.checking(new Expectations() {{
 			oneOf(pluginConfig).getSimplexFactories();
@@ -100,9 +100,9 @@ public class KeyManagerImplTest extends BrambleTestCase {
 
 	@Test
 	public void testAddContact() throws Exception {
-		final SecretKey secretKey = getSecretKey();
-		final long timestamp = 42L;
-		final boolean alice =  true;
+		SecretKey secretKey = getSecretKey();
+		long timestamp = 42L;
+		boolean alice =  true;
 
 		context.checking(new Expectations() {{
 			oneOf(transportKeyManager)

@@ -45,7 +45,7 @@ public class AndroidPluginModule {
 				backoffFactory);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
 				backoffFactory, appContext);
-		final Collection<DuplexPluginFactory> duplex =
+		Collection<DuplexPluginFactory> duplex =
 				Arrays.asList(bluetooth, tor, lan);
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {

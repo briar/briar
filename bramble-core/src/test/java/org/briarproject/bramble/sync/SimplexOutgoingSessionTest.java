@@ -6,10 +6,10 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.sync.RecordWriter;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.api.sync.RecordWriter;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -44,10 +44,10 @@ public class SimplexOutgoingSessionTest extends BrambleTestCase {
 
 	@Test
 	public void testNothingToSend() throws Exception {
-		final SimplexOutgoingSession session = new SimplexOutgoingSession(db,
+		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
 				dbExecutor, eventBus, contactId, maxLatency, recordWriter);
-		final Transaction noAckTxn = new Transaction(null, false);
-		final Transaction noMsgTxn = new Transaction(null, false);
+		Transaction noAckTxn = new Transaction(null, false);
+		Transaction noMsgTxn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// Add listener
@@ -80,14 +80,14 @@ public class SimplexOutgoingSessionTest extends BrambleTestCase {
 
 	@Test
 	public void testSomethingToSend() throws Exception {
-		final Ack ack = new Ack(Collections.singletonList(messageId));
-		final byte[] raw = new byte[1234];
-		final SimplexOutgoingSession session = new SimplexOutgoingSession(db,
+		Ack ack = new Ack(Collections.singletonList(messageId));
+		byte[] raw = new byte[1234];
+		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
 				dbExecutor, eventBus, contactId, maxLatency, recordWriter);
-		final Transaction ackTxn = new Transaction(null, false);
-		final Transaction noAckTxn = new Transaction(null, false);
-		final Transaction msgTxn = new Transaction(null, false);
-		final Transaction noMsgTxn = new Transaction(null, false);
+		Transaction ackTxn = new Transaction(null, false);
+		Transaction noAckTxn = new Transaction(null, false);
+		Transaction msgTxn = new Transaction(null, false);
+		Transaction noMsgTxn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// Add listener

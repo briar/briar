@@ -137,7 +137,7 @@ public class BlogFragment extends BaseFragment
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_write_blog_post:
 				Intent i = new Intent(getActivity(),
@@ -184,7 +184,7 @@ public class BlogFragment extends BaseFragment
 	}
 
 	@Override
-	public void onBlogPostAdded(BlogPostHeader header, final boolean local) {
+	public void onBlogPostAdded(BlogPostHeader header, boolean local) {
 		blogController.loadBlogPost(header,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
 						this) {
@@ -224,7 +224,7 @@ public class BlogFragment extends BaseFragment
 		getContext().startActivity(i);
 	}
 
-	private void loadBlogPosts(final boolean reload) {
+	private void loadBlogPosts(boolean reload) {
 		blogController.loadBlogPosts(
 				new UiResultExceptionHandler<Collection<BlogPostItem>,
 						DbException>(this) {

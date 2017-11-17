@@ -41,11 +41,11 @@ public class ListenableFutureTask<V> extends FutureTask<V> {
 		this.identifier = identifier;
 	}
 
-	public ListenableFutureTask(final V result) {
+	public ListenableFutureTask(V result) {
 		this(result, null);
 	}
 
-	private ListenableFutureTask(final V result, @Nullable Object identifier) {
+	private ListenableFutureTask(V result, @Nullable Object identifier) {
 		super(() -> result);
 		this.identifier = identifier;
 		this.run();

@@ -165,7 +165,7 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 						invalidContent));
 	}
 
-	private void expectCreateForum(final String name) {
+	private void expectCreateForum(String name) {
 		context.checking(new Expectations() {{
 			oneOf(forumFactory).createForum(name, salt);
 			will(returnValue(forum));

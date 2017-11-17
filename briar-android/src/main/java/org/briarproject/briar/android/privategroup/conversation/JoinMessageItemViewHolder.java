@@ -32,7 +32,7 @@ class JoinMessageItemViewHolder
 		else bind((JoinMessageItem) item);
 	}
 
-	private void bindForCreator(final JoinMessageItem item) {
+	private void bindForCreator(JoinMessageItem item) {
 		if (item.isInitial()) {
 			textView.setText(R.string.groups_member_created_you);
 		} else {
@@ -42,8 +42,8 @@ class JoinMessageItemViewHolder
 		}
 	}
 
-	private void bind(final JoinMessageItem item) {
-		final Context ctx = getContext();
+	private void bind(JoinMessageItem item) {
+		Context ctx = getContext();
 
 		if (item.isInitial()) {
 			textView.setText(ctx.getString(R.string.groups_member_created,

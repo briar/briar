@@ -83,9 +83,9 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 
 	@Test(expected = InvalidMessageException.class)
 	public void testRejectsTooShortMessage() throws Exception {
-		final byte[] invalidRaw = new byte[MESSAGE_HEADER_LENGTH];
+		byte[] invalidRaw = new byte[MESSAGE_HEADER_LENGTH];
 		// Use a mock message so the length of the raw message can be invalid
-		final Message invalidMessage = context.mock(Message.class);
+		Message invalidMessage = context.mock(Message.class);
 
 		context.checking(new Expectations() {{
 			oneOf(invalidMessage).getTimestamp();
@@ -101,8 +101,8 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 
 	@Test
 	public void testAcceptsMinLengthMessage() throws Exception {
-		final byte[] shortRaw = new byte[MESSAGE_HEADER_LENGTH + 1];
-		final Message shortMessage =
+		byte[] shortRaw = new byte[MESSAGE_HEADER_LENGTH + 1];
+		Message shortMessage =
 				new Message(messageId, groupId, timestamp, shortRaw);
 
 		context.checking(new Expectations() {{

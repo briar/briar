@@ -125,32 +125,32 @@ class BlogControllerImpl extends BaseControllerImpl
 		}
 	}
 
-	private void onBlogInvitationAccepted(final ContactId c) {
+	private void onBlogInvitationAccepted(ContactId c) {
 		listener.runOnUiThreadUnlessDestroyed(
 				() -> listener.onBlogInvitationAccepted(c));
 	}
 
-	private void onBlogLeft(final ContactId c) {
+	private void onBlogLeft(ContactId c) {
 		listener.runOnUiThreadUnlessDestroyed(() -> listener.onBlogLeft(c));
 	}
 
 	@Override
 	public void loadBlogPosts(
-			final ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
+			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
 		if (groupId == null) throw new IllegalStateException();
 		loadBlogPosts(groupId, handler);
 	}
 
 	@Override
-	public void loadBlogPost(final MessageId m,
-			final ResultExceptionHandler<BlogPostItem, DbException> handler) {
+	public void loadBlogPost(MessageId m,
+			ResultExceptionHandler<BlogPostItem, DbException> handler) {
 		if (groupId == null) throw new IllegalStateException();
 		loadBlogPost(groupId, m, handler);
 	}
 
 	@Override
 	public void loadBlog(
-			final ResultExceptionHandler<BlogItem, DbException> handler) {
+			ResultExceptionHandler<BlogItem, DbException> handler) {
 		if (groupId == null) throw new IllegalStateException();
 		runOnDbThread(() -> {
 			try {
@@ -173,8 +173,7 @@ class BlogControllerImpl extends BaseControllerImpl
 	}
 
 	@Override
-	public void deleteBlog(
-			final ResultExceptionHandler<Void, DbException> handler) {
+	public void deleteBlog(ResultExceptionHandler<Void, DbException> handler) {
 		if (groupId == null) throw new IllegalStateException();
 		runOnDbThread(() -> {
 			try {
@@ -195,7 +194,7 @@ class BlogControllerImpl extends BaseControllerImpl
 
 	@Override
 	public void loadSharingContacts(
-			final ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
+			ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
 		if (groupId == null) throw new IllegalStateException();
 		runOnDbThread(() -> {
 			try {

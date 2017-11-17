@@ -99,7 +99,7 @@ public class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				onBackPressed();
@@ -204,11 +204,11 @@ public class KeyAgreementActivity extends BriarActivity implements
 		}
 	}
 
-	private void keyAgreementFinished(final KeyAgreementResult result) {
+	private void keyAgreementFinished(KeyAgreementResult result) {
 		runOnUiThreadUnlessDestroyed(() -> startContactExchange(result));
 	}
 
-	private void startContactExchange(final KeyAgreementResult result) {
+	private void startContactExchange(KeyAgreementResult result) {
 		runOnDbThread(() -> {
 			LocalAuthor localAuthor;
 			// Load the local pseudonym
@@ -229,7 +229,7 @@ public class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void contactExchangeSucceeded(final Author remoteAuthor) {
+	public void contactExchangeSucceeded(Author remoteAuthor) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			String contactName = remoteAuthor.getName();
 			String format = getString(string.contact_added_toast);
@@ -240,7 +240,7 @@ public class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void duplicateContact(final Author remoteAuthor) {
+	public void duplicateContact(Author remoteAuthor) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			String contactName = remoteAuthor.getName();
 			String format = getString(string.contact_already_exists);

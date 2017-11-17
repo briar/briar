@@ -88,7 +88,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		return "blogPost" + id.hashCode();
 	}
 
-	void bindItem(@Nullable final BlogPostItem item) {
+	void bindItem(@Nullable BlogPostItem item) {
 		if (item == null) return;
 
 		setTransitionName(item.getId());
@@ -152,7 +152,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		}
 	}
 
-	private void onBindComment(final BlogCommentItem item) {
+	private void onBindComment(BlogCommentItem item) {
 		// reblogger
 		reblogger.setAuthor(item.getAuthor());
 		reblogger.setAuthorStatus(item.getAuthorStatus());

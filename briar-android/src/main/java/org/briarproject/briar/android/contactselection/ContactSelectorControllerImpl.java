@@ -38,9 +38,8 @@ public abstract class ContactSelectorControllerImpl
 	}
 
 	@Override
-	public void loadContacts(final GroupId g,
-			final Collection<ContactId> selection,
-			final ResultExceptionHandler<Collection<SelectableContactItem>, DbException> handler) {
+	public void loadContacts(GroupId g, Collection<ContactId> selection,
+			ResultExceptionHandler<Collection<SelectableContactItem>, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				Collection<SelectableContactItem> contacts = new ArrayList<>();

@@ -110,7 +110,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		public void run() {
 			try {
 				// Load user32.dll
-				final User32 user32 = (User32) Native.loadLibrary("user32",
+				User32 user32 = (User32) Native.loadLibrary("user32",
 						User32.class, options);
 				// Create a callback to handle the WM_QUERYENDSESSION message
 				WindowProc proc = (hwnd, msg, wp, lp) -> {

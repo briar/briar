@@ -174,7 +174,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 	public void testIncomingRequestMessage()
 			throws DbException, FormatException {
 
-		final BdfDictionary msg = new BdfDictionary();
+		BdfDictionary msg = new BdfDictionary();
 		msg.put(TYPE, TYPE_REQUEST);
 		msg.put(GROUP_ID, introductionGroup1.getId());
 		msg.put(SESSION_ID, sessionId);
@@ -183,7 +183,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		msg.put(NAME, introducee2.getAuthor().getName());
 		msg.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
 
-		final BdfDictionary state =
+		BdfDictionary state =
 				initializeSessionState(txn, introductionGroup1.getId(), msg);
 
 		context.checking(new Expectations() {{
@@ -201,7 +201,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 	public void testIncomingResponseMessage()
 			throws DbException, FormatException {
 
-		final BdfDictionary msg = new BdfDictionary();
+		BdfDictionary msg = new BdfDictionary();
 		msg.put(TYPE, TYPE_RESPONSE);
 		msg.put(GROUP_ID, introductionGroup1.getId());
 		msg.put(SESSION_ID, sessionId);
@@ -210,7 +210,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		msg.put(NAME, introducee2.getAuthor().getName());
 		msg.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
 
-		final BdfDictionary state =
+		BdfDictionary state =
 				initializeSessionState(txn, introductionGroup1.getId(), msg);
 		state.put(STATE, IntroduceeProtocolState.AWAIT_RESPONSES.ordinal());
 
@@ -236,7 +236,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 			throws DbException, FormatException, GeneralSecurityException {
 
 		// TODO MR !237 should use its new default initialization method here
-		final BdfDictionary msg = new BdfDictionary();
+		BdfDictionary msg = new BdfDictionary();
 		msg.put(TYPE, TYPE_RESPONSE);
 		msg.put(GROUP_ID, introductionGroup1.getId());
 		msg.put(SESSION_ID, sessionId);
@@ -244,19 +244,19 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		msg.put(MESSAGE_TIME, time);
 		msg.put(NAME, introducee2.getAuthor().getName());
 		msg.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
-		final BdfDictionary state =
+		BdfDictionary state =
 				initializeSessionState(txn, introductionGroup1.getId(), msg);
 
 		// prepare state for incoming ACK
 		state.put(STATE, IntroduceeProtocolState.AWAIT_ACK.ordinal());
 		state.put(ADDED_CONTACT_ID, 2);
-		final byte[] nonce = TestUtils.getRandomBytes(42);
+		byte[] nonce = TestUtils.getRandomBytes(42);
 		state.put(NONCE, nonce);
 		state.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
 
 		// create incoming ACK message
-		final byte[] mac = TestUtils.getRandomBytes(MAC_LENGTH);
-		final byte[] sig = TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH);
+		byte[] mac = TestUtils.getRandomBytes(MAC_LENGTH);
+		byte[] sig = TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH);
 		BdfDictionary ack = BdfDictionary.of(
 				new BdfEntry(TYPE, TYPE_ACK),
 				new BdfEntry(SESSION_ID, sessionId),
@@ -286,9 +286,9 @@ public class IntroduceeManagerTest extends BriarTestCase {
 	public void testSignatureVerification()
 			throws FormatException, DbException, GeneralSecurityException {
 
-		final byte[] publicKeyBytes = introducee2.getAuthor().getPublicKey();
-		final byte[] nonce = TestUtils.getRandomBytes(MAC_LENGTH);
-		final byte[] sig = TestUtils.getRandomBytes(MAC_LENGTH);
+		byte[] publicKeyBytes = introducee2.getAuthor().getPublicKey();
+		byte[] nonce = TestUtils.getRandomBytes(MAC_LENGTH);
+		byte[] sig = TestUtils.getRandomBytes(MAC_LENGTH);
 
 		BdfDictionary state = new BdfDictionary();
 		state.put(PUBLIC_KEY, publicKeyBytes);
@@ -308,12 +308,12 @@ public class IntroduceeManagerTest extends BriarTestCase {
 	public void testMacVerification()
 			throws FormatException, DbException, GeneralSecurityException {
 
-		final byte[] publicKeyBytes = introducee2.getAuthor().getPublicKey();
-		final BdfDictionary tp = BdfDictionary.of(new BdfEntry("fake", "fake"));
-		final byte[] ePublicKeyBytes =
+		byte[] publicKeyBytes = introducee2.getAuthor().getPublicKey();
+		BdfDictionary tp = BdfDictionary.of(new BdfEntry("fake", "fake"));
+		byte[] ePublicKeyBytes =
 				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		final byte[] mac = TestUtils.getRandomBytes(MAC_LENGTH);
-		final SecretKey macKey = TestUtils.getSecretKey();
+		byte[] mac = TestUtils.getRandomBytes(MAC_LENGTH);
+		SecretKey macKey = TestUtils.getSecretKey();
 
 		// move state to where it would be after an ACK arrived
 		BdfDictionary state = new BdfDictionary();
@@ -324,7 +324,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		state.put(MAC, mac);
 		state.put(MAC_KEY, macKey.getBytes());
 
-		final byte[] signBytes = TestUtils.getRandomBytes(42);
+		byte[] signBytes = TestUtils.getRandomBytes(42);
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).toByteArray(
 					BdfList.of(publicKeyBytes, ePublicKeyBytes, tp, time));
@@ -356,17 +356,17 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		context.assertIsSatisfied();
 	}
 
-	private BdfDictionary initializeSessionState(final Transaction txn,
-			final GroupId groupId, final BdfDictionary msg)
+	private BdfDictionary initializeSessionState(Transaction txn,
+			GroupId groupId, BdfDictionary msg)
 			throws DbException, FormatException {
 
-		final SecureRandom secureRandom = context.mock(SecureRandom.class);
-		final Bytes salt = new Bytes(new byte[64]);
-		final BdfDictionary groupMetadata = BdfDictionary.of(
+		SecureRandom secureRandom = context.mock(SecureRandom.class);
+		Bytes salt = new Bytes(new byte[64]);
+		BdfDictionary groupMetadata = BdfDictionary.of(
 				new BdfEntry(CONTACT, introducee1.getId().getInt())
 		);
-		final boolean contactExists = false;
-		final BdfDictionary state = new BdfDictionary();
+		boolean contactExists = false;
+		BdfDictionary state = new BdfDictionary();
 		state.put(STORAGE_ID, localStateMessage.getId());
 		state.put(STATE, AWAIT_REQUEST.getValue());
 		state.put(ROLE, ROLE_INTRODUCEE);

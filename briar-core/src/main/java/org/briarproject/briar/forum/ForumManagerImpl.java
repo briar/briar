@@ -127,9 +127,8 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	}
 
 	@Override
-	public ForumPost createLocalPost(final GroupId groupId, final String body,
-			final long timestamp, final @Nullable MessageId parentId,
-			final LocalAuthor author) {
+	public ForumPost createLocalPost(GroupId groupId, String body,
+			long timestamp, @Nullable MessageId parentId, LocalAuthor author) {
 		ForumPost p;
 		try {
 			p = forumPostFactory.createPost(groupId, timestamp, parentId,

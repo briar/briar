@@ -33,7 +33,7 @@ public class EmojiPageView extends FrameLayout {
 	public EmojiPageView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		final View view = LayoutInflater.from(getContext())
+		View view = LayoutInflater.from(getContext())
 				.inflate(R.layout.emoji_grid_layout, this, true);
 		grid = (GridView) view.findViewById(R.id.emoji);
 		grid.setColumnWidth(getResources()

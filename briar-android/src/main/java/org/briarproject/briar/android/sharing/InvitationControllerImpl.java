@@ -91,8 +91,8 @@ public abstract class InvitationControllerImpl<I extends InvitationItem>
 	protected abstract ClientId getShareableClientId();
 
 	@Override
-	public void loadInvitations(final boolean clear,
-			final ResultExceptionHandler<Collection<I>, DbException> handler) {
+	public void loadInvitations(boolean clear,
+			ResultExceptionHandler<Collection<I>, DbException> handler) {
 		runOnDbThread(() -> {
 			Collection<I> invitations = new ArrayList<>();
 			try {

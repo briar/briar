@@ -111,7 +111,7 @@ public class BriarService extends Service {
 		}.start();
 	}
 
-	private void showStartupFailureNotification(final StartResult result) {
+	private void showStartupFailureNotification(StartResult result) {
 		androidExecutor.runOnUiThread(() -> {
 			NotificationCompat.Builder b =
 					new NotificationCompat.Builder(BriarService.this);

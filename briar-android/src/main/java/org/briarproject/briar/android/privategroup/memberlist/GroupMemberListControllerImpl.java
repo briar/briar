@@ -40,7 +40,7 @@ class GroupMemberListControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void loadMembers(final GroupId groupId, final
+	public void loadMembers(GroupId groupId,
 			ResultExceptionHandler<Collection<MemberListItem>, DbException> handler) {
 		runOnDbThread(() -> {
 			try {

@@ -2,7 +2,6 @@ package org.briarproject.briar.android.navdrawer;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -283,8 +282,7 @@ public class NavDrawerActivity extends BriarActivity implements
 		if (daysUntilExpiry < 0) signOut();
 
 		// show expiry warning text
-		final ViewGroup
-				expiryWarning = (ViewGroup) findViewById(R.id.expiryWarning);
+		ViewGroup expiryWarning = (ViewGroup) findViewById(R.id.expiryWarning);
 		TextView expiryWarningText =
 				(TextView) expiryWarning.findViewById(R.id.expiryWarningText);
 		// make close button functional
@@ -320,20 +318,16 @@ public class NavDrawerActivity extends BriarActivity implements
 		new AlertDialog.Builder(this, R.style.BriarDialogTheme)
 				.setMessage(R.string.setup_doze_intro)
 				.setPositiveButton(R.string.ok,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								Intent i = getDozeWhitelistingIntent(
-										NavDrawerActivity.this);
-								startActivityForResult(i,
-										REQUEST_DOZE_WHITELISTING);
-							}
+						(dialog, which) -> {
+							Intent i = getDozeWhitelistingIntent(
+									NavDrawerActivity.this);
+							startActivityForResult(i,
+									REQUEST_DOZE_WHITELISTING);
 						})
 				.show();
 	}
 
-	private void initializeTransports(final LayoutInflater inflater) {
+	private void initializeTransports(LayoutInflater inflater) {
 		transports = new ArrayList<>(3);
 
 		Transport tor = new Transport();
@@ -407,7 +401,7 @@ public class NavDrawerActivity extends BriarActivity implements
 		};
 	}
 
-	private void setTransport(final TransportId id, final boolean enabled) {
+	private void setTransport(TransportId id, boolean enabled) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (transports == null || transportsAdapter == null) return;
 			for (Transport t : transports) {

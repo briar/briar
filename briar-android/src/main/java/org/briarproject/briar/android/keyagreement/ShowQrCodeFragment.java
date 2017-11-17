@@ -157,8 +157,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		getActivity().registerReceiver(receiver, filter);
 
 		// Enable BT adapter if it is not already on.
-		final BluetoothAdapter adapter =
-				BluetoothAdapter.getDefaultAdapter();
+		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if (adapter != null && !adapter.isEnabled()) {
 			waitingForBluetooth = true;
 			eventBus.broadcast(new EnableBluetoothEvent());
@@ -189,8 +188,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	@UiThread
 	private void startListening() {
-		final KeyAgreementTask oldTask = task;
-		final KeyAgreementTask newTask = keyAgreementTaskFactory.createTask();
+		KeyAgreementTask oldTask = task;
+		KeyAgreementTask newTask = keyAgreementTaskFactory.createTask();
 		task = newTask;
 		ioExecutor.execute(() -> {
 			if (oldTask != null) oldTask.stopListening();
@@ -200,7 +199,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	@UiThread
 	private void stopListening() {
-		final KeyAgreementTask oldTask = task;
+		KeyAgreementTask oldTask = task;
 		ioExecutor.execute(() -> {
 			if (oldTask != null) oldTask.stopListening();
 		});
@@ -257,11 +256,11 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	@UiThread
-	private void generateBitmapQR(final Payload payload) {
+	private void generateBitmapQR(Payload payload) {
 		// Get narrowest screen dimension
 		Context context = getContext();
 		if (context == null) return;
-		final DisplayMetrics dm = context.getResources().getDisplayMetrics();
+		DisplayMetrics dm = context.getResources().getDisplayMetrics();
 		new AsyncTask<Void, Void, Bitmap>() {
 
 			@Override
@@ -286,7 +285,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		}.execute();
 	}
 
-	private void setQrCode(final Payload localPayload) {
+	private void setQrCode(Payload localPayload) {
 		runOnUiThreadUnlessDestroyed(() -> generateBitmapQR(localPayload));
 	}
 
@@ -311,7 +310,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		});
 	}
 
-	private void keyAgreementAborted(final boolean remoteAborted) {
+	private void keyAgreementAborted(boolean remoteAborted) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			reset();
 			mainProgressContainer.setVisibility(INVISIBLE);
@@ -325,7 +324,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	}
 
 	@Override
-	public void handleResult(final Result result) {
+	public void handleResult(Result result) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			LOG.info("Got result from decoder");
 			// Ignore results until the KeyAgreementTask is ready

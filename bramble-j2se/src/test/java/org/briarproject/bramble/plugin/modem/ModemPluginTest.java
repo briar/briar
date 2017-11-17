@@ -21,12 +21,12 @@ public class ModemPluginTest extends BrambleTestCase {
 	@Test
 	public void testModemCreation() throws Exception {
 		Mockery context = new Mockery();
-		final ModemFactory modemFactory = context.mock(ModemFactory.class);
-		final SerialPortList serialPortList =
+		ModemFactory modemFactory = context.mock(ModemFactory.class);
+		SerialPortList serialPortList =
 				context.mock(SerialPortList.class);
-		final ModemPlugin plugin = new ModemPlugin(modemFactory,
+		ModemPlugin plugin = new ModemPlugin(modemFactory,
 				serialPortList, null, 0);
-		final Modem modem = context.mock(Modem.class);
+		Modem modem = context.mock(Modem.class);
 		context.checking(new Expectations() {{
 			oneOf(serialPortList).getPortNames();
 			will(returnValue(new String[] { "foo", "bar", "baz" }));
@@ -53,20 +53,20 @@ public class ModemPluginTest extends BrambleTestCase {
 	@Test
 	public void testCreateConnection() throws Exception {
 		Mockery context = new Mockery();
-		final ModemFactory modemFactory = context.mock(ModemFactory.class);
-		final SerialPortList serialPortList =
+		ModemFactory modemFactory = context.mock(ModemFactory.class);
+		SerialPortList serialPortList =
 				context.mock(SerialPortList.class);
-		final DuplexPluginCallback callback =
+		DuplexPluginCallback callback =
 				context.mock(DuplexPluginCallback.class);
-		final ModemPlugin plugin = new ModemPlugin(modemFactory,
+		ModemPlugin plugin = new ModemPlugin(modemFactory,
 				serialPortList, callback, 0);
-		final Modem modem = context.mock(Modem.class);
-		final TransportProperties local = new TransportProperties();
+		Modem modem = context.mock(Modem.class);
+		TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
-		final TransportProperties remote = new TransportProperties();
+		TransportProperties remote = new TransportProperties();
 		remote.put("iso3166", ISO_1336);
 		remote.put("number", NUMBER);
-		final ContactId contactId = new ContactId(234);
+		ContactId contactId = new ContactId(234);
 		context.checking(new Expectations() {{
 			// start()
 			oneOf(serialPortList).getPortNames();
@@ -92,20 +92,20 @@ public class ModemPluginTest extends BrambleTestCase {
 	@Test
 	public void testCreateConnectionWhenDialReturnsFalse() throws Exception {
 		Mockery context = new Mockery();
-		final ModemFactory modemFactory = context.mock(ModemFactory.class);
-		final SerialPortList serialPortList =
+		ModemFactory modemFactory = context.mock(ModemFactory.class);
+		SerialPortList serialPortList =
 				context.mock(SerialPortList.class);
-		final DuplexPluginCallback callback =
+		DuplexPluginCallback callback =
 				context.mock(DuplexPluginCallback.class);
-		final ModemPlugin plugin = new ModemPlugin(modemFactory,
+		ModemPlugin plugin = new ModemPlugin(modemFactory,
 				serialPortList, callback, 0);
-		final Modem modem = context.mock(Modem.class);
-		final TransportProperties local = new TransportProperties();
+		Modem modem = context.mock(Modem.class);
+		TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
-		final TransportProperties remote = new TransportProperties();
+		TransportProperties remote = new TransportProperties();
 		remote.put("iso3166", ISO_1336);
 		remote.put("number", NUMBER);
-		final ContactId contactId = new ContactId(234);
+		ContactId contactId = new ContactId(234);
 		context.checking(new Expectations() {{
 			// start()
 			oneOf(serialPortList).getPortNames();
@@ -131,20 +131,20 @@ public class ModemPluginTest extends BrambleTestCase {
 	@Test
 	public void testCreateConnectionWhenDialThrowsException() throws Exception {
 		Mockery context = new Mockery();
-		final ModemFactory modemFactory = context.mock(ModemFactory.class);
-		final SerialPortList serialPortList =
+		ModemFactory modemFactory = context.mock(ModemFactory.class);
+		SerialPortList serialPortList =
 				context.mock(SerialPortList.class);
-		final DuplexPluginCallback callback =
+		DuplexPluginCallback callback =
 				context.mock(DuplexPluginCallback.class);
-		final ModemPlugin plugin = new ModemPlugin(modemFactory,
+		ModemPlugin plugin = new ModemPlugin(modemFactory,
 				serialPortList, callback, 0);
-		final Modem modem = context.mock(Modem.class);
-		final TransportProperties local = new TransportProperties();
+		Modem modem = context.mock(Modem.class);
+		TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
-		final TransportProperties remote = new TransportProperties();
+		TransportProperties remote = new TransportProperties();
 		remote.put("iso3166", ISO_1336);
 		remote.put("number", NUMBER);
-		final ContactId contactId = new ContactId(234);
+		ContactId contactId = new ContactId(234);
 		context.checking(new Expectations() {{
 			// start()
 			oneOf(serialPortList).getPortNames();

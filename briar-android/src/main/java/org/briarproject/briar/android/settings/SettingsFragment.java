@@ -215,8 +215,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		});
 	}
 
-	private void displaySettings(final boolean btSetting,
-			final int torSetting) {
+	private void displaySettings(boolean btSetting, int torSetting) {
 		listener.runOnUiThreadUnlessDestroyed(() -> {
 			enableBluetooth.setValue(Boolean.toString(btSetting));
 			torNetwork.setValue(Integer.toString(torSetting));
@@ -301,7 +300,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		else eventBus.broadcast(new DisableBluetoothEvent());
 	}
 
-	private void storeTorSettings(final int torSetting) {
+	private void storeTorSettings(int torSetting) {
 		listener.runOnDbThread(() -> {
 			try {
 				Settings s = new Settings();
@@ -317,7 +316,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		});
 	}
 
-	private void storeBluetoothSettings(final boolean btSetting) {
+	private void storeBluetoothSettings(boolean btSetting) {
 		listener.runOnDbThread(() -> {
 			try {
 				Settings s = new Settings();
@@ -333,7 +332,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		});
 	}
 
-	private void storeSettings(final Settings settings) {
+	private void storeSettings(Settings settings) {
 		listener.runOnDbThread(() -> {
 			try {
 				long now = System.currentTimeMillis();
