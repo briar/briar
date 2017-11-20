@@ -158,42 +158,37 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void askDozeWhitelisting(final Context ctx,
-			final ResultHandler<Boolean> handler) {
+	public void askDozeWhitelisting(Context ctx,
+			ResultHandler<Boolean> handler) {
+		// check this first, to hit the DbThread only when really necessary
 		if (!needsDozeWhitelisting(ctx)) {
 			handler.onResult(false);
 			return;
 		}
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Settings settings =
-							settingsManager.getSettings(SETTINGS_NAMESPACE);
-					boolean ask = settings.getBoolean(DOZE_ASK_AGAIN, true);
-					handler.onResult(ask);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onResult(true);
-				}
+		runOnDbThread(() -> {
+			try {
+				Settings settings =
+						settingsManager.getSettings(SETTINGS_NAMESPACE);
+				boolean ask = settings.getBoolean(DOZE_ASK_AGAIN, true);
+				handler.onResult(ask);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+				handler.onResult(true);
 			}
 		});
 	}
 
 	@Override
 	public void doNotAskAgainForDozeWhiteListing() {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Settings settings = new Settings();
-					settings.putBoolean(DOZE_ASK_AGAIN, false);
-					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+		runOnDbThread(() -> {
+			try {
+				Settings settings = new Settings();
+				settings.putBoolean(DOZE_ASK_AGAIN, false);
+				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}

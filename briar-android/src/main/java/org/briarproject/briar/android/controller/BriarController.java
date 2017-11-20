@@ -8,5 +8,13 @@ public interface BriarController extends ActivityLifecycleController {
 
 	boolean hasEncryptionKey();
 
+	/**
+	 * Returns true via the handler when the app has dozed
+	 * without being white-listed.
+	 */
+	void hasDozed(ResultHandler<Boolean> handler);
+
+	void doNotNotifyWhenDozed();
+
 	void signOut(ResultHandler<Void> eventHandler);
 }

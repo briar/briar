@@ -3,12 +3,16 @@ package org.briarproject.briar.android;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
@@ -28,12 +32,15 @@ import javax.inject.Inject;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SERVICE;
 import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
+import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
 public class BriarService extends Service {
 
@@ -45,6 +52,9 @@ public class BriarService extends Service {
 
 	private final AtomicBoolean created = new AtomicBoolean(false);
 	private final Binder binder = new BriarBinder();
+	@Nullable
+	private BriarBroadcastReceiver receiver = null;
+	private boolean hasDozed = false;
 
 	@Inject
 	protected DatabaseConfig databaseConfig;
@@ -84,7 +94,7 @@ public class BriarService extends Service {
 		Intent i = new Intent(this, NavDrawerActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
 		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
-		if (Build.VERSION.SDK_INT >= 21) {
+		if (SDK_INT >= 21) {
 			b.setCategory(CATEGORY_SERVICE);
 			b.setVisibility(VISIBILITY_SECRET);
 		}
@@ -109,6 +119,7 @@ public class BriarService extends Service {
 				}
 			}
 		}.start();
+		registerBroadcastReceiver();
 	}
 
 	private void showStartupFailureNotification(StartResult result) {
@@ -153,6 +164,7 @@ public class BriarService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		LOG.info("Destroyed");
+		if (receiver != null) unregisterReceiver(receiver);
 		stopForeground(true);
 		// Stop the services in a background thread
 		new Thread() {
@@ -168,6 +180,21 @@ public class BriarService extends Service {
 		super.onLowMemory();
 		LOG.warning("Memory is low");
 		// FIXME: Work out what to do about it
+	}
+
+	private void registerBroadcastReceiver() {
+		if (SDK_INT < 23) return;
+		IntentFilter filter = new IntentFilter(ACTION_DEVICE_IDLE_MODE_CHANGED);
+		if (receiver == null) receiver = new BriarBroadcastReceiver();
+		registerReceiver(receiver, filter);
+	}
+
+	public boolean hasDozed() {
+		return hasDozed;
+	}
+
+	public void resetDozeFlag() {
+		hasDozed = false;
 	}
 
 	/**
@@ -225,4 +252,15 @@ public class BriarService extends Service {
 			return binder;
 		}
 	}
+
+	public class BriarBroadcastReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (SDK_INT < 23 || !needsDozeWhitelisting(getApplicationContext()))
+				return;
+			PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+			if (pm.isDeviceIdleMode()) hasDozed = true;
+		}
+	}
+
 }

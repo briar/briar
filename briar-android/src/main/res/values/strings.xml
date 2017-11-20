@@ -95,6 +95,8 @@
 	<string name="ellipsis">…</string>
 	<string name="text_too_long">The entered text is too long</string>
 	<string name="show_onboarding">Show Help Dialog</string>
+	<string name="warning_dozed">%s was unable to run in the background</string>
+	<string name="fix">Fix</string>
 
 	<!-- Contacts and Private Conversations-->
 	<string name="no_contacts">It seems that you are new here and have no contacts yet.\n\nTap the + icon at the top and follow the instructions to add some friends to your list.\n\nPlease remember: You can only add new contacts face-to-face to prevent anyone from impersonating you or reading your messages in the future.</string>
@@ -391,7 +393,7 @@
 	<string name="screen_filter_title">Screen overlay detected</string>
 	<string name="screen_filter_body">Another app is drawing on top of Briar. To protect your security, Briar will not respond to touches when another app is drawing on top.\n\nTry turning off the following apps when using Briar:\n\n%1$s</string>
 
-	<!-- Permission Requests and Doze Mode -->
+	<!-- Permission Requests -->
 	<string name="permission_camera_title">Camera permission</string>
 	<string name="permission_camera_request_body">To scan the QR code, Briar needs access to the camera.</string>
 	<string name="permission_camera_denied_body">You have denied access to the camera, but adding contacts requires using the camera.\n\nPlease consider granting access.</string>
