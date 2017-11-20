@@ -19,6 +19,7 @@
 	<string name="passwords_do_not_match">Passwords do not match</string>
 	<string name="create_account_button">Create Account</string>
 	<string name="more_info">More Information</string>
+	<string name="don_t_ask_again">Don\'t ask again</string>
 
 	<!-- Login -->
 	<string name="enter_password">Enter your password:</string>

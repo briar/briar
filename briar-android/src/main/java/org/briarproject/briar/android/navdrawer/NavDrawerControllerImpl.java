@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.navdrawer;
 
 import android.app.Activity;
+import android.content.Context;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -32,6 +33,7 @@ import static org.briarproject.briar.android.navdrawer.NavDrawerController.Expir
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.SHOW;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
+import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -42,6 +44,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 			Logger.getLogger(NavDrawerControllerImpl.class.getName());
 	private static final String EXPIRY_DATE_WARNING = "expiryDateWarning";
 	private static final String EXPIRY_SHOW_UPDATE = "expiryShowUpdate";
+	private static final String DOZE_ASK_AGAIN = "dozeAskAgain";
 
 	private final PluginManager pluginManager;
 	private final SettingsManager settingsManager;
@@ -150,6 +153,47 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		});
+	}
+
+	@Override
+	public void askDozeWhitelisting(final Context ctx,
+			final ResultHandler<Boolean> handler) {
+		if (!needsDozeWhitelisting(ctx)) {
+			handler.onResult(false);
+			return;
+		}
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Settings settings =
+							settingsManager.getSettings(SETTINGS_NAMESPACE);
+					boolean ask = settings.getBoolean(DOZE_ASK_AGAIN, true);
+					handler.onResult(ask);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					handler.onResult(true);
+				}
+			}
+		});
+	}
+
+	@Override
+	public void doNotAskAgainForDozeWhiteListing() {
+		runOnDbThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Settings settings = new Settings();
+					settings.putBoolean(DOZE_ASK_AGAIN, false);
+					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+				} catch (DbException e) {
+					if (LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
 			}
 		});
 	}

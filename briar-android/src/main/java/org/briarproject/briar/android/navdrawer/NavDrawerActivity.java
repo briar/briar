@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -54,11 +55,11 @@ import static android.support.v4.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
 import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
 import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingIntent;
-import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
 public class NavDrawerActivity extends BriarActivity implements
 		BaseFragmentListener, TransportStateListener,
@@ -151,7 +152,21 @@ public class NavDrawerActivity extends BriarActivity implements
 				if (expiry != NO) showExpiryWarning(expiry);
 			}
 		});
-		if (needsDozeWhitelisting(this)) requestDozeWhitelisting();
+	}
+
+	@Override
+	protected void onActivityResult(int request, int result, Intent data) {
+		super.onActivityResult(request, result, data);
+		if (request == REQUEST_PASSWORD && result == RESULT_OK) {
+			controller.askDozeWhitelisting(this,
+					new UiResultHandler<Boolean>(this) {
+						@Override
+						public void onResultUi(Boolean ask) {
+							if (!ask) return;
+							requestDozeWhitelisting();
+						}
+					});
+		}
 	}
 
 	private void exitIfStartupFailed(Intent intent) {
@@ -315,16 +330,24 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	@TargetApi(23)
 	private void requestDozeWhitelisting() {
-		new AlertDialog.Builder(this, R.style.BriarDialogTheme)
-				.setMessage(R.string.setup_doze_intro)
-				.setPositiveButton(R.string.ok,
-						(dialog, which) -> {
-							Intent i = getDozeWhitelistingIntent(
-									NavDrawerActivity.this);
-							startActivityForResult(i,
-									REQUEST_DOZE_WHITELISTING);
-						})
-				.show();
+		AlertDialog.Builder b =
+				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		b.setMessage(R.string.setup_doze_intro);
+		b.setView(R.layout.checkbox);
+		b.setPositiveButton(R.string.ok,
+				(dialog, which) -> {
+					Intent i = getDozeWhitelistingIntent(
+							NavDrawerActivity.this);
+					startActivityForResult(i, REQUEST_DOZE_WHITELISTING);
+				});
+		b.setNegativeButton(R.string.cancel,
+				(dialog, which) -> {
+					CheckBox checkBox = (CheckBox) ((AlertDialog) dialog)
+							.findViewById(R.id.checkbox);
+					if (checkBox.isChecked())
+						controller.doNotAskAgainForDozeWhiteListing();
+				});
+		b.show();
 	}
 
 	private void initializeTransports(LayoutInflater inflater) {

@@ -1,5 +1,7 @@
 package org.briarproject.briar.android.navdrawer;
 
+import android.content.Context;
+
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.android.controller.ActivityLifecycleController;
@@ -15,5 +17,10 @@ public interface NavDrawerController extends ActivityLifecycleController {
 	void showExpiryWarning(ResultHandler<ExpiryWarning> handler);
 
 	void expiryWarningDismissed();
+
+	void askDozeWhitelisting(final Context ctx,
+			final ResultHandler<Boolean> handler);
+
+	void doNotAskAgainForDozeWhiteListing();
 
 }
