@@ -26,6 +26,7 @@ public class DozeFragment extends SetupFragment {
 
 	private Button dozeButton;
 	private ProgressBar progressBar;
+	private boolean secondAttempt = false;
 
 	public static DozeFragment newInstance() {
 		return new DozeFragment();
@@ -64,10 +65,11 @@ public class DozeFragment extends SetupFragment {
 	public void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_DOZE_WHITELISTING) {
-			if (!setupController.needsDozeWhitelisting()) {
+			if (!setupController.needsDozeWhitelisting() || secondAttempt) {
 				dozeButton.setEnabled(false);
 				onClick(dozeButton);
 			} else {
+				secondAttempt = true;
 				showOnboardingDialog(getContext(), getHelpText());
 			}
 		}
