@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Configuración de Briar</string>
-  <string name="setup_explanation">Briar almacena a súa configuración encriptada no dispositivo, non na nube. Se desinstala Briar ou esquece a súa clave, non hai forma de recuperar a súa conta e datos.</string>
+  <string name="setup_password_explanation">Briar almacena a súa configuración encriptada no dispositivo, non na nube. Se desinstala Briar ou esquece a súa clave, non hai forma de recuperar a súa conta e datos.</string>
   <string name="choose_nickname">Escolle o teu alcume</string>
   <string name="choose_password">Escolle a túa clave</string>
   <string name="confirm_password">Confirma a túa clave</string>

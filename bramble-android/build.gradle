@@ -32,76 +32,43 @@ dependencies {
 	provided 'javax.annotation:jsr250-api:1.0'
 }
 
-def torBinaryDir = 'src/main/res/raw'
+ext.torBinaryDir = 'src/main/res/raw'
+ext.torVersion = '0.2.9.12'
+ext.geoipVersion = '2017-09-06'
+ext.torDownloadUrl = 'https://briarproject.org/build/'
 
-task downloadTorGeoIp(type: Download) {
-	src 'https://briarproject.org/build/geoip-2017-09-06.zip'
-	dest "$torBinaryDir/geoip.zip"
-	onlyIfNewer true
+def torBinaries = [
+		"tor_arm"    : '8ed0b347ffed1d6a4d2fd14495118eb92be83e9cc06e057e15220dc288b31688',
+		"tor_arm_pie": '64403262511c29f462ca5e7c7621bfc3c944898364d1d5ad35a016bb8a034283',
+		"tor_x86"    : '61e014607a2079bcf1646289c67bff6372b1aded6e1d8d83d7791efda9a4d5ab',
+		"tor_x86_pie": '18fbc98356697dd0895836ab46d5c9877d1c539193464f7db1e82a65adaaf288',
+		"geoip"      : 'fe49d3adb86d3c512373101422a017dbb86c85a570524663f09dd8ce143a24f3'
+]
+
+def downloadBinary(name) {
+	return tasks.create("downloadBinary${name}", Download) {
+		src "$torDownloadUrl${name}.zip"
+				.replace('tor_', "tor-${torVersion}-")
+				.replace('geoip', "geoip-${geoipVersion}")
+				.replaceAll('_', '-')
+		dest "$torBinaryDir/${name}.zip"
+		onlyIfNewer true
+	}
 }
 
-task downloadTorBinaryArm(type: Download) {
-	src 'https://briarproject.org/build/tor-0.2.9.12-arm.zip'
-	dest "$torBinaryDir/tor_arm.zip"
-	onlyIfNewer true
-}
-
-task downloadTorBinaryArmPie(type: Download) {
-	src 'https://briarproject.org/build/tor-0.2.9.12-arm-pie.zip'
-	dest "$torBinaryDir/tor_arm_pie.zip"
-	onlyIfNewer true
-}
-
-task downloadTorBinaryX86(type: Download) {
-	src 'https://briarproject.org/build/tor-0.2.9.12-x86.zip'
-	dest "$torBinaryDir/tor_x86.zip"
-	onlyIfNewer true
-}
-
-task downloadTorBinaryX86Pie(type: Download) {
-	src 'https://briarproject.org/build/tor-0.2.9.12-x86-pie.zip'
-	dest "$torBinaryDir/tor_x86_pie.zip"
-	onlyIfNewer true
-}
-
-task verifyTorGeoIp(type: Verify, dependsOn: 'downloadTorGeoIp') {
-	src "$torBinaryDir/geoip.zip"
-	algorithm 'SHA-256'
-	checksum 'fe49d3adb86d3c512373101422a017dbb86c85a570524663f09dd8ce143a24f3'
-}
-
-task verifyTorBinaryArm(type: Verify, dependsOn: 'downloadTorBinaryArm') {
-	src "$torBinaryDir/tor_arm.zip"
-	algorithm 'SHA-256'
-	checksum '8ed0b347ffed1d6a4d2fd14495118eb92be83e9cc06e057e15220dc288b31688'
-}
-
-task verifyTorBinaryArmPie(type: Verify, dependsOn: 'downloadTorBinaryArmPie') {
-	src "$torBinaryDir/tor_arm_pie.zip"
-	algorithm 'SHA-256'
-	checksum '64403262511c29f462ca5e7c7621bfc3c944898364d1d5ad35a016bb8a034283'
-}
-
-task verifyTorBinaryX86(type: Verify, dependsOn: 'downloadTorBinaryX86') {
-	src "$torBinaryDir/tor_x86.zip"
-	algorithm 'SHA-256'
-	checksum '61e014607a2079bcf1646289c67bff6372b1aded6e1d8d83d7791efda9a4d5ab'
-}
-
-task verifyTorBinaryX86Pie(type: Verify, dependsOn: 'downloadTorBinaryX86Pie') {
-	src "$torBinaryDir/tor_x86_pie.zip"
-	algorithm 'SHA-256'
-	checksum '18fbc98356697dd0895836ab46d5c9877d1c539193464f7db1e82a65adaaf288'
+def verifyBinary(name, chksum) {
+	return tasks.create([
+			name     : "verifyBinary${name}",
+			type     : Verify,
+			dependsOn: downloadBinary(name)]) {
+		src "$torBinaryDir/${name}.zip"
+		algorithm 'SHA-256'
+		checksum chksum
+	}
 }
 
 project.afterEvaluate {
-	preBuild.dependsOn {
-		[
-				'verifyTorGeoIp',
-				'verifyTorBinaryArm',
-				'verifyTorBinaryArmPie',
-				'verifyTorBinaryX86',
-				'verifyTorBinaryX86Pie'
-		]
+	torBinaries.every { key, value ->
+			preBuild.dependsOn.add(verifyBinary(key, value))
 	}
 }

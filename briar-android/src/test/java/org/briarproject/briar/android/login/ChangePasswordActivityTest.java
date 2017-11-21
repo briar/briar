@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.login;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.design.widget.TextInputLayout;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,12 +26,8 @@ import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUIT
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.STRONG;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.WEAK;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,8 +36,6 @@ import static org.mockito.Mockito.when;
 @Config(sdk = 21, application = TestBriarApplication.class,
 		packageName = "org.briarproject.briar")
 public class ChangePasswordActivityTest {
-
-	private static final int TIMEOUT_MS = 10 * 1000;
 
 	private TestChangePasswordActivity changePasswordActivity;
 	private TextInputLayout passwordConfirmationWrapper;
@@ -55,8 +47,6 @@ public class ChangePasswordActivityTest {
 
 	@Mock
 	private PasswordController passwordController;
-	@Mock
-	private SetupController setupController;
 	@Captor
 	private ArgumentCaptor<ResultHandler<Boolean>> resultCaptor;
 
@@ -108,12 +98,9 @@ public class ChangePasswordActivityTest {
 
 	@Test
 	public void testChangePasswordUI() {
-		PasswordController mockedPasswordController = this.passwordController;
-		SetupController mockedSetupController = this.setupController;
-		changePasswordActivity.setPasswordController(mockedPasswordController);
-		changePasswordActivity.setSetupController(mockedSetupController);
+		changePasswordActivity.setPasswordController(passwordController);
 		// Mock strong password strength answer
-		when(mockedSetupController.estimatePasswordStrength(anyString()))
+		when(passwordController.estimatePasswordStrength(anyString()))
 				.thenReturn(STRONG);
 		String curPass = "old.password";
 		String safePass = "really.safe.password";
@@ -125,7 +112,7 @@ public class ChangePasswordActivityTest {
 		changePasswordButton.performClick();
 		// Verify that the controller's method was called with the correct
 		// params and get the callback
-		verify(mockedPasswordController, times(1))
+		verify(passwordController, times(1))
 				.changePassword(eq(curPass), eq(safePass),
 						resultCaptor.capture());
 		// execute the callbacks
@@ -134,88 +121,38 @@ public class ChangePasswordActivityTest {
 	}
 
 	@Test
-	public void testPasswordChange() {
-		PasswordController passwordController =
-				changePasswordActivity.getPasswordController();
-		SetupController setupController =
-				changePasswordActivity.getSetupController();
-		// mock a resulthandler
-		ResultHandler<Void> resultHandler =
-				(ResultHandler<Void>) mock(ResultHandler.class);
-		setupController.storeAuthorInfo("nick", "some.old.pass", resultHandler);
-		// blocking verification call with timeout that waits until the mocked
-		// result gets called with handle 0L, the expected value
-		verify(resultHandler, timeout(TIMEOUT_MS).times(1)).onResult(null);
-		SharedPreferences prefs = changePasswordActivity
-				.getSharedPreferences("db", Context.MODE_PRIVATE);
-		// Confirm database key
-		assertTrue(prefs.contains("key"));
-		String oldKey = prefs.getString("key", null);
-		// mock a resulthandler
-		ResultHandler<Boolean> resultHandler2 =
-				(ResultHandler<Boolean>) mock(ResultHandler.class);
-		passwordController.changePassword("some.old.pass", "some.strong.pass",
-				resultHandler2);
-		// blocking verification call with timeout that waits until the mocked
-		// result gets called with handle 0L, the expected value
-		verify(resultHandler2, timeout(TIMEOUT_MS).times(1)).onResult(true);
-		// Confirm database key
-		assertTrue(prefs.contains("key"));
-		assertNotEquals(oldKey, prefs.getString("key", null));
-		// Note that Robolectric uses its own persistant storage that it
-		// wipes clean after each test run, no need to clean up manually.
-	}
-
-	@Test
-	public void testStrengthMeter() {
-		SetupController controller =
-				changePasswordActivity.getSetupController();
-
-		String strongPass = "very.strong.password.123";
-		String weakPass = "we";
-		String quiteStrongPass = "quite.strong";
-
-		float val = controller.estimatePasswordStrength(strongPass);
-		assertTrue(val == STRONG);
-		val = controller.estimatePasswordStrength(weakPass);
-		assertTrue(val < WEAK && val > NONE);
-		val = controller.estimatePasswordStrength(quiteStrongPass);
-		assertTrue(val < STRONG && val > QUITE_WEAK);
-	}
-
-	@Test
 	public void testStrengthMeterUI() {
 		Assert.assertNotNull(changePasswordActivity);
-		// replace the setup controller with our mocked copy
-		SetupController mockedController = this.setupController;
-		changePasswordActivity.setSetupController(mockedController);
+		// replace the password controller with our mocked copy
+		changePasswordActivity.setPasswordController(passwordController);
 		// Mock answers for UI testing only
-		when(mockedController.estimatePasswordStrength("strong")).thenReturn(
+		when(passwordController.estimatePasswordStrength("strong")).thenReturn(
 				STRONG);
-		when(mockedController.estimatePasswordStrength("qstrong")).thenReturn(
+		when(passwordController.estimatePasswordStrength("qstrong")).thenReturn(
 				QUITE_STRONG);
-		when(mockedController.estimatePasswordStrength("qweak")).thenReturn(
+		when(passwordController.estimatePasswordStrength("qweak")).thenReturn(
 				QUITE_WEAK);
-		when(mockedController.estimatePasswordStrength("weak")).thenReturn(
+		when(passwordController.estimatePasswordStrength("weak")).thenReturn(
 				WEAK);
-		when(mockedController.estimatePasswordStrength("empty")).thenReturn(
+		when(passwordController.estimatePasswordStrength("empty")).thenReturn(
 				NONE);
 		// Test the meters progress and color for several values
 		testStrengthMeter("strong", STRONG, StrengthMeter.GREEN);
-		Mockito.verify(mockedController, Mockito.times(1))
+		Mockito.verify(passwordController, Mockito.times(1))
 				.estimatePasswordStrength(eq("strong"));
 		testStrengthMeter("qstrong", QUITE_STRONG, StrengthMeter.LIME);
-		Mockito.verify(mockedController, Mockito.times(1))
+		Mockito.verify(passwordController, Mockito.times(1))
 				.estimatePasswordStrength(eq("qstrong"));
 		testStrengthMeter("qweak", QUITE_WEAK, StrengthMeter.YELLOW);
-		Mockito.verify(mockedController, Mockito.times(1))
+		Mockito.verify(passwordController, Mockito.times(1))
 				.estimatePasswordStrength(eq("qweak"));
 		testStrengthMeter("weak", WEAK, StrengthMeter.ORANGE);
-		Mockito.verify(mockedController, Mockito.times(1))
+		Mockito.verify(passwordController, Mockito.times(1))
 				.estimatePasswordStrength(eq("weak"));
 		// Not sure this should be the correct behaviour on an empty input ?
 		testStrengthMeter("empty", NONE, StrengthMeter.RED);
-		Mockito.verify(mockedController, Mockito.times(1))
+		Mockito.verify(passwordController, Mockito.times(1))
 				.estimatePasswordStrength(eq("empty"));
 	}
+
 }

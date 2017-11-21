@@ -2,8 +2,15 @@
 <resources>
 
 	<!-- Setup -->
-	<string name="setup_title">Briar Setup</string>
-	<string name="setup_explanation">Your Briar account is stored encrypted on your device, not in the cloud. If you uninstall Briar or forget your password, there\'s no way to recover your account and your data.</string>
+	<string name="setup_title">Welcome to Briar</string>
+	<string name="setup_name_explanation">Your nickname will be shown next to any content you post. You can\'t change it after creating your account.</string>
+	<string name="setup_next">Next</string>
+	<string name="setup_password_intro">Choose a Password</string>
+	<string name="setup_password_explanation">Your Briar account is stored encrypted on your device, not in the cloud. If you forget your password or uninstall Briar, there\'s no way to recover your account.\n\nChoose a long password that\'s hard to guess, such as four random words, or ten random letters, numbers and symbols.</string>
+	<string name="setup_doze_title">Background Connections</string>
+	<string name="setup_doze_intro">To receive messages, Briar needs to stay connected in the background.</string>
+	<string name="setup_doze_explanation">To receive messages, Briar needs to stay connected in the background. Please disable battery optimizations so Briar can stay connected.</string>
+	<string name="setup_doze_button">Allow Connections</string>
 	<string name="choose_nickname">Choose your nickname</string>
 	<string name="choose_password">Choose your password</string>
 	<string name="confirm_password">Confirm your password</string>
@@ -11,6 +18,7 @@
 	<string name="password_too_weak">Password is too weak</string>
 	<string name="passwords_do_not_match">Passwords do not match</string>
 	<string name="create_account_button">Create Account</string>
+	<string name="more_info">More Information</string>
 
 	<!-- Login -->
 	<string name="enter_password">Enter your password:</string>

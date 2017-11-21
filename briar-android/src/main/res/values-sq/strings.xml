@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Rregullimi i Briar-it</string>
-  <string name="setup_explanation">Llogaria juaj Briar depozitohet e fshehtëzuar në pajisjen tuaj, jo në re. Nëse e çinstaloni Briar-in ose harroni fjalëkalimin tuaj, nuk ka rrugë për ta rimarrë llogarinë tuaj dhe të dhënat tuaja.</string>
+  <string name="setup_password_explanation">Llogaria juaj Briar depozitohet e fshehtëzuar në pajisjen tuaj, jo në re. Nëse e çinstaloni Briar-in ose harroni fjalëkalimin tuaj, nuk ka rrugë për ta rimarrë llogarinë tuaj dhe të dhënat tuaja.</string>
   <string name="choose_nickname">Zgjidhni nofkën tuaj</string>
   <string name="choose_password">Zgjidhni fjalëkalimin tuaj</string>
   <string name="confirm_password">Ripohoni fjalëkalimin tuaj</string>

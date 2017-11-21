@@ -32,8 +32,6 @@ public class ChangePasswordActivity extends BaseActivity
 
 	@Inject
 	protected PasswordController passwordController;
-	@Inject
-	protected SetupController setupController;
 
 	private TextInputLayout currentPasswordEntryWrapper;
 	private TextInputLayout newPasswordEntryWrapper;
@@ -105,7 +103,7 @@ public class ChangePasswordActivity extends BaseActivity
 		String secondPassword = newPasswordConfirmation.getText().toString();
 		boolean passwordsMatch = firstPassword.equals(secondPassword);
 		float strength =
-				setupController.estimatePasswordStrength(firstPassword);
+				passwordController.estimatePasswordStrength(firstPassword);
 		strengthMeter.setStrength(strength);
 		UiUtils.setError(newPasswordEntryWrapper,
 				getString(R.string.password_too_weak),

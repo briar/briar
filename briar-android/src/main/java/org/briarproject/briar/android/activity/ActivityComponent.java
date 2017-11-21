@@ -27,8 +27,11 @@ import org.briarproject.briar.android.introduction.IntroductionMessageFragment;
 import org.briarproject.briar.android.keyagreement.IntroFragment;
 import org.briarproject.briar.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.briar.android.keyagreement.ShowQrCodeFragment;
+import org.briarproject.briar.android.login.AuthorNameFragment;
 import org.briarproject.briar.android.login.ChangePasswordActivity;
+import org.briarproject.briar.android.login.DozeFragment;
 import org.briarproject.briar.android.login.PasswordActivity;
+import org.briarproject.briar.android.login.PasswordFragment;
 import org.briarproject.briar.android.login.SetupActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.panic.PanicPreferencesActivity;
@@ -148,6 +151,10 @@ public interface ActivityComponent {
 	void inject(RssFeedManageActivity activity);
 
 	// Fragments
+	void inject(AuthorNameFragment fragment);
+	void inject(PasswordFragment fragment);
+	void inject(DozeFragment fragment);
+
 	void inject(ContactListFragment fragment);
 
 	void inject(CreateGroupFragment fragment);

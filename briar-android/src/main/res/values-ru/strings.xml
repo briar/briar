@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Настройка Briar</string>
-  <string name="setup_explanation">Ваша учетная запись Briar хранится в зашифрованном виде только на устройстве. Если вы удалите Briar или забудете пароль, то не сможете восстановить свою учетную запись и данные.</string>
+  <string name="setup_password_explanation">Ваша учетная запись Briar хранится в зашифрованном виде только на устройстве. Если вы удалите Briar или забудете пароль, то не сможете восстановить свою учетную запись и данные.</string>
   <string name="choose_nickname">Выберите псевдоним</string>
   <string name="choose_password">Выберите пароль</string>
   <string name="confirm_password">Подтвердите пароль</string>
