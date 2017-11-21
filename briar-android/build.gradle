@@ -42,7 +42,7 @@ dependencies {
 	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
 	testImplementation 'org.robolectric:robolectric:3.5.1'
 	testImplementation 'org.robolectric:shadows-support-v4:3.0'
-	testCompile 'org.mockito:mockito-core:2.8.9'
+	testImplementation 'org.mockito:mockito-core:2.8.9'
 	testImplementation 'junit:junit:4.12'
 	testImplementation "org.jmock:jmock:2.8.2"
 	testImplementation "org.jmock:jmock-junit4:2.8.2"
