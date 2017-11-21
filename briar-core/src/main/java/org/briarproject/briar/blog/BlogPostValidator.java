@@ -75,7 +75,7 @@ class BlogPostValidator extends BdfMessageValidator {
 		BdfMessageContext c;
 
 		int type = body.getLong(0).intValue();
-		body.removeElementAt(0);
+		body.remove(0);
 		switch (MessageType.valueOf(type)) {
 			case POST:
 				c = validatePost(m, g, body);
