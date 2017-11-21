@@ -70,7 +70,7 @@ public class SetupControllerImpl extends PasswordControllerImpl
 
 	@Override
 	public void createAccount() {
-		final UiResultHandler<Void> resultHandler =
+		UiResultHandler<Void> resultHandler =
 				new UiResultHandler<Void>(setupActivity) {
 					@Override
 					public void onResultUi(Void result) {
@@ -83,7 +83,7 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	}
 
 	@Override
-	public void createAccount(final ResultHandler<Void> resultHandler) {
+	public void createAccount(ResultHandler<Void> resultHandler) {
 		if (authorName == null || password == null)
 			throw new IllegalStateException();
 		cryptoExecutor.execute(() -> {

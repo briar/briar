@@ -7,7 +7,6 @@ import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
-import org.briarproject.briar.android.controller.handler.ResultHandler;
 import org.jmock.Expectations;
 import org.junit.Test;
 
@@ -61,14 +60,8 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 		PasswordControllerImpl p = new PasswordControllerImpl(briarPrefs,
 				databaseConfig, cryptoExecutor, crypto, estimator);
 
-		final AtomicBoolean capturedResult = new AtomicBoolean(false);
-		p.changePassword(oldPassword, newPassword,
-				new ResultHandler<Boolean>() {
-					@Override
-					public void onResult(Boolean result) {
-						capturedResult.set(result);
-					}
-				});
+		AtomicBoolean capturedResult = new AtomicBoolean(false);
+		p.changePassword(oldPassword, newPassword, capturedResult::set);
 		assertTrue(capturedResult.get());
 	}
 
@@ -86,14 +79,8 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 		PasswordControllerImpl p = new PasswordControllerImpl(briarPrefs,
 				databaseConfig, cryptoExecutor, crypto, estimator);
 
-		final AtomicBoolean capturedResult = new AtomicBoolean(true);
-		p.changePassword(oldPassword, newPassword,
-				new ResultHandler<Boolean>() {
-					@Override
-					public void onResult(Boolean result) {
-						capturedResult.set(result);
-					}
-				});
+		AtomicBoolean capturedResult = new AtomicBoolean(true);
+		p.changePassword(oldPassword, newPassword, capturedResult::set);
 		assertFalse(capturedResult.get());
 	}
 }

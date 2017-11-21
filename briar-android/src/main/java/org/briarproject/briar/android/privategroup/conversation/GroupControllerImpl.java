@@ -230,8 +230,8 @@ class GroupControllerImpl extends
 	}
 
 	@Override
-	public void isDissolved(final
-	ResultExceptionHandler<Boolean, DbException> handler) {
+	public void isDissolved(
+			ResultExceptionHandler<Boolean, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				boolean isDissolved =

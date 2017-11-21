@@ -40,12 +40,7 @@ public class DozeFragment extends SetupFragment {
 		dozeButton = (Button) v.findViewById(R.id.dozeButton);
 		progressBar = (ProgressBar) v.findViewById(R.id.progress);
 
-		dozeButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				askForDozeWhitelisting();
-			}
-		});
+		dozeButton.setOnClickListener(view -> askForDozeWhitelisting());
 
 		return v;
 	}

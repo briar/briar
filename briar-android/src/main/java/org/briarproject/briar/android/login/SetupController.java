@@ -25,6 +25,6 @@ public interface SetupController {
 
 	void createAccount();
 
-	void createAccount(final ResultHandler<Void> resultHandler);
+	void createAccount(ResultHandler<Void> resultHandler);
 
 }

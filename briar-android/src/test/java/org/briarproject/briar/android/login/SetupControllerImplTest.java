@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
-import org.briarproject.briar.android.controller.handler.ResultHandler;
 import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
@@ -72,15 +71,10 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 				databaseConfig, cryptoExecutor, crypto, estimator);
 		s.setSetupActivity(setupActivity);
 
-		final AtomicBoolean called = new AtomicBoolean(false);
+		AtomicBoolean called = new AtomicBoolean(false);
 		s.setAuthorName(authorName);
 		s.setPassword(password);
-		s.createAccount(new ResultHandler<Void>() {
-			@Override
-			public void onResult(Void result) {
-				called.set(true);
-			}
-		});
+		s.createAccount(result -> called.set(true));
 		assertTrue(called.get());
 	}
 }
