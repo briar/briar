@@ -1,9 +1,19 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+apply plugin: 'witness'
+
 dependencies {
-	compile project(path: ':bramble-api', configuration: 'default')
+	implementation project(path: ':bramble-api', configuration: 'default')
+}
+
+dependencyVerification {
+	verify = [
+			'com.google.code.findbugs:jsr305:3.0.2:jsr305-3.0.2.jar:766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7',
+			'com.google.dagger:dagger:2.0.2:dagger-2.0.2.jar:84c0282ed8be73a29e0475d639da030b55dee72369e58dd35ae7d4fe6243dcf9',
+			'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
+	]
 }
 
 // If a Java 6 JRE is available, check we're not using any Java 7 or 8 APIs

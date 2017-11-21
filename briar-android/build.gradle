@@ -2,68 +2,156 @@ apply plugin: 'com.android.application'
 apply plugin: 'witness'
 
 dependencies {
-	compile project(path: ':briar-core', configuration: 'default')
-	compile project(path: ':bramble-core', configuration: 'default')
-	compile project(path: ':bramble-android', configuration: 'default')
+	implementation project(path: ':briar-core', configuration: 'default')
+	implementation project(path: ':bramble-core', configuration: 'default')
+	implementation project(path: ':bramble-android', configuration: 'default')
 
 	def supportVersion = '23.2.1'
-	compile "com.android.support:support-v4:$supportVersion"
-	compile("com.android.support:appcompat-v7:$supportVersion") {
+	implementation "com.android.support:support-v4:$supportVersion"
+	implementation("com.android.support:appcompat-v7:$supportVersion") {
 		exclude module: 'support-v4'
 	}
-	compile("com.android.support:preference-v14:$supportVersion") {
+	implementation("com.android.support:preference-v14:$supportVersion") {
 		exclude module: 'support-v4'
 	}
-	compile("com.android.support:design:$supportVersion") {
+	implementation("com.android.support:design:$supportVersion") {
 		exclude module: 'support-v4'
 		exclude module: 'recyclerview-v7'
 	}
-	compile "com.android.support:cardview-v7:$supportVersion"
-	compile "com.android.support:support-annotations:$supportVersion"
-	compile 'com.android.support.constraint:constraint-layout:1.0.2'
-	compile('ch.acra:acra:4.8.5') {
+	implementation "com.android.support:cardview-v7:$supportVersion"
+	implementation "com.android.support:support-annotations:$supportVersion"
+	implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+
+	implementation('ch.acra:acra:4.8.5') {
 		exclude module: 'support-v4'
 		exclude module: 'support-annotations'
 	}
-
-	compile 'info.guardianproject.panic:panic:0.5'
-	compile 'info.guardianproject.trustedintents:trustedintents:0.2'
-	compile 'de.hdodenhof:circleimageview:2.1.0'
-	compile 'com.google.zxing:core:3.3.0'
-	compile 'com.jpardogo.materialtabstrip:library:1.1.0'
-	compile 'com.github.bumptech.glide:glide:3.8.0'
-	compile 'uk.co.samuelwall:material-tap-target-prompt:1.9.2'
+	implementation 'info.guardianproject.panic:panic:0.5'
+	implementation 'info.guardianproject.trustedintents:trustedintents:0.2'
+	implementation 'de.hdodenhof:circleimageview:2.1.0'
+	implementation 'com.google.zxing:core:3.3.0'
+	implementation 'com.jpardogo.materialtabstrip:library:1.1.0'
+	implementation 'com.github.bumptech.glide:glide:3.8.0'
+	implementation 'uk.co.samuelwall:material-tap-target-prompt:1.9.2'
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
 
-	provided 'javax.annotation:jsr250-api:1.0'
+	compileOnly 'javax.annotation:jsr250-api:1.0'
 
-	testCompile project(path: ':bramble-core', configuration: 'testOutput')
-	testCompile 'org.robolectric:robolectric:3.5.1'
-	testCompile 'org.robolectric:shadows-support-v4:3.0'
-	testCompile 'org.mockito:mockito-core:2.8.9'
+	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
+	testImplementation 'org.robolectric:robolectric:3.5.1'
+	testImplementation 'org.robolectric:shadows-support-v4:3.0'
+	testImplementation 'org.mockito:mockito-core:2.8.9'
+	testImplementation 'junit:junit:4.12'
+	testImplementation "org.jmock:jmock:2.8.2"
+	testImplementation "org.jmock:jmock-junit4:2.8.2"
+	testImplementation "org.jmock:jmock-legacy:2.8.2"
+	testImplementation "org.hamcrest:hamcrest-library:1.3"
+	testImplementation "org.hamcrest:hamcrest-core:1.3"
 }
 
 dependencyVerification {
 	verify = [
-			'ch.acra:acra:afd5b28934d5166b55f261c85685ad59e8a4ebe9ca1960906afaa8c76d8dc9eb',
-			'info.guardianproject.panic:panic:a7ed9439826db2e9901649892cf9afbe76f00991b768d8f4c26332d7c9406cb2',
-			'info.guardianproject.trustedintents:trustedintents:6221456d8821a8d974c2acf86306900237cf6afaaa94a4c9c44e161350f80f3e',
-			'de.hdodenhof:circleimageview:bcbc588e19e6dcf8c120b1957776bfe229efba5d2fbe5da7156372eeacf65503',
-			'com.google.zxing:core:bba7724e02a997cec38213af77133ee8e24b0d5cf5fa7ecbc16a4fa93f11ee0d',
-			'com.jpardogo.materialtabstrip:library:24d19232b319f8c73e25793432357919a7ed972186f57a3b2c9093ea74ad8311',
-			'com.github.bumptech.glide:glide:750d9e7b940dc0ee48f8680623b55d46e14e8727acc922d7b156e57e7c549655',
-			'uk.co.samuelwall:material-tap-target-prompt:5d4951124366bc5c52e57beaa294db7611f0aa2a8d80e0163e1383e1966ba5b2',
-			'com.android.support:appcompat-v7:00f9d93acacd6731f309724054bf51492814b4b2869f16d7d5c0038dcb8c9a0d',
-			'com.android.support:preference-v14:44881bb46094e86d0bc2426f205419674a5b4eb514b44b5a4659b5de29f71eb7',
-			'com.android.support:design:003e0c0bea0a6891f8b2bc43f20ae7af2a49a17363e5bb10df5ee0bae12fa686',
-			'com.android.support:cardview-v7:4595f1c4a28cfa083b6c0920ad4d49e1c2ca4b8302a955e548f68eb63b74931b',
-			'com.android.support:animated-vector-drawable:06d1963b85aa917099d7757e6a7b3e4dc06889413dc747f625ae8683606db3a1',
-			'com.android.support:support-vector-drawable:799bafe4c3de812386f0b291f744d5d6876452722dd40189b9ab87dbbf594ea1',
-			'com.android.support:recyclerview-v7:44040a888e23e0c93162a3377cfe06751080e3c22d369ab0d4301ef60d63b0fe',
-			'com.android.support:preference-v7:775101bd07bd052e455761c5c5d9523d7ad59f2f320e3e8cbde241fd6b1d6025',
-			'com.android.support.constraint:constraint-layout:b0c688cc2b7172608f8153a689d746da40f71e52d7e2fe2bfd9df2f92db77085',
-			'com.android.support.constraint:constraint-layout-solver:8c62525a9bc5cff5633a96cb9b32fffeccaf41b8841aa87fc22607070dea9b8d',
+			'backport-util-concurrent:backport-util-concurrent:3.1:backport-util-concurrent-3.1.jar:f5759b7fcdfc83a525a036deedcbd32e5b536b625ebc282426f16ca137eb5902',
+			'cglib:cglib:3.2.0:cglib-3.2.0.jar:adb13bab79712ad6bdf1bd59f2a3918018a8016e722e8a357065afb9e6690861',
+			'ch.acra:acra:4.8.5:acra-4.8.5.aar:afd5b28934d5166b55f261c85685ad59e8a4ebe9ca1960906afaa8c76d8dc9eb',
+			'classworlds:classworlds:1.1-alpha-2:classworlds-1.1-alpha-2.jar:2bf4e59f3acd106fea6145a9a88fe8956509f8b9c0fdd11eb96fee757269e3f3',
+			'com.almworks.sqlite4java:sqlite4java:0.282:sqlite4java-0.282.jar:9e1d8dd83ca6003f841e3af878ce2dc7c22497493a7bb6d1b62ec1b0d0a83c05',
+			'com.android.support.constraint:constraint-layout-solver:1.0.2:constraint-layout-solver-1.0.2.jar:8c62525a9bc5cff5633a96cb9b32fffeccaf41b8841aa87fc22607070dea9b8d',
+			'com.android.support.constraint:constraint-layout:1.0.2:constraint-layout-1.0.2.aar:b0c688cc2b7172608f8153a689d746da40f71e52d7e2fe2bfd9df2f92db77085',
+			'com.android.support:animated-vector-drawable:23.2.1:animated-vector-drawable-23.2.1.aar:06d1963b85aa917099d7757e6a7b3e4dc06889413dc747f625ae8683606db3a1',
+			'com.android.support:appcompat-v7:23.2.1:appcompat-v7-23.2.1.aar:00f9d93acacd6731f309724054bf51492814b4b2869f16d7d5c0038dcb8c9a0d',
+			'com.android.support:cardview-v7:23.2.1:cardview-v7-23.2.1.aar:4595f1c4a28cfa083b6c0920ad4d49e1c2ca4b8302a955e548f68eb63b74931b',
+			'com.android.support:design:23.2.1:design-23.2.1.aar:003e0c0bea0a6891f8b2bc43f20ae7af2a49a17363e5bb10df5ee0bae12fa686',
+			'com.android.support:preference-v14:23.2.1:preference-v14-23.2.1.aar:44881bb46094e86d0bc2426f205419674a5b4eb514b44b5a4659b5de29f71eb7',
+			'com.android.support:preference-v7:23.2.1:preference-v7-23.2.1.aar:775101bd07bd052e455761c5c5d9523d7ad59f2f320e3e8cbde241fd6b1d6025',
+			'com.android.support:recyclerview-v7:23.2.1:recyclerview-v7-23.2.1.aar:44040a888e23e0c93162a3377cfe06751080e3c22d369ab0d4301ef60d63b0fe',
+			'com.android.support:support-annotations:23.4.0:support-annotations-23.4.0.jar:e91a88dd0c5e99069b7f09d4a46b5e06f1e9c4c72fc0a8e987e25d86af480f01',
+			'com.android.support:support-v4:23.2.1:support-v4-23.2.1.aar:81ce890f26d35c75ad17d0f998a7e3230330c3b41e0b629566bc744bee89e448',
+			'com.android.support:support-vector-drawable:23.2.1:support-vector-drawable-23.2.1.aar:799bafe4c3de812386f0b291f744d5d6876452722dd40189b9ab87dbbf594ea1',
+			'com.github.bumptech.glide:glide:3.8.0:glide-3.8.0.jar:750d9e7b940dc0ee48f8680623b55d46e14e8727acc922d7b156e57e7c549655',
+			'com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:2.1:accessibility-test-framework-2.1.jar:7b0aa6ed7553597ce0610684a9f7eca8021eee218f2e2f427c04a7fbf5f920bd',
+			'com.google.code.findbugs:jsr305:3.0.2:jsr305-3.0.2.jar:766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7',
+			'com.google.dagger:dagger-compiler:2.0.2:dagger-compiler-2.0.2.jar:b74bc9de063dd4c6400b232231f2ef5056145b8fbecbf5382012007dd1c071b3',
+			'com.google.dagger:dagger-producers:2.0-beta:dagger-producers-2.0-beta.jar:99ec15e8a0507ba569e7655bc1165ee5e5ca5aa914b3c8f7e2c2458f724edd6b',
+			'com.google.dagger:dagger:2.0.2:dagger-2.0.2.jar:84c0282ed8be73a29e0475d639da030b55dee72369e58dd35ae7d4fe6243dcf9',
+			'com.google.guava:guava:18.0:guava-18.0.jar:d664fbfc03d2e5ce9cab2a44fb01f1d0bf9dfebeccc1a473b1f9ea31f79f6f99',
+			'com.google.guava:guava:20.0:guava-20.0.jar:36a666e3b71ae7f0f0dca23654b67e086e6c93d192f60ba5dfd5519db6c288c8',
+			'com.google.protobuf:protobuf-java:2.6.1:protobuf-java-2.6.1.jar:55aa554843983f431df5616112cf688d38aa17c132357afd1c109435bfdac4e6',
+			'com.google.zxing:core:3.3.0:core-3.3.0.jar:bba7724e02a997cec38213af77133ee8e24b0d5cf5fa7ecbc16a4fa93f11ee0d',
+			'com.h2database:h2:1.4.192:h2-1.4.192.jar:225b22e9857235c46c93861410b60b8c81c10dc8985f4faf188985ba5445126c',
+			'com.ibm.icu:icu4j:53.1:icu4j-53.1.jar:e37a4467bac5cdeb02c5c4b8e5063d2f4e67b69e3c7df6d6b610f13185572bab',
+			'com.jpardogo.materialtabstrip:library:1.1.0:library-1.1.0.aar:24d19232b319f8c73e25793432357919a7ed972186f57a3b2c9093ea74ad8311',
+			'com.madgag.spongycastle:core:1.58.0.0:core-1.58.0.0.jar:199617dd5698c5a9312b898c0a4cec7ce9dd8649d07f65d91629f58229d72728',
+			'com.rometools:rome-utils:1.7.3:rome-utils-1.7.3.jar:f774a80e7e1bc9db5426b62333ab362537f901636cd0812dc84cb5ee2668acf9',
+			'com.rometools:rome:1.7.3:rome-1.7.3.jar:077367bf8fa01b211c9da712c2aa862724195773c5693fd4d97d61d6457e96c6',
+			'com.squareup.okhttp3:okhttp:3.8.0:okhttp-3.8.0.jar:19e1db51787716ff0046fa19e408fb34ed32a6274baa0c07475bf724b4eb6800',
+			'com.squareup.okio:okio:1.13.0:okio-1.13.0.jar:734269c3ebc5090e3b23566db558f421f0b4027277c79ad5d176b8ec168bb850',
+			'com.thoughtworks.xstream:xstream:1.4.8:xstream-1.4.8.jar:a219a1abf948400b669d08be73a6f9209fb720d237e5ff74c223bffe5f9df93d',
+			'de.hdodenhof:circleimageview:2.1.0:circleimageview-2.1.0.aar:bcbc588e19e6dcf8c120b1957776bfe229efba5d2fbe5da7156372eeacf65503',
+			'info.guardianproject.panic:panic:0.5:panic-0.5.jar:a7ed9439826db2e9901649892cf9afbe76f00991b768d8f4c26332d7c9406cb2',
+			'info.guardianproject.trustedintents:trustedintents:0.2:trustedintents-0.2.jar:6221456d8821a8d974c2acf86306900237cf6afaaa94a4c9c44e161350f80f3e',
+			'javax.annotation:jsr250-api:1.0:jsr250-api-1.0.jar:a1a922d0d9b6d183ed3800dfac01d1e1eb159f0e8c6f94736931c1def54a941f',
+			'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
+			'junit:junit:4.12:junit-4.12.jar:59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a',
+			'nekohtml:nekohtml:1.9.6.2:nekohtml-1.9.6.2.jar:fdff6cfa9ed9cc911c842a5d2395f209ec621ef1239d46810e9e495809d3ae09',
+			'nekohtml:xercesMinimal:1.9.6.2:xercesMinimal-1.9.6.2.jar:95b8b357d19f63797dd7d67622fd3f18374d64acbc6584faba1c7759a31e8438',
+			'net.bytebuddy:byte-buddy-agent:1.6.14:byte-buddy-agent-1.6.14.jar:c141a2d6809c3eeff4a43d25992826abccebdd4b793af3e7a5f346e88ae73a33',
+			'net.bytebuddy:byte-buddy:1.6.14:byte-buddy-1.6.14.jar:917758b3c651e278a15a029ba1d42dbf802d8b0e1fe2aa4b81c5750c64f461c1',
+			'org.apache.ant:ant-launcher:1.9.4:ant-launcher-1.9.4.jar:7bccea20b41801ca17bcbc909a78c835d0f443f12d639c77bd6ae3d05861608d',
+			'org.apache.ant:ant:1.9.4:ant-1.9.4.jar:649ae0730251de07b8913f49286d46bba7b92d47c5f332610aa426c4f02161d8',
+			'org.apache.maven.wagon:wagon-file:1.0-beta-6:wagon-file-1.0-beta-6.jar:7298feeb36ff14dd933c38e62585fb9973fea32fb3c4bc5379428cb1aac5dd3c',
+			'org.apache.maven.wagon:wagon-http-lightweight:1.0-beta-6:wagon-http-lightweight-1.0-beta-6.jar:be214032de23c6b520b79c1ccdb160948e0c67ed7c11984b7ec4ca5537867b4e',
+			'org.apache.maven.wagon:wagon-http-shared:1.0-beta-6:wagon-http-shared-1.0-beta-6.jar:f095c882716d49269a806685dcb256fa6a36389b2713ac56bb758bf8693565a2',
+			'org.apache.maven.wagon:wagon-provider-api:1.0-beta-6:wagon-provider-api-1.0-beta-6.jar:e116f32edcb77067289a3148143f2c0c97b27cf9a1342f8108ee37dec4868861',
+			'org.apache.maven:maven-ant-tasks:2.1.3:maven-ant-tasks-2.1.3.jar:f16b5ea711dfe0323454b880180aa832420ec039936e4aa75fb978748634808a',
+			'org.apache.maven:maven-artifact-manager:2.2.1:maven-artifact-manager-2.2.1.jar:d1e247c4ed3952385fd704ac9db2a222247cfe7d20508b4f3c76b90f857952ed',
+			'org.apache.maven:maven-artifact:2.2.1:maven-artifact-2.2.1.jar:d53062ffe8677a4f5e1ad3a1d1fa37ed600fab39166d39be7ed204635c5f839b',
+			'org.apache.maven:maven-error-diagnostics:2.2.1:maven-error-diagnostics-2.2.1.jar:b3005544708f8583e455c22b09a4940596a057108bccdadb9db4d8e048091fed',
+			'org.apache.maven:maven-model:2.2.1:maven-model-2.2.1.jar:153b32f474fd676ec36ad807c508885005139140fc92168bb76bf6be31f8efb8',
+			'org.apache.maven:maven-plugin-registry:2.2.1:maven-plugin-registry-2.2.1.jar:4ad0673155d7e0e5cf6d13689802d8d507f38e5ea00a6d2fb92aef206108213d',
+			'org.apache.maven:maven-profile:2.2.1:maven-profile-2.2.1.jar:ecaffef655fea6b138f0855a12f7dbb59fc0d6bffb5c1bfd31803cccb49ea08c',
+			'org.apache.maven:maven-project:2.2.1:maven-project-2.2.1.jar:24ddb65b7a6c3befb6267ce5f739f237c84eba99389265c30df67c3dd8396a40',
+			'org.apache.maven:maven-repository-metadata:2.2.1:maven-repository-metadata-2.2.1.jar:5fe283f47b0e7f7d95a4252af3fa7a0db4d8f080cd9df308608c0472b8f168a1',
+			'org.apache.maven:maven-settings:2.2.1:maven-settings-2.2.1.jar:9a9f556713a404e770c9dbdaed7eb086078014c989291960c76fdde6db4192f7',
+			'org.beanshell:bsh:1.3.0:bsh-1.3.0.jar:9b04edc75d19db54f1b4e8b5355e9364384c6cf71eb0a1b9724c159d779879f8',
+			'org.bitlet:weupnp:0.1.4:weupnp-0.1.4.jar:88df7e6504929d00bdb832863761385c68ab92af945b04f0770b126270a444fb',
+			'org.bouncycastle:bcprov-jdk15on:1.52:bcprov-jdk15on-1.52.jar:0dc4d181e4d347893c2ddbd2e6cd5d7287fc651c03648fa64b2341c7366b1773',
+			'org.codehaus.plexus:plexus-container-default:1.0-alpha-9-stable-1:plexus-container-default-1.0-alpha-9-stable-1.jar:7c758612888782ccfe376823aee7cdcc7e0cdafb097f7ef50295a0b0c3a16edf',
+			'org.codehaus.plexus:plexus-interpolation:1.11:plexus-interpolation-1.11.jar:fd9507feb858fa620d1b4aa4b7039fdea1a77e09d3fd28cfbddfff468d9d8c28',
+			'org.codehaus.plexus:plexus-utils:1.5.15:plexus-utils-1.5.15.jar:2ca121831e597b4d8f2cb22d17c5c041fc23a7777ceb6bfbdd4dfb34bbe7d997',
+			'org.hamcrest:hamcrest-core:1.3:hamcrest-core-1.3.jar:66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9',
+			'org.hamcrest:hamcrest-library:1.3:hamcrest-library-1.3.jar:711d64522f9ec410983bd310934296da134be4254a125080a0416ec178dfad1c',
+			'org.jacoco:org.jacoco.agent:0.7.4.201502262128:org.jacoco.agent-0.7.4.201502262128-runtime.jar:e357a0f1d573c2f702a273992b1b6cb661734f66311854efb3778a888515c5b5',
+			'org.jacoco:org.jacoco.agent:0.7.4.201502262128:org.jacoco.agent-0.7.4.201502262128.jar:47b4bec6df11a1118da3953da8b9fa1e7079d6fec857faa1a3cf912e53a6fd4e',
+			'org.jacoco:org.jacoco.ant:0.7.4.201502262128:org.jacoco.ant-0.7.4.201502262128.jar:013ce2a68ba57a3c59215ae0dec4df3498c078062a38c3b94c841fc14450f283',
+			'org.jacoco:org.jacoco.core:0.7.4.201502262128:org.jacoco.core-0.7.4.201502262128.jar:ec4c74554312fac5116350164786f91b35c9e082fa4ea598bfa42b5db05d7abb',
+			'org.jacoco:org.jacoco.report:0.7.4.201502262128:org.jacoco.report-0.7.4.201502262128.jar:7a3554c605e088e7e323b1084656243f0444fa353e2f2dee1f1a4204eb64ff09',
+			'org.jdom:jdom2:2.0.6:jdom2-2.0.6.jar:1345f11ba606d15603d6740551a8c21947c0215640770ec67271fe78bea97cf5',
+			'org.jmock:jmock-junit4:2.8.2:jmock-junit4-2.8.2.jar:f7ee4df4f7bd7b7f1cafad3b99eb74d579f109d5992ff625347352edb55e674c',
+			'org.jmock:jmock-legacy:2.8.2:jmock-legacy-2.8.2.jar:f2b985a5c08a9edb7f37612330c058809da3f6a6d63ce792426ebf8ff0d6d31b',
+			'org.jmock:jmock-testjar:2.8.2:jmock-testjar-2.8.2.jar:8900860f72c474e027cf97fe78dcbf154a1aa7fc62b6845c5fb4e4f3c7bc8760',
+			'org.jmock:jmock:2.8.2:jmock-2.8.2.jar:6c73cb4a2e6dbfb61fd99c9a768539c170ab6568e57846bd60dbf19596b65b16',
+			'org.jsoup:jsoup:1.10.3:jsoup-1.10.3.jar:a0784e793d7f518eb1defb47b428da011cd483c5da32d49c569bf491e4f1579a',
+			'org.mockito:mockito-core:2.8.9:mockito-core-2.8.9.jar:a2bb9b8b40d81bb02ccb84259524c0f4911f73c6577bfc7ddd940b8fc729b6e6',
+			'org.objenesis:objenesis:2.5:objenesis-2.5.jar:293328e1b0d31ed30bb89fca542b6c52fac00989bb0e62eb9d98d630c4dd6b7c',
+			'org.ow2.asm:asm-commons:5.0.1:asm-commons-5.0.1.jar:fb1cb7fa27d892712ced8fbf8d027eb5052ecd3999dba1ba47824357accb40e7',
+			'org.ow2.asm:asm-debug-all:5.0.1:asm-debug-all-5.0.1.jar:4734de5b515a454b0096db6971fb068e5f70e6f10bbee2b3bd2fdfe5d978ed57',
+			'org.ow2.asm:asm-tree:5.0.1:asm-tree-5.0.1.jar:ff2aceed10da9930a44f6c8f81c6372d5e55eb59c4e0ea9d37f77dfd765fa9fa',
+			'org.ow2.asm:asm:5.0.4:asm-5.0.4.jar:896618ed8ae62702521a78bc7be42b7c491a08e6920a15f89a3ecdec31e9a220',
+			'org.robolectric:annotations:3.5.1:annotations-3.5.1.jar:14db0f7d2299c5400ff7764bb37b4fa80306582d8965fdf6999091723e2384ce',
+			'org.robolectric:junit:3.5.1:junit-3.5.1.jar:b2e81b7d5a22755f2ea76aa9bbbd4359d61c4cb9577193ccfbb8f97378ed293b',
+			'org.robolectric:resources:3.5.1:resources-3.5.1.jar:22a5564590c8bfd8df7efb2b0c7d9942b46a0beb59ba38899d59c1270f293b1c',
+			'org.robolectric:robolectric:3.5.1:robolectric-3.5.1.jar:603cf898f93b854f18021fab452aca3fe482368eeb2e720988ae82212ebcf4b6',
+			'org.robolectric:sandbox:3.5.1:sandbox-3.5.1.jar:beff8c3c1e840e0f7f78aadef170f347bae349f098babfc176765f499a4bcbb5',
+			'org.robolectric:shadowapi:3.5.1:shadowapi-3.5.1.jar:6d574f9ae0922791eb8f06979f0010997d4b862c7aec96d485ae797ddfc13278',
+			'org.robolectric:shadows-framework:3.5.1:shadows-framework-3.5.1.jar:597b54cc1a494799d783921c6ac04352f33e94fca8e00f299d4ca192db79e3fc',
+			'org.robolectric:utils:3.5.1:utils-3.5.1.jar:d7d77326867e6d903156ebb18c244819b26aebe3aa82a1c57081081a0b6c4f63',
+			'org.slf4j:slf4j-api:1.7.16:slf4j-api-1.7.16.jar:e56288031f5e60652c06e7bb6e9fa410a61231ab54890f7b708fc6adc4107c5b',
+			'uk.co.samuelwall:material-tap-target-prompt:1.9.2:material-tap-target-prompt-1.9.2.aar:5d4951124366bc5c52e57beaa294db7611f0aa2a8d80e0163e1383e1966ba5b2',
+			'xmlpull:xmlpull:1.1.3.1:xmlpull-1.1.3.1.jar:34e08ee62116071cbb69c0ed70d15a7a5b208d62798c59f2120bb8929324cb63',
+			'xpp3:xpp3_min:1.1.4c:xpp3_min-1.1.4c.jar:bfc90e9e32d0eab1f397fb974b5f150a815188382ac41f372a7149d5bc178008',
 	]
 }
 

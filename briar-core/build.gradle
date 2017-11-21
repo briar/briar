@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -7,30 +7,60 @@ apply plugin: 'idea'
 apply plugin: 'witness'
 
 dependencies {
-	compile project(path: ':briar-api', configuration: 'default')
-	compile 'com.rometools:rome:1.7.3'
-	compile 'org.jdom:jdom2:2.0.6'
-	compile 'com.squareup.okhttp3:okhttp:3.8.0'
-	compile 'org.jsoup:jsoup:1.10.3'
+	implementation project(path: ':briar-api', configuration: 'default')
+	implementation 'com.rometools:rome:1.7.3'
+	implementation 'org.jdom:jdom2:2.0.6'
+	implementation 'com.squareup.okhttp3:okhttp:3.8.0'
+	implementation 'org.jsoup:jsoup:1.10.3'
 
 	apt 'com.google.dagger:dagger-compiler:2.0.2'
 
-	testCompile project(path: ':bramble-core', configuration: 'default')
-	testCompile project(path: ':bramble-core', configuration: 'testOutput')
-	testCompile project(path: ':bramble-api', configuration: 'testOutput')
-	testCompile 'net.jodah:concurrentunit:0.4.2'
+	testImplementation project(path: ':bramble-core', configuration: 'default')
+	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
+	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	testImplementation 'net.jodah:concurrentunit:0.4.2'
+	testImplementation 'junit:junit:4.12'
+	testImplementation "org.jmock:jmock:2.8.2"
+	testImplementation "org.jmock:jmock-junit4:2.8.2"
+	testImplementation "org.jmock:jmock-legacy:2.8.2"
+	testImplementation "org.hamcrest:hamcrest-library:1.3"
+	testImplementation "org.hamcrest:hamcrest-core:1.3"
 
 	testApt 'com.google.dagger:dagger-compiler:2.0.2'
 }
 
 dependencyVerification {
 	verify = [
-			'com.rometools:rome:077367bf8fa01b211c9da712c2aa862724195773c5693fd4d97d61d6457e96c6',
-			'org.jdom:jdom2:1345f11ba606d15603d6740551a8c21947c0215640770ec67271fe78bea97cf5',
-			'com.squareup.okhttp3:okhttp:19e1db51787716ff0046fa19e408fb34ed32a6274baa0c07475bf724b4eb6800',
-			'org.jsoup:jsoup:a0784e793d7f518eb1defb47b428da011cd483c5da32d49c569bf491e4f1579a',
-			'org.slf4j:slf4j-api:e56288031f5e60652c06e7bb6e9fa410a61231ab54890f7b708fc6adc4107c5b',
-			'com.squareup.okio:okio:734269c3ebc5090e3b23566db558f421f0b4027277c79ad5d176b8ec168bb850',
+			'cglib:cglib:3.2.0:cglib-3.2.0.jar:adb13bab79712ad6bdf1bd59f2a3918018a8016e722e8a357065afb9e6690861',
+			'com.google.code.findbugs:jsr305:3.0.2:jsr305-3.0.2.jar:766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7',
+			'com.google.dagger:dagger-compiler:2.0.2:dagger-compiler-2.0.2.jar:b74bc9de063dd4c6400b232231f2ef5056145b8fbecbf5382012007dd1c071b3',
+			'com.google.dagger:dagger-producers:2.0-beta:dagger-producers-2.0-beta.jar:99ec15e8a0507ba569e7655bc1165ee5e5ca5aa914b3c8f7e2c2458f724edd6b',
+			'com.google.dagger:dagger:2.0.2:dagger-2.0.2.jar:84c0282ed8be73a29e0475d639da030b55dee72369e58dd35ae7d4fe6243dcf9',
+			'com.google.guava:guava:18.0:guava-18.0.jar:d664fbfc03d2e5ce9cab2a44fb01f1d0bf9dfebeccc1a473b1f9ea31f79f6f99',
+			'com.h2database:h2:1.4.192:h2-1.4.192.jar:225b22e9857235c46c93861410b60b8c81c10dc8985f4faf188985ba5445126c',
+			'com.madgag.spongycastle:core:1.58.0.0:core-1.58.0.0.jar:199617dd5698c5a9312b898c0a4cec7ce9dd8649d07f65d91629f58229d72728',
+			'com.rometools:rome-utils:1.7.3:rome-utils-1.7.3.jar:f774a80e7e1bc9db5426b62333ab362537f901636cd0812dc84cb5ee2668acf9',
+			'com.rometools:rome:1.7.3:rome-1.7.3.jar:077367bf8fa01b211c9da712c2aa862724195773c5693fd4d97d61d6457e96c6',
+			'com.squareup.okhttp3:okhttp:3.8.0:okhttp-3.8.0.jar:19e1db51787716ff0046fa19e408fb34ed32a6274baa0c07475bf724b4eb6800',
+			'com.squareup.okio:okio:1.13.0:okio-1.13.0.jar:734269c3ebc5090e3b23566db558f421f0b4027277c79ad5d176b8ec168bb850',
+			'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
+			'junit:junit:4.12:junit-4.12.jar:59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a',
+			'net.jodah:concurrentunit:0.4.2:concurrentunit-0.4.2.jar:5583078e1acf91734939e985bc9e7ee947b0e93a8eef679da6bb07bbeb47ced3',
+			'org.apache.ant:ant-launcher:1.9.4:ant-launcher-1.9.4.jar:7bccea20b41801ca17bcbc909a78c835d0f443f12d639c77bd6ae3d05861608d',
+			'org.apache.ant:ant:1.9.4:ant-1.9.4.jar:649ae0730251de07b8913f49286d46bba7b92d47c5f332610aa426c4f02161d8',
+			'org.beanshell:bsh:1.3.0:bsh-1.3.0.jar:9b04edc75d19db54f1b4e8b5355e9364384c6cf71eb0a1b9724c159d779879f8',
+			'org.bitlet:weupnp:0.1.4:weupnp-0.1.4.jar:88df7e6504929d00bdb832863761385c68ab92af945b04f0770b126270a444fb',
+			'org.hamcrest:hamcrest-core:1.3:hamcrest-core-1.3.jar:66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9',
+			'org.hamcrest:hamcrest-library:1.3:hamcrest-library-1.3.jar:711d64522f9ec410983bd310934296da134be4254a125080a0416ec178dfad1c',
+			'org.jdom:jdom2:2.0.6:jdom2-2.0.6.jar:1345f11ba606d15603d6740551a8c21947c0215640770ec67271fe78bea97cf5',
+			'org.jmock:jmock-junit4:2.8.2:jmock-junit4-2.8.2.jar:f7ee4df4f7bd7b7f1cafad3b99eb74d579f109d5992ff625347352edb55e674c',
+			'org.jmock:jmock-legacy:2.8.2:jmock-legacy-2.8.2.jar:f2b985a5c08a9edb7f37612330c058809da3f6a6d63ce792426ebf8ff0d6d31b',
+			'org.jmock:jmock-testjar:2.8.2:jmock-testjar-2.8.2.jar:8900860f72c474e027cf97fe78dcbf154a1aa7fc62b6845c5fb4e4f3c7bc8760',
+			'org.jmock:jmock:2.8.2:jmock-2.8.2.jar:6c73cb4a2e6dbfb61fd99c9a768539c170ab6568e57846bd60dbf19596b65b16',
+			'org.jsoup:jsoup:1.10.3:jsoup-1.10.3.jar:a0784e793d7f518eb1defb47b428da011cd483c5da32d49c569bf491e4f1579a',
+			'org.objenesis:objenesis:2.1:objenesis-2.1.jar:c74330cc6b806c804fd37e74487b4fe5d7c2750c5e15fbc6efa13bdee1bdef80',
+			'org.ow2.asm:asm:5.0.4:asm-5.0.4.jar:896618ed8ae62702521a78bc7be42b7c491a08e6920a15f89a3ecdec31e9a220',
+			'org.slf4j:slf4j-api:1.7.16:slf4j-api-1.7.16.jar:e56288031f5e60652c06e7bb6e9fa410a61231ab54890f7b708fc6adc4107c5b',
 	]
 }
 
