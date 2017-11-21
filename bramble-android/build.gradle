@@ -6,8 +6,8 @@ apply plugin: 'witness'
 apply plugin: 'de.undercouch.download'
 
 android {
-	compileSdkVersion 23
-	buildToolsVersion '25.0.0'
+	compileSdkVersion 26
+	buildToolsVersion '26.0.2'
 
 	defaultConfig {
 		minSdkVersion 14
@@ -18,14 +18,17 @@ android {
 	}
 
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_7
-		targetCompatibility JavaVersion.VERSION_1_7
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
 	}
 }
 
 dependencies {
 	compile project(path: ':bramble-core', configuration: 'default')
 	compile fileTree(dir: 'libs', include: '*.jar')
+
+	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
+
 	provided 'javax.annotation:jsr250-api:1.0'
 }
 

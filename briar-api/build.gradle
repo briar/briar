@@ -1,9 +1,12 @@
 apply plugin: 'java'
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
-
-apply plugin: 'witness'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
 	compile project(path: ':bramble-api', configuration: 'default')
+}
+
+// If a Java 6 JRE is available, check we're not using any Java 7 or 8 APIs
+tasks.withType(JavaCompile) {
+	useJava6StandardLibrary(it)
 }

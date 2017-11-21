@@ -2,9 +2,11 @@ apply plugin: 'com.android.application'
 apply plugin: 'witness'
 
 dependencies {
-	def supportVersion = '23.2.1'
 	compile project(path: ':briar-core', configuration: 'default')
+	compile project(path: ':bramble-core', configuration: 'default')
 	compile project(path: ':bramble-android', configuration: 'default')
+
+	def supportVersion = '23.2.1'
 	compile "com.android.support:support-v4:$supportVersion"
 	compile("com.android.support:appcompat-v7:$supportVersion") {
 		exclude module: 'support-v4'
@@ -23,6 +25,7 @@ dependencies {
 		exclude module: 'support-v4'
 		exclude module: 'support-annotations'
 	}
+
 	compile 'info.guardianproject.panic:panic:0.5'
 	compile 'info.guardianproject.trustedintents:trustedintents:0.2'
 	compile 'de.hdodenhof:circleimageview:2.1.0'
@@ -31,10 +34,12 @@ dependencies {
 	compile 'com.github.bumptech.glide:glide:3.8.0'
 	compile 'uk.co.samuelwall:material-tap-target-prompt:1.9.2'
 
+	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
+
 	provided 'javax.annotation:jsr250-api:1.0'
 
 	testCompile project(path: ':bramble-core', configuration: 'testOutput')
-	testCompile 'org.robolectric:robolectric:3.0'
+	testCompile 'org.robolectric:robolectric:3.5.1'
 	testCompile 'org.robolectric:shadows-support-v4:3.0'
 	testCompile 'org.mockito:mockito-core:2.8.9'
 }
@@ -76,8 +81,8 @@ def getGitHash = { ->
 }
 
 android {
-	compileSdkVersion 23
-	buildToolsVersion '25.0.0'
+	compileSdkVersion 26
+	buildToolsVersion '26.0.2'
 
 	defaultConfig {
 		minSdkVersion 14
@@ -107,8 +112,14 @@ android {
 	}
 
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_7
-		targetCompatibility JavaVersion.VERSION_1_7
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
+
+	testOptions {
+		unitTests {
+			includeAndroidResources = true
+		}
 	}
 
 	aaptOptions {

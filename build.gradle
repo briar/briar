@@ -14,12 +14,40 @@ buildscript {
 	repositories {
 		jcenter()
 		mavenLocal()
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
+		google()
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:2.3.3'
-		classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+		classpath 'com.android.tools.build:gradle:3.0.0'
+		classpath 'net.ltgt.gradle:gradle-apt-plugin:0.9'
 		classpath 'de.undercouch:gradle-download-task:3.2.0'
 		classpath files('libs/gradle-witness.jar')
 	}
+}
+
+// If a Java 6 JRE is available, check we're not using any Java 7 or 8 APIs
+ext.useJava6StandardLibrary = { task ->
+	def home = System.env.JAVA_6_HOME;
+	if (home != null && !home.isEmpty()) {
+		println "Setting Java 6 bootstrap classpath for ${task.name}"
+		task.dependsOn createJavaLangInvokeJar
+		task.options.bootstrapClasspath = files(
+				"${project.rootDir}/build/invoke.jar",
+				"${home}/jre/lib/rt.jar",
+				"${home}/jre/lib/jsse.jar"
+		)
+	}
+}
+
+// Create a jar containing the java.lang.invoke classes for the Java 6 bootstrap classpath
+task createJavaLangInvokeJar(type: Zip) {
+	archiveName 'invoke.jar'
+	destinationDir file("${project.rootDir}/build")
+	from zipTree("${System.getProperty('java.home')}/lib/rt.jar").matching {
+		include 'java/lang/invoke/*'
+	}
+	include '**/*'
 }
