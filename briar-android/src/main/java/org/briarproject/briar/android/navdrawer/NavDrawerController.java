@@ -18,9 +18,7 @@ public interface NavDrawerController extends ActivityLifecycleController {
 
 	void expiryWarningDismissed();
 
-	void askDozeWhitelisting(final Context ctx,
-			final ResultHandler<Boolean> handler);
-
-	void doNotAskAgainForDozeWhiteListing();
+	void shouldAskForDozeWhitelisting(Context ctx,
+			ResultHandler<Boolean> handler);
 
 }

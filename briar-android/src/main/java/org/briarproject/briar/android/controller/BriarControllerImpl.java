@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.CallSuper;
+import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -28,7 +30,7 @@ public class BriarControllerImpl implements BriarController {
 	private static final Logger LOG =
 			Logger.getLogger(BriarControllerImpl.class.getName());
 
-	private static final String HAS_DOZED_ASK_AGAIN = "hasDozedAskAgain";
+	public static final String DOZE_ASK_AGAIN = "dozeAskAgain";
 
 	private final BriarServiceConnection serviceConnection;
 	private final DatabaseConfig databaseConfig;
@@ -38,6 +40,9 @@ public class BriarControllerImpl implements BriarController {
 	private final Activity activity;
 
 	private boolean bound = false;
+
+	@Nullable
+	private volatile BriarService service;
 
 	@Inject
 	BriarControllerImpl(BriarServiceConnection serviceConnection,
@@ -76,6 +81,15 @@ public class BriarControllerImpl implements BriarController {
 		activity.startService(new Intent(activity, BriarService.class));
 		bound = activity.bindService(new Intent(activity, BriarService.class),
 				serviceConnection, 0);
+		if (!bound) throw new IllegalStateException();
+
+		new Thread(() -> {
+			try {
+				service = getBriarService();
+			} catch (InterruptedException e) {
+				LOG.warning("Interrupted while waiting for service");
+			}
+		}).start();
 	}
 
 	@Override
@@ -85,27 +99,19 @@ public class BriarControllerImpl implements BriarController {
 
 	@Override
 	public void hasDozed(ResultHandler<Boolean> handler) {
-		// check this first, to hit the DbThread only when really necessary
-		if (!needsDozeWhitelisting(activity)) {
+		BriarService briarService = service;
+		if (briarService == null || !briarService.hasDozed() ||
+				!needsDozeWhitelisting(activity)) {
 			handler.onResult(false);
 			return;
 		}
+		if (briarService.hasDozed()) briarService.resetDozeFlag();
 		databaseExecutor.execute(() -> {
 			try {
 				Settings settings =
 						settingsManager.getSettings(SETTINGS_NAMESPACE);
-				boolean ask = settings.getBoolean(HAS_DOZED_ASK_AGAIN, true);
-				if (!ask) {
-					handler.onResult(false);
-					return;
-				}
-				IBinder binder = serviceConnection.waitForBinder();
-				BriarService service =
-						((BriarService.BriarBinder) binder).getService();
-				handler.onResult(service.hasDozed());
-				service.resetDozeFlag();
-			} catch (InterruptedException e) {
-				LOG.warning("Interrupted while waiting for service");
+				boolean ask = settings.getBoolean(DOZE_ASK_AGAIN, true);
+				handler.onResult(ask);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, e.toString(), e);
@@ -114,11 +120,11 @@ public class BriarControllerImpl implements BriarController {
 	}
 
 	@Override
-	public void doNotNotifyWhenDozed() {
+	public void doNotAskAgainForDozeWhiteListing() {
 		databaseExecutor.execute(() -> {
 			try {
 				Settings settings = new Settings();
-				settings.putBoolean(HAS_DOZED_ASK_AGAIN, false);
+				settings.putBoolean(DOZE_ASK_AGAIN, false);
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
@@ -131,12 +137,11 @@ public class BriarControllerImpl implements BriarController {
 	public void signOut(ResultHandler<Void> eventHandler) {
 		new Thread() {
 			@Override
+			@SuppressWarnings("ConstantConditions")
 			public void run() {
 				try {
+					if (service == null) service = getBriarService();
 					// Wait for the service to finish starting up
-					IBinder binder = serviceConnection.waitForBinder();
-					BriarService service =
-							((BriarService.BriarBinder) binder).getService();
 					service.waitForStartup();
 					// Shut down the service and wait for it to shut down
 					LOG.info("Shutting down service");
@@ -148,6 +153,12 @@ public class BriarControllerImpl implements BriarController {
 				eventHandler.onResult(null);
 			}
 		}.start();
+	}
+
+	@WorkerThread
+	private BriarService getBriarService() throws InterruptedException {
+		IBinder binder = serviceConnection.waitForBinder();
+		return ((BriarService.BriarBinder) binder).getService();
 	}
 
 	private void unbindService() {

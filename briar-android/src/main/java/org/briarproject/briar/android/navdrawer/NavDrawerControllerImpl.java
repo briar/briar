@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.BriarApplication.EXPIRY_DATE;
+import static org.briarproject.briar.android.controller.BriarControllerImpl.DOZE_ASK_AGAIN;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.SHOW;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
@@ -44,7 +45,6 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 			Logger.getLogger(NavDrawerControllerImpl.class.getName());
 	private static final String EXPIRY_DATE_WARNING = "expiryDateWarning";
 	private static final String EXPIRY_SHOW_UPDATE = "expiryShowUpdate";
-	private static final String DOZE_ASK_AGAIN = "dozeAskAgain";
 
 	private final PluginManager pluginManager;
 	private final SettingsManager settingsManager;
@@ -158,7 +158,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void askDozeWhitelisting(Context ctx,
+	public void shouldAskForDozeWhitelisting(Context ctx,
 			ResultHandler<Boolean> handler) {
 		// check this first, to hit the DbThread only when really necessary
 		if (!needsDozeWhitelisting(ctx)) {
@@ -175,20 +175,6 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, e.toString(), e);
 				handler.onResult(true);
-			}
-		});
-	}
-
-	@Override
-	public void doNotAskAgainForDozeWhiteListing() {
-		runOnDbThread(() -> {
-			try {
-				Settings settings = new Settings();
-				settings.putBoolean(DOZE_ASK_AGAIN, false);
-				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}

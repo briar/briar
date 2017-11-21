@@ -68,7 +68,10 @@ public abstract class BriarActivity extends BaseActivity {
 			briarController.hasDozed(new UiResultHandler<Boolean>(this) {
 				@Override
 				public void onResultUi(Boolean result) {
-					if (result) showDozeDialog();
+					if (result) {
+						showDozeDialog(getString(R.string.warning_dozed,
+								getString(R.string.app_name)));
+					}
 				}
 			});
 		}
@@ -109,11 +112,10 @@ public abstract class BriarActivity extends BaseActivity {
 		return toolbar;
 	}
 
-	private void showDozeDialog() {
+	protected void showDozeDialog(String message) {
 		AlertDialog.Builder b =
 				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
-		b.setMessage(getString(R.string.warning_dozed,
-				getString(R.string.app_name)));
+		b.setMessage(message);
 		b.setView(R.layout.checkbox);
 		b.setPositiveButton(R.string.fix,
 				(dialog, which) -> {
@@ -127,7 +129,7 @@ public abstract class BriarActivity extends BaseActivity {
 			CheckBox checkBox = (CheckBox) ((AlertDialog) dialog)
 					.findViewById(R.id.checkbox);
 			if (checkBox.isChecked())
-				briarController.doNotNotifyWhenDozed();
+				briarController.doNotAskAgainForDozeWhiteListing();
 		});
 		b.show();
 	}

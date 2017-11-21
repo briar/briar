@@ -14,7 +14,7 @@ public interface BriarController extends ActivityLifecycleController {
 	 */
 	void hasDozed(ResultHandler<Boolean> handler);
 
-	void doNotNotifyWhenDozed();
+	void doNotAskAgainForDozeWhiteListing();
 
 	void signOut(ResultHandler<Void> eventHandler);
 }

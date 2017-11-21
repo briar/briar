@@ -54,7 +54,6 @@ public class BriarService extends Service {
 	private final Binder binder = new BriarBinder();
 	@Nullable
 	private BriarBroadcastReceiver receiver = null;
-	private boolean hasDozed = false;
 
 	@Inject
 	protected DatabaseConfig databaseConfig;
@@ -63,7 +62,7 @@ public class BriarService extends Service {
 	protected volatile LifecycleManager lifecycleManager;
 	@Inject
 	protected volatile AndroidExecutor androidExecutor;
-	private volatile boolean started = false;
+	private volatile boolean started = false, hasDozed = false;
 
 	@Override
 	public void onCreate() {
@@ -185,7 +184,7 @@ public class BriarService extends Service {
 	private void registerBroadcastReceiver() {
 		if (SDK_INT < 23) return;
 		IntentFilter filter = new IntentFilter(ACTION_DEVICE_IDLE_MODE_CHANGED);
-		if (receiver == null) receiver = new BriarBroadcastReceiver();
+		receiver = new BriarBroadcastReceiver();
 		registerReceiver(receiver, filter);
 	}
 
