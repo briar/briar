@@ -120,18 +120,18 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 
 	private DatabaseComponent createDatabaseComponent(Database<Object> database,
 			EventBus eventBus, ShutdownManager shutdown) {
-		return new DatabaseComponentImpl<Object>(database, Object.class,
-				eventBus, shutdown);
+		return new DatabaseComponentImpl<>(database, Object.class, eventBus,
+				shutdown);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testSimpleCalls() throws Exception {
-		final int shutdownHandle = 12345;
+		int shutdownHandle = 12345;
 		Mockery context = new Mockery();
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// open()
 			oneOf(database).open();
@@ -230,9 +230,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -260,9 +260,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 	public void testAddLocalMessage() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -303,9 +303,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
 			exactly(18).of(database).startTransaction();
@@ -509,9 +509,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the pseudonym is in the DB (which it's not)
 			exactly(3).of(database).startTransaction();
@@ -561,9 +561,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the group is in the DB (which it's not)
 			exactly(8).of(database).startTransaction();
@@ -666,9 +666,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// Check whether the message is in the DB (which it's not)
 			exactly(11).of(database).startTransaction();
@@ -801,9 +801,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// startTransaction()
 			oneOf(database).startTransaction();
@@ -896,13 +896,13 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 
 	@Test
 	public void testGenerateAck() throws Exception {
-		final Collection<MessageId> messagesToAck = Arrays.asList(messageId,
+		Collection<MessageId> messagesToAck = Arrays.asList(messageId,
 				messageId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -931,14 +931,14 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 
 	@Test
 	public void testGenerateBatch() throws Exception {
-		final byte[] raw1 = new byte[size];
-		final Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
-		final Collection<byte[]> messages = Arrays.asList(raw, raw1);
+		byte[] raw1 = new byte[size];
+		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
+		Collection<byte[]> messages = Arrays.asList(raw, raw1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -975,13 +975,13 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 
 	@Test
 	public void testGenerateOffer() throws Exception {
-		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		final Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1013,13 +1013,13 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 
 	@Test
 	public void testGenerateRequest() throws Exception {
-		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		final Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1048,14 +1048,14 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 
 	@Test
 	public void testGenerateRequestedBatch() throws Exception {
-		final byte[] raw1 = new byte[size];
-		final Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
-		final Collection<byte[]> messages = Arrays.asList(raw, raw1);
+		byte[] raw1 = new byte[size];
+		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
+		Collection<byte[]> messages = Arrays.asList(raw, raw1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1095,9 +1095,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 	public void testReceiveAck() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1128,9 +1128,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 	public void testReceiveMessage() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1183,9 +1183,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 	public void testReceiveDuplicateMessage() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1220,9 +1220,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 	public void testReceiveMessageWithoutVisibleGroup() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1248,14 +1248,14 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 
 	@Test
 	public void testReceiveOffer() throws Exception {
-		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
-		final MessageId messageId3 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId3 = new MessageId(TestUtils.getRandomId());
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1304,9 +1304,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 	public void testReceiveRequest() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1338,9 +1338,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 	public void testChangingVisibilityCallsListeners() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1379,9 +1379,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1409,14 +1409,14 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 
 	@Test
 	public void testTransportKeys() throws Exception {
-		final TransportKeys transportKeys = createTransportKeys();
-		final Map<ContactId, TransportKeys> keys = Collections.singletonMap(
+		TransportKeys transportKeys = createTransportKeys();
+		Map<ContactId, TransportKeys> keys = Collections.singletonMap(
 				contactId, transportKeys);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// startTransaction()
 			oneOf(database).startTransaction();
@@ -1472,19 +1472,19 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 
 	@Test
 	public void testMergeSettings() throws Exception {
-		final Settings before = new Settings();
+		Settings before = new Settings();
 		before.put("foo", "bar");
 		before.put("baz", "bam");
-		final Settings update = new Settings();
+		Settings update = new Settings();
 		update.put("baz", "qux");
-		final Settings merged = new Settings();
+		Settings merged = new Settings();
 		merged.put("foo", "bar");
 		merged.put("baz", "qux");
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			// startTransaction()
 			oneOf(database).startTransaction();
@@ -1547,9 +1547,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
@@ -1572,9 +1572,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 	public void testCannotAddLocalIdentityAsContact() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
@@ -1607,9 +1607,9 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 	public void testCannotAddDuplicateContact() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
 
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
@@ -1643,12 +1643,12 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testMessageDependencies() throws Exception {
-		final int shutdownHandle = 12345;
+		int shutdownHandle = 12345;
 		Mockery context = new Mockery();
-		final Database<Object> database = context.mock(Database.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final EventBus eventBus = context.mock(EventBus.class);
-		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		Database<Object> database = context.mock(Database.class);
+		ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		EventBus eventBus = context.mock(EventBus.class);
+		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
 		context.checking(new Expectations() {{
 			// open()
 			oneOf(database).open();
@@ -1703,7 +1703,7 @@ public class DatabaseComponentImplTest extends BrambleTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			db.addLocalMessage(transaction, message, metadata, true);
-			Collection<MessageId> dependencies = new ArrayList<MessageId>(2);
+			Collection<MessageId> dependencies = new ArrayList<>(2);
 			dependencies.add(messageId1);
 			dependencies.add(messageId2);
 			db.addMessageDependencies(transaction, message, dependencies);

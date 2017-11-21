@@ -118,55 +118,47 @@ public class IntroductionMessageFragment extends BaseFragment
 		return TAG;
 	}
 
-	private void prepareToSetUpViews(final int contactId1,
-			final int contactId2) {
-		introductionActivity.runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Contact c1 = contactManager.getContact(
-							new ContactId(contactId1));
-					Contact c2 = contactManager.getContact(
-							new ContactId(contactId2));
-					setUpViews(c1, c2);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+	private void prepareToSetUpViews(int contactId1, int contactId2) {
+		introductionActivity.runOnDbThread(() -> {
+			try {
+				Contact c1 = contactManager.getContact(
+						new ContactId(contactId1));
+				Contact c2 = contactManager.getContact(
+						new ContactId(contactId2));
+				setUpViews(c1, c2);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void setUpViews(final Contact c1, final Contact c2) {
-		introductionActivity.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				contact1 = c1;
-				contact2 = c2;
+	private void setUpViews(Contact c1, Contact c2) {
+		introductionActivity.runOnUiThreadUnlessDestroyed(() -> {
+			contact1 = c1;
+			contact2 = c2;
 
-				// set avatars
-				ui.avatar1.setImageDrawable(new IdenticonDrawable(
-						c1.getAuthor().getId().getBytes()));
-				ui.avatar2.setImageDrawable(new IdenticonDrawable(
-						c2.getAuthor().getId().getBytes()));
+			// set avatars
+			ui.avatar1.setImageDrawable(new IdenticonDrawable(
+					c1.getAuthor().getId().getBytes()));
+			ui.avatar2.setImageDrawable(new IdenticonDrawable(
+					c2.getAuthor().getId().getBytes()));
 
-				// set contact names
-				ui.contactName1.setText(c1.getAuthor().getName());
-				ui.contactName2.setText(c2.getAuthor().getName());
+			// set contact names
+			ui.contactName1.setText(c1.getAuthor().getName());
+			ui.contactName2.setText(c2.getAuthor().getName());
 
-				// set button action
-				ui.message.setListener(IntroductionMessageFragment.this);
+			// set button action
+			ui.message.setListener(IntroductionMessageFragment.this);
 
-				// hide progress bar and show views
-				ui.progressBar.setVisibility(GONE);
-				ui.message.setSendButtonEnabled(true);
-				ui.message.showSoftKeyboard();
-			}
+			// hide progress bar and show views
+			ui.progressBar.setVisibility(GONE);
+			ui.message.setSendButtonEnabled(true);
+			ui.message.showSoftKeyboard();
 		});
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				introductionActivity.hideSoftKeyboard(ui.message);
@@ -192,33 +184,23 @@ public class IntroductionMessageFragment extends BaseFragment
 		introductionActivity.supportFinishAfterTransition();
 	}
 
-	private void makeIntroduction(final Contact c1, final Contact c2,
-			final String msg) {
-		introductionActivity.runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				// actually make the introduction
-				try {
-					long timestamp = System.currentTimeMillis();
-					introductionManager.makeIntroduction(c1, c2, msg,
-							timestamp);
-				} catch (DbException | FormatException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					introductionError();
-				}
+	private void makeIntroduction(Contact c1, Contact c2, String msg) {
+		introductionActivity.runOnDbThread(() -> {
+			// actually make the introduction
+			try {
+				long timestamp = System.currentTimeMillis();
+				introductionManager.makeIntroduction(c1, c2, msg, timestamp);
+			} catch (DbException | FormatException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				introductionError();
 			}
 		});
 	}
 
 	private void introductionError() {
-		introductionActivity.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				Toast.makeText(introductionActivity,
-						R.string.introduction_error, LENGTH_SHORT).show();
-			}
-		});
+		introductionActivity.runOnUiThreadUnlessDestroyed(
+				() -> Toast.makeText(introductionActivity,
+						R.string.introduction_error, LENGTH_SHORT).show());
 	}
 
 	private static class ViewHolder {

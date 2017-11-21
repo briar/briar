@@ -78,7 +78,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case android.R.id.home:
@@ -100,33 +100,25 @@ abstract class SharingStatusActivity extends BriarActivity {
 	}
 
 	private void loadSharedWith() {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					List<ContactItem> contactItems = new ArrayList<>();
-					for (Contact c : getSharedWith()) {
-						boolean online =
-								connectionRegistry.isConnected(c.getId());
-						ContactItem item = new ContactItem(c, online);
-						contactItems.add(item);
-					}
-					displaySharedWith(contactItems);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
+		runOnDbThread(() -> {
+			try {
+				List<ContactItem> contactItems = new ArrayList<>();
+				for (Contact c : getSharedWith()) {
+					boolean online = connectionRegistry.isConnected(c.getId());
+					ContactItem item = new ContactItem(c, online);
+					contactItems.add(item);
 				}
+				displaySharedWith(contactItems);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void displaySharedWith(final List<ContactItem> contacts) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				if (contacts.isEmpty()) list.showData();
-				else adapter.addAll(contacts);
-			}
+	private void displaySharedWith(List<ContactItem> contacts) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			if (contacts.isEmpty()) list.showData();
+			else adapter.addAll(contacts);
 		});
 	}
 

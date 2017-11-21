@@ -25,21 +25,19 @@ public interface IntroductionManager extends ConversationClient {
 	 * Sends two initial introduction messages.
 	 */
 	void makeIntroduction(Contact c1, Contact c2, @Nullable String msg,
-			final long timestamp) throws DbException, FormatException;
+			long timestamp) throws DbException, FormatException;
 
 	/**
 	 * Accepts an introduction.
 	 */
-	void acceptIntroduction(final ContactId contactId,
-			final SessionId sessionId, final long timestamp)
-			throws DbException, FormatException;
+	void acceptIntroduction(ContactId contactId, SessionId sessionId,
+			long timestamp) throws DbException, FormatException;
 
 	/**
 	 * Declines an introduction.
 	 */
-	void declineIntroduction(final ContactId contactId,
-			final SessionId sessionId, final long timestamp)
-			throws DbException, FormatException;
+	void declineIntroduction(ContactId contactId, SessionId sessionId,
+			long timestamp) throws DbException, FormatException;
 
 	/**
 	 * Returns all introduction messages for the given contact.

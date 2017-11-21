@@ -63,9 +63,9 @@ class LifecycleManagerImpl implements LifecycleManager {
 		this.crypto = crypto;
 		this.authorFactory = authorFactory;
 		this.identityManager = identityManager;
-		services = new CopyOnWriteArrayList<Service>();
-		clients = new CopyOnWriteArrayList<Client>();
-		executors = new CopyOnWriteArrayList<ExecutorService>();
+		services = new CopyOnWriteArrayList<>();
+		clients = new CopyOnWriteArrayList<>();
+		executors = new CopyOnWriteArrayList<>();
 	}
 
 	@Override
@@ -88,7 +88,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 		executors.add(e);
 	}
 
-	private LocalAuthor createLocalAuthor(final String nickname) {
+	private LocalAuthor createLocalAuthor(String nickname) {
 		long now = System.currentTimeMillis();
 		KeyPair keyPair = crypto.generateSignatureKeyPair();
 		byte[] publicKey = keyPair.getPublic().getEncoded();
@@ -203,9 +203,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Closing database took " + duration + " ms");
 			shutdownLatch.countDown();
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (ServiceException e) {
+		} catch (DbException | ServiceException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {
 			startStopSemaphore.release();

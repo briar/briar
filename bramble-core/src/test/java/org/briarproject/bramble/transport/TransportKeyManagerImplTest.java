@@ -56,21 +56,20 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 	@Test
 	public void testKeysAreRotatedAtStartup() throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Executor dbExecutor = context.mock(Executor.class);
-		final ScheduledExecutorService scheduler =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		CryptoComponent crypto = context.mock(CryptoComponent.class);
+		Executor dbExecutor = context.mock(Executor.class);
+		ScheduledExecutorService scheduler =
 				context.mock(ScheduledExecutorService.class);
-		final Clock clock = context.mock(Clock.class);
+		Clock clock = context.mock(Clock.class);
 
-		final Map<ContactId, TransportKeys> loaded =
-				new LinkedHashMap<ContactId, TransportKeys>();
-		final TransportKeys shouldRotate = createTransportKeys(900, 0);
-		final TransportKeys shouldNotRotate = createTransportKeys(1000, 0);
+		Map<ContactId, TransportKeys> loaded = new LinkedHashMap<>();
+		TransportKeys shouldRotate = createTransportKeys(900, 0);
+		TransportKeys shouldNotRotate = createTransportKeys(1000, 0);
 		loaded.put(contactId, shouldRotate);
 		loaded.put(contactId1, shouldNotRotate);
-		final TransportKeys rotated = createTransportKeys(1000, 0);
-		final Transaction txn = new Transaction(null, false);
+		TransportKeys rotated = createTransportKeys(1000, 0);
+		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// Get the current time (1 ms after start of rotation period 1000)
@@ -109,17 +108,17 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 	@Test
 	public void testKeysAreRotatedWhenAddingContact() throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Executor dbExecutor = context.mock(Executor.class);
-		final ScheduledExecutorService scheduler =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		CryptoComponent crypto = context.mock(CryptoComponent.class);
+		Executor dbExecutor = context.mock(Executor.class);
+		ScheduledExecutorService scheduler =
 				context.mock(ScheduledExecutorService.class);
-		final Clock clock = context.mock(Clock.class);
+		Clock clock = context.mock(Clock.class);
 
-		final boolean alice = true;
-		final TransportKeys transportKeys = createTransportKeys(999, 0);
-		final TransportKeys rotated = createTransportKeys(1000, 0);
-		final Transaction txn = new Transaction(null, false);
+		boolean alice = true;
+		TransportKeys transportKeys = createTransportKeys(999, 0);
+		TransportKeys rotated = createTransportKeys(1000, 0);
+		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 999,
@@ -156,14 +155,14 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 	public void testOutgoingStreamContextIsNullIfContactIsNotFound()
 			throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Executor dbExecutor = context.mock(Executor.class);
-		final ScheduledExecutorService scheduler =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		CryptoComponent crypto = context.mock(CryptoComponent.class);
+		Executor dbExecutor = context.mock(Executor.class);
+		ScheduledExecutorService scheduler =
 				context.mock(ScheduledExecutorService.class);
-		final Clock clock = context.mock(Clock.class);
+		Clock clock = context.mock(Clock.class);
 
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 
 		TransportKeyManager
 				transportKeyManager = new TransportKeyManagerImpl(db,
@@ -177,18 +176,18 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 	public void testOutgoingStreamContextIsNullIfStreamCounterIsExhausted()
 			throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Executor dbExecutor = context.mock(Executor.class);
-		final ScheduledExecutorService scheduler =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		CryptoComponent crypto = context.mock(CryptoComponent.class);
+		Executor dbExecutor = context.mock(Executor.class);
+		ScheduledExecutorService scheduler =
 				context.mock(ScheduledExecutorService.class);
-		final Clock clock = context.mock(Clock.class);
+		Clock clock = context.mock(Clock.class);
 
-		final boolean alice = true;
+		boolean alice = true;
 		// The stream counter has been exhausted
-		final TransportKeys transportKeys = createTransportKeys(1000,
+		TransportKeys transportKeys = createTransportKeys(1000,
 				MAX_32_BIT_UNSIGNED + 1);
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 1000,
@@ -225,18 +224,18 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 	@Test
 	public void testOutgoingStreamCounterIsIncremented() throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Executor dbExecutor = context.mock(Executor.class);
-		final ScheduledExecutorService scheduler =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		CryptoComponent crypto = context.mock(CryptoComponent.class);
+		Executor dbExecutor = context.mock(Executor.class);
+		ScheduledExecutorService scheduler =
 				context.mock(ScheduledExecutorService.class);
-		final Clock clock = context.mock(Clock.class);
+		Clock clock = context.mock(Clock.class);
 
-		final boolean alice = true;
+		boolean alice = true;
 		// The stream counter can be used one more time before being exhausted
-		final TransportKeys transportKeys = createTransportKeys(1000,
+		TransportKeys transportKeys = createTransportKeys(1000,
 				MAX_32_BIT_UNSIGNED);
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 1000,
@@ -286,16 +285,16 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 	public void testIncomingStreamContextIsNullIfTagIsNotFound()
 			throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Executor dbExecutor = context.mock(Executor.class);
-		final ScheduledExecutorService scheduler =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		CryptoComponent crypto = context.mock(CryptoComponent.class);
+		Executor dbExecutor = context.mock(Executor.class);
+		ScheduledExecutorService scheduler =
 				context.mock(ScheduledExecutorService.class);
-		final Clock clock = context.mock(Clock.class);
+		Clock clock = context.mock(Clock.class);
 
-		final boolean alice = true;
-		final TransportKeys transportKeys = createTransportKeys(1000, 0);
-		final Transaction txn = new Transaction(null, false);
+		boolean alice = true;
+		TransportKeys transportKeys = createTransportKeys(1000, 0);
+		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 1000,
@@ -333,18 +332,18 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 	@Test
 	public void testTagIsNotRecognisedTwice() throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Executor dbExecutor = context.mock(Executor.class);
-		final ScheduledExecutorService scheduler =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		CryptoComponent crypto = context.mock(CryptoComponent.class);
+		Executor dbExecutor = context.mock(Executor.class);
+		ScheduledExecutorService scheduler =
 				context.mock(ScheduledExecutorService.class);
-		final Clock clock = context.mock(Clock.class);
+		Clock clock = context.mock(Clock.class);
 
-		final boolean alice = true;
-		final TransportKeys transportKeys = createTransportKeys(1000, 0);
+		boolean alice = true;
+		TransportKeys transportKeys = createTransportKeys(1000, 0);
 		// Keep a copy of the tags
-		final List<byte[]> tags = new ArrayList<byte[]>();
-		final Transaction txn = new Transaction(null, false);
+		List<byte[]> tags = new ArrayList<>();
+		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 1000,
@@ -403,19 +402,19 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 	@Test
 	public void testKeysAreRotatedToCurrentPeriod() throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Executor dbExecutor = context.mock(Executor.class);
-		final ScheduledExecutorService scheduler =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		CryptoComponent crypto = context.mock(CryptoComponent.class);
+		Executor dbExecutor = context.mock(Executor.class);
+		ScheduledExecutorService scheduler =
 				context.mock(ScheduledExecutorService.class);
-		final Clock clock = context.mock(Clock.class);
+		Clock clock = context.mock(Clock.class);
 
-		final TransportKeys transportKeys = createTransportKeys(1000, 0);
-		final Map<ContactId, TransportKeys> loaded =
+		TransportKeys transportKeys = createTransportKeys(1000, 0);
+		Map<ContactId, TransportKeys> loaded =
 				Collections.singletonMap(contactId, transportKeys);
-		final TransportKeys rotated = createTransportKeys(1001, 0);
-		final Transaction txn = new Transaction(null, false);
-		final Transaction txn1 = new Transaction(null, false);
+		TransportKeys rotated = createTransportKeys(1001, 0);
+		Transaction txn = new Transaction(null, false);
+		Transaction txn1 = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// Get the current time (the start of rotation period 1000)

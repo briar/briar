@@ -45,7 +45,7 @@ public class Transaction {
 	 * committed.
 	 */
 	public void attach(Event e) {
-		if (events == null) events = new ArrayList<Event>();
+		if (events == null) events = new ArrayList<>();
 		events.add(e);
 	}
 

@@ -17,13 +17,8 @@ public abstract class UiResultExceptionHandler<R, E extends Exception>
 	}
 
 	@Override
-	public void onResult(final R result) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				onResultUi(result);
-			}
-		});
+	public void onResult(R result) {
+		listener.runOnUiThreadUnlessDestroyed(() -> onResultUi(result));
 	}
 
 	@UiThread

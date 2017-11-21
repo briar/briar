@@ -519,9 +519,7 @@ class IntroduceeManager {
 		try {
 			processStateUpdate(txn, null,
 					engine.onLocalAction(state, localAction));
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (IOException e) {
+		} catch (DbException | IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
@@ -539,8 +537,7 @@ class IntroduceeManager {
 	private Map<TransportId, TransportProperties> parseTransportProperties(
 			BdfDictionary d) throws FormatException {
 
-		Map<TransportId, TransportProperties> tpMap =
-				new HashMap<TransportId, TransportProperties>();
+		Map<TransportId, TransportProperties> tpMap = new HashMap<>();
 		BdfDictionary tpMapDict = d.getDictionary(TRANSPORT);
 		for (String key : tpMapDict.keySet()) {
 			TransportId transportId = new TransportId(key);

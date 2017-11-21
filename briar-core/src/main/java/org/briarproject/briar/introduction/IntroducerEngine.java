@@ -102,7 +102,7 @@ class IntroducerEngine
 			localState.put(STATE, nextState.getValue());
 			if (action == LOCAL_REQUEST) {
 				// create the introduction requests for both contacts
-				List<BdfDictionary> messages = new ArrayList<BdfDictionary>(2);
+				List<BdfDictionary> messages = new ArrayList<>(2);
 				BdfDictionary msg1 = new BdfDictionary();
 				msg1.put(TYPE, TYPE_REQUEST);
 				msg1.put(SESSION_ID, localState.getRaw(SESSION_ID));
@@ -129,8 +129,7 @@ class IntroducerEngine
 				logLocalAction(currentState, localState);
 
 				List<Event> events = Collections.emptyList();
-				return new StateUpdate<BdfDictionary, BdfDictionary>(false,
-						false,
+				return new StateUpdate<>(false, false,
 						localState, messages, events);
 			} else {
 				throw new IllegalArgumentException("Unknown Local Action");
@@ -206,7 +205,7 @@ class IntroducerEngine
 			} else {
 				throw new IllegalArgumentException("Bad state");
 			}
-			return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
+			return new StateUpdate<>(false, false,
 					localState, messages, events);
 		} catch (FormatException e) {
 			throw new IllegalArgumentException(e);
@@ -334,7 +333,7 @@ class IntroducerEngine
 					currentState.name());
 
 		localState.put(STATE, ERROR.getValue());
-		List<BdfDictionary> messages = new ArrayList<BdfDictionary>(2);
+		List<BdfDictionary> messages = new ArrayList<>(2);
 		BdfDictionary msg1 = new BdfDictionary();
 		msg1.put(TYPE, TYPE_ABORT);
 		msg1.put(SESSION_ID, localState.getRaw(SESSION_ID));
@@ -347,7 +346,7 @@ class IntroducerEngine
 		messages.add(msg2);
 
 		// send one abort event per contact
-		List<Event> events = new ArrayList<Event>(2);
+		List<Event> events = new ArrayList<>(2);
 		SessionId sessionId = new SessionId(localState.getRaw(SESSION_ID));
 		ContactId contactId1 =
 				new ContactId(localState.getLong(CONTACT_ID_1).intValue());
@@ -358,15 +357,14 @@ class IntroducerEngine
 		Event event2 = new IntroductionAbortedEvent(contactId2, sessionId);
 		events.add(event2);
 
-		return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
-				localState, messages, events);
+		return new StateUpdate<>(false, false, localState, messages, events);
 	}
 
 	private StateUpdate<BdfDictionary, BdfDictionary> noUpdate(
 			BdfDictionary localState) throws FormatException {
 
-		return new StateUpdate<BdfDictionary, BdfDictionary>(false, false,
-				localState, Collections.<BdfDictionary>emptyList(),
-				Collections.<Event>emptyList());
+		return new StateUpdate<>(false, false, localState,
+				Collections.<BdfDictionary>emptyList(),
+				Collections.emptyList());
 	}
 }

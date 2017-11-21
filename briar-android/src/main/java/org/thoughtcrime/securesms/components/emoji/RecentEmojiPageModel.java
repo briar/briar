@@ -109,18 +109,14 @@ public class RecentEmojiPageModel implements EmojiPageModel {
 		return result;
 	}
 
-	private void save(final String serialized) {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				Settings settings = new Settings();
-				settings.put(EMOJI_LRU_PREFERENCE, serialized);
-				try {
-					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+	private void save(String serialized) {
+		dbExecutor.execute(() -> {
+			Settings settings = new Settings();
+			settings.put(EMOJI_LRU_PREFERENCE, serialized);
+			try {
+				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}

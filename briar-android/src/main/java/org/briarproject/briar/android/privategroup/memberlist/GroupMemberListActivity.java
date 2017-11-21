@@ -38,7 +38,7 @@ public class GroupMemberListActivity extends BriarActivity {
 	}
 
 	@Override
-	public void onCreate(@Nullable final Bundle state) {
+	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
 		setContentView(R.layout.activity_sharing_status);

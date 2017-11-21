@@ -19,17 +19,12 @@ import javax.annotation.concurrent.ThreadSafe;
 public class MessageTreeImpl<T extends MessageTree.MessageNode>
 		implements MessageTree<T> {
 
-	private final Map<MessageId, List<T>> nodeMap =
-			new HashMap<MessageId, List<T>>();
-	private final List<T> roots = new ArrayList<T>();
-	private final List<List<T>> unsortedLists = new ArrayList<List<T>>();
+	private final Map<MessageId, List<T>> nodeMap = new HashMap<>();
+	private final List<T> roots = new ArrayList<>();
+	private final List<List<T>> unsortedLists = new ArrayList<>();
 
-	private Comparator<T> comparator = new Comparator<T>() {
-		@Override
-		public int compare(T o1, T o2) {
-			return Long.valueOf(o1.getTimestamp()).compareTo(o2.getTimestamp());
-		}
-	};
+	private Comparator<T> comparator = (o1, o2) ->
+			Long.valueOf(o1.getTimestamp()).compareTo(o2.getTimestamp());
 
 	@Override
 	public synchronized void clear() {
@@ -41,7 +36,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	public synchronized void add(Collection<T> nodes) {
 		// add all nodes to the node map
 		for (T node : nodes) {
-			nodeMap.put(node.getId(), new ArrayList<T>());
+			nodeMap.put(node.getId(), new ArrayList<>());
 		}
 		// parse the nodes for dependencies
 		for (T node : nodes) {
@@ -100,7 +95,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 
 	@Override
 	public synchronized Collection<T> depthFirstOrder() {
-		List<T> orderedList = new ArrayList<T>();
+		List<T> orderedList = new ArrayList<>();
 		for (T root : roots) {
 			traverse(orderedList, root, 0);
 		}

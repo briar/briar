@@ -166,12 +166,12 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 
 	@Test
 	public void testAcceptsMinLengthAuthorName() throws Exception {
-		final String shortAuthorName = StringUtils.getRandomString(1);
+		String shortAuthorName = StringUtils.getRandomString(1);
 		BdfList shortNameAuthorList =
 				BdfList.of(shortAuthorName, authorPublicKey);
-		final Author shortNameAuthor =
+		Author shortNameAuthor =
 				new Author(authorId, shortAuthorName, authorPublicKey);
-		final BdfList signedWithShortNameAuthor = BdfList.of(groupId, timestamp,
+		BdfList signedWithShortNameAuthor = BdfList.of(groupId, timestamp,
 				parentId.getBytes(), shortNameAuthorList, content);
 
 		context.checking(new Expectations() {{
@@ -259,7 +259,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 	@Test
 	public void testAcceptsMinLengthContent() throws Exception {
 		String shortContent = "";
-		final BdfList signedWithShortContent = BdfList.of(groupId, timestamp,
+		BdfList signedWithShortContent = BdfList.of(groupId, timestamp,
 				parentId.getBytes(), authorList, shortContent);
 
 		context.checking(new Expectations() {{

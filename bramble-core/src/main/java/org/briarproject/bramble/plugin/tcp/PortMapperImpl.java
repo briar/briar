@@ -37,7 +37,7 @@ class PortMapperImpl implements PortMapper {
 	}
 
 	@Override
-	public MappingResult map(final int port) {
+	public MappingResult map(int port) {
 		if (!started.getAndSet(true)) start();
 		if (gateway == null) return null;
 		InetAddress internal = gateway.getLocalAddress();
@@ -50,12 +50,7 @@ class PortMapperImpl implements PortMapper {
 			succeeded = gateway.addPortMapping(port, port,
 					getHostAddress(internal), "TCP", "TCP");
 			if (succeeded) {
-				shutdownManager.addShutdownHook(new Runnable() {
-					@Override
-					public void run() {
-						deleteMapping(port);
-					}
-				});
+				shutdownManager.addShutdownHook(() -> deleteMapping(port));
 			}
 			String externalString = gateway.getExternalIPAddress();
 			if (LOG.isLoggable(INFO))
@@ -63,9 +58,7 @@ class PortMapperImpl implements PortMapper {
 						"External address " + scrubInetAddress(externalString));
 			if (externalString != null)
 				external = InetAddress.getByName(externalString);
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (SAXException e) {
+		} catch (IOException | SAXException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		return new MappingResult(internal, external, port, succeeded);
@@ -82,11 +75,7 @@ class PortMapperImpl implements PortMapper {
 		GatewayDiscover d = new GatewayDiscover();
 		try {
 			d.discover();
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (SAXException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (ParserConfigurationException e) {
+		} catch (IOException | SAXException | ParserConfigurationException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		gateway = d.getValidGateway();
@@ -97,9 +86,7 @@ class PortMapperImpl implements PortMapper {
 			gateway.deletePortMapping(port, "TCP");
 			if (LOG.isLoggable(INFO))
 				LOG.info("Deleted mapping for port " + port);
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch (SAXException e) {
+		} catch (IOException | SAXException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}

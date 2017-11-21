@@ -129,17 +129,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	private void startFeedExecutor() {
 		if (fetcherStarted.getAndSet(true)) return;
 		LOG.info("Tor started, scheduling RSS feed fetcher");
-		Runnable fetcher = new Runnable() {
-			@Override
-			public void run() {
-				ioExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						fetchFeeds();
-					}
-				});
-			}
-		};
+		Runnable fetcher = () -> ioExecutor.execute(this::fetchFeeds);
 		scheduler.scheduleWithFixedDelay(fetcher, FETCH_DELAY_INITIAL,
 				FETCH_INTERVAL, FETCH_UNIT);
 	}
@@ -154,7 +144,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		db.addGroup(txn, g);
 
 		// Add initial metadata
-		List<Feed> feeds = new ArrayList<Feed>(0);
+		List<Feed> feeds = new ArrayList<>(0);
 		storeFeeds(txn, feeds);
 	}
 
@@ -237,7 +227,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	}
 
 	private List<Feed> getFeeds(Transaction txn) throws DbException {
-		List<Feed> feeds = new ArrayList<Feed>();
+		List<Feed> feeds = new ArrayList<>();
 		Group g = getLocalGroup();
 		try {
 			BdfDictionary d =
@@ -300,15 +290,11 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		}
 
 		// Fetch and update all feeds
-		List<Feed> newFeeds = new ArrayList<Feed>(feeds.size());
+		List<Feed> newFeeds = new ArrayList<>(feeds.size());
 		for (Feed feed : feeds) {
 			try {
 				newFeeds.add(fetchFeed(feed));
-			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
-				newFeeds.add(feed);
-			} catch (DbException e) {
+			} catch (IOException | DbException e) {
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, e.toString(), e);
 				newFeeds.add(feed);
@@ -391,9 +377,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		SyndFeedInput input = new SyndFeedInput();
 		try {
 			return input.build(new XmlReader(stream));
-		} catch (IllegalArgumentException e) {
-			throw new IOException(e);
-		} catch (FeedException e) {
+		} catch (IllegalArgumentException | FeedException e) {
 			throw new IOException(e);
 		}
 	}
@@ -479,13 +463,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 			BlogPost post = blogPostFactory
 					.createBlogPost(groupId, time, null, localAuthor, body);
 			blogManager.addLocalPost(txn, post);
-		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e.toString(), e);
-		} catch (GeneralSecurityException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e.toString(), e);
-		} catch (FormatException e) {
+		} catch (DbException | GeneralSecurityException | FormatException e) {
 			if (LOG.isLoggable(WARNING))
 				LOG.log(WARNING, e.toString(), e);
 		} catch (IllegalArgumentException e) {
@@ -502,23 +480,18 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	}
 
 	private Comparator<SyndEntry> getEntryComparator() {
-		return new Comparator<SyndEntry>() {
-			@Override
-			public int compare(SyndEntry e1, SyndEntry e2) {
-				Date d1 =
-						e1.getPublishedDate() != null ? e1.getPublishedDate() :
-								e1.getUpdatedDate();
-				Date d2 =
-						e2.getPublishedDate() != null ? e2.getPublishedDate() :
-								e2.getUpdatedDate();
-				if (d1 == null && d2 == null) return 0;
-				if (d1 == null) return -1;
-				if (d2 == null) return 1;
+		return (e1, e2) -> {
+			Date d1 = e1.getPublishedDate() != null ? e1.getPublishedDate() :
+							e1.getUpdatedDate();
+			Date d2 = e2.getPublishedDate() != null ? e2.getPublishedDate() :
+							e2.getUpdatedDate();
+			if (d1 == null && d2 == null) return 0;
+			if (d1 == null) return -1;
+			if (d2 == null) return 1;
 
-				if (d1.after(d2)) return 1;
-				if (d1.before(d2)) return -1;
-				return 0;
-			}
+			if (d1.after(d2)) return 1;
+			if (d1.before(d2)) return -1;
+			return 0;
 		};
 	}
 

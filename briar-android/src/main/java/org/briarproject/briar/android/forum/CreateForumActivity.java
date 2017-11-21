@@ -5,14 +5,9 @@ import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.db.DbException;
@@ -79,22 +74,13 @@ public class CreateForumActivity extends BriarActivity {
 			public void afterTextChanged(Editable s) {
 			}
 		});
-		nameEntry.setOnEditorActionListener(new OnEditorActionListener() {
-			@Override
-			public boolean onEditorAction(TextView v, int actionId,
-					KeyEvent e) {
-				createForum();
-				return true;
-			}
+		nameEntry.setOnEditorActionListener((v, actionId, e) -> {
+			createForum();
+			return true;
 		});
 
 		createForumButton = (Button) findViewById(R.id.createForumButton);
-		createForumButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				createForum();
-			}
-		});
+		createForumButton.setOnClickListener(v -> createForum());
 
 		progress = (ProgressBar) findViewById(R.id.createForumProgressBar);
 	}
@@ -134,39 +120,32 @@ public class CreateForumActivity extends BriarActivity {
 		storeForum(nameEntry.getText().toString());
 	}
 
-	private void storeForum(final String name) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					Forum f = forumManager.addForum(name);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Storing forum took " + duration + " ms");
-					displayForum(f);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					finishOnUiThread();
-				}
+	private void storeForum(String name) {
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				Forum f = forumManager.addForum(name);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Storing forum took " + duration + " ms");
+				displayForum(f);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				finishOnUiThread();
 			}
 		});
 	}
 
-	private void displayForum(final Forum f) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				Intent i = new Intent(CreateForumActivity.this,
-						ForumActivity.class);
-				i.putExtra(GROUP_ID, f.getId().getBytes());
-				i.putExtra(GROUP_NAME, f.getName());
-				startActivity(i);
-				Toast.makeText(CreateForumActivity.this,
-						R.string.forum_created_toast, LENGTH_LONG).show();
-				supportFinishAfterTransition();
-			}
+	private void displayForum(Forum f) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			Intent i = new Intent(CreateForumActivity.this,
+					ForumActivity.class);
+			i.putExtra(GROUP_ID, f.getId().getBytes());
+			i.putExtra(GROUP_NAME, f.getName());
+			startActivity(i);
+			Toast.makeText(CreateForumActivity.this,
+					R.string.forum_created_toast, LENGTH_LONG).show();
+			supportFinishAfterTransition();
 		});
 	}
 }

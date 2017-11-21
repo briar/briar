@@ -27,14 +27,11 @@ class AndroidExecutorImpl implements AndroidExecutor {
 	@Inject
 	AndroidExecutorImpl(Application app) {
 		uiHandler = new Handler(app.getApplicationContext().getMainLooper());
-		loop = new Runnable() {
-			@Override
-			public void run() {
-				Looper.prepare();
-				backgroundHandler = new Handler();
-				startLatch.countDown();
-				Looper.loop();
-			}
+		loop = () -> {
+			Looper.prepare();
+			backgroundHandler = new Handler();
+			startLatch.countDown();
+			Looper.loop();
 		};
 	}
 

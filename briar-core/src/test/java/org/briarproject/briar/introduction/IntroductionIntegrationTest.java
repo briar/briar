@@ -464,7 +464,7 @@ public class IntroductionIntegrationTest
 		assertTrue(listener1.requestReceived);
 
 		// get SessionId
-		List<IntroductionMessage> list = new ArrayList<IntroductionMessage>(
+		List<IntroductionMessage> list = new ArrayList<>(
 				introductionManager1.getIntroductionMessages(contactId0From1));
 		assertEquals(2, list.size());
 		assertTrue(list.get(0) instanceof IntroductionRequest);
@@ -706,39 +706,29 @@ public class IntroductionIntegrationTest
 
 	@Test
 	public void testModifiedTransportProperties() throws Exception {
-		testModifiedResponse(new StateVisitor() {
-			@Override
-			public boolean visit(BdfDictionary response) {
-				BdfDictionary tp = response.getDictionary(TRANSPORT, null);
-				tp.put("fakeId",
-						BdfDictionary.of(new BdfEntry("fake", "fake")));
-				response.put(TRANSPORT, tp);
-				return false;
-			}
+		testModifiedResponse(response -> {
+			BdfDictionary tp = response.getDictionary(TRANSPORT, null);
+			tp.put("fakeId", BdfDictionary.of(new BdfEntry("fake", "fake")));
+			response.put(TRANSPORT, tp);
+			return false;
 		});
 	}
 
 	@Test
 	public void testModifiedTimestamp() throws Exception {
-		testModifiedResponse(new StateVisitor() {
-			@Override
-			public boolean visit(BdfDictionary response) {
-				long timestamp = response.getLong(TIME, 0L);
-				response.put(TIME, timestamp + 1);
-				return false;
-			}
+		testModifiedResponse(response -> {
+			long timestamp = response.getLong(TIME, 0L);
+			response.put(TIME, timestamp + 1);
+			return false;
 		});
 	}
 
 	@Test
 	public void testModifiedEphemeralPublicKey() throws Exception {
-		testModifiedResponse(new StateVisitor() {
-			@Override
-			public boolean visit(BdfDictionary response) {
-				KeyPair keyPair = crypto.generateSignatureKeyPair();
-				response.put(E_PUBLIC_KEY, keyPair.getPublic().getEncoded());
-				return true;
-			}
+		testModifiedResponse(response -> {
+			KeyPair keyPair = crypto.generateSignatureKeyPair();
+			response.put(E_PUBLIC_KEY, keyPair.getPublic().getEncoded());
+			return true;
 		});
 	}
 
@@ -934,9 +924,7 @@ public class IntroductionIntegrationTest
 											time);
 						}
 					}
-				} catch (DbException exception) {
-					eventWaiter.rethrow(exception);
-				} catch (FormatException exception) {
+				} catch (DbException | FormatException exception) {
 					eventWaiter.rethrow(exception);
 				} finally {
 					eventWaiter.resume();

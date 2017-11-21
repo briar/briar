@@ -47,39 +47,33 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 	}
 
 	@Override
-	public void validatePassword(final String password,
-			final ResultHandler<Boolean> resultHandler) {
-		final byte[] encrypted = getEncryptedKey();
-		cryptoExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				byte[] key = crypto.decryptWithPassword(encrypted, password);
-				if (key == null) {
-					resultHandler.onResult(false);
-				} else {
-					databaseConfig.setEncryptionKey(new SecretKey(key));
-					resultHandler.onResult(true);
-				}
+	public void validatePassword(String password,
+			ResultHandler<Boolean> resultHandler) {
+		byte[] encrypted = getEncryptedKey();
+		cryptoExecutor.execute(() -> {
+			byte[] key = crypto.decryptWithPassword(encrypted, password);
+			if (key == null) {
+				resultHandler.onResult(false);
+			} else {
+				databaseConfig.setEncryptionKey(new SecretKey(key));
+				resultHandler.onResult(true);
 			}
 		});
 	}
 
 	@Override
-	public void changePassword(final String password, final String newPassword,
-			final ResultHandler<Boolean> resultHandler) {
-		final byte[] encrypted = getEncryptedKey();
-		cryptoExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				byte[] key = crypto.decryptWithPassword(encrypted, password);
-				if (key == null) {
-					resultHandler.onResult(false);
-				} else {
-					String hex =
-							encryptDatabaseKey(new SecretKey(key), newPassword);
-					storeEncryptedDatabaseKey(hex);
-					resultHandler.onResult(true);
-				}
+	public void changePassword(String password, String newPassword,
+			ResultHandler<Boolean> resultHandler) {
+		byte[] encrypted = getEncryptedKey();
+		cryptoExecutor.execute(() -> {
+			byte[] key = crypto.decryptWithPassword(encrypted, password);
+			if (key == null) {
+				resultHandler.onResult(false);
+			} else {
+				String hex =
+						encryptDatabaseKey(new SecretKey(key), newPassword);
+				storeEncryptedDatabaseKey(hex);
+				resultHandler.onResult(true);
 			}
 		});
 	}

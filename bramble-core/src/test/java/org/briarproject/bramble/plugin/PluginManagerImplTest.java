@@ -30,36 +30,36 @@ public class PluginManagerImplTest extends BrambleTestCase {
 		Mockery context = new Mockery() {{
 			setThreadingPolicy(new Synchroniser());
 		}};
-		final Executor ioExecutor = Executors.newSingleThreadExecutor();
-		final EventBus eventBus = context.mock(EventBus.class);
-		final PluginConfig pluginConfig = context.mock(PluginConfig.class);
-		final ConnectionManager connectionManager =
+		Executor ioExecutor = Executors.newSingleThreadExecutor();
+		EventBus eventBus = context.mock(EventBus.class);
+		PluginConfig pluginConfig = context.mock(PluginConfig.class);
+		ConnectionManager connectionManager =
 				context.mock(ConnectionManager.class);
-		final SettingsManager settingsManager =
+		SettingsManager settingsManager =
 				context.mock(SettingsManager.class);
-		final TransportPropertyManager transportPropertyManager =
+		TransportPropertyManager transportPropertyManager =
 				context.mock(TransportPropertyManager.class);
-		final UiCallback uiCallback = context.mock(UiCallback.class);
+		UiCallback uiCallback = context.mock(UiCallback.class);
 
 		// Two simplex plugin factories: both create plugins, one fails to start
-		final SimplexPluginFactory simplexFactory =
+		SimplexPluginFactory simplexFactory =
 				context.mock(SimplexPluginFactory.class);
-		final SimplexPlugin simplexPlugin = context.mock(SimplexPlugin.class);
-		final TransportId simplexId = new TransportId("simplex");
-		final SimplexPluginFactory simplexFailFactory =
+		SimplexPlugin simplexPlugin = context.mock(SimplexPlugin.class);
+		TransportId simplexId = new TransportId("simplex");
+		SimplexPluginFactory simplexFailFactory =
 				context.mock(SimplexPluginFactory.class, "simplexFailFactory");
-		final SimplexPlugin simplexFailPlugin =
+		SimplexPlugin simplexFailPlugin =
 				context.mock(SimplexPlugin.class, "simplexFailPlugin");
-		final TransportId simplexFailId = new TransportId("simplex1");
+		TransportId simplexFailId = new TransportId("simplex1");
 
 		// Two duplex plugin factories: one creates a plugin, the other fails
-		final DuplexPluginFactory duplexFactory =
+		DuplexPluginFactory duplexFactory =
 				context.mock(DuplexPluginFactory.class);
-		final DuplexPlugin duplexPlugin = context.mock(DuplexPlugin.class);
-		final TransportId duplexId = new TransportId("duplex");
-		final DuplexPluginFactory duplexFailFactory =
+		DuplexPlugin duplexPlugin = context.mock(DuplexPlugin.class);
+		TransportId duplexId = new TransportId("duplex");
+		DuplexPluginFactory duplexFailFactory =
 				context.mock(DuplexPluginFactory.class, "duplexFailFactory");
-		final TransportId duplexFailId = new TransportId("duplex1");
+		TransportId duplexFailId = new TransportId("duplex1");
 
 		context.checking(new Expectations() {{
 			allowing(simplexPlugin).getId();

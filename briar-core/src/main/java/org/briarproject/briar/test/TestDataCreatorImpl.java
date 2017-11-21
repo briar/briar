@@ -88,8 +88,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private final Executor ioExecutor;
 
 	private final Random random = new Random();
-	private final Map<Contact, LocalAuthor> localAuthors =
-			new HashMap<Contact, LocalAuthor>();
+	private final Map<Contact, LocalAuthor> localAuthors = new HashMap<>();
 
 	@Inject
 	TestDataCreatorImpl(AuthorFactory authorFactory, Clock clock,
@@ -119,16 +118,12 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	public void createTestData() {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					createTestDataOnDbExecutor();
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING)) {
-						LOG.log(WARNING, "Creating test data failed", e);
-					}
-				}
+		ioExecutor.execute(() -> {
+			try {
+				createTestDataOnDbExecutor();
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, "Creating test data failed", e);
 			}
 		});
 	}
@@ -146,7 +141,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	private List<Contact> createContacts() throws DbException {
-		List<Contact> contacts = new ArrayList<Contact>(NUM_CONTACTS);
+		List<Contact> contacts = new ArrayList<>(NUM_CONTACTS);
 		LocalAuthor localAuthor = identityManager.getLocalAuthor();
 		for (int i = 0; i < NUM_CONTACTS; i++) {
 			Contact contact = addRandomContact(localAuthor);
@@ -206,8 +201,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	private Map<TransportId, TransportProperties> getRandomTransportProperties() {
-		Map<TransportId, TransportProperties> props =
-				new HashMap<TransportId, TransportProperties>();
+		Map<TransportId, TransportProperties> props = new HashMap<>();
 
 		// Bluetooth
 		TransportProperties bt = new TransportProperties();
@@ -330,16 +324,14 @@ public class TestDataCreatorImpl implements TestDataCreator {
 					.createBlogPost(blog.getId(), timestamp, null, author,
 							body);
 			blogManager.addLocalPost(blogPost);
-		} catch (FormatException e) {
-			throw new RuntimeException(e);
-		} catch (GeneralSecurityException e) {
+		} catch (FormatException | GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	private List<Forum> createForums(List<Contact> contacts)
 			throws DbException {
-		List<Forum> forums = new ArrayList<Forum>(NUM_FORUMS);
+		List<Forum> forums = new ArrayList<>(NUM_FORUMS);
 		for (int i = 0; i < NUM_FORUMS; i++) {
 			// create forum
 			String name = GROUP_NAMES[random.nextInt(GROUP_NAMES.length)];
@@ -367,7 +359,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	private void createRandomForumPosts(Forum forum, List<Contact> contacts)
 			throws DbException {
-		List<ForumPost> posts = new ArrayList<ForumPost>();
+		List<ForumPost> posts = new ArrayList<>();
 		for (int i = 0; i < NUM_FORUM_POSTS; i++) {
 			Contact contact = contacts.get(random.nextInt(contacts.size()));
 			LocalAuthor author = localAuthors.get(contact);

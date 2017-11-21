@@ -135,16 +135,11 @@ public class EmojiProvider {
 			return null;
 		}
 
-		final EmojiDrawable drawable = new EmojiDrawable(drawInfo, decodeScale);
+		EmojiDrawable drawable = new EmojiDrawable(drawInfo, decodeScale);
 		drawInfo.page.get().addListener(new FutureTaskListener<Bitmap>() {
 			@Override
-			public void onSuccess(final Bitmap result) {
-				androidExecutor.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						drawable.setBitmap(result);
-					}
-				});
+			public void onSuccess(Bitmap result) {
+				androidExecutor.runOnUiThread(() -> drawable.setBitmap(result));
 			}
 
 			@Override
@@ -260,14 +255,10 @@ public class EmojiProvider {
 				if (bitmap != null) return new ListenableFutureTask<>(bitmap);
 			}
 			if (task != null) return task;
-			Callable<Bitmap> callable = new Callable<Bitmap>() {
-				@Override
-				@Nullable
-				public Bitmap call() throws Exception {
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading page " + model.getSprite());
-					return loadPage();
-				}
+			Callable<Bitmap> callable = () -> {
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading page " + model.getSprite());
+				return loadPage();
 			};
 			task = new ListenableFutureTask<>(callable);
 			new AsyncTask<Void, Void, Void>() {

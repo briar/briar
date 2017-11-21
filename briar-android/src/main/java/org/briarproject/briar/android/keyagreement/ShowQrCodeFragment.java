@@ -157,8 +157,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		getActivity().registerReceiver(receiver, filter);
 
 		// Enable BT adapter if it is not already on.
-		final BluetoothAdapter adapter =
-				BluetoothAdapter.getDefaultAdapter();
+		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if (adapter != null && !adapter.isEnabled()) {
 			waitingForBluetooth = true;
 			eventBus.broadcast(new EnableBluetoothEvent());
@@ -189,26 +188,20 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	@UiThread
 	private void startListening() {
-		final KeyAgreementTask oldTask = task;
-		final KeyAgreementTask newTask = keyAgreementTaskFactory.createTask();
+		KeyAgreementTask oldTask = task;
+		KeyAgreementTask newTask = keyAgreementTaskFactory.createTask();
 		task = newTask;
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				if (oldTask != null) oldTask.stopListening();
-				newTask.listen();
-			}
+		ioExecutor.execute(() -> {
+			if (oldTask != null) oldTask.stopListening();
+			newTask.listen();
 		});
 	}
 
 	@UiThread
 	private void stopListening() {
-		final KeyAgreementTask oldTask = task;
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				if (oldTask != null) oldTask.stopListening();
-			}
+		KeyAgreementTask oldTask = task;
+		ioExecutor.execute(() -> {
+			if (oldTask != null) oldTask.stopListening();
 		});
 	}
 
@@ -255,23 +248,19 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			KeyAgreementAbortedEvent event = (KeyAgreementAbortedEvent) e;
 			keyAgreementAborted(event.didRemoteAbort());
 		} else if (e instanceof KeyAgreementFinishedEvent) {
-			runOnUiThreadUnlessDestroyed(new Runnable() {
-				@Override
-				public void run() {
-					mainProgressContainer.setVisibility(VISIBLE);
-					mainProgressTitle.setText(
-							R.string.exchanging_contact_details);
-				}
+			runOnUiThreadUnlessDestroyed(() -> {
+				mainProgressContainer.setVisibility(VISIBLE);
+				mainProgressTitle.setText(R.string.exchanging_contact_details);
 			});
 		}
 	}
 
 	@UiThread
-	private void generateBitmapQR(final Payload payload) {
+	private void generateBitmapQR(Payload payload) {
 		// Get narrowest screen dimension
 		Context context = getContext();
 		if (context == null) return;
-		final DisplayMetrics dm = context.getResources().getDisplayMetrics();
+		DisplayMetrics dm = context.getResources().getDisplayMetrics();
 		new AsyncTask<Void, Void, Bitmap>() {
 
 			@Override
@@ -296,76 +285,55 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		}.execute();
 	}
 
-	private void setQrCode(final Payload localPayload) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				generateBitmapQR(localPayload);
-			}
-		});
+	private void setQrCode(Payload localPayload) {
+		runOnUiThreadUnlessDestroyed(() -> generateBitmapQR(localPayload));
 	}
 
 	private void keyAgreementFailed() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				reset();
-				// TODO show failure somewhere persistent?
-				Toast.makeText(getActivity(), R.string.connection_failed,
-						LENGTH_LONG).show();
-			}
+		runOnUiThreadUnlessDestroyed(() -> {
+			reset();
+			// TODO show failure somewhere persistent?
+			Toast.makeText(getActivity(), R.string.connection_failed,
+					LENGTH_LONG).show();
 		});
 	}
 
 	private void keyAgreementWaiting() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				status.setText(R.string.waiting_for_contact_to_scan);
-			}
-		});
+		runOnUiThreadUnlessDestroyed(
+				() -> status.setText(R.string.waiting_for_contact_to_scan));
 	}
 
 	private void keyAgreementStarted() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				mainProgressContainer.setVisibility(VISIBLE);
-				mainProgressTitle.setText(R.string.authenticating_with_device);
-			}
+		runOnUiThreadUnlessDestroyed(() -> {
+			mainProgressContainer.setVisibility(VISIBLE);
+			mainProgressTitle.setText(R.string.authenticating_with_device);
 		});
 	}
 
-	private void keyAgreementAborted(final boolean remoteAborted) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				reset();
-				mainProgressContainer.setVisibility(INVISIBLE);
-				mainProgressTitle.setText("");
-				// TODO show abort somewhere persistent?
-				Toast.makeText(getActivity(),
-						remoteAborted ? R.string.connection_aborted_remote :
-								R.string.connection_aborted_local, LENGTH_LONG)
-						.show();
-			}
+	private void keyAgreementAborted(boolean remoteAborted) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			reset();
+			mainProgressContainer.setVisibility(INVISIBLE);
+			mainProgressTitle.setText("");
+			// TODO show abort somewhere persistent?
+			Toast.makeText(getActivity(),
+					remoteAborted ? R.string.connection_aborted_remote :
+							R.string.connection_aborted_local, LENGTH_LONG)
+					.show();
 		});
 	}
 
 	@Override
-	public void handleResult(final Result result) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				LOG.info("Got result from decoder");
-				// Ignore results until the KeyAgreementTask is ready
-				if (!gotLocalPayload) {
-					return;
-				}
-				if (!gotRemotePayload) {
-					gotRemotePayload = true;
-					qrCodeScanned(result.getText());
-				}
+	public void handleResult(Result result) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			LOG.info("Got result from decoder");
+			// Ignore results until the KeyAgreementTask is ready
+			if (!gotLocalPayload) {
+				return;
+			}
+			if (!gotRemotePayload) {
+				gotRemotePayload = true;
+				qrCodeScanned(result.getText());
 			}
 		});
 	}

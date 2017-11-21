@@ -145,7 +145,7 @@ public class KeyDerivationTest extends BrambleTestCase {
 	}
 
 	private void assertAllDifferent(TransportKeys... transportKeys) {
-		List<SecretKey> secretKeys = new ArrayList<SecretKey>();
+		List<SecretKey> secretKeys = new ArrayList<>();
 		for (TransportKeys k : transportKeys) {
 			secretKeys.add(k.getPreviousIncomingKeys().getTagKey());
 			secretKeys.add(k.getPreviousIncomingKeys().getHeaderKey());
@@ -160,7 +160,7 @@ public class KeyDerivationTest extends BrambleTestCase {
 	}
 
 	private void assertAllDifferent(List<SecretKey> keys) {
-		Set<Bytes> set = new HashSet<Bytes>();
+		Set<Bytes> set = new HashSet<>();
 		for (SecretKey k : keys) assertTrue(set.add(new Bytes(k.getBytes())));
 	}
 }

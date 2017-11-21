@@ -114,36 +114,32 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		View contentView = inflater.inflate(R.layout.list, container, false);
 
 		OnContactClickListener<ContactListItem> onContactClickListener =
-				new OnContactClickListener<ContactListItem>() {
-					@Override
-					public void onItemClick(View view, ContactListItem item) {
-						Intent i = new Intent(getActivity(),
-								ConversationActivity.class);
-						ContactId contactId = item.getContact().getId();
-						i.putExtra(CONTACT_ID, contactId.getInt());
+				(view, item) -> {
+					Intent i = new Intent(getActivity(),
+							ConversationActivity.class);
+					ContactId contactId = item.getContact().getId();
+					i.putExtra(CONTACT_ID, contactId.getInt());
 
-						if (Build.VERSION.SDK_INT >= 23) {
-							ContactListItemViewHolder holder =
-									(ContactListItemViewHolder) list
-											.getRecyclerView()
-											.findViewHolderForAdapterPosition(
-													adapter.findItemPosition(
-															item));
-							Pair<View, String> avatar =
-									Pair.create((View) holder.avatar,
-											getTransitionName(holder.avatar));
-							Pair<View, String> bulb =
-									Pair.create((View) holder.bulb,
-											getTransitionName(holder.bulb));
-							ActivityOptionsCompat options =
-									makeSceneTransitionAnimation(getActivity(),
-											avatar, bulb);
-							ActivityCompat.startActivity(getActivity(), i,
-									options.toBundle());
-						} else {
-							// work-around for android bug #224270
-							startActivity(i);
-						}
+					if (Build.VERSION.SDK_INT >= 23) {
+						ContactListItemViewHolder holder =
+								(ContactListItemViewHolder) list
+										.getRecyclerView()
+										.findViewHolderForAdapterPosition(
+												adapter.findItemPosition(item));
+						Pair<View, String> avatar =
+								Pair.create(holder.avatar,
+										getTransitionName(holder.avatar));
+						Pair<View, String> bulb =
+								Pair.create(holder.bulb,
+										getTransitionName(holder.bulb));
+						ActivityOptionsCompat options =
+								makeSceneTransitionAnimation(getActivity(),
+										avatar, bulb);
+						ActivityCompat.startActivity(getActivity(), i,
+								options.toBundle());
+					} else {
+						// work-around for android bug #224270
+						startActivity(i);
 					}
 				};
 		adapter = new ContactListAdapter(getContext(), onContactClickListener);
@@ -162,7 +158,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case R.id.action_add_contact:
@@ -195,51 +191,42 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	private void loadContacts() {
-		final int revision = adapter.getRevision();
-		listener.runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					List<ContactListItem> contacts = new ArrayList<>();
-					for (Contact c : contactManager.getActiveContacts()) {
-						try {
-							ContactId id = c.getId();
-							GroupCount count =
-									conversationManager.getGroupCount(id);
-							boolean connected =
-									connectionRegistry.isConnected(c.getId());
-							contacts.add(new ContactListItem(c, connected,
-									count));
-						} catch (NoSuchContactException e) {
-							// Continue
-						}
+		int revision = adapter.getRevision();
+		listener.runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				List<ContactListItem> contacts = new ArrayList<>();
+				for (Contact c : contactManager.getActiveContacts()) {
+					try {
+						ContactId id = c.getId();
+						GroupCount count =
+								conversationManager.getGroupCount(id);
+						boolean connected =
+								connectionRegistry.isConnected(c.getId());
+						contacts.add(new ContactListItem(c, connected, count));
+					} catch (NoSuchContactException e) {
+						// Continue
 					}
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Full load took " + duration + " ms");
-					displayContacts(revision, contacts);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
 				}
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Full load took " + duration + " ms");
+				displayContacts(revision, contacts);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void displayContacts(final int revision,
-			final List<ContactListItem> contacts) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				if (revision == adapter.getRevision()) {
-					adapter.incrementRevision();
-					if (contacts.isEmpty()) list.showData();
-					else adapter.addAll(contacts);
-				} else {
-					LOG.info("Concurrent update, reloading");
-					loadContacts();
-				}
+	private void displayContacts(int revision, List<ContactListItem> contacts) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			if (revision == adapter.getRevision()) {
+				adapter.incrementRevision();
+				if (contacts.isEmpty()) list.showData();
+				else adapter.addAll(contacts);
+			} else {
+				LOG.info("Concurrent update, reloading");
+				loadContacts();
 			}
 		});
 	}
@@ -294,45 +281,36 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		}
 	}
 
-	private void updateItem(final ContactId c, final BaseMessageHeader h) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				adapter.incrementRevision();
-				int position = adapter.findItemPosition(c);
-				ContactListItem item = adapter.getItemAt(position);
-				if (item != null) {
-					ConversationItem i = ConversationItem.from(getContext(), h);
-					item.addMessage(i);
-					adapter.updateItemAt(position, item);
-				}
+	private void updateItem(ContactId c, BaseMessageHeader h) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			adapter.incrementRevision();
+			int position = adapter.findItemPosition(c);
+			ContactListItem item = adapter.getItemAt(position);
+			if (item != null) {
+				ConversationItem i = ConversationItem.from(getContext(), h);
+				item.addMessage(i);
+				adapter.updateItemAt(position, item);
 			}
 		});
 	}
 
-	private void removeItem(final ContactId c) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				adapter.incrementRevision();
-				int position = adapter.findItemPosition(c);
-				ContactListItem item = adapter.getItemAt(position);
-				if (item != null) adapter.remove(item);
-			}
+	private void removeItem(ContactId c) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			adapter.incrementRevision();
+			int position = adapter.findItemPosition(c);
+			ContactListItem item = adapter.getItemAt(position);
+			if (item != null) adapter.remove(item);
 		});
 	}
 
-	private void setConnected(final ContactId c, final boolean connected) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				adapter.incrementRevision();
-				int position = adapter.findItemPosition(c);
-				ContactListItem item = adapter.getItemAt(position);
-				if (item != null) {
-					item.setConnected(connected);
-					adapter.notifyItemChanged(position);
-				}
+	private void setConnected(ContactId c, boolean connected) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			adapter.incrementRevision();
+			int position = adapter.findItemPosition(c);
+			ContactListItem item = adapter.getItemAt(position);
+			if (item != null) {
+				item.setConnected(connected);
+				adapter.notifyItemChanged(position);
 			}
 		});
 	}

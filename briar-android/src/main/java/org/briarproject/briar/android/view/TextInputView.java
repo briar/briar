@@ -75,34 +75,18 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		}
 
 		ui.emojiToggle.attach(ui.emojiDrawer);
-		ui.emojiToggle.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onEmojiToggleClicked();
+		ui.emojiToggle.setOnClickListener(v -> onEmojiToggleClicked());
+		ui.editText.setOnClickListener(v -> showSoftKeyboard());
+		ui.editText.setOnKeyListener((v, keyCode, event) -> {
+			if (keyCode == KEYCODE_BACK && isEmojiDrawerOpen()) {
+				hideEmojiDrawer();
+				return true;
 			}
+			return false;
 		});
-		ui.editText.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				showSoftKeyboard();
-			}
-		});
-		ui.editText.setOnKeyListener(new OnKeyListener() {
-			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if (keyCode == KEYCODE_BACK && isEmojiDrawerOpen()) {
-					hideEmojiDrawer();
-					return true;
-				}
-				return false;
-			}
-		});
-		ui.sendButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (listener != null) {
-					listener.onSendClick(ui.editText.getText().toString());
-				}
+		ui.sendButton.setOnClickListener(v -> {
+			if (listener != null) {
+				listener.onSendClick(ui.editText.getText().toString());
 			}
 		});
 		ui.emojiDrawer.setEmojiEventListener(this);
@@ -167,22 +151,13 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		if (isKeyboardOpen()) return;
 
 		if (ui.emojiDrawer.isShowing()) {
-			postOnKeyboardOpen(new Runnable() {
-				@Override
-				public void run() {
-					hideEmojiDrawer();
-				}
-			});
+			postOnKeyboardOpen(this::hideEmojiDrawer);
 		}
-		ui.editText.post(new Runnable() {
-			@Override
-			public void run() {
-				ui.editText.requestFocus();
-				InputMethodManager imm =
-						(InputMethodManager) getContext()
-								.getSystemService(INPUT_METHOD_SERVICE);
-				imm.showSoftInput(ui.editText, SHOW_IMPLICIT);
-			}
+		ui.editText.post(() -> {
+			ui.editText.requestFocus();
+			InputMethodManager imm = (InputMethodManager)
+					getContext().getSystemService(INPUT_METHOD_SERVICE);
+			imm.showSoftInput(ui.editText, SHOW_IMPLICIT);
 		});
 	}
 
@@ -194,11 +169,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 
 	public void showEmojiDrawer() {
 		if (isKeyboardOpen()) {
-			postOnKeyboardClose(new Runnable() {
-				@Override public void run() {
-					ui.emojiDrawer.show(getKeyboardHeight());
-				}
-			});
+			postOnKeyboardClose(() -> ui.emojiDrawer.show(getKeyboardHeight()));
 			hideSoftKeyboard();
 		} else {
 			ui.emojiDrawer.show(getKeyboardHeight());

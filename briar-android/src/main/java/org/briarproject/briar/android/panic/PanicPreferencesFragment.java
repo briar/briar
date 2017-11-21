@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.text.TextUtils;
 
@@ -92,51 +91,39 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 				entryValues.toArray(new CharSequence[entryValues.size()]));
 		panicAppPref.setDefaultValue(Panic.PACKAGE_NAME_NONE);
 
-		panicAppPref.setOnPreferenceChangeListener(
-				new Preference.OnPreferenceChangeListener() {
-					@Override
-					public boolean onPreferenceChange(Preference preference,
-							Object newValue) {
-						String packageName = (String) newValue;
-						PanicResponder.setTriggerPackageName(getActivity(),
-								packageName);
-						showPanicApp(packageName);
+		panicAppPref.setOnPreferenceChangeListener((preference, newValue) -> {
+			String packageName = (String) newValue;
+			PanicResponder.setTriggerPackageName(getActivity(), packageName);
+			showPanicApp(packageName);
 
-						if (packageName.equals(Panic.PACKAGE_NAME_NONE)) {
-							lockPref.setEnabled(false);
-							purgePref.setChecked(false);
-							purgePref.setEnabled(false);
-							uninstallPref.setChecked(false);
-							uninstallPref.setEnabled(false);
-							getActivity().setResult(Activity.RESULT_CANCELED);
-						} else {
-							lockPref.setEnabled(true);
-							purgePref.setEnabled(true);
-							uninstallPref.setEnabled(true);
-						}
+			if (packageName.equals(Panic.PACKAGE_NAME_NONE)) {
+				lockPref.setEnabled(false);
+				purgePref.setChecked(false);
+				purgePref.setEnabled(false);
+				uninstallPref.setChecked(false);
+				uninstallPref.setEnabled(false);
+				getActivity().setResult(Activity.RESULT_CANCELED);
+			} else {
+				lockPref.setEnabled(true);
+				purgePref.setEnabled(true);
+				uninstallPref.setEnabled(true);
+			}
 
-						return true;
-					}
-				});
+			return true;
+		});
 
 		if (entries.size() <= 1) {
-			panicAppPref.setOnPreferenceClickListener(
-					new Preference.OnPreferenceClickListener() {
-						@Override
-						public boolean onPreferenceClick(
-								Preference preference) {
-							Intent intent = new Intent(Intent.ACTION_VIEW);
-							intent.setData(Uri.parse(
-									"market://details?id=info.guardianproject.ripple"));
-							intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-							if (intent.resolveActivity(
-									getActivity().getPackageManager()) !=
-									null) {
-								startActivity(intent);
-							}
-							return true;
-						}
-					});
+			panicAppPref.setOnPreferenceClickListener(preference -> {
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse(
+						"market://details?id=info.guardianproject.ripple"));
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				if (intent.resolveActivity(getActivity().getPackageManager())
+						!= null) {
+					startActivity(intent);
+				}
+				return true;
+			});
 		}
 	}
 
@@ -219,26 +206,15 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 	}
 
 	private void showOptInDialog() {
-		DialogInterface.OnClickListener okListener =
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog,
-							int which) {
-						PanicResponder.setTriggerPackageName(getActivity());
-						showPanicApp(PanicResponder
-								.getTriggerPackageName(getActivity()));
-						getActivity().setResult(Activity.RESULT_OK);
-					}
-				};
-		DialogInterface.OnClickListener cancelListener =
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog,
-							int which) {
-						getActivity().setResult(Activity.RESULT_CANCELED);
-						getActivity().finish();
-					}
-				};
+		DialogInterface.OnClickListener okListener = (dialog, which) -> {
+			PanicResponder.setTriggerPackageName(getActivity());
+			showPanicApp(PanicResponder.getTriggerPackageName(getActivity()));
+			getActivity().setResult(Activity.RESULT_OK);
+		};
+		DialogInterface.OnClickListener cancelListener = (dialog, which) -> {
+			getActivity().setResult(Activity.RESULT_CANCELED);
+			getActivity().finish();
+		};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext(),
 				R.style.BriarDialogTheme);

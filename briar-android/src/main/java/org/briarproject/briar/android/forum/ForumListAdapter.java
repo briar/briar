@@ -38,7 +38,7 @@ class ForumListAdapter
 
 	@Override
 	public void onBindViewHolder(ForumViewHolder ui, int position) {
-		final ForumListItem item = getItemAt(position);
+		ForumListItem item = getItemAt(position);
 		if (item == null) return;
 
 		// Avatar
@@ -77,15 +77,12 @@ class ForumListAdapter
 		}
 
 		// Open Forum on Click
-		ui.layout.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent i = new Intent(ctx, ForumActivity.class);
-				Forum f = item.getForum();
-				i.putExtra(GROUP_ID, f.getId().getBytes());
-				i.putExtra(GROUP_NAME, f.getName());
-				ctx.startActivity(i);
-			}
+		ui.layout.setOnClickListener(v -> {
+			Intent i = new Intent(ctx, ForumActivity.class);
+			Forum f = item.getForum();
+			i.putExtra(GROUP_ID, f.getId().getBytes());
+			i.putExtra(GROUP_NAME, f.getName());
+			ctx.startActivity(i);
 		});
 	}
 

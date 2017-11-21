@@ -42,48 +42,44 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 		this.executor = executor;
 		this.clock = clock;
 		this.writeHandler = writeHandler;
-		writes = new LinkedBlockingQueue<byte[]>();
+		writes = new LinkedBlockingQueue<>();
 	}
 
 	@Override
 	public void start() {
 		SlipEncoder encoder = new SlipEncoder(this);
-		final Sender sender = new Sender(clock, encoder);
+		Sender sender = new Sender(clock, encoder);
 		receiver = new Receiver(clock, sender);
 		decoder = new SlipDecoder(receiver, Data.MAX_LENGTH);
 		inputStream = new ReceiverInputStream(receiver);
 		outputStream = new SenderOutputStream(sender);
 		running = true;
-		executor.execute(new Runnable() {
-			@Override
-			public void run() {
-				long now = clock.currentTimeMillis();
-				long next = now + TICK_INTERVAL;
-				try {
-					while (running) {
-						byte[] b = null;
-						while (now < next && b == null) {
-							b = writes.poll(next - now, MILLISECONDS);
-							if (!running) return;
-							now = clock.currentTimeMillis();
-						}
-						if (b == null) {
-							sender.tick();
-							while (next <= now) next += TICK_INTERVAL;
-						} else {
-							if (b.length == 0) return; // Poison pill
-							writeHandler.handleWrite(b);
-						}
+		executor.execute(() -> {
+			long now = clock.currentTimeMillis();
+			long next = now + TICK_INTERVAL;
+			try {
+				while (running) {
+					byte[] b = null;
+					while (now < next && b == null) {
+						b = writes.poll(next - now, MILLISECONDS);
+						if (!running) return;
+						now = clock.currentTimeMillis();
 					}
-				} catch (InterruptedException e) {
-					LOG.warning("Interrupted while waiting to write");
-					Thread.currentThread().interrupt();
-					running = false;
-				} catch (IOException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					running = false;
+					if (b == null) {
+						sender.tick();
+						while (next <= now) next += TICK_INTERVAL;
+					} else {
+						if (b.length == 0) return; // Poison pill
+						writeHandler.handleWrite(b);
+					}
 				}
+			} catch (InterruptedException e) {
+				LOG.warning("Interrupted while waiting to write");
+				Thread.currentThread().interrupt();
+				running = false;
+			} catch (IOException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				running = false;
 			}
 		});
 	}

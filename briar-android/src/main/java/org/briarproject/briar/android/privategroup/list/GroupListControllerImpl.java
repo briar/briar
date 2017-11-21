@@ -119,120 +119,85 @@ class GroupListControllerImpl extends DbControllerImpl
 		}
 	}
 
-	private void onGroupMessageAdded(final GroupMessageHeader h) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.onGroupMessageAdded(h);
-			}
-		});
+	private void onGroupMessageAdded(GroupMessageHeader h) {
+		listener.runOnUiThreadUnlessDestroyed(
+				() -> listener.onGroupMessageAdded(h));
 	}
 
 	private void onGroupInvitationReceived() {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.onGroupInvitationReceived();
-			}
-		});
+		listener.runOnUiThreadUnlessDestroyed(
+				() -> listener.onGroupInvitationReceived());
 	}
 
-	private void onGroupAdded(final GroupId g) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.onGroupAdded(g);
-			}
-		});
+	private void onGroupAdded(GroupId g) {
+		listener.runOnUiThreadUnlessDestroyed(() -> listener.onGroupAdded(g));
 	}
 
-	private void onGroupRemoved(final GroupId g) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.onGroupRemoved(g);
-			}
-		});
+	private void onGroupRemoved(GroupId g) {
+		listener.runOnUiThreadUnlessDestroyed(() -> listener.onGroupRemoved(g));
 	}
 
-	private void onGroupDissolved(final GroupId g) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.onGroupDissolved(g);
-			}
-		});
+	private void onGroupDissolved(GroupId g) {
+		listener.runOnUiThreadUnlessDestroyed(
+				() -> listener.onGroupDissolved(g));
 	}
 
 	@Override
 	public void loadGroups(
-			final ResultExceptionHandler<Collection<GroupItem>, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					Collection<PrivateGroup> groups =
-							groupManager.getPrivateGroups();
-					List<GroupItem> items = new ArrayList<>(groups.size());
-					for (PrivateGroup g : groups) {
-						try {
-							GroupId id = g.getId();
-							GroupCount count = groupManager.getGroupCount(id);
-							boolean dissolved = groupManager.isDissolved(id);
-							items.add(new GroupItem(g, count, dissolved));
-						} catch (NoSuchGroupException e) {
-							// Continue
-						}
+			ResultExceptionHandler<Collection<GroupItem>, DbException> handler) {
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				Collection<PrivateGroup> groups =
+						groupManager.getPrivateGroups();
+				List<GroupItem> items = new ArrayList<>(groups.size());
+				for (PrivateGroup g : groups) {
+					try {
+						GroupId id = g.getId();
+						GroupCount count = groupManager.getGroupCount(id);
+						boolean dissolved = groupManager.isDissolved(id);
+						items.add(new GroupItem(g, count, dissolved));
+					} catch (NoSuchGroupException e) {
+						// Continue
 					}
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading groups took " + duration + " ms");
-					handler.onResult(items);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
 				}
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading groups took " + duration + " ms");
+				handler.onResult(items);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
 
 	@Override
-	public void removeGroup(final GroupId g,
-			final ExceptionHandler<DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					groupManager.removePrivateGroup(g);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Removing group took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+	public void removeGroup(GroupId g, ExceptionHandler<DbException> handler) {
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				groupManager.removePrivateGroup(g);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Removing group took " + duration + " ms");
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
 
 	@Override
 	public void loadAvailableGroups(
-			final ResultExceptionHandler<Integer, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					handler.onResult(
-							groupInvitationManager.getInvitations().size());
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+			ResultExceptionHandler<Integer, DbException> handler) {
+		runOnDbThread(() -> {
+			try {
+				handler.onResult(
+						groupInvitationManager.getInvitations().size());
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}

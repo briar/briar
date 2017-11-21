@@ -127,13 +127,13 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	@Test
 	public void testOnJoinActionFromInvited() throws Exception {
-		final JoinMessage properJoinMessage =
+		JoinMessage properJoinMessage =
 				new JoinMessage(messageId, contactGroupId, privateGroupId,
 						messageTimestamp, lastRemoteMessageId);
-		final long timestamp = 0L;
-		final GroupMessage joinGroupMessage =
+		long timestamp = 0L;
+		GroupMessage joinGroupMessage =
 				new GroupMessage(message, null, localAuthor);
-		final BdfDictionary meta = new BdfDictionary();
+		BdfDictionary meta = new BdfDictionary();
 
 		expectMarkMessageAvailableToAnswer(lastRemoteMessageId, false);
 		context.checking(new Expectations() {{
@@ -327,7 +327,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		Author notCreator =
 				new Author(new AuthorId(getRandomId()), "Not Creator",
 						getRandomBytes(5));
-		final Contact notCreatorContact =
+		Contact notCreatorContact =
 				new Contact(contactId, notCreator, localAuthor.getId(), true,
 						true);
 
@@ -346,7 +346,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test
 	public void testOnInviteMessageFromStart() throws Exception {
 		InviteeSession session = getDefaultSession(START);
-		final InviteMessage properInviteMessage =
+		InviteMessage properInviteMessage =
 				new InviteMessage(new MessageId(getRandomId()), contactGroupId,
 						privateGroupId, session.getInviteTimestamp() + 1,
 						privateGroup.getName(), privateGroup.getCreator(),
@@ -717,9 +717,9 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	// helper methods
 
-	private void expectMarkMessageAvailableToAnswer(final MessageId id,
-			final boolean available) throws Exception {
-		final BdfDictionary meta = new BdfDictionary();
+	private void expectMarkMessageAvailableToAnswer(MessageId id,
+			boolean available) throws Exception {
+		BdfDictionary meta = new BdfDictionary();
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder)
 					.setAvailableToAnswer(meta, available);
@@ -748,9 +748,9 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	}
 
 	private void expectMarkInvitesUnavailableToAnswer() throws Exception {
-		final BdfDictionary query = BdfDictionary.of(new BdfEntry("query", ""));
-		final BdfDictionary meta = BdfDictionary.of(new BdfEntry("meta", ""));
-		final Map<MessageId, BdfDictionary> invites =
+		BdfDictionary query = BdfDictionary.of(new BdfEntry("query", ""));
+		BdfDictionary meta = BdfDictionary.of(new BdfEntry("meta", ""));
+		Map<MessageId, BdfDictionary> invites =
 				Collections.singletonMap(lastRemoteMessageId, meta);
 		context.checking(new Expectations() {{
 			oneOf(messageParser)

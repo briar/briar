@@ -13,13 +13,8 @@ public abstract class UiResultHandler<R> implements ResultHandler<R> {
 	}
 
 	@Override
-	public void onResult(final R result) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				onResultUi(result);
-			}
-		});
+	public void onResult(R result) {
+		listener.runOnUiThreadUnlessDestroyed(() -> onResultUi(result));
 	}
 
 	@UiThread

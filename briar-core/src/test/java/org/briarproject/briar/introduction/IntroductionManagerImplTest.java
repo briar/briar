@@ -146,7 +146,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testAcceptIntroduction() throws DbException, FormatException {
-		final BdfDictionary state = BdfDictionary.of(
+		BdfDictionary state = BdfDictionary.of(
 				new BdfEntry(GROUP_ID_1, introductionGroup1.getId()),
 				new BdfEntry(GROUP_ID_2, introductionGroup2.getId())
 		);
@@ -177,7 +177,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testDeclineIntroduction() throws DbException, FormatException {
-		final BdfDictionary state = BdfDictionary.of(
+		BdfDictionary state = BdfDictionary.of(
 				new BdfEntry(GROUP_ID_1, introductionGroup1.getId()),
 				new BdfEntry(GROUP_ID_2, introductionGroup2.getId())
 		);
@@ -210,8 +210,8 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 	public void testGetIntroductionMessages()
 			throws DbException, FormatException {
 
-		final Map<MessageId, BdfDictionary> metadata = Collections.emptyMap();
-		final Collection<MessageStatus> statuses = Collections.emptyList();
+		Map<MessageId, BdfDictionary> metadata = Collections.emptyMap();
+		Collection<MessageStatus> statuses = Collections.emptyList();
 		txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
@@ -240,10 +240,10 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 	public void testIncomingRequestMessage()
 			throws DbException, FormatException {
 
-		final BdfDictionary msg = new BdfDictionary();
+		BdfDictionary msg = new BdfDictionary();
 		msg.put(TYPE, TYPE_REQUEST);
 
-		final BdfDictionary state = new BdfDictionary();
+		BdfDictionary state = new BdfDictionary();
 		txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
@@ -267,12 +267,12 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 	public void testIncomingResponseMessage()
 			throws DbException, FormatException {
 
-		final BdfDictionary msg = BdfDictionary.of(
+		BdfDictionary msg = BdfDictionary.of(
 				new BdfEntry(TYPE, TYPE_RESPONSE),
 				new BdfEntry(SESSION_ID, sessionId)
 		);
 
-		final BdfDictionary state = new BdfDictionary();
+		BdfDictionary state = new BdfDictionary();
 		state.put(ROLE, ROLE_INTRODUCER);
 		state.put(GROUP_ID_1, introductionGroup1.getId());
 		state.put(GROUP_ID_2, introductionGroup2.getId());

@@ -65,7 +65,7 @@ public class KeyboardAwareLinearLayout extends LinearLayout {
 			@Nullable AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		rotation = getDeviceRotation();
-		final int statusBarRes = getResources()
+		int statusBarRes = getResources()
 				.getIdentifier("status_bar_height", "dimen", "android");
 		minKeyboardSize =
 				getResources().getDimensionPixelSize(R.dimen.min_keyboard_size);
@@ -199,7 +199,7 @@ public class KeyboardAwareLinearLayout extends LinearLayout {
 		prefs.edit().putInt("keyboard_height_portrait", height).apply();
 	}
 
-	public void postOnKeyboardClose(final Runnable runnable) {
+	public void postOnKeyboardClose(Runnable runnable) {
 		if (keyboardOpen) {
 			addOnKeyboardHiddenListener(new OnKeyboardHiddenListener() {
 				@Override
@@ -213,7 +213,7 @@ public class KeyboardAwareLinearLayout extends LinearLayout {
 		}
 	}
 
-	public void postOnKeyboardOpen(final Runnable runnable) {
+	public void postOnKeyboardOpen(Runnable runnable) {
 		if (!keyboardOpen) {
 			addOnKeyboardShownListener(new OnKeyboardShownListener() {
 				@Override

@@ -2,7 +2,6 @@ package org.briarproject.briar.android.contact;
 
 import android.support.annotation.UiThread;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -26,21 +25,17 @@ class ConversationRequestViewHolder extends ConversationNoticeInViewHolder {
 	}
 
 	void bind(ConversationItem conversationItem,
-			final ConversationListener listener) {
+			ConversationListener listener) {
 		super.bind(conversationItem);
 
-		final ConversationRequestItem item =
+		ConversationRequestItem item =
 				(ConversationRequestItem) conversationItem;
 
 		if (item.wasAnswered() && item.canBeOpened()) {
 			acceptButton.setVisibility(VISIBLE);
 			acceptButton.setText(R.string.open);
-			acceptButton.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					listener.openRequestedShareable(item);
-				}
-			});
+			acceptButton.setOnClickListener(
+					v -> listener.openRequestedShareable(item));
 			declineButton.setVisibility(GONE);
 		} else if (item.wasAnswered()) {
 			acceptButton.setVisibility(GONE);
@@ -48,22 +43,16 @@ class ConversationRequestViewHolder extends ConversationNoticeInViewHolder {
 		} else {
 			acceptButton.setVisibility(VISIBLE);
 			acceptButton.setText(R.string.accept);
-			acceptButton.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					acceptButton.setEnabled(false);
-					declineButton.setEnabled(false);
-					listener.respondToRequest(item, true);
-				}
+			acceptButton.setOnClickListener(v -> {
+				acceptButton.setEnabled(false);
+				declineButton.setEnabled(false);
+				listener.respondToRequest(item, true);
 			});
 			declineButton.setVisibility(VISIBLE);
-			declineButton.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					acceptButton.setEnabled(false);
-					declineButton.setEnabled(false);
-					listener.respondToRequest(item, false);
-				}
+			declineButton.setOnClickListener(v -> {
+				acceptButton.setEnabled(false);
+				declineButton.setEnabled(false);
+				listener.respondToRequest(item, false);
 			});
 		}
 	}

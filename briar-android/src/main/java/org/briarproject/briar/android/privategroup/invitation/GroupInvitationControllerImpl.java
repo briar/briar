@@ -64,21 +64,16 @@ class GroupInvitationControllerImpl
 	}
 
 	@Override
-	public void respondToInvitation(final GroupInvitationItem item,
-			final boolean accept,
-			final ExceptionHandler<DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					PrivateGroup g = item.getShareable();
-					ContactId c = item.getCreator().getId();
-					groupInvitationManager.respondToInvitation(c, g, accept);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+	public void respondToInvitation(GroupInvitationItem item, boolean accept,
+			ExceptionHandler<DbException> handler) {
+		runOnDbThread(() -> {
+			try {
+				PrivateGroup g = item.getShareable();
+				ContactId c = item.getCreator().getId();
+				groupInvitationManager.respondToInvitation(c, g, accept);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}

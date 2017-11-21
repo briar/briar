@@ -40,14 +40,14 @@ public class BitmapUtil {
 	private static <T> Bitmap createScaledBitmapInto(Context context, T model,
 			int width, int height)
 			throws BitmapDecodingException {
-		final Bitmap rough = Downsampler.AT_LEAST
+		Bitmap rough = Downsampler.AT_LEAST
 				.decode(getInputStreamForModel(context, model),
 						Glide.get(context).getBitmapPool(),
 						width, height, DecodeFormat.PREFER_RGB_565);
 
-		final Resource<Bitmap> resource = BitmapResource
+		Resource<Bitmap> resource = BitmapResource
 				.obtain(rough, Glide.get(context).getBitmapPool());
-		final Resource<Bitmap> result =
+		Resource<Bitmap> result =
 				new FitCenter(context).transform(resource, width, height);
 
 		if (result == null) {

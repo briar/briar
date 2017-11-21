@@ -22,7 +22,7 @@ public class MessageContext {
 	}
 
 	public MessageContext(Metadata metadata) {
-		this(metadata, Collections.<MessageId>emptyList());
+		this(metadata, Collections.emptyList());
 	}
 
 	public Metadata getMetadata() {

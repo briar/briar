@@ -61,10 +61,10 @@ public class UnixRemovableDriveMonitorTest extends BrambleTestCase {
 			return;
 		}
 		// Create a callback that will wait for two files before stopping
-		final List<File> detected = new ArrayList<>();
-		final CountDownLatch latch = new CountDownLatch(2);
+		List<File> detected = new ArrayList<>();
+		CountDownLatch latch = new CountDownLatch(2);
 		@NotNullByDefault
-		final Callback callback = new Callback() {
+		Callback callback = new Callback() {
 
 			@Override
 			public void driveInserted(File f) {
@@ -99,7 +99,7 @@ public class UnixRemovableDriveMonitorTest extends BrambleTestCase {
 		TestUtils.deleteTestDirectory(testDir);
 	}
 
-	private RemovableDriveMonitor createMonitor(final File dir) {
+	private RemovableDriveMonitor createMonitor(File dir) {
 		@NotNullByDefault
 		RemovableDriveMonitor monitor = new UnixRemovableDriveMonitor() {
 			@Override

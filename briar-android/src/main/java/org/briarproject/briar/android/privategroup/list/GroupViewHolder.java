@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
@@ -51,8 +50,8 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 		remove = (Button) v.findViewById(R.id.removeButton);
 	}
 
-	void bindView(final Context ctx, final GroupItem group,
-			final OnGroupRemoveClickListener listener) {
+	void bindView(Context ctx, GroupItem group,
+			OnGroupRemoveClickListener listener) {
 		// Avatar
 		avatar.setText(group.getName().substring(0, 1));
 		avatar.setBackgroundBytes(group.getId().getBytes());
@@ -107,25 +106,17 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 			status
 					.setText(ctx.getString(R.string.groups_group_is_dissolved));
 			status.setVisibility(VISIBLE);
-			remove.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					listener.onGroupRemoveClick(group);
-				}
-			});
+			remove.setOnClickListener(v -> listener.onGroupRemoveClick(group));
 			remove.setVisibility(VISIBLE);
 		}
 
 		// Open Group on Click
-		layout.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent i = new Intent(ctx, GroupActivity.class);
-				GroupId id = group.getId();
-				i.putExtra(GROUP_ID, id.getBytes());
-				i.putExtra(GROUP_NAME, group.getName());
-				ctx.startActivity(i);
-			}
+		layout.setOnClickListener(v -> {
+			Intent i = new Intent(ctx, GroupActivity.class);
+			GroupId id = group.getId();
+			i.putExtra(GROUP_ID, id.getBytes());
+			i.putExtra(GROUP_NAME, group.getName());
+			ctx.startActivity(i);
 		});
 	}
 

@@ -352,16 +352,12 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@Override
-	public void surfaceCreated(final SurfaceHolder holder) {
-		post(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					surfaceCreatedUi(holder);
-				} catch (CameraException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+	public void surfaceCreated(SurfaceHolder holder) {
+		post(() -> {
+			try {
+				surfaceCreatedUi(holder);
+			} catch (CameraException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
@@ -379,17 +375,12 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@Override
-	public void surfaceChanged(final SurfaceHolder holder, int format,
-			final int w, final int h) {
-		post(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					surfaceChangedUi(holder, w, h);
-				} catch (CameraException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+		post(() -> {
+			try {
+				surfaceChangedUi(holder, w, h);
+			} catch (CameraException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
@@ -419,13 +410,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@Override
-	public void surfaceDestroyed(final SurfaceHolder holder) {
-		post(new Runnable() {
-			@Override
-			public void run() {
-				surfaceDestroyedUi(holder);
-			}
-		});
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		post(() -> surfaceDestroyedUi(holder));
 	}
 
 	@UiThread
@@ -440,14 +426,9 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@Override
-	public void onAutoFocus(boolean success, final Camera camera) {
+	public void onAutoFocus(boolean success, Camera camera) {
 		LOG.info("Auto focus succeeded: " + success);
-		postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				retryAutoFocus();
-			}
-		}, AUTO_FOCUS_RETRY_DELAY);
+		postDelayed(this::retryAutoFocus, AUTO_FOCUS_RETRY_DELAY);
 	}
 
 	@UiThread

@@ -63,7 +63,7 @@ class LanTcpPlugin extends TcpPlugin {
 		TransportProperties p = callback.getLocalProperties();
 		String oldIpPorts = p.get(PROP_IP_PORTS);
 		List<InetSocketAddress> olds = parseSocketAddresses(oldIpPorts);
-		List<InetSocketAddress> locals = new LinkedList<InetSocketAddress>();
+		List<InetSocketAddress> locals = new LinkedList<>();
 		for (InetAddress local : getLocalIpAddresses()) {
 			if (isAcceptableAddress(local)) {
 				// If this is the old address, try to use the same port
@@ -82,7 +82,7 @@ class LanTcpPlugin extends TcpPlugin {
 	private List<InetSocketAddress> parseSocketAddresses(String ipPorts) {
 		if (StringUtils.isNullOrEmpty(ipPorts)) return Collections.emptyList();
 		String[] split = ipPorts.split(SEPARATOR);
-		List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>();
+		List<InetSocketAddress> addresses = new ArrayList<>();
 		for (String ipPort : split) {
 			InetSocketAddress a = parseSocketAddress(ipPort);
 			if (a != null) addresses.add(a);
@@ -95,7 +95,7 @@ class LanTcpPlugin extends TcpPlugin {
 		String ipPort = getIpPortString(a);
 		// Get the list of recently used addresses
 		String setting = callback.getSettings().get(PREF_LAN_IP_PORTS);
-		List<String> recent = new ArrayList<String>();
+		List<String> recent = new ArrayList<>();
 		if (!StringUtils.isNullOrEmpty(setting))
 			Collections.addAll(recent, setting.split(SEPARATOR));
 		// Is the address already in the list?
@@ -111,7 +111,7 @@ class LanTcpPlugin extends TcpPlugin {
 				recent = recent.subList(0, MAX_ADDRESSES);
 			setting = StringUtils.join(recent, SEPARATOR);
 			// Update the list of addresses shared with contacts
-			List<String> shared = new ArrayList<String>(recent);
+			List<String> shared = new ArrayList<>(recent);
 			Collections.sort(shared);
 			String property = StringUtils.join(shared, SEPARATOR);
 			TransportProperties properties = new TransportProperties();
@@ -260,16 +260,12 @@ class LanTcpPlugin extends TcpPlugin {
 
 		@Override
 		public Callable<KeyAgreementConnection> listen() {
-			return new Callable<KeyAgreementConnection>() {
-				@Override
-				public KeyAgreementConnection call() throws IOException {
-					Socket s = ss.accept();
-					if (LOG.isLoggable(INFO))
-						LOG.info(ID.getString() + ": Incoming connection");
-					return new KeyAgreementConnection(
-							new TcpTransportConnection(LanTcpPlugin.this, s),
-							ID);
-				}
+			return () -> {
+				Socket s = ss.accept();
+				if (LOG.isLoggable(INFO))
+					LOG.info(ID.getString() + ": Incoming connection");
+				return new KeyAgreementConnection(
+						new TcpTransportConnection(LanTcpPlugin.this, s), ID);
 			};
 		}
 

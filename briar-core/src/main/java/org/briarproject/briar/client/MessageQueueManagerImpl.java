@@ -96,7 +96,7 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 	private QueueState loadQueueState(Transaction txn, GroupId g)
 			throws DbException {
 		try {
-			TreeMap<Long, MessageId> pending = new TreeMap<Long, MessageId>();
+			TreeMap<Long, MessageId> pending = new TreeMap<>();
 			Metadata groupMeta = db.getGroupMetadata(txn, g);
 			byte[] raw = groupMeta.get(QUEUE_STATE_KEY);
 			if (raw == null) return new QueueState(0, 0, pending);
@@ -231,7 +231,7 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 						m.getTimestamp(), queuePosition, m.getRaw());
 				queueState.incomingPosition++;
 				// Collect any consecutive messages
-				List<MessageId> consecutive = new ArrayList<MessageId>();
+				List<MessageId> consecutive = new ArrayList<>();
 				MessageId next;
 				while ((next = queueState.popIncomingMessageId()) != null)
 					consecutive.add(next);

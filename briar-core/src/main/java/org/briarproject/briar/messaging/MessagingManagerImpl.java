@@ -176,8 +176,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 		} finally {
 			db.endTransaction(txn);
 		}
-		Collection<PrivateMessageHeader> headers =
-				new ArrayList<PrivateMessageHeader>();
+		Collection<PrivateMessageHeader> headers = new ArrayList<>();
 		for (MessageStatus s : statuses) {
 			MessageId id = s.getMessageId();
 			BdfDictionary meta = metadata.get(id);

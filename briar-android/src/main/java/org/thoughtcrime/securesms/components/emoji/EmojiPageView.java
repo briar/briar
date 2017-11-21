@@ -7,8 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -35,20 +33,16 @@ public class EmojiPageView extends FrameLayout {
 	public EmojiPageView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		final View view = LayoutInflater.from(getContext())
+		View view = LayoutInflater.from(getContext())
 				.inflate(R.layout.emoji_grid_layout, this, true);
 		grid = (GridView) view.findViewById(R.id.emoji);
 		grid.setColumnWidth(getResources()
 				.getDimensionPixelSize(R.dimen.emoji_drawer_size) + 2 *
 				getResources().getDimensionPixelSize(
 						R.dimen.emoji_drawer_item_padding));
-		grid.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				if (listener != null)
-					listener.onEmojiSelected(((EmojiView) view).getEmoji());
-			}
+		grid.setOnItemClickListener((parent, view1, position, id) -> {
+			if (listener != null)
+				listener.onEmojiSelected(((EmojiView) view1).getEmoji());
 		});
 	}
 

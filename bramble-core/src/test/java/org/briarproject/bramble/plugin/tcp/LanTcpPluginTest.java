@@ -145,11 +145,11 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		assertEquals(2, split.length);
 		String addrString = split[0];
 		// Listen on the same interface as the plugin
-		final ServerSocket ss = new ServerSocket();
+		ServerSocket ss = new ServerSocket();
 		ss.bind(new InetSocketAddress(addrString, 0), 10);
 		int port = ss.getLocalPort();
-		final CountDownLatch latch = new CountDownLatch(1);
-		final AtomicBoolean error = new AtomicBoolean(false);
+		CountDownLatch latch = new CountDownLatch(1);
+		AtomicBoolean error = new AtomicBoolean(false);
 		new Thread() {
 			@Override
 			public void run() {
@@ -194,8 +194,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 				plugin.createKeyAgreementListener(new byte[COMMIT_LENGTH]);
 		assertNotNull(kal);
 		Callable<KeyAgreementConnection> c = kal.listen();
-		FutureTask<KeyAgreementConnection> f =
-				new FutureTask<KeyAgreementConnection>(c);
+		FutureTask<KeyAgreementConnection> f = new FutureTask<>(c);
 		new Thread(f).start();
 		// The plugin should have bound a socket and stored the port number
 		BdfList descriptor = kal.getDescriptor();
@@ -240,10 +239,10 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		assertEquals(2, split.length);
 		String addrString = split[0];
 		// Listen on the same interface as the plugin
-		final ServerSocket ss = new ServerSocket();
+		ServerSocket ss = new ServerSocket();
 		ss.bind(new InetSocketAddress(addrString, 0), 10);
-		final CountDownLatch latch = new CountDownLatch(1);
-		final AtomicBoolean error = new AtomicBoolean(false);
+		CountDownLatch latch = new CountDownLatch(1);
+		AtomicBoolean error = new AtomicBoolean(false);
 		new Thread() {
 			@Override
 			public void run() {
@@ -291,7 +290,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	private static class Callback implements DuplexPluginCallback {
 
 		private final Map<ContactId, TransportProperties> remote =
-				new Hashtable<ContactId, TransportProperties>();
+				new Hashtable<>();
 		private final CountDownLatch propertiesLatch = new CountDownLatch(1);
 		private final CountDownLatch connectionsLatch = new CountDownLatch(1);
 		private final TransportProperties local = new TransportProperties();

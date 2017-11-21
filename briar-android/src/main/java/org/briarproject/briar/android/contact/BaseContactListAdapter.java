@@ -23,7 +23,7 @@ public abstract class BaseContactListAdapter<I extends ContactItem, VH extends C
 	}
 
 	@Override
-	public void onBindViewHolder(final VH ui, int position) {
+	public void onBindViewHolder(VH ui, int position) {
 		I item = items.get(position);
 		ui.bind(item, listener);
 	}

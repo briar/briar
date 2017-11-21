@@ -92,9 +92,9 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testStartAndStop() throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, true);
-		final Transaction txn2 = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, true);
+		Transaction txn2 = new Transaction(null, true);
 
 		context.checking(new Expectations() {{
 			// validateOutstandingMessages()
@@ -126,13 +126,13 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testMessagesAreValidatedAtStartup() throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, true);
-		final Transaction txn2 = new Transaction(null, false);
-		final Transaction txn3 = new Transaction(null, true);
-		final Transaction txn4 = new Transaction(null, false);
-		final Transaction txn5 = new Transaction(null, true);
-		final Transaction txn6 = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, true);
+		Transaction txn2 = new Transaction(null, false);
+		Transaction txn3 = new Transaction(null, true);
+		Transaction txn4 = new Transaction(null, false);
+		Transaction txn5 = new Transaction(null, true);
+		Transaction txn6 = new Transaction(null, true);
 
 		context.checking(new Expectations() {{
 			// Get messages to validate
@@ -217,11 +217,11 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testPendingMessagesAreDeliveredAtStartup() throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, true);
-		final Transaction txn2 = new Transaction(null, false);
-		final Transaction txn3 = new Transaction(null, false);
-		final Transaction txn4 = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, true);
+		Transaction txn2 = new Transaction(null, false);
+		Transaction txn3 = new Transaction(null, false);
+		Transaction txn4 = new Transaction(null, true);
 
 		context.checking(new Expectations() {{
 			// Get messages to validate
@@ -303,11 +303,11 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testMessagesAreSharedAtStartup() throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, true);
-		final Transaction txn2 = new Transaction(null, true);
-		final Transaction txn3 = new Transaction(null, false);
-		final Transaction txn4 = new Transaction(null, false);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, true);
+		Transaction txn2 = new Transaction(null, true);
+		Transaction txn3 = new Transaction(null, false);
+		Transaction txn4 = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// No messages to validate
@@ -355,9 +355,9 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testIncomingMessagesAreShared() throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, false);
-		final Transaction txn2 = new Transaction(null, false);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, false);
+		Transaction txn2 = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// Load the group
@@ -405,12 +405,12 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testValidationContinuesAfterNoSuchMessageException()
 			throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, true);
-		final Transaction txn2 = new Transaction(null, true);
-		final Transaction txn3 = new Transaction(null, false);
-		final Transaction txn4 = new Transaction(null, true);
-		final Transaction txn5 = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, true);
+		Transaction txn2 = new Transaction(null, true);
+		Transaction txn3 = new Transaction(null, false);
+		Transaction txn4 = new Transaction(null, true);
+		Transaction txn5 = new Transaction(null, true);
 
 		context.checking(new Expectations() {{
 			// Get messages to validate
@@ -476,12 +476,12 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testValidationContinuesAfterNoSuchGroupException()
 			throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, true);
-		final Transaction txn2 = new Transaction(null, true);
-		final Transaction txn3 = new Transaction(null, false);
-		final Transaction txn4 = new Transaction(null, true);
-		final Transaction txn5 = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, true);
+		Transaction txn2 = new Transaction(null, true);
+		Transaction txn3 = new Transaction(null, false);
+		Transaction txn4 = new Transaction(null, true);
+		Transaction txn5 = new Transaction(null, true);
 
 		context.checking(new Expectations() {{
 			// Get messages to validate
@@ -551,8 +551,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testNonLocalMessagesAreValidatedWhenAdded() throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, false);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// Load the group
@@ -591,8 +591,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testMessagesWithUndeliveredDependenciesArePending()
 			throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, false);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// Load the group
@@ -624,8 +624,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testMessagesWithDeliveredDependenciesGetDelivered()
 			throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, false);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// Load the group
@@ -663,9 +663,9 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testMessagesWithInvalidDependenciesAreInvalid()
 			throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, false);
-		final Transaction txn2 = new Transaction(null, false);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, false);
+		Transaction txn2 = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// Load the group
@@ -716,19 +716,18 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testRecursiveInvalidation() throws Exception {
-		final MessageId messageId3 = new MessageId(TestUtils.getRandomId());
-		final MessageId messageId4 = new MessageId(TestUtils.getRandomId());
-		final Map<MessageId, State> twoDependents =
-				new LinkedHashMap<MessageId, State>();
+		MessageId messageId3 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId4 = new MessageId(TestUtils.getRandomId());
+		Map<MessageId, State> twoDependents = new LinkedHashMap<>();
 		twoDependents.put(messageId1, PENDING);
 		twoDependents.put(messageId2, PENDING);
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, false);
-		final Transaction txn2 = new Transaction(null, false);
-		final Transaction txn3 = new Transaction(null, false);
-		final Transaction txn4 = new Transaction(null, false);
-		final Transaction txn5 = new Transaction(null, false);
-		final Transaction txn6 = new Transaction(null, false);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, false);
+		Transaction txn2 = new Transaction(null, false);
+		Transaction txn3 = new Transaction(null, false);
+		Transaction txn4 = new Transaction(null, false);
+		Transaction txn5 = new Transaction(null, false);
+		Transaction txn6 = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// Load the group
@@ -820,27 +819,25 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testPendingDependentsGetDelivered() throws Exception {
-		final MessageId messageId3 = new MessageId(TestUtils.getRandomId());
-		final MessageId messageId4 = new MessageId(TestUtils.getRandomId());
-		final Message message3 = new Message(messageId3, groupId, timestamp,
+		MessageId messageId3 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId4 = new MessageId(TestUtils.getRandomId());
+		Message message3 = new Message(messageId3, groupId, timestamp,
 				raw);
-		final Message message4 = new Message(messageId4, groupId, timestamp,
+		Message message4 = new Message(messageId4, groupId, timestamp,
 				raw);
-		final Map<MessageId, State> twoDependents =
-				new LinkedHashMap<MessageId, State>();
+		Map<MessageId, State> twoDependents = new LinkedHashMap<>();
 		twoDependents.put(messageId1, PENDING);
 		twoDependents.put(messageId2, PENDING);
-		final Map<MessageId, State> twoDependencies =
-				new LinkedHashMap<MessageId, State>();
+		Map<MessageId, State> twoDependencies = new LinkedHashMap<>();
 		twoDependencies.put(messageId1, DELIVERED);
 		twoDependencies.put(messageId2, DELIVERED);
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, false);
-		final Transaction txn2 = new Transaction(null, false);
-		final Transaction txn3 = new Transaction(null, false);
-		final Transaction txn4 = new Transaction(null, false);
-		final Transaction txn5 = new Transaction(null, false);
-		final Transaction txn6 = new Transaction(null, false);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, false);
+		Transaction txn2 = new Transaction(null, false);
+		Transaction txn3 = new Transaction(null, false);
+		Transaction txn4 = new Transaction(null, false);
+		Transaction txn5 = new Transaction(null, false);
+		Transaction txn6 = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// Load the group
@@ -979,13 +976,12 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testOnlyReadyPendingDependentsGetDelivered() throws Exception {
-		final Map<MessageId, State> twoDependencies =
-				new LinkedHashMap<MessageId, State>();
+		Map<MessageId, State> twoDependencies = new LinkedHashMap<>();
 		twoDependencies.put(messageId, DELIVERED);
 		twoDependencies.put(messageId2, UNKNOWN);
-		final Transaction txn = new Transaction(null, true);
-		final Transaction txn1 = new Transaction(null, false);
-		final Transaction txn2 = new Transaction(null, false);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn1 = new Transaction(null, false);
+		Transaction txn2 = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// Load the group

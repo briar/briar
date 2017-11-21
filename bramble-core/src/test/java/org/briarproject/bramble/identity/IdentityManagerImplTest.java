@@ -80,8 +80,8 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testGetAuthorStatus() throws DbException {
-		final AuthorId authorId = new AuthorId(TestUtils.getRandomId());
-		final Collection<Contact> contacts = new ArrayList<Contact>();
+		AuthorId authorId = new AuthorId(TestUtils.getRandomId());
+		Collection<Contact> contacts = new ArrayList<>();
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
@@ -125,8 +125,8 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 				identityManager.getAuthorStatus(localAuthor.getId()));
 	}
 
-	private void checkAuthorStatusContext(final AuthorId authorId,
-			final Collection<Contact> contacts) throws DbException {
+	private void checkAuthorStatusContext(AuthorId authorId,
+			Collection<Contact> contacts) throws DbException {
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));

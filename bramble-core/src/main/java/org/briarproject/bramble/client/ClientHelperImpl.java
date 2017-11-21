@@ -201,8 +201,7 @@ class ClientHelperImpl implements ClientHelper {
 	public Map<MessageId, BdfDictionary> getMessageMetadataAsDictionary(
 			Transaction txn, GroupId g) throws DbException, FormatException {
 		Map<MessageId, Metadata> raw = db.getMessageMetadata(txn, g);
-		Map<MessageId, BdfDictionary> parsed =
-				new HashMap<MessageId, BdfDictionary>(raw.size());
+		Map<MessageId, BdfDictionary> parsed = new HashMap<>(raw.size());
 		for (Entry<MessageId, Metadata> e : raw.entrySet())
 			parsed.put(e.getKey(), metadataParser.parse(e.getValue()));
 		return parsed;
@@ -229,8 +228,7 @@ class ClientHelperImpl implements ClientHelper {
 			FormatException {
 		Metadata metadata = metadataEncoder.encode(query);
 		Map<MessageId, Metadata> raw = db.getMessageMetadata(txn, g, metadata);
-		Map<MessageId, BdfDictionary> parsed =
-				new HashMap<MessageId, BdfDictionary>(raw.size());
+		Map<MessageId, BdfDictionary> parsed = new HashMap<>(raw.size());
 		for (Entry<MessageId, Metadata> e : raw.entrySet())
 			parsed.put(e.getKey(), metadataParser.parse(e.getValue()));
 		return parsed;

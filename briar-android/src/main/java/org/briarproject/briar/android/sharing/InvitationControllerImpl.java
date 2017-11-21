@@ -91,25 +91,20 @@ public abstract class InvitationControllerImpl<I extends InvitationItem>
 	protected abstract ClientId getShareableClientId();
 
 	@Override
-	public void loadInvitations(final boolean clear,
-			final ResultExceptionHandler<Collection<I>, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				Collection<I> invitations = new ArrayList<>();
-				try {
-					long now = System.currentTimeMillis();
-					invitations.addAll(getInvitations());
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info(
-								"Loading invitations took " + duration + " ms");
-					handler.onResult(invitations);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+	public void loadInvitations(boolean clear,
+			ResultExceptionHandler<Collection<I>, DbException> handler) {
+		runOnDbThread(() -> {
+			Collection<I> invitations = new ArrayList<>();
+			try {
+				long now = System.currentTimeMillis();
+				invitations.addAll(getInvitations());
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading invitations took " + duration + " ms");
+				handler.onResult(invitations);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}

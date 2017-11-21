@@ -86,7 +86,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		this.identityManager = identityManager;
 		this.blogFactory = blogFactory;
 		this.blogPostFactory = blogPostFactory;
-		removeHooks = new CopyOnWriteArrayList<RemoveBlogHook>();
+		removeHooks = new CopyOnWriteArrayList<>();
 	}
 
 	@Override
@@ -404,7 +404,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			throws DbException {
 
 		Collection<Blog> allBlogs = getBlogs();
-		List<Blog> blogs = new ArrayList<Blog>();
+		List<Blog> blogs = new ArrayList<>();
 		for (Blog b : allBlogs) {
 			if (b.getAuthor().equals(localAuthor)) {
 				blogs.add(b);
@@ -421,7 +421,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	@Override
 	public Collection<Blog> getBlogs() throws DbException {
 		try {
-			List<Blog> blogs = new ArrayList<Blog>();
+			List<Blog> blogs = new ArrayList<>();
 			Collection<Group> groups;
 			Transaction txn = db.startTransaction(true);
 			try {
@@ -492,7 +492,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 				new BdfEntry(KEY_TYPE, COMMENT.getInt())
 		);
 
-		Collection<BlogPostHeader> headers = new ArrayList<BlogPostHeader>();
+		Collection<BlogPostHeader> headers = new ArrayList<>();
 		Transaction txn = db.startTransaction(true);
 		try {
 			Map<MessageId, BdfDictionary> metadata1 =
@@ -500,20 +500,18 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			Map<MessageId, BdfDictionary> metadata2 =
 					clientHelper.getMessageMetadataAsDictionary(txn, g, query2);
 			Map<MessageId, BdfDictionary> metadata =
-					new HashMap<MessageId, BdfDictionary>(
-							metadata1.size() + metadata2.size());
+					new HashMap<>(metadata1.size() + metadata2.size());
 			metadata.putAll(metadata1);
 			metadata.putAll(metadata2);
 			// get all authors we need to get the status for
-			Set<AuthorId> authors = new HashSet<AuthorId>();
+			Set<AuthorId> authors = new HashSet<>();
 			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
 				authors.add(new AuthorId(
 						entry.getValue().getDictionary(KEY_AUTHOR)
 								.getRaw(KEY_AUTHOR_ID)));
 			}
 			// get statuses for all authors
-			Map<AuthorId, Status> authorStatuses =
-					new HashMap<AuthorId, Status>();
+			Map<AuthorId, Status> authorStatuses = new HashMap<>();
 			for (AuthorId authorId : authors) {
 				authorStatuses.put(authorId,
 						identityManager.getAuthorStatus(txn, authorId));
@@ -562,7 +560,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			GroupId groupId, MessageId id, BdfDictionary meta)
 			throws DbException, FormatException {
 		return getPostHeaderFromMetadata(txn, groupId, id, meta,
-				Collections.<AuthorId, Status>emptyMap());
+				Collections.emptyMap());
 	}
 
 	private BlogPostHeader getPostHeaderFromMetadata(Transaction txn,

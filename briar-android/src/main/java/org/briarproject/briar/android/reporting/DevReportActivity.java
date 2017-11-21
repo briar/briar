@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.reporting;
 
-import android.content.Context;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,6 +36,7 @@ import java.util.logging.Logger;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static android.view.inputmethod.InputMethodManager.SHOW_FORCED;
 import static java.util.logging.Level.WARNING;
 import static org.acra.ACRAConstants.EXTRA_REPORT_FILE;
 import static org.acra.ReportField.ANDROID_VERSION;
@@ -93,7 +93,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 		Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
 		getDelegate().setSupportActionBar(tb);
 
-		final View requestReport = findViewById(R.id.request_report);
+		View requestReport = findViewById(R.id.request_report);
 		userCommentView = (EditText) findViewById(R.id.user_comment);
 		userEmailView = (EditText) findViewById(R.id.user_email);
 		includeDebugReport = (CheckBox) findViewById(R.id.include_debug_report);
@@ -115,37 +115,22 @@ public class DevReportActivity extends BaseCrashReportDialog
 			includeDebugReport.setChecked(true);
 		}
 
-		findViewById(R.id.acceptButton).setOnClickListener(
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						reviewing = true;
-						requestReport.setVisibility(GONE);
-						((InputMethodManager) getSystemService(
-								Context.INPUT_METHOD_SERVICE))
-								.showSoftInput(userCommentView,
-										InputMethodManager.SHOW_FORCED);
-					}
-				});
-		findViewById(R.id.declineButton).setOnClickListener(
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						closeReport();
-					}
-				});
-		chevron.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				boolean show =
-						chevron.getText().equals(getString(R.string.show));
-				if (show) {
-					chevron.setText(R.string.hide);
-					refresh();
-				} else {
-					chevron.setText(R.string.show);
-					report.setVisibility(GONE);
-				}
+		findViewById(R.id.acceptButton).setOnClickListener(v -> {
+			reviewing = true;
+			requestReport.setVisibility(GONE);
+			((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
+					.showSoftInput(userCommentView, SHOW_FORCED);
+		});
+		findViewById(R.id.declineButton).setOnClickListener(v -> closeReport());
+		chevron.setOnClickListener(v -> {
+			boolean show =
+					chevron.getText().equals(getString(R.string.show));
+			if (show) {
+				chevron.setText(R.string.hide);
+				refresh();
+			} else {
+				chevron.setText(R.string.show);
+				report.setVisibility(GONE);
 			}
 		});
 
@@ -185,7 +170,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case android.R.id.home:
@@ -258,8 +243,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 			protected CrashReportData doInBackground(Void... args) {
 				File reportFile = (File) getIntent().getSerializableExtra(
 						EXTRA_REPORT_FILE);
-				final CrashReportPersister persister =
-						new CrashReportPersister();
+				CrashReportPersister persister = new CrashReportPersister();
 				try {
 					return persister.load(reportFile);
 				} catch (IOException e) {
@@ -308,8 +292,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 		userEmailView.setEnabled(false);
 		sendReport.setEnabled(false);
 		progress.setVisibility(VISIBLE);
-		final boolean includeReport =
-				!isFeedback() || includeDebugReport.isChecked();
+		boolean includeReport = !isFeedback() || includeDebugReport.isChecked();
 		new AsyncTask<Void, Void, Boolean>() {
 
 			@Override

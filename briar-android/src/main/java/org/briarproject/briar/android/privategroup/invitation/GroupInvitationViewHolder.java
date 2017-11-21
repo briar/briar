@@ -17,8 +17,8 @@ class GroupInvitationViewHolder
 	}
 
 	@Override
-	public void onBind(@Nullable final GroupInvitationItem item,
-			final InvitationClickListener<GroupInvitationItem> listener) {
+	public void onBind(@Nullable GroupInvitationItem item,
+			InvitationClickListener<GroupInvitationItem> listener) {
 		super.onBind(item, listener);
 		if (item == null) return;
 

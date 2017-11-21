@@ -80,7 +80,7 @@ public class AppModule {
 	@Provides
 	@Singleton
 	DatabaseConfig provideDatabaseConfig(Application app) {
-		final File dir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
+		File dir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
 		@MethodsNotNullByDefault
 		@ParametersNotNullByDefault
 		DatabaseConfig databaseConfig = new DatabaseConfig() {
@@ -132,7 +132,7 @@ public class AppModule {
 
 	@Provides
 	@Singleton
-	DevConfig provideDevConfig(final CryptoComponent crypto) {
+	DevConfig provideDevConfig(CryptoComponent crypto) {
 		@NotNullByDefault
 		DevConfig devConfig = new DevConfig() {
 

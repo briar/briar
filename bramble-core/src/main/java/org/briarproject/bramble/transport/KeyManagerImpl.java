@@ -58,15 +58,14 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		this.pluginConfig = pluginConfig;
 		this.transportKeyManagerFactory = transportKeyManagerFactory;
 		// Use a ConcurrentHashMap as a thread-safe set
-		activeContacts = new ConcurrentHashMap<ContactId, Boolean>();
-		managers = new ConcurrentHashMap<TransportId, TransportKeyManager>();
+		activeContacts = new ConcurrentHashMap<>();
+		managers = new ConcurrentHashMap<>();
 	}
 
 	@Override
 	public void startService() throws ServiceException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		Map<TransportId, Integer> transports =
-				new HashMap<TransportId, Integer>();
+		Map<TransportId, Integer> transports = new HashMap<>();
 		for (SimplexPluginFactory f : pluginConfig.getSimplexFactories())
 			transports.put(f.getId(), f.getMaxLatency());
 		for (DuplexPluginFactory f : pluginConfig.getDuplexFactories())
@@ -156,14 +155,10 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		}
 	}
 
-	private void removeContact(final ContactId c) {
+	private void removeContact(ContactId c) {
 		activeContacts.remove(c);
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				for (TransportKeyManager m : managers.values())
-					m.removeContact(c);
-			}
+		dbExecutor.execute(() -> {
+			for (TransportKeyManager m : managers.values()) m.removeContact(c);
 		});
 	}
 }

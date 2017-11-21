@@ -64,8 +64,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		this.dbExecutor = dbExecutor;
 		this.validationExecutor = validationExecutor;
 		this.messageFactory = messageFactory;
-		validators = new ConcurrentHashMap<ClientId, MessageValidator>();
-		hooks = new ConcurrentHashMap<ClientId, IncomingMessageHook>();
+		validators = new ConcurrentHashMap<>();
+		hooks = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -93,19 +93,14 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		hooks.put(c, hook);
 	}
 
-	private void validateOutstandingMessagesAsync(final ClientId c) {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				validateOutstandingMessages(c);
-			}
-		});
+	private void validateOutstandingMessagesAsync(ClientId c) {
+		dbExecutor.execute(() -> validateOutstandingMessages(c));
 	}
 
 	@DatabaseExecutor
 	private void validateOutstandingMessages(ClientId c) {
 		try {
-			Queue<MessageId> unvalidated = new LinkedList<MessageId>();
+			Queue<MessageId> unvalidated = new LinkedList<>();
 			Transaction txn = db.startTransaction(true);
 			try {
 				unvalidated.addAll(db.getMessagesToValidate(txn, c));
@@ -119,14 +114,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void validateNextMessageAsync(final Queue<MessageId> unvalidated) {
+	private void validateNextMessageAsync(Queue<MessageId> unvalidated) {
 		if (unvalidated.isEmpty()) return;
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				validateNextMessage(unvalidated);
-			}
-		});
+		dbExecutor.execute(() -> validateNextMessage(unvalidated));
 	}
 
 	@DatabaseExecutor
@@ -158,19 +148,14 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void deliverOutstandingMessagesAsync(final ClientId c) {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				deliverOutstandingMessages(c);
-			}
-		});
+	private void deliverOutstandingMessagesAsync(ClientId c) {
+		dbExecutor.execute(() -> deliverOutstandingMessages(c));
 	}
 
 	@DatabaseExecutor
 	private void deliverOutstandingMessages(ClientId c) {
 		try {
-			Queue<MessageId> pending = new LinkedList<MessageId>();
+			Queue<MessageId> pending = new LinkedList<>();
 			Transaction txn = db.startTransaction(true);
 			try {
 				pending.addAll(db.getPendingMessages(txn, c));
@@ -184,15 +169,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void deliverNextPendingMessageAsync(
-			final Queue<MessageId> pending) {
+	private void deliverNextPendingMessageAsync(Queue<MessageId> pending) {
 		if (pending.isEmpty()) return;
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				deliverNextPendingMessage(pending);
-			}
-		});
+		dbExecutor.execute(() -> deliverNextPendingMessage(pending));
 	}
 
 	@DatabaseExecutor
@@ -229,8 +208,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 							pending.addAll(getPendingDependents(txn, id));
 							if (result.share) {
 								db.setMessageShared(txn, id);
-								toShare = new LinkedList<MessageId>(
-										states.keySet());
+								toShare = new LinkedList<>(states.keySet());
 							}
 						} else {
 							invalidate = getDependentsToInvalidate(txn, id);
@@ -255,13 +233,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void validateMessageAsync(final Message m, final Group g) {
-		validationExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				validateMessage(m, g);
-			}
-		});
+	private void validateMessageAsync(Message m, Group g) {
+		validationExecutor.execute(() -> validateMessage(m, g));
 	}
 
 	@ValidationExecutor
@@ -277,21 +250,16 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			} catch (InvalidMessageException e) {
 				if (LOG.isLoggable(INFO))
 					LOG.log(INFO, e.toString(), e);
-				Queue<MessageId> invalidate = new LinkedList<MessageId>();
+				Queue<MessageId> invalidate = new LinkedList<>();
 				invalidate.add(m.getId());
 				invalidateNextMessageAsync(invalidate);
 			}
 		}
 	}
 
-	private void storeMessageContextAsync(final Message m, final ClientId c,
-			final MessageContext result) {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				storeMessageContext(m, c, result);
-			}
-		});
+	private void storeMessageContextAsync(Message m, ClientId c,
+			MessageContext result) {
+		dbExecutor.execute(() -> storeMessageContext(m, c, result));
 	}
 
 	@DatabaseExecutor
@@ -331,8 +299,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 							pending = getPendingDependents(txn, id);
 							if (result.share) {
 								db.setMessageShared(txn, id);
-								toShare =
-										new LinkedList<MessageId>(dependencies);
+								toShare = new LinkedList<>(dependencies);
 							}
 						} else {
 							invalidate = getDependentsToInvalidate(txn, id);
@@ -378,7 +345,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private Queue<MessageId> getPendingDependents(Transaction txn, MessageId m)
 			throws DbException {
-		Queue<MessageId> pending = new LinkedList<MessageId>();
+		Queue<MessageId> pending = new LinkedList<>();
 		Map<MessageId, State> states = db.getMessageDependents(txn, m);
 		for (Entry<MessageId, State> e : states.entrySet()) {
 			if (e.getValue() == PENDING) pending.add(e.getKey());
@@ -386,19 +353,14 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		return pending;
 	}
 
-	private void shareOutstandingMessagesAsync(final ClientId c) {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				shareOutstandingMessages(c);
-			}
-		});
+	private void shareOutstandingMessagesAsync(ClientId c) {
+		dbExecutor.execute(() -> shareOutstandingMessages(c));
 	}
 
 	@DatabaseExecutor
 	private void shareOutstandingMessages(ClientId c) {
 		try {
-			Queue<MessageId> toShare = new LinkedList<MessageId>();
+			Queue<MessageId> toShare = new LinkedList<>();
 			Transaction txn = db.startTransaction(true);
 			try {
 				toShare.addAll(db.getMessagesToShare(txn, c));
@@ -418,14 +380,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	 * This method should only be called for messages that have all their
 	 * dependencies delivered and have been delivered themselves.
 	 */
-	private void shareNextMessageAsync(final Queue<MessageId> toShare) {
+	private void shareNextMessageAsync(Queue<MessageId> toShare) {
 		if (toShare.isEmpty()) return;
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				shareNextMessage(toShare);
-			}
-		});
+		dbExecutor.execute(() -> shareNextMessage(toShare));
 	}
 
 	@DatabaseExecutor
@@ -452,14 +409,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void invalidateNextMessageAsync(final Queue<MessageId> invalidate) {
+	private void invalidateNextMessageAsync(Queue<MessageId> invalidate) {
 		if (invalidate.isEmpty()) return;
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				invalidateNextMessage(invalidate);
-			}
-		});
+		dbExecutor.execute(() -> invalidateNextMessage(invalidate));
 	}
 
 	@DatabaseExecutor
@@ -496,7 +448,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private Queue<MessageId> getDependentsToInvalidate(Transaction txn,
 			MessageId m) throws DbException {
-		Queue<MessageId> invalidate = new LinkedList<MessageId>();
+		Queue<MessageId> invalidate = new LinkedList<>();
 		Map<MessageId, State> states = db.getMessageDependents(txn, m);
 		for (Entry<MessageId, State> e : states.entrySet()) {
 			if (e.getValue() != INVALID) invalidate.add(e.getKey());
@@ -514,17 +466,12 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void loadGroupAndValidateAsync(final Message m) {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				loadGroupAndValidate(m);
-			}
-		});
+	private void loadGroupAndValidateAsync(Message m) {
+		dbExecutor.execute(() -> loadGroupAndValidate(m));
 	}
 
 	@DatabaseExecutor
-	private void loadGroupAndValidate(final Message m) {
+	private void loadGroupAndValidate(Message m) {
 		try {
 			Group g;
 			Transaction txn = db.startTransaction(true);

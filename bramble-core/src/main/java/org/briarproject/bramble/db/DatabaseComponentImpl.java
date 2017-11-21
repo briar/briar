@@ -103,15 +103,11 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public boolean open() throws DbException {
-		Runnable shutdownHook = new Runnable() {
-			@Override
-			public void run() {
-				try {
-					close();
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+		Runnable shutdownHook = () -> {
+			try {
+				close();
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		};
 		boolean reopened = db.open();
@@ -141,11 +137,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		}
 		try {
 			return new Transaction(db.startTransaction(), readOnly);
-		} catch (DbException e) {
-			if (readOnly) lock.readLock().unlock();
-			else lock.writeLock().unlock();
-			throw e;
-		} catch (RuntimeException e) {
+		} catch (DbException | RuntimeException e) {
 			if (readOnly) lock.readLock().unlock();
 			else lock.writeLock().unlock();
 			throw e;
@@ -331,7 +323,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
 		Collection<MessageId> ids = db.getMessagesToSend(txn, c, maxLength);
-		List<byte[]> messages = new ArrayList<byte[]>(ids.size());
+		List<byte[]> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
 			messages.add(db.getRawMessage(txn, m));
 			db.updateExpiryTime(txn, c, m, maxLatency);
@@ -381,7 +373,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchContactException();
 		Collection<MessageId> ids = db.getRequestedMessagesToSend(txn, c,
 				maxLength);
-		List<byte[]> messages = new ArrayList<byte[]>(ids.size());
+		List<byte[]> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
 			messages.add(db.getRawMessage(txn, m));
 			db.updateExpiryTime(txn, c, m, maxLatency);
@@ -661,7 +653,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		Collection<MessageId> acked = new ArrayList<MessageId>();
+		Collection<MessageId> acked = new ArrayList<>();
 		for (MessageId m : a.getMessageIds()) {
 			if (db.containsVisibleMessage(txn, c, m)) {
 				db.raiseSeenFlag(txn, c, m);
@@ -896,8 +888,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			Map<ContactId, TransportKeys> keys) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		Map<ContactId, TransportKeys> filtered =
-				new HashMap<ContactId, TransportKeys>();
+		Map<ContactId, TransportKeys> filtered = new HashMap<>();
 		for (Entry<ContactId, TransportKeys> e : keys.entrySet()) {
 			ContactId c = e.getKey();
 			TransportKeys k = e.getValue();

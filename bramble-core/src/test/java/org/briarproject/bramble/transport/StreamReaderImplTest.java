@@ -14,7 +14,7 @@ public class StreamReaderImplTest extends BrambleTestCase {
 	@Test
 	public void testEmptyFramesAreSkipped() throws Exception {
 		Mockery context = new Mockery();
-		final StreamDecrypter decrypter = context.mock(StreamDecrypter.class);
+		StreamDecrypter decrypter = context.mock(StreamDecrypter.class);
 		context.checking(new Expectations() {{
 			oneOf(decrypter).readFrame(with(any(byte[].class)));
 			will(returnValue(0)); // Empty frame
@@ -37,7 +37,7 @@ public class StreamReaderImplTest extends BrambleTestCase {
 	@Test
 	public void testEmptyFramesAreSkippedWithBuffer() throws Exception {
 		Mockery context = new Mockery();
-		final StreamDecrypter decrypter = context.mock(StreamDecrypter.class);
+		StreamDecrypter decrypter = context.mock(StreamDecrypter.class);
 		context.checking(new Expectations() {{
 			oneOf(decrypter).readFrame(with(any(byte[].class)));
 			will(returnValue(0)); // Empty frame
@@ -63,7 +63,7 @@ public class StreamReaderImplTest extends BrambleTestCase {
 	@Test
 	public void testMultipleReadsPerFrame() throws Exception {
 		Mockery context = new Mockery();
-		final StreamDecrypter decrypter = context.mock(StreamDecrypter.class);
+		StreamDecrypter decrypter = context.mock(StreamDecrypter.class);
 		context.checking(new Expectations() {{
 			oneOf(decrypter).readFrame(with(any(byte[].class)));
 			will(returnValue(MAX_PAYLOAD_LENGTH)); // Nice long frame
@@ -85,7 +85,7 @@ public class StreamReaderImplTest extends BrambleTestCase {
 	@Test
 	public void testMultipleReadsPerFrameWithOffsets() throws Exception {
 		Mockery context = new Mockery();
-		final StreamDecrypter decrypter = context.mock(StreamDecrypter.class);
+		StreamDecrypter decrypter = context.mock(StreamDecrypter.class);
 		context.checking(new Expectations() {{
 			oneOf(decrypter).readFrame(with(any(byte[].class)));
 			will(returnValue(MAX_PAYLOAD_LENGTH)); // Nice long frame

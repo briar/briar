@@ -86,16 +86,13 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	public void createAccount(final ResultHandler<Void> resultHandler) {
 		if (authorName == null || password == null)
 			throw new IllegalStateException();
-		cryptoExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				databaseConfig.setLocalAuthorName(authorName);
-				SecretKey key = crypto.generateSecretKey();
-				databaseConfig.setEncryptionKey(key);
-				String hex = encryptDatabaseKey(key, password);
-				storeEncryptedDatabaseKey(hex);
-				resultHandler.onResult(null);
-			}
+		cryptoExecutor.execute(() -> {
+			databaseConfig.setLocalAuthorName(authorName);
+			SecretKey key = crypto.generateSecretKey();
+			databaseConfig.setEncryptionKey(key);
+			String hex = encryptDatabaseKey(key, password);
+			storeEncryptedDatabaseKey(hex);
+			resultHandler.onResult(null);
 		});
 	}
 

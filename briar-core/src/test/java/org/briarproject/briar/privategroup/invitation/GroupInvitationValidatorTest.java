@@ -295,8 +295,8 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 		assertEquals(meta, messageContext.getDictionary());
 	}
 
-	private void expectInviteMessage(final boolean exception) throws Exception {
-		final BdfList signed = BdfList.of(message.getTimestamp(),
+	private void expectInviteMessage(boolean exception) throws Exception {
+		BdfList signed = BdfList.of(message.getTimestamp(),
 				message.getGroupId(), privateGroup.getId());
 		context.checking(new Expectations() {{
 			oneOf(authorFactory).createAuthor(creatorName, creatorKey);

@@ -5,6 +5,7 @@ import android.view.View;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.sharing.InvitationAdapter.InvitationClickListener;
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
 
 import java.util.ArrayList;
@@ -20,8 +21,8 @@ class SharingInvitationViewHolder
 	}
 
 	@Override
-	public void onBind(@Nullable final SharingInvitationItem item,
-			final InvitationAdapter.InvitationClickListener<SharingInvitationItem> listener) {
+	public void onBind(@Nullable SharingInvitationItem item,
+			InvitationClickListener<SharingInvitationItem> listener) {
 		super.onBind(item, listener);
 		if (item == null) return;
 

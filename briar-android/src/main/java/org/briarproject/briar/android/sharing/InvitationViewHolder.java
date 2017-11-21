@@ -38,8 +38,7 @@ public class InvitationViewHolder<I extends InvitationItem>
 	}
 
 	@CallSuper
-	public void onBind(@Nullable final I item,
-			final InvitationClickListener<I> listener) {
+	public void onBind(@Nullable I item, InvitationClickListener<I> listener) {
 		if (item == null) return;
 
 		avatar.setText(item.getShareable().getName().substring(0, 1));
@@ -53,18 +52,8 @@ public class InvitationViewHolder<I extends InvitationItem>
 			subscribed.setVisibility(GONE);
 		}
 
-		accept.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				listener.onItemClick(item, true);
-			}
-		});
-		decline.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				listener.onItemClick(item, false);
-			}
-		});
+		accept.setOnClickListener(v -> listener.onItemClick(item, true));
+		decline.setOnClickListener(v -> listener.onItemClick(item, false));
 	}
 
 }

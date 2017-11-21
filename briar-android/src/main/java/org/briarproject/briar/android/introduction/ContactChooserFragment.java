@@ -71,13 +71,10 @@ public class ContactChooserFragment extends BaseFragment {
 		View contentView = inflater.inflate(R.layout.list, container, false);
 
 		OnContactClickListener<ContactListItem> onContactClickListener =
-				new OnContactClickListener<ContactListItem>() {
-					@Override
-					public void onItemClick(View view, ContactListItem item) {
-						if (c1 == null) throw new IllegalStateException();
-						Contact c2 = item.getContact();
-						showMessageScreen(c1, c2);
-					}
+				(view, item) -> {
+					if (c1 == null) throw new IllegalStateException();
+					Contact c2 = item.getContact();
+					showMessageScreen(c1, c2);
 				};
 		adapter = new ContactListAdapter(getActivity(), onContactClickListener);
 
@@ -115,40 +112,32 @@ public class ContactChooserFragment extends BaseFragment {
 	}
 
 	private void loadContacts() {
-		listener.runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					List<ContactListItem> contacts = new ArrayList<>();
-					for (Contact c : contactManager.getActiveContacts()) {
-						if (c.getId().equals(contactId)) {
-							c1 = c;
-						} else {
-							ContactId id = c.getId();
-							GroupCount count =
-									conversationManager.getGroupCount(id);
-							boolean connected =
-									connectionRegistry.isConnected(c.getId());
-							contacts.add(new ContactListItem(c, connected,
-									count));
-						}
+		listener.runOnDbThread(() -> {
+			try {
+				List<ContactListItem> contacts = new ArrayList<>();
+				for (Contact c : contactManager.getActiveContacts()) {
+					if (c.getId().equals(contactId)) {
+						c1 = c;
+					} else {
+						ContactId id = c.getId();
+						GroupCount count =
+								conversationManager.getGroupCount(id);
+						boolean connected =
+								connectionRegistry.isConnected(c.getId());
+						contacts.add(new ContactListItem(c, connected, count));
 					}
-					displayContacts(contacts);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
 				}
+				displayContacts(contacts);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void displayContacts(final List<ContactListItem> contacts) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				if (contacts.isEmpty()) list.showData();
-				else adapter.addAll(contacts);
-			}
+	private void displayContacts(List<ContactListItem> contacts) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			if (contacts.isEmpty()) list.showData();
+			else adapter.addAll(contacts);
 		});
 	}
 

@@ -27,7 +27,7 @@ public abstract class InvitationAdapter<I extends InvitationItem, VH extends Inv
 
 	@Override
 	public void onBindViewHolder(VH ui, int position) {
-		final I item = getItemAt(position);
+		I item = getItemAt(position);
 		if (item == null) return;
 		ui.onBind(item, listener);
 	}

@@ -84,39 +84,26 @@ abstract class BaseControllerImpl extends DbControllerImpl
 		this.listener = listener;
 	}
 
-	void onBlogPostAdded(final BlogPostHeader h, final boolean local) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.onBlogPostAdded(h, local);
-			}
-		});
+	void onBlogPostAdded(BlogPostHeader h, boolean local) {
+		listener.runOnUiThreadUnlessDestroyed(
+				() -> listener.onBlogPostAdded(h, local));
 	}
 
 	void onBlogRemoved() {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.onBlogRemoved();
-			}
-		});
+		listener.runOnUiThreadUnlessDestroyed(() -> listener.onBlogRemoved());
 	}
 
-
 	@Override
-	public void loadBlogPosts(final GroupId groupId,
-			final ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Collection<BlogPostItem> items = loadItems(groupId);
-					handler.onResult(items);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+	public void loadBlogPosts(GroupId groupId,
+			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
+		runOnDbThread(() -> {
+			try {
+				Collection<BlogPostItem> items = loadItems(groupId);
+				handler.onResult(items);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
@@ -142,8 +129,8 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void loadBlogPost(final BlogPostHeader header,
-			final ResultExceptionHandler<BlogPostItem, DbException> handler) {
+	public void loadBlogPost(BlogPostHeader header,
+			ResultExceptionHandler<BlogPostItem, DbException> handler) {
 
 		String body = bodyCache.get(header.getId());
 		if (body != null) {
@@ -151,28 +138,25 @@ abstract class BaseControllerImpl extends DbControllerImpl
 			handler.onResult(new BlogPostItem(header, body));
 			return;
 		}
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					BlogPostItem item = getItem(header);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading body took " + duration + " ms");
-					handler.onResult(item);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				BlogPostItem item = getItem(header);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading body took " + duration + " ms");
+				handler.onResult(item);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
 
 	@Override
-	public void loadBlogPost(final GroupId g, final MessageId m,
-			final ResultExceptionHandler<BlogPostItem, DbException> handler) {
+	public void loadBlogPost(GroupId g, MessageId m,
+			ResultExceptionHandler<BlogPostItem, DbException> handler) {
 
 		BlogPostHeader header = headerCache.get(m);
 		if (header != null) {
@@ -180,43 +164,36 @@ abstract class BaseControllerImpl extends DbControllerImpl
 			loadBlogPost(header, handler);
 			return;
 		}
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					BlogPostHeader header = getPostHeader(g, m);
-					BlogPostItem item = getItem(header);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading post took " + duration + " ms");
-					handler.onResult(item);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				BlogPostHeader header1 = getPostHeader(g, m);
+				BlogPostItem item = getItem(header1);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading post took " + duration + " ms");
+				handler.onResult(item);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
 
 	@Override
-	public void repeatPost(final BlogPostItem item,
-			final @Nullable String comment,
-			final ExceptionHandler<DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					LocalAuthor a = identityManager.getLocalAuthor();
-					Blog b = blogManager.getPersonalBlog(a);
-					BlogPostHeader h = item.getHeader();
-					blogManager.addLocalComment(a, b.getId(), comment, h);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+	public void repeatPost(BlogPostItem item, @Nullable String comment,
+			ExceptionHandler<DbException> handler) {
+		runOnDbThread(() -> {
+			try {
+				LocalAuthor a = identityManager.getLocalAuthor();
+				Blog b = blogManager.getPersonalBlog(a);
+				BlogPostHeader h = item.getHeader();
+				blogManager.addLocalComment(a, b.getId(), comment, h);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}

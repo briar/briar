@@ -85,8 +85,8 @@ public abstract class InvitationActivity<I extends InvitationItem>
 	}
 
 	@Override
-	public void loadInvitations(final boolean clear) {
-		final int revision = adapter.getRevision();
+	public void loadInvitations(boolean clear) {
+		int revision = adapter.getRevision();
 		getController().loadInvitations(clear,
 				new UiResultExceptionHandler<Collection<I>, DbException>(
 						this) {
@@ -104,8 +104,7 @@ public abstract class InvitationActivity<I extends InvitationItem>
 
 	abstract protected InvitationController<I> getController();
 
-	protected void respondToInvitation(final I item,
-			final boolean accept) {
+	protected void respondToInvitation(I item, boolean accept) {
 		getController().respondToInvitation(item, accept,
 				new UiExceptionHandler<DbException>(this) {
 					@Override
@@ -121,22 +120,19 @@ public abstract class InvitationActivity<I extends InvitationItem>
 	@StringRes
 	abstract protected int getDeclineRes();
 
-	protected void displayInvitations(final int revision,
-			final Collection<I> invitations, final boolean clear) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				if (invitations.isEmpty()) {
-					LOG.info("No more invitations available, finishing");
-					supportFinishAfterTransition();
-				} else if (revision == adapter.getRevision()) {
-					adapter.incrementRevision();
-					if (clear) adapter.setItems(invitations);
-					else adapter.addAll(invitations);
-				} else {
-					LOG.info("Concurrent update, reloading");
-					loadInvitations(clear);
-				}
+	protected void displayInvitations(int revision, Collection<I> invitations,
+			boolean clear) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			if (invitations.isEmpty()) {
+				LOG.info("No more invitations available, finishing");
+				supportFinishAfterTransition();
+			} else if (revision == adapter.getRevision()) {
+				adapter.incrementRevision();
+				if (clear) adapter.setItems(invitations);
+				else adapter.addAll(invitations);
+			} else {
+				LOG.info("Concurrent update, reloading");
+				loadInvitations(clear);
 			}
 		});
 	}

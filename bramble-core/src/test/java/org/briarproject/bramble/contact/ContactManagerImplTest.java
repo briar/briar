@@ -46,10 +46,10 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testAddContact() throws Exception {
-		final SecretKey master = getSecretKey();
-		final long timestamp = 42;
-		final boolean alice = true;
-		final Transaction txn = new Transaction(null, false);
+		SecretKey master = getSecretKey();
+		long timestamp = 42;
+		boolean alice = true;
+		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
@@ -64,14 +64,13 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).endTransaction(txn);
 		}});
 
-		assertEquals(contactId, contactManager
-				.addContact(remote, local, master, timestamp, alice, verified,
-						active));
+		assertEquals(contactId, contactManager.addContact(remote, local,
+				master, timestamp, alice, verified, active));
 	}
 
 	@Test
 	public void testGetContact() throws Exception {
-		final Transaction txn = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
@@ -86,8 +85,8 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testGetContactByAuthor() throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final Collection<Contact> contacts = Collections.singleton(contact);
+		Transaction txn = new Transaction(null, true);
+		Collection<Contact> contacts = Collections.singleton(contact);
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
@@ -102,7 +101,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 	@Test(expected = NoSuchContactException.class)
 	public void testGetContactByUnknownAuthor() throws Exception {
-		final Transaction txn = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
@@ -116,8 +115,8 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 	@Test(expected = NoSuchContactException.class)
 	public void testGetContactByUnknownLocalAuthor() throws Exception {
-		final Transaction txn = new Transaction(null, true);
-		final Collection<Contact> contacts = Collections.singleton(contact);
+		Transaction txn = new Transaction(null, true);
+		Collection<Contact> contacts = Collections.singleton(contact);
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
@@ -132,10 +131,9 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testActiveContacts() throws Exception {
 		Collection<Contact> activeContacts = Collections.singletonList(contact);
-		final Collection<Contact> contacts =
-				new ArrayList<Contact>(activeContacts);
+		Collection<Contact> contacts = new ArrayList<>(activeContacts);
 		contacts.add(new Contact(new ContactId(3), remote, local, true, false));
-		final Transaction txn = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
@@ -150,7 +148,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testRemoveContact() throws Exception {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));
@@ -166,7 +164,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testSetContactActive() throws Exception {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 		context.checking(new Expectations() {{
 			oneOf(db).setContactActive(txn, contactId, active);
 		}});
@@ -176,7 +174,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testContactExists() throws Exception {
-		final Transaction txn = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));

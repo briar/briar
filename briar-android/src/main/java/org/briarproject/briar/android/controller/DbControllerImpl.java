@@ -28,17 +28,14 @@ public class DbControllerImpl implements DbController {
 	}
 
 	@Override
-	public void runOnDbThread(final Runnable task) {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					lifecycleManager.waitForDatabase();
-					task.run();
-				} catch (InterruptedException e) {
-					LOG.warning("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
-				}
+	public void runOnDbThread(Runnable task) {
+		dbExecutor.execute(() -> {
+			try {
+				lifecycleManager.waitForDatabase();
+				task.run();
+			} catch (InterruptedException e) {
+				LOG.warning("Interrupted while waiting for database");
+				Thread.currentThread().interrupt();
 			}
 		});
 	}

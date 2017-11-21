@@ -103,14 +103,9 @@ public class RssFeedManageActivity extends BriarActivity
 	}
 
 	@Override
-	public void onDeleteClick(final Feed feed) {
+	public void onDeleteClick(Feed feed) {
 		DialogInterface.OnClickListener okListener =
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						deleteFeed(feed);
-					}
-				};
+				(dialog, which) -> deleteFeed(feed);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this,
 				R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.blogs_rss_remove_feed));
@@ -123,82 +118,60 @@ public class RssFeedManageActivity extends BriarActivity
 	}
 
 	private void loadFeeds() {
-		final int revision = adapter.getRevision();
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					displayFeeds(revision, feedManager.getFeeds());
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					onLoadError();
-				}
+		int revision = adapter.getRevision();
+		runOnDbThread(() -> {
+			try {
+				displayFeeds(revision, feedManager.getFeeds());
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				onLoadError();
 			}
 		});
 	}
 
-	private void displayFeeds(final int revision, final List<Feed> feeds) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				if (revision == adapter.getRevision()) {
-					adapter.incrementRevision();
-					if (feeds.isEmpty()) list.showData();
-					else adapter.addAll(feeds);
-				} else {
-					LOG.info("Concurrent update, reloading");
-					loadFeeds();
-				}
+	private void displayFeeds(int revision, List<Feed> feeds) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			if (revision == adapter.getRevision()) {
+				adapter.incrementRevision();
+				if (feeds.isEmpty()) list.showData();
+				else adapter.addAll(feeds);
+			} else {
+				LOG.info("Concurrent update, reloading");
+				loadFeeds();
 			}
 		});
 	}
 
-	private void deleteFeed(final Feed feed) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					feedManager.removeFeed(feed);
-					onFeedDeleted(feed);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					onDeleteError();
-				}
+	private void deleteFeed(Feed feed) {
+		runOnDbThread(() -> {
+			try {
+				feedManager.removeFeed(feed);
+				onFeedDeleted(feed);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				onDeleteError();
 			}
 		});
 	}
 
 	private void onLoadError() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				list.setEmptyText(R.string.blogs_rss_feeds_manage_error);
-				list.showData();
-			}
+		runOnUiThreadUnlessDestroyed(() -> {
+			list.setEmptyText(R.string.blogs_rss_feeds_manage_error);
+			list.showData();
 		});
 	}
 
-	private void onFeedDeleted(final Feed feed) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				adapter.incrementRevision();
-				adapter.remove(feed);
-			}
+	private void onFeedDeleted(Feed feed) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			adapter.incrementRevision();
+			adapter.remove(feed);
 		});
 	}
 
 	private void onDeleteError() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				Snackbar.make(list,
-						R.string.blogs_rss_feeds_manage_delete_error,
-						LENGTH_LONG).show();
-			}
-		});
+		runOnUiThreadUnlessDestroyed(() -> Snackbar.make(list,
+				R.string.blogs_rss_feeds_manage_delete_error,
+				LENGTH_LONG).show());
 	}
 }
 

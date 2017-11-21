@@ -44,7 +44,6 @@ import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
@@ -138,16 +137,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Override
 	public void stopService() throws ServiceException {
 		// Clear all notifications
-		Future<Void> f = androidExecutor.runOnUiThread(new Callable<Void>() {
-			@Override
-			public Void call() {
-				clearContactNotification();
-				clearGroupMessageNotification();
-				clearForumPostNotification();
-				clearBlogPostNotification();
-				clearIntroductionSuccessNotification();
-				return null;
-			}
+		Future<Void> f = androidExecutor.runOnUiThread(() -> {
+			clearContactNotification();
+			clearGroupMessageNotification();
+			clearForumPostNotification();
+			clearBlogPostNotification();
+			clearIntroductionSuccessNotification();
+			return null;
 		});
 		try {
 			f.get();
@@ -236,44 +232,35 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	private void loadSettings() {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+		dbExecutor.execute(() -> {
+			try {
+				settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void showContactNotification(final ContactId c) {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (blockContacts) return;
-				if (c.equals(blockedContact)) return;
-				Integer count = contactCounts.get(c);
-				if (count == null) contactCounts.put(c, 1);
-				else contactCounts.put(c, count + 1);
-				contactTotal++;
-				updateContactNotification(true);
-			}
+	private void showContactNotification(ContactId c) {
+		androidExecutor.runOnUiThread(() -> {
+			if (blockContacts) return;
+			if (c.equals(blockedContact)) return;
+			Integer count = contactCounts.get(c);
+			if (count == null) contactCounts.put(c, 1);
+			else contactCounts.put(c, count + 1);
+			contactTotal++;
+			updateContactNotification(true);
 		});
 	}
 
 	@Override
-	public void clearContactNotification(final ContactId c) {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Integer count = contactCounts.remove(c);
-				if (count == null) return; // Already cleared
-				contactTotal -= count;
-				updateContactNotification(false);
-			}
+	public void clearContactNotification(ContactId c) {
+		androidExecutor.runOnUiThread(() -> {
+			Integer count = contactCounts.remove(c);
+			if (count == null) return; // Already cleared
+			contactTotal -= count;
+			updateContactNotification(false);
 		});
 	}
 
@@ -358,40 +345,30 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void clearAllContactNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				clearContactNotification();
-			}
-		});
+		androidExecutor.runOnUiThread(
+				(Runnable) this::clearContactNotification);
 	}
 
 	@UiThread
-	private void showGroupMessageNotification(final GroupId g) {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (blockGroups) return;
-				if (g.equals(blockedGroup)) return;
-				Integer count = groupCounts.get(g);
-				if (count == null) groupCounts.put(g, 1);
-				else groupCounts.put(g, count + 1);
-				groupTotal++;
-				updateGroupMessageNotification(true);
-			}
+	private void showGroupMessageNotification(GroupId g) {
+		androidExecutor.runOnUiThread(() -> {
+			if (blockGroups) return;
+			if (g.equals(blockedGroup)) return;
+			Integer count = groupCounts.get(g);
+			if (count == null) groupCounts.put(g, 1);
+			else groupCounts.put(g, count + 1);
+			groupTotal++;
+			updateGroupMessageNotification(true);
 		});
 	}
 
 	@Override
-	public void clearGroupMessageNotification(final GroupId g) {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Integer count = groupCounts.remove(g);
-				if (count == null) return; // Already cleared
-				groupTotal -= count;
-				updateGroupMessageNotification(false);
-			}
+	public void clearGroupMessageNotification(GroupId g) {
+		androidExecutor.runOnUiThread(() -> {
+			Integer count = groupCounts.remove(g);
+			if (count == null) return; // Already cleared
+			groupTotal -= count;
+			updateGroupMessageNotification(false);
 		});
 	}
 
@@ -445,40 +422,30 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void clearAllGroupMessageNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				clearGroupMessageNotification();
-			}
-		});
+		androidExecutor.runOnUiThread(
+				(Runnable) this::clearGroupMessageNotification);
 	}
 
 	@UiThread
-	private void showForumPostNotification(final GroupId g) {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (blockForums) return;
-				if (g.equals(blockedGroup)) return;
-				Integer count = forumCounts.get(g);
-				if (count == null) forumCounts.put(g, 1);
-				else forumCounts.put(g, count + 1);
-				forumTotal++;
-				updateForumPostNotification(true);
-			}
+	private void showForumPostNotification(GroupId g) {
+		androidExecutor.runOnUiThread(() -> {
+			if (blockForums) return;
+			if (g.equals(blockedGroup)) return;
+			Integer count = forumCounts.get(g);
+			if (count == null) forumCounts.put(g, 1);
+			else forumCounts.put(g, count + 1);
+			forumTotal++;
+			updateForumPostNotification(true);
 		});
 	}
 
 	@Override
-	public void clearForumPostNotification(final GroupId g) {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Integer count = forumCounts.remove(g);
-				if (count == null) return; // Already cleared
-				forumTotal -= count;
-				updateForumPostNotification(false);
-			}
+	public void clearForumPostNotification(GroupId g) {
+		androidExecutor.runOnUiThread(() -> {
+			Integer count = forumCounts.remove(g);
+			if (count == null) return; // Already cleared
+			forumTotal -= count;
+			updateForumPostNotification(false);
 		});
 	}
 
@@ -532,40 +499,30 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void clearAllForumPostNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				clearForumPostNotification();
-			}
-		});
+		androidExecutor.runOnUiThread(
+				(Runnable) this::clearForumPostNotification);
 	}
 
 	@UiThread
-	private void showBlogPostNotification(final GroupId g) {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (blockBlogs) return;
-				if (g.equals(blockedGroup)) return;
-				Integer count = blogCounts.get(g);
-				if (count == null) blogCounts.put(g, 1);
-				else blogCounts.put(g, count + 1);
-				blogTotal++;
-				updateBlogPostNotification(true);
-			}
+	private void showBlogPostNotification(GroupId g) {
+		androidExecutor.runOnUiThread(() -> {
+			if (blockBlogs) return;
+			if (g.equals(blockedGroup)) return;
+			Integer count = blogCounts.get(g);
+			if (count == null) blogCounts.put(g, 1);
+			else blogCounts.put(g, count + 1);
+			blogTotal++;
+			updateBlogPostNotification(true);
 		});
 	}
 
 	@Override
-	public void clearBlogPostNotification(final GroupId g) {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Integer count = blogCounts.remove(g);
-				if (count == null) return; // Already cleared
-				blogTotal -= count;
-				updateBlogPostNotification(false);
-			}
+	public void clearBlogPostNotification(GroupId g) {
+		androidExecutor.runOnUiThread(() -> {
+			Integer count = blogCounts.remove(g);
+			if (count == null) return; // Already cleared
+			blogTotal -= count;
+			updateBlogPostNotification(false);
 		});
 	}
 
@@ -606,22 +563,15 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void clearAllBlogPostNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				clearBlogPostNotification();
-			}
-		});
+		androidExecutor.runOnUiThread(
+				(Runnable) this::clearBlogPostNotification);
 	}
 
 	private void showIntroductionNotification() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (blockIntroductions) return;
-				introductionTotal++;
-				updateIntroductionNotification();
-			}
+		androidExecutor.runOnUiThread(() -> {
+			if (blockIntroductions) return;
+			introductionTotal++;
+			updateIntroductionNotification();
 		});
 	}
 
@@ -656,71 +606,41 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@Override
 	public void clearAllIntroductionNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				clearIntroductionSuccessNotification();
-			}
+		androidExecutor.runOnUiThread(
+				this::clearIntroductionSuccessNotification);
+	}
+
+	@Override
+	public void blockNotification(GroupId g) {
+		androidExecutor.runOnUiThread((Runnable) () -> blockedGroup = g);
+	}
+
+	@Override
+	public void unblockNotification(GroupId g) {
+		androidExecutor.runOnUiThread(() -> {
+			if (g.equals(blockedGroup)) blockedGroup = null;
 		});
 	}
 
 	@Override
-	public void blockNotification(final GroupId g) {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				blockedGroup = g;
-			}
-		});
+	public void blockContactNotification(ContactId c) {
+		androidExecutor.runOnUiThread((Runnable) () -> blockedContact = c);
 	}
 
 	@Override
-	public void unblockNotification(final GroupId g) {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (g.equals(blockedGroup)) blockedGroup = null;
-			}
-		});
-	}
-
-	@Override
-	public void blockContactNotification(final ContactId c) {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				blockedContact = c;
-			}
-		});
-	}
-
-	@Override
-	public void unblockContactNotification(final ContactId c) {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (c.equals(blockedContact)) blockedContact = null;
-			}
+	public void unblockContactNotification(ContactId c) {
+		androidExecutor.runOnUiThread(() -> {
+			if (c.equals(blockedContact)) blockedContact = null;
 		});
 	}
 
 	@Override
 	public void blockAllBlogPostNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				blockBlogs = true;
-			}
-		});
+		androidExecutor.runOnUiThread((Runnable) () -> blockBlogs = true);
 	}
 
 	@Override
 	public void unblockAllBlogPostNotifications() {
-		androidExecutor.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				blockBlogs = false;
-			}
-		});
+		androidExecutor.runOnUiThread((Runnable) () -> blockBlogs = false);
 	}
 }

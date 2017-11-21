@@ -120,62 +120,50 @@ class ForumControllerImpl extends
 
 	@Override
 	public void loadSharingContacts(
-			final ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Collection<Contact> contacts =
-							forumSharingManager.getSharedWith(getGroupId());
-					Collection<ContactId> contactIds =
-							new ArrayList<>(contacts.size());
-					for (Contact c : contacts) contactIds.add(c.getId());
-					handler.onResult(contactIds);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+			ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
+		runOnDbThread(() -> {
+			try {
+				Collection<Contact> contacts =
+						forumSharingManager.getSharedWith(getGroupId());
+				Collection<ContactId> contactIds =
+						new ArrayList<>(contacts.size());
+				for (Contact c : contacts) contactIds.add(c.getId());
+				handler.onResult(contactIds);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
 
 	@Override
-	public void createAndStoreMessage(final String body,
-			@Nullable final ForumItem parentItem,
-			final ResultExceptionHandler<ForumItem, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					LocalAuthor author = identityManager.getLocalAuthor();
-					GroupCount count = forumManager.getGroupCount(getGroupId());
-					long timestamp = max(count.getLatestMsgTime() + 1,
-							clock.currentTimeMillis());
-					MessageId parentId = parentItem != null ?
-							parentItem.getId() : null;
-					createMessage(body, timestamp, parentId, author, handler);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+	public void createAndStoreMessage(String body,
+			@Nullable ForumItem parentItem,
+			ResultExceptionHandler<ForumItem, DbException> handler) {
+		runOnDbThread(() -> {
+			try {
+				LocalAuthor author = identityManager.getLocalAuthor();
+				GroupCount count = forumManager.getGroupCount(getGroupId());
+				long timestamp = max(count.getLatestMsgTime() + 1,
+						clock.currentTimeMillis());
+				MessageId parentId = parentItem != null ?
+						parentItem.getId() : null;
+				createMessage(body, timestamp, parentId, author, handler);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
 
-	private void createMessage(final String body, final long timestamp,
-			final @Nullable MessageId parentId, final LocalAuthor author,
-			final ResultExceptionHandler<ForumItem, DbException> handler) {
-		cryptoExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				LOG.info("Creating forum post...");
-				ForumPost msg = forumManager
-						.createLocalPost(getGroupId(), body, timestamp,
-								parentId, author);
-				storePost(msg, body, handler);
-			}
+	private void createMessage(String body, long timestamp,
+			@Nullable MessageId parentId, LocalAuthor author,
+			ResultExceptionHandler<ForumItem, DbException> handler) {
+		cryptoExecutor.execute(() -> {
+			LOG.info("Creating forum post...");
+			ForumPost msg = forumManager.createLocalPost(getGroupId(), body,
+					timestamp, parentId, author);
+			storePost(msg, body, handler);
 		});
 	}
 
@@ -196,31 +184,18 @@ class ForumControllerImpl extends
 	}
 
 	private void onForumPostReceived(ForumPostHeader h, String body) {
-		final ForumItem item = buildItem(h, body);
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.onItemReceived(item);
-			}
-		});
+		ForumItem item = buildItem(h, body);
+		listener.runOnUiThreadUnlessDestroyed(
+				() -> listener.onItemReceived(item));
 	}
 
-	private void onForumInvitationAccepted(final ContactId c) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.onInvitationAccepted(c);
-			}
-		});
+	private void onForumInvitationAccepted(ContactId c) {
+		listener.runOnUiThreadUnlessDestroyed(
+				() -> listener.onInvitationAccepted(c));
 	}
 
-	private void onForumLeft(final ContactId c) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				listener.onForumLeft(c);
-			}
-		});
+	private void onForumLeft(ContactId c) {
+		listener.runOnUiThreadUnlessDestroyed(() -> listener.onForumLeft(c));
 	}
 
 }

@@ -15,13 +15,9 @@ public class ShutdownManagerImplTest extends BrambleTestCase {
 	@Test
 	public void testAddAndRemove() {
 		ShutdownManager s = createShutdownManager();
-		Set<Integer> handles = new HashSet<Integer>();
+		Set<Integer> handles = new HashSet<>();
 		for (int i = 0; i < 100; i++) {
-			int handle = s.addShutdownHook(new Runnable() {
-				@Override
-				public void run() {
-				}
-			});
+			int handle = s.addShutdownHook(() -> {});
 			// The handles should all be distinct
 			assertTrue(handles.add(handle));
 		}

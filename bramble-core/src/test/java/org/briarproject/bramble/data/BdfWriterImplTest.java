@@ -1,7 +1,6 @@
 package org.briarproject.bramble.data;
 
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -155,7 +154,7 @@ public class BdfWriterImplTest extends BrambleTestCase {
 
 	@Test
 	public void testWriteList() throws IOException {
-		List<Object> l = new ArrayList<Object>();
+		List<Object> l = new ArrayList<>();
 		for (int i = 0; i < 3; i++) l.add(i);
 		w.writeList(l);
 		// LIST tag, elements as integers, END tag
@@ -164,7 +163,7 @@ public class BdfWriterImplTest extends BrambleTestCase {
 
 	@Test
 	public void testListCanContainNull() throws IOException {
-		List<Object> l = new ArrayList<Object>();
+		List<Object> l = new ArrayList<>();
 		l.add(1);
 		l.add(null);
 		l.add(NULL_VALUE);
@@ -177,7 +176,7 @@ public class BdfWriterImplTest extends BrambleTestCase {
 	@Test
 	public void testWriteDictionary() throws IOException {
 		// Use LinkedHashMap to get predictable iteration order
-		Map<String, Object> m = new LinkedHashMap<String, Object>();
+		Map<String, Object> m = new LinkedHashMap<>();
 		for (int i = 0; i < 4; i++) m.put(String.valueOf(i), i);
 		w.writeDictionary(m);
 		// DICTIONARY tag, keys as strings and values as integers, END tag
@@ -216,12 +215,12 @@ public class BdfWriterImplTest extends BrambleTestCase {
 
 	@Test
 	public void testWriteNestedDictionariesAndLists() throws IOException {
-		Map<String, Object> inner = new LinkedHashMap<String, Object>();
+		Map<String, Object> inner = new LinkedHashMap<>();
 		inner.put("bar", new byte[0]);
-		List<Object> list = new ArrayList<Object>();
+		List<Object> list = new ArrayList<>();
 		list.add(1);
 		list.add(inner);
-		Map<String, Object> outer = new LinkedHashMap<String, Object>();
+		Map<String, Object> outer = new LinkedHashMap<>();
 		outer.put("foo", list);
 		w.writeDictionary(outer);
 		// DICTIONARY tag, "foo" as string, LIST tag, 1 as integer,

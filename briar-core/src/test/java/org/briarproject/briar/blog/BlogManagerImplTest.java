@@ -111,7 +111,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testCreateLocalState() throws DbException {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(identityManager).getLocalAuthor(txn);
@@ -127,9 +127,9 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testRemovingContact() throws DbException {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 
-		final ContactId contactId = new ContactId(0);
+		ContactId contactId = new ContactId(0);
 		Contact contact = new Contact(contactId, blog2.getAuthor(),
 				blog1.getAuthor().getId(), true, true);
 
@@ -149,9 +149,9 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testRemovingContactAfterRemovingBlog() throws DbException {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 
-		final ContactId contactId = new ContactId(0);
+		ContactId contactId = new ContactId(0);
 		Contact contact = new Contact(contactId, blog2.getAuthor(),
 				blog1.getAuthor().getId(), true, true);
 
@@ -168,7 +168,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testIncomingMessage() throws DbException, FormatException {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 		BdfList body = BdfList.of("body");
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, POST.getInt()),
@@ -207,7 +207,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testIncomingRssMessage() throws DbException, FormatException {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 		BdfList body = BdfList.of("body");
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, POST.getInt()),
@@ -241,7 +241,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testRemoveBlog() throws Exception {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
@@ -259,9 +259,9 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testAddLocalPost() throws DbException, FormatException {
-		final Transaction txn = new Transaction(null, false);
-		final BlogPost post = new BlogPost(message, null, localAuthor1);
-		final BdfDictionary meta = BdfDictionary.of(
+		Transaction txn = new Transaction(null, false);
+		BlogPost post = new BlogPost(message, null, localAuthor1);
+		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, POST.getInt()),
 				new BdfEntry(KEY_TIMESTAMP, timestamp),
 				new BdfEntry(KEY_AUTHOR, authorDict1),
@@ -305,9 +305,9 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testAddLocalRssPost() throws DbException, FormatException {
-		final Transaction txn = new Transaction(null, false);
-		final BlogPost post = new BlogPost(rssMessage, null, rssLocalAuthor);
-		final BdfDictionary meta = BdfDictionary.of(
+		Transaction txn = new Transaction(null, false);
+		BlogPost post = new BlogPost(rssMessage, null, rssLocalAuthor);
+		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, POST.getInt()),
 				new BdfEntry(KEY_TIMESTAMP, timestamp),
 				new BdfEntry(KEY_AUTHOR, rssAuthorDict),
@@ -350,10 +350,10 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testAddLocalCommentToLocalPost() throws Exception {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 		// The post was originally posted to blog 1, then reblogged to the
 		// same blog (commenting on own post)
-		final BdfDictionary postMeta = BdfDictionary.of(
+		BdfDictionary postMeta = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, POST.getInt()),
 				new BdfEntry(KEY_RSS_FEED, false),
 				new BdfEntry(KEY_ORIGINAL_MSG_ID, messageId),
@@ -361,10 +361,10 @@ public class BlogManagerImplTest extends BriarTestCase {
 				new BdfEntry(KEY_TIMESTAMP, timestamp),
 				new BdfEntry(KEY_TIME_RECEIVED, timeReceived)
 		);
-		final MessageId commentId = new MessageId(getRandomId());
-		final Message commentMsg = new Message(commentId, blog1.getId(),
+		MessageId commentId = new MessageId(getRandomId());
+		Message commentMsg = new Message(commentId, blog1.getId(),
 				timestamp, getRandomBytes(MAX_MESSAGE_LENGTH));
-		final BdfDictionary commentMeta = BdfDictionary.of(
+		BdfDictionary commentMeta = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, COMMENT.getInt()),
 				new BdfEntry(KEY_COMMENT, comment),
 				new BdfEntry(KEY_TIMESTAMP, timestamp),
@@ -436,14 +436,14 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testAddLocalCommentToRemotePost() throws Exception {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 		// The post was originally posted to blog 1, then reblogged to
 		// blog 2 with a comment
-		final BdfList originalPostBody = BdfList.of("originalPostBody");
-		final MessageId wrappedPostId = new MessageId(getRandomId());
-		final Message wrappedPostMsg = new Message(wrappedPostId, blog2.getId(),
+		BdfList originalPostBody = BdfList.of("originalPostBody");
+		MessageId wrappedPostId = new MessageId(getRandomId());
+		Message wrappedPostMsg = new Message(wrappedPostId, blog2.getId(),
 				timestamp, getRandomBytes(MAX_MESSAGE_LENGTH));
-		final BdfDictionary wrappedPostMeta = BdfDictionary.of(
+		BdfDictionary wrappedPostMeta = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, WRAPPED_POST.getInt()),
 				new BdfEntry(KEY_RSS_FEED, false),
 				new BdfEntry(KEY_ORIGINAL_MSG_ID, messageId),
@@ -451,10 +451,10 @@ public class BlogManagerImplTest extends BriarTestCase {
 				new BdfEntry(KEY_TIMESTAMP, timestamp),
 				new BdfEntry(KEY_TIME_RECEIVED, timeReceived)
 		);
-		final MessageId commentId = new MessageId(getRandomId());
-		final Message commentMsg = new Message(commentId, blog2.getId(),
+		MessageId commentId = new MessageId(getRandomId());
+		Message commentMsg = new Message(commentId, blog2.getId(),
 				timestamp, getRandomBytes(MAX_MESSAGE_LENGTH));
-		final BdfDictionary commentMeta = BdfDictionary.of(
+		BdfDictionary commentMeta = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, COMMENT.getInt()),
 				new BdfEntry(KEY_COMMENT, comment),
 				new BdfEntry(KEY_TIMESTAMP, timestamp),
@@ -539,14 +539,14 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testAddLocalCommentToRemoteRssPost() throws Exception {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 		// The post was originally posted to the RSS blog, then reblogged to
 		// blog 1 with a comment
-		final BdfList originalPostBody = BdfList.of("originalPostBody");
-		final MessageId wrappedPostId = new MessageId(getRandomId());
-		final Message wrappedPostMsg = new Message(wrappedPostId, blog1.getId(),
+		BdfList originalPostBody = BdfList.of("originalPostBody");
+		MessageId wrappedPostId = new MessageId(getRandomId());
+		Message wrappedPostMsg = new Message(wrappedPostId, blog1.getId(),
 				timestamp, getRandomBytes(MAX_MESSAGE_LENGTH));
-		final BdfDictionary wrappedPostMeta = BdfDictionary.of(
+		BdfDictionary wrappedPostMeta = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, WRAPPED_POST.getInt()),
 				new BdfEntry(KEY_RSS_FEED, true),
 				new BdfEntry(KEY_ORIGINAL_MSG_ID, rssMessageId),
@@ -554,10 +554,10 @@ public class BlogManagerImplTest extends BriarTestCase {
 				new BdfEntry(KEY_TIMESTAMP, timestamp),
 				new BdfEntry(KEY_TIME_RECEIVED, timeReceived)
 		);
-		final MessageId commentId = new MessageId(getRandomId());
-		final Message commentMsg = new Message(commentId, blog1.getId(),
+		MessageId commentId = new MessageId(getRandomId());
+		Message commentMsg = new Message(commentId, blog1.getId(),
 				timestamp, getRandomBytes(MAX_MESSAGE_LENGTH));
-		final BdfDictionary commentMeta = BdfDictionary.of(
+		BdfDictionary commentMeta = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, COMMENT.getInt()),
 				new BdfEntry(KEY_COMMENT, comment),
 				new BdfEntry(KEY_TIMESTAMP, timestamp),
@@ -640,18 +640,18 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testAddLocalCommentToRebloggedRemoteRssPost() throws Exception {
-		final Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, false);
 		// The post was originally posted to the RSS blog, then reblogged to
 		// blog 1 with a comment
-		final MessageId wrappedPostId = new MessageId(getRandomId());
-		final BdfList wrappedPostBody = BdfList.of("wrappedPostBody");
-		final MessageId originalCommentId = new MessageId(getRandomId());
-		final BdfList originalCommentBody = BdfList.of("originalCommentBody");
+		MessageId wrappedPostId = new MessageId(getRandomId());
+		BdfList wrappedPostBody = BdfList.of("wrappedPostBody");
+		MessageId originalCommentId = new MessageId(getRandomId());
+		BdfList originalCommentBody = BdfList.of("originalCommentBody");
 		// The post and comment were reblogged to blog 2 with another comment
-		final MessageId rewrappedPostId = new MessageId(getRandomId());
-		final Message rewrappedPostMsg = new Message(rewrappedPostId,
+		MessageId rewrappedPostId = new MessageId(getRandomId());
+		Message rewrappedPostMsg = new Message(rewrappedPostId,
 				blog2.getId(), timestamp, getRandomBytes(MAX_MESSAGE_LENGTH));
-		final BdfDictionary rewrappedPostMeta = BdfDictionary.of(
+		BdfDictionary rewrappedPostMeta = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, WRAPPED_POST.getInt()),
 				new BdfEntry(KEY_RSS_FEED, true),
 				new BdfEntry(KEY_ORIGINAL_MSG_ID, messageId),
@@ -659,10 +659,10 @@ public class BlogManagerImplTest extends BriarTestCase {
 				new BdfEntry(KEY_TIMESTAMP, timestamp),
 				new BdfEntry(KEY_TIME_RECEIVED, timeReceived)
 		);
-		final MessageId wrappedCommentId = new MessageId(getRandomId());
-		final Message wrappedCommentMsg = new Message(wrappedCommentId,
+		MessageId wrappedCommentId = new MessageId(getRandomId());
+		Message wrappedCommentMsg = new Message(wrappedCommentId,
 				blog2.getId(), timestamp, getRandomBytes(MAX_MESSAGE_LENGTH));
-		final BdfDictionary wrappedCommentMeta = BdfDictionary.of(
+		BdfDictionary wrappedCommentMeta = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, WRAPPED_COMMENT.getInt()),
 				new BdfEntry(KEY_COMMENT, comment),
 				new BdfEntry(KEY_PARENT_MSG_ID, rewrappedPostId),
@@ -671,11 +671,11 @@ public class BlogManagerImplTest extends BriarTestCase {
 				new BdfEntry(KEY_TIMESTAMP, timestamp),
 				new BdfEntry(KEY_TIME_RECEIVED, timeReceived)
 		);
-		final String localComment = getRandomString(MAX_BLOG_COMMENT_LENGTH);
-		final MessageId localCommentId = new MessageId(getRandomId());
-		final Message localCommentMsg = new Message(localCommentId,
+		String localComment = getRandomString(MAX_BLOG_COMMENT_LENGTH);
+		MessageId localCommentId = new MessageId(getRandomId());
+		Message localCommentMsg = new Message(localCommentId,
 				blog2.getId(), timestamp, getRandomBytes(MAX_MESSAGE_LENGTH));
-		final BdfDictionary localCommentMeta = BdfDictionary.of(
+		BdfDictionary localCommentMeta = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, COMMENT.getInt()),
 				new BdfEntry(KEY_COMMENT, localComment),
 				new BdfEntry(KEY_TIMESTAMP, timestamp),
@@ -796,7 +796,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 	@Test
 	public void testBlogCanBeRemoved() throws Exception {
 		// check that own personal blogs can not be removed
-		final Transaction txn = new Transaction(null, true);
+		Transaction txn = new Transaction(null, true);
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
@@ -809,7 +809,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		context.assertIsSatisfied();
 
 		// check that blogs of contacts can be removed
-		final Transaction txn2 = new Transaction(null, true);
+		Transaction txn2 = new Transaction(null, true);
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn2));

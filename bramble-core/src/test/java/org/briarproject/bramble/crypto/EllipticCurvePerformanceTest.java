@@ -69,7 +69,7 @@ public class EllipticCurvePerformanceTest {
 		ECPublicKeyParameters public2 =
 				(ECPublicKeyParameters) keyPair2.getPublic();
 		// Time some ECDH key agreements
-		List<Long> samples = new ArrayList<Long>();
+		List<Long> samples = new ArrayList<>();
 		for (int i = 0; i < SAMPLES; i++) {
 			ECDHCBasicAgreement agreement = new ECDHCBasicAgreement();
 			long start = System.nanoTime();
@@ -79,7 +79,7 @@ public class EllipticCurvePerformanceTest {
 		}
 		long agreementMedian = median(samples);
 		// Time some signatures
-		List<byte[]> signatures = new ArrayList<byte[]>();
+		List<byte[]> signatures = new ArrayList<>();
 		samples.clear();
 		for (int i = 0; i < SAMPLES; i++) {
 			Digest digest = new Blake2sDigest();

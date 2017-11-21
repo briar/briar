@@ -83,17 +83,17 @@ public class IntroductionValidatorTest extends BriarTestCase {
 
 	@Test
 	public void testValidateProperIntroductionRequest() throws IOException {
-		final byte[] sessionId = TestUtils.getRandomId();
-		final String name = StringUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH);
-		final byte[] publicKey =
+		byte[] sessionId = TestUtils.getRandomId();
+		String name = StringUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH);
+		byte[] publicKey =
 				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		final String text =
+		String text =
 				StringUtils.getRandomString(MAX_INTRODUCTION_MESSAGE_LENGTH);
 
 		BdfList body = BdfList.of(TYPE_REQUEST, sessionId,
 				name, publicKey, text);
 
-		final BdfDictionary result =
+		BdfDictionary result =
 				validator.validateMessage(message, group, body)
 						.getDictionary();
 
@@ -192,7 +192,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 				msg.getBoolean(ACCEPT), msg.getLong(TIME),
 				msg.getRaw(E_PUBLIC_KEY), msg.getDictionary(TRANSPORT));
 
-		final BdfDictionary result =
+		BdfDictionary result =
 				validator.validateMessage(message, group, body).getDictionary();
 
 		assertEquals(Long.valueOf(TYPE_RESPONSE), result.getLong(TYPE));

@@ -54,19 +54,19 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 	@Test
 	public void testSendingMessages() throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final ClientHelper clientHelper = context.mock(ClientHelper.class);
-		final QueueMessageFactory queueMessageFactory =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		ClientHelper clientHelper = context.mock(ClientHelper.class);
+		QueueMessageFactory queueMessageFactory =
 				context.mock(QueueMessageFactory.class);
-		final ValidationManager validationManager =
+		ValidationManager validationManager =
 				context.mock(ValidationManager.class);
 
-		final Transaction txn = new Transaction(null, false);
-		final byte[] body = new byte[123];
-		final Metadata groupMetadata = new Metadata();
-		final Metadata messageMetadata = new Metadata();
-		final Metadata groupMetadata1 = new Metadata();
-		final byte[] queueState = new byte[123];
+		Transaction txn = new Transaction(null, false);
+		byte[] body = new byte[123];
+		Metadata groupMetadata = new Metadata();
+		Metadata messageMetadata = new Metadata();
+		Metadata groupMetadata1 = new Metadata();
+		byte[] queueState = new byte[123];
 		groupMetadata1.put(QUEUE_STATE_KEY, queueState);
 
 		context.checking(new Expectations() {{
@@ -123,26 +123,25 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 	@Test
 	public void testValidatorRejectsShortMessage() throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final ClientHelper clientHelper = context.mock(ClientHelper.class);
-		final QueueMessageFactory queueMessageFactory =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		ClientHelper clientHelper = context.mock(ClientHelper.class);
+		QueueMessageFactory queueMessageFactory =
 				context.mock(QueueMessageFactory.class);
-		final ValidationManager validationManager =
+		ValidationManager validationManager =
 				context.mock(ValidationManager.class);
 
-		final AtomicReference<MessageValidator> captured =
-				new AtomicReference<MessageValidator>();
-		final QueueMessageValidator queueMessageValidator =
+		AtomicReference<MessageValidator> captured = new AtomicReference<>();
+		QueueMessageValidator queueMessageValidator =
 				context.mock(QueueMessageValidator.class);
 		// The message is too short to be a valid queue message
-		final MessageId messageId = new MessageId(TestUtils.getRandomId());
-		final byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH - 1];
-		final Message message = new Message(messageId, groupId, timestamp, raw);
+		MessageId messageId = new MessageId(TestUtils.getRandomId());
+		byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH - 1];
+		Message message = new Message(messageId, groupId, timestamp, raw);
 
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerMessageValidator(with(clientId),
 					with(any(MessageValidator.class)));
-			will(new CaptureArgumentAction<MessageValidator>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					MessageValidator.class, 1));
 		}});
 
@@ -167,28 +166,27 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 	@Test
 	public void testValidatorRejectsNegativeQueuePosition() throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final ClientHelper clientHelper = context.mock(ClientHelper.class);
-		final QueueMessageFactory queueMessageFactory =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		ClientHelper clientHelper = context.mock(ClientHelper.class);
+		QueueMessageFactory queueMessageFactory =
 				context.mock(QueueMessageFactory.class);
-		final ValidationManager validationManager =
+		ValidationManager validationManager =
 				context.mock(ValidationManager.class);
 
-		final AtomicReference<MessageValidator> captured =
-				new AtomicReference<MessageValidator>();
-		final QueueMessageValidator queueMessageValidator =
+		AtomicReference<MessageValidator> captured = new AtomicReference<>();
+		QueueMessageValidator queueMessageValidator =
 				context.mock(QueueMessageValidator.class);
 		// The message has a negative queue position
-		final MessageId messageId = new MessageId(TestUtils.getRandomId());
-		final byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
+		MessageId messageId = new MessageId(TestUtils.getRandomId());
+		byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
 		for (int i = 0; i < 8; i++)
 			raw[MESSAGE_HEADER_LENGTH + i] = (byte) 0xFF;
-		final Message message = new Message(messageId, groupId, timestamp, raw);
+		Message message = new Message(messageId, groupId, timestamp, raw);
 
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerMessageValidator(with(clientId),
 					with(any(MessageValidator.class)));
-			will(new CaptureArgumentAction<MessageValidator>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					MessageValidator.class, 1));
 		}});
 
@@ -213,29 +211,28 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 	@Test
 	public void testValidatorDelegatesValidMessage() throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final ClientHelper clientHelper = context.mock(ClientHelper.class);
-		final QueueMessageFactory queueMessageFactory =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		ClientHelper clientHelper = context.mock(ClientHelper.class);
+		QueueMessageFactory queueMessageFactory =
 				context.mock(QueueMessageFactory.class);
-		final ValidationManager validationManager =
+		ValidationManager validationManager =
 				context.mock(ValidationManager.class);
 
-		final AtomicReference<MessageValidator> captured =
-				new AtomicReference<MessageValidator>();
-		final QueueMessageValidator queueMessageValidator =
+		AtomicReference<MessageValidator> captured = new AtomicReference<>();
+		QueueMessageValidator queueMessageValidator =
 				context.mock(QueueMessageValidator.class);
-		final Metadata metadata = new Metadata();
-		final MessageContext messageContext =
+		Metadata metadata = new Metadata();
+		MessageContext messageContext =
 				new MessageContext(metadata);
 		// The message is valid, with a queue position of zero
-		final MessageId messageId = new MessageId(TestUtils.getRandomId());
-		final byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
-		final Message message = new Message(messageId, groupId, timestamp, raw);
+		MessageId messageId = new MessageId(TestUtils.getRandomId());
+		byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
+		Message message = new Message(messageId, groupId, timestamp, raw);
 
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerMessageValidator(with(clientId),
 					with(any(MessageValidator.class)));
-			will(new CaptureArgumentAction<MessageValidator>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					MessageValidator.class, 1));
 			// The message should be delegated
 			oneOf(queueMessageValidator).validateMessage(
@@ -261,30 +258,29 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 	public void testIncomingMessageHookDeletesDuplicateMessage()
 			throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final ClientHelper clientHelper = context.mock(ClientHelper.class);
-		final QueueMessageFactory queueMessageFactory =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		ClientHelper clientHelper = context.mock(ClientHelper.class);
+		QueueMessageFactory queueMessageFactory =
 				context.mock(QueueMessageFactory.class);
-		final ValidationManager validationManager =
+		ValidationManager validationManager =
 				context.mock(ValidationManager.class);
-		final AtomicReference<IncomingMessageHook> captured =
-				new AtomicReference<IncomingMessageHook>();
-		final IncomingQueueMessageHook incomingQueueMessageHook =
+		AtomicReference<IncomingMessageHook> captured = new AtomicReference<>();
+		IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
 
-		final Transaction txn = new Transaction(null, false);
-		final Metadata groupMetadata = new Metadata();
-		final byte[] queueState = new byte[123];
+		Transaction txn = new Transaction(null, false);
+		Metadata groupMetadata = new Metadata();
+		byte[] queueState = new byte[123];
 		groupMetadata.put(QUEUE_STATE_KEY, queueState);
 		// The message has queue position 0
-		final MessageId messageId = new MessageId(TestUtils.getRandomId());
-		final byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
-		final Message message = new Message(messageId, groupId, timestamp, raw);
+		MessageId messageId = new MessageId(TestUtils.getRandomId());
+		byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
+		Message message = new Message(messageId, groupId, timestamp, raw);
 
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerIncomingMessageHook(with(clientId),
 					with(any(IncomingMessageHook.class)));
-			will(new CaptureArgumentAction<IncomingMessageHook>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					IncomingMessageHook.class, 1));
 			oneOf(db).getGroupMetadata(txn, groupId);
 			will(returnValue(groupMetadata));
@@ -313,32 +309,31 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 	public void testIncomingMessageHookAddsOutOfOrderMessageToPendingList()
 			throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final ClientHelper clientHelper = context.mock(ClientHelper.class);
-		final QueueMessageFactory queueMessageFactory =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		ClientHelper clientHelper = context.mock(ClientHelper.class);
+		QueueMessageFactory queueMessageFactory =
 				context.mock(QueueMessageFactory.class);
-		final ValidationManager validationManager =
+		ValidationManager validationManager =
 				context.mock(ValidationManager.class);
-		final AtomicReference<IncomingMessageHook> captured =
-				new AtomicReference<IncomingMessageHook>();
-		final IncomingQueueMessageHook incomingQueueMessageHook =
+		AtomicReference<IncomingMessageHook> captured = new AtomicReference<>();
+		IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
 
-		final Transaction txn = new Transaction(null, false);
-		final Metadata groupMetadata = new Metadata();
-		final byte[] queueState = new byte[123];
+		Transaction txn = new Transaction(null, false);
+		Metadata groupMetadata = new Metadata();
+		byte[] queueState = new byte[123];
 		groupMetadata.put(QUEUE_STATE_KEY, queueState);
 		// The message has queue position 1
-		final MessageId messageId = new MessageId(TestUtils.getRandomId());
-		final byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
+		MessageId messageId = new MessageId(TestUtils.getRandomId());
+		byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
 		ByteUtils.writeUint64(1L, raw, MESSAGE_HEADER_LENGTH);
-		final Message message = new Message(messageId, groupId, timestamp, raw);
-		final BdfList pending = BdfList.of(BdfList.of(1L, messageId));
+		Message message = new Message(messageId, groupId, timestamp, raw);
+		BdfList pending = BdfList.of(BdfList.of(1L, messageId));
 
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerIncomingMessageHook(with(clientId),
 					with(any(IncomingMessageHook.class)));
-			will(new CaptureArgumentAction<IncomingMessageHook>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					IncomingMessageHook.class, 1));
 			oneOf(db).getGroupMetadata(txn, groupId);
 			will(returnValue(groupMetadata));
@@ -369,31 +364,30 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 	public void testIncomingMessageHookDelegatesInOrderMessage()
 			throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final ClientHelper clientHelper = context.mock(ClientHelper.class);
-		final QueueMessageFactory queueMessageFactory =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		ClientHelper clientHelper = context.mock(ClientHelper.class);
+		QueueMessageFactory queueMessageFactory =
 				context.mock(QueueMessageFactory.class);
-		final ValidationManager validationManager =
+		ValidationManager validationManager =
 				context.mock(ValidationManager.class);
-		final AtomicReference<IncomingMessageHook> captured =
-				new AtomicReference<IncomingMessageHook>();
-		final IncomingQueueMessageHook incomingQueueMessageHook =
+		AtomicReference<IncomingMessageHook> captured = new AtomicReference<>();
+		IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
 
-		final Transaction txn = new Transaction(null, false);
-		final Metadata groupMetadata = new Metadata();
-		final byte[] queueState = new byte[123];
+		Transaction txn = new Transaction(null, false);
+		Metadata groupMetadata = new Metadata();
+		byte[] queueState = new byte[123];
 		groupMetadata.put(QUEUE_STATE_KEY, queueState);
 		// The message has queue position 0
-		final MessageId messageId = new MessageId(TestUtils.getRandomId());
-		final byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
-		final Message message = new Message(messageId, groupId, timestamp, raw);
-		final Metadata messageMetadata = new Metadata();
+		MessageId messageId = new MessageId(TestUtils.getRandomId());
+		byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
+		Message message = new Message(messageId, groupId, timestamp, raw);
+		Metadata messageMetadata = new Metadata();
 
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerIncomingMessageHook(with(clientId),
 					with(any(IncomingMessageHook.class)));
-			will(new CaptureArgumentAction<IncomingMessageHook>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					IncomingMessageHook.class, 1));
 			oneOf(db).getGroupMetadata(txn, groupId);
 			will(returnValue(groupMetadata));
@@ -427,38 +421,37 @@ public class MessageQueueManagerImplTest extends BriarTestCase {
 	public void testIncomingMessageHookRetrievesPendingMessage()
 			throws Exception {
 		Mockery context = new Mockery();
-		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final ClientHelper clientHelper = context.mock(ClientHelper.class);
-		final QueueMessageFactory queueMessageFactory =
+		DatabaseComponent db = context.mock(DatabaseComponent.class);
+		ClientHelper clientHelper = context.mock(ClientHelper.class);
+		QueueMessageFactory queueMessageFactory =
 				context.mock(QueueMessageFactory.class);
-		final ValidationManager validationManager =
+		ValidationManager validationManager =
 				context.mock(ValidationManager.class);
-		final AtomicReference<IncomingMessageHook> captured =
-				new AtomicReference<IncomingMessageHook>();
-		final IncomingQueueMessageHook incomingQueueMessageHook =
+		AtomicReference<IncomingMessageHook> captured = new AtomicReference<>();
+		IncomingQueueMessageHook incomingQueueMessageHook =
 				context.mock(IncomingQueueMessageHook.class);
 
-		final Transaction txn = new Transaction(null, false);
-		final Metadata groupMetadata = new Metadata();
-		final byte[] queueState = new byte[123];
+		Transaction txn = new Transaction(null, false);
+		Metadata groupMetadata = new Metadata();
+		byte[] queueState = new byte[123];
 		groupMetadata.put(QUEUE_STATE_KEY, queueState);
 		// The message has queue position 0
-		final MessageId messageId = new MessageId(TestUtils.getRandomId());
-		final byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
-		final Message message = new Message(messageId, groupId, timestamp, raw);
-		final Metadata messageMetadata = new Metadata();
+		MessageId messageId = new MessageId(TestUtils.getRandomId());
+		byte[] raw = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
+		Message message = new Message(messageId, groupId, timestamp, raw);
+		Metadata messageMetadata = new Metadata();
 		// Queue position 1 is pending
-		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		final byte[] raw1 = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
-		final QueueMessage message1 = new QueueMessage(messageId1, groupId,
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		byte[] raw1 = new byte[QUEUE_MESSAGE_HEADER_LENGTH];
+		QueueMessage message1 = new QueueMessage(messageId1, groupId,
 				timestamp, 1L, raw1);
-		final Metadata messageMetadata1 = new Metadata();
-		final BdfList pending = BdfList.of(BdfList.of(1L, messageId1));
+		Metadata messageMetadata1 = new Metadata();
+		BdfList pending = BdfList.of(BdfList.of(1L, messageId1));
 
 		context.checking(new Expectations() {{
 			oneOf(validationManager).registerIncomingMessageHook(with(clientId),
 					with(any(IncomingMessageHook.class)));
-			will(new CaptureArgumentAction<IncomingMessageHook>(captured,
+			will(new CaptureArgumentAction<>(captured,
 					IncomingMessageHook.class, 1));
 			oneOf(db).getGroupMetadata(txn, groupId);
 			will(returnValue(groupMetadata));

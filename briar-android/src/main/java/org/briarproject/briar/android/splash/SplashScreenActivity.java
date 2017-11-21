@@ -43,12 +43,9 @@ public class SplashScreenActivity extends BaseActivity {
 
 		setContentView(R.layout.splash);
 
-		new Handler().postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				startNextActivity();
-				supportFinishAfterTransition();
-			}
+		new Handler().postDelayed(() -> {
+			startNextActivity();
+			supportFinishAfterTransition();
 		}, 500);
 	}
 
@@ -72,12 +69,8 @@ public class SplashScreenActivity extends BaseActivity {
 	}
 
 	private void setPreferencesDefaults() {
-		androidExecutor.runOnBackgroundThread(new Runnable() {
-			@Override
-			public void run() {
+		androidExecutor.runOnBackgroundThread(() ->
 				PreferenceManager.setDefaultValues(SplashScreenActivity.this,
-						R.xml.panic_preferences, false);
-			}
-		});
+						R.xml.panic_preferences, false));
 	}
 }

@@ -17,10 +17,10 @@ import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
+import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_INVITATION_ACCEPTED;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_READ;
-import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_INVITATION_ACCEPTED;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_SHAREABLE_ID;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_TIMESTAMP;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_VISIBLE_IN_UI;
@@ -91,7 +91,7 @@ abstract class MessageParserImpl<S extends Shareable>
 		BdfList descriptor = body.getList(2);
 		S shareable = createShareable(descriptor);
 		String message = body.getOptionalString(3);
-		return new InviteMessage<S>(m.getId(), previousMessageId,
+		return new InviteMessage<>(m.getId(), previousMessageId,
 				m.getGroupId(), shareable, message, m.getTimestamp());
 	}
 

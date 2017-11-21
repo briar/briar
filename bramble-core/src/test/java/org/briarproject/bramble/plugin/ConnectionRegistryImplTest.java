@@ -35,7 +35,7 @@ public class ConnectionRegistryImplTest extends BrambleTestCase {
 	@Test
 	public void testRegisterAndUnregister() {
 		Mockery context = new Mockery();
-		final EventBus eventBus = context.mock(EventBus.class);
+		EventBus eventBus = context.mock(EventBus.class);
 		context.checking(new Expectations() {{
 			exactly(5).of(eventBus).broadcast(with(any(
 					ConnectionOpenedEvent.class)));

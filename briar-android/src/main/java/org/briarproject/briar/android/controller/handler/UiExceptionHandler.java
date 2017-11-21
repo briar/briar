@@ -19,13 +19,8 @@ public abstract class UiExceptionHandler<E extends Exception>
 	}
 
 	@Override
-	public void onException(final E exception) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				onExceptionUi(exception);
-			}
-		});
+	public void onException(E exception) {
+		listener.runOnUiThreadUnlessDestroyed(() -> onExceptionUi(exception));
 	}
 
 	@UiThread

@@ -13,7 +13,6 @@ import android.view.Window;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.DbController;
-import org.briarproject.briar.android.controller.handler.ResultHandler;
 import org.briarproject.briar.android.login.PasswordActivity;
 import org.briarproject.briar.android.panic.ExitActivity;
 
@@ -98,21 +97,12 @@ public abstract class BriarActivity extends BaseActivity {
 		return toolbar;
 	}
 
-	protected void signOut(final boolean removeFromRecentApps) {
+	protected void signOut(boolean removeFromRecentApps) {
 		if (briarController.hasEncryptionKey()) {
 			// Don't use UiResultHandler because we want the result even if
 			// this activity has been destroyed
-			briarController.signOut(new ResultHandler<Void>() {
-				@Override
-				public void onResult(Void result) {
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							exit(removeFromRecentApps);
-						}
-					});
-				}
-			});
+			briarController.signOut(result -> runOnUiThread(
+					() -> exit(removeFromRecentApps)));
 		} else {
 			exit(removeFromRecentApps);
 		}
@@ -146,11 +136,6 @@ public abstract class BriarActivity extends BaseActivity {
 
 	@Deprecated
 	protected void finishOnUiThread() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				supportFinishAfterTransition();
-			}
-		});
+		runOnUiThreadUnlessDestroyed(this::supportFinishAfterTransition);
 	}
 }

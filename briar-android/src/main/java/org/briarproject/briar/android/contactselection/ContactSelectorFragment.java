@@ -36,7 +36,7 @@ public abstract class ContactSelectorFragment extends
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_contacts_selected:
 				selectedContacts = adapter.getSelectedContactIds();

@@ -58,23 +58,18 @@ class BlogInvitationControllerImpl
 	}
 
 	@Override
-	public void respondToInvitation(final SharingInvitationItem item,
-			final boolean accept,
-			final ExceptionHandler<DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Blog f = (Blog) item.getShareable();
-					for (Contact c : item.getNewSharers()) {
-						// TODO: What happens if a contact has been removed?
-						blogSharingManager.respondToInvitation(f, c, accept);
-					}
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
+	public void respondToInvitation(SharingInvitationItem item, boolean accept,
+			ExceptionHandler<DbException> handler) {
+		runOnDbThread(() -> {
+			try {
+				Blog f = (Blog) item.getShareable();
+				for (Contact c : item.getNewSharers()) {
+					// TODO: What happens if a contact has been removed?
+					blogSharingManager.respondToInvitation(f, c, accept);
 				}
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}

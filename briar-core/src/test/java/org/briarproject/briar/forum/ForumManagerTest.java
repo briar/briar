@@ -81,10 +81,10 @@ public class ForumManagerTest
 	@Test
 	public void testForumPost() throws Exception {
 		assertEquals(1, forumManager0.getForums().size());
-		final long ms1 = clock.currentTimeMillis() - 1000L;
-		final String body1 = "some forum text";
-		final long ms2 = clock.currentTimeMillis();
-		final String body2 = "some other forum text";
+		long ms1 = clock.currentTimeMillis() - 1000L;
+		String body1 = "some forum text";
+		long ms2 = clock.currentTimeMillis();
+		String body2 = "some other forum text";
 		ForumPost post1 =
 				createForumPost(forum0.getGroup().getId(), null, body1, ms1);
 		assertEquals(ms1, post1.getMessage().getTimestamp());
@@ -109,7 +109,7 @@ public class ForumManagerTest
 				forumManager0.getPostHeaders(forum0.getGroup().getId());
 		assertEquals(2, headers.size());
 		for (ForumPostHeader h : headers) {
-			final String hBody = forumManager0.getPostBody(h.getId());
+			String hBody = forumManager0.getPostBody(h.getId());
 
 			boolean isPost1 = h.getId().equals(post1.getMessage().getId());
 			boolean isPost2 = h.getId().equals(post2.getMessage().getId());

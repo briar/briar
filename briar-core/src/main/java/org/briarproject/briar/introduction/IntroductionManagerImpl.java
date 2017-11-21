@@ -251,12 +251,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 						LOG.warning("Unknown role '" + role + "'");
 					throw new DbException();
 				}
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				if (role == ROLE_INTRODUCER) introducerManager.abort(txn, state);
-				else introduceeManager.abort(txn, state);
-			} catch (FormatException e) {
-				// FIXME necessary?
+			} catch (DbException | FormatException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				if (role == ROLE_INTRODUCER) introducerManager.abort(txn, state);
 				else introduceeManager.abort(txn, state);
@@ -277,7 +272,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	@Override
 	public void makeIntroduction(Contact c1, Contact c2, @Nullable String msg,
-			final long timestamp) throws DbException, FormatException {
+			long timestamp) throws DbException, FormatException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
@@ -293,9 +288,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public void acceptIntroduction(final ContactId contactId,
-			final SessionId sessionId, final long timestamp)
-			throws DbException, FormatException {
+	public void acceptIntroduction(ContactId contactId, SessionId sessionId,
+			long timestamp) throws DbException, FormatException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
@@ -313,9 +307,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public void declineIntroduction(final ContactId contactId,
-			final SessionId sessionId, final long timestamp)
-			throws DbException, FormatException {
+	public void declineIntroduction(ContactId contactId, SessionId sessionId,
+			long timestamp) throws DbException, FormatException {
 
 		Transaction txn = db.startTransaction(false);
 		try {
@@ -336,8 +329,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	public Collection<IntroductionMessage> getIntroductionMessages(
 			ContactId contactId) throws DbException {
 
-		Collection<IntroductionMessage> list =
-				new ArrayList<IntroductionMessage>();
+		Collection<IntroductionMessage> list = new ArrayList<>();
 
 		Map<MessageId, BdfDictionary> metadata;
 		Collection<MessageStatus> statuses;

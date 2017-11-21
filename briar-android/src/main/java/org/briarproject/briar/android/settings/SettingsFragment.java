@@ -141,54 +141,39 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			notifyLockscreen.setVisible(true);
 			notifyLockscreen.setOnPreferenceChangeListener(this);
 		}
-		notifySound.setOnPreferenceClickListener(
-				new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(Preference preference) {
-						String title =
-								getString(R.string.choose_ringtone_title);
-						Intent i = new Intent(ACTION_RINGTONE_PICKER);
-						i.putExtra(EXTRA_RINGTONE_TYPE, TYPE_NOTIFICATION);
-						i.putExtra(EXTRA_RINGTONE_TITLE, title);
-						i.putExtra(EXTRA_RINGTONE_DEFAULT_URI,
-								DEFAULT_NOTIFICATION_URI);
-						i.putExtra(EXTRA_RINGTONE_SHOW_SILENT, true);
-						if (settings.getBoolean(PREF_NOTIFY_SOUND, true)) {
-							Uri uri;
-							String ringtoneUri =
-									settings.get(PREF_NOTIFY_RINGTONE_URI);
-							if (StringUtils.isNullOrEmpty(ringtoneUri))
-								uri = DEFAULT_NOTIFICATION_URI;
-							else uri = Uri.parse(ringtoneUri);
-							i.putExtra(EXTRA_RINGTONE_EXISTING_URI, uri);
-						}
-						startActivityForResult(i, REQUEST_RINGTONE);
-						return true;
-					}
-				});
+		notifySound.setOnPreferenceClickListener(preference -> {
+			String title = getString(R.string.choose_ringtone_title);
+			Intent i = new Intent(ACTION_RINGTONE_PICKER);
+			i.putExtra(EXTRA_RINGTONE_TYPE, TYPE_NOTIFICATION);
+			i.putExtra(EXTRA_RINGTONE_TITLE, title);
+			i.putExtra(EXTRA_RINGTONE_DEFAULT_URI, DEFAULT_NOTIFICATION_URI);
+			i.putExtra(EXTRA_RINGTONE_SHOW_SILENT, true);
+			if (settings.getBoolean(PREF_NOTIFY_SOUND, true)) {
+				Uri uri;
+				String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
+				if (StringUtils.isNullOrEmpty(ringtoneUri))
+					uri = DEFAULT_NOTIFICATION_URI;
+				else uri = Uri.parse(ringtoneUri);
+				i.putExtra(EXTRA_RINGTONE_EXISTING_URI, uri);
+			}
+			startActivityForResult(i, REQUEST_RINGTONE);
+			return true;
+		});
 
 		findPreference("pref_key_send_feedback").setOnPreferenceClickListener(
-				new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(Preference preference) {
-						triggerFeedback();
-						return true;
-					}
+				preference -> {
+					triggerFeedback();
+					return true;
 				});
 
 		Preference testData = findPreference("pref_key_test_data");
 		if (IS_DEBUG_BUILD) {
-			testData.setOnPreferenceClickListener(
-					new Preference.OnPreferenceClickListener() {
-						@Override
-						public boolean onPreferenceClick(
-								Preference preference) {
-							LOG.info("Creating test data");
-							testDataCreator.createTestData();
-							getActivity().finish();
-							return true;
-						}
-					});
+			testData.setOnPreferenceClickListener(preference -> {
+				LOG.info("Creating test data");
+				testDataCreator.createTestData();
+				getActivity().finish();
+				return true;
+			});
 		} else {
 			testData.setVisible(false);
 		}
@@ -209,83 +194,68 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	private void loadSettings() {
-		listener.runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
-					Settings btSettings =
-							settingsManager.getSettings(BT_NAMESPACE);
-					Settings torSettings =
-							settingsManager.getSettings(TOR_NAMESPACE);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading settings took " + duration + " ms");
-					boolean btSetting =
-							btSettings.getBoolean(PREF_BT_ENABLE, false);
-					int torSetting = torSettings.getInt(PREF_TOR_NETWORK,
-							PREF_TOR_NETWORK_ALWAYS);
-					displaySettings(btSetting, torSetting);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+		listener.runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
+				Settings btSettings = settingsManager.getSettings(BT_NAMESPACE);
+				Settings torSettings =
+						settingsManager.getSettings(TOR_NAMESPACE);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading settings took " + duration + " ms");
+				boolean btSetting =
+						btSettings.getBoolean(PREF_BT_ENABLE, false);
+				int torSetting = torSettings.getInt(PREF_TOR_NETWORK,
+						PREF_TOR_NETWORK_ALWAYS);
+				displaySettings(btSetting, torSetting);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void displaySettings(final boolean btSetting,
-			final int torSetting) {
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				enableBluetooth.setValue(Boolean.toString(btSetting));
-				torNetwork.setValue(Integer.toString(torSetting));
+	private void displaySettings(boolean btSetting, int torSetting) {
+		listener.runOnUiThreadUnlessDestroyed(() -> {
+			enableBluetooth.setValue(Boolean.toString(btSetting));
+			torNetwork.setValue(Integer.toString(torSetting));
 
-				notifyPrivateMessages.setChecked(settings.getBoolean(
-						PREF_NOTIFY_PRIVATE, true));
+			notifyPrivateMessages.setChecked(settings.getBoolean(
+					PREF_NOTIFY_PRIVATE, true));
 
-				notifyGroupMessages.setChecked(settings.getBoolean(
-						PREF_NOTIFY_GROUP, true));
+			notifyGroupMessages.setChecked(settings.getBoolean(
+					PREF_NOTIFY_GROUP, true));
 
-				notifyForumPosts.setChecked(settings.getBoolean(
-						PREF_NOTIFY_FORUM, true));
+			notifyForumPosts.setChecked(settings.getBoolean(
+					PREF_NOTIFY_FORUM, true));
 
-				notifyBlogPosts.setChecked(settings.getBoolean(
-						PREF_NOTIFY_BLOG, true));
+			notifyBlogPosts.setChecked(settings.getBoolean(
+					PREF_NOTIFY_BLOG, true));
 
-				notifyVibration.setChecked(settings.getBoolean(
-						PREF_NOTIFY_VIBRATION, true));
+			notifyVibration.setChecked(settings.getBoolean(
+					PREF_NOTIFY_VIBRATION, true));
 
-				notifyLockscreen.setChecked(settings.getBoolean(
-						PREF_NOTIFY_LOCK_SCREEN, false));
+			notifyLockscreen.setChecked(settings.getBoolean(
+					PREF_NOTIFY_LOCK_SCREEN, false));
 
-				String text;
-				if (settings.getBoolean(PREF_NOTIFY_SOUND, true)) {
-					String ringtoneName =
-							settings.get(PREF_NOTIFY_RINGTONE_NAME);
-					if (StringUtils.isNullOrEmpty(ringtoneName)) {
-						text = getString(R.string.notify_sound_setting_default);
-					} else {
-						text = ringtoneName;
-					}
+			String text;
+			if (settings.getBoolean(PREF_NOTIFY_SOUND, true)) {
+				String ringtoneName = settings.get(PREF_NOTIFY_RINGTONE_NAME);
+				if (StringUtils.isNullOrEmpty(ringtoneName)) {
+					text = getString(R.string.notify_sound_setting_default);
 				} else {
-					text = getString(R.string.notify_sound_setting_disabled);
+					text = ringtoneName;
 				}
-				notifySound.setSummary(text);
+			} else {
+				text = getString(R.string.notify_sound_setting_disabled);
 			}
+			notifySound.setSummary(text);
 		});
 	}
 
 	private void triggerFeedback() {
-		androidExecutor.runOnBackgroundThread(new Runnable() {
-			@Override
-			public void run() {
-				ACRA.getErrorReporter().handleException(new UserFeedback(),
-						false);
-			}
-		});
+		androidExecutor.runOnBackgroundThread(() -> ACRA.getErrorReporter()
+				.handleException(new UserFeedback(), false));
 	}
 
 	@Override
@@ -330,60 +300,48 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		else eventBus.broadcast(new DisableBluetoothEvent());
 	}
 
-	private void storeTorSettings(final int torSetting) {
-		listener.runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Settings s = new Settings();
-					s.putInt(PREF_TOR_NETWORK, torSetting);
-					long now = System.currentTimeMillis();
-					settingsManager.mergeSettings(s, TOR_NAMESPACE);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Merging settings took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+	private void storeTorSettings(int torSetting) {
+		listener.runOnDbThread(() -> {
+			try {
+				Settings s = new Settings();
+				s.putInt(PREF_TOR_NETWORK, torSetting);
+				long now = System.currentTimeMillis();
+				settingsManager.mergeSettings(s, TOR_NAMESPACE);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Merging settings took " + duration + " ms");
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void storeBluetoothSettings(final boolean btSetting) {
-		listener.runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Settings s = new Settings();
-					s.putBoolean(PREF_BT_ENABLE, btSetting);
-					long now = System.currentTimeMillis();
-					settingsManager.mergeSettings(s, BT_NAMESPACE);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Merging settings took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+	private void storeBluetoothSettings(boolean btSetting) {
+		listener.runOnDbThread(() -> {
+			try {
+				Settings s = new Settings();
+				s.putBoolean(PREF_BT_ENABLE, btSetting);
+				long now = System.currentTimeMillis();
+				settingsManager.mergeSettings(s, BT_NAMESPACE);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Merging settings took " + duration + " ms");
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void storeSettings(final Settings settings) {
-		listener.runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Merging settings took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+	private void storeSettings(Settings settings) {
+		listener.runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Merging settings took " + duration + " ms");
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}

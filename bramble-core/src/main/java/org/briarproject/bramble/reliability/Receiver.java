@@ -41,7 +41,7 @@ class Receiver implements ReadHandler {
 	Receiver(Clock clock, Sender sender) {
 		this.sender = sender;
 		this.clock = clock;
-		dataFrames = new TreeSet<Data>(new SequenceNumberComparator());
+		dataFrames = new TreeSet<>(new SequenceNumberComparator());
 	}
 
 	Data read() throws IOException, InterruptedException {

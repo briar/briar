@@ -268,7 +268,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case android.R.id.home:
@@ -289,126 +289,104 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void loadContactDetailsAndMessages() {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					if (contactName == null || contactAuthorId == null) {
-						Contact contact = contactManager.getContact(contactId);
-						contactName = contact.getAuthor().getName();
-						contactAuthorId = contact.getAuthor().getId();
-					}
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading contact took " + duration + " ms");
-					loadMessages();
-					displayContactDetails();
-				} catch (NoSuchContactException e) {
-					finishOnUiThread();
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				if (contactName == null || contactAuthorId == null) {
+					Contact contact = contactManager.getContact(contactId);
+					contactName = contact.getAuthor().getName();
+					contactAuthorId = contact.getAuthor().getId();
 				}
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading contact took " + duration + " ms");
+				loadMessages();
+				displayContactDetails();
+			} catch (NoSuchContactException e) {
+				finishOnUiThread();
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
 	private void displayContactDetails() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				//noinspection ConstantConditions
-				toolbarAvatar.setImageDrawable(
-						new IdenticonDrawable(contactAuthorId.getBytes()));
-				toolbarTitle.setText(contactName);
-			}
+		runOnUiThreadUnlessDestroyed(() -> {
+			//noinspection ConstantConditions
+			toolbarAvatar.setImageDrawable(
+					new IdenticonDrawable(contactAuthorId.getBytes()));
+			toolbarTitle.setText(contactName);
 		});
 	}
 
 	private void displayContactOnlineStatus() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				if (connectionRegistry.isConnected(contactId)) {
-					toolbarStatus.setImageDrawable(ContextCompat
-							.getDrawable(ConversationActivity.this,
-									R.drawable.contact_online));
-					toolbarStatus
-							.setContentDescription(getString(R.string.online));
-				} else {
-					toolbarStatus.setImageDrawable(ContextCompat
-							.getDrawable(ConversationActivity.this,
-									R.drawable.contact_offline));
-					toolbarStatus
-							.setContentDescription(getString(R.string.offline));
-				}
+		runOnUiThreadUnlessDestroyed(() -> {
+			if (connectionRegistry.isConnected(contactId)) {
+				toolbarStatus.setImageDrawable(ContextCompat
+						.getDrawable(ConversationActivity.this,
+								R.drawable.contact_online));
+				toolbarStatus
+						.setContentDescription(getString(R.string.online));
+			} else {
+				toolbarStatus.setImageDrawable(ContextCompat
+						.getDrawable(ConversationActivity.this,
+								R.drawable.contact_offline));
+				toolbarStatus
+						.setContentDescription(getString(R.string.offline));
 			}
 		});
 	}
 
 	private void loadMessages() {
-		final int revision = adapter.getRevision();
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					Collection<PrivateMessageHeader> headers =
-							messagingManager.getMessageHeaders(contactId);
-					Collection<IntroductionMessage> introductions =
-							introductionManager
-									.getIntroductionMessages(contactId);
-					Collection<InvitationMessage> forumInvitations =
-							forumSharingManager
-									.getInvitationMessages(contactId);
-					Collection<InvitationMessage> blogInvitations =
-							blogSharingManager
-									.getInvitationMessages(contactId);
-					Collection<InvitationMessage> groupInvitations =
-							groupInvitationManager
-									.getInvitationMessages(contactId);
-					List<InvitationMessage> invitations = new ArrayList<>(
-							forumInvitations.size() + blogInvitations.size() +
-									groupInvitations.size());
-					invitations.addAll(forumInvitations);
-					invitations.addAll(blogInvitations);
-					invitations.addAll(groupInvitations);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading messages took " + duration + " ms");
-					displayMessages(revision, headers, introductions,
-							invitations);
-				} catch (NoSuchContactException e) {
-					finishOnUiThread();
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+		int revision = adapter.getRevision();
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				Collection<PrivateMessageHeader> headers =
+						messagingManager.getMessageHeaders(contactId);
+				Collection<IntroductionMessage> introductions =
+						introductionManager.getIntroductionMessages(contactId);
+				Collection<InvitationMessage> forumInvitations =
+						forumSharingManager.getInvitationMessages(contactId);
+				Collection<InvitationMessage> blogInvitations =
+						blogSharingManager.getInvitationMessages(contactId);
+				Collection<InvitationMessage> groupInvitations =
+						groupInvitationManager.getInvitationMessages(contactId);
+				List<InvitationMessage> invitations = new ArrayList<>(
+						forumInvitations.size() + blogInvitations.size() +
+								groupInvitations.size());
+				invitations.addAll(forumInvitations);
+				invitations.addAll(blogInvitations);
+				invitations.addAll(groupInvitations);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading messages took " + duration + " ms");
+				displayMessages(revision, headers, introductions, invitations);
+			} catch (NoSuchContactException e) {
+				finishOnUiThread();
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void displayMessages(final int revision,
-			final Collection<PrivateMessageHeader> headers,
-			final Collection<IntroductionMessage> introductions,
-			final Collection<InvitationMessage> invitations) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				if (revision == adapter.getRevision()) {
-					adapter.incrementRevision();
-					textInputView.setSendButtonEnabled(true);
-					List<ConversationItem> items = createItems(headers,
-							introductions, invitations);
-					if (items.isEmpty()) list.showData();
-					else adapter.addAll(items);
-					// Scroll to the bottom
-					list.scrollToPosition(adapter.getItemCount() - 1);
-				} else {
-					LOG.info("Concurrent update, reloading");
-					loadMessages();
-				}
+	private void displayMessages(int revision,
+			Collection<PrivateMessageHeader> headers,
+			Collection<IntroductionMessage> introductions,
+			Collection<InvitationMessage> invitations) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			if (revision == adapter.getRevision()) {
+				adapter.incrementRevision();
+				textInputView.setSendButtonEnabled(true);
+				List<ConversationItem> items = createItems(headers,
+						introductions, invitations);
+				if (items.isEmpty()) list.showData();
+				else adapter.addAll(items);
+				// Scroll to the bottom
+				list.scrollToPosition(adapter.getItemCount() - 1);
+			} else {
+				LOG.info("Concurrent update, reloading");
+				loadMessages();
 			}
 		});
 	}
@@ -458,40 +436,33 @@ public class ConversationActivity extends BriarActivity
 		return items;
 	}
 
-	private void loadMessageBody(final MessageId m) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					String body = messagingManager.getMessageBody(m);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading body took " + duration + " ms");
-					displayMessageBody(m, body);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+	private void loadMessageBody(MessageId m) {
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				String body = messagingManager.getMessageBody(m);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading body took " + duration + " ms");
+				displayMessageBody(m, body);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void displayMessageBody(final MessageId m, final String body) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				bodyCache.put(m, body);
-				SparseArray<ConversationItem> messages =
-						adapter.getPrivateMessages();
-				for (int i = 0; i < messages.size(); i++) {
-					ConversationItem item = messages.valueAt(i);
-					if (item.getId().equals(m)) {
-						item.setBody(body);
-						adapter.notifyItemChanged(messages.keyAt(i));
-						list.scrollToPosition(adapter.getItemCount() - 1);
-						return;
-					}
+	private void displayMessageBody(MessageId m, String body) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			bodyCache.put(m, body);
+			SparseArray<ConversationItem> messages =
+					adapter.getPrivateMessages();
+			for (int i = 0; i < messages.size(); i++) {
+				ConversationItem item = messages.valueAt(i);
+				if (item.getId().equals(m)) {
+					item.setBody(body);
+					adapter.notifyItemChanged(messages.keyAt(i));
+					list.scrollToPosition(adapter.getItemCount() - 1);
+					return;
 				}
 			}
 		});
@@ -572,138 +543,100 @@ public class ConversationActivity extends BriarActivity
 		}
 	}
 
-	private void addConversationItem(final ConversationItem item) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				adapter.incrementRevision();
-				adapter.add(item);
-				// Scroll to the bottom
-				list.scrollToPosition(adapter.getItemCount() - 1);
-			}
+	private void addConversationItem(ConversationItem item) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			adapter.incrementRevision();
+			adapter.add(item);
+			// Scroll to the bottom
+			list.scrollToPosition(adapter.getItemCount() - 1);
 		});
 	}
 
-	private void handleIntroductionRequest(final IntroductionRequest m) {
+	private void handleIntroductionRequest(IntroductionRequest m) {
 		getContactNameTask().addListener(new FutureTaskListener<String>() {
 			@Override
-			public void onSuccess(final String contactName) {
-				runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						ConversationItem item = ConversationItem
-								.from(ConversationActivity.this, contactName,
-										m);
-						addConversationItem(item);
-					}
+			public void onSuccess(String contactName) {
+				runOnUiThreadUnlessDestroyed(() -> {
+					ConversationItem item = ConversationItem
+							.from(ConversationActivity.this, contactName, m);
+					addConversationItem(item);
 				});
 			}
 			@Override
-			public void onFailure(final Throwable exception) {
-				runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						handleDbException((DbException) exception);
-					}
-				});
+			public void onFailure(Throwable exception) {
+				runOnUiThreadUnlessDestroyed(
+						() -> handleDbException((DbException) exception));
 			}
 		});
 	}
 
-	private void handleIntroductionResponse(final IntroductionResponse m) {
+	private void handleIntroductionResponse(IntroductionResponse m) {
 		getContactNameTask().addListener(new FutureTaskListener<String>() {
 			@Override
-			public void onSuccess(final String contactName) {
-				runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						ConversationItem item = ConversationItem
-								.from(ConversationActivity.this, contactName,
-										m);
-						addConversationItem(item);
-					}
+			public void onSuccess(String contactName) {
+				runOnUiThreadUnlessDestroyed(() -> {
+					ConversationItem item = ConversationItem
+							.from(ConversationActivity.this, contactName, m);
+					addConversationItem(item);
 				});
 			}
 			@Override
-			public void onFailure(final Throwable exception) {
-				runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						handleDbException((DbException) exception);
-					}
-				});
+			public void onFailure(Throwable exception) {
+				runOnUiThreadUnlessDestroyed(
+						() -> handleDbException((DbException) exception));
 			}
 		});
 	}
 
-	private void handleInvitationRequest(final InvitationRequest m) {
+	private void handleInvitationRequest(InvitationRequest m) {
 		getContactNameTask().addListener(new FutureTaskListener<String>() {
 			@Override
-			public void onSuccess(final String contactName) {
-				runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						ConversationItem item = ConversationItem
-								.from(ConversationActivity.this, contactName,
-										m);
-						addConversationItem(item);
-					}
+			public void onSuccess(String contactName) {
+				runOnUiThreadUnlessDestroyed(() -> {
+					ConversationItem item = ConversationItem
+							.from(ConversationActivity.this, contactName, m);
+					addConversationItem(item);
 				});
 			}
 			@Override
-			public void onFailure(final Throwable exception) {
-				runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						handleDbException((DbException) exception);
-					}
-				});
+			public void onFailure(Throwable exception) {
+				runOnUiThreadUnlessDestroyed(
+						() -> handleDbException((DbException) exception));
 			}
 		});
 	}
 
-	private void handleInvitationResponse(final InvitationResponse m) {
+	private void handleInvitationResponse(InvitationResponse m) {
 		getContactNameTask().addListener(new FutureTaskListener<String>() {
 			@Override
-			public void onSuccess(final String contactName) {
-				runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						ConversationItem item = ConversationItem
-								.from(ConversationActivity.this, contactName,
-										m);
-						addConversationItem(item);
-					}
+			public void onSuccess(String contactName) {
+				runOnUiThreadUnlessDestroyed(() -> {
+					ConversationItem item = ConversationItem
+							.from(ConversationActivity.this, contactName, m);
+					addConversationItem(item);
 				});
 			}
 			@Override
-			public void onFailure(final Throwable exception) {
-				runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						handleDbException((DbException) exception);
-					}
-				});
+			public void onFailure(Throwable exception) {
+				runOnUiThreadUnlessDestroyed(
+						() -> handleDbException((DbException) exception));
 			}
 		});
 	}
 
-	private void markMessages(final Collection<MessageId> messageIds,
-			final boolean sent, final boolean seen) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				adapter.incrementRevision();
-				Set<MessageId> messages = new HashSet<>(messageIds);
-				SparseArray<ConversationOutItem> list =
-						adapter.getOutgoingMessages();
-				for (int i = 0; i < list.size(); i++) {
-					ConversationOutItem item = list.valueAt(i);
-					if (messages.contains(item.getId())) {
-						item.setSent(sent);
-						item.setSeen(seen);
-						adapter.notifyItemChanged(list.keyAt(i));
-					}
+	private void markMessages(Collection<MessageId> messageIds,
+			boolean sent, boolean seen) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			adapter.incrementRevision();
+			Set<MessageId> messages = new HashSet<>(messageIds);
+			SparseArray<ConversationOutItem> list =
+					adapter.getOutgoingMessages();
+			for (int i = 0; i < list.size(); i++) {
+				ConversationOutItem item = list.valueAt(i);
+				if (messages.contains(item.getId())) {
+					item.setSent(sent);
+					item.setSeen(seen);
+					adapter.notifyItemChanged(list.keyAt(i));
 				}
 			}
 		});
@@ -726,72 +659,55 @@ public class ConversationActivity extends BriarActivity
 		return item == null ? 0 : item.getTime() + 1;
 	}
 
-	private void loadGroupId(final String body, final long timestamp) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					messagingGroupId =
-							messagingManager.getConversationId(contactId);
-					createMessage(body, timestamp);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+	private void loadGroupId(String body, long timestamp) {
+		runOnDbThread(() -> {
+			try {
+				messagingGroupId =
+						messagingManager.getConversationId(contactId);
+				createMessage(body, timestamp);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
 
+		});
+	}
+
+	private void createMessage(String body, long timestamp) {
+		cryptoExecutor.execute(() -> {
+			try {
+				//noinspection ConstantConditions init in loadGroupId()
+				storeMessage(privateMessageFactory.createPrivateMessage(
+						messagingGroupId, timestamp, body), body);
+			} catch (FormatException e) {throw new RuntimeException(e);
 			}
 		});
 	}
 
-	private void createMessage(final String body, final long timestamp) {
-		cryptoExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					//noinspection ConstantConditions init in loadGroupId()
-					storeMessage(privateMessageFactory.createPrivateMessage(
-							messagingGroupId, timestamp, body), body);
-				} catch (FormatException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		});
-	}
-
-	private void storeMessage(final PrivateMessage m, final String body) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					messagingManager.addLocalMessage(m);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Storing message took " + duration + " ms");
-					Message message = m.getMessage();
-					PrivateMessageHeader h = new PrivateMessageHeader(
-							message.getId(), message.getGroupId(),
-							message.getTimestamp(), true, false, false, false);
-					ConversationItem item = ConversationItem.from(h);
-					item.setBody(body);
-					bodyCache.put(message.getId(), body);
-					addConversationItem(item);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+	private void storeMessage(PrivateMessage m, String body) {
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				messagingManager.addLocalMessage(m);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Storing message took " + duration + " ms");
+				Message message = m.getMessage();
+				PrivateMessageHeader h = new PrivateMessageHeader(
+						message.getId(), message.getGroupId(),
+						message.getTimestamp(), true, false, false, false);
+				ConversationItem item = ConversationItem.from(h);
+				item.setBody(body);
+				bodyCache.put(message.getId(), body);
+				addConversationItem(item);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
 	private void askToRemoveContact() {
 		DialogInterface.OnClickListener okListener =
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						removeContact();
-					}
-				};
+				(dialog, which) -> removeContact();
 		AlertDialog.Builder builder =
 				new AlertDialog.Builder(ConversationActivity.this,
 						R.style.BriarDialogTheme);
@@ -803,118 +719,95 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void removeContact() {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					contactManager.removeContact(contactId);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} finally {
-					finishAfterContactRemoved();
-				}
+		runOnDbThread(() -> {
+			try {
+				contactManager.removeContact(contactId);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} finally {
+				finishAfterContactRemoved();
 			}
 		});
 	}
 
 	private void finishAfterContactRemoved() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				String deleted = getString(R.string.contact_deleted_toast);
-				Toast.makeText(ConversationActivity.this, deleted, LENGTH_SHORT)
-						.show();
-				supportFinishAfterTransition();
-			}
+		runOnUiThreadUnlessDestroyed(() -> {
+			String deleted = getString(R.string.contact_deleted_toast);
+			Toast.makeText(ConversationActivity.this, deleted, LENGTH_SHORT)
+					.show();
+			supportFinishAfterTransition();
 		});
 	}
 
-	private void enableIntroductionActionIfAvailable(final MenuItem item) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if (contactManager.getActiveContacts().size() > 1) {
-						enableIntroductionAction(item);
-						Settings settings =
-								settingsManager.getSettings(SETTINGS_NAMESPACE);
-						if (settings.getBoolean(SHOW_ONBOARDING_INTRODUCTION,
-								true)) {
-							showIntroductionOnboarding();
-						}
+	private void enableIntroductionActionIfAvailable(MenuItem item) {
+		runOnDbThread(() -> {
+			try {
+				if (contactManager.getActiveContacts().size() > 1) {
+					enableIntroductionAction(item);
+					Settings settings =
+							settingsManager.getSettings(SETTINGS_NAMESPACE);
+					if (settings.getBoolean(SHOW_ONBOARDING_INTRODUCTION,
+							true)) {
+						showIntroductionOnboarding();
 					}
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
 				}
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void enableIntroductionAction(final MenuItem item) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				item.setEnabled(true);
-			}
-		});
+	private void enableIntroductionAction(MenuItem item) {
+		runOnUiThreadUnlessDestroyed(() -> item.setEnabled(true));
 	}
 
 	private void showIntroductionOnboarding() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				// find view of overflow icon
-				View target = null;
-				for (int i = 0; i < toolbar.getChildCount(); i++) {
-					if (toolbar.getChildAt(i) instanceof ActionMenuView) {
-						ActionMenuView menu =
-								(ActionMenuView) toolbar.getChildAt(i);
-						target = menu.getChildAt(menu.getChildCount() - 1);
-						break;
-					}
+		runOnUiThreadUnlessDestroyed(() -> {
+			// find view of overflow icon
+			View target = null;
+			for (int i = 0; i < toolbar.getChildCount(); i++) {
+				if (toolbar.getChildAt(i) instanceof ActionMenuView) {
+					ActionMenuView menu =
+							(ActionMenuView) toolbar.getChildAt(i);
+					target = menu.getChildAt(menu.getChildCount() - 1);
+					break;
 				}
-				if (target == null) {
-					LOG.warning("No Overflow Icon found!");
-					return;
-				}
-
-				OnHidePromptListener listener = new OnHidePromptListener() {
-					@Override
-					public void onHidePrompt(MotionEvent motionEvent,
-							boolean focalClicked) {
-						introductionOnboardingSeen();
-					}
-
-					@Override
-					public void onHidePromptComplete() {
-					}
-				};
-				new MaterialTapTargetPrompt.Builder(ConversationActivity.this)
-						.setTarget(target)
-						.setPrimaryText(R.string.introduction_onboarding_title)
-						.setSecondaryText(R.string.introduction_onboarding_text)
-						.setBackgroundColourFromRes(R.color.briar_primary)
-						.setIcon(R.drawable.ic_more_vert_accent)
-						.setOnHidePromptListener(listener)
-						.show();
 			}
+			if (target == null) {
+				LOG.warning("No Overflow Icon found!");
+				return;
+			}
+
+			OnHidePromptListener listener = new OnHidePromptListener() {
+				@Override
+				public void onHidePrompt(MotionEvent motionEvent,
+						boolean focalClicked) {
+					introductionOnboardingSeen();
+				}
+
+				@Override
+				public void onHidePromptComplete() {
+				}
+			};
+			new MaterialTapTargetPrompt.Builder(ConversationActivity.this)
+					.setTarget(target)
+					.setPrimaryText(R.string.introduction_onboarding_title)
+					.setSecondaryText(R.string.introduction_onboarding_text)
+					.setBackgroundColourFromRes(R.color.briar_primary)
+					.setIcon(R.drawable.ic_more_vert_accent)
+					.setOnHidePromptListener(listener)
+					.show();
 		});
 	}
 
 	private void introductionOnboardingSeen() {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Settings settings = new Settings();
-					settings.putBoolean(SHOW_ONBOARDING_INTRODUCTION, false);
-					settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+		runOnDbThread(() -> {
+			try {
+				Settings settings = new Settings();
+				settings.putBoolean(SHOW_ONBOARDING_INTRODUCTION, false);
+				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
@@ -924,63 +817,55 @@ public class ConversationActivity extends BriarActivity
 		if (!item.isRead()) markMessageRead(item.getGroupId(), item.getId());
 	}
 
-	private void markMessageRead(final GroupId g, final MessageId m) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					messagingManager.setReadFlag(g, m, true);
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Marking read took " + duration + " ms");
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+	private void markMessageRead(GroupId g, MessageId m) {
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				messagingManager.setReadFlag(g, m, true);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Marking read took " + duration + " ms");
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
 	@UiThread
 	@Override
-	public void respondToRequest(final ConversationRequestItem item,
-			final boolean accept) {
+	public void respondToRequest(ConversationRequestItem item, boolean accept) {
 		item.setAnswered(true);
 		int position = adapter.findItemPosition(item);
 		if (position != INVALID_POSITION) {
 			adapter.notifyItemChanged(position, item);
 		}
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				long timestamp = System.currentTimeMillis();
-				timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
-				try {
-					switch (item.getRequestType()) {
-						case INTRODUCTION:
-							respondToIntroductionRequest(item.getSessionId(),
-									accept, timestamp);
-							break;
-						case FORUM:
-							respondToForumRequest(item.getSessionId(), accept);
-							break;
-						case BLOG:
-							respondToBlogRequest(item.getSessionId(), accept);
-							break;
-						case GROUP:
-							respondToGroupRequest(item.getSessionId(), accept);
-							break;
-						default:
-							throw new IllegalArgumentException(
-									"Unknown Request Type");
-					}
-					loadMessages();
-				} catch (DbException | FormatException e) {
-					introductionResponseError();
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
+		runOnDbThread(() -> {
+			long timestamp = System.currentTimeMillis();
+			timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
+			try {
+				switch (item.getRequestType()) {
+					case INTRODUCTION:
+						respondToIntroductionRequest(item.getSessionId(),
+								accept, timestamp);
+						break;
+					case FORUM:
+						respondToForumRequest(item.getSessionId(), accept);
+						break;
+					case BLOG:
+						respondToBlogRequest(item.getSessionId(), accept);
+						break;
+					case GROUP:
+						respondToGroupRequest(item.getSessionId(), accept);
+						break;
+					default:
+						throw new IllegalArgumentException(
+								"Unknown Request Type");
 				}
+				loadMessages();
+			} catch (DbException | FormatException e) {
+				introductionResponseError();
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
@@ -1041,14 +926,10 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void introductionResponseError() {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
+		runOnUiThreadUnlessDestroyed(() ->
 				Toast.makeText(ConversationActivity.this,
 						R.string.introduction_response_error,
-						Toast.LENGTH_SHORT).show();
-			}
-		});
+						Toast.LENGTH_SHORT).show());
 	}
 
 	private ListenableFutureTask<String> getContactNameTask() {

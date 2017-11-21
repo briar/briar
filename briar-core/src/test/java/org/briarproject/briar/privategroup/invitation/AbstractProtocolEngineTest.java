@@ -112,14 +112,14 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		assertEquals(inviteTimestamp, s.getInviteTimestamp());
 	}
 
-	protected void expectGetLocalTimestamp(final long time) {
+	protected void expectGetLocalTimestamp(long time) {
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(time));
 		}});
 	}
 
-	protected void expectSendInviteMessage(final String msg)
+	protected void expectSendInviteMessage(String msg)
 			throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder)
@@ -131,7 +131,7 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		expectSendMessage(INVITE, true);
 	}
 
-	protected void expectSendJoinMessage(final JoinMessage m, boolean visible)
+	protected void expectSendJoinMessage(JoinMessage m, boolean visible)
 			throws Exception {
 		expectGetLocalTimestamp(messageTimestamp);
 		context.checking(new Expectations() {{
@@ -165,8 +165,8 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		expectSendMessage(ABORT, false);
 	}
 
-	private void expectSendMessage(final MessageType type,
-			final boolean visible) throws Exception {
+	private void expectSendMessage(MessageType type, boolean visible)
+			throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(type, privateGroupId,
 					message.getTimestamp(), true, true, visible, false, false);
@@ -175,7 +175,7 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		}});
 	}
 
-	protected void expectSetPrivateGroupVisibility(final Group.Visibility v)
+	protected void expectSetPrivateGroupVisibility(Group.Visibility v)
 			throws Exception {
 		expectGetContactId();
 		context.checking(new Expectations() {{
@@ -184,7 +184,7 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	}
 
 	protected void expectGetContactId() throws Exception {
-		final BdfDictionary groupMeta = BdfDictionary
+		BdfDictionary groupMeta = BdfDictionary
 				.of(new BdfEntry(GROUP_KEY_CONTACT_ID, contactId.getInt()));
 		context.checking(new Expectations() {{
 			oneOf(clientHelper)
@@ -211,10 +211,9 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		}});
 	}
 
-	protected void expectMarkMessageVisibleInUi(final MessageId m,
-			final boolean visible)
+	protected void expectMarkMessageVisibleInUi(MessageId m, boolean visible)
 			throws Exception {
-		final BdfDictionary d = new BdfDictionary();
+		BdfDictionary d = new BdfDictionary();
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).setVisibleInUi(d, visible);
 			oneOf(clientHelper).mergeMessageMetadata(txn, m, d);

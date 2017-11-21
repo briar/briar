@@ -19,7 +19,7 @@ public class MessageTreeImplTest {
 
 	@Test
 	public void testMessageTree() {
-		tree = new MessageTreeImpl<TestNode>();
+		tree = new MessageTreeImpl<>();
 		testSimpleTree();
 		tree.clear();
 		testSimpleTree();

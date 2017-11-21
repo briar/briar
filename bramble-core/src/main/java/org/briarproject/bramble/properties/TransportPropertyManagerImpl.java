@@ -144,8 +144,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	public Map<TransportId, TransportProperties> getLocalProperties(
 			Transaction txn) throws DbException {
 		try {
-			Map<TransportId, TransportProperties> local =
-					new HashMap<TransportId, TransportProperties>();
+			Map<TransportId, TransportProperties> local = new HashMap<>();
 			// Find the latest local update for each transport
 			Map<TransportId, LatestUpdate> latest = findLatestLocal(txn);
 			// Retrieve and parse the latest local properties
@@ -192,8 +191,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Override
 	public Map<ContactId, TransportProperties> getRemoteProperties(
 			TransportId t) throws DbException {
-		Map<ContactId, TransportProperties> remote =
-				new HashMap<ContactId, TransportProperties>();
+		Map<ContactId, TransportProperties> remote = new HashMap<>();
 		// TODO: Transaction can be read-only when code is simplified
 		Transaction txn = db.startTransaction(false);
 		try {
@@ -321,8 +319,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	private Map<TransportId, LatestUpdate> findLatestLocal(Transaction txn)
 			throws DbException, FormatException {
 		// TODO: This can be simplified before 1.0
-		Map<TransportId, LatestUpdate> latestUpdates =
-				new HashMap<TransportId, LatestUpdate>();
+		Map<TransportId, LatestUpdate> latestUpdates = new HashMap<>();
 		Map<MessageId, BdfDictionary> metadata = clientHelper
 				.getMessageMetadataAsDictionary(txn, localGroup.getId());
 		for (Entry<MessageId, BdfDictionary> e : metadata.entrySet()) {

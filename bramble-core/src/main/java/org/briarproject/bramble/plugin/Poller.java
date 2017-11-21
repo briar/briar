@@ -66,7 +66,7 @@ class Poller implements EventListener {
 		this.random = random;
 		this.clock = clock;
 		lock = new ReentrantLock();
-		tasks = new HashMap<TransportId, PollTask>();
+		tasks = new HashMap<>();
 	}
 
 	@Override
@@ -111,30 +111,24 @@ class Poller implements EventListener {
 			connectToContact(c, (DuplexPlugin) p);
 	}
 
-	private void connectToContact(final ContactId c, final SimplexPlugin p) {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				TransportId t = p.getId();
-				if (!connectionRegistry.isConnected(c, t)) {
-					TransportConnectionWriter w = p.createWriter(c);
-					if (w != null)
-						connectionManager.manageOutgoingConnection(c, t, w);
-				}
+	private void connectToContact(ContactId c, SimplexPlugin p) {
+		ioExecutor.execute(() -> {
+			TransportId t = p.getId();
+			if (!connectionRegistry.isConnected(c, t)) {
+				TransportConnectionWriter w = p.createWriter(c);
+				if (w != null)
+					connectionManager.manageOutgoingConnection(c, t, w);
 			}
 		});
 	}
 
-	private void connectToContact(final ContactId c, final DuplexPlugin p) {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				TransportId t = p.getId();
-				if (!connectionRegistry.isConnected(c, t)) {
-					DuplexTransportConnection d = p.createConnection(c);
-					if (d != null)
-						connectionManager.manageOutgoingConnection(c, t, d);
-				}
+	private void connectToContact(ContactId c, DuplexPlugin p) {
+		ioExecutor.execute(() -> {
+			TransportId t = p.getId();
+			if (!connectionRegistry.isConnected(c, t)) {
+				DuplexTransportConnection d = p.createConnection(c);
+				if (d != null)
+					connectionManager.manageOutgoingConnection(c, t, d);
 			}
 		});
 	}
@@ -159,14 +153,10 @@ class Poller implements EventListener {
 		try {
 			PollTask scheduled = tasks.get(t);
 			if (scheduled == null || due < scheduled.due) {
-				final PollTask task = new PollTask(p, due, randomiseNext);
+				PollTask task = new PollTask(p, due, randomiseNext);
 				tasks.put(t, task);
-				scheduler.schedule(new Runnable() {
-					@Override
-					public void run() {
-						ioExecutor.execute(task);
-					}
-				}, delay, MILLISECONDS);
+				scheduler.schedule(
+						() -> ioExecutor.execute(task), delay, MILLISECONDS);
 			}
 		} finally {
 			lock.unlock();
@@ -174,7 +164,7 @@ class Poller implements EventListener {
 	}
 
 	@IoExecutor
-	private void poll(final Plugin p) {
+	private void poll(Plugin p) {
 		TransportId t = p.getId();
 		if (LOG.isLoggable(INFO)) LOG.info("Polling plugin " + t);
 		p.poll(connectionRegistry.getConnectedContacts(t));

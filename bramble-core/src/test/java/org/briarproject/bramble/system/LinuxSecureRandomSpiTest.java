@@ -38,7 +38,7 @@ public class LinuxSecureRandomSpiTest extends BrambleTestCase {
 			System.err.println("WARNING: Skipping test, can't run on this OS");
 			return;
 		}
-		Set<Bytes> seeds = new HashSet<Bytes>();
+		Set<Bytes> seeds = new HashSet<>();
 		LinuxSecureRandomSpi engine = new LinuxSecureRandomSpi();
 		for (int i = 0; i < 1000; i++) {
 			byte[] seed = engine.engineGenerateSeed(SEED_BYTES);

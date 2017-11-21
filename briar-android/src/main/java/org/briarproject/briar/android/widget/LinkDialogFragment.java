@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
@@ -58,25 +57,17 @@ public class LinkDialogFragment extends DialogFragment {
 		List activities = packageManager.queryIntentActivities(i,
 				PackageManager.MATCH_DEFAULT_ONLY);
 		boolean choice = activities.size() > 1;
-		final Intent intent = choice ? Intent.createChooser(i,
+		Intent intent = choice ? Intent.createChooser(i,
 				getString(R.string.link_warning_open_link)) : i;
 
 		Button openButton = (Button) v.findViewById(R.id.openButton);
-		openButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startActivity(intent);
-				getDialog().dismiss();
-			}
+		openButton.setOnClickListener(v1 -> {
+			startActivity(intent);
+			getDialog().dismiss();
 		});
 
 		Button cancelButton = (Button) v.findViewById(R.id.cancelButton);
-		cancelButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				getDialog().cancel();
-			}
-		});
+		cancelButton.setOnClickListener(v1 -> getDialog().cancel());
 
 		return v;
 	}

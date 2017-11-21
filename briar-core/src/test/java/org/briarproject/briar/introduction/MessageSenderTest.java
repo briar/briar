@@ -58,26 +58,26 @@ public class MessageSenderTest extends BriarTestCase {
 
 	@Test
 	public void testSendMessage() throws DbException, FormatException {
-		final Transaction txn = new Transaction(null, false);
-		final Group privateGroup =
+		Transaction txn = new Transaction(null, false);
+		Group privateGroup =
 				new Group(new GroupId(TestUtils.getRandomId()),
 						new ClientId(StringUtils.getRandomString(5)),
 						new byte[0]);
-		final SessionId sessionId = new SessionId(TestUtils.getRandomId());
+		SessionId sessionId = new SessionId(TestUtils.getRandomId());
 		byte[] mac = TestUtils.getRandomBytes(42);
 		byte[] sig = TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH);
-		final long time = 42L;
-		final BdfDictionary msg = BdfDictionary.of(
+		long time = 42L;
+		BdfDictionary msg = BdfDictionary.of(
 				new BdfEntry(TYPE, TYPE_ACK),
 				new BdfEntry(GROUP_ID, privateGroup.getId()),
 				new BdfEntry(SESSION_ID, sessionId),
 				new BdfEntry(MAC, mac),
 				new BdfEntry(SIGNATURE, sig)
 		);
-		final BdfList bodyList =
+		BdfList bodyList =
 				BdfList.of(TYPE_ACK, sessionId.getBytes(), mac, sig);
-		final byte[] body = TestUtils.getRandomBytes(8);
-		final Metadata metadata = new Metadata();
+		byte[] body = TestUtils.getRandomBytes(8);
+		Metadata metadata = new Metadata();
 
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).toByteArray(bodyList);

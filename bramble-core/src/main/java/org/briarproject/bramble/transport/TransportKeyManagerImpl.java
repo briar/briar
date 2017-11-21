@@ -65,9 +65,9 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		this.transportId = transportId;
 		rotationPeriodLength = maxLatency + MAX_CLOCK_DIFFERENCE;
 		lock = new ReentrantLock();
-		inContexts = new HashMap<Bytes, TagContext>();
-		outContexts = new HashMap<ContactId, MutableOutgoingKeys>();
-		keys = new HashMap<ContactId, MutableTransportKeys>();
+		inContexts = new HashMap<>();
+		outContexts = new HashMap<>();
+		keys = new HashMap<>();
 	}
 
 	@Override
@@ -134,32 +134,22 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	private void scheduleKeyRotation(long now) {
-		Runnable task = new Runnable() {
-			@Override
-			public void run() {
-				rotateKeys();
-			}
-		};
 		long delay = rotationPeriodLength - now % rotationPeriodLength;
-		scheduler.schedule(task, delay, MILLISECONDS);
+		scheduler.schedule((Runnable) this::rotateKeys, delay, MILLISECONDS);
 	}
 
 	private void rotateKeys() {
-		dbExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
+		dbExecutor.execute(() -> {
+			try {
+				Transaction txn = db.startTransaction(false);
 				try {
-					Transaction txn = db.startTransaction(false);
-					try {
-						rotateKeys(txn);
-						db.commitTransaction(txn);
-					} finally {
-						db.endTransaction(txn);
-					}
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
+					rotateKeys(txn);
+					db.commitTransaction(txn);
+				} finally {
+					db.endTransaction(txn);
 				}
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
@@ -272,8 +262,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		lock.lock();
 		try {
 			// Rotate the keys to the current rotation period
-			Map<ContactId, TransportKeys> snapshot =
-					new HashMap<ContactId, TransportKeys>();
+			Map<ContactId, TransportKeys> snapshot = new HashMap<>();
 			for (Entry<ContactId, MutableTransportKeys> e : keys.entrySet())
 				snapshot.put(e.getKey(), e.getValue().snapshot());
 			RotationResult rotationResult = rotateKeys(snapshot, now);
@@ -311,8 +300,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		private final Map<ContactId, TransportKeys> current, rotated;
 
 		private RotationResult() {
-			current = new HashMap<ContactId, TransportKeys>();
-			rotated = new HashMap<ContactId, TransportKeys>();
+			current = new HashMap<>();
+			rotated = new HashMap<>();
 		}
 	}
 }

@@ -140,7 +140,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case R.id.action_create_forum:
@@ -154,83 +154,67 @@ public class ForumListFragment extends BaseEventFragment implements
 	}
 
 	private void loadForums() {
-		final int revision = adapter.getRevision();
-		listener.runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					Collection<ForumListItem> forums = new ArrayList<>();
-					for (Forum f : forumManager.getForums()) {
-						try {
-							GroupCount count =
-									forumManager.getGroupCount(f.getId());
-							forums.add(new ForumListItem(f, count));
-						} catch (NoSuchGroupException e) {
-							// Continue
-						}
+		int revision = adapter.getRevision();
+		listener.runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				Collection<ForumListItem> forums = new ArrayList<>();
+				for (Forum f : forumManager.getForums()) {
+					try {
+						GroupCount count =
+								forumManager.getGroupCount(f.getId());
+						forums.add(new ForumListItem(f, count));
+					} catch (NoSuchGroupException e) {
+						// Continue
 					}
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Full load took " + duration + " ms");
-					displayForums(revision, forums);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
 				}
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Full load took " + duration + " ms");
+				displayForums(revision, forums);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void displayForums(final int revision,
-			final Collection<ForumListItem> forums) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				if (revision == adapter.getRevision()) {
-					adapter.incrementRevision();
-					if (forums.isEmpty()) list.showData();
-					else adapter.addAll(forums);
-				} else {
-					LOG.info("Concurrent update, reloading");
-					loadForums();
-				}
+	private void displayForums(int revision, Collection<ForumListItem> forums) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			if (revision == adapter.getRevision()) {
+				adapter.incrementRevision();
+				if (forums.isEmpty()) list.showData();
+				else adapter.addAll(forums);
+			} else {
+				LOG.info("Concurrent update, reloading");
+				loadForums();
 			}
 		});
 	}
 
 	private void loadAvailableForums() {
-		listener.runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					long now = System.currentTimeMillis();
-					int available =
-							forumSharingManager.getInvitations().size();
-					long duration = System.currentTimeMillis() - now;
-					if (LOG.isLoggable(INFO))
-						LOG.info("Loading available took " + duration + " ms");
-					displayAvailableForums(available);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
+		listener.runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				int available = forumSharingManager.getInvitations().size();
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Loading available took " + duration + " ms");
+				displayAvailableForums(available);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void displayAvailableForums(final int availableCount) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				if (availableCount == 0) {
-					snackbar.dismiss();
-				} else {
-					snackbar.setText(getResources().getQuantityString(
-							R.plurals.forums_shared, availableCount,
-							availableCount));
-					if (!snackbar.isShownOrQueued()) snackbar.show();
-				}
+	private void displayAvailableForums(int availableCount) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			if (availableCount == 0) {
+				snackbar.dismiss();
+			} else {
+				snackbar.setText(getResources().getQuantityString(
+						R.plurals.forums_shared, availableCount,
+						availableCount));
+				if (!snackbar.isShownOrQueued()) snackbar.show();
 			}
 		});
 	}
@@ -262,30 +246,24 @@ public class ForumListFragment extends BaseEventFragment implements
 		}
 	}
 
-	private void updateItem(final GroupId g, final ForumPostHeader m) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				adapter.incrementRevision();
-				int position = adapter.findItemPosition(g);
-				ForumListItem item = adapter.getItemAt(position);
-				if (item != null) {
-					item.addHeader(m);
-					adapter.updateItemAt(position, item);
-				}
+	private void updateItem(GroupId g, ForumPostHeader m) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			adapter.incrementRevision();
+			int position = adapter.findItemPosition(g);
+			ForumListItem item = adapter.getItemAt(position);
+			if (item != null) {
+				item.addHeader(m);
+				adapter.updateItemAt(position, item);
 			}
 		});
 	}
 
-	private void removeForum(final GroupId g) {
-		runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				adapter.incrementRevision();
-				int position = adapter.findItemPosition(g);
-				ForumListItem item = adapter.getItemAt(position);
-				if (item != null) adapter.remove(item);
-			}
+	private void removeForum(GroupId g) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			adapter.incrementRevision();
+			int position = adapter.findItemPosition(g);
+			ForumListItem item = adapter.getItemAt(position);
+			if (item != null) adapter.remove(item);
 		});
 	}
 

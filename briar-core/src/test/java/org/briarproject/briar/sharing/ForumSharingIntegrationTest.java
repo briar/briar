@@ -129,9 +129,8 @@ public class ForumSharingIntegrationTest
 		assertEquals(1, forumManager1.getForums().size());
 
 		// invitee has one invitation message from sharer
-		List<InvitationMessage> list =
-				new ArrayList<InvitationMessage>(forumSharingManager1
-						.getInvitationMessages(contactId0From1));
+		List<InvitationMessage> list = new ArrayList<>(
+				forumSharingManager1.getInvitationMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the forum message
 		for (InvitationMessage m : list) {
@@ -189,9 +188,8 @@ public class ForumSharingIntegrationTest
 		assertEquals(0, forumSharingManager1.getInvitations().size());
 
 		// invitee has one invitation message from sharer and one response
-		List<InvitationMessage> list =
-				new ArrayList<InvitationMessage>(forumSharingManager1
-						.getInvitationMessages(contactId0From1));
+		List<InvitationMessage> list = new ArrayList<>(
+				forumSharingManager1.getInvitationMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check things are alright with the forum message
 		for (InvitationMessage m : list) {

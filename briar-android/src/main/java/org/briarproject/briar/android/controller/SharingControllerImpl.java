@@ -58,15 +58,12 @@ public class SharingControllerImpl implements SharingController, EventListener {
 		}
 	}
 
-	private void setConnected(final ContactId c) {
+	private void setConnected(ContactId c) {
 		if (listener == null) return;
-		listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-			@Override
-			public void run() {
-				if (contacts.contains(c)) {
-					int online = getOnlineCount();
-					listener.onSharingInfoUpdated(contacts.size(), online);
-				}
+		listener.runOnUiThreadUnlessDestroyed(() -> {
+			if (contacts.contains(c)) {
+				int online = getOnlineCount();
+				listener.onSharingInfoUpdated(contacts.size(), online);
 			}
 		});
 	}

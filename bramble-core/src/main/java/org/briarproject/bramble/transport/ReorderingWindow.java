@@ -45,7 +45,7 @@ class ReorderingWindow {
 	}
 
 	List<Long> getUnseen() {
-		List<Long> unseen = new ArrayList<Long>(seen.length);
+		List<Long> unseen = new ArrayList<>(seen.length);
 		for (int i = 0; i < seen.length; i++)
 			if (!seen[i]) unseen.add(base + i);
 		return unseen;
@@ -69,8 +69,8 @@ class ReorderingWindow {
 			return new Change(added, removed);
 		}
 		// Record the elements that will be added and removed
-		List<Long> added = new ArrayList<Long>(slide);
-		List<Long> removed = new ArrayList<Long>(slide);
+		List<Long> added = new ArrayList<>(slide);
+		List<Long> removed = new ArrayList<>(slide);
 		for (int i = 0; i < slide; i++) {
 			if (!seen[i]) removed.add(base + i);
 			added.add(base + seen.length + i);

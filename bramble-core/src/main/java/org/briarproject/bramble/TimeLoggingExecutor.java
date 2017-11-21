@@ -28,19 +28,16 @@ public class TimeLoggingExecutor extends ThreadPoolExecutor {
 	}
 
 	@Override
-	public void execute(final Runnable r) {
+	public void execute(Runnable r) {
 		if (log.isLoggable(LOG_LEVEL)) {
-			final long submitted = System.currentTimeMillis();
-			super.execute(new Runnable() {
-				@Override
-				public void run() {
-					long started = System.currentTimeMillis();
-					long queued = started - submitted;
-					log.log(LOG_LEVEL, "Queue time " + queued + " ms");
-					r.run();
-					long executing = System.currentTimeMillis() - started;
-					log.log(LOG_LEVEL, "Execution time " + executing + " ms");
-				}
+			long submitted = System.currentTimeMillis();
+			super.execute(() -> {
+				long started = System.currentTimeMillis();
+				long queued = started - submitted;
+				log.log(LOG_LEVEL, "Queue time " + queued + " ms");
+				r.run();
+				long executing = System.currentTimeMillis() - started;
+				log.log(LOG_LEVEL, "Execution time " + executing + " ms");
 			});
 		} else {
 			super.execute(r);

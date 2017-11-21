@@ -93,18 +93,15 @@ public class PanicResponderActivity extends BriarActivity {
 	}
 
 	private void deleteAllData() {
-		androidExecutor.runOnBackgroundThread(new Runnable() {
-			@Override
-			public void run() {
-				configController.deleteAccount(PanicResponderActivity.this);
-				// TODO somehow delete/shred the database more thoroughly
-				PanicResponder.deleteAllAppData(PanicResponderActivity.this);
+		androidExecutor.runOnBackgroundThread(() -> {
+			configController.deleteAccount(PanicResponderActivity.this);
+			// TODO somehow delete/shred the database more thoroughly
+			PanicResponder.deleteAllAppData(PanicResponderActivity.this);
 
-				// nothing left to do after everything is deleted,
-				// so still sign out
-				LOG.info("Signing out...");
-				signOut(true);
-			}
+			// nothing left to do after everything is deleted,
+			// so still sign out
+			LOG.info("Signing out...");
+			signOut(true);
 		});
 	}
 }

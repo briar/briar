@@ -21,7 +21,7 @@ class ShutdownManagerImpl implements ShutdownManager {
 	private int nextHandle = 0;
 
 	ShutdownManagerImpl() {
-		hooks = new HashMap<Integer, Thread>();
+		hooks = new HashMap<>();
 	}
 
 	@Override

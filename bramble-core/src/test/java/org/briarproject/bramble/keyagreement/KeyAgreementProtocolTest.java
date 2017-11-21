@@ -65,11 +65,11 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	@Test
 	public void testAliceProtocol() throws Exception {
 		// set up
-		final Payload theirPayload = new Payload(BOB_COMMIT, null);
-		final Payload ourPayload = new Payload(ALICE_COMMIT, null);
-		final KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
-		final SecretKey sharedSecret = TestUtils.getSecretKey();
-		final SecretKey masterSecret = TestUtils.getSecretKey();
+		Payload theirPayload = new Payload(BOB_COMMIT, null);
+		Payload ourPayload = new Payload(ALICE_COMMIT, null);
+		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
+		SecretKey sharedSecret = TestUtils.getSecretKey();
+		SecretKey masterSecret = TestUtils.getSecretKey();
 
 		KeyAgreementProtocol protocol =
 				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
@@ -129,11 +129,11 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	@Test
 	public void testBobProtocol() throws Exception {
 		// set up
-		final Payload theirPayload = new Payload(ALICE_COMMIT, null);
-		final Payload ourPayload = new Payload(BOB_COMMIT, null);
-		final KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
-		final SecretKey sharedSecret = TestUtils.getSecretKey();
-		final SecretKey masterSecret = TestUtils.getSecretKey();
+		Payload theirPayload = new Payload(ALICE_COMMIT, null);
+		Payload ourPayload = new Payload(BOB_COMMIT, null);
+		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
+		SecretKey sharedSecret = TestUtils.getSecretKey();
+		SecretKey masterSecret = TestUtils.getSecretKey();
 
 		KeyAgreementProtocol protocol =
 				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
@@ -192,9 +192,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	@Test(expected = AbortException.class)
 	public void testAliceProtocolAbortOnBadKey() throws Exception {
 		// set up
-		final Payload theirPayload = new Payload(BOB_COMMIT, null);
-		final Payload ourPayload = new Payload(ALICE_COMMIT, null);
-		final KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
+		Payload theirPayload = new Payload(BOB_COMMIT, null);
+		Payload ourPayload = new Payload(ALICE_COMMIT, null);
+		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
 
 		KeyAgreementProtocol protocol =
 				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
@@ -233,9 +233,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	@Test(expected = AbortException.class)
 	public void testBobProtocolAbortOnBadKey() throws Exception {
 		// set up
-		final Payload theirPayload = new Payload(ALICE_COMMIT, null);
-		final Payload ourPayload = new Payload(BOB_COMMIT, null);
-		final KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
+		Payload theirPayload = new Payload(ALICE_COMMIT, null);
+		Payload ourPayload = new Payload(BOB_COMMIT, null);
+		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
 
 		KeyAgreementProtocol protocol =
 				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
@@ -270,10 +270,10 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	@Test(expected = AbortException.class)
 	public void testAliceProtocolAbortOnBadConfirm() throws Exception {
 		// set up
-		final Payload theirPayload = new Payload(BOB_COMMIT, null);
-		final Payload ourPayload = new Payload(ALICE_COMMIT, null);
-		final KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
-		final SecretKey sharedSecret = TestUtils.getSecretKey();
+		Payload theirPayload = new Payload(BOB_COMMIT, null);
+		Payload ourPayload = new Payload(ALICE_COMMIT, null);
+		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
+		SecretKey sharedSecret = TestUtils.getSecretKey();
 
 		KeyAgreementProtocol protocol =
 				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
@@ -335,10 +335,10 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	@Test(expected = AbortException.class)
 	public void testBobProtocolAbortOnBadConfirm() throws Exception {
 		// set up
-		final Payload theirPayload = new Payload(ALICE_COMMIT, null);
-		final Payload ourPayload = new Payload(BOB_COMMIT, null);
-		final KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
-		final SecretKey sharedSecret = TestUtils.getSecretKey();
+		Payload theirPayload = new Payload(ALICE_COMMIT, null);
+		Payload ourPayload = new Payload(BOB_COMMIT, null);
+		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
+		SecretKey sharedSecret = TestUtils.getSecretKey();
 
 		KeyAgreementProtocol protocol =
 				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,

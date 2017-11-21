@@ -42,8 +42,8 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	@Inject
 	ConnectionRegistryImpl(EventBus eventBus) {
 		this.eventBus = eventBus;
-		connections = new HashMap<TransportId, Map<ContactId, Integer>>();
-		contactCounts = new HashMap<ContactId, Integer>();
+		connections = new HashMap<>();
+		contactCounts = new HashMap<>();
 	}
 
 	@Override
@@ -58,7 +58,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		try {
 			Map<ContactId, Integer> m = connections.get(t);
 			if (m == null) {
-				m = new HashMap<ContactId, Integer>();
+				m = new HashMap<>();
 				connections.put(t, m);
 			}
 			Integer count = m.get(c);
@@ -124,7 +124,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		try {
 			Map<ContactId, Integer> m = connections.get(t);
 			if (m == null) return Collections.emptyList();
-			List<ContactId> ids = new ArrayList<ContactId>(m.keySet());
+			List<ContactId> ids = new ArrayList<>(m.keySet());
 			if (LOG.isLoggable(INFO))
 				LOG.info(ids.size() + " contacts connected");
 			return ids;

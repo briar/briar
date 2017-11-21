@@ -116,7 +116,7 @@ class RecordReaderImpl implements RecordReader {
 	private List<MessageId> readMessageIds() throws IOException {
 		if (payloadLength == 0) throw new FormatException();
 		if (payloadLength % UniqueId.LENGTH != 0) throw new FormatException();
-		List<MessageId> ids = new ArrayList<MessageId>();
+		List<MessageId> ids = new ArrayList<>();
 		for (int off = 0; off < payloadLength; off += UniqueId.LENGTH) {
 			byte[] id = new byte[UniqueId.LENGTH];
 			System.arraycopy(payload, off, id, 0, UniqueId.LENGTH);

@@ -146,9 +146,8 @@ public class BlogSharingIntegrationTest
 		assertTrue(blogManager1.getBlogs().contains(blog2));
 
 		// invitee has one invitation message from sharer
-		List<InvitationMessage> list =
-				new ArrayList<InvitationMessage>(blogSharingManager1
-						.getInvitationMessages(contactId0From1));
+		List<InvitationMessage> list = new ArrayList<>(
+				blogSharingManager1.getInvitationMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the message
 		for (InvitationMessage m : list) {
@@ -222,9 +221,8 @@ public class BlogSharingIntegrationTest
 		assertTrue(blogManager1.getBlogs().contains(rssBlog));
 
 		// invitee has one invitation message from sharer
-		List<InvitationMessage> list =
-				new ArrayList<InvitationMessage>(blogSharingManager1
-						.getInvitationMessages(contactId0From1));
+		List<InvitationMessage> list = new ArrayList<>(
+				blogSharingManager1.getInvitationMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the message
 		for (InvitationMessage m : list) {
@@ -286,9 +284,8 @@ public class BlogSharingIntegrationTest
 		assertEquals(0, blogSharingManager1.getInvitations().size());
 
 		// invitee has one invitation message from sharer and one response
-		List<InvitationMessage> list =
-				new ArrayList<InvitationMessage>(blogSharingManager1
-						.getInvitationMessages(contactId0From1));
+		List<InvitationMessage> list = new ArrayList<>(
+				blogSharingManager1.getInvitationMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check things are alright with the  message
 		for (InvitationMessage m : list) {

@@ -83,49 +83,32 @@ class GroupControllerImpl extends
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
 			if (!g.isLocal() && g.getGroupId().equals(getGroupId())) {
 				LOG.info("Group message received, adding...");
-				final GroupMessageItem item =
-						buildItem(g.getHeader(), g.getBody());
-				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						listener.onItemReceived(item);
-					}
-				});
+				GroupMessageItem item = buildItem(g.getHeader(), g.getBody());
+				listener.runOnUiThreadUnlessDestroyed(
+						() -> listener.onItemReceived(item));
 			}
 		} else if (e instanceof ContactRelationshipRevealedEvent) {
-			final ContactRelationshipRevealedEvent c =
+			ContactRelationshipRevealedEvent c =
 					(ContactRelationshipRevealedEvent) e;
 			if (getGroupId().equals(c.getGroupId())) {
-				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
+				listener.runOnUiThreadUnlessDestroyed(() ->
 						listener.onContactRelationshipRevealed(c.getMemberId(),
-								c.getContactId(), c.getVisibility());
-					}
-				});
+								c.getContactId(), c.getVisibility()));
 			}
 		} else if (e instanceof GroupInvitationResponseReceivedEvent) {
 			GroupInvitationResponseReceivedEvent g =
 					(GroupInvitationResponseReceivedEvent) e;
-			final GroupInvitationResponse r =
+			GroupInvitationResponse r =
 					(GroupInvitationResponse) g.getResponse();
 			if (getGroupId().equals(r.getShareableId()) && r.wasAccepted()) {
-				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						listener.onInvitationAccepted(r.getContactId());
-					}
-				});
+				listener.runOnUiThreadUnlessDestroyed(
+						() -> listener.onInvitationAccepted(r.getContactId()));
 			}
 		} else if (e instanceof GroupDissolvedEvent) {
 			GroupDissolvedEvent g = (GroupDissolvedEvent) e;
 			if (getGroupId().equals(g.getGroupId())) {
-				listener.runOnUiThreadUnlessDestroyed(new Runnable() {
-					@Override
-					public void run() {
-						listener.onGroupDissolved();
-					}
-				});
+				listener.runOnUiThreadUnlessDestroyed(
+						() -> listener.onGroupDissolved());
 			}
 		}
 	}
@@ -157,69 +140,58 @@ class GroupControllerImpl extends
 
 	@Override
 	public void loadSharingContacts(
-			final ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Collection<GroupMember> members =
-							privateGroupManager.getMembers(getGroupId());
-					Collection<ContactId> contactIds = new ArrayList<>();
-					for (GroupMember m : members) {
-						if (m.getContactId() != null)
-							contactIds.add(m.getContactId());
-					}
-					handler.onResult(contactIds);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
+			ResultExceptionHandler<Collection<ContactId>, DbException> handler) {
+		runOnDbThread(() -> {
+			try {
+				Collection<GroupMember> members =
+						privateGroupManager.getMembers(getGroupId());
+				Collection<ContactId> contactIds = new ArrayList<>();
+				for (GroupMember m : members) {
+					if (m.getContactId() != null)
+						contactIds.add(m.getContactId());
 				}
+				handler.onResult(contactIds);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
 
 	@Override
-	public void createAndStoreMessage(final String body,
-			@Nullable final GroupMessageItem parentItem,
-			final ResultExceptionHandler<GroupMessageItem, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					LocalAuthor author = identityManager.getLocalAuthor();
-					MessageId parentId = null;
-					MessageId previousMsgId =
-							privateGroupManager.getPreviousMsgId(getGroupId());
-					GroupCount count =
-							privateGroupManager.getGroupCount(getGroupId());
-					long timestamp = count.getLatestMsgTime();
-					if (parentItem != null) parentId = parentItem.getId();
-					timestamp = max(clock.currentTimeMillis(), timestamp + 1);
-					createMessage(body, timestamp, parentId, author,
-							previousMsgId, handler);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+	public void createAndStoreMessage(String body,
+			@Nullable GroupMessageItem parentItem,
+			ResultExceptionHandler<GroupMessageItem, DbException> handler) {
+		runOnDbThread(() -> {
+			try {
+				LocalAuthor author = identityManager.getLocalAuthor();
+				MessageId parentId = null;
+				MessageId previousMsgId =
+						privateGroupManager.getPreviousMsgId(getGroupId());
+				GroupCount count =
+						privateGroupManager.getGroupCount(getGroupId());
+				long timestamp = count.getLatestMsgTime();
+				if (parentItem != null) parentId = parentItem.getId();
+				timestamp = max(clock.currentTimeMillis(), timestamp + 1);
+				createMessage(body, timestamp, parentId, author, previousMsgId,
+						handler);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
 
-	private void createMessage(final String body, final long timestamp,
-			final @Nullable MessageId parentId, final LocalAuthor author,
-			final MessageId previousMsgId,
-			final ResultExceptionHandler<GroupMessageItem, DbException> handler) {
-		cryptoExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				LOG.info("Creating group message...");
-				GroupMessage msg = groupMessageFactory
-						.createGroupMessage(getGroupId(), timestamp,
-								parentId, author, body, previousMsgId);
-				storePost(msg, body, handler);
-			}
+	private void createMessage(String body, long timestamp,
+			@Nullable MessageId parentId, LocalAuthor author,
+			MessageId previousMsgId,
+			ResultExceptionHandler<GroupMessageItem, DbException> handler) {
+		cryptoExecutor.execute(() -> {
+			LOG.info("Creating group message...");
+			GroupMessage msg = groupMessageFactory
+					.createGroupMessage(getGroupId(), timestamp,
+							parentId, author, body, previousMsgId);
+			storePost(msg, body, handler);
 		});
 	}
 
@@ -245,18 +217,14 @@ class GroupControllerImpl extends
 
 	@Override
 	public void loadLocalAuthor(
-			final ResultExceptionHandler<LocalAuthor, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					LocalAuthor author = identityManager.getLocalAuthor();
-					handler.onResult(author);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+			ResultExceptionHandler<LocalAuthor, DbException> handler) {
+		runOnDbThread(() -> {
+			try {
+				LocalAuthor author = identityManager.getLocalAuthor();
+				handler.onResult(author);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}
@@ -264,18 +232,14 @@ class GroupControllerImpl extends
 	@Override
 	public void isDissolved(final
 	ResultExceptionHandler<Boolean, DbException> handler) {
-		runOnDbThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					boolean isDissolved =
-							privateGroupManager.isDissolved(getGroupId());
-					handler.onResult(isDissolved);
-				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					handler.onException(e);
-				}
+		runOnDbThread(() -> {
+			try {
+				boolean isDissolved =
+						privateGroupManager.isDissolved(getGroupId());
+				handler.onResult(isDissolved);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				handler.onException(e);
 			}
 		});
 	}

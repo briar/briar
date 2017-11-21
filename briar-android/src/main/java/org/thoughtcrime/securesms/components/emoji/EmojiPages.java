@@ -10,7 +10,7 @@ import java.util.List;
 class EmojiPages {
 
 	static List<EmojiPageModel> getPages(Context ctx) {
-		return Arrays.<EmojiPageModel>asList(
+		return Arrays.asList(
 				new StaticEmojiPageModel(ctx, R.drawable.ic_emoji_smiley_people,
 						R.array.emoji_smiley_people,
 						"emoji_smiley_people.png"),

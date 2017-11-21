@@ -110,41 +110,37 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	protected void bind() {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				if (!running) return;
-				ServerSocket ss = null;
-				for (InetSocketAddress addr : getLocalSocketAddresses()) {
-					try {
-						ss = new ServerSocket();
-						ss.bind(addr);
-						break;
-					} catch (IOException e) {
-						if (LOG.isLoggable(INFO))
-							LOG.info("Failed to bind " +
-									scrubSocketAddress(addr));
-						tryToClose(ss);
-					}
-				}
-				if (ss == null || !ss.isBound()) {
-					LOG.info("Could not bind server socket");
-					return;
-				}
-				if (!running) {
+		ioExecutor.execute(() -> {
+			if (!running) return;
+			ServerSocket ss = null;
+			for (InetSocketAddress addr : getLocalSocketAddresses()) {
+				try {
+					ss = new ServerSocket();
+					ss.bind(addr);
+					break;
+				} catch (IOException e) {
+					if (LOG.isLoggable(INFO))
+						LOG.info("Failed to bind " + scrubSocketAddress(addr));
 					tryToClose(ss);
-					return;
 				}
-				socket = ss;
-				backoff.reset();
-				InetSocketAddress local =
-						(InetSocketAddress) ss.getLocalSocketAddress();
-				setLocalSocketAddress(local);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Listening on " + scrubSocketAddress(local));
-				callback.transportEnabled();
-				acceptContactConnections();
 			}
+			if (ss == null || !ss.isBound()) {
+				LOG.info("Could not bind server socket");
+				return;
+			}
+			if (!running) {
+				tryToClose(ss);
+				return;
+			}
+			socket = ss;
+			backoff.reset();
+			InetSocketAddress local =
+					(InetSocketAddress) ss.getLocalSocketAddress();
+			setLocalSocketAddress(local);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Listening on " + scrubSocketAddress(local));
+			callback.transportEnabled();
+			acceptContactConnections();
 		});
 	}
 
@@ -218,17 +214,13 @@ abstract class TcpPlugin implements DuplexPlugin {
 		}
 	}
 
-	private void connectAndCallBack(final ContactId c,
-			final TransportProperties p) {
-		ioExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				if (!isRunning()) return;
-				DuplexTransportConnection d = createConnection(p);
-				if (d != null) {
-					backoff.reset();
-					callback.outgoingConnectionCreated(c, d);
-				}
+	private void connectAndCallBack(ContactId c, TransportProperties p) {
+		ioExecutor.execute(() -> {
+			if (!isRunning()) return;
+			DuplexTransportConnection d = createConnection(p);
+			if (d != null) {
+				backoff.reset();
+				callback.outgoingConnectionCreated(c, d);
 			}
 		});
 	}
@@ -317,7 +309,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return Collections.emptyList();
 		}
-		List<InetAddress> addrs = new ArrayList<InetAddress>();
+		List<InetAddress> addrs = new ArrayList<>();
 		for (NetworkInterface iface : ifaces)
 			addrs.addAll(Collections.list(iface.getInetAddresses()));
 		return addrs;
