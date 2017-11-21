@@ -12,11 +12,13 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
 
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.briar.R;
 import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.DestroyableContext;
 import org.briarproject.briar.android.controller.ActivityLifecycleController;
 import org.briarproject.briar.android.forum.ForumModule;
+import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.ScreenFilterDialogFragment;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout.OnTapFilteredListener;
@@ -111,6 +113,22 @@ public abstract class BaseActivity extends AppCompatActivity
 			dialogFrag.dismiss();
 			dialogFrag = null;
 		}
+	}
+
+	protected void showInitialFragment(BaseFragment f) {
+		getSupportFragmentManager().beginTransaction()
+				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
+				.commit();
+	}
+
+	public void showNextFragment(BaseFragment f) {
+		getSupportFragmentManager().beginTransaction()
+				.setCustomAnimations(R.anim.step_next_in,
+						R.anim.step_previous_out, R.anim.step_previous_in,
+						R.anim.step_next_out)
+				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
+				.addToBackStack(f.getUniqueTag())
+				.commit();
 	}
 
 	private void showScreenFilterWarning() {

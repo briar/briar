@@ -18,6 +18,7 @@ dependencies {
 	}
 	compile "com.android.support:cardview-v7:$supportVersion"
 	compile "com.android.support:support-annotations:$supportVersion"
+	compile 'com.android.support.constraint:constraint-layout:1.0.2'
 	compile('ch.acra:acra:4.8.5') {
 		exclude module: 'support-v4'
 		exclude module: 'support-annotations'
@@ -34,6 +35,7 @@ dependencies {
 
 	testCompile project(path: ':bramble-core', configuration: 'testOutput')
 	testCompile 'org.robolectric:robolectric:3.0'
+	testCompile 'org.robolectric:shadows-support-v4:3.0'
 	testCompile 'org.mockito:mockito-core:2.8.9'
 }
 
@@ -55,6 +57,8 @@ dependencyVerification {
 			'com.android.support:support-vector-drawable:799bafe4c3de812386f0b291f744d5d6876452722dd40189b9ab87dbbf594ea1',
 			'com.android.support:recyclerview-v7:44040a888e23e0c93162a3377cfe06751080e3c22d369ab0d4301ef60d63b0fe',
 			'com.android.support:preference-v7:775101bd07bd052e455761c5c5d9523d7ad59f2f320e3e8cbde241fd6b1d6025',
+			'com.android.support.constraint:constraint-layout:b0c688cc2b7172608f8153a689d746da40f71e52d7e2fe2bfd9df2f92db77085',
+			'com.android.support.constraint:constraint-layout-solver:8c62525a9bc5cff5633a96cb9b32fffeccaf41b8841aa87fc22607070dea9b8d',
 	]
 }
 

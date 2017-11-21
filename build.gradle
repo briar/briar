@@ -4,6 +4,9 @@ allprojects {
 	repositories {
 		jcenter()
 		mavenLocal()
+		maven {
+			url 'https://maven.google.com'
+		}
 	}
 }
 

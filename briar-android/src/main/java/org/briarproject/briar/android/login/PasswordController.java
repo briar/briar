@@ -7,9 +7,12 @@ import org.briarproject.briar.android.controller.handler.ResultHandler;
 @NotNullByDefault
 public interface PasswordController extends ConfigController {
 
+	float estimatePasswordStrength(String password);
+
 	void validatePassword(String password,
 			ResultHandler<Boolean> resultHandler);
 
 	void changePassword(String password, String newPassword,
 			ResultHandler<Boolean> resultHandler);
+
 }

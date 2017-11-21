@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:fillViewport="true">
+
+	<android.support.constraint.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingBottom="@dimen/margin_activity_vertical"
+		android:paddingEnd="@dimen/margin_activity_horizontal"
+		android:paddingLeft="@dimen/margin_activity_horizontal"
+		android:paddingRight="@dimen/margin_activity_horizontal"
+		android:paddingStart="@dimen/margin_activity_horizontal"
+		android:paddingTop="@dimen/margin_activity_vertical">
+
+		<TextView
+			android:id="@+id/setup_explanation"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/setup_doze_intro"
+			android:textSize="@dimen/text_size_medium"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
+
+		<Button
+			android:id="@+id/dozeButton"
+			style="@style/BriarButton.Default"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/margin_activity_horizontal"
+			android:text="@string/setup_doze_button"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/setup_explanation"/>
+
+		<ProgressBar
+			android:id="@+id/progress"
+			style="?android:attr/progressBarStyle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="16dp"
+			android:layout_marginTop="16dp"
+			android:visibility="invisible"
+			app:layout_constraintBottom_toBottomOf="@+id/dozeButton"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintTop_toTopOf="@+id/dozeButton"/>
+
+	</android.support.constraint.ConstraintLayout>
+
+</ScrollView>

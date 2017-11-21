@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Briar Podešavanje</string>
-  <string name="setup_explanation">Vaš Briar račun je kriptovan i sačuvan na vašem uređaju, ne u server-oblaku. Ako deinstalirate Briar ili zaboravite šifru, nema načina da povratite vaš račun ili vaše podatke.</string>
+  <string name="setup_password_explanation">Vaš Briar račun je kriptovan i sačuvan na vašem uređaju, ne u server-oblaku. Ako deinstalirate Briar ili zaboravite šifru, nema načina da povratite vaš račun ili vaše podatke.</string>
   <string name="choose_nickname">Izaberite vaš nadimak</string>
   <string name="choose_password">Izaberite vašu šifru</string>
   <string name="confirm_password">Potvrdite vašu šifru</string>

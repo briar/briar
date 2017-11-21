@@ -14,7 +14,6 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.DbController;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
-import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.login.PasswordActivity;
 import org.briarproject.briar.android.panic.ExitActivity;
 
@@ -62,22 +61,6 @@ public abstract class BriarActivity extends BaseActivity {
 			Intent i = new Intent(this, PasswordActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
 		}
-	}
-
-	protected void showInitialFragment(BaseFragment f) {
-		getSupportFragmentManager().beginTransaction()
-				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
-				.commit();
-	}
-
-	public void showNextFragment(BaseFragment f) {
-		getSupportFragmentManager().beginTransaction()
-				.setCustomAnimations(R.anim.step_next_in,
-						R.anim.step_previous_out, R.anim.step_previous_in,
-						R.anim.step_next_out)
-				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
-				.addToBackStack(f.getUniqueTag())
-				.commit();
 	}
 
 	public void setSceneTransitionAnimation() {

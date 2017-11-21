@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
+import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -27,14 +28,22 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 
 	protected final Executor cryptoExecutor;
 	protected final CryptoComponent crypto;
+	private final PasswordStrengthEstimator strengthEstimator;
 
 	@Inject
 	PasswordControllerImpl(SharedPreferences briarPrefs,
 			DatabaseConfig databaseConfig,
-			@CryptoExecutor Executor cryptoExecutor, CryptoComponent crypto) {
+			@CryptoExecutor Executor cryptoExecutor, CryptoComponent crypto,
+			PasswordStrengthEstimator strengthEstimator) {
 		super(briarPrefs, databaseConfig);
 		this.cryptoExecutor = cryptoExecutor;
 		this.crypto = crypto;
+		this.strengthEstimator = strengthEstimator;
+	}
+
+	@Override
+	public float estimatePasswordStrength(String password) {
+		return strengthEstimator.estimateStrength(password);
 	}
 
 	@Override
@@ -82,7 +91,7 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 		return StringUtils.fromHexString(hex);
 	}
 
-	// Call inside cryptoExecutor
+	@CryptoExecutor
 	String encryptDatabaseKey(SecretKey key, String password) {
 		long now = System.currentTimeMillis();
 		byte[] encrypted = crypto.encryptWithPassword(key.getBytes(), password);

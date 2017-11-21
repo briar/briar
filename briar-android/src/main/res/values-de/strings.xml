@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Briar einrichten</string>
-  <string name="setup_explanation">Dein Briar-Konto wird verschlüsselt auf deinem Gerät gespeichert und nicht mit der \"Cloud\" synchronisiert. Wenn du Briar deinstallierst oder dein Passwort vergisst, können das Konto und deine Daten nicht wiederhergestellt werden.</string>
+  <string name="setup_password_explanation">Dein Briar-Konto wird verschlüsselt auf deinem Gerät gespeichert und nicht mit der \"Cloud\" synchronisiert. Wenn du Briar deinstallierst oder dein Passwort vergisst, können das Konto und deine Daten nicht wiederhergestellt werden.</string>
   <string name="choose_nickname">Wähle deinen Benutzernamen</string>
   <string name="choose_password">Wähle dein Passwort</string>
   <string name="confirm_password">Passwort bestätigen</string>
