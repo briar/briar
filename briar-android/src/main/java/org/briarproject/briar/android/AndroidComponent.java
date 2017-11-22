@@ -26,6 +26,7 @@ import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.reporting.BriarReportSender;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPostFactory;
@@ -139,6 +140,8 @@ public interface AndroidComponent
 	Clock clock();
 
 	TestDataCreator testDataCreator();
+
+	DozeWatchdog dozeWatchdog();
 
 	@IoExecutor
 	Executor ioExecutor();

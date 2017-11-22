@@ -2,7 +2,6 @@ package org.briarproject.briar.android.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
@@ -28,6 +27,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
+import static android.os.Build.VERSION.SDK_INT;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingIntent;
@@ -64,7 +64,7 @@ public abstract class BriarActivity extends BaseActivity {
 		if (!briarController.hasEncryptionKey() && !isFinishing()) {
 			Intent i = new Intent(this, PasswordActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
-		} else {
+		} else if (SDK_INT >= 23) {
 			briarController.hasDozed(new UiResultHandler<Boolean>(this) {
 				@Override
 				public void onResultUi(Boolean result) {
@@ -78,7 +78,7 @@ public abstract class BriarActivity extends BaseActivity {
 	}
 
 	public void setSceneTransitionAnimation() {
-		if (Build.VERSION.SDK_INT < 21) return;
+		if (SDK_INT < 21) return;
 		Transition slide = new Slide(Gravity.RIGHT);
 		slide.excludeTarget(android.R.id.statusBarBackground, true);
 		slide.excludeTarget(android.R.id.navigationBarBackground, true);
@@ -160,7 +160,7 @@ public abstract class BriarActivity extends BaseActivity {
 	}
 
 	private void finishAndExit() {
-		if (Build.VERSION.SDK_INT >= 21) finishAndRemoveTask();
+		if (SDK_INT >= 21) finishAndRemoveTask();
 		else supportFinishAfterTransition();
 		LOG.info("Exiting");
 		System.exit(0);
