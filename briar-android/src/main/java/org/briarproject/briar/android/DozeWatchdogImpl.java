@@ -40,6 +40,7 @@ class DozeWatchdogImpl implements DozeWatchdog, Service {
 
 	@Override
 	public void stopService() throws ServiceException {
+		if (SDK_INT < 23) return;
 		appContext.unregisterReceiver(receiver);
 	}
 
