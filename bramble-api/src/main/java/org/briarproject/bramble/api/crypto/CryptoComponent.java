@@ -20,6 +20,10 @@ public interface CryptoComponent {
 
 	KeyParser getSignatureKeyParser();
 
+	KeyPair generateEdKeyPair();
+
+	KeyParser getEdKeyParser();
+
 	KeyParser getMessageKeyParser();
 
 	/**
@@ -61,7 +65,6 @@ public interface CryptoComponent {
 	 * @param ourKeyPair our ephemeral keypair
 	 * @param alice true if ourKeyPair belongs to Alice
 	 * @return the shared secret
-	 * @throws GeneralSecurityException
 	 */
 	SecretKey deriveSharedSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
 			boolean alice) throws GeneralSecurityException;
@@ -106,7 +109,6 @@ public interface CryptoComponent {
 	 * @param ourKeyPair our ephemeral keypair
 	 * @param alice true if ourKeyPair belongs to Alice
 	 * @return the shared secret
-	 * @throws GeneralSecurityException
 	 */
 	SecretKey deriveMasterSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
 			boolean alice) throws GeneralSecurityException;
@@ -130,7 +132,7 @@ public interface CryptoComponent {
 			long streamNumber);
 
 	/**
-	 * Signs the given byte[] with the given PrivateKey.
+	 * Signs the given byte[] with the given ECDSA private key.
 	 *
 	 * @param label A label specific to this signature
 	 *              to ensure that the signature cannot be repurposed
@@ -139,14 +141,34 @@ public interface CryptoComponent {
 			throws GeneralSecurityException;
 
 	/**
-	 * Verifies that the given signature is valid for the signedData
-	 * and the given publicKey.
+	 * Signs the given byte[] with the given Ed25519 private keu.
+	 *
+	 * @param label A label specific to this signature
+	 *              to ensure that the signature cannot be repurposed
+	 */
+	byte[] signEd(String label, byte[] toSign, byte[] privateKey)
+			throws GeneralSecurityException;
+
+	/**
+	 * Verifies that the given signature is valid for the signed data
+	 * and the given ECDSA public key.
 	 *
 	 * @param label A label that was specific to this signature
 	 *              to ensure that the signature cannot be repurposed
 	 * @return true if the signature was valid, false otherwise.
 	 */
 	boolean verify(String label, byte[] signedData, byte[] publicKey,
+			byte[] signature) throws GeneralSecurityException;
+
+	/**
+	 * Verifies that the given signature is valid for the signed data
+	 * and the given Ed25519 public key.
+	 *
+	 * @param label A label that was specific to this signature
+	 *              to ensure that the signature cannot be repurposed
+	 * @return true if the signature was valid, false otherwise.
+	 */
+	boolean verifyEd(String label, byte[] signedData, byte[] publicKey,
 			byte[] signature) throws GeneralSecurityException;
 
 	/**
