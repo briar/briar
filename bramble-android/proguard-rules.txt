@@ -8,6 +8,8 @@
 -dontwarn dagger.**
 -dontnote dagger.**
 
+-keep class net.i2p.crypto.eddsa.** { *; }
+
 -dontwarn sun.misc.Unsafe
 -dontnote com.google.common.**
 
