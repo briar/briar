@@ -141,7 +141,7 @@ public interface CryptoComponent {
 			throws GeneralSecurityException;
 
 	/**
-	 * Signs the given byte[] with the given Ed25519 private keu.
+	 * Signs the given byte[] with the given Ed25519 private key.
 	 *
 	 * @param label A label specific to this signature
 	 *              to ensure that the signature cannot be repurposed
