@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.reporting.DevConfig;
 import org.briarproject.bramble.api.ui.UiCallback;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.ReferenceManager;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 
@@ -40,6 +41,8 @@ public class AppModule {
 		AndroidNotificationManager androidNotificationManager;
 		@Inject
 		NetworkUsageLogger networkUsageLogger;
+		@Inject
+		DozeWatchdog dozeWatchdog;
 	}
 
 	private final Application application;
@@ -182,5 +185,13 @@ public class AppModule {
 		NetworkUsageLogger networkUsageLogger = new NetworkUsageLogger();
 		lifecycleManager.registerService(networkUsageLogger);
 		return networkUsageLogger;
+	}
+
+	@Provides
+	@Singleton
+	DozeWatchdog provideDozeWatchdog(LifecycleManager lifecycleManager) {
+		DozeWatchdogImpl dozeWatchdog = new DozeWatchdogImpl(application);
+		lifecycleManager.registerService(dozeWatchdog);
+		return dozeWatchdog;
 	}
 }

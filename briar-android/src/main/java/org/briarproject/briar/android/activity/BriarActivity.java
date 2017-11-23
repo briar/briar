@@ -2,17 +2,19 @@ package org.briarproject.briar.android.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Build;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.view.Gravity;
 import android.view.Window;
+import android.widget.CheckBox;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.DbController;
+import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.login.PasswordActivity;
 import org.briarproject.briar.android.panic.ExitActivity;
 
@@ -25,7 +27,10 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
+import static android.os.Build.VERSION.SDK_INT;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
+import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingIntent;
 
 @SuppressLint("Registered")
 public abstract class BriarActivity extends BaseActivity {
@@ -59,11 +64,21 @@ public abstract class BriarActivity extends BaseActivity {
 		if (!briarController.hasEncryptionKey() && !isFinishing()) {
 			Intent i = new Intent(this, PasswordActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
+		} else if (SDK_INT >= 23) {
+			briarController.hasDozed(new UiResultHandler<Boolean>(this) {
+				@Override
+				public void onResultUi(Boolean result) {
+					if (result) {
+						showDozeDialog(getString(R.string.warning_dozed,
+								getString(R.string.app_name)));
+					}
+				}
+			});
 		}
 	}
 
 	public void setSceneTransitionAnimation() {
-		if (Build.VERSION.SDK_INT < 21) return;
+		if (SDK_INT < 21) return;
 		Transition slide = new Slide(Gravity.RIGHT);
 		slide.excludeTarget(android.R.id.statusBarBackground, true);
 		slide.excludeTarget(android.R.id.navigationBarBackground, true);
@@ -97,6 +112,28 @@ public abstract class BriarActivity extends BaseActivity {
 		return toolbar;
 	}
 
+	protected void showDozeDialog(String message) {
+		AlertDialog.Builder b =
+				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		b.setMessage(message);
+		b.setView(R.layout.checkbox);
+		b.setPositiveButton(R.string.fix,
+				(dialog, which) -> {
+					Intent i = getDozeWhitelistingIntent(BriarActivity.this);
+					startActivityForResult(i, REQUEST_DOZE_WHITELISTING);
+					dialog.dismiss();
+				});
+		b.setNegativeButton(R.string.cancel,
+				(dialog, which) -> dialog.dismiss());
+		b.setOnDismissListener(dialog -> {
+			CheckBox checkBox = (CheckBox) ((AlertDialog) dialog)
+					.findViewById(R.id.checkbox);
+			if (checkBox.isChecked())
+				briarController.doNotAskAgainForDozeWhiteListing();
+		});
+		b.show();
+	}
+
 	protected void signOut(boolean removeFromRecentApps) {
 		if (briarController.hasEncryptionKey()) {
 			// Don't use UiResultHandler because we want the result even if
@@ -123,7 +160,7 @@ public abstract class BriarActivity extends BaseActivity {
 	}
 
 	private void finishAndExit() {
-		if (Build.VERSION.SDK_INT >= 21) finishAndRemoveTask();
+		if (SDK_INT >= 21) finishAndRemoveTask();
 		else supportFinishAfterTransition();
 		LOG.info("Exiting");
 		System.exit(0);

@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.navdrawer;
 
 import android.app.Activity;
+import android.content.Context;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -28,10 +29,12 @@ import javax.inject.Inject;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.BriarApplication.EXPIRY_DATE;
+import static org.briarproject.briar.android.controller.BriarControllerImpl.DOZE_ASK_AGAIN;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.SHOW;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
+import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -150,6 +153,28 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		});
+	}
+
+	@Override
+	public void shouldAskForDozeWhitelisting(Context ctx,
+			ResultHandler<Boolean> handler) {
+		// check this first, to hit the DbThread only when really necessary
+		if (!needsDozeWhitelisting(ctx)) {
+			handler.onResult(false);
+			return;
+		}
+		runOnDbThread(() -> {
+			try {
+				Settings settings =
+						settingsManager.getSettings(SETTINGS_NAMESPACE);
+				boolean ask = settings.getBoolean(DOZE_ASK_AGAIN, true);
+				handler.onResult(ask);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING))
+					LOG.log(WARNING, e.toString(), e);
+				handler.onResult(true);
 			}
 		});
 	}
