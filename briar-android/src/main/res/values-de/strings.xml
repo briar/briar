@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Briar einrichten</string>
-  <string name="setup_password_explanation">Dein Briar-Konto wird verschlüsselt auf deinem Gerät gespeichert und nicht mit der \"Cloud\" synchronisiert. Wenn du Briar deinstallierst oder dein Passwort vergisst, können das Konto und deine Daten nicht wiederhergestellt werden.</string>
+  <string name="setup_explanation">Dein Briar-Konto wird verschlüsselt auf deinem Gerät gespeichert und nicht mit der \"Cloud\" synchronisiert. Wenn du Briar deinstallierst oder dein Passwort vergisst, können das Konto und deine Daten nicht wiederhergestellt werden.</string>
   <string name="choose_nickname">Wähle deinen Benutzernamen</string>
   <string name="choose_password">Wähle dein Passwort</string>
   <string name="confirm_password">Passwort bestätigen</string>
@@ -21,7 +21,7 @@
   <string name="startup_failed_notification_text">Möglicherweise hilft eine Neuinstallation von Briar.</string>
   <string name="startup_failed_activity_title">Fehler beim Starten von Briar</string>
   <string name="startup_failed_db_error">Deine Briar-Datenbank ist korrupt. Briar-Konto, Daten und alle Verbindungen zu Kontakten können nicht mehr wiederhergestellt werden. Deinstalliere Briar und erstelle nach Installation der aktuellen Briar-Version ein neues Konto.</string>
-  <string name="startup_failed_service_error">Briar konnte ein benötigtes Plugin nicht starten. Normalerweise kann das Problem durch eine Neuinstallation von Briar gelöst werden. Eine Neuinstallation führt jedoch zum Verlust des Kontos und aller dazugehörigen Daten, da Briar deine Daten nicht auf zentralen Servern speichert</string>
+  <string name="startup_failed_service_error">Briar konnte ein benötigtes Plugin nicht starten. Normalerweise kann das Problem durch eine Neuinstallation von Briar gelöst werden. Eine Neuinstallation führt jedoch zum Verlust des Kontos und aller dazugehörigen Daten, da Briar deine Daten nicht auf zentralen Servern speichert.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Dies ist eine Beta-Version von Briar. Dein Konto läuft in %d Tag ab und kann nicht verlängert werden.</item>
     <item quantity="other">Dies ist eine Beta-Version von Briar. Dein Konto läuft in %d Tagen ab und kann nicht verlängert werden.</item>
@@ -97,12 +97,12 @@
   <string name="enter_invitation_code">Bitte gib den Einladungs-Code deines Kontakts an:</string>
   <string name="searching_format">Suche nach Kontakt mit Einladungs-Code %06d\u2026</string>
   <string name="connection_failed">Verbindung fehlgeschlagen</string>
-  <string name="could_not_find_contact">Briar kann deinen Kontakt nicht innerhalb der Reichweite finden</string>
+  <string name="could_not_find_contact">Briar kann deinen Kontakt nicht innerhalb der Reichweite finden.</string>
   <string name="try_again_button">Noch einmal versuchen</string>
   <string name="connected_to_contact">Mit Kontakt verbunden</string>
   <string name="calculating_confirmation_code">Bestätigungscode wird berechnet\u2026</string>
   <string name="your_confirmation_code">Dein Bestätigungscode ist</string>
-  <string name="enter_confirmation_code">Bitte gebe den Bestätigungscode deines Kontakts ein:</string>
+  <string name="enter_confirmation_code">Bitte gib den Bestätigungscode deines Kontakts ein:</string>
   <string name="waiting_for_contact">Warte auf Kontakt\u2026</string>
   <string name="waiting_for_contact_to_scan">Warte auf Scan und Verbindung mit dem Kontakt\u2026</string>
   <string name="exchanging_contact_details">Kontaktdetails werden ausgetauscht\u2026</string>
@@ -115,7 +115,7 @@
   <string name="connecting_to_device">Verbinde mit Gerät\u2026</string>
   <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
   <string name="connection_aborted_local">Verbindung wurde durch uns abgebrochen! Möglicherweise stört jemand deine Verbindung.</string>
-  <string name="connection_aborted_remote">Verbindung wurde durch deinen Kontakt abgebrochen! Möglicherweise stört jemand deine Verbindung</string>
+  <string name="connection_aborted_remote">Verbindung wurde durch deinen Kontakt abgebrochen! Möglicherweise stört jemand deine Verbindung.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Mache deine Kontakte untereinander bekannt</string>
   <string name="introduction_onboarding_text">Du kannst deine Kontakte untereinander bekannt machen. So können sie sich über Briar verbinden, ohne sich persönlich treffen zu müssen.</string>
@@ -184,7 +184,7 @@
   <string name="groups_invitations_response_declined_sent">Gruppeneinladung von %s abgelehnt.</string>
   <string name="groups_invitations_response_accepted_received">%s hat die Einladung zur Gruppe angenommen.</string>
   <string name="groups_invitations_response_declined_received">%s hat die Einladung zur Gruppe abgelehnt.</string>
-  <string name="sharing_status_groups">Nur der Ersteller kann neue Mitglieder zu einer Gruppe einladen. HIer alle aktuellen Mitglieder dieser Gruppe.</string>
+  <string name="sharing_status_groups">Nur der Ersteller kann neue Mitglieder zu einer Gruppe einladen. Hier werden alle aktuellen Mitglieder dieser Gruppe angezeigt.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Kontakte teilen</string>
   <string name="groups_reveal_dialog_message">Kontakte können mit allen derzeitigen und zukünftigen Mitgliedern dieser Gruppe geteilt werden.\n\nDas beschleunigt die Verbindung zu der Gruppe und macht sie zusätzlich zuverlässiger, da Kommunikation mit den Mitgliedern auch dann erfolgen kann, wenn der Ersteller der Gruppe offline ist.</string>

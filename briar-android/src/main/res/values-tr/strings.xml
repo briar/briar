@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Briar Kurulum</string>
-  <string name="setup_password_explanation">Briar hesabınız bulutta değil, cihazınızda şifreli olarak saklanır. Briar\'ı kaldırırsanız veya şifrenizi unutursanız, hesabınızı ve verilerinizi kurtarmanın bir yolu yoktur.</string>
+  <string name="setup_explanation">Briar hesabınız bulutta değil, cihazınızda şifreli olarak saklanır. Briar\'ı kaldırırsanız veya şifrenizi unutursanız, hesabınızı ve verilerinizi kurtarmanın bir yolu yoktur.</string>
   <string name="choose_nickname">Kullanıcı adınızı belirleyin</string>
   <string name="choose_password">Parolanızı belirleyin</string>
   <string name="confirm_password">Parolanızı doğrulayın</string>

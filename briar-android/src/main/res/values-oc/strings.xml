@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Configuracion de Briar</string>
-  <string name="setup_password_explanation">Vòstre compte Briar es salvat e chifrat sus vòstre aparelh, non pas sus un servidor alonhat \"cloud\". Se desinstalletz Briar o oblidetz vòstre senhal, vòstre compte e vòstras donadas serà pas possible de los recuperar.</string>
+  <string name="setup_explanation">Vòstre compte Briar es salvat e chifrat sus vòstre aparelh, non pas sus un servidor alonhat \"cloud\". Se desinstalletz Briar o oblidetz vòstre senhal, vòstre compte e vòstras donadas serà pas possible de los recuperar.</string>
   <string name="choose_nickname">Causir un escais-nom</string>
   <string name="choose_password">Causir un senhal</string>
   <string name="confirm_password">Confirmar lo senhal</string>

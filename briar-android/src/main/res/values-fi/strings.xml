@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Briarin asetus</string>
-  <string name="setup_password_explanation">Sinun Briar tili on tallennettu salattuna sinun laitteelle, ei pilvipalvelimelle. Jos poistat Briarin asennuksen tai unohdat salasanasi, ei ole mitään keinoa jolla tilisi tai dataasi voisi palauttaa.</string>
+  <string name="setup_explanation">Sinun Briar tili on tallennettu salattuna sinun laitteelle, ei pilvipalvelimelle. Jos poistat Briarin asennuksen tai unohdat salasanasi, ei ole mitään keinoa jolla tilisi tai dataasi voisi palauttaa.</string>
   <string name="choose_nickname">Valitse nimimerkki</string>
   <string name="choose_password">Valitse salasana</string>
   <string name="confirm_password">Vahvista salasana</string>

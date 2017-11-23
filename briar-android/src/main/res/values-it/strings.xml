@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Impostazione Briar</string>
-  <string name="setup_password_explanation">Il tuo account Briar si trova criptato sul tuo dispositivo e non nel cloud. Se disinstalli Briar o dimentichi la tua password, non c\'è modo di recuperare il tuo account o i tuoi dati.</string>
+  <string name="setup_explanation">Il tuo account Briar si trova criptato sul tuo dispositivo e non nel cloud. Se disinstalli Briar o dimentichi la tua password, non c\'è modo di recuperare il tuo account o i tuoi dati.</string>
   <string name="choose_nickname">Scegli il tuo nickname</string>
   <string name="choose_password">Scegli la tua password</string>
   <string name="confirm_password">Conferma la tua password</string>

@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Configuração de Briar</string>
-  <string name="setup_password_explanation">Sua conta Briar é armazenada criptografada apenas no seu dispositivo, não na nuvem. Se você Desinstalar o Briar ou esquecer sua senha, não será possível recuperar sua conta e seus dados.</string>
+  <string name="setup_explanation">Sua conta Briar é armazenada criptografada apenas no seu dispositivo, não na nuvem. Se você Desinstalar o Briar ou esquecer sua senha, não será possível recuperar sua conta e seus dados.</string>
   <string name="choose_nickname">Escolha seu apelido</string>
   <string name="choose_password">Escolha sua senha</string>
   <string name="confirm_password">Confirme sua senha</string>

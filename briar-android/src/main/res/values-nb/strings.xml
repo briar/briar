@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Oppsett av Briar</string>
-  <string name="setup_password_explanation">Din Briar-konto er lagret kryptert på din enhet, ikke i skyen. Hvis du avinstallerer Briar eller glemmer passordet ditt, går det ikke an å gjenopprette kontoen og dataen din.</string>
+  <string name="setup_explanation">Din Briar-konto er lagret kryptert på din enhet, ikke i skyen. Hvis du avinstallerer Briar eller glemmer passordet ditt, går det ikke an å gjenopprette kontoen og dataen din.</string>
   <string name="choose_nickname">Velg kallenavn</string>
   <string name="choose_password">Velg passord</string>
   <string name="confirm_password">Bekreft passord</string>
