@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.crypto.StreamDecrypterFactory;
 import org.briarproject.bramble.api.crypto.StreamEncrypterFactory;
+import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
 
@@ -75,15 +76,23 @@ public class CryptoModule {
 	}
 
 	@Provides
+	TransportCrypto provideTransportCrypto(
+			TransportCryptoImpl transportCrypto) {
+		return transportCrypto;
+	}
+
+	@Provides
 	StreamDecrypterFactory provideStreamDecrypterFactory(
 			Provider<AuthenticatedCipher> cipherProvider) {
 		return new StreamDecrypterFactoryImpl(cipherProvider);
 	}
 
 	@Provides
-	StreamEncrypterFactory provideStreamEncrypterFactory(CryptoComponent crypto,
+	StreamEncrypterFactory provideStreamEncrypterFactory(
+			CryptoComponent crypto, TransportCrypto transportCrypto,
 			Provider<AuthenticatedCipher> cipherProvider) {
-		return new StreamEncrypterFactoryImpl(crypto, cipherProvider);
+		return new StreamEncrypterFactoryImpl(crypto, transportCrypto,
+				cipherProvider);
 	}
 
 	@Provides

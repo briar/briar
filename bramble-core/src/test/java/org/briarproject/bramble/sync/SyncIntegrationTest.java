@@ -1,8 +1,8 @@
 package org.briarproject.bramble.sync;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -57,7 +57,7 @@ public class SyncIntegrationTest extends BrambleTestCase {
 	@Inject
 	RecordWriterFactory recordWriterFactory;
 	@Inject
-	CryptoComponent crypto;
+	TransportCrypto transportCrypto;
 
 	private final ContactId contactId;
 	private final TransportId transportId;
@@ -117,7 +117,8 @@ public class SyncIntegrationTest extends BrambleTestCase {
 	private void read(byte[] connectionData) throws Exception {
 		// Calculate the expected tag
 		byte[] expectedTag = new byte[TAG_LENGTH];
-		crypto.encodeTag(expectedTag, tagKey, PROTOCOL_VERSION, streamNumber);
+		transportCrypto.encodeTag(expectedTag, tagKey, PROTOCOL_VERSION,
+				streamNumber);
 
 		// Read the tag
 		InputStream in = new ByteArrayInputStream(connectionData);

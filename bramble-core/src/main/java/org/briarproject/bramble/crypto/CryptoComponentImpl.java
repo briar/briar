@@ -10,11 +10,7 @@ import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
-import org.briarproject.bramble.api.transport.IncomingKeys;
-import org.briarproject.bramble.api.transport.OutgoingKeys;
-import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.util.ByteUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
@@ -44,13 +40,8 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
-import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.crypto.EllipticCurveConstants.PARAMETERS;
-import static org.briarproject.bramble.util.ByteUtils.INT_16_BYTES;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
-import static org.briarproject.bramble.util.ByteUtils.INT_64_BYTES;
-import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
-import static org.briarproject.bramble.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 class CryptoComponentImpl implements CryptoComponent {
 
@@ -74,15 +65,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	// MAC label for BQP confirmation record
 	private static final String CONFIRMATION_MAC_LABEL =
 			"org.briarproject.bramble.keyagreement/CONFIRMATION_MAC";
-
-	// KDF labels for tag key derivation
-	private static final String A_TAG = "ALICE_TAG_KEY";
-	private static final String B_TAG = "BOB_TAG_KEY";
-	// KDF labels for header key derivation
-	private static final String A_HEADER = "ALICE_HEADER_KEY";
-	private static final String B_HEADER = "BOB_HEADER_KEY";
-	// KDF label for key rotation
-	private static final String ROTATE = "ROTATE";
 
 	private final SecureRandom secureRandom;
 	private final ECKeyPairGenerator agreementKeyPairGenerator;
@@ -307,104 +289,6 @@ class CryptoComponentImpl implements CryptoComponent {
 			return macKdf(CONFIRMATION_MAC_LABEL, ck, bobPayload, bobPub,
 					alicePayload, alicePub);
 		}
-	}
-
-	@Override
-	public TransportKeys deriveTransportKeys(TransportId t,
-			SecretKey master, long rotationPeriod, boolean alice) {
-		// Keys for the previous period are derived from the master secret
-		SecretKey inTagPrev = deriveTagKey(master, t, !alice);
-		SecretKey inHeaderPrev = deriveHeaderKey(master, t, !alice);
-		SecretKey outTagPrev = deriveTagKey(master, t, alice);
-		SecretKey outHeaderPrev = deriveHeaderKey(master, t, alice);
-		// Derive the keys for the current and next periods
-		SecretKey inTagCurr = rotateKey(inTagPrev, rotationPeriod);
-		SecretKey inHeaderCurr = rotateKey(inHeaderPrev, rotationPeriod);
-		SecretKey inTagNext = rotateKey(inTagCurr, rotationPeriod + 1);
-		SecretKey inHeaderNext = rotateKey(inHeaderCurr, rotationPeriod + 1);
-		SecretKey outTagCurr = rotateKey(outTagPrev, rotationPeriod);
-		SecretKey outHeaderCurr = rotateKey(outHeaderPrev, rotationPeriod);
-		// Initialise the reordering windows and stream counters
-		IncomingKeys inPrev = new IncomingKeys(inTagPrev, inHeaderPrev,
-				rotationPeriod - 1);
-		IncomingKeys inCurr = new IncomingKeys(inTagCurr, inHeaderCurr,
-				rotationPeriod);
-		IncomingKeys inNext = new IncomingKeys(inTagNext, inHeaderNext,
-				rotationPeriod + 1);
-		OutgoingKeys outCurr = new OutgoingKeys(outTagCurr, outHeaderCurr,
-				rotationPeriod);
-		// Collect and return the keys
-		return new TransportKeys(t, inPrev, inCurr, inNext, outCurr);
-	}
-
-	@Override
-	public TransportKeys rotateTransportKeys(TransportKeys k,
-			long rotationPeriod) {
-		if (k.getRotationPeriod() >= rotationPeriod) return k;
-		IncomingKeys inPrev = k.getPreviousIncomingKeys();
-		IncomingKeys inCurr = k.getCurrentIncomingKeys();
-		IncomingKeys inNext = k.getNextIncomingKeys();
-		OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
-		long startPeriod = outCurr.getRotationPeriod();
-		// Rotate the keys
-		for (long p = startPeriod + 1; p <= rotationPeriod; p++) {
-			inPrev = inCurr;
-			inCurr = inNext;
-			SecretKey inNextTag = rotateKey(inNext.getTagKey(), p + 1);
-			SecretKey inNextHeader = rotateKey(inNext.getHeaderKey(), p + 1);
-			inNext = new IncomingKeys(inNextTag, inNextHeader, p + 1);
-			SecretKey outCurrTag = rotateKey(outCurr.getTagKey(), p);
-			SecretKey outCurrHeader = rotateKey(outCurr.getHeaderKey(), p);
-			outCurr = new OutgoingKeys(outCurrTag, outCurrHeader, p);
-		}
-		// Collect and return the keys
-		return new TransportKeys(k.getTransportId(), inPrev, inCurr, inNext,
-				outCurr);
-	}
-
-	private SecretKey rotateKey(SecretKey k, long rotationPeriod) {
-		byte[] period = new byte[INT_64_BYTES];
-		ByteUtils.writeUint64(rotationPeriod, period, 0);
-		return deriveKey(ROTATE, k, period);
-	}
-
-	private SecretKey deriveTagKey(SecretKey master, TransportId t,
-			boolean alice) {
-		byte[] id = StringUtils.toUtf8(t.getString());
-		return deriveKey(alice ? A_TAG : B_TAG, master, id);
-	}
-
-	private SecretKey deriveHeaderKey(SecretKey master, TransportId t,
-			boolean alice) {
-		byte[] id = StringUtils.toUtf8(t.getString());
-		return deriveKey(alice ? A_HEADER : B_HEADER, master, id);
-	}
-
-	@Override
-	public void encodeTag(byte[] tag, SecretKey tagKey, int protocolVersion,
-			long streamNumber) {
-		if (tag.length < TAG_LENGTH) throw new IllegalArgumentException();
-		if (protocolVersion < 0 || protocolVersion > MAX_16_BIT_UNSIGNED)
-			throw new IllegalArgumentException();
-		if (streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
-			throw new IllegalArgumentException();
-		// Initialise the PRF
-		Digest prf = new Blake2sDigest(tagKey.getBytes());
-		// The output of the PRF must be long enough to use as a tag
-		int macLength = prf.getDigestSize();
-		if (macLength < TAG_LENGTH) throw new IllegalStateException();
-		// The input is the protocol version as a 16-bit integer, followed by
-		// the stream number as a 64-bit integer
-		byte[] protocolVersionBytes = new byte[INT_16_BYTES];
-		ByteUtils.writeUint16(protocolVersion, protocolVersionBytes, 0);
-		prf.update(protocolVersionBytes, 0, protocolVersionBytes.length);
-		byte[] streamNumberBytes = new byte[INT_64_BYTES];
-		ByteUtils.writeUint64(streamNumber, streamNumberBytes, 0);
-		prf.update(streamNumberBytes, 0, streamNumberBytes.length);
-		byte[] mac = new byte[macLength];
-		prf.doFinal(mac, 0);
-		// The output is the first TAG_LENGTH bytes of the MAC
-		System.arraycopy(mac, 0, tag, 0, TAG_LENGTH);
 	}
 
 	@Override
