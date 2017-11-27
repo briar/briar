@@ -5,7 +5,7 @@ public interface KeyAgreementConstants {
 	/**
 	 * The current version of the BQP protocol.
 	 */
-	byte PROTOCOL_VERSION = 2;
+	byte PROTOCOL_VERSION = 3;
 
 	/**
 	 * The length of the record header in bytes.
@@ -22,7 +22,10 @@ public interface KeyAgreementConstants {
 	 */
 	int COMMIT_LENGTH = 16;
 
-	long CONNECTION_TIMEOUT = 20 * 1000; // Milliseconds
+	/**
+	 * The connection timeout in milliseconds.
+	 */
+	long CONNECTION_TIMEOUT = 20 * 1000;
 
 	/**
 	 * The transport identifier for Bluetooth.
@@ -33,4 +36,16 @@ public interface KeyAgreementConstants {
 	 * The transport identifier for LAN.
 	 */
 	int TRANSPORT_ID_LAN = 1;
+
+	/**
+	 * Label for deriving the shared secret.
+	 */
+	String SHARED_SECRET_LABEL =
+			"org.briarproject.bramble.keyagreement/SHARED_SECRET";
+
+	/**
+	 * Label for deriving the master secret.
+	 */
+	String MASTER_SECRET_LABEL =
+			"org.briarproject.bramble.keyagreement/MASTER_SECRET";
 }

@@ -141,8 +141,9 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		}
 
 		// Derive the header keys for the transport streams
-		SecretKey aliceHeaderKey = crypto.deriveHeaderKey(masterSecret, true);
-		SecretKey bobHeaderKey = crypto.deriveHeaderKey(masterSecret, false);
+		SecretKey aliceHeaderKey = crypto.deriveKey(ALICE_KEY_LABEL,
+				masterSecret);
+		SecretKey bobHeaderKey = crypto.deriveKey(BOB_KEY_LABEL, masterSecret);
 
 		// Create the readers
 		InputStream streamReader =
@@ -156,8 +157,10 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		BdfWriter w = bdfWriterFactory.createWriter(streamWriter);
 
 		// Derive the nonces to be signed
-		byte[] aliceNonce = crypto.deriveSignatureNonce(masterSecret, true);
-		byte[] bobNonce = crypto.deriveSignatureNonce(masterSecret, false);
+		byte[] aliceNonce = crypto.deriveKeyBindingNonce(ALICE_NONCE_LABEL,
+				masterSecret);
+		byte[] bobNonce = crypto.deriveKeyBindingNonce(BOB_NONCE_LABEL,
+				masterSecret);
 
 		// Exchange pseudonyms, signed nonces, and timestamps
 		long localTimestamp = clock.currentTimeMillis();
@@ -312,8 +315,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		return contactId;
 	}
 
-	private void tryToClose(DuplexTransportConnection conn,
-			boolean exception) {
+	private void tryToClose(DuplexTransportConnection conn, boolean exception) {
 		try {
 			LOG.info("Closing connection");
 			conn.getReader().dispose(exception, true);

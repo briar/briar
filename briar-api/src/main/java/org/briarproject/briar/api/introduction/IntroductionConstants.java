@@ -86,4 +86,44 @@ public interface IntroductionConstants {
 	int TASK_ACTIVATE_CONTACT = 1;
 	int TASK_ABORT = 2;
 
+	/**
+	 * Label for deriving the shared secret.
+	 */
+	String SHARED_SECRET_LABEL =
+			"org.briarproject.briar.introduction/SHARED_SECRET";
+
+	/**
+	 * Label for deriving Alice's key binding nonce from the shared secret.
+	 */
+	String ALICE_NONCE_LABEL =
+			"org.briarproject.briar.introduction/ALICE_NONCE";
+
+	/**
+	 * Label for deriving Bob's key binding nonce from the shared secret.
+	 */
+	String BOB_NONCE_LABEL =
+			"org.briarproject.briar.introduction/BOB_NONCE";
+
+	/**
+	 * Label for deriving Alice's MAC key from the shared secret.
+	 */
+	String ALICE_MAC_KEY_LABEL =
+			"org.briarproject.briar.introduction/ALICE_MAC_KEY";
+
+	/**
+	 * Label for deriving Bob's MAC key from the shared secret.
+	 */
+	String BOB_MAC_KEY_LABEL =
+			"org.briarproject.briar.introduction/BOB_MAC_KEY";
+
+	/**
+	 * Label for signing the introduction response.
+	 */
+	String SIGNING_LABEL =
+			"org.briarproject.briar.introduction/RESPONSE_SIGNATURE";
+
+	/**
+	 * Label for MACing the introduction response.
+	 */
+	String MAC_LABEL = "org.briarproject.briar.introduction/RESPONSE_MAC";
 }

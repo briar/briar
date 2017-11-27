@@ -50,7 +50,11 @@ import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.briar.api.introduction.IntroduceeProtocolState.AWAIT_REQUEST;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ADDED_CONTACT_ID;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.ALICE_MAC_KEY_LABEL;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.ALICE_NONCE_LABEL;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ANSWERED;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.BOB_MAC_KEY_LABEL;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.BOB_NONCE_LABEL;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.CONTACT;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.CONTACT_ID_1;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.EXISTS;
@@ -60,6 +64,7 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.INTR
 import static org.briarproject.briar.api.introduction.IntroductionConstants.LOCAL_AUTHOR_ID;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC_KEY;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC_LABEL;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MESSAGE_TIME;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.NAME;
@@ -76,7 +81,9 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.REMO
 import static org.briarproject.briar.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ROLE;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.SHARED_SECRET_LABEL;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.SIGNATURE;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.SIGNING_LABEL;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.STORAGE_ID;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TASK;
@@ -89,7 +96,6 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_ABORT;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_RESPONSE;
-import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
 
 @Immutable
 @NotNullByDefault
@@ -97,9 +103,6 @@ class IntroduceeManager {
 
 	private static final Logger LOG =
 			Logger.getLogger(IntroduceeManager.class.getName());
-
-	static final String SIGNING_LABEL_RESPONSE =
-			CLIENT_ID.getString() + "/RESPONSE";
 
 	private final MessageSender messageSender;
 	private final DatabaseComponent db;
@@ -288,8 +291,7 @@ class IntroduceeManager {
 
 	@Nullable
 	private BdfDictionary performTasks(Transaction txn,
-			BdfDictionary localState)
-			throws FormatException, DbException {
+			BdfDictionary localState) throws FormatException, DbException {
 
 		if (!localState.containsKey(TASK) || localState.get(TASK) == NULL_VALUE)
 			return null;
@@ -306,22 +308,21 @@ class IntroduceeManager {
 			}
 
 			// figure out who takes which role by comparing public keys
-			byte[] publicKeyBytes = localState.getRaw(OUR_PUBLIC_KEY);
-			byte[] theirEphemeralKey = localState.getRaw(E_PUBLIC_KEY);
-			int comp = Bytes.COMPARATOR.compare(new Bytes(publicKeyBytes),
-					new Bytes(theirEphemeralKey));
+			byte[] ourPublicKeyBytes = localState.getRaw(OUR_PUBLIC_KEY);
+			byte[] theirPublicKeyBytes = localState.getRaw(E_PUBLIC_KEY);
+			int comp = Bytes.COMPARATOR.compare(new Bytes(ourPublicKeyBytes),
+					new Bytes(theirPublicKeyBytes));
 			boolean alice = comp < 0;
 
 			// get our local author
 			LocalAuthor author = identityManager.getLocalAuthor(txn);
 
 			SecretKey secretKey;
-			byte[] privateKeyBytes = localState.getRaw(OUR_PRIVATE_KEY);
+			byte[] ourPrivateKeyBytes = localState.getRaw(OUR_PRIVATE_KEY);
 			try {
 				// derive secret master key
-				secretKey =
-						deriveSecretKey(publicKeyBytes, privateKeyBytes, alice,
-								theirEphemeralKey);
+				secretKey = deriveSecretKey(ourPublicKeyBytes,
+						ourPrivateKeyBytes, alice, theirPublicKeyBytes);
 				// derive MAC keys and nonces, sign our nonce and calculate MAC
 				deriveMacKeysAndNonces(localState, author, secretKey, alice);
 			} catch (GeneralSecurityException e) {
@@ -410,34 +411,36 @@ class IntroduceeManager {
 		return null;
 	}
 
-	private SecretKey deriveSecretKey(byte[] publicKeyBytes,
-			byte[] privateKeyBytes, boolean alice, byte[] theirPublicKey)
-			throws GeneralSecurityException {
+	private SecretKey deriveSecretKey(byte[] ourPublicKeyBytes,
+			byte[] ourPrivateKeyBytes, boolean alice,
+			byte[] theirPublicKeyBytes) throws GeneralSecurityException {
 		// parse the local ephemeral key pair
 		KeyParser keyParser = cryptoComponent.getAgreementKeyParser();
-		PublicKey publicKey;
-		PrivateKey privateKey;
+		PublicKey ourPublicKey;
+		PrivateKey ourPrivateKey;
 		try {
-			publicKey = keyParser.parsePublicKey(publicKeyBytes);
-			privateKey = keyParser.parsePrivateKey(privateKeyBytes);
+			ourPublicKey = keyParser.parsePublicKey(ourPublicKeyBytes);
+			ourPrivateKey = keyParser.parsePrivateKey(ourPrivateKeyBytes);
 		} catch (GeneralSecurityException e) {
 			if (LOG.isLoggable(WARNING)) {
 				LOG.log(WARNING, e.toString(), e);
 			}
 			throw new RuntimeException("Our own ephemeral key is invalid");
 		}
-		KeyPair keyPair = new KeyPair(publicKey, privateKey);
+		KeyPair ourKeyPair = new KeyPair(ourPublicKey, ourPrivateKey);
+		PublicKey theirPublicKey =
+				keyParser.parsePublicKey(theirPublicKeyBytes);
 
-		// The master secret is derived from the local ephemeral key pair
+		// The shared secret is derived from the local ephemeral key pair
 		// and the remote ephemeral public key
-		return cryptoComponent
-				.deriveMasterSecret(theirPublicKey, keyPair, alice);
+		return cryptoComponent.deriveSharedSecret(SHARED_SECRET_LABEL,
+				theirPublicKey, ourKeyPair, alice);
 	}
 
 	/**
 	 * Derives nonces, signs our nonce and calculates MAC
 	 * <p>
-	 * Derives two nonces and two mac keys from the secret master key.
+	 * Derives two nonces and two MAC keys from the shared secret key.
 	 * The other introducee's nonce and MAC key are added to the localState.
 	 * <p>
 	 * Our nonce is signed with the local author's long-term private key.
@@ -448,21 +451,23 @@ class IntroduceeManager {
 	private void deriveMacKeysAndNonces(BdfDictionary localState,
 			LocalAuthor author, SecretKey secretKey, boolean alice)
 			throws FormatException, GeneralSecurityException {
-		// Derive two nonces and a MAC key from the secret master key
-		byte[] ourNonce =
-				cryptoComponent.deriveSignatureNonce(secretKey, alice);
-		byte[] theirNonce =
-				cryptoComponent.deriveSignatureNonce(secretKey, !alice);
-		SecretKey macKey = cryptoComponent.deriveMacKey(secretKey, alice);
-		SecretKey theirMacKey = cryptoComponent.deriveMacKey(secretKey, !alice);
+		// Derive two nonces and MAC keys from the shared secret key
+		byte[] ourNonce = cryptoComponent.deriveKeyBindingNonce(
+				alice ? ALICE_NONCE_LABEL : BOB_NONCE_LABEL, secretKey);
+		byte[] theirNonce = cryptoComponent.deriveKeyBindingNonce(
+				alice ? BOB_NONCE_LABEL : ALICE_NONCE_LABEL, secretKey);
+		SecretKey ourMacKey = cryptoComponent.deriveKey(
+				alice ? ALICE_MAC_KEY_LABEL : BOB_MAC_KEY_LABEL, secretKey);
+		SecretKey theirMacKey = cryptoComponent.deriveKey(
+				alice ? BOB_MAC_KEY_LABEL : ALICE_MAC_KEY_LABEL, secretKey);
 
 		// Save the other nonce and MAC key for the verification
 		localState.put(NONCE, theirNonce);
 		localState.put(MAC_KEY, theirMacKey.getBytes());
 
 		// Sign our nonce with our long-term identity public key
-		byte[] sig = cryptoComponent
-				.sign(SIGNING_LABEL_RESPONSE, ourNonce, author.getPrivateKey());
+		byte[] sig = cryptoComponent.sign(SIGNING_LABEL, ourNonce,
+				author.getPrivateKey());
 
 		// Calculate a MAC over identity public key, ephemeral public key,
 		// transport properties and timestamp.
@@ -472,7 +477,7 @@ class IntroduceeManager {
 		BdfList toMacList = BdfList.of(author.getPublicKey(),
 				publicKeyBytes, tp, ourTime);
 		byte[] toMac = clientHelper.toByteArray(toMacList);
-		byte[] mac = cryptoComponent.mac(macKey, toMac);
+		byte[] mac = cryptoComponent.mac(MAC_LABEL, ourMacKey, toMac);
 
 		// Add MAC and signature to localState, so it can be included in ACK
 		localState.put(OUR_MAC, mac);
@@ -486,7 +491,7 @@ class IntroduceeManager {
 		byte[] key = localState.getRaw(PUBLIC_KEY);
 
 		// Verify the signature
-		if (!cryptoComponent.verify(SIGNING_LABEL_RESPONSE, nonce, key, sig)) {
+		if (!cryptoComponent.verify(SIGNING_LABEL, nonce, key, sig)) {
 			LOG.warning("Invalid nonce signature in ACK");
 			throw new GeneralSecurityException();
 		}
@@ -506,7 +511,7 @@ class IntroduceeManager {
 		long timestamp = localState.getLong(TIME);
 		BdfList toMacList = BdfList.of(pubKey, ePubKey, tp, timestamp);
 		byte[] toMac = clientHelper.toByteArray(toMacList);
-		byte[] calculatedMac = cryptoComponent.mac(macKey, toMac);
+		byte[] calculatedMac = cryptoComponent.mac(MAC_LABEL, macKey, toMac);
 		if (!Arrays.equals(mac, calculatedMac)) {
 			LOG.warning("Received ACK with invalid MAC");
 			throw new GeneralSecurityException();

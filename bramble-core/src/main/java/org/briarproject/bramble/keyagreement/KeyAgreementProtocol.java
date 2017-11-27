@@ -2,6 +2,8 @@ package org.briarproject.bramble.keyagreement;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
+import org.briarproject.bramble.api.crypto.KeyParser;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.keyagreement.Payload;
 import org.briarproject.bramble.api.keyagreement.PayloadEncoder;
@@ -10,6 +12,9 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
+
+import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.MASTER_SECRET_LABEL;
+import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.SHARED_SECRET_LABEL;
 
 /**
  * Implementation of the BQP protocol.
@@ -86,7 +91,7 @@ class KeyAgreementProtocol {
 	 */
 	SecretKey perform() throws AbortException, IOException {
 		try {
-			byte[] theirPublicKey;
+			PublicKey theirPublicKey;
 			if (alice) {
 				sendKey();
 				// Alice waits here until Bob obtains her payload.
@@ -104,7 +109,7 @@ class KeyAgreementProtocol {
 				receiveConfirm(s, theirPublicKey);
 				sendConfirm(s, theirPublicKey);
 			}
-			return crypto.deriveMasterSecret(s);
+			return crypto.deriveKey(MASTER_SECRET_LABEL, s);
 		} catch (AbortException e) {
 			sendAbort(e.getCause() != null);
 			throw e;
@@ -115,25 +120,32 @@ class KeyAgreementProtocol {
 		transport.sendKey(ourKeyPair.getPublic().getEncoded());
 	}
 
-	private byte[] receiveKey() throws AbortException {
-		byte[] publicKey = transport.receiveKey();
+	private PublicKey receiveKey() throws AbortException {
+		byte[] publicKeyBytes = transport.receiveKey();
 		callbacks.initialRecordReceived();
-		byte[] expected = crypto.deriveKeyCommitment(publicKey);
-		if (!Arrays.equals(expected, theirPayload.getCommitment()))
+		KeyParser keyParser = crypto.getAgreementKeyParser();
+		try {
+			PublicKey publicKey = keyParser.parsePublicKey(publicKeyBytes);
+			byte[] expected = crypto.deriveKeyCommitment(publicKey);
+			if (!Arrays.equals(expected, theirPayload.getCommitment()))
+				throw new AbortException();
+			return publicKey;
+		} catch (GeneralSecurityException e) {
 			throw new AbortException();
-		return publicKey;
+		}
 	}
 
-	private SecretKey deriveSharedSecret(byte[] theirPublicKey)
+	private SecretKey deriveSharedSecret(PublicKey theirPublicKey)
 			throws AbortException {
 		try {
-			return crypto.deriveSharedSecret(theirPublicKey, ourKeyPair, alice);
+			return crypto.deriveSharedSecret(SHARED_SECRET_LABEL,
+					theirPublicKey, ourKeyPair, alice);
 		} catch (GeneralSecurityException e) {
 			throw new AbortException(e);
 		}
 	}
 
-	private void sendConfirm(SecretKey s, byte[] theirPublicKey)
+	private void sendConfirm(SecretKey s, PublicKey theirPublicKey)
 			throws IOException {
 		byte[] confirm = crypto.deriveConfirmationRecord(s,
 				payloadEncoder.encode(theirPayload),
@@ -143,7 +155,7 @@ class KeyAgreementProtocol {
 		transport.sendConfirm(confirm);
 	}
 
-	private void receiveConfirm(SecretKey s, byte[] theirPublicKey)
+	private void receiveConfirm(SecretKey s, PublicKey theirPublicKey)
 			throws AbortException {
 		byte[] confirm = transport.receiveConfirm();
 		byte[] expected = crypto.deriveConfirmationRecord(s,

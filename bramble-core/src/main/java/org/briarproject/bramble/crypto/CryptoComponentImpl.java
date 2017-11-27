@@ -30,7 +30,6 @@ import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.crypto.params.KeyParameter;
 
-import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
@@ -65,39 +64,25 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int PBKDF_SALT_BYTES = 32; // 256 bits
 	private static final int PBKDF_TARGET_MILLIS = 500;
 	private static final int PBKDF_SAMPLES = 30;
-	private static final int HASH_SIZE = 256 / 8;
 
-	private static byte[] ascii(String s) {
-		return s.getBytes(Charset.forName("US-ASCII"));
-	}
-
-	// KDF labels for contact exchange stream header key derivation
-	private static final byte[] A_INVITE = ascii("ALICE_INVITATION_KEY");
-	private static final byte[] B_INVITE = ascii("BOB_INVITATION_KEY");
-	// KDF labels for contact exchange signature nonce derivation
-	private static final byte[] A_SIG_NONCE = ascii("ALICE_SIGNATURE_NONCE");
-	private static final byte[] B_SIG_NONCE = ascii("BOB_SIGNATURE_NONCE");
 	// Hash label for BQP public key commitment derivation
-	private static final String COMMIT =
-			"org.briarproject.bramble.COMMIT";
-	// Hash label for shared secret derivation
-	private static final String SHARED_SECRET =
-			"org.briarproject.bramble.SHARED_SECRET";
+	private static final String COMMIT_LABEL =
+			"org.briarproject.bramble.keyagreement/COMMIT";
 	// KDF label for BQP confirmation key derivation
-	private static final byte[] CONFIRMATION_KEY = ascii("CONFIRMATION_KEY");
-	// KDF label for master key derivation
-	private static final byte[] MASTER_KEY = ascii("MASTER_KEY");
+	private static final String CONFIRMATION_KEY_LABEL =
+			"org.briarproject.bramble.keyagreement/CONFIRMATION_KEY";
+	// MAC label for BQP confirmation record
+	private static final String CONFIRMATION_MAC_LABEL =
+			"org.briarproject.bramble.keyagreement/CONFIRMATION_MAC";
+
 	// KDF labels for tag key derivation
-	private static final byte[] A_TAG = ascii("ALICE_TAG_KEY");
-	private static final byte[] B_TAG = ascii("BOB_TAG_KEY");
+	private static final String A_TAG = "ALICE_TAG_KEY";
+	private static final String B_TAG = "BOB_TAG_KEY";
 	// KDF labels for header key derivation
-	private static final byte[] A_HEADER = ascii("ALICE_HEADER_KEY");
-	private static final byte[] B_HEADER = ascii("BOB_HEADER_KEY");
-	// KDF labels for MAC key derivation
-	private static final byte[] A_MAC = ascii("ALICE_MAC_KEY");
-	private static final byte[] B_MAC = ascii("BOB_MAC_KEY");
+	private static final String A_HEADER = "ALICE_HEADER_KEY";
+	private static final String B_HEADER = "BOB_HEADER_KEY";
 	// KDF label for key rotation
-	private static final byte[] ROTATE = ascii("ROTATE");
+	private static final String ROTATE = "ROTATE";
 
 	private final SecureRandom secureRandom;
 	private final ECKeyPairGenerator agreementKeyPairGenerator;
@@ -263,25 +248,19 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public SecretKey deriveHeaderKey(SecretKey master,
-			boolean alice) {
-		return new SecretKey(macKdf(master, alice ? A_INVITE : B_INVITE));
+	public SecretKey deriveKey(String label, SecretKey k,
+			byte[]... inputs) {
+		return new SecretKey(macKdf(label, k, inputs));
 	}
 
 	@Override
-	public SecretKey deriveMacKey(SecretKey master, boolean alice) {
-		return new SecretKey(macKdf(master, alice ? A_MAC : B_MAC));
+	public byte[] deriveKeyBindingNonce(String label, SecretKey k) {
+		return macKdf(label, k);
 	}
 
 	@Override
-	public byte[] deriveSignatureNonce(SecretKey master,
-			boolean alice) {
-		return macKdf(master, alice ? A_SIG_NONCE : B_SIG_NONCE);
-	}
-
-	@Override
-	public byte[] deriveKeyCommitment(byte[] publicKey) {
-		byte[] hash = hash(COMMIT, publicKey);
+	public byte[] deriveKeyCommitment(PublicKey publicKey) {
+		byte[] hash = hash(COMMIT_LABEL, publicKey.getEncoded());
 		// The output is the first COMMIT_LENGTH bytes of the hash
 		byte[] commitment = new byte[COMMIT_LENGTH];
 		System.arraycopy(hash, 0, commitment, 0, COMMIT_LENGTH);
@@ -289,55 +268,45 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public SecretKey deriveSharedSecret(byte[] theirPublicKey,
+	public SecretKey deriveSharedSecret(String label, PublicKey theirPublicKey,
 			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
 		PrivateKey ourPriv = ourKeyPair.getPrivate();
-		PublicKey theirPub = agreementKeyParser.parsePublicKey(theirPublicKey);
-		byte[] raw = performRawKeyAgreement(ourPriv, theirPub);
+		byte[] raw = performRawKeyAgreement(ourPriv, theirPublicKey);
 		byte[] alicePub, bobPub;
 		if (alice) {
 			alicePub = ourKeyPair.getPublic().getEncoded();
-			bobPub = theirPublicKey;
+			bobPub = theirPublicKey.getEncoded();
 		} else {
-			alicePub = theirPublicKey;
+			alicePub = theirPublicKey.getEncoded();
 			bobPub = ourKeyPair.getPublic().getEncoded();
 		}
-		return new SecretKey(hash(SHARED_SECRET, raw, alicePub, bobPub));
+		return new SecretKey(hash(label, raw, alicePub, bobPub));
 	}
 
 	@Override
 	public byte[] deriveConfirmationRecord(SecretKey sharedSecret,
-			byte[] theirPayload, byte[] ourPayload, byte[] theirPublicKey,
+			byte[] theirPayload, byte[] ourPayload, PublicKey theirPublicKey,
 			KeyPair ourKeyPair, boolean alice, boolean aliceRecord) {
-		SecretKey ck = new SecretKey(macKdf(sharedSecret, CONFIRMATION_KEY));
+		SecretKey ck = deriveKey(CONFIRMATION_KEY_LABEL, sharedSecret);
 		byte[] alicePayload, alicePub, bobPayload, bobPub;
 		if (alice) {
 			alicePayload = ourPayload;
 			alicePub = ourKeyPair.getPublic().getEncoded();
 			bobPayload = theirPayload;
-			bobPub = theirPublicKey;
+			bobPub = theirPublicKey.getEncoded();
 		} else {
 			alicePayload = theirPayload;
-			alicePub = theirPublicKey;
+			alicePub = theirPublicKey.getEncoded();
 			bobPayload = ourPayload;
 			bobPub = ourKeyPair.getPublic().getEncoded();
 		}
-		if (aliceRecord)
-			return macKdf(ck, alicePayload, alicePub, bobPayload, bobPub);
-		else
-			return macKdf(ck, bobPayload, bobPub, alicePayload, alicePub);
-	}
-
-	@Override
-	public SecretKey deriveMasterSecret(SecretKey sharedSecret) {
-		return new SecretKey(macKdf(sharedSecret, MASTER_KEY));
-	}
-
-	@Override
-	public SecretKey deriveMasterSecret(byte[] theirPublicKey,
-			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
-		return deriveMasterSecret(deriveSharedSecret(
-				theirPublicKey, ourKeyPair, alice));
+		if (aliceRecord) {
+			return macKdf(CONFIRMATION_MAC_LABEL, ck, alicePayload, alicePub,
+					bobPayload, bobPub);
+		} else {
+			return macKdf(CONFIRMATION_MAC_LABEL, ck, bobPayload, bobPub,
+					alicePayload, alicePub);
+		}
 	}
 
 	@Override
@@ -396,19 +365,19 @@ class CryptoComponentImpl implements CryptoComponent {
 	private SecretKey rotateKey(SecretKey k, long rotationPeriod) {
 		byte[] period = new byte[INT_64_BYTES];
 		ByteUtils.writeUint64(rotationPeriod, period, 0);
-		return new SecretKey(macKdf(k, ROTATE, period));
+		return deriveKey(ROTATE, k, period);
 	}
 
 	private SecretKey deriveTagKey(SecretKey master, TransportId t,
 			boolean alice) {
 		byte[] id = StringUtils.toUtf8(t.getString());
-		return new SecretKey(macKdf(master, alice ? A_TAG : B_TAG, id));
+		return deriveKey(alice ? A_TAG : B_TAG, master, id);
 	}
 
 	private SecretKey deriveHeaderKey(SecretKey master, TransportId t,
 			boolean alice) {
 		byte[] id = StringUtils.toUtf8(t.getString());
-		return new SecretKey(macKdf(master, alice ? A_HEADER : B_HEADER, id));
+		return deriveKey(alice ? A_HEADER : B_HEADER, master, id);
 	}
 
 	@Override
@@ -513,14 +482,13 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public int getHashLength() {
-		return HASH_SIZE;
-	}
-
-	@Override
-	public byte[] mac(SecretKey macKey, byte[]... inputs) {
+	public byte[] mac(String label, SecretKey macKey, byte[]... inputs) {
+		byte[] labelBytes = StringUtils.toUtf8(label);
 		Digest mac = new Blake2sDigest(macKey.getBytes());
 		byte[] length = new byte[INT_32_BYTES];
+		ByteUtils.writeUint32(labelBytes.length, length, 0);
+		mac.update(length, 0, length.length);
+		mac.update(labelBytes, 0, labelBytes.length);
 		for (byte[] input : inputs) {
 			ByteUtils.writeUint32(input.length, length, 0);
 			mac.update(length, 0, length.length);
@@ -614,26 +582,11 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	// Key derivation function based on a pseudo-random function - see
 	// NIST SP 800-108, section 5.1
-	private byte[] macKdf(SecretKey key, byte[]... inputs) {
-		// Initialise the PRF
-		Digest prf = new Blake2sDigest(key.getBytes());
-		// The output of the PRF must be long enough to use as a key
-		int macLength = prf.getDigestSize();
-		if (macLength < SecretKey.LENGTH) throw new IllegalStateException();
-		// Calculate the PRF over the concatenated length-prefixed inputs
-		byte[] length = new byte[INT_32_BYTES];
-		for (byte[] input : inputs) {
-			ByteUtils.writeUint32(input.length, length, 0);
-			prf.update(length, 0, length.length);
-			prf.update(input, 0, input.length);
-		}
-		byte[] mac = new byte[macLength];
-		prf.doFinal(mac, 0);
-		// The output is the first SecretKey.LENGTH bytes of the MAC
-		if (mac.length == SecretKey.LENGTH) return mac;
-		byte[] truncated = new byte[SecretKey.LENGTH];
-		System.arraycopy(mac, 0, truncated, 0, truncated.length);
-		return truncated;
+	private byte[] macKdf(String label, SecretKey k, byte[]... inputs) {
+		byte[] mac = mac(label, k, inputs);
+		// The output of the PRF must be usable as a key
+		if (mac.length != SecretKey.LENGTH) throw new IllegalStateException();
+		return mac;
 	}
 
 	// Password-based key derivation function - see PKCS#5 v2.1, section 5.2

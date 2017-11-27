@@ -27,95 +27,74 @@ public interface CryptoComponent {
 	KeyParser getMessageKeyParser();
 
 	/**
-	 * Derives a stream header key from the given master secret.
-	 * @param alice whether the key is for use by Alice or Bob.
+	 * Derives another secret key from the given secret key.
+	 *
+	 * @param label a namespaced label indicating the purpose of the derived
+	 * key, to prevent it from being repurposed or colliding with a key derived
+	 * for another purpose
 	 */
-	SecretKey deriveHeaderKey(SecretKey master, boolean alice);
+	SecretKey deriveKey(String label, SecretKey k, byte[]... inputs);
 
 	/**
-	 * Derives a message authentication code key from the given master secret.
-	 * @param alice whether the key is for use by Alice or Bob.
+	 * Derives a nonce from the given secret key that can be used for key
+	 * binding.
+	 *
+	 * @param label a namespaced label indicating the purpose of this nonce,
+	 * to prevent it from being repurposed or colliding with a nonce derived
+	 * for another purpose
 	 */
-	SecretKey deriveMacKey(SecretKey master, boolean alice);
-
-	/**
-	 * Derives a nonce from the given master secret for one of the parties to
-	 * sign.
-	 * @param alice whether the nonce is for use by Alice or Bob.
-	 */
-	byte[] deriveSignatureNonce(SecretKey master, boolean alice);
+	byte[] deriveKeyBindingNonce(String label, SecretKey k);
 
 	/**
 	 * Derives a commitment to the provided public key.
 	 * <p/>
-	 * Part of BQP.
+	 * Used by the key exchange protocol.
 	 *
 	 * @param publicKey the public key
 	 * @return the commitment to the provided public key.
 	 */
-	byte[] deriveKeyCommitment(byte[] publicKey);
+	byte[] deriveKeyCommitment(PublicKey publicKey);
 
 	/**
 	 * Derives a common shared secret from two public keys and one of the
 	 * corresponding private keys.
-	 * <p/>
-	 * Part of BQP.
 	 *
-	 * @param theirPublicKey the ephemeral public key of the remote party
-	 * @param ourKeyPair our ephemeral keypair
-	 * @param alice true if ourKeyPair belongs to Alice
+	 * @param label a namespaced label indicating the purpose of this shared
+	 * secret, to prevent it from being repurposed or colliding with a shared
+	 * secret derived for another purpose
+	 * @param theirPublicKey the public key of the remote party
+	 * @param ourKeyPair the key pair of the local party
+	 * @param alice true if the local party is Alice
 	 * @return the shared secret
 	 */
-	SecretKey deriveSharedSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
-			boolean alice) throws GeneralSecurityException;
+	SecretKey deriveSharedSecret(String label, PublicKey theirPublicKey,
+			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException;
 
 	/**
 	 * Derives the content of a confirmation record.
 	 * <p/>
-	 * Part of BQP.
+	 * Used by the key exchange protocol.
 	 *
 	 * @param sharedSecret the common shared secret
-	 * @param theirPayload the commit payload from the remote party
-	 * @param ourPayload the commit payload we sent
+	 * @param theirPayload the key exchange payload of the remote party
+	 * @param ourPayload the key exchange payload of the local party
 	 * @param theirPublicKey the ephemeral public key of the remote party
-	 * @param ourKeyPair our ephemeral keypair
-	 * @param alice true if ourKeyPair belongs to Alice
+	 * @param ourKeyPair our ephemeral key pair of the local party
+	 * @param alice true if the local party is Alice
 	 * @param aliceRecord true if the confirmation record is for use by Alice
 	 * @return the confirmation record
 	 */
 	byte[] deriveConfirmationRecord(SecretKey sharedSecret,
 			byte[] theirPayload, byte[] ourPayload,
-			byte[] theirPublicKey, KeyPair ourKeyPair,
+			PublicKey theirPublicKey, KeyPair ourKeyPair,
 			boolean alice, boolean aliceRecord);
-
-	/**
-	 * Derives a master secret from the given shared secret.
-	 * <p/>
-	 * Part of BQP.
-	 *
-	 * @param sharedSecret the common shared secret
-	 * @return the master secret
-	 */
-	SecretKey deriveMasterSecret(SecretKey sharedSecret);
-
-	/**
-	 * Derives a master secret from two public keys and one of the corresponding
-	 * private keys.
-	 * <p/>
-	 * This is a helper method that calls
-	 * deriveMasterSecret(deriveSharedSecret(theirPublicKey, ourKeyPair, alice))
-	 *
-	 * @param theirPublicKey the ephemeral public key of the remote party
-	 * @param ourKeyPair our ephemeral keypair
-	 * @param alice true if ourKeyPair belongs to Alice
-	 * @return the shared secret
-	 */
-	SecretKey deriveMasterSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
-			boolean alice) throws GeneralSecurityException;
 
 	/**
 	 * Derives initial transport keys for the given transport in the given
 	 * rotation period from the given master secret.
+	 * <p/>
+	 * Used by the transport security protocol.
+	 *
 	 * @param alice whether the keys are for use by Alice or Bob.
 	 */
 	TransportKeys deriveTransportKeys(TransportId t, SecretKey master,
@@ -124,18 +103,25 @@ public interface CryptoComponent {
 	/**
 	 * Rotates the given transport keys to the given rotation period. If the
 	 * keys are for a future rotation period they are not rotated.
+	 * <p/>
+	 * Used by the transport security protocol.
 	 */
 	TransportKeys rotateTransportKeys(TransportKeys k, long rotationPeriod);
 
-	/** Encodes the pseudo-random tag that is used to recognise a stream. */
+	/**
+	 * Encodes the pseudo-random tag that is used to recognise a stream.
+	 * <p/>
+	 * Used by the transport security protocol.
+	 */
 	void encodeTag(byte[] tag, SecretKey tagKey, int protocolVersion,
 			long streamNumber);
 
 	/**
 	 * Signs the given byte[] with the given ECDSA private key.
 	 *
-	 * @param label A label specific to this signature
-	 *              to ensure that the signature cannot be repurposed
+	 * @param label a namespaced label indicating the purpose of this
+	 * signature, to prevent it from being repurposed or colliding with a
+	 * signature created for another purpose
 	 */
 	byte[] sign(String label, byte[] toSign, byte[] privateKey)
 			throws GeneralSecurityException;
@@ -153,8 +139,9 @@ public interface CryptoComponent {
 	 * Verifies that the given signature is valid for the signed data
 	 * and the given ECDSA public key.
 	 *
-	 * @param label A label that was specific to this signature
-	 *              to ensure that the signature cannot be repurposed
+	 * @param label a namespaced label indicating the purpose of this
+	 * signature, to prevent it from being repurposed or colliding with a
+	 * signature created for another purpose
 	 * @return true if the signature was valid, false otherwise.
 	 */
 	boolean verify(String label, byte[] signedData, byte[] publicKey,
@@ -175,23 +162,22 @@ public interface CryptoComponent {
 	 * Returns the hash of the given inputs. The inputs are unambiguously
 	 * combined by prefixing each input with its length.
 	 *
-	 * @param label A label specific to this hash to ensure that hashes
-	 *              calculated for distinct purposes don't collide.
+	 * @param label a namespaced label indicating the purpose of this hash, to
+	 * prevent it from being repurposed or colliding with a hash created for
+	 * another purpose
 	 */
 	byte[] hash(String label, byte[]... inputs);
-
-	/**
-	 * Returns the length of hashes produced by
-	 * the {@link CryptoComponent#hash(String, byte[]...)} method.
-	 */
-	int getHashLength();
 
 	/**
 	 * Returns a message authentication code with the given key over the
 	 * given inputs. The inputs are unambiguously combined by prefixing each
 	 * input with its length.
+	 *
+	 * @param label a namespaced label indicating the purpose of this MAC, to
+	 * prevent it from being repurposed or colliding with a MAC created for
+	 * another purpose
 	 */
-	byte[] mac(SecretKey macKey, byte[]... inputs);
+	byte[] mac(String label, SecretKey macKey, byte[]... inputs);
 
 	/**
 	 * Encrypts and authenticates the given plaintext so it can be written to

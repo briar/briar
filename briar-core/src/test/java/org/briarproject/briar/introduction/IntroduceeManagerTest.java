@@ -53,6 +53,7 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.INTR
 import static org.briarproject.briar.api.introduction.IntroductionConstants.LOCAL_AUTHOR_ID;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC_KEY;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC_LABEL;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC_LENGTH;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MESSAGE_ID;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MESSAGE_TIME;
@@ -66,6 +67,7 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.ROLE
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.SESSION_ID;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.SIGNATURE;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.SIGNING_LABEL;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.STATE;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.STORAGE_ID;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TIME;
@@ -74,7 +76,6 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_RESPONSE;
-import static org.briarproject.briar.introduction.IntroduceeManager.SIGNING_LABEL_RESPONSE;
 import static org.hamcrest.Matchers.array;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.Assert.assertFalse;
@@ -266,7 +267,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		);
 
 		context.checking(new Expectations() {{
-			oneOf(cryptoComponent).verify(SIGNING_LABEL_RESPONSE, nonce,
+			oneOf(cryptoComponent).verify(SIGNING_LABEL, nonce,
 					introducee2.getAuthor().getPublicKey(), sig);
 			will(returnValue(false));
 		}});
@@ -296,7 +297,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		state.put(SIGNATURE, sig);
 
 		context.checking(new Expectations() {{
-			oneOf(cryptoComponent).verify(SIGNING_LABEL_RESPONSE, nonce,
+			oneOf(cryptoComponent).verify(SIGNING_LABEL, nonce,
 					publicKeyBytes, sig);
 			will(returnValue(true));
 		}});
@@ -330,7 +331,8 @@ public class IntroduceeManagerTest extends BriarTestCase {
 					BdfList.of(publicKeyBytes, ePublicKeyBytes, tp, time));
 			will(returnValue(signBytes));
 			//noinspection unchecked
-			oneOf(cryptoComponent).mac(with(samePropertyValuesAs(macKey)),
+			oneOf(cryptoComponent).mac(with(MAC_LABEL),
+					with(samePropertyValuesAs(macKey)),
 					with(array(equal(signBytes))));
 			will(returnValue(mac));
 		}});
@@ -343,14 +345,15 @@ public class IntroduceeManagerTest extends BriarTestCase {
 					BdfList.of(publicKeyBytes, ePublicKeyBytes, tp, time));
 			will(returnValue(signBytes));
 			//noinspection unchecked
-			oneOf(cryptoComponent).mac(with(samePropertyValuesAs(macKey)),
+			oneOf(cryptoComponent).mac(with(MAC_LABEL),
+					with(samePropertyValuesAs(macKey)),
 					with(array(equal(signBytes))));
 			will(returnValue(TestUtils.getRandomBytes(MAC_LENGTH)));
 		}});
 		try {
 			introduceeManager.verifyMac(state);
 			fail();
-		} catch(GeneralSecurityException e) {
+		} catch (GeneralSecurityException e) {
 			// expected
 		}
 		context.assertIsSatisfied();

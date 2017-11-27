@@ -70,8 +70,8 @@ class KeyAgreementConnector {
 	public Payload listen(KeyPair localKeyPair) {
 		LOG.info("Starting BQP listeners");
 		// Derive commitment
-		byte[] commitment = crypto.deriveKeyCommitment(
-				localKeyPair.getPublic().getEncoded());
+		byte[] commitment =
+				crypto.deriveKeyCommitment(localKeyPair.getPublic());
 		// Start all listeners and collect their descriptors
 		List<TransportDescriptor> descriptors = new ArrayList<>();
 		for (DuplexPlugin plugin : pluginManager.getKeyAgreementPlugins()) {

@@ -56,21 +56,25 @@ import javax.inject.Inject;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
 import static org.briarproject.briar.api.client.MessageQueueManager.QUEUE_STATE_KEY;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.ALICE_MAC_KEY_LABEL;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.ALICE_NONCE_LABEL;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC_KEY;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC_LABEL;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.NONCE;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.SESSION_ID;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.SHARED_SECRET_LABEL;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.SIGNATURE;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.SIGNING_LABEL;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TIME;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TRANSPORT;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_RESPONSE;
-import static org.briarproject.briar.introduction.IntroduceeManager.SIGNING_LABEL_RESPONSE;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -635,7 +639,7 @@ public class IntroductionIntegrationTest
 		// adapt outgoing message queue to removed message
 		Group g2 = introductionGroupFactory
 				.createIntroductionGroup(contact2From0);
-		decreaseOutgoingMessageCounter(ch, g2.getId(), 1);
+		decreaseOutgoingMessageCounter(ch, g2.getId());
 
 		// allow visitor to modify response
 		boolean earlyAbort = visitor.visit(response);
@@ -746,34 +750,33 @@ public class IntroductionIntegrationTest
 		// create keys
 		KeyPair keyPair1 = crypto.generateSignatureKeyPair();
 		KeyPair eKeyPair1 = crypto.generateAgreementKeyPair();
-		byte[] ePublicKeyBytes1 = eKeyPair1.getPublic().getEncoded();
 		KeyPair eKeyPair2 = crypto.generateAgreementKeyPair();
-		byte[] ePublicKeyBytes2 = eKeyPair2.getPublic().getEncoded();
 
 		// Nonce 1
-		SecretKey secretKey =
-				crypto.deriveMasterSecret(ePublicKeyBytes2, eKeyPair1, true);
-		byte[] nonce1 = crypto.deriveSignatureNonce(secretKey, true);
+		SecretKey sharedSecret = crypto.deriveSharedSecret(SHARED_SECRET_LABEL,
+				eKeyPair2.getPublic(), eKeyPair1, true);
+		byte[] nonce1 = crypto.deriveKeyBindingNonce(ALICE_NONCE_LABEL,
+				sharedSecret);
 
 		// Signature 1
-		byte[] sig1 = crypto.sign(SIGNING_LABEL_RESPONSE, nonce1,
+		byte[] sig1 = crypto.sign(SIGNING_LABEL, nonce1,
 				keyPair1.getPrivate().getEncoded());
 
 		// MAC 1
-		SecretKey macKey1 = crypto.deriveMacKey(secretKey, true);
+		SecretKey macKey1 = crypto.deriveKey(ALICE_MAC_KEY_LABEL, sharedSecret);
 		BdfDictionary tp1 = BdfDictionary.of(new BdfEntry("fake", "fake"));
 		long time1 = clock.currentTimeMillis();
 		BdfList toMacList = BdfList.of(keyPair1.getPublic().getEncoded(),
-				ePublicKeyBytes1, tp1, time1);
+				eKeyPair1.getPublic().getEncoded(), tp1, time1);
 		byte[] toMac = clientHelper.toByteArray(toMacList);
-		byte[] mac1 = crypto.mac(macKey1, toMac);
+		byte[] mac1 = crypto.mac(MAC_LABEL, macKey1, toMac);
 
 		// create only relevant part of state for introducee2
 		BdfDictionary state = new BdfDictionary();
 		state.put(PUBLIC_KEY, keyPair1.getPublic().getEncoded());
 		state.put(TRANSPORT, tp1);
 		state.put(TIME, time1);
-		state.put(E_PUBLIC_KEY, ePublicKeyBytes1);
+		state.put(E_PUBLIC_KEY, eKeyPair1.getPublic().getEncoded());
 		state.put(MAC, mac1);
 		state.put(MAC_KEY, macKey1.getBytes());
 		state.put(NONCE, nonce1);
@@ -786,16 +789,16 @@ public class IntroductionIntegrationTest
 		// replace ephemeral key pair and recalculate matching keys and nonce
 		KeyPair eKeyPair1f = crypto.generateAgreementKeyPair();
 		byte[] ePublicKeyBytes1f = eKeyPair1f.getPublic().getEncoded();
-		secretKey =
-				crypto.deriveMasterSecret(ePublicKeyBytes2, eKeyPair1f, true);
-		nonce1 = crypto.deriveSignatureNonce(secretKey, true);
+		sharedSecret = crypto.deriveSharedSecret(SHARED_SECRET_LABEL,
+				eKeyPair2.getPublic(), eKeyPair1f, true);
+		nonce1 = crypto.deriveKeyBindingNonce(ALICE_NONCE_LABEL, sharedSecret);
 
 		// recalculate MAC
-		macKey1 = crypto.deriveMacKey(secretKey, true);
+		macKey1 = crypto.deriveKey(ALICE_MAC_KEY_LABEL, sharedSecret);
 		toMacList = BdfList.of(keyPair1.getPublic().getEncoded(),
 				ePublicKeyBytes1f, tp1, time1);
 		toMac = clientHelper.toByteArray(toMacList);
-		mac1 = crypto.mac(macKey1, toMac);
+		mac1 = crypto.mac(MAC_LABEL, macKey1, toMac);
 
 		// update state with faked information
 		state.put(E_PUBLIC_KEY, ePublicKeyBytes1f);
@@ -970,12 +973,12 @@ public class IntroductionIntegrationTest
 
 	}
 
-	private void decreaseOutgoingMessageCounter(ClientHelper ch, GroupId g,
-			int num) throws FormatException, DbException {
+	private void decreaseOutgoingMessageCounter(ClientHelper ch, GroupId g)
+			throws FormatException, DbException {
 		BdfDictionary gD = ch.getGroupMetadataAsDictionary(g);
 		LOG.warning(gD.toString());
 		BdfDictionary queue = gD.getDictionary(QUEUE_STATE_KEY);
-		queue.put("nextOut", queue.getLong("nextOut") - num);
+		queue.put("nextOut", queue.getLong("nextOut") - 1);
 		gD.put(QUEUE_STATE_KEY, queue);
 		ch.mergeGroupMetadata(g, gD);
 	}
