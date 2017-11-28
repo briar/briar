@@ -1,6 +1,7 @@
 package org.briarproject.bramble.keyagreement;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyAgreementCrypto;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.event.EventBus;
@@ -14,6 +15,7 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementFinishedEvent
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementListeningEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementStartedEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementWaitingEvent;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
@@ -22,6 +24,8 @@ import org.briarproject.bramble.api.system.Clock;
 import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 
@@ -35,6 +39,7 @@ class KeyAgreementTaskImpl extends Thread implements
 			Logger.getLogger(KeyAgreementTaskImpl.class.getName());
 
 	private final CryptoComponent crypto;
+	private final KeyAgreementCrypto keyAgreementCrypto;
 	private final EventBus eventBus;
 	private final PayloadEncoder payloadEncoder;
 	private final KeyPair localKeyPair;
@@ -43,14 +48,17 @@ class KeyAgreementTaskImpl extends Thread implements
 	private Payload localPayload;
 	private Payload remotePayload;
 
+	@Inject
 	KeyAgreementTaskImpl(Clock clock, CryptoComponent crypto,
-			EventBus eventBus, PayloadEncoder payloadEncoder,
-			PluginManager pluginManager, Executor ioExecutor) {
+			KeyAgreementCrypto keyAgreementCrypto, EventBus eventBus,
+			PayloadEncoder payloadEncoder, PluginManager pluginManager,
+			@IoExecutor Executor ioExecutor) {
 		this.crypto = crypto;
+		this.keyAgreementCrypto = keyAgreementCrypto;
 		this.eventBus = eventBus;
 		this.payloadEncoder = payloadEncoder;
 		localKeyPair = crypto.generateAgreementKeyPair();
-		connector = new KeyAgreementConnector(this, clock, crypto,
+		connector = new KeyAgreementConnector(this, clock, keyAgreementCrypto,
 				pluginManager, ioExecutor);
 	}
 
@@ -100,8 +108,8 @@ class KeyAgreementTaskImpl extends Thread implements
 		// Run BQP protocol over the connection
 		LOG.info("Starting BQP protocol");
 		KeyAgreementProtocol protocol = new KeyAgreementProtocol(this, crypto,
-				payloadEncoder, transport, remotePayload, localPayload,
-				localKeyPair, alice);
+				keyAgreementCrypto, payloadEncoder, transport, remotePayload,
+				localPayload, localKeyPair, alice);
 		try {
 			SecretKey master = protocol.perform();
 			KeyAgreementResult result =

@@ -1,6 +1,7 @@
 package org.briarproject.bramble.keyagreement;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyAgreementCrypto;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -62,6 +63,7 @@ class KeyAgreementProtocol {
 
 	private final Callbacks callbacks;
 	private final CryptoComponent crypto;
+	private final KeyAgreementCrypto keyAgreementCrypto;
 	private final PayloadEncoder payloadEncoder;
 	private final KeyAgreementTransport transport;
 	private final Payload theirPayload, ourPayload;
@@ -69,11 +71,13 @@ class KeyAgreementProtocol {
 	private final boolean alice;
 
 	KeyAgreementProtocol(Callbacks callbacks, CryptoComponent crypto,
+			KeyAgreementCrypto keyAgreementCrypto,
 			PayloadEncoder payloadEncoder, KeyAgreementTransport transport,
 			Payload theirPayload, Payload ourPayload, KeyPair ourKeyPair,
 			boolean alice) {
 		this.callbacks = callbacks;
 		this.crypto = crypto;
+		this.keyAgreementCrypto = keyAgreementCrypto;
 		this.payloadEncoder = payloadEncoder;
 		this.transport = transport;
 		this.theirPayload = theirPayload;
@@ -126,7 +130,7 @@ class KeyAgreementProtocol {
 		KeyParser keyParser = crypto.getAgreementKeyParser();
 		try {
 			PublicKey publicKey = keyParser.parsePublicKey(publicKeyBytes);
-			byte[] expected = crypto.deriveKeyCommitment(publicKey);
+			byte[] expected = keyAgreementCrypto.deriveKeyCommitment(publicKey);
 			if (!Arrays.equals(expected, theirPayload.getCommitment()))
 				throw new AbortException();
 			return publicKey;
@@ -147,7 +151,7 @@ class KeyAgreementProtocol {
 
 	private void sendConfirm(SecretKey s, PublicKey theirPublicKey)
 			throws IOException {
-		byte[] confirm = crypto.deriveConfirmationRecord(s,
+		byte[] confirm = keyAgreementCrypto.deriveConfirmationRecord(s,
 				payloadEncoder.encode(theirPayload),
 				payloadEncoder.encode(ourPayload),
 				theirPublicKey, ourKeyPair,
@@ -158,7 +162,7 @@ class KeyAgreementProtocol {
 	private void receiveConfirm(SecretKey s, PublicKey theirPublicKey)
 			throws AbortException {
 		byte[] confirm = transport.receiveConfirm();
-		byte[] expected = crypto.deriveConfirmationRecord(s,
+		byte[] expected = keyAgreementCrypto.deriveConfirmationRecord(s,
 				payloadEncoder.encode(theirPayload),
 				payloadEncoder.encode(ourPayload),
 				theirPublicKey, ourKeyPair,

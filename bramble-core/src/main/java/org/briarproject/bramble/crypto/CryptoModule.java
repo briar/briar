@@ -3,6 +3,7 @@ package org.briarproject.bramble.crypto;
 import org.briarproject.bramble.TimeLoggingExecutor;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
+import org.briarproject.bramble.api.crypto.KeyAgreementCrypto;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.crypto.StreamDecrypterFactory;
 import org.briarproject.bramble.api.crypto.StreamEncrypterFactory;
@@ -93,6 +94,12 @@ public class CryptoModule {
 			Provider<AuthenticatedCipher> cipherProvider) {
 		return new StreamEncrypterFactoryImpl(crypto, transportCrypto,
 				cipherProvider);
+	}
+
+	@Provides
+	KeyAgreementCrypto provideKeyAgreementCrypto(
+			KeyAgreementCryptoImpl keyAgreementCrypto) {
+		return keyAgreementCrypto;
 	}
 
 	@Provides

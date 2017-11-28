@@ -36,21 +36,13 @@ public interface CryptoComponent {
 	 * Derives a nonce from the given secret key that can be used for key
 	 * binding.
 	 *
+	 * TODO: This just calls mac(), remove it
+	 *
 	 * @param label a namespaced label indicating the purpose of this nonce,
 	 * to prevent it from being repurposed or colliding with a nonce derived
 	 * for another purpose
 	 */
 	byte[] deriveKeyBindingNonce(String label, SecretKey k);
-
-	/**
-	 * Derives a commitment to the provided public key.
-	 * <p/>
-	 * Used by the key exchange protocol.
-	 *
-	 * @param publicKey the public key
-	 * @return the commitment to the provided public key.
-	 */
-	byte[] deriveKeyCommitment(PublicKey publicKey);
 
 	/**
 	 * Derives a common shared secret from two public keys and one of the
@@ -66,25 +58,6 @@ public interface CryptoComponent {
 	 */
 	SecretKey deriveSharedSecret(String label, PublicKey theirPublicKey,
 			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException;
-
-	/**
-	 * Derives the content of a confirmation record.
-	 * <p/>
-	 * Used by the key exchange protocol.
-	 *
-	 * @param sharedSecret the common shared secret
-	 * @param theirPayload the key exchange payload of the remote party
-	 * @param ourPayload the key exchange payload of the local party
-	 * @param theirPublicKey the ephemeral public key of the remote party
-	 * @param ourKeyPair our ephemeral key pair of the local party
-	 * @param alice true if the local party is Alice
-	 * @param aliceRecord true if the confirmation record is for use by Alice
-	 * @return the confirmation record
-	 */
-	byte[] deriveConfirmationRecord(SecretKey sharedSecret,
-			byte[] theirPayload, byte[] ourPayload,
-			PublicKey theirPublicKey, KeyPair ourKeyPair,
-			boolean alice, boolean aliceRecord);
 
 	/**
 	 * Signs the given byte[] with the given ECDSA private key.

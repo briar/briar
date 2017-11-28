@@ -24,7 +24,6 @@ import com.google.zxing.Result;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementTask;
-import org.briarproject.bramble.api.keyagreement.KeyAgreementTaskFactory;
 import org.briarproject.bramble.api.keyagreement.Payload;
 import org.briarproject.bramble.api.keyagreement.PayloadEncoder;
 import org.briarproject.bramble.api.keyagreement.PayloadParser;
@@ -48,6 +47,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
@@ -68,7 +68,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	private static final Logger LOG = Logger.getLogger(TAG);
 
 	@Inject
-	KeyAgreementTaskFactory keyAgreementTaskFactory;
+	Provider<KeyAgreementTask> keyAgreementTaskProvider;
 	@Inject
 	PayloadEncoder payloadEncoder;
 	@Inject
@@ -187,7 +187,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	@UiThread
 	private void startListening() {
 		KeyAgreementTask oldTask = task;
-		KeyAgreementTask newTask = keyAgreementTaskFactory.createTask();
+		KeyAgreementTask newTask = keyAgreementTaskProvider.get();
 		task = newTask;
 		ioExecutor.execute(() -> {
 			if (oldTask != null) oldTask.stopListening();

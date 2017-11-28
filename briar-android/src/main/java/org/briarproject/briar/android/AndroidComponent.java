@@ -12,7 +12,7 @@ import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.keyagreement.KeyAgreementTaskFactory;
+import org.briarproject.bramble.api.keyagreement.KeyAgreementTask;
 import org.briarproject.bramble.api.keyagreement.PayloadEncoder;
 import org.briarproject.bramble.api.keyagreement.PayloadParser;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -125,7 +125,7 @@ public interface AndroidComponent
 
 	ContactExchangeTask contactExchangeTask();
 
-	KeyAgreementTaskFactory keyAgreementTaskFactory();
+	KeyAgreementTask keyAgreementTask();
 
 	PayloadEncoder payloadEncoder();
 

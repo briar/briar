@@ -1,6 +1,7 @@
 package org.briarproject.bramble.keyagreement;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyAgreementCrypto;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -55,6 +56,8 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	@Mock
 	CryptoComponent crypto;
 	@Mock
+	KeyAgreementCrypto keyAgreementCrypto;
+	@Mock
 	KeyParser keyParser;
 	@Mock
 	PayloadEncoder payloadEncoder;
@@ -72,9 +75,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 		SecretKey sharedSecret = getSecretKey();
 		SecretKey masterSecret = getSecretKey();
 
-		KeyAgreementProtocol protocol =
-				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
-						transport, theirPayload, ourPayload, ourKeyPair, true);
+		KeyAgreementProtocol protocol = new KeyAgreementProtocol(callbacks,
+				crypto, keyAgreementCrypto, payloadEncoder, transport,
+				theirPayload, ourPayload, ourKeyPair, true);
 
 		// expectations
 		context.checking(new Expectations() {{
@@ -100,7 +103,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(bobPubKey));
 
 			// Alice verifies Bob's public key
-			oneOf(crypto).deriveKeyCommitment(bobPubKey);
+			oneOf(keyAgreementCrypto).deriveKeyCommitment(bobPubKey);
 			will(returnValue(bobCommit));
 
 			// Alice computes shared secret
@@ -109,8 +112,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(sharedSecret));
 
 			// Alice sends her confirmation record
-			oneOf(crypto).deriveConfirmationRecord(sharedSecret, bobPayload,
-					alicePayload, bobPubKey, ourKeyPair, true, true);
+			oneOf(keyAgreementCrypto).deriveConfirmationRecord(sharedSecret,
+					bobPayload, alicePayload, bobPubKey, ourKeyPair,
+					true, true);
 			will(returnValue(aliceConfirm));
 			oneOf(transport).sendConfirm(aliceConfirm);
 
@@ -119,8 +123,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(bobConfirm));
 
 			// Alice verifies Bob's confirmation record
-			oneOf(crypto).deriveConfirmationRecord(sharedSecret, bobPayload,
-					alicePayload, bobPubKey, ourKeyPair, true, false);
+			oneOf(keyAgreementCrypto).deriveConfirmationRecord(sharedSecret,
+					bobPayload, alicePayload, bobPubKey, ourKeyPair,
+					true, false);
 			will(returnValue(bobConfirm));
 
 			// Alice computes master secret
@@ -141,9 +146,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 		SecretKey sharedSecret = getSecretKey();
 		SecretKey masterSecret = getSecretKey();
 
-		KeyAgreementProtocol protocol =
-				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
-						transport, theirPayload, ourPayload, ourKeyPair, false);
+		KeyAgreementProtocol protocol = new KeyAgreementProtocol(callbacks,
+				crypto, keyAgreementCrypto, payloadEncoder, transport,
+				theirPayload, ourPayload, ourKeyPair, false);
 
 		// expectations
 		context.checking(new Expectations() {{
@@ -165,7 +170,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(alicePubKey));
 
 			// Bob verifies Alice's public key
-			oneOf(crypto).deriveKeyCommitment(alicePubKey);
+			oneOf(keyAgreementCrypto).deriveKeyCommitment(alicePubKey);
 			will(returnValue(aliceCommit));
 
 			// Bob sends his public key
@@ -181,13 +186,15 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(aliceConfirm));
 
 			// Bob verifies Alice's confirmation record
-			oneOf(crypto).deriveConfirmationRecord(sharedSecret, alicePayload,
-					bobPayload, alicePubKey, ourKeyPair, false, true);
+			oneOf(keyAgreementCrypto).deriveConfirmationRecord(sharedSecret,
+					alicePayload, bobPayload, alicePubKey, ourKeyPair,
+					false, true);
 			will(returnValue(aliceConfirm));
 
 			// Bob sends his confirmation record
-			oneOf(crypto).deriveConfirmationRecord(sharedSecret, alicePayload,
-					bobPayload, alicePubKey, ourKeyPair, false, false);
+			oneOf(keyAgreementCrypto).deriveConfirmationRecord(sharedSecret,
+					alicePayload, bobPayload, alicePubKey, ourKeyPair,
+					false, false);
 			will(returnValue(bobConfirm));
 			oneOf(transport).sendConfirm(bobConfirm);
 
@@ -207,9 +214,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 		Payload ourPayload = new Payload(aliceCommit, null);
 		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
 
-		KeyAgreementProtocol protocol =
-				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
-						transport, theirPayload, ourPayload, ourKeyPair, true);
+		KeyAgreementProtocol protocol = new KeyAgreementProtocol(callbacks,
+				crypto, keyAgreementCrypto, payloadEncoder, transport,
+				theirPayload, ourPayload, ourKeyPair, true);
 
 		// expectations
 		context.checking(new Expectations() {{
@@ -231,7 +238,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(badPubKey));
 
 			// Alice verifies Bob's public key
-			oneOf(crypto).deriveKeyCommitment(badPubKey);
+			oneOf(keyAgreementCrypto).deriveKeyCommitment(badPubKey);
 			will(returnValue(badCommit));
 
 			// Alice aborts
@@ -253,9 +260,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 		Payload ourPayload = new Payload(bobCommit, null);
 		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
 
-		KeyAgreementProtocol protocol =
-				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
-						transport, theirPayload, ourPayload, ourKeyPair, false);
+		KeyAgreementProtocol protocol = new KeyAgreementProtocol(callbacks,
+				crypto, keyAgreementCrypto, payloadEncoder, transport,
+				theirPayload, ourPayload, ourKeyPair, false);
 
 		// expectations
 		context.checking(new Expectations() {{
@@ -273,7 +280,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(badPubKey));
 
 			// Bob verifies Alice's public key
-			oneOf(crypto).deriveKeyCommitment(badPubKey);
+			oneOf(keyAgreementCrypto).deriveKeyCommitment(badPubKey);
 			will(returnValue(badCommit));
 
 			// Bob aborts
@@ -295,9 +302,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
 		SecretKey sharedSecret = getSecretKey();
 
-		KeyAgreementProtocol protocol =
-				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
-						transport, theirPayload, ourPayload, ourKeyPair, true);
+		KeyAgreementProtocol protocol = new KeyAgreementProtocol(callbacks,
+				crypto, keyAgreementCrypto, payloadEncoder, transport,
+				theirPayload, ourPayload, ourKeyPair, true);
 
 		// expectations
 		context.checking(new Expectations() {{
@@ -323,7 +330,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(bobPubKey));
 
 			// Alice verifies Bob's public key
-			oneOf(crypto).deriveKeyCommitment(bobPubKey);
+			oneOf(keyAgreementCrypto).deriveKeyCommitment(bobPubKey);
 			will(returnValue(bobCommit));
 
 			// Alice computes shared secret
@@ -332,8 +339,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(sharedSecret));
 
 			// Alice sends her confirmation record
-			oneOf(crypto).deriveConfirmationRecord(sharedSecret, bobPayload,
-					alicePayload, bobPubKey, ourKeyPair, true, true);
+			oneOf(keyAgreementCrypto).deriveConfirmationRecord(sharedSecret,
+					bobPayload, alicePayload, bobPubKey, ourKeyPair,
+					true, true);
 			will(returnValue(aliceConfirm));
 			oneOf(transport).sendConfirm(aliceConfirm);
 
@@ -342,8 +350,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(badConfirm));
 
 			// Alice verifies Bob's confirmation record
-			oneOf(crypto).deriveConfirmationRecord(sharedSecret, bobPayload,
-					alicePayload, bobPubKey, ourKeyPair, true, false);
+			oneOf(keyAgreementCrypto).deriveConfirmationRecord(sharedSecret,
+					bobPayload, alicePayload, bobPubKey, ourKeyPair,
+					true, false);
 			will(returnValue(bobConfirm));
 
 			// Alice aborts
@@ -365,9 +374,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
 		SecretKey sharedSecret = getSecretKey();
 
-		KeyAgreementProtocol protocol =
-				new KeyAgreementProtocol(callbacks, crypto, payloadEncoder,
-						transport, theirPayload, ourPayload, ourKeyPair, false);
+		KeyAgreementProtocol protocol = new KeyAgreementProtocol(callbacks,
+				crypto, keyAgreementCrypto, payloadEncoder, transport,
+				theirPayload, ourPayload, ourKeyPair, false);
 
 		// expectations
 		context.checking(new Expectations() {{
@@ -389,7 +398,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(alicePubKey));
 
 			// Bob verifies Alice's public key
-			oneOf(crypto).deriveKeyCommitment(alicePubKey);
+			oneOf(keyAgreementCrypto).deriveKeyCommitment(alicePubKey);
 			will(returnValue(aliceCommit));
 
 			// Bob sends his public key
@@ -405,16 +414,18 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(badConfirm));
 
 			// Bob verifies Alice's confirmation record
-			oneOf(crypto).deriveConfirmationRecord(sharedSecret, alicePayload,
-					bobPayload, alicePubKey, ourKeyPair, false, true);
+			oneOf(keyAgreementCrypto).deriveConfirmationRecord(sharedSecret,
+					alicePayload, bobPayload, alicePubKey, ourKeyPair,
+					false, true);
 			will(returnValue(aliceConfirm));
 
 			// Bob aborts
 			oneOf(transport).sendAbort(false);
 
 			// Bob never sends his confirmation record
-			never(crypto).deriveConfirmationRecord(sharedSecret, alicePayload,
-					bobPayload, alicePubKey, ourKeyPair, false, false);
+			never(keyAgreementCrypto).deriveConfirmationRecord(sharedSecret,
+					alicePayload, bobPayload, alicePubKey, ourKeyPair,
+					false, false);
 		}});
 
 		// execute
