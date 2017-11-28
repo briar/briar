@@ -755,8 +755,7 @@ public class IntroductionIntegrationTest
 		// Nonce 1
 		SecretKey sharedSecret = crypto.deriveSharedSecret(SHARED_SECRET_LABEL,
 				eKeyPair2.getPublic(), eKeyPair1, true);
-		byte[] nonce1 = crypto.deriveKeyBindingNonce(ALICE_NONCE_LABEL,
-				sharedSecret);
+		byte[] nonce1 = crypto.mac(ALICE_NONCE_LABEL, sharedSecret);
 
 		// Signature 1
 		byte[] sig1 = crypto.sign(SIGNING_LABEL, nonce1,
@@ -791,7 +790,7 @@ public class IntroductionIntegrationTest
 		byte[] ePublicKeyBytes1f = eKeyPair1f.getPublic().getEncoded();
 		sharedSecret = crypto.deriveSharedSecret(SHARED_SECRET_LABEL,
 				eKeyPair2.getPublic(), eKeyPair1f, true);
-		nonce1 = crypto.deriveKeyBindingNonce(ALICE_NONCE_LABEL, sharedSecret);
+		nonce1 = crypto.mac(ALICE_NONCE_LABEL, sharedSecret);
 
 		// recalculate MAC
 		macKey1 = crypto.deriveKey(ALICE_MAC_KEY_LABEL, sharedSecret);

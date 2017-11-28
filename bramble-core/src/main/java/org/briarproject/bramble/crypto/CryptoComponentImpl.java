@@ -220,12 +220,9 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	@Override
 	public SecretKey deriveKey(String label, SecretKey k, byte[]... inputs) {
-		return new SecretKey(mac(label, k, inputs));
-	}
-
-	@Override
-	public byte[] deriveKeyBindingNonce(String label, SecretKey k) {
-		return mac(label, k);
+		byte[] mac = mac(label, k, inputs);
+		if (mac.length != SecretKey.LENGTH) throw new IllegalStateException();
+		return new SecretKey(mac);
 	}
 
 	@Override

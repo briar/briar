@@ -33,18 +33,6 @@ public interface CryptoComponent {
 	SecretKey deriveKey(String label, SecretKey k, byte[]... inputs);
 
 	/**
-	 * Derives a nonce from the given secret key that can be used for key
-	 * binding.
-	 *
-	 * TODO: This just calls mac(), remove it
-	 *
-	 * @param label a namespaced label indicating the purpose of this nonce,
-	 * to prevent it from being repurposed or colliding with a nonce derived
-	 * for another purpose
-	 */
-	byte[] deriveKeyBindingNonce(String label, SecretKey k);
-
-	/**
 	 * Derives a common shared secret from two public keys and one of the
 	 * corresponding private keys.
 	 *

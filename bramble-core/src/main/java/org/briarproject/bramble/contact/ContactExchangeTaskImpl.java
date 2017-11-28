@@ -157,10 +157,8 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		BdfWriter w = bdfWriterFactory.createWriter(streamWriter);
 
 		// Derive the nonces to be signed
-		byte[] aliceNonce = crypto.deriveKeyBindingNonce(ALICE_NONCE_LABEL,
-				masterSecret);
-		byte[] bobNonce = crypto.deriveKeyBindingNonce(BOB_NONCE_LABEL,
-				masterSecret);
+		byte[] aliceNonce = crypto.mac(ALICE_NONCE_LABEL, masterSecret);
+		byte[] bobNonce = crypto.mac(BOB_NONCE_LABEL, masterSecret);
 
 		// Exchange pseudonyms, signed nonces, and timestamps
 		long localTimestamp = clock.currentTimeMillis();

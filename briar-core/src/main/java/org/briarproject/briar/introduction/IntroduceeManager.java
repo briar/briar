@@ -451,15 +451,16 @@ class IntroduceeManager {
 	private void deriveMacKeysAndNonces(BdfDictionary localState,
 			LocalAuthor author, SecretKey secretKey, boolean alice)
 			throws FormatException, GeneralSecurityException {
-		// Derive two nonces and MAC keys from the shared secret key
-		byte[] ourNonce = cryptoComponent.deriveKeyBindingNonce(
-				alice ? ALICE_NONCE_LABEL : BOB_NONCE_LABEL, secretKey);
-		byte[] theirNonce = cryptoComponent.deriveKeyBindingNonce(
-				alice ? BOB_NONCE_LABEL : ALICE_NONCE_LABEL, secretKey);
-		SecretKey ourMacKey = cryptoComponent.deriveKey(
-				alice ? ALICE_MAC_KEY_LABEL : BOB_MAC_KEY_LABEL, secretKey);
-		SecretKey theirMacKey = cryptoComponent.deriveKey(
-				alice ? BOB_MAC_KEY_LABEL : ALICE_MAC_KEY_LABEL, secretKey);
+		// Derive two nonces and two MAC keys from the shared secret key
+		String ourNonceLabel = alice ? ALICE_NONCE_LABEL : BOB_NONCE_LABEL;
+		String theirNonceLabel = alice ? BOB_NONCE_LABEL : ALICE_NONCE_LABEL;
+		byte[] ourNonce = cryptoComponent.mac(ourNonceLabel, secretKey);
+		byte[] theirNonce = cryptoComponent.mac(theirNonceLabel, secretKey);
+		String ourKeyLabel = alice ? ALICE_MAC_KEY_LABEL : BOB_MAC_KEY_LABEL;
+		String theirKeyLabel = alice ? BOB_MAC_KEY_LABEL : ALICE_MAC_KEY_LABEL;
+		SecretKey ourMacKey = cryptoComponent.deriveKey(ourKeyLabel, secretKey);
+		SecretKey theirMacKey =
+				cryptoComponent.deriveKey(theirKeyLabel, secretKey);
 
 		// Save the other nonce and MAC key for the verification
 		localState.put(NONCE, theirNonce);
