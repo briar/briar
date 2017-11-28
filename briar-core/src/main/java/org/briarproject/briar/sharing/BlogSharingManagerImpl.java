@@ -51,6 +51,11 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 		return CLIENT_ID;
 	}
 
+	@Override
+	protected int getClientVersion() {
+		return CLIENT_VERSION;
+	}
+
 	/**
 	 * This is called during each startup for each existing Contact.
 	 */

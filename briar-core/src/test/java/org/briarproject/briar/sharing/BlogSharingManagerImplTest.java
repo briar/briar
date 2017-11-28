@@ -39,6 +39,7 @@ import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
+import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_VERSION;
 import static org.briarproject.briar.sharing.SharingConstants.GROUP_KEY_CONTACT_ID;
 
 public class BlogSharingManagerImplTest extends BrambleMockTestCase {
@@ -152,7 +153,8 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(db).containsGroup(txn, contactGroup.getId());
 			will(returnValue(false));
@@ -185,8 +187,8 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 				new Message(new MessageId(getRandomId()), contactGroup.getId(),
 						42L, getRandomBytes(1337));
 		context.checking(new Expectations() {{
-			oneOf(contactGroupFactory)
-					.createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(sessionParser)
 					.getSessionQuery(new SessionId(blog.getId().getBytes()));
@@ -220,7 +222,8 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(sessionParser)
 					.getSessionQuery(new SessionId(blog.getId().getBytes()));

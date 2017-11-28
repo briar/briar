@@ -19,6 +19,11 @@ public interface MessagingManager extends ConversationClient {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.messaging");
 
 	/**
+	 * The current version of the messaging client.
+	 */
+	int CLIENT_VERSION = 0;
+
+	/**
 	 * Stores a local private message.
 	 */
 	void addLocalMessage(PrivateMessage m) throws DbException;

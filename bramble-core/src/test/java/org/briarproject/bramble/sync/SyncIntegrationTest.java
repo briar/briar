@@ -22,7 +22,6 @@ import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -37,6 +36,7 @@ import javax.inject.Inject;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -79,9 +79,11 @@ public class SyncIntegrationTest extends BrambleTestCase {
 		headerKey = TestUtils.getSecretKey();
 		streamNumber = 123;
 		// Create a group
-		ClientId clientId = new ClientId(StringUtils.getRandomString(5));
+		ClientId clientId = new ClientId(getRandomString(123));
+		int clientVersion = 1234567890;
 		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
-		Group group = groupFactory.createGroup(clientId, descriptor);
+		Group group = groupFactory.createGroup(clientId, clientVersion,
+				descriptor);
 		// Add two messages to the group
 		long timestamp = System.currentTimeMillis();
 		byte[] body = "Hello world".getBytes("UTF-8");

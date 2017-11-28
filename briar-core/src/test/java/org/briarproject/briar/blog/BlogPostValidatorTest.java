@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupFactory;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -40,6 +39,8 @@ import static org.briarproject.briar.api.blog.BlogConstants.KEY_PARENT_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_READ;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_RSS_FEED;
+import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
+import static org.briarproject.briar.api.blog.BlogManager.CLIENT_VERSION;
 import static org.briarproject.briar.api.blog.BlogPostFactory.SIGNING_LABEL_COMMENT;
 import static org.briarproject.briar.api.blog.BlogPostFactory.SIGNING_LABEL_POST;
 import static org.briarproject.briar.api.blog.MessageType.COMMENT;
@@ -54,7 +55,6 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	private final Mockery context = new Mockery();
 	private final Blog blog, rssBlog;
 	private final BdfDictionary authorDict;
-	private final ClientId clientId;
 	private final byte[] descriptor;
 	private final Group group;
 	private final Message message;
@@ -69,9 +69,8 @@ public class BlogPostValidatorTest extends BriarTestCase {
 
 	public BlogPostValidatorTest() {
 		GroupId groupId = new GroupId(TestUtils.getRandomId());
-		clientId = BlogManagerImpl.CLIENT_ID;
 		descriptor = TestUtils.getRandomBytes(42);
-		group = new Group(groupId, clientId, descriptor);
+		group = new Group(groupId, CLIENT_ID, descriptor);
 		AuthorId authorId =
 				new AuthorId(TestUtils.getRandomBytes(AuthorId.LENGTH));
 		byte[] publicKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
@@ -215,7 +214,8 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		byte[] originalBody = TestUtils.getRandomBytes(42);
 
 		context.checking(new Expectations() {{
-			oneOf(groupFactory).createGroup(clientId, descriptor);
+			oneOf(groupFactory).createGroup(CLIENT_ID, CLIENT_VERSION,
+					descriptor);
 			will(returnValue(b.getGroup()));
 			oneOf(blogFactory).parseBlog(b.getGroup());
 			will(returnValue(b));
@@ -258,7 +258,8 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		byte[] originalBody = TestUtils.getRandomBytes(42);
 
 		context.checking(new Expectations() {{
-			oneOf(groupFactory).createGroup(clientId, descriptor);
+			oneOf(groupFactory).createGroup(CLIENT_ID, CLIENT_VERSION,
+					descriptor);
 			will(returnValue(blog.getGroup()));
 			oneOf(clientHelper).toByteArray(originalList);
 			will(returnValue(originalBody));

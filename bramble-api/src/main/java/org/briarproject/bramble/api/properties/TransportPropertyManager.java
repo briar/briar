@@ -18,6 +18,11 @@ public interface TransportPropertyManager {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.properties");
 
 	/**
+	 * The current version of the transport property client.
+	 */
+	int CLIENT_VERSION = 0;
+
+	/**
 	 * Stores the given properties received while adding a contact - they will
 	 * be superseded by any properties synced from the contact.
 	 */

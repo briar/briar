@@ -22,6 +22,11 @@ public interface IntroductionManager extends ConversationClient {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.introduction");
 
 	/**
+	 * The current version of the introduction client.
+	 */
+	int CLIENT_VERSION = 0;
+
+	/**
 	 * Sends two initial introduction messages.
 	 */
 	void makeIntroduction(Contact c1, Contact c2, @Nullable String msg,

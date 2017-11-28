@@ -23,6 +23,11 @@ public interface ForumManager {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.forum");
 
 	/**
+	 * The current version of the forum client.
+	 */
+	int CLIENT_VERSION = 0;
+
+	/**
 	 * Subscribes to a forum.
 	 */
 	Forum addForum(String name) throws DbException;

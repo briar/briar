@@ -132,7 +132,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	@Override
 	public Group getContactGroup(Contact c) {
-		return contactGroupFactory.createContactGroup(CLIENT_ID, c);
+		return contactGroupFactory.createContactGroup(CLIENT_ID,
+				CLIENT_VERSION, c);
 	}
 
 	@Override

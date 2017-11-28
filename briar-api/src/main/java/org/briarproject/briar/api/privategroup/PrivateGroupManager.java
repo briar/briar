@@ -22,6 +22,11 @@ public interface PrivateGroupManager {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.privategroup");
 
 	/**
+	 * The current version of the private group client.
+	 */
+	int CLIENT_VERSION = 0;
+
+	/**
 	 * Adds a new private group and joins it.
 	 *
 	 * @param group The private group to add

@@ -16,6 +16,8 @@ import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
+import static org.briarproject.briar.api.blog.BlogManager.CLIENT_VERSION;
 
 @Immutable
 @NotNullByDefault
@@ -52,8 +54,8 @@ class BlogFactoryImpl implements BlogFactory {
 					rssFeed
 			);
 			byte[] descriptor = clientHelper.toByteArray(blog);
-			Group g = groupFactory
-					.createGroup(BlogManagerImpl.CLIENT_ID, descriptor);
+			Group g = groupFactory.createGroup(CLIENT_ID, CLIENT_VERSION,
+					descriptor);
 			return new Blog(g, a, rssFeed);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);

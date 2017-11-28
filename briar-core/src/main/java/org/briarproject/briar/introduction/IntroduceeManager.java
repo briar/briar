@@ -76,7 +76,6 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.OUR_
 import static org.briarproject.briar.api.introduction.IntroductionConstants.OUR_SIGNATURE;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.OUR_TIME;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.OUR_TRANSPORT;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.PROTOCOL_VERSION;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
@@ -97,6 +96,7 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_ABORT;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_RESPONSE;
+import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_VERSION;
 
 @Immutable
 @NotNullByDefault
@@ -435,7 +435,7 @@ class IntroduceeManager {
 		// The shared secret is derived from the local ephemeral key pair
 		// and the remote ephemeral public key
 		byte[][] inputs = {
-				new byte[] {PROTOCOL_VERSION},
+				new byte[] {CLIENT_VERSION},
 				alice ? ourPublicKeyBytes : theirPublicKeyBytes,
 				alice ? theirPublicKeyBytes : ourPublicKeyBytes
 		};

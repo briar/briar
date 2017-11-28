@@ -39,6 +39,11 @@ class ForumSharingManagerImpl extends SharingManagerImpl<Forum>
 	}
 
 	@Override
+	protected int getClientVersion() {
+		return CLIENT_VERSION;
+	}
+
+	@Override
 	public void removingForum(Transaction txn, Forum f) throws DbException {
 		removingShareable(txn, f);
 	}

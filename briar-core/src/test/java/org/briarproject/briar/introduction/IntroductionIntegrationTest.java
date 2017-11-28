@@ -65,7 +65,6 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC_
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC_LABEL;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.NAME;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.NONCE;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.PROTOCOL_VERSION;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.SESSION_ID;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.SHARED_SECRET_LABEL;
@@ -76,6 +75,7 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.TRAN
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_RESPONSE;
+import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_VERSION;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -755,7 +755,7 @@ public class IntroductionIntegrationTest
 
 		// Nonce 1
 		byte[][] inputs = {
-				new byte[] {PROTOCOL_VERSION},
+				new byte[] {CLIENT_VERSION},
 				eKeyPair1.getPublic().getEncoded(),
 				eKeyPair2.getPublic().getEncoded()
 		};
@@ -794,7 +794,7 @@ public class IntroductionIntegrationTest
 		// replace ephemeral key pair and recalculate matching keys and nonce
 		KeyPair eKeyPair1f = crypto.generateAgreementKeyPair();
 		byte[][] fakeInputs = {
-				new byte[] {PROTOCOL_VERSION},
+				new byte[] {CLIENT_VERSION},
 				eKeyPair1f.getPublic().getEncoded(),
 				eKeyPair2.getPublic().getEncoded()
 		};

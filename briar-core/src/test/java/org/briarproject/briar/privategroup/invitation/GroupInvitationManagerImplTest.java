@@ -52,6 +52,7 @@ import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
+import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_VERSION;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
@@ -162,7 +163,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	private void expectAddingContact(Contact c, boolean contactExists)
 			throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, c);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, c);
 			will(returnValue(contactGroup));
 			oneOf(db).containsGroup(txn, contactGroup.getId());
 			will(returnValue(contactExists));
@@ -188,7 +190,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	private void expectAddingMember(GroupId g, Contact c) throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, c);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, c);
 			will(returnValue(contactGroup));
 		}});
 		expectGetSession(noResults, new SessionId(g.getBytes()),
@@ -243,7 +246,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testRemovingContact() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(db).removeGroup(txn, contactGroup);
 		}});
@@ -457,7 +461,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 		}});
 		expectCreateStorageId();
@@ -488,7 +493,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(sessionParser)
 					.parseCreatorSession(contactGroup.getId(), bdfSession);
@@ -516,7 +522,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(db).endTransaction(txn);
 		}});
@@ -567,7 +574,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(sessionParser)
 					.parseInviteeSession(contactGroup.getId(), bdfSession);
@@ -588,7 +596,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(sessionParser)
 					.parsePeerSession(contactGroup.getId(), bdfSession);
@@ -612,7 +621,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(db).endTransaction(txn);
 		}});
@@ -650,7 +660,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(messageParser).getMessagesVisibleInUiQuery();
 			will(returnValue(query));
@@ -726,7 +737,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(db).getContacts(txn);
 			will(returnValue(Collections.singletonList(contact)));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId(), query);
@@ -793,7 +805,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			throws Exception {
 		expectGetSession(oneResult, sessionId, contactGroup.getId());
 		context.checking(new Expectations() {{
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
@@ -847,11 +860,14 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact2);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact2);
 			will(returnValue(contactGroup2));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact3);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact3);
 			will(returnValue(contactGroup3));
 			// session 1
 			oneOf(sessionParser).getRole(bdfSession);

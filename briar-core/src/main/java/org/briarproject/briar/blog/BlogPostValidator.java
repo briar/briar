@@ -45,6 +45,8 @@ import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIME_RECEIVED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TYPE;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_COMMENT_LENGTH;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
+import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
+import static org.briarproject.briar.api.blog.BlogManager.CLIENT_VERSION;
 import static org.briarproject.briar.api.blog.BlogPostFactory.SIGNING_LABEL_COMMENT;
 import static org.briarproject.briar.api.blog.BlogPostFactory.SIGNING_LABEL_POST;
 import static org.briarproject.briar.api.blog.MessageType.COMMENT;
@@ -199,8 +201,8 @@ class BlogPostValidator extends BdfMessageValidator {
 		checkLength(signature, 1, MAX_SIGNATURE_LENGTH);
 
 		// Get and Validate the Wrapped Message
-		Group wGroup = groupFactory
-				.createGroup(BlogManagerImpl.CLIENT_ID, descriptor);
+		Group wGroup = groupFactory.createGroup(CLIENT_ID, CLIENT_VERSION,
+				descriptor);
 		Blog wBlog = blogFactory.parseBlog(wGroup);
 		BdfList wBodyList = BdfList.of(POST.getInt(), content, signature);
 		byte[] wBody = clientHelper.toByteArray(wBodyList);
@@ -262,8 +264,8 @@ class BlogPostValidator extends BdfMessageValidator {
 		MessageId parentId = new MessageId(parentIdBytes);
 
 		// Get and Validate the Wrapped Comment
-		Group wGroup = groupFactory
-				.createGroup(BlogManagerImpl.CLIENT_ID, descriptor);
+		Group wGroup = groupFactory.createGroup(CLIENT_ID, CLIENT_VERSION,
+				descriptor);
 		BdfList wBodyList = BdfList.of(COMMENT.getInt(), comment, pOriginalId,
 				oldId, signature);
 		byte[] wBody = clientHelper.toByteArray(wBodyList);
