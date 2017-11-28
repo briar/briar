@@ -12,8 +12,10 @@ import org.briarproject.bramble.util.ByteUtils;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.sync.MessageId.LABEL;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
 
 @Immutable
 @NotNullByDefault
@@ -32,9 +34,9 @@ class MessageFactoryImpl implements MessageFactory {
 			throw new IllegalArgumentException();
 		byte[] timeBytes = new byte[ByteUtils.INT_64_BYTES];
 		ByteUtils.writeUint64(timestamp, timeBytes, 0);
-		byte[] idHash =
-				crypto.hash(MessageId.LABEL, g.getBytes(), timeBytes, body);
-		MessageId id = new MessageId(idHash);
+		byte[] hash = crypto.hash(LABEL, new byte[] {PROTOCOL_VERSION},
+				g.getBytes(), timeBytes, body);
+		MessageId id = new MessageId(hash);
 		byte[] raw = new byte[MESSAGE_HEADER_LENGTH + body.length];
 		System.arraycopy(g.getBytes(), 0, raw, 0, UniqueId.LENGTH);
 		ByteUtils.writeUint64(timestamp, raw, UniqueId.LENGTH);
