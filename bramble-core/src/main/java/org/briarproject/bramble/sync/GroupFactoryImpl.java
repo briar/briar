@@ -11,6 +11,9 @@ import org.briarproject.bramble.util.StringUtils;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.sync.GroupId.LABEL;
+import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
+
 @Immutable
 @NotNullByDefault
 class GroupFactoryImpl implements GroupFactory {
@@ -24,7 +27,7 @@ class GroupFactoryImpl implements GroupFactory {
 
 	@Override
 	public Group createGroup(ClientId c, byte[] descriptor) {
-		byte[] hash = crypto.hash(GroupId.LABEL,
+		byte[] hash = crypto.hash(LABEL, new byte[] {PROTOCOL_VERSION},
 				StringUtils.toUtf8(c.getString()), descriptor);
 		return new Group(new GroupId(hash), c, descriptor);
 	}
