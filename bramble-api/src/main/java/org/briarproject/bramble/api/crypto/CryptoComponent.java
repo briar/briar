@@ -41,11 +41,11 @@ public interface CryptoComponent {
 	 * secret derived for another purpose
 	 * @param theirPublicKey the public key of the remote party
 	 * @param ourKeyPair the key pair of the local party
-	 * @param alice true if the local party is Alice
 	 * @return the shared secret
 	 */
 	SecretKey deriveSharedSecret(String label, PublicKey theirPublicKey,
-			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException;
+			KeyPair ourKeyPair, byte[]... inputs)
+			throws GeneralSecurityException;
 
 	/**
 	 * Signs the given byte[] with the given ECDSA private key.

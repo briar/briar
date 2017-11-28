@@ -87,6 +87,11 @@ public interface IntroductionConstants {
 	int TASK_ABORT = 2;
 
 	/**
+	 * The current version of the introduction protocol.
+	 */
+	int PROTOCOL_VERSION = 0;
+
+	/**
 	 * Label for deriving the shared secret.
 	 */
 	String SHARED_SECRET_LABEL =

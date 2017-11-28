@@ -76,6 +76,7 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.OUR_
 import static org.briarproject.briar.api.introduction.IntroductionConstants.OUR_SIGNATURE;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.OUR_TIME;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.OUR_TRANSPORT;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.PROTOCOL_VERSION;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.PUBLIC_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
@@ -433,8 +434,13 @@ class IntroduceeManager {
 
 		// The shared secret is derived from the local ephemeral key pair
 		// and the remote ephemeral public key
+		byte[][] inputs = {
+				new byte[] {PROTOCOL_VERSION},
+				alice ? ourPublicKeyBytes : theirPublicKeyBytes,
+				alice ? theirPublicKeyBytes : ourPublicKeyBytes
+		};
 		return cryptoComponent.deriveSharedSecret(SHARED_SECRET_LABEL,
-				theirPublicKey, ourKeyPair, alice);
+				theirPublicKey, ourKeyPair, inputs);
 	}
 
 	/**

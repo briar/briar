@@ -18,6 +18,7 @@ import org.junit.Test;
 
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.MASTER_SECRET_LABEL;
+import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.SHARED_SECRET_LABEL;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
@@ -90,6 +91,10 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(alicePubKeyBytes));
 			allowing(crypto).getAgreementKeyParser();
 			will(returnValue(keyParser));
+			allowing(alicePubKey).getEncoded();
+			will(returnValue(alicePubKeyBytes));
+			allowing(bobPubKey).getEncoded();
+			will(returnValue(bobPubKeyBytes));
 
 			// Alice sends her public key
 			oneOf(transport).sendKey(alicePubKeyBytes);
@@ -108,7 +113,8 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 
 			// Alice computes shared secret
 			oneOf(crypto).deriveSharedSecret(SHARED_SECRET_LABEL, bobPubKey,
-					ourKeyPair, true);
+					ourKeyPair, new byte[] {PROTOCOL_VERSION},
+					alicePubKeyBytes, bobPubKeyBytes);
 			will(returnValue(sharedSecret));
 
 			// Alice sends her confirmation record
@@ -161,6 +167,10 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(bobPubKeyBytes));
 			allowing(crypto).getAgreementKeyParser();
 			will(returnValue(keyParser));
+			allowing(alicePubKey).getEncoded();
+			will(returnValue(alicePubKeyBytes));
+			allowing(bobPubKey).getEncoded();
+			will(returnValue(bobPubKeyBytes));
 
 			// Bob receives Alice's public key
 			oneOf(transport).receiveKey();
@@ -178,7 +188,8 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 
 			// Bob computes shared secret
 			oneOf(crypto).deriveSharedSecret(SHARED_SECRET_LABEL, alicePubKey,
-					ourKeyPair, false);
+					ourKeyPair, new byte[] {PROTOCOL_VERSION},
+					alicePubKeyBytes, bobPubKeyBytes);
 			will(returnValue(sharedSecret));
 
 			// Bob receives Alices's confirmation record
@@ -246,7 +257,8 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 
 			// Alice never computes shared secret
 			never(crypto).deriveSharedSecret(SHARED_SECRET_LABEL, badPubKey,
-					ourKeyPair, true);
+					ourKeyPair, new byte[] {PROTOCOL_VERSION},
+					alicePubKeyBytes, bobPubKeyBytes);
 		}});
 
 		// execute
@@ -317,6 +329,8 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(alicePubKeyBytes));
 			allowing(crypto).getAgreementKeyParser();
 			will(returnValue(keyParser));
+			allowing(bobPubKey).getEncoded();
+			will(returnValue(bobPubKeyBytes));
 
 			// Alice sends her public key
 			oneOf(transport).sendKey(alicePubKeyBytes);
@@ -335,7 +349,8 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 
 			// Alice computes shared secret
 			oneOf(crypto).deriveSharedSecret(SHARED_SECRET_LABEL, bobPubKey,
-					ourKeyPair, true);
+					ourKeyPair, new byte[] {PROTOCOL_VERSION},
+					alicePubKeyBytes, bobPubKeyBytes);
 			will(returnValue(sharedSecret));
 
 			// Alice sends her confirmation record
@@ -389,6 +404,8 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(bobPubKeyBytes));
 			allowing(crypto).getAgreementKeyParser();
 			will(returnValue(keyParser));
+			allowing(alicePubKey).getEncoded();
+			will(returnValue(alicePubKeyBytes));
 
 			// Bob receives Alice's public key
 			oneOf(transport).receiveKey();
@@ -406,7 +423,8 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 
 			// Bob computes shared secret
 			oneOf(crypto).deriveSharedSecret(SHARED_SECRET_LABEL, alicePubKey,
-					ourKeyPair, false);
+					ourKeyPair, new byte[] {PROTOCOL_VERSION},
+					alicePubKeyBytes, bobPubKeyBytes);
 			will(returnValue(sharedSecret));
 
 			// Bob receives a bad confirmation record

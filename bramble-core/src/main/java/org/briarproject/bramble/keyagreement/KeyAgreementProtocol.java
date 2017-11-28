@@ -15,6 +15,7 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.MASTER_SECRET_LABEL;
+import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.SHARED_SECRET_LABEL;
 
 /**
@@ -142,8 +143,15 @@ class KeyAgreementProtocol {
 	private SecretKey deriveSharedSecret(PublicKey theirPublicKey)
 			throws AbortException {
 		try {
+			byte[] ourPublicKeyBytes = ourKeyPair.getPublic().getEncoded();
+			byte[] theirPublicKeyBytes = theirPublicKey.getEncoded();
+			byte[][] inputs = {
+					new byte[] {PROTOCOL_VERSION},
+					alice ? ourPublicKeyBytes : theirPublicKeyBytes,
+					alice ? theirPublicKeyBytes : ourPublicKeyBytes
+			};
 			return crypto.deriveSharedSecret(SHARED_SECRET_LABEL,
-					theirPublicKey, ourKeyPair, alice);
+					theirPublicKey, ourKeyPair, inputs);
 		} catch (GeneralSecurityException e) {
 			throw new AbortException(e);
 		}

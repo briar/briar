@@ -227,18 +227,15 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	@Override
 	public SecretKey deriveSharedSecret(String label, PublicKey theirPublicKey,
-			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
+			KeyPair ourKeyPair, byte[]... inputs)
+			throws GeneralSecurityException {
 		PrivateKey ourPriv = ourKeyPair.getPrivate();
-		byte[] raw = performRawKeyAgreement(ourPriv, theirPublicKey);
-		byte[] alicePub, bobPub;
-		if (alice) {
-			alicePub = ourKeyPair.getPublic().getEncoded();
-			bobPub = theirPublicKey.getEncoded();
-		} else {
-			alicePub = theirPublicKey.getEncoded();
-			bobPub = ourKeyPair.getPublic().getEncoded();
-		}
-		return new SecretKey(hash(label, raw, alicePub, bobPub));
+		byte[][] hashInputs = new byte[inputs.length + 1][];
+		hashInputs[0] = performRawKeyAgreement(ourPriv, theirPublicKey);
+		System.arraycopy(inputs, 0, hashInputs, 1, inputs.length);
+		byte[] hash = hash(label, hashInputs);
+		if (hash.length != SecretKey.LENGTH) throw new IllegalStateException();
+		return new SecretKey(hash);
 	}
 
 	@Override
