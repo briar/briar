@@ -58,8 +58,7 @@ public class LargeTextInputView extends TextInputView {
 		if (buttonText != null) setButtonText(buttonText);
 		if (maxLines > 0) ui.editText.setMaxLines(maxLines);
 		if (fillHeight) {
-			LinearLayout layout =
-					(LinearLayout) findViewById(R.id.input_layout);
+			LinearLayout layout = findViewById(R.id.input_layout);
 			LayoutParams params = (LayoutParams) layout.getLayoutParams();
 			params.height = 0;
 			params.weight = 1;

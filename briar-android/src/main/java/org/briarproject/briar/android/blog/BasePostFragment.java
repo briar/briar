@@ -58,7 +58,7 @@ abstract class BasePostFragment extends BaseFragment {
 
 		View view = inflater.inflate(R.layout.fragment_blog_post, container,
 				false);
-		progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+		progressBar = view.findViewById(R.id.progressBar);
 		progressBar.setVisibility(VISIBLE);
 		ui = new BlogPostViewHolder(view, true, new OnBlogPostClickListener() {
 			@Override

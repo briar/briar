@@ -6,7 +6,7 @@ dependencies {
 	implementation project(path: ':bramble-core', configuration: 'default')
 	implementation project(path: ':bramble-android', configuration: 'default')
 
-	def supportVersion = '23.2.1'
+	def supportVersion = '27.0.1'
 	implementation "com.android.support:support-v4:$supportVersion"
 	implementation("com.android.support:appcompat-v7:$supportVersion") {
 		exclude module: 'support-v4'
@@ -32,7 +32,7 @@ dependencies {
 	implementation 'com.google.zxing:core:3.3.0'
 	implementation 'com.jpardogo.materialtabstrip:library:1.1.0'
 	implementation 'com.github.bumptech.glide:glide:3.8.0'
-	implementation 'uk.co.samuelwall:material-tap-target-prompt:1.9.2'
+	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.1.0'
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
 
@@ -53,6 +53,9 @@ dependencies {
 
 dependencyVerification {
 	verify = [
+			'android.arch.core:common:1.0.0:common-1.0.0.jar:5192934cd73df32e2c15722ed7fc488dde90baaec9ae030010dd1a80fb4e74e1',
+			'android.arch.lifecycle:common:1.0.0:common-1.0.0.jar:86bf301a20ad0cd0a391e22a52e6fbf90575c096ff83233fa9fd0d52b3219121',
+			'android.arch.lifecycle:runtime:1.0.0:runtime-1.0.0.aar:e4e34e5d02bd102e8d39ddbc29f9ead8a15a61e367993d02238196ac48509ad8',
 			'backport-util-concurrent:backport-util-concurrent:3.1:backport-util-concurrent-3.1.jar:f5759b7fcdfc83a525a036deedcbd32e5b536b625ebc282426f16ca137eb5902',
 			'cglib:cglib:3.2.0:cglib-3.2.0.jar:adb13bab79712ad6bdf1bd59f2a3918018a8016e722e8a357065afb9e6690861',
 			'ch.acra:acra:4.8.5:acra-4.8.5.aar:afd5b28934d5166b55f261c85685ad59e8a4ebe9ca1960906afaa8c76d8dc9eb',
@@ -60,16 +63,22 @@ dependencyVerification {
 			'com.almworks.sqlite4java:sqlite4java:0.282:sqlite4java-0.282.jar:9e1d8dd83ca6003f841e3af878ce2dc7c22497493a7bb6d1b62ec1b0d0a83c05',
 			'com.android.support.constraint:constraint-layout-solver:1.0.2:constraint-layout-solver-1.0.2.jar:8c62525a9bc5cff5633a96cb9b32fffeccaf41b8841aa87fc22607070dea9b8d',
 			'com.android.support.constraint:constraint-layout:1.0.2:constraint-layout-1.0.2.aar:b0c688cc2b7172608f8153a689d746da40f71e52d7e2fe2bfd9df2f92db77085',
-			'com.android.support:animated-vector-drawable:23.2.1:animated-vector-drawable-23.2.1.aar:06d1963b85aa917099d7757e6a7b3e4dc06889413dc747f625ae8683606db3a1',
-			'com.android.support:appcompat-v7:23.2.1:appcompat-v7-23.2.1.aar:00f9d93acacd6731f309724054bf51492814b4b2869f16d7d5c0038dcb8c9a0d',
-			'com.android.support:cardview-v7:23.2.1:cardview-v7-23.2.1.aar:4595f1c4a28cfa083b6c0920ad4d49e1c2ca4b8302a955e548f68eb63b74931b',
-			'com.android.support:design:23.2.1:design-23.2.1.aar:003e0c0bea0a6891f8b2bc43f20ae7af2a49a17363e5bb10df5ee0bae12fa686',
-			'com.android.support:preference-v14:23.2.1:preference-v14-23.2.1.aar:44881bb46094e86d0bc2426f205419674a5b4eb514b44b5a4659b5de29f71eb7',
-			'com.android.support:preference-v7:23.2.1:preference-v7-23.2.1.aar:775101bd07bd052e455761c5c5d9523d7ad59f2f320e3e8cbde241fd6b1d6025',
-			'com.android.support:recyclerview-v7:23.2.1:recyclerview-v7-23.2.1.aar:44040a888e23e0c93162a3377cfe06751080e3c22d369ab0d4301ef60d63b0fe',
-			'com.android.support:support-annotations:23.4.0:support-annotations-23.4.0.jar:e91a88dd0c5e99069b7f09d4a46b5e06f1e9c4c72fc0a8e987e25d86af480f01',
-			'com.android.support:support-v4:23.2.1:support-v4-23.2.1.aar:81ce890f26d35c75ad17d0f998a7e3230330c3b41e0b629566bc744bee89e448',
-			'com.android.support:support-vector-drawable:23.2.1:support-vector-drawable-23.2.1.aar:799bafe4c3de812386f0b291f744d5d6876452722dd40189b9ab87dbbf594ea1',
+			'com.android.support:animated-vector-drawable:27.0.1:animated-vector-drawable-27.0.1.aar:365050110411c86c7eec86101b49ab53557ffe6667f60b19055f1d35c38a577b',
+			'com.android.support:appcompat-v7:27.0.1:appcompat-v7-27.0.1.aar:1402c29a49db30346c21a7d40634461765b3ab826f5dd95bc4dcc76787b21851',
+			'com.android.support:cardview-v7:27.0.1:cardview-v7-27.0.1.aar:43fccd44086c51eaa9d78be2fcf0dfea1556c8876a6fd325ea8d24e860054202',
+			'com.android.support:design:27.0.1:design-27.0.1.aar:0e7c694bd5385e82d193e33b7289f769ce6ff05e277443daf5bffc3d852ef448',
+			'com.android.support:preference-v14:27.0.1:preference-v14-27.0.1.aar:beed3ee97ae0d2541bd0adac6c84bb7d7b7580399f24e8efb9bc624161b164df',
+			'com.android.support:preference-v7:27.0.1:preference-v7-27.0.1.aar:d87ba6ae7c834fd68ef09cbc0f064975627ba14189dbef639c34080691366da9',
+			'com.android.support:recyclerview-v7:27.0.1:recyclerview-v7-27.0.1.aar:99ae2863287df800f239617d09cafc58b95f7a5365db32e3761394fa01ab12c9',
+			'com.android.support:support-annotations:27.0.1:support-annotations-27.0.1.jar:240912b779fe7413bdd97c94ac2a92d1fb29bd53c4d50c6982e5942b01278ac0',
+			'com.android.support:support-compat:27.0.1:support-compat-27.0.1.aar:70dfd92561421e5ae113dfc4045fc94c90caca9912839b3d08c793aa391aedcc',
+			'com.android.support:support-core-ui:27.0.1:support-core-ui-27.0.1.aar:91614f829f8a6f1fc2d28efc58ea2735212225ab02cdf768b3dd9af72371d5f0',
+			'com.android.support:support-core-utils:27.0.1:support-core-utils-27.0.1.aar:b33c5a5d67b8bfa6c8829875661779279157bf23e6042179820eaf1745034a72',
+			'com.android.support:support-fragment:27.0.1:support-fragment-27.0.1.aar:05a859783ae4a285c6d5c9865e1242b86f5bfb69a30455ca6c8495f24c09d9ed',
+			'com.android.support:support-media-compat:27.0.1:support-media-compat-27.0.1.aar:bc1c0252c1d071a1676fd280a792cf0717833fb3afd0ef73070ddc51ef921ad7',
+			'com.android.support:support-v4:27.0.1:support-v4-27.0.1.aar:afd802f1926475f40c5b6b42855c9a626a854298908dafdb455deb6dab2640f2',
+			'com.android.support:support-vector-drawable:27.0.1:support-vector-drawable-27.0.1.aar:67154ea191f735496502214bc6da6195738829a8e9d59e8042a1e030a2c7f19c',
+			'com.android.support:transition:27.0.1:transition-27.0.1.aar:8a46d152391bd1598d1778ae889b3aeaff77a17d0caaa29446df6e26a28c4e4b',
 			'com.github.bumptech.glide:glide:3.8.0:glide-3.8.0.jar:750d9e7b940dc0ee48f8680623b55d46e14e8727acc922d7b156e57e7c549655',
 			'com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:2.1:accessibility-test-framework-2.1.jar:7b0aa6ed7553597ce0610684a9f7eca8021eee218f2e2f427c04a7fbf5f920bd',
 			'com.google.code.findbugs:jsr305:3.0.2:jsr305-3.0.2.jar:766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7',
@@ -147,9 +156,10 @@ dependencyVerification {
 			'org.robolectric:sandbox:3.5.1:sandbox-3.5.1.jar:beff8c3c1e840e0f7f78aadef170f347bae349f098babfc176765f499a4bcbb5',
 			'org.robolectric:shadowapi:3.5.1:shadowapi-3.5.1.jar:6d574f9ae0922791eb8f06979f0010997d4b862c7aec96d485ae797ddfc13278',
 			'org.robolectric:shadows-framework:3.5.1:shadows-framework-3.5.1.jar:597b54cc1a494799d783921c6ac04352f33e94fca8e00f299d4ca192db79e3fc',
+			'org.robolectric:shadows-support-v4:3.0:shadows-support-v4-3.0.jar:66bcc3257b037d72998e860d67b1bc58215b7eeac8ad860fcc3e613332d88619',
 			'org.robolectric:utils:3.5.1:utils-3.5.1.jar:d7d77326867e6d903156ebb18c244819b26aebe3aa82a1c57081081a0b6c4f63',
 			'org.slf4j:slf4j-api:1.7.16:slf4j-api-1.7.16.jar:e56288031f5e60652c06e7bb6e9fa410a61231ab54890f7b708fc6adc4107c5b',
-			'uk.co.samuelwall:material-tap-target-prompt:1.9.2:material-tap-target-prompt-1.9.2.aar:5d4951124366bc5c52e57beaa294db7611f0aa2a8d80e0163e1383e1966ba5b2',
+			'uk.co.samuelwall:material-tap-target-prompt:2.1.0:material-tap-target-prompt-2.1.0.aar:6df17e7c371f9264bfe440506f91205dd47566869c1528891943a04a26c96a94',
 			'xmlpull:xmlpull:1.1.3.1:xmlpull-1.1.3.1.jar:34e08ee62116071cbb69c0ed70d15a7a5b208d62798c59f2120bb8929324cb63',
 			'xpp3:xpp3_min:1.1.4c:xpp3_min-1.1.4c.jar:bfc90e9e32d0eab1f397fb974b5f150a815188382ac41f372a7149d5bc178008',
 	]
@@ -169,12 +179,12 @@ def getGitHash = { ->
 }
 
 android {
-	compileSdkVersion 26
+	compileSdkVersion 27
 	buildToolsVersion '26.0.2'
 
 	defaultConfig {
 		minSdkVersion 14
-		targetSdkVersion 22
+		targetSdkVersion 26
 		versionCode 1611
 		versionName "0.16.11"
 		applicationId "org.briarproject.briar.beta"

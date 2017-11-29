@@ -85,9 +85,9 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 		groupId = new GroupId(b);
 		getController().setGroupId(groupId);
 
-		textInput = (TextInputView) findViewById(R.id.text_input_container);
+		textInput = findViewById(R.id.text_input_container);
 		textInput.setListener(this);
-		list = (BriarRecyclerView) findViewById(R.id.list);
+		list = findViewById(R.id.list);
 		layoutManager = new LinearLayoutManager(this);
 		list.setLayoutManager(layoutManager);
 		adapter = createAdapter(layoutManager);
@@ -114,8 +114,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 						}
 					}
 				});
-		upButton = (UnreadMessageButton) findViewById(R.id.upButton);
-		downButton = (UnreadMessageButton) findViewById(R.id.downButton);
+		upButton = findViewById(R.id.upButton);
+		downButton = findViewById(R.id.downButton);
 		upButton.setOnClickListener(v -> {
 			int position = adapter.getVisibleUnreadPosTop();
 			if (position != NO_POSITION) {

@@ -40,7 +40,7 @@ public abstract class BaseMessageFragment extends BaseFragment
 		// inflate view
 		View v = inflater.inflate(R.layout.fragment_message, container,
 				false);
-		message = (LargeTextInputView) v.findViewById(R.id.messageView);
+		message = v.findViewById(R.id.messageView);
 		message.setButtonText(getString(getButtonText()));
 		message.setHint(getHintText());
 		message.setListener(this);

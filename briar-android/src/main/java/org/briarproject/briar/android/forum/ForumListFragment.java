@@ -92,7 +92,7 @@ public class ForumListFragment extends BaseEventFragment implements
 
 		adapter = new ForumListAdapter(getActivity());
 
-		list = (BriarRecyclerView) contentView.findViewById(R.id.forumList);
+		list = contentView.findViewById(R.id.forumList);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_forums));

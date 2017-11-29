@@ -19,7 +19,7 @@ class ConversationNoticeInViewHolder extends ConversationItemViewHolder {
 
 	ConversationNoticeInViewHolder(View v) {
 		super(v);
-		msgText = (TextView) v.findViewById(R.id.msgText);
+		msgText = v.findViewById(R.id.msgText);
 	}
 
 	@Override

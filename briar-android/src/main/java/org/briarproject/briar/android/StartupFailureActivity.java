@@ -38,7 +38,7 @@ public class StartupFailureActivity extends BaseActivity {
 		}
 
 		// show proper error message
-		TextView view = (TextView) findViewById(R.id.errorView);
+		TextView view = findViewById(R.id.errorView);
 		if (result.equals(StartResult.DB_ERROR)) {
 			view.setText(getText(R.string.startup_failed_db_error));
 		} else if (result.equals(StartResult.SERVICE_ERROR)) {

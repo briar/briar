@@ -78,7 +78,7 @@ public class ContactChooserFragment extends BaseFragment {
 				};
 		adapter = new ContactListAdapter(getActivity(), onContactClickListener);
 
-		list = (BriarRecyclerView) contentView.findViewById(R.id.list);
+		list = contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_contacts));

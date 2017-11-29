@@ -72,11 +72,10 @@ public class EmojiDrawer extends LinearLayout {
 	}
 
 	private void initializeResources(View v) {
-		this.pager = (ViewPager) v.findViewById(R.id.emoji_pager);
-		this.strip = (PagerSlidingTabStrip) v.findViewById(R.id.tabs);
+		this.pager = v.findViewById(R.id.emoji_pager);
+		this.strip = v.findViewById(R.id.tabs);
 
-		RepeatableImageKey backspace =
-				(RepeatableImageKey) v.findViewById(R.id.backspace);
+		RepeatableImageKey backspace = v.findViewById(R.id.backspace);
 		backspace.setOnKeyEventListener(() -> {
 			if (listener != null) listener.onKeyEvent(DELETE_KEY_EVENT);
 		});

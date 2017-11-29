@@ -22,9 +22,9 @@ class ConversationItemViewHolder extends ViewHolder {
 
 	ConversationItemViewHolder(View v) {
 		super(v);
-		layout = (ViewGroup) v.findViewById(R.id.layout);
-		text = (TextView) v.findViewById(R.id.text);
-		time = (TextView) v.findViewById(R.id.time);
+		layout = v.findViewById(R.id.layout);
+		text = v.findViewById(R.id.text);
+		time = v.findViewById(R.id.time);
 	}
 
 	@CallSuper

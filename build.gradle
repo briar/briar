@@ -4,9 +4,7 @@ allprojects {
 	repositories {
 		jcenter()
 		mavenLocal()
-		maven {
-			url 'https://maven.google.com'
-		}
+		google()
 	}
 }
 
@@ -14,14 +12,14 @@ buildscript {
 	repositories {
 		jcenter()
 		mavenLocal()
-		maven {
-			url "https://plugins.gradle.org/m2/"
-		}
 		google()
+		maven {
+			url 'https://plugins.gradle.org/m2/'
+		}
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:3.0.0'
+		classpath 'com.android.tools.build:gradle:3.0.1'
 		classpath 'net.ltgt.gradle:gradle-apt-plugin:0.9'
 		classpath 'de.undercouch:gradle-download-task:3.2.0'
 		classpath files('libs/gradle-witness.jar')

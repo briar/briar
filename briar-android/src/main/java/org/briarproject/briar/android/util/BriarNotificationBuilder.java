@@ -3,8 +3,8 @@ package org.briarproject.briar.android.util;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.ColorRes;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.NotificationCompat;
 
 import static android.support.v4.app.NotificationCompat.VISIBILITY_PRIVATE;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;

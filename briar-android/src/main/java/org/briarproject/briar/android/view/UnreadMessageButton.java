@@ -39,8 +39,8 @@ public class UnreadMessageButton extends FrameLayout {
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		inflater.inflate(R.layout.unread_message_button, this, true);
 
-		fab = (FloatingActionButton) findViewById(R.id.fab);
-		unread = (TextView) findViewById(R.id.unreadCountView);
+		fab = findViewById(R.id.fab);
+		unread = findViewById(R.id.unreadCountView);
 
 		TypedArray attributes = context.obtainStyledAttributes(attrs,
 				R.styleable.UnreadMessageButton);

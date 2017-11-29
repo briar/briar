@@ -48,13 +48,13 @@ public class GroupMemberListActivity extends BriarActivity {
 		if (b == null) throw new IllegalStateException("No GroupId in intent.");
 		groupId = new GroupId(b);
 
-		list = (BriarRecyclerView) findViewById(R.id.list);
+		list = findViewById(R.id.list);
 		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
 		list.setLayoutManager(linearLayoutManager);
 		adapter = new MemberListAdapter(this);
 		list.setAdapter(adapter);
 
-		TextView info = (TextView) findViewById(R.id.info);
+		TextView info = findViewById(R.id.info);
 		info.setText(R.string.sharing_status_groups);
 	}
 

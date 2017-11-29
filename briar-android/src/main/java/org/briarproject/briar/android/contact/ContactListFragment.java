@@ -143,7 +143,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 					}
 				};
 		adapter = new ContactListAdapter(getContext(), onContactClickListener);
-		list = (BriarRecyclerView) contentView.findViewById(R.id.list);
+		list = contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_contacts));

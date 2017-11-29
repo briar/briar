@@ -92,7 +92,7 @@ public class BlogFragment extends BaseFragment
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
 		adapter = new BlogPostAdapter(getActivity(), this);
-		list = (BriarRecyclerView) v.findViewById(R.id.postList);
+		list = v.findViewById(R.id.postList);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
 		list.showProgressBar();

@@ -22,9 +22,9 @@ class MemberListItemHolder extends RecyclerView.ViewHolder {
 
 	MemberListItemHolder(View v) {
 		super(v);
-		author = (AuthorView) v.findViewById(R.id.authorView);
-		bulb = (ImageView) v.findViewById(R.id.bulbView);
-		creator = (TextView) v.findViewById(R.id.creatorView);
+		author = v.findViewById(R.id.authorView);
+		bulb = v.findViewById(R.id.bulbView);
+		creator = v.findViewById(R.id.creatorView);
 	}
 
 	protected void bind(MemberListItem item) {

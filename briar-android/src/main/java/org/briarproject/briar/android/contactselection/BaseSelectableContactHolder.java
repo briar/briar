@@ -24,8 +24,8 @@ public class BaseSelectableContactHolder<I extends SelectableContactItem>
 
 	public BaseSelectableContactHolder(View v) {
 		super(v);
-		checkBox = (CheckBox) v.findViewById(R.id.checkBox);
-		info = (TextView) v.findViewById(R.id.infoView);
+		checkBox = v.findViewById(R.id.checkBox);
+		info = v.findViewById(R.id.infoView);
 	}
 
 	@Override

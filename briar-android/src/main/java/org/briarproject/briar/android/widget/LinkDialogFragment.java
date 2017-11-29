@@ -48,7 +48,7 @@ public class LinkDialogFragment extends DialogFragment {
 		View v = inflater.inflate(R.layout.fragment_link_dialog, container,
 				false);
 
-		TextView urlView = (TextView) v.findViewById(R.id.urlView);
+		TextView urlView = v.findViewById(R.id.urlView);
 		urlView.setText(url);
 
 		// prepare normal intent or intent chooser
@@ -60,13 +60,13 @@ public class LinkDialogFragment extends DialogFragment {
 		Intent intent = choice ? Intent.createChooser(i,
 				getString(R.string.link_warning_open_link)) : i;
 
-		Button openButton = (Button) v.findViewById(R.id.openButton);
+		Button openButton = v.findViewById(R.id.openButton);
 		openButton.setOnClickListener(v1 -> {
 			startActivity(intent);
 			getDialog().dismiss();
 		});
 
-		Button cancelButton = (Button) v.findViewById(R.id.cancelButton);
+		Button cancelButton = v.findViewById(R.id.cancelButton);
 		cancelButton.setOnClickListener(v1 -> getDialog().cancel());
 
 		return v;

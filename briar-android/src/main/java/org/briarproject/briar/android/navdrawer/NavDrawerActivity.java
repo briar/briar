@@ -109,10 +109,10 @@ public class NavDrawerActivity extends BriarActivity implements
 		exitIfStartupFailed(getIntent());
 		setContentView(R.layout.activity_nav_drawer);
 
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		navigation = (NavigationView) findViewById(R.id.navigation);
-		GridView transportsView = (GridView) findViewById(R.id.transportsView);
+		Toolbar toolbar = findViewById(R.id.toolbar);
+		drawerLayout = findViewById(R.id.drawer_layout);
+		navigation = findViewById(R.id.navigation);
+		GridView transportsView = findViewById(R.id.transportsView);
 
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -294,12 +294,12 @@ public class NavDrawerActivity extends BriarActivity implements
 		if (daysUntilExpiry < 0) signOut();
 
 		// show expiry warning text
-		ViewGroup expiryWarning = (ViewGroup) findViewById(R.id.expiryWarning);
+		ViewGroup expiryWarning = findViewById(R.id.expiryWarning);
 		TextView expiryWarningText =
-				(TextView) expiryWarning.findViewById(R.id.expiryWarningText);
+				expiryWarning.findViewById(R.id.expiryWarningText);
 		// make close button functional
 		ImageView expiryWarningClose =
-				(ImageView) expiryWarning.findViewById(R.id.expiryWarningClose);
+				expiryWarning.findViewById(R.id.expiryWarningClose);
 
 		// show a different snackbar in green if this is an update
 		if (expiry == UPDATE) {
@@ -386,12 +386,12 @@ public class NavDrawerActivity extends BriarActivity implements
 							android.R.color.tertiary_text_light);
 				}
 
-				ImageView icon = (ImageView) view.findViewById(R.id.imageView);
+				ImageView icon = view.findViewById(R.id.imageView);
 				icon.setImageDrawable(ContextCompat
 						.getDrawable(NavDrawerActivity.this, t.iconId));
 				icon.setColorFilter(c);
 
-				TextView text = (TextView) view.findViewById(R.id.textView);
+				TextView text = view.findViewById(R.id.textView);
 				text.setText(getString(t.textId));
 
 				return view;

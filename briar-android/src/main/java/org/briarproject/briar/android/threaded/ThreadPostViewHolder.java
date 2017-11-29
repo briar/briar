@@ -28,7 +28,7 @@ public class ThreadPostViewHolder<I extends ThreadItem>
 	public ThreadPostViewHolder(View v) {
 		super(v);
 
-		lvlText = (TextView) v.findViewById(R.id.nested_line_text);
+		lvlText = v.findViewById(R.id.nested_line_text);
 		lvls = new View[nestedLineIds.length];
 		for (int i = 0; i < lvls.length; i++) {
 			lvls[i] = v.findViewById(nestedLineIds[i]);

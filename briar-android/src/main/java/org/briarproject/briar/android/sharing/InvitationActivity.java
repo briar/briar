@@ -44,7 +44,7 @@ public abstract class InvitationActivity<I extends InvitationItem>
 		setContentView(R.layout.list);
 
 		adapter = getAdapter(this, this);
-		list = (BriarRecyclerView) findViewById(R.id.list);
+		list = findViewById(R.id.list);
 		if (list != null) {
 			list.setLayoutManager(new LinearLayoutManager(this));
 			list.setAdapter(adapter);

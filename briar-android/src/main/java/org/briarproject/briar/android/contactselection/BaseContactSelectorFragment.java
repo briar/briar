@@ -67,7 +67,7 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 
 		View contentView = inflater.inflate(R.layout.list, container, false);
 
-		list = (BriarRecyclerView) contentView.findViewById(R.id.list);
+		list = contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setEmptyText(getString(R.string.no_contacts_selector));
 		adapter = getAdapter(getContext(), this);

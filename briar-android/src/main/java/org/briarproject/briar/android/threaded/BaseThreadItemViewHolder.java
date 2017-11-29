@@ -34,9 +34,9 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 	public BaseThreadItemViewHolder(View v) {
 		super(v);
 
-		layout = (ViewGroup) v.findViewById(R.id.layout);
-		textView = (TextView) v.findViewById(R.id.text);
-		author = (AuthorView) v.findViewById(R.id.author);
+		layout = v.findViewById(R.id.layout);
+		textView = v.findViewById(R.id.text);
+		author = v.findViewById(R.id.author);
 	}
 
 	@CallSuper

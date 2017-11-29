@@ -54,9 +54,8 @@ public class CreateForumActivity extends BriarActivity {
 
 		setContentView(R.layout.activity_create_forum);
 
-		nameEntryLayout =
-				(TextInputLayout) findViewById(R.id.createForumNameLayout);
-		nameEntry = (EditText) findViewById(R.id.createForumNameEntry);
+		nameEntryLayout = findViewById(R.id.createForumNameLayout);
+		nameEntry = findViewById(R.id.createForumNameEntry);
 		nameEntry.addTextChangedListener(new TextWatcher() {
 
 			@Override
@@ -79,10 +78,10 @@ public class CreateForumActivity extends BriarActivity {
 			return true;
 		});
 
-		createForumButton = (Button) findViewById(R.id.createForumButton);
+		createForumButton = findViewById(R.id.createForumButton);
 		createForumButton.setOnClickListener(v -> createForum());
 
-		progress = (ProgressBar) findViewById(R.id.createForumProgressBar);
+		progress = findViewById(R.id.createForumProgressBar);
 	}
 
 	@Override

@@ -40,16 +40,14 @@ public class PasswordFragment extends SetupFragment {
 		View v = inflater.inflate(R.layout.fragment_setup_password, container,
 						false);
 
-		strengthMeter = (StrengthMeter) v.findViewById(R.id.strength_meter);
-		passwordEntryWrapper =
-				(TextInputLayout) v.findViewById(R.id.password_entry_wrapper);
-		passwordEntry = (TextInputEditText) v.findViewById(R.id.password_entry);
+		strengthMeter = v.findViewById(R.id.strength_meter);
+		passwordEntryWrapper = v.findViewById(R.id.password_entry_wrapper);
+		passwordEntry = v.findViewById(R.id.password_entry);
 		passwordConfirmationWrapper =
-				(TextInputLayout) v.findViewById(R.id.password_confirm_wrapper);
-		passwordConfirmation =
-				(TextInputEditText) v.findViewById(R.id.password_confirm);
-		nextButton = (Button) v.findViewById(R.id.next);
-		progressBar = (ProgressBar) v.findViewById(R.id.progress);
+				v.findViewById(R.id.password_confirm_wrapper);
+		passwordConfirmation = v.findViewById(R.id.password_confirm);
+		nextButton = v.findViewById(R.id.next);
+		progressBar = v.findViewById(R.id.progress);
 
 		passwordEntry.addTextChangedListener(this);
 		passwordConfirmation.addTextChangedListener(this);

@@ -33,11 +33,10 @@ public class TextAvatarView extends FrameLayout {
 
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		inflater
-				.inflate(R.layout.text_avatar_view, this, true);
-		character = (AppCompatTextView) findViewById(R.id.textAvatarView);
-		background = (CircleImageView) findViewById(R.id.avatarBackground);
-		badge = (TextView) findViewById(R.id.unreadCountView);
+		inflater.inflate(R.layout.text_avatar_view, this, true);
+		character = findViewById(R.id.textAvatarView);
+		background = findViewById(R.id.avatarBackground);
+		badge = findViewById(R.id.unreadCountView);
 		badge.setVisibility(INVISIBLE);
 	}
 

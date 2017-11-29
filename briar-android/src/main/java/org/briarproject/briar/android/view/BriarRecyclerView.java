@@ -67,9 +67,9 @@ public class BriarRecyclerView extends FrameLayout {
 		View v = LayoutInflater.from(getContext()).inflate(
 				R.layout.briar_recycler_view, this, true);
 
-		recyclerView = (RecyclerView) v.findViewById(R.id.recyclerView);
-		emptyView = (TextView) v.findViewById(R.id.emptyView);
-		progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
+		recyclerView = v.findViewById(R.id.recyclerView);
+		emptyView = v.findViewById(R.id.emptyView);
+		progressBar = v.findViewById(R.id.progressBar);
 
 		showProgressBar();
 

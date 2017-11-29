@@ -6,12 +6,12 @@ apply plugin: 'witness'
 apply plugin: 'de.undercouch.download'
 
 android {
-	compileSdkVersion 26
+	compileSdkVersion 27
 	buildToolsVersion '26.0.2'
 
 	defaultConfig {
 		minSdkVersion 14
-		targetSdkVersion 22
+		targetSdkVersion 26
 		versionCode 1611
 		versionName "0.16.11"
 		consumerProguardFiles 'proguard-rules.txt'
@@ -90,6 +90,6 @@ def verifyBinary(name, chksum) {
 
 project.afterEvaluate {
 	torBinaries.every { key, value ->
-			preBuild.dependsOn.add(verifyBinary(key, value))
+		preBuild.dependsOn.add(verifyBinary(key, value))
 	}
 }

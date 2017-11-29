@@ -49,20 +49,16 @@ public class ChangePasswordActivity extends BaseActivity
 		setContentView(R.layout.activity_change_password);
 
 		currentPasswordEntryWrapper =
-				(TextInputLayout) findViewById(
-						R.id.current_password_entry_wrapper);
-		newPasswordEntryWrapper =
-				(TextInputLayout) findViewById(R.id.new_password_entry_wrapper);
+				findViewById(R.id.current_password_entry_wrapper);
+		newPasswordEntryWrapper = findViewById(R.id.new_password_entry_wrapper);
 		newPasswordConfirmationWrapper =
-				(TextInputLayout) findViewById(
-						R.id.new_password_confirm_wrapper);
-		currentPassword = (EditText) findViewById(R.id.current_password_entry);
-		newPassword = (EditText) findViewById(R.id.new_password_entry);
-		newPasswordConfirmation =
-				(EditText) findViewById(R.id.new_password_confirm);
-		strengthMeter = (StrengthMeter) findViewById(R.id.strength_meter);
-		changePasswordButton = (Button) findViewById(R.id.change_password);
-		progress = (ProgressBar) findViewById(R.id.progress_wheel);
+				findViewById(R.id.new_password_confirm_wrapper);
+		currentPassword = findViewById(R.id.current_password_entry);
+		newPassword = findViewById(R.id.new_password_entry);
+		newPasswordConfirmation = findViewById(R.id.new_password_confirm);
+		strengthMeter = findViewById(R.id.strength_meter);
+		changePasswordButton = findViewById(R.id.change_password);
+		progress = findViewById(R.id.progress_wheel);
 
 		TextWatcher tw = new TextWatcher() {
 

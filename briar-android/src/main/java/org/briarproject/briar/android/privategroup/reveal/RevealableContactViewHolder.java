@@ -25,7 +25,7 @@ class RevealableContactViewHolder
 	RevealableContactViewHolder(View v) {
 		super(v);
 
-		icon = (ImageView) v.findViewById(R.id.visibilityView);
+		icon = v.findViewById(R.id.visibilityView);
 	}
 
 	@Override
