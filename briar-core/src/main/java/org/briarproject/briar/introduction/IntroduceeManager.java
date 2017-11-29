@@ -98,7 +98,8 @@ class IntroduceeManager {
 	private static final Logger LOG =
 			Logger.getLogger(IntroduceeManager.class.getName());
 
-	static final String SIGNING_LABEL_RESPONSE = CLIENT_ID + "/RESPONSE";
+	static final String SIGNING_LABEL_RESPONSE =
+			CLIENT_ID.getString() + "/RESPONSE";
 
 	private final MessageSender messageSender;
 	private final DatabaseComponent db;

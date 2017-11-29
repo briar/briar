@@ -12,7 +12,7 @@ import static org.briarproject.briar.api.privategroup.invitation.GroupInvitation
 @NotNullByDefault
 public interface GroupInvitationFactory {
 
-	String SIGNING_LABEL_INVITE = CLIENT_ID + "/INVITE";
+	String SIGNING_LABEL_INVITE = CLIENT_ID.getString() + "/INVITE";
 
 	/**
 	 * Returns a signature to include when inviting a member to join a private
