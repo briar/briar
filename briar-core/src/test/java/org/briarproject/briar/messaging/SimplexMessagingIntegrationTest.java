@@ -5,8 +5,6 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
@@ -36,10 +34,12 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
 import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
+import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -47,16 +47,13 @@ import static org.junit.Assert.assertTrue;
 
 public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
-	private final static String ALICE = "Alice";
-	private final static String BOB = "Bob";
-
-	private final File testDir = TestUtils.getTestDirectory();
+	private final File testDir = getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
 	private final File bobDir = new File(testDir, "bob");
-	private final SecretKey master = TestUtils.getSecretKey();
+	private final SecretKey master = getSecretKey();
 	private final long timestamp = System.currentTimeMillis();
-	private final AuthorId aliceId = new AuthorId(TestUtils.getRandomId());
-	private final AuthorId bobId = new AuthorId(TestUtils.getRandomId());
+	private final LocalAuthor aliceAuthor = getLocalAuthor();
+	private final LocalAuthor bobAuthor = getLocalAuthor();
 
 	private SimplexMessagingIntegrationTestComponent alice, bob;
 
@@ -95,12 +92,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		lifecycleManager.startServices(null);
 		lifecycleManager.waitForStartup();
 		// Add an identity for Alice
-		LocalAuthor aliceAuthor = new LocalAuthor(aliceId, "Alice",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp);
 		identityManager.registerLocalAuthor(aliceAuthor);
 		// Add Bob as a contact
-		Author bobAuthor = new Author(bobId, BOB,
-				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = contactManager.addContact(bobAuthor,
 				aliceAuthor.getId(), master, timestamp, true, true, true);
 
@@ -146,12 +139,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		lifecycleManager.startServices(null);
 		lifecycleManager.waitForStartup();
 		// Add an identity for Bob
-		LocalAuthor bobAuthor = new LocalAuthor(bobId, BOB,
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp);
 		identityManager.registerLocalAuthor(bobAuthor);
 		// Add Alice as a contact
-		Author aliceAuthor = new Author(aliceId, ALICE,
-				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = contactManager.addContact(aliceAuthor,
 				bobAuthor.getId(), master, timestamp, false, true, true);
 		// Set up an event listener

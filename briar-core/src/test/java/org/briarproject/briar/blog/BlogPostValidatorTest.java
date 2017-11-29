@@ -7,7 +7,6 @@ import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupFactory;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -16,8 +15,6 @@ import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.system.SystemClock;
-import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.test.BriarTestCase;
@@ -28,11 +25,15 @@ import org.junit.Test;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_COMMENT;
+import static org.briarproject.briar.api.blog.BlogConstants.KEY_FORMAT_VERSION;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_PARENT_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_PARENT_MSG_ID;
@@ -65,27 +66,25 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	private final BlogFactory blogFactory = context.mock(BlogFactory.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
 	private final Author author;
-	private final String body = StringUtils.getRandomString(42);
+	private final String body = getRandomString(42);
 
 	public BlogPostValidatorTest() {
-		GroupId groupId = new GroupId(TestUtils.getRandomId());
-		descriptor = TestUtils.getRandomBytes(42);
+		GroupId groupId = new GroupId(getRandomId());
+		descriptor = getRandomBytes(42);
 		group = new Group(groupId, CLIENT_ID, descriptor);
-		AuthorId authorId =
-				new AuthorId(TestUtils.getRandomBytes(AuthorId.LENGTH));
-		byte[] publicKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		author = new Author(authorId, "Author", publicKey);
+		author = getAuthor();
 		authorDict = BdfDictionary.of(
 				new BdfEntry(KEY_AUTHOR_ID, author.getId()),
+				new BdfEntry(KEY_FORMAT_VERSION, author.getFormatVersion()),
 				new BdfEntry(KEY_AUTHOR_NAME, author.getName()),
 				new BdfEntry(KEY_PUBLIC_KEY, author.getPublicKey())
 		);
 		blog = new Blog(group, author, false);
 		rssBlog = new Blog(group, author, true);
 
-		MessageId messageId = new MessageId(TestUtils.getRandomId());
+		MessageId messageId = new MessageId(getRandomId());
 		long timestamp = System.currentTimeMillis();
-		byte[] raw = TestUtils.getRandomBytes(123);
+		byte[] raw = getRandomBytes(123);
 		message = new Message(messageId, group.getId(), timestamp, raw);
 
 		MetadataEncoder metadataEncoder = context.mock(MetadataEncoder.class);
@@ -110,7 +109,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 
 	private void testValidateProperBlogPost(Blog b, boolean rssFeed)
 			throws IOException, GeneralSecurityException {
-		byte[] sigBytes = TestUtils.getRandomBytes(42);
+		byte[] sigBytes = getRandomBytes(42);
 		BdfList m = BdfList.of(POST.getInt(), body, sigBytes);
 
 		BdfList signed = BdfList.of(b.getId(), message.getTimestamp(), body);
@@ -147,9 +146,9 @@ public class BlogPostValidatorTest extends BriarTestCase {
 			throws IOException, GeneralSecurityException {
 		// comment, parent_original_id, parent_id, signature
 		String comment = "This is a blog comment";
-		MessageId pOriginalId = new MessageId(TestUtils.getRandomId());
-		MessageId currentId = new MessageId(TestUtils.getRandomId());
-		byte[] sigBytes = TestUtils.getRandomBytes(42);
+		MessageId pOriginalId = new MessageId(getRandomId());
+		MessageId currentId = new MessageId(getRandomId());
+		byte[] sigBytes = getRandomBytes(42);
 		BdfList m = BdfList.of(COMMENT.getInt(), comment, pOriginalId,
 				currentId, sigBytes);
 
@@ -172,9 +171,9 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	public void testValidateProperEmptyBlogComment()
 			throws IOException, GeneralSecurityException {
 		// comment, parent_original_id, signature, parent_current_id
-		MessageId originalId = new MessageId(TestUtils.getRandomId());
-		MessageId currentId = new MessageId(TestUtils.getRandomId());
-		byte[] sigBytes = TestUtils.getRandomBytes(42);
+		MessageId originalId = new MessageId(getRandomId());
+		MessageId currentId = new MessageId(getRandomId());
+		byte[] sigBytes = getRandomBytes(42);
 		BdfList m = BdfList.of(COMMENT.getInt(), null, originalId, currentId,
 				sigBytes);
 
@@ -203,7 +202,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	private void testValidateProperWrappedPost(Blog b, boolean rssFeed)
 			throws IOException, GeneralSecurityException {
 		// group descriptor, timestamp, content, signature
-		byte[] sigBytes = TestUtils.getRandomBytes(42);
+		byte[] sigBytes = getRandomBytes(42);
 		BdfList m = BdfList.of(WRAPPED_POST.getInt(), descriptor,
 				message.getTimestamp(), body, sigBytes);
 
@@ -211,7 +210,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		expectCrypto(b, SIGNING_LABEL_POST, signed, sigBytes);
 
 		BdfList originalList = BdfList.of(POST.getInt(), body, sigBytes);
-		byte[] originalBody = TestUtils.getRandomBytes(42);
+		byte[] originalBody = getRandomBytes(42);
 
 		context.checking(new Expectations() {{
 			oneOf(groupFactory).createGroup(CLIENT_ID, CLIENT_VERSION,
@@ -241,10 +240,10 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		// group descriptor, timestamp, comment, parent_original_id, signature,
 		// parent_current_id
 		String comment = "This is another comment";
-		MessageId originalId = new MessageId(TestUtils.getRandomId());
-		MessageId oldId = new MessageId(TestUtils.getRandomId());
-		byte[] sigBytes = TestUtils.getRandomBytes(42);
-		MessageId currentId = new MessageId(TestUtils.getRandomId());
+		MessageId originalId = new MessageId(getRandomId());
+		MessageId oldId = new MessageId(getRandomId());
+		byte[] sigBytes = getRandomBytes(42);
+		MessageId currentId = new MessageId(getRandomId());
 		BdfList m = BdfList.of(WRAPPED_COMMENT.getInt(), descriptor,
 				message.getTimestamp(), comment, originalId, oldId, sigBytes,
 				currentId);
@@ -255,7 +254,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 
 		BdfList originalList = BdfList.of(COMMENT.getInt(), comment,
 				originalId, oldId, sigBytes);
-		byte[] originalBody = TestUtils.getRandomBytes(42);
+		byte[] originalBody = getRandomBytes(42);
 
 		context.checking(new Expectations() {{
 			oneOf(groupFactory).createGroup(CLIENT_ID, CLIENT_VERSION,

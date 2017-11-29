@@ -45,13 +45,15 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_AUTHOR;
+import static org.briarproject.briar.api.forum.ForumConstants.KEY_FORMAT_VERSION;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_ID;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_LOCAL;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_NAME;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_PARENT;
-import static org.briarproject.briar.api.forum.ForumConstants.KEY_PUBLIC_NAME;
+import static org.briarproject.briar.api.forum.ForumConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_TIMESTAMP;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
@@ -149,8 +151,9 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			Author a = p.getAuthor();
 			BdfDictionary authorMeta = new BdfDictionary();
 			authorMeta.put(KEY_ID, a.getId());
+			authorMeta.put(KEY_FORMAT_VERSION, a.getFormatVersion());
 			authorMeta.put(KEY_NAME, a.getName());
-			authorMeta.put(KEY_PUBLIC_NAME, a.getPublicKey());
+			authorMeta.put(KEY_PUBLIC_KEY, a.getPublicKey());
 			meta.put(KEY_AUTHOR, authorMeta);
 			meta.put(KEY_LOCAL, true);
 			meta.put(MSG_KEY_READ, true);
@@ -300,9 +303,11 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			parentId = new MessageId(meta.getRaw(KEY_PARENT));
 		BdfDictionary authorDict = meta.getDictionary(KEY_AUTHOR);
 		AuthorId authorId = new AuthorId(authorDict.getRaw(KEY_ID));
+		int formatVersion = authorDict.getLong(KEY_FORMAT_VERSION).intValue();
+		if (formatVersion != FORMAT_VERSION) throw new FormatException();
 		String name = authorDict.getString(KEY_NAME);
-		byte[] publicKey = authorDict.getRaw(KEY_PUBLIC_NAME);
-		Author author = new Author(authorId, name, publicKey);
+		byte[] publicKey = authorDict.getRaw(KEY_PUBLIC_KEY);
+		Author author = new Author(authorId, formatVersion, name, publicKey);
 		Status status = statuses.get(authorId);
 		if (status == null)
 			status = identityManager.getAuthorStatus(txn, author.getId());

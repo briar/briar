@@ -4,10 +4,8 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.client.BdfMessageContext;
 import org.briarproject.bramble.api.data.BdfDictionary;
-import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.ValidatorTestCase;
@@ -18,9 +16,8 @@ import org.junit.Test;
 
 import java.security.GeneralSecurityException;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -42,194 +39,149 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 	private final MessageEncoder messageEncoder =
 			context.mock(MessageEncoder.class);
 
+	private final Author creator = getAuthor();
+	private final BdfList creatorList = BdfList.of(
+			creator.getFormatVersion(),
+			creator.getName(),
+			creator.getPublicKey()
+	);
 	private final String groupName = getRandomString(MAX_GROUP_NAME_LENGTH);
-	private final String creatorName = getRandomString(MAX_AUTHOR_NAME_LENGTH);
-	private final byte[] creatorKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-	private final Author creator =
-			new Author(new AuthorId(getRandomId()), creatorName, creatorKey);
 	private final byte[] salt = getRandomBytes(GROUP_SALT_LENGTH);
-	private final PrivateGroup privateGroup =
-			new PrivateGroup(group, groupName, creator, salt);
-	private final String inviteText =
+	private final String content =
 			getRandomString(MAX_GROUP_INVITATION_MSG_LENGTH);
 	private final byte[] signature = getRandomBytes(MAX_SIGNATURE_LENGTH);
-	private final BdfDictionary meta =
-			BdfDictionary.of(new BdfEntry("meta", "data"));
+	private final PrivateGroup privateGroup =
+			new PrivateGroup(group, groupName, creator, salt);
+	private final BdfDictionary meta = new BdfDictionary();
 	private final MessageId previousMessageId = new MessageId(getRandomId());
 
 	private final GroupInvitationValidator validator =
 			new GroupInvitationValidator(clientHelper, metadataEncoder,
-					clock, authorFactory, privateGroupFactory, messageEncoder);
+					clock, privateGroupFactory, messageEncoder);
 
 	// INVITE Message
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortInviteMessage() throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, salt, inviteText);
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, content);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongInviteMessage() throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, salt, inviteText, signature, "");
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, content, signature, "");
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInviteMessageWithTooShortGroupName()
 			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), "", creatorName,
-				creatorKey, salt, inviteText, signature);
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, "", salt,
+				content, signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInviteMessageWithTooLongGroupName()
 			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(),
-				getRandomString(MAX_GROUP_NAME_LENGTH + 1), creatorName,
-				creatorKey, salt, inviteText, signature);
+		String tooLongName = getRandomString(MAX_GROUP_NAME_LENGTH + 1);
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, tooLongName,
+				salt, content, signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsInviteMessageWithNullGroupName()
-			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), null, creatorName,
-				creatorKey, salt, inviteText, signature);
+	public void testRejectsInviteMessageWithNullGroupName() throws Exception {
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, null, salt,
+				content, signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInviteMessageWithNonStringGroupName()
 			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), getRandomBytes(5),
-				creatorName, creatorKey, salt, inviteText, signature);
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList,
+				getRandomBytes(5), salt, content, signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsInviteMessageWithTooShortCreatorName()
-			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, "", creatorKey,
-				salt, inviteText, signature);
+	public void testRejectsInviteMessageWithNullCreator() throws Exception {
+		BdfList body = BdfList.of(INVITE.getValue(), null, groupName, salt,
+				content, signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsInviteMessageWithTooLongCreatorName()
-			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName,
-				getRandomString(MAX_AUTHOR_NAME_LENGTH + 1), creatorKey, salt,
-				inviteText, signature);
+	public void testRejectsInviteMessageWithNonListCreator() throws Exception {
+		BdfList body = BdfList.of(INVITE.getValue(), 123, groupName, salt,
+				content, signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsInviteMessageWithNullCreatorName()
-			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, null,
-				creatorKey, salt, inviteText, signature);
-		validator.validateMessage(message, group, body);
-	}
+	public void testRejectsInviteMessageWithInvalidCreator() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).parseAndValidateAuthor(creatorList);
+			will(throwException(new FormatException()));
+		}});
 
-	@Test(expected = FormatException.class)
-	public void testRejectsInviteMessageWithNonStringCreatorName()
-			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName,
-				getRandomBytes(5), creatorKey, salt, inviteText, signature);
-		validator.validateMessage(message, group, body);
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectsInviteMessageWithTooShortCreatorKey()
-			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				new byte[0], salt, inviteText, signature);
-		validator.validateMessage(message, group, body);
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectsInviteMessageWithTooLongCreatorKey()
-			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1), salt, inviteText,
-				signature);
-		validator.validateMessage(message, group, body);
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectsInviteMessageWithNullCreatorKey()
-			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				null, salt, inviteText, signature);
-		validator.validateMessage(message, group, body);
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectsInviteMessageWithNonRawCreatorKey()
-			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				"not raw", salt, inviteText, signature);
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, content, signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInviteMessageWithTooShortGroupSalt()
 			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, getRandomBytes(GROUP_SALT_LENGTH - 1), inviteText,
-				signature);
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				getRandomBytes(GROUP_SALT_LENGTH - 1), content, signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInviteMessageWithTooLongGroupSalt()
 			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, getRandomBytes(GROUP_SALT_LENGTH + 1), inviteText,
-				signature);
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				getRandomBytes(GROUP_SALT_LENGTH + 1), content, signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsInviteMessageWithNullGroupSalt()
-			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, null, inviteText, signature);
+	public void testRejectsInviteMessageWithNullGroupSalt() throws Exception {
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				null, content, signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsInviteMessageWithNonRawGroupSalt()
-			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, "not raw", inviteText, signature);
+	public void testRejectsInviteMessageWithNonRawGroupSalt() throws Exception {
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				"not raw", content, signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInviteMessageWithTooShortContent() throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, salt, "", signature);
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, "", signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInviteMessageWithTooLongContent() throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, salt,
-				getRandomString(MAX_GROUP_INVITATION_MSG_LENGTH + 1),
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, getRandomString(MAX_GROUP_INVITATION_MSG_LENGTH + 1),
 				signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test
 	public void testAcceptsInviteMessageWithNullContent() throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, salt, null, signature);
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, null, signature);
 		expectInviteMessage(false);
 		validator.validateMessage(message, group, body);
 	}
@@ -237,57 +189,54 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 	@Test(expected = FormatException.class)
 	public void testRejectsInviteMessageWithNonStringContent()
 			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, salt, getRandomBytes(5), signature);
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, getRandomBytes(5), signature);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInviteMessageWithTooShortSignature()
 			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, salt, inviteText, new byte[0]);
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, content, new byte[0]);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInviteMessageWithTooLongSignature()
 			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, salt, inviteText,
-				getRandomBytes(MAX_SIGNATURE_LENGTH + 1));
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, content, getRandomBytes(MAX_SIGNATURE_LENGTH + 1));
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsInviteMessageWithNullSignature()
-			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, salt, inviteText, null);
+	public void testRejectsInviteMessageWithNullSignature() throws Exception {
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, content, null);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsInviteMessageWithNonRawSignature()
-			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, salt, inviteText, "not raw");
+	public void testRejectsInviteMessageWithNonRawSignature() throws Exception {
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, content, "not raw");
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInviteMessageWithInvalidSignature()
 			throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, salt, null, signature);
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, content, signature);
 		expectInviteMessage(true);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test
 	public void testAcceptsValidInviteMessage() throws Exception {
-		BdfList body = BdfList.of(INVITE.getValue(), groupName, creatorName,
-				creatorKey, salt, inviteText, signature);
+		BdfList body = BdfList.of(INVITE.getValue(), creatorList, groupName,
+				salt, content, signature);
 		expectInviteMessage(false);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
@@ -296,16 +245,19 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 	}
 
 	private void expectInviteMessage(boolean exception) throws Exception {
-		BdfList signed = BdfList.of(message.getTimestamp(),
-				message.getGroupId(), privateGroup.getId());
+		BdfList signed = BdfList.of(
+				message.getTimestamp(),
+				message.getGroupId(),
+				privateGroup.getId()
+		);
 		context.checking(new Expectations() {{
-			oneOf(authorFactory).createAuthor(creatorName, creatorKey);
+			oneOf(clientHelper).parseAndValidateAuthor(creatorList);
 			will(returnValue(creator));
 			oneOf(privateGroupFactory).createPrivateGroup(groupName, creator,
 					salt);
 			will(returnValue(privateGroup));
 			oneOf(clientHelper).verifySignature(SIGNING_LABEL_INVITE, signature,
-					creatorKey, signed);
+					creator.getPublicKey(), signed);
 			if (exception) {
 				will(throwException(new GeneralSecurityException()));
 			} else {

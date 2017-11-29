@@ -190,8 +190,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		KeyPair keyPair = cryptoComponent.generateSignatureKeyPair();
 		byte[] publicKey = keyPair.getPublic().getEncoded();
 		byte[] privateKey = keyPair.getPrivate().getEncoded();
-		return authorFactory
-				.createLocalAuthor(authorName, publicKey, privateKey);
+		return authorFactory.createLocalAuthor(authorName, publicKey,
+				privateKey);
 	}
 
 	private SecretKey getSecretKey() {

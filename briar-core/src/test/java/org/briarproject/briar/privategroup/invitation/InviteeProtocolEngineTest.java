@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.ProtocolStateException;
@@ -18,8 +17,11 @@ import java.util.Map;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_MSG_LENGTH;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.ACCEPTED;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.DISSOLVED;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.ERROR;
@@ -39,9 +41,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 			new InviteeProtocolEngine(db, clientHelper, privateGroupManager,
 					privateGroupFactory, groupMessageFactory, identityManager,
 					messageParser, messageEncoder, messageTracker, clock);
-	private final LocalAuthor localAuthor =
-			new LocalAuthor(new AuthorId(getRandomId()), "Local Author",
-					getRandomBytes(12), getRandomBytes(12), 42L);
+	private final LocalAuthor localAuthor = getLocalAuthor();
 
 	private InviteeSession getDefaultSession(InviteeState state) {
 		return new InviteeSession(contactGroupId, privateGroupId,
@@ -323,13 +323,12 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 				new InviteMessage(new MessageId(getRandomId()), contactGroupId,
 						privateGroupId, session.getInviteTimestamp() + 1,
 						privateGroup.getName(), privateGroup.getCreator(),
-						privateGroup.getSalt(), "msg", signature);
-		Author notCreator =
-				new Author(new AuthorId(getRandomId()), "Not Creator",
-						getRandomBytes(5));
-		Contact notCreatorContact =
-				new Contact(contactId, notCreator, localAuthor.getId(), true,
-						true);
+						privateGroup.getSalt(),
+						getRandomString(MAX_GROUP_INVITATION_MSG_LENGTH),
+						signature);
+		Author notCreator = getAuthor();
+		Contact notCreatorContact = new Contact(contactId, notCreator,
+				localAuthor.getId(), true, true);
 
 		expectGetContactId();
 		context.checking(new Expectations() {{

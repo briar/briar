@@ -49,10 +49,12 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.contact.ContactManager.RemoveContactHook;
+import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_COMMENT;
+import static org.briarproject.briar.api.blog.BlogConstants.KEY_FORMAT_VERSION;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_PARENT_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_PARENT_MSG_ID;
@@ -573,11 +575,13 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		long timestamp = meta.getLong(KEY_TIMESTAMP);
 		long timeReceived = meta.getLong(KEY_TIME_RECEIVED, timestamp);
 
-		BdfDictionary d = meta.getDictionary(KEY_AUTHOR);
-		AuthorId authorId = new AuthorId(d.getRaw(KEY_AUTHOR_ID));
-		String name = d.getString(KEY_AUTHOR_NAME);
-		byte[] publicKey = d.getRaw(KEY_PUBLIC_KEY);
-		Author author = new Author(authorId, name, publicKey);
+		BdfDictionary authorDict = meta.getDictionary(KEY_AUTHOR);
+		AuthorId authorId = new AuthorId(authorDict.getRaw(KEY_AUTHOR_ID));
+		int formatVersion = authorDict.getLong(KEY_FORMAT_VERSION).intValue();
+		if (formatVersion != FORMAT_VERSION) throw new FormatException();
+		String name = authorDict.getString(KEY_AUTHOR_NAME);
+		byte[] publicKey = authorDict.getRaw(KEY_PUBLIC_KEY);
+		Author author = new Author(authorId, formatVersion, name, publicKey);
 		boolean isFeedPost = meta.getBoolean(KEY_RSS_FEED, false);
 		Status authorStatus;
 		if (isFeedPost) {

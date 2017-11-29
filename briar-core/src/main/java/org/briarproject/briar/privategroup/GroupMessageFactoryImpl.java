@@ -50,47 +50,73 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 			LocalAuthor member, @Nullable BdfList invite) {
 		try {
 			// Generate the signature
-			int type = JOIN.getInt();
-			BdfList toSign = BdfList.of(groupId, timestamp, type,
-					member.getName(), member.getPublicKey(), invite);
-			byte[] memberSignature = clientHelper
-					.sign(SIGNING_LABEL_JOIN, toSign, member.getPrivateKey());
+			BdfList memberList = BdfList.of(
+					member.getFormatVersion(),
+					member.getName(),
+					member.getPublicKey()
+			);
+			BdfList toSign = BdfList.of(
+					groupId,
+					timestamp,
+					memberList,
+					invite
+			);
+			byte[] memberSignature = clientHelper.sign(SIGNING_LABEL_JOIN,
+					toSign, member.getPrivateKey());
 
 			// Compose the message
-			BdfList body =
-					BdfList.of(type, member.getName(),
-							member.getPublicKey(), invite, memberSignature);
+			BdfList body = BdfList.of(
+					JOIN.getInt(),
+					memberList,
+					invite,
+					memberSignature
+			);
 			Message m = clientHelper.createMessage(groupId, timestamp, body);
-
 			return new GroupMessage(m, null, member);
-		} catch (GeneralSecurityException | FormatException e) {
-			throw new RuntimeException(e);
+		} catch (GeneralSecurityException e) {
+			throw new IllegalArgumentException(e);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
 		}
 	}
 
 	@Override
 	public GroupMessage createGroupMessage(GroupId groupId, long timestamp,
-			@Nullable MessageId parentId, LocalAuthor author, String content,
+			@Nullable MessageId parentId, LocalAuthor member, String content,
 			MessageId previousMsgId) {
 		try {
 			// Generate the signature
-			int type = POST.getInt();
-			BdfList toSign = BdfList.of(groupId, timestamp, type,
-					author.getName(), author.getPublicKey(), parentId,
-					previousMsgId, content);
-			byte[] signature = clientHelper
-					.sign(SIGNING_LABEL_POST, toSign, author.getPrivateKey());
+			BdfList memberList = BdfList.of(
+					member.getFormatVersion(),
+					member.getName(),
+					member.getPublicKey()
+			);
+			BdfList toSign = BdfList.of(
+					groupId,
+					timestamp,
+					memberList,
+					parentId,
+					previousMsgId,
+					content
+			);
+			byte[] signature = clientHelper.sign(SIGNING_LABEL_POST, toSign,
+					member.getPrivateKey());
 
 			// Compose the message
-			BdfList body =
-					BdfList.of(type, author.getName(),
-							author.getPublicKey(), parentId, previousMsgId,
-							content, signature);
+			BdfList body = BdfList.of(
+					POST.getInt(),
+					memberList,
+					parentId,
+					previousMsgId,
+					content,
+					signature
+			);
 			Message m = clientHelper.createMessage(groupId, timestamp, body);
-
-			return new GroupMessage(m, parentId, author);
-		} catch (GeneralSecurityException | FormatException e) {
-			throw new RuntimeException(e);
+			return new GroupMessage(m, parentId, member);
+		} catch (GeneralSecurityException e) {
+			throw new IllegalArgumentException(e);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
 		}
 	}
 

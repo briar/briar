@@ -15,6 +15,8 @@ import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
@@ -31,9 +33,14 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -54,7 +61,8 @@ public class ClientHelperImplTest extends BrambleTestCase {
 			context.mock(MetadataEncoder.class);
 	private final CryptoComponent cryptoComponent =
 			context.mock(CryptoComponent.class);
-	private final ClientHelper clientHelper;
+	private final AuthorFactory authorFactory =
+			context.mock(AuthorFactory.class);
 
 	private final GroupId groupId = new GroupId(getRandomId());
 	private final BdfDictionary dictionary = new BdfDictionary();
@@ -66,17 +74,15 @@ public class ClientHelperImplTest extends BrambleTestCase {
 	private final Metadata metadata = new Metadata();
 	private final BdfList list = BdfList.of("Sign this!", getRandomBytes(42));
 	private final String label = StringUtils.getRandomString(5);
+	private final Author author = getAuthor();
 
-	public ClientHelperImplTest() {
-		clientHelper =
-				new ClientHelperImpl(db, messageFactory, bdfReaderFactory,
-						bdfWriterFactory, metadataParser, metadataEncoder,
-						cryptoComponent);
-	}
+	private final ClientHelper clientHelper = new ClientHelperImpl(db,
+			messageFactory, bdfReaderFactory, bdfWriterFactory, metadataParser,
+			metadataEncoder, cryptoComponent, authorFactory);
 
 	@Test
 	public void testAddLocalMessage() throws Exception {
-		boolean shared = true;
+		boolean shared = new Random().nextBoolean();
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
@@ -180,8 +186,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn);
 		}});
 
-		assertEquals(map,
-				clientHelper.getMessageMetadataAsDictionary(groupId));
+		assertEquals(map, clientHelper.getMessageMetadataAsDictionary(groupId));
 		context.assertIsSatisfied();
 	}
 
@@ -318,13 +323,160 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		}});
 
 		try {
-			clientHelper
-					.verifySignature(label, rawMessage, publicKey, list);
+			clientHelper.verifySignature(label, rawMessage, publicKey, list);
 			fail();
 		} catch (GeneralSecurityException e) {
 			// expected
 			context.assertIsSatisfied();
 		}
+	}
+
+	@Test
+	public void testAcceptsValidAuthor() throws Exception {
+		BdfList authorList = BdfList.of(
+				author.getFormatVersion(),
+				author.getName(),
+				author.getPublicKey()
+		);
+
+		context.checking(new Expectations() {{
+			oneOf(authorFactory).createAuthor(author.getFormatVersion(),
+					author.getName(), author.getPublicKey());
+			will(returnValue(author));
+		}});
+
+		assertEquals(author, clientHelper.parseAndValidateAuthor(authorList));
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooShortAuthor() throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				author.getFormatVersion(),
+				author.getName()
+		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooLongAuthor() throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				author.getFormatVersion(),
+				author.getName(),
+				author.getPublicKey(),
+				"foo"
+		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAuthorWithNullFormatVersion() throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				null,
+				author.getName(),
+				author.getPublicKey()
+		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAuthorWithNonIntegerFormatVersion()
+			throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				"foo",
+				author.getName(),
+				author.getPublicKey()
+		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAuthorWithUnknownFormatVersion() throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				author.getFormatVersion() + 1,
+				author.getName(),
+				author.getPublicKey()
+		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAuthorWithTooShortName() throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				author.getFormatVersion(),
+				"",
+				author.getPublicKey()
+		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAuthorWithTooLongName() throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				author.getFormatVersion(),
+				getRandomString(MAX_AUTHOR_NAME_LENGTH + 1),
+				author.getPublicKey()
+		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAuthorWithNullName() throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				author.getFormatVersion(),
+				null,
+				author.getPublicKey()
+		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAuthorWithNonStringName() throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				author.getFormatVersion(),
+				getRandomBytes(5),
+				author.getPublicKey()
+		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAuthorWithTooShortPublicKey() throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				author.getFormatVersion(),
+				author.getName(),
+				new byte[0]
+		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAuthorWithTooLongPublicKey() throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				author.getFormatVersion(),
+				author.getName(),
+				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1)
+		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAuthorWithNullPublicKey() throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				author.getFormatVersion(),
+				author.getName(),
+				null
+		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAuthorWithNonRawPublicKey() throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				author.getFormatVersion(),
+				author.getName(),
+				"foo"
+		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
 	}
 
 	private byte[] expectToByteArray(BdfList list) throws Exception {
@@ -352,5 +504,4 @@ public class ClientHelperImplTest extends BrambleTestCase {
 			will(returnValue(eof));
 		}});
 	}
-
 }

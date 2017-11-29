@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupFactory;
@@ -17,6 +16,8 @@ import java.security.SecureRandom;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.util.ValidationUtils.checkLength;
+import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
@@ -28,27 +29,22 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 
 	private final GroupFactory groupFactory;
 	private final ClientHelper clientHelper;
-	private final AuthorFactory authorFactory;
 	private final SecureRandom random;
 
 	@Inject
 	PrivateGroupFactoryImpl(GroupFactory groupFactory,
-			ClientHelper clientHelper, AuthorFactory authorFactory,
-			SecureRandom random) {
+			ClientHelper clientHelper, SecureRandom random) {
 
 		this.groupFactory = groupFactory;
 		this.clientHelper = clientHelper;
-		this.authorFactory = authorFactory;
 		this.random = random;
 	}
 
 	@Override
 	public PrivateGroup createPrivateGroup(String name, Author author) {
 		int length = StringUtils.toUtf8(name).length;
-		if (length == 0) throw new IllegalArgumentException("Group name empty");
-		if (length > MAX_GROUP_NAME_LENGTH)
-			throw new IllegalArgumentException(
-					"Group name exceeds maximum length");
+		if (length == 0 || length > MAX_GROUP_NAME_LENGTH)
+			throw new IllegalArgumentException();
 		byte[] salt = new byte[GROUP_SALT_LENGTH];
 		random.nextBytes(salt);
 		return createPrivateGroup(name, author, salt);
@@ -58,12 +54,12 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 	public PrivateGroup createPrivateGroup(String name, Author author,
 			byte[] salt) {
 		try {
-			BdfList group = BdfList.of(
-					name,
+			BdfList creatorList = BdfList.of(
+					author.getFormatVersion(),
 					author.getName(),
-					author.getPublicKey(),
-					salt
+					author.getPublicKey()
 			);
+			BdfList group = BdfList.of(creatorList, name, salt);
 			byte[] descriptor = clientHelper.toByteArray(group);
 			Group g = groupFactory.createGroup(CLIENT_ID, CLIENT_VERSION,
 					descriptor);
@@ -74,12 +70,18 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 	}
 
 	@Override
-	public PrivateGroup parsePrivateGroup(Group group) throws FormatException {
-		byte[] descriptor = group.getDescriptor();
-		BdfList list = clientHelper.toList(descriptor);
-		Author a =
-				authorFactory.createAuthor(list.getString(1), list.getRaw(2));
-		return new PrivateGroup(group, list.getString(0), a, list.getRaw(3));
+	public PrivateGroup parsePrivateGroup(Group g) throws FormatException {
+		// Creator, group name, salt
+		BdfList descriptor = clientHelper.toList(g.getDescriptor());
+		checkSize(descriptor, 3);
+		BdfList creatorList = descriptor.getList(0);
+		String groupName = descriptor.getString(1);
+		checkLength(groupName, 1, MAX_GROUP_NAME_LENGTH);
+		byte[] salt = descriptor.getRaw(2);
+		checkLength(salt, GROUP_SALT_LENGTH);
+
+		Author creator = clientHelper.parseAndValidateAuthor(creatorList);
+		return new PrivateGroup(g, groupName, creator, salt);
 	}
 
 }

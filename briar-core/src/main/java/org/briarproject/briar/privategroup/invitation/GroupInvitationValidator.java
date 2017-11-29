@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -23,10 +22,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 
 import javax.annotation.concurrent.Immutable;
-import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
@@ -43,18 +39,14 @@ import static org.briarproject.briar.privategroup.invitation.MessageType.LEAVE;
 @NotNullByDefault
 class GroupInvitationValidator extends BdfMessageValidator {
 
-	private final AuthorFactory authorFactory;
 	private final PrivateGroupFactory privateGroupFactory;
 	private final MessageEncoder messageEncoder;
 
-	@Inject
 	GroupInvitationValidator(ClientHelper clientHelper,
 			MetadataEncoder metadataEncoder, Clock clock,
-			AuthorFactory authorFactory,
 			PrivateGroupFactory privateGroupFactory,
 			MessageEncoder messageEncoder) {
 		super(clientHelper, metadataEncoder, clock);
-		this.authorFactory = authorFactory;
 		this.privateGroupFactory = privateGroupFactory;
 		this.messageEncoder = messageEncoder;
 	}
@@ -79,22 +71,20 @@ class GroupInvitationValidator extends BdfMessageValidator {
 
 	private BdfMessageContext validateInviteMessage(Message m, BdfList body)
 			throws FormatException {
-		checkSize(body, 7);
-		String groupName = body.getString(1);
+		// Message type, creator, group name, salt, optional message, signature
+		checkSize(body, 6);
+		BdfList creatorList = body.getList(1);
+		String groupName = body.getString(2);
 		checkLength(groupName, 1, MAX_GROUP_NAME_LENGTH);
-		String creatorName = body.getString(2);
-		checkLength(creatorName, 1, MAX_AUTHOR_NAME_LENGTH);
-		byte[] creatorPublicKey = body.getRaw(3);
-		checkLength(creatorPublicKey, 1, MAX_PUBLIC_KEY_LENGTH);
-		byte[] salt = body.getRaw(4);
+		byte[] salt = body.getRaw(3);
 		checkLength(salt, GROUP_SALT_LENGTH);
-		String message = body.getOptionalString(5);
+		String message = body.getOptionalString(4);
 		checkLength(message, 1, MAX_GROUP_INVITATION_MSG_LENGTH);
-		byte[] signature = body.getRaw(6);
+		byte[] signature = body.getRaw(5);
 		checkLength(signature, 1, MAX_SIGNATURE_LENGTH);
-		// Create the private group
-		Author creator = authorFactory.createAuthor(creatorName,
-				creatorPublicKey);
+
+		// Validate the creator and create the private group
+		Author creator = clientHelper.parseAndValidateAuthor(creatorList);
 		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
 				groupName, creator, salt);
 		// Verify the signature
@@ -105,7 +95,7 @@ class GroupInvitationValidator extends BdfMessageValidator {
 		);
 		try {
 			clientHelper.verifySignature(SIGNING_LABEL_INVITE, signature,
-					creatorPublicKey, signed);
+					creator.getPublicKey(), signed);
 		} catch (GeneralSecurityException e) {
 			throw new FormatException();
 		}

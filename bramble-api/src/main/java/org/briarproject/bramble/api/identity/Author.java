@@ -1,10 +1,12 @@
 package org.briarproject.bramble.api.identity;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-
-import java.io.UnsupportedEncodingException;
+import org.briarproject.bramble.util.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
+
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 
 /**
  * A pseudonym for a user.
@@ -17,20 +19,25 @@ public class Author {
 		NONE, ANONYMOUS, UNKNOWN, UNVERIFIED, VERIFIED, OURSELVES
 	}
 
+	/**
+	 * The current version of the author structure.
+	 */
+	public static final int FORMAT_VERSION = 0;
+
 	private final AuthorId id;
+	private final int formatVersion;
 	private final String name;
 	private final byte[] publicKey;
 
-	public Author(AuthorId id, String name, byte[] publicKey) {
-		int length;
-		try {
-			length = name.getBytes("UTF-8").length;
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
-		if (length == 0 || length > AuthorConstants.MAX_AUTHOR_NAME_LENGTH)
+	public Author(AuthorId id, int formatVersion, String name,
+			byte[] publicKey) {
+		int nameLength = StringUtils.toUtf8(name).length;
+		if (nameLength == 0 || nameLength > MAX_AUTHOR_NAME_LENGTH)
+			throw new IllegalArgumentException();
+		if (publicKey.length == 0 || publicKey.length > MAX_PUBLIC_KEY_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
+		this.formatVersion = formatVersion;
 		this.name = name;
 		this.publicKey = publicKey;
 	}
@@ -40,6 +47,13 @@ public class Author {
 	 */
 	public AuthorId getId() {
 		return id;
+	}
+
+	/**
+	 * Returns the version of the author structure used to create the author.
+	 */
+	public int getFormatVersion() {
+		return formatVersion;
 	}
 
 	/**

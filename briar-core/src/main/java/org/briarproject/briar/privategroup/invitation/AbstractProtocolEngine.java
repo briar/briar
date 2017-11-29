@@ -140,10 +140,10 @@ abstract class AbstractProtocolEngine<S extends Session>
 		return m;
 	}
 
-	void markMessageVisibleInUi(Transaction txn, MessageId m, boolean visible)
+	void markMessageVisibleInUi(Transaction txn, MessageId m)
 			throws DbException {
 		BdfDictionary meta = new BdfDictionary();
-		messageEncoder.setVisibleInUi(meta, visible);
+		messageEncoder.setVisibleInUi(meta, true);
 		try {
 			clientHelper.mergeMessageMetadata(txn, m, meta);
 		} catch (FormatException e) {
@@ -174,10 +174,9 @@ abstract class AbstractProtocolEngine<S extends Session>
 			markMessageAvailableToAnswer(txn, m, false);
 	}
 
-	void markInviteAccepted(Transaction txn, MessageId m, boolean accepted)
-			throws DbException {
+	void markInviteAccepted(Transaction txn, MessageId m) throws DbException {
 		BdfDictionary meta = new BdfDictionary();
-		messageEncoder.setInvitationAccepted(meta, accepted);
+		messageEncoder.setInvitationAccepted(meta, true);
 		try {
 			clientHelper.mergeMessageMetadata(txn, m, meta);
 		} catch (FormatException e) {

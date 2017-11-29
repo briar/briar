@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
@@ -67,7 +68,8 @@ public class TestUtils {
 		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 		byte[] privateKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 		long created = System.currentTimeMillis();
-		return new LocalAuthor(id, name, publicKey, privateKey, created);
+		return new LocalAuthor(id, FORMAT_VERSION, name, publicKey, privateKey,
+				created);
 	}
 
 	public static Author getAuthor() {
@@ -78,7 +80,7 @@ public class TestUtils {
 		AuthorId id = new AuthorId(getRandomId());
 		String name = getRandomString(nameLength);
 		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		return new Author(id, name, publicKey);
+		return new Author(id, FORMAT_VERSION, name, publicKey);
 	}
 
 	public static Group getGroup(ClientId clientId) {

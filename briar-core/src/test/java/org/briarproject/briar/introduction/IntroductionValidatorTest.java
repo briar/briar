@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataEncoder;
+import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
@@ -14,20 +15,20 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.system.SystemClock;
-import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.test.BriarTestCase;
 import org.jmock.Mockery;
 import org.junit.Test;
-
-import java.io.IOException;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID;
@@ -59,14 +60,14 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	private final Clock clock = new SystemClock();
 
 	public IntroductionValidatorTest() {
-		GroupId groupId = new GroupId(TestUtils.getRandomId());
-		ClientId clientId = new ClientId(StringUtils.getRandomString(5));
-		byte[] descriptor = TestUtils.getRandomBytes(12);
+		GroupId groupId = new GroupId(getRandomId());
+		ClientId clientId = new ClientId(getRandomString(5));
+		byte[] descriptor = getRandomBytes(12);
 		group = new Group(groupId, clientId, descriptor);
 
-		MessageId messageId = new MessageId(TestUtils.getRandomId());
+		MessageId messageId = new MessageId(getRandomId());
 		long timestamp = System.currentTimeMillis();
-		byte[] raw = TestUtils.getRandomBytes(123);
+		byte[] raw = getRandomBytes(123);
 		message = new Message(messageId, group.getId(), timestamp, raw);
 
 
@@ -82,20 +83,17 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	//
 
 	@Test
-	public void testValidateProperIntroductionRequest() throws IOException {
-		byte[] sessionId = TestUtils.getRandomId();
-		String name = StringUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH);
-		byte[] publicKey =
-				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		String text =
-				StringUtils.getRandomString(MAX_INTRODUCTION_MESSAGE_LENGTH);
+	public void testValidateProperIntroductionRequest() throws Exception {
+		byte[] sessionId = getRandomId();
+		String name = getRandomString(MAX_AUTHOR_NAME_LENGTH);
+		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		String text = getRandomString(MAX_INTRODUCTION_MESSAGE_LENGTH);
 
 		BdfList body = BdfList.of(TYPE_REQUEST, sessionId,
 				name, publicKey, text);
 
 		BdfDictionary result =
-				validator.validateMessage(message, group, body)
-						.getDictionary();
+				validator.validateMessage(message, group, body).getDictionary();
 
 		assertEquals(Long.valueOf(TYPE_REQUEST), result.getLong(TYPE));
 		assertEquals(sessionId, result.getRaw(SESSION_ID));
@@ -106,7 +104,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testValidateIntroductionRequestWithNoName() throws IOException {
+	public void testValidateIntroductionRequestWithNoName() throws Exception {
 		BdfDictionary msg = getValidIntroductionRequest();
 
 		// no NAME is message
@@ -118,8 +116,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testValidateIntroductionRequestWithLongName()
-			throws IOException {
+	public void testValidateIntroductionRequestWithLongName() throws Exception {
 		// too long NAME in message
 		BdfDictionary msg = getValidIntroductionRequest();
 		msg.put(NAME, msg.get(NAME) + "x");
@@ -132,7 +129,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testValidateIntroductionRequestWithWrongType()
-			throws IOException {
+			throws Exception {
 		// wrong message type
 		BdfDictionary msg = getValidIntroductionRequest();
 		msg.put(TYPE, 324234);
@@ -143,17 +140,16 @@ public class IntroductionValidatorTest extends BriarTestCase {
 		validator.validateMessage(message, group, body);
 	}
 
-	private BdfDictionary getValidIntroductionRequest() throws FormatException {
-		byte[] sessionId = TestUtils.getRandomId();
-		String name = StringUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH);
-		byte[] publicKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		String text = StringUtils.getRandomString(MAX_MESSAGE_BODY_LENGTH);
+	private BdfDictionary getValidIntroductionRequest() throws Exception {
+		byte[] sessionId = getRandomId();
+		Author author = getAuthor();
+		String text = getRandomString(MAX_MESSAGE_BODY_LENGTH);
 
 		BdfDictionary msg = new BdfDictionary();
 		msg.put(TYPE, TYPE_REQUEST);
 		msg.put(SESSION_ID, sessionId);
-		msg.put(NAME, name);
-		msg.put(PUBLIC_KEY, publicKey);
+		msg.put(NAME, author.getName());
+		msg.put(PUBLIC_KEY, author.getPublicKey());
 		msg.put(MSG, text);
 
 		return msg;
@@ -164,16 +160,16 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	//
 
 	@Test
-	public void testValidateIntroductionAcceptResponse() throws IOException {
-		byte[] groupId = TestUtils.getRandomId();
-		byte[] sessionId = TestUtils.getRandomId();
+	public void testValidateIntroductionAcceptResponse() throws Exception {
+		byte[] groupId = getRandomId();
+		byte[] sessionId = getRandomId();
 		long time = clock.currentTimeMillis();
-		byte[] publicKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		String transportId = StringUtils
-				.getRandomString(TransportId.MAX_TRANSPORT_ID_LENGTH);
+		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		String transportId =
+				getRandomString(TransportId.MAX_TRANSPORT_ID_LENGTH);
 		BdfDictionary tProps = BdfDictionary.of(
-				new BdfEntry(StringUtils.getRandomString(MAX_PROPERTY_LENGTH),
-						StringUtils.getRandomString(MAX_PROPERTY_LENGTH))
+				new BdfEntry(getRandomString(MAX_PROPERTY_LENGTH),
+						getRandomString(MAX_PROPERTY_LENGTH))
 		);
 		BdfDictionary tp = BdfDictionary.of(
 				new BdfEntry(transportId, tProps)
@@ -204,8 +200,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testValidateIntroductionDeclineResponse()
-			throws IOException {
+	public void testValidateIntroductionDeclineResponse() throws Exception {
 		BdfDictionary msg = getValidIntroductionResponse(false);
 		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
 				msg.getBoolean(ACCEPT));
@@ -219,7 +214,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testValidateIntroductionResponseWithoutAccept()
-			throws IOException {
+			throws Exception {
 		BdfDictionary msg = getValidIntroductionResponse(false);
 		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID));
 
@@ -228,11 +223,11 @@ public class IntroductionValidatorTest extends BriarTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testValidateIntroductionResponseWithBrokenTp()
-			throws IOException {
+			throws Exception {
 		BdfDictionary msg = getValidIntroductionResponse(true);
 		BdfDictionary tp = msg.getDictionary(TRANSPORT);
-		tp.put(StringUtils
-				.getRandomString(TransportId.MAX_TRANSPORT_ID_LENGTH), "X");
+		tp.put(
+				getRandomString(TransportId.MAX_TRANSPORT_ID_LENGTH), "X");
 		msg.put(TRANSPORT, tp);
 
 		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
@@ -244,7 +239,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testValidateIntroductionResponseWithoutPublicKey()
-			throws IOException {
+			throws Exception {
 		BdfDictionary msg = getValidIntroductionResponse(true);
 
 		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
@@ -255,17 +250,17 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	}
 
 	private BdfDictionary getValidIntroductionResponse(boolean accept)
-			throws FormatException {
+			throws Exception {
 
-		byte[] groupId = TestUtils.getRandomId();
-		byte[] sessionId = TestUtils.getRandomId();
+		byte[] groupId = getRandomId();
+		byte[] sessionId = getRandomId();
 		long time = clock.currentTimeMillis();
-		byte[] publicKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		String transportId = StringUtils
-				.getRandomString(TransportId.MAX_TRANSPORT_ID_LENGTH);
+		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		String transportId =
+				getRandomString(TransportId.MAX_TRANSPORT_ID_LENGTH);
 		BdfDictionary tProps = BdfDictionary.of(
-				new BdfEntry(StringUtils.getRandomString(MAX_PROPERTY_LENGTH),
-						StringUtils.getRandomString(MAX_PROPERTY_LENGTH))
+				new BdfEntry(getRandomString(MAX_PROPERTY_LENGTH),
+						getRandomString(MAX_PROPERTY_LENGTH))
 		);
 		BdfDictionary tp = BdfDictionary.of(
 				new BdfEntry(transportId, tProps)
@@ -290,10 +285,10 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	//
 
 	@Test
-	public void testValidateProperIntroductionAck() throws IOException {
-		byte[] sessionId = TestUtils.getRandomId();
-		byte[] mac = TestUtils.getRandomBytes(MAC_LENGTH);
-		byte[] sig = TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH);
+	public void testValidateProperIntroductionAck() throws Exception {
+		byte[] sessionId = getRandomId();
+		byte[] mac = getRandomBytes(MAC_LENGTH);
+		byte[] sig = getRandomBytes(MAX_SIGNATURE_LENGTH);
 		BdfList body = BdfList.of(TYPE_ACK, sessionId, mac, sig);
 
 		BdfDictionary result =
@@ -307,11 +302,11 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testValidateTooLongIntroductionAck() throws IOException {
+	public void testValidateTooLongIntroductionAck() throws Exception {
 		BdfDictionary msg = BdfDictionary.of(
 				new BdfEntry(TYPE, TYPE_ACK),
-				new BdfEntry(SESSION_ID, TestUtils.getRandomId()),
-				new BdfEntry("garbage", StringUtils.getRandomString(255))
+				new BdfEntry(SESSION_ID, getRandomId()),
+				new BdfEntry("garbage", getRandomString(255))
 		);
 		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
 				msg.getString("garbage"));
@@ -321,7 +316,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testValidateIntroductionAckWithLongSessionId()
-			throws IOException {
+			throws Exception {
 		BdfDictionary msg = BdfDictionary.of(
 				new BdfEntry(TYPE, TYPE_ACK),
 				new BdfEntry(SESSION_ID, new byte[SessionId.LENGTH + 1])
@@ -336,8 +331,8 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	//
 
 	@Test
-	public void testValidateProperIntroductionAbort() throws IOException {
-		byte[] sessionId = TestUtils.getRandomId();
+	public void testValidateProperIntroductionAbort() throws Exception {
+		byte[] sessionId = getRandomId();
 
 		BdfDictionary msg = new BdfDictionary();
 		msg.put(TYPE, TYPE_ABORT);
@@ -354,11 +349,11 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testValidateTooLongIntroductionAbort() throws IOException {
+	public void testValidateTooLongIntroductionAbort() throws Exception {
 		BdfDictionary msg = BdfDictionary.of(
 				new BdfEntry(TYPE, TYPE_ABORT),
-				new BdfEntry(SESSION_ID, TestUtils.getRandomId()),
-				new BdfEntry("garbage", StringUtils.getRandomString(255))
+				new BdfEntry(SESSION_ID, getRandomId()),
+				new BdfEntry("garbage", getRandomString(255))
 		);
 		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
 				msg.getString("garbage"));

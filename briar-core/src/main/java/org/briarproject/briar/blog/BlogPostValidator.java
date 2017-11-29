@@ -34,6 +34,7 @@ import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_COMMENT;
+import static org.briarproject.briar.api.blog.BlogConstants.KEY_FORMAT_VERSION;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_PARENT_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_PARENT_MSG_ID;
@@ -115,9 +116,8 @@ class BlogPostValidator extends BdfMessageValidator {
 		Blog b = blogFactory.parseBlog(g);
 		Author a = b.getAuthor();
 		try {
-			clientHelper
-					.verifySignature(SIGNING_LABEL_POST, sig, a.getPublicKey(),
-							signed);
+			clientHelper.verifySignature(SIGNING_LABEL_POST, sig,
+					a.getPublicKey(), signed);
 		} catch (GeneralSecurityException e) {
 			throw new InvalidMessageException(e);
 		}
@@ -156,10 +156,9 @@ class BlogPostValidator extends BdfMessageValidator {
 
 		// Signature
 		byte[] sig = body.getRaw(3);
-		checkLength(sig, 0, MAX_SIGNATURE_LENGTH);
-		BdfList signed =
-				BdfList.of(g.getId(), m.getTimestamp(), comment, pOriginalId,
-						currentId);
+		checkLength(sig, 1, MAX_SIGNATURE_LENGTH);
+		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), comment,
+				pOriginalId, currentId);
 		Blog b = blogFactory.parseBlog(g);
 		Author a = b.getAuthor();
 		try {
@@ -289,6 +288,7 @@ class BlogPostValidator extends BdfMessageValidator {
 	static BdfDictionary authorToBdfDictionary(Author a) {
 		return BdfDictionary.of(
 				new BdfEntry(KEY_AUTHOR_ID, a.getId()),
+				new BdfEntry(KEY_FORMAT_VERSION, a.getFormatVersion()),
 				new BdfEntry(KEY_AUTHOR_NAME, a.getName()),
 				new BdfEntry(KEY_PUBLIC_KEY, a.getPublicKey())
 		);

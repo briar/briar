@@ -39,8 +39,11 @@ class ForumPostFactoryImpl implements ForumPostFactory {
 		if (StringUtils.utf8IsTooLong(body, MAX_FORUM_POST_BODY_LENGTH))
 			throw new IllegalArgumentException();
 		// Serialise the data to be signed
-		BdfList authorList =
-				BdfList.of(author.getName(), author.getPublicKey());
+		BdfList authorList = BdfList.of(
+				author.getFormatVersion(),
+				author.getName(),
+				author.getPublicKey()
+		);
 		BdfList signed = BdfList.of(groupId, timestamp, parent, authorList,
 				body);
 		// Sign the data

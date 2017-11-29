@@ -18,8 +18,9 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Random;
 
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.junit.Assert.assertEquals;
@@ -32,9 +33,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	private final KeyManager keyManager = context.mock(KeyManager.class);
 	private final ContactManager contactManager;
 	private final ContactId contactId = new ContactId(42);
-	private final Author remote =
-			new Author(new AuthorId(getRandomId()), "remote",
-					getRandomBytes(42));
+	private final Author remote = getAuthor();
 	private final AuthorId local = new AuthorId(getRandomId());
 	private final boolean verified = false, active = true;
 	private final Contact contact =
@@ -47,8 +46,8 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testAddContact() throws Exception {
 		SecretKey master = getSecretKey();
-		long timestamp = 42;
-		boolean alice = true;
+		long timestamp = System.currentTimeMillis();
+		boolean alice = new Random().nextBoolean();
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{

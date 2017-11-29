@@ -19,8 +19,6 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
-import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.test.BriarTestCase;
@@ -33,8 +31,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID_1;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID_2;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ROLE;
@@ -55,7 +56,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 	private final ClientHelper clientHelper;
 	private final MessageTracker messageTracker;
 	private final IntroductionGroupFactory introductionGroupFactory;
-	private final SessionId sessionId = new SessionId(TestUtils.getRandomId());
+	private final SessionId sessionId = new SessionId(getRandomId());
 	private final MessageId storageId = new MessageId(sessionId.getBytes());
 	private final long time = 42L;
 	private final Contact introducee1;
@@ -66,33 +67,29 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 	private Transaction txn;
 
 	public IntroductionManagerImplTest() {
-		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
-		Author author1 = new Author(authorId1, "Introducee1",
-				new byte[MAX_PUBLIC_KEY_LENGTH]);
-		AuthorId localAuthorId1 = new AuthorId(TestUtils.getRandomId());
+		Author author1 = getAuthor();
+		AuthorId localAuthorId1 = new AuthorId(getRandomId());
 		ContactId contactId1 = new ContactId(234);
 		introducee1 =
 				new Contact(contactId1, author1, localAuthorId1, true, true);
 
-		AuthorId authorId2 = new AuthorId(TestUtils.getRandomId());
-		Author author2 = new Author(authorId2, "Introducee2",
-				new byte[MAX_PUBLIC_KEY_LENGTH]);
-		AuthorId localAuthorId2 = new AuthorId(TestUtils.getRandomId());
+		Author author2 = getAuthor();
+		AuthorId localAuthorId2 = new AuthorId(getRandomId());
 		ContactId contactId2 = new ContactId(235);
 		introducee2 =
 				new Contact(contactId2, author2, localAuthorId2, true, true);
 
-		ClientId clientId = new ClientId(StringUtils.getRandomString(5));
-		introductionGroup1 = new Group(new GroupId(TestUtils.getRandomId()),
+		ClientId clientId = new ClientId(getRandomString(5));
+		introductionGroup1 = new Group(new GroupId(getRandomId()),
 				clientId, new byte[0]);
-		introductionGroup2 = new Group(new GroupId(TestUtils.getRandomId()),
+		introductionGroup2 = new Group(new GroupId(getRandomId()),
 				clientId, new byte[0]);
 
 		message1 = new Message(
-				new MessageId(TestUtils.getRandomId()),
+				new MessageId(getRandomId()),
 				introductionGroup1.getId(),
 				time,
-				TestUtils.getRandomBytes(MESSAGE_HEADER_LENGTH + 1)
+				getRandomBytes(MESSAGE_HEADER_LENGTH + 1)
 		);
 
 		// mock ALL THE THINGS!!!

@@ -19,6 +19,7 @@ import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_INVITATION_ACCEPTED;
@@ -39,7 +40,8 @@ class MessageParserImpl implements MessageParser {
 
 	@Inject
 	MessageParserImpl(AuthorFactory authorFactory,
-			PrivateGroupFactory privateGroupFactory, ClientHelper clientHelper) {
+			PrivateGroupFactory privateGroupFactory,
+			ClientHelper clientHelper) {
 		this.authorFactory = authorFactory;
 		this.privateGroupFactory = privateGroupFactory;
 		this.clientHelper = clientHelper;
@@ -97,13 +99,20 @@ class MessageParserImpl implements MessageParser {
 	@Override
 	public InviteMessage parseInviteMessage(Message m, BdfList body)
 			throws FormatException {
-		String groupName = body.getString(1);
-		String creatorName = body.getString(2);
-		byte[] creatorPublicKey = body.getRaw(3);
-		byte[] salt = body.getRaw(4);
-		String message = body.getOptionalString(5);
-		byte[] signature = body.getRaw(6);
-		Author creator = authorFactory.createAuthor(creatorName,
+		// Message type, creator, group name, salt, optional message, signature
+		BdfList creatorList = body.getList(1);
+		String groupName = body.getString(2);
+		byte[] salt = body.getRaw(3);
+		String message = body.getOptionalString(4);
+		byte[] signature = body.getRaw(5);
+
+		// Format version, name, public key
+		int formatVersion = creatorList.getLong(0).intValue();
+		if (formatVersion != FORMAT_VERSION) throw new FormatException();
+		String creatorName = creatorList.getString(1);
+		byte[] creatorPublicKey = creatorList.getRaw(2);
+
+		Author creator = authorFactory.createAuthor(formatVersion, creatorName,
 				creatorPublicKey);
 		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
 				groupName, creator, salt);

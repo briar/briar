@@ -14,8 +14,7 @@ import org.briarproject.briar.api.blog.BlogFactory;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_VERSION;
 
@@ -48,11 +47,12 @@ class BlogFactoryImpl implements BlogFactory {
 
 	private Blog createBlog(Author a, boolean rssFeed) {
 		try {
-			BdfList blog = BdfList.of(
+			BdfList authorList = BdfList.of(
+					a.getFormatVersion(),
 					a.getName(),
-					a.getPublicKey(),
-					rssFeed
+					a.getPublicKey()
 			);
+			BdfList blog = BdfList.of(authorList, rssFeed);
 			byte[] descriptor = clientHelper.toByteArray(blog);
 			Group g = groupFactory.createGroup(CLIENT_ID, CLIENT_VERSION,
 					descriptor);
@@ -63,20 +63,15 @@ class BlogFactoryImpl implements BlogFactory {
 	}
 
 	@Override
-	public Blog parseBlog(Group group) throws FormatException {
-		byte[] descriptor = group.getDescriptor();
-		// Author name, public key, RSS feed
-		BdfList blog = clientHelper.toList(descriptor);
-		String name = blog.getString(0);
-		if (name.length() > MAX_AUTHOR_NAME_LENGTH)
-			throw new IllegalArgumentException();
-		byte[] publicKey = blog.getRaw(1);
-		if (publicKey.length > MAX_PUBLIC_KEY_LENGTH)
-			throw new IllegalArgumentException();
+	public Blog parseBlog(Group g) throws FormatException {
+		// Author, RSS feed
+		BdfList descriptor = clientHelper.toList(g.getDescriptor());
+		checkSize(descriptor, 2);
+		BdfList authorList = descriptor.getList(0);
+		boolean rssFeed = descriptor.getBoolean(1);
 
-		Author author = authorFactory.createAuthor(name, publicKey);
-		boolean rssFeed = blog.getBoolean(2);
-		return new Blog(group, author, rssFeed);
+		Author author = clientHelper.parseAndValidateAuthor(authorList);
+		return new Blog(g, author, rssFeed);
 	}
 
 }

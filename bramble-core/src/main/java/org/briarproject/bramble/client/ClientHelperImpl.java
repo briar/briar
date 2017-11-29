@@ -15,6 +15,8 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -32,7 +34,12 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.bramble.util.ValidationUtils.checkLength;
+import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
 @Immutable
 @NotNullByDefault
@@ -51,12 +58,14 @@ class ClientHelperImpl implements ClientHelper {
 	private final MetadataParser metadataParser;
 	private final MetadataEncoder metadataEncoder;
 	private final CryptoComponent crypto;
+	private final AuthorFactory authorFactory;
 
 	@Inject
 	ClientHelperImpl(DatabaseComponent db, MessageFactory messageFactory,
 			BdfReaderFactory bdfReaderFactory,
 			BdfWriterFactory bdfWriterFactory, MetadataParser metadataParser,
-			MetadataEncoder metadataEncoder, CryptoComponent crypto) {
+			MetadataEncoder metadataEncoder, CryptoComponent crypto,
+			AuthorFactory authorFactory) {
 		this.db = db;
 		this.messageFactory = messageFactory;
 		this.bdfReaderFactory = bdfReaderFactory;
@@ -64,6 +73,7 @@ class ClientHelperImpl implements ClientHelper {
 		this.metadataParser = metadataParser;
 		this.metadataEncoder = metadataEncoder;
 		this.crypto = crypto;
+		this.authorFactory = authorFactory;
 	}
 
 	@Override
@@ -355,4 +365,16 @@ class ClientHelperImpl implements ClientHelper {
 		}
 	}
 
+	@Override
+	public Author parseAndValidateAuthor(BdfList author)
+			throws FormatException {
+		checkSize(author, 3);
+		int formatVersion = author.getLong(0).intValue();
+		if (formatVersion != FORMAT_VERSION) throw new FormatException();
+		String name = author.getString(1);
+		checkLength(name, 1, MAX_AUTHOR_NAME_LENGTH);
+		byte[] publicKey = author.getRaw(2);
+		checkLength(publicKey, 1, MAX_PUBLIC_KEY_LENGTH);
+		return authorFactory.createAuthor(formatVersion, name, publicKey);
+	}
 }

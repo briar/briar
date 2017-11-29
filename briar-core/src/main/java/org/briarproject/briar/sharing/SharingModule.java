@@ -3,7 +3,6 @@ package org.briarproject.briar.sharing;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
-import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
@@ -59,10 +58,10 @@ public class SharingModule {
 	BlogSharingValidator provideBlogSharingValidator(
 			ValidationManager validationManager, MessageEncoder messageEncoder,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
-			Clock clock, BlogFactory blogFactory, AuthorFactory authorFactory) {
+			Clock clock, BlogFactory blogFactory) {
 		BlogSharingValidator validator =
 				new BlogSharingValidator(messageEncoder, clientHelper,
-						metadataEncoder, clock, blogFactory, authorFactory);
+						metadataEncoder, clock, blogFactory);
 		validationManager.registerMessageValidator(BlogSharingManager.CLIENT_ID,
 				validator);
 		return validator;

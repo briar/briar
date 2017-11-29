@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.Group;
@@ -34,9 +33,8 @@ import org.junit.Test;
 import static org.briarproject.bramble.api.identity.Author.Status.NONE;
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.Author.Status.VERIFIED;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -44,6 +42,7 @@ import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_COMMENT;
+import static org.briarproject.briar.api.blog.BlogConstants.KEY_FORMAT_VERSION;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_PARENT_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_PARENT_MSG_ID;
@@ -89,9 +88,9 @@ public class BlogManagerImplTest extends BriarTestCase {
 		blogManager = new BlogManagerImpl(db, identityManager, clientHelper,
 				metadataParser, blogFactory, blogPostFactory);
 
-		localAuthor1 = createLocalAuthor();
-		localAuthor2 = createLocalAuthor();
-		rssLocalAuthor = createLocalAuthor();
+		localAuthor1 = getLocalAuthor();
+		localAuthor2 = getLocalAuthor();
+		rssLocalAuthor = getLocalAuthor();
 		authorDict1 = authorToBdfDictionary(localAuthor1);
 		authorDict2 = authorToBdfDictionary(localAuthor2);
 		rssAuthorDict = authorToBdfDictionary(rssLocalAuthor);
@@ -822,13 +821,6 @@ public class BlogManagerImplTest extends BriarTestCase {
 		context.assertIsSatisfied();
 	}
 
-	private LocalAuthor createLocalAuthor() {
-		return new LocalAuthor(new AuthorId(getRandomId()),
-				getRandomString(MAX_AUTHOR_NAME_LENGTH),
-				getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-				getRandomBytes(123), System.currentTimeMillis());
-	}
-
 	private Blog createBlog(LocalAuthor localAuthor, boolean rssFeed) {
 		GroupId groupId = new GroupId(getRandomId());
 		Group group = new Group(groupId, CLIENT_ID, getRandomBytes(42));
@@ -838,6 +830,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 	private BdfDictionary authorToBdfDictionary(Author a) {
 		return BdfDictionary.of(
 				new BdfEntry(KEY_AUTHOR_ID, a.getId()),
+				new BdfEntry(KEY_FORMAT_VERSION, a.getFormatVersion()),
 				new BdfEntry(KEY_AUTHOR_NAME, a.getName()),
 				new BdfEntry(KEY_PUBLIC_KEY, a.getPublicKey())
 		);

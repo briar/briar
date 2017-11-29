@@ -18,6 +18,7 @@ public interface FeedConstants {
 	// group metadata keys
 	String KEY_FEEDS = "feeds";
 	String KEY_FEED_URL = "feedURL";
+	String KEY_FORMAT_VERSION = "formatVersion";
 	String KEY_BLOG_TITLE = "blogTitle";
 	String KEY_PUBLIC_KEY = "publicKey";
 	String KEY_PRIVATE_KEY = "privateKey";

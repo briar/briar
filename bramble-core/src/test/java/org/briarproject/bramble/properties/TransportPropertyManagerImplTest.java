@@ -11,8 +11,6 @@ import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -31,16 +29,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_VERSION;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -609,22 +606,10 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		return new Group(g, CLIENT_ID, descriptor);
 	}
 
-	private LocalAuthor getLocalAuthor() {
-		AuthorId id = new AuthorId(getRandomId());
-		String name = getRandomString(MAX_AUTHOR_NAME_LENGTH);
-		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		byte[] privateKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		long created = System.currentTimeMillis();
-		return new LocalAuthor(id, name, publicKey, privateKey, created);
-	}
-
 	private Contact getContact(boolean active) {
 		ContactId c = new ContactId(nextContactId++);
-		AuthorId a = new AuthorId(getRandomId());
-		String name = getRandomString(MAX_AUTHOR_NAME_LENGTH);
-		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		return new Contact(c, new Author(a, name, publicKey),
-				localAuthor.getId(), true, active);
+		return new Contact(c, getAuthor(), localAuthor.getId(),
+				true, active);
 	}
 
 	private Message getMessage(GroupId g, long timestamp) {

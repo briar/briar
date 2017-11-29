@@ -25,7 +25,6 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroduceeProtocolState;
 import org.briarproject.briar.test.BriarTestCase;
@@ -40,6 +39,10 @@ import java.security.SecureRandom;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.briar.api.introduction.IntroduceeProtocolState.AWAIT_REQUEST;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ACCEPT;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ADDED_CONTACT_ID;
@@ -125,47 +128,41 @@ public class IntroduceeManagerTest extends BriarTestCase {
 				authorFactory, contactManager, identityManager,
 				introductionGroupFactory);
 
-		AuthorId authorId0 = new AuthorId(TestUtils.getRandomId());
-		Author author0 = new Author(authorId0, "Introducer",
-				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
-		AuthorId localAuthorId = new AuthorId(TestUtils.getRandomId());
+		Author author0 = getAuthor();
+		AuthorId localAuthorId = new AuthorId(getRandomId());
 		ContactId contactId0 = new ContactId(234);
 		introducer =
 				new Contact(contactId0, author0, localAuthorId, true, true);
 
-		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
-		Author author1 = new Author(authorId1, "Introducee1",
-				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
-		AuthorId localAuthorId1 = new AuthorId(TestUtils.getRandomId());
+		Author author1 = getAuthor();
+		AuthorId localAuthorId1 = new AuthorId(getRandomId());
 		ContactId contactId1 = new ContactId(234);
 		introducee1 =
 				new Contact(contactId1, author1, localAuthorId1, true, true);
 
-		AuthorId authorId2 = new AuthorId(TestUtils.getRandomId());
-		Author author2 = new Author(authorId2, "Introducee2",
-				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+		Author author2 = getAuthor();
 		ContactId contactId2 = new ContactId(235);
 		introducee2 =
 				new Contact(contactId2, author2, localAuthorId, true, true);
 
 		ClientId clientId = IntroductionManagerImpl.CLIENT_ID;
-		localGroup1 = new Group(new GroupId(TestUtils.getRandomId()),
+		localGroup1 = new Group(new GroupId(getRandomId()),
 				clientId, new byte[0]);
-		introductionGroup1 = new Group(new GroupId(TestUtils.getRandomId()),
+		introductionGroup1 = new Group(new GroupId(getRandomId()),
 				clientId, new byte[0]);
 
-		sessionId = new SessionId(TestUtils.getRandomId());
+		sessionId = new SessionId(getRandomId());
 		localStateMessage = new Message(
-				new MessageId(TestUtils.getRandomId()),
+				new MessageId(getRandomId()),
 				localGroup1.getId(),
 				time,
-				TestUtils.getRandomBytes(MESSAGE_HEADER_LENGTH + 1)
+				getRandomBytes(MESSAGE_HEADER_LENGTH + 1)
 		);
 		message1 = new Message(
-				new MessageId(TestUtils.getRandomId()),
+				new MessageId(getRandomId()),
 				introductionGroup1.getId(),
 				time,
-				TestUtils.getRandomBytes(MESSAGE_HEADER_LENGTH + 1)
+				getRandomBytes(MESSAGE_HEADER_LENGTH + 1)
 		);
 
 		txn = new Transaction(null, false);
@@ -218,7 +215,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		// turn request message into a response
 		msg.put(ACCEPT, true);
 		msg.put(TIME, time);
-		msg.put(E_PUBLIC_KEY, TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+		msg.put(E_PUBLIC_KEY, getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
 		msg.put(TRANSPORT, new BdfDictionary());
 
 		context.checking(new Expectations() {{
@@ -251,13 +248,13 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		// prepare state for incoming ACK
 		state.put(STATE, IntroduceeProtocolState.AWAIT_ACK.ordinal());
 		state.put(ADDED_CONTACT_ID, 2);
-		byte[] nonce = TestUtils.getRandomBytes(42);
+		byte[] nonce = getRandomBytes(42);
 		state.put(NONCE, nonce);
 		state.put(PUBLIC_KEY, introducee2.getAuthor().getPublicKey());
 
 		// create incoming ACK message
-		byte[] mac = TestUtils.getRandomBytes(MAC_LENGTH);
-		byte[] sig = TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH);
+		byte[] mac = getRandomBytes(MAC_LENGTH);
+		byte[] sig = getRandomBytes(MAX_SIGNATURE_LENGTH);
 		BdfDictionary ack = BdfDictionary.of(
 				new BdfEntry(TYPE, TYPE_ACK),
 				new BdfEntry(SESSION_ID, sessionId),
@@ -288,8 +285,8 @@ public class IntroduceeManagerTest extends BriarTestCase {
 			throws FormatException, DbException, GeneralSecurityException {
 
 		byte[] publicKeyBytes = introducee2.getAuthor().getPublicKey();
-		byte[] nonce = TestUtils.getRandomBytes(MAC_LENGTH);
-		byte[] sig = TestUtils.getRandomBytes(MAC_LENGTH);
+		byte[] nonce = getRandomBytes(MAC_LENGTH);
+		byte[] sig = getRandomBytes(MAC_LENGTH);
 
 		BdfDictionary state = new BdfDictionary();
 		state.put(PUBLIC_KEY, publicKeyBytes);
@@ -311,10 +308,9 @@ public class IntroduceeManagerTest extends BriarTestCase {
 
 		byte[] publicKeyBytes = introducee2.getAuthor().getPublicKey();
 		BdfDictionary tp = BdfDictionary.of(new BdfEntry("fake", "fake"));
-		byte[] ePublicKeyBytes =
-				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		byte[] mac = TestUtils.getRandomBytes(MAC_LENGTH);
-		SecretKey macKey = TestUtils.getSecretKey();
+		byte[] ePublicKeyBytes = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		byte[] mac = getRandomBytes(MAC_LENGTH);
+		SecretKey macKey = getSecretKey();
 
 		// move state to where it would be after an ACK arrived
 		BdfDictionary state = new BdfDictionary();
@@ -325,7 +321,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		state.put(MAC, mac);
 		state.put(MAC_KEY, macKey.getBytes());
 
-		byte[] signBytes = TestUtils.getRandomBytes(42);
+		byte[] signBytes = getRandomBytes(42);
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).toByteArray(
 					BdfList.of(publicKeyBytes, ePublicKeyBytes, tp, time));
@@ -348,7 +344,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 			oneOf(cryptoComponent).mac(with(MAC_LABEL),
 					with(samePropertyValuesAs(macKey)),
 					with(array(equal(signBytes))));
-			will(returnValue(TestUtils.getRandomBytes(MAC_LENGTH)));
+			will(returnValue(getRandomBytes(MAC_LENGTH)));
 		}});
 		try {
 			introduceeManager.verifyMac(state);

@@ -6,21 +6,28 @@ import org.briarproject.bramble.api.client.BdfMessageContext;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.test.ValidatorTestCase;
-import org.briarproject.bramble.util.StringUtils;
 import org.jmock.Expectations;
 import org.junit.Test;
 
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.blog.BlogConstants.KEY_READ;
+import static org.briarproject.briar.api.forum.ForumConstants.KEY_AUTHOR;
+import static org.briarproject.briar.api.forum.ForumConstants.KEY_FORMAT_VERSION;
+import static org.briarproject.briar.api.forum.ForumConstants.KEY_ID;
+import static org.briarproject.briar.api.forum.ForumConstants.KEY_NAME;
+import static org.briarproject.briar.api.forum.ForumConstants.KEY_PARENT;
+import static org.briarproject.briar.api.forum.ForumConstants.KEY_PUBLIC_KEY;
+import static org.briarproject.briar.api.forum.ForumConstants.KEY_TIMESTAMP;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
 import static org.briarproject.briar.api.forum.ForumPostFactory.SIGNING_LABEL_POST;
 import static org.junit.Assert.assertArrayEquals;
@@ -29,51 +36,42 @@ import static org.junit.Assert.assertFalse;
 
 public class ForumPostValidatorTest extends ValidatorTestCase {
 
-	private final MessageId parentId = new MessageId(TestUtils.getRandomId());
-	private final String authorName =
-			StringUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH);
-	private final byte[] authorPublicKey =
-			TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-	private final BdfList authorList = BdfList.of(authorName, authorPublicKey);
-	private final String content =
-			StringUtils.getRandomString(MAX_FORUM_POST_BODY_LENGTH);
-	private final byte[] signature =
-			TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH);
-	private final AuthorId authorId = new AuthorId(TestUtils.getRandomId());
-	private final Author author =
-			new Author(authorId, authorName, authorPublicKey);
+	private final MessageId parentId = new MessageId(getRandomId());
+	private final String content = getRandomString(MAX_FORUM_POST_BODY_LENGTH);
+	private final byte[] signature = getRandomBytes(MAX_SIGNATURE_LENGTH);
+	private final Author author = getAuthor();
+	private final String authorName = author.getName();
+	private final byte[] authorPublicKey = author.getPublicKey();
+	private final BdfList authorList = BdfList.of(author.getFormatVersion(),
+			authorName, authorPublicKey);
 	private final BdfList signedWithParent = BdfList.of(groupId, timestamp,
 			parentId.getBytes(), authorList, content);
 	private final BdfList signedWithoutParent = BdfList.of(groupId, timestamp,
 			null, authorList, content);
 
+	private final ForumPostValidator v = new ForumPostValidator(clientHelper,
+			metadataEncoder, clock);
+
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortBody() throws Exception {
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(parentId, authorList, content));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongBody() throws Exception {
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(parentId, authorList, content, signature, 123));
 	}
 
 	@Test
 	public void testAcceptsNullParentId() throws Exception {
+		expectCreateAuthor();
 		context.checking(new Expectations() {{
-			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
-			will(returnValue(author));
 			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
 					authorPublicKey, signedWithoutParent);
 		}});
 
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
 				BdfList.of(null, authorList, content, signature));
 		assertExpectedContext(messageContext, false, authorName);
@@ -81,177 +79,58 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonRawParentId() throws Exception {
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(123, authorList, content, signature));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortParentId() throws Exception {
-		byte[] invalidParentId = TestUtils.getRandomBytes(UniqueId.LENGTH - 1);
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
+		byte[] invalidParentId = getRandomBytes(UniqueId.LENGTH - 1);
 		v.validateMessage(message, group,
 				BdfList.of(invalidParentId, authorList, content, signature));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongParentId() throws Exception {
-		byte[] invalidParentId = TestUtils.getRandomBytes(UniqueId.LENGTH + 1);
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
+		byte[] invalidParentId = getRandomBytes(UniqueId.LENGTH + 1);
 		v.validateMessage(message, group,
 				BdfList.of(invalidParentId, authorList, content, signature));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNullAuthorList() throws Exception {
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(parentId, null, content, signature));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonListAuthorList() throws Exception {
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(parentId, 123, content, signature));
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsTooShortAuthorList() throws Exception {
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
-		v.validateMessage(message, group,
-				BdfList.of(parentId, new BdfList(), content, signature));
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectsTooLongAuthorList() throws Exception {
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
-		v.validateMessage(message, group,
-				BdfList.of(parentId, BdfList.of(1, 2, 3), content, signature));
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectsNullAuthorName() throws Exception {
-		BdfList invalidAuthorList = BdfList.of(null, authorPublicKey);
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
-		v.validateMessage(message, group,
-				BdfList.of(parentId, invalidAuthorList, content, signature));
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectsNonStringAuthorName() throws Exception {
-		BdfList invalidAuthorList = BdfList.of(123, authorPublicKey);
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
-		v.validateMessage(message, group,
-				BdfList.of(parentId, invalidAuthorList, content, signature));
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectsTooShortAuthorName() throws Exception {
-		BdfList invalidAuthorList = BdfList.of("", authorPublicKey);
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
-		v.validateMessage(message, group,
-				BdfList.of(parentId, invalidAuthorList, content, signature));
-	}
-
-	@Test
-	public void testAcceptsMinLengthAuthorName() throws Exception {
-		String shortAuthorName = StringUtils.getRandomString(1);
-		BdfList shortNameAuthorList =
-				BdfList.of(shortAuthorName, authorPublicKey);
-		Author shortNameAuthor =
-				new Author(authorId, shortAuthorName, authorPublicKey);
-		BdfList signedWithShortNameAuthor = BdfList.of(groupId, timestamp,
-				parentId.getBytes(), shortNameAuthorList, content);
-
+	public void testRejectsInvalidAuthor() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(authorFactory).createAuthor(shortAuthorName, authorPublicKey);
-			will(returnValue(shortNameAuthor));
-			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
-					authorPublicKey, signedWithShortNameAuthor);
+			oneOf(clientHelper).parseAndValidateAuthor(authorList);
+			will(throwException(new FormatException()));
 		}});
-
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
-		BdfMessageContext messageContext = v.validateMessage(message, group,
-				BdfList.of(parentId, shortNameAuthorList, content, signature));
-		assertExpectedContext(messageContext, true, shortAuthorName);
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectsTooLongAuthorName() throws Exception {
-		String invalidAuthorName =
-				StringUtils.getRandomString(MAX_AUTHOR_NAME_LENGTH + 1);
-		BdfList invalidAuthorList =
-				BdfList.of(invalidAuthorName, authorPublicKey);
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
-				BdfList.of(parentId, invalidAuthorList, content, signature));
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectsNullAuthorPublicKey() throws Exception {
-		BdfList invalidAuthorList = BdfList.of(authorName, null);
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
-		v.validateMessage(message, group,
-				BdfList.of(parentId, invalidAuthorList, content, signature));
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectsNonRawAuthorPublicKey() throws Exception {
-		BdfList invalidAuthorList = BdfList.of(authorName, 123);
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
-		v.validateMessage(message, group,
-				BdfList.of(parentId, invalidAuthorList, content, signature));
-	}
-
-	@Test(expected = FormatException.class)
-	public void testRejectsTooLongAuthorPublicKey() throws Exception {
-		byte[] invalidAuthorPublicKey =
-				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1);
-		BdfList invalidAuthorList =
-				BdfList.of(authorName, invalidAuthorPublicKey);
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
-		v.validateMessage(message, group,
-				BdfList.of(parentId, invalidAuthorList, content, signature));
+				BdfList.of(parentId, authorList, content, signature));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNullContent() throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
-			will(returnValue(author));
-		}});
+		expectCreateAuthor();
 
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(parentId, authorList, null, signature));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonStringContent() throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
-			will(returnValue(author));
-		}});
+		expectCreateAuthor();
 
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(parentId, authorList, 123, signature));
 	}
@@ -262,15 +141,12 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		BdfList signedWithShortContent = BdfList.of(groupId, timestamp,
 				parentId.getBytes(), authorList, shortContent);
 
+		expectCreateAuthor();
 		context.checking(new Expectations() {{
-			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
-			will(returnValue(author));
 			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
 					authorPublicKey, signedWithShortContent);
 		}});
 
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		BdfMessageContext messageContext = v.validateMessage(message, group,
 				BdfList.of(parentId, authorList, shortContent, signature));
 		assertExpectedContext(messageContext, true, authorName);
@@ -278,58 +154,36 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongContent() throws Exception {
-		String invalidContent =
-				StringUtils.getRandomString(MAX_FORUM_POST_BODY_LENGTH + 1);
+		String invalidContent = getRandomString(MAX_FORUM_POST_BODY_LENGTH + 1);
 
-		context.checking(new Expectations() {{
-			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
-			will(returnValue(author));
-		}});
+		expectCreateAuthor();
 
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(parentId, authorList, invalidContent, signature));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNullSignature() throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
-			will(returnValue(author));
-		}});
+		expectCreateAuthor();
 
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(parentId, authorList, content, null));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonRawSignature() throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
-			will(returnValue(author));
-		}});
+		expectCreateAuthor();
 
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(parentId, authorList, content, 123));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongSignature() throws Exception {
-		byte[] invalidSignature =
-				TestUtils.getRandomBytes(MAX_SIGNATURE_LENGTH + 1);
+		byte[] invalidSignature = getRandomBytes(MAX_SIGNATURE_LENGTH + 1);
 
-		context.checking(new Expectations() {{
-			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
-			will(returnValue(author));
-		}});
+		expectCreateAuthor();
 
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(parentId, authorList, content, invalidSignature));
 	}
@@ -337,16 +191,13 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 	@Test(expected = FormatException.class)
 	public void testRejectsIfVerifyingSignatureThrowsFormatException()
 			throws Exception {
+		expectCreateAuthor();
 		context.checking(new Expectations() {{
-			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
-			will(returnValue(author));
 			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
 					authorPublicKey, signedWithParent);
 			will(throwException(new FormatException()));
 		}});
 
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(parentId, authorList, content, signature));
 	}
@@ -354,18 +205,22 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 	@Test(expected = InvalidMessageException.class)
 	public void testRejectsIfVerifyingSignatureThrowsGeneralSecurityException()
 			throws Exception {
+		expectCreateAuthor();
 		context.checking(new Expectations() {{
-			oneOf(authorFactory).createAuthor(authorName, authorPublicKey);
-			will(returnValue(author));
 			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
 					authorPublicKey, signedWithParent);
 			will(throwException(new GeneralSecurityException()));
 		}});
 
-		ForumPostValidator v = new ForumPostValidator(authorFactory,
-				clientHelper, metadataEncoder, clock);
 		v.validateMessage(message, group,
 				BdfList.of(parentId, authorList, content, signature));
+	}
+
+	private void expectCreateAuthor() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).parseAndValidateAuthor(authorList);
+			will(returnValue(author));
+		}});
 	}
 
 	private void assertExpectedContext(BdfMessageContext messageContext,
@@ -374,19 +229,21 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		Collection<MessageId> dependencies = messageContext.getDependencies();
 		if (hasParent) {
 			assertEquals(4, meta.size());
-			assertArrayEquals(parentId.getBytes(), meta.getRaw("parent"));
+			assertArrayEquals(parentId.getBytes(), meta.getRaw(KEY_PARENT));
 			assertEquals(1, dependencies.size());
 			assertEquals(parentId, dependencies.iterator().next());
 		} else {
 			assertEquals(3, meta.size());
 			assertEquals(0, dependencies.size());
 		}
-		assertEquals(timestamp, meta.getLong("timestamp").longValue());
-		assertFalse(meta.getBoolean("read"));
-		BdfDictionary authorMeta = meta.getDictionary("author");
-		assertEquals(3, authorMeta.size());
-		assertArrayEquals(authorId.getBytes(), authorMeta.getRaw("id"));
-		assertEquals(authorName, authorMeta.getString("name"));
-		assertArrayEquals(authorPublicKey, authorMeta.getRaw("publicKey"));
+		assertEquals(timestamp, meta.getLong(KEY_TIMESTAMP).longValue());
+		assertFalse(meta.getBoolean(KEY_READ));
+		BdfDictionary authorMeta = meta.getDictionary(KEY_AUTHOR);
+		assertEquals(4, authorMeta.size());
+		assertArrayEquals(author.getId().getBytes(), authorMeta.getRaw(KEY_ID));
+		assertEquals(author.getFormatVersion(),
+				authorMeta.getLong(KEY_FORMAT_VERSION).intValue());
+		assertEquals(authorName, authorMeta.getString(KEY_NAME));
+		assertArrayEquals(authorPublicKey, authorMeta.getRaw(KEY_PUBLIC_KEY));
 	}
 }

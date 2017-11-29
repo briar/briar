@@ -23,8 +23,14 @@ import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.jmock.Expectations;
 
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
+import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_MSG_LENGTH;
+import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
@@ -59,14 +65,13 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	protected final GroupId contactGroupId = new GroupId(getRandomId());
 	protected final GroupId privateGroupId = new GroupId(getRandomId());
 	protected final Group privateGroupGroup =
-			new Group(privateGroupId, CLIENT_ID, getRandomBytes(5));
-	private final AuthorId authorId = new AuthorId(getRandomId());
-	protected final Author author =
-			new Author(authorId, "Author", getRandomBytes(12));
+			new Group(privateGroupId, CLIENT_ID, getRandomBytes(123));
+	protected final Author author = getAuthor();
 	protected final PrivateGroup privateGroup =
-			new PrivateGroup(privateGroupGroup, "Private Group", author,
-					getRandomBytes(8));
-	protected final byte[] signature = getRandomBytes(42);
+			new PrivateGroup(privateGroupGroup,
+					getRandomString(MAX_GROUP_NAME_LENGTH), author,
+					getRandomBytes(GROUP_SALT_LENGTH));
+	protected final byte[] signature = getRandomBytes(MAX_SIGNATURE_LENGTH);
 	protected final MessageId lastLocalMessageId = new MessageId(getRandomId());
 	protected final MessageId lastRemoteMessageId =
 			new MessageId(getRandomId());
@@ -74,20 +79,19 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	protected final long inviteTimestamp = 6L;
 	protected final long messageTimestamp = inviteTimestamp + 1;
 	protected final MessageId messageId = new MessageId(getRandomId());
-	protected final Message message =
-			new Message(messageId, contactGroupId, messageTimestamp,
-					getRandomBytes(42));
+	protected final Message message = new Message(messageId, contactGroupId,
+			messageTimestamp, getRandomBytes(42));
 	private final BdfDictionary meta =
 			BdfDictionary.of(new BdfEntry("me", "ta"));
 	protected final ContactId contactId = new ContactId(5);
-	protected final Contact contact =
-			new Contact(contactId, author, new AuthorId(getRandomId()), true,
-					true);
+	protected final Contact contact = new Contact(contactId, author,
+			new AuthorId(getRandomId()), true, true);
 
 	protected final InviteMessage inviteMessage =
 			new InviteMessage(new MessageId(getRandomId()), contactGroupId,
 					privateGroupId, 0L, privateGroup.getName(),
-					privateGroup.getCreator(), privateGroup.getSalt(), "msg",
+					privateGroup.getCreator(), privateGroup.getSalt(),
+					getRandomString(MAX_GROUP_INVITATION_MSG_LENGTH),
 					signature);
 	protected final JoinMessage joinMessage =
 			new JoinMessage(new MessageId(getRandomId()), contactGroupId,

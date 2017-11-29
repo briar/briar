@@ -15,26 +15,19 @@ public interface ForumConstants {
 	int FORUM_SALT_LENGTH = 32;
 
 	/**
-	 * The maximum length of a forum post's content type in UTF-8 bytes.
-	 */
-	int MAX_CONTENT_TYPE_LENGTH = 50;
-
-	/**
 	 * The maximum length of a forum post's body in bytes.
 	 */
 	int MAX_FORUM_POST_BODY_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
 
-	/* Forum Sharing Constants */
-	String FORUM_NAME = "forumName";
-	String FORUM_SALT = "forumSalt";
-
-	// Database keys
+	// Metadata keys
 	String KEY_TIMESTAMP = "timestamp";
 	String KEY_PARENT = "parent";
-	String KEY_ID = "id";
-	String KEY_NAME = "name";
-	String KEY_PUBLIC_NAME = "publicKey";
 	String KEY_AUTHOR = "author";
+	String KEY_ID = "id";
+	String KEY_FORMAT_VERSION = "formatVersion";
+	String KEY_NAME = "name";
+	String KEY_PUBLIC_KEY = "publicKey";
 	String KEY_LOCAL = "local";
+	String KEY_READ = "read";
 
 }

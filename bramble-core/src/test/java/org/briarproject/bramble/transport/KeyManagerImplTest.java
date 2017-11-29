@@ -23,8 +23,10 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Random;
 
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
@@ -59,9 +61,7 @@ public class KeyManagerImplTest extends BrambleTestCase {
 	@Before
 	public void testStartService() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		AuthorId remoteAuthorId = new AuthorId(getRandomId());
-		Author remoteAuthor = new Author(remoteAuthorId, "author",
-				getRandomBytes(42));
+		Author remoteAuthor = getAuthor();
 		AuthorId localAuthorId = new AuthorId(getRandomId());
 		Collection<Contact> contacts = new ArrayList<>();
 		contacts.add(new Contact(contactId, remoteAuthor, localAuthorId, true,
@@ -101,12 +101,12 @@ public class KeyManagerImplTest extends BrambleTestCase {
 	@Test
 	public void testAddContact() throws Exception {
 		SecretKey secretKey = getSecretKey();
-		long timestamp = 42L;
-		boolean alice =  true;
+		long timestamp = System.currentTimeMillis();
+		boolean alice = new Random().nextBoolean();
 
 		context.checking(new Expectations() {{
-			oneOf(transportKeyManager)
-					.addContact(txn, contactId, secretKey, timestamp, alice);
+			oneOf(transportKeyManager).addContact(txn, contactId, secretKey,
+					timestamp, alice);
 		}});
 
 		keyManager.addContact(txn, contactId, secretKey, timestamp, alice);
@@ -121,8 +121,8 @@ public class KeyManagerImplTest extends BrambleTestCase {
 
 	@Test
 	public void testGetStreamContextForUnknownTransport() throws Exception {
-		assertEquals(null, keyManager
-				.getStreamContext(contactId, unknownTransportId));
+		assertEquals(null,
+				keyManager.getStreamContext(contactId, unknownTransportId));
 	}
 
 	@Test

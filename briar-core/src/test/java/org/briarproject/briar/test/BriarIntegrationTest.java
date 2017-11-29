@@ -30,7 +30,6 @@ import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.properties.PropertiesModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.briar.api.blog.BlogFactory;
@@ -64,6 +63,7 @@ import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
+import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.junit.Assert.assertTrue;
 
@@ -328,7 +328,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Create an outgoing sync session
 		SyncSession sessionFrom =
-				fromSync.createSimplexOutgoingSession(toId, TestPluginConfigModule.MAX_LATENCY, out);
+				fromSync.createSimplexOutgoingSession(toId, MAX_LATENCY, out);
 		// Write whatever needs to be written
 		sessionFrom.run();
 		out.close();
