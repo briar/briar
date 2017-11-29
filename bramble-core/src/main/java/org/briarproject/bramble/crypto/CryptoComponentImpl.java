@@ -483,7 +483,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	private void updateSignature(Signature signature, String label,
-			byte[] toSign) {
+			byte[] toSign) throws GeneralSecurityException {
 		byte[] labelBytes = StringUtils.toUtf8(label);
 		byte[] length = new byte[INT_32_BYTES];
 		ByteUtils.writeUint32(labelBytes.length, length, 0);

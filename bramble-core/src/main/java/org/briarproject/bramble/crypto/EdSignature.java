@@ -15,7 +15,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
-import java.security.SignatureException;
 
 import static net.i2p.crypto.eddsa.EdDSAEngine.SIGNATURE_ALGORITHM;
 
@@ -57,47 +56,28 @@ class EdSignature implements Signature {
 	}
 
 	@Override
-	public void update(byte b) {
-		try {
-			signature.update(b);
-		} catch (SignatureException e) {
-			throw new RuntimeException(e);
-		}
+	public void update(byte b) throws GeneralSecurityException {
+		signature.update(b);
 	}
 
 	@Override
-	public void update(byte[] b) {
-		try {
-			signature.update(b);
-		} catch (SignatureException e) {
-			throw new RuntimeException(e);
-		}
+	public void update(byte[] b) throws GeneralSecurityException {
+		signature.update(b);
 	}
 
 	@Override
-	public void update(byte[] b, int off, int len) {
-		try {
-			signature.update(b, off, len);
-		} catch (SignatureException e) {
-			throw new RuntimeException(e);
-		}
+	public void update(byte[] b, int off, int len)
+			throws GeneralSecurityException {
+		signature.update(b, off, len);
 	}
 
 	@Override
-	public byte[] sign() {
-		try {
-			return signature.sign();
-		} catch (SignatureException e) {
-			throw new RuntimeException(e);
-		}
+	public byte[] sign() throws GeneralSecurityException {
+		return signature.sign();
 	}
 
 	@Override
-	public boolean verify(byte[] sig) {
-		try {
-			return signature.verify(sig);
-		} catch (SignatureException e) {
-			throw new RuntimeException(e);
-		}
+	public boolean verify(byte[] sig) throws GeneralSecurityException {
+		return signature.verify(sig);
 	}
 }

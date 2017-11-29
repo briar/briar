@@ -22,25 +22,25 @@ interface Signature {
 	/**
 	 * @see {@link java.security.Signature#update(byte)}
 	 */
-	void update(byte b);
+	void update(byte b) throws GeneralSecurityException;
 
 	/**
 	 * @see {@link java.security.Signature#update(byte[])}
 	 */
-	void update(byte[] b);
+	void update(byte[] b) throws GeneralSecurityException;
 
 	/**
 	 * @see {@link java.security.Signature#update(byte[], int, int)}
 	 */
-	void update(byte[] b, int off, int len);
+	void update(byte[] b, int off, int len) throws GeneralSecurityException;
 
 	/**
 	 * @see {@link java.security.Signature#sign()}
 	 */
-	byte[] sign();
+	byte[] sign() throws GeneralSecurityException;
 
 	/**
 	 * @see {@link java.security.Signature#verify(byte[])}
 	 */
-	boolean verify(byte[] signature);
+	boolean verify(byte[] signature) throws GeneralSecurityException;
 }
