@@ -129,8 +129,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	public Map<TransportId, TransportProperties> getLocalProperties()
 			throws DbException {
 		Map<TransportId, TransportProperties> local;
-		// TODO: Transaction can be read-only when code is simplified
-		Transaction txn = db.startTransaction(false);
+		Transaction txn = db.startTransaction(true);
 		try {
 			local = getLocalProperties(txn);
 			db.commitTransaction(txn);
@@ -165,8 +164,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			throws DbException {
 		try {
 			TransportProperties p = null;
-			// TODO: Transaction can be read-only when code is simplified
-			Transaction txn = db.startTransaction(false);
+			Transaction txn = db.startTransaction(true);
 			try {
 				// Find the latest local update
 				LatestUpdate latest = findLatest(txn, localGroup.getId(), t,
@@ -192,8 +190,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	public Map<ContactId, TransportProperties> getRemoteProperties(
 			TransportId t) throws DbException {
 		Map<ContactId, TransportProperties> remote = new HashMap<>();
-		// TODO: Transaction can be read-only when code is simplified
-		Transaction txn = db.startTransaction(false);
+		Transaction txn = db.startTransaction(true);
 		try {
 			for (Contact c : db.getContacts(txn))
 				remote.put(c.getId(), getRemoteProperties(txn, c, t));
@@ -227,8 +224,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	public TransportProperties getRemoteProperties(ContactId c, TransportId t)
 			throws DbException {
 		TransportProperties p;
-		// TODO: Transaction can be read-only when code is simplified
-		Transaction txn = db.startTransaction(false);
+		Transaction txn = db.startTransaction(true);
 		try {
 			p = getRemoteProperties(txn, db.getContact(txn, c), t);
 			db.commitTransaction(txn);
@@ -318,7 +314,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	private Map<TransportId, LatestUpdate> findLatestLocal(Transaction txn)
 			throws DbException, FormatException {
-		// TODO: This can be simplified before 1.0
 		Map<TransportId, LatestUpdate> latestUpdates = new HashMap<>();
 		Map<MessageId, BdfDictionary> metadata = clientHelper
 				.getMessageMetadataAsDictionary(txn, localGroup.getId());
@@ -326,17 +321,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			BdfDictionary meta = e.getValue();
 			TransportId t = new TransportId(meta.getString("transportId"));
 			long version = meta.getLong("version");
-			LatestUpdate latest = latestUpdates.get(t);
-			if (latest == null) {
-				latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
-			} else if (version > latest.version) {
-				// This update is newer - delete the previous one
-				db.removeMessage(txn, latest.messageId);
-				latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
-			} else {
-				// We've already found a newer update - delete this one
-				db.removeMessage(txn, e.getKey());
-			}
+			latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
 		}
 		return latestUpdates;
 	}
@@ -344,38 +329,16 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Nullable
 	private LatestUpdate findLatest(Transaction txn, GroupId g, TransportId t,
 			boolean local) throws DbException, FormatException {
-		// TODO: This can be simplified before 1.0
-		LatestUpdate latest = null;
 		Map<MessageId, BdfDictionary> metadata =
 				clientHelper.getMessageMetadataAsDictionary(txn, g);
 		for (Entry<MessageId, BdfDictionary> e : metadata.entrySet()) {
 			BdfDictionary meta = e.getValue();
 			if (meta.getString("transportId").equals(t.getString())
 					&& meta.getBoolean("local") == local) {
-				long version = meta.getLong("version");
-				if (latest == null) {
-					latest = new LatestUpdate(e.getKey(), version);
-				} else if (version > latest.version) {
-					// This update is newer - delete the previous one
-					if (local) {
-						db.removeMessage(txn, latest.messageId);
-					} else {
-						db.deleteMessage(txn, latest.messageId);
-						db.deleteMessageMetadata(txn, latest.messageId);
-					}
-					latest = new LatestUpdate(e.getKey(), version);
-				} else {
-					// We've already found a newer update - delete this one
-					if (local) {
-						db.removeMessage(txn, e.getKey());
-					} else {
-						db.deleteMessage(txn, e.getKey());
-						db.deleteMessageMetadata(txn, e.getKey());
-					}
-				}
+				return new LatestUpdate(e.getKey(), meta.getLong("version"));
 			}
 		}
-		return latest;
+		return null;
 	}
 
 	private TransportProperties parseProperties(BdfList message)

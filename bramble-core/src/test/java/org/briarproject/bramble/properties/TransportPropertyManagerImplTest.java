@@ -215,6 +215,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		long timestamp = 123456789;
 		Message message = getMessage(contactGroupId, timestamp);
 		Metadata meta = new Metadata();
+		// Version 4 is being delivered
 		BdfDictionary metaDictionary = BdfDictionary.of(
 				new BdfEntry("transportId", "foo"),
 				new BdfEntry("version", 4),
@@ -222,19 +223,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		);
 		Map<MessageId, BdfDictionary> messageMetadata =
 				new LinkedHashMap<>();
-		// Old remote updates for the same transport should be deleted
-		MessageId fooVersion2 = new MessageId(getRandomId());
-		messageMetadata.put(fooVersion2, BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 2),
-				new BdfEntry("local", false)
-		));
-		MessageId fooVersion1 = new MessageId(getRandomId());
-		messageMetadata.put(fooVersion1, BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 1),
-				new BdfEntry("local", false)
-		));
+		// An older remote update for the same transport should be deleted
 		MessageId fooVersion3 = new MessageId(getRandomId());
 		messageMetadata.put(fooVersion3, BdfDictionary.of(
 				new BdfEntry("transportId", "foo"),
@@ -248,11 +237,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroupId);
 			will(returnValue(messageMetadata));
-			// Versions 1-3 should be deleted
-			oneOf(db).deleteMessage(txn, fooVersion1);
-			oneOf(db).deleteMessageMetadata(txn, fooVersion1);
-			oneOf(db).deleteMessage(txn, fooVersion2);
-			oneOf(db).deleteMessageMetadata(txn, fooVersion2);
+			// The previous update (version 3) should be deleted
 			oneOf(db).deleteMessage(txn, fooVersion3);
 			oneOf(db).deleteMessageMetadata(txn, fooVersion3);
 		}});
@@ -268,6 +253,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		long timestamp = 123456789;
 		Message message = getMessage(contactGroupId, timestamp);
 		Metadata meta = new Metadata();
+		// Version 3 is being delivered
 		BdfDictionary metaDictionary = BdfDictionary.of(
 				new BdfEntry("transportId", "foo"),
 				new BdfEntry("version", 3),
@@ -275,19 +261,6 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		);
 		Map<MessageId, BdfDictionary> messageMetadata =
 				new LinkedHashMap<>();
-		// Old remote updates for the same transport should be deleted
-		MessageId fooVersion2 = new MessageId(getRandomId());
-		messageMetadata.put(fooVersion2, BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 2),
-				new BdfEntry("local", false)
-		));
-		MessageId fooVersion1 = new MessageId(getRandomId());
-		messageMetadata.put(fooVersion1, BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 1),
-				new BdfEntry("local", false)
-		));
 		// A newer remote update for the same transport should not be deleted
 		MessageId fooVersion4 = new MessageId(getRandomId());
 		messageMetadata.put(fooVersion4, BdfDictionary.of(
@@ -302,11 +275,6 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroupId);
 			will(returnValue(messageMetadata));
-			// Versions 1 and 2 should be deleted, version 4 should not
-			oneOf(db).deleteMessage(txn, fooVersion1);
-			oneOf(db).deleteMessageMetadata(txn, fooVersion1);
-			oneOf(db).deleteMessage(txn, fooVersion2);
-			oneOf(db).deleteMessageMetadata(txn, fooVersion2);
 			// The update being delivered (version 3) should be deleted
 			oneOf(db).deleteMessage(txn, message.getId());
 			oneOf(db).deleteMessageMetadata(txn, message.getId());
@@ -343,7 +311,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testReturnsLatestLocalProperties() throws Exception {
-		Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, true);
 
 		expectGetLocalProperties(txn);
 
@@ -357,7 +325,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testReturnsEmptyPropertiesIfNoLocalPropertiesAreFound()
 			throws Exception {
-		Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, true);
 		Map<MessageId, BdfDictionary> messageMetadata =
 				new LinkedHashMap<>();
 		// A local update for another transport should be ignored
@@ -369,7 +337,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		));
 
 		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
@@ -384,7 +352,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testReturnsLocalProperties() throws Exception {
-		Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, true);
 		Map<MessageId, BdfDictionary> messageMetadata =
 				new LinkedHashMap<>();
 		// A local update for another transport should be ignored
@@ -404,7 +372,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		BdfList fooUpdate = BdfList.of("foo", 1, fooPropertiesDict);
 
 		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
@@ -423,7 +391,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testReturnsRemotePropertiesOrEmptyProperties()
 			throws Exception {
-		Transaction txn = new Transaction(null, false);
+		Transaction txn = new Transaction(null, true);
 		Contact contact1 = getContact(false);
 		Contact contact2 = getContact(true);
 		Contact contact3 = getContact(true);
@@ -457,7 +425,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		BdfList fooUpdate = BdfList.of("foo", 1, fooPropertiesDict);
 
 		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
+			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
@@ -638,27 +606,13 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		return new Message(messageId, g, timestamp, raw);
 	}
 
-	private void expectGetLocalProperties(Transaction txn)
-			throws Exception {
-		Map<MessageId, BdfDictionary> messageMetadata =
-				new LinkedHashMap<>();
-		// The only update for transport "foo" should be returned
+	private void expectGetLocalProperties(Transaction txn) throws Exception {
+		Map<MessageId, BdfDictionary> messageMetadata = new LinkedHashMap<>();
+		// The latest update for transport "foo" should be returned
 		MessageId fooVersion999 = new MessageId(getRandomId());
 		messageMetadata.put(fooVersion999, BdfDictionary.of(
 				new BdfEntry("transportId", "foo"),
 				new BdfEntry("version", 999)
-		));
-		// An old update for transport "bar" should be deleted
-		MessageId barVersion2 = new MessageId(getRandomId());
-		messageMetadata.put(barVersion2, BdfDictionary.of(
-				new BdfEntry("transportId", "bar"),
-				new BdfEntry("version", 2)
-		));
-		// An even older update for transport "bar" should be deleted
-		MessageId barVersion1 = new MessageId(getRandomId());
-		messageMetadata.put(barVersion1, BdfDictionary.of(
-				new BdfEntry("transportId", "bar"),
-				new BdfEntry("version", 1)
 		));
 		// The latest update for transport "bar" should be returned
 		MessageId barVersion3 = new MessageId(getRandomId());
@@ -674,8 +628,6 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
 			will(returnValue(messageMetadata));
-			oneOf(db).removeMessage(txn, barVersion1);
-			oneOf(db).removeMessage(txn, barVersion2);
 			// Retrieve and parse the latest local properties
 			oneOf(clientHelper).getMessageAsList(txn, fooVersion999);
 			will(returnValue(fooUpdate));
