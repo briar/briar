@@ -11,7 +11,6 @@ import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
-import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.concurrent.Executor;
 
@@ -41,9 +40,10 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	}
 
 	@Override
-	public boolean needsDozeWhitelisting() {
+	public boolean needToShowDozeFragment() {
 		if (setupActivity == null) throw new IllegalStateException();
-		return UiUtils.needsDozeWhitelisting(setupActivity);
+		return DozeView.needsToBeShown(setupActivity) ||
+				HuaweiView.needsToBeShown(setupActivity);
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	@Override
 	public void showDozeOrCreateAccount() {
 		if (setupActivity == null) throw new IllegalStateException();
-		if (needsDozeWhitelisting()) {
+		if (needToShowDozeFragment()) {
 			setupActivity.showDozeFragment();
 		} else {
 			createAccount();
