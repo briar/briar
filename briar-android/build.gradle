@@ -108,6 +108,7 @@ dependencyVerification {
 			'nekohtml:xercesMinimal:1.9.6.2:xercesMinimal-1.9.6.2.jar:95b8b357d19f63797dd7d67622fd3f18374d64acbc6584faba1c7759a31e8438',
 			'net.bytebuddy:byte-buddy-agent:1.6.14:byte-buddy-agent-1.6.14.jar:c141a2d6809c3eeff4a43d25992826abccebdd4b793af3e7a5f346e88ae73a33',
 			'net.bytebuddy:byte-buddy:1.6.14:byte-buddy-1.6.14.jar:917758b3c651e278a15a029ba1d42dbf802d8b0e1fe2aa4b81c5750c64f461c1',
+			'net.i2p.crypto:eddsa:0.2.0:eddsa-0.2.0.jar:a7cb1b85c16e2f0730b9204106929a1d9aaae1df728adc7041a8b8b605692140',
 			'org.apache.ant:ant-launcher:1.9.4:ant-launcher-1.9.4.jar:7bccea20b41801ca17bcbc909a78c835d0f443f12d639c77bd6ae3d05861608d',
 			'org.apache.ant:ant:1.9.4:ant-1.9.4.jar:649ae0730251de07b8913f49286d46bba7b92d47c5f332610aa426c4f02161d8',
 			'org.apache.maven.wagon:wagon-file:1.0-beta-6:wagon-file-1.0-beta-6.jar:7298feeb36ff14dd933c38e62585fb9973fea32fb3c4bc5379428cb1aac5dd3c',

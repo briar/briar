@@ -36,6 +36,7 @@ dependencyVerification {
 			'com.madgag.spongycastle:core:1.58.0.0:core-1.58.0.0.jar:199617dd5698c5a9312b898c0a4cec7ce9dd8649d07f65d91629f58229d72728',
 			'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
 			'junit:junit:4.12:junit-4.12.jar:59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a',
+			'net.i2p.crypto:eddsa:0.2.0:eddsa-0.2.0.jar:a7cb1b85c16e2f0730b9204106929a1d9aaae1df728adc7041a8b8b605692140',
 			'net.java.dev.jna:jna-platform:4.4.0:jna-platform-4.4.0.jar:e9dda9e884fc107eb6367710540789a12dfa8ad28be9326b22ca6e352e325499',
 			'net.java.dev.jna:jna:4.4.0:jna-4.4.0.jar:c4dadeeecaa90c8847902082aee5eb107fcf59c5d0e63a17fcaf273c0e2d2bd1',
 			'org.apache.ant:ant-launcher:1.9.4:ant-launcher-1.9.4.jar:7bccea20b41801ca17bcbc909a78c835d0f443f12d639c77bd6ae3d05861608d',
