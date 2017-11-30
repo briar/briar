@@ -16,6 +16,7 @@
 	<color name="briar_primary_dark">@color/briar_blue_dark</color>
 
 	<color name="briar_accent">@color/briar_blue</color>
+	<color name="control_normal_light">#757575</color>
 
 	<!-- text colors -->
 	<color name="briar_text_link">#06b9ff</color>

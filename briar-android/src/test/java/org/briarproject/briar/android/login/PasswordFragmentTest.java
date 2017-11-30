@@ -61,7 +61,7 @@ public class PasswordFragmentTest {
 		String safePass = "really.safe.password";
 
 		passwordFragment.setupController = setupController;
-		when(setupController.needsDozeWhitelisting()).thenReturn(false);
+		when(setupController.needToShowDozeFragment()).thenReturn(false);
 		when(setupController.estimatePasswordStrength(safePass))
 				.thenReturn(STRONG);
 

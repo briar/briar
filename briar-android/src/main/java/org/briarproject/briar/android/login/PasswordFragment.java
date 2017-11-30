@@ -66,7 +66,7 @@ public class PasswordFragment extends SetupFragment {
 		component.inject(this);
 
 		// the controller is not yet available in onCreateView()
-		if (!setupController.needsDozeWhitelisting()) {
+		if (!setupController.needToShowDozeFragment()) {
 			nextButton.setText(R.string.create_account_button);
 		}
 	}
@@ -102,7 +102,7 @@ public class PasswordFragment extends SetupFragment {
 
 	@Override
 	public void onClick(View view) {
-		if (!setupController.needsDozeWhitelisting()) {
+		if (!setupController.needToShowDozeFragment()) {
 			nextButton.setVisibility(INVISIBLE);
 			progressBar.setVisibility(VISIBLE);
 		}
