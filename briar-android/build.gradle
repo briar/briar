@@ -169,7 +169,7 @@ def getGitHash = { ->
 	def stdout = new ByteArrayOutputStream()
 	try {
 		exec {
-			commandLine 'git', 'rev-parse', '--short', 'HEAD'
+			commandLine 'git', 'rev-parse', '--short=7', 'HEAD'
 			standardOutput = stdout
 		}
 		return stdout.toString().trim()
