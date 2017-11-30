@@ -16,7 +16,7 @@ import static org.briarproject.briar.api.forum.ForumManager.CLIENT_ID;
 @NotNullByDefault
 public interface ForumPostFactory {
 
-	String SIGNING_LABEL_POST = CLIENT_ID + "/POST";
+	String SIGNING_LABEL_POST = CLIENT_ID.getString() + "/POST";
 
 	@CryptoExecutor
 	ForumPost createPost(GroupId groupId, long timestamp,

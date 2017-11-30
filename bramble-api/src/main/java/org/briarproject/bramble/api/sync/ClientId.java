@@ -36,4 +36,8 @@ public class ClientId implements Comparable<ClientId> {
 		return id.hashCode();
 	}
 
+	@Override
+	public String toString() {
+		return id;
+	}
 }

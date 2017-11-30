@@ -13,8 +13,8 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT
 @NotNullByDefault
 public interface GroupMessageFactory {
 
-	String SIGNING_LABEL_JOIN = CLIENT_ID + "/JOIN";
-	String SIGNING_LABEL_POST = CLIENT_ID + "/POST";
+	String SIGNING_LABEL_JOIN = CLIENT_ID.getString() + "/JOIN";
+	String SIGNING_LABEL_POST = CLIENT_ID.getString() + "/POST";
 
 	/**
 	 * Creates a join announcement message for the creator of a group.
