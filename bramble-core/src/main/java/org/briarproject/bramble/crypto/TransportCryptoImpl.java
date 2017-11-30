@@ -13,6 +13,11 @@ import org.spongycastle.crypto.Digest;
 
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.transport.TransportConstants.ALICE_HEADER_LABEL;
+import static org.briarproject.bramble.api.transport.TransportConstants.ALICE_TAG_LABEL;
+import static org.briarproject.bramble.api.transport.TransportConstants.BOB_HEADER_LABEL;
+import static org.briarproject.bramble.api.transport.TransportConstants.BOB_TAG_LABEL;
+import static org.briarproject.bramble.api.transport.TransportConstants.ROTATE_LABEL;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.util.ByteUtils.INT_16_BYTES;
 import static org.briarproject.bramble.util.ByteUtils.INT_64_BYTES;
@@ -20,15 +25,6 @@ import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
 import static org.briarproject.bramble.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 class TransportCryptoImpl implements TransportCrypto {
-
-	// KDF labels for tag key derivation
-	private static final String A_TAG = "ALICE_TAG_KEY";
-	private static final String B_TAG = "BOB_TAG_KEY";
-	// KDF labels for header key derivation
-	private static final String A_HEADER = "ALICE_HEADER_KEY";
-	private static final String B_HEADER = "BOB_HEADER_KEY";
-	// KDF label for key rotation
-	private static final String ROTATE = "ROTATE";
 
 	private final CryptoComponent crypto;
 
@@ -93,19 +89,21 @@ class TransportCryptoImpl implements TransportCrypto {
 	private SecretKey rotateKey(SecretKey k, long rotationPeriod) {
 		byte[] period = new byte[INT_64_BYTES];
 		ByteUtils.writeUint64(rotationPeriod, period, 0);
-		return crypto.deriveKey(ROTATE, k, period);
+		return crypto.deriveKey(ROTATE_LABEL, k, period);
 	}
 
 	private SecretKey deriveTagKey(SecretKey master, TransportId t,
 			boolean alice) {
+		String label = alice ? ALICE_TAG_LABEL : BOB_TAG_LABEL;
 		byte[] id = StringUtils.toUtf8(t.getString());
-		return crypto.deriveKey(alice ? A_TAG : B_TAG, master, id);
+		return crypto.deriveKey(label, master, id);
 	}
 
 	private SecretKey deriveHeaderKey(SecretKey master, TransportId t,
 			boolean alice) {
+		String label = alice ? ALICE_HEADER_LABEL : BOB_HEADER_LABEL;
 		byte[] id = StringUtils.toUtf8(t.getString());
-		return crypto.deriveKey(alice ? A_HEADER : B_HEADER, master, id);
+		return crypto.deriveKey(label, master, id);
 	}
 
 	@Override

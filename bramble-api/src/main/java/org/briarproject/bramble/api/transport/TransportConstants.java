@@ -7,7 +7,7 @@ public interface TransportConstants {
 	/**
 	 * The current version of the transport protocol.
 	 */
-	int PROTOCOL_VERSION = 3;
+	int PROTOCOL_VERSION = 4;
 
 	/**
 	 * The length of the pseudo-random tag in bytes.
@@ -80,4 +80,32 @@ public interface TransportConstants {
 	 * The size of the reordering window.
 	 */
 	int REORDERING_WINDOW_SIZE = 32;
+
+	/**
+	 * Label for deriving Alice's initial tag key from the master secret.
+	 */
+	String ALICE_TAG_LABEL = "org.briarproject.bramble.transport/ALICE_TAG_KEY";
+
+	/**
+	 * Label for deriving Bob's initial tag key from the master secret.
+	 */
+	String BOB_TAG_LABEL = "org.briarproject.bramble.transport/BOB_TAG_KEY";
+
+	/**
+	 * Label for deriving Alice's initial header key from the master secret.
+	 */
+	String ALICE_HEADER_LABEL =
+			"org.briarproject.bramble.transport/ALICE_HEADER_KEY";
+
+	/**
+	 * Label for deriving Bob's initial header key from the master secret.
+	 */
+	String BOB_HEADER_LABEL =
+			"org.briarproject.bramble.transport/BOB_HEADER_KEY";
+
+	/**
+	 * Label for deriving the next period's key in key rotation.
+	 */
+	String ROTATE_LABEL = "org.briarproject.bramble.transport/ROTATE";
+
 }
