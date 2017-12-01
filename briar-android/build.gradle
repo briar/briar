@@ -197,7 +197,7 @@ android {
 		debug {
 			applicationIdSuffix ".debug"
 			resValue "string", "app_package", "org.briarproject.briar.beta.debug"
-			resValue "string", "app_name", "Briar Debug"
+			resValue "string", "app_name", "Briar Beta Debug"
 			shrinkResources false
 			minifyEnabled true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
