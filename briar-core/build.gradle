@@ -13,20 +13,20 @@ dependencies {
 	implementation 'com.squareup.okhttp3:okhttp:3.8.0'
 	implementation 'org.jsoup:jsoup:1.10.3'
 
-	apt 'com.google.dagger:dagger-compiler:2.0.2'
+	apt "com.google.dagger:dagger-compiler:$daggerVersion"
 
 	testImplementation project(path: ':bramble-core', configuration: 'default')
 	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	testImplementation 'net.jodah:concurrentunit:0.4.2'
-	testImplementation 'junit:junit:4.12'
-	testImplementation "org.jmock:jmock:2.8.2"
-	testImplementation "org.jmock:jmock-junit4:2.8.2"
-	testImplementation "org.jmock:jmock-legacy:2.8.2"
-	testImplementation "org.hamcrest:hamcrest-library:1.3"
-	testImplementation "org.hamcrest:hamcrest-core:1.3"
+	testImplementation "junit:junit:$junitVersion"
+	testImplementation "org.jmock:jmock:$jmockVersion"
+	testImplementation "org.jmock:jmock-junit4:$jmockVersion"
+	testImplementation "org.jmock:jmock-legacy:$jmockVersion"
+	testImplementation "org.hamcrest:hamcrest-library:$hamcrestVersion"
+	testImplementation "org.hamcrest:hamcrest-core:$hamcrestVersion"
 
-	testApt 'com.google.dagger:dagger-compiler:2.0.2'
+	testApt "com.google.dagger:dagger-compiler:$daggerVersion"
 }
 
 dependencyVerification {

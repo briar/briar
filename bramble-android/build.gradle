@@ -27,7 +27,7 @@ dependencies {
 	implementation project(path: ':bramble-core', configuration: 'default')
 	implementation fileTree(dir: 'libs', include: '*.jar')
 
-	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
+	annotationProcessor "com.google.dagger:dagger-compiler:$daggerVersion"
 
 	compileOnly 'javax.annotation:jsr250-api:1.0'
 }
@@ -55,8 +55,6 @@ dependencyVerification {
 }
 
 ext.torBinaryDir = 'src/main/res/raw'
-ext.torVersion = '0.2.9.12'
-ext.geoipVersion = '2017-09-06'
 ext.torDownloadUrl = 'https://briarproject.org/build/'
 
 def torBinaries = [
