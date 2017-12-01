@@ -46,6 +46,7 @@ dependencyVerification {
 			'org.bitlet:weupnp:0.1.4:weupnp-0.1.4.jar:88df7e6504929d00bdb832863761385c68ab92af945b04f0770b126270a444fb',
 			'org.hamcrest:hamcrest-core:1.3:hamcrest-core-1.3.jar:66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9',
 			'org.hamcrest:hamcrest-library:1.3:hamcrest-library-1.3.jar:711d64522f9ec410983bd310934296da134be4254a125080a0416ec178dfad1c',
+			'org.hsqldb:hsqldb:2.3.5:hsqldb-2.3.5.jar:6676a6977ac98997a80f827ddbd3fe8ca1e0853dad1492512135fd1a222ccfad',
 			'org.jmock:jmock-junit4:2.8.2:jmock-junit4-2.8.2.jar:f7ee4df4f7bd7b7f1cafad3b99eb74d579f109d5992ff625347352edb55e674c',
 			'org.jmock:jmock-legacy:2.8.2:jmock-legacy-2.8.2.jar:f2b985a5c08a9edb7f37612330c058809da3f6a6d63ce792426ebf8ff0d6d31b',
 			'org.jmock:jmock-testjar:2.8.2:jmock-testjar-2.8.2.jar:8900860f72c474e027cf97fe78dcbf154a1aa7fc62b6845c5fb4e4f3c7bc8760',
