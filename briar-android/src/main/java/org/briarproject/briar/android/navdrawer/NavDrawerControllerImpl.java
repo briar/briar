@@ -29,6 +29,8 @@ import javax.inject.Inject;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.BriarApplication.EXPIRY_DATE;
+import static org.briarproject.briar.android.TestingConstants.IS_BETA_BUILD;
+import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.controller.BriarControllerImpl.DOZE_ASK_AGAIN;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.SHOW;
@@ -106,6 +108,10 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 
 	@Override
 	public void showExpiryWarning(ResultHandler<ExpiryWarning> handler) {
+		if (!IS_DEBUG_BUILD && !IS_BETA_BUILD) {
+			handler.onResult(NO);
+			return;
+		}
 		runOnDbThread(() -> {
 			try {
 				Settings settings =
