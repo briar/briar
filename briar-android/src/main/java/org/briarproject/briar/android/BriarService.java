@@ -1,5 +1,6 @@
 package org.briarproject.briar.android;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -73,8 +74,20 @@ public class BriarService extends Service {
 			stopSelf();
 			return;
 		}
+		// Create mandatory notification channel
+		String channelId = "foregroundService";
+		if (Build.VERSION.SDK_INT >= 26) {
+			NotificationChannel channel = new NotificationChannel(channelId,
+					getString(R.string.app_name),
+					NotificationManager.IMPORTANCE_NONE);
+			channel.setLockscreenVisibility(VISIBILITY_SECRET);
+			NotificationManager nm =
+					(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+			nm.createNotificationChannel(channel);
+		}
 		// Show an ongoing notification that the service is running
-		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
+		NotificationCompat.Builder b =
+				new NotificationCompat.Builder(this, channelId);
 		b.setSmallIcon(R.drawable.notification_ongoing);
 		b.setColor(ContextCompat.getColor(this, R.color.briar_primary));
 		b.setContentTitle(getText(R.string.ongoing_notification_title));
