@@ -150,17 +150,14 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		int port = ss.getLocalPort();
 		CountDownLatch latch = new CountDownLatch(1);
 		AtomicBoolean error = new AtomicBoolean(false);
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					ss.accept();
-					latch.countDown();
-				} catch (IOException e) {
-					error.set(true);
-				}
+		new Thread(() -> {
+			try {
+				ss.accept();
+				latch.countDown();
+			} catch (IOException e) {
+				error.set(true);
 			}
-		}.start();
+		}).start();
 		// Tell the plugin about the port
 		TransportProperties p = new TransportProperties();
 		p.put("ipPorts", addrString + ":" + port);
@@ -243,17 +240,14 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		ss.bind(new InetSocketAddress(addrString, 0), 10);
 		CountDownLatch latch = new CountDownLatch(1);
 		AtomicBoolean error = new AtomicBoolean(false);
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					ss.accept();
-					latch.countDown();
-				} catch (IOException e) {
-					error.set(true);
-				}
+		new Thread(() -> {
+			try {
+				ss.accept();
+				latch.countDown();
+			} catch (IOException e) {
+				error.set(true);
 			}
-		}.start();
+		}).start();
 		// Tell the plugin about the port
 		BdfList descriptor = new BdfList();
 		descriptor.add(TRANSPORT_ID_LAN);

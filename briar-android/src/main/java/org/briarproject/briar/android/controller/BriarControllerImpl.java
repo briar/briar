@@ -123,25 +123,22 @@ public class BriarControllerImpl implements BriarController {
 
 	@Override
 	public void signOut(ResultHandler<Void> eventHandler) {
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					// Wait for the service to finish starting up
-					IBinder binder = serviceConnection.waitForBinder();
-					BriarService service =
-							((BriarService.BriarBinder) binder).getService();
-					service.waitForStartup();
-					// Shut down the service and wait for it to shut down
-					LOG.info("Shutting down service");
-					service.shutdown();
-					service.waitForShutdown();
-				} catch (InterruptedException e) {
-					LOG.warning("Interrupted while waiting for service");
-				}
-				eventHandler.onResult(null);
+		new Thread(() -> {
+			try {
+				// Wait for the service to finish starting up
+				IBinder binder = serviceConnection.waitForBinder();
+				BriarService service =
+						((BriarService.BriarBinder) binder).getService();
+				service.waitForStartup();
+				// Shut down the service and wait for it to shut down
+				LOG.info("Shutting down service");
+				service.shutdown();
+				service.waitForShutdown();
+			} catch (InterruptedException e) {
+				LOG.warning("Interrupted while waiting for service");
 			}
-		}.start();
+			eventHandler.onResult(null);
+		}).start();
 	}
 
 	private void unbindService() {
