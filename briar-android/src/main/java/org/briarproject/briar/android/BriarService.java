@@ -91,24 +91,21 @@ public class BriarService extends Service {
 		b.setPriority(PRIORITY_MIN);
 		startForeground(ONGOING_NOTIFICATION_ID, b.build());
 		// Start the services in a background thread
-		new Thread() {
-			@Override
-			public void run() {
-				String nickname = databaseConfig.getLocalAuthorName();
-				StartResult result = lifecycleManager.startServices(nickname);
-				if (result == SUCCESS) {
-					started = true;
-				} else if (result == ALREADY_RUNNING) {
-					LOG.info("Already running");
-					stopSelf();
-				} else {
-					if (LOG.isLoggable(WARNING))
-						LOG.warning("Startup failed: " + result);
-					showStartupFailureNotification(result);
-					stopSelf();
-				}
+		new Thread(() -> {
+			String nickname = databaseConfig.getLocalAuthorName();
+			StartResult result = lifecycleManager.startServices(nickname);
+			if (result == SUCCESS) {
+				started = true;
+			} else if (result == ALREADY_RUNNING) {
+				LOG.info("Already running");
+				stopSelf();
+			} else {
+				if (LOG.isLoggable(WARNING))
+					LOG.warning("Startup failed: " + result);
+				showStartupFailureNotification(result);
+				stopSelf();
 			}
-		}.start();
+		}).start();
 	}
 
 	private void showStartupFailureNotification(StartResult result) {
@@ -155,12 +152,9 @@ public class BriarService extends Service {
 		LOG.info("Destroyed");
 		stopForeground(true);
 		// Stop the services in a background thread
-		new Thread() {
-			@Override
-			public void run() {
-				if (started) lifecycleManager.stopServices();
-			}
-		}.start();
+		new Thread(() -> {
+			if (started) lifecycleManager.stopServices();
+		}).start();
 	}
 
 	@Override
