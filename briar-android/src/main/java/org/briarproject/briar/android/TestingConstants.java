@@ -18,7 +18,7 @@ public interface TestingConstants {
 	 * Whether this is a beta build. This should be set to false for final
 	 * release builds.
 	 */
-	boolean IS_BETA_BUILD = true;
+	boolean IS_BETA_BUILD = false;
 
 	/**
 	 * Default log level. Disable logging for final release builds.
