@@ -1,5 +1,9 @@
 package org.briarproject.bramble.api.crypto;
 
+/**
+ * Crypto operations for the key agreement protocol - see
+ * https://code.briarproject.org/akwizgran/briar-spec/blob/master/protocols/BQP.md
+ */
 public interface KeyAgreementCrypto {
 
 	/**
@@ -21,8 +25,6 @@ public interface KeyAgreementCrypto {
 
 	/**
 	 * Derives a commitment to the provided public key.
-	 * <p/>
-	 * Used by the key exchange protocol.
 	 *
 	 * @param publicKey the public key
 	 * @return the commitment to the provided public key.
@@ -31,8 +33,6 @@ public interface KeyAgreementCrypto {
 
 	/**
 	 * Derives the content of a confirmation record.
-	 * <p/>
-	 * Used by the key exchange protocol.
 	 *
 	 * @param sharedSecret the common shared secret
 	 * @param theirPayload the key exchange payload of the remote party
