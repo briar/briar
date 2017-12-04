@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.UiThread;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -138,7 +139,9 @@ public abstract class BaseActivity extends AppCompatActivity
 		dialogFrag =
 				ScreenFilterDialogFragment.newInstance(new ArrayList<>(apps));
 		dialogFrag.setCancelable(false);
-		dialogFrag.show(getSupportFragmentManager(), dialogFrag.getTag());
+		// Show dialog unless onSaveInstanceState() has been called, see #1112
+		FragmentManager fm = getSupportFragmentManager();
+		if (!fm.isStateSaved()) dialogFrag.show(fm, dialogFrag.getTag());
 	}
 
 	@Override
