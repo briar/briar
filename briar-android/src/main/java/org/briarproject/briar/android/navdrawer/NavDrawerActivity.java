@@ -51,6 +51,7 @@ import static android.support.v4.view.GravityCompat.START;
 import static android.support.v4.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
@@ -167,7 +168,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	}
 
 	private void exitIfStartupFailed(Intent intent) {
-		if (intent.getBooleanExtra(KEY_STARTUP_FAILED, false)) {
+		if (intent.getBooleanExtra(EXTRA_STARTUP_FAILED, false)) {
 			finish();
 			LOG.info("Exiting");
 			System.exit(0);
