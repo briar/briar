@@ -36,7 +36,6 @@ import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingInt
 @SuppressLint("Registered")
 public abstract class BriarActivity extends BaseActivity {
 
-	public static final String KEY_STARTUP_FAILED = "briar.STARTUP_FAILED";
 	public static final String GROUP_ID = "briar.GROUP_ID";
 	public static final String GROUP_NAME = "briar.GROUP_NAME";
 
@@ -131,8 +130,8 @@ public abstract class BriarActivity extends BaseActivity {
 		b.setNegativeButton(R.string.cancel,
 				(dialog, which) -> dialog.dismiss());
 		b.setOnDismissListener(dialog -> {
-			CheckBox checkBox = (CheckBox) ((AlertDialog) dialog)
-					.findViewById(R.id.checkbox);
+			CheckBox checkBox =
+					((AlertDialog) dialog).findViewById(R.id.checkbox);
 			if (checkBox.isChecked())
 				briarController.doNotAskAgainForDozeWhiteListing();
 		});
