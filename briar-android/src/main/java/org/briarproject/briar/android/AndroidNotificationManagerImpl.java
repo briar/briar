@@ -1,11 +1,14 @@
 package org.briarproject.briar.android;
 
+import android.annotation.TargetApi;
 import android.app.Application;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.v4.app.TaskStackBuilder;
 
@@ -44,6 +47,7 @@ import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
@@ -57,8 +61,10 @@ import javax.inject.Inject;
 import static android.app.Notification.DEFAULT_LIGHTS;
 import static android.app.Notification.DEFAULT_SOUND;
 import static android.app.Notification.DEFAULT_VIBRATE;
+import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.CATEGORY_MESSAGE;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SOCIAL;
 import static java.util.logging.Level.WARNING;
@@ -83,6 +89,12 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private static final int BLOG_POST_NOTIFICATION_ID = 6;
 	private static final int INTRODUCTION_SUCCESS_NOTIFICATION_ID = 7;
 
+	// Channel IDs
+	private static final String CONTACT_CHANNEL_ID = "contacts";
+	private static final String GROUP_CHANNEL_ID = "groups";
+	private static final String FORUM_CHANNEL_ID = "forums";
+	private static final String BLOG_CHANNEL_ID = "blogs";
+
 	private static final long SOUND_DELAY = TimeUnit.SECONDS.toMillis(2);
 
 	private static final Logger LOG =
@@ -91,8 +103,9 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private final Executor dbExecutor;
 	private final SettingsManager settingsManager;
 	private final AndroidExecutor androidExecutor;
-	private final Context appContext;
 	private final Clock clock;
+	private final Context appContext;
+	private final NotificationManager notificationManager;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	// The following must only be accessed on the main UI thread
@@ -121,6 +134,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		this.androidExecutor = androidExecutor;
 		this.clock = clock;
 		appContext = app.getApplicationContext();
+		notificationManager = (NotificationManager)
+				appContext.getSystemService(NOTIFICATION_SERVICE);
 	}
 
 	@Override
@@ -132,6 +147,33 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		} catch (DbException e) {
 			throw new ServiceException(e);
 		}
+		if (SDK_INT >= 26) {
+			// Create notification channels
+			Callable<Void> task = () -> {
+				createNotificationChannel(CONTACT_CHANNEL_ID,
+						R.string.contact_list_button);
+				createNotificationChannel(GROUP_CHANNEL_ID,
+						R.string.groups_button);
+				createNotificationChannel(FORUM_CHANNEL_ID,
+						R.string.forums_button);
+				createNotificationChannel(BLOG_CHANNEL_ID,
+						R.string.blogs_button);
+				return null;
+			};
+			try {
+				androidExecutor.runOnUiThread(task).get();
+			} catch (InterruptedException | ExecutionException e) {
+				throw new ServiceException(e);
+			}
+		}
+	}
+
+	@TargetApi(26)
+	private void createNotificationChannel(String channelId,
+			@StringRes int name) {
+		notificationManager.createNotificationChannel(
+				new NotificationChannel(channelId, appContext.getString(name),
+						IMPORTANCE_DEFAULT));
 	}
 
 	@Override
@@ -156,44 +198,34 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private void clearContactNotification() {
 		contactCounts.clear();
 		contactTotal = 0;
-		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
-		NotificationManager nm = (NotificationManager) o;
-		nm.cancel(PRIVATE_MESSAGE_NOTIFICATION_ID);
+		notificationManager.cancel(PRIVATE_MESSAGE_NOTIFICATION_ID);
 	}
 
 	@UiThread
 	private void clearGroupMessageNotification() {
 		groupCounts.clear();
 		groupTotal = 0;
-		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
-		NotificationManager nm = (NotificationManager) o;
-		nm.cancel(GROUP_MESSAGE_NOTIFICATION_ID);
+		notificationManager.cancel(GROUP_MESSAGE_NOTIFICATION_ID);
 	}
 
 	@UiThread
 	private void clearForumPostNotification() {
 		forumCounts.clear();
 		forumTotal = 0;
-		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
-		NotificationManager nm = (NotificationManager) o;
-		nm.cancel(FORUM_POST_NOTIFICATION_ID);
+		notificationManager.cancel(FORUM_POST_NOTIFICATION_ID);
 	}
 
 	@UiThread
 	private void clearBlogPostNotification() {
 		blogCounts.clear();
 		blogTotal = 0;
-		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
-		NotificationManager nm = (NotificationManager) o;
-		nm.cancel(BLOG_POST_NOTIFICATION_ID);
+		notificationManager.cancel(BLOG_POST_NOTIFICATION_ID);
 	}
 
 	@UiThread
 	private void clearIntroductionSuccessNotification() {
 		introductionTotal = 0;
-		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
-		NotificationManager nm = (NotificationManager) o;
-		nm.cancel(INTRODUCTION_SUCCESS_NOTIFICATION_ID);
+		notificationManager.cancel(INTRODUCTION_SUCCESS_NOTIFICATION_ID);
 	}
 
 	@Override
@@ -269,8 +301,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		if (contactTotal == 0) {
 			clearContactNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_PRIVATE, true)) {
-			BriarNotificationBuilder b =
-					new BriarNotificationBuilder(appContext);
+			BriarNotificationBuilder b = new BriarNotificationBuilder(
+					appContext, CONTACT_CHANNEL_ID);
 			b.setSmallIcon(R.drawable.notification_private_message);
 			b.setColorRes(R.color.briar_primary);
 			b.setContentTitle(appContext.getText(R.string.app_name));
@@ -305,9 +337,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			}
-			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
-			NotificationManager nm = (NotificationManager) o;
-			nm.notify(PRIVATE_MESSAGE_NOTIFICATION_ID, b.build());
+			notificationManager.notify(PRIVATE_MESSAGE_NOTIFICATION_ID,
+					b.build());
 		}
 	}
 
@@ -378,7 +409,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			clearGroupMessageNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_GROUP, true)) {
 			BriarNotificationBuilder b =
-					new BriarNotificationBuilder(appContext);
+					new BriarNotificationBuilder(appContext, GROUP_CHANNEL_ID);
 			b.setSmallIcon(R.drawable.notification_private_group);
 			b.setColorRes(R.color.briar_primary);
 			b.setContentTitle(appContext.getText(R.string.app_name));
@@ -414,9 +445,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			}
-			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
-			NotificationManager nm = (NotificationManager) o;
-			nm.notify(GROUP_MESSAGE_NOTIFICATION_ID, b.build());
+			notificationManager.notify(GROUP_MESSAGE_NOTIFICATION_ID,
+					b.build());
 		}
 	}
 
@@ -455,7 +485,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			clearForumPostNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_FORUM, true)) {
 			BriarNotificationBuilder b =
-					new BriarNotificationBuilder(appContext);
+					new BriarNotificationBuilder(appContext, FORUM_CHANNEL_ID);
 			b.setSmallIcon(R.drawable.notification_forum);
 			b.setColorRes(R.color.briar_primary);
 			b.setContentTitle(appContext.getText(R.string.app_name));
@@ -491,9 +521,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				t.addNextIntent(i);
 				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			}
-			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
-			NotificationManager nm = (NotificationManager) o;
-			nm.notify(FORUM_POST_NOTIFICATION_ID, b.build());
+			notificationManager.notify(FORUM_POST_NOTIFICATION_ID, b.build());
 		}
 	}
 
@@ -532,7 +560,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			clearBlogPostNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_BLOG, true)) {
 			BriarNotificationBuilder b =
-					new BriarNotificationBuilder(appContext);
+					new BriarNotificationBuilder(appContext, BLOG_CHANNEL_ID);
 			b.setSmallIcon(R.drawable.notification_blog);
 			b.setColorRes(R.color.briar_primary);
 			b.setContentTitle(appContext.getText(R.string.app_name));
@@ -555,9 +583,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			t.addNextIntent(i);
 			b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 
-			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
-			NotificationManager nm = (NotificationManager) o;
-			nm.notify(BLOG_POST_NOTIFICATION_ID, b.build());
+			notificationManager.notify(BLOG_POST_NOTIFICATION_ID, b.build());
 		}
 	}
 
@@ -577,7 +603,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@UiThread
 	private void updateIntroductionNotification() {
-		BriarNotificationBuilder b = new BriarNotificationBuilder(appContext);
+		BriarNotificationBuilder b =
+				new BriarNotificationBuilder(appContext, CONTACT_CHANNEL_ID);
 		b.setSmallIcon(R.drawable.notification_introduction);
 		b.setColorRes(R.color.briar_primary);
 		b.setContentTitle(appContext.getText(R.string.app_name));
@@ -599,9 +626,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		t.addNextIntent(i);
 		b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 
-		Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
-		NotificationManager nm = (NotificationManager) o;
-		nm.notify(INTRODUCTION_SUCCESS_NOTIFICATION_ID, b.build());
+		notificationManager.notify(INTRODUCTION_SUCCESS_NOTIFICATION_ID,
+				b.build());
 	}
 
 	@Override

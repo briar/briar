@@ -10,6 +10,8 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
+import static org.briarproject.briar.android.BriarService.EXTRA_NOTIFICATION_ID;
+import static org.briarproject.briar.android.BriarService.EXTRA_START_RESULT;
 
 public class StartupFailureActivity extends BaseActivity {
 
@@ -27,8 +29,9 @@ public class StartupFailureActivity extends BaseActivity {
 	}
 
 	private void handleIntent(Intent i) {
-		StartResult result = (StartResult) i.getSerializableExtra("briar.START_RESULT");
-		int notificationId = i.getIntExtra("briar.FAILURE_NOTIFICATION_ID", -1);
+		StartResult result =
+				(StartResult) i.getSerializableExtra(EXTRA_START_RESULT);
+		int notificationId = i.getIntExtra(EXTRA_NOTIFICATION_ID, -1);
 
 		// cancel notification
 		if (notificationId > -1) {
