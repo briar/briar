@@ -11,49 +11,55 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
+import java.sql.Statement;
 
 import javax.inject.Inject;
 
 /**
- * Contains all the H2-specific code for the database.
+ * Contains all the HSQLDB-specific code for the database.
  */
 @NotNullByDefault
-class H2Database extends JdbcDatabase {
+class HyperSqlDatabase extends JdbcDatabase {
 
 	private static final String HASH_TYPE = "BINARY(32)";
 	private static final String SECRET_TYPE = "BINARY(32)";
 	private static final String BINARY_TYPE = "BINARY";
-	private static final String COUNTER_TYPE = "INT NOT NULL AUTO_INCREMENT";
+	private static final String COUNTER_TYPE =
+			"INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 1)";
 	private static final String STRING_TYPE = "VARCHAR";
 
 	private final DatabaseConfig config;
 	private final String url;
 
 	@Inject
-	H2Database(DatabaseConfig config, Clock clock) {
+	HyperSqlDatabase(DatabaseConfig config, Clock clock) {
 		super(HASH_TYPE, SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE,
 				clock);
 		this.config = config;
 		File dir = config.getDatabaseDirectory();
 		String path = new File(dir, "db").getAbsolutePath();
-		url = "jdbc:h2:split:" + path + ";CIPHER=AES;MULTI_THREADED=1"
-				+ ";WRITE_DELAY=0";
+		url = "jdbc:hsqldb:file:" + path
+				+ ";sql.enforce_size=false;allow_empty_batch=true"
+				+ ";encrypt_lobs=true;crypt_type=AES";
 	}
 
 	@Override
 	public boolean open() throws DbException {
 		boolean reopen = config.databaseExists();
 		if (!reopen) config.getDatabaseDirectory().mkdirs();
-		super.open("org.h2.Driver", reopen);
+		super.open("org.hsqldb.jdbc.JDBCDriver", reopen);
 		return reopen;
 	}
 
 	@Override
 	public void close() throws DbException {
-		// H2 will close the database when the last connection closes
 		try {
 			super.closeAllConnections();
+			Connection c = createConnection();
+			Statement s = c.createStatement();
+			s.executeQuery("SHUTDOWN");
+			s.close();
+			c.close();
 		} catch (SQLException e) {
 			throw new DbException(e);
 		}
@@ -87,11 +93,7 @@ class H2Database extends JdbcDatabase {
 	protected Connection createConnection() throws SQLException {
 		SecretKey key = config.getEncryptionKey();
 		if (key == null) throw new IllegalStateException();
-		Properties props = new Properties();
-		props.setProperty("user", "user");
-		// Separate the file password from the user password with a space
 		String hex = StringUtils.toHexString(key.getBytes());
-		props.put("password", hex + " password");
-		return DriverManager.getConnection(url, props);
+		return DriverManager.getConnection(url + ";crypt_key=" + hex);
 	}
 }
