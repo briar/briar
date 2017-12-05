@@ -90,8 +90,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	private final ReentrantReadWriteLock lock =
 			new ReentrantReadWriteLock(true);
 
-	private volatile int shutdownHandle = -1;
-
 	@Inject
 	DatabaseComponentImpl(Database<T> db, Class<T> txnClass, EventBus eventBus,
 			ShutdownManager shutdown) {
@@ -103,22 +101,20 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public boolean open() throws DbException {
-		Runnable shutdownHook = () -> {
+		boolean reopened = db.open();
+		shutdown.addShutdownHook(() -> {
 			try {
 				close();
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
-		};
-		boolean reopened = db.open();
-		shutdownHandle = shutdown.addShutdownHook(shutdownHook);
+		});
 		return reopened;
 	}
 
 	@Override
 	public void close() throws DbException {
 		if (closed.getAndSet(true)) return;
-		shutdown.removeShutdownHook(shutdownHandle);
 		db.close();
 	}
 
