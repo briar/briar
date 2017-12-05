@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.StreamEncrypter;
 import org.briarproject.bramble.api.crypto.StreamEncrypterFactory;
+import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.transport.StreamContext;
 
@@ -22,12 +23,15 @@ import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENG
 class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 
 	private final CryptoComponent crypto;
+	private final TransportCrypto transportCrypto;
 	private final Provider<AuthenticatedCipher> cipherProvider;
 
 	@Inject
 	StreamEncrypterFactoryImpl(CryptoComponent crypto,
+			TransportCrypto transportCrypto,
 			Provider<AuthenticatedCipher> cipherProvider) {
 		this.crypto = crypto;
+		this.transportCrypto = transportCrypto;
 		this.cipherProvider = cipherProvider;
 	}
 
@@ -37,7 +41,8 @@ class StreamEncrypterFactoryImpl implements StreamEncrypterFactory {
 		AuthenticatedCipher cipher = cipherProvider.get();
 		long streamNumber = ctx.getStreamNumber();
 		byte[] tag = new byte[TAG_LENGTH];
-		crypto.encodeTag(tag, ctx.getTagKey(), PROTOCOL_VERSION, streamNumber);
+		transportCrypto.encodeTag(tag, ctx.getTagKey(), PROTOCOL_VERSION,
+				streamNumber);
 		byte[] streamHeaderNonce = new byte[STREAM_HEADER_NONCE_LENGTH];
 		crypto.getSecureRandom().nextBytes(streamHeaderNonce);
 		SecretKey frameKey = crypto.generateSecretKey();

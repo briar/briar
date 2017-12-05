@@ -1,8 +1,8 @@
 package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -11,12 +11,11 @@ import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.TransportKeys;
-import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.RunAction;
 import org.briarproject.bramble.test.TestUtils;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.junit.Test;
@@ -41,7 +40,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class TransportKeyManagerImplTest extends BrambleTestCase {
+public class TransportKeyManagerImplTest extends BrambleMockTestCase {
+
+	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
+	private final TransportCrypto transportCrypto =
+			context.mock(TransportCrypto.class);
+	private final Executor dbExecutor = context.mock(Executor.class);
+	private final ScheduledExecutorService scheduler =
+			context.mock(ScheduledExecutorService.class);
+	private final Clock clock = context.mock(Clock.class);
 
 	private final TransportId transportId = new TransportId("id");
 	private final long maxLatency = 30 * 1000; // 30 seconds
@@ -55,14 +62,6 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 
 	@Test
 	public void testKeysAreRotatedAtStartup() throws Exception {
-		Mockery context = new Mockery();
-		DatabaseComponent db = context.mock(DatabaseComponent.class);
-		CryptoComponent crypto = context.mock(CryptoComponent.class);
-		Executor dbExecutor = context.mock(Executor.class);
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		Clock clock = context.mock(Clock.class);
-
 		Map<ContactId, TransportKeys> loaded = new LinkedHashMap<>();
 		TransportKeys shouldRotate = createTransportKeys(900, 0);
 		TransportKeys shouldNotRotate = createTransportKeys(1000, 0);
@@ -79,14 +78,15 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			oneOf(db).getTransportKeys(txn, transportId);
 			will(returnValue(loaded));
 			// Rotate the transport keys
-			oneOf(crypto).rotateTransportKeys(shouldRotate, 1000);
+			oneOf(transportCrypto).rotateTransportKeys(shouldRotate, 1000);
 			will(returnValue(rotated));
-			oneOf(crypto).rotateTransportKeys(shouldNotRotate, 1000);
+			oneOf(transportCrypto).rotateTransportKeys(shouldNotRotate, 1000);
 			will(returnValue(shouldNotRotate));
 			// Encode the tags (3 sets per contact)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
-				exactly(6).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(PROTOCOL_VERSION), with(i));
+				exactly(6).of(transportCrypto).encodeTag(
+						with(any(byte[].class)), with(tagKey),
+						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Save the keys that were rotated
@@ -97,161 +97,124 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 					with(rotationPeriodLength - 1), with(MILLISECONDS));
 		}});
 
-		TransportKeyManager
-				transportKeyManager = new TransportKeyManagerImpl(db,
-				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
+		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
+				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
+				maxLatency);
 		transportKeyManager.start(txn);
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testKeysAreRotatedWhenAddingContact() throws Exception {
-		Mockery context = new Mockery();
-		DatabaseComponent db = context.mock(DatabaseComponent.class);
-		CryptoComponent crypto = context.mock(CryptoComponent.class);
-		Executor dbExecutor = context.mock(Executor.class);
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		Clock clock = context.mock(Clock.class);
-
-		boolean alice = true;
+		boolean alice = random.nextBoolean();
 		TransportKeys transportKeys = createTransportKeys(999, 0);
 		TransportKeys rotated = createTransportKeys(1000, 0);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
-			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 999,
-					alice);
+			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
+					999, alice);
 			will(returnValue(transportKeys));
 			// Get the current time (1 ms after start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(rotationPeriodLength * 1000 + 1));
 			// Rotate the transport keys
-			oneOf(crypto).rotateTransportKeys(transportKeys, 1000);
+			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
 			will(returnValue(rotated));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
-				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(PROTOCOL_VERSION), with(i));
+				exactly(3).of(transportCrypto).encodeTag(
+						with(any(byte[].class)), with(tagKey),
+						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Save the keys
 			oneOf(db).addTransportKeys(txn, contactId, rotated);
 		}});
 
-		TransportKeyManager
-				transportKeyManager = new TransportKeyManagerImpl(db,
-				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
+		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
+				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
+				maxLatency);
 		// The timestamp is 1 ms before the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000 - 1;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
 				alice);
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testOutgoingStreamContextIsNullIfContactIsNotFound()
 			throws Exception {
-		Mockery context = new Mockery();
-		DatabaseComponent db = context.mock(DatabaseComponent.class);
-		CryptoComponent crypto = context.mock(CryptoComponent.class);
-		Executor dbExecutor = context.mock(Executor.class);
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		Clock clock = context.mock(Clock.class);
-
 		Transaction txn = new Transaction(null, false);
 
-		TransportKeyManager
-				transportKeyManager = new TransportKeyManagerImpl(db,
-				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
+		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
+				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
+				maxLatency);
 		assertNull(transportKeyManager.getStreamContext(txn, contactId));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testOutgoingStreamContextIsNullIfStreamCounterIsExhausted()
 			throws Exception {
-		Mockery context = new Mockery();
-		DatabaseComponent db = context.mock(DatabaseComponent.class);
-		CryptoComponent crypto = context.mock(CryptoComponent.class);
-		Executor dbExecutor = context.mock(Executor.class);
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		Clock clock = context.mock(Clock.class);
-
-		boolean alice = true;
+		boolean alice = random.nextBoolean();
 		// The stream counter has been exhausted
 		TransportKeys transportKeys = createTransportKeys(1000,
 				MAX_32_BIT_UNSIGNED + 1);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
-			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 1000,
-					alice);
+			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
+					1000, alice);
 			will(returnValue(transportKeys));
 			// Get the current time (the start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(rotationPeriodLength * 1000));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
-				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(PROTOCOL_VERSION), with(i));
+				exactly(3).of(transportCrypto).encodeTag(
+						with(any(byte[].class)), with(tagKey),
+						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Rotate the transport keys (the keys are unaffected)
-			oneOf(crypto).rotateTransportKeys(transportKeys, 1000);
+			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
 			// Save the keys
 			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
 		}});
 
-		TransportKeyManager
-				transportKeyManager = new TransportKeyManagerImpl(db,
-				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
+		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
+				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
+				maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
 				alice);
 		assertNull(transportKeyManager.getStreamContext(txn, contactId));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testOutgoingStreamCounterIsIncremented() throws Exception {
-		Mockery context = new Mockery();
-		DatabaseComponent db = context.mock(DatabaseComponent.class);
-		CryptoComponent crypto = context.mock(CryptoComponent.class);
-		Executor dbExecutor = context.mock(Executor.class);
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		Clock clock = context.mock(Clock.class);
-
-		boolean alice = true;
+		boolean alice = random.nextBoolean();
 		// The stream counter can be used one more time before being exhausted
 		TransportKeys transportKeys = createTransportKeys(1000,
 				MAX_32_BIT_UNSIGNED);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
-			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 1000,
-					alice);
+			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
+					1000, alice);
 			will(returnValue(transportKeys));
 			// Get the current time (the start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(rotationPeriodLength * 1000));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
-				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(PROTOCOL_VERSION), with(i));
+				exactly(3).of(transportCrypto).encodeTag(
+						with(any(byte[].class)), with(tagKey),
+						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Rotate the transport keys (the keys are unaffected)
-			oneOf(crypto).rotateTransportKeys(transportKeys, 1000);
+			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
 			// Save the keys
 			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
@@ -259,9 +222,9 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			oneOf(db).incrementStreamCounter(txn, contactId, transportId, 1000);
 		}});
 
-		TransportKeyManager
-				transportKeyManager = new TransportKeyManagerImpl(db,
-				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
+		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
+				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
+				maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
@@ -277,94 +240,76 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 		assertEquals(MAX_32_BIT_UNSIGNED, ctx.getStreamNumber());
 		// The second request should return null, the counter is exhausted
 		assertNull(transportKeyManager.getStreamContext(txn, contactId));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testIncomingStreamContextIsNullIfTagIsNotFound()
 			throws Exception {
-		Mockery context = new Mockery();
-		DatabaseComponent db = context.mock(DatabaseComponent.class);
-		CryptoComponent crypto = context.mock(CryptoComponent.class);
-		Executor dbExecutor = context.mock(Executor.class);
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		Clock clock = context.mock(Clock.class);
-
-		boolean alice = true;
+		boolean alice = random.nextBoolean();
 		TransportKeys transportKeys = createTransportKeys(1000, 0);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
-			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 1000,
-					alice);
+			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
+					1000, alice);
 			will(returnValue(transportKeys));
 			// Get the current time (the start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(rotationPeriodLength * 1000));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
-				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(PROTOCOL_VERSION), with(i));
+				exactly(3).of(transportCrypto).encodeTag(
+						with(any(byte[].class)), with(tagKey),
+						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Rotate the transport keys (the keys are unaffected)
-			oneOf(crypto).rotateTransportKeys(transportKeys, 1000);
+			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
 			// Save the keys
 			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
 		}});
 
-		TransportKeyManager
-				transportKeyManager = new TransportKeyManagerImpl(db,
-				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
+		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
+				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
+				maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
 				alice);
 		assertNull(transportKeyManager.getStreamContext(txn,
 				new byte[TAG_LENGTH]));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testTagIsNotRecognisedTwice() throws Exception {
-		Mockery context = new Mockery();
-		DatabaseComponent db = context.mock(DatabaseComponent.class);
-		CryptoComponent crypto = context.mock(CryptoComponent.class);
-		Executor dbExecutor = context.mock(Executor.class);
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		Clock clock = context.mock(Clock.class);
-
-		boolean alice = true;
+		boolean alice = random.nextBoolean();
 		TransportKeys transportKeys = createTransportKeys(1000, 0);
 		// Keep a copy of the tags
 		List<byte[]> tags = new ArrayList<>();
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
-			oneOf(crypto).deriveTransportKeys(transportId, masterKey, 1000,
-					alice);
+			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
+					1000, alice);
 			will(returnValue(transportKeys));
 			// Get the current time (the start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(rotationPeriodLength * 1000));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
-				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(PROTOCOL_VERSION), with(i));
+				exactly(3).of(transportCrypto).encodeTag(
+						with(any(byte[].class)), with(tagKey),
+						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction(tags));
 			}
 			// Rotate the transport keys (the keys are unaffected)
-			oneOf(crypto).rotateTransportKeys(transportKeys, 1000);
+			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
 			// Save the keys
 			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
 			// Encode a new tag after sliding the window
-			oneOf(crypto).encodeTag(with(any(byte[].class)),
+			oneOf(transportCrypto).encodeTag(with(any(byte[].class)),
 					with(tagKey), with(PROTOCOL_VERSION),
 					with((long) REORDERING_WINDOW_SIZE));
 			will(new EncodeTagAction(tags));
@@ -373,9 +318,9 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 					1, new byte[REORDERING_WINDOW_SIZE / 8]);
 		}});
 
-		TransportKeyManager
-				transportKeyManager = new TransportKeyManagerImpl(db,
-				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
+		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
+				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
+				maxLatency);
 		// The timestamp is at the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
@@ -395,20 +340,10 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 		assertEquals(REORDERING_WINDOW_SIZE * 3 + 1, tags.size());
 		// The second request should return null, the tag has already been used
 		assertNull(transportKeyManager.getStreamContext(txn, tag));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testKeysAreRotatedToCurrentPeriod() throws Exception {
-		Mockery context = new Mockery();
-		DatabaseComponent db = context.mock(DatabaseComponent.class);
-		CryptoComponent crypto = context.mock(CryptoComponent.class);
-		Executor dbExecutor = context.mock(Executor.class);
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		Clock clock = context.mock(Clock.class);
-
 		TransportKeys transportKeys = createTransportKeys(1000, 0);
 		Map<ContactId, TransportKeys> loaded =
 				Collections.singletonMap(contactId, transportKeys);
@@ -424,12 +359,13 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			oneOf(db).getTransportKeys(txn, transportId);
 			will(returnValue(loaded));
 			// Rotate the transport keys (the keys are unaffected)
-			oneOf(crypto).rotateTransportKeys(transportKeys, 1000);
+			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
-				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(PROTOCOL_VERSION), with(i));
+				exactly(3).of(transportCrypto).encodeTag(
+						with(any(byte[].class)), with(tagKey),
+						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Schedule key rotation at the start of the next rotation period
@@ -445,13 +381,14 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(rotationPeriodLength * 1001));
 			// Rotate the transport keys
-			oneOf(crypto).rotateTransportKeys(with(any(TransportKeys.class)),
-					with(1001L));
+			oneOf(transportCrypto).rotateTransportKeys(
+					with(any(TransportKeys.class)), with(1001L));
 			will(returnValue(rotated));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
-				exactly(3).of(crypto).encodeTag(with(any(byte[].class)),
-						with(tagKey), with(PROTOCOL_VERSION), with(i));
+				exactly(3).of(transportCrypto).encodeTag(
+						with(any(byte[].class)), with(tagKey),
+						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
 			// Save the keys that were rotated
@@ -465,12 +402,10 @@ public class TransportKeyManagerImplTest extends BrambleTestCase {
 			oneOf(db).endTransaction(txn1);
 		}});
 
-		TransportKeyManager
-				transportKeyManager = new TransportKeyManagerImpl(db,
-				crypto, dbExecutor, scheduler, clock, transportId, maxLatency);
+		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
+				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
+				maxLatency);
 		transportKeyManager.start(txn);
-
-		context.assertIsSatisfied();
 	}
 
 	private TransportKeys createTransportKeys(long rotationPeriod,

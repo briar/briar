@@ -1,6 +1,6 @@
 package org.briarproject.bramble.keyagreement;
 
-import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyAgreementCrypto;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
@@ -46,7 +46,7 @@ class KeyAgreementConnector {
 
 	private final Callbacks callbacks;
 	private final Clock clock;
-	private final CryptoComponent crypto;
+	private final KeyAgreementCrypto keyAgreementCrypto;
 	private final PluginManager pluginManager;
 	private final CompletionService<KeyAgreementConnection> connect;
 
@@ -58,11 +58,11 @@ class KeyAgreementConnector {
 	private volatile boolean alice = false;
 
 	KeyAgreementConnector(Callbacks callbacks, Clock clock,
-			CryptoComponent crypto, PluginManager pluginManager,
+			KeyAgreementCrypto keyAgreementCrypto, PluginManager pluginManager,
 			Executor ioExecutor) {
 		this.callbacks = callbacks;
 		this.clock = clock;
-		this.crypto = crypto;
+		this.keyAgreementCrypto = keyAgreementCrypto;
 		this.pluginManager = pluginManager;
 		connect = new ExecutorCompletionService<>(ioExecutor);
 	}
@@ -70,8 +70,8 @@ class KeyAgreementConnector {
 	public Payload listen(KeyPair localKeyPair) {
 		LOG.info("Starting BQP listeners");
 		// Derive commitment
-		byte[] commitment = crypto.deriveKeyCommitment(
-				localKeyPair.getPublic().getEncoded());
+		byte[] commitment = keyAgreementCrypto.deriveKeyCommitment(
+				localKeyPair.getPublic());
 		// Start all listeners and collect their descriptors
 		List<TransportDescriptor> descriptors = new ArrayList<>();
 		for (DuplexPlugin plugin : pluginManager.getKeyAgreementPlugins()) {

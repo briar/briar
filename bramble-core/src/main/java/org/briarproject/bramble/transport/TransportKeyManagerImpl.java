@@ -2,8 +2,8 @@ package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -41,7 +41,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			Logger.getLogger(TransportKeyManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
-	private final CryptoComponent crypto;
+	private final TransportCrypto transportCrypto;
 	private final Executor dbExecutor;
 	private final ScheduledExecutorService scheduler;
 	private final Clock clock;
@@ -54,11 +54,12 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	private final Map<ContactId, MutableOutgoingKeys> outContexts;
 	private final Map<ContactId, MutableTransportKeys> keys;
 
-	TransportKeyManagerImpl(DatabaseComponent db, CryptoComponent crypto,
-			Executor dbExecutor, @Scheduler ScheduledExecutorService scheduler,
-			Clock clock, TransportId transportId, long maxLatency) {
+	TransportKeyManagerImpl(DatabaseComponent db,
+			TransportCrypto transportCrypto, Executor dbExecutor,
+			@Scheduler ScheduledExecutorService scheduler, Clock clock,
+			TransportId transportId, long maxLatency) {
 		this.db = db;
-		this.crypto = crypto;
+		this.transportCrypto = transportCrypto;
 		this.dbExecutor = dbExecutor;
 		this.scheduler = scheduler;
 		this.clock = clock;
@@ -99,7 +100,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		for (Entry<ContactId, TransportKeys> e : keys.entrySet()) {
 			ContactId c = e.getKey();
 			TransportKeys k = e.getValue();
-			TransportKeys k1 = crypto.rotateTransportKeys(k, rotationPeriod);
+			TransportKeys k1 =
+					transportCrypto.rotateTransportKeys(k, rotationPeriod);
 			if (k1.getRotationPeriod() > k.getRotationPeriod())
 				rotationResult.rotated.put(c, k1);
 			rotationResult.current.put(c, k1);
@@ -127,7 +129,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		for (long streamNumber : inKeys.getWindow().getUnseen()) {
 			TagContext tagCtx = new TagContext(c, inKeys, streamNumber);
 			byte[] tag = new byte[TAG_LENGTH];
-			crypto.encodeTag(tag, inKeys.getTagKey(), PROTOCOL_VERSION,
+			transportCrypto.encodeTag(tag, inKeys.getTagKey(), PROTOCOL_VERSION,
 					streamNumber);
 			inContexts.put(new Bytes(tag), tagCtx);
 		}
@@ -162,11 +164,11 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			// Work out what rotation period the timestamp belongs to
 			long rotationPeriod = timestamp / rotationPeriodLength;
 			// Derive the transport keys
-			TransportKeys k = crypto.deriveTransportKeys(transportId, master,
-					rotationPeriod, alice);
+			TransportKeys k = transportCrypto.deriveTransportKeys(transportId,
+					master, rotationPeriod, alice);
 			// Rotate the keys to the current rotation period if necessary
 			rotationPeriod = clock.currentTimeMillis() / rotationPeriodLength;
-			k = crypto.rotateTransportKeys(k, rotationPeriod);
+			k = transportCrypto.rotateTransportKeys(k, rotationPeriod);
 			// Initialise mutable state for the contact
 			addKeys(c, new MutableTransportKeys(k));
 			// Write the keys back to the DB
@@ -234,8 +236,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			// Add tags for any stream numbers added to the window
 			for (long streamNumber : change.getAdded()) {
 				byte[] addTag = new byte[TAG_LENGTH];
-				crypto.encodeTag(addTag, inKeys.getTagKey(), PROTOCOL_VERSION,
-						streamNumber);
+				transportCrypto.encodeTag(addTag, inKeys.getTagKey(),
+						PROTOCOL_VERSION, streamNumber);
 				inContexts.put(new Bytes(addTag), new TagContext(
 						tagCtx.contactId, inKeys, streamNumber));
 			}
@@ -243,7 +245,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			for (long streamNumber : change.getRemoved()) {
 				if (streamNumber == tagCtx.streamNumber) continue;
 				byte[] removeTag = new byte[TAG_LENGTH];
-				crypto.encodeTag(removeTag, inKeys.getTagKey(),
+				transportCrypto.encodeTag(removeTag, inKeys.getTagKey(),
 						PROTOCOL_VERSION, streamNumber);
 				inContexts.remove(new Bytes(removeTag));
 			}
