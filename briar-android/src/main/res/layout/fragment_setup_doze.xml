@@ -2,6 +2,7 @@
 <ScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:fillViewport="true">
@@ -16,38 +17,47 @@
 		android:paddingStart="@dimen/margin_activity_horizontal"
 		android:paddingTop="@dimen/margin_activity_vertical">
 
-		<TextView
-			android:id="@+id/setup_explanation"
+		<org.briarproject.briar.android.login.DozeView
+			android:id="@+id/dozeView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="@string/setup_doze_intro"
-			android:textSize="@dimen/text_size_medium"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintRight_toRightOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"/>
 
+		<org.briarproject.briar.android.login.HuaweiView
+			android:id="@+id/huaweiView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/dozeView"/>
+
 		<Button
-			android:id="@+id/dozeButton"
+			android:id="@+id/next"
 			style="@style/BriarButton.Default"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="@dimen/margin_activity_horizontal"
-			android:text="@string/setup_doze_button"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/setup_explanation"/>
+			android:enabled="false"
+			android:text="@string/create_account_button"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/huaweiView"
+			app:layout_constraintVertical_bias="1.0"
+			tools:enabled="true"/>
 
 		<ProgressBar
 			android:id="@+id/progress"
 			style="?android:attr/progressBarStyle"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="16dp"
-			android:layout_marginTop="16dp"
 			android:visibility="invisible"
-			app:layout_constraintBottom_toBottomOf="@+id/dozeButton"
+			app:layout_constraintBottom_toBottomOf="@+id/next"
 			app:layout_constraintLeft_toLeftOf="parent"
 			app:layout_constraintRight_toRightOf="parent"
-			app:layout_constraintTop_toTopOf="@+id/dozeButton"/>
+			app:layout_constraintTop_toTopOf="@+id/next"/>
 
 	</android.support.constraint.ConstraintLayout>
 

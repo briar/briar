@@ -5,6 +5,7 @@
 		<item name="colorPrimary">@color/briar_primary</item>
 		<item name="colorPrimaryDark">@color/briar_primary_dark</item>
 		<item name="colorAccent">@color/briar_accent</item>
+		<item name="colorControlNormal">@color/control_normal_light</item>
 		<item name="android:textColorLink">@color/briar_text_link</item>
 		<item name="android:windowBackground">@color/window_background</item>
 		<item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
