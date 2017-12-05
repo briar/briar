@@ -12,8 +12,8 @@ import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 
 public class BriarNotificationBuilder extends NotificationCompat.Builder {
 
-	public BriarNotificationBuilder(Context context) {
-		super(context);
+	public BriarNotificationBuilder(Context context, String channelId) {
+		super(context, channelId);
 		// Auto-cancel does not fire the delete intent, see
 		// https://issuetracker.google.com/issues/36961721
 		setAutoCancel(true);

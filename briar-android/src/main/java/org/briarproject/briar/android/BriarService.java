@@ -8,7 +8,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
@@ -26,9 +25,12 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
+import static android.app.NotificationManager.IMPORTANCE_NONE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SERVICE;
 import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
@@ -38,8 +40,20 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResul
 
 public class BriarService extends Service {
 
+	public static String EXTRA_START_RESULT =
+			"org.briarproject.briar.START_RESULT";
+	public static String EXTRA_NOTIFICATION_ID =
+			"org.briarproject.briar.FAILURE_NOTIFICATION_ID";
+	public static String EXTRA_STARTUP_FAILED =
+			"org.briarproject.briar.STARTUP_FAILED";
+
 	private static final int ONGOING_NOTIFICATION_ID = 1;
 	private static final int FAILURE_NOTIFICATION_ID = 2;
+
+	// Channels are sorted by channel ID in the Settings app, so use IDs
+	// that will sort below the main channels such as contacts
+	private static final String ONGOING_CHANNEL_ID = "zForegroundService";
+	private static final String FAILURE_CHANNEL_ID = "zStartupFailure";
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
@@ -74,20 +88,26 @@ public class BriarService extends Service {
 			stopSelf();
 			return;
 		}
-		// Create mandatory notification channel
-		String channelId = "foregroundService";
-		if (Build.VERSION.SDK_INT >= 26) {
-			NotificationChannel channel = new NotificationChannel(channelId,
-					getString(R.string.app_name),
-					NotificationManager.IMPORTANCE_NONE);
-			channel.setLockscreenVisibility(VISIBILITY_SECRET);
-			NotificationManager nm =
-					(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-			nm.createNotificationChannel(channel);
+		// Create notification channels
+		if (SDK_INT >= 26) {
+			NotificationManager nm = (NotificationManager)
+					getSystemService(NOTIFICATION_SERVICE);
+			NotificationChannel ongoingChannel = new NotificationChannel(
+					ONGOING_CHANNEL_ID,
+					getString(R.string.ongoing_notification_title),
+					IMPORTANCE_NONE);
+			ongoingChannel.setLockscreenVisibility(VISIBILITY_SECRET);
+			nm.createNotificationChannel(ongoingChannel);
+			NotificationChannel failureChannel = new NotificationChannel(
+					FAILURE_CHANNEL_ID,
+					getString(R.string.startup_failed_notification_title),
+					IMPORTANCE_DEFAULT);
+			failureChannel.setLockscreenVisibility(VISIBILITY_SECRET);
+			nm.createNotificationChannel(failureChannel);
 		}
 		// Show an ongoing notification that the service is running
 		NotificationCompat.Builder b =
-				new NotificationCompat.Builder(this, channelId);
+				new NotificationCompat.Builder(this, ONGOING_CHANNEL_ID);
 		b.setSmallIcon(R.drawable.notification_ongoing);
 		b.setColor(ContextCompat.getColor(this, R.color.briar_primary));
 		b.setContentTitle(getText(R.string.ongoing_notification_title));
@@ -97,7 +117,7 @@ public class BriarService extends Service {
 		Intent i = new Intent(this, NavDrawerActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
 		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
-		if (Build.VERSION.SDK_INT >= 21) {
+		if (SDK_INT >= 21) {
 			b.setCategory(CATEGORY_SERVICE);
 			b.setVisibility(VISIBILITY_SECRET);
 		}
@@ -126,8 +146,8 @@ public class BriarService extends Service {
 
 	private void showStartupFailureNotification(StartResult result) {
 		androidExecutor.runOnUiThread(() -> {
-			NotificationCompat.Builder b =
-					new NotificationCompat.Builder(BriarService.this);
+			NotificationCompat.Builder b = new NotificationCompat.Builder(
+					BriarService.this, FAILURE_CHANNEL_ID);
 			b.setSmallIcon(android.R.drawable.stat_notify_error);
 			b.setContentTitle(getText(
 					R.string.startup_failed_notification_title));
@@ -136,9 +156,8 @@ public class BriarService extends Service {
 			Intent i = new Intent(BriarService.this,
 					StartupFailureActivity.class);
 			i.setFlags(FLAG_ACTIVITY_NEW_TASK);
-			i.putExtra("briar.START_RESULT", result);
-			i.putExtra("briar.FAILURE_NOTIFICATION_ID",
-					FAILURE_NOTIFICATION_ID);
+			i.putExtra(EXTRA_START_RESULT, result);
+			i.putExtra(EXTRA_NOTIFICATION_ID, FAILURE_NOTIFICATION_ID);
 			b.setContentIntent(PendingIntent.getActivity(BriarService.this,
 					0, i, FLAG_UPDATE_CURRENT));
 			Object o = getSystemService(NOTIFICATION_SERVICE);
@@ -147,7 +166,7 @@ public class BriarService extends Service {
 			// Bring the dashboard to the front to clear the back stack
 			i = new Intent(BriarService.this, NavDrawerActivity.class);
 			i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
-			i.putExtra("briar.STARTUP_FAILED", true);
+			i.putExtra(EXTRA_STARTUP_FAILED, true);
 			startActivity(i);
 		});
 	}
