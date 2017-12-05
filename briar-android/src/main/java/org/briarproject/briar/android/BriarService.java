@@ -8,7 +8,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,6 +30,7 @@ import static android.app.NotificationManager.IMPORTANCE_NONE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SERVICE;
 import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
@@ -50,8 +50,10 @@ public class BriarService extends Service {
 	private static final int ONGOING_NOTIFICATION_ID = 1;
 	private static final int FAILURE_NOTIFICATION_ID = 2;
 
-	private static final String ONGOING_CHANNEL_ID = "foregroundService";
-	private static final String FAILURE_CHANNEL_ID = "startupFailure";
+	// Channels are sorted by channel ID in the Settings app, so use IDs
+	// that will sort below the main channels such as contacts
+	private static final String ONGOING_CHANNEL_ID = "zForegroundService";
+	private static final String FAILURE_CHANNEL_ID = "zStartupFailure";
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
@@ -87,7 +89,7 @@ public class BriarService extends Service {
 			return;
 		}
 		// Create notification channels
-		if (Build.VERSION.SDK_INT >= 26) {
+		if (SDK_INT >= 26) {
 			NotificationManager nm = (NotificationManager)
 					getSystemService(NOTIFICATION_SERVICE);
 			NotificationChannel ongoingChannel = new NotificationChannel(
@@ -115,7 +117,7 @@ public class BriarService extends Service {
 		Intent i = new Intent(this, NavDrawerActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
 		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
-		if (Build.VERSION.SDK_INT >= 21) {
+		if (SDK_INT >= 21) {
 			b.setCategory(CATEGORY_SERVICE);
 			b.setVisibility(VISIBILITY_SECRET);
 		}
