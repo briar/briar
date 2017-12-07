@@ -20,7 +20,7 @@ dependencies {
 	}
 	implementation "com.android.support:cardview-v7:$supportVersion"
 	implementation "com.android.support:support-annotations:$supportVersion"
-	implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+	implementation 'com.android.support.constraint:constraint-layout:1.1.0-beta3'
 
 	implementation('ch.acra:acra:4.8.5') {
 		exclude module: 'support-v4'
@@ -61,8 +61,8 @@ dependencyVerification {
 			'ch.acra:acra:4.8.5:acra-4.8.5.aar:afd5b28934d5166b55f261c85685ad59e8a4ebe9ca1960906afaa8c76d8dc9eb',
 			'classworlds:classworlds:1.1-alpha-2:classworlds-1.1-alpha-2.jar:2bf4e59f3acd106fea6145a9a88fe8956509f8b9c0fdd11eb96fee757269e3f3',
 			'com.almworks.sqlite4java:sqlite4java:0.282:sqlite4java-0.282.jar:9e1d8dd83ca6003f841e3af878ce2dc7c22497493a7bb6d1b62ec1b0d0a83c05',
-			'com.android.support.constraint:constraint-layout-solver:1.0.2:constraint-layout-solver-1.0.2.jar:8c62525a9bc5cff5633a96cb9b32fffeccaf41b8841aa87fc22607070dea9b8d',
-			'com.android.support.constraint:constraint-layout:1.0.2:constraint-layout-1.0.2.aar:b0c688cc2b7172608f8153a689d746da40f71e52d7e2fe2bfd9df2f92db77085',
+			'com.android.support.constraint:constraint-layout-solver:1.1.0-beta3:constraint-layout-solver-1.1.0-beta3.jar:c9084108415046c423983bdff8cf04c8e9a5bed41b8d5329f3764c08312ee3dd',
+			'com.android.support.constraint:constraint-layout:1.1.0-beta3:constraint-layout-1.1.0-beta3.aar:1754a6bd135feae485aa2ebf9e170f0f3d3282b392f8aa3067d0ed668839db79',
 			'com.android.support:animated-vector-drawable:27.0.1:animated-vector-drawable-27.0.1.aar:365050110411c86c7eec86101b49ab53557ffe6667f60b19055f1d35c38a577b',
 			'com.android.support:appcompat-v7:27.0.1:appcompat-v7-27.0.1.aar:1402c29a49db30346c21a7d40634461765b3ab826f5dd95bc4dcc76787b21851',
 			'com.android.support:cardview-v7:27.0.1:cardview-v7-27.0.1.aar:43fccd44086c51eaa9d78be2fcf0dfea1556c8876a6fd325ea8d24e860054202',

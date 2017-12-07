@@ -8,7 +8,7 @@ public interface SetupController {
 
 	void setSetupActivity(SetupActivity setupActivity);
 
-	boolean needsDozeWhitelisting();
+	boolean needToShowDozeFragment();
 
 	void setAuthorName(String authorName);
 
