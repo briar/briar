@@ -185,8 +185,8 @@ android {
 	defaultConfig {
 		minSdkVersion 14
 		targetSdkVersion 26
-		versionCode 1614
-		versionName "0.16.14"
+		versionCode 1615
+		versionName "0.16.15"
 		applicationId "org.briarproject.briar.beta"
 		resValue "string", "app_package", "org.briarproject.briar.beta"
 		resValue "string", "app_name", "Briar Beta"
