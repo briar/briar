@@ -243,16 +243,23 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 		populateDatabase(db);
 		db.close();
 		db = openDatabase();
-		List<Long> durations = new ArrayList<>(MEASUREMENT_ITERATIONS);
+		// Measure the first run
+		long start = System.nanoTime();
+		task.run(db);
+		long firstDuration = System.nanoTime() - start;
+		// Warm up the JIT and DB indices
 		for (int i = 0; i < WARMUP_ITERATIONS; i++) task.run(db);
+		// Measure the next runs
+		List<Long> durations = new ArrayList<>(MEASUREMENT_ITERATIONS);
 		for (int i = 0; i < MEASUREMENT_ITERATIONS; i++) {
-			long start = System.nanoTime();
+			start = System.nanoTime();
 			task.run(db);
 			durations.add(System.nanoTime() - start);
 		}
 		db.close();
-		String result = String.format("%s\t%,d\t%,d\t%,d", name,
-				(long) getMean(durations), (long) getMedian(durations),
+		String result = String.format("%s\t%,d\t%,d\t%,d\t%,d", name,
+				firstDuration, (long) getMean(durations),
+				(long) getMedian(durations),
 				(long) getStandardDeviation(durations));
 		System.out.println(result);
 		PrintWriter out =
