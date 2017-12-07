@@ -11,7 +11,6 @@ import org.spongycastle.crypto.BasicAgreement;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.agreement.ECDHBasicAgreement;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
-import org.spongycastle.crypto.ec.CustomNamedCurves;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.params.ECDomainParameters;
 import org.spongycastle.crypto.params.ECKeyGenerationParameters;
@@ -23,6 +22,8 @@ import org.spongycastle.crypto.signers.HMacDSAKCalculator;
 import org.spongycastle.math.ec.ECCurve;
 import org.spongycastle.math.ec.ECPoint;
 import org.spongycastle.math.ec.MontgomeryLadderMultiplier;
+import org.whispersystems.curve25519.Curve25519;
+import org.whispersystems.curve25519.Curve25519KeyPair;
 
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
@@ -64,11 +65,8 @@ public class EllipticCurvePerformanceTest {
 			runTest(name + " constant", constantTime(params));
 		}
 		runTest("ours", PARAMETERS);
-		ECDomainParameters params =
-				convertParams(CustomNamedCurves.getByName("curve25519"));
-		runAgreementTest("curve25519 default", params);
-		runAgreementTest("curve25519 constant", constantTime(params));
-		runEdTest();
+		runCurve25519Test();
+		runEd25519Test();
 	}
 
 	private static void runTest(String name, ECDomainParameters params) {
@@ -135,22 +133,24 @@ public class EllipticCurvePerformanceTest {
 		else return new ECDHBasicAgreement();
 	}
 
-	private static void runAgreementTest(String name,
-			ECDomainParameters params) {
-		// Generate two key pairs using the given parameters
-		ECKeyPairGenerator generator = new ECKeyPairGenerator();
-		generator.init(new ECKeyGenerationParameters(params, random));
-		AsymmetricCipherKeyPair keyPair1 = generator.generateKeyPair();
-		AsymmetricCipherKeyPair keyPair2 = generator.generateKeyPair();
-		// Time some ECDH and ECDHC key agreements
-		long agreementMedian = runAgreementTest(keyPair1, keyPair2, false);
-		long agreementWithCofactorMedian =
-				runAgreementTest(keyPair1, keyPair2, true);
-		System.out.println(String.format("%s: %,d %,d N/A N/A", name,
-				agreementMedian, agreementWithCofactorMedian));
+	private static void runCurve25519Test() {
+		Curve25519 curve25519 = Curve25519.getInstance("java");
+		Curve25519KeyPair keyPair1 = curve25519.generateKeyPair();
+		Curve25519KeyPair keyPair2 = curve25519.generateKeyPair();
+		// Time some key agreements
+		List<Long> samples = new ArrayList<>();
+		for (int i = 0; i < SAMPLES; i++) {
+			long start = System.nanoTime();
+			curve25519.calculateAgreement(keyPair1.getPublicKey(),
+					keyPair2.getPrivateKey());
+			samples.add(System.nanoTime() - start);
+		}
+		long agreementMedian = median(samples);
+		System.out.println(String.format("Curve25519: %,d - - -",
+				agreementMedian));
 	}
 
-	private static void runEdTest() throws GeneralSecurityException {
+	private static void runEd25519Test() throws GeneralSecurityException {
 		KeyPair keyPair = new KeyPairGenerator().generateKeyPair();
 		// Time some signatures
 		List<Long> samples = new ArrayList<>();
@@ -178,7 +178,7 @@ public class EllipticCurvePerformanceTest {
 			samples.add(System.nanoTime() - start);
 		}
 		long verificationMedian = median(samples);
-		System.out.println(String.format("Ed25519: N/A %,d %,d",
+		System.out.println(String.format("Ed25519: - - %,d %,d",
 				signatureMedian, verificationMedian));
 	}
 
