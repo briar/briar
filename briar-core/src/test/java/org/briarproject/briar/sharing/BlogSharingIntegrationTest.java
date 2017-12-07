@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
+import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_VERSION;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -125,7 +126,7 @@ public class BlogSharingIntegrationTest
 
 		// get sharing group and assert group message count
 		GroupId g = contactGroupFactory.createContactGroup(CLIENT_ID,
-				contact1From0).getId();
+				CLIENT_VERSION, contact1From0).getId();
 		assertGroupCount(messageTracker0, g, 1, 0);
 
 		// sync first request message
@@ -200,7 +201,7 @@ public class BlogSharingIntegrationTest
 
 		// get sharing group and assert group message count
 		GroupId g = contactGroupFactory.createContactGroup(CLIENT_ID,
-				contact1From0).getId();
+				CLIENT_VERSION, contact1From0).getId();
 		assertGroupCount(messageTracker0, g, 1, 0);
 
 		// sync first request message

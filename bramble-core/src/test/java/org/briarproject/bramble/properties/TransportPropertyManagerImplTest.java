@@ -34,6 +34,7 @@ import java.util.Map;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
+import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_VERSION;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
@@ -78,7 +79,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 
 	private TransportPropertyManagerImpl createInstance() {
 		context.checking(new Expectations() {{
-			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID);
+			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
+					CLIENT_VERSION);
 			will(returnValue(localGroup));
 		}});
 		return new TransportPropertyManagerImpl(db, clientHelper,
@@ -98,12 +100,14 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
 			// The first contact's group has already been set up
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact1);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact1);
 			will(returnValue(contactGroup1));
 			oneOf(db).containsGroup(txn, contactGroup1.getId());
 			will(returnValue(true));
 			// The second contact's group hasn't been set up
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact2);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact2);
 			will(returnValue(contactGroup2));
 			oneOf(db).containsGroup(txn, contactGroup2.getId());
 			will(returnValue(false));
@@ -130,7 +134,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 
 		context.checking(new Expectations() {{
 			// Create the group and share it with the contact
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(db).containsGroup(txn, contactGroup.getId());
 			will(returnValue(false));
@@ -156,7 +161,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Group contactGroup = getGroup();
 
 		context.checking(new Expectations() {{
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(db).removeGroup(txn, contactGroup);
 		}});
@@ -297,7 +303,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(db).getContact(txn, contact.getId());
 			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 		}});
 		expectStoreMessage(txn, contactGroup.getId(), "foo", fooPropertiesDict,
@@ -431,13 +438,15 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(contacts));
 			// First contact: skipped because not active
 			// Second contact: no updates
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact2);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact2);
 			will(returnValue(contactGroup2));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup2.getId());
 			will(returnValue(Collections.emptyMap()));
 			// Third contact: returns an update
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact3);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact3);
 			will(returnValue(contactGroup3));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup3.getId());
@@ -507,7 +516,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			// Store the new properties in each contact's group, version 1
 			oneOf(db).getContacts(txn);
 			will(returnValue(Collections.singletonList(contact)));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
@@ -559,7 +569,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			// Store the merged properties in each contact's group, version 2
 			oneOf(db).getContacts(txn);
 			will(returnValue(Collections.singletonList(contact)));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());

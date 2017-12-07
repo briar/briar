@@ -17,9 +17,14 @@ import javax.annotation.Nullable;
 public interface BlogManager {
 
 	/**
-	 * Unique ID of the blog client.
+	 * The unique ID of the blog client.
 	 */
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.blog");
+
+	/**
+	 * The current version of the blog client.
+	 */
+	int CLIENT_VERSION = 0;
 
 	/**
 	 * Adds the given {@link Blog).}

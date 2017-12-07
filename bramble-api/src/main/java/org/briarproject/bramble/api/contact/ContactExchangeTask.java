@@ -13,6 +13,11 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 public interface ContactExchangeTask {
 
 	/**
+	 * The current version of the contact exchange protocol
+	 */
+	int PROTOCOL_VERSION = 0;
+
+	/**
 	 * Label for deriving Alice's header key from the master secret.
 	 */
 	String ALICE_KEY_LABEL =

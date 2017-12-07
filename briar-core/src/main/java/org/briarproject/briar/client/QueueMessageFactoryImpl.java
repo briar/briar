@@ -12,8 +12,10 @@ import org.briarproject.briar.api.client.QueueMessageFactory;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.sync.MessageId.LABEL;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.util.ByteUtils.INT_64_BYTES;
 import static org.briarproject.briar.api.client.QueueMessage.MAX_QUEUE_MESSAGE_BODY_LENGTH;
 import static org.briarproject.briar.api.client.QueueMessage.QUEUE_MESSAGE_HEADER_LENGTH;
@@ -45,9 +47,9 @@ class QueueMessageFactoryImpl implements QueueMessageFactory {
 		byte[] bodyBytes = new byte[body.length + INT_64_BYTES];
 		System.arraycopy(raw, MESSAGE_HEADER_LENGTH, bodyBytes, 0,
 				body.length + INT_64_BYTES);
-		MessageId id = new MessageId(
-				crypto.hash(MessageId.LABEL, groupId.getBytes(), timeBytes,
-						bodyBytes));
+		byte[] hash = crypto.hash(LABEL, new byte[] {PROTOCOL_VERSION},
+				groupId.getBytes(), timeBytes, bodyBytes);
+		MessageId id = new MessageId(hash);
 		return new QueueMessage(id, groupId, timestamp, queuePosition, raw);
 	}
 

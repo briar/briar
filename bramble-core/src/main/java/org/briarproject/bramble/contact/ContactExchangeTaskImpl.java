@@ -142,8 +142,9 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 
 		// Derive the header keys for the transport streams
 		SecretKey aliceHeaderKey = crypto.deriveKey(ALICE_KEY_LABEL,
-				masterSecret);
-		SecretKey bobHeaderKey = crypto.deriveKey(BOB_KEY_LABEL, masterSecret);
+				masterSecret, new byte[] {PROTOCOL_VERSION});
+		SecretKey bobHeaderKey = crypto.deriveKey(BOB_KEY_LABEL, masterSecret,
+				new byte[] {PROTOCOL_VERSION});
 
 		// Create the readers
 		InputStream streamReader =
@@ -157,8 +158,10 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		BdfWriter w = bdfWriterFactory.createWriter(streamWriter);
 
 		// Derive the nonces to be signed
-		byte[] aliceNonce = crypto.mac(ALICE_NONCE_LABEL, masterSecret);
-		byte[] bobNonce = crypto.mac(BOB_NONCE_LABEL, masterSecret);
+		byte[] aliceNonce = crypto.mac(ALICE_NONCE_LABEL, masterSecret,
+				new byte[] {PROTOCOL_VERSION});
+		byte[] bobNonce = crypto.mac(BOB_NONCE_LABEL, masterSecret,
+				new byte[] {PROTOCOL_VERSION});
 
 		// Exchange pseudonyms, signed nonces, and timestamps
 		long localTimestamp = clock.currentTimeMillis();
@@ -197,8 +200,8 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 
 		try {
 			// Add the contact
-			ContactId contactId = addContact(remoteAuthor, masterSecret,
-					timestamp, alice, remoteProperties);
+			ContactId contactId = addContact(remoteAuthor, timestamp,
+					remoteProperties);
 			// Reuse the connection as a transport connection
 			connectionManager.manageOutgoingConnection(contactId, transportId,
 					conn);
@@ -295,15 +298,15 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		return remote;
 	}
 
-	private ContactId addContact(Author remoteAuthor, SecretKey master,
-			long timestamp, boolean alice,
+	private ContactId addContact(Author remoteAuthor, long timestamp,
 			Map<TransportId, TransportProperties> remoteProperties)
 			throws DbException {
 		ContactId contactId;
 		Transaction txn = db.startTransaction(false);
 		try {
 			contactId = contactManager.addContact(txn, remoteAuthor,
-					localAuthor.getId(), master, timestamp, alice, true, true);
+					localAuthor.getId(), masterSecret, timestamp, alice,
+					true, true);
 			transportPropertyManager.addRemoteProperties(txn, contactId,
 					remoteProperties);
 			db.commitTransaction(txn);

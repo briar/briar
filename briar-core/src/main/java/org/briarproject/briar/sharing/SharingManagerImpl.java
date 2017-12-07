@@ -80,6 +80,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 	protected abstract ClientId getClientId();
 
+	protected abstract int getClientVersion();
+
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
 		// Ensure we've set things up for any pre-existing contacts
@@ -113,7 +115,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 	@Override
 	public Group getContactGroup(Contact c) {
-		return contactGroupFactory.createContactGroup(getClientId(), c);
+		return contactGroupFactory.createContactGroup(getClientId(),
+				getClientVersion(), c);
 	}
 
 	@Override

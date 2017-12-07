@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
+import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_VERSION;
 
 @Immutable
 @NotNullByDefault
@@ -64,7 +65,8 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 					salt
 			);
 			byte[] descriptor = clientHelper.toByteArray(group);
-			Group g = groupFactory.createGroup(CLIENT_ID, descriptor);
+			Group g = groupFactory.createGroup(CLIENT_ID, CLIENT_VERSION,
+					descriptor);
 			return new PrivateGroup(g, name, author, salt);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);

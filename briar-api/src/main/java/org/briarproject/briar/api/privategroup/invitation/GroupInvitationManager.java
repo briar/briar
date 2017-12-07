@@ -26,6 +26,11 @@ public interface GroupInvitationManager extends ConversationClient {
 			new ClientId("org.briarproject.briar.privategroup.invitation");
 
 	/**
+	 * The current version of the private group invitation client.
+	 */
+	int CLIENT_VERSION = 0;
+
+	/**
 	 * Sends an invitation to share the given private group with the given
 	 * contact, including an optional message.
 	 *

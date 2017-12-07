@@ -75,6 +75,7 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.TRAN
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_RESPONSE;
+import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_VERSION;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -753,8 +754,13 @@ public class IntroductionIntegrationTest
 		KeyPair eKeyPair2 = crypto.generateAgreementKeyPair();
 
 		// Nonce 1
+		byte[][] inputs = {
+				new byte[] {CLIENT_VERSION},
+				eKeyPair1.getPublic().getEncoded(),
+				eKeyPair2.getPublic().getEncoded()
+		};
 		SecretKey sharedSecret = crypto.deriveSharedSecret(SHARED_SECRET_LABEL,
-				eKeyPair2.getPublic(), eKeyPair1, true);
+				eKeyPair2.getPublic(), eKeyPair1, inputs);
 		byte[] nonce1 = crypto.mac(ALICE_NONCE_LABEL, sharedSecret);
 
 		// Signature 1
@@ -787,20 +793,24 @@ public class IntroductionIntegrationTest
 
 		// replace ephemeral key pair and recalculate matching keys and nonce
 		KeyPair eKeyPair1f = crypto.generateAgreementKeyPair();
-		byte[] ePublicKeyBytes1f = eKeyPair1f.getPublic().getEncoded();
+		byte[][] fakeInputs = {
+				new byte[] {CLIENT_VERSION},
+				eKeyPair1f.getPublic().getEncoded(),
+				eKeyPair2.getPublic().getEncoded()
+		};
 		sharedSecret = crypto.deriveSharedSecret(SHARED_SECRET_LABEL,
-				eKeyPair2.getPublic(), eKeyPair1f, true);
+				eKeyPair2.getPublic(), eKeyPair1f, fakeInputs);
 		nonce1 = crypto.mac(ALICE_NONCE_LABEL, sharedSecret);
 
 		// recalculate MAC
 		macKey1 = crypto.deriveKey(ALICE_MAC_KEY_LABEL, sharedSecret);
 		toMacList = BdfList.of(keyPair1.getPublic().getEncoded(),
-				ePublicKeyBytes1f, tp1, time1);
+				eKeyPair1f.getPublic().getEncoded(), tp1, time1);
 		toMac = clientHelper.toByteArray(toMacList);
 		mac1 = crypto.mac(MAC_LABEL, macKey1, toMac);
 
 		// update state with faked information
-		state.put(E_PUBLIC_KEY, ePublicKeyBytes1f);
+		state.put(E_PUBLIC_KEY, eKeyPair1f.getPublic().getEncoded());
 		state.put(MAC, mac1);
 		state.put(MAC_KEY, macKey1.getBytes());
 		state.put(NONCE, nonce1);

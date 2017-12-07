@@ -16,6 +16,11 @@ public interface FeedManager {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.feed");
 
 	/**
+	 * The current version of the RSS feed client.
+	 */
+	int CLIENT_VERSION = 0;
+
+	/**
 	 * Adds an RSS feed as a new dedicated blog.
 	 */
 	void addFeed(String url) throws DbException, IOException;

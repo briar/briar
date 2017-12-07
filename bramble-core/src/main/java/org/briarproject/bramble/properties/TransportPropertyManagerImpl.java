@@ -58,7 +58,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		this.metadataParser = metadataParser;
 		this.contactGroupFactory = contactGroupFactory;
 		this.clock = clock;
-		localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID);
+		localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
+				CLIENT_VERSION);
 	}
 
 	@Override
@@ -287,7 +288,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	}
 
 	private Group getContactGroup(Contact c) {
-		return contactGroupFactory.createContactGroup(CLIENT_ID, c);
+		return contactGroupFactory.createContactGroup(CLIENT_ID,
+				CLIENT_VERSION, c);
 	}
 
 	private void storeMessage(Transaction txn, GroupId g, TransportId t,

@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import static org.briarproject.briar.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 import static org.briarproject.briar.api.forum.ForumManager.CLIENT_ID;
+import static org.briarproject.briar.api.forum.ForumManager.CLIENT_VERSION;
 
 @Immutable
 @NotNullByDefault
@@ -52,7 +53,8 @@ class ForumFactoryImpl implements ForumFactory {
 		try {
 			BdfList forum = BdfList.of(name, salt);
 			byte[] descriptor = clientHelper.toByteArray(forum);
-			Group g = groupFactory.createGroup(CLIENT_ID, descriptor);
+			Group g = groupFactory.createGroup(CLIENT_ID, CLIENT_VERSION,
+					descriptor);
 			return new Forum(g, name, salt);
 		} catch (FormatException e) {
 			throw new AssertionError(e);

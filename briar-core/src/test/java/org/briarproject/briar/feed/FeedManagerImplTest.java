@@ -42,6 +42,7 @@ import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEEDS;
 import static org.briarproject.briar.api.feed.FeedManager.CLIENT_ID;
+import static org.briarproject.briar.api.feed.FeedManager.CLIENT_VERSION;
 
 public class FeedManagerImplTest extends BrambleMockTestCase {
 
@@ -133,7 +134,8 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 
 	private void expectGetLocalGroup() {
 		context.checking(new Expectations() {{
-			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID);
+			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
+					CLIENT_VERSION);
 			will(returnValue(localGroup));
 		}});
 	}
