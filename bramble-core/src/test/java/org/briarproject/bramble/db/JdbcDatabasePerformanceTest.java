@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +93,6 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 	private static final int MEASUREMENT_ITERATIONS = 100;
 
 	private final File testDir = getTestDirectory();
-	private final File resultsFile = getResultsFile();
 	private final Random random = new Random();
 
 	private List<ClientId> clientIds;
@@ -113,11 +113,6 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 	@After
 	public void tearDown() {
 		deleteTestDirectory(testDir);
-	}
-
-	private File getResultsFile() {
-		long timestamp = System.currentTimeMillis();
-		return new File(getTestName() + "-" + timestamp + ".tsv");
 	}
 
 	@Test
@@ -262,9 +257,10 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 				(long) getMedian(durations),
 				(long) getStandardDeviation(durations));
 		System.out.println(result);
+		File resultsFile = new File(getTestName() + ".tsv");
 		PrintWriter out =
 				new PrintWriter(new FileOutputStream(resultsFile, true), true);
-		out.println(result);
+		out.println(new Date() + "\t" + result);
 		out.close();
 	}
 
