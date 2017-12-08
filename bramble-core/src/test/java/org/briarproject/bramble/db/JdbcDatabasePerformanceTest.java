@@ -1,15 +1,17 @@
 package org.briarproject.bramble.db;
 
+import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
-import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.ValidationManager.State;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.system.SystemClock;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
@@ -40,6 +43,7 @@ import static org.briarproject.bramble.test.TestUtils.getMean;
 import static org.briarproject.bramble.test.TestUtils.getMedian;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getStandardDeviation;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.test.UTest.Result.INCONCLUSIVE;
@@ -83,6 +87,7 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 	private static final int METADATA_KEYS_PER_MESSAGE = 5;
 	private static final int METADATA_KEY_LENGTH = 10;
 	private static final int METADATA_VALUE_LENGTH = 100;
+	private static final int OFFERED_MESSAGES_PER_CONTACT = 100;
 
 	/**
 	 * How many times to run each benchmark while measuring.
@@ -92,10 +97,14 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 	private final File testDir = getTestDirectory();
 	private final Random random = new Random();
 
+	private LocalAuthor localAuthor;
 	private List<ClientId> clientIds;
+	private List<Contact> contacts;
 	private List<Group> groups;
 	private List<Message> messages;
 	private Map<GroupId, List<Metadata>> messageMeta;
+	private Map<ContactId, List<Group>> contactGroups;
+	private Map<GroupId, List<MessageId>> groupMessages;
 
 	protected abstract String getTestName();
 
@@ -113,6 +122,88 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	@Test
+	public void testContainsContactByAuthorId() throws Exception {
+		String name = "containsContact(T, AuthorId, AuthorId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			AuthorId remote = pickRandom(contacts).getAuthor().getId();
+			db.containsContact(txn, remote, localAuthor.getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testContainsContactByContactId() throws Exception {
+		String name = "containsContact(T, ContactId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.containsContact(txn, pickRandom(contacts).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testContainsGroup() throws Exception {
+		String name = "containsGroup(T, GroupId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.containsGroup(txn, pickRandom(groups).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testContainsLocalAuthor() throws Exception {
+		String name = "containsLocalAuthor(T, AuthorId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.containsLocalAuthor(txn, localAuthor.getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testContainsMessage() throws Exception {
+		String name = "containsMessage(T, MessageId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.containsMessage(txn, pickRandom(messages).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testContainsVisibleMessage() throws Exception {
+		String name = "containsVisibleMessage(T, ContactId, MessageId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.containsVisibleMessage(txn, pickRandom(contacts).getId(),
+					pickRandom(messages).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testCountOfferedMessages() throws Exception {
+		String name = "countOfferedMessages(T, ContactId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.countOfferedMessages(txn, pickRandom(contacts).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetContact() throws Exception {
+		String name = "getContact(T, ContactId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getContact(txn, pickRandom(contacts).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
 	public void testGetContacts() throws Exception {
 		String name = "getContacts(T)";
 		benchmark(name, db -> {
@@ -123,11 +214,114 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testGetRawMessage() throws Exception {
-		String name = "getRawMessage(T, MessageId)";
+	public void testGetContactsByRemoteAuthorId() throws Exception {
+		String name = "getContactsByAuthorId(T, AuthorId)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
-			db.getRawMessage(txn, pickRandom(messages).getId());
+			AuthorId remote = pickRandom(contacts).getAuthor().getId();
+			db.getContactsByAuthorId(txn, remote);
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetContactsByLocalAuthorId() throws Exception {
+		String name = "getContacts(T, AuthorId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getContacts(txn, localAuthor.getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetGroup() throws Exception {
+		String name = "getGroup(T, GroupId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getGroup(txn, pickRandom(groups).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetGroupMetadata() throws Exception {
+		String name = "getGroupMetadata(T, GroupId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getGroupMetadata(txn, pickRandom(groups).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetGroups() throws Exception {
+		String name = "getGroups(T, ClientId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getGroups(txn, pickRandom(clientIds));
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetGroupVisibilityWithContactId() throws Exception {
+		String name = "getGroupVisibility(T, ContactId, GroupId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			ContactId c = pickRandom(contacts).getId();
+			db.getGroupVisibility(txn, c,
+					pickRandom(contactGroups.get(c)).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetGroupVisibility() throws Exception {
+		String name = "getGroupVisibility(T, GroupId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getGroupVisibility(txn, pickRandom(groups).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetLocalAuthor() throws Exception {
+		String name = "getLocalAuthor(T, AuthorId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getLocalAuthor(txn, localAuthor.getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetLocalAuthors() throws Exception {
+		String name = "getLocalAuthors(T)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getLocalAuthors(txn);
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetMessageDependencies() throws Exception {
+		String name = "getMessageDependencies(T, MessageId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessageDependencies(txn, pickRandom(messages).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetMessageDependents() throws Exception {
+		String name = "getMessageDependents(T, MessageId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessageDependents(txn, pickRandom(messages).getId());
 			db.commitTransaction(txn);
 		});
 	}
@@ -144,7 +338,7 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 
 	@Test
 	public void testGetMessageIdsWithMatchingQuery() throws Exception {
-		String name = "getMessageIds(T, GroupId, Metadata)";
+		String name = "getMessageIds(T, GroupId, Metadata) [match]";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
 			GroupId g = pickRandom(groups).getId();
@@ -155,7 +349,7 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 
 	@Test
 	public void testGetMessageIdsWithNonMatchingQuery() throws Exception {
-		String name = "getMessageIds(T, GroupId, Metadata)";
+		String name = "getMessageIds(T, GroupId, Metadata) [no match]";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
 			Metadata query = getMetadata(METADATA_KEYS_PER_MESSAGE);
@@ -165,17 +359,7 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testGetGroupMetadata() throws Exception {
-		String name = "getGroupMetadata(T, GroupId)";
-		benchmark(name, db -> {
-			Connection txn = db.startTransaction();
-			db.getGroupMetadata(txn, pickRandom(groups).getId());
-			db.commitTransaction(txn);
-		});
-	}
-
-	@Test
-	public void testGetMessageMetadataForGroup() throws Exception {
+	public void testGetMessageMetadataByGroupId() throws Exception {
 		String name = "getMessageMetadata(T, GroupId)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
@@ -185,11 +369,100 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testGetMessageMetadataForMessage() throws Exception {
+	public void testGetMessageMetadataByMessageId() throws Exception {
 		String name = "getMessageMetadata(T, MessageId)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
 			db.getMessageMetadata(txn, pickRandom(messages).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetMessageMetadataForValidator() throws Exception {
+		String name = "getMessageMetadataForValidator(T, MessageId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessageMetadataForValidator(txn,
+					pickRandom(messages).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetMessageState() throws Exception {
+		String name = "getMessageState(T, MessageId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessageState(txn, pickRandom(messages).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetMessageStatusByGroupId() throws Exception {
+		String name = "getMessageStatus(T, ContactId, GroupId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			ContactId c = pickRandom(contacts).getId();
+			GroupId g = pickRandom(contactGroups.get(c)).getId();
+			db.getMessageStatus(txn, c, g);
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetMessageStatusByMessageId() throws Exception {
+		String name = "getMessageStatus(T, ContactId, MessageId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			ContactId c = pickRandom(contacts).getId();
+			GroupId g = pickRandom(contactGroups.get(c)).getId();
+			db.getMessageStatus(txn, c, pickRandom(groupMessages.get(g)));
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetMessagesToAck() throws Exception {
+		String name = "getMessagesToAck(T, ContactId, int)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessagesToAck(txn, pickRandom(contacts).getId(),
+					MAX_MESSAGE_IDS);
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetMessagesToOffer() throws Exception {
+		String name = "getMessagesToOffer(T, ContactId, int)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessagesToOffer(txn, pickRandom(contacts).getId(),
+					MAX_MESSAGE_IDS);
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetMessagesToRequest() throws Exception {
+		String name = "getMessagesToRequest(T, ContactId, int)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessagesToRequest(txn, pickRandom(contacts).getId(),
+					MAX_MESSAGE_IDS);
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetMessagesToSend() throws Exception {
+		String name = "getMessagesToSend(T, ContactId, int)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessagesToSend(txn, pickRandom(contacts).getId(),
+					MAX_MESSAGE_IDS);
 			db.commitTransaction(txn);
 		});
 	}
@@ -220,6 +493,27 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
 			db.getPendingMessages(txn, pickRandom(clientIds));
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetRawMessage() throws Exception {
+		String name = "getRawMessage(T, MessageId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getRawMessage(txn, pickRandom(messages).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetRequestedMessagesToSend() throws Exception {
+		String name = "getRequestedMessagesToSend(T, ContactId, int)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getRequestedMessagesToSend(txn, pickRandom(contacts).getId(),
+					MAX_MESSAGE_IDS);
 			db.commitTransaction(txn);
 		});
 	}
@@ -270,26 +564,32 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	private void populateDatabase(Database<Connection> db) throws DbException {
+		localAuthor = getLocalAuthor();
 		clientIds = new ArrayList<>();
+		contacts = new ArrayList<>();
 		groups = new ArrayList<>();
 		messages = new ArrayList<>();
 		messageMeta = new HashMap<>();
+		contactGroups = new HashMap<>();
+		groupMessages = new HashMap<>();
 
 		for (int i = 0; i < CLIENTS; i++) clientIds.add(getClientId());
 
 		Connection txn = db.startTransaction();
-		LocalAuthor localAuthor = getLocalAuthor();
 		db.addLocalAuthor(txn, localAuthor);
 		for (int i = 0; i < CONTACTS; i++) {
-			Author a = getAuthor();
-			ContactId contactId = db.addContact(txn, a, localAuthor.getId(),
+			ContactId c = db.addContact(txn, getAuthor(), localAuthor.getId(),
 					random.nextBoolean(), true);
+			contacts.add(db.getContact(txn, c));
+			contactGroups.put(c, new ArrayList<>());
 			for (int j = 0; j < GROUPS_PER_CONTACT; j++) {
 				Group g = getGroup(clientIds.get(j % CLIENTS));
 				groups.add(g);
 				messageMeta.put(g.getId(), new ArrayList<>());
+				contactGroups.get(c).add(g);
+				groupMessages.put(g.getId(), new ArrayList<>());
 				db.addGroup(txn, g);
-				db.addGroupVisibility(txn, contactId, g.getId(), true);
+				db.addGroupVisibility(txn, c, g.getId(), true);
 				Metadata gm = getMetadata(METADATA_KEYS_PER_GROUP);
 				db.mergeGroupMetadata(txn, g.getId(), gm);
 				for (int k = 0; k < MESSAGES_PER_GROUP; k++) {
@@ -297,16 +597,29 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 					messages.add(m);
 					State state = State.fromValue(random.nextInt(4));
 					db.addMessage(txn, m, state, random.nextBoolean());
+					db.addStatus(txn, c, m.getId(), random.nextBoolean(),
+							random.nextBoolean());
+					if (random.nextBoolean())
+						db.raiseRequestedFlag(txn, c, m.getId());
 					Metadata mm = getMetadata(METADATA_KEYS_PER_MESSAGE);
 					messageMeta.get(g.getId()).add(mm);
 					db.mergeMessageMetadata(txn, m.getId(), mm);
+					if (k > 0) {
+						db.addMessageDependency(txn, g.getId(), m.getId(),
+								pickRandom(groupMessages.get(g.getId())));
+					}
+					groupMessages.get(g.getId()).add(m.getId());
 				}
+			}
+			for (int j = 0; j < OFFERED_MESSAGES_PER_CONTACT; j++) {
+				db.addOfferedMessage(txn, c, new MessageId(getRandomId()));
 			}
 		}
 		for (int i = 0; i < LOCAL_GROUPS; i++) {
 			Group g = getGroup(clientIds.get(i % CLIENTS));
 			groups.add(g);
 			messageMeta.put(g.getId(), new ArrayList<>());
+			groupMessages.put(g.getId(), new ArrayList<>());
 			db.addGroup(txn, g);
 			Metadata gm = getMetadata(METADATA_KEYS_PER_GROUP);
 			db.mergeGroupMetadata(txn, g.getId(), gm);
@@ -317,6 +630,11 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 				Metadata mm = getMetadata(METADATA_KEYS_PER_MESSAGE);
 				messageMeta.get(g.getId()).add(mm);
 				db.mergeMessageMetadata(txn, m.getId(), mm);
+				if (j > 0) {
+					db.addMessageDependency(txn, g.getId(), m.getId(),
+							pickRandom(groupMessages.get(g.getId())));
+				}
+				groupMessages.get(g.getId()).add(m.getId());
 			}
 		}
 		db.commitTransaction(txn);
