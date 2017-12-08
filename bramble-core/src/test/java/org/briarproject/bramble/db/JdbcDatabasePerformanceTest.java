@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.system.SystemClock;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestDatabaseConfig;
+import org.briarproject.bramble.test.UTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +42,8 @@ import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getStandardDeviation;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
+import static org.briarproject.bramble.test.UTest.Result.INCONCLUSIVE;
+import static org.briarproject.bramble.test.UTest.Z_CRITICAL_0_1;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertTrue;
 
@@ -80,12 +83,6 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 	private static final int METADATA_KEYS_PER_MESSAGE = 5;
 	private static final int METADATA_KEY_LENGTH = 10;
 	private static final int METADATA_VALUE_LENGTH = 100;
-
-	/**
-	 * How many times to run each benchmark before measuring, to warm up the
-	 * JIT and DB indices.
-	 */
-	private static final int WARMUP_ITERATIONS = 1000;
 
 	/**
 	 * How many times to run each benchmark while measuring.
@@ -238,22 +235,23 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 		populateDatabase(db);
 		db.close();
 		db = openDatabase();
-		// Measure the first run
+		// Measure the first iteration
 		long start = System.nanoTime();
 		task.run(db);
 		long firstDuration = System.nanoTime() - start;
-		// Warm up the JIT and DB indices
-		for (int i = 0; i < WARMUP_ITERATIONS; i++) task.run(db);
-		// Measure the next runs
-		List<Long> durations = new ArrayList<>(MEASUREMENT_ITERATIONS);
-		for (int i = 0; i < MEASUREMENT_ITERATIONS; i++) {
-			start = System.nanoTime();
-			task.run(db);
-			durations.add(System.nanoTime() - start);
+		// Measure blocks of iterations until we reach a steady state
+		List<Double> oldDurations = measureBlock(db, task);
+		List<Double> durations = measureBlock(db, task);
+		int blocks = 2;
+		while (UTest.test(oldDurations, durations, Z_CRITICAL_0_1)
+				!= INCONCLUSIVE) {
+			oldDurations = durations;
+			durations = measureBlock(db, task);
+			blocks++;
 		}
 		db.close();
-		String result = String.format("%s\t%,d\t%,d\t%,d\t%,d", name,
-				firstDuration, (long) getMean(durations),
+		String result = String.format("%s\t%d\t%,d\t%,d\t%,d\t%,d", name,
+				blocks, firstDuration, (long) getMean(durations),
 				(long) getMedian(durations),
 				(long) getStandardDeviation(durations));
 		System.out.println(result);
@@ -322,6 +320,17 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 			}
 		}
 		db.commitTransaction(txn);
+	}
+
+	private List<Double> measureBlock(Database<Connection> db,
+			BenchmarkTask<Database<Connection>> task) throws Exception {
+		List<Double> durations = new ArrayList<>(MEASUREMENT_ITERATIONS);
+		for (int i = 0; i < MEASUREMENT_ITERATIONS; i++) {
+			long start = System.nanoTime();
+			task.run(db);
+			durations.add((double) (System.nanoTime() - start));
+		}
+		return durations;
 	}
 
 	private ClientId getClientId() {
