@@ -2,7 +2,6 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.identity.AuthorId;
@@ -13,10 +12,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.ValidationManager.State;
-import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.system.SystemClock;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestDatabaseConfig;
 import org.briarproject.bramble.test.UTest;
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +20,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -39,12 +36,9 @@ import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
-import static org.briarproject.bramble.test.TestUtils.getMean;
-import static org.briarproject.bramble.test.TestUtils.getMedian;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
-import static org.briarproject.bramble.test.TestUtils.getStandardDeviation;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.test.UTest.Result.INCONCLUSIVE;
 import static org.briarproject.bramble.test.UTest.Z_CRITICAL_0_1;
@@ -54,7 +48,7 @@ import static org.junit.Assert.assertTrue;
 public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 
 	private static final int ONE_MEGABYTE = 1024 * 1024;
-	private static final int MAX_SIZE = 100 * ONE_MEGABYTE;
+	static final int MAX_SIZE = 100 * ONE_MEGABYTE;
 
 	/**
 	 * How many contacts to simulate.
@@ -90,12 +84,19 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 	private static final int OFFERED_MESSAGES_PER_CONTACT = 100;
 
 	/**
-	 * How many times to run each benchmark while measuring.
+	 * How many benchmark iterations to run in each block.
 	 */
-	private static final int MEASUREMENT_ITERATIONS = 100;
+	private static final int ITERATIONS_PER_BLOCK = 10;
 
-	private final File testDir = getTestDirectory();
-	private final Random random = new Random();
+	/**
+	 * How many blocks must be similar before we conclude a steady state has
+	 * been reached.
+	 */
+	private static final int STEADY_STATE_BLOCKS = 5;
+
+	protected final File testDir = getTestDirectory();
+	private final File resultsFile = new File(getTestName() + ".tsv");
+	protected final Random random = new Random();
 
 	private LocalAuthor localAuthor;
 	private List<ClientId> clientIds;
@@ -108,8 +109,8 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 
 	protected abstract String getTestName();
 
-	protected abstract JdbcDatabase createDatabase(DatabaseConfig config,
-			Clock clock);
+	protected abstract void benchmark(String name,
+			BenchmarkTask<Database<Connection>> task) throws Exception;
 
 	@Before
 	public void setUp() {
@@ -522,48 +523,7 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 		return list.get(random.nextInt(list.size()));
 	}
 
-	private void benchmark(String name,
-			BenchmarkTask<Database<Connection>> task) throws Exception {
-		deleteTestDirectory(testDir);
-		Database<Connection> db = openDatabase();
-		populateDatabase(db);
-		db.close();
-		db = openDatabase();
-		// Measure the first iteration
-		long start = System.nanoTime();
-		task.run(db);
-		long firstDuration = System.nanoTime() - start;
-		// Measure blocks of iterations until we reach a steady state
-		List<Double> oldDurations = measureBlock(db, task);
-		List<Double> durations = measureBlock(db, task);
-		int blocks = 2;
-		while (UTest.test(oldDurations, durations, Z_CRITICAL_0_1)
-				!= INCONCLUSIVE) {
-			oldDurations = durations;
-			durations = measureBlock(db, task);
-			blocks++;
-		}
-		db.close();
-		String result = String.format("%s\t%d\t%,d\t%,d\t%,d\t%,d", name,
-				blocks, firstDuration, (long) getMean(durations),
-				(long) getMedian(durations),
-				(long) getStandardDeviation(durations));
-		System.out.println(result);
-		File resultsFile = new File(getTestName() + ".tsv");
-		PrintWriter out =
-				new PrintWriter(new FileOutputStream(resultsFile, true), true);
-		out.println(new Date() + "\t" + result);
-		out.close();
-	}
-
-	private Database<Connection> openDatabase() throws DbException {
-		Database<Connection> db = createDatabase(
-				new TestDatabaseConfig(testDir, MAX_SIZE), new SystemClock());
-		db.open();
-		return db;
-	}
-
-	private void populateDatabase(Database<Connection> db) throws DbException {
+	void populateDatabase(Database<Connection> db) throws DbException {
 		localAuthor = getLocalAuthor();
 		clientIds = new ArrayList<>();
 		contacts = new ArrayList<>();
@@ -640,17 +600,6 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 		db.commitTransaction(txn);
 	}
 
-	private List<Double> measureBlock(Database<Connection> db,
-			BenchmarkTask<Database<Connection>> task) throws Exception {
-		List<Double> durations = new ArrayList<>(MEASUREMENT_ITERATIONS);
-		for (int i = 0; i < MEASUREMENT_ITERATIONS; i++) {
-			long start = System.nanoTime();
-			task.run(db);
-			durations.add((double) (System.nanoTime() - start));
-		}
-		return durations;
-	}
-
 	private ClientId getClientId() {
 		return new ClientId(getRandomString(CLIENT_ID_LENGTH));
 	}
@@ -663,5 +612,57 @@ public abstract class JdbcDatabasePerformanceTest extends BrambleTestCase {
 			meta.put(key, value);
 		}
 		return meta;
+	}
+
+	long measureOne(Database<Connection> db,
+			BenchmarkTask<Database<Connection>> task) throws Exception {
+		long start = System.nanoTime();
+		task.run(db);
+		return System.nanoTime() - start;
+	}
+
+	private List<Double> measureBlock(Database<Connection> db,
+			BenchmarkTask<Database<Connection>> task) throws Exception {
+		List<Double> durations = new ArrayList<>(ITERATIONS_PER_BLOCK);
+		for (int i = 0; i < ITERATIONS_PER_BLOCK; i++)
+			durations.add((double) measureOne(db, task));
+		return durations;
+	}
+
+	SteadyStateResult measureSteadyState(Database<Connection> db,
+			BenchmarkTask<Database<Connection>> task) throws Exception {
+		List<Double> durations = measureBlock(db, task);
+		int blocks = 1, steadyBlocks = 1;
+		while (steadyBlocks < STEADY_STATE_BLOCKS) {
+			List<Double> prev = durations;
+			durations = measureBlock(db, task);
+			// Compare to the previous block with a large P value, which
+			// decreases our chance of getting an inconclusive result, making
+			// this a conservative test for steady state
+			if (UTest.test(prev, durations, Z_CRITICAL_0_1) == INCONCLUSIVE)
+				steadyBlocks++;
+			else steadyBlocks = 1;
+			blocks++;
+		}
+		return new SteadyStateResult(blocks, durations);
+	}
+
+	void writeResult(String result) throws IOException {
+		System.out.println(result);
+		PrintWriter out =
+				new PrintWriter(new FileOutputStream(resultsFile, true), true);
+		out.println(new Date() + "\t" + result);
+		out.close();
+	}
+
+	static class SteadyStateResult {
+
+		final int blocks;
+		final List<Double> durations;
+
+		SteadyStateResult(int blocks, List<Double> durations) {
+			this.blocks = blocks;
+			this.durations = durations;
+		}
 	}
 }

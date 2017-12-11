@@ -6,7 +6,7 @@ import org.junit.Ignore;
 
 @Ignore
 public class HyperSqlDatabasePerformanceTest
-		extends JdbcDatabasePerformanceTest {
+		extends JdbcSingleDatabasePerformanceTest {
 
 	@Override
 	protected String getTestName() {
