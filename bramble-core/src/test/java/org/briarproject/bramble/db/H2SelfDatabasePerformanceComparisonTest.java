@@ -6,8 +6,13 @@ import org.junit.Ignore;
 
 import java.sql.Connection;
 
+/**
+ * Sanity check for {@link JdbcDatabasePerformanceComparisonTest}: check that
+ * if conditions A and B are identical, no significant difference is (usually)
+ * detected.
+ */
 @Ignore
-public class H2DatabasePerformanceSelfComparisonTest
+public class H2SelfDatabasePerformanceComparisonTest
 		extends JdbcDatabasePerformanceComparisonTest {
 
 	@Override
