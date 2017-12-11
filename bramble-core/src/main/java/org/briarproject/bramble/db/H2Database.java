@@ -92,6 +92,10 @@ class H2Database extends JdbcDatabase {
 		// Separate the file password from the user password with a space
 		String hex = StringUtils.toHexString(key.getBytes());
 		props.put("password", hex + " password");
-		return DriverManager.getConnection(url, props);
+		return DriverManager.getConnection(getUrl(), props);
+	}
+
+	String getUrl() {
+		return url;
 	}
 }
