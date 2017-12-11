@@ -18,6 +18,6 @@ public class H2DatabasePerformanceSelfComparisonTest
 
 	@Override
 	protected String getTestName() {
-		return H2DatabasePerformanceSelfComparisonTest.class.getSimpleName();
+		return getClass().getSimpleName();
 	}
 }

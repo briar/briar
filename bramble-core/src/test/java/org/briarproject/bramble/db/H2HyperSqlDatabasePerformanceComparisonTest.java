@@ -19,7 +19,6 @@ public class H2HyperSqlDatabasePerformanceComparisonTest
 
 	@Override
 	protected String getTestName() {
-		return H2HyperSqlDatabasePerformanceComparisonTest.class
-				.getSimpleName();
+		return getClass().getSimpleName();
 	}
 }

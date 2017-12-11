@@ -10,7 +10,7 @@ public class HyperSqlDatabasePerformanceTest
 
 	@Override
 	protected String getTestName() {
-		return HyperSqlDatabasePerformanceTest.class.getSimpleName();
+		return getClass().getSimpleName();
 	}
 
 	@Override

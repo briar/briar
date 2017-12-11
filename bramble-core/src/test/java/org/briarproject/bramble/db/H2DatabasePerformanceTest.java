@@ -10,7 +10,7 @@ public class H2DatabasePerformanceTest
 
 	@Override
 	protected String getTestName() {
-		return H2DatabasePerformanceTest.class.getSimpleName();
+		return getClass().getSimpleName();
 	}
 
 	@Override
