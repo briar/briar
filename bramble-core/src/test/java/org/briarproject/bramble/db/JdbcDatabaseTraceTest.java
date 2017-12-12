@@ -36,7 +36,7 @@ public abstract class JdbcDatabaseTraceTest
 		File traceFile = getTraceFile();
 		if (traceFile != null) traceFile.delete();
 		db = openDatabase();
-		measureOne(db, task);
+		task.run(db);
 		db.close();
 		if (traceFile != null) copyTraceFile(name, traceFile);
 	}
@@ -50,7 +50,8 @@ public abstract class JdbcDatabaseTraceTest
 
 	private void copyTraceFile(String name, File src) throws IOException {
 		if (!src.exists()) return;
-		File dest = new File(testDir.getParentFile(), name + ".trace.txt");
+		String filename = getTestName() + "." + name + ".trace.txt";
+		File dest = new File(testDir.getParentFile(), filename);
 		IoUtils.copyAndClose(new FileInputStream(src),
 				new FileOutputStream(dest));
 	}
