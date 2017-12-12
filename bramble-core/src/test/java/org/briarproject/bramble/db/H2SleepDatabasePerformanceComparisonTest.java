@@ -9,13 +9,13 @@ import org.junit.Ignore;
 import java.sql.Connection;
 
 /**
- * Sanity check for {@link JdbcDatabasePerformanceComparisonTest}: check that
+ * Sanity check for {@link DatabasePerformanceComparisonTest}: check that
  * if condition B sleeps for 1ms before every commit, condition A is
  * considered to be faster.
  */
 @Ignore
 public class H2SleepDatabasePerformanceComparisonTest
-		extends JdbcDatabasePerformanceComparisonTest {
+		extends DatabasePerformanceComparisonTest {
 
 	@Override
 	Database<Connection> createDatabase(boolean conditionA,

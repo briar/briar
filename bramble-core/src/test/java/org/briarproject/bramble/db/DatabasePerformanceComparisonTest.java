@@ -18,8 +18,8 @@ import static org.briarproject.bramble.test.TestUtils.getMedian;
 import static org.briarproject.bramble.test.TestUtils.getStandardDeviation;
 import static org.briarproject.bramble.test.UTest.Z_CRITICAL_0_01;
 
-public abstract class JdbcDatabasePerformanceComparisonTest
-		extends JdbcDatabasePerformanceTest {
+public abstract class DatabasePerformanceComparisonTest
+		extends DatabasePerformanceTest {
 
 	/**
 	 * How many blocks of each condition to compare.

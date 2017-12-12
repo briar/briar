@@ -7,13 +7,13 @@ import org.junit.Ignore;
 import java.sql.Connection;
 
 /**
- * Sanity check for {@link JdbcDatabasePerformanceComparisonTest}: check that
+ * Sanity check for {@link DatabasePerformanceComparisonTest}: check that
  * if conditions A and B are identical, no significant difference is (usually)
  * detected.
  */
 @Ignore
 public class H2SelfDatabasePerformanceComparisonTest
-		extends JdbcDatabasePerformanceComparisonTest {
+		extends DatabasePerformanceComparisonTest {
 
 	@Override
 	Database<Connection> createDatabase(boolean conditionA,

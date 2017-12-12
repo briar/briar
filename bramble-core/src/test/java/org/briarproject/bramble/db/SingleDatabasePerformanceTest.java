@@ -15,8 +15,8 @@ import static org.briarproject.bramble.test.TestUtils.getMean;
 import static org.briarproject.bramble.test.TestUtils.getMedian;
 import static org.briarproject.bramble.test.TestUtils.getStandardDeviation;
 
-public abstract class JdbcSingleDatabasePerformanceTest
-		extends JdbcDatabasePerformanceTest {
+public abstract class SingleDatabasePerformanceTest
+		extends DatabasePerformanceTest {
 
 	abstract Database<Connection> createDatabase(DatabaseConfig databaseConfig,
 			Clock clock);

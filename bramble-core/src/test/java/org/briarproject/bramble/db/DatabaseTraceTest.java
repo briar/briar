@@ -17,8 +17,7 @@ import javax.annotation.Nullable;
 
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 
-public abstract class JdbcDatabaseTraceTest
-		extends JdbcDatabasePerformanceTest {
+public abstract class DatabaseTraceTest extends DatabasePerformanceTest {
 
 	abstract Database<Connection> createDatabase(DatabaseConfig databaseConfig,
 			Clock clock);

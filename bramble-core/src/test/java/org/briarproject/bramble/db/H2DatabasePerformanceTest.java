@@ -5,8 +5,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.junit.Ignore;
 
 @Ignore
-public class H2DatabasePerformanceTest
-		extends JdbcSingleDatabasePerformanceTest {
+public class H2DatabasePerformanceTest extends SingleDatabasePerformanceTest {
 
 	@Override
 	protected String getTestName() {

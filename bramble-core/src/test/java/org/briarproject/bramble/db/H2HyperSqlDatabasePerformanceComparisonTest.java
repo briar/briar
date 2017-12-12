@@ -8,7 +8,7 @@ import java.sql.Connection;
 
 @Ignore
 public class H2HyperSqlDatabasePerformanceComparisonTest
-		extends JdbcDatabasePerformanceComparisonTest {
+		extends DatabasePerformanceComparisonTest {
 
 	@Override
 	Database<Connection> createDatabase(boolean conditionA,

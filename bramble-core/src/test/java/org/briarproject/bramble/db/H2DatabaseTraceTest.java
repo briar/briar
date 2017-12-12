@@ -10,7 +10,7 @@ import java.sql.Connection;
 import javax.annotation.Nonnull;
 
 @Ignore
-public class H2DatabaseTraceTest extends JdbcDatabaseTraceTest {
+public class H2DatabaseTraceTest extends DatabaseTraceTest {
 
 	@Override
 	Database<Connection> createDatabase(DatabaseConfig databaseConfig,
