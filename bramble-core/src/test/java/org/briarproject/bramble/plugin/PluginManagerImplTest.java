@@ -3,6 +3,7 @@ package org.briarproject.bramble.plugin;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.PluginConfig;
+import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
@@ -79,7 +80,6 @@ public class PluginManagerImplTest extends BrambleTestCase {
 					SimplexPluginCallback.class)));
 			will(returnValue(simplexPlugin)); // Created
 			oneOf(simplexPlugin).start();
-			will(returnValue(true)); // Started
 			// Second simplex plugin
 			oneOf(simplexFailFactory).getId();
 			will(returnValue(simplexFailId));
@@ -87,7 +87,7 @@ public class PluginManagerImplTest extends BrambleTestCase {
 					SimplexPluginCallback.class)));
 			will(returnValue(simplexFailPlugin)); // Created
 			oneOf(simplexFailPlugin).start();
-			will(returnValue(false)); // Failed to start
+			will(throwException(new PluginException()));
 			// First duplex plugin
 			oneOf(pluginConfig).getDuplexFactories();
 			will(returnValue(Arrays.asList(duplexFactory, duplexFailFactory)));
@@ -97,7 +97,6 @@ public class PluginManagerImplTest extends BrambleTestCase {
 					DuplexPluginCallback.class)));
 			will(returnValue(duplexPlugin)); // Created
 			oneOf(duplexPlugin).start();
-			will(returnValue(true)); // Started
 			// Second duplex plugin
 			oneOf(duplexFailFactory).getId();
 			will(returnValue(duplexFailId));
