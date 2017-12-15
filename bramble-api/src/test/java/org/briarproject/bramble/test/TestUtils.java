@@ -107,7 +107,7 @@ public class TestUtils {
 	public static double getMedian(Collection<? extends Number> samples) {
 		int size = samples.size();
 		if (size == 0) throw new IllegalArgumentException();
-		List<Double> sorted = new ArrayList<Double>(size);
+		List<Double> sorted = new ArrayList<>(size);
 		for (Number n : samples) sorted.add(n.doubleValue());
 		Collections.sort(sorted);
 		if (size % 2 == 1) return sorted.get(size / 2);
