@@ -1,9 +1,7 @@
 package org.briarproject.bramble.test;
 
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.logging.Logger;
 
-import static java.util.logging.Level.OFF;
 import static org.junit.Assert.fail;
 
 public abstract class BrambleTestCase {
@@ -15,7 +13,5 @@ public abstract class BrambleTestCase {
 			fail();
 		};
 		Thread.setDefaultUncaughtExceptionHandler(fail);
-		// Disable logging
-		Logger.getLogger("").setLevel(OFF);
 	}
 }
