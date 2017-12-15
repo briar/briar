@@ -236,25 +236,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE INDEX IF NOT EXISTS contactsByAuthorId"
 					+ " ON contacts (authorId)";
 
-	private static final String INDEX_MESSAGES_BY_GROUP_ID =
-			"CREATE INDEX IF NOT EXISTS messagesByGroupId"
-					+ " ON messages (groupId)";
-
-	private static final String INDEX_OFFERS_BY_CONTACT_ID =
-			"CREATE INDEX IF NOT EXISTS offersByContactId"
-					+ " ON offers (contactId)";
-
 	private static final String INDEX_GROUPS_BY_CLIENT_ID =
 			"CREATE INDEX IF NOT EXISTS groupsByClientId"
 					+ " ON groups (clientId)";
-
-	private static final String INDEX_MESSAGE_METADATA_BY_MESSAGE_ID =
-			"CREATE INDEX IF NOT EXISTS messageMetadataByMessageId"
-					+ " ON messageMetadata (messageId)";
-
-	private static final String INDEX_GROUP_METADATA_BY_GROUP_ID =
-			"CREATE INDEX IF NOT EXISTS groupMetadataByGroupId"
-					+ " ON groupMetadata (groupId)";
 
 	private static final Logger LOG =
 			Logger.getLogger(JdbcDatabase.class.getName());
@@ -370,11 +354,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			s = txn.createStatement();
 			s.executeUpdate(INDEX_CONTACTS_BY_AUTHOR_ID);
-			s.executeUpdate(INDEX_MESSAGES_BY_GROUP_ID);
-			s.executeUpdate(INDEX_OFFERS_BY_CONTACT_ID);
 			s.executeUpdate(INDEX_GROUPS_BY_CLIENT_ID);
-			s.executeUpdate(INDEX_MESSAGE_METADATA_BY_MESSAGE_ID);
-			s.executeUpdate(INDEX_GROUP_METADATA_BY_GROUP_ID);
 			s.close();
 		} catch (SQLException e) {
 			tryToClose(s);
