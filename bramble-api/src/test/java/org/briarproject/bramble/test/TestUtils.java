@@ -49,13 +49,6 @@ public class TestUtils {
 		return b;
 	}
 
-	public static byte[] getRandomBytes(int minLength, int maxLength) {
-		int length = minLength + random.nextInt(maxLength - minLength + 1);
-		byte[] b = new byte[length];
-		random.nextBytes(b);
-		return b;
-	}
-
 	public static byte[] getRandomId() {
 		return getRandomBytes(UniqueId.LENGTH);
 	}
@@ -64,12 +57,8 @@ public class TestUtils {
 		return new SecretKey(getRandomBytes(SecretKey.LENGTH));
 	}
 
-	public static int getRandomLength(int min, int max) {
-		return min + random.nextInt(max - min + 1);
-	}
-
 	public static LocalAuthor getLocalAuthor() {
-		return getLocalAuthor(getRandomLength(1, MAX_AUTHOR_NAME_LENGTH));
+		return getLocalAuthor(1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH));
 	}
 
 	public static LocalAuthor getLocalAuthor(int nameLength) {
@@ -82,7 +71,7 @@ public class TestUtils {
 	}
 
 	public static Author getAuthor() {
-		return getAuthor(getRandomLength(1, MAX_AUTHOR_NAME_LENGTH));
+		return getAuthor(1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH));
 	}
 
 	public static Author getAuthor(int nameLength) {
@@ -93,7 +82,7 @@ public class TestUtils {
 	}
 
 	public static Group getGroup(ClientId clientId) {
-		int descriptorLength = getRandomLength(1, MAX_GROUP_DESCRIPTOR_LENGTH);
+		int descriptorLength = 1 + random.nextInt(MAX_GROUP_DESCRIPTOR_LENGTH);
 		return getGroup(clientId, descriptorLength);
 	}
 
@@ -104,7 +93,7 @@ public class TestUtils {
 	}
 
 	public static Message getMessage(GroupId groupId) {
-		int bodyLength = getRandomLength(1, MAX_MESSAGE_BODY_LENGTH);
+		int bodyLength = 1 + random.nextInt(MAX_MESSAGE_BODY_LENGTH);
 		return getMessage(groupId, MESSAGE_HEADER_LENGTH + bodyLength);
 	}
 
