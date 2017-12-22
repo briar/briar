@@ -60,6 +60,8 @@ import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
@@ -114,6 +116,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final File torDirectory, torFile, geoIpFile, configFile;
 	private final File doneFile, cookieFile;
 	private final PowerManager.WakeLock wakeLock;
+	private final Lock connectionStatusLock;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	private volatile boolean running = false;
@@ -152,6 +155,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		// This tag will prevent Huawei's powermanager from killing us.
 		wakeLock = pm.newWakeLock(PARTIAL_WAKE_LOCK, "LocationManagerService");
 		wakeLock.setReferenceCounted(false);
+		connectionStatusLock = new ReentrantLock();
 	}
 
 	@Override
@@ -618,6 +622,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void orConnStatus(String status, String orName) {
 		if (LOG.isLoggable(INFO)) LOG.info("OR connection " + status);
+		if (status.equals("CLOSED") || status.equals("FAILED"))
+			updateConnectionStatus(); // Check whether we've lost connectivity
 	}
 
 	@Override
@@ -657,7 +663,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 
 		@Override
-		public void onEvent(int event, String path) {
+		public void onEvent(int event, @Nullable String path) {
 			stopWatching();
 			latch.countDown();
 		}
@@ -677,43 +683,52 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private void updateConnectionStatus() {
 		ioExecutor.execute(() -> {
 			if (!running) return;
-
-			Object o = appContext.getSystemService(CONNECTIVITY_SERVICE);
-			ConnectivityManager cm = (ConnectivityManager) o;
-			NetworkInfo net = cm.getActiveNetworkInfo();
-			boolean online = net != null && net.isConnected();
-			boolean wifi = online && net.getType() == TYPE_WIFI;
-			String country = locationUtils.getCurrentCountry();
-			boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
-					country);
-			Settings s = callback.getSettings();
-			int network = s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_ALWAYS);
-
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("Online: " + online + ", wifi: " + wifi);
-				if ("".equals(country)) LOG.info("Country code unknown");
-				else LOG.info("Country code: " + country);
-			}
-
 			try {
-				if (!online) {
-					LOG.info("Disabling network, device is offline");
-					enableNetwork(false);
-				} else if (blocked) {
-					LOG.info("Disabling network, country is blocked");
-					enableNetwork(false);
-				} else if (network == PREF_TOR_NETWORK_NEVER
-						|| (network == PREF_TOR_NETWORK_WIFI && !wifi)) {
-					LOG.info("Disabling network due to data setting");
-					enableNetwork(false);
-				} else {
-					LOG.info("Enabling network");
-					enableNetwork(true);
-				}
-			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				connectionStatusLock.lock();
+				updateConnectionStatusLocked();
+			} finally {
+				connectionStatusLock.unlock();
 			}
 		});
+	}
+
+	// Locking: connectionStatusLock
+	private void updateConnectionStatusLocked() {
+		Object o = appContext.getSystemService(CONNECTIVITY_SERVICE);
+		ConnectivityManager cm = (ConnectivityManager) o;
+		NetworkInfo net = cm.getActiveNetworkInfo();
+		boolean online = net != null && net.isConnected();
+		boolean wifi = online && net.getType() == TYPE_WIFI;
+		String country = locationUtils.getCurrentCountry();
+		boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
+				country);
+		Settings s = callback.getSettings();
+		int network = s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_ALWAYS);
+
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Online: " + online + ", wifi: " + wifi);
+			if ("".equals(country)) LOG.info("Country code unknown");
+			else LOG.info("Country code: " + country);
+		}
+
+		try {
+			if (!online) {
+				LOG.info("Disabling network, device is offline");
+				enableNetwork(false);
+			} else if (blocked) {
+				LOG.info("Disabling network, country is blocked");
+				enableNetwork(false);
+			} else if (network == PREF_TOR_NETWORK_NEVER
+					|| (network == PREF_TOR_NETWORK_WIFI && !wifi)) {
+				LOG.info("Disabling network due to data setting");
+				enableNetwork(false);
+			} else {
+				LOG.info("Enabling network");
+				enableNetwork(true);
+			}
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
 	}
 
 	private class NetworkStateReceiver extends BroadcastReceiver {
