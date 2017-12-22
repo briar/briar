@@ -44,7 +44,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(NavDrawerControllerImpl.class.getName());
 	private static final String EXPIRY_DATE_WARNING = "expiryDateWarning";
-	private static final String EXPIRY_SHOW_UPDATE = "expiryShowUpdate";
+	private static final String EXPIRY_SHOW_UPDATE = "expiryShowUpdateAgain";
 
 	private final PluginManager pluginManager;
 	private final SettingsManager settingsManager;
