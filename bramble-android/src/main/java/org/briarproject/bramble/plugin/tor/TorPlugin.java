@@ -11,6 +11,8 @@ import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.FileObserver;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 
 import net.freehaven.tor.control.EventHandler;
@@ -72,8 +74,12 @@ import javax.net.SocketFactory;
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.POWER_SERVICE;
+import static android.content.Intent.ACTION_SCREEN_OFF;
+import static android.content.Intent.ACTION_SCREEN_ON;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.TYPE_WIFI;
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
 import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
@@ -117,6 +123,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final File doneFile, cookieFile;
 	private final PowerManager.WakeLock wakeLock;
 	private final Lock connectionStatusLock;
+	private final Handler handler;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	private volatile boolean running = false;
@@ -156,6 +163,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		wakeLock = pm.newWakeLock(PARTIAL_WAKE_LOCK, "LocationManagerService");
 		wakeLock.setReferenceCounted(false);
 		connectionStatusLock = new ReentrantLock();
+		handler = new Handler(Looper.getMainLooper());
 	}
 
 	@Override
@@ -261,7 +269,11 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 		// Register to receive network status events
 		networkStateReceiver = new NetworkStateReceiver();
-		IntentFilter filter = new IntentFilter(CONNECTIVITY_ACTION);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(CONNECTIVITY_ACTION);
+		filter.addAction(ACTION_SCREEN_ON);
+		filter.addAction(ACTION_SCREEN_OFF);
+		if (SDK_INT >= 23) filter.addAction(ACTION_DEVICE_IDLE_MODE_CHANGED);
 		appContext.registerReceiver(networkStateReceiver, filter);
 		// Bind a server socket to receive incoming hidden service connections
 		bind();
@@ -736,8 +748,17 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		@Override
 		public void onReceive(Context ctx, Intent i) {
 			if (!running) return;
-			if (CONNECTIVITY_ACTION.equals(i.getAction())) {
-				LOG.info("Detected connectivity change");
+			String action = i.getAction();
+			if (LOG.isLoggable(INFO)) LOG.info("Received broadcast " + action);
+			if (CONNECTIVITY_ACTION.equals(action)) {
+				updateConnectionStatus();
+			} else if (ACTION_SCREEN_ON.equals(action)
+					|| ACTION_SCREEN_OFF.equals(action)) {
+				// Update connection status after 1 minute
+				handler.postDelayed(TorPlugin.this::updateConnectionStatus,
+						60 * 1000);
+			} else if (SDK_INT >= 23
+					&& ACTION_DEVICE_IDLE_MODE_CHANGED.equals(action)) {
 				updateConnectionStatus();
 			}
 		}
