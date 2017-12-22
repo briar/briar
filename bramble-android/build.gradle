@@ -55,16 +55,16 @@ dependencyVerification {
 }
 
 ext.torBinaryDir = 'src/main/res/raw'
-ext.torVersion = '0.2.9.12'
-ext.geoipVersion = '2017-09-06'
+ext.torVersion = '0.2.9.14'
+ext.geoipVersion = '2017-11-06'
 ext.torDownloadUrl = 'https://briarproject.org/build/'
 
 def torBinaries = [
-		"tor_arm"    : '8ed0b347ffed1d6a4d2fd14495118eb92be83e9cc06e057e15220dc288b31688',
-		"tor_arm_pie": '64403262511c29f462ca5e7c7621bfc3c944898364d1d5ad35a016bb8a034283',
-		"tor_x86"    : '61e014607a2079bcf1646289c67bff6372b1aded6e1d8d83d7791efda9a4d5ab',
-		"tor_x86_pie": '18fbc98356697dd0895836ab46d5c9877d1c539193464f7db1e82a65adaaf288',
-		"geoip"      : 'fe49d3adb86d3c512373101422a017dbb86c85a570524663f09dd8ce143a24f3'
+		"tor_arm"    : '1710ea6c47b7f4c1a88bdf4858c7893837635db10e8866854eed8d61629f50e8',
+		"tor_arm_pie": '974e6949507db8fa2ea45231817c2c3677ed4ccf5488a2252317d744b0be1917',
+		"tor_x86"    : '3a5e45b3f051fcda9353b098b7086e762ffe7ba9242f7d7c8bf6523faaa8b1e9',
+		"tor_x86_pie": 'd1d96d8ce1a4b68accf04850185780d10cd5563d3552f7e1f040f8ca32cb4e51',
+		"geoip"      : '8239b98374493529a29096e45fc5877d4d6fdad0146ad8380b291f90d61484ea'
 ]
 
 def downloadBinary(name) {
