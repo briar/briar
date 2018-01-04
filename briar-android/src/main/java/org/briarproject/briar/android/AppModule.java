@@ -1,6 +1,7 @@
 package org.briarproject.briar.android;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -155,6 +156,11 @@ public class AppModule {
 			}
 		};
 		return devConfig;
+	}
+
+	@Provides
+	SharedPreferences provideSharedPreferences(Application app) {
+		return app.getSharedPreferences("db", MODE_PRIVATE);
 	}
 
 	@Provides

@@ -40,12 +40,12 @@ public class TapSafeFrameLayout extends FrameLayout {
 
 	@Override
 	public boolean onFilterTouchEventForSecurity(MotionEvent e) {
-		boolean filter = (e.getFlags() & FLAG_WINDOW_IS_OBSCURED) != 0;
-		if (filter && listener != null) listener.onTapFiltered();
-		return !filter;
+		boolean obscured = (e.getFlags() & FLAG_WINDOW_IS_OBSCURED) != 0;
+		if (obscured && listener != null) return listener.shouldAllowTap();
+		else return !obscured;
 	}
 
 	public interface OnTapFilteredListener {
-		void onTapFiltered();
+		boolean shouldAllowTap();
 	}
 }

@@ -397,6 +397,7 @@
 	<!-- Screen Filters & Tapjacking -->
 	<string name="screen_filter_title">Screen overlay detected</string>
 	<string name="screen_filter_body">Another app is drawing on top of Briar. To protect your security, Briar will not respond to touches when another app is drawing on top.\n\nTry turning off the following apps when using Briar:\n\n%1$s</string>
+	<string name="screen_filter_allow">Allow these apps to draw on top</string>
 
 	<!-- Permission Requests -->
 	<string name="permission_camera_title">Camera permission</string>
