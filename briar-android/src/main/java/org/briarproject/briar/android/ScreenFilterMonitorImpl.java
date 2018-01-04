@@ -1,6 +1,8 @@
 package org.briarproject.briar.android;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -16,19 +18,23 @@ import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.Manifest.permission.SYSTEM_ALERT_WINDOW;
 import static android.content.pm.ApplicationInfo.FLAG_SYSTEM;
 import static android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP;
+import static android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED;
 import static android.content.pm.PackageManager.GET_PERMISSIONS;
 import static android.content.pm.PackageManager.GET_SIGNATURES;
+import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.WARNING;
 
 @NotNullByDefault
@@ -56,54 +62,75 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor {
 					"82BA35E003C1B4B10DD244A8EE24FFFD333872AB5221985EDAB0FC0D" +
 					"0B145B6AA192858E79020103";
 
+	private static final String PREF_KEY_ALLOWED = "allowedOverlayApps";
+
 	private final PackageManager pm;
+	private final SharedPreferences prefs;
 
 	@Inject
-	ScreenFilterMonitorImpl(Application app) {
+	ScreenFilterMonitorImpl(Application app, SharedPreferences prefs) {
 		pm = app.getPackageManager();
+		this.prefs = prefs;
 	}
 
 	@Override
 	@UiThread
-	public Set<String> getApps() {
-		Set<String> screenFilterApps = new TreeSet<>();
+	public Collection<AppDetails> getApps() {
+		Set<String> allowed = prefs.getStringSet(PREF_KEY_ALLOWED,
+				Collections.emptySet());
+		List<AppDetails> apps = new ArrayList<>();
 		List<PackageInfo> packageInfos =
 				pm.getInstalledPackages(GET_PERMISSIONS);
 		for (PackageInfo packageInfo : packageInfos) {
-			if (isOverlayApp(packageInfo)) {
-				String name = pkgToString(packageInfo);
-				if (name != null) {
-					screenFilterApps.add(name);
-				}
+			if (!allowed.contains(packageInfo.packageName)
+					&& isOverlayApp(packageInfo)) {
+				String name = getAppName(packageInfo);
+				apps.add(new AppDetails(name, packageInfo.packageName));
 			}
 		}
-		return screenFilterApps;
+		Collections.sort(apps, (a, b) -> a.name.compareTo(b.name));
+		return apps;
 	}
 
-	// Fetches the application name for a given package.
-	@Nullable
-	private String pkgToString(PackageInfo pkgInfo) {
+	@Override
+	public void allowApps(Collection<String> packageNames) {
+		Set<String> allowed = prefs.getStringSet(PREF_KEY_ALLOWED,
+				Collections.emptySet());
+		Set<String> merged = new HashSet<>(allowed);
+		merged.addAll(packageNames);
+		prefs.edit().putStringSet(PREF_KEY_ALLOWED, merged).apply();
+	}
+
+	// Returns the application name for a given package, or the package name
+	// if no application name is available
+	private String getAppName(PackageInfo pkgInfo) {
 		CharSequence seq = pm.getApplicationLabel(pkgInfo.applicationInfo);
-		if (seq != null) {
-			return seq.toString();
-		}
-		return null;
+		return seq == null ? pkgInfo.packageName : seq.toString();
 	}
 
 	// Checks if an installed package is a user app using the permission.
 	private boolean isOverlayApp(PackageInfo packageInfo) {
 		int mask = FLAG_SYSTEM | FLAG_UPDATED_SYSTEM_APP;
 		// Ignore system apps
-		if ((packageInfo.applicationInfo.flags & mask) != 0) {
-			return false;
-		}
+		if ((packageInfo.applicationInfo.flags & mask) != 0) return false;
 		// Ignore Play Services, it's effectively a system app
-		if (isPlayServices(packageInfo.packageName)) {
-			return false;
-		}
+		if (isPlayServices(packageInfo.packageName)) return false;
 		// Get permissions
 		String[] requestedPermissions = packageInfo.requestedPermissions;
-		if (requestedPermissions != null) {
+		if (requestedPermissions == null) return false;
+		if (SDK_INT >= 16 && SDK_INT < 23) {
+			// Check whether the permission has been requested and granted
+			int[] flags = packageInfo.requestedPermissionsFlags;
+			if (flags == null || flags.length != requestedPermissions.length)
+				throw new AssertionError();
+			for (int i = 0; i < requestedPermissions.length; i++) {
+				if (requestedPermissions[i].equals(SYSTEM_ALERT_WINDOW)
+						&& (flags[i] & REQUESTED_PERMISSION_GRANTED) != 0) {
+					return true;
+				}
+			}
+		} else {
+			// Check whether the permission has been requested
 			for (String requestedPermission : requestedPermissions) {
 				if (requestedPermission.equals(SYSTEM_ALERT_WINDOW)) {
 					return true;
@@ -113,6 +140,7 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor {
 		return false;
 	}
 
+	@SuppressLint("PackageManagerGetSignatures")
 	private boolean isPlayServices(String pkg) {
 		if (!PLAY_SERVICES_PACKAGE.equals(pkg)) return false;
 		try {

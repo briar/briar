@@ -24,10 +24,11 @@ import org.briarproject.briar.android.fragment.ScreenFilterDialogFragment;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout.OnTapFilteredListener;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
+import org.briarproject.briar.api.android.ScreenFilterMonitor.AppDetails;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -132,16 +133,19 @@ public abstract class BaseActivity extends AppCompatActivity
 				.commit();
 	}
 
-	private void showScreenFilterWarning() {
-		if (dialogFrag != null && dialogFrag.isVisible()) return;
-		Set<String> apps = screenFilterMonitor.getApps();
-		if (apps.isEmpty()) return;
-		dialogFrag =
-				ScreenFilterDialogFragment.newInstance(new ArrayList<>(apps));
+	private boolean showScreenFilterWarning() {
+		// If the dialog is already visible, filter the tap
+		if (dialogFrag != null && dialogFrag.isVisible()) return false;
+		Collection<AppDetails> apps = screenFilterMonitor.getApps();
+		// If all overlay apps are allowed or system apps, allow the tap
+		if (apps.isEmpty()) return true;
+		dialogFrag = ScreenFilterDialogFragment.newInstance(apps);
 		dialogFrag.setCancelable(false);
 		// Show dialog unless onSaveInstanceState() has been called, see #1112
 		FragmentManager fm = getSupportFragmentManager();
 		if (!fm.isStateSaved()) dialogFrag.show(fm, dialogFrag.getTag());
+		// Filter the tap
+		return false;
 	}
 
 	@Override
@@ -198,7 +202,10 @@ public abstract class BaseActivity extends AppCompatActivity
 		View decorView = getWindow().getDecorView();
 		if (decorView instanceof ViewGroup) {
 			Toolbar toolbar = findToolbar((ViewGroup) decorView);
-			if (toolbar != null) toolbar.setFilterTouchesWhenObscured(true);
+			if (toolbar != null) {
+				boolean filter = !screenFilterMonitor.getApps().isEmpty();
+				toolbar.setFilterTouchesWhenObscured(filter);
+			}
 		}
 	}
 
@@ -239,7 +246,7 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onTapFiltered() {
-		showScreenFilterWarning();
+	public boolean shouldAllowTap() {
+		return showScreenFilterWarning();
 	}
 }

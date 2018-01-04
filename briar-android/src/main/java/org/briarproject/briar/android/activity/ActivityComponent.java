@@ -21,6 +21,7 @@ import org.briarproject.briar.android.forum.CreateForumActivity;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.forum.ForumListFragment;
 import org.briarproject.briar.android.forum.ForumModule;
+import org.briarproject.briar.android.fragment.ScreenFilterDialogFragment;
 import org.briarproject.briar.android.introduction.ContactChooserFragment;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.introduction.IntroductionMessageFragment;
@@ -152,7 +153,9 @@ public interface ActivityComponent {
 
 	// Fragments
 	void inject(AuthorNameFragment fragment);
+
 	void inject(PasswordFragment fragment);
+
 	void inject(DozeFragment fragment);
 
 	void inject(ContactListFragment fragment);
@@ -189,4 +192,5 @@ public interface ActivityComponent {
 
 	void inject(SettingsFragment fragment);
 
+	void inject(ScreenFilterDialogFragment fragment);
 }
