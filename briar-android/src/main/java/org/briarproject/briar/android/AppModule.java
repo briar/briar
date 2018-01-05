@@ -180,8 +180,11 @@ public class AppModule {
 	}
 
 	@Provides
+	@Singleton
 	ScreenFilterMonitor provideScreenFilterMonitor(
+			LifecycleManager lifecycleManager,
 			ScreenFilterMonitorImpl screenFilterMonitor) {
+		lifecycleManager.registerService(screenFilterMonitor);
 		return screenFilterMonitor;
 	}
 
