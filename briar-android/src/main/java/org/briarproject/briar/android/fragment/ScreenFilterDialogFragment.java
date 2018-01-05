@@ -3,6 +3,7 @@ package org.briarproject.briar.android.fragment;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -32,6 +33,8 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 	@Inject
 	ScreenFilterMonitor screenFilterMonitor;
 
+	DismissListener dismissListener = null;
+
 	public static ScreenFilterDialogFragment newInstance(
 			Collection<AppDetails> apps) {
 		ScreenFilterDialogFragment frag = new ScreenFilterDialogFragment();
@@ -44,6 +47,10 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 		args.putStringArrayList("packageNames", packageNames);
 		frag.setArguments(args);
 		return frag;
+	}
+
+	public void setDismissListener(DismissListener dismissListener) {
+		this.dismissListener = dismissListener;
 	}
 
 	@Override
@@ -82,5 +89,15 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 			dialog.dismiss();
 		});
 		return builder.create();
+	}
+
+	@Override
+	public void onDismiss(DialogInterface dialog) {
+		super.onDismiss(dialog);
+		if (dismissListener != null) dismissListener.onDialogDismissed();
+	}
+
+	public interface DismissListener {
+		void onDialogDismissed();
 	}
 }

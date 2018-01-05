@@ -49,7 +49,10 @@ public abstract class BaseActivity extends AppCompatActivity
 	private final List<ActivityLifecycleController> lifecycleControllers =
 			new ArrayList<>();
 	private boolean destroyed = false;
+
 	private ScreenFilterDialogFragment dialogFrag;
+	private Toolbar toolbar = null;
+	private boolean searchedForToolbar = false;
 
 	public abstract void injectActivity(ActivityComponent component);
 
@@ -109,6 +112,12 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		protectToolbar();
+	}
+
+	@Override
 	protected void onPause() {
 		super.onPause();
 		if (dialogFrag != null) {
@@ -137,13 +146,18 @@ public abstract class BaseActivity extends AppCompatActivity
 		// If the dialog is already visible, filter the tap
 		if (dialogFrag != null && dialogFrag.isVisible()) return false;
 		Collection<AppDetails> apps = screenFilterMonitor.getApps();
-		// If all overlay apps are allowed or system apps, allow the tap
+		// If there are no overlay apps that haven't been allowed, allow the tap
 		if (apps.isEmpty()) return true;
+		// Create dialog
 		dialogFrag = ScreenFilterDialogFragment.newInstance(apps);
 		dialogFrag.setCancelable(false);
 		// Show dialog unless onSaveInstanceState() has been called, see #1112
 		FragmentManager fm = getSupportFragmentManager();
-		if (!fm.isStateSaved()) dialogFrag.show(fm, dialogFrag.getTag());
+		if (!fm.isStateSaved()) {
+			// When dialog is dismissed, update protection of toolbar
+			dialogFrag.setDismissListener(this::protectToolbar);
+			dialogFrag.show(fm, dialogFrag.getTag());
+		}
 		// Filter the tap
 		return false;
 	}
@@ -199,14 +213,19 @@ public abstract class BaseActivity extends AppCompatActivity
 	 * is outside the wrapper.
 	 */
 	private void protectToolbar() {
-		View decorView = getWindow().getDecorView();
-		if (decorView instanceof ViewGroup) {
-			Toolbar toolbar = findToolbar((ViewGroup) decorView);
-			if (toolbar != null) {
-				boolean filter = !screenFilterMonitor.getApps().isEmpty();
-				toolbar.setFilterTouchesWhenObscured(filter);
-			}
+		findToolbar();
+		if (toolbar != null) {
+			boolean filter = !screenFilterMonitor.getApps().isEmpty();
+			toolbar.setFilterTouchesWhenObscured(filter);
 		}
+	}
+
+	private void findToolbar() {
+		if (searchedForToolbar) return;
+		View decorView = getWindow().getDecorView();
+		if (decorView instanceof ViewGroup)
+			toolbar = findToolbar((ViewGroup) decorView);
+		searchedForToolbar = true;
 	}
 
 	@Nullable
@@ -230,19 +249,16 @@ public abstract class BaseActivity extends AppCompatActivity
 	@Override
 	public void setContentView(View v) {
 		super.setContentView(makeTapSafeWrapper(v));
-		protectToolbar();
 	}
 
 	@Override
 	public void setContentView(View v, LayoutParams layoutParams) {
 		super.setContentView(makeTapSafeWrapper(v), layoutParams);
-		protectToolbar();
 	}
 
 	@Override
 	public void addContentView(View v, LayoutParams layoutParams) {
 		super.addContentView(makeTapSafeWrapper(v), layoutParams);
-		protectToolbar();
 	}
 
 	@Override

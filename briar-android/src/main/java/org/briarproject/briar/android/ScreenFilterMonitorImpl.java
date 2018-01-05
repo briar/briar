@@ -2,6 +2,10 @@ package org.briarproject.briar.android;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -9,7 +13,10 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
 import android.support.annotation.UiThread;
 
+import org.briarproject.bramble.api.lifecycle.Service;
+import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 
@@ -24,11 +31,17 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.Manifest.permission.SYSTEM_ALERT_WINDOW;
+import static android.content.Intent.ACTION_PACKAGE_ADDED;
+import static android.content.Intent.ACTION_PACKAGE_CHANGED;
+import static android.content.Intent.ACTION_PACKAGE_REMOVED;
+import static android.content.Intent.ACTION_PACKAGE_REPLACED;
 import static android.content.pm.ApplicationInfo.FLAG_SYSTEM;
 import static android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP;
 import static android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED;
@@ -38,7 +51,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.WARNING;
 
 @NotNullByDefault
-class ScreenFilterMonitorImpl implements ScreenFilterMonitor {
+class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 
 	private static final Logger LOG =
 			Logger.getLogger(ScreenFilterMonitorImpl.class.getName());
@@ -65,17 +78,32 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor {
 	private static final String PREF_KEY_ALLOWED = "allowedOverlayApps";
 
 	private final PackageManager pm;
+	private final Application app;
+	private final AndroidExecutor androidExecutor;
 	private final SharedPreferences prefs;
+	private final AtomicBoolean used = new AtomicBoolean(false);
+
+	// UiThread
+	@Nullable
+	private BroadcastReceiver receiver = null;
+
+	// UiThread
+	@Nullable
+	private Collection<AppDetails> cachedApps = null;
 
 	@Inject
-	ScreenFilterMonitorImpl(Application app, SharedPreferences prefs) {
+	ScreenFilterMonitorImpl(Application app, AndroidExecutor androidExecutor,
+			SharedPreferences prefs) {
 		pm = app.getPackageManager();
+		this.app = app;
+		this.androidExecutor = androidExecutor;
 		this.prefs = prefs;
 	}
 
 	@Override
 	@UiThread
 	public Collection<AppDetails> getApps() {
+		if (cachedApps != null) return cachedApps;
 		Set<String> allowed = prefs.getStringSet(PREF_KEY_ALLOWED,
 				Collections.emptySet());
 		List<AppDetails> apps = new ArrayList<>();
@@ -89,11 +117,15 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor {
 			}
 		}
 		Collections.sort(apps, (a, b) -> a.name.compareTo(b.name));
+		apps = Collections.unmodifiableList(apps);
+		cachedApps = apps;
 		return apps;
 	}
 
 	@Override
+	@UiThread
 	public void allowApps(Collection<String> packageNames) {
+		cachedApps = null;
 		Set<String> allowed = prefs.getStringSet(PREF_KEY_ALLOWED,
 				Collections.emptySet());
 		Set<String> merged = new HashSet<>(allowed);
@@ -121,12 +153,11 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor {
 		if (SDK_INT >= 16 && SDK_INT < 23) {
 			// Check whether the permission has been requested and granted
 			int[] flags = packageInfo.requestedPermissionsFlags;
-			if (flags == null || flags.length != requestedPermissions.length)
-				throw new AssertionError();
 			for (int i = 0; i < requestedPermissions.length; i++) {
-				if (requestedPermissions[i].equals(SYSTEM_ALERT_WINDOW)
-						&& (flags[i] & REQUESTED_PERMISSION_GRANTED) != 0) {
-					return true;
+				if (requestedPermissions[i].equals(SYSTEM_ALERT_WINDOW)) {
+					// 'flags' may be null on Robolectric
+					return flags == null ||
+							(flags[i] & REQUESTED_PERMISSION_GRANTED) != 0;
 				}
 			}
 		} else {
@@ -161,6 +192,38 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor {
 		} catch (NameNotFoundException | CertificateException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return false;
+		}
+	}
+
+	@Override
+	public void startService() throws ServiceException {
+		if (used.getAndSet(true)) throw new IllegalStateException();
+		androidExecutor.runOnUiThread(() -> {
+			IntentFilter filter = new IntentFilter();
+			filter.addAction(ACTION_PACKAGE_ADDED);
+			filter.addAction(ACTION_PACKAGE_CHANGED);
+			filter.addAction(ACTION_PACKAGE_REMOVED);
+			filter.addAction(ACTION_PACKAGE_REPLACED);
+			filter.addDataScheme("package");
+			receiver = new PackageBroadcastReceiver();
+			app.registerReceiver(receiver, filter);
+			cachedApps = null;
+		});
+	}
+
+	@Override
+	public void stopService() throws ServiceException {
+		androidExecutor.runOnUiThread(() -> {
+			if (receiver != null) app.unregisterReceiver(receiver);
+		});
+	}
+
+	private class PackageBroadcastReceiver extends BroadcastReceiver {
+
+		@Override
+		@UiThread
+		public void onReceive(Context context, Intent intent) {
+			cachedApps = null;
 		}
 	}
 }
