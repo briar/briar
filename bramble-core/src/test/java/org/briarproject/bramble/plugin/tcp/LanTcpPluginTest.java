@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
+import org.briarproject.bramble.plugin.tcp.LanTcpPlugin.LanAddressComparator;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
@@ -22,6 +23,7 @@ import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -273,6 +275,39 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		d.getWriter().dispose(false);
 		ss.close();
 		plugin.stop();
+	}
+
+	@Test
+	public void testComparatorPrefersNonZeroPorts() throws Exception {
+		Comparator<InetSocketAddress> comparator = new LanAddressComparator();
+		InetSocketAddress nonZero = new InetSocketAddress("1.2.3.4", 1234);
+		InetSocketAddress zero = new InetSocketAddress("1.2.3.4", 0);
+
+		assertEquals(0, comparator.compare(nonZero, nonZero));
+		assertTrue(comparator.compare(nonZero, zero) < 0);
+
+		assertTrue(comparator.compare(zero, nonZero) > 0);
+		assertEquals(0, comparator.compare(zero, zero));
+	}
+
+	@Test
+	public void testComparatorPrefersLongerPrefixes() throws Exception {
+		Comparator<InetSocketAddress> comparator = new LanAddressComparator();
+		InetSocketAddress prefix192 = new InetSocketAddress("192.168.0.1", 0);
+		InetSocketAddress prefix172 = new InetSocketAddress("172.16.0.1", 0);
+		InetSocketAddress prefix10 = new InetSocketAddress("10.0.0.1", 0);
+
+		assertEquals(0, comparator.compare(prefix192, prefix192));
+		assertTrue(comparator.compare(prefix192, prefix172) < 0);
+		assertTrue(comparator.compare(prefix192, prefix10) < 0);
+
+		assertTrue(comparator.compare(prefix172, prefix192) > 0);
+		assertEquals(0, comparator.compare(prefix172, prefix172));
+		assertTrue(comparator.compare(prefix172, prefix10) < 0);
+
+		assertTrue(comparator.compare(prefix10, prefix192) > 0);
+		assertTrue(comparator.compare(prefix10, prefix172) > 0);
+		assertEquals(0, comparator.compare(prefix10, prefix10));
 	}
 
 	private boolean systemHasLocalIpv4Address() throws Exception {

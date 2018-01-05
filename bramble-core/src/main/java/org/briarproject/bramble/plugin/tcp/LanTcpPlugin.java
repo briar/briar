@@ -23,7 +23,7 @@ import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -44,6 +44,9 @@ class LanTcpPlugin extends TcpPlugin {
 	private static final Logger LOG =
 			Logger.getLogger(LanTcpPlugin.class.getName());
 
+	private static final LanAddressComparator ADDRESS_COMPARATOR =
+			new LanAddressComparator();
+
 	private static final int MAX_ADDRESSES = 4;
 	private static final String SEPARATOR = ",";
 
@@ -63,19 +66,18 @@ class LanTcpPlugin extends TcpPlugin {
 		TransportProperties p = callback.getLocalProperties();
 		String oldIpPorts = p.get(PROP_IP_PORTS);
 		List<InetSocketAddress> olds = parseSocketAddresses(oldIpPorts);
-		List<InetSocketAddress> locals = new LinkedList<>();
+		List<InetSocketAddress> locals = new ArrayList<>();
 		for (InetAddress local : getLocalIpAddresses()) {
 			if (isAcceptableAddress(local)) {
 				// If this is the old address, try to use the same port
 				for (InetSocketAddress old : olds) {
-					if (old.getAddress().equals(local)) {
-						int port = old.getPort();
-						locals.add(0, new InetSocketAddress(local, port));
-					}
+					if (old.getAddress().equals(local))
+						locals.add(new InetSocketAddress(local, old.getPort()));
 				}
 				locals.add(new InetSocketAddress(local, 0));
 			}
 		}
+		Collections.sort(locals, ADDRESS_COMPARATOR);
 		return locals;
 	}
 
@@ -153,15 +155,37 @@ class LanTcpPlugin extends TcpPlugin {
 	// Package access for testing
 	boolean addressesAreOnSameLan(byte[] localIp, byte[] remoteIp) {
 		// 10.0.0.0/8
-		if (localIp[0] == 10) return remoteIp[0] == 10;
+		if (isPrefix10(localIp)) return isPrefix10(remoteIp);
 		// 172.16.0.0/12
-		if (localIp[0] == (byte) 172 && (localIp[1] & 0xF0) == 16)
-			return remoteIp[0] == (byte) 172 && (remoteIp[1] & 0xF0) == 16;
+		if (isPrefix172(localIp)) return isPrefix172(remoteIp);
 		// 192.168.0.0/16
-		if (localIp[0] == (byte) 192 && localIp[1] == (byte) 168)
-			return remoteIp[0] == (byte) 192 && remoteIp[1] == (byte) 168;
+		if (isPrefix192(localIp)) return isPrefix192(remoteIp);
 		// Unrecognised prefix - may be compatible
 		return true;
+	}
+
+	private static boolean isPrefix10(byte[] ipv4) {
+		return ipv4[0] == 10;
+	}
+
+	private static boolean isPrefix172(byte[] ipv4) {
+		return ipv4[0] == (byte) 172 && (ipv4[1] & 0xF0) == 16;
+	}
+
+	private static boolean isPrefix192(byte[] ipv4) {
+		return ipv4[0] == (byte) 192 && ipv4[1] == (byte) 168;
+	}
+
+	// Returns the prefix length for an RFC 1918 address, or 0 for any other
+	// address
+	private static int getRfc1918PrefixLength(InetAddress addr) {
+		if (!(addr instanceof Inet4Address)) return 0;
+		if (!addr.isSiteLocalAddress()) return 0;
+		byte[] ipv4 = addr.getAddress();
+		if (isPrefix10(ipv4)) return 8;
+		if (isPrefix172(ipv4)) return 12;
+		if (isPrefix192(ipv4)) return 16;
+		return 0;
 	}
 
 	@Override
@@ -276,6 +300,21 @@ class LanTcpPlugin extends TcpPlugin {
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
+		}
+	}
+
+	static class LanAddressComparator implements Comparator<InetSocketAddress> {
+
+		@Override
+		public int compare(InetSocketAddress a, InetSocketAddress b) {
+			// Prefer addresses with non-zero ports
+			int aPort = a.getPort(), bPort = b.getPort();
+			if (aPort > 0 && bPort == 0) return -1;
+			if (aPort == 0 && bPort > 0) return 1;
+			// Prefer addresses with longer RFC 1918 prefixes
+			int aPrefix = getRfc1918PrefixLength(a.getAddress());
+			int bPrefix = getRfc1918PrefixLength(b.getAddress());
+			return bPrefix - aPrefix;
 		}
 	}
 }
