@@ -38,14 +38,17 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.Manifest.permission.CAMERA;
-import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_ENABLE;
+import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
+import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
+import static android.bluetooth.BluetoothAdapter.EXTRA_SCAN_MODE;
 import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
+import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.widget.Toast.LENGTH_LONG;
-import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ENABLE_BLUETOOTH;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_BLUETOOTH_DISCOVERABLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA;
 
 @MethodsNotNullByDefault
@@ -55,7 +58,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		KeyAgreementEventListener {
 
 	private enum BluetoothState {
-		UNKNOWN, NO_ADAPTER, WAITING, REFUSED, ENABLED
+		UNKNOWN, NO_ADAPTER, WAITING, REFUSED, ENABLED, DISCOVERABLE
 	}
 
 	private static final Logger LOG =
@@ -64,7 +67,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	@Inject
 	EventBus eventBus;
 
-	private boolean isResumed = false, enableWasRequested = false;
+	private boolean isResumed = false, wasAdapterEnabled = false;
 	private boolean continueClicked, gotCameraPermission;
 	private BluetoothState bluetoothState = BluetoothState.UNKNOWN;
 	private BroadcastReceiver bluetoothReceiver = null;
@@ -85,7 +88,9 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		if (state == null) {
 			showInitialFragment(IntroFragment.newInstance());
 		}
-		IntentFilter filter = new IntentFilter(ACTION_STATE_CHANGED);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(ACTION_STATE_CHANGED);
+		filter.addAction(ACTION_SCAN_MODE_CHANGED);
 		bluetoothReceiver = new BluetoothStateReceiver();
 		registerReceiver(bluetoothReceiver, filter);
 	}
@@ -133,45 +138,48 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	public void showNextScreen() {
 		continueClicked = true;
 		if (checkPermissions()) {
-			if (shouldRequestEnableBluetooth()) requestEnableBluetooth();
-			else if (canShowQrCodeFragment()) showQrCodeFragment();
+			if (shouldRequestBluetoothDiscoverable()) {
+				requestBluetoothDiscoverable();
+			} else if (canShowQrCodeFragment()) {
+				showQrCodeFragment();
+			}
 		}
 	}
 
-	private boolean shouldRequestEnableBluetooth() {
+	private boolean shouldRequestBluetoothDiscoverable() {
 		return bluetoothState == BluetoothState.UNKNOWN
 				|| bluetoothState == BluetoothState.REFUSED;
 	}
 
-	private void requestEnableBluetooth() {
+	private void requestBluetoothDiscoverable() {
 		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
 		if (bt == null) {
 			setBluetoothState(BluetoothState.NO_ADAPTER);
-		} else if (bt.isEnabled()) {
-			setBluetoothState(BluetoothState.ENABLED);
-		} else {
-			enableWasRequested = true;
-			setBluetoothState(BluetoothState.WAITING);
-			Intent i = new Intent(ACTION_REQUEST_ENABLE);
-			startActivityForResult(i, REQUEST_ENABLE_BLUETOOTH);
+			return;
 		}
+		setBluetoothState(BluetoothState.WAITING);
+		wasAdapterEnabled = bt.isEnabled();
+		Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
+		startActivityForResult(i, REQUEST_BLUETOOTH_DISCOVERABLE);
 	}
 
 	private void setBluetoothState(BluetoothState bluetoothState) {
 		LOG.info("Setting Bluetooth state to " + bluetoothState);
 		this.bluetoothState = bluetoothState;
-		if (enableWasRequested && bluetoothState == BluetoothState.ENABLED) {
+		if (!wasAdapterEnabled && bluetoothState == BluetoothState.ENABLED) {
 			eventBus.broadcast(new BluetoothEnabledEvent());
-			enableWasRequested = false;
+			wasAdapterEnabled = true;
 		}
 		if (canShowQrCodeFragment()) showQrCodeFragment();
 	}
 
 	@Override
 	public void onActivityResult(int request, int result, Intent data) {
-		// If the request was granted we'll catch the state change event
-		if (request == REQUEST_ENABLE_BLUETOOTH && result == RESULT_CANCELED)
-			setBluetoothState(BluetoothState.REFUSED);
+		if (request == REQUEST_BLUETOOTH_DISCOVERABLE) {
+			// If the request was granted we'll catch the state change event
+			if (result == RESULT_CANCELED)
+				setBluetoothState(BluetoothState.REFUSED);
+		}
 	}
 
 	private void showQrCodeFragment() {
@@ -259,9 +267,18 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			int state = intent.getIntExtra(EXTRA_STATE, 0);
-			if (state == STATE_ON) setBluetoothState(BluetoothState.ENABLED);
-			else setBluetoothState(BluetoothState.UNKNOWN);
+			String action = intent.getAction();
+			if (ACTION_STATE_CHANGED.equals(action)) {
+				int state = intent.getIntExtra(EXTRA_STATE, 0);
+				if (state == STATE_ON)
+					setBluetoothState(BluetoothState.ENABLED);
+				else setBluetoothState(BluetoothState.UNKNOWN);
+			} else if (ACTION_SCAN_MODE_CHANGED.equals(action)) {
+				int scanMode = intent.getIntExtra(EXTRA_SCAN_MODE, -1);
+				if (scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE)
+					setBluetoothState(BluetoothState.DISCOVERABLE);
+				else setBluetoothState(BluetoothState.UNKNOWN);
+			}
 		}
 	}
 }
