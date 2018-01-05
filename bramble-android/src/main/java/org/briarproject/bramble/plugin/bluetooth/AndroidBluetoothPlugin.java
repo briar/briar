@@ -121,6 +121,11 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	}
 
 	@Override
+	void setEnabledByUs() {
+		wasEnabledByUs = true;
+	}
+
+	@Override
 	@Nullable
 	String getBluetoothAddress() {
 		String address = AndroidUtils.getBluetoothAddress(appContext, adapter);

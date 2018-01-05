@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.plugin.event.BluetoothEnabledEvent;
 import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
 import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -51,8 +52,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	private static final Logger LOG =
 			Logger.getLogger(BluetoothPlugin.class.getName());
 
-	final Executor ioExecutor;
-
+	private final Executor ioExecutor;
 	private final SecureRandom secureRandom;
 	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
@@ -69,6 +69,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	abstract void enableAdapter();
 
 	abstract void disableAdapterIfEnabledByUs();
+
+	abstract void setEnabledByUs();
 
 	@Nullable
 	abstract String getBluetoothAddress();
@@ -358,6 +360,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			ioExecutor.execute(this::enableAdapter);
 		} else if (e instanceof DisableBluetoothEvent) {
 			ioExecutor.execute(this::disableAdapterIfEnabledByUs);
+		} else if (e instanceof BluetoothEnabledEvent) {
+			setEnabledByUs();
 		} else if (e instanceof SettingsUpdatedEvent) {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
 			if (s.getNamespace().equals(ID.getString()))

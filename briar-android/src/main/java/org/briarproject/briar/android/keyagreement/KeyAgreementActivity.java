@@ -1,6 +1,11 @@
 package org.briarproject.briar.android.keyagreement;
 
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
@@ -23,6 +28,7 @@ import org.briarproject.bramble.api.keyagreement.KeyAgreementResult;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementFinishedEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.plugin.event.BluetoothEnabledEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.R.string;
 import org.briarproject.briar.R.style;
@@ -39,9 +45,15 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.Manifest.permission.CAMERA;
+import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_ENABLE;
+import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
+import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
+import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ENABLE_BLUETOOTH;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA;
 
 @MethodsNotNullByDefault
@@ -49,6 +61,10 @@ import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMI
 public class KeyAgreementActivity extends BriarActivity implements
 		BaseFragmentListener, IntroScreenSeenListener, EventListener,
 		ContactExchangeListener {
+
+	private enum BluetoothState {
+		UNKNOWN, NO_ADAPTER, WAITING, REFUSED, ENABLED
+	}
 
 	private static final Logger LOG =
 			Logger.getLogger(KeyAgreementActivity.class.getName());
@@ -62,7 +78,10 @@ public class KeyAgreementActivity extends BriarActivity implements
 	@Inject
 	volatile IdentityManager identityManager;
 
+	private boolean isResumed = false, enableWasRequested = false;
 	private boolean continueClicked, gotCameraPermission;
+	private BluetoothState bluetoothState = BluetoothState.UNKNOWN;
+	private BroadcastReceiver bluetoothReceiver = null;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -84,6 +103,15 @@ public class KeyAgreementActivity extends BriarActivity implements
 		if (state == null) {
 			showInitialFragment(IntroFragment.newInstance());
 		}
+		IntentFilter filter = new IntentFilter(ACTION_STATE_CHANGED);
+		bluetoothReceiver = new BluetoothStateReceiver();
+		registerReceiver(bluetoothReceiver, filter);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (bluetoothReceiver != null) unregisterReceiver(bluetoothReceiver);
 	}
 
 	@Override
@@ -112,24 +140,72 @@ public class KeyAgreementActivity extends BriarActivity implements
 	@Override
 	protected void onPostResume() {
 		super.onPostResume();
+		isResumed = true;
 		// Workaround for
 		// https://code.google.com/p/android/issues/detail?id=190966
-		if (continueClicked && gotCameraPermission) {
-			showQrCodeFragment();
-		}
+		if (canShowQrCodeFragment()) showQrCodeFragment();
+	}
+
+	boolean canShowQrCodeFragment() {
+		return isResumed && continueClicked
+				&& (SDK_INT < 23 || gotCameraPermission)
+				&& bluetoothState != BluetoothState.UNKNOWN
+				&& bluetoothState != BluetoothState.WAITING;
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		isResumed = false;
 	}
 
 	@Override
 	public void showNextScreen() {
-		// FIXME #824
-		// showNextFragment(ShowQrCodeFragment.newInstance());
 		continueClicked = true;
 		if (checkPermissions()) {
-			showQrCodeFragment();
+			if (shouldRequestEnableBluetooth()) requestEnableBluetooth();
+			else if (canShowQrCodeFragment()) showQrCodeFragment();
 		}
 	}
 
+	private boolean shouldRequestEnableBluetooth() {
+		return bluetoothState == BluetoothState.UNKNOWN
+				|| bluetoothState == BluetoothState.REFUSED;
+	}
+
+	private void requestEnableBluetooth() {
+		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
+		if (bt == null) {
+			setBluetoothState(BluetoothState.NO_ADAPTER);
+		} else if (bt.isEnabled()) {
+			setBluetoothState(BluetoothState.ENABLED);
+		} else {
+			enableWasRequested = true;
+			setBluetoothState(BluetoothState.WAITING);
+			Intent i = new Intent(ACTION_REQUEST_ENABLE);
+			startActivityForResult(i, REQUEST_ENABLE_BLUETOOTH);
+		}
+	}
+
+	private void setBluetoothState(BluetoothState bluetoothState) {
+		LOG.info("Setting Bluetooth state to " + bluetoothState);
+		this.bluetoothState = bluetoothState;
+		if (enableWasRequested && bluetoothState == BluetoothState.ENABLED) {
+			eventBus.broadcast(new BluetoothEnabledEvent());
+			enableWasRequested = false;
+		}
+		if (canShowQrCodeFragment()) showQrCodeFragment();
+	}
+
+	@Override
+	public void onActivityResult(int request, int result, Intent data) {
+		// If the request was granted we'll catch the state change event
+		if (request == REQUEST_ENABLE_BLUETOOTH && result == RESULT_CANCELED)
+			setBluetoothState(BluetoothState.REFUSED);
+	}
+
 	private void showQrCodeFragment() {
+		// FIXME #824
 		BaseFragment f = ShowQrCodeFragment.newInstance();
 		getSupportFragmentManager().beginTransaction()
 				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
@@ -154,8 +230,10 @@ public class KeyAgreementActivity extends BriarActivity implements
 			} else {
 				requestPermission();
 			}
+			gotCameraPermission = false;
 			return false;
 		} else {
+			gotCameraPermission = true;
 			return true;
 		}
 	}
@@ -174,6 +252,7 @@ public class KeyAgreementActivity extends BriarActivity implements
 			if (grantResults.length > 0 &&
 					grantResults[0] == PERMISSION_GRANTED) {
 				gotCameraPermission = true;
+				showNextScreen();
 			} else {
 				if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
 						CAMERA)) {
@@ -257,5 +336,15 @@ public class KeyAgreementActivity extends BriarActivity implements
 					string.contact_exchange_failed, LENGTH_LONG).show();
 			finish();
 		});
+	}
+
+	private class BluetoothStateReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			int state = intent.getIntExtra(EXTRA_STATE, 0);
+			if (state == STATE_ON) setBluetoothState(BluetoothState.ENABLED);
+			else setBluetoothState(BluetoothState.UNKNOWN);
+		}
 	}
 }
