@@ -46,6 +46,9 @@ import javax.annotation.Nullable;
 import static junit.framework.TestCase.fail;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
+import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -93,16 +96,12 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	private final Transaction txn = new Transaction(null, false);
 	private final ContactId contactId = new ContactId(0);
-	private final Author author =
-			new Author(new AuthorId(getRandomId()), getRandomString(5),
-					getRandomBytes(5));
-	private final Contact contact =
-			new Contact(contactId, author, new AuthorId(getRandomId()), true,
-					true);
-	private final Group contactGroup =
-			new Group(new GroupId(getRandomId()), CLIENT_ID, getRandomBytes(5));
-	private final Group privateGroup =
-			new Group(new GroupId(getRandomId()), CLIENT_ID, getRandomBytes(5));
+	private final Author author = getAuthor();
+	private final Contact contact = new Contact(contactId, author,
+			new AuthorId(getRandomId()), true, true);
+	private final Group localGroup = getGroup(CLIENT_ID);
+	private final Group contactGroup = getGroup(CLIENT_ID);
+	private final Group privateGroup = getGroup(CLIENT_ID);
 	private final BdfDictionary meta = BdfDictionary.of(new BdfEntry("m", "e"));
 	private final Message message =
 			new Message(new MessageId(getRandomId()), contactGroup.getId(),
@@ -110,9 +109,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	private final BdfList body = BdfList.of("body");
 	private final SessionId sessionId =
 			new SessionId(privateGroup.getId().getBytes());
-	private final Message storageMessage =
-			new Message(new MessageId(getRandomId()), contactGroup.getId(),
-					0L, getRandomBytes(MESSAGE_HEADER_LENGTH + 1));
+	private final Message storageMessage = getMessage(contactGroup.getId());
 	private final BdfDictionary bdfSession =
 			BdfDictionary.of(new BdfEntry("f", "o"));
 	private final Map<MessageId, BdfDictionary> oneResult =
@@ -151,12 +148,30 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testCreateLocalState() throws Exception {
+	public void testCreateLocalStateFirstTime() throws Exception {
 		context.checking(new Expectations() {{
+			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
+					CLIENT_VERSION);
+			will(returnValue(localGroup));
+			oneOf(db).containsGroup(txn, localGroup.getId());
+			will(returnValue(false));
+			oneOf(db).addGroup(txn, localGroup);
 			oneOf(db).getContacts(txn);
 			will(returnValue(Collections.singletonList(contact)));
 		}});
 		expectAddingContact(contact, true);
+		groupInvitationManager.createLocalState(txn);
+	}
+
+	@Test
+	public void testCreateLocalStateSubsequentTime() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
+					CLIENT_VERSION);
+			will(returnValue(localGroup));
+			oneOf(db).containsGroup(txn, localGroup.getId());
+			will(returnValue(true));
+		}});
 		groupInvitationManager.createLocalState(txn);
 	}
 
