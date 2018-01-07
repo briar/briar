@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.forum.ForumConstants;
 import org.briarproject.briar.api.forum.ForumPost;
@@ -22,8 +21,8 @@ import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
 import static org.junit.Assert.assertTrue;

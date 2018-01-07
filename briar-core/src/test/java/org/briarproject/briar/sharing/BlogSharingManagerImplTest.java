@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.Group;
@@ -34,8 +33,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
+import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
@@ -57,22 +58,19 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 			context.mock(ContactGroupFactory.class);
 	private final BlogManager blogManager = context.mock(BlogManager.class);
 
-	private final AuthorId localAuthorId = new AuthorId(getRandomId());
+	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final ContactId contactId = new ContactId(0);
-	private final AuthorId authorId = new AuthorId(getRandomId());
-	private final Author author = new Author(authorId, "Author",
-			getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+	private final Author author = getAuthor();
 	private final Contact contact =
-			new Contact(contactId, author, localAuthorId, true, true);
+			new Contact(contactId, author, localAuthor.getId(), true, true);
 	private final Collection<Contact> contacts =
 			Collections.singletonList(contact);
-	private final Group contactGroup =
-			new Group(new GroupId(getRandomId()), CLIENT_ID,
-					getRandomBytes(42));
-	private final Group blogGroup =
-			new Group(new GroupId(getRandomId()), BlogManager.CLIENT_ID,
-					getRandomBytes(42));
+	private final Group localGroup = getGroup(CLIENT_ID);
+	private final Group contactGroup = getGroup(CLIENT_ID);
+	private final Group blogGroup = getGroup(BlogManager.CLIENT_ID);
 	private final Blog blog = new Blog(blogGroup, author, false);
+	private final Group localBlogGroup = getGroup(BlogManager.CLIENT_ID);
+	private final Blog localBlog = new Blog(localBlogGroup, localAuthor, false);
 	@SuppressWarnings("unchecked")
 	private final ProtocolEngine<Blog> engine =
 			context.mock(ProtocolEngine.class);
@@ -93,24 +91,110 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testAddingContactFreshState() throws Exception {
-		Map<MessageId, BdfDictionary> sessions = new HashMap<>(0);
-		testAddingContact(sessions);
+	public void testCreateLocalStateFirstTimeWithExistingContactNotSetUp()
+			throws Exception {
+		Transaction txn = new Transaction(null, false);
+
+		context.checking(new Expectations() {{
+			// The local group doesn't exist - we need to set things up
+			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID);
+			will(returnValue(localGroup));
+			oneOf(db).containsGroup(txn, localGroup.getId());
+			will(returnValue(false));
+			oneOf(db).addGroup(txn, localGroup);
+			// Get contacts
+			oneOf(db).getContacts(txn);
+			will(returnValue(contacts));
+		}});
+		// Set things up for the contact
+		expectAddingContact(txn);
+
+		blogSharingManager.createLocalState(txn);
+	}
+
+	private void expectAddingContact(Transaction txn) throws Exception {
+		BdfDictionary meta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_CONTACT_ID, contactId.getInt()));
+		Map<MessageId, BdfDictionary> sessions = Collections.emptyMap();
+
+		context.checking(new Expectations() {{
+			// Check for contact group in BlogSharingManagerImpl
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(false));
+			// Check for contact group again in SharingManagerImpl
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(false));
+			// Create the contact group and share it with the contact
+			oneOf(db).addGroup(txn, contactGroup);
+			oneOf(db).setGroupVisibility(txn, contactId, contactGroup.getId(),
+					SHARED);
+			// Attach the contact ID to the group
+			oneOf(clientHelper)
+					.mergeGroupMetadata(txn, contactGroup.getId(), meta);
+			// Get our blog and the contact's blog
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
+			oneOf(blogManager).getPersonalBlog(localAuthor);
+			will(returnValue(localBlog));
+			oneOf(blogManager).getPersonalBlog(author);
+			will(returnValue(blog));
+		}});
+		// Pre-share our blog with the contact and vice versa
+		expectPreShareShareable(txn, contact, localBlog, sessions);
+		expectPreShareShareable(txn, contact, blog, sessions);
 	}
 
 	@Test
-	public void testAddingContactExistingState() throws Exception {
-		Map<MessageId, BdfDictionary> sessions = new HashMap<>(1);
-		sessions.put(new MessageId(getRandomId()), new BdfDictionary());
-		testAddingContact(sessions);
+	public void testCreateLocalStateFirstTimeWithExistingContactAlreadySetUp()
+			throws Exception {
+		Transaction txn = new Transaction(null, false);
+
+		context.checking(new Expectations() {{
+			// The local group doesn't exist - we need to set things up
+			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID);
+			will(returnValue(localGroup));
+			oneOf(db).containsGroup(txn, localGroup.getId());
+			will(returnValue(false));
+			oneOf(db).addGroup(txn, localGroup);
+			// Get contacts
+			oneOf(db).getContacts(txn);
+			will(returnValue(contacts));
+			// The contact has already been set up
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(true));
+		}});
+
+		blogSharingManager.createLocalState(txn);
 	}
 
-	@Test(expected = DbException.class)
-	public void testAddingContactMultipleSessions() throws Exception {
-		Map<MessageId, BdfDictionary> sessions = new HashMap<>(2);
-		sessions.put(new MessageId(getRandomId()), new BdfDictionary());
-		sessions.put(new MessageId(getRandomId()), new BdfDictionary());
-		testAddingContact(sessions);
+	@Test
+	public void testCreateLocalStateSubsequentTime() throws Exception {
+		Transaction txn = new Transaction(null, false);
+
+		context.checking(new Expectations() {{
+			// The local group exists - everything has been set up
+			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID);
+			will(returnValue(localGroup));
+			oneOf(db).containsGroup(txn, localGroup.getId());
+			will(returnValue(true));
+		}});
+
+		blogSharingManager.createLocalState(txn);
+	}
+
+	@Test
+	public void testAddingContact() throws Exception {
+		Transaction txn = new Transaction(null, false);
+
+		expectAddingContact(txn);
+
+		blogSharingManager.addingContact(txn, contact);
 	}
 
 	@Test
@@ -132,46 +216,6 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		sessions.put(new MessageId(getRandomId()), new BdfDictionary());
 		sessions.put(new MessageId(getRandomId()), new BdfDictionary());
 		testRemovingBlog(sessions);
-	}
-
-	private void testAddingContact(Map<MessageId, BdfDictionary> sessions)
-			throws Exception {
-		Transaction txn = new Transaction(null, false);
-		LocalAuthor localAuthor =
-				new LocalAuthor(localAuthorId, "Local Author",
-						getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-						getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-						System.currentTimeMillis());
-		BdfDictionary meta = BdfDictionary
-				.of(new BdfEntry(GROUP_KEY_CONTACT_ID, contactId.getInt()));
-		Group localBlogGroup =
-				new Group(new GroupId(getRandomId()), BlogManager.CLIENT_ID,
-						getRandomBytes(42));
-		Blog localBlog = new Blog(localBlogGroup, localAuthor, false);
-
-		context.checking(new Expectations() {{
-			oneOf(db).getContacts(txn);
-			will(returnValue(contacts));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(false));
-			oneOf(db).addGroup(txn, contactGroup);
-			oneOf(db).setGroupVisibility(txn, contactId, contactGroup.getId(),
-					SHARED);
-			oneOf(clientHelper)
-					.mergeGroupMetadata(txn, contactGroup.getId(), meta);
-			oneOf(identityManager).getLocalAuthor(txn);
-			will(returnValue(localAuthor));
-			oneOf(blogManager).getPersonalBlog(localAuthor);
-			will(returnValue(localBlog));
-			oneOf(blogManager).getPersonalBlog(author);
-			will(returnValue(blog));
-		}});
-		expectPreShareShareable(txn, contact, localBlog, sessions);
-		expectPreShareShareable(txn, contact, blog, sessions);
-
-		blogSharingManager.createLocalState(txn);
 	}
 
 	private void expectPreShareShareable(Transaction txn, Contact contact,

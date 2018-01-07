@@ -2,11 +2,26 @@ package org.briarproject.bramble.test;
 
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.sync.ClientId;
+import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.util.IoUtils;
 
 import java.io.File;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 
 public class TestUtils {
 
@@ -38,4 +53,50 @@ public class TestUtils {
 		return new SecretKey(getRandomBytes(SecretKey.LENGTH));
 	}
 
+	public static LocalAuthor getLocalAuthor() {
+		return getLocalAuthor(1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH));
+	}
+
+	public static LocalAuthor getLocalAuthor(int nameLength) {
+		AuthorId id = new AuthorId(getRandomId());
+		String name = getRandomString(nameLength);
+		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		byte[] privateKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		long created = System.currentTimeMillis();
+		return new LocalAuthor(id, name, publicKey, privateKey, created);
+	}
+
+	public static Author getAuthor() {
+		return getAuthor(1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH));
+	}
+
+	public static Author getAuthor(int nameLength) {
+		AuthorId id = new AuthorId(getRandomId());
+		String name = getRandomString(nameLength);
+		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		return new Author(id, name, publicKey);
+	}
+
+	public static Group getGroup(ClientId clientId) {
+		int descriptorLength = 1 + random.nextInt(MAX_GROUP_DESCRIPTOR_LENGTH);
+		return getGroup(clientId, descriptorLength);
+	}
+
+	public static Group getGroup(ClientId clientId, int descriptorLength) {
+		GroupId groupId = new GroupId(getRandomId());
+		byte[] descriptor = getRandomBytes(descriptorLength);
+		return new Group(groupId, clientId, descriptor);
+	}
+
+	public static Message getMessage(GroupId groupId) {
+		int bodyLength = 1 + random.nextInt(MAX_MESSAGE_BODY_LENGTH);
+		return getMessage(groupId, MESSAGE_HEADER_LENGTH + bodyLength);
+	}
+
+	public static Message getMessage(GroupId groupId, int rawLength) {
+		MessageId id = new MessageId(getRandomId());
+		byte[] raw = getRandomBytes(rawLength);
+		long timestamp = System.currentTimeMillis();
+		return new Message(id, groupId, timestamp, raw);
+	}
 }
