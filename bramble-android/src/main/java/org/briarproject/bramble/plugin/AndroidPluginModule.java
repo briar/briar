@@ -14,7 +14,7 @@ import org.briarproject.bramble.api.reporting.DevReporter;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.Scheduler;
-import org.briarproject.bramble.plugin.droidtooth.DroidtoothPluginFactory;
+import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.TorPluginFactory;
 
@@ -41,8 +41,9 @@ public class AndroidPluginModule {
 			Application app, LocationUtils locationUtils, DevReporter reporter,
 			EventBus eventBus) {
 		Context appContext = app.getApplicationContext();
-		DuplexPluginFactory bluetooth = new DroidtoothPluginFactory(ioExecutor,
-				androidExecutor, appContext, random, eventBus, backoffFactory);
+		DuplexPluginFactory bluetooth =
+				new AndroidBluetoothPluginFactory(ioExecutor, androidExecutor,
+						appContext, random, eventBus, backoffFactory);
 		DuplexPluginFactory tor = new TorPluginFactory(ioExecutor, scheduler,
 				appContext, locationUtils, reporter, eventBus,
 				torSocketFactory, backoffFactory);

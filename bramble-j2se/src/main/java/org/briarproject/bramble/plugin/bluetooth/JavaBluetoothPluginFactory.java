@@ -17,7 +17,7 @@ import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
 
 @Immutable
 @NotNullByDefault
-public class BluetoothPluginFactory implements DuplexPluginFactory {
+public class JavaBluetoothPluginFactory implements DuplexPluginFactory {
 
 	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
 	private static final int MIN_POLLING_INTERVAL = 60 * 1000; // 1 minute
@@ -28,7 +28,7 @@ public class BluetoothPluginFactory implements DuplexPluginFactory {
 	private final SecureRandom secureRandom;
 	private final BackoffFactory backoffFactory;
 
-	public BluetoothPluginFactory(Executor ioExecutor,
+	public JavaBluetoothPluginFactory(Executor ioExecutor,
 			SecureRandom secureRandom, BackoffFactory backoffFactory) {
 		this.ioExecutor = ioExecutor;
 		this.secureRandom = secureRandom;
@@ -49,7 +49,7 @@ public class BluetoothPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		return new BluetoothPlugin(ioExecutor, secureRandom, backoff, callback,
-				MAX_LATENCY);
+		return new JavaBluetoothPlugin(ioExecutor, secureRandom, backoff,
+				callback, MAX_LATENCY);
 	}
 }
