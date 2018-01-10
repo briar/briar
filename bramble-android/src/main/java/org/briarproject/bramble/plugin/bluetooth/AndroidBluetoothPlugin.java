@@ -186,13 +186,8 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		@Override
 		public void onReceive(Context ctx, Intent intent) {
 			int state = intent.getIntExtra(EXTRA_STATE, 0);
-			if (state == STATE_ON) {
-				ioExecutor.execute(
-						AndroidBluetoothPlugin.this::onAdapterEnabled);
-			} else if (state == STATE_OFF) {
-				ioExecutor.execute(
-						AndroidBluetoothPlugin.this::onAdapterDisabled);
-			}
+			if (state == STATE_ON) onAdapterEnabled();
+			else if (state == STATE_OFF) onAdapterDisabled();
 			int scanMode = intent.getIntExtra(EXTRA_SCAN_MODE, 0);
 			if (scanMode == SCAN_MODE_NONE) {
 				LOG.info("Scan mode: None");
