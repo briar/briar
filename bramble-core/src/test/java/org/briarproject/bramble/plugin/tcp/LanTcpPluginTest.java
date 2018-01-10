@@ -58,6 +58,9 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		// Local and remote in 192.168.0.0/16 should return true
 		assertTrue(plugin.addressesAreOnSameLan(makeAddress(192, 168, 0, 0),
 				makeAddress(192, 168, 255, 255)));
+		// Local and remote in 169.254.0.0/16 (link-local) should return true
+		assertTrue(plugin.addressesAreOnSameLan(makeAddress(169, 254, 0, 0),
+				makeAddress(169, 254, 255, 255)));
 		// Local and remote in different recognised prefixes should return false
 		assertFalse(plugin.addressesAreOnSameLan(makeAddress(10, 0, 0, 0),
 				makeAddress(172, 31, 255, 255)));
@@ -308,6 +311,24 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		assertTrue(comparator.compare(prefix10, prefix192) > 0);
 		assertTrue(comparator.compare(prefix10, prefix172) > 0);
 		assertEquals(0, comparator.compare(prefix10, prefix10));
+	}
+
+	@Test
+	public void testComparatorPrefersSiteLocalToLinkLocal() throws Exception {
+		Comparator<InetSocketAddress> comparator = new LanAddressComparator();
+		InetSocketAddress prefix192 = new InetSocketAddress("192.168.0.1", 0);
+		InetSocketAddress prefix172 = new InetSocketAddress("172.16.0.1", 0);
+		InetSocketAddress prefix10 = new InetSocketAddress("10.0.0.1", 0);
+		InetSocketAddress linkLocal = new InetSocketAddress("169.254.0.1", 0);
+
+		assertTrue(comparator.compare(prefix192, linkLocal) < 0);
+		assertTrue(comparator.compare(prefix172, linkLocal) < 0);
+		assertTrue(comparator.compare(prefix10, linkLocal) < 0);
+
+		assertTrue(comparator.compare(linkLocal, prefix192) > 0);
+		assertTrue(comparator.compare(linkLocal, prefix172) > 0);
+		assertTrue(comparator.compare(linkLocal, prefix10) > 0);
+		assertEquals(0, comparator.compare(linkLocal, linkLocal));
 	}
 
 	private boolean systemHasLocalIpv4Address() throws Exception {
