@@ -47,13 +47,18 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 
 	@Override
 	boolean isAdapterEnabled() {
-		return LocalDevice.isPowerOn();
+		return localDevice != null && LocalDevice.isPowerOn();
 	}
 
 	@Override
 	void enableAdapter() {
 		// Nothing we can do on this platform
 		LOG.info("Could not enable Bluetooth");
+	}
+
+	@Override
+	void disableAdapterIfEnabledByUs() {
+		// We didn't enable it so we don't need to disable it
 	}
 
 	@Nullable

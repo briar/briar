@@ -22,8 +22,6 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.TorConstants;
-import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
-import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
@@ -262,7 +260,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public boolean onPreferenceChange(Preference preference, Object o) {
 		if (preference == enableBluetooth) {
 			boolean btSetting = Boolean.valueOf((String) o);
-			enableOrDisableBluetooth(btSetting);
 			storeBluetoothSettings(btSetting);
 		} else if (preference == torNetwork) {
 			int torSetting = Integer.valueOf((String) o);
@@ -293,11 +290,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			storeSettings(s);
 		}
 		return true;
-	}
-
-	private void enableOrDisableBluetooth(boolean enable) {
-		if (enable) eventBus.broadcast(new EnableBluetoothEvent());
-		else eventBus.broadcast(new DisableBluetoothEvent());
 	}
 
 	private void storeTorSettings(int torSetting) {
