@@ -126,6 +126,10 @@ public class StringUtils {
 		return toUtf8(s).length > maxLength;
 	}
 
+	public static boolean isValidMac(String mac) {
+		return MAC.matcher(mac).matches();
+	}
+
 	public static byte[] macToBytes(String mac) {
 		if (!MAC.matcher(mac).matches()) throw new IllegalArgumentException();
 		return fromHexString(mac.replaceAll(":", ""));

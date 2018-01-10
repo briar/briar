@@ -8,7 +8,7 @@ import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reliability.ReliabilityLayerFactory;
-import org.briarproject.bramble.plugin.bluetooth.BluetoothPluginFactory;
+import org.briarproject.bramble.plugin.bluetooth.JavaBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.file.RemovableDrivePluginFactory;
 import org.briarproject.bramble.plugin.modem.ModemPluginFactory;
 import org.briarproject.bramble.plugin.tcp.LanTcpPluginFactory;
@@ -31,8 +31,9 @@ public class DesktopPluginModule extends PluginModule {
 			SecureRandom random, BackoffFactory backoffFactory,
 			ReliabilityLayerFactory reliabilityFactory,
 			ShutdownManager shutdownManager) {
-		DuplexPluginFactory bluetooth = new BluetoothPluginFactory(ioExecutor,
-				random, backoffFactory);
+		DuplexPluginFactory bluetooth =
+				new JavaBluetoothPluginFactory(ioExecutor, random,
+						backoffFactory);
 		DuplexPluginFactory modem = new ModemPluginFactory(ioExecutor,
 				reliabilityFactory);
 		DuplexPluginFactory lan = new LanTcpPluginFactory(ioExecutor,
