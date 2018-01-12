@@ -22,7 +22,7 @@ public class HashTest extends BrambleTestCase {
 	private final byte[] inputBytes2 = new byte[0];
 
 	public HashTest() {
-		crypto = new CryptoComponentImpl(new TestSecureRandomProvider());
+		crypto = new CryptoComponentImpl(new TestSecureRandomProvider(), null);
 	}
 
 	@Test

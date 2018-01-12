@@ -10,31 +10,25 @@ import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
 import org.briarproject.bramble.util.ByteUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
-import org.spongycastle.crypto.CipherParameters;
 import org.spongycastle.crypto.CryptoException;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
 import org.spongycastle.crypto.digests.Blake2bDigest;
-import org.spongycastle.crypto.digests.SHA256Digest;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
-import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.spongycastle.crypto.params.ECKeyGenerationParameters;
 import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
-import org.spongycastle.crypto.params.KeyParameter;
 
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -43,6 +37,7 @@ import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.crypto.EllipticCurveConstants.PARAMETERS;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
 
+@NotNullByDefault
 class CryptoComponentImpl implements CryptoComponent {
 
 	private static final Logger LOG =
@@ -53,10 +48,9 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int ED_KEY_PAIR_BITS = 256;
 	private static final int STORAGE_IV_BYTES = 24; // 196 bits
 	private static final int PBKDF_SALT_BYTES = 32; // 256 bits
-	private static final int PBKDF_TARGET_MILLIS = 500;
-	private static final int PBKDF_SAMPLES = 30;
 
 	private final SecureRandom secureRandom;
+	private final PasswordBasedKdf passwordBasedKdf;
 	private final ECKeyPairGenerator agreementKeyPairGenerator;
 	private final ECKeyPairGenerator signatureKeyPairGenerator;
 	private final KeyParser agreementKeyParser, signatureKeyParser;
@@ -65,7 +59,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	private final KeyParser edKeyParser;
 
 	@Inject
-	CryptoComponentImpl(SecureRandomProvider secureRandomProvider) {
+	CryptoComponentImpl(SecureRandomProvider secureRandomProvider,
+			PasswordBasedKdf passwordBasedKdf) {
 		if (LOG.isLoggable(INFO)) {
 			SecureRandom defaultSecureRandom = new SecureRandom();
 			String name = defaultSecureRandom.getProvider().getName();
@@ -85,6 +80,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			}
 		}
 		secureRandom = new SecureRandom();
+		this.passwordBasedKdf = passwordBasedKdf;
 		ECKeyGenerationParameters params = new ECKeyGenerationParameters(
 				PARAMETERS, secureRandom);
 		agreementKeyPairGenerator = new ECKeyPairGenerator();
@@ -339,18 +335,18 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		secureRandom.nextBytes(salt);
 		// Calibrate the KDF
-		int iterations = chooseIterationCount(PBKDF_TARGET_MILLIS);
+		int cost = passwordBasedKdf.chooseCostParameter();
 		// Derive the key from the password
-		SecretKey key = new SecretKey(pbkdf2(password, salt, iterations));
+		SecretKey key = passwordBasedKdf.deriveKey(password, salt, cost);
 		// Generate a random IV
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		secureRandom.nextBytes(iv);
-		// The output contains the salt, iterations, IV, ciphertext and MAC
+		// The output contains the salt, cost parameter, IV, ciphertext and MAC
 		int outputLen = salt.length + INT_32_BYTES + iv.length + input.length
 				+ macBytes;
 		byte[] output = new byte[outputLen];
 		System.arraycopy(salt, 0, output, 0, salt.length);
-		ByteUtils.writeUint32(iterations, output, salt.length);
+		ByteUtils.writeUint32(cost, output, salt.length);
 		System.arraycopy(iv, 0, output, salt.length + INT_32_BYTES, iv.length);
 		// Initialise the cipher and encrypt the plaintext
 		try {
@@ -367,19 +363,19 @@ class CryptoComponentImpl implements CryptoComponent {
 	public byte[] decryptWithPassword(byte[] input, String password) {
 		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		int macBytes = cipher.getMacBytes();
-		// The input contains the salt, iterations, IV, ciphertext and MAC
+		// The input contains the salt, cost parameter, IV, ciphertext and MAC
 		if (input.length < PBKDF_SALT_BYTES + INT_32_BYTES + STORAGE_IV_BYTES
 				+ macBytes)
 			return null; // Invalid input
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		System.arraycopy(input, 0, salt, 0, salt.length);
-		long iterations = ByteUtils.readUint32(input, salt.length);
-		if (iterations < 0 || iterations > Integer.MAX_VALUE)
-			return null; // Invalid iteration count
+		long cost = ByteUtils.readUint32(input, salt.length);
+		if (cost < 2 || cost > Integer.MAX_VALUE)
+			return null; // Invalid cost parameter
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		System.arraycopy(input, salt.length + INT_32_BYTES, iv, 0, iv.length);
 		// Derive the key from the password
-		SecretKey key = new SecretKey(pbkdf2(password, salt, (int) iterations));
+		SecretKey key = passwordBasedKdf.deriveKey(password, salt, (int) cost);
 		// Initialise the cipher
 		try {
 			cipher.init(false, key, iv);
@@ -410,65 +406,5 @@ class CryptoComponentImpl implements CryptoComponent {
 	@Override
 	public String asciiArmour(byte[] b, int lineLength) {
 		return AsciiArmour.wrap(b, lineLength);
-	}
-
-	// Password-based key derivation function - see PKCS#5 v2.1, section 5.2
-	private byte[] pbkdf2(String password, byte[] salt, int iterations) {
-		byte[] utf8 = StringUtils.toUtf8(password);
-		Digest digest = new SHA256Digest();
-		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(digest);
-		gen.init(utf8, salt, iterations);
-		int keyLengthInBits = SecretKey.LENGTH * 8;
-		CipherParameters p = gen.generateDerivedParameters(keyLengthInBits);
-		return ((KeyParameter) p).getKey();
-	}
-
-	// Package access for testing
-	int chooseIterationCount(int targetMillis) {
-		List<Long> quickSamples = new ArrayList<>(PBKDF_SAMPLES);
-		List<Long> slowSamples = new ArrayList<>(PBKDF_SAMPLES);
-		long iterationNanos = 0, initNanos = 0;
-		while (iterationNanos <= 0 || initNanos <= 0) {
-			// Sample the running time with one iteration and two iterations
-			for (int i = 0; i < PBKDF_SAMPLES; i++) {
-				quickSamples.add(sampleRunningTime(1));
-				slowSamples.add(sampleRunningTime(2));
-			}
-			// Calculate the iteration time and the initialisation time
-			long quickMedian = median(quickSamples);
-			long slowMedian = median(slowSamples);
-			iterationNanos = slowMedian - quickMedian;
-			initNanos = quickMedian - iterationNanos;
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("Init: " + initNanos + ", iteration: "
-						+ iterationNanos);
-			}
-		}
-		long targetNanos = targetMillis * 1000L * 1000L;
-		long iterations = (targetNanos - initNanos) / iterationNanos;
-		if (LOG.isLoggable(INFO)) LOG.info("Target iterations: " + iterations);
-		if (iterations < 1) return 1;
-		if (iterations > Integer.MAX_VALUE) return Integer.MAX_VALUE;
-		return (int) iterations;
-	}
-
-	private long sampleRunningTime(int iterations) {
-		byte[] password = {'p', 'a', 's', 's', 'w', 'o', 'r', 'd'};
-		byte[] salt = new byte[PBKDF_SALT_BYTES];
-		int keyLengthInBits = SecretKey.LENGTH * 8;
-		long start = System.nanoTime();
-		Digest digest = new SHA256Digest();
-		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(digest);
-		gen.init(password, salt, iterations);
-		gen.generateDerivedParameters(keyLengthInBits);
-		return System.nanoTime() - start;
-	}
-
-	private long median(List<Long> list) {
-		int size = list.size();
-		if (size == 0) throw new IllegalArgumentException();
-		Collections.sort(list);
-		if (size % 2 == 1) return list.get(size / 2);
-		return list.get(size / 2 - 1) + list.get(size / 2) / 2;
 	}
 }

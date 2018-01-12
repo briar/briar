@@ -18,7 +18,7 @@ public class KeyAgreementTest extends BrambleTestCase {
 	@Test
 	public void testDeriveSharedSecret() throws Exception {
 		CryptoComponent crypto =
-				new CryptoComponentImpl(new TestSecureRandomProvider());
+				new CryptoComponentImpl(new TestSecureRandomProvider(), null);
 		KeyPair aPair = crypto.generateAgreementKeyPair();
 		KeyPair bPair = crypto.generateAgreementKeyPair();
 		Random random = new Random();

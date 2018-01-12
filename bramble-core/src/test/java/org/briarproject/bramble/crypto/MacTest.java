@@ -17,7 +17,7 @@ import static org.junit.Assert.assertFalse;
 public class MacTest extends BrambleTestCase {
 
 	private final CryptoComponent crypto =
-			new CryptoComponentImpl(new TestSecureRandomProvider());
+			new CryptoComponentImpl(new TestSecureRandomProvider(), null);
 
 	private final SecretKey key1 = getSecretKey(), key2 = getSecretKey();
 	private final String label1 = getRandomString(123);

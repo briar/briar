@@ -1,8 +1,13 @@
 package org.briarproject.bramble.api.crypto;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
+import javax.annotation.Nullable;
+
+@NotNullByDefault
 public interface CryptoComponent {
 
 	SecretKey generateSecretKey();
@@ -124,6 +129,7 @@ public interface CryptoComponent {
 	 * given password. Returns null if the ciphertext cannot be decrypted and
 	 * authenticated (for example, if the password is wrong).
 	 */
+	@Nullable
 	byte[] decryptWithPassword(byte[] ciphertext, String password);
 
 	/**
