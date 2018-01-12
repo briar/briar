@@ -1,6 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'witness'
 
+configurations.all {
+	resolutionStrategy.preferProjectModules()
+}
+
 dependencies {
 	implementation project(path: ':briar-core', configuration: 'default')
 	implementation project(path: ':bramble-core', configuration: 'default')
