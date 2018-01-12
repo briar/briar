@@ -6,6 +6,7 @@ import org.spongycastle.asn1.x9.X9ECParameters;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
+import org.spongycastle.crypto.digests.Blake2bDigest;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.params.ECDomainParameters;
 import org.spongycastle.crypto.params.ECKeyGenerationParameters;
@@ -82,7 +83,7 @@ public class EllipticCurvePerformanceTest {
 		List<byte[]> signatures = new ArrayList<>();
 		samples.clear();
 		for (int i = 0; i < SAMPLES; i++) {
-			Digest digest = new Blake2sDigest();
+			Digest digest = new Blake2bDigest(256);
 			DSAKCalculator calculator = new HMacDSAKCalculator(digest);
 			DSADigestSigner signer = new DSADigestSigner(new ECDSASigner(
 					calculator), digest);
@@ -96,7 +97,7 @@ public class EllipticCurvePerformanceTest {
 		// Time some signature verifications
 		samples.clear();
 		for (int i = 0; i < SAMPLES; i++) {
-			Digest digest = new Blake2sDigest();
+			Digest digest = new Blake2bDigest(256);
 			DSAKCalculator calculator = new HMacDSAKCalculator(digest);
 			DSADigestSigner signer = new DSADigestSigner(new ECDSASigner(
 					calculator), digest);

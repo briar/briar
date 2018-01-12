@@ -18,6 +18,7 @@ import org.spongycastle.crypto.CipherParameters;
 import org.spongycastle.crypto.CryptoException;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
+import org.spongycastle.crypto.digests.Blake2bDigest;
 import org.spongycastle.crypto.digests.SHA256Digest;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
@@ -297,7 +298,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	@Override
 	public byte[] hash(String label, byte[]... inputs) {
 		byte[] labelBytes = StringUtils.toUtf8(label);
-		Digest digest = new Blake2sDigest();
+		Digest digest = new Blake2bDigest(256);
 		byte[] length = new byte[INT_32_BYTES];
 		ByteUtils.writeUint32(labelBytes.length, length, 0);
 		digest.update(length, 0, length.length);
@@ -315,7 +316,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	@Override
 	public byte[] mac(String label, SecretKey macKey, byte[]... inputs) {
 		byte[] labelBytes = StringUtils.toUtf8(label);
-		Digest mac = new Blake2sDigest(macKey.getBytes());
+		Digest mac = new Blake2bDigest(macKey.getBytes(), 32, null, null);
 		byte[] length = new byte[INT_32_BYTES];
 		ByteUtils.writeUint32(labelBytes.length, length, 0);
 		mac.update(length, 0, length.length);

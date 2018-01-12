@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.util.ByteUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.spongycastle.crypto.Digest;
+import org.spongycastle.crypto.digests.Blake2bDigest;
 
 import javax.inject.Inject;
 
@@ -115,7 +116,7 @@ class TransportCryptoImpl implements TransportCrypto {
 		if (streamNumber < 0 || streamNumber > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		// Initialise the PRF
-		Digest prf = new Blake2sDigest(tagKey.getBytes());
+		Digest prf = new Blake2bDigest(tagKey.getBytes(), 32, null, null);
 		// The output of the PRF must be long enough to use as a tag
 		int macLength = prf.getDigestSize();
 		if (macLength < TAG_LENGTH) throw new IllegalStateException();
