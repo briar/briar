@@ -183,7 +183,7 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		// Send a JOIN message
 		Message sent = sendJoinMessage(txn, s, false);
 		// Mark the response visible in the UI
-		markMessageVisibleInUi(txn, m.getId(), true);
+		markMessageVisibleInUi(txn, m.getId());
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
@@ -207,7 +207,7 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
 		// Mark the response visible in the UI
-		markMessageVisibleInUi(txn, m.getId(), true);
+		markMessageVisibleInUi(txn, m.getId());
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);

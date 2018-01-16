@@ -3,7 +3,6 @@ package org.briarproject.briar.blog;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
-import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.GroupFactory;
 import org.briarproject.bramble.api.sync.MessageFactory;
@@ -44,15 +43,14 @@ public class BlogModule {
 	}
 
 	@Provides
-	BlogPostFactory provideBlogPostFactory(ClientHelper clientHelper,
-			Clock clock) {
-		return new BlogPostFactoryImpl(clientHelper, clock);
+	BlogPostFactory provideBlogPostFactory(
+			BlogPostFactoryImpl blogPostFactory) {
+		return blogPostFactory;
 	}
 
 	@Provides
-	BlogFactory provideBlogFactory(GroupFactory groupFactory,
-			AuthorFactory authorFactory, ClientHelper clientHelper) {
-		return new BlogFactoryImpl(groupFactory, authorFactory, clientHelper);
+	BlogFactory provideBlogFactory(BlogFactoryImpl blogFactory) {
+		return blogFactory;
 	}
 
 	@Provides

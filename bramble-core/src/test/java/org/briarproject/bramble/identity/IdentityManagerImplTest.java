@@ -10,8 +10,6 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.test.BrambleMockTestCase;
-import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.jmock.Expectations;
 import org.junit.Test;
 
@@ -23,6 +21,8 @@ import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.Author.Status.UNKNOWN;
 import static org.briarproject.bramble.api.identity.Author.Status.UNVERIFIED;
 import static org.briarproject.bramble.api.identity.Author.Status.VERIFIED;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.junit.Assert.assertEquals;
 
 public class IdentityManagerImplTest extends BrambleMockTestCase {
@@ -30,11 +30,7 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	private final IdentityManager identityManager;
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final Transaction txn = new Transaction(null, false);
-	private final LocalAuthor localAuthor =
-			new LocalAuthor(new AuthorId(TestUtils.getRandomId()),
-					StringUtils.getRandomString(8),
-					TestUtils.getRandomBytes(42), TestUtils.getRandomBytes(42),
-					0);
+	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final Collection<LocalAuthor> localAuthors =
 			Collections.singletonList(localAuthor);
 
@@ -80,7 +76,8 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testGetAuthorStatus() throws DbException {
-		AuthorId authorId = new AuthorId(TestUtils.getRandomId());
+		Author author = getAuthor();
+		AuthorId authorId = author.getId();
 		Collection<Contact> contacts = new ArrayList<>();
 
 		context.checking(new Expectations() {{
@@ -95,20 +92,16 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 		assertEquals(UNKNOWN, identityManager.getAuthorStatus(authorId));
 
 		// add one unverified contact
-		Author author = new Author(authorId, StringUtils.getRandomString(8),
-				TestUtils.getRandomBytes(42));
-		Contact contact =
-				new Contact(new ContactId(1), author, localAuthor.getId(),
-						false, true);
+		Contact contact = new Contact(new ContactId(1), author,
+				localAuthor.getId(), false, true);
 		contacts.add(contact);
 
 		checkAuthorStatusContext(authorId, contacts);
 		assertEquals(UNVERIFIED, identityManager.getAuthorStatus(authorId));
 
 		// add one verified contact
-		Contact contact2 =
-				new Contact(new ContactId(1), author, localAuthor.getId(),
-						true, true);
+		Contact contact2 = new Contact(new ContactId(1), author,
+				localAuthor.getId(), true, true);
 		contacts.add(contact2);
 
 		checkAuthorStatusContext(authorId, contacts);

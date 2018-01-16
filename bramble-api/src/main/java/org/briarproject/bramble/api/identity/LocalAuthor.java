@@ -14,9 +14,9 @@ public class LocalAuthor extends Author {
 	private final byte[] privateKey;
 	private final long created;
 
-	public LocalAuthor(AuthorId id, String name, byte[] publicKey,
-			byte[] privateKey, long created) {
-		super(id, name, publicKey);
+	public LocalAuthor(AuthorId id, int formatVersion, String name,
+			byte[] publicKey, byte[] privateKey, long created) {
+		super(id, formatVersion, name, publicKey);
 		this.privateKey = privateKey;
 		this.created = created;
 	}

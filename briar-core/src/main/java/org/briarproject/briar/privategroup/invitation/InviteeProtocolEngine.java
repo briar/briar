@@ -173,7 +173,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		if (inviteId == null) throw new IllegalStateException();
 		markMessageAvailableToAnswer(txn, inviteId, false);
 		// Record the response
-		markInviteAccepted(txn, inviteId, true);
+		markInviteAccepted(txn, inviteId);
 		// Send a JOIN message
 		Message sent = sendJoinMessage(txn, s, true);
 		// Track the message
@@ -228,7 +228,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		if (!contact.getId().equals(m.getCreator().getId()))
 			return abort(txn, s);
 		// Mark the invite message visible in the UI and available to answer
-		markMessageVisibleInUi(txn, m.getId(), true);
+		markMessageVisibleInUi(txn, m.getId());
 		markMessageAvailableToAnswer(txn, m.getId(), true);
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),

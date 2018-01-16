@@ -169,6 +169,7 @@ class IntroduceeManager {
 		d.put(ANSWERED, false);
 
 		// check if the contact we are introduced to does already exist
+		// TODO: Exchange author format version
 		AuthorId remoteAuthorId = authorFactory
 				.createAuthor(message.getString(NAME),
 						message.getRaw(PUBLIC_KEY)).getId();
@@ -339,6 +340,7 @@ class IntroduceeManager {
 			long timestamp = Math.min(ourTime, theirTime);
 
 			// Add the contact to the database as inactive
+			// TODO: Exchange author format version
 			Author remoteAuthor = authorFactory
 					.createAuthor(localState.getString(NAME),
 							localState.getRaw(PUBLIC_KEY));

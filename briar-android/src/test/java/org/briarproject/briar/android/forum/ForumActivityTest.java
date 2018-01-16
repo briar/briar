@@ -6,9 +6,7 @@ import junit.framework.Assert;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.android.TestBriarApplication;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter;
@@ -29,7 +27,10 @@ import java.util.Arrays;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.briarproject.bramble.api.identity.Author.Status.UNKNOWN;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -38,30 +39,19 @@ import static org.mockito.Mockito.verify;
 		packageName = "org.briarproject.briar")
 public class ForumActivityTest {
 
-	private final static String AUTHOR_1 = "Author 1";
-	private final static String AUTHOR_2 = "Author 2";
-	private final static String AUTHOR_3 = "Author 3";
-	private final static String AUTHOR_4 = "Author 4";
-	private final static String AUTHOR_5 = "Author 5";
-	private final static String AUTHOR_6 = "Author 6";
-
-	private final static String[] AUTHORS = {
-			AUTHOR_1, AUTHOR_2, AUTHOR_3, AUTHOR_4, AUTHOR_5, AUTHOR_6
-	};
-
-	private final static MessageId[] AUTHOR_IDS = new MessageId[AUTHORS.length];
+	private final static MessageId[] MESSAGE_IDS = new MessageId[6];
 
 	static {
-		for (int i = 0; i < AUTHOR_IDS.length; i++)
-			AUTHOR_IDS[i] = new MessageId(TestUtils.getRandomId());
+		for (int i = 0; i < MESSAGE_IDS.length; i++)
+			MESSAGE_IDS[i] = new MessageId(getRandomId());
 	}
 
-	private final static MessageId[] PARENT_AUTHOR_IDS = {
+	private final static MessageId[] PARENT_IDS = {
 			null,
-			AUTHOR_IDS[0],
-			AUTHOR_IDS[1],
-			AUTHOR_IDS[2],
-			AUTHOR_IDS[0],
+			MESSAGE_IDS[0],
+			MESSAGE_IDS[1],
+			MESSAGE_IDS[2],
+			MESSAGE_IDS[0],
 			null
 	};
 
@@ -86,7 +76,7 @@ public class ForumActivityTest {
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 		Intent intent = new Intent();
-		intent.putExtra("briar.GROUP_ID", TestUtils.getRandomId());
+		intent.putExtra("briar.GROUP_ID", getRandomId());
 		forumActivity = Robolectric.buildActivity(TestForumActivity.class,
 				intent).create().start().resume().get();
 	}
@@ -94,11 +84,10 @@ public class ForumActivityTest {
 	private ThreadItemList<ForumItem> getDummyData() {
 		ForumItem[] forumItems = new ForumItem[6];
 		for (int i = 0; i < forumItems.length; i++) {
-			AuthorId authorId = new AuthorId(TestUtils.getRandomId());
-			byte[] publicKey = TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-			Author author = new Author(authorId, AUTHORS[i], publicKey);
-			forumItems[i] = new ForumItem(AUTHOR_IDS[i], PARENT_AUTHOR_IDS[i],
-					AUTHORS[i], System.currentTimeMillis(), author, UNKNOWN);
+			Author author = getAuthor();
+			String content = getRandomString(MAX_FORUM_POST_BODY_LENGTH);
+			forumItems[i] = new ForumItem(MESSAGE_IDS[i], PARENT_IDS[i],
+					content, System.currentTimeMillis(), author, UNKNOWN);
 			forumItems[i].setLevel(LEVELS[i]);
 		}
 		ThreadItemList<ForumItem> list = new ThreadItemListImpl<>();

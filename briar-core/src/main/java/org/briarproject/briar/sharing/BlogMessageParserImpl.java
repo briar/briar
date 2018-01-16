@@ -12,6 +12,8 @@ import org.briarproject.briar.api.blog.BlogFactory;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
+
 @Immutable
 @NotNullByDefault
 class BlogMessageParserImpl extends MessageParserImpl<Blog> {
@@ -28,12 +30,19 @@ class BlogMessageParserImpl extends MessageParserImpl<Blog> {
 	}
 
 	@Override
-	protected Blog createShareable(BdfList descriptor)
-			throws FormatException {
-		String name = descriptor.getString(0);
-		byte[] publicKey = descriptor.getRaw(1);
-		boolean rssFeed = descriptor.getBoolean(2);
-		Author author = authorFactory.createAuthor(name, publicKey);
+	protected Blog createShareable(BdfList descriptor) throws FormatException {
+		// Author, RSS
+		BdfList authorList = descriptor.getList(0);
+		boolean rssFeed = descriptor.getBoolean(1);
+
+		// Format version, name, public key
+		int formatVersion = authorList.getLong(0).intValue();
+		if (formatVersion != FORMAT_VERSION) throw new FormatException();
+		String name = authorList.getString(1);
+		byte[] publicKey = authorList.getRaw(2);
+
+		Author author = authorFactory.createAuthor(formatVersion, name,
+				publicKey);
 		if (rssFeed) return blogFactory.createFeedBlog(author);
 		else return blogFactory.createBlog(author);
 	}

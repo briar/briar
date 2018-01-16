@@ -18,7 +18,6 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.test.BriarTestCase;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -27,7 +26,9 @@ import org.junit.Test;
 
 import java.security.SecureRandom;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.introduction.IntroducerProtocolState.AWAIT_RESPONSES;
 import static org.briarproject.briar.api.introduction.IntroducerProtocolState.PREPARE_REQUESTS;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.AUTHOR_ID_1;
@@ -80,27 +81,23 @@ public class IntroducerManagerTest extends BriarTestCase {
 				new IntroducerManager(messageSender, clientHelper, clock,
 						cryptoComponent, introductionGroupFactory);
 
-		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
-		Author author1 = new Author(authorId1, "Introducee1",
-				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
-		AuthorId localAuthorId1 = new AuthorId(TestUtils.getRandomId());
+		Author author1 = getAuthor();
+		AuthorId localAuthorId1 = new AuthorId(getRandomId());
 		ContactId contactId1 = new ContactId(234);
 		introducee1 =
 				new Contact(contactId1, author1, localAuthorId1, true, true);
 
-		AuthorId authorId2 = new AuthorId(TestUtils.getRandomId());
-		Author author2 = new Author(authorId2, "Introducee2",
-				TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
-		AuthorId localAuthorId2 = new AuthorId(TestUtils.getRandomId());
+		Author author2 = getAuthor();
+		AuthorId localAuthorId2 = new AuthorId(getRandomId());
 		ContactId contactId2 = new ContactId(235);
 		introducee2 =
 				new Contact(contactId2, author2, localAuthorId2, true, true);
 
-		localGroup0 = new Group(new GroupId(TestUtils.getRandomId()),
+		localGroup0 = new Group(new GroupId(getRandomId()),
 				getClientId(), new byte[0]);
-		introductionGroup1 = new Group(new GroupId(TestUtils.getRandomId()),
+		introductionGroup1 = new Group(new GroupId(getRandomId()),
 				getClientId(), new byte[0]);
-		introductionGroup2 = new Group(new GroupId(TestUtils.getRandomId()),
+		introductionGroup2 = new Group(new GroupId(getRandomId()),
 				getClientId(), new byte[0]);
 
 		context.assertIsSatisfied();
@@ -113,8 +110,8 @@ public class IntroducerManagerTest extends BriarTestCase {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		SecureRandom secureRandom = context.mock(SecureRandom.class);
 		Bytes salt = new Bytes(new byte[64]);
-		Message msg = new Message(new MessageId(TestUtils.getRandomId()),
-				localGroup0.getId(), time, TestUtils.getRandomBytes(64));
+		Message msg = new Message(new MessageId(getRandomId()),
+				localGroup0.getId(), time, getRandomBytes(64));
 		BdfDictionary state = new BdfDictionary();
 		state.put(SESSION_ID, msg.getId());
 		state.put(STORAGE_ID, msg.getId());

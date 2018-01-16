@@ -26,8 +26,6 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
-import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionMessage;
@@ -55,6 +53,8 @@ import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.client.MessageQueueManager.QUEUE_STATE_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ALICE_MAC_KEY_LABEL;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ALICE_NONCE_LABEL;
@@ -485,9 +485,8 @@ public class IntroductionIntegrationTest
 				new BdfEntry(TYPE, TYPE_REQUEST),
 				new BdfEntry(SESSION_ID, sessionId),
 				new BdfEntry(GROUP_ID, group.getId()),
-				new BdfEntry(NAME, StringUtils.getRandomString(42)),
-				new BdfEntry(PUBLIC_KEY,
-						TestUtils.getRandomBytes(MAX_PUBLIC_KEY_LENGTH))
+				new BdfEntry(NAME, getRandomString(42)),
+				new BdfEntry(PUBLIC_KEY, getRandomBytes(MAX_PUBLIC_KEY_LENGTH))
 		);
 
 		// reset request received state

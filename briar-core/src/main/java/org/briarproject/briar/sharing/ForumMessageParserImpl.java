@@ -24,8 +24,8 @@ class ForumMessageParserImpl extends MessageParserImpl<Forum> {
 	}
 
 	@Override
-	protected Forum createShareable(BdfList descriptor)
-			throws FormatException {
+	protected Forum createShareable(BdfList descriptor) throws FormatException {
+		// Name, salt
 		String name = descriptor.getString(0);
 		byte[] salt = descriptor.getRaw(1);
 		return forumFactory.createForum(name, salt);

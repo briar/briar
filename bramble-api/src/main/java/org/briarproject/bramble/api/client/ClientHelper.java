@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -93,10 +94,13 @@ public interface ClientHelper {
 
 	BdfList toList(Message m) throws FormatException;
 
+	BdfList toList(Author a);
+
 	byte[] sign(String label, BdfList toSign, byte[] privateKey)
 			throws FormatException, GeneralSecurityException;
 
 	void verifySignature(String label, byte[] sig, byte[] publicKey,
 			BdfList signed) throws FormatException, GeneralSecurityException;
 
+	Author parseAndValidateAuthor(BdfList author) throws FormatException;
 }

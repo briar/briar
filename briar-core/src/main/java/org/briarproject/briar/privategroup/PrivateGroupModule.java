@@ -2,7 +2,6 @@ package org.briarproject.briar.privategroup;
 
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.MetadataEncoder;
-import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
@@ -54,12 +53,11 @@ public class PrivateGroupModule {
 	GroupMessageValidator provideGroupMessageValidator(
 			PrivateGroupFactory privateGroupFactory,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
-			Clock clock, AuthorFactory authorFactory,
-			GroupInvitationFactory groupInvitationFactory,
+			Clock clock, GroupInvitationFactory groupInvitationFactory,
 			ValidationManager validationManager) {
 		GroupMessageValidator validator = new GroupMessageValidator(
 				privateGroupFactory, clientHelper, metadataEncoder, clock,
-				authorFactory, groupInvitationFactory);
+				groupInvitationFactory);
 		validationManager.registerMessageValidator(CLIENT_ID, validator);
 		return validator;
 	}

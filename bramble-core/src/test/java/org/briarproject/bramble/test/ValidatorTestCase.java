@@ -9,7 +9,10 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.util.StringUtils;
+
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 
 public abstract class ValidatorTestCase extends BrambleMockTestCase {
 
@@ -21,16 +24,14 @@ public abstract class ValidatorTestCase extends BrambleMockTestCase {
 	protected final AuthorFactory authorFactory =
 			context.mock(AuthorFactory.class);
 
-	protected final MessageId messageId =
-			new MessageId(TestUtils.getRandomId());
-	protected final GroupId groupId = new GroupId(TestUtils.getRandomId());
+	protected final MessageId messageId = new MessageId(getRandomId());
+	protected final GroupId groupId = new GroupId(getRandomId());
 	protected final long timestamp = 1234567890 * 1000L;
-	protected final byte[] raw = TestUtils.getRandomBytes(123);
+	protected final byte[] raw = getRandomBytes(123);
 	protected final Message message =
 			new Message(messageId, groupId, timestamp, raw);
-	protected final ClientId clientId =
-			new ClientId(StringUtils.getRandomString(123));
-	protected final byte[] descriptor = TestUtils.getRandomBytes(123);
+	protected final ClientId clientId = new ClientId(getRandomString(123));
+	protected final byte[] descriptor = getRandomBytes(123);
 	protected final Group group = new Group(groupId, clientId, descriptor);
 
 }

@@ -35,6 +35,7 @@ class ForumSharingValidator extends SharingValidator {
 	@Override
 	protected GroupId validateDescriptor(BdfList descriptor)
 			throws FormatException {
+		// Name, salt
 		checkSize(descriptor, 2);
 		String name = descriptor.getString(0);
 		checkLength(name, 1, MAX_FORUM_NAME_LENGTH);

@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -38,6 +37,7 @@ import javax.net.SocketFactory;
 
 import okhttp3.Dns;
 
+import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEEDS;
@@ -66,10 +66,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	private final GroupId blogGroupId = new GroupId(getRandomId());
 	private final Group blogGroup =
 			new Group(blogGroupId, BlogManager.CLIENT_ID, getRandomBytes(42));
-	private final AuthorId authorId = new AuthorId(getRandomId());
-	private final LocalAuthor localAuthor =
-			new LocalAuthor(authorId, "author", getRandomBytes(2),
-					getRandomBytes(2), 0);
+	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final Blog blog = new Blog(blogGroup, localAuthor, true);
 	private final Feed feed =
 			new Feed("http://example.org", blog, localAuthor, 0);

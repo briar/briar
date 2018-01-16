@@ -87,6 +87,8 @@ class IntroductionValidator extends BdfQueueMessageValidator {
 
 		checkSize(message, 4, 5);
 
+		// TODO: Exchange author format version
+
 		// parse contact name
 		String name = message.getString(2);
 		checkLength(name, 1, MAX_AUTHOR_NAME_LENGTH);
@@ -131,7 +133,7 @@ class IntroductionValidator extends BdfQueueMessageValidator {
 
 			// parse ephemeral public key
 			pubkey = message.getRaw(4);
-			checkLength(pubkey, 0, MAX_PUBLIC_KEY_LENGTH);
+			checkLength(pubkey, 1, MAX_PUBLIC_KEY_LENGTH);
 
 			// parse transport properties
 			tp = message.getDictionary(5);

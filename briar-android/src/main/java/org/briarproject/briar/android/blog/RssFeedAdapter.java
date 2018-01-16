@@ -44,8 +44,8 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 		ui.delete.setOnClickListener(v -> listener.onDeleteClick(item));
 
 		// Author
-		if (item.getAuthor() != null) {
-			ui.author.setText(item.getAuthor());
+		if (item.getRssAuthor() != null) {
+			ui.author.setText(item.getRssAuthor());
 			ui.author.setVisibility(VISIBLE);
 			ui.authorLabel.setVisibility(VISIBLE);
 		} else {

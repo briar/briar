@@ -83,12 +83,10 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		MessageParser<Blog> messageParser = context.mock(MessageParser.class);
 		InvitationFactory<Blog, BlogInvitationResponse> invitationFactory =
 				context.mock(InvitationFactory.class);
-		blogSharingManager =
-				new BlogSharingManagerImpl(db, clientHelper, metadataParser,
-						messageParser, sessionEncoder, sessionParser,
-						messageTracker, contactGroupFactory,
-						engine, invitationFactory, identityManager,
-						blogManager);
+		blogSharingManager = new BlogSharingManagerImpl(db, clientHelper,
+				metadataParser, messageParser, sessionEncoder, sessionParser,
+				messageTracker, contactGroupFactory, engine, invitationFactory,
+				identityManager, blogManager);
 	}
 
 	@Test
@@ -228,13 +226,11 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	private void expectPreShareShareable(Transaction txn, Contact contact,
 			Blog blog, Map<MessageId, BdfDictionary> sessions)
 			throws Exception {
-		Group contactGroup =
-				new Group(new GroupId(getRandomId()), CLIENT_ID,
-						getRandomBytes(42));
+		Group contactGroup = new Group(new GroupId(getRandomId()), CLIENT_ID,
+				getRandomBytes(42));
 		BdfDictionary sessionDict = new BdfDictionary();
-		Message message =
-				new Message(new MessageId(getRandomId()), contactGroup.getId(),
-						42L, getRandomBytes(1337));
+		Message message = new Message(new MessageId(getRandomId()),
+				contactGroup.getId(), 42L, getRandomBytes(1337));
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					CLIENT_VERSION, contact);
@@ -242,9 +238,8 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 			oneOf(sessionParser)
 					.getSessionQuery(new SessionId(blog.getId().getBytes()));
 			will(returnValue(sessionDict));
-			oneOf(clientHelper)
-					.getMessageMetadataAsDictionary(txn, contactGroup.getId(),
-							sessionDict);
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId(), sessionDict);
 			will(returnValue(sessions));
 			if (sessions.size() == 0) {
 				oneOf(db).addGroup(txn, blog.getGroup());
@@ -277,9 +272,8 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 			oneOf(sessionParser)
 					.getSessionQuery(new SessionId(blog.getId().getBytes()));
 			will(returnValue(sessionDict));
-			oneOf(clientHelper)
-					.getMessageMetadataAsDictionary(txn, contactGroup.getId(),
-							sessionDict);
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId(), sessionDict);
 			will(returnValue(sessions));
 			if (sessions.size() == 1) {
 				oneOf(sessionParser)

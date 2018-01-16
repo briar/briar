@@ -112,9 +112,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			throw new DbException(e); // Invalid group descriptor
 		}
 		long localTimestamp = Math.max(timestamp, getLocalTimestamp(s));
-		Message m = messageEncoder
-				.encodeInviteMessage(s.getContactGroupId(), localTimestamp,
-						s.getLastLocalMessageId(), descriptor, message);
+		Message m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
+				localTimestamp, s.getLastLocalMessageId(), descriptor, message);
 		sendMessage(txn, m, INVITE, s.getShareableId(), true);
 		return m;
 	}
@@ -143,7 +142,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		if (inviteId == null) throw new IllegalStateException();
 		markMessageAvailableToAnswer(txn, inviteId, false);
 		// Mark the invite message as accepted
-		markInvitationAccepted(txn, inviteId, true);
+		markInvitationAccepted(txn, inviteId);
 		// Send a ACCEPT message
 		Message sent = sendAcceptMessage(txn, s);
 		// Track the message
@@ -288,7 +287,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abortWithMessage(txn, s);
 		// Mark the invite message visible in the UI and (un)available to answer
-		markMessageVisibleInUi(txn, m.getId(), true);
+		markMessageVisibleInUi(txn, m.getId());
 		markMessageAvailableToAnswer(txn, m.getId(), available);
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
@@ -312,7 +311,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abortWithMessage(txn, s);
 		// Mark the invite message visible in the UI and unavailable to answer
-		markMessageVisibleInUi(txn, m.getId(), true);
+		markMessageVisibleInUi(txn, m.getId());
 		markMessageAvailableToAnswer(txn, m.getId(), false);
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
@@ -359,7 +358,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abortWithMessage(txn, s);
 		// Mark the response visible in the UI
-		markMessageVisibleInUi(txn, m.getId(), true);
+		markMessageVisibleInUi(txn, m.getId());
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
@@ -411,7 +410,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		if (!isValidDependency(s, m.getPreviousMessageId()))
 			return abortWithMessage(txn, s);
 		// Mark the response visible in the UI
-		markMessageVisibleInUi(txn, m.getId(), true);
+		markMessageVisibleInUi(txn, m.getId());
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
@@ -576,10 +575,10 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		}
 	}
 
-	private void markMessageVisibleInUi(Transaction txn, MessageId m,
-			boolean visible) throws DbException {
+	private void markMessageVisibleInUi(Transaction txn, MessageId m)
+			throws DbException {
 		BdfDictionary meta = new BdfDictionary();
-		messageEncoder.setVisibleInUi(meta, visible);
+		messageEncoder.setVisibleInUi(meta, true);
 		try {
 			clientHelper.mergeMessageMetadata(txn, m, meta);
 		} catch (FormatException e) {
@@ -587,10 +586,10 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		}
 	}
 
-	private void markInvitationAccepted(Transaction txn, MessageId m,
-			boolean accepted) throws DbException {
+	private void markInvitationAccepted(Transaction txn, MessageId m)
+			throws DbException {
 		BdfDictionary meta = new BdfDictionary();
-		messageEncoder.setInvitationAccepted(meta, accepted);
+		messageEncoder.setInvitationAccepted(meta, true);
 		try {
 			clientHelper.mergeMessageMetadata(txn, m, meta);
 		} catch (FormatException e) {

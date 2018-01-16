@@ -47,11 +47,8 @@ import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_AUTHOR;
-import static org.briarproject.briar.api.forum.ForumConstants.KEY_ID;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_LOCAL;
-import static org.briarproject.briar.api.forum.ForumConstants.KEY_NAME;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_PARENT;
-import static org.briarproject.briar.api.forum.ForumConstants.KEY_PUBLIC_NAME;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_TIMESTAMP;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
@@ -147,11 +144,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
 			if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
 			Author a = p.getAuthor();
-			BdfDictionary authorMeta = new BdfDictionary();
-			authorMeta.put(KEY_ID, a.getId());
-			authorMeta.put(KEY_NAME, a.getName());
-			authorMeta.put(KEY_PUBLIC_NAME, a.getPublicKey());
-			meta.put(KEY_AUTHOR, authorMeta);
+			meta.put(KEY_AUTHOR, clientHelper.toList(a));
 			meta.put(KEY_LOCAL, true);
 			meta.put(MSG_KEY_READ, true);
 			clientHelper.addLocalMessage(txn, p.getMessage(), meta, true);
@@ -237,10 +230,9 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			// get all authors we need to get the status for
 			Set<AuthorId> authors = new HashSet<>();
 			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
-				BdfDictionary d =
-						entry.getValue().getDictionary(KEY_AUTHOR, null);
-				if (d != null)
-					authors.add(new AuthorId(d.getRaw(KEY_ID)));
+				BdfList authorList = entry.getValue().getList(KEY_AUTHOR);
+				Author a = clientHelper.parseAndValidateAuthor(authorList);
+				authors.add(a.getId());
 			}
 			// get statuses for all authors
 			Map<AuthorId, Status> statuses = new HashMap<>();
@@ -298,12 +290,9 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		MessageId parentId = null;
 		if (meta.containsKey(KEY_PARENT))
 			parentId = new MessageId(meta.getRaw(KEY_PARENT));
-		BdfDictionary authorDict = meta.getDictionary(KEY_AUTHOR);
-		AuthorId authorId = new AuthorId(authorDict.getRaw(KEY_ID));
-		String name = authorDict.getString(KEY_NAME);
-		byte[] publicKey = authorDict.getRaw(KEY_PUBLIC_NAME);
-		Author author = new Author(authorId, name, publicKey);
-		Status status = statuses.get(authorId);
+		BdfList authorList = meta.getList(KEY_AUTHOR);
+		Author author = clientHelper.parseAndValidateAuthor(authorList);
+		Status status = statuses.get(author.getId());
 		if (status == null)
 			status = identityManager.getAuthorStatus(txn, author.getId());
 		boolean read = meta.getBoolean(MSG_KEY_READ);

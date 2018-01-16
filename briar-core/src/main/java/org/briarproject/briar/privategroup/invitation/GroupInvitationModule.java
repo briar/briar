@@ -3,7 +3,6 @@ package org.briarproject.briar.privategroup.invitation;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
-import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
@@ -53,13 +52,12 @@ public class GroupInvitationModule {
 	@Singleton
 	GroupInvitationValidator provideGroupInvitationValidator(
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
-			Clock clock, AuthorFactory authorFactory,
-			PrivateGroupFactory privateGroupFactory,
+			Clock clock, PrivateGroupFactory privateGroupFactory,
 			MessageEncoder messageEncoder,
 			ValidationManager validationManager) {
 		GroupInvitationValidator validator = new GroupInvitationValidator(
-				clientHelper, metadataEncoder, clock, authorFactory,
-				privateGroupFactory, messageEncoder);
+				clientHelper, metadataEncoder, clock, privateGroupFactory,
+				messageEncoder);
 		validationManager.registerMessageValidator(CLIENT_ID, validator);
 		return validator;
 	}

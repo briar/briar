@@ -43,6 +43,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
@@ -227,6 +228,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 
 		// Write the name, public key and signature
 		w.writeListStart();
+		w.writeLong(localAuthor.getFormatVersion());
 		w.writeString(localAuthor.getName());
 		w.writeRaw(localAuthor.getPublicKey());
 		w.writeRaw(sig);
@@ -236,11 +238,16 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 
 	private Author receivePseudonym(BdfReader r, byte[] nonce)
 			throws GeneralSecurityException, IOException {
-		// Read the name, public key and signature
+		// Read the format version, name, public key and signature
 		r.readListStart();
+		int formatVersion = (int) r.readLong();
+		if (formatVersion != FORMAT_VERSION) throw new FormatException();
 		String name = r.readString(MAX_AUTHOR_NAME_LENGTH);
+		if (name.isEmpty()) throw new FormatException();
 		byte[] publicKey = r.readRaw(MAX_PUBLIC_KEY_LENGTH);
+		if (publicKey.length == 0) throw new FormatException();
 		byte[] sig = r.readRaw(MAX_SIGNATURE_LENGTH);
+		if (sig.length == 0) throw new FormatException();
 		r.readListEnd();
 		LOG.info("Received pseudonym");
 		// Verify the signature
@@ -249,7 +256,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 				LOG.info("Invalid signature");
 			throw new GeneralSecurityException();
 		}
-		return authorFactory.createAuthor(name, publicKey);
+		return authorFactory.createAuthor(formatVersion, name, publicKey);
 	}
 
 	private void sendTimestamp(BdfWriter w, long timestamp)

@@ -31,7 +31,6 @@ class ForumFactoryImpl implements ForumFactory {
 	@Inject
 	ForumFactoryImpl(GroupFactory groupFactory, ClientHelper clientHelper,
 			SecureRandom random) {
-
 		this.groupFactory = groupFactory;
 		this.clientHelper = clientHelper;
 		this.random = random;
