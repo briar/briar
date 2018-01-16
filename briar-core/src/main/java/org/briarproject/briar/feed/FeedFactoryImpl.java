@@ -20,7 +20,7 @@ import org.briarproject.briar.api.feed.Feed;
 
 import javax.inject.Inject;
 
-import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_ADDED;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_AUTHOR;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_DESC;
@@ -53,7 +53,7 @@ class FeedFactoryImpl implements FeedFactory {
 	public Feed createFeed(String url, SyndFeed syndFeed) {
 		String title = syndFeed.getTitle();
 		if (title == null) title = "RSS";
-		else title = StringUtils.truncateUtf8(title, MAX_BLOG_NAME_LENGTH);
+		else title = StringUtils.truncateUtf8(title, MAX_AUTHOR_NAME_LENGTH);
 
 		KeyPair keyPair = cryptoComponent.generateSignatureKeyPair();
 		LocalAuthor localAuthor = authorFactory.createLocalAuthor(title,

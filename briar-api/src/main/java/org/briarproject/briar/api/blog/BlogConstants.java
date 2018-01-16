@@ -1,14 +1,8 @@
 package org.briarproject.briar.api.blog;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 
 public interface BlogConstants {
-
-	/**
-	 * The maximum length of a blogs's name in UTF-8 bytes.
-	 */
-	int MAX_BLOG_NAME_LENGTH = MAX_AUTHOR_NAME_LENGTH;
 
 	/**
 	 * The maximum length of a blog post's body in bytes.
