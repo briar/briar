@@ -88,6 +88,7 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 			if (allow.isChecked()) screenFilterMonitor.allowApps(packageNames);
 			dialog.dismiss();
 		});
+		builder.setCancelable(false);
 		return builder.create();
 	}
 
