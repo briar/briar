@@ -52,19 +52,15 @@ class ForumListAdapter
 		// Post Count
 		int postCount = item.getPostCount();
 		if (postCount > 0) {
-			ui.avatar.setProblem(false);
 			ui.postCount.setText(ctx.getResources()
 					.getQuantityString(R.plurals.posts, postCount,
 							postCount));
 			ui.postCount.setTextColor(
-					ContextCompat
-							.getColor(ctx, R.color.briar_text_secondary));
+					ContextCompat.getColor(ctx, R.color.briar_text_secondary));
 		} else {
-			ui.avatar.setProblem(true);
 			ui.postCount.setText(ctx.getString(R.string.no_posts));
 			ui.postCount.setTextColor(
-					ContextCompat
-							.getColor(ctx, R.color.briar_text_tertiary));
+					ContextCompat.getColor(ctx, R.color.briar_text_tertiary));
 		}
 
 		// Date

@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.UiThread;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -26,7 +25,6 @@ public class TextAvatarView extends FrameLayout {
 	private final AppCompatTextView character;
 	private final CircleImageView background;
 	private final TextView badge;
-	private int unreadCount;
 
 	public TextAvatarView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
@@ -49,27 +47,11 @@ public class TextAvatarView extends FrameLayout {
 	}
 
 	public void setUnreadCount(int count) {
-		unreadCount = count;
 		if (count > 0) {
-			badge.setBackgroundResource(R.drawable.bubble);
 			badge.setText(String.valueOf(count));
-			badge.setTextColor(ContextCompat.getColor(getContext(),
-					R.color.briar_text_primary_inverse));
 			badge.setVisibility(VISIBLE);
 		} else {
 			badge.setVisibility(INVISIBLE);
-		}
-	}
-
-	public void setProblem(boolean problem) {
-		if (problem) {
-			badge.setBackgroundResource(R.drawable.bubble_problem);
-			badge.setText("!");
-			badge.setTextColor(ContextCompat
-					.getColor(getContext(), R.color.briar_primary));
-			badge.setVisibility(VISIBLE);
-		} else {
-			setUnreadCount(unreadCount);
 		}
 	}
 
