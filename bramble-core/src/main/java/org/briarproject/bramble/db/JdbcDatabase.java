@@ -68,8 +68,8 @@ import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 @NotNullByDefault
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 32;
-	private static final int MIN_SCHEMA_VERSION = 32;
+	private static final int SCHEMA_VERSION = 33;
+	private static final int MIN_SCHEMA_VERSION = 33;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
