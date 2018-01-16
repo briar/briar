@@ -41,6 +41,8 @@ import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOT
 public abstract class BaseActivity extends AppCompatActivity
 		implements DestroyableContext, OnTapFilteredListener {
 
+	private static final String STATE_SHOULD_SHOW_DIALOG = "shouldShowDialog";
+
 	@Inject
 	protected ScreenFilterMonitor screenFilterMonitor;
 
@@ -50,7 +52,11 @@ public abstract class BaseActivity extends AppCompatActivity
 			new ArrayList<>();
 	private boolean destroyed = false;
 
-	private ScreenFilterDialogFragment dialogFrag;
+	@Nullable
+	private ScreenFilterDialogFragment dialogFrag = null;
+	private boolean shouldShowDialog = false;
+
+	@Nullable
 	private Toolbar toolbar = null;
 	private boolean searchedForToolbar = false;
 
@@ -61,8 +67,8 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public void onCreate(@Nullable Bundle state) {
+		super.onCreate(state);
 
 		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
@@ -80,6 +86,15 @@ public abstract class BaseActivity extends AppCompatActivity
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityCreate(this);
 		}
+
+		if (state != null)
+			shouldShowDialog = state.getBoolean(STATE_SHOULD_SHOW_DIALOG);
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle state) {
+		super.onSaveInstanceState(state);
+		state.putBoolean(STATE_SHOULD_SHOW_DIALOG, shouldShowDialog);
 	}
 
 	public ActivityComponent getActivityComponent() {
@@ -115,6 +130,7 @@ public abstract class BaseActivity extends AppCompatActivity
 	protected void onResume() {
 		super.onResume();
 		protectToolbar();
+		if (shouldShowDialog) showScreenFilterWarning();
 	}
 
 	@Override
@@ -123,6 +139,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		if (dialogFrag != null) {
 			dialogFrag.dismiss();
 			dialogFrag = null;
+			shouldShowDialog = true; // Show dialog again on resume
 		}
 	}
 
@@ -144,18 +161,28 @@ public abstract class BaseActivity extends AppCompatActivity
 
 	private boolean showScreenFilterWarning() {
 		// If the dialog is already visible, filter the tap
-		if (dialogFrag != null && dialogFrag.isVisible()) return false;
+		if (dialogFrag != null) return false;
 		Collection<AppDetails> apps = screenFilterMonitor.getApps();
-		// If there are no overlay apps that haven't been allowed, allow the tap
-		if (apps.isEmpty()) return true;
-		// Create dialog
-		dialogFrag = ScreenFilterDialogFragment.newInstance(apps);
-		dialogFrag.setCancelable(false);
+		// If all overlay apps have been allowed, allow the tap
+		if (apps.isEmpty()) {
+			shouldShowDialog = false; // May have been true when state was saved
+			return true;
+		}
 		// Show dialog unless onSaveInstanceState() has been called, see #1112
 		FragmentManager fm = getSupportFragmentManager();
 		if (!fm.isStateSaved()) {
+			// Create dialog
+			dialogFrag = ScreenFilterDialogFragment.newInstance(apps);
+			shouldShowDialog = true;
 			// When dialog is dismissed, update protection of toolbar
-			dialogFrag.setDismissListener(this::protectToolbar);
+			dialogFrag.setDismissListener(() -> {
+				dialogFrag = null;
+				shouldShowDialog = false;
+				protectToolbar();
+			});
+			// Hide soft keyboard when (re)showing dialog
+			View focus = getCurrentFocus();
+			if (focus != null) hideSoftKeyboard(focus);
 			dialogFrag.show(fm, dialogFrag.getTag());
 		}
 		// Filter the tap
