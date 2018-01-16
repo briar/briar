@@ -106,7 +106,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
-		db.addGroup(txn, introductionGroupFactory.createLocalGroup());
+		Group localGroup = introductionGroupFactory.createLocalGroup();
+		if (db.containsGroup(txn, localGroup.getId())) return;
+		db.addGroup(txn, localGroup);
 		// Ensure we've set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}

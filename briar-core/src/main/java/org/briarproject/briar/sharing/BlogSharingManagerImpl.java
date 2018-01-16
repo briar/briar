@@ -61,6 +61,9 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 	 */
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
+		// Return if we've already set things up for this contact
+		if (db.containsGroup(txn, getContactGroup(c).getId())) return;
+
 		// creates a group to share with the contact
 		super.addingContact(txn, c);
 
