@@ -7,7 +7,8 @@
 
 	<ScrollView
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:layout_weight="1">
 
 		<TextView
 			android:id="@+id/screen_filter_message"
@@ -20,6 +21,7 @@
 		android:id="@+id/screen_filter_checkbox"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_weight="0"
 		android:layout_marginTop="@dimen/margin_large"
 		android:text="@string/screen_filter_allow"/>
 
