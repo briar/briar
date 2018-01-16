@@ -332,6 +332,18 @@ public class ClientHelperImplTest extends BrambleTestCase {
 	}
 
 	@Test
+	public void testParsesAndEncodesAuthor() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(authorFactory).createAuthor(author.getFormatVersion(),
+					author.getName(), author.getPublicKey());
+			will(returnValue(author));
+		}});
+
+		BdfList authorList = clientHelper.toList(author);
+		assertEquals(author, clientHelper.parseAndValidateAuthor(authorList));
+	}
+
+	@Test
 	public void testAcceptsValidAuthor() throws Exception {
 		BdfList authorList = BdfList.of(
 				author.getFormatVersion(),

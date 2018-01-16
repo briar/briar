@@ -352,6 +352,11 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
+	public BdfList toList(Author a) {
+		return BdfList.of(a.getFormatVersion(), a.getName(), a.getPublicKey());
+	}
+
+	@Override
 	public byte[] sign(String label, BdfList toSign, byte[] privateKey)
 			throws FormatException, GeneralSecurityException {
 		return crypto.sign(label, toByteArray(toSign), privateKey);

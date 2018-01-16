@@ -94,6 +94,8 @@ public interface ClientHelper {
 
 	BdfList toList(Message m) throws FormatException;
 
+	BdfList toList(Author a);
+
 	byte[] sign(String label, BdfList toSign, byte[] privateKey)
 			throws FormatException, GeneralSecurityException;
 
