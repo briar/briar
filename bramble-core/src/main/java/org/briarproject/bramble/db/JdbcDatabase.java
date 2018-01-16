@@ -2049,7 +2049,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != requested.size())
 				throw new DbStateException();
-			for (int rows: batchAffected) {
+			for (int rows : batchAffected) {
 				if (rows < 0) throw new DbStateException();
 				if (rows > 1) throw new DbStateException();
 			}
@@ -2074,9 +2074,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			for (Entry<String, byte[]> e : added.entrySet()) {
-					ps.setString(2, e.getKey());
-					ps.setBytes(3, e.getValue());
-					ps.addBatch();
+				ps.setString(2, e.getKey());
+				ps.setBytes(3, e.getValue());
+				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != added.size())
@@ -2548,7 +2548,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void setMessageShared(Connection txn, MessageId m) throws DbException {
+	public void setMessageShared(Connection txn, MessageId m)
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE messages SET shared = TRUE"
