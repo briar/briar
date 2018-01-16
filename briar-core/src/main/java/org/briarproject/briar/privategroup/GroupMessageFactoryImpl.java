@@ -50,11 +50,7 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 			LocalAuthor member, @Nullable BdfList invite) {
 		try {
 			// Generate the signature
-			BdfList memberList = BdfList.of(
-					member.getFormatVersion(),
-					member.getName(),
-					member.getPublicKey()
-			);
+			BdfList memberList = clientHelper.toList(member);
 			BdfList toSign = BdfList.of(
 					groupId,
 					timestamp,
@@ -86,11 +82,7 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 			MessageId previousMsgId) {
 		try {
 			// Generate the signature
-			BdfList memberList = BdfList.of(
-					member.getFormatVersion(),
-					member.getName(),
-					member.getPublicKey()
-			);
+			BdfList memberList = clientHelper.toList(member);
 			BdfList toSign = BdfList.of(
 					groupId,
 					timestamp,

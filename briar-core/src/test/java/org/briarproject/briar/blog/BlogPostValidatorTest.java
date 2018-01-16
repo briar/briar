@@ -3,7 +3,6 @@ package org.briarproject.briar.blog;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfDictionary;
-import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.identity.Author;
@@ -30,14 +29,10 @@ import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR;
-import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_ID;
-import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_COMMENT;
-import static org.briarproject.briar.api.blog.BlogConstants.KEY_FORMAT_VERSION;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_PARENT_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_PARENT_MSG_ID;
-import static org.briarproject.briar.api.blog.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_READ;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_RSS_FEED;
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
@@ -55,7 +50,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 
 	private final Mockery context = new Mockery();
 	private final Blog blog, rssBlog;
-	private final BdfDictionary authorDict;
+	private final BdfList authorList;
 	private final byte[] descriptor;
 	private final Group group;
 	private final Message message;
@@ -73,11 +68,10 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		descriptor = getRandomBytes(42);
 		group = new Group(groupId, CLIENT_ID, descriptor);
 		author = getAuthor();
-		authorDict = BdfDictionary.of(
-				new BdfEntry(KEY_AUTHOR_ID, author.getId()),
-				new BdfEntry(KEY_FORMAT_VERSION, author.getFormatVersion()),
-				new BdfEntry(KEY_AUTHOR_NAME, author.getName()),
-				new BdfEntry(KEY_PUBLIC_KEY, author.getPublicKey())
+		authorList = BdfList.of(
+				author.getFormatVersion(),
+				author.getName(),
+				author.getPublicKey()
 		);
 		blog = new Blog(group, author, false);
 		rssBlog = new Blog(group, author, true);
@@ -117,7 +111,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		BdfDictionary result =
 				validator.validateMessage(message, group, m).getDictionary();
 
-		assertEquals(authorDict, result.getDictionary(KEY_AUTHOR));
+		assertEquals(authorList, result.getList(KEY_AUTHOR));
 		assertFalse(result.getBoolean(KEY_READ));
 		assertEquals(rssFeed, result.getBoolean(KEY_RSS_FEED));
 		context.assertIsSatisfied();
@@ -129,7 +123,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		BdfList content = BdfList.of(null, null, body);
 		BdfList m = BdfList.of(POST.getInt(), content, null);
 
-		validator.validateMessage(message, group, m).getDictionary();
+		validator.validateMessage(message, group, m);
 	}
 
 	@Test(expected = FormatException.class)
@@ -138,7 +132,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		BdfList content = BdfList.of(null, null, body, null);
 		BdfList m = BdfList.of(POST.getInt(), content, null);
 
-		validator.validateMessage(message, group, m).getDictionary();
+		validator.validateMessage(message, group, m);
 	}
 
 	@Test
@@ -159,7 +153,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 				validator.validateMessage(message, group, m).getDictionary();
 
 		assertEquals(comment, result.getString(KEY_COMMENT));
-		assertEquals(authorDict, result.getDictionary(KEY_AUTHOR));
+		assertEquals(authorList, result.getList(KEY_AUTHOR));
 		assertEquals(pOriginalId.getBytes(),
 				result.getRaw(KEY_ORIGINAL_PARENT_MSG_ID));
 		assertEquals(currentId.getBytes(), result.getRaw(KEY_PARENT_MSG_ID));
@@ -229,7 +223,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		BdfDictionary result =
 				validator.validateMessage(message, group, m).getDictionary();
 
-		assertEquals(authorDict, result.getDictionary(KEY_AUTHOR));
+		assertEquals(authorList, result.getList(KEY_AUTHOR));
 		assertEquals(rssFeed, result.getBoolean(KEY_RSS_FEED));
 		context.assertIsSatisfied();
 	}
@@ -272,7 +266,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 				validator.validateMessage(message, group, m).getDictionary();
 
 		assertEquals(comment, result.getString(KEY_COMMENT));
-		assertEquals(authorDict, result.getDictionary(KEY_AUTHOR));
+		assertEquals(authorList, result.getList(KEY_AUTHOR));
 		assertEquals(
 				message.getId().getBytes(), result.getRaw(KEY_ORIGINAL_MSG_ID));
 		assertEquals(currentId.getBytes(), result.getRaw(KEY_PARENT_MSG_ID));
@@ -284,6 +278,8 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(blogFactory).parseBlog(group);
 			will(returnValue(b));
+			oneOf(clientHelper).toList(b.getAuthor());
+			will(returnValue(authorList));
 			oneOf(clientHelper)
 					.verifySignature(label, sig, author.getPublicKey(), signed);
 		}});

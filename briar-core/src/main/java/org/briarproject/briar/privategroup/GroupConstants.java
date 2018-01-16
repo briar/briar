@@ -10,10 +10,7 @@ interface GroupConstants {
 	String KEY_READ = MSG_KEY_READ;
 	String KEY_PARENT_MSG_ID = "parentMsgId";
 	String KEY_PREVIOUS_MSG_ID = "previousMsgId";
-	String KEY_MEMBER_ID = "memberId";
-	String KEY_MEMBER_FORMAT_VERSION = "formatVersion";
-	String KEY_MEMBER_NAME = "memberName";
-	String KEY_MEMBER_PUBLIC_KEY = "memberPublicKey";
+	String KEY_MEMBER = "member";
 	String KEY_INITIAL_JOIN_MSG = "initialJoinMsg";
 
 	String GROUP_KEY_MEMBERS = "members";

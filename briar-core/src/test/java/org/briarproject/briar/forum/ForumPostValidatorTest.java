@@ -22,11 +22,7 @@ import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_READ;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_AUTHOR;
-import static org.briarproject.briar.api.forum.ForumConstants.KEY_FORMAT_VERSION;
-import static org.briarproject.briar.api.forum.ForumConstants.KEY_ID;
-import static org.briarproject.briar.api.forum.ForumConstants.KEY_NAME;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_PARENT;
-import static org.briarproject.briar.api.forum.ForumConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_TIMESTAMP;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
 import static org.briarproject.briar.api.forum.ForumPostFactory.SIGNING_LABEL_POST;
@@ -74,7 +70,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 
 		BdfMessageContext messageContext = v.validateMessage(message, group,
 				BdfList.of(null, authorList, content, signature));
-		assertExpectedContext(messageContext, false, authorName);
+		assertExpectedContext(messageContext, false);
 	}
 
 	@Test(expected = FormatException.class)
@@ -149,7 +145,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 
 		BdfMessageContext messageContext = v.validateMessage(message, group,
 				BdfList.of(parentId, authorList, shortContent, signature));
-		assertExpectedContext(messageContext, true, authorName);
+		assertExpectedContext(messageContext, true);
 	}
 
 	@Test(expected = FormatException.class)
@@ -224,7 +220,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 	}
 
 	private void assertExpectedContext(BdfMessageContext messageContext,
-			boolean hasParent, String authorName) throws FormatException {
+			boolean hasParent) throws FormatException {
 		BdfDictionary meta = messageContext.getDictionary();
 		Collection<MessageId> dependencies = messageContext.getDependencies();
 		if (hasParent) {
@@ -238,12 +234,6 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		}
 		assertEquals(timestamp, meta.getLong(KEY_TIMESTAMP).longValue());
 		assertFalse(meta.getBoolean(KEY_READ));
-		BdfDictionary authorMeta = meta.getDictionary(KEY_AUTHOR);
-		assertEquals(4, authorMeta.size());
-		assertArrayEquals(author.getId().getBytes(), authorMeta.getRaw(KEY_ID));
-		assertEquals(author.getFormatVersion(),
-				authorMeta.getLong(KEY_FORMAT_VERSION).intValue());
-		assertEquals(authorName, authorMeta.getString(KEY_NAME));
-		assertArrayEquals(authorPublicKey, authorMeta.getRaw(KEY_PUBLIC_KEY));
+		assertEquals(authorList, meta.getList(KEY_AUTHOR));
 	}
 }

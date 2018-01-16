@@ -24,10 +24,6 @@ public interface BlogConstants {
 	String KEY_TYPE = "type";
 	String KEY_TIMESTAMP = "timestamp";
 	String KEY_TIME_RECEIVED = "timeReceived";
-	String KEY_AUTHOR_ID = "id";
-	String KEY_FORMAT_VERSION = "formatVersion";
-	String KEY_AUTHOR_NAME = "name";
-	String KEY_PUBLIC_KEY = "publicKey";
 	String KEY_AUTHOR = "author";
 	String KEY_RSS_FEED = "rssFeed";
 	String KEY_READ = "read";

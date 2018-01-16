@@ -41,29 +41,25 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 	}
 
 	@Override
-	public PrivateGroup createPrivateGroup(String name, Author author) {
+	public PrivateGroup createPrivateGroup(String name, Author creator) {
 		int length = StringUtils.toUtf8(name).length;
 		if (length == 0 || length > MAX_GROUP_NAME_LENGTH)
 			throw new IllegalArgumentException();
 		byte[] salt = new byte[GROUP_SALT_LENGTH];
 		random.nextBytes(salt);
-		return createPrivateGroup(name, author, salt);
+		return createPrivateGroup(name, creator, salt);
 	}
 
 	@Override
-	public PrivateGroup createPrivateGroup(String name, Author author,
+	public PrivateGroup createPrivateGroup(String name, Author creator,
 			byte[] salt) {
 		try {
-			BdfList creatorList = BdfList.of(
-					author.getFormatVersion(),
-					author.getName(),
-					author.getPublicKey()
-			);
+			BdfList creatorList = clientHelper.toList(creator);
 			BdfList group = BdfList.of(creatorList, name, salt);
 			byte[] descriptor = clientHelper.toByteArray(group);
 			Group g = groupFactory.createGroup(CLIENT_ID, CLIENT_VERSION,
 					descriptor);
-			return new PrivateGroup(g, name, author, salt);
+			return new PrivateGroup(g, name, creator, salt);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}

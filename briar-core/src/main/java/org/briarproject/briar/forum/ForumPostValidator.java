@@ -26,11 +26,7 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATUR
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_AUTHOR;
-import static org.briarproject.briar.api.forum.ForumConstants.KEY_FORMAT_VERSION;
-import static org.briarproject.briar.api.forum.ForumConstants.KEY_ID;
-import static org.briarproject.briar.api.forum.ForumConstants.KEY_NAME;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_PARENT;
-import static org.briarproject.briar.api.forum.ForumConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_READ;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_TIMESTAMP;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
@@ -84,12 +80,7 @@ class ForumPostValidator extends BdfMessageValidator {
 			meta.put(KEY_PARENT, parent);
 			dependencies = Collections.singletonList(new MessageId(parent));
 		}
-		BdfDictionary authorMeta = new BdfDictionary();
-		authorMeta.put(KEY_ID, author.getId());
-		authorMeta.put(KEY_FORMAT_VERSION, author.getFormatVersion());
-		authorMeta.put(KEY_NAME, author.getName());
-		authorMeta.put(KEY_PUBLIC_KEY, author.getPublicKey());
-		meta.put(KEY_AUTHOR, authorMeta);
+		meta.put(KEY_AUTHOR, authorList);
 		meta.put(KEY_READ, false);
 		return new BdfMessageContext(meta, dependencies);
 	}

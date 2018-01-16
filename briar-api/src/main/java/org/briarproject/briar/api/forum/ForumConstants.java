@@ -23,10 +23,6 @@ public interface ForumConstants {
 	String KEY_TIMESTAMP = "timestamp";
 	String KEY_PARENT = "parent";
 	String KEY_AUTHOR = "author";
-	String KEY_ID = "id";
-	String KEY_FORMAT_VERSION = "formatVersion";
-	String KEY_NAME = "name";
-	String KEY_PUBLIC_KEY = "publicKey";
 	String KEY_LOCAL = "local";
 	String KEY_READ = "read";
 

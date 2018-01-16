@@ -40,7 +40,6 @@ import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
 import org.briarproject.briar.client.BdfIncomingMessageHook;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,7 +53,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.Author.Status.UNVERIFIED;
 import static org.briarproject.bramble.api.identity.Author.Status.VERIFIED;
@@ -70,10 +68,7 @@ import static org.briarproject.briar.privategroup.GroupConstants.GROUP_KEY_MEMBE
 import static org.briarproject.briar.privategroup.GroupConstants.GROUP_KEY_OUR_GROUP;
 import static org.briarproject.briar.privategroup.GroupConstants.GROUP_KEY_VISIBILITY;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_INITIAL_JOIN_MSG;
-import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER_FORMAT_VERSION;
-import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER_ID;
-import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER_NAME;
-import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER_PUBLIC_KEY;
+import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_PARENT_MSG_ID;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_PREVIOUS_MSG_ID;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_READ;
@@ -242,12 +237,9 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	}
 
 	private void addMessageMetadata(BdfDictionary meta, GroupMessage m) {
+		meta.put(KEY_MEMBER, clientHelper.toList(m.getMember()));
 		meta.put(KEY_TIMESTAMP, m.getMessage().getTimestamp());
 		meta.put(KEY_READ, true);
-		meta.put(KEY_MEMBER_ID, m.getMember().getId());
-		meta.put(KEY_MEMBER_FORMAT_VERSION, m.getMember().getFormatVersion());
-		meta.put(KEY_MEMBER_NAME, m.getMember().getName());
-		meta.put(KEY_MEMBER_PUBLIC_KEY, m.getMember().getPublicKey());
 	}
 
 	@Override
@@ -334,8 +326,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			// get all authors we need to get the status for
 			Set<AuthorId> authors = new HashSet<>();
 			for (BdfDictionary meta : metadata.values()) {
-				byte[] idBytes = meta.getRaw(KEY_MEMBER_ID);
-				authors.add(new AuthorId(idBytes));
+				authors.add(getAuthor(meta).getId());
 			}
 			// get statuses for all authors
 			Map<AuthorId, Status> statuses = new HashMap<>();
@@ -350,13 +341,11 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 				if (meta.getLong(KEY_TYPE) == JOIN.getInt()) {
 					Author member = getAuthor(meta);
 					Visibility v = visibilities.get(member);
-					headers.add(
-							getJoinMessageHeader(txn, g, entry.getKey(), meta,
-									statuses, v));
+					headers.add(getJoinMessageHeader(txn, g, entry.getKey(),
+							meta, statuses, v));
 				} else {
-					headers.add(
-							getGroupMessageHeader(txn, g, entry.getKey(), meta,
-									statuses));
+					headers.add(getGroupMessageHeader(txn, g, entry.getKey(),
+							meta, statuses));
 				}
 			}
 			db.commitTransaction(txn);
@@ -378,16 +367,16 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		}
 		long timestamp = meta.getLong(KEY_TIMESTAMP);
 
-		Author author = getAuthor(meta);
+		Author member = getAuthor(meta);
 		Status status;
-		if (statuses.containsKey(author.getId())) {
-			status = statuses.get(author.getId());
+		if (statuses.containsKey(member.getId())) {
+			status = statuses.get(member.getId());
 		} else {
-			status = identityManager.getAuthorStatus(txn, author.getId());
+			status = identityManager.getAuthorStatus(txn, member.getId());
 		}
 		boolean read = meta.getBoolean(KEY_READ);
 
-		return new GroupMessageHeader(g, id, parentId, timestamp, author,
+		return new GroupMessageHeader(g, id, parentId, timestamp, member,
 				status, read);
 	}
 
@@ -477,8 +466,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		boolean foundMember = false, changed = false;
 		for (int i = 0; i < members.size(); i++) {
 			BdfDictionary d = members.getDictionary(i);
-			AuthorId memberId = new AuthorId(d.getRaw(KEY_MEMBER_ID));
-			if (a.equals(memberId)) {
+			if (a.equals(getAuthor(d).getId())) {
 				foundMember = true;
 				// Don't update the visibility if the contact is already visible
 				if (getVisibility(d) == INVISIBLE) {
@@ -567,8 +555,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		if (timestamp <= previousMeta.getLong(KEY_TIMESTAMP))
 			throw new FormatException();
 		// previous message must be from same member
-		if (!Arrays.equals(meta.getRaw(KEY_MEMBER_ID),
-				previousMeta.getRaw(KEY_MEMBER_ID)))
+		if (!getAuthor(meta).equals(getAuthor(previousMeta)))
 			throw new FormatException();
 		// previous message must be a POST or JOIN
 		MessageType previousType = MessageType
@@ -605,10 +592,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn, g);
 		BdfList members = meta.getList(GROUP_KEY_MEMBERS);
 		members.add(BdfDictionary.of(
-				new BdfEntry(KEY_MEMBER_ID, a.getId()),
-				new BdfEntry(KEY_MEMBER_FORMAT_VERSION, a.getFormatVersion()),
-				new BdfEntry(KEY_MEMBER_NAME, a.getName()),
-				new BdfEntry(KEY_MEMBER_PUBLIC_KEY, a.getPublicKey()),
+				new BdfEntry(KEY_MEMBER, clientHelper.toList(a)),
 				new BdfEntry(GROUP_KEY_VISIBILITY, v.getInt())
 		));
 		clientHelper.mergeGroupMetadata(txn, g, meta);
@@ -618,12 +602,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	}
 
 	private Author getAuthor(BdfDictionary meta) throws FormatException {
-		AuthorId authorId = new AuthorId(meta.getRaw(KEY_MEMBER_ID));
-		int formatVersion = meta.getLong(KEY_MEMBER_FORMAT_VERSION).intValue();
-		if (formatVersion != FORMAT_VERSION) throw new FormatException();
-		String name = meta.getString(KEY_MEMBER_NAME);
-		byte[] publicKey = meta.getRaw(KEY_MEMBER_PUBLIC_KEY);
-		return new Author(authorId, formatVersion, name, publicKey);
+		return clientHelper.parseAndValidateAuthor(meta.getList(KEY_MEMBER));
 	}
 
 	private Visibility getVisibility(BdfDictionary meta)

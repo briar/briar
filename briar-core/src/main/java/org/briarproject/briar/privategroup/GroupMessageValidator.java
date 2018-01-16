@@ -34,10 +34,7 @@ import static org.briarproject.briar.api.privategroup.MessageType.POST;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory.SIGNING_LABEL_INVITE;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_INITIAL_JOIN_MSG;
-import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER_FORMAT_VERSION;
-import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER_ID;
-import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER_NAME;
-import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER_PUBLIC_KEY;
+import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_PARENT_MSG_ID;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_PREVIOUS_MSG_ID;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_READ;
@@ -75,10 +72,10 @@ class GroupMessageValidator extends BdfMessageValidator {
 		BdfMessageContext c;
 		if (type == JOIN.getInt()) {
 			c = validateJoin(m, g, body, member);
-			addMessageMetadata(c, member, m.getTimestamp());
+			addMessageMetadata(c, memberList, m.getTimestamp());
 		} else if (type == POST.getInt()) {
 			c = validatePost(m, g, body, member);
-			addMessageMetadata(c, member, m.getTimestamp());
+			addMessageMetadata(c, memberList, m.getTimestamp());
 		} else {
 			throw new InvalidMessageException("Unknown Message Type");
 		}
@@ -187,15 +184,11 @@ class GroupMessageValidator extends BdfMessageValidator {
 		return new BdfMessageContext(meta, dependencies);
 	}
 
-	private void addMessageMetadata(BdfMessageContext c, Author member,
+	private void addMessageMetadata(BdfMessageContext c, BdfList member,
 			long timestamp) {
+		c.getDictionary().put(KEY_MEMBER, member);
 		c.getDictionary().put(KEY_TIMESTAMP, timestamp);
 		c.getDictionary().put(KEY_READ, false);
-		c.getDictionary().put(KEY_MEMBER_ID, member.getId());
-		c.getDictionary().put(KEY_MEMBER_FORMAT_VERSION,
-				member.getFormatVersion());
-		c.getDictionary().put(KEY_MEMBER_NAME, member.getName());
-		c.getDictionary().put(KEY_MEMBER_PUBLIC_KEY, member.getPublicKey());
 	}
 
 }

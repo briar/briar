@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupFactory;
@@ -23,15 +22,12 @@ import static org.briarproject.briar.api.blog.BlogManager.CLIENT_VERSION;
 class BlogFactoryImpl implements BlogFactory {
 
 	private final GroupFactory groupFactory;
-	private final AuthorFactory authorFactory;
 	private final ClientHelper clientHelper;
 
 	@Inject
-	BlogFactoryImpl(GroupFactory groupFactory, AuthorFactory authorFactory,
-			ClientHelper clientHelper) {
+	BlogFactoryImpl(GroupFactory groupFactory, ClientHelper clientHelper) {
 
 		this.groupFactory = groupFactory;
-		this.authorFactory = authorFactory;
 		this.clientHelper = clientHelper;
 	}
 
@@ -47,12 +43,7 @@ class BlogFactoryImpl implements BlogFactory {
 
 	private Blog createBlog(Author a, boolean rssFeed) {
 		try {
-			BdfList authorList = BdfList.of(
-					a.getFormatVersion(),
-					a.getName(),
-					a.getPublicKey()
-			);
-			BdfList blog = BdfList.of(authorList, rssFeed);
+			BdfList blog = BdfList.of(clientHelper.toList(a), rssFeed);
 			byte[] descriptor = clientHelper.toByteArray(blog);
 			Group g = groupFactory.createGroup(CLIENT_ID, CLIENT_VERSION,
 					descriptor);

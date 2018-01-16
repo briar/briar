@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.client.BdfMessageContext;
 import org.briarproject.bramble.api.client.BdfMessageValidator;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfDictionary;
-import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.identity.Author;
@@ -31,14 +30,10 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATUR
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR;
-import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_ID;
-import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_COMMENT;
-import static org.briarproject.briar.api.blog.BlogConstants.KEY_FORMAT_VERSION;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_PARENT_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_PARENT_MSG_ID;
-import static org.briarproject.briar.api.blog.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_READ;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_RSS_FEED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIMESTAMP;
@@ -125,7 +120,7 @@ class BlogPostValidator extends BdfMessageValidator {
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(KEY_ORIGINAL_MSG_ID, m.getId());
-		meta.put(KEY_AUTHOR, authorToBdfDictionary(a));
+		meta.put(KEY_AUTHOR, clientHelper.toList(a));
 		meta.put(KEY_RSS_FEED, b.isRssFeed());
 		return new BdfMessageContext(meta);
 	}
@@ -174,7 +169,7 @@ class BlogPostValidator extends BdfMessageValidator {
 		meta.put(KEY_ORIGINAL_MSG_ID, m.getId());
 		meta.put(KEY_ORIGINAL_PARENT_MSG_ID, pOriginalId);
 		meta.put(KEY_PARENT_MSG_ID, currentId);
-		meta.put(KEY_AUTHOR, authorToBdfDictionary(a));
+		meta.put(KEY_AUTHOR, clientHelper.toList(a));
 		Collection<MessageId> dependencies = Collections.singleton(currentId);
 		return new BdfMessageContext(meta, dependencies);
 	}
@@ -214,7 +209,7 @@ class BlogPostValidator extends BdfMessageValidator {
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(KEY_ORIGINAL_MSG_ID, wMessage.getId());
 		meta.put(KEY_TIMESTAMP, wTimestamp);
-		meta.put(KEY_AUTHOR, c.getDictionary().getDictionary(KEY_AUTHOR));
+		meta.put(KEY_AUTHOR, c.getDictionary().getList(KEY_AUTHOR));
 		meta.put(KEY_RSS_FEED, wBlog.isRssFeed());
 		return new BdfMessageContext(meta);
 	}
@@ -281,17 +276,8 @@ class BlogPostValidator extends BdfMessageValidator {
 		meta.put(KEY_PARENT_MSG_ID, parentId);
 		meta.put(KEY_TIMESTAMP, wTimestamp);
 		if (comment != null) meta.put(KEY_COMMENT, comment);
-		meta.put(KEY_AUTHOR, c.getDictionary().getDictionary(KEY_AUTHOR));
+		meta.put(KEY_AUTHOR, c.getDictionary().getList(KEY_AUTHOR));
 		return new BdfMessageContext(meta, dependencies);
-	}
-
-	static BdfDictionary authorToBdfDictionary(Author a) {
-		return BdfDictionary.of(
-				new BdfEntry(KEY_AUTHOR_ID, a.getId()),
-				new BdfEntry(KEY_FORMAT_VERSION, a.getFormatVersion()),
-				new BdfEntry(KEY_AUTHOR_NAME, a.getName()),
-				new BdfEntry(KEY_PUBLIC_KEY, a.getPublicKey())
-		);
 	}
 
 	private void addMessageMetadata(BdfMessageContext c, long time) {

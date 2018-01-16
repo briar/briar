@@ -34,10 +34,7 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory.SIGNING_LABEL_INVITE;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_INITIAL_JOIN_MSG;
-import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER_FORMAT_VERSION;
-import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER_ID;
-import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER_NAME;
-import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER_PUBLIC_KEY;
+import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_PARENT_MSG_ID;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_PREVIOUS_MSG_ID;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_READ;
@@ -180,7 +177,7 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 				memberSignature);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
-		assertExpectedMessageContext(messageContext, JOIN, creator,
+		assertExpectedMessageContext(messageContext, JOIN, creatorList,
 				Collections.emptyList());
 		assertTrue(messageContext.getDictionary()
 				.getBoolean(KEY_INITIAL_JOIN_MSG));
@@ -365,7 +362,7 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 				memberSignature);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
-		assertExpectedMessageContext(messageContext, JOIN, member,
+		assertExpectedMessageContext(messageContext, JOIN, memberList,
 				Collections.emptyList());
 		assertFalse(messageContext.getDictionary()
 				.getBoolean(KEY_INITIAL_JOIN_MSG));
@@ -616,7 +613,7 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 		expectPostMessage(parentId, true);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
-		assertExpectedMessageContext(messageContext, POST, member,
+		assertExpectedMessageContext(messageContext, POST, memberList,
 				Arrays.asList(parentId, previousMsgId));
 		assertArrayEquals(previousMsgId.getBytes(),
 				messageContext.getDictionary().getRaw(KEY_PREVIOUS_MSG_ID));
@@ -631,7 +628,7 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 		expectPostMessage(null, true);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
-		assertExpectedMessageContext(messageContext, POST, member,
+		assertExpectedMessageContext(messageContext, POST, memberList,
 				Collections.singletonList(previousMsgId));
 		assertArrayEquals(previousMsgId.getBytes(),
 				messageContext.getDictionary().getRaw(KEY_PREVIOUS_MSG_ID));
@@ -659,18 +656,14 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 	}
 
 	private void assertExpectedMessageContext(BdfMessageContext c,
-			MessageType type, Author member,
+			MessageType type, BdfList member,
 			Collection<MessageId> dependencies) throws FormatException {
 		BdfDictionary d = c.getDictionary();
 		assertEquals(type.getInt(), d.getLong(KEY_TYPE).intValue());
 		assertEquals(message.getTimestamp(),
 				d.getLong(KEY_TIMESTAMP).longValue());
 		assertFalse(d.getBoolean(KEY_READ));
-		assertEquals(member.getId().getBytes(), d.getRaw(KEY_MEMBER_ID));
-		assertEquals(member.getFormatVersion(),
-				d.getLong(KEY_MEMBER_FORMAT_VERSION).intValue());
-		assertEquals(member.getName(), d.getString(KEY_MEMBER_NAME));
-		assertEquals(member.getPublicKey(), d.getRaw(KEY_MEMBER_PUBLIC_KEY));
+		assertEquals(member, d.getList(KEY_MEMBER));
 		assertEquals(dependencies, c.getDependencies());
 	}
 

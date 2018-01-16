@@ -16,26 +16,26 @@ public class Feed {
 	private final Blog blog;
 	private final LocalAuthor localAuthor;
 	@Nullable
-	private final String description, author;
+	private final String description, rssAuthor;
 	private final long added, updated, lastEntryTime;
 
 	public Feed(String url, Blog blog, LocalAuthor localAuthor,
-			@Nullable String description, @Nullable String author, long added,
-			long updated, long lastEntryTime) {
-
+			@Nullable String description, @Nullable String rssAuthor,
+			long added, long updated, long lastEntryTime) {
 		this.url = url;
 		this.blog = blog;
 		this.localAuthor = localAuthor;
 		this.description = description;
-		this.author = author;
+		this.rssAuthor = rssAuthor;
 		this.added = added;
 		this.updated = updated;
 		this.lastEntryTime = lastEntryTime;
 	}
 
 	public Feed(String url, Blog blog, LocalAuthor localAuthor,
-			@Nullable String description, @Nullable String author, long added) {
-		this(url, blog, localAuthor, description, author, added, 0L, 0L);
+			@Nullable String description, @Nullable String rssAuthor,
+			long added) {
+		this(url, blog, localAuthor, description, rssAuthor, added, 0L, 0L);
 	}
 
 	public Feed(String url, Blog blog, LocalAuthor localAuthor, long added) {
@@ -68,8 +68,8 @@ public class Feed {
 	}
 
 	@Nullable
-	public String getAuthor() {
-		return author;
+	public String getRssAuthor() {
+		return rssAuthor;
 	}
 
 	public long getAdded() {

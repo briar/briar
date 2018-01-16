@@ -78,11 +78,7 @@ class MessageEncoderImpl implements MessageEncoder {
 			GroupId privateGroupId, long timestamp, String groupName,
 			Author creator, byte[] salt, @Nullable String message,
 			byte[] signature) {
-		BdfList creatorList = BdfList.of(
-				creator.getFormatVersion(),
-				creator.getName(),
-				creator.getPublicKey()
-		);
+		BdfList creatorList = clientHelper.toList(creator);
 		BdfList body = BdfList.of(
 				INVITE.getValue(),
 				creatorList,

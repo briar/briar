@@ -49,16 +49,11 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.contact.ContactManager.RemoveContactHook;
-import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR;
-import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_ID;
-import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR_NAME;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_COMMENT;
-import static org.briarproject.briar.api.blog.BlogConstants.KEY_FORMAT_VERSION;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_PARENT_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_PARENT_MSG_ID;
-import static org.briarproject.briar.api.blog.BlogConstants.KEY_PUBLIC_KEY;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_READ;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_RSS_FEED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIMESTAMP;
@@ -68,7 +63,6 @@ import static org.briarproject.briar.api.blog.MessageType.COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.POST;
 import static org.briarproject.briar.api.blog.MessageType.WRAPPED_COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.WRAPPED_POST;
-import static org.briarproject.briar.blog.BlogPostValidator.authorToBdfDictionary;
 
 @NotNullByDefault
 class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
@@ -229,7 +223,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(KEY_TYPE, POST.getInt());
 			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
-			meta.put(KEY_AUTHOR, authorToBdfDictionary(p.getAuthor()));
+			meta.put(KEY_AUTHOR, clientHelper.toList(p.getAuthor()));
 			meta.put(KEY_READ, true);
 			meta.put(KEY_RSS_FEED, b.isRssFeed());
 			clientHelper.addLocalMessage(txn, p.getMessage(), meta, true);
@@ -272,7 +266,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			meta.put(KEY_ORIGINAL_MSG_ID, message.getId());
 			meta.put(KEY_ORIGINAL_PARENT_MSG_ID, parentOriginalId);
 			meta.put(KEY_PARENT_MSG_ID, parentCurrentId);
-			meta.put(KEY_AUTHOR, authorToBdfDictionary(author));
+			meta.put(KEY_AUTHOR, clientHelper.toList(author));
 
 			// Send comment
 			clientHelper.addLocalMessage(txn, message, meta, true);
@@ -369,7 +363,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 					"Unknown Message Type: " + type);
 		}
 		meta.put(KEY_ORIGINAL_MSG_ID, originalId);
-		meta.put(KEY_AUTHOR, authorToBdfDictionary(header.getAuthor()));
+		meta.put(KEY_AUTHOR, clientHelper.toList(header.getAuthor()));
 		meta.put(KEY_TIMESTAMP, header.getTimestamp());
 		meta.put(KEY_TIME_RECEIVED, header.getTimeReceived());
 
@@ -508,9 +502,9 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			// get all authors we need to get the status for
 			Set<AuthorId> authors = new HashSet<>();
 			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
-				authors.add(new AuthorId(
-						entry.getValue().getDictionary(KEY_AUTHOR)
-								.getRaw(KEY_AUTHOR_ID)));
+				BdfList authorList = entry.getValue().getList(KEY_AUTHOR);
+				Author a = clientHelper.parseAndValidateAuthor(authorList);
+				authors.add(a.getId());
 			}
 			// get statuses for all authors
 			Map<AuthorId, Status> authorStatuses = new HashMap<>();
@@ -575,21 +569,16 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		long timestamp = meta.getLong(KEY_TIMESTAMP);
 		long timeReceived = meta.getLong(KEY_TIME_RECEIVED, timestamp);
 
-		BdfDictionary authorDict = meta.getDictionary(KEY_AUTHOR);
-		AuthorId authorId = new AuthorId(authorDict.getRaw(KEY_AUTHOR_ID));
-		int formatVersion = authorDict.getLong(KEY_FORMAT_VERSION).intValue();
-		if (formatVersion != FORMAT_VERSION) throw new FormatException();
-		String name = authorDict.getString(KEY_AUTHOR_NAME);
-		byte[] publicKey = authorDict.getRaw(KEY_PUBLIC_KEY);
-		Author author = new Author(authorId, formatVersion, name, publicKey);
+		BdfList authorList = meta.getList(KEY_AUTHOR);
+		Author author = clientHelper.parseAndValidateAuthor(authorList);
 		boolean isFeedPost = meta.getBoolean(KEY_RSS_FEED, false);
 		Status authorStatus;
 		if (isFeedPost) {
 			authorStatus = Status.NONE;
-		} else if (authorStatuses.containsKey(authorId)) {
-			authorStatus = authorStatuses.get(authorId);
+		} else if (authorStatuses.containsKey(author.getId())) {
+			authorStatus = authorStatuses.get(author.getId());
 		} else {
-			authorStatus = identityManager.getAuthorStatus(txn, authorId);
+			authorStatus = identityManager.getAuthorStatus(txn, author.getId());
 		}
 
 		boolean read = meta.getBoolean(KEY_READ, false);
