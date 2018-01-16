@@ -94,6 +94,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Group contactGroup1 = getGroup(), contactGroup2 = getGroup();
 
 		context.checking(new Expectations() {{
+			oneOf(db).containsGroup(txn, localGroup.getId());
+			will(returnValue(false));
 			oneOf(db).addGroup(txn, localGroup);
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
@@ -123,7 +125,21 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testCreatesGroupWhenAddingContact() throws Exception {
+	public void testDoesNotCreateGroupsAtStartupIfAlreadyCreated()
+			throws Exception {
+		Transaction txn = new Transaction(null, false);
+
+		context.checking(new Expectations() {{
+			oneOf(db).containsGroup(txn, localGroup.getId());
+			will(returnValue(true));
+		}});
+
+		TransportPropertyManagerImpl t = createInstance();
+		t.createLocalState(txn);
+	}
+
+	@Test
+	public void testCreatesContactGroupWhenAddingContact() throws Exception {
 		Transaction txn = new Transaction(null, false);
 		Contact contact = getContact(true);
 		Group contactGroup = getGroup();

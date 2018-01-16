@@ -82,6 +82,10 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
+		// Create a local group to indicate that we've set this client up
+		Group localGroup = contactGroupFactory.createLocalGroup(getClientId());
+		if (db.containsGroup(txn, localGroup.getId())) return;
+		db.addGroup(txn, localGroup);
 		// Ensure we've set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
