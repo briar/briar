@@ -1,6 +1,4 @@
-package org.briarproject.bramble.plugin.droidtooth;
-
-import android.bluetooth.BluetoothSocket;
+package org.briarproject.bramble.plugin.bluetooth;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
@@ -10,28 +8,31 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.microedition.io.StreamConnection;
+
 @NotNullByDefault
-class DroidtoothTransportConnection extends AbstractDuplexTransportConnection {
+class JavaBluetoothTransportConnection
+		extends AbstractDuplexTransportConnection {
 
-	private final BluetoothSocket socket;
+	private final StreamConnection stream;
 
-	DroidtoothTransportConnection(Plugin plugin, BluetoothSocket socket) {
+	JavaBluetoothTransportConnection(Plugin plugin, StreamConnection stream) {
 		super(plugin);
-		this.socket = socket;
+		this.stream = stream;
 	}
 
 	@Override
 	protected InputStream getInputStream() throws IOException {
-		return socket.getInputStream();
+		return stream.openInputStream();
 	}
 
 	@Override
 	protected OutputStream getOutputStream() throws IOException {
-		return socket.getOutputStream();
+		return stream.openOutputStream();
 	}
 
 	@Override
 	protected void closeConnection(boolean exception) throws IOException {
-		socket.close();
+		stream.close();
 	}
 }

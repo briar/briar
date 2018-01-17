@@ -1,4 +1,4 @@
-package org.briarproject.bramble.plugin.droidtooth;
+package org.briarproject.bramble.plugin.bluetooth;
 
 import android.content.Context;
 
@@ -21,7 +21,7 @@ import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
 
 @Immutable
 @NotNullByDefault
-public class DroidtoothPluginFactory implements DuplexPluginFactory {
+public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 
 	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
 	private static final int MIN_POLLING_INTERVAL = 60 * 1000; // 1 minute
@@ -35,7 +35,7 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 	private final EventBus eventBus;
 	private final BackoffFactory backoffFactory;
 
-	public DroidtoothPluginFactory(Executor ioExecutor,
+	public AndroidBluetoothPluginFactory(Executor ioExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
 			SecureRandom secureRandom, EventBus eventBus,
 			BackoffFactory backoffFactory) {
@@ -61,7 +61,7 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		DroidtoothPlugin plugin = new DroidtoothPlugin(ioExecutor,
+		AndroidBluetoothPlugin plugin = new AndroidBluetoothPlugin(ioExecutor,
 				androidExecutor, appContext, secureRandom, backoff, callback,
 				MAX_LATENCY);
 		eventBus.addListener(plugin);
