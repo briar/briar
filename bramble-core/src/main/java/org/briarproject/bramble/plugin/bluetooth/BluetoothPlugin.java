@@ -3,6 +3,8 @@ package org.briarproject.bramble.plugin.bluetooth;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -13,7 +15,10 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
+import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.util.StringUtils;
 
 import java.io.IOException;
@@ -41,7 +46,7 @@ import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-abstract class BluetoothPlugin<SS> implements DuplexPlugin {
+abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(BluetoothPlugin.class.getName());
@@ -54,7 +59,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin {
 	private final int maxLatency;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
-	private volatile boolean running = false;
+	private volatile boolean running = false, contactConnections = false;
 	private volatile SS socket = null;
 
 	abstract void initialiseAdapter() throws IOException;
@@ -62,6 +67,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin {
 	abstract boolean isAdapterEnabled();
 
 	abstract void enableAdapter();
+
+	abstract void disableAdapterIfEnabledByUs();
 
 	@Nullable
 	abstract String getBluetoothAddress();
@@ -89,7 +96,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin {
 
 	void onAdapterEnabled() {
 		LOG.info("Bluetooth enabled");
-		bind();
+		if (shouldAllowContactConnections()) bind();
 	}
 
 	void onAdapterDisabled() {
@@ -123,22 +130,25 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin {
 			throw new PluginException(e);
 		}
 		running = true;
-		// If Bluetooth is enabled, bind a socket
-		if (isAdapterEnabled()) {
-			bind();
-		} else {
-			// Enable Bluetooth if settings allow
-			if (callback.getSettings().getBoolean(PREF_BT_ENABLE, false)) {
-				enableAdapter();
-			} else {
-				LOG.info("Not enabling Bluetooth");
-			}
+		loadSettings();
+		if (shouldAllowContactConnections()) {
+			if (isAdapterEnabled()) bind();
+			else enableAdapter();
 		}
+	}
+
+	private void loadSettings() {
+		contactConnections =
+				callback.getSettings().getBoolean(PREF_BT_ENABLE, false);
+	}
+
+	private boolean shouldAllowContactConnections() {
+		return contactConnections;
 	}
 
 	private void bind() {
 		ioExecutor.execute(() -> {
-			if (!isRunning()) return;
+			if (!isRunning() || !shouldAllowContactConnections()) return;
 			String address = getBluetoothAddress();
 			if (LOG.isLoggable(INFO))
 				LOG.info("Local address " + scrubMacAddress(address));
@@ -156,7 +166,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return;
 			}
-			if (!isRunning()) {
+			if (!isRunning() || !shouldAllowContactConnections()) {
 				tryToClose(ss);
 				return;
 			}
@@ -201,11 +211,12 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin {
 		running = false;
 		tryToClose(socket);
 		callback.transportDisabled();
+		disableAdapterIfEnabledByUs();
 	}
 
 	@Override
 	public boolean isRunning() {
-		return running;
+		return running && isAdapterEnabled();
 	}
 
 	@Override
@@ -220,7 +231,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin {
 
 	@Override
 	public void poll(Collection<ContactId> connected) {
-		if (!isRunning()) return;
+		if (!isRunning() || !shouldAllowContactConnections()) return;
 		backoff.increment();
 		// Try to connect to known devices in parallel
 		Map<ContactId, TransportProperties> remote =
@@ -233,7 +244,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin {
 			String uuid = e.getValue().get(PROP_UUID);
 			if (StringUtils.isNullOrEmpty(uuid)) continue;
 			ioExecutor.execute(() -> {
-				if (!isRunning()) return;
+				if (!isRunning() || !shouldAllowContactConnections()) return;
 				DuplexTransportConnection conn = connect(address, uuid);
 				if (conn != null) {
 					backoff.reset();
@@ -276,7 +287,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin {
 
 	@Override
 	public DuplexTransportConnection createConnection(ContactId c) {
-		if (!isRunning()) return null;
+		if (!isRunning() || !shouldAllowContactConnections()) return null;
 		TransportProperties p = callback.getRemoteProperties(c);
 		String address = p.get(PROP_ADDRESS);
 		if (StringUtils.isNullOrEmpty(address)) return null;
@@ -339,6 +350,35 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin {
 		byte[] mac = descriptor.getRaw(1);
 		if (mac.length != 6) throw new FormatException();
 		return StringUtils.macToString(mac);
+	}
+
+	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof EnableBluetoothEvent) {
+			ioExecutor.execute(this::enableAdapter);
+		} else if (e instanceof DisableBluetoothEvent) {
+			ioExecutor.execute(this::disableAdapterIfEnabledByUs);
+		} else if (e instanceof SettingsUpdatedEvent) {
+			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
+			if (s.getNamespace().equals(ID.getString()))
+				ioExecutor.execute(this::onSettingsUpdated);
+		}
+	}
+
+	private void onSettingsUpdated() {
+		boolean wasAllowed = shouldAllowContactConnections();
+		loadSettings();
+		boolean isAllowed = shouldAllowContactConnections();
+		if (wasAllowed && !isAllowed) {
+			LOG.info("Contact connections disabled");
+			tryToClose(socket);
+			callback.transportDisabled();
+			disableAdapterIfEnabledByUs();
+		} else if (!wasAllowed && isAllowed) {
+			LOG.info("Contact connections enabled");
+			if (isAdapterEnabled()) bind();
+			else enableAdapter();
+		}
 	}
 
 	private class BluetoothKeyAgreementListener extends KeyAgreementListener {

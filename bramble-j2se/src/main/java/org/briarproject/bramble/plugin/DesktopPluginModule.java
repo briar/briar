@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin;
 
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -30,9 +31,9 @@ public class DesktopPluginModule extends PluginModule {
 	PluginConfig getPluginConfig(@IoExecutor Executor ioExecutor,
 			SecureRandom random, BackoffFactory backoffFactory,
 			ReliabilityLayerFactory reliabilityFactory,
-			ShutdownManager shutdownManager) {
+			ShutdownManager shutdownManager, EventBus eventBus) {
 		DuplexPluginFactory bluetooth =
-				new JavaBluetoothPluginFactory(ioExecutor, random,
+				new JavaBluetoothPluginFactory(ioExecutor, random, eventBus,
 						backoffFactory);
 		DuplexPluginFactory modem = new ModemPluginFactory(ioExecutor,
 				reliabilityFactory);

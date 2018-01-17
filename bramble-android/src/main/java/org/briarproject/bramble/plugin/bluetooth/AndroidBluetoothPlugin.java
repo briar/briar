@@ -9,15 +9,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
-import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
-import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.util.AndroidUtils;
 
@@ -44,8 +41,7 @@ import static java.util.logging.Level.WARNING;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket>
-		implements EventListener {
+class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 
 	private static final Logger LOG =
 			Logger.getLogger(AndroidBluetoothPlugin.class.getName());
@@ -68,19 +64,8 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket>
 	}
 
 	@Override
-	void initialiseAdapter() throws IOException {
-		// BluetoothAdapter.getDefaultAdapter() must be called on a thread
-		// with a message queue, so submit it to the AndroidExecutor
-		try {
-			adapter = androidExecutor.runOnBackgroundThread(
-					BluetoothAdapter::getDefaultAdapter).get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new IOException(e);
-		}
-		if (adapter == null) {
-			LOG.info("Bluetooth is not supported");
-			throw new IOException();
-		}
+	public void start() throws PluginException {
+		super.start();
 		// Listen for changes to the Bluetooth state
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_STATE_CHANGED);
@@ -90,8 +75,28 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket>
 	}
 
 	@Override
+	public void stop() {
+		super.stop();
+		if (receiver != null) appContext.unregisterReceiver(receiver);
+	}
+
+	@Override
+	void initialiseAdapter() throws IOException {
+		// BluetoothAdapter.getDefaultAdapter() must be called on a thread
+		// with a message queue, so submit it to the AndroidExecutor
+		try {
+			adapter = androidExecutor.runOnBackgroundThread(
+					BluetoothAdapter::getDefaultAdapter).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new IOException(e);
+		}
+		if (adapter == null)
+			throw new IOException("Bluetooth is not supported");
+	}
+
+	@Override
 	boolean isAdapterEnabled() {
-		return adapter.isEnabled();
+		return adapter != null && adapter.isEnabled();
 	}
 
 	@Override
@@ -107,22 +112,12 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket>
 	}
 
 	@Override
-	public void stop() {
-		super.stop();
-		if (receiver != null) appContext.unregisterReceiver(receiver);
-		disableAdapter();
-	}
-
-	private void disableAdapter() {
-		if (adapter != null && adapter.isEnabled() && wasEnabledByUs) {
+	void disableAdapterIfEnabledByUs() {
+		if (isAdapterEnabled() && wasEnabledByUs) {
 			if (adapter.disable()) LOG.info("Disabling Bluetooth");
 			else LOG.info("Could not disable Bluetooth");
+			wasEnabledByUs = false;
 		}
-	}
-
-	@Override
-	public boolean isRunning() {
-		return super.isRunning() && adapter != null && adapter.isEnabled();
 	}
 
 	@Override
@@ -184,23 +179,6 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket>
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
-	}
-
-	@Override
-	public void eventOccurred(Event e) {
-		if (e instanceof EnableBluetoothEvent) {
-			enableAdapterAsync();
-		} else if (e instanceof DisableBluetoothEvent) {
-			disableAdapterAsync();
-		}
-	}
-
-	private void enableAdapterAsync() {
-		ioExecutor.execute(this::enableAdapter);
-	}
-
-	private void disableAdapterAsync() {
-		ioExecutor.execute(this::disableAdapter);
 	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
