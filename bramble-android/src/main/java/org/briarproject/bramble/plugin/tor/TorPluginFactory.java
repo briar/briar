@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.util.AndroidUtils;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
@@ -36,6 +37,7 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	private static final double BACKOFF_BASE = 1.2;
 
 	private final Executor ioExecutor;
+	private final ScheduledExecutorService scheduler;
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 	private final DevReporter reporter;
@@ -43,11 +45,13 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	private final SocketFactory torSocketFactory;
 	private final BackoffFactory backoffFactory;
 
-	public TorPluginFactory(Executor ioExecutor, Context appContext,
+	public TorPluginFactory(Executor ioExecutor,
+			ScheduledExecutorService scheduler, Context appContext,
 			LocationUtils locationUtils, DevReporter reporter,
 			EventBus eventBus, SocketFactory torSocketFactory,
 			BackoffFactory backoffFactory) {
 		this.ioExecutor = ioExecutor;
+		this.scheduler = scheduler;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 		this.reporter = reporter;
@@ -89,9 +93,9 @@ public class TorPluginFactory implements DuplexPluginFactory {
 
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		TorPlugin plugin = new TorPlugin(ioExecutor, appContext, locationUtils,
-				reporter, torSocketFactory, backoff, callback, architecture,
-				MAX_LATENCY, MAX_IDLE_TIME);
+		TorPlugin plugin = new TorPlugin(ioExecutor, scheduler, appContext,
+				locationUtils, reporter, torSocketFactory, backoff, callback,
+				architecture, MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;
 	}
