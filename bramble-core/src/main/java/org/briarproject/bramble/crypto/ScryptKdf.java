@@ -16,7 +16,7 @@ class ScryptKdf implements PasswordBasedKdf {
 	private static final Logger LOG =
 			Logger.getLogger(ScryptKdf.class.getName());
 
-	private static final int MIN_COST = 512; // Min parameter N
+	private static final int MIN_COST = 256; // Min parameter N
 	private static final int MAX_COST = 1024 * 1024; // Max parameter N
 	private static final int BLOCK_SIZE = 8; // Parameter r
 	private static final int PARALLELIZATION = 1; // Parameter p
