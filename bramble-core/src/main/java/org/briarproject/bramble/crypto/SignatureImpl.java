@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.spongycastle.crypto.Digest;
+import org.spongycastle.crypto.digests.Blake2bDigest;
 import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.crypto.params.ParametersWithRandom;
@@ -32,7 +33,7 @@ class SignatureImpl implements Signature {
 
 	SignatureImpl(SecureRandom secureRandom) {
 		this.secureRandom = secureRandom;
-		Digest digest = new Blake2sDigest();
+		Digest digest = new Blake2bDigest(256);
 		DSAKCalculator calculator = new HMacDSAKCalculator(digest);
 		signer = new DSADigestSigner(new ECDSASigner(calculator), digest);
 	}
