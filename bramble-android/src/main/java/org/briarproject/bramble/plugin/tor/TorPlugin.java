@@ -11,8 +11,6 @@ import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.FileObserver;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.PowerManager;
 
 import net.freehaven.tor.control.EventHandler;
@@ -61,7 +59,10 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -82,6 +83,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
 import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
@@ -110,6 +112,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			Logger.getLogger(TorPlugin.class.getName());
 
 	private final Executor ioExecutor;
+	private final ScheduledExecutorService scheduler;
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 	private final DevReporter reporter;
@@ -123,7 +126,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final File doneFile, cookieFile;
 	private final PowerManager.WakeLock wakeLock;
 	private final Lock connectionStatusLock;
-	private final Handler handler;
+	private final AtomicReference<Future<?>> connectivityCheck =
+			new AtomicReference<>();
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	private volatile boolean running = false;
@@ -132,12 +136,13 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private volatile TorControlConnection controlConnection = null;
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
-	TorPlugin(Executor ioExecutor, Context appContext,
-			LocationUtils locationUtils, DevReporter reporter,
-			SocketFactory torSocketFactory, Backoff backoff,
-			DuplexPluginCallback callback, String architecture, int maxLatency,
-			int maxIdleTime) {
+	TorPlugin(Executor ioExecutor, ScheduledExecutorService scheduler,
+			Context appContext, LocationUtils locationUtils,
+			DevReporter reporter, SocketFactory torSocketFactory,
+			Backoff backoff, DuplexPluginCallback callback,
+			String architecture, int maxLatency, int maxIdleTime) {
 		this.ioExecutor = ioExecutor;
+		this.scheduler = scheduler;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 		this.reporter = reporter;
@@ -163,7 +168,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		wakeLock = pm.newWakeLock(PARTIAL_WAKE_LOCK, "LocationManagerService");
 		wakeLock.setReferenceCounted(false);
 		connectionStatusLock = new ReentrantLock();
-		handler = new Handler(Looper.getMainLooper());
 	}
 
 	@Override
@@ -216,11 +220,11 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (LOG.isLoggable(INFO)) {
 			Scanner stdout = new Scanner(torProcess.getInputStream());
 			Scanner stderr = new Scanner(torProcess.getErrorStream());
-			while (stdout.hasNextLine() || stderr.hasNextLine()){
-				if(stdout.hasNextLine()) {
+			while (stdout.hasNextLine() || stderr.hasNextLine()) {
+				if (stdout.hasNextLine()) {
 					LOG.info(stdout.nextLine());
 				}
-				if(stderr.hasNextLine()){
+				if (stderr.hasNextLine()) {
 					LOG.info(stderr.nextLine());
 				}
 			}
@@ -743,6 +747,14 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
+	private void scheduleConnectionStatusUpdate() {
+		Future<?> newConnectivityCheck =
+				scheduler.schedule(this::updateConnectionStatus, 1, MINUTES);
+		Future<?> oldConnectivityCheck =
+				connectivityCheck.getAndSet(newConnectivityCheck);
+		if (oldConnectivityCheck != null) oldConnectivityCheck.cancel(false);
+	}
+
 	private class NetworkStateReceiver extends BroadcastReceiver {
 
 		@Override
@@ -750,16 +762,10 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (!running) return;
 			String action = i.getAction();
 			if (LOG.isLoggable(INFO)) LOG.info("Received broadcast " + action);
-			if (CONNECTIVITY_ACTION.equals(action)) {
-				updateConnectionStatus();
-			} else if (ACTION_SCREEN_ON.equals(action)
+			updateConnectionStatus();
+			if (ACTION_SCREEN_ON.equals(action)
 					|| ACTION_SCREEN_OFF.equals(action)) {
-				// Update connection status after 1 minute
-				handler.postDelayed(TorPlugin.this::updateConnectionStatus,
-						60 * 1000);
-			} else if (SDK_INT >= 23
-					&& ACTION_DEVICE_IDLE_MODE_CHANGED.equals(action)) {
-				updateConnectionStatus();
+				scheduleConnectionStatusUpdate();
 			}
 		}
 	}
