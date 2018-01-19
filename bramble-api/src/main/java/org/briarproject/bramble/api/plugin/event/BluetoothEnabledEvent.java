@@ -3,7 +3,7 @@ package org.briarproject.bramble.api.plugin.event;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
-import jdk.nashorn.internal.ir.annotations.Immutable;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * An event that informs the Bluetooth plugin that we have enabled the
