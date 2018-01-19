@@ -31,6 +31,7 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
@@ -48,6 +49,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int ED_KEY_PAIR_BITS = 256;
 	private static final int STORAGE_IV_BYTES = 24; // 196 bits
 	private static final int PBKDF_SALT_BYTES = 32; // 256 bits
+	private static final int PBKDF_FORMAT_SCRYPT = 0;
 
 	private final SecureRandom secureRandom;
 	private final PasswordBasedKdf passwordBasedKdf;
@@ -341,17 +343,27 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Generate a random IV
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		secureRandom.nextBytes(iv);
-		// The output contains the salt, cost parameter, IV, ciphertext and MAC
-		int outputLen = salt.length + INT_32_BYTES + iv.length + input.length
-				+ macBytes;
+		// The output contains the format version, salt, cost parameter, IV,
+		// ciphertext and MAC
+		int outputLen = 1 + salt.length + INT_32_BYTES + iv.length
+				+ input.length + macBytes;
 		byte[] output = new byte[outputLen];
-		System.arraycopy(salt, 0, output, 0, salt.length);
-		ByteUtils.writeUint32(cost, output, salt.length);
-		System.arraycopy(iv, 0, output, salt.length + INT_32_BYTES, iv.length);
+		int outputOff = 0;
+		// Format version
+		output[outputOff] = PBKDF_FORMAT_SCRYPT;
+		outputOff++;
+		// Salt
+		System.arraycopy(salt, 0, output, outputOff, salt.length);
+		outputOff += salt.length;
+		// Cost parameter
+		ByteUtils.writeUint32(cost, output, outputOff);
+		outputOff += INT_32_BYTES;
+		// IV
+		System.arraycopy(iv, 0, output, outputOff, iv.length);
+		outputOff += iv.length;
 		// Initialise the cipher and encrypt the plaintext
 		try {
 			cipher.init(true, key, iv);
-			int outputOff = salt.length + INT_32_BYTES + iv.length;
 			cipher.process(input, 0, input.length, output, outputOff);
 			return output;
 		} catch (GeneralSecurityException e) {
@@ -360,20 +372,34 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
+	@Nullable
 	public byte[] decryptWithPassword(byte[] input, String password) {
 		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		int macBytes = cipher.getMacBytes();
-		// The input contains the salt, cost parameter, IV, ciphertext and MAC
-		if (input.length < PBKDF_SALT_BYTES + INT_32_BYTES + STORAGE_IV_BYTES
-				+ macBytes)
+		// The input contains the format version, salt, cost parameter, IV,
+		// ciphertext and MAC
+		if (input.length < 1 + PBKDF_SALT_BYTES + INT_32_BYTES
+				+ STORAGE_IV_BYTES + macBytes)
 			return null; // Invalid input
+		int inputOff = 0;
+		// Format version
+		byte formatVersion = input[inputOff];
+		inputOff++;
+		if (formatVersion != PBKDF_FORMAT_SCRYPT)
+			return null; // Unknown format
+		// Salt
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
-		System.arraycopy(input, 0, salt, 0, salt.length);
-		long cost = ByteUtils.readUint32(input, salt.length);
+		System.arraycopy(input, inputOff, salt, 0, salt.length);
+		inputOff += salt.length;
+		// Cost parameter
+		long cost = ByteUtils.readUint32(input, inputOff);
+		inputOff += INT_32_BYTES;
 		if (cost < 2 || cost > Integer.MAX_VALUE)
 			return null; // Invalid cost parameter
+		// IV
 		byte[] iv = new byte[STORAGE_IV_BYTES];
-		System.arraycopy(input, salt.length + INT_32_BYTES, iv, 0, iv.length);
+		System.arraycopy(input, inputOff, iv, 0, iv.length);
+		inputOff += iv.length;
 		// Derive the key from the password
 		SecretKey key = passwordBasedKdf.deriveKey(password, salt, (int) cost);
 		// Initialise the cipher
@@ -384,7 +410,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 		// Try to decrypt the ciphertext (may be invalid)
 		try {
-			int inputOff = salt.length + INT_32_BYTES + iv.length;
 			int inputLen = input.length - inputOff;
 			byte[] output = new byte[inputLen - macBytes];
 			cipher.process(input, inputOff, inputLen, output, 0);
