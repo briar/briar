@@ -7,6 +7,7 @@ import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.android.util.UiUtils;
 
 import javax.annotation.Nullable;
 
@@ -20,18 +21,18 @@ public class TapSafeFrameLayout extends FrameLayout {
 
 	public TapSafeFrameLayout(Context context) {
 		super(context);
-		setFilterTouchesWhenObscured(false);
+		UiUtils.setFilterTouchesWhenObscured(this, false);
 	}
 
 	public TapSafeFrameLayout(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
-		setFilterTouchesWhenObscured(false);
+		UiUtils.setFilterTouchesWhenObscured(this, false);
 	}
 
 	public TapSafeFrameLayout(Context context, @Nullable AttributeSet attrs,
 			@AttrRes int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		setFilterTouchesWhenObscured(false);
+		UiUtils.setFilterTouchesWhenObscured(this, false);
 	}
 
 	public void setOnTapFilteredListener(OnTapFilteredListener listener) {
