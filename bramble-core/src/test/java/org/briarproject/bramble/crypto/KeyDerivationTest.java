@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 public class KeyDerivationTest extends BrambleTestCase {
 
 	private final CryptoComponent crypto =
-			new CryptoComponentImpl(new TestSecureRandomProvider());
+			new CryptoComponentImpl(new TestSecureRandomProvider(), null);
 	private final TransportCrypto transportCrypto =
 			new TransportCryptoImpl(crypto);
 	private final TransportId transportId = new TransportId("id");

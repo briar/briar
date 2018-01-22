@@ -20,7 +20,7 @@ import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.bramble.test.TestPluginConfigModule;
-import org.briarproject.bramble.test.TestSeedProviderModule;
+import org.briarproject.bramble.test.TestSecureRandomModule;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -34,7 +34,7 @@ import dagger.Component;
 @Component(modules = {
 		TestDatabaseModule.class,
 		TestPluginConfigModule.class,
-		TestSeedProviderModule.class,
+		TestSecureRandomModule.class,
 		BriarClientModule.class,
 		ClientModule.class,
 		ContactModule.class,

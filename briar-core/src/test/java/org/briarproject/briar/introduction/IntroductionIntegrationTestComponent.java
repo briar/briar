@@ -13,7 +13,7 @@ import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.bramble.test.TestPluginConfigModule;
-import org.briarproject.bramble.test.TestSeedProviderModule;
+import org.briarproject.bramble.test.TestSecureRandomModule;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
@@ -32,7 +32,7 @@ import dagger.Component;
 @Component(modules = {
 		TestDatabaseModule.class,
 		TestPluginConfigModule.class,
-		TestSeedProviderModule.class,
+		TestSecureRandomModule.class,
 		BlogModule.class,
 		BriarClientModule.class,
 		ClientModule.class,

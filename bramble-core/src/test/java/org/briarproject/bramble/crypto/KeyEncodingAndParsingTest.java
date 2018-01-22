@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 public class KeyEncodingAndParsingTest extends BrambleTestCase {
 
 	private final CryptoComponentImpl crypto =
-			new CryptoComponentImpl(new TestSecureRandomProvider());
+			new CryptoComponentImpl(new TestSecureRandomProvider(), null);
 
 	@Test
 	public void testAgreementPublicKeyLength() throws Exception {

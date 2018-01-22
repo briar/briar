@@ -1,11 +1,13 @@
 package org.briarproject.briar.android.login;
 
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
@@ -13,6 +15,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.util.UiUtils;
 
+import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
@@ -107,6 +110,9 @@ public class PasswordFragment extends SetupFragment {
 			progressBar.setVisibility(VISIBLE);
 		}
 		String password = passwordEntry.getText().toString();
+		IBinder token = passwordEntry.getWindowToken();
+		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
+		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
 		setupController.setPassword(password);
 		setupController.showDozeOrCreateAccount();
 	}

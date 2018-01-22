@@ -32,7 +32,7 @@ public abstract class SignatureTest extends BrambleTestCase {
 			byte[] publicKey, byte[] signature) throws GeneralSecurityException;
 
 	SignatureTest() {
-		crypto = new CryptoComponentImpl(new TestSecureRandomProvider());
+		crypto = new CryptoComponentImpl(new TestSecureRandomProvider(), null);
 		KeyPair k = generateKeyPair();
 		publicKey = k.getPublic().getEncoded();
 		privateKey = k.getPrivate().getEncoded();
