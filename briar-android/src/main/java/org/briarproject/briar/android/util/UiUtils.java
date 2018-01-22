@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.PowerManager;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
@@ -162,7 +161,7 @@ public class UiUtils {
 	}
 
 	public static boolean needsDozeWhitelisting(Context ctx) {
-		if (Build.VERSION.SDK_INT < 23) return false;
+		if (SDK_INT < 23) return false;
 		PowerManager pm = (PowerManager) ctx.getSystemService(POWER_SERVICE);
 		String packageName = ctx.getPackageName();
 		if (pm == null) throw new AssertionError();
@@ -182,4 +181,11 @@ public class UiUtils {
 		return SDK_INT == 24 && MANUFACTURER.equalsIgnoreCase("Samsung");
 	}
 
+	public static void setFilterTouchesWhenObscured(View v, boolean filter) {
+		v.setFilterTouchesWhenObscured(filter);
+		// Workaround for Android bug #13530806, see
+		// https://android.googlesource.com/platform/frameworks/base/+/aba566589e0011c4b973c0d4f77be4e9ee176089%5E%21/core/java/android/view/View.java
+		if (v.getFilterTouchesWhenObscured() != filter)
+			v.setFilterTouchesWhenObscured(!filter);
+	}
 }

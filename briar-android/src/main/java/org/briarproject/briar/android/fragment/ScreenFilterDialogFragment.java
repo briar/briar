@@ -30,6 +30,8 @@ import javax.inject.Inject;
 @ParametersNotNullByDefault
 public class ScreenFilterDialogFragment extends DialogFragment {
 
+	public static final String TAG = ScreenFilterDialogFragment.class.getName();
+
 	@Inject
 	ScreenFilterMonitor screenFilterMonitor;
 
