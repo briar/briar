@@ -59,7 +59,12 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
@@ -70,10 +75,15 @@ import javax.net.SocketFactory;
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.POWER_SERVICE;
+import static android.content.Intent.ACTION_SCREEN_OFF;
+import static android.content.Intent.ACTION_SCREEN_ON;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.TYPE_WIFI;
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
 import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
@@ -102,6 +112,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			Logger.getLogger(TorPlugin.class.getName());
 
 	private final Executor ioExecutor;
+	private final ScheduledExecutorService scheduler;
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 	private final DevReporter reporter;
@@ -114,6 +125,9 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final File torDirectory, torFile, geoIpFile, configFile;
 	private final File doneFile, cookieFile;
 	private final PowerManager.WakeLock wakeLock;
+	private final Lock connectionStatusLock;
+	private final AtomicReference<Future<?>> connectivityCheck =
+			new AtomicReference<>();
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	private volatile boolean running = false;
@@ -122,12 +136,13 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private volatile TorControlConnection controlConnection = null;
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
-	TorPlugin(Executor ioExecutor, Context appContext,
-			LocationUtils locationUtils, DevReporter reporter,
-			SocketFactory torSocketFactory, Backoff backoff,
-			DuplexPluginCallback callback, String architecture, int maxLatency,
-			int maxIdleTime) {
+	TorPlugin(Executor ioExecutor, ScheduledExecutorService scheduler,
+			Context appContext, LocationUtils locationUtils,
+			DevReporter reporter, SocketFactory torSocketFactory,
+			Backoff backoff, DuplexPluginCallback callback,
+			String architecture, int maxLatency, int maxIdleTime) {
 		this.ioExecutor = ioExecutor;
+		this.scheduler = scheduler;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 		this.reporter = reporter;
@@ -152,6 +167,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		// This tag will prevent Huawei's powermanager from killing us.
 		wakeLock = pm.newWakeLock(PARTIAL_WAKE_LOCK, "LocationManagerService");
 		wakeLock.setReferenceCounted(false);
+		connectionStatusLock = new ReentrantLock();
 	}
 
 	@Override
@@ -204,11 +220,11 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (LOG.isLoggable(INFO)) {
 			Scanner stdout = new Scanner(torProcess.getInputStream());
 			Scanner stderr = new Scanner(torProcess.getErrorStream());
-			while (stdout.hasNextLine() || stderr.hasNextLine()){
-				if(stdout.hasNextLine()) {
+			while (stdout.hasNextLine() || stderr.hasNextLine()) {
+				if (stdout.hasNextLine()) {
 					LOG.info(stdout.nextLine());
 				}
-				if(stderr.hasNextLine()){
+				if (stderr.hasNextLine()) {
 					LOG.info(stderr.nextLine());
 				}
 			}
@@ -257,7 +273,11 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 		// Register to receive network status events
 		networkStateReceiver = new NetworkStateReceiver();
-		IntentFilter filter = new IntentFilter(CONNECTIVITY_ACTION);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(CONNECTIVITY_ACTION);
+		filter.addAction(ACTION_SCREEN_ON);
+		filter.addAction(ACTION_SCREEN_OFF);
+		if (SDK_INT >= 23) filter.addAction(ACTION_DEVICE_IDLE_MODE_CHANGED);
 		appContext.registerReceiver(networkStateReceiver, filter);
 		// Bind a server socket to receive incoming hidden service connections
 		bind();
@@ -618,6 +638,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void orConnStatus(String status, String orName) {
 		if (LOG.isLoggable(INFO)) LOG.info("OR connection " + status);
+		if (status.equals("CLOSED") || status.equals("FAILED"))
+			updateConnectionStatus(); // Check whether we've lost connectivity
 	}
 
 	@Override
@@ -657,7 +679,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 
 		@Override
-		public void onEvent(int event, String path) {
+		public void onEvent(int event, @Nullable String path) {
 			stopWatching();
 			latch.countDown();
 		}
@@ -677,43 +699,60 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private void updateConnectionStatus() {
 		ioExecutor.execute(() -> {
 			if (!running) return;
-
-			Object o = appContext.getSystemService(CONNECTIVITY_SERVICE);
-			ConnectivityManager cm = (ConnectivityManager) o;
-			NetworkInfo net = cm.getActiveNetworkInfo();
-			boolean online = net != null && net.isConnected();
-			boolean wifi = online && net.getType() == TYPE_WIFI;
-			String country = locationUtils.getCurrentCountry();
-			boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
-					country);
-			Settings s = callback.getSettings();
-			int network = s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_ALWAYS);
-
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("Online: " + online + ", wifi: " + wifi);
-				if ("".equals(country)) LOG.info("Country code unknown");
-				else LOG.info("Country code: " + country);
-			}
-
 			try {
-				if (!online) {
-					LOG.info("Disabling network, device is offline");
-					enableNetwork(false);
-				} else if (blocked) {
-					LOG.info("Disabling network, country is blocked");
-					enableNetwork(false);
-				} else if (network == PREF_TOR_NETWORK_NEVER
-						|| (network == PREF_TOR_NETWORK_WIFI && !wifi)) {
-					LOG.info("Disabling network due to data setting");
-					enableNetwork(false);
-				} else {
-					LOG.info("Enabling network");
-					enableNetwork(true);
-				}
-			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				connectionStatusLock.lock();
+				updateConnectionStatusLocked();
+			} finally {
+				connectionStatusLock.unlock();
 			}
 		});
+	}
+
+	// Locking: connectionStatusLock
+	private void updateConnectionStatusLocked() {
+		Object o = appContext.getSystemService(CONNECTIVITY_SERVICE);
+		ConnectivityManager cm = (ConnectivityManager) o;
+		NetworkInfo net = cm.getActiveNetworkInfo();
+		boolean online = net != null && net.isConnected();
+		boolean wifi = online && net.getType() == TYPE_WIFI;
+		String country = locationUtils.getCurrentCountry();
+		boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
+				country);
+		Settings s = callback.getSettings();
+		int network = s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_ALWAYS);
+
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Online: " + online + ", wifi: " + wifi);
+			if ("".equals(country)) LOG.info("Country code unknown");
+			else LOG.info("Country code: " + country);
+		}
+
+		try {
+			if (!online) {
+				LOG.info("Disabling network, device is offline");
+				enableNetwork(false);
+			} else if (blocked) {
+				LOG.info("Disabling network, country is blocked");
+				enableNetwork(false);
+			} else if (network == PREF_TOR_NETWORK_NEVER
+					|| (network == PREF_TOR_NETWORK_WIFI && !wifi)) {
+				LOG.info("Disabling network due to data setting");
+				enableNetwork(false);
+			} else {
+				LOG.info("Enabling network");
+				enableNetwork(true);
+			}
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
+	}
+
+	private void scheduleConnectionStatusUpdate() {
+		Future<?> newConnectivityCheck =
+				scheduler.schedule(this::updateConnectionStatus, 1, MINUTES);
+		Future<?> oldConnectivityCheck =
+				connectivityCheck.getAndSet(newConnectivityCheck);
+		if (oldConnectivityCheck != null) oldConnectivityCheck.cancel(false);
 	}
 
 	private class NetworkStateReceiver extends BroadcastReceiver {
@@ -721,9 +760,12 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		@Override
 		public void onReceive(Context ctx, Intent i) {
 			if (!running) return;
-			if (CONNECTIVITY_ACTION.equals(i.getAction())) {
-				LOG.info("Detected connectivity change");
-				updateConnectionStatus();
+			String action = i.getAction();
+			if (LOG.isLoggable(INFO)) LOG.info("Received broadcast " + action);
+			updateConnectionStatus();
+			if (ACTION_SCREEN_ON.equals(action)
+					|| ACTION_SCREEN_OFF.equals(action)) {
+				scheduleConnectionStatusUpdate();
 			}
 		}
 	}

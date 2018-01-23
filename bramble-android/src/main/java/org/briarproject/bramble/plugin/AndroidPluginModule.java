@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevReporter;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.api.system.Scheduler;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.TorPluginFactory;
@@ -22,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.net.SocketFactory;
 
@@ -33,6 +35,7 @@ public class AndroidPluginModule {
 
 	@Provides
 	PluginConfig providePluginConfig(@IoExecutor Executor ioExecutor,
+			@Scheduler ScheduledExecutorService scheduler,
 			AndroidExecutor androidExecutor, SecureRandom random,
 			SocketFactory torSocketFactory, BackoffFactory backoffFactory,
 			Application app, LocationUtils locationUtils, DevReporter reporter,
@@ -41,9 +44,9 @@ public class AndroidPluginModule {
 		DuplexPluginFactory bluetooth =
 				new AndroidBluetoothPluginFactory(ioExecutor, androidExecutor,
 						appContext, random, eventBus, backoffFactory);
-		DuplexPluginFactory tor = new TorPluginFactory(ioExecutor, appContext,
-				locationUtils, reporter, eventBus, torSocketFactory,
-				backoffFactory);
+		DuplexPluginFactory tor = new TorPluginFactory(ioExecutor, scheduler,
+				appContext, locationUtils, reporter, eventBus,
+				torSocketFactory, backoffFactory);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
 				backoffFactory, appContext);
 		Collection<DuplexPluginFactory> duplex =
