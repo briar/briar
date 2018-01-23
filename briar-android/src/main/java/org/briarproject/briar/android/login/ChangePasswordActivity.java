@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.activity.BaseActivity;
+import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.util.UiUtils;
 
@@ -27,7 +27,7 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 
-public class ChangePasswordActivity extends BaseActivity
+public class ChangePasswordActivity extends BriarActivity
 		implements OnClickListener, OnEditorActionListener {
 
 	@Inject
