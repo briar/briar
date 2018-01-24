@@ -1,6 +1,7 @@
 package org.briarproject.bramble.keyagreement;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.BdfReader;
 import org.briarproject.bramble.api.data.BdfReaderFactory;
@@ -46,7 +47,9 @@ class PayloadParserImpl implements PayloadParser {
 		if (!r.eof()) throw new FormatException();
 		// First element: the protocol version
 		long protocolVersion = payload.getLong(0);
-		if (protocolVersion != PROTOCOL_VERSION) throw new FormatException();
+		if (protocolVersion != PROTOCOL_VERSION) {
+			throw new UnsupportedVersionException();
+		}
 		// Second element: the public key commitment
 		byte[] commitment = payload.getRaw(1);
 		if (commitment.length != COMMIT_LENGTH) throw new FormatException();

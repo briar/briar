@@ -102,6 +102,7 @@
 	<string name="show_onboarding">Show Help Dialog</string>
 	<string name="fix">Fix</string>
 	<string name="help">Help</string>
+	<string name="sorry">Sorry</string>
 
 	<!-- Contacts and Private Conversations-->
 	<string name="no_contacts">It seems that you are new here and have no contacts yet.\n\nTap the + icon at the top and follow the instructions to add some friends to your list.\n\nPlease remember: You can only add new contacts face-to-face to prevent anyone from impersonating you or reading your messages in the future.</string>
@@ -125,6 +126,7 @@
 	<string name="contact_already_exists">Contact %s already exists</string>
 	<string name="contact_exchange_failed">Contact exchange failed</string>
 	<string name="qr_code_invalid">The QR code is invalid</string>
+	<string name="qr_code_unsupported">The QR code you are trying to scan belongs to an old version of %s which is no longer supported.\n\nPlease ensure that both of you are running the latest version and then try again.</string>
 	<string name="camera_error">Camera error</string>
 	<string name="connecting_to_device">Connecting to device\u2026</string>
 	<string name="authenticating_with_device">Authenticating with device\u2026</string>
