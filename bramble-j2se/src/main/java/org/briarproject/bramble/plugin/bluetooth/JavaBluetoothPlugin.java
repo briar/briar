@@ -61,6 +61,11 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 		// We didn't enable it so we don't need to disable it
 	}
 
+	@Override
+	void setEnabledByUs() {
+		// Irrelevant on this platform
+	}
+
 	@Nullable
 	@Override
 	String getBluetoothAddress() {
