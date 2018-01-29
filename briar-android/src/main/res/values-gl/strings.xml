@@ -1,8 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Configuración de Briar</string>
-  <string name="setup_explanation">Briar almacena a súa configuración encriptada no dispositivo, non na nube. Se desinstala Briar ou esquece a súa clave, non hai forma de recuperar a súa conta e datos.</string>
+  <string name="setup_next">Seguinte</string>
   <string name="choose_nickname">Escolle o teu alcume</string>
   <string name="choose_password">Escolle a túa clave</string>
   <string name="confirm_password">Confirma a túa clave</string>
@@ -20,7 +19,6 @@
   <string name="startup_failed_notification_title">Briar non puido iniciarse</string>
   <string name="startup_failed_notification_text">Pode que precises instalar Briar de novo</string>
   <string name="startup_failed_activity_title">Fallo de Inicio de Briar</string>
-  <string name="startup_failed_db_error">A súa base de datos de Briar está corrompida ate o punto que é irreparábel. Perdeuse a súa conta, os seus datos e todos os contactos conectados. Por desgraza debes instalar de novo Briar e configurar unha nova conta.</string>
   <string name="startup_failed_service_error"> Briar non puido iniciar un complemento necesario. Xeralmente reinstalar Briar resolve este problema. Teña en conta que entón perderá a súa conta e todos os datos asociados a esta pois Briar non está a utilizar servidores centrais para almacenar os seus datos.</string>
   <string name="expiry_date_reached">Este software caducou.\nGrazas por probalo!</string>
   <!--Navigation Drawer-->
@@ -59,6 +57,7 @@
   <string name="ellipsis">...</string>
   <string name="text_too_long">O texto inserido e demasiado longo</string>
   <string name="show_onboarding">Amosar xanela de axuda</string>
+  <string name="help">Axuda</string>
   <!--Contacts and Private Conversations-->
   <string name="date_no_private_messages">Sen mensaxes</string>
   <string name="message_hint">Esciba unha mensaxe</string>
@@ -67,15 +66,9 @@
   <string name="contact_deleted_toast">Contacto eliminado</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Engada un contacto</string>
-  <string name="your_nickname">Escolla a identidade que quere usar:</string>
   <string name="continue_button">Continuar</string>
-  <string name="your_invitation_code">O seu código de convite é</string>
-  <string name="enter_invitation_code">Por favor, insira o código de convite do seu contacto</string>
   <string name="connection_failed">Fallou a conexión</string>
   <string name="try_again_button">Tenteo de novo</string>
-  <string name="connected_to_contact">Conectado ao contacto</string>
-  <string name="your_confirmation_code">O seu código de confirmación é</string>
-  <string name="codes_do_not_match">Os códigos non coinciden</string>
   <string name="qr_code_invalid">O código QR non é válido</string>
   <!--Introductions-->
   <string name="introduction_activity_title">Escoller contacto</string>
@@ -117,10 +110,12 @@
   <string name="blogs_publish_blog_post">Publicar</string>
   <!--Blog Sharing-->
   <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import_button">Importar</string>
   <string name="blogs_rss_feeds_manage_author">Autor/a:</string>
   <string name="blogs_rss_feeds_manage_updated">Última actualización:</string>
   <!--Settings Network-->
   <!--Settings Security and Panic-->
+  <string name="change_password">Cambiar contrasinal</string>
   <string name="panic_app_setting_none">Ningún</string>
   <string name="lock_setting_title">Finalizar sesión</string>
   <!--Settings Notifications-->
@@ -131,4 +126,5 @@
   <string name="close">Pechar</string>
   <!--Sign Out-->
   <!--Screen Filters & Tapjacking-->
+  <!--Permission Requests-->
 </resources>

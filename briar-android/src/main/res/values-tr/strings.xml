@@ -1,8 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Briar Kurulum</string>
-  <string name="setup_explanation">Briar hesabınız bulutta değil, cihazınızda şifreli olarak saklanır. Briar\'ı kaldırırsanız veya şifrenizi unutursanız, hesabınızı ve verilerinizi kurtarmanın bir yolu yoktur.</string>
+  <string name="setup_next">Sonraki</string>
   <string name="choose_nickname">Kullanıcı adınızı belirleyin</string>
   <string name="choose_password">Parolanızı belirleyin</string>
   <string name="confirm_password">Parolanızı doğrulayın</string>
@@ -20,7 +19,6 @@
   <string name="startup_failed_notification_title">Briar başlayamadı</string>
   <string name="startup_failed_notification_text">Briar\'ı tekrar kurmanız gerekli.</string>
   <string name="startup_failed_activity_title">Briar Başlangıç Hatası</string>
-  <string name="startup_failed_db_error">Bazı nedenlerden dolayı, Briar veritabanınız onarılamayacak kadar bozuk. Hesabınız, verileriniz ve tüm iletişim bağlantılarınız kayboldu. Ne yazık ki, Briar\'ı yeniden yükleyip yeni bir hesap oluşturmanız gerekiyor.</string>
   <string name="startup_failed_service_error">Briar gerekli bir eklentiyi başlatamadı. Briar\'ı yeniden yüklemek genellikle bu sorunu çözer. Bununla birlikte, lütfen Briar\'ın verilerinizi depolamak için merkezi sunucuları kullanmadığından hesabınızı ve onunla ilişkili tüm verileri kaybedeceğinizi unutmayın.</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Gezinme çekmecesini aç</string>
@@ -74,6 +72,7 @@
   <string name="ellipsis">…</string>
   <string name="text_too_long">Girilen metin çok uzun</string>
   <string name="show_onboarding">Yardım Penceresini Göster</string>
+  <string name="help">Yardım</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Görünüşe göre burada yeni başladınız ve henüz bir iletişim kurmadınız.\n\n en üstte bulunan + simgesine dokunun ve talimatları izleyerek listenize bazı arkadaşlar ekleyin.\n\nLütfen unutmayın: Gelecekte başkalarının kimliğinize bürünmesini veya mesajlarınızı okumasını önlemek için yeni kişileri sadece yüz yüze ekleyebilirsiniz.</string>
   <string name="date_no_private_messages">Hiç mesaj yok.</string>
@@ -85,31 +84,18 @@
   <string name="contact_deleted_toast">Kişi silindi</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Kişi ekle</string>
-  <string name="your_nickname">Kullanmak istediğiniz kimliğinizi seçin:</string>
   <string name="face_to_face">Kişi olarak eklemek istediğiniz kişiyle buluşmanız gerekir.\n\nBu, gelecekte başkalarının sizin kimliğinize bürünmesini veya mesajlarınızı okumasını engelleyecektir.</string>
   <string name="continue_button">Devam et</string>
-  <string name="your_invitation_code">Davetiye kodunuz</string>
-  <string name="enter_invitation_code">Lütfen kişinizin davetiye kodunu girin:</string>
-  <string name="searching_format">Davet kodu ile kişi arama %06d\u2026</string>
   <string name="connection_failed">Bağlantı hatası</string>
-  <string name="could_not_find_contact">Briar yakınınızda bulunduğunuz kişiyi bulamadı.</string>
   <string name="try_again_button">Tekrar deneyin</string>
-  <string name="connected_to_contact">Kişiye bağlanıldı</string>
-  <string name="calculating_confirmation_code">Doğrulama kodu hesaplanıyor\u2026</string>
-  <string name="your_confirmation_code">Doğrulama kodunuz</string>
-  <string name="enter_confirmation_code">Lütfen kişinizin doğrulama kodunu girin:</string>
-  <string name="waiting_for_contact">Şu kişi için bekleniyor:\u2026</string>
   <string name="waiting_for_contact_to_scan">Kişinin QR kodu taraması ve bağlantı kurması bekleniyor\u2026</string>
   <string name="exchanging_contact_details">Kişi ayrıntıları karşılıklı paylaşılıyor\u2026</string>
-  <string name="codes_do_not_match">Kodlar uyuşmadı</string>
-  <string name="interfering">Bu, birisinin bağlantınızı kesmeye çalıştığı anlamına gelebilir</string>
   <string name="contact_added_toast">Kişi eklendi: %s</string>
   <string name="contact_already_exists"> %s kişisi zaten var</string>
   <string name="contact_exchange_failed">Kişi değişimi hatası</string>
   <string name="qr_code_invalid">QR kod hatalı</string>
   <string name="connecting_to_device">Cihaza bağlanıyor\u2026</string>
   <string name="authenticating_with_device">Cihazla kimlik doğrulama\u2026</string>
-  <string name="connection_aborted_local">Bağlantı bizim tarafımızca iptal edildi! Bu, birisinin bağlantınızı kesmeye çalıştığı anlamına gelebilir</string>
   <string name="connection_aborted_remote">Bağlantı kişi tarafından kesildi! Bu, birisinin bağlantınızı kesmeye çalıştığı anlamına gelebilir</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kişilerinizi tanıştırın</string>
@@ -345,4 +331,5 @@
   <!--Sign Out-->
   <string name="progress_title_logout">Briar\'dan çıkılıyor...</string>
   <!--Screen Filters & Tapjacking-->
+  <!--Permission Requests-->
 </resources>

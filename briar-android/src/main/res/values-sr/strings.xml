@@ -1,8 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Briar Podešavanje</string>
-  <string name="setup_explanation">Vaš Briar račun je kriptovan i sačuvan na vašem uređaju, ne u server-oblaku. Ako deinstalirate Briar ili zaboravite šifru, nema načina da povratite vaš račun ili vaše podatke.</string>
+  <string name="setup_next">Следећи</string>
   <string name="choose_nickname">Izaberite vaš nadimak</string>
   <string name="choose_password">Izaberite vašu šifru</string>
   <string name="confirm_password">Potvrdite vašu šifru</string>
@@ -20,7 +19,6 @@
   <string name="startup_failed_notification_title">Brirar nije mogao da startuje</string>
   <string name="startup_failed_notification_text">Možda ćete morati da reinstalirate Briar</string>
   <string name="startup_failed_activity_title">Briar neuspješno startovanje</string>
-  <string name="startup_failed_db_error">Iz nekog razloga, Briar baza podataka je nepovratno korumpirana. Vaš račun, vaši podaci i svi kontakti su izgubljeni. Nažalost, morate reinstalirati Briar i podesiti novi račun.</string>
   <string name="startup_failed_service_error">Briar nije mogao da startuje potreban plugin. Reinstaliranje Briara obično riješi problem. Međutim, imajte na umu da ćete izgubiti vaš račun i sve podatke vezane za njega pošto Briar ne koristi centralne servere da sačuva vaše podatke.</string>
   <string name="expiry_date_reached">Ovaj softver je istekao.\nHvala na testiranju!</string>
   <!--Navigation Drawer-->
@@ -59,6 +57,7 @@
   <string name="ellipsis">...</string>
   <string name="text_too_long">Uneti tekst je predugačak</string>
   <string name="show_onboarding">Pokazi Pomoc dijalog </string>
+  <string name="help">Помоћ</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Čini se da ste ovdje novi i da nemate još kontakata.\n\nTaknite + ikonu na vrhu i pratite instrukcije da bi dodali neke prijatelje na listu.\n\nMolimo da upamtite: Mozete samo dodati nove kontakte postupkom lice-u-lice kako bi se spriječili pokušaji lažnog predstavljanja ili da bi pročitali poruke upućene vama.</string>
   <string name="date_no_private_messages">Nema poruka.</string>
@@ -70,31 +69,18 @@
   <string name="contact_deleted_toast">Kontakt izbrisan</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Dodaj kontakt</string>
-  <string name="your_nickname">Izaberite identitet koji želite da koristite</string>
   <string name="face_to_face">Morate se sresti sa osobom koju želite da dodate kao kontakt.\n\nOvo će spriječiti bilo koga da se predstavi kao vi ili da ubuduće čita poruke.</string>
   <string name="continue_button">Dalje</string>
-  <string name="your_invitation_code">Vaš kod za poziv je</string>
-  <string name="enter_invitation_code">Unesite kod pozivnice vašeg kontakta:</string>
-  <string name="searching_format">Tražim kontakt sa kodom pozivnice %06d\u2026</string>
   <string name="connection_failed">Veza je pukla</string>
-  <string name="could_not_find_contact">Briar nije mogao naći vaš kontakt u blizini</string>
   <string name="try_again_button">Probajte opet</string>
-  <string name="connected_to_contact">Povezite se sa kontaktom</string>
-  <string name="calculating_confirmation_code">Kalkulisanje koda konfirmacije\u2026</string>
-  <string name="your_confirmation_code">Vaš konfirmacioni kod je</string>
-  <string name="enter_confirmation_code">Unesite konfirmacioni kod vašeg kontakta:</string>
-  <string name="waiting_for_contact">Čekam kontakt\u2026</string>
   <string name="waiting_for_contact_to_scan">Čekam da kontakt skenira i poveže se\u2026</string>
   <string name="exchanging_contact_details">Razmjenjujem detalje kontakta\u2026</string>
-  <string name="codes_do_not_match">Kodovi se nijesu poklopili</string>
-  <string name="interfering">Ovo može značiti da neko pokušava da se umiješa u vašu vezu</string>
   <string name="contact_added_toast">Kontakt dodat: %s</string>
   <string name="contact_already_exists">Kontakt %s već postoji</string>
   <string name="contact_exchange_failed">Razmjena kontakata nije uspjela</string>
   <string name="qr_code_invalid">QR kod nije validan</string>
   <string name="connecting_to_device">Povezujem se sa uređajem\u2026</string>
   <string name="authenticating_with_device">Autentikacija sa uređajem\u2026</string>
-  <string name="connection_aborted_local">Konekcija prekinuta sa naše strane! Ovo može značiti da neko pokušava da se umiješa u vašu vezu</string>
   <string name="connection_aborted_remote">Konekcija prekinuta sa od strane kontakta! Ovo može značiti da neko pokušava da se umiješa u vašu vezu</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Upoznajte vaše kontakte</string>
@@ -324,4 +310,5 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Detektovano je prekrivanje ekrana</string>
   <string name="screen_filter_body">Neka druga aplikacija crta interfejs preko Briara. Kako bi vas zaštitili, Briar neće reagovati na dodir kada druga aplikacija ispisuje preko njega.\n\nProbajte da ugasite slijedeće aplikacije kad koristite Briar:\n\n%1$s</string>
+  <!--Permission Requests-->
 </resources>

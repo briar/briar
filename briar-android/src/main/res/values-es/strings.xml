@@ -1,8 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Configuración de Briar</string>
-  <string name="setup_explanation">Tu cuenta de Briar se almacena de manera cifrada en tu dispositivo y no en ninguna nube. Si desinstalas Briar u olvidas tu contraseña, no podrás recuperar ni tu cuenta ni tus datos.</string>
+  <string name="setup_title">Bienvenido a Briar</string>
+  <string name="setup_name_explanation">Tu nombre de usuario aparecerá junto a cualquier contenido que publiques. No puedes cambiarlo después de crear tu cuenta.</string>
+  <string name="setup_next">Siguiente</string>
+  <string name="setup_password_intro">Elija una contraseña</string>
+  <string name="setup_password_explanation">Su cuenta Briar se almacena cifrada en su dispositivo, no en la nube. Si olvida su contraseña o desinstala Briar, no hay manera de recuperar su cuenta.\n\nElija una contraseña larga que sea difícil de adivinar, como cuatro palabras aleatorias o diez letras, números y símbolos al azar.</string>
+  <string name="setup_doze_title">Conexiones de fondo</string>
+  <string name="setup_doze_intro">Para recibir mensajes, Briar necesita mantenerse conectado en segundo plano.</string>
+  <string name="setup_doze_explanation">Para recibir mensajes, Briar necesita mantenerse conectado en segundo plano. Desactive las optimizaciones de la batería para que Briar pueda permanecer conectado.</string>
+  <string name="setup_doze_button">Permitir conexiones</string>
   <string name="choose_nickname">Elige tu nombre de usuario</string>
   <string name="choose_password">Elige tu contraseña</string>
   <string name="confirm_password">Confirma tu contraseña</string>
@@ -10,6 +17,12 @@
   <string name="password_too_weak">La contraseña es demasiado débil</string>
   <string name="passwords_do_not_match">Las contraseñas no coinciden</string>
   <string name="create_account_button">Registrar una nueva cuenta</string>
+  <string name="more_info">Más información</string>
+  <string name="don_t_ask_again">No preguntes de nuevo</string>
+  <string name="setup_huawei_text">Por favor toque el botón de abajo y asegúrese de que Briar está protegido en la pantalla \"Aplicaciones protegidas\".</string>
+  <string name="setup_huawei_button">Proteger Briar</string>
+  <string name="setup_huawei_help">Si Briar no se agrega a la lista de aplicaciones protegidas, no podrá ejecutarse en segundo plano.</string>
+  <string name="warning_dozed">%s no pudo ejecutarse en proceso de fondo</string>
   <!--Login-->
   <string name="enter_password">Introduce tu contraseña:</string>
   <string name="try_again">Contraseña incorrecta, inténtalo de nuevo</string>
@@ -20,12 +33,13 @@
   <string name="startup_failed_notification_title">Briar no pudo iniciarse</string>
   <string name="startup_failed_notification_text">Quizá tengas que reinstalar Briar.</string>
   <string name="startup_failed_activity_title">Fallo al iniciar Briar</string>
-  <string name="startup_failed_db_error">Por alguna razón, la base de datos de Briar ha sufrido daños irreparables. Tu cuenta, tus datos y todos tus contactos se han perdido. Desafortunadamente, tendrás que reinstalar Briar y registrar una nueva cuenta.</string>
+  <string name="startup_failed_db_error">Por alguna razón, su base de datos Briar está dañada irreparablemente. Su cuenta, sus datos y todos sus contactos están perdidos. Desafortunadamente, necesita reinstalar Briar y configurar una nueva cuenta.</string>
   <string name="startup_failed_service_error">Briar no pudo iniciar un complemento necesario. Reinstalar Briar suele solucionar el problema. Sin embargo, ten en cuenta que perderás tu cuenta y todos los datos asociados ya que Briar no almacena esta información en ningún servidor central.</string>
   <plurals name="expiry_warning">
-    <item quantity="one">Esta es una versión preliminar de Briar. Tu cuenta caducará en %d día y no podrá renovarse.</item>
-    <item quantity="other">Esta es una versión preliminar de Briar. Tu cuenta caducará en %d días y no podrá renovarse.</item>
+    <item quantity="one">Esta es una versión de prueba de Briar. Su cuenta expirará en %d día y no podrá ser renovada.</item>
+    <item quantity="other">Esta es una versión de prueba de Briar. Su cuenta expirará en %d días y no podrá ser renovada.</item>
   </plurals>
+  <string name="expiry_update">La fecha de caducidad de las pruebas se ha ampliado. Su cuenta expirará en  %d días.</string>
   <string name="expiry_date_reached">Esta versión ha caducado.\n¡Gracias por probarla!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Abrir el panel de navegación</string>
@@ -79,6 +93,8 @@
   <string name="ellipsis">…</string>
   <string name="text_too_long">El texto es demasiado largo</string>
   <string name="show_onboarding">Mostrar diálogo de ayuda</string>
+  <string name="fix">Reparar</string>
+  <string name="help">Ayuda</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Parece que eres nuevo por aquí y no tienes aún contactos.\n\nPulsa el signo + en la parte superior y sigue las instrucciones para añadir amigos a tu lista.\n\nPor favor, recuerda: sólo puedes añadir nuevos contactos cara a cara para evitar que nadie suplante tu identidad o lea tus mensajes en el futuro. </string>
   <string name="date_no_private_messages">Sin mensajes.</string>
@@ -90,31 +106,20 @@
   <string name="contact_deleted_toast">Contacto eliminado</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Añadir un contacto</string>
-  <string name="your_nickname">Elige la identidad que quieres utilizar:</string>
   <string name="face_to_face">Debes reunirte con la persona a la que quieras añadir como contacto.\n\nHaciéndolo así prevendrás que nadie te suplante o pueda leer tus mensajes en el futuro.</string>
   <string name="continue_button">Continuar</string>
-  <string name="your_invitation_code">Tu código de invitación es</string>
-  <string name="enter_invitation_code">Por favor, introduce el código de invitación de tu contacto:</string>
-  <string name="searching_format">Buscando el contacto con el código de invitación %06d\u2026</string>
   <string name="connection_failed">La conexión falló</string>
-  <string name="could_not_find_contact">Briar no pudo encontrar a tu contacto cerca</string>
   <string name="try_again_button">Prueba de nuevo</string>
-  <string name="connected_to_contact">Conectado con el contacto</string>
-  <string name="calculating_confirmation_code">Calculando código de confirmación\u2026</string>
-  <string name="your_confirmation_code">Tu código de confirmación es</string>
-  <string name="enter_confirmation_code">Por favor, introduce el código de confirmación de tu contacto:</string>
-  <string name="waiting_for_contact">Esperando al contacto\u2026</string>
   <string name="waiting_for_contact_to_scan">Esperando a que el contacto escanee y conecte contigo\u2026</string>
   <string name="exchanging_contact_details">Intercambiando información de contacto\u2026</string>
-  <string name="codes_do_not_match">Los códigos no coinciden</string>
-  <string name="interfering">Esto podría significar que alguien está intentando interceptar la conexión</string>
   <string name="contact_added_toast">Contacto añadido: %s</string>
   <string name="contact_already_exists">El contacto %s ya existe</string>
   <string name="contact_exchange_failed">El intercambio del contacto falló</string>
   <string name="qr_code_invalid">El código QR no es válido</string>
+  <string name="camera_error">Error de cámara</string>
   <string name="connecting_to_device">Conectando al dispositivo\u2026</string>
   <string name="authenticating_with_device">Autentificándose con el dispositivo\u2026</string>
-  <string name="connection_aborted_local">¡Hemos interumpido la conexión! Esto podría significar que alguien está intentando interceptar la conexión</string>
+  <string name="connection_aborted_local">¡Conexión interrumpida! Esto podría significar que alguien está intentando interferir con su conexión</string>
   <string name="connection_aborted_remote">¡La conexión ha sido interrumpida por tu contacto! Esto podría significar que alguien está intentando interceptar la conexión</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenta a tus contactos</string>
@@ -335,6 +340,7 @@
   <string name="notify_sound_setting_default">Tono de notificación predeterminado</string>
   <string name="notify_sound_setting_disabled">Ninguna</string>
   <string name="choose_ringtone_title">Elegir alerta sonora</string>
+  <string name="cannot_load_ringtone">No se puede cargar el timbre</string>
   <!--Settings Feedback-->
   <string name="feedback_settings_title">Retroalimentación</string>
   <string name="send_feedback">Enviar comentario</string>
@@ -364,4 +370,9 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Superposición de pantalla detectada</string>
   <string name="screen_filter_body">Otra aplicación se está mostrando encima de Briar. Por seguridad, Briar no responderá a los toques mientras se muestre otra aplicación encima.\n\nIntenta apagar las siguientes aplicaciones cuando uses Briar:\n\n%1$s</string>
+  <!--Permission Requests-->
+  <string name="permission_camera_title">Permiso de cámara</string>
+  <string name="permission_camera_request_body">Para escanear el código QR, Briar necesita acceso a la cámara.</string>
+  <string name="permission_camera_denied_body">Ha denegado el acceso a la cámara, pero para añadir contactos se requiere el uso de la cámara.\n\nPor favor considere la posibilidad de conceder el acceso.</string>
+  <string name="permission_camera_denied_toast">No se concedió el permiso de cámara</string>
 </resources>

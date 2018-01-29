@@ -1,8 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Impostazione Briar</string>
-  <string name="setup_explanation">Il tuo account Briar si trova criptato sul tuo dispositivo e non nel cloud. Se disinstalli Briar o dimentichi la tua password, non c\'è modo di recuperare il tuo account o i tuoi dati.</string>
+  <string name="setup_title">Benvenuti su Briar</string>
+  <string name="setup_name_explanation">Il tuo nickname verrà mostrato accanto ad ogni contenuto pubblicato. Non puoi cambiarlo dopo averlo creato.</string>
+  <string name="setup_next">Avanti</string>
+  <string name="setup_password_intro">Scegli una password</string>
+  <string name="setup_password_explanation">Il tuo account Briar resta memorizzato cifrato nel tuo dispositivo, non nel cloud. Se dimentichi la password o disinstalli Briar, non c\'è modo di ripristinare l\'account.\n\nScegli una password lunga difficile da indovinare, come quattro parole casuali o dieci lettere, numeri e simboli a caso.</string>
+  <string name="setup_doze_title">Connessioni in background</string>
+  <string name="setup_doze_intro">Per ricevere messaggi, Briar deve restare connesso in background.</string>
+  <string name="setup_doze_explanation">Per ricevere messaggi, Briar deve restare connesso in background. Disattiva le ottimizzazioni della batteria per mantenere Briar connesso.</string>
+  <string name="setup_doze_button">Permetti le connessioni</string>
   <string name="choose_nickname">Scegli il tuo nickname</string>
   <string name="choose_password">Scegli la tua password</string>
   <string name="confirm_password">Conferma la tua password</string>
@@ -10,6 +17,12 @@
   <string name="password_too_weak">La password è troppo debole</string>
   <string name="passwords_do_not_match">La password non corrisponde</string>
   <string name="create_account_button">Creare Account</string>
+  <string name="more_info">Ulteriori Informazioni</string>
+  <string name="don_t_ask_again">Non chiedere più</string>
+  <string name="setup_huawei_text">Tocca il pulsante qua sotto e assicurati che Briar sia protetto nella schermata \"App protette\"</string>
+  <string name="setup_huawei_button">Proteggi Briar</string>
+  <string name="setup_huawei_help">Se Briar non viene aggiunto nell\'elenco di app protette, non potrà funzionare in background.</string>
+  <string name="warning_dozed">%s non ha potuto funzionare in background</string>
   <!--Login-->
   <string name="enter_password">Inserisci la tua password:</string>
   <string name="try_again">Password sbagliata, riprova</string>
@@ -20,12 +33,13 @@
   <string name="startup_failed_notification_title">Briar non è riuscito a partire</string>
   <string name="startup_failed_notification_text">Potresti dover reinstallare Briar</string>
   <string name="startup_failed_activity_title">Fallimento Avvio Briar</string>
-  <string name="startup_failed_db_error">Per alcune reagioni, il tuo database Briar si è corrotto in modo irreparabile. Il tuo account, i tuoi dati e tutte le connessioni ai tuoi contatti sono andati persi. Sfortunatamente, devi reinstallare Briar per creare un nuovo account.</string>
+  <string name="startup_failed_db_error">Per qualche motivo il tuo database di Briar è danneggiato in modo irreversibile. Il tuo account, i tuoi dati e tutti i contatti sono persi. Sfortunatamente devi reinstallare Briar e creare un nuovo account.</string>
   <string name="startup_failed_service_error">Briar non è stato in grado di caricare un plugin richiesto. Reinstallare Briar di solito sistema questo problema. Però ricorda che perderai il tuo account e tutti i dati ad esso associati poichè Briar non usa server centralizzati per mantenere i tuoi dati.</string>
   <plurals name="expiry_warning">
-    <item quantity="one">Questa è una versione beta di Briar. Il tuo account scadrà in %d giorno e non può essere rinnovato.</item>
-    <item quantity="other">Questa è una versione beta di Briar. Il tuo account scadrà in %d giorni e non può essere rinnovato.</item>
+    <item quantity="one">Questa è una versione di prova di Briar. Il tuo account scadrà fra %d giorno e non può essere rinnovato.</item>
+    <item quantity="other">Questa è una versione di prova di Briar. Il tuo account scadrà fra %d giorni e non può essere rinnovato.</item>
   </plurals>
+  <string name="expiry_update">La scadenza della versione di prova è stata prorogata. Il tuo account ora scadrà fra %d giorni.</string>
   <string name="expiry_date_reached">Questo software è scaduto.\nGrazie per il test!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Apri la barra di navigazione</string>
@@ -79,8 +93,10 @@
   <string name="ellipsis">...</string>
   <string name="text_too_long">Il testo inserito è troppo lungo</string>
   <string name="show_onboarding">Mostra l\'aiuto</string>
+  <string name="fix">Correggi</string>
+  <string name="help">Aiuto</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Sembra che tu sia nuovo qui e non hai ancora contatti.\n\nPremi l\' icona in alto e segui le istruzioni per aggiungere qualche amico alla tua lista.\n\nPer favore ricorda: Puoi solo aggiungere nuovi contatti faccia-a-faccia per evitare che altri ti impersonino o leggano i tuoi messaggi in futuro.</string>
+  <string name="no_contacts">Sembra che tu sia nuovo qui e non hai ancora contatti.\n\nPremi l\'icona in alto e segui le istruzioni per aggiungere qualche amico alla tua lista.\n\nPer favore ricorda: puoi solo aggiungere nuovi contatti faccia-a-faccia per evitare che altri ti impersonino o leggano i tuoi messaggi in futuro.</string>
   <string name="date_no_private_messages">Nessun messaggio.</string>
   <string name="no_private_messages">Questa è la vista conversazione\n\n\Sembra che ci sia una mancanza di conversazione.\n\nPremi il campo di immissione in basso per iniziare una conversazione.</string>
   <string name="message_hint">Scrivi un messaggio</string>
@@ -90,31 +106,20 @@
   <string name="contact_deleted_toast">Contatto cancellato</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Aggiungi un Contatto</string>
-  <string name="your_nickname">Scegli l\'identità che vuoi usare:</string>
   <string name="face_to_face">Devi incontrarti con la persona che vuoi aggiungere come contatto.\n\nQuesto evita che qualcuno ti impersoni o legga i tuoi messaggi in futuro.</string>
   <string name="continue_button">Continua</string>
-  <string name="your_invitation_code">Il tuo codice di invito è</string>
-  <string name="enter_invitation_code">Si prega di inserire il vostro codice di invito di contatto:</string>
-  <string name="searching_format">Sto cercando i contatti con codice di invito %06d\u2026</string>
   <string name="connection_failed">Connessione fallita</string>
-  <string name="could_not_find_contact">Briar non è stato in grado di trovare il vostro contatto vicino</string>
   <string name="try_again_button">Riprova</string>
-  <string name="connected_to_contact">Connesso al contatto</string>
-  <string name="calculating_confirmation_code">Calcolazione codice di conferma\u2026</string>
-  <string name="your_confirmation_code">Il tuo codice di conferma è</string>
-  <string name="enter_confirmation_code">Si prega di inserire il vostro codice di conferma di contatto:</string>
-  <string name="waiting_for_contact">In attesa del contatto\u2026</string>
   <string name="waiting_for_contact_to_scan">Aspettando il contatto per la scansione ed il collegamento\u2026</string>
   <string name="exchanging_contact_details">Scambio dettagli contatto\u2026</string>
-  <string name="codes_do_not_match">I codici non corrispondono</string>
-  <string name="interfering">Questo può voler dire che qualcuno sta cercando di interferire con la tua conessione</string>
   <string name="contact_added_toast">Contatto aggiunto: %s</string>
   <string name="contact_already_exists">Il contatto %s esiste già</string>
   <string name="contact_exchange_failed">Scambio di contatto fallito</string>
   <string name="qr_code_invalid">Il codice QR non è valido</string>
+  <string name="camera_error">Errore fotocamera</string>
   <string name="connecting_to_device">Connessione al dispositivo\u2026</string>
   <string name="authenticating_with_device">Autenticazione con il dispositivo\u2026</string>
-  <string name="connection_aborted_local">Connessione abortita da noi!Questo può voler dire che qualcuno sta cercando di interferire con la tua connessione</string>
+  <string name="connection_aborted_local">Connessione annullata! Potrebbe significare che qualcuno stia interferendo con la tua connessione</string>
   <string name="connection_aborted_remote">Connessione abortita dal tuo contatto!Questo può voler dire che qualcuno sta cercando di interferire con la tua connessione</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introduzione tuoi contatti</string>
@@ -140,7 +145,7 @@
     <item quantity="other">Aggiunti %d nuovi contatti.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Non stai partecipando a nessun gruppo.\n\nClicca l\' icona + in alto per creare un tuo gruppo o chiedi ai tuoi contatti di essere invitato in uno dei loro gruppi.</string>
+  <string name="groups_list_empty">Non stai partecipando ad alcun gruppo.\n\nClicca l\'icona + in alto per creare un tuo gruppo o chiedi ai tuoi contatti di essere invitato in uno dei loro gruppi.</string>
   <string name="groups_created_by">Creato da %s</string>
   <plurals name="messages">
     <item quantity="one">%d messaggio</item>
@@ -193,12 +198,12 @@
   <string name="groups_reveal_visible_revealed_by_contact">La relazione fra i contatti è visibile al gruppo (rivelata da %s)</string>
   <string name="groups_reveal_invisible">La relazione fra i contatti non è visibile al gruppo</string>
   <!--Forums-->
-  <string name="no_forums">Non hai ancora alcun forum.\n\nPerchè non ne crei uno nuovo tu premendo l\' icona + in alto?\n\nPuoi anche chiedere ai tuoi contatti di condividere forums con te.</string>
+  <string name="no_forums">Non hai ancora alcun forum.\n\nPerchè non ne crei uno nuovo tu premendo l\'icona + in alto?\n\nPuoi anche chiedere ai tuoi contatti di condividere forum con te.</string>
   <string name="create_forum_title">Crea Forum</string>
   <string name="choose_forum_hint">Scegli un nome per il tuo forum</string>
   <string name="create_forum_button">Crea Forum</string>
   <string name="forum_created_toast">Forum creato</string>
-  <string name="no_forum_posts">Questo forum è vuoto.\n\nUsa l\' icona penna in alto per comporre il primo post.\n\nTi senti solo qui? Condividi questo forum con i tuoi contatti!</string>
+  <string name="no_forum_posts">Questo forum è vuoto.\n\nUsa l\'icona penna in alto per comporre il primo post.\n\nTi senti solo qui? Condividi questo forum con i tuoi contatti!</string>
   <string name="no_posts">Nessun post.</string>
   <plurals name="posts">
     <item quantity="one">%d post</item>
@@ -335,6 +340,7 @@
   <string name="notify_sound_setting_default">Suoneria di default</string>
   <string name="notify_sound_setting_disabled">Nessuno</string>
   <string name="choose_ringtone_title">Scegli suoneria</string>
+  <string name="cannot_load_ringtone">Impossibile caricare la suoneria</string>
   <!--Settings Feedback-->
   <string name="feedback_settings_title">Feedback</string>
   <string name="send_feedback">Invia feedback</string>
@@ -364,4 +370,9 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">È stata rilevata un\'overlay sullo schermo</string>
   <string name="screen_filter_body">Un\'altra app sta disegnando sopra a Briar. Per proteggere la tua sicurezza, Briar non risponderà ai tocchi quando un\'altra app vi starà disegnando sopra.\n\nProva a spegnere le seguenti app mentre usi Briar:\n\n%1$s</string>
+  <!--Permission Requests-->
+  <string name="permission_camera_title">Autorizzazione fotocamera</string>
+  <string name="permission_camera_request_body">Per scansionare il codice QR, Briar deve accedere alla fotocamera.</string>
+  <string name="permission_camera_denied_body">Hai negato l\'accesso alla fotocamera, ma questa serve per aggiungere i contatti.\n\nConsidera la possibilità di concedere l\'accesso.</string>
+  <string name="permission_camera_denied_toast">Autorizzazione fotocamera non concessa</string>
 </resources>

@@ -1,8 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Настройка Briar</string>
-  <string name="setup_explanation">Ваша учетная запись Briar хранится в зашифрованном виде только на устройстве. Если вы удалите Briar или забудете пароль, то не сможете восстановить свою учетную запись и данные.</string>
+  <string name="setup_title">Добро пожаловать в Briar</string>
+  <string name="setup_name_explanation">Ваш ник будет показан рядом с любым контентом, который вы публикуете. Вы не сможете изменить его после создания аккаунта.</string>
+  <string name="setup_next">Вперед</string>
+  <string name="setup_password_intro">Выберите пароль</string>
+  <string name="setup_password_explanation">Ваша учетная запись Briar хранится в зашифрованном виде только на устройстве. Если вы забудете свой пароль или удалите Briar, вы не сможете восстановить свою учетную запись.\n\nВыберите длинный пароль, который трудно угадать, например четыре случайных слова или десять случайных букв, цифр и символов.</string>
+  <string name="setup_doze_title">Фоновые подключения</string>
+  <string name="setup_doze_intro">Для получения сообщений, Briar должен работать в фоновом режиме.</string>
+  <string name="setup_doze_explanation">Для получения сообщений, Briar должен работать в фоновом режиме. Отключите оптимизацию электропитания для Briar.</string>
+  <string name="setup_doze_button">Разрешить подключения</string>
   <string name="choose_nickname">Выберите псевдоним</string>
   <string name="choose_password">Выберите пароль</string>
   <string name="confirm_password">Подтвердите пароль</string>
@@ -10,6 +17,12 @@
   <string name="password_too_weak">Пароль слишком слабый</string>
   <string name="passwords_do_not_match">Пароли не совпадают</string>
   <string name="create_account_button">Создать учетную запись</string>
+  <string name="more_info">Дополнительная информация</string>
+  <string name="don_t_ask_again">Больше не спрашивать</string>
+  <string name="setup_huawei_text">Нажмите кнопку ниже и убедитесь, что Briar отображается на экране защищенных приложений.</string>
+  <string name="setup_huawei_button">Защитить Briar</string>
+  <string name="setup_huawei_help">Если Briar не добавлен в список защищенных приложений, он не сможет работать в фоновом режиме.</string>
+  <string name="warning_dozed">%s не удалось выполнить в фоновом режиме</string>
   <!--Login-->
   <string name="enter_password">Введите пароль:</string>
   <string name="try_again">Неверный пароль, повторите попытку</string>
@@ -20,14 +33,15 @@
   <string name="startup_failed_notification_title">Не удалось запустить Briar</string>
   <string name="startup_failed_notification_text">Возможно, потребуется переустановить Briar.</string>
   <string name="startup_failed_activity_title">Сбой при запуске Briar</string>
-  <string name="startup_failed_db_error">По какой-то причине, ваша база данных Briar повреждена без возможности восстановления. Ваша учетная запись, ваши данные и все ваши связи с контактами потеряны. К сожалению, необходимо переустановить Briar и настроить новую учетную запись.</string>
+  <string name="startup_failed_db_error">По какой-то причине, ваша база данных Briar повреждена без возможности восстановления. Ваша учетная запись, ваши данные и все ваши контакты потеряны. К сожалению, вам придется переустановить Briar и создать новую учетную запись.</string>
   <string name="startup_failed_service_error">Briar не смог запустить требуемый подключаемый модуль. Переустановка Briar обычно решает эту проблему. Однако обратите внимание, что после этого вы потеряете свою учетную запись и все связанные с ней данные, поскольку Briar не использует центральных серверов для хранения данных.</string>
   <plurals name="expiry_warning">
-    <item quantity="one">Это бета-версия Briar. Срок действия вашей учетной записи истекает через %d день и не может быть продлен.</item>
-    <item quantity="few">Это бета-версия Briar. Срок действия вашей учетной записи истекает через %d дней и не может быть продлен.</item>
-    <item quantity="many">Это бета-версия Briar. Срок действия вашей учетной записи истекает через %d дней и не может быть продлен.</item>
+    <item quantity="one">Это бета-версия Briar. Срок действия вашей учетной записи истечет через %d день и не может быть продлен.</item>
+    <item quantity="few">Это бета-версия Briar. Срок действия вашей учетной записи истечет через %d дней и не может быть продлен.</item>
+    <item quantity="many">Это бета-версия Briar. Срок действия вашей учетной записи истечет через %d дней и не может быть продлен.</item>
     <item quantity="other">Это бета-версия Briar. Срок действия вашей учетной записи истечет через %d дней и не может быть продлен.</item>
   </plurals>
+  <string name="expiry_update">Дата окончания тестирования была продлена. Срок действия вашей учетной записи истечет через %d дней.</string>
   <string name="expiry_date_reached">Срок действия этого программного обеспечения истек.\nСпасибо за тестирование!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Открыть навигационное меню</string>
@@ -75,7 +89,7 @@
   <string name="hide">Скрыть</string>
   <string name="ok">OK</string>
   <string name="cancel">Отмена</string>
-  <string name="got_it">Получено</string>
+  <string name="got_it">Понятно</string>
   <string name="delete">Удалить</string>
   <string name="accept">Принять</string>
   <string name="decline">Отклонить</string>
@@ -89,6 +103,8 @@
   <string name="ellipsis">…</string>
   <string name="text_too_long">Введенный текст слишком длинный</string>
   <string name="show_onboarding">Показать справку</string>
+  <string name="fix">Исправить</string>
+  <string name="help">Помощь</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Кажется, вы здесь новенький и у вас нет контактов.\n\nКоснитесь значка + вверху и следуйте инструкциям, чтобы добавить друзей в список.\n\nПомните: вы можете добавлять новые контакты только лично, чтобы никто не выдал себя за вас и не мог читать ваши сообщения.</string>
   <string name="date_no_private_messages">Нет сообщений.</string>
@@ -100,31 +116,20 @@
   <string name="contact_deleted_toast">Контакт удален</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Добавить контакт</string>
-  <string name="your_nickname">Выберите идентификатор, который хотите использовать:</string>
   <string name="face_to_face">Вы должны встретиться с человеком, которого хотите добавить в контакты.\n\nЭто не позволит кому-либо выдать себя за вас или читать ваши сообщения.</string>
   <string name="continue_button">Продолжить</string>
-  <string name="your_invitation_code">Ваш код приглашения</string>
-  <string name="enter_invitation_code">Введите код приглашения вашего контакта:</string>
-  <string name="searching_format">Поиск контакта с кодом приглашения  %06d\u2026</string>
   <string name="connection_failed">Ошибка подключения</string>
-  <string name="could_not_find_contact">Briar не смог найти ваш контакт поблизости</string>
   <string name="try_again_button">Попробовать снова</string>
-  <string name="connected_to_contact">Подключено к контакту</string>
-  <string name="calculating_confirmation_code">Вычисление кода подтверждения\u2026</string>
-  <string name="your_confirmation_code">Ваш код подтвержения</string>
-  <string name="enter_confirmation_code">Введите код подтверждения контакта:</string>
-  <string name="waiting_for_contact">Ожидание контакта\u2026</string>
   <string name="waiting_for_contact_to_scan">Ожидание контакта для сканирования и подключения\u2026</string>
   <string name="exchanging_contact_details">Обмен контактными данными\u2026</string>
-  <string name="codes_do_not_match">Коды не совпадают</string>
-  <string name="interfering">Это может означать, что кто-то пытается вмешаться в ваше подключение</string>
   <string name="contact_added_toast">Контакт добавлен: %s</string>
   <string name="contact_already_exists">Контакт %s уже существует</string>
   <string name="contact_exchange_failed">Обмен контактами не удался</string>
   <string name="qr_code_invalid">Неверный QR-код</string>
+  <string name="camera_error">Ошибка камеры</string>
   <string name="connecting_to_device">Подключение к устройству\u2026</string>
   <string name="authenticating_with_device">Аутентификация с устройством\u2026</string>
-  <string name="connection_aborted_local">Соединение прервано нами! Это может означать, что кто-то пытается вмешаться в ваше подключение</string>
+  <string name="connection_aborted_local">Подключение прервано! Это может означать, что кто-то пытается вмешаться в ваше соединение</string>
   <string name="connection_aborted_remote">Соединение прервано вашим контактом! Это может означать, что кто-то пытается вмешаться в ваше подключение</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Знакомство с контактами</string>
@@ -355,13 +360,14 @@
   <string name="notify_sound_setting_default">Мелодия по умолчанию</string>
   <string name="notify_sound_setting_disabled">Нет</string>
   <string name="choose_ringtone_title">Выберите мелодию звонка</string>
+  <string name="cannot_load_ringtone">Не удается загрузить мелодию звонка</string>
   <!--Settings Feedback-->
   <string name="feedback_settings_title">Обратная связь</string>
   <string name="send_feedback">Отправить отзыв</string>
   <!--Link Warning-->
-  <string name="link_warning_title">Ссылка-предупреждение</string>
-  <string name="link_warning_intro">Вы собираетесь открыть следующую ссылку с внешним приложением.</string>
-  <string name="link_warning_text">Это может быть использовано для идентификации вас. Подумайте о том, доверяете ли вы человеку, который прислал вам эту ссылку, и рассмотрите возможность его открытия в Orfox.</string>
+  <string name="link_warning_title">Внимание</string>
+  <string name="link_warning_intro">Вы собираетесь открыть следующую ссылку в стороннем приложении.</string>
+  <string name="link_warning_text">Возможно вас хотят идентифицировать. Подумайте, доверяете ли вы человеку, который прислал вам эту ссылку и рассмотрите возможность ее открытия в Orfox.</string>
   <string name="link_warning_open_link">Открыть ссылку</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Отчет о сбое Briar</string>
@@ -384,4 +390,9 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Обнаружено наложение экрана</string>
   <string name="screen_filter_body">Другое приложение рисуется поверх Briar. Чтобы защитить вашу безопасность, Briar не будет реагировать на прикосновения, когда другое приложение рисует сверху.\n\nПопробуйте отключить следующие приложения при использовании Briar:\n\n%1$s</string>
+  <!--Permission Requests-->
+  <string name="permission_camera_title">Разрешение камеры</string>
+  <string name="permission_camera_request_body">Для сканирования QR-кода Briar необходим доступ к камере.</string>
+  <string name="permission_camera_denied_body">Доступ к камере запрещен, но для добавления контактов требуется доступ к камере.\n\nРассмотрите возможность предоставления доступа.</string>
+  <string name="permission_camera_denied_toast">Доступ к камере не был предоставлен</string>
 </resources>

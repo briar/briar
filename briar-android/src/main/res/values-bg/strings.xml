@@ -1,8 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Briar регистрация</string>
-  <string name="setup_explanation">Briar профилът се съхранява криптиран във вашето устройство, а не в облака. Ако деинсталирате Briar или забравите паролата си, няма как да възстановите профила и данните си.</string>
+  <string name="setup_next">Следващ</string>
   <string name="choose_nickname">Изберете име</string>
   <string name="choose_password">Изберете парола</string>
   <string name="confirm_password">Потвърдете парола</string>
@@ -20,12 +19,7 @@
   <string name="startup_failed_notification_title">Briar не можа да стартира</string>
   <string name="startup_failed_notification_text">Може да се наложи да преинсталирате Briar.</string>
   <string name="startup_failed_activity_title">Неуспешно стартиране</string>
-  <string name="startup_failed_db_error">Вашата база данни на Briar е повредена непоправимо. Вашият профил, данни и всички контакти са унищожени. За съжаление се налага да преинсталирате Briar и да създадете нов профил.</string>
   <string name="startup_failed_service_error">Briar не успя да стартира задължителен плъгин. Обикновено преинсталирането на Briar решава този проблем. Моля, имайте предвид, че ще изгубите профила си и всички данни, асоциирани с него, тъй като Briar не съхранява данните ви в централни сървъри.</string>
-  <plurals name="expiry_warning">
-    <item quantity="one">Това е бета версия на Briar. Профилът ви ще изгуби валидност след %d ден и не може да бъде подновен.</item>
-    <item quantity="other">Това е бета версия на Briar. Профилът ви ще изгуби валидност след %d дни и не може да бъде подновен.</item>
-  </plurals>
   <string name="expiry_date_reached">Софтуерът е невалиден.\nБлагодарим ви за тестването!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Отвори навигационно чекмедже</string>
@@ -79,6 +73,7 @@
   <string name="ellipsis">...</string>
   <string name="text_too_long">Въведеният текст е твърде дълъг</string>
   <string name="show_onboarding">Показване на помощен диалог</string>
+  <string name="help">Помощ</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Няма добавени контакти.\n\nНатиснете плюса и следвайте инструкциите, за да добавите приятели.\n\nВнимание: Трябва да се срещнете лично с човека, когото искате да добавите в Контакти. По този начин никой не може да се представи за вас или да чете съобщенията ви в бъдеще.</string>
   <string name="date_no_private_messages">Няма съобщения.</string>
@@ -90,31 +85,18 @@
   <string name="contact_deleted_toast">Контактът е изтрит</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Добавяне на контакт</string>
-  <string name="your_nickname">Изберете профил:</string>
   <string name="face_to_face">Трябва да се срещнете лично с човека, когото искате да добавите в Контакти.\n\nПо този начин никой не може да се представи за вас или да чете съобщенията ви в бъдеще.</string>
   <string name="continue_button">Напред</string>
-  <string name="your_invitation_code">Кодът ви за покана е</string>
-  <string name="enter_invitation_code">Моля, въведете кодът за покана на контакта ви:</string>
-  <string name="searching_format">Търсене на контакт с код за покана %06d\u2026</string>
   <string name="connection_failed">Неуспешна връзка</string>
-  <string name="could_not_find_contact">Briar не можа да открие вашият контакт </string>
   <string name="try_again_button">Опитай пак</string>
-  <string name="connected_to_contact">Свързан с контакт</string>
-  <string name="calculating_confirmation_code">Изчисляване на код за потвърждение\u2026</string>
-  <string name="your_confirmation_code">Кодът ви за потвърждение е</string>
-  <string name="enter_confirmation_code">Моля, въведете кодът за потвърждение на контакта ви</string>
-  <string name="waiting_for_contact">Изчакване на контакта\u2026</string>
   <string name="waiting_for_contact_to_scan">Изчакване контактът да сканира и да се свърже\u2026</string>
   <string name="exchanging_contact_details">Обмен на данни за контакт\u2026</string>
-  <string name="codes_do_not_match">Кодовете не съвпадат</string>
-  <string name="interfering">Това може да значи, че някой се опитва да попречи на свързването.</string>
   <string name="contact_added_toast">Добавен конктакт: %s</string>
   <string name="contact_already_exists">Контактът %s вече съществува</string>
   <string name="contact_exchange_failed">Неуспех при обмен на контакти</string>
   <string name="qr_code_invalid">QR кодът е невалиден</string>
   <string name="connecting_to_device">Свързване с устройство\u2026</string>
   <string name="authenticating_with_device">Удостоверяване с устройство\u2026</string>
-  <string name="connection_aborted_local">Връзката е прекъсната от нас! Това може да значи, че някой се опитва да попречи на свързването</string>
   <string name="connection_aborted_remote">Връзката е прекъсната от контакта ви! Това може да значи, че някой се опитва да попречи на свързването</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Представете контактите си</string>
@@ -364,4 +346,5 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Открит е овърлей на екрана</string>
   <string name="screen_filter_body">Друго приложение чертае върху Briar. За да защити вашата сигурност, Briar няма да реагира на докосване, докато друго приложение чертае отгоре.\n\nОпитайте да изключите следните приложения, когато използвате Briar:\n\n%1$s</string>
+  <!--Permission Requests-->
 </resources>

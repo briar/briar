@@ -1,8 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Briar ezarpena</string>
-  <string name="setup_explanation">Zure Briar kontua zure gailuan zifratuta gordetzen da, ez hodeian. Briar desinstalatzen baduzu edo pasahitza ahazten baduzu, ez dago zure kontua eta datuak berreskuratzeko modurik.</string>
+  <string name="setup_title">Ongi etorri Briar-era</string>
+  <string name="setup_name_explanation">Zure ezizena argitaratzen dituzun eduki guztien ondoan agertuko da. Ezin dezakezu aldatu kontua sortu eta gero.</string>
+  <string name="setup_next">Hurrengoa</string>
+  <string name="setup_password_intro">Aukeratu pasahitz bat</string>
+  <string name="setup_password_explanation">Zure Briar kontua zure gailuan zifratuta gordetzen da, ez hodeian. Briar desinstalatzen baduzu edo pasahitza ahazten baduzu, ez dago zure kontua eta datuak berreskuratzeko modurik.\n\nAukeratu asmatzeko zaila den pasahitz luze bat, adibidez ausazko lau hitz edo ausazko hamar letra, zenbaki eta ikur.</string>
+  <string name="setup_doze_title">Atzeko planoko konexioak</string>
+  <string name="setup_doze_intro">Mezuak jasotzeko, Briar bigarren planoak konektatuta mantendu behar da.</string>
+  <string name="setup_doze_explanation">Mezuak jasotzeko, Briar bigarren planoak konektatuta mantendu behar da. Mesedez desgaitu bateria optimizazioak Briar konektatuta mantendu dadin.</string>
+  <string name="setup_doze_button">Baimendu konexioak</string>
   <string name="choose_nickname">Hautatu zure ezizena</string>
   <string name="choose_password">Hautatu zure pasahitza</string>
   <string name="confirm_password">Berretsi zure pasahitza</string>
@@ -10,6 +17,12 @@
   <string name="password_too_weak">Pasahitza ahulegia da</string>
   <string name="passwords_do_not_match">Pasahitzak ez datoz bat</string>
   <string name="create_account_button">Sortu kontua</string>
+  <string name="more_info">Informazio gehiago</string>
+  <string name="don_t_ask_again">Ez galdetu berriro</string>
+  <string name="setup_huawei_text">Sakatu beheko botoia eta ziurtatu Briar babestuta dagoela \"Babestutako aplikazioak\" pantailan.</string>
+  <string name="setup_huawei_button">Babestu Briar</string>
+  <string name="setup_huawei_help">Briar ez bada babestutako aplikazioen zerrendara gehitu, ezin izango du bigarren planoan ibili.</string>
+  <string name="warning_dozed">%s ezin izan da bigarren planoan abiatu</string>
   <!--Login-->
   <string name="enter_password">Sartu zure pasahitza:</string>
   <string name="try_again">Pasahitz okerra, saiatu berriro</string>
@@ -20,12 +33,13 @@
   <string name="startup_failed_notification_title">Ezin izan da Briar abiatu</string>
   <string name="startup_failed_notification_text">Agian Briar berrinstalatu behar duzu.</string>
   <string name="startup_failed_activity_title">Briar abio-hutsegitea</string>
-  <string name="startup_failed_db_error">Arrazoiren bategatik, zure Briar datubasea hondatuta dago eta ezin da konpondu. Zure kontua, datuak eta kontaktuekin konexioak galdu dira. Zoritxarrez Briar berrinstalatu behar duzu kontu berria sortzeko.</string>
+  <string name="startup_failed_db_error">Dena delakoagatik, zure Briar datu-basea hondatuta dago eta ezin da konpondu. Zure kontua, zure datuak eta zure kontaktuak galdu dira. Zoritxarrez Briar berrinstalatu behar duzu eta kontu berria sortu.</string>
   <string name="startup_failed_service_error">Briar aplikazioak ezin izan du ezinbesteko plugin bat abiatu. Briar berrinstalatzeak arazoa konpondu ohi du. Hala ere, jakin zure kontua eta datuak galduko dituzula Briar aplikazioak ez baititu zerbitzari zentralak erabiltzen zure datuak gordetzeko.</string>
   <plurals name="expiry_warning">
-    <item quantity="one">Hau Briar aplikazioaren beta bertsio bat da. Zure kontua egun %d barru iraungitu da eta ezin da berritu.</item>
-    <item quantity="other">Hau Briar aplikazioaren beta bertsio bat da. Zure kontua  %d egun barru iraungitu da eta ezin da berritu.</item>
+    <item quantity="one">Hau Briar-en probetarako bertsio bat da. Zure kontua egun %d barru iraungituko da eta ezin da berriztu.</item>
+    <item quantity="other">Hau Briar-en probetarako bertsio bat da. Zure kontua %d egun barru iraungituko da eta ezin da berriztu.</item>
   </plurals>
+  <string name="expiry_update">Probetarako iraungitze data luzatu da. Zure kontua %d egun barru iraungituko da.</string>
   <string name="expiry_date_reached">Programa hau iraungitu da.\nEskerrik asko probatzeagatik!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Ireki nabigazio tiradera</string>
@@ -79,6 +93,8 @@
   <string name="ellipsis">…</string>
   <string name="text_too_long">Sartutako testua luzeegia da</string>
   <string name="show_onboarding">Erakutsi laguntza elkarrizketa-koadroa</string>
+  <string name="fix">Konpondu</string>
+  <string name="help">Laguntza</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Badirudi heldu berria zarela eta ez duzula kontakturik hemen oraindik.\n\nSakatu goiko + ikonoa eta jarraitu argibideak lagunak zure zerrendara gehitzeko.\nGogoratu: Kontaktu berriak aurrez aurre besterik ezin dira gehitu beste inork zure itxurak ez egiteko edo zure mezuak ez irakurtzeko.</string>
   <string name="date_no_private_messages">Mezurik ez.</string>
@@ -90,31 +106,20 @@
   <string name="contact_deleted_toast">Kontaktua ezabatuta</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Gehitu kontaktua</string>
-  <string name="your_nickname">Hautatu erabili nahi duzun identitatea:</string>
   <string name="face_to_face">Aurrez aurre aurkitu behar zara pertsonarekin kontaktua gehitzeko.\n\nHonek inork zure itxurak egitea edo zure mezuak irakurtzea eragotziko du.</string>
   <string name="continue_button">Jarraitu</string>
-  <string name="your_invitation_code">Zure gonbidapen kodea hau da</string>
-  <string name="enter_invitation_code">Sartu zure gonbidapen kodea:</string>
-  <string name="searching_format">%06d gonbidapen kodea duen erabiltzailea bilatzen\u2026</string>
   <string name="connection_failed">Konexioak huts egin du</string>
-  <string name="could_not_find_contact">Briar aplikazioak ezin izan du zure kontaktua inguruan aurkitu</string>
   <string name="try_again_button">Saiatu berriro</string>
-  <string name="connected_to_contact">Kontaktura konektatuta</string>
-  <string name="calculating_confirmation_code">Berreste kode kalkulatzen\u2026</string>
-  <string name="your_confirmation_code">Zure berreste kodea hau da:</string>
-  <string name="enter_confirmation_code">Sartu zure kontaktuaren berreste kodea:</string>
-  <string name="waiting_for_contact">Kontaktuaren zain\u2026</string>
   <string name="waiting_for_contact_to_scan">Kontaktuak eskaneatu dezan eta konektatu dadin zain\u2026</string>
   <string name="exchanging_contact_details">Kontaktu-xehetasunak trukatzen\u2016</string>
-  <string name="codes_do_not_match">Kodeak ez datoz bat</string>
-  <string name="interfering">Norbait zure konexioan interferentziak sortzen saiatzen ari dela esan nahi lezake</string>
   <string name="contact_added_toast">Kontaktua gehituta: %s</string>
   <string name="contact_already_exists">%s kontaktua badago aurretik</string>
   <string name="contact_exchange_failed">Kontaktuen trukeak huts egin du</string>
   <string name="qr_code_invalid">QR kodea baliogabea da</string>
+  <string name="camera_error">Kameraren errorea</string>
   <string name="connecting_to_device">Gailura konektatzen\u2026</string>
   <string name="authenticating_with_device">Gailuarekin autentifikatzen\u2026</string>
-  <string name="connection_aborted_local">Guk eten dugu konexioa! Norbait zure konexioan interferentziak sortzen saiatzen ari dela esan nahi lezake</string>
+  <string name="connection_aborted_local">Konexioa eten da! Honek norbait konexioan interferentziak sortzen ari dela esan nahi lezake.</string>
   <string name="connection_aborted_remote">Zure kontaktuak eten du konexioa! Norbait zure konexioan interferentziak sortzen saiatzen ari dela esan nahi lezake</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Aurkeztu zure kontaktuak</string>
@@ -335,6 +340,7 @@
   <string name="notify_sound_setting_default">Lehenetsitako dei-doinua</string>
   <string name="notify_sound_setting_disabled">Bat ere ez</string>
   <string name="choose_ringtone_title">Hautatu dei-doinua</string>
+  <string name="cannot_load_ringtone">Ezin izan da dei-doinua kargatu</string>
   <!--Settings Feedback-->
   <string name="feedback_settings_title">Iruzkinak</string>
   <string name="send_feedback">Bidali iruzkinak</string>
@@ -364,4 +370,9 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Pantaila gainjartzea antzeman da</string>
   <string name="screen_filter_body">Briar aplikazioaren gainean marrazten ari den beste aplikazio bat dago. Zure segurtasuna babesteko Briar aplikazioak ez dio ukimenari erantzungo beste aplikazio bat gainean marrazten dagoen bitartean.\n\nSaiatu honako aplikazioak ixten Briar erabiltzean:\n\n%1$s</string>
+  <!--Permission Requests-->
+  <string name="permission_camera_title">Kamera baimena</string>
+  <string name="permission_camera_request_body">QR kodea eskaneatzeko Briar-ek kamera atzitu behar du.</string>
+  <string name="permission_camera_denied_body">Kameraatzitzeko baimena ukatu duzu, baina kontaktuak gehitzeko kamera behar da.\n\nMesedez baimendu sarbidea.</string>
+  <string name="permission_camera_denied_toast">Eza kameraren baimenik eman</string>
 </resources>

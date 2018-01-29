@@ -1,8 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Briarin asetus</string>
-  <string name="setup_explanation">Sinun Briar tili on tallennettu salattuna sinun laitteelle, ei pilvipalvelimelle. Jos poistat Briarin asennuksen tai unohdat salasanasi, ei ole mitään keinoa jolla tilisi tai dataasi voisi palauttaa.</string>
+  <string name="setup_title">Tervetuloa Briariin</string>
+  <string name="setup_name_explanation">Nimimerkkisi tulee näkymään julkaisemasi sisällön yhteydessä. Et voi muuttaa nimimerkkiä sen jälkeen kun olet luonut tilin.</string>
+  <string name="setup_next">Seuraava</string>
+  <string name="setup_password_intro">Valitse salasana</string>
+  <string name="setup_password_explanation">Sinun Briar tili on tallennettu salattuna sinun laitteelle, ei pilvipalvelimelle. Jos unohdat salasanasi tai poistat Briarin asennuksen, ei ole mitään keinoa jolla tilisi voisi palauttaa.\n\nValitse pitkä salasana, joka on vaikea arvata, esimerkiksi neljä sattumanvaraista sanaa tai kymmenen sattumanvaraista kirjainta, numeroa ja symbolia.</string>
+  <string name="setup_doze_title">Taustayhteydet</string>
+  <string name="setup_doze_intro">Vastaanottaakseen viestejä, Briarin täytyy pitää yhteyttä yllä taustalla.</string>
+  <string name="setup_doze_explanation">Vastaanottaakseen viestejä, Briarin täytyy pitää yhteyttä yllä taustalla. Ole hyvä ja kytke pois akun optimisaatiot, jotta Briar voisi pitää yhteyden yllä.</string>
+  <string name="setup_doze_button">Salli yhteydet</string>
   <string name="choose_nickname">Valitse nimimerkki</string>
   <string name="choose_password">Valitse salasana</string>
   <string name="confirm_password">Vahvista salasana</string>
@@ -10,6 +17,12 @@
   <string name="password_too_weak">Salasana on liian heikko</string>
   <string name="passwords_do_not_match">Salasanat eivät täsmää</string>
   <string name="create_account_button">Luo tili</string>
+  <string name="more_info">Lisätietoja</string>
+  <string name="don_t_ask_again">Älä kysy uudelleen</string>
+  <string name="setup_huawei_text">Napsauta alla olevaa nappia varmistaaksesi, että Briar on suojattu \"Suojatut sovellukset\" -näkymässä.</string>
+  <string name="setup_huawei_button">Suojaa Briar</string>
+  <string name="setup_huawei_help">Jos Briaria ei lisätä suojattujen sovellusten listalle, se ei voi toimia taustalla.</string>
+  <string name="warning_dozed">%s ei voinut toimia taustalla</string>
   <!--Login-->
   <string name="enter_password">Syötä salasana:</string>
   <string name="try_again">Väärä salasana, yritä uudelleen</string>
@@ -23,9 +36,10 @@
   <string name="startup_failed_db_error">Jostain syystä sinun Briar tietokanta on korruptoitunut korjauskelvottomaksi. Tilisi, tietosi ja kaikki yhteystietosi on menetetty. Valitettavasti, sinun täytyy asentaa Briar uudelleen ja luoda uusi tili.</string>
   <string name="startup_failed_service_error">Briar ei kyennyt käynnistämään vaadittua liitännäistä. Briarin uudelleenasennus yleensä korjaa ongelman. Huomaa kuitenkin, että tulet menettämään tilisi ja kaikki siihen liittyvä data koska Briar ei käytä palvelimia sinun tietojesi säilyttämiseen.</string>
   <plurals name="expiry_warning">
-    <item quantity="one">Tämä on Briarin beeta versio. Sinun tilisi tulee vanhentumaan %d päivän päästä eikä sitä voi uusia.</item>
-    <item quantity="other">Tämä on Briarin beeta versio. Sinun tilisi tulee vanhentumaan %d päivän päästä eikä sitä voi uusia.</item>
+    <item quantity="one">Tämä on Briarin testiversio. Sinun tilisi tulee vanhentumaan %d päivän päästä eikä sitä voi uusia.</item>
+    <item quantity="other">Tämä on Briarin testiversio. Sinun tilisi tulee vanhentumaan %d päivän päästä eikä sitä voi uusia.</item>
   </plurals>
+  <string name="expiry_update">Testiaikaa on pidennetty. Tilisi tulee nyt vanhentumaan %d päivän kuluttua.</string>
   <string name="expiry_date_reached">Tämä sovellus on vanhentunut.\nKiitos testaamisesta!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Avaa navigointilaatikko</string>
@@ -79,6 +93,8 @@
   <string name="ellipsis">…</string>
   <string name="text_too_long">Kirjoitettu teksti on liian pitkä</string>
   <string name="show_onboarding">Näytä apudialogi</string>
+  <string name="fix">Korjaa</string>
+  <string name="help">Ohje</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Näyttää siltä, että olet uusi täällä, eikä sinulla vielä ole yhteyshenkilöitä.\n\nNapauta yllä olevaa + -kuvaketta ja seuraa ohjeita lisätäksesi kavereita luetteloon.\n\nMuista: Voit ainoastaan lisätä uusia yhteyshenkilöitä tapaamalla heidät kasvokkain. Tämä estää sen, että joku voisi esittää olevansa sinä tai lukea viestejäsi tulevaisuudessa.</string>
   <string name="date_no_private_messages">Ei viestejä.</string>
@@ -90,31 +106,20 @@
   <string name="contact_deleted_toast">Yhteystieto poistettu</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Lisää yhteystieto</string>
-  <string name="your_nickname">Valitse tunnus jota haluat käyttää:</string>
   <string name="face_to_face">Sinun täytyy tavata käyttäjä, jonka haluat lisätä yhteystietoihisi.\n\nTämä estää sen, että joku voisi esittää olevansa sinä tai lukea viestejäsi tulevaisuudessa</string>
   <string name="continue_button">Jatka</string>
-  <string name="your_invitation_code">Sinun kutsukoodi on</string>
-  <string name="enter_invitation_code">Syötä yhteyshenkilösi kutsukoodi:</string>
-  <string name="searching_format">Etsitään yhteyshenkilöä jolla on kutsukoodi %06d\u2026</string>
   <string name="connection_failed">Yhteys epäonnistui</string>
-  <string name="could_not_find_contact">Briar ei löytänyt yhteyshenkilöä lähistöltä</string>
   <string name="try_again_button">Yritä uudelleen</string>
-  <string name="connected_to_contact">Yhdistetty yhteyshenkilöön</string>
-  <string name="calculating_confirmation_code">Luodaan varmennuskoodi\u2026</string>
-  <string name="your_confirmation_code">Sinun varmennuskoodi on</string>
-  <string name="enter_confirmation_code">Syötä yhteyshenkilösi varmennuskoodi:</string>
-  <string name="waiting_for_contact">Odotetaan yhteyshenkilöä\u2026</string>
   <string name="waiting_for_contact_to_scan">Odotetaan, että käyttäjä skannaa ja saa yhteyden\u2026</string>
   <string name="exchanging_contact_details">Yhteystietoja vaihdetaan\u2026</string>
-  <string name="codes_do_not_match">Koodit eivät täsmää</string>
-  <string name="interfering">Tämä voi tarkoittaa, että joku yrittää häiritä sinun ja toisen käyttäjän välistä yhteyttä</string>
   <string name="contact_added_toast">Yhteystieto lisätty: %s</string>
   <string name="contact_already_exists">Yhteystieto %s on jo olemassa</string>
   <string name="contact_exchange_failed">Yhteystietojen vaihto epäonnistui</string>
   <string name="qr_code_invalid">QR koodi on virheellinen</string>
+  <string name="camera_error">Kameravirhe</string>
   <string name="connecting_to_device">Yhdistetään laitteeseen\u2026</string>
   <string name="authenticating_with_device">Tunnistaudutaan laitteen kanssa\u2026</string>
-  <string name="connection_aborted_local">Katkaisimme sinun ja toisen käyttäjän välisen yhteyden! Tämä voi tarkoittaa, että joku muu yrittää häiritä sinun ja toisen käyttäjän välistä yhteyttä</string>
+  <string name="connection_aborted_local">Yhteys katkaistu! Tämä voi tarkoittaa, että joku muu yrittää häiritä sinun ja toisen käyttäjän välistä yhteyttä</string>
   <string name="connection_aborted_remote">Toinen käyttäjä katkaisi yhteyden! Tämä voi tarkoittaa, että joku muu yrittää häiritä sinun ja toisen käyttäjän välistä yhteyttä</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Esittele yhteyshenkilösi</string>
@@ -335,6 +340,7 @@
   <string name="notify_sound_setting_default">Oletussoittoääni</string>
   <string name="notify_sound_setting_disabled">Ei mikään</string>
   <string name="choose_ringtone_title">Valitse soittoääni</string>
+  <string name="cannot_load_ringtone">Soittoäänen lataaminen epäonnistui</string>
   <!--Settings Feedback-->
   <string name="feedback_settings_title">Palaute</string>
   <string name="send_feedback">Lähetä palautetta</string>
@@ -364,4 +370,9 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Näyttökerros havaittu</string>
   <string name="screen_filter_body">Toinen sovellus on piirtämässä Briarin päälle. Suojellakseen sinun turvallisuutta, Briar ei tule vastaamaan kosketuksiin silloin kun toinen sovellus on piirtämässä Briarin päälle.\n\nYritä sulkea seuraavat sovellukset silloin kun käytät Briaria:\n\n%1$s</string>
+  <!--Permission Requests-->
+  <string name="permission_camera_title">Kameralupa</string>
+  <string name="permission_camera_request_body">Skannatakseen QR koodin, Briar tarvitsee luvan käyttää kameraa.</string>
+  <string name="permission_camera_denied_body">Olet kieltänyt käyttämästä kameraa, mutta yhteyshenkilöiden lisääminen vaatii kameran käyttöä.\n\nOle hyvä ja harkitse kameraluvan myöntämistä.</string>
+  <string name="permission_camera_denied_toast">Kameralupaa ei myönnetty</string>
 </resources>

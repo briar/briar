@@ -1,8 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">ब्रियर सेटअप</string>
-  <string name="setup_explanation">आपका ब्रियर खाता आपके डिवाइस पर एन्क्रिप्ट किया गया है, न कि क्लाउड में। यदि आप बिअर की स्थापना रद्द करते हैं या अपना पासवर्ड भूल जाते हैं, तो आपके खाता और आपके डेटा को पुनर्प्राप्त करने का कोई तरीका नहीं है।</string>
+  <string name="setup_next">अगला</string>
   <string name="choose_nickname">आपका मुंहबोला नाम चुनें</string>
   <string name="choose_password">अपना पासवर्ड चुनें</string>
   <string name="confirm_password">अपने पासवर्ड की पुष्टि करें</string>
@@ -10,6 +9,7 @@
   <string name="password_too_weak">पासवर्ड बहुत कमजोर है</string>
   <string name="passwords_do_not_match">पासवर्ड मेल नहीं खाते</string>
   <string name="create_account_button">खाता बनाएं</string>
+  <string name="more_info">अधिक जानकारी</string>
   <!--Login-->
   <string name="enter_password">अपना पासवर्ड डालें:</string>
   <string name="try_again">गलत पासवर्ड, फिर से प्रयास करें</string>
@@ -20,12 +20,7 @@
   <string name="startup_failed_notification_title">बियर शुरू नहीं हो सका</string>
   <string name="startup_failed_notification_text">आपको ब्रियर को पुनर्स्थापित करने की आवश्यकता हो सकती है</string>
   <string name="startup_failed_activity_title">ब्रियर स्टार्टअप विफलता</string>
-  <string name="startup_failed_db_error">किसी कारण से, आपके ब्रियर डेटाबेस की मरम्मत से परे भ्रष्ट है। आपका खाता, आपका डेटा और आपके सभी संपर्क कनेक्शन खो जाते हैं। दुर्भाग्य से, आपको ब्रियर को पुनर्स्थापित करना होगा और एक नया खाता सेट अप करना होगा।</string>
   <string name="startup_failed_service_error">ब्रियर एक आवश्यक प्लगइन प्रारंभ करने में असमर्थ था बरिअर को पुनः स्थापित करना आमतौर पर इस समस्या को हल करता है हालांकि, कृपया ध्यान दें कि बियर आपके डेटा को स्टोर करने के लिए केंद्रीय सर्वर का उपयोग नहीं कर रहा है, इसके बाद आप अपने खाता और उसके साथ जुड़े सभी डेटा खो देंगे।</string>
-  <plurals name="expiry_warning">
-    <item quantity="one">यह बियर का बीटा संस्करण है आपका खाता%d दिनों में समाप्त हो जाएगा और नवीनीकरण नहीं किया जा सकता है।</item>
-    <item quantity="other">यह बियर का बीटा संस्करण है आपका खाता%d दिनों में समाप्त हो जाएगा और नवीनीकरण नहीं किया जा सकता है।</item>
-  </plurals>
   <string name="expiry_date_reached">यह सॉफ्टवेयर समाप्त हो गया है। \n परीक्षण के लिए धन्यवाद!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">नेविगेशन ड्रॉवर खोलें</string>
@@ -79,6 +74,7 @@
   <string name="ellipsis">…</string>
   <string name="text_too_long">प्रवेश किया हुआ पाठ बहुत लंबा है</string>
   <string name="show_onboarding">सहायता संवाद दिखाएं</string>
+  <string name="help">सहायता</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">ऐसा लगता है कि आप यहां नए हैं और अभी तक कोई संपर्क नहीं है। \ N \ n शीर्ष पर + आइकन टैप करें और कुछ मित्रों को अपनी सूची में जोड़ने के लिए निर्देशों का पालन करें। \ N \ n कृपया याद रखें: आप केवल नए संपर्कों को आमने-सामने जोड़ सकते हैं किसी भी व्यक्ति को भविष्य में आपके प्रतिरूपण या पढ़ने से रोकने के लिए -फाइल</string>
   <string name="date_no_private_messages">कोई संदेश नहीं।</string>
@@ -90,31 +86,18 @@
   <string name="contact_deleted_toast">संपर्क हटा दिया गया</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">संपर्क जोड़ना</string>
-  <string name="your_nickname">वह पहचान चुनें जिसे आप उपयोग करना चाहते हैं:</string>
   <string name="face_to_face">आपको उस व्यक्ति के साथ मिलना चाहिए जिसे आप संपर्क के रूप में जोड़ना चाहते हैं। \ N \ n यह किसी को भविष्य में आपके प्रतिरूपण या पढ़ने के बाद से किसी को भी रोकेगा।</string>
   <string name="continue_button">जारी रहना</string>
-  <string name="your_invitation_code">आपका निमंत्रण कोड है</string>
-  <string name="enter_invitation_code">कृपया अपने संपर्क के निमंत्रण कोड को दर्ज करें:</string>
-  <string name="searching_format">निमंत्रण कोड%06d\ u2026 के साथ संपर्क के लिए खोज रहे हैं</string>
   <string name="connection_failed">कनेक्शन विफल</string>
-  <string name="could_not_find_contact">ब्रियर आपके संपर्क के पास नहीं मिल सका</string>
   <string name="try_again_button">पुनः प्रयास करें</string>
-  <string name="connected_to_contact">संपर्क से कनेक्ट किया गया</string>
-  <string name="calculating_confirmation_code">पुष्टि कोड की गणना \ u2026</string>
-  <string name="your_confirmation_code">आपका पुष्टिकरण कोड है</string>
-  <string name="enter_confirmation_code">कृपया अपने संपर्क का पुष्टिकरण कोड दर्ज करें:</string>
-  <string name="waiting_for_contact">संपर्क की प्रतीक्षा कर रहा है \ u2026</string>
   <string name="waiting_for_contact_to_scan">स्कैन करने और कनेक्ट करने के लिए संपर्क की प्रतीक्षा कर रहा है \ u2026</string>
   <string name="exchanging_contact_details">संपर्क विवरणों का आदान-प्रदान करें \ u2026</string>
-  <string name="codes_do_not_match">कोड मेल नहीं खाते हैं</string>
-  <string name="interfering">इसका मतलब यह हो सकता है कि कोई आपके कनेक्शन में हस्तक्षेप करने का प्रयास कर रहा है</string>
   <string name="contact_added_toast">संपर्क जोड़ा गया:%s</string>
   <string name="contact_already_exists">संपर्क%s पहले से मौजूद है</string>
   <string name="contact_exchange_failed">संपर्क विनिमय विफल</string>
   <string name="qr_code_invalid">QR कोड अमान्य है</string>
   <string name="connecting_to_device">उपकरण \ u2026 से कनेक्ट हो रहा है</string>
   <string name="authenticating_with_device">डिवाइस के साथ प्रमाणीकरण \ u2026</string>
-  <string name="connection_aborted_local">कनेक्शन हमारे द्वारा निरस्त कर दिया! इसका मतलब यह हो सकता है कि कोई आपके कनेक्शन में हस्तक्षेप करने का प्रयास कर रहा है</string>
   <string name="connection_aborted_remote">आपके संपर्क से कनेक्शन निरस्त! इसका मतलब यह हो सकता है कि कोई आपके कनेक्शन में हस्तक्षेप करने का प्रयास कर रहा है</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">अपने संपर्कों का परिचय दें</string>
@@ -364,4 +347,5 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">स्क्रीन ओवरले का पता लगाया</string>
   <string name="screen_filter_body">एक और ऐप ब्रियर के शीर्ष पर है। आपकी सुरक्षा की सुरक्षा के लिए, ब्रियर किसी अन्य ऐप को शीर्ष पर खींचने पर स्पर्श का जवाब नहीं देगा। \ N \ n बरिआर का उपयोग करते समय निम्नलिखित ऐप्स बंद कर दें: \ n \ n%1$s</string>
+  <!--Permission Requests-->
 </resources>

@@ -1,8 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Briar einrichten</string>
-  <string name="setup_explanation">Dein Briar-Konto wird verschlüsselt auf deinem Gerät gespeichert und nicht mit der \"Cloud\" synchronisiert. Wenn du Briar deinstallierst oder dein Passwort vergisst, können das Konto und deine Daten nicht wiederhergestellt werden.</string>
+  <string name="setup_title">Willkommen bei Briar</string>
+  <string name="setup_name_explanation">Dein Benutzername wird neben deinem geposteten Inhalt angezeigt. Du kannst diesen nicht mehr ändern, nachdem du dein Konto erstellt hast.</string>
+  <string name="setup_next">Weiter</string>
+  <string name="setup_password_intro">Wähle ein Passwort</string>
+  <string name="setup_password_explanation">Dein Briar-Konto wird auf deinem Gerät verschlüsselt und nicht in der Cloud gespeichert. Wenn du dein Passwort vergisst oder Briar deinstallierst, gibt es keine Möglichkeit, dein Konto wiederherzustellen.\n\nWähle ein langes Passwort, das schwer zu erraten ist, z.B. vier zufällige Wörter oder zehn zufällige Buchstaben, Zahlen und Symbole.</string>
+  <string name="setup_doze_title">Hintergrundverbindungen</string>
+  <string name="setup_doze_intro">Um Nachrichten zu empfangen, muss Briar im Hintergrund verbunden bleiben.</string>
+  <string name="setup_doze_explanation">Um Nachrichten zu empfangen, muss Briar im Hintergrund verbunden bleiben. Bitte deaktiviere die Batterieoptimierungen, damit Briar in Verbindung bleiben kann.</string>
+  <string name="setup_doze_button">Erlaube Verbindungen</string>
   <string name="choose_nickname">Wähle deinen Benutzernamen</string>
   <string name="choose_password">Wähle dein Passwort</string>
   <string name="confirm_password">Passwort bestätigen</string>
@@ -10,22 +17,29 @@
   <string name="password_too_weak">Passwort zu schwach</string>
   <string name="passwords_do_not_match">Passwörter stimmen nicht überein</string>
   <string name="create_account_button">Konto anlegen</string>
+  <string name="more_info">Weitere Informationen</string>
+  <string name="don_t_ask_again">Frage nicht noch einmal</string>
+  <string name="setup_huawei_text">Bitte tippe auf die Schaltfläche unten und stelle sicher, dass Briar unter \"Geschützte Apps\" angezeigt wird.</string>
+  <string name="setup_huawei_button">Schütze Briar</string>
+  <string name="setup_huawei_help">Wenn Briar nicht zur Liste der geschützten Apps hinzugefügt wird, kann es nicht im Hintergrund ausgeführt werden.</string>
+  <string name="warning_dozed">%s konnte nicht im Hintergrund ausgeführt werden</string>
   <!--Login-->
   <string name="enter_password">Passwort eingeben:</string>
   <string name="try_again">Passwort falsch, bitte erneut versuchen</string>
   <string name="sign_in_button">Anmelden</string>
   <string name="forgotten_password">Ich habe mein Passwort vergessen</string>
   <string name="dialog_title_lost_password">Passwort vergessen</string>
-  <string name="dialog_message_lost_password">Dein Briar-Konto ist verschlüsselt auf deinem Gerät gespeichert und nicht mit der \"Cloud\" synchronisiert. Deshalb können wir dein Passwort nicht zurücksetzen. Willst du dein Konto löschen und neu beginnen?\n\nAchtung: Deine bestehenden Identitäten, Kontakte und Nachrichten gehen dann für immer verloren.</string>
+  <string name="dialog_message_lost_password">Dein Briar-Konto ist auf deinem Gerät verschlüsselt und nicht in der Cloud gespeichert, deshalb kannst du dein Passwort nicht zurücksetzen. Willst du dein Konto löschen und neu beginnen?\n\nAchtung: Deine bestehenden Identitäten, Kontakte und Nachrichten gehen dann für immer verloren.</string>
   <string name="startup_failed_notification_title">Briar konnte nicht gestartet werden</string>
   <string name="startup_failed_notification_text">Möglicherweise hilft eine Neuinstallation von Briar.</string>
   <string name="startup_failed_activity_title">Fehler beim Starten von Briar</string>
-  <string name="startup_failed_db_error">Deine Briar-Datenbank ist korrupt. Briar-Konto, Daten und alle Verbindungen zu Kontakten können nicht mehr wiederhergestellt werden. Deinstalliere Briar und erstelle nach Installation der aktuellen Briar-Version ein neues Konto.</string>
-  <string name="startup_failed_service_error">Briar konnte ein benötigtes Plugin nicht starten. Normalerweise kann das Problem durch eine Neuinstallation von Briar gelöst werden. Eine Neuinstallation führt jedoch zum Verlust des Kontos und aller dazugehörigen Daten, da Briar deine Daten nicht auf zentralen Servern speichert.</string>
+  <string name="startup_failed_db_error">Aus irgendeinem Grund ist deine Briar-Datenbank irreparabel beschädigt. Dein Konto, deine Daten und alle deinen Kontakte sind verloren. Leider musst du Briar neu installieren und ein neues Konto einrichten.</string>
+  <string name="startup_failed_service_error">Briar konnte ein benötigtes Plugin nicht starten. Normalerweise kann das Problem durch eine Neuinstallation von Briar gelöst werden. Eine Neuinstallation führt jedoch zum Verlust deines Kontos und aller dazugehörigen Daten, da Briar deine Daten nicht auf zentralen Servern speichert.</string>
   <plurals name="expiry_warning">
-    <item quantity="one">Dies ist eine Beta-Version von Briar. Dein Konto läuft in %d Tag ab und kann nicht verlängert werden.</item>
-    <item quantity="other">Dies ist eine Beta-Version von Briar. Dein Konto läuft in %d Tagen ab und kann nicht verlängert werden.</item>
+    <item quantity="one">Dies ist eine Testversion von Briar. Dein Konto läuft in %d Tag ab und kann nicht verlängert werden.</item>
+    <item quantity="other">Dies ist eine Testversion von Briar. Dein Konto läuft in %d Tagen ab und kann nicht verlängert werden.</item>
   </plurals>
+  <string name="expiry_update">Das Ablaufdatum des Tests wurde verlängert. Dein Konto läuft nun in %d Tagen ab.</string>
   <string name="expiry_date_reached">Diese Software ist abgelaufen.\nDanke dass du Briar getestet hast!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Navigationsleiste öffnen</string>
@@ -79,8 +93,10 @@
   <string name="ellipsis">…</string>
   <string name="text_too_long">Der eingegebene Text ist leider zu lang</string>
   <string name="show_onboarding">Hilfe anzeigen</string>
+  <string name="fix">Behoben</string>
+  <string name="help">Hilfe</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nTippe auf das \"+\"-Symbol am oberen Bildschirmrand an und folge den Anweisungen, um Freunde zu deiner Kontaktliste hinzuzufügen.\n\nDenke daran, dass du neue Kontakte nur dann hinzufügen kannst, wenn du ihnen persönlich begegnest. Das hindert andere daran, sich als deine Person auszugeben oder deine Nachrichten zu lesen.</string>
+  <string name="no_contacts">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nTippe auf das \"+\"-Symbol am oberen Bildschirmrand und folge den Anweisungen, um Freunde zu deiner Kontaktliste hinzuzufügen.\n\nDenke daran, dass du neue Kontakte nur dann hinzufügen kannst, wenn du ihnen persönlich begegnest. Das hindert andere daran, sich als deine Person auszugeben oder deine Nachrichten zu lesen.</string>
   <string name="date_no_private_messages">Keine Nachrichten.</string>
   <string name="no_private_messages">Das ist die Gesprächsansicht.\n\nEs scheint hier einen Mangel an Gesprächsthemen zu geben.\n\nUm ein neues Gespräch zu beginnen, verwende einfach das Eingabefeld am unteren Bildschirmrand.</string>
   <string name="message_hint">Nachricht eingeben</string>
@@ -90,31 +106,20 @@
   <string name="contact_deleted_toast">Kontakt gelöscht</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Kontakt hinzufügen</string>
-  <string name="your_nickname">Wähle die zu verwendende Identität:</string>
   <string name="face_to_face">Um einen neuen Kontakt hinzuzufügen, ist es notwendig, dass sich beide Kontakte an einem Ort treffen.\n\nDadurch wird betrügerische Identitätsvortäuschung und unautorisierter Kommunikationszugriff verhindert.</string>
   <string name="continue_button">Weiter</string>
-  <string name="your_invitation_code">Dein Einladungs-Code ist</string>
-  <string name="enter_invitation_code">Bitte gib den Einladungs-Code deines Kontakts an:</string>
-  <string name="searching_format">Suche nach Kontakt mit Einladungs-Code %06d\u2026</string>
   <string name="connection_failed">Verbindung fehlgeschlagen</string>
-  <string name="could_not_find_contact">Briar kann deinen Kontakt nicht innerhalb der Reichweite finden.</string>
   <string name="try_again_button">Noch einmal versuchen</string>
-  <string name="connected_to_contact">Mit Kontakt verbunden</string>
-  <string name="calculating_confirmation_code">Bestätigungscode wird berechnet\u2026</string>
-  <string name="your_confirmation_code">Dein Bestätigungscode ist</string>
-  <string name="enter_confirmation_code">Bitte gib den Bestätigungscode deines Kontakts ein:</string>
-  <string name="waiting_for_contact">Warte auf Kontakt\u2026</string>
   <string name="waiting_for_contact_to_scan">Warte auf Scan und Verbindung mit dem Kontakt\u2026</string>
   <string name="exchanging_contact_details">Kontaktdetails werden ausgetauscht\u2026</string>
-  <string name="codes_do_not_match">Codes stimmen nicht überein</string>
-  <string name="interfering">Möglicherweise stört jemand deine Verbindung.</string>
   <string name="contact_added_toast">Kontakt hinzugefügt: %s</string>
   <string name="contact_already_exists">Kontakt %s existiert bereits</string>
   <string name="contact_exchange_failed">Kontaktaustausch fehlgeschlagen</string>
   <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
+  <string name="camera_error">Kamerafehler</string>
   <string name="connecting_to_device">Verbinde mit Gerät\u2026</string>
   <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
-  <string name="connection_aborted_local">Verbindung wurde durch uns abgebrochen! Möglicherweise stört jemand deine Verbindung.</string>
+  <string name="connection_aborted_local">Verbindung abgebrochen! Dies könnte bedeuten, dass jemand versucht, deine Verbindung zu stören.</string>
   <string name="connection_aborted_remote">Verbindung wurde durch deinen Kontakt abgebrochen! Möglicherweise stört jemand deine Verbindung.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Mache deine Kontakte untereinander bekannt</string>
@@ -123,8 +128,8 @@
   <string name="introduction_message_title">Kontakte untereinander bekannt machen</string>
   <string name="introduction_message_hint">Nachricht hinzufügen (optional)</string>
   <string name="introduction_button">Kontaktempfehlung abgeben</string>
-  <string name="introduction_sent">Deine Kontaktempfehlung wurde verschickt</string>
-  <string name="introduction_error">Es gab einen Fehler beim Versuch, die Kontaktempfehlung zu verschicken</string>
+  <string name="introduction_sent">Deine Kontaktempfehlung wurde verschickt.</string>
+  <string name="introduction_error">Es gab einen Fehler beim Versuch, die Kontaktempfehlung zu verschicken.</string>
   <string name="introduction_response_error">Fehler bei Antwort auf Kontaktempfehlung</string>
   <string name="introduction_request_sent">Du wolltest %1$s an %2$s als Kontakt empfehlen</string>
   <string name="introduction_request_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. Möchtest du %2$s zu deiner Kontaktliste hinzufügen?</string>
@@ -155,7 +160,7 @@
   <string name="groups_create_group_hint">Wähle einen Namen für deine private Gruppe</string>
   <string name="groups_invitation_sent">Gruppeneinladung versendet</string>
   <string name="groups_message_sent">Nachricht gesendet</string>
-  <string name="groups_member_list">Mitglieder</string>
+  <string name="groups_member_list">Mitgliederliste</string>
   <string name="groups_invite_members">Mitglieder einladen</string>
   <string name="groups_member_created_you">Du hast diese Gruppe erstellt</string>
   <string name="groups_member_created">%s hat diese Gruppe erstellt</string>
@@ -189,16 +194,16 @@
   <string name="groups_reveal_contacts">Kontakte teilen</string>
   <string name="groups_reveal_dialog_message">Kontakte können mit allen derzeitigen und zukünftigen Mitgliedern dieser Gruppe geteilt werden.\n\nDas beschleunigt die Verbindung zu der Gruppe und macht sie zusätzlich zuverlässiger, da Kommunikation mit den Mitgliedern auch dann erfolgen kann, wenn der Ersteller der Gruppe offline ist.</string>
   <string name="groups_reveal_visible">Verbindung zum Kontakt ist für die Gruppe sichtbar</string>
-  <string name="groups_reveal_visible_revealed_by_us">Beziehung zum Kontakt ist für diese Gruppe sichtbar (selbst offengelegt)</string>
-  <string name="groups_reveal_visible_revealed_by_contact">Beziehung zum Kontakt ist für diese Gruppe sichtbar (offengelegt durch %s)</string>
-  <string name="groups_reveal_invisible">Beziehung zum Kontakt ist für diese Gruppe nicht sichtbar</string>
+  <string name="groups_reveal_visible_revealed_by_us">Verbindung zum Kontakt ist für diese Gruppe sichtbar (selbst offengelegt)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">Verbindung zum Kontakt ist für diese Gruppe sichtbar (offengelegt durch %s)</string>
+  <string name="groups_reveal_invisible">Verbindung zum Kontakt ist für diese Gruppe nicht sichtbar</string>
   <!--Forums-->
   <string name="no_forums">Du hast noch keine Foren.\n\nWarum erstellst du nicht einfach selbst ein neues Forum, indem du auf das \"+\"-Symbol am oberen Bildschirmrand tippst?\n\nDu kannst auch deine Kontakte auffordern, Foren mit dir zu teilen.</string>
   <string name="create_forum_title">Forum erstellen</string>
   <string name="choose_forum_hint">Wähle einen Namen für dein Forum</string>
   <string name="create_forum_button">Forum erstellen</string>
   <string name="forum_created_toast">Forum wurde erstellt</string>
-  <string name="no_forum_posts">Dieses Forum ist leer.\n\nBenutze das Stift-Icon am oberen Bildschirmrand um den ersten Beitrag zu verfassen.\n\nFühlst du dich einsam hier? Dann teile das Forum mit weiteren Kontakten!</string>
+  <string name="no_forum_posts">Dieses Forum ist leer.\n\nBenutze das Stift-Symbol am oberen Bildschirmrand, um den ersten Beitrag zu verfassen.\n\nFühlst du dich einsam hier? Dann teile das Forum mit weiteren Kontakten!</string>
   <string name="no_posts">Keine Beiträge</string>
   <plurals name="posts">
     <item quantity="one">%d Beitrag</item>
@@ -233,7 +238,7 @@
   <string name="forum_invitation_response_declined_sent">Du hast die Forumeinladung von %s abgelehnt.</string>
   <string name="forum_invitation_response_accepted_received">%s hat die Forumeinladung akzeptiert.</string>
   <string name="forum_invitation_response_declined_received">%s hat die Forumseinladung abgelehnt.</string>
-  <string name="sharing_status">Sharing Status</string>
+  <string name="sharing_status">Freigabestatus</string>
   <string name="sharing_status_forum">Jedes Mitglied eines Forums kann dieses mit seinen Kontakten teilen. Du teilst dieses Forum mit den folgenden Kontakten. Möglicherweise gibt es Mitglieder die nicht sichtbar sind.</string>
   <string name="shared_with">Geteilt mit %1$d (%2$d online)</string>
   <plurals name="forums_shared">
@@ -242,7 +247,7 @@
   </plurals>
   <string name="nobody">Niemand</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Dieser Blog ist momentan leer.\n\nEntweder hat der Autor noch nichts geschrieben, oder die Person, die diesen Blog mit dir geteilt hat, muss online kommen, sodass Beiträge synchronisiert werden können.</string>
+  <string name="blogs_other_blog_empty_state">Dieser Blog ist momentan leer.\n\nEntweder hat der Autor noch nichts geschrieben, oder die Person, die diesen Blog mit dir geteilt hat, muss online gehen, sodass Beiträge synchronisiert werden können.</string>
   <string name="read_more">weiterlesen</string>
   <string name="blogs_write_blog_post">Blogbeitrag erstellen</string>
   <string name="blogs_write_blog_post_body_hint">Gib hier deinen Blogbeitrag ein</string>
@@ -250,7 +255,7 @@
   <string name="blogs_blog_post_created">Blogbeitrag erstellt</string>
   <string name="blogs_blog_post_received">Neuen Blogbeitrag empfangen</string>
   <string name="blogs_blog_post_scroll_to">Scrolle zu</string>
-  <string name="blogs_feed_empty_state">Dies ist die globale Blog-Zeitleiste.\n\nOffensichtlich hat noch niemand etwas veröffentlicht.\n\nSei die oder der Erste und tippe auf das Stift-Icon, um einen neuen Blogbeitrag zu verfassen.</string>
+  <string name="blogs_feed_empty_state">Dies ist die globale Blog-Zeitleiste.\n\nOffensichtlich hat noch niemand etwas veröffentlicht.\n\nSei die oder der Erste und tippe auf das Stift-Symbol, um einen neuen Blogbeitrag zu verfassen.</string>
   <string name="blogs_remove_blog">Blog entfernen</string>
   <string name="blogs_remove_blog_dialog_message">Bist du sicher, dass du diesen Blog und alle dazugehörigen Beiträge löschen möchtest?\nBeachte, dass dies nicht den Blog auf Geräten anderer Leute löscht.</string>
   <string name="blogs_remove_blog_ok">Blog entfernen</string>
@@ -259,14 +264,14 @@
   <string name="blogs_reblog_button">Rebloggen</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Blog teilen</string>
-  <string name="blogs_sharing_error">Es gab einen Fehler beim Versuch, dieses Blog zu teilen</string>
+  <string name="blogs_sharing_error">Es gab einen Fehler beim Versuch, diesen Blog zu teilen.</string>
   <string name="blogs_sharing_button">Blog teilen</string>
   <string name="blogs_sharing_snackbar">Blog wurde mit ausgewählten Kontakten geteilt</string>
   <string name="blogs_sharing_response_accepted_sent">Du hast die Blogeinladung von %s akzeptiert.</string>
   <string name="blogs_sharing_response_declined_sent">Du hast die Blogeinladung von %s abgelehnt.</string>
   <string name="blogs_sharing_response_accepted_received">%s hat die Blogeinladung akzeptiert.</string>
   <string name="blogs_sharing_response_declined_received">%s hat die Blogeinladung abgelehnt.</string>
-  <string name="blogs_sharing_invitation_received">%1$shat den Blog \"%2$s\" mit Dir geteilt.</string>
+  <string name="blogs_sharing_invitation_received">%1$shat den Blog \"%2$s\" mit dir geteilt.</string>
   <string name="blogs_sharing_invitation_sent">Du teilst den Blog \"%1$s\" mit %2$s.</string>
   <string name="blogs_sharing_invitations_title">Blogeinladungen</string>
   <string name="blogs_sharing_joined_toast">Blog abonniert</string>
@@ -285,7 +290,7 @@
   <string name="blogs_rss_remove_feed_dialog_message">Soll der Feed mit allen Posts wirklich gelöscht werden?\nGeteilte Posts werden dabei nicht von anderen Geräten gelöscht.</string>
   <string name="blogs_rss_remove_feed_ok">Feed entfernen</string>
   <string name="blogs_rss_feeds_manage_delete_error">Der Feed konnte nicht gelöscht werden!</string>
-  <string name="blogs_rss_feeds_manage_empty_state">Du hast bisher noch keine RSS-Feeds importiert. Tippe auf das \"+\"-Icon am oberen Bildschirmrand, um einen neuen Feed hinzuzufügen.</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Du hast bisher noch keine RSS-Feeds importiert. Tippe auf das \"+\"-Symbol am oberen Bildschirmrand, um einen neuen Feed hinzuzufügen.</string>
   <string name="blogs_rss_feeds_manage_error">Es gab ein Problem beim Laden deiner Feeds. Bitte versuche es später erneut.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Netzwerke</string>
@@ -311,7 +316,7 @@
   <string name="panic_app_setting_summary">Keine App eingerichtet</string>
   <string name="panic_app_setting_none">Keine</string>
   <string name="dialog_title_connect_panic_app">Bestätige Panik-App</string>
-  <string name="dialog_message_connect_panic_app">Bist Du sicher, dass Du %1$s erlauben willst, Panik-Button-Ereignisse auszulösen? Dies kann zum Löschen von Daten führen.</string>
+  <string name="dialog_message_connect_panic_app">Bist du sicher, dass du %1$s erlauben willst, Panik-Button-Ereignisse auszulösen? Dies kann zum Löschen von Daten führen.</string>
   <string name="lock_setting_title">Abmelden</string>
   <string name="lock_setting_summary">Von Briar abmelden, wenn ein Panik-Button aktiviert wird</string>
   <string name="purge_setting_title">Konto löschen</string>
@@ -335,6 +340,7 @@
   <string name="notify_sound_setting_default">Standardklingelton</string>
   <string name="notify_sound_setting_disabled">Keine</string>
   <string name="choose_ringtone_title">Klingelton auswählen</string>
+  <string name="cannot_load_ringtone">Klingelton kann nicht geladen werden</string>
   <!--Settings Feedback-->
   <string name="feedback_settings_title">Feedback</string>
   <string name="send_feedback">Feedback abschicken</string>
@@ -360,8 +366,13 @@
   <string name="close">Schließen</string>
   <string name="dev_report_saved">Der Bericht wurde gespeichert. Er wird verschickt, wenn du dich das nächste Mal bei Briar anmeldest.</string>
   <!--Sign Out-->
-  <string name="progress_title_logout">Von Briar abmelden ...</string>
+  <string name="progress_title_logout">Von Briar abmelden...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Bildschirmüberlagerung erkannt</string>
   <string name="screen_filter_body">Eine andere App überlagert Briar. Um deine Sicherheit zu gewährleisten, reagiert Briar in diesem Fall nicht auf deine Eingaben.\n\nBeende deswegen die folgenden Apps während der Verwendung von Briar:\n\n%1$s</string>
+  <!--Permission Requests-->
+  <string name="permission_camera_title">Berechtigung Kamera</string>
+  <string name="permission_camera_request_body">Um den QR-Code zu scannen, benötigt Briar Zugriff auf die Kamera.</string>
+  <string name="permission_camera_denied_body">Du hast den Zugriff auf die Kamera verweigert, aber das Hinzufügen von Kontakten erfordert die Verwendung der Kamera.\n\nBitte gewähre den Zugriff.</string>
+  <string name="permission_camera_denied_toast">Berechtigung für Kamera wurde nicht gewährt</string>
 </resources>
