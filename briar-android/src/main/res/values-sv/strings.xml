@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_title">Välkommen till Briar</string>
+  <string name="setup_name_explanation">Ditt användarnamn kommer att visas bredvid allt innehåll som du lägger upp. Du kan inte ändra ditt användarnamn efter att ditt konto skapats.</string>
+  <string name="setup_next">Nästa</string>
+  <string name="setup_password_intro">Skapa lösenord</string>
+  <string name="setup_password_explanation">Ditt Briar-konto lagras krypterat på din mobil eller läsplatta, inte hos en molntjänst. Om du glömmer ditt lösenord eller avinstallerar Briar är det därför inte möjligt att återställa ditt konto.\n\nSkapa ett långt lösenord som är svårgissat, till exempel fyra slumpvalda ord eller en kombination av tio slumpvalda bokstäver, siffror och andra tecken.</string>
+  <string name="setup_doze_title">Dataanslutningar i bakgrunden</string>
+  <string name="setup_doze_intro">För att kunna ta emot meddelanden måste Briar vara anslutet i bakgrunden.</string>
+  <string name="setup_doze_explanation">För att kunna ta emot meddelanden måste Briar vara anslutet i bakgrunden. Avaktivera batterioptimering så att Briar kan hålla sig anslutet.</string>
+  <string name="setup_doze_button">Tillåt dataanslutningar</string>
+  <string name="choose_nickname">Skapa användarnamn </string>
+  <string name="choose_password">Skapa lösenord</string>
+  <string name="confirm_password">Bekräfta lösenordet</string>
+  <string name="name_too_long">Namnet har för många tecken </string>
+  <string name="password_too_weak">Lösenordet är för svagt</string>
+  <string name="passwords_do_not_match">Lösenorden överensstämmer inte </string>
+  <string name="create_account_button">Skapa konto </string>
+  <string name="more_info">Mer information</string>
+  <string name="don_t_ask_again">Fråga inte igen</string>
+  <string name="setup_huawei_text">Tryck på knappen längre ner för att lägga till Briar till listan över \"skyddade appar\".</string>
+  <string name="setup_huawei_button">Skydda Briar</string>
+  <string name="setup_huawei_help">Om Briar inte läggs till listan över skyddade appar kan det inte köras i bakgrunden.</string>
+  <string name="warning_dozed">%s kunde inte köras i bakgrunden</string>
+  <!--Login-->
+  <string name="enter_password">Ange ditt lösenord:</string>
+  <string name="try_again">Felaktigt lösenord, försök igen </string>
+  <string name="sign_in_button">Logga in</string>
+  <string name="forgotten_password">Jag har glömt mitt lösenord </string>
+  <string name="dialog_title_lost_password">Glömt lösenord?</string>
+  <string name="dialog_message_lost_password">Eftersom ditt Briar-konto lagras krypterat på din mobil eller läsplatta och inte hos en molntjänst kan vi inte återställa ditt lösenord. Vill du radera ditt konto och skapa ett nytt?\n\nCaution: Du kommer att förlora din profil, dina kontakter och dina meddelanden.</string>
+  <string name="startup_failed_notification_title">Briar kunde inte startas </string>
+  <string name="startup_failed_notification_text">Du kan behöva återinstallera Briar.</string>
+  <string name="startup_failed_db_error">Av någon anledning är din Briar-databas korrumperad och kan inte repareras. Ditt konto, dina data och alla dina kontakter har förlorats. Du behöver tyvärr återinstallera Briar och skapa ett nytt konto.</string>
+  <string name="startup_failed_service_error">Briar kunde inte starta ett nödvändigt insticksprogram. Att återinstallera Briar brukar lösa problemet, men eftersom dina data inte lagras på en central server innebär detta att du kommer att förlora ditt konto och alla dess tillhörande data.</string>
+  <string name="expiry_date_reached">Mjukvaran har gått ut.\nTack för att du bidragit till att testa!</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">Öppna navigeringsfacket</string>
+  <string name="nav_drawer_close_description">Stäng navigeringsfacket</string>
+  <string name="contact_list_button">Kontakter</string>
+  <string name="groups_button">Privatgrupper</string>
+  <string name="forums_button">Forum</string>
+  <string name="blogs_button">Bloggar</string>
+  <string name="settings_button">Inställningar</string>
+  <string name="sign_out_button">Logga ut</string>
+  <!--Transports-->
+  <string name="transport_tor">Internet</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">wifi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">Inloggad på Briar</string>
+  <string name="ongoing_notification_text">Tryck för att öppna Briar</string>
+  <!--Misc-->
+  <string name="now">nu</string>
+  <string name="show">Visa</string>
+  <string name="hide">Göm</string>
+  <string name="ok">OK</string>
+  <string name="cancel">Avbryt</string>
+  <string name="got_it">Förstått</string>
+  <string name="delete">Radera</string>
+  <string name="accept">Acceptera</string>
+  <string name="decline">Neka</string>
+	<string name="online">Uppkopplad</string>
+  <string name="offline">Nedkopplad</string>
+  <string name="send">Skicka</string>
+  <string name="allow">Tillåt</string>
+  <string name="open">Öppen</string>
+  <string name="text_too_long">Texten innehåller för många tecken</string>
+  <string name="show_onboarding">Visa hjälprutan</string>
+  <string name="fix">Laga</string>
+  <string name="help">Hjälp</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Det verkar som att du är ny här och inte hara några kontakter än.\n\nTryck på +-ikonen längre upp och följ anvisningarna för att lägga till några vänner till din lista.\n\nKom ihåg: Du kan bara lägga till nya kontakter då ni setts i verkligheten. Detta gör att ingen kan utge sig för att vara du från ett annat konto.</string>
+  <string name="date_no_private_messages">Inga meddelanden</string>
+  <string name="message_hint">Skriv ett meddelande</string>
+  <string name="delete_contact">Radera kontakt</string>
+  <string name="dialog_title_delete_contact">Bekräfta radering av kontakt</string>
+  <string name="dialog_message_delete_contact">Är du säker att du vill radera denna kontakt och alla meddelanden?</string>
+  <string name="contact_deleted_toast">Kontakt raderad</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">Lägg till en kontakt</string>
+  <string name="continue_button">Fortsätt</string>
+  <string name="connection_failed">Anslutning misslyckats</string>
+  <string name="try_again_button">Försök igen</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_text">Du kan presentera dina kontakter för varandra, på så sätt behöver de inte ses i verkligheten för att kunna lägga till varandra på Briar.</string>
+  <string name="introduction_activity_title">Välj kontakt</string>
+  <!--Private Groups-->
+  <string name="groups_list_empty">Du är inte medlem i några grupper.\n\nTryck på +-ikonen högst upp för att skapa en grupp eller för att be om att gå med i en grupp.</string>
+  <string name="groups_group_is_empty">Denna grupp har inga medlemmar</string>
+  <string name="groups_group_is_dissolved">Denna grupp har raderats</string>
+  <string name="groups_remove">Ta bort</string>
+  <string name="groups_create_group_title">Skapa privatgrupp</string>
+  <string name="groups_create_group_button">Skapa grupp</string>
+  <string name="groups_create_group_invitation_button">Skicka inbjudan</string>
+  <string name="groups_create_group_hint">Skapa ett namn för din privatgrupp</string>
+  <string name="groups_invitation_sent">Gruppinbjudan har skickats</string>
+  <string name="groups_message_sent">Meddelandet har skickats</string>
+  <string name="groups_member_list">Medlemmar</string>
+  <string name="groups_invite_members">Bjuda in medlem</string>
+  <string name="groups_member_created_you">Du har skapat en grupp</string>
+  <string name="groups_member_joined_you">Du har gått med i en grupp</string>
+  <string name="groups_leave">Lämna grupp</string>
+  <!--Private Group Invitations-->
+  <!--Private Groups Revealing Contacts-->
+  <!--Forums-->
+  <string name="btn_reply">Svara</string>
+  <string name="dialog_button_leave">Tillbaka</string>
+  <!--Forum Sharing-->
+  <!--Blogs-->
+  <!--Blog Sharing-->
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import_button">Importera</string>
+  <string name="blogs_rss_feeds_manage_author">Författare:</string>
+  <string name="blogs_rss_feeds_manage_updated">Senast uppdaterad:</string>
+  <!--Settings Network-->
+  <string name="network_settings_title">Nätverk</string>
+  <string name="bluetooth_setting">Anslut via Bluetooth</string>
+  <string name="tor_network_setting">Anslut via Tor</string>
+  <string name="tor_network_setting_never">Aldrig</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">Säkerhet</string>
+  <string name="change_password">Ändra lösenord</string>
+  <string name="panic_app_setting_none">Ingen</string>
+  <string name="lock_setting_title">Logga ut</string>
+  <string name="lock_setting_summary">Logga ut från Briar om panikknappen tryckts</string>
+  <string name="purge_setting_title">Radera kontot</string>
+  <string name="uninstall_setting_title">Avinstallera Briar</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">Aviseringar</string>
+  <string name="notify_private_messages_setting_title">Privata meddelanden</string>
+  <string name="notify_lock_screen_setting_title">Lås skärmen</string>
+  <string name="notify_lock_screen_setting_summary">Visa meddelanden på låsskärmen</string>
+  <string name="notify_sound_setting">Ljud</string>
+  <string name="notify_sound_setting_disabled">Ingen</string>
+  <!--Settings Feedback-->
+  <string name="feedback_settings_title">Feedback</string>
+  <!--Link Warning-->
+  <string name="link_warning_open_link">Öppna länk</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">Briar-felrapport</string>
+  <string name="not_your_fault">Detta är inte ditt fel.</string>
+  <string name="please_send_report">Hjälp oss att förbättra Briar genom att skicka en felrapport.</string>
+  <string name="report_is_encrypted">Vi lovar att felrapporten är krypterad och skickas säkert.</string>
+  <string name="feedback_title">Feedback</string>
+  <string name="describe_crash">Beskriv vad som hänt (valfritt)</string>
+  <string name="close">Stäng</string>
+  <!--Sign Out-->
+  <!--Screen Filters & Tapjacking-->
+  <!--Permission Requests-->
+</resources>

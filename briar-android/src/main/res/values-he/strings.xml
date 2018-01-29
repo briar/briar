@@ -1,0 +1,266 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_next">הבא</string>
+  <string name="choose_nickname">בחרו כינוי</string>
+  <string name="choose_password">בחרו סיסמה</string>
+  <string name="confirm_password">אשרו את הסיסמה</string>
+  <string name="name_too_long">השם ארוך מדי</string>
+  <string name="password_too_weak">הסיסמה חלשה מדי</string>
+  <string name="passwords_do_not_match">הסיסמאות לא תואמות</string>
+  <string name="create_account_button">יצירת חשבון</string>
+  <!--Login-->
+  <string name="enter_password">הזינו סיסמה:</string>
+  <string name="try_again">הסיסמה שגוייה, נסו שוב</string>
+  <string name="sign_in_button">הכנסו</string>
+  <string name="forgotten_password">שכחתי את הסיסמה שלי</string>
+  <string name="dialog_title_lost_password">הסיסמה נאבדה</string>
+  <string name="dialog_message_lost_password">חשבון הבריאר שלכם שמור ומוצפן על המכשיר, לא בענן, כך שלא נוכל לשחזר את הסיסמה שלכם. למחוק את החשבון שלכם ולהתחיל מחדש?
+
+זהירות: הזהויות שלכם, אנשי הקשר וההודעות יאבדו לצמיתות.</string>
+  <string name="startup_failed_notification_title">אפליקציית בריאר נכשלה באיתחול</string>
+  <string name="startup_failed_notification_text">יכול להיות שתאלצו להתקין מחדש את אפליקציית בריאר.</string>
+  <string name="startup_failed_activity_title">איתחול בריאר נכשל</string>
+  <string name="startup_failed_service_error">בריאר לא הצליח לאתחל תוסף הכרחי. התקנת בריאר מחדש לרוב פותרת בעייה זו. שימו לב שאז תאבדו את חשבונכם וכל המידע המשוייך אליו כיוון שבריאר לא משתמש בשרתים מרכזיים לשמירת המידע שלכם עליהם.</string>
+  <string name="expiry_date_reached">פג תוקפה של תוכנה זו.
+תודה לכם שבדקתם.</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">פתחו את סרגל הניווט</string>
+  <string name="nav_drawer_close_description">סגרו את סרגל הניווט</string>
+  <string name="contact_list_button">אנשי קשר</string>
+  <string name="groups_button">קבוצות פרטיות</string>
+  <string name="forums_button">פורומים</string>
+  <string name="blogs_button">בלוגים</string>
+  <string name="settings_button">הגדרות</string>
+  <string name="sign_out_button">יציאה</string>
+  <!--Transports-->
+  <string name="transport_tor">אינטרנט</string>
+  <string name="transport_bt">בלוטות\'</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">מחוברים לבריאר</string>
+  <string name="ongoing_notification_text">לחצו על מנת לפתוח את בריאר</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="one">הודעה פרטית חדשה.</item>
+    <item quantity="other">%d הודעות פריטות חדשות.</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="one">הודעה קבוצתית חדשה.</item>
+    <item quantity="other">%d הודעות קבוצתיות חדשות.</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one">פוסט חדש בפורומים.</item>
+    <item quantity="other">%d פוסטים חדשים בפורומים.</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">פוסט חדש בבלוגים.</item>
+    <item quantity="other">%d פוסטים חדשים בבלוגים.</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">עכשיו</string>
+  <string name="show">הצג</string>
+  <string name="hide">הסתר</string>
+  <string name="ok">אישור</string>
+  <string name="cancel">ביטול</string>
+  <string name="got_it">הבנתי</string>
+  <string name="delete">מחק</string>
+  <string name="accept">קבל</string>
+  <string name="decline">סרב</string>
+	<string name="online">מחובר</string>
+  <string name="offline">לא מחובר</string>
+  <string name="send">שלח</string>
+  <string name="allow">להתיר</string>
+  <string name="open">פתח</string>
+  <string name="no_data">לא נמצא מידע</string>
+  <string name="ellipsis">...</string>
+  <string name="text_too_long">הטקסט שהזנתם ארוך מדי</string>
+  <string name="show_onboarding">הצג עזרה</string>
+  <string name="help">עזרה</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">נראה שאתם חדשים כאן ועדיין אין לכם אנשי קשר.
+
+לחצו על האייקון&amp;#160+ למעלה ועקבו אחר ההוראות להוספת חברים לרשימה.
+
+אנא זכרו: אתם יכולים להוסיף אנשי קשר רק פנים-מול-פנים, זאת על מנת למנוע מאנשים להתחזות לכם או לקרוא את הודעותיכם בעתיד.</string>
+  <string name="date_no_private_messages">אין הודעות.</string>
+  <string name="no_private_messages">זהו מסך השיחה.
+
+נראה שאין שיחה.
+
+פשוט לחצו על השדה הטקסט בתחתית בשביל להתחיל שיחה.</string>
+  <string name="message_hint">כתבו הודעה</string>
+  <string name="delete_contact">מחיקת איש קשר</string>
+  <string name="dialog_title_delete_contact">אישור מחיקת איש קשר</string>
+  <string name="dialog_message_delete_contact">האם אתם בטוחים שאתם רוצים למחוק את איש הקשר וכל ההתכתבות איתו?</string>
+  <string name="contact_deleted_toast">איש הקשר נמחק</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">הוספת איש קשר</string>
+  <string name="face_to_face">אתם חייבים להפגש עם האדם שאותו תרצו להוסיף כאיש קשר.
+
+זאת על מנת למנוע מצב שבו מתחזים אליכם או קוראים הודעות שלכם בעתיד.</string>
+  <string name="continue_button">המשך</string>
+  <string name="connection_failed">חיבור נכשל</string>
+  <string name="try_again_button">נסו שוב</string>
+  <string name="waiting_for_contact_to_scan">ממתין שאיש הקשר יסרוק ויתחבר\u2026</string>
+  <string name="exchanging_contact_details">מחליף פרטים של איש קשר\u2026</string>
+  <string name="contact_added_toast">איש קשר נוסף: %s</string>
+  <string name="contact_already_exists">איש קשר %s קיים כבר</string>
+  <string name="contact_exchange_failed">החלפת אנשי קשר נכשלה</string>
+  <string name="qr_code_invalid">קוד ה- QR אינו תקף</string>
+  <string name="connecting_to_device">מתחבר למכשיר\u2026</string>
+  <string name="authenticating_with_device">מזדהה מול המכשיר\u2026</string>
+  <string name="connection_aborted_remote">החיבור בוטל על ידי איש הקשר! זה עלול לומר שמישהו מנסה להפריע לחיבור שלכם</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_title">הציגו את אנשי קשר שלכם</string>
+  <string name="introduction_onboarding_text">אתם יכולים להציג את אנשי הקשר שלכם אחד לשני, כך שהם לא צריכים להפגש פנים-מול-פנים על מנת להתחבר בבריאר.</string>
+  <string name="introduction_activity_title">בחרו איש קשר</string>
+  <string name="introduction_message_title">הציגו אנשי קשר</string>
+  <string name="introduction_message_hint">הוסיפו הודעה (לא חובה)</string>
+  <string name="introduction_button">הציגו איש קשר</string>
+  <string name="introduction_sent">הצגת איש קשר נשלחה.</string>
+  <string name="introduction_error">הייתה שגיאה בעת הצגת איש קשר.</string>
+  <string name="introduction_response_error">שגיאה בעת התגובה להצגת איש קשר</string>
+  <string name="introduction_request_sent">ביקשתם להציג את %1$s ל- %2$s.</string>
+  <string name="introduction_request_received">%1$s ביקש להציג אתכם ל- %2$s. האם תרצו להוסיף את %2$s לאנשי הקשר שלכם?</string>
+  <string name="introduction_request_exists_received">%1$s ביקשו להציג אתכם ל- %2$s, אבל %2$s עדיין ברשימת אנשי הקשר שלכם. מכיוון ש- %1$s עשוי לא לדעת זאת, אתם עדיין מוזמנים להגיב:</string>
+  <string name="introduction_request_answered_received">%1$s ביקשו להציג אתכם בפני %2$s.</string>
+  <string name="introduction_response_accepted_sent">הסכמתם להיות מוצגים בפני %1$s.</string>
+  <string name="introduction_response_declined_sent">סירבתם להיות מוצגים בפני %1$s.</string>
+  <string name="introduction_response_accepted_received">%1$s הסכימו להיות מוצגים בפני %2$s.</string>
+  <string name="introduction_response_declined_received">%1$s סירבו להיות מוצגים בפני %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s אומרים ש- %2$s סירבו להיות מוצגים בפניהם.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">נוסף איש קשר חדש.</item>
+    <item quantity="other">נוספו %d אנשי קשר חדשים.</item>
+  </plurals>
+  <!--Private Groups-->
+  <string name="groups_list_empty">אתם לא משתתפים באף קבוצה.
+
+לחצו על אייקון + בראש המסך על מנת ליצור קבוצה בעצמכם או ביקשו מאנשי הקשר שלכם להוסיף אתכם לאחת הקבוצות שלהם.</string>
+  <string name="groups_created_by">נוצר על ידי %s</string>
+  <plurals name="messages">
+    <item quantity="one">הודעה %d</item>
+    <item quantity="other">%d הודעות</item>
+  </plurals>
+  <string name="groups_group_is_empty">קבוצה זו הינה ריקה</string>
+  <string name="groups_group_is_dissolved">קבוצה זו התפזרה</string>
+  <string name="groups_remove">להסיר</string>
+  <string name="groups_create_group_title">יצירת קבוצה פרטית</string>
+  <string name="groups_create_group_button">יצירת קבוצה</string>
+  <string name="groups_create_group_invitation_button">שליחת הזמנה</string>
+  <string name="groups_create_group_hint">בחרו שם לקבוצה הפרטית שלכם</string>
+  <string name="groups_invitation_sent">הזמנה קבוצתית נשלחה</string>
+  <string name="groups_message_sent">ההודעה נשלחה</string>
+  <string name="groups_member_list">רשימת משתתפים</string>
+  <string name="groups_invite_members">הזמנת משתתפים</string>
+  <string name="groups_member_created_you">יצרתם את הקבוצה</string>
+  <string name="groups_member_created">%s יצר את הקבוצה</string>
+  <string name="groups_member_joined_you">הצטרפתם לקבוצה</string>
+  <string name="groups_member_joined">%s הצטרפו לקבוצה</string>
+  <string name="groups_leave">עזיבת הקבוצה</string>
+  <string name="groups_leave_dialog_title">אשרו את עזיבת הקבוצה</string>
+  <string name="groups_leave_dialog_message">האם אתם בטוחים שתרצו לעזוב את הקבוצה?</string>
+  <string name="groups_dissolve">פיזור הקבוצה</string>
+  <string name="groups_dissolve_dialog_title">אשרו פיזור הקבוצה</string>
+  <string name="groups_dissolve_dialog_message">האם אתם בטוחים שתרצו לפזר את הקבוצה?
+
+כל המשתתפים לא יוכלו להמשיך את השיחה ועלולים לא לקבל את ההודעות האחרונות.</string>
+  <string name="groups_dissolve_button">פיזור</string>
+  <string name="groups_dissolved_dialog_title">הקבוצה פוזרה</string>
+  <string name="groups_dissolved_dialog_message">יוצר הקבוצה פיזר אותה.
+
+לא תוכלו יותר לכתוב הודעות לקבוצה ואולי אף לא תקבלו את כל ההודעות שנכתבו.</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">הזמנות קבוצתיות</string>
+  <string name="groups_invitations_invitation_sent">הזמנתם את %1$s להצטרף לקבוצה \"%2$s\".</string>
+  <string name="groups_invitations_invitation_received">%1$s הזמינו אתכם להצטרף לקבוצה \"%2$s\".</string>
+  <string name="groups_invitations_joined">הצטרפתם לקבוצה</string>
+  <string name="groups_invitations_declined">הזמנה קבוצתית נדחתה</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="one">הזמנה קבוצתית פתוחה %d</item>
+    <item quantity="other">%dהזמנות קבוצתית פתוחות </item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">הסכמתם להזמנה הקבוצתית מ- %s.</string>
+  <string name="groups_invitations_response_declined_sent">סירבתם להזמנה הקבוצתית מ- %s.</string>
+  <string name="groups_invitations_response_accepted_received">%s הסכימו להזמנה הקבוצתית.</string>
+  <string name="groups_invitations_response_declined_received">%s סרבו להזמנה הקבוצתית.</string>
+  <string name="sharing_status_groups">רק היוצר יכול להזמין משתתפים חדשים לקבוצה. להלן כל המשתתפים הנוכחיים של הקבוצה.</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">הצגת אנשי קשר</string>
+  <string name="groups_reveal_dialog_message">אתם יכולים לבחור אם לחשוף את אנשי הקשר שלכם למשתתפים הנוכחיים והעתידיים של קבוצה זו.
+
+חשיפת אנשי הקשר תגרום לחיבור עם הקבוצה להיות מהיר ואמין יותר, כי תוכלו לתקשר עם אנשי הקשר שנחשפו גם אם יוצר הקבוצה אינו מחובר.</string>
+  <string name="groups_reveal_visible">היחסים עם האיש קשר גלויים לקבוצה</string>
+  <string name="groups_reveal_visible_revealed_by_us">היחסים עם האיש קשר גלויים לקבוצה (נחשפו על ידיכם)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">היחסים עם האיש קשר גלויים לקבוצה (נחשפו על %s)</string>
+  <string name="groups_reveal_invisible">היחסים עם האיש קשר אינם גלויים לקבוצה</string>
+  <!--Forums-->
+  <string name="no_forums">עדיין אין לכם פורומים.
+
+למה שלא תיצרו אחד חדש בעצמכם על ידי לחיצה על האייקון&amp;#160+ למעלה?
+
+ביכולתכם גם לבקש מאנשי הקשר לשתף אתכם בפורומים.</string>
+  <string name="create_forum_title">יצירת פורום</string>
+  <string name="choose_forum_hint">בחרו שם לפורום שלכם</string>
+  <string name="create_forum_button">יצירת פורום</string>
+  <string name="forum_created_toast">הפורום נוצר</string>
+  <string name="no_forum_posts">הפורום הזה ריק.
+
+לחצו על אייקון העט למעלה על מנת לכתוב את הפוסט הראשון.
+
+מרגישים בודדים כאן? שתפו את הפורום עם עוד אנשי קשר!</string>
+  <string name="no_posts">אין פוסטים</string>
+  <plurals name="posts">
+    <item quantity="one">פוסט %d</item>
+    <item quantity="other">%d פוסטים</item>
+  </plurals>
+  <string name="forum_new_entry_posted">הפוסט נוצר</string>
+  <string name="forum_new_message_hint">פוסט חדש</string>
+  <string name="forum_message_reply_hint">תגובה חדשה</string>
+  <string name="btn_reply">להשיב</string>
+  <string name="forum_leave">עזיבת הפורום</string>
+  <string name="dialog_title_leave_forum">אשרו את עזיבת הפורום</string>
+  <string name="dialog_message_leave_forum">האם אתם בטוחים שברצונכם לעזוב את הפורום הזה? אנשי הקשר ששיתפתם בפורום עלולים לא לקבל יותר עדכונים מהפורום.</string>
+  <string name="dialog_button_leave">לעזוב</string>
+  <string name="forum_left_toast">עזבתם את הפורום</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">שיתוף הפורום</string>
+  <string name="contacts_selected">אנשי קשר נבחרו</string>
+  <string name="activity_share_toolbar_header">בחרו אנשי קשר</string>
+  <string name="no_contacts_selector">נראה שאתם חדשים כאן ושעדיין אין לכם אנשי קשר.
+
+אנא חזרו הנה אחרי שתוסיפו את איש הקשר הראשון שלכם.</string>
+  <string name="forum_shared_snackbar">שיתפתם את הפורום עם אנשי הקשר שנבחרו</string>
+  <string name="forum_share_message">הוסיפו הודעה (לא חובה)</string>
+  <string name="forum_share_error">הייתה שגיאה בעת שיתוף הפורום.</string>
+  <string name="forum_invitation_received">%1$s שיתפו את הפורום \"%2$s\" איתכם.</string>
+  <string name="forum_invitation_sent">שיתפתם את הפורום \"%1$s\" עם %2$s.</string>
+  <string name="forum_invitations_title">הזמנות לפורום</string>
+  <string name="forum_invitation_exists">אישרתם כבר את ההזמנה לפורום הזה. אישור הזמנות נוספות יגדיל ויחזק את התקשורת בפורום.</string>
+  <string name="forum_joined_toast">הצטרפתם לפורום</string>
+  <string name="forum_declined_toast">הזמנה לפורום נדחתה</string>
+  <string name="shared_by_format">שותף  על ידי %s</string>
+  <!--Blogs-->
+  <!--Blog Sharing-->
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import_button">ייבא</string>
+  <string name="blogs_rss_feeds_manage_author">מחבר:</string>
+  <string name="blogs_rss_feeds_manage_updated">עודכן לאחרונה:</string>
+  <!--Settings Network-->
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">אבטחה</string>
+  <string name="panic_app_setting_none">כלום</string>
+  <string name="lock_setting_title">יציאה</string>
+  <string name="purge_setting_title">מחק חשבון</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">הודעות מערכת</string>
+  <string name="notify_private_messages_setting_title">הודעות פרטיות</string>
+  <string name="notify_sound_setting_disabled">כלום</string>
+  <!--Settings Feedback-->
+  <!--Link Warning-->
+  <!--Crash Reporter-->
+  <string name="close">סגור</string>
+  <!--Sign Out-->
+  <!--Screen Filters & Tapjacking-->
+  <!--Permission Requests-->
+</resources>

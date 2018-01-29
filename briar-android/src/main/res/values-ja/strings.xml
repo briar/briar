@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_next">次へ</string>
+  <string name="choose_nickname">ニックネームを入力</string>
+  <string name="choose_password">パスワードを入力</string>
+  <string name="confirm_password">確認のため再度パスワードを入力</string>
+  <string name="name_too_long">名前が長過ぎます。</string>
+  <string name="password_too_weak">パスワードが弱すぎます。</string>
+  <string name="passwords_do_not_match">パスワードが一致しません。</string>
+  <string name="create_account_button">アカウントを作成</string>
+  <!--Login-->
+  <string name="enter_password">パスワード入力</string>
+  <string name="try_again">パスワードが間違っています。もう一度入力してください。</string>
+  <string name="sign_in_button">Sign In</string>
+  <string name="forgotten_password">パスワードを忘れました。</string>
+  <string name="dialog_title_lost_password">パスワードを紛失</string>
+  <string name="dialog_message_lost_password">あなたのBriarアカウントはクラウド上ではなく、暗号化さた上であなたのデバイスに保存さています。したがってBriarはパスワードをリセットできません。アカウントを削除しはじめからやりなおしますか？注意！あなたのID、連絡先、メッセージは永久に削除されます。</string>
+  <string name="startup_failed_notification_title">Briarを起動できません。</string>
+  <string name="startup_failed_notification_text">Briarを再インストールする必要があります。</string>
+  <string name="startup_failed_activity_title">起動に失敗</string>
+  <string name="startup_failed_service_error">プラグインの起動に失敗しました。Briarを再インストールすることで通常は直ります。Briarは中央サーバにデータを保存していないため、アカウントとそれに関連する情報は全て失われることに注意してください。</string>
+  <string name="expiry_date_reached">このソフトの有効期限が切れました。テストに参加してくださりありがとうございます！</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">ナビゲーションを開く</string>
+  <string name="nav_drawer_close_description">ナビゲーションを閉じる</string>
+  <string name="contact_list_button">連絡先</string>
+  <string name="groups_button">Private Groups</string>
+  <string name="forums_button">フォーラム</string>
+  <string name="blogs_button">Blogs</string>
+  <string name="settings_button">Settings</string>
+  <string name="sign_out_button">サインアウト</string>
+  <!--Transports-->
+  <string name="transport_tor">インターネット</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">Briarにサインイン</string>
+  <string name="ongoing_notification_text">Briarを開く</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="other">%d件の新規プライベートメッセージ</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="other">%d件の新規グループメッセージ</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="other">%d件の新規フォーラム投稿</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="other">%d件の新規ブログポスト</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">現在</string>
+  <string name="show">表示</string>
+  <string name="hide">非表示</string>
+  <string name="ok">OK</string>
+  <string name="cancel">キャンセル</string>
+  <string name="got_it">了解</string>
+  <string name="delete">削除</string>
+  <string name="accept">承認</string>
+  <string name="decline">却下</string>
+	<string name="online">オプション</string>
+  <string name="offline">オフライン</string>
+  <string name="send">送信</string>
+  <string name="allow">許可</string>
+  <string name="open">開く</string>
+  <string name="no_data">データなし</string>
+  <string name="ellipsis">...</string>
+  <string name="text_too_long">入力された文章が長すぎます。</string>
+  <string name="show_onboarding">ヘルプを表示</string>
+  <string name="help">ヘルプ</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">まだ連絡先がないようです。
+追加するには+アイコンをタップし、説明にしたがってください。
+なりすましやのぞき見を防ぐため、新しい連絡先は対面でしか追加できません。</string>
+  <string name="date_no_private_messages">メッセージがありません。</string>
+  <string name="message_hint">メッセージ入力</string>
+  <string name="delete_contact">連絡先を削除</string>
+  <string name="contact_deleted_toast">連絡先の削除完了</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">連絡先を追加</string>
+  <string name="continue_button">続ける</string>
+  <string name="connection_failed">接続失敗</string>
+  <string name="try_again_button">もう一度やり直してください</string>
+  <!--Introductions-->
+  <!--Private Groups-->
+  <string name="groups_remove">削除</string>
+  <string name="groups_create_group_title">プライベートグループ作成</string>
+  <string name="groups_create_group_button">グループ作成</string>
+  <string name="groups_create_group_invitation_button">招待する</string>
+  <string name="groups_create_group_hint">プライベートグループに名前をつける</string>
+  <string name="groups_member_list">メンバー一覧</string>
+  <!--Private Group Invitations-->
+  <!--Private Groups Revealing Contacts-->
+  <!--Forums-->
+  <string name="btn_reply">返信</string>
+  <!--Forum Sharing-->
+  <!--Blogs-->
+  <string name="blogs_publish_blog_post">公開</string>
+  <!--Blog Sharing-->
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import_button">インポート</string>
+  <string name="blogs_rss_feeds_manage_author">著者:</string>
+  <string name="blogs_rss_feeds_manage_updated">最終更新:</string>
+  <!--Settings Network-->
+  <string name="tor_network_setting_never">二度としない</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">セキュリティ</string>
+  <string name="change_password">パスワードの変更</string>
+  <string name="panic_app_setting_none">なし</string>
+  <string name="lock_setting_title">サインアウト</string>
+  <string name="purge_setting_title">アカウントを削除</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">通知</string>
+  <string name="notify_private_messages_setting_title">プライベート・メッセージ</string>
+  <string name="notify_sound_setting_disabled">なし</string>
+  <!--Settings Feedback-->
+  <!--Link Warning-->
+  <!--Crash Reporter-->
+  <string name="close">閉じる</string>
+  <!--Sign Out-->
+  <!--Screen Filters & Tapjacking-->
+  <!--Permission Requests-->
+</resources>

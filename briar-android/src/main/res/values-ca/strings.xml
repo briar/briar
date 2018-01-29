@@ -1,8 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Configuració de Briar</string>
-  <string name="setup_explanation">El teu compte de Briar està encriptat al teu dispositiu, no al núvol. Si desinstal·les Briar o oblides la contrasenya, no hi ha manera de recuperar el teu compte i les teves dades.</string>
+  <string name="setup_title">Benvingut a Briar</string>
+  <string name="setup_name_explanation">El vostre sobrenom es mostrarà al costat de qualsevol contingut que publiqueu. No podeu canviar-lo després de crear el compte.</string>
+  <string name="setup_next">Següent</string>
+  <string name="setup_password_intro">Trieu una contrasenya</string>
+  <string name="setup_password_explanation">El vostre compte Briar s\'emmagatzema encriptada al vostre dispositiu, no al núvol. Si oblideu la vostra contrasenya o desinstal·leu Briar, no hi ha forma de recuperar el vostre compte.\n\nTrieu una contrasenya llarga que sigui difícil d\'endevinar, com ara quatre paraules aleatòries o deu lletres, números i símbols aleatoris.</string>
+  <string name="setup_doze_title">Connexions de fons</string>
+  <string name="setup_doze_intro">Per rebre missatges, Briar necessita estar connectat en segon pla.</string>
+  <string name="setup_doze_explanation">Per rebre missatges, Briar necessita estar connectat en segon pla. Desactiveu les optimitzacions de la bateria perquè Briar es mantingui connectat.</string>
+  <string name="setup_doze_button">Permet connexions</string>
   <string name="choose_nickname">Trieu el sobrenom</string>
   <string name="choose_password">Trieu la contrasenya</string>
   <string name="confirm_password">Confirmeu la contrasenya</string>
@@ -10,6 +17,12 @@
   <string name="password_too_weak">La contrasenya és dèbil</string>
   <string name="passwords_do_not_match">Les contrasenyes no coincideixen</string>
   <string name="create_account_button">Crear compte</string>
+  <string name="more_info">Més informació</string>
+  <string name="don_t_ask_again">No ho tornis a preguntar</string>
+  <string name="setup_huawei_text">Feu clic al botó següent i assegureu-vos que Briar està protegit a la pantalla «Aplicacions protegides».</string>
+  <string name="setup_huawei_button">Protegeix el Briar</string>
+  <string name="setup_huawei_help">Si Briar no s\'afegeix a la llista d\'aplicacions protegides, no podrà executar-se en segon pla.</string>
+  <string name="warning_dozed">%s no ha pogut executar-se en segon pla</string>
   <!--Login-->
   <string name="enter_password">Introdueix la teva contrasenya:</string>
   <string name="try_again">La contrasenya és incorrecta, torna-ho a provar</string>
@@ -20,12 +33,13 @@
   <string name="startup_failed_notification_title">Briar no s\'ha pogut iniciar</string>
   <string name="startup_failed_notification_text">Potser us caldrà reinstal·lar Briar.</string>
   <string name="startup_failed_activity_title">Error iniciant Briar</string>
-  <string name="startup_failed_db_error">Per algun motiu, la vostra base de dades de Briar s\'ha corromput i no té solució. El vostre compte, les vostres dades i totes les connexions s\'han perdut. Malauradament, haureu de reinstal·lar i configurar un compte nou.</string>
+  <string name="startup_failed_db_error">Per alguna raó, la vostra base de dades de Briar està malmesa més enllà de la reparació. El vostre compte, les vostres dades i tots els vostres contactes es perdran. Malauradament, necessiteu tornar a instal·lar Briar i configurar un compte nou.</string>
   <string name="startup_failed_service_error">Briar no ha pogut engegar un plugin necessari. La sol.lució sol ser reinstal.lar Briar. De tota manera, tingueu en compte que si ho feu perdreu el vostre compte i totes les dades associades, doncs Briar no usa servidors centrals per desar les vostres dades.</string>
   <plurals name="expiry_warning">
-    <item quantity="one">Això és una versió beta de Briar. El teu compte expirarà en %d dia i no pot ser renovat.</item>
-    <item quantity="other">Això és una versió beta de Briar. El teu compte expirarà en %d dies i no pot ser renovat.</item>
+    <item quantity="one">Aquesta és una versió de prova de Briar. El vostre compte expira en %d dia i no es pot renovar.</item>
+    <item quantity="other">Aquesta és una versió de prova de Briar. El vostre compte expira en %d dies i no es pot renovar.</item>
   </plurals>
+  <string name="expiry_update">S\'ha ampliat la data de venciment de la prova. El vostre compte caducarà ara en %d dies.</string>
   <string name="expiry_date_reached">Aquest programa ha caducat.\nGràcies per haver-lo provat!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Obre el calaix de navegació</string>
@@ -51,6 +65,14 @@
     <item quantity="one">Missatge de grup nou.</item>
     <item quantity="other">1%d missatges de grup nous</item>
   </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one"> Un nou missatge del fòrum.</item>
+    <item quantity="other">%d nous missatges del fòrum.</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">Una nova publicacions al bloc.</item>
+    <item quantity="other">%d noves publicacions al bloc.</item>
+  </plurals>
   <!--Misc-->
   <string name="now">Ara</string>
   <string name="show">Mostrar</string>
@@ -61,8 +83,7 @@
   <string name="delete">Suprimeix</string>
   <string name="accept">Accepta</string>
   <string name="decline">Rebutja</string>
-  <string name="options">Opcions</string>
-  <string name="online">En línia</string>
+	<string name="online">En línia</string>
   <string name="offline">Fora de línia</string>
   <string name="send">Envia</string>
   <string name="allow">Permet</string>
@@ -71,9 +92,12 @@
   <string name="ellipsis">...</string>
   <string name="text_too_long">El text introduït és massa llarg</string>
   <string name="show_onboarding">Mostra el diàleg d\'ajuda.</string>
+  <string name="fix">Corregeix</string>
+  <string name="help">Ajuda</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Sembla que sou nouvingut i no teniu contactes encara.\n\nToqueu la icona + en la part superior i seguiu les instruccions per a afegir amics a la llista.\n\nRecordeu: afegiu només contactes cara a cara per a evitar que algú es faça passar per vós o pugui llegir els vostres missatges en el futur. </string>
   <string name="date_no_private_messages">Sense missatges.</string>
+  <string name="no_private_messages">Aquesta és la vista de conversa.\n\nSembla que hi manca una part de la conversa.\n\nNomés cal que toqueu el camp d\'entrada a la part inferior per iniciar una conversa.</string>
   <string name="message_hint">Escriu el missatge.</string>
   <string name="delete_contact">Suprimeix contacte</string>
   <string name="dialog_title_delete_contact">Confirma la supressió del contacte</string>
@@ -81,31 +105,20 @@
   <string name="contact_deleted_toast">Contacte suprimit</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Afegir contacte</string>
-  <string name="your_nickname">Escull la identitat que vols utilitzar:</string>
   <string name="face_to_face">T\'has de trobar amb la persona que vols afegir com a contacte.\n\nAixò evitarà que algú suplanti la teva identitat o llegeixi els teus missatges.</string>
   <string name="continue_button">Continua</string>
-  <string name="your_invitation_code">El teu codi d\'invitació és</string>
-  <string name="enter_invitation_code">Si us plau, entra el codi d\'invitació del teu contacte:</string>
-  <string name="searching_format">Cercant el contacte amb codi d\'invitació %06d\u2026</string>
   <string name="connection_failed">La connexió ha fallat</string>
-  <string name="could_not_find_contact">Briar no ha pogut trobar el teu contacte aprop</string>
   <string name="try_again_button">Torna-ho a provar</string>
-  <string name="connected_to_contact">Connectat amb el contacte</string>
-  <string name="calculating_confirmation_code">Calculant el codi de confirmació\u2026</string>
-  <string name="your_confirmation_code">El teu codi de confirmació és</string>
-  <string name="enter_confirmation_code">Si us plau entra el codi de confirmació del teu contacte:</string>
-  <string name="waiting_for_contact">Esperant el contacte\u2026</string>
   <string name="waiting_for_contact_to_scan">Esperant que el teu contacte escanegi i connecti\u2026</string>
   <string name="exchanging_contact_details">Intercanviant els detalls del contacte\u2026</string>
-  <string name="codes_do_not_match">Els codis no coincideixen</string>
-  <string name="interfering">Això pot significar que algú està intentant interferir la teva connexió</string>
   <string name="contact_added_toast">Contacte afegit: %s</string>
   <string name="contact_already_exists">El contacte %s ja existeix</string>
   <string name="contact_exchange_failed">L\'intercanvi de contactes ha fallat</string>
   <string name="qr_code_invalid">El codi QR és invàlid</string>
+  <string name="camera_error">Error de la càmera</string>
   <string name="connecting_to_device">Connectant al dispositiu\u2026</string>
   <string name="authenticating_with_device">Autenticant-se amb el dispositiu\u2026</string>
-  <string name="connection_aborted_local">Hem avortat la connexió! Això podria significar que algú està provant d\'interferir la vostra connexió</string>
+  <string name="connection_aborted_local">S\'ha avortat la connexió! Això podria significar que algú intenta interferir amb la vostra connexió</string>
   <string name="connection_aborted_remote">El teu contacte ha avortat la connexió! Això podria significar que algú està provant d\'interferir la vostra connexió</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introdueix els teus contactes</string>
@@ -117,7 +130,19 @@
   <string name="introduction_sent">S\'ha enviat la teva presentació.</string>
   <string name="introduction_error">Hi ha hagut un error al fer la presentació de contactes.</string>
   <string name="introduction_response_error">Error en respondre a la presentació</string>
+  <string name="introduction_request_sent">Heu demanat que introduïu %1$s a %2$s.</string>
+  <string name="introduction_request_received">%1$s ha demanat que us presenteu a %2$s. Voleu afegir a%2$s a la vostra llista de contactes?</string>
+  <string name="introduction_request_exists_received">%1$s ha demanat que us presenteu a %2$s, però %2$s ja està a la vostra llista de contactes. Com que %1$s no sap això, encara podeu respondre:</string>
+  <string name="introduction_request_answered_received">%1$s ha demanat que us presenteu a %2$s.</string>
   <string name="introduction_response_accepted_sent">Has acceptat la presentació amb el contacte %1$s.</string>
+  <string name="introduction_response_declined_sent">Heu rebutjat la presentació a %1$s.</string>
+  <string name="introduction_response_accepted_received">%1$s va acceptar la presentació de %2$s.</string>
+  <string name="introduction_response_declined_received">%1$s va rebutjar la presentació a %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s diu que %2$s va rebutjar la presentació.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">S\'ha afegit un nou contacte.</item>
+    <item quantity="other">S\'ha afegit %d nous contactes.</item>
+  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">No pertanyeu a cap grup.\n\nToqueu la icona + en la part superior per a crear un grup o demaneu als vostres contactes que us conviden a un grup.</string>
   <string name="groups_created_by">Creat per 1%s</string>
@@ -154,14 +179,26 @@
   <string name="groups_invitations_invitation_sent">Heu convidat a 1%1$s al grup \"%2$s \".</string>
   <string name="groups_invitations_invitation_received">1%1$s us ha convidat a unir-vos al grup \" 2%2$s \".</string>
   <string name="groups_invitations_joined">Us heu unit al grup</string>
+  <string name="groups_invitations_declined">S\'ha rebutjat la invitació al grup</string>
+  <string name="groups_invitations_response_accepted_sent">Heu acceptat la invitació del grup de %s.</string>
+  <string name="groups_invitations_response_declined_sent">Heu rebutjat la invitació del grup de %s.</string>
+  <string name="groups_invitations_response_accepted_received">%s va acceptar la invitació del grup.</string>
+  <string name="groups_invitations_response_declined_received">%s va rebutjar la invitació del grup.</string>
   <string name="sharing_status_groups">Només el creador del grup pot convidar a nous membres. Tot seguit hi ha la llista dels membres del grup.</string>
   <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">Revela els contactes</string>
+  <string name="groups_reveal_dialog_message">Podeu triar si voleu que es mostrin contactes a tots els membres actuals i futurs d\'aquest grup.\n\nLa revelació dels contactes fa que la vostra connexió al grup sigui més ràpida i més fiable, ja que podeu comunicar-vos amb els contactes revelats, fins i tot quan el creador del grup està fora de línia.</string>
+  <string name="groups_reveal_visible">La relació del contacte és visible per al grup</string>
+  <string name="groups_reveal_visible_revealed_by_us">La relació del contacte és visible per al grup (revelat per vós)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">La relació del contacte és visible per al grup (revelat per %s)</string>
+  <string name="groups_reveal_invisible">La relació del contacte no és visible per al grup</string>
   <!--Forums-->
   <string name="no_forums">No teniu cap fòrum encara.\n\nPer què no en creeu un de nou tocant el + que hi ha a la part superior dreta?\n\nTambé podeu demanar els vostres contactes que us conviden a fòrums.</string>
   <string name="create_forum_title">Crea un fòrum</string>
   <string name="choose_forum_hint">Trieu un nom per al fòrum</string>
   <string name="create_forum_button">Crea el fòrum</string>
   <string name="forum_created_toast">S\'ha creat el fòrum</string>
+  <string name="no_forum_posts">Aquest fòrum està buit.\n\nUtilitzeu la icona de la ploma a la part superior per redactar la primera publicació.\n\nEsteu aquí sol? Compartiu aquest fòrum amb els vostres contactes!</string>
   <string name="no_posts">No hi ha publicacions</string>
   <plurals name="posts">
     <item quantity="one">%d publicacio</item>
@@ -174,9 +211,33 @@
   <string name="forum_leave">Abandona el fòrum</string>
   <string name="dialog_title_leave_forum">Confirmeu la sortida del Forum</string>
   <string name="dialog_message_leave_forum">Esteu segur que voleu sotir del fòrum? Els contactes amb qui heu compartit aquest fòrum podrien deixar de rebre\'n actualitzacions</string>
+  <string name="dialog_button_leave">Abandona</string>
+  <string name="forum_left_toast">Abandona el fòrum</string>
   <!--Forum Sharing-->
+  <string name="forum_share_button">Comparteix el fòrum</string>
+  <string name="contacts_selected">Contactes seleccionats</string>
   <string name="activity_share_toolbar_header">Tria contactes</string>
+  <string name="no_contacts_selector">Sembla que sou nou aquí i no teniu cap contacte.\n\nTorneu aquí després d\'afegir el primer contacte.</string>
+  <string name="forum_shared_snackbar">Fòrum compartit amb els contactes seleccionats</string>
   <string name="forum_share_message">Afegiu un missatge (opcional)</string>
+  <string name="forum_share_error">S\'ha produït un error en compartir aquest fòrum.</string>
+  <string name="forum_invitation_received">%1$s ha compartit el fòrum «%2$s» amb vós.</string>
+  <string name="forum_invitation_sent">Heu compartit el fòrum «%1$s» amb %2$s.</string>
+  <string name="forum_invitations_title">Invitacions al fòrum</string>
+  <string name="forum_invitation_exists">Ja heu acceptat una invitació a aquest fòrum. L\'acceptació de més invitacions augmentarà i enfortirà la comunicació al fòrum.</string>
+  <string name="forum_declined_toast">S\'ha rebutjat la invitació al fòrum</string>
+  <string name="shared_by_format">Compartit per 1%s</string>
+  <string name="forum_invitation_response_accepted_sent">Heu acceptat la invitació del fòrum de %s.</string>
+  <string name="forum_invitation_response_declined_sent">Heu rebutjat la invitació del fòrum de %s.</string>
+  <string name="forum_invitation_response_accepted_received">%s va acceptar la invitació del fòrum.</string>
+  <string name="forum_invitation_response_declined_received">%s va rebutjar la invitació del fòrum.</string>
+  <string name="sharing_status_forum">Qualsevol membre d\'un fòrum pot compartir-lo amb els seus contactes. Esteu compartint aquest fòrum amb els següents contactes. També hi pot haver altres membres que no pugueu veure.</string>
+  <string name="shared_with">Compartit amb %1$d (%2$d en línia)</string>
+  <plurals name="forums_shared">
+    <item quantity="one">%d fòrum compartit per contactes</item>
+    <item quantity="other">%d fòrums compartits per contactes</item>
+  </plurals>
+  <string name="nobody">Ningú</string>
   <!--Blogs-->
   <string name="read_more">llegir més</string>
   <!--Blog Sharing-->
@@ -223,4 +284,5 @@
   <string name="close">Tanca</string>
   <!--Sign Out-->
   <!--Screen Filters & Tapjacking-->
+  <!--Permission Requests-->
 </resources>

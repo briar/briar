@@ -1,8 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">安装 Briar</string>
-  <string name="setup_explanation">您的 Briar 账号只会被加密储存在您的设备上，不会被上传。如果您卸载了 Briar 或忘记了密码，将无法恢复您的账号和数据。</string>
+  <string name="setup_title">欢迎来到 Briar</string>
+  <string name="setup_name_explanation">您的昵称将显示在您发布的任何内容旁。昵称在创建帐户后无法更改。</string>
+  <string name="setup_next">下一步</string>
+  <string name="setup_password_intro">设置一个密码</string>
+  <string name="setup_password_explanation">您的 Briar 账号将被加密储存在您的设备上，而非云端，卸载 Briar 或忘记密码，账号将无法恢复。请设置难以猜出的长密码，比如四个随意的单词，或是十个随机字母、数字和符号。</string>
+  <string name="setup_doze_title">后台连接</string>
+  <string name="setup_doze_intro">为了收到消息，Briar 需要保持后台连接。</string>
+  <string name="setup_doze_explanation">为了收到消息，Briar 需要保持后台连接。请禁用电量优化选项以使 Briar 保持连接。</string>
+  <string name="setup_doze_button">允许连接。</string>
   <string name="choose_nickname">设置昵称</string>
   <string name="choose_password">设置密码</string>
   <string name="confirm_password">确认密码</string>
@@ -10,6 +17,12 @@
   <string name="password_too_weak">密码强度过弱</string>
   <string name="passwords_do_not_match">两次键入密码不一致</string>
   <string name="create_account_button">创建账号</string>
+  <string name="more_info">更多信息</string>
+  <string name="don_t_ask_again">不再询问</string>
+  <string name="setup_huawei_text">轻触下方的按钮以保证 Briar 加入“受保护的应用”。</string>
+  <string name="setup_huawei_button">保护 Briar</string>
+  <string name="setup_huawei_help">如果没有将 Briar 加入受保护应用列表，将无法在后台运行。</string>
+  <string name="warning_dozed">%s 无法在后台运行。</string>
   <!--Login-->
   <string name="enter_password">请输入密码：</string>
   <string name="try_again">密码不正确，请重试</string>
@@ -20,11 +33,12 @@
   <string name="startup_failed_notification_title">Briar 无法启动</string>
   <string name="startup_failed_notification_text">你可能需要重新安装 Briar</string>
   <string name="startup_failed_activity_title">Briar 启动失败</string>
-  <string name="startup_failed_db_error">由于某些原因，您的 Briar 数据库损坏并无法修复。您的账号、数据和一切联系人关系均已遗失。我们遗憾地告诉您，您需要重新安装 Briar 并建立新帐号。</string>
+  <string name="startup_failed_db_error">由于某种原因，您的 Briar 数据库损坏且无法修复。您的帐户、数据和所有联系人已经丢失。不幸的是，您需要重新安装 Briar 并建立新帐户。</string>
   <string name="startup_failed_service_error">Briar 无法开启一个必要插件。通常情况下，重新安装 Briar 可以解决这个问题。但是由于 Briar 并不采用中央服务器来储存您的数据，您将丢失您的账号和与您的账号相关的一切数据。</string>
   <plurals name="expiry_warning">
-    <item quantity="other">这是 Briar 的一个测试版本。您的账号将在 %d 天后失效，并且无法恢复。</item>
+    <item quantity="other">这是 Briar 的一个测试版本。您的帐户将在 %d 天后过期，且无法继续使用。</item>
   </plurals>
+  <string name="expiry_update">测试到期时间延长，您的帐户将在 %d 天后过期。</string>
   <string name="expiry_date_reached">本软件已过期。\n感谢您的测试！</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">打开抽屉式导航栏</string>
@@ -58,14 +72,13 @@
   <string name="now">现在</string>
   <string name="show">显示</string>
   <string name="hide">隐藏</string>
-  <string name="ok">好</string>
+  <string name="ok">确定</string>
   <string name="cancel">取消</string>
   <string name="got_it">知道了</string>
   <string name="delete">删除</string>
   <string name="accept">接受</string>
   <string name="decline">拒绝</string>
-  <string name="options">选项</string>
-  <string name="online">在线</string>
+	<string name="online">在线</string>
   <string name="offline">离线</string>
   <string name="send">发送</string>
   <string name="allow">允许</string>
@@ -74,10 +87,12 @@
   <string name="ellipsis">…</string>
   <string name="text_too_long">输入的文本过长</string>
   <string name="show_onboarding">显示帮助对话</string>
+  <string name="fix">修复</string>
+  <string name="help">帮助</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">似乎你是新来的，目前还没有联系人。\n\n点击上方的 + 按钮并根据提示添加联系人。\n\n请牢记：您只能通过面对面的方式添加新联系人，以防止未来他人冒充您的身份并查看您的信息。</string>
+  <string name="no_contacts">你似乎是新来的，目前还没有联系人。\n\n轻触上方的 + 按钮并根据提示添加联系人。\n\n请牢记：您只能通过面对面的方式添加新联系人，以防止未来他人冒充您的身份并查看您的信息。</string>
   <string name="date_no_private_messages">没有消息。</string>
-  <string name="no_private_messages">这是对话视图。\n\n这里似乎缺少对话。\n\n点击下方的输入框来开始对话。</string>
+  <string name="no_private_messages">这是对话视图。\n\n这里似乎缺少对话。\n\n轻触下方的输入框来开始对话。</string>
   <string name="message_hint">键入信息</string>
   <string name="delete_contact">删除联系人</string>
   <string name="dialog_title_delete_contact">确认删除联系人</string>
@@ -85,31 +100,20 @@
   <string name="contact_deleted_toast">联系人已删除</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">添加联系人</string>
-  <string name="your_nickname">选取您想使用的身份：</string>
   <string name="face_to_face">您必须与您想要添加的联系人见面。\n\n这样可以防止未来他人冒充您的身份并查看您的信息。</string>
   <string name="continue_button">继续</string>
-  <string name="your_invitation_code">您的邀请码是</string>
-  <string name="enter_invitation_code">请输入您的联系人的邀请码：</string>
-  <string name="searching_format">正在查找该邀请码对应的联系人 %06d\u2026</string>
   <string name="connection_failed">连接失败</string>
-  <string name="could_not_find_contact">Briar 无法找到您身边的联系人</string>
   <string name="try_again_button">重试</string>
-  <string name="connected_to_contact">连接至联系人</string>
-  <string name="calculating_confirmation_code">正在计算确认码\u2026</string>
-  <string name="your_confirmation_code">您的确认码是</string>
-  <string name="enter_confirmation_code">请输入您的联系人的确认码：</string>
-  <string name="waiting_for_contact">等待联系人\u2026</string>
   <string name="waiting_for_contact_to_scan">等待联系人扫描并连接\u2026</string>
   <string name="exchanging_contact_details">交换联系人细节\u2026</string>
-  <string name="codes_do_not_match">密码不匹配</string>
-  <string name="interfering">这可能意味着有人正在尝试干预你们的连接</string>
   <string name="contact_added_toast">联系人已添加： %s</string>
   <string name="contact_already_exists">联系人 %s 已存在</string>
   <string name="contact_exchange_failed">联系人交换失败</string>
   <string name="qr_code_invalid">二维码无效</string>
+  <string name="camera_error">摄像头出错</string>
   <string name="connecting_to_device">正在连接至设备\u2026</string>
   <string name="authenticating_with_device">正在验证设备\u2026</string>
-  <string name="connection_aborted_local">连接已被我们中止！这可能意味着有人正在尝试干预你们的连接</string>
+  <string name="connection_aborted_local">连接中止！这可能意味着有人正在尝试干预你的连接</string>
   <string name="connection_aborted_remote">连接已被您的联系人中止！这可能意味着有人正在尝试干预你们的连接</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">介绍您的联系人</string>
@@ -325,6 +329,7 @@
   <string name="notify_sound_setting_default">默认铃声</string>
   <string name="notify_sound_setting_disabled">无</string>
   <string name="choose_ringtone_title">选择铃声</string>
+  <string name="cannot_load_ringtone">无法加载铃声</string>
   <!--Settings Feedback-->
   <string name="feedback_settings_title">反馈</string>
   <string name="send_feedback">提交反馈</string>
@@ -354,4 +359,9 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">检测到屏幕覆盖</string>
   <string name="screen_filter_body">另一个应用覆盖在 Briar 上。为了保护您的安全，在有其他应用覆盖的情况下， Briar 将不会对触控做出反应。\n\n使用 Briar 时请尝试关闭以下程序:\n\n%1$s</string>
+  <!--Permission Requests-->
+  <string name="permission_camera_title">相机权限</string>
+  <string name="permission_camera_request_body">Briar 需要获得相机权限以扫描二维码。</string>
+  <string name="permission_camera_denied_body">您拒绝了相机权限，而添加联系人需要使用相机\n\n请考虑授予相机权限。</string>
+  <string name="permission_camera_denied_toast">未授予相机权限</string>
 </resources>

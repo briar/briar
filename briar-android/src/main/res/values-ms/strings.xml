@@ -34,27 +34,16 @@
   <!--Adding Contacts-->
   <string name="add_contact_title">Tambah kenalan</string>
   <string name="continue_button">Teruskan</string>
-  <string name="your_invitation_code">Kod jemputan anda adalah</string>
-  <string name="enter_invitation_code">Sila masukkan kod jemputan kenalan anda:</string>
-  <string name="connection_failed">Sambungan gagal</string>
-  <string name="could_not_find_contact">Briar tidak dapat mencari kenalan anda berhampiran</string>
-  <string name="connected_to_contact">Tersambung dengan kenalan</string>
-  <string name="calculating_confirmation_code">Sedang mencuba kod pengesahan\u2026</string>
-  <string name="your_confirmation_code">Kod pengesahan anda adalah</string>
-  <string name="enter_confirmation_code">Sila masukkan kod pengesahan kenalan anda:</string>
-  <string name="waiting_for_contact">Sedang menunggu kenalan\u2026</string>
-  <string name="exchanging_contact_details">Sedang bertukar butiran kenalan\u2026</string>
-  <string name="codes_do_not_match">Kod tidak sepadan</string>
-  <string name="interfering">Ini menunjukkan bahawa seseorang sedang mengganggu sambungan anda</string>
-  <string name="contact_added_toast">Kenalan telah ditambah: %s</string>
+	<string name="connection_failed">Sambungan gagal</string>
+	<string name="exchanging_contact_details">Sedang bertukar butiran kenalan\u2026</string>
+	<string name="contact_added_toast">Kenalan telah ditambah: %s</string>
   <!--Introductions-->
   <!--Private Groups-->
   <!--Private Group Invitations-->
   <!--Private Groups Revealing Contacts-->
   <!--Forums-->
   <string name="create_forum_title">Cipta forum baru</string>
-  <string name="choose_forum_name">Pilih nama untuk forum anda:</string>
-  <string name="forum_created_toast">Forum telah dicipta</string>
+	<string name="forum_created_toast">Forum telah dicipta</string>
   <!--Forum Sharing-->
   <!--Blogs-->
   <!--Blog Sharing-->
@@ -63,8 +52,7 @@
   <string name="bluetooth_setting_disabled">Hanya ketika menambah kenalan</string>
   <!--Settings Security and Panic-->
   <!--Settings Notifications-->
-  <string name="notify_private_messages_setting">Papar notifikasi untuk mesej peribadi</string>
-  <string name="notify_vibration_setting">Getar</string>
+	<string name="notify_vibration_setting">Getar</string>
   <string name="notify_sound_setting">Bunyi</string>
   <string name="notify_sound_setting_default">Nada bunyi asal</string>
   <string name="notify_sound_setting_disabled">Tiada</string>

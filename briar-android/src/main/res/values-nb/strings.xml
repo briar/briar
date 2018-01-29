@@ -1,8 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Oppsett av Briar</string>
-  <string name="setup_explanation">Din Briar-konto er lagret kryptert på din enhet, ikke i skyen. Hvis du avinstallerer Briar eller glemmer passordet ditt, går det ikke an å gjenopprette kontoen og dataen din.</string>
+  <string name="setup_title">Velkommen til Briar</string>
+  <string name="setup_name_explanation">Ditt kallenavn vil bli vist ved siden av innhold du poster. Du kan endre det etter at du har opprettet kontoen din.</string>
+  <string name="setup_next">Neste</string>
+  <string name="setup_password_intro">Velg et passord</string>
+  <string name="setup_password_explanation">Din Briar-konto er lagret kryptert på din enhet, ikke i skyen. Hvis du avinstallerer Briar eller glemmer passordet ditt, går det ikke an å gjenopprette kontoen din..\n\nVelg et langt passord som er vanskelig å gjette, som fire tilfeldige ord, eller ti tilfeldige bokstaver, tall og symboler.</string>
+  <string name="setup_doze_title">Bakgrunnstilkoblinger</string>
+  <string name="setup_doze_intro">For å motta meldinger, må Briar forbli tilkoblet i bakgrunnen.</string>
+  <string name="setup_doze_explanation">For å motta meldinger, må Briar forbli tilkoblet i bakgrunnen. Skru av batterioptimiseringer slik at Briar kan forbli tilkoblet.</string>
+  <string name="setup_doze_button">Tillat tilkoblinger</string>
   <string name="choose_nickname">Velg kallenavn</string>
   <string name="choose_password">Velg passord</string>
   <string name="confirm_password">Bekreft passord</string>
@@ -10,6 +17,12 @@
   <string name="password_too_weak">Passordet er for svakt</string>
   <string name="passwords_do_not_match">Passordene samsvarer ikke</string>
   <string name="create_account_button">Opprett konto</string>
+  <string name="more_info">Ytterligere informasjon</string>
+  <string name="don_t_ask_again">Ikke spør igjen</string>
+  <string name="setup_huawei_text">Trykk på knappen nedenfor for å forsikre at Briar er beskyttet i \"Beskyttede programmer\".</string>
+  <string name="setup_huawei_button">Beskytt Briar</string>
+  <string name="setup_huawei_help">Hvis Briar ikke er lagt til i listen over beskyttede programmer, vil det ikke kunne kjøre i bakgrunnen.</string>
+  <string name="warning_dozed">%s klarte ikke å kjøre i bakgrunnen</string>
   <!--Login-->
   <string name="enter_password">Skriv inn passord:</string>
   <string name="try_again">Feil passord, prøv igjen</string>
@@ -20,12 +33,13 @@
   <string name="startup_failed_notification_title">Briar kunne ikke starte</string>
   <string name="startup_failed_notification_text">Det kan hende du må reinstallere Briar.</string>
   <string name="startup_failed_activity_title">Oppstartsfeil med Briar</string>
-  <string name="startup_failed_db_error">Av ukjent grunn, er din Briar-database skadet og kan ikke repareres. Kontoen din, alle data, og din kontakter har gått tapt for alltid. Beklageligvis må du reinstallere Briar og sette opp en ny konto.</string>
+  <string name="startup_failed_db_error">Hvis din Briar-database av noen grunn skulle bli skadet uten mulighet for reparasjon, vil din konto, din data, og alle dine kontakter gå tapt. Uheldigvis, må du da reinstallere Briar og sett opp en ny konto.</string>
   <string name="startup_failed_service_error">Briar kunne ikke starte det nødvendige programtillegget. Reinstallasjon av Briar fikser vanligvis dette problemet. Merk deg dog at kontoen og all data tilknyttet den vil gå tapt for godt siden Briar ikke bruker sentrale tjenere å lagre dataen din på.</string>
   <plurals name="expiry_warning">
-    <item quantity="one">Dette er en betaversjon av Briar. Din konto vil utløpe om %d dag og kan ikke fornyes.</item>
-    <item quantity="other">Dette er en betaversjon av Briar. Din konto vil utløpe om %d dager og kan ikke fornyes.</item>
+    <item quantity="one">Dette er en test-versjon av Briar. Din konto vil utløpe om %d dag, og kan ikke fornyes.</item>
+    <item quantity="other">Dette er en test-versjon av Briar. Din konto vil utløpe om %d dager og kan ikke fornyes.</item>
   </plurals>
+  <string name="expiry_update">Utløpsdatoen for testing har blitt forskjøvet. Kontoen din vil nå utløpe om %d dager.</string>
   <string name="expiry_date_reached">Denne programvaren har utløpt.\nTakk for at du testet den.</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Åpne navigasjonsskuffen</string>
@@ -69,8 +83,7 @@
   <string name="delete">Slett</string>
   <string name="accept">Godta</string>
   <string name="decline">Avslå</string>
-  <string name="options">Valg</string>
-  <string name="online">Pålogget</string>
+	<string name="online">Pålogget</string>
   <string name="offline">Frakoblet</string>
   <string name="send">Send</string>
   <string name="allow">Tillat</string>
@@ -79,6 +92,8 @@
   <string name="ellipsis">…</string>
   <string name="text_too_long">Innskrevet tekst er for lang</string>
   <string name="show_onboarding">Vis hjelpedialogvindu</string>
+  <string name="fix">Fiks</string>
+  <string name="help">Hjelp</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Det later til at du er ny her og ikke har noen kontakter enda.\n\nTrykk på \"+\"-ikonet på toppen og følg instruksjonene for å legge til noen venner på listen din.\n\nHusk: Du kan bare legge til nye kontakter ansikt-til-ansikt for å forhindre noen fra å etterligne deg eller fra å lese meldingene dine i framtiden.</string>
   <string name="date_no_private_messages">Ingen meldinger.</string>
@@ -90,31 +105,20 @@
   <string name="contact_deleted_toast">Kontakt slettet</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Legg til en kontakt</string>
-  <string name="your_nickname">Velg identiteten du ønsker å bruke:</string>
   <string name="face_to_face">Du må møte personen du ønsker å legge til som kontakt.\n\nDette vil forhindre folk fra å etterligne deg eller lese meldingene dine i fremtiden.</string>
   <string name="continue_button">Fortsett</string>
-  <string name="your_invitation_code">Din invitasjonskode er</string>
-  <string name="enter_invitation_code">Skriv inn invitasjonskoden fra din kontakt:</string>
-  <string name="searching_format">Søker etter kontakt med invitasjonskode %06d\u2026</string>
   <string name="connection_failed">Tilkobling mislyktes</string>
-  <string name="could_not_find_contact">Briar kunne ikke finne kontakten din nærheten</string>
   <string name="try_again_button">Prøv igjen</string>
-  <string name="connected_to_contact">Tilkoblet kontakt</string>
-  <string name="calculating_confirmation_code">Regner ut bekreftelseskode\u2026</string>
-  <string name="your_confirmation_code">Din bekreftelseskode er</string>
-  <string name="enter_confirmation_code">Skriv inn din kontakts bekreftelseskode:</string>
-  <string name="waiting_for_contact">Venter på kontakt\u2026</string>
   <string name="waiting_for_contact_to_scan">Venter på at kontakten skal skanne og koble til\u2026</string>
   <string name="exchanging_contact_details">Utveksler kontaktdetaljer\u2026</string>
-  <string name="codes_do_not_match">Kodene samsvarer ikke</string>
-  <string name="interfering">Dette kan bety at noen prøver å tukle med tilkoblingen</string>
   <string name="contact_added_toast">Kontakt lagt til: %s</string>
   <string name="contact_already_exists">Kontakten %s finnes allerede</string>
   <string name="contact_exchange_failed">Kontaktutveksling mislyktes</string>
   <string name="qr_code_invalid">QR-koden er ugyldig</string>
+  <string name="camera_error">Kamerafeil</string>
   <string name="connecting_to_device">Kobler til enhet\u2026</string>
   <string name="authenticating_with_device">Autentiserer med enhet\u2026</string>
-  <string name="connection_aborted_local">Tilkoblingen ble avbrutt på din side! Dette kan bety at noen prøver å tukle med tilkoblingen din</string>
+  <string name="connection_aborted_local">Tilkobling avbrutt! Dette kan bety at noen prøver å tukle med tilkoblingen din</string>
   <string name="connection_aborted_remote">Tilkobling avbrutt av din kontakt! Dette kan bety at noen prøver å tukle med vedkommendes tilkobling</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introduser kontaktene dine</string>
@@ -335,6 +339,7 @@
   <string name="notify_sound_setting_default">Forvalgt ringetone</string>
   <string name="notify_sound_setting_disabled">Ingen</string>
   <string name="choose_ringtone_title">Velg ringetone</string>
+  <string name="cannot_load_ringtone">Kan ikke laste inn ringetone</string>
   <!--Settings Feedback-->
   <string name="feedback_settings_title">Tilbakemelding</string>
   <string name="send_feedback">Send tilbakemelding</string>
@@ -364,4 +369,9 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Skjermoverlag oppdaget</string>
   <string name="screen_filter_body">Et annet program tegner på toppen av Briar. For å beskytte din sikkerhet, vil Briar ikke reagere på trykk når et annet program tegner over det.\n\nPrøv å skru av følgende programmer når du bruker Briar.\n\n%1$s</string>
+  <!--Permission Requests-->
+  <string name="permission_camera_title">Kameratilgang</string>
+  <string name="permission_camera_request_body">For å skanne QR-koden, trenger Briar tilgang til kameraet.</string>
+  <string name="permission_camera_denied_body">Du har nektet tilgang til kameraet, men tillegg av kontakter krever bruk av kameraet.\n\nOvervei å innvilge tilgang.</string>
+  <string name="permission_camera_denied_toast">Kameratilgang ble ikke innvilget</string>
 </resources>

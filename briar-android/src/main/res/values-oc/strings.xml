@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Configuracion de Briar</string>
-  <string name="setup_explanation">Vòstre compte Briar es salvat e chifrat sus vòstre aparelh, non pas sus un servidor alonhat \"cloud\". Se desinstalletz Briar o oblidetz vòstre senhal, vòstre compte e vòstras donadas serà pas possible de los recuperar.</string>
   <string name="choose_nickname">Causir un escais-nom</string>
   <string name="choose_password">Causir un senhal</string>
   <string name="confirm_password">Confirmar lo senhal</string>
@@ -22,12 +20,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="startup_failed_notification_title">Briar a pas pogut aviar</string>
   <string name="startup_failed_notification_text">Benlèu que vos cal tornar installar Briar.</string>
   <string name="startup_failed_activity_title">Fracàs de l’aviada de Briar.</string>
-  <string name="startup_failed_db_error">Per una rason desconeguda vòstra basa de donadas Briar es pas utilizabla nimai recuperabla. Vòstres comptes, donadas e contactes son perduts. Per malastre vos cal tornar installar Briar e configurar un compte nòu.</string>
   <string name="startup_failed_service_error">Briar a pas pogut aviar un modul necessari. Tornar installar Briar pòt resolver aquò. Que aquò siá dich : perdretz vòstre compte e totas las donadas ligadas a aqueste. Briar utiliza pas de servidor centralizat per salvar sas donadas.</string>
-  <plurals name="expiry_warning">
-    <item quantity="one">Aquò es una version Beta de Briar. Vòstre compte s’acabarà dins %d jorn e poirà pas èsser renovat.</item>
-    <item quantity="other">Aquò es una version Beta de Briar. Vòstre compte s’acabarà dins %d jorns e poirà pas èsser renovat.</item>
-  </plurals>
   <string name="expiry_date_reached">Vòstre logicial s’acabèt.\nMercés d’aver ensajat !</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Dobrir lo panèl de navigacion</string>
@@ -71,8 +64,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="delete">Suprimir</string>
   <string name="accept">Acceptar</string>
   <string name="decline">Refusar</string>
-  <string name="options">Opcions</string>
-  <string name="online">En linha</string>
+	<string name="online">En linha</string>
   <string name="offline">Fòra linha</string>
   <string name="send">Mandar</string>
   <string name="allow">Autorizar</string>
@@ -81,6 +73,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="ellipsis">...</string>
   <string name="text_too_long">Lo tèxte picat es tròp long</string>
   <string name="show_onboarding">Mostrar l’ajuda</string>
+  <string name="help">Ajuda</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Sembla que sètz novèl aquí e qu’avètz pas cap de contacte.\n\nQuichatz l’icòna ennaut e seguètz las instruccions per n’apondre. Informacion : podètz pas qu’apondre lo monde se se tròban en fàcia de vos, aquò per evitar qu’òm vos raube l’identitat e que vòstres messatges sián legits per d’autres.</string>
   <string name="date_no_private_messages">Cap messatge</string>
@@ -92,31 +85,18 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="contact_deleted_toast">Contacte suprimit</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Ajustar un contacte</string>
-  <string name="your_nickname">Triatz l’identitat que volètz utilizar</string>
   <string name="face_to_face">Vos cal vos amassar amb la persona que volètz apondre als contactes.\n\n Aquò es fach per evitar qu’òm vos raube l’identitat e que vòstres messatges sián legits per d’autres.</string>
   <string name="continue_button">Contunhar</string>
-  <string name="your_invitation_code">Vòstre còdi de convidacion es</string>
-  <string name="enter_invitation_code">Mercés de marcar lo còdi de convidacion de vòstre contacte :</string>
-  <string name="searching_format">Recercar de contactes amb lo còdi de convidacion %06d\u2026</string>
   <string name="connection_failed">Fracàs de la connexion</string>
-  <string name="could_not_find_contact">Briar a pas trobar degun a proximitat</string>
   <string name="try_again_button">Tornar ensajar</string>
-  <string name="connected_to_contact">Connectat al contacte</string>
-  <string name="calculating_confirmation_code">Calcul del còdi de confirmacion\u2026</string>
-  <string name="your_confirmation_code">Vòstre còdi de confirmacion es </string>
-  <string name="enter_confirmation_code">Mercés de marcar lo còdi de confirmacion de vòstre contacte :</string>
-  <string name="waiting_for_contact">En espèra del contacte\u2026</string>
   <string name="waiting_for_contact_to_scan">En espèra de la numerizacion e de la connexion al contacte\u2026</string>
   <string name="exchanging_contact_details">Escambi dels detalhs del contacte\u2026</string>
-  <string name="codes_do_not_match">Los còdis correspondon pas</string>
-  <string name="interfering">Poriá arribar que qualqu’un ensajar d’interferir dins la connexion</string>
   <string name="contact_added_toast">Contacte apondut : %s</string>
   <string name="contact_already_exists">Lo contacte %s existís ja</string>
   <string name="contact_exchange_failed">L’escambi de contacte a fracassat</string>
   <string name="qr_code_invalid">Lo QR còdi es invalid</string>
   <string name="connecting_to_device">Connexion a l’aparelh\u2026</string>
   <string name="authenticating_with_device">Autentificacion amb l’aparelh\u2026</string>
-  <string name="connection_aborted_local">Avèm copat la connexion ! Poiriá arribar que qualqu’un ensage d’interferir amb aquela</string>
   <string name="connection_aborted_remote">Vòstre contacte a copat la connexion ! Poiriá arribar que qualqu’un ensage d’interferir amb aquela</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presentatz vòstres contactes</string>
@@ -366,4 +346,5 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Superposicion detectada</string>
   <string name="screen_filter_body">Una autra aplicacion s’aficha per dessús Briar. Per protegir vòstre seguretat Briar respond pas quand una autra aplicacion s’aficha par dessús.\n\nEnsajatz de tampar las aplicacions seguentas quand utilizatz Briar : \n\n%1$s</string>
+  <!--Permission Requests-->
 </resources>
