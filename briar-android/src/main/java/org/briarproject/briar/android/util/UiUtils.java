@@ -35,6 +35,8 @@ import javax.annotation.Nullable;
 import static android.content.Context.POWER_SERVICE;
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.os.Build.MANUFACTURER;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
 import static android.text.format.DateUtils.DAY_IN_MILLIS;
 import static android.text.format.DateUtils.FORMAT_ABBREV_MONTH;
@@ -174,6 +176,10 @@ public class UiUtils {
 		i.setAction(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
 		i.setData(Uri.parse("package:" + ctx.getPackageName()));
 		return i;
+	}
+
+	public static boolean isSamsung7(Context context) {
+		return SDK_INT == 24 && MANUFACTURER.equalsIgnoreCase("Samsung");
 	}
 
 }
