@@ -27,11 +27,11 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
-import static android.os.Build.MANUFACTURER;
 import static android.os.Build.VERSION.SDK_INT;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingIntent;
+import static org.briarproject.briar.android.util.UiUtils.isSamsung7;
 
 @SuppressLint("Registered")
 public abstract class BriarActivity extends BaseActivity {
@@ -80,7 +80,7 @@ public abstract class BriarActivity extends BaseActivity {
 	public void setSceneTransitionAnimation() {
 		if (SDK_INT < 21) return;
 		// workaround for #1007
-		if (SDK_INT == 24 && MANUFACTURER.equalsIgnoreCase("Samsung")) {
+		if (isSamsung7(this)) {
 			return;
 		}
 		Transition slide = new Slide(Gravity.RIGHT);
