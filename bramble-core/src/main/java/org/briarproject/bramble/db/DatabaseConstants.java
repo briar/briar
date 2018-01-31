@@ -23,10 +23,4 @@ interface DatabaseConstants {
 	 */
 	String SCHEMA_VERSION_KEY = "schemaVersion";
 
-	/**
-	 * The {@link Settings} key under which the minimum supported database
-	 * schema version is stored.
-	 */
-	String MIN_SCHEMA_VERSION_KEY = "minSchemaVersion";
-
 }

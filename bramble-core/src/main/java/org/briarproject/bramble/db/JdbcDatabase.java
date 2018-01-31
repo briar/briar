@@ -47,6 +47,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -57,7 +58,6 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
-import static org.briarproject.bramble.db.DatabaseConstants.MIN_SCHEMA_VERSION_KEY;
 import static org.briarproject.bramble.db.DatabaseConstants.SCHEMA_VERSION_KEY;
 import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 
@@ -68,8 +68,7 @@ import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 @NotNullByDefault
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 33;
-	private static final int MIN_SCHEMA_VERSION = 33;
+	private static final int CODE_SCHEMA_VERSION = 33;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -323,17 +322,33 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private boolean checkSchemaVersion(Connection txn) throws DbException {
 		Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
-		int schemaVersion = s.getInt(SCHEMA_VERSION_KEY, -1);
-		if (schemaVersion == SCHEMA_VERSION) return true;
-		if (schemaVersion < MIN_SCHEMA_VERSION) return false;
-		int minSchemaVersion = s.getInt(MIN_SCHEMA_VERSION_KEY, -1);
-		return SCHEMA_VERSION >= minSchemaVersion;
+		int dataSchemaVersion = s.getInt(SCHEMA_VERSION_KEY, -1);
+		if (dataSchemaVersion == CODE_SCHEMA_VERSION) return true;
+		if (CODE_SCHEMA_VERSION < dataSchemaVersion) return false;
+		// Do we have a suitable migration?
+		for (Migration<Connection> m : getMigrations()) {
+			int start = m.getStartVersion(), end = m.getEndVersion();
+			if (start == dataSchemaVersion && end == CODE_SCHEMA_VERSION) {
+				if (LOG.isLoggable(INFO))
+					LOG.info("Migrating from schema " + start + " to " + end);
+				// Apply the migration
+				m.migrate(txn);
+				// Store the new schema version
+				storeSchemaVersion(txn);
+				return true;
+			}
+		}
+		// No suitable migration
+		return false;
+	}
+
+	private Collection<Migration<Connection>> getMigrations() {
+		return Collections.emptyList();
 	}
 
 	private void storeSchemaVersion(Connection txn) throws DbException {
 		Settings s = new Settings();
-		s.putInt(SCHEMA_VERSION_KEY, SCHEMA_VERSION);
-		s.putInt(MIN_SCHEMA_VERSION_KEY, MIN_SCHEMA_VERSION);
+		s.putInt(SCHEMA_VERSION_KEY, CODE_SCHEMA_VERSION);
 		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
 	}
 
