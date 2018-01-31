@@ -68,7 +68,8 @@ import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 @NotNullByDefault
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int CODE_SCHEMA_VERSION = 33;
+	// Package access for testing
+	static final int CODE_SCHEMA_VERSION = 33;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -323,6 +324,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private boolean checkSchemaVersion(Connection txn) throws DbException {
 		Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
 		int dataSchemaVersion = s.getInt(SCHEMA_VERSION_KEY, -1);
+		if (dataSchemaVersion == -1) return false;
 		if (dataSchemaVersion == CODE_SCHEMA_VERSION) return true;
 		if (CODE_SCHEMA_VERSION < dataSchemaVersion) return false;
 		// Do we have a suitable migration?
@@ -342,7 +344,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		return false;
 	}
 
-	private Collection<Migration<Connection>> getMigrations() {
+	// Package access for testing
+	Collection<Migration<Connection>> getMigrations() {
 		return Collections.emptyList();
 	}
 
