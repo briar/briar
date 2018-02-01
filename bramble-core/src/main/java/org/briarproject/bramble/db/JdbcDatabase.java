@@ -321,6 +321,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	/**
+	 * Compares the schema version stored in the database with the schema
+	 * version used by the current code, applies any suitable migrations to the
+	 * data if necessary, and returns true if the schema now matches the
+	 * current code.
+	 */
 	private boolean checkSchemaVersion(Connection txn) throws DbException {
 		Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
 		int dataSchemaVersion = s.getInt(SCHEMA_VERSION_KEY, -1);
