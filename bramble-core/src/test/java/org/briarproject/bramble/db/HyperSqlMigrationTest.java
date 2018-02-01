@@ -3,17 +3,17 @@ package org.briarproject.bramble.db;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.sql.Connection;
-import java.util.Collection;
+import java.util.List;
 
 @NotNullByDefault
 public class HyperSqlMigrationTest extends DatabaseMigrationTest {
 
 	@Override
-	Database<Connection> createDatabase(
-			Collection<Migration<Connection>> migrations) throws Exception {
+	Database<Connection> createDatabase(List<Migration<Connection>> migrations)
+			throws Exception {
 		return new HyperSqlDatabase(config, clock) {
 			@Override
-			Collection<Migration<Connection>> getMigrations() {
+			List<Migration<Connection>> getMigrations() {
 				return migrations;
 			}
 		};

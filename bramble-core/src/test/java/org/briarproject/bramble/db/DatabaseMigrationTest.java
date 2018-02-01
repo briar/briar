@@ -16,8 +16,9 @@ import org.junit.Test;
 
 import java.io.File;
 import java.sql.Connection;
-import java.util.Collection;
+import java.util.List;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
@@ -33,14 +34,17 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 	private final File testDir = TestUtils.getTestDirectory();
 	@SuppressWarnings("unchecked")
 	private final Migration<Connection> migration =
-			context.mock(Migration.class);
+			context.mock(Migration.class, "migration");
+	@SuppressWarnings("unchecked")
+	private final Migration<Connection> migration1 =
+			context.mock(Migration.class, "migration1");
 
 	protected final DatabaseConfig config =
 			new TestDatabaseConfig(testDir, 1024 * 1024);
 	protected final Clock clock = new SystemClock();
 
 	abstract Database<Connection> createDatabase(
-			Collection<Migration<Connection>> migrations) throws Exception;
+			List<Migration<Connection>> migrations) throws Exception;
 
 	@Before
 	public void setUp() {
@@ -65,14 +69,14 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 	public void testThrowsExceptionIfDataSchemaVersionIsMissing()
 			throws Exception {
 		// Open the DB for the first time
-		Database<Connection> db = createDatabase(singletonList(migration));
+		Database<Connection> db = createDatabase(asList(migration, migration1));
 		assertFalse(db.open());
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		// Override the data schema version
 		setDataSchemaVersion(db, -1);
 		db.close();
 		// Reopen the DB - an exception should be thrown
-		db = createDatabase(singletonList(migration));
+		db = createDatabase(asList(migration, migration1));
 		db.open();
 	}
 
@@ -80,12 +84,12 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 	public void testDoesNotRunMigrationsIfSchemaVersionsMatch()
 			throws Exception {
 		// Open the DB for the first time
-		Database<Connection> db = createDatabase(singletonList(migration));
+		Database<Connection> db = createDatabase(asList(migration, migration1));
 		assertFalse(db.open());
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		db.close();
 		// Reopen the DB - migrations should not be run
-		db = createDatabase(singletonList(migration));
+		db = createDatabase(asList(migration, migration1));
 		assertTrue(db.open());
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		db.close();
@@ -94,14 +98,14 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 	@Test(expected = DbException.class)
 	public void testThrowsExceptionIfDataIsNewerThanCode() throws Exception {
 		// Open the DB for the first time
-		Database<Connection> db = createDatabase(singletonList(migration));
+		Database<Connection> db = createDatabase(asList(migration, migration1));
 		assertFalse(db.open());
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		// Override the data schema version
 		setDataSchemaVersion(db, CODE_SCHEMA_VERSION + 1);
 		db.close();
 		// Reopen the DB - an exception should be thrown
-		db = createDatabase(singletonList(migration));
+		db = createDatabase(asList(migration, migration1));
 		db.open();
 	}
 
@@ -126,18 +130,22 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 			oneOf(migration).getStartVersion();
 			will(returnValue(CODE_SCHEMA_VERSION - 2));
 			oneOf(migration).getEndVersion();
+			will(returnValue(CODE_SCHEMA_VERSION - 1));
+			oneOf(migration1).getStartVersion();
+			will(returnValue(CODE_SCHEMA_VERSION - 1));
+			oneOf(migration1).getEndVersion();
 			will(returnValue(CODE_SCHEMA_VERSION));
 		}});
 
 		// Open the DB for the first time
-		Database<Connection> db = createDatabase(singletonList(migration));
+		Database<Connection> db = createDatabase(asList(migration, migration1));
 		assertFalse(db.open());
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		// Override the data schema version
-		setDataSchemaVersion(db, CODE_SCHEMA_VERSION - 1);
+		setDataSchemaVersion(db, CODE_SCHEMA_VERSION - 3);
 		db.close();
 		// Reopen the DB - an exception should be thrown
-		db = createDatabase(singletonList(migration));
+		db = createDatabase(asList(migration, migration1));
 		db.open();
 	}
 
@@ -145,22 +153,62 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 	public void testRunsMigrationIfCodeIsNewerThanDataAndSuitableMigration()
 			throws Exception {
 		context.checking(new Expectations() {{
+			// First migration should be run, increasing schema version by 2
 			oneOf(migration).getStartVersion();
-			will(returnValue(CODE_SCHEMA_VERSION - 1));
+			will(returnValue(CODE_SCHEMA_VERSION - 2));
 			oneOf(migration).getEndVersion();
 			will(returnValue(CODE_SCHEMA_VERSION));
 			oneOf(migration).migrate(with(any(Connection.class)));
+			// Second migration is not suitable and should be skipped
+			oneOf(migration1).getStartVersion();
+			will(returnValue(CODE_SCHEMA_VERSION - 1));
+			oneOf(migration1).getEndVersion();
+			will(returnValue(CODE_SCHEMA_VERSION));
 		}});
 
 		// Open the DB for the first time
-		Database<Connection> db = createDatabase(singletonList(migration));
+		Database<Connection> db = createDatabase(asList(migration, migration1));
 		assertFalse(db.open());
+		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		// Override the data schema version
-		setDataSchemaVersion(db, CODE_SCHEMA_VERSION - 1);
+		setDataSchemaVersion(db, CODE_SCHEMA_VERSION - 2);
 		db.close();
-		// Reopen the DB - the migration should be run
-		db = createDatabase(singletonList(migration));
+		// Reopen the DB - the first migration should be run
+		db = createDatabase(asList(migration, migration1));
 		assertTrue(db.open());
+		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
+		db.close();
+	}
+
+	@Test
+	public void testRunsMigrationsIfCodeIsNewerThanDataAndSuitableMigrations()
+			throws Exception {
+		context.checking(new Expectations() {{
+			// First migration should be run, incrementing schema version
+			oneOf(migration).getStartVersion();
+			will(returnValue(CODE_SCHEMA_VERSION - 2));
+			oneOf(migration).getEndVersion();
+			will(returnValue(CODE_SCHEMA_VERSION - 1));
+			oneOf(migration).migrate(with(any(Connection.class)));
+			// Second migration should be run, incrementing schema version again
+			oneOf(migration1).getStartVersion();
+			will(returnValue(CODE_SCHEMA_VERSION - 1));
+			oneOf(migration1).getEndVersion();
+			will(returnValue(CODE_SCHEMA_VERSION));
+			oneOf(migration1).migrate(with(any(Connection.class)));
+		}});
+
+		// Open the DB for the first time
+		Database<Connection> db = createDatabase(asList(migration, migration1));
+		assertFalse(db.open());
+		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
+		// Override the data schema version
+		setDataSchemaVersion(db, CODE_SCHEMA_VERSION - 2);
+		db.close();
+		// Reopen the DB - both migrations should be run
+		db = createDatabase(asList(migration, migration1));
+		assertTrue(db.open());
+		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		db.close();
 	}
 
