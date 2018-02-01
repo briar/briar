@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.activity;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.BriarControllerImpl;
@@ -19,7 +18,6 @@ import org.briarproject.briar.android.navdrawer.NavDrawerControllerImpl;
 import dagger.Module;
 import dagger.Provides;
 
-import static android.content.Context.MODE_PRIVATE;
 import static org.briarproject.briar.android.BriarService.BriarServiceConnection;
 
 @Module
@@ -55,12 +53,6 @@ public class ActivityModule {
 	ConfigController provideConfigController(
 			ConfigControllerImpl configController) {
 		return configController;
-	}
-
-	@ActivityScope
-	@Provides
-	SharedPreferences provideSharedPreferences(Activity activity) {
-		return activity.getSharedPreferences("db", MODE_PRIVATE);
 	}
 
 	@ActivityScope

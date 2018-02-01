@@ -1,13 +1,22 @@
 package org.briarproject.briar.android;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
 import android.support.annotation.UiThread;
 
+import org.briarproject.bramble.api.lifecycle.Service;
+import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 
@@ -16,23 +25,33 @@ import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.Manifest.permission.SYSTEM_ALERT_WINDOW;
+import static android.content.Intent.ACTION_PACKAGE_ADDED;
+import static android.content.Intent.ACTION_PACKAGE_CHANGED;
+import static android.content.Intent.ACTION_PACKAGE_REMOVED;
+import static android.content.Intent.ACTION_PACKAGE_REPLACED;
 import static android.content.pm.ApplicationInfo.FLAG_SYSTEM;
 import static android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP;
+import static android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED;
 import static android.content.pm.PackageManager.GET_PERMISSIONS;
 import static android.content.pm.PackageManager.GET_SIGNATURES;
+import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.WARNING;
 
 @NotNullByDefault
-class ScreenFilterMonitorImpl implements ScreenFilterMonitor {
+class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 
 	private static final Logger LOG =
 			Logger.getLogger(ScreenFilterMonitorImpl.class.getName());
@@ -56,54 +75,93 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor {
 					"82BA35E003C1B4B10DD244A8EE24FFFD333872AB5221985EDAB0FC0D" +
 					"0B145B6AA192858E79020103";
 
+	private static final String PREF_KEY_ALLOWED = "allowedOverlayApps";
+
 	private final PackageManager pm;
+	private final Application app;
+	private final AndroidExecutor androidExecutor;
+	private final SharedPreferences prefs;
+	private final AtomicBoolean used = new AtomicBoolean(false);
+
+	// UiThread
+	@Nullable
+	private BroadcastReceiver receiver = null;
+
+	// UiThread
+	@Nullable
+	private Collection<AppDetails> cachedApps = null;
 
 	@Inject
-	ScreenFilterMonitorImpl(Application app) {
+	ScreenFilterMonitorImpl(Application app, AndroidExecutor androidExecutor,
+			SharedPreferences prefs) {
 		pm = app.getPackageManager();
+		this.app = app;
+		this.androidExecutor = androidExecutor;
+		this.prefs = prefs;
 	}
 
 	@Override
 	@UiThread
-	public Set<String> getApps() {
-		Set<String> screenFilterApps = new TreeSet<>();
+	public Collection<AppDetails> getApps() {
+		if (cachedApps != null) return cachedApps;
+		Set<String> allowed = prefs.getStringSet(PREF_KEY_ALLOWED,
+				Collections.emptySet());
+		List<AppDetails> apps = new ArrayList<>();
 		List<PackageInfo> packageInfos =
 				pm.getInstalledPackages(GET_PERMISSIONS);
 		for (PackageInfo packageInfo : packageInfos) {
-			if (isOverlayApp(packageInfo)) {
-				String name = pkgToString(packageInfo);
-				if (name != null) {
-					screenFilterApps.add(name);
-				}
+			if (!allowed.contains(packageInfo.packageName)
+					&& isOverlayApp(packageInfo)) {
+				String name = getAppName(packageInfo);
+				apps.add(new AppDetails(name, packageInfo.packageName));
 			}
 		}
-		return screenFilterApps;
+		Collections.sort(apps, (a, b) -> a.name.compareTo(b.name));
+		apps = Collections.unmodifiableList(apps);
+		cachedApps = apps;
+		return apps;
 	}
 
-	// Fetches the application name for a given package.
-	@Nullable
-	private String pkgToString(PackageInfo pkgInfo) {
+	@Override
+	@UiThread
+	public void allowApps(Collection<String> packageNames) {
+		cachedApps = null;
+		Set<String> allowed = prefs.getStringSet(PREF_KEY_ALLOWED,
+				Collections.emptySet());
+		Set<String> merged = new HashSet<>(allowed);
+		merged.addAll(packageNames);
+		prefs.edit().putStringSet(PREF_KEY_ALLOWED, merged).apply();
+	}
+
+	// Returns the application name for a given package, or the package name
+	// if no application name is available
+	private String getAppName(PackageInfo pkgInfo) {
 		CharSequence seq = pm.getApplicationLabel(pkgInfo.applicationInfo);
-		if (seq != null) {
-			return seq.toString();
-		}
-		return null;
+		return seq == null ? pkgInfo.packageName : seq.toString();
 	}
 
 	// Checks if an installed package is a user app using the permission.
 	private boolean isOverlayApp(PackageInfo packageInfo) {
 		int mask = FLAG_SYSTEM | FLAG_UPDATED_SYSTEM_APP;
 		// Ignore system apps
-		if ((packageInfo.applicationInfo.flags & mask) != 0) {
-			return false;
-		}
+		if ((packageInfo.applicationInfo.flags & mask) != 0) return false;
 		// Ignore Play Services, it's effectively a system app
-		if (isPlayServices(packageInfo.packageName)) {
-			return false;
-		}
+		if (isPlayServices(packageInfo.packageName)) return false;
 		// Get permissions
 		String[] requestedPermissions = packageInfo.requestedPermissions;
-		if (requestedPermissions != null) {
+		if (requestedPermissions == null) return false;
+		if (SDK_INT >= 16 && SDK_INT < 23) {
+			// Check whether the permission has been requested and granted
+			int[] flags = packageInfo.requestedPermissionsFlags;
+			for (int i = 0; i < requestedPermissions.length; i++) {
+				if (requestedPermissions[i].equals(SYSTEM_ALERT_WINDOW)) {
+					// 'flags' may be null on Robolectric
+					return flags == null ||
+							(flags[i] & REQUESTED_PERMISSION_GRANTED) != 0;
+				}
+			}
+		} else {
+			// Check whether the permission has been requested
 			for (String requestedPermission : requestedPermissions) {
 				if (requestedPermission.equals(SYSTEM_ALERT_WINDOW)) {
 					return true;
@@ -113,6 +171,7 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor {
 		return false;
 	}
 
+	@SuppressLint("PackageManagerGetSignatures")
 	private boolean isPlayServices(String pkg) {
 		if (!PLAY_SERVICES_PACKAGE.equals(pkg)) return false;
 		try {
@@ -133,6 +192,38 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor {
 		} catch (NameNotFoundException | CertificateException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return false;
+		}
+	}
+
+	@Override
+	public void startService() throws ServiceException {
+		if (used.getAndSet(true)) throw new IllegalStateException();
+		androidExecutor.runOnUiThread(() -> {
+			IntentFilter filter = new IntentFilter();
+			filter.addAction(ACTION_PACKAGE_ADDED);
+			filter.addAction(ACTION_PACKAGE_CHANGED);
+			filter.addAction(ACTION_PACKAGE_REMOVED);
+			filter.addAction(ACTION_PACKAGE_REPLACED);
+			filter.addDataScheme("package");
+			receiver = new PackageBroadcastReceiver();
+			app.registerReceiver(receiver, filter);
+			cachedApps = null;
+		});
+	}
+
+	@Override
+	public void stopService() throws ServiceException {
+		androidExecutor.runOnUiThread(() -> {
+			if (receiver != null) app.unregisterReceiver(receiver);
+		});
+	}
+
+	private class PackageBroadcastReceiver extends BroadcastReceiver {
+
+		@Override
+		@UiThread
+		public void onReceive(Context context, Intent intent) {
+			cachedApps = null;
 		}
 	}
 }

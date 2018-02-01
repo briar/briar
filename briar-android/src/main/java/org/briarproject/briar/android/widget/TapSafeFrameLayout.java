@@ -7,6 +7,7 @@ import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.android.util.UiUtils;
 
 import javax.annotation.Nullable;
 
@@ -20,18 +21,18 @@ public class TapSafeFrameLayout extends FrameLayout {
 
 	public TapSafeFrameLayout(Context context) {
 		super(context);
-		setFilterTouchesWhenObscured(false);
+		UiUtils.setFilterTouchesWhenObscured(this, false);
 	}
 
 	public TapSafeFrameLayout(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
-		setFilterTouchesWhenObscured(false);
+		UiUtils.setFilterTouchesWhenObscured(this, false);
 	}
 
 	public TapSafeFrameLayout(Context context, @Nullable AttributeSet attrs,
 			@AttrRes int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		setFilterTouchesWhenObscured(false);
+		UiUtils.setFilterTouchesWhenObscured(this, false);
 	}
 
 	public void setOnTapFilteredListener(OnTapFilteredListener listener) {
@@ -40,12 +41,12 @@ public class TapSafeFrameLayout extends FrameLayout {
 
 	@Override
 	public boolean onFilterTouchEventForSecurity(MotionEvent e) {
-		boolean filter = (e.getFlags() & FLAG_WINDOW_IS_OBSCURED) != 0;
-		if (filter && listener != null) listener.onTapFiltered();
-		return !filter;
+		boolean obscured = (e.getFlags() & FLAG_WINDOW_IS_OBSCURED) != 0;
+		if (obscured && listener != null) return listener.shouldAllowTap();
+		else return !obscured;
 	}
 
 	public interface OnTapFilteredListener {
-		void onTapFiltered();
+		boolean shouldAllowTap();
 	}
 }

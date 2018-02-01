@@ -80,7 +80,7 @@ public abstract class BriarActivity extends BaseActivity {
 	public void setSceneTransitionAnimation() {
 		if (SDK_INT < 21) return;
 		// workaround for #1007
-		if (isSamsung7(this)) {
+		if (isSamsung7()) {
 			return;
 		}
 		Transition slide = new Slide(Gravity.RIGHT);
