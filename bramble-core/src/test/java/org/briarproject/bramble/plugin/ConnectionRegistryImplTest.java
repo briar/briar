@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -86,7 +87,7 @@ public class ConnectionRegistryImplTest extends BrambleTestCase {
 		try {
 			c.unregisterConnection(contactId, transportId, true);
 			fail();
-		} catch (IllegalArgumentException expected) {
+		} catch (NoSuchElementException expected) {
 			// Expected
 		}
 		// Register both contacts with one transport, one contact with both -
