@@ -131,7 +131,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			i.putExtra(GROUP_ID, item.getGroupId().getBytes());
 			i.putExtra(POST_ID, item.getId().getBytes());
 
-			if (Build.VERSION.SDK_INT >= 23 && !isSamsung7(ctx)) {
+			if (Build.VERSION.SDK_INT >= 23 && !isSamsung7()) {
 				ActivityOptionsCompat options =
 						makeSceneTransitionAnimation((Activity) ctx, layout,
 								getTransitionName(item.getId()));
