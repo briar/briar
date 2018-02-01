@@ -177,7 +177,7 @@ public class UiUtils {
 		return i;
 	}
 
-	public static boolean isSamsung7(Context context) {
+	public static boolean isSamsung7() {
 		return SDK_INT == 24 && MANUFACTURER.equalsIgnoreCase("Samsung");
 	}
 
