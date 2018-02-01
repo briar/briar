@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.UiThread;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,13 +22,15 @@ import org.briarproject.briar.android.controller.ActivityLifecycleController;
 import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.ScreenFilterDialogFragment;
+import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout.OnTapFilteredListener;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
+import org.briarproject.briar.api.android.ScreenFilterMonitor.AppDetails;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -48,7 +51,10 @@ public abstract class BaseActivity extends AppCompatActivity
 	private final List<ActivityLifecycleController> lifecycleControllers =
 			new ArrayList<>();
 	private boolean destroyed = false;
-	private ScreenFilterDialogFragment dialogFrag;
+
+	@Nullable
+	private Toolbar toolbar = null;
+	private boolean searchedForToolbar = false;
 
 	public abstract void injectActivity(ActivityComponent component);
 
@@ -57,8 +63,8 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public void onCreate(@Nullable Bundle state) {
+		super.onCreate(state);
 
 		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
@@ -97,6 +103,16 @@ public abstract class BaseActivity extends AppCompatActivity
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityStart();
 		}
+		protectToolbar();
+		ScreenFilterDialogFragment f = findDialogFragment();
+		if (f != null) f.setDismissListener(this::protectToolbar);
+	}
+
+	@Nullable
+	private ScreenFilterDialogFragment findDialogFragment() {
+		Fragment f = getSupportFragmentManager().findFragmentByTag(
+				ScreenFilterDialogFragment.TAG);
+		return (ScreenFilterDialogFragment) f;
 	}
 
 	@Override
@@ -104,15 +120,6 @@ public abstract class BaseActivity extends AppCompatActivity
 		super.onStop();
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityStop();
-		}
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		if (dialogFrag != null) {
-			dialogFrag.dismiss();
-			dialogFrag = null;
 		}
 	}
 
@@ -132,16 +139,27 @@ public abstract class BaseActivity extends AppCompatActivity
 				.commit();
 	}
 
-	private void showScreenFilterWarning() {
-		if (dialogFrag != null && dialogFrag.isVisible()) return;
-		Set<String> apps = screenFilterMonitor.getApps();
-		if (apps.isEmpty()) return;
-		dialogFrag =
-				ScreenFilterDialogFragment.newInstance(new ArrayList<>(apps));
-		dialogFrag.setCancelable(false);
+	private boolean showScreenFilterWarning() {
+		// If the dialog is already visible, filter the tap
+		ScreenFilterDialogFragment f = findDialogFragment();
+		if (f != null && f.isVisible()) return false;
+		Collection<AppDetails> apps = screenFilterMonitor.getApps();
+		// If all overlay apps have been allowed, allow the tap
+		if (apps.isEmpty()) return true;
 		// Show dialog unless onSaveInstanceState() has been called, see #1112
 		FragmentManager fm = getSupportFragmentManager();
-		if (!fm.isStateSaved()) dialogFrag.show(fm, dialogFrag.getTag());
+		if (!fm.isStateSaved()) {
+			// Create dialog
+			f = ScreenFilterDialogFragment.newInstance(apps);
+			// When dialog is dismissed, update protection of toolbar
+			f.setDismissListener(this::protectToolbar);
+			// Hide soft keyboard when (re)showing dialog
+			View focus = getCurrentFocus();
+			if (focus != null) hideSoftKeyboard(focus);
+			f.show(fm, ScreenFilterDialogFragment.TAG);
+		}
+		// Filter the tap
+		return false;
 	}
 
 	@Override
@@ -195,15 +213,25 @@ public abstract class BaseActivity extends AppCompatActivity
 	 * is outside the wrapper.
 	 */
 	private void protectToolbar() {
-		View decorView = getWindow().getDecorView();
-		if (decorView instanceof ViewGroup) {
-			Toolbar toolbar = findToolbar((ViewGroup) decorView);
-			if (toolbar != null) toolbar.setFilterTouchesWhenObscured(true);
+		findToolbar();
+		if (toolbar != null) {
+			boolean filter = !screenFilterMonitor.getApps().isEmpty();
+			UiUtils.setFilterTouchesWhenObscured(toolbar, filter);
 		}
+	}
+
+	private void findToolbar() {
+		if (searchedForToolbar) return;
+		View decorView = getWindow().getDecorView();
+		if (decorView instanceof ViewGroup)
+			toolbar = findToolbar((ViewGroup) decorView);
+		searchedForToolbar = true;
 	}
 
 	@Nullable
 	private Toolbar findToolbar(ViewGroup vg) {
+		// Views inside tap-safe layouts are already protected
+		if (vg instanceof TapSafeFrameLayout) return null;
 		for (int i = 0, len = vg.getChildCount(); i < len; i++) {
 			View child = vg.getChildAt(i);
 			if (child instanceof Toolbar) return (Toolbar) child;
@@ -223,23 +251,20 @@ public abstract class BaseActivity extends AppCompatActivity
 	@Override
 	public void setContentView(View v) {
 		super.setContentView(makeTapSafeWrapper(v));
-		protectToolbar();
 	}
 
 	@Override
 	public void setContentView(View v, LayoutParams layoutParams) {
 		super.setContentView(makeTapSafeWrapper(v), layoutParams);
-		protectToolbar();
 	}
 
 	@Override
 	public void addContentView(View v, LayoutParams layoutParams) {
 		super.addContentView(makeTapSafeWrapper(v), layoutParams);
-		protectToolbar();
 	}
 
 	@Override
-	public void onTapFiltered() {
-		showScreenFilterWarning();
+	public boolean shouldAllowTap() {
+		return showScreenFilterWarning();
 	}
 }

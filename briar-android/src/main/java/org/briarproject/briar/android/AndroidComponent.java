@@ -1,5 +1,7 @@
 package org.briarproject.briar.android;
 
+import android.content.SharedPreferences;
+
 import org.briarproject.bramble.BrambleAndroidModule;
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
@@ -88,6 +90,8 @@ public interface AndroidComponent
 	EventBus eventBus();
 
 	AndroidNotificationManager androidNotificationManager();
+
+	SharedPreferences sharedPreferences();
 
 	ScreenFilterMonitor screenFilterMonitor();
 
