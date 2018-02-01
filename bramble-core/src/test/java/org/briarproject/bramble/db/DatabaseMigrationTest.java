@@ -1,5 +1,7 @@
 package org.briarproject.bramble.db;
 
+import org.briarproject.bramble.api.db.DataTooNewException;
+import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -95,7 +97,7 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 		db.close();
 	}
 
-	@Test(expected = DbException.class)
+	@Test(expected = DataTooNewException.class)
 	public void testThrowsExceptionIfDataIsNewerThanCode() throws Exception {
 		// Open the DB for the first time
 		Database<Connection> db = createDatabase(asList(migration, migration1));
@@ -109,7 +111,7 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 		db.open();
 	}
 
-	@Test(expected = DbException.class)
+	@Test(expected = DataTooOldException.class)
 	public void testThrowsExceptionIfCodeIsNewerThanDataAndNoMigrations()
 			throws Exception {
 		// Open the DB for the first time
@@ -123,7 +125,7 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 		db.open();
 	}
 
-	@Test(expected = DbException.class)
+	@Test(expected = DataTooOldException.class)
 	public void testThrowsExceptionIfCodeIsNewerThanDataAndNoSuitableMigration()
 			throws Exception {
 		context.checking(new Expectations() {{
