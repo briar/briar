@@ -298,7 +298,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (!checkSchemaVersion(txn)) throw new DbException();
 			} else {
 				createTables(txn);
-				storeSchemaVersion(txn);
+				storeSchemaVersion(txn, CODE_SCHEMA_VERSION);
 			}
 			createIndexes(txn);
 			commitTransaction(txn);
@@ -314,31 +314,31 @@ abstract class JdbcDatabase implements Database<Connection> {
 		if (dataSchemaVersion == -1) return false;
 		if (dataSchemaVersion == CODE_SCHEMA_VERSION) return true;
 		if (CODE_SCHEMA_VERSION < dataSchemaVersion) return false;
-		// Do we have a suitable migration?
+		// Apply any suitable migrations in order
 		for (Migration<Connection> m : getMigrations()) {
 			int start = m.getStartVersion(), end = m.getEndVersion();
-			if (start == dataSchemaVersion && end == CODE_SCHEMA_VERSION) {
+			if (start == dataSchemaVersion) {
 				if (LOG.isLoggable(INFO))
 					LOG.info("Migrating from schema " + start + " to " + end);
 				// Apply the migration
 				m.migrate(txn);
 				// Store the new schema version
-				storeSchemaVersion(txn);
-				return true;
+				storeSchemaVersion(txn, end);
+				dataSchemaVersion = end;
 			}
 		}
-		// No suitable migration
-		return false;
+		return dataSchemaVersion == CODE_SCHEMA_VERSION;
 	}
 
 	// Package access for testing
-	Collection<Migration<Connection>> getMigrations() {
+	List<Migration<Connection>> getMigrations() {
 		return Collections.emptyList();
 	}
 
-	private void storeSchemaVersion(Connection txn) throws DbException {
+	private void storeSchemaVersion(Connection txn, int version)
+			throws DbException {
 		Settings s = new Settings();
-		s.putInt(SCHEMA_VERSION_KEY, CODE_SCHEMA_VERSION);
+		s.putInt(SCHEMA_VERSION_KEY, version);
 		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
 	}
 
