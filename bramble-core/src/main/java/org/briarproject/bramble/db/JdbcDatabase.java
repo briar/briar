@@ -3,6 +3,8 @@ package org.briarproject.bramble.db;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.db.DataTooNewException;
+import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DbClosedException;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
@@ -295,7 +297,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Connection txn = startTransaction();
 		try {
 			if (reopen) {
-				if (!checkSchemaVersion(txn)) throw new DbException();
+				checkSchemaVersion(txn);
 			} else {
 				createTables(txn);
 				storeSchemaVersion(txn, CODE_SCHEMA_VERSION);
@@ -310,16 +312,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	/**
 	 * Compares the schema version stored in the database with the schema
-	 * version used by the current code, applies any suitable migrations to the
-	 * data if necessary, and returns true if the schema now matches the
-	 * current code.
+	 * version used by the current code and applies any suitable migrations to
+	 * the data if necessary.
+	 *
+	 * @throws DataTooNewException if the data uses a newer schema than the
+	 * current code
+	 * @throws DataTooOldException if the data uses an older schema than the
+	 * current code and cannot be migrated
 	 */
-	private boolean checkSchemaVersion(Connection txn) throws DbException {
+	private void checkSchemaVersion(Connection txn) throws DbException {
 		Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
 		int dataSchemaVersion = s.getInt(SCHEMA_VERSION_KEY, -1);
-		if (dataSchemaVersion == -1) return false;
-		if (dataSchemaVersion == CODE_SCHEMA_VERSION) return true;
-		if (CODE_SCHEMA_VERSION < dataSchemaVersion) return false;
+		if (dataSchemaVersion == -1) throw new DbException();
+		if (dataSchemaVersion == CODE_SCHEMA_VERSION) return;
+		if (CODE_SCHEMA_VERSION < dataSchemaVersion)
+			throw new DataTooNewException();
 		// Apply any suitable migrations in order
 		for (Migration<Connection> m : getMigrations()) {
 			int start = m.getStartVersion(), end = m.getEndVersion();
@@ -333,7 +340,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				dataSchemaVersion = end;
 			}
 		}
-		return dataSchemaVersion == CODE_SCHEMA_VERSION;
+		if (dataSchemaVersion != CODE_SCHEMA_VERSION)
+			throw new DataTooOldException();
 	}
 
 	// Package access for testing
