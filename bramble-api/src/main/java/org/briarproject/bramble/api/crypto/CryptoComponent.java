@@ -22,10 +22,6 @@ public interface CryptoComponent {
 
 	KeyParser getSignatureKeyParser();
 
-	KeyPair generateEdKeyPair();
-
-	KeyParser getEdKeyParser();
-
 	KeyParser getMessageKeyParser();
 
 	/**
@@ -53,7 +49,7 @@ public interface CryptoComponent {
 			throws GeneralSecurityException;
 
 	/**
-	 * Signs the given byte[] with the given ECDSA private key.
+	 * Signs the given byte[] with the given private key.
 	 *
 	 * @param label a namespaced label indicating the purpose of this
 	 * signature, to prevent it from being repurposed or colliding with a
@@ -63,17 +59,8 @@ public interface CryptoComponent {
 			throws GeneralSecurityException;
 
 	/**
-	 * Signs the given byte[] with the given Ed25519 private key.
-	 *
-	 * @param label A label specific to this signature
-	 *              to ensure that the signature cannot be repurposed
-	 */
-	byte[] signEd(String label, byte[] toSign, byte[] privateKey)
-			throws GeneralSecurityException;
-
-	/**
 	 * Verifies that the given signature is valid for the signed data
-	 * and the given ECDSA public key.
+	 * and the given public key.
 	 *
 	 * @param label a namespaced label indicating the purpose of this
 	 * signature, to prevent it from being repurposed or colliding with a
@@ -81,17 +68,6 @@ public interface CryptoComponent {
 	 * @return true if the signature was valid, false otherwise.
 	 */
 	boolean verify(String label, byte[] signedData, byte[] publicKey,
-			byte[] signature) throws GeneralSecurityException;
-
-	/**
-	 * Verifies that the given signature is valid for the signed data
-	 * and the given Ed25519 public key.
-	 *
-	 * @param label A label that was specific to this signature
-	 *              to ensure that the signature cannot be repurposed
-	 * @return true if the signature was valid, false otherwise.
-	 */
-	boolean verifyEd(String label, byte[] signedData, byte[] publicKey,
 			byte[] signature) throws GeneralSecurityException;
 
 	/**

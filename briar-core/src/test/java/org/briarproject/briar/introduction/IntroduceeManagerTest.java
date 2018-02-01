@@ -36,7 +36,7 @@ import org.junit.Test;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
@@ -215,7 +215,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		// turn request message into a response
 		msg.put(ACCEPT, true);
 		msg.put(TIME, time);
-		msg.put(E_PUBLIC_KEY, getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+		msg.put(E_PUBLIC_KEY, getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES));
 		msg.put(TRANSPORT, new BdfDictionary());
 
 		context.checking(new Expectations() {{
@@ -308,7 +308,7 @@ public class IntroduceeManagerTest extends BriarTestCase {
 
 		byte[] publicKeyBytes = introducee2.getAuthor().getPublicKey();
 		BdfDictionary tp = BdfDictionary.of(new BdfEntry("fake", "fake"));
-		byte[] ePublicKeyBytes = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		byte[] ePublicKeyBytes = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
 		byte[] mac = getRandomBytes(MAC_LENGTH);
 		SecretKey macKey = getSecretKey();
 
