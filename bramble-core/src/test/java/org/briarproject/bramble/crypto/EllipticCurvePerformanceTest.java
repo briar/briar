@@ -38,7 +38,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static net.i2p.crypto.eddsa.EdDSAEngine.SIGNATURE_ALGORITHM;
-import static org.briarproject.bramble.crypto.EllipticCurveConstants.PARAMETERS;
 
 // Not a JUnit test
 public class EllipticCurvePerformanceTest {
@@ -65,7 +64,6 @@ public class EllipticCurvePerformanceTest {
 			runTest(name + " default", params);
 			runTest(name + " constant", constantTime(params));
 		}
-		runTest("ours", PARAMETERS);
 		runCurve25519Test();
 		runEd25519Test();
 	}

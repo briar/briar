@@ -13,11 +13,11 @@ import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.math.ec.ECCurve;
 import org.spongycastle.math.ec.ECPoint;
+import org.spongycastle.math.ec.MontgomeryLadderMultiplier;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-import static org.briarproject.bramble.crypto.EllipticCurveConstants.PARAMETERS;
 import static org.junit.Assert.assertEquals;
 
 public class EllipticCurveMultiplicationTest extends BrambleTestCase {
@@ -31,15 +31,11 @@ public class EllipticCurveMultiplicationTest extends BrambleTestCase {
 		ECPoint defaultG = defaultX9Parameters.getG();
 		BigInteger defaultN = defaultX9Parameters.getN();
 		BigInteger defaultH = defaultX9Parameters.getH();
-		// Check that the default parameters are equal to our parameters
-		assertEquals(PARAMETERS.getCurve(), defaultCurve);
-		assertEquals(PARAMETERS.getG(), defaultG);
-		assertEquals(PARAMETERS.getN(), defaultN);
-		assertEquals(PARAMETERS.getH(), defaultH);
-		// ECDomainParameters doesn't have an equals() method, but it's just a
-		// container for the parameters
 		ECDomainParameters defaultParameters = new ECDomainParameters(
 				defaultCurve, defaultG, defaultN, defaultH);
+		// Instantiate an implementation using the Montgomery ladder multiplier
+		ECDomainParameters montgomeryParameters =
+				constantTime(defaultParameters);
 		// Generate two key pairs with each set of parameters, using the same
 		// deterministic PRNG for both sets of parameters
 		byte[] seed = new byte[32];
@@ -47,7 +43,7 @@ public class EllipticCurveMultiplicationTest extends BrambleTestCase {
 		// Montgomery ladder multiplier
 		SecureRandom random = new PseudoSecureRandom(seed);
 		ECKeyGenerationParameters montgomeryGeneratorParams =
-				new ECKeyGenerationParameters(PARAMETERS, random);
+				new ECKeyGenerationParameters(montgomeryParameters, random);
 		ECKeyPairGenerator montgomeryGenerator = new ECKeyPairGenerator();
 		montgomeryGenerator.init(montgomeryGeneratorParams);
 		AsymmetricCipherKeyPair montgomeryKeyPair1 =
@@ -106,5 +102,14 @@ public class EllipticCurveMultiplicationTest extends BrambleTestCase {
 				sharedSecretDefaultMontgomery);
 		assertEquals(sharedSecretMontgomeryMontgomery,
 				sharedSecretDefaultDefault);
+	}
+
+	private static ECDomainParameters constantTime(ECDomainParameters in) {
+		ECCurve curve = in.getCurve().configure().setMultiplier(
+				new MontgomeryLadderMultiplier()).create();
+		BigInteger x = in.getG().getAffineXCoord().toBigInteger();
+		BigInteger y = in.getG().getAffineYCoord().toBigInteger();
+		ECPoint g = curve.createPoint(x, y);
+		return new ECDomainParameters(curve, g, in.getN(), in.getH());
 	}
 }

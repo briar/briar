@@ -14,15 +14,11 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
 import org.briarproject.bramble.util.ByteUtils;
 import org.briarproject.bramble.util.StringUtils;
-import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.CryptoException;
 import org.spongycastle.crypto.Digest;
-import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
 import org.spongycastle.crypto.digests.Blake2bDigest;
-import org.spongycastle.crypto.generators.ECKeyPairGenerator;
-import org.spongycastle.crypto.params.ECKeyGenerationParameters;
-import org.spongycastle.crypto.params.ECPrivateKeyParameters;
-import org.spongycastle.crypto.params.ECPublicKeyParameters;
+import org.whispersystems.curve25519.Curve25519;
+import org.whispersystems.curve25519.Curve25519KeyPair;
 
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
@@ -35,7 +31,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
-import static org.briarproject.bramble.crypto.EllipticCurveConstants.PARAMETERS;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
 
 @NotNullByDefault
@@ -44,7 +39,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final Logger LOG =
 			Logger.getLogger(CryptoComponentImpl.class.getName());
 
-	private static final int AGREEMENT_KEY_PAIR_BITS = 256;
 	private static final int SIGNATURE_KEY_PAIR_BITS = 256;
 	private static final int STORAGE_IV_BYTES = 24; // 196 bits
 	private static final int PBKDF_SALT_BYTES = 32; // 256 bits
@@ -52,7 +46,7 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	private final SecureRandom secureRandom;
 	private final PasswordBasedKdf passwordBasedKdf;
-	private final ECKeyPairGenerator agreementKeyPairGenerator;
+	private final Curve25519 curve25519;
 	private final KeyPairGenerator signatureKeyPairGenerator;
 	private final KeyParser agreementKeyParser, signatureKeyParser;
 	private final MessageEncrypter messageEncrypter;
@@ -80,15 +74,11 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 		secureRandom = new SecureRandom();
 		this.passwordBasedKdf = passwordBasedKdf;
-		ECKeyGenerationParameters params = new ECKeyGenerationParameters(
-				PARAMETERS, secureRandom);
-		agreementKeyPairGenerator = new ECKeyPairGenerator();
-		agreementKeyPairGenerator.init(params);
+		curve25519 = Curve25519.getInstance("java");
 		signatureKeyPairGenerator = new KeyPairGenerator();
 		signatureKeyPairGenerator.initialize(SIGNATURE_KEY_PAIR_BITS,
 				secureRandom);
-		agreementKeyParser = new Sec1KeyParser(PARAMETERS,
-				AGREEMENT_KEY_PAIR_BITS);
+		agreementKeyParser = new Curve25519KeyParser();
 		signatureKeyParser = new EdKeyParser();
 		messageEncrypter = new MessageEncrypter(secureRandom);
 	}
@@ -133,16 +123,17 @@ class CryptoComponentImpl implements CryptoComponent {
 	// Package access for testing
 	byte[] performRawKeyAgreement(PrivateKey priv, PublicKey pub)
 			throws GeneralSecurityException {
-		if (!(priv instanceof Sec1PrivateKey))
+		if (!(priv instanceof Curve25519PrivateKey))
 			throw new IllegalArgumentException();
-		if (!(pub instanceof Sec1PublicKey))
+		if (!(pub instanceof Curve25519PublicKey))
 			throw new IllegalArgumentException();
-		ECPrivateKeyParameters ecPriv = ((Sec1PrivateKey) priv).getKey();
-		ECPublicKeyParameters ecPub = ((Sec1PublicKey) pub).getKey();
 		long now = System.currentTimeMillis();
-		ECDHCBasicAgreement agreement = new ECDHCBasicAgreement();
-		agreement.init(ecPriv);
-		byte[] secret = agreement.calculateAgreement(ecPub).toByteArray();
+		byte[] secret = curve25519.calculateAgreement(pub.getEncoded(),
+				priv.getEncoded());
+		// If the shared secret is all zeroes, the public key is invalid
+		byte allZero = 0;
+		for (byte b : secret) allZero |= b;
+		if (allZero == 0) throw new GeneralSecurityException();
 		long duration = System.currentTimeMillis() - now;
 		if (LOG.isLoggable(INFO))
 			LOG.info("Deriving shared secret took " + duration + " ms");
@@ -151,18 +142,10 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	@Override
 	public KeyPair generateAgreementKeyPair() {
-		AsymmetricCipherKeyPair keyPair =
-				agreementKeyPairGenerator.generateKeyPair();
-		// Return a wrapper that uses the SEC 1 encoding
-		ECPublicKeyParameters ecPublicKey =
-				(ECPublicKeyParameters) keyPair.getPublic();
-		PublicKey publicKey = new Sec1PublicKey(ecPublicKey
-		);
-		ECPrivateKeyParameters ecPrivateKey =
-				(ECPrivateKeyParameters) keyPair.getPrivate();
-		PrivateKey privateKey = new Sec1PrivateKey(ecPrivateKey,
-				AGREEMENT_KEY_PAIR_BITS);
-		return new KeyPair(publicKey, privateKey);
+		Curve25519KeyPair keyPair = curve25519.generateKeyPair();
+		PublicKey pub = new Curve25519PublicKey(keyPair.getPublicKey());
+		PrivateKey priv = new Curve25519PrivateKey(keyPair.getPrivateKey());
+		return new KeyPair(pub, priv);
 	}
 
 	@Override
@@ -172,7 +155,8 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	@Override
 	public KeyPair generateSignatureKeyPair() {
-		java.security.KeyPair keyPair = signatureKeyPairGenerator.generateKeyPair();
+		java.security.KeyPair keyPair =
+				signatureKeyPairGenerator.generateKeyPair();
 		EdDSAPublicKey edPublicKey = (EdDSAPublicKey) keyPair.getPublic();
 		PublicKey publicKey = new EdPublicKey(edPublicKey.getAbyte());
 		EdDSAPrivateKey edPrivateKey = (EdDSAPrivateKey) keyPair.getPrivate();

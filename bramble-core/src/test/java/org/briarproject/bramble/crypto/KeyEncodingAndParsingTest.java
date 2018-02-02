@@ -26,7 +26,7 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 	public void testAgreementPublicKeyLength() throws Exception {
 		// Generate 10 agreement key pairs
 		for (int i = 0; i < 10; i++) {
-			KeyPair keyPair = crypto.generateSignatureKeyPair();
+			KeyPair keyPair = crypto.generateAgreementKeyPair();
 			// Check the length of the public key
 			byte[] publicKey = keyPair.getPublic().getEncoded();
 			assertTrue(publicKey.length <= MAX_AGREEMENT_PUBLIC_KEY_BYTES);
