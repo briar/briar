@@ -215,23 +215,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsGroup(txn, m.getGroupId()))
 			throw new NoSuchGroupException();
 		if (!db.containsMessage(txn, m.getId())) {
-			addMessage(txn, m, DELIVERED, shared, null);
+			db.addMessage(txn, m, DELIVERED, shared, null);
 			transaction.attach(new MessageAddedEvent(m, null));
 			transaction.attach(new MessageStateChangedEvent(m.getId(), true,
 					DELIVERED));
 			if (shared) transaction.attach(new MessageSharedEvent(m.getId()));
 		}
 		db.mergeMessageMetadata(txn, m.getId(), meta);
-	}
-
-	private void addMessage(T txn, Message m, State state, boolean shared,
-			@Nullable ContactId sender) throws DbException {
-		db.addMessage(txn, m, state, shared);
-		for (ContactId c : db.getGroupVisibility(txn, m.getGroupId())) {
-			boolean offered = db.removeOfferedMessage(txn, c, m.getId());
-			boolean seen = offered || (sender != null && c.equals(sender));
-			db.addStatus(txn, c, m.getId(), seen, seen);
-		}
 	}
 
 	@Override
@@ -682,7 +672,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				db.raiseSeenFlag(txn, c, m.getId());
 				db.raiseAckFlag(txn, c, m.getId());
 			} else {
-				addMessage(txn, m, UNKNOWN, false, c);
+				db.addMessage(txn, m, UNKNOWN, false, c);
 				transaction.attach(new MessageAddedEvent(m, c));
 			}
 			transaction.attach(new MessageToAckEvent(c));
@@ -750,7 +740,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		GroupId id = g.getId();
 		if (!db.containsGroup(txn, id))
 			throw new NoSuchGroupException();
-		Collection<ContactId> affected = db.getGroupVisibility(txn, id);
+		Collection<ContactId> affected =
+				db.getGroupVisibility(txn, id).keySet();
 		db.removeGroup(txn, id);
 		transaction.attach(new GroupRemovedEvent(g));
 		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
@@ -820,19 +811,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchGroupException();
 		Visibility old = db.getGroupVisibility(txn, c, g);
 		if (old == v) return;
-		if (old == INVISIBLE) {
-			db.addGroupVisibility(txn, c, g, v == SHARED);
-			for (MessageId m : db.getMessageIds(txn, g)) {
-				boolean seen = db.removeOfferedMessage(txn, c, m);
-				db.addStatus(txn, c, m, seen, seen);
-			}
-		} else if (v == INVISIBLE) {
-			db.removeGroupVisibility(txn, c, g);
-			for (MessageId m : db.getMessageIds(txn, g))
-				db.removeStatus(txn, c, m);
-		} else {
-			db.setGroupVisibility(txn, c, g, v == SHARED);
-		}
+		if (old == INVISIBLE) db.addGroupVisibility(txn, c, g, v == SHARED);
+		else if (v == INVISIBLE) db.removeGroupVisibility(txn, c, g);
+		else db.setGroupVisibility(txn, c, g, v == SHARED);
 		List<ContactId> affected = Collections.singletonList(c);
 		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
 	}
