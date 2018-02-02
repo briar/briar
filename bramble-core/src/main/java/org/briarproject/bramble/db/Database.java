@@ -2,6 +2,8 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.db.DataTooNewException;
+import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.identity.Author;
@@ -37,6 +39,11 @@ interface Database<T> {
 
 	/**
 	 * Opens the database and returns true if the database already existed.
+	 *
+	 * @throws DataTooNewException if the data uses a newer schema than the
+	 * current code
+	 * @throws DataTooOldException if the data uses an older schema than the
+	 * current code and cannot be migrated
 	 */
 	boolean open() throws DbException;
 

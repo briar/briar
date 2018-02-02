@@ -37,6 +37,11 @@ public interface DatabaseComponent {
 
 	/**
 	 * Opens the database and returns true if the database already existed.
+	 *
+	 * @throws DataTooNewException if the data uses a newer schema than the
+	 * current code
+	 * @throws DataTooOldException if the data uses an older schema than the
+	 * current code and cannot be migrated
 	 */
 	boolean open() throws DbException;
 
