@@ -3,6 +3,8 @@ package org.briarproject.bramble.db;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.db.DataTooNewException;
+import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DbClosedException;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
@@ -47,6 +49,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -57,7 +60,6 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
-import static org.briarproject.bramble.db.DatabaseConstants.MIN_SCHEMA_VERSION_KEY;
 import static org.briarproject.bramble.db.DatabaseConstants.SCHEMA_VERSION_KEY;
 import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 
@@ -68,8 +70,8 @@ import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 @NotNullByDefault
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 30;
-	private static final int MIN_SCHEMA_VERSION = 30;
+	// Package access for testing
+	static final int CODE_SCHEMA_VERSION = 30;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -295,10 +297,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Connection txn = startTransaction();
 		try {
 			if (reopen) {
-				if (!checkSchemaVersion(txn)) throw new DbException();
+				checkSchemaVersion(txn);
 			} else {
 				createTables(txn);
-				storeSchemaVersion(txn);
+				storeSchemaVersion(txn, CODE_SCHEMA_VERSION);
 			}
 			createIndexes(txn);
 			commitTransaction(txn);
@@ -308,19 +310,49 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	private boolean checkSchemaVersion(Connection txn) throws DbException {
+	/**
+	 * Compares the schema version stored in the database with the schema
+	 * version used by the current code and applies any suitable migrations to
+	 * the data if necessary.
+	 *
+	 * @throws DataTooNewException if the data uses a newer schema than the
+	 * current code
+	 * @throws DataTooOldException if the data uses an older schema than the
+	 * current code and cannot be migrated
+	 */
+	private void checkSchemaVersion(Connection txn) throws DbException {
 		Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
-		int schemaVersion = s.getInt(SCHEMA_VERSION_KEY, -1);
-		if (schemaVersion == SCHEMA_VERSION) return true;
-		if (schemaVersion < MIN_SCHEMA_VERSION) return false;
-		int minSchemaVersion = s.getInt(MIN_SCHEMA_VERSION_KEY, -1);
-		return SCHEMA_VERSION >= minSchemaVersion;
+		int dataSchemaVersion = s.getInt(SCHEMA_VERSION_KEY, -1);
+		if (dataSchemaVersion == -1) throw new DbException();
+		if (dataSchemaVersion == CODE_SCHEMA_VERSION) return;
+		if (CODE_SCHEMA_VERSION < dataSchemaVersion)
+			throw new DataTooNewException();
+		// Apply any suitable migrations in order
+		for (Migration<Connection> m : getMigrations()) {
+			int start = m.getStartVersion(), end = m.getEndVersion();
+			if (start == dataSchemaVersion) {
+				if (LOG.isLoggable(INFO))
+					LOG.info("Migrating from schema " + start + " to " + end);
+				// Apply the migration
+				m.migrate(txn);
+				// Store the new schema version
+				storeSchemaVersion(txn, end);
+				dataSchemaVersion = end;
+			}
+		}
+		if (dataSchemaVersion != CODE_SCHEMA_VERSION)
+			throw new DataTooOldException();
 	}
 
-	private void storeSchemaVersion(Connection txn) throws DbException {
+	// Package access for testing
+	List<Migration<Connection>> getMigrations() {
+		return Collections.emptyList();
+	}
+
+	private void storeSchemaVersion(Connection txn, int version)
+			throws DbException {
 		Settings s = new Settings();
-		s.putInt(SCHEMA_VERSION_KEY, SCHEMA_VERSION);
-		s.putInt(MIN_SCHEMA_VERSION_KEY, MIN_SCHEMA_VERSION);
+		s.putInt(SCHEMA_VERSION_KEY, version);
 		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
 	}
 
