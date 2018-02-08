@@ -1605,7 +1605,6 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testSetMessageState() throws Exception {
-
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1621,6 +1620,52 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(PENDING, db.getMessageState(txn, messageId));
 		db.setMessageState(txn, messageId, DELIVERED);
 		assertEquals(DELIVERED, db.getMessageState(txn, messageId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetNextSendTime() throws Exception {
+		long now = System.currentTimeMillis();
+		Database<Connection> db = open(false, new StoppedClock(now));
+		Connection txn = db.startTransaction();
+
+		// Add a contact, a group and a message
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
+				true, true));
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, UNKNOWN, false, null);
+
+		// There should be no messages to send
+		assertEquals(Long.MAX_VALUE, db.getNextSendTime(txn, contactId));
+
+		// Share the group with the contact - still no messages to send
+		db.addGroupVisibility(txn, contactId, groupId, true);
+		assertEquals(Long.MAX_VALUE, db.getNextSendTime(txn, contactId));
+
+		// Set the message's state to DELIVERED - still no messages to send
+		db.setMessageState(txn, messageId, DELIVERED);
+		assertEquals(Long.MAX_VALUE, db.getNextSendTime(txn, contactId));
+
+		// Share the message - now it should be sendable immediately
+		db.setMessageShared(txn, messageId);
+		assertEquals(0, db.getNextSendTime(txn, contactId));
+
+		// Update the message's expiry time as though we sent it - now the
+		// message should be sendable after one round-trip
+		db.updateExpiryTime(txn, contactId, messageId, 1000);
+		assertEquals(now + 2000, db.getNextSendTime(txn, contactId));
+
+		// Update the message's expiry time again - now it should be sendable
+		// after two round-trips
+		db.updateExpiryTime(txn, contactId, messageId, 1000);
+		assertEquals(now + 4000, db.getNextSendTime(txn, contactId));
+
+		// Delete the message - there should be no messages to send
+		db.deleteMessage(txn, messageId);
+		assertEquals(Long.MAX_VALUE, db.getNextSendTime(txn, contactId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1643,8 +1688,13 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	}
 
 	private Database<Connection> open(boolean resume) throws Exception {
+		return open(resume, new SystemClock());
+	}
+
+	private Database<Connection> open(boolean resume, Clock clock)
+			throws Exception {
 		Database<Connection> db = createDatabase(
-				new TestDatabaseConfig(testDir, MAX_SIZE), new SystemClock());
+				new TestDatabaseConfig(testDir, MAX_SIZE), clock);
 		if (!resume) TestUtils.deleteTestDirectory(testDir);
 		db.open();
 		return db;
@@ -1673,5 +1723,24 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);
+	}
+
+	private static class StoppedClock implements Clock {
+
+		private final long time;
+
+		private StoppedClock(long time) {
+			this.time = time;
+		}
+
+		@Override
+		public long currentTimeMillis() {
+			return time;
+		}
+
+		@Override
+		public void sleep(long milliseconds) throws InterruptedException {
+			Thread.sleep(milliseconds);
+		}
 	}
 }
