@@ -457,6 +457,16 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Returns the next time (in milliseconds since the Unix epoch) when a
+	 * message is due to be sent to the given contact. The returned value may
+	 * be zero if a message is due to be sent immediately, or Long.MAX_VALUE
+	 * if no messages are scheduled to be sent.
+	 * <p/>
+	 * Read-only.
+	 */
+	long getNextSendTime(T txn, ContactId c) throws DbException;
+
+	/**
 	 * Returns the message with the given ID, in serialised form, or null if
 	 * the message has been deleted.
 	 * <p/>

@@ -378,6 +378,16 @@ public interface DatabaseComponent {
 	MessageStatus getMessageStatus(Transaction txn, ContactId c, MessageId m)
 			throws DbException;
 
+	/*
+	 * Returns the next time (in milliseconds since the Unix epoch) when a
+	 * message is due to be sent to the given contact. The returned value may
+	 * be zero if a message is due to be sent immediately, or Long.MAX_VALUE if
+	 * no messages are scheduled to be sent.
+	 * <p/>
+	 * Read-only.
+	 */
+	long getNextSendTime(Transaction txn, ContactId c) throws DbException;
+
 	/**
 	 * Returns all settings in the given namespace.
 	 * <p/>

@@ -580,6 +580,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public long getNextSendTime(Transaction transaction, ContactId c)
+		throws DbException {
+		T txn = unbox(transaction);
+		return db.getNextSendTime(txn, c);
+	}
+
+	@Override
 	public Settings getSettings(Transaction transaction, String namespace)
 			throws DbException {
 		T txn = unbox(transaction);
