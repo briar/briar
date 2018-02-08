@@ -134,8 +134,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		} catch (IOException e) {
 			throw new PluginException(e);
 		}
-		running = true;
 		updateProperties();
+		running = true;
 		loadSettings();
 		if (shouldAllowContactConnections()) {
 			if (isAdapterEnabled()) bind();
