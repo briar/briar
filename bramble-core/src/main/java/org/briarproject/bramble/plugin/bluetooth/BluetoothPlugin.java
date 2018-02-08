@@ -60,6 +60,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	private volatile boolean running = false, contactConnections = false;
+	private volatile String contactConnectionsUuid = null;
 	private volatile SS socket = null;
 
 	abstract void initialiseAdapter() throws IOException;
@@ -98,6 +99,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	void onAdapterEnabled() {
 		LOG.info("Bluetooth enabled");
+		// We may not have been able to get the local address before
+		ioExecutor.execute(this::updateProperties);
 		if (shouldAllowContactConnections()) bind();
 	}
 
@@ -132,6 +135,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			throw new PluginException(e);
 		}
 		running = true;
+		updateProperties();
 		loadSettings();
 		if (shouldAllowContactConnections()) {
 			if (isAdapterEnabled()) bind();
@@ -151,19 +155,10 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	private void bind() {
 		ioExecutor.execute(() -> {
 			if (!isRunning() || !shouldAllowContactConnections()) return;
-			String address = getBluetoothAddress();
-			if (LOG.isLoggable(INFO))
-				LOG.info("Local address " + scrubMacAddress(address));
-			if (!StringUtils.isNullOrEmpty(address)) {
-				// Advertise our Bluetooth address to contacts
-				TransportProperties p = new TransportProperties();
-				p.put(PROP_ADDRESS, address);
-				callback.mergeLocalProperties(p);
-			}
 			// Bind a server socket to accept connections from contacts
 			SS ss;
 			try {
-				ss = openServerSocket(getUuid());
+				ss = openServerSocket(contactConnectionsUuid);
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return;
@@ -179,17 +174,28 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		});
 	}
 
-	private String getUuid() {
-		String uuid = callback.getLocalProperties().get(PROP_UUID);
+	private void updateProperties() {
+		TransportProperties p = callback.getLocalProperties();
+		String address = p.get(PROP_ADDRESS), uuid = p.get(PROP_UUID);
+		boolean changed = false;
+		if (address == null) {
+			address = getBluetoothAddress();
+			if (LOG.isLoggable(INFO))
+				LOG.info("Local address " + scrubMacAddress(address));
+			if (!StringUtils.isNullOrEmpty(address)) {
+				p.put(PROP_ADDRESS, address);
+				changed = true;
+			}
+		}
 		if (uuid == null) {
 			byte[] random = new byte[UUID_BYTES];
 			secureRandom.nextBytes(random);
 			uuid = UUID.nameUUIDFromBytes(random).toString();
-			TransportProperties p = new TransportProperties();
 			p.put(PROP_UUID, uuid);
-			callback.mergeLocalProperties(p);
+			changed = true;
 		}
-		return uuid;
+		contactConnectionsUuid = uuid;
+		if (changed) callback.mergeLocalProperties(p);
 	}
 
 	private void acceptContactConnections() {
