@@ -10,6 +10,8 @@
 
 -keep class net.i2p.crypto.eddsa.** { *; }
 
+-keep class org.whispersystems.curve25519.** { *; }
+
 -dontwarn sun.misc.Unsafe
 -dontnote com.google.common.**
 
