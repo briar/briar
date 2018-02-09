@@ -46,7 +46,6 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	private static final int AGREEMENT_KEY_PAIR_BITS = 256;
 	private static final int SIGNATURE_KEY_PAIR_BITS = 256;
-	private static final int ED_KEY_PAIR_BITS = 256;
 	private static final int STORAGE_IV_BYTES = 24; // 196 bits
 	private static final int PBKDF_SALT_BYTES = 32; // 256 bits
 	private static final int PBKDF_FORMAT_SCRYPT = 0;
@@ -54,11 +53,9 @@ class CryptoComponentImpl implements CryptoComponent {
 	private final SecureRandom secureRandom;
 	private final PasswordBasedKdf passwordBasedKdf;
 	private final ECKeyPairGenerator agreementKeyPairGenerator;
-	private final ECKeyPairGenerator signatureKeyPairGenerator;
+	private final KeyPairGenerator signatureKeyPairGenerator;
 	private final KeyParser agreementKeyParser, signatureKeyParser;
 	private final MessageEncrypter messageEncrypter;
-	private final KeyPairGenerator edKeyPairGenerator;
-	private final KeyParser edKeyParser;
 
 	@Inject
 	CryptoComponentImpl(SecureRandomProvider secureRandomProvider,
@@ -87,16 +84,13 @@ class CryptoComponentImpl implements CryptoComponent {
 				PARAMETERS, secureRandom);
 		agreementKeyPairGenerator = new ECKeyPairGenerator();
 		agreementKeyPairGenerator.init(params);
-		signatureKeyPairGenerator = new ECKeyPairGenerator();
-		signatureKeyPairGenerator.init(params);
+		signatureKeyPairGenerator = new KeyPairGenerator();
+		signatureKeyPairGenerator.initialize(SIGNATURE_KEY_PAIR_BITS,
+				secureRandom);
 		agreementKeyParser = new Sec1KeyParser(PARAMETERS,
 				AGREEMENT_KEY_PAIR_BITS);
-		signatureKeyParser = new Sec1KeyParser(PARAMETERS,
-				SIGNATURE_KEY_PAIR_BITS);
+		signatureKeyParser = new EdKeyParser();
 		messageEncrypter = new MessageEncrypter(secureRandom);
-		edKeyPairGenerator = new KeyPairGenerator();
-		edKeyPairGenerator.initialize(ED_KEY_PAIR_BITS, secureRandom);
-		edKeyParser = new EdKeyParser();
 	}
 
 	// Based on https://android-developers.googleblog.com/2013/08/some-securerandom-thoughts.html
@@ -156,21 +150,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public KeyPair generateEdKeyPair() {
-		java.security.KeyPair keyPair = edKeyPairGenerator.generateKeyPair();
-		EdDSAPublicKey edPublicKey = (EdDSAPublicKey) keyPair.getPublic();
-		PublicKey publicKey = new EdPublicKey(edPublicKey.getAbyte());
-		EdDSAPrivateKey edPrivateKey = (EdDSAPrivateKey) keyPair.getPrivate();
-		PrivateKey privateKey = new EdPrivateKey(edPrivateKey.getSeed());
-		return new KeyPair(publicKey, privateKey);
-	}
-
-	@Override
-	public KeyParser getEdKeyParser() {
-		return edKeyParser;
-	}
-
-	@Override
 	public KeyPair generateAgreementKeyPair() {
 		AsymmetricCipherKeyPair keyPair =
 				agreementKeyPairGenerator.generateKeyPair();
@@ -193,17 +172,11 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	@Override
 	public KeyPair generateSignatureKeyPair() {
-		AsymmetricCipherKeyPair keyPair =
-				signatureKeyPairGenerator.generateKeyPair();
-		// Return a wrapper that uses the SEC 1 encoding
-		ECPublicKeyParameters ecPublicKey =
-				(ECPublicKeyParameters) keyPair.getPublic();
-		PublicKey publicKey = new Sec1PublicKey(ecPublicKey
-		);
-		ECPrivateKeyParameters ecPrivateKey =
-				(ECPrivateKeyParameters) keyPair.getPrivate();
-		PrivateKey privateKey = new Sec1PrivateKey(ecPrivateKey,
-				SIGNATURE_KEY_PAIR_BITS);
+		java.security.KeyPair keyPair = signatureKeyPairGenerator.generateKeyPair();
+		EdDSAPublicKey edPublicKey = (EdDSAPublicKey) keyPair.getPublic();
+		PublicKey publicKey = new EdPublicKey(edPublicKey.getAbyte());
+		EdDSAPrivateKey edPrivateKey = (EdDSAPrivateKey) keyPair.getPrivate();
+		PrivateKey privateKey = new EdPrivateKey(edPrivateKey.getSeed());
 		return new KeyPair(publicKey, privateKey);
 	}
 
@@ -240,19 +213,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	@Override
 	public byte[] sign(String label, byte[] toSign, byte[] privateKey)
 			throws GeneralSecurityException {
-		return sign(new SignatureImpl(secureRandom), signatureKeyParser, label,
-				toSign, privateKey);
-	}
-
-	@Override
-	public byte[] signEd(String label, byte[] toSign, byte[] privateKey)
-			throws GeneralSecurityException {
-		return sign(new EdSignature(), edKeyParser, label, toSign, privateKey);
-	}
-
-	private byte[] sign(Signature sig, KeyParser keyParser, String label,
-			byte[] toSign, byte[] privateKey) throws GeneralSecurityException {
-		PrivateKey key = keyParser.parsePrivateKey(privateKey);
+		PrivateKey key = signatureKeyParser.parsePrivateKey(privateKey);
+		Signature sig = new EdSignature();
 		sig.initSign(key);
 		updateSignature(sig, label, toSign);
 		return sig.sign();
@@ -261,21 +223,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	@Override
 	public boolean verify(String label, byte[] signedData, byte[] publicKey,
 			byte[] signature) throws GeneralSecurityException {
-		return verify(new SignatureImpl(secureRandom), signatureKeyParser,
-				label, signedData, publicKey, signature);
-	}
-
-	@Override
-	public boolean verifyEd(String label, byte[] signedData, byte[] publicKey,
-			byte[] signature) throws GeneralSecurityException {
-		return verify(new EdSignature(), edKeyParser, label, signedData,
-				publicKey, signature);
-	}
-
-	private boolean verify(Signature sig, KeyParser keyParser, String label,
-			byte[] signedData, byte[] publicKey, byte[] signature)
-			throws GeneralSecurityException {
-		PublicKey key = keyParser.parsePublicKey(publicKey);
+		PublicKey key = signatureKeyParser.parsePublicKey(publicKey);
+		Signature sig = new EdSignature();
 		sig.initVerify(key);
 		updateSignature(sig, label, signedData);
 		return sig.verify(signature);

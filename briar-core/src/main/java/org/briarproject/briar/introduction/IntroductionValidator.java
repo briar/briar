@@ -15,6 +15,7 @@ import org.briarproject.briar.client.BdfQueueMessageValidator;
 
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
@@ -133,7 +134,7 @@ class IntroductionValidator extends BdfQueueMessageValidator {
 
 			// parse ephemeral public key
 			pubkey = message.getRaw(4);
-			checkLength(pubkey, 1, MAX_PUBLIC_KEY_LENGTH);
+			checkLength(pubkey, 1, MAX_AGREEMENT_PUBLIC_KEY_BYTES);
 
 			// parse transport properties
 			tp = message.getDictionary(5);

@@ -22,7 +22,7 @@ public class Author {
 	/**
 	 * The current version of the author structure.
 	 */
-	public static final int FORMAT_VERSION = 0;
+	public static final int FORMAT_VERSION = 1;
 
 	private final AuthorId id;
 	private final int formatVersion;

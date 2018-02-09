@@ -6,13 +6,14 @@ import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestSecureRandomProvider;
-import org.briarproject.bramble.test.TestUtils;
 import org.junit.Test;
 
 import java.security.GeneralSecurityException;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_BYTES;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_PUBLIC_KEY_BYTES;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -28,7 +29,7 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 			KeyPair keyPair = crypto.generateSignatureKeyPair();
 			// Check the length of the public key
 			byte[] publicKey = keyPair.getPublic().getEncoded();
-			assertTrue(publicKey.length <= MAX_PUBLIC_KEY_LENGTH);
+			assertTrue(publicKey.length <= MAX_AGREEMENT_PUBLIC_KEY_BYTES);
 		}
 	}
 
@@ -45,7 +46,8 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 		aPub = parser.parsePublicKey(aPub.getEncoded());
 		aPub = parser.parsePublicKey(aPub.getEncoded());
 		// Derive the shared secret again - it should be the same
-		byte[] secret1 = crypto.performRawKeyAgreement(bPair.getPrivate(), aPub);
+		byte[] secret1 =
+				crypto.performRawKeyAgreement(bPair.getPrivate(), aPub);
 		assertArrayEquals(secret, secret1);
 	}
 
@@ -62,7 +64,8 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 		bPriv = parser.parsePrivateKey(bPriv.getEncoded());
 		bPriv = parser.parsePrivateKey(bPriv.getEncoded());
 		// Derive the shared secret again - it should be the same
-		byte[] secret1 = crypto.performRawKeyAgreement(bPriv, aPair.getPublic());
+		byte[] secret1 =
+				crypto.performRawKeyAgreement(bPriv, aPair.getPublic());
 		assertArrayEquals(secret, secret1);
 	}
 
@@ -76,12 +79,12 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 		// Parse some random byte arrays - expect GeneralSecurityException
 		for (int i = 0; i < 1000; i++) {
 			try {
-				parser.parsePublicKey(TestUtils.getRandomBytes(pubLength));
+				parser.parsePublicKey(getRandomBytes(pubLength));
 			} catch (GeneralSecurityException expected) {
 				// Expected
 			}
 			try {
-				parser.parsePrivateKey(TestUtils.getRandomBytes(privLength));
+				parser.parsePrivateKey(getRandomBytes(privLength));
 			} catch (GeneralSecurityException expected) {
 				// Expected
 			}
@@ -95,7 +98,7 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 			KeyPair keyPair = crypto.generateSignatureKeyPair();
 			// Check the length of the public key
 			byte[] publicKey = keyPair.getPublic().getEncoded();
-			assertTrue(publicKey.length <= MAX_PUBLIC_KEY_LENGTH);
+			assertTrue(publicKey.length <= MAX_SIGNATURE_PUBLIC_KEY_BYTES);
 		}
 	}
 
@@ -106,44 +109,53 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 			KeyPair keyPair = crypto.generateSignatureKeyPair();
 			byte[] key = keyPair.getPrivate().getEncoded();
 			// Sign some random data and check the length of the signature
-			byte[] toBeSigned = TestUtils.getRandomBytes(1234);
+			byte[] toBeSigned = getRandomBytes(1234);
 			byte[] signature = crypto.sign("label", toBeSigned, key);
-			assertTrue(signature.length <= MAX_SIGNATURE_LENGTH);
+			assertTrue(signature.length <= MAX_SIGNATURE_BYTES);
 		}
 	}
 
 	@Test
 	public void testSignaturePublicKeyEncodingAndParsing() throws Exception {
 		KeyParser parser = crypto.getSignatureKeyParser();
-		// Generate two key pairs
-		KeyPair aPair = crypto.generateSignatureKeyPair();
-		KeyPair bPair = crypto.generateSignatureKeyPair();
-		// Derive the shared secret
-		PublicKey aPub = aPair.getPublic();
-		byte[] secret = crypto.performRawKeyAgreement(bPair.getPrivate(), aPub);
+		// Generate a key pair and sign some data
+		KeyPair keyPair = crypto.generateSignatureKeyPair();
+		PublicKey publicKey = keyPair.getPublic();
+		PrivateKey privateKey = keyPair.getPrivate();
+		byte[] message = getRandomBytes(123);
+		byte[] signature = crypto.sign("test", message,
+				privateKey.getEncoded());
+		// Verify the signature
+		assertTrue(crypto.verify("test", message, publicKey.getEncoded(),
+				signature));
 		// Encode and parse the public key - no exceptions should be thrown
-		aPub = parser.parsePublicKey(aPub.getEncoded());
-		aPub = parser.parsePublicKey(aPub.getEncoded());
-		// Derive the shared secret again - it should be the same
-		byte[] secret1 = crypto.performRawKeyAgreement(bPair.getPrivate(), aPub);
-		assertArrayEquals(secret, secret1);
+		publicKey = parser.parsePublicKey(publicKey.getEncoded());
+		// Verify the signature again
+		assertTrue(crypto.verify("test", message, publicKey.getEncoded(),
+				signature));
 	}
 
 	@Test
 	public void testSignaturePrivateKeyEncodingAndParsing() throws Exception {
 		KeyParser parser = crypto.getSignatureKeyParser();
-		// Generate two key pairs
-		KeyPair aPair = crypto.generateSignatureKeyPair();
-		KeyPair bPair = crypto.generateSignatureKeyPair();
-		// Derive the shared secret
-		PrivateKey bPriv = bPair.getPrivate();
-		byte[] secret = crypto.performRawKeyAgreement(bPriv, aPair.getPublic());
+		// Generate a key pair and sign some data
+		KeyPair keyPair = crypto.generateSignatureKeyPair();
+		PublicKey publicKey = keyPair.getPublic();
+		PrivateKey privateKey = keyPair.getPrivate();
+		byte[] message = getRandomBytes(123);
+		byte[] signature = crypto.sign("test", message,
+				privateKey.getEncoded());
+		// Verify the signature
+		assertTrue(crypto.verify("test", message, publicKey.getEncoded(),
+				signature));
 		// Encode and parse the private key - no exceptions should be thrown
-		bPriv = parser.parsePrivateKey(bPriv.getEncoded());
-		bPriv = parser.parsePrivateKey(bPriv.getEncoded());
-		// Derive the shared secret again - it should be the same
-		byte[] secret1 = crypto.performRawKeyAgreement(bPriv, aPair.getPublic());
-		assertArrayEquals(secret, secret1);
+		privateKey = parser.parsePrivateKey(privateKey.getEncoded());
+		// Sign the data again - the signatures should be the same
+		byte[] signature1 = crypto.sign("test", message,
+				privateKey.getEncoded());
+		assertTrue(crypto.verify("test", message, publicKey.getEncoded(),
+				signature1));
+		assertArrayEquals(signature, signature1);
 	}
 
 	@Test
@@ -156,12 +168,12 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 		// Parse some random byte arrays - expect GeneralSecurityException
 		for (int i = 0; i < 1000; i++) {
 			try {
-				parser.parsePublicKey(TestUtils.getRandomBytes(pubLength));
+				parser.parsePublicKey(getRandomBytes(pubLength));
 			} catch (GeneralSecurityException expected) {
 				// Expected
 			}
 			try {
-				parser.parsePrivateKey(TestUtils.getRandomBytes(privLength));
+				parser.parsePrivateKey(getRandomBytes(privLength));
 			} catch (GeneralSecurityException expected) {
 				// Expected
 			}

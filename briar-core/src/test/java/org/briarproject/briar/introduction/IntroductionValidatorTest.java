@@ -20,6 +20,7 @@ import org.briarproject.briar.test.BriarTestCase;
 import org.jmock.Mockery;
 import org.junit.Test;
 
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
@@ -164,7 +165,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 		byte[] groupId = getRandomId();
 		byte[] sessionId = getRandomId();
 		long time = clock.currentTimeMillis();
-		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		byte[] publicKey = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
 		String transportId =
 				getRandomString(TransportId.MAX_TRANSPORT_ID_LENGTH);
 		BdfDictionary tProps = BdfDictionary.of(
@@ -255,7 +256,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 		byte[] groupId = getRandomId();
 		byte[] sessionId = getRandomId();
 		long time = clock.currentTimeMillis();
-		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		byte[] publicKey = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
 		String transportId =
 				getRandomString(TransportId.MAX_TRANSPORT_ID_LENGTH);
 		BdfDictionary tProps = BdfDictionary.of(

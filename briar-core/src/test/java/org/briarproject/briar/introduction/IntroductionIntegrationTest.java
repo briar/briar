@@ -730,7 +730,7 @@ public class IntroductionIntegrationTest
 	@Test
 	public void testModifiedEphemeralPublicKey() throws Exception {
 		testModifiedResponse(response -> {
-			KeyPair keyPair = crypto.generateSignatureKeyPair();
+			KeyPair keyPair = crypto.generateAgreementKeyPair();
 			response.put(E_PUBLIC_KEY, keyPair.getPublic().getEncoded());
 			return true;
 		});
