@@ -12,6 +12,7 @@ dependencies {
 	implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
 	implementation 'org.bitlet:weupnp:0.1.4'
 	implementation 'net.i2p.crypto:eddsa:0.2.0'
+	implementation 'org.whispersystems:curve25519-java:0.4.1'
 
 	apt 'com.google.dagger:dagger-compiler:2.0.2'
 
@@ -53,6 +54,7 @@ dependencyVerification {
 			'org.jmock:jmock:2.8.2:jmock-2.8.2.jar:6c73cb4a2e6dbfb61fd99c9a768539c170ab6568e57846bd60dbf19596b65b16',
 			'org.objenesis:objenesis:2.1:objenesis-2.1.jar:c74330cc6b806c804fd37e74487b4fe5d7c2750c5e15fbc6efa13bdee1bdef80',
 			'org.ow2.asm:asm:5.0.4:asm-5.0.4.jar:896618ed8ae62702521a78bc7be42b7c491a08e6920a15f89a3ecdec31e9a220',
+			'org.whispersystems:curve25519-java:0.4.1:curve25519-java-0.4.1.jar:7dd659d8822c06c3aea1a47f18fac9e5761e29cab8100030b877db445005f03e',
 	]
 }
 

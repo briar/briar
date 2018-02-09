@@ -1,17 +1,20 @@
 package org.briarproject.bramble.crypto;
 
+import net.i2p.crypto.eddsa.EdDSASecurityProvider;
+import net.i2p.crypto.eddsa.KeyPairGenerator;
+
 import org.spongycastle.asn1.sec.SECNamedCurves;
 import org.spongycastle.asn1.teletrust.TeleTrusTNamedCurves;
 import org.spongycastle.asn1.x9.X9ECParameters;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
+import org.spongycastle.crypto.BasicAgreement;
 import org.spongycastle.crypto.Digest;
+import org.spongycastle.crypto.agreement.ECDHBasicAgreement;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
 import org.spongycastle.crypto.digests.Blake2bDigest;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.params.ECDomainParameters;
 import org.spongycastle.crypto.params.ECKeyGenerationParameters;
-import org.spongycastle.crypto.params.ECPrivateKeyParameters;
-import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.crypto.params.ParametersWithRandom;
 import org.spongycastle.crypto.signers.DSADigestSigner;
 import org.spongycastle.crypto.signers.DSAKCalculator;
@@ -20,13 +23,21 @@ import org.spongycastle.crypto.signers.HMacDSAKCalculator;
 import org.spongycastle.math.ec.ECCurve;
 import org.spongycastle.math.ec.ECPoint;
 import org.spongycastle.math.ec.MontgomeryLadderMultiplier;
+import org.whispersystems.curve25519.Curve25519;
+import org.whispersystems.curve25519.Curve25519KeyPair;
 
 import java.math.BigInteger;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.Provider;
 import java.security.SecureRandom;
+import java.security.Signature;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static net.i2p.crypto.eddsa.EdDSAEngine.SIGNATURE_ALGORITHM;
 
 // Not a JUnit test
 public class EllipticCurvePerformanceTest {
@@ -38,8 +49,9 @@ public class EllipticCurvePerformanceTest {
 			"secp256k1", "secp256r1", "secp384r1", "secp521r1");
 	private static final List<String> BRAINPOOL_NAMES = Arrays.asList(
 			"brainpoolp256r1", "brainpoolp384r1", "brainpoolp512r1");
+	private static final Provider ED_PROVIDER = new EdDSASecurityProvider();
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws GeneralSecurityException {
 		for (String name : SEC_NAMES) {
 			ECDomainParameters params =
 					convertParams(SECNamedCurves.getByName(name));
@@ -52,43 +64,31 @@ public class EllipticCurvePerformanceTest {
 			runTest(name + " default", params);
 			runTest(name + " constant", constantTime(params));
 		}
-		runTest("ours", EllipticCurveConstants.PARAMETERS);
+		runCurve25519Test();
+		runEd25519Test();
 	}
 
 	private static void runTest(String name, ECDomainParameters params) {
 		// Generate two key pairs using the given parameters
-		ECKeyGenerationParameters generatorParams =
-				new ECKeyGenerationParameters(params, random);
 		ECKeyPairGenerator generator = new ECKeyPairGenerator();
-		generator.init(generatorParams);
+		generator.init(new ECKeyGenerationParameters(params, random));
 		AsymmetricCipherKeyPair keyPair1 = generator.generateKeyPair();
-		ECPublicKeyParameters public1 =
-				(ECPublicKeyParameters) keyPair1.getPublic();
-		ECPrivateKeyParameters private1 =
-				(ECPrivateKeyParameters) keyPair1.getPrivate();
 		AsymmetricCipherKeyPair keyPair2 = generator.generateKeyPair();
-		ECPublicKeyParameters public2 =
-				(ECPublicKeyParameters) keyPair2.getPublic();
-		// Time some ECDH key agreements
-		List<Long> samples = new ArrayList<>();
-		for (int i = 0; i < SAMPLES; i++) {
-			ECDHCBasicAgreement agreement = new ECDHCBasicAgreement();
-			long start = System.nanoTime();
-			agreement.init(private1);
-			agreement.calculateAgreement(public2);
-			samples.add(System.nanoTime() - start);
-		}
-		long agreementMedian = median(samples);
+		// Time some ECDH and ECDHC key agreements
+		long agreementMedian = runAgreementTest(keyPair1, keyPair2, false);
+		long agreementWithCofactorMedian =
+				runAgreementTest(keyPair1, keyPair2, true);
 		// Time some signatures
+		List<Long> samples = new ArrayList<>();
 		List<byte[]> signatures = new ArrayList<>();
-		samples.clear();
 		for (int i = 0; i < SAMPLES; i++) {
 			Digest digest = new Blake2bDigest(256);
 			DSAKCalculator calculator = new HMacDSAKCalculator(digest);
 			DSADigestSigner signer = new DSADigestSigner(new ECDSASigner(
 					calculator), digest);
 			long start = System.nanoTime();
-			signer.init(true, new ParametersWithRandom(private1, random));
+			signer.init(true,
+					new ParametersWithRandom(keyPair1.getPrivate(), random));
 			signer.update(new byte[BYTES_TO_SIGN], 0, BYTES_TO_SIGN);
 			signatures.add(signer.generateSignature());
 			samples.add(System.nanoTime() - start);
@@ -102,17 +102,83 @@ public class EllipticCurvePerformanceTest {
 			DSADigestSigner signer = new DSADigestSigner(new ECDSASigner(
 					calculator), digest);
 			long start = System.nanoTime();
-			signer.init(false, public1);
+			signer.init(false, keyPair1.getPublic());
 			signer.update(new byte[BYTES_TO_SIGN], 0, BYTES_TO_SIGN);
 			if (!signer.verifySignature(signatures.get(i)))
 				throw new AssertionError();
 			samples.add(System.nanoTime() - start);
 		}
 		long verificationMedian = median(samples);
-		System.out.println(name + ": "
-				+ agreementMedian + " "
-				+ signatureMedian + " "
-				+ verificationMedian);
+		System.out.println(String.format("%s: %,d %,d %,d %,d", name,
+				agreementMedian, agreementWithCofactorMedian,
+				signatureMedian, verificationMedian));
+	}
+
+	private static long runAgreementTest(AsymmetricCipherKeyPair keyPair1,
+			AsymmetricCipherKeyPair keyPair2, boolean withCofactor) {
+		List<Long> samples = new ArrayList<>();
+		for (int i = 0; i < SAMPLES; i++) {
+			BasicAgreement agreement = createAgreement(withCofactor);
+			long start = System.nanoTime();
+			agreement.init(keyPair1.getPrivate());
+			agreement.calculateAgreement(keyPair2.getPublic());
+			samples.add(System.nanoTime() - start);
+		}
+		return median(samples);
+	}
+
+	private static BasicAgreement createAgreement(boolean withCofactor) {
+		if (withCofactor) return new ECDHCBasicAgreement();
+		else return new ECDHBasicAgreement();
+	}
+
+	private static void runCurve25519Test() {
+		Curve25519 curve25519 = Curve25519.getInstance("java");
+		Curve25519KeyPair keyPair1 = curve25519.generateKeyPair();
+		Curve25519KeyPair keyPair2 = curve25519.generateKeyPair();
+		// Time some key agreements
+		List<Long> samples = new ArrayList<>();
+		for (int i = 0; i < SAMPLES; i++) {
+			long start = System.nanoTime();
+			curve25519.calculateAgreement(keyPair1.getPublicKey(),
+					keyPair2.getPrivateKey());
+			samples.add(System.nanoTime() - start);
+		}
+		long agreementMedian = median(samples);
+		System.out.println(String.format("Curve25519: %,d - - -",
+				agreementMedian));
+	}
+
+	private static void runEd25519Test() throws GeneralSecurityException {
+		KeyPair keyPair = new KeyPairGenerator().generateKeyPair();
+		// Time some signatures
+		List<Long> samples = new ArrayList<>();
+		List<byte[]> signatures = new ArrayList<>();
+		for (int i = 0; i < SAMPLES; i++) {
+			Signature signature =
+					Signature.getInstance(SIGNATURE_ALGORITHM, ED_PROVIDER);
+			long start = System.nanoTime();
+			signature.initSign(keyPair.getPrivate(), random);
+			signature.update(new byte[BYTES_TO_SIGN], 0, BYTES_TO_SIGN);
+			signatures.add(signature.sign());
+			samples.add(System.nanoTime() - start);
+		}
+		long signatureMedian = median(samples);
+		// Time some signature verifications
+		samples.clear();
+		for (int i = 0; i < SAMPLES; i++) {
+			Signature signature =
+					Signature.getInstance(SIGNATURE_ALGORITHM, ED_PROVIDER);
+			long start = System.nanoTime();
+			signature.initVerify(keyPair.getPublic());
+			signature.update(new byte[BYTES_TO_SIGN], 0, BYTES_TO_SIGN);
+			if (!signature.verify(signatures.get(i)))
+				throw new AssertionError();
+			samples.add(System.nanoTime() - start);
+		}
+		long verificationMedian = median(samples);
+		System.out.println(String.format("Ed25519: - - %,d %,d",
+				signatureMedian, verificationMedian));
 	}
 
 	private static long median(List<Long> list) {
