@@ -12,14 +12,14 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
 import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
+import org.briarproject.bramble.api.plugin.event.TransportDisabledEvent;
 import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.bramble.test.RunAction;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 
@@ -29,30 +29,37 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class PollerTest extends BrambleTestCase {
+public class PollerTest extends BrambleMockTestCase {
 
+	private final ScheduledExecutorService scheduler =
+			context.mock(ScheduledExecutorService.class);
+	private final ConnectionManager connectionManager =
+			context.mock(ConnectionManager.class);
+	private final ConnectionRegistry connectionRegistry =
+			context.mock(ConnectionRegistry.class);
+	private final PluginManager pluginManager =
+			context.mock(PluginManager.class);
+	private final Clock clock = context.mock(Clock.class);
+	private final ScheduledFuture future = context.mock(ScheduledFuture.class);
+	private final SecureRandom random;
+
+	private final Executor ioExecutor = new ImmediateExecutor();
+	private final TransportId transportId = new TransportId("id");
 	private final ContactId contactId = new ContactId(234);
 	private final int pollingInterval = 60 * 1000;
 	private final long now = System.currentTimeMillis();
 
+	public PollerTest() {
+		context.setImposteriser(ClassImposteriser.INSTANCE);
+		random = context.mock(SecureRandom.class);
+	}
+
 	@Test
 	public void testConnectOnContactStatusChanged() throws Exception {
-		Mockery context = new Mockery();
-		context.setImposteriser(ClassImposteriser.INSTANCE);
-		Executor ioExecutor = new ImmediateExecutor();
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		ConnectionManager connectionManager =
-				context.mock(ConnectionManager.class);
-		ConnectionRegistry connectionRegistry =
-				context.mock(ConnectionRegistry.class);
-		PluginManager pluginManager = context.mock(PluginManager.class);
-		SecureRandom random = context.mock(SecureRandom.class);
-		Clock clock = context.mock(Clock.class);
-
 		// Two simplex plugins: one supports polling, the other doesn't
 		SimplexPlugin simplexPlugin = context.mock(SimplexPlugin.class);
 		SimplexPlugin simplexPlugin1 =
@@ -120,28 +127,12 @@ public class PollerTest extends BrambleTestCase {
 				connectionRegistry, pluginManager, random, clock);
 
 		p.eventOccurred(new ContactStatusChangedEvent(contactId, true));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testRescheduleAndReconnectOnConnectionClosed()
 			throws Exception {
-		Mockery context = new Mockery();
-		context.setImposteriser(ClassImposteriser.INSTANCE);
-		Executor ioExecutor = new ImmediateExecutor();
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		ConnectionManager connectionManager =
-				context.mock(ConnectionManager.class);
-		ConnectionRegistry connectionRegistry =
-				context.mock(ConnectionRegistry.class);
-		PluginManager pluginManager = context.mock(PluginManager.class);
-		SecureRandom random = context.mock(SecureRandom.class);
-		Clock clock = context.mock(Clock.class);
-
 		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
-		TransportId transportId = new TransportId("id");
 		DuplexTransportConnection duplexConnection =
 				context.mock(DuplexTransportConnection.class);
 
@@ -168,6 +159,7 @@ public class PollerTest extends BrambleTestCase {
 			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with((long) pollingInterval), with(MILLISECONDS));
+			will(returnValue(future));
 			// connectToContact()
 			// Check whether the contact is already connected
 			oneOf(connectionRegistry).isConnected(contactId, transportId);
@@ -185,28 +177,12 @@ public class PollerTest extends BrambleTestCase {
 
 		p.eventOccurred(new ConnectionClosedEvent(contactId, transportId,
 				false));
-
-		context.assertIsSatisfied();
 	}
 
 
 	@Test
 	public void testRescheduleOnConnectionOpened() throws Exception {
-		Mockery context = new Mockery();
-		context.setImposteriser(ClassImposteriser.INSTANCE);
-		Executor ioExecutor = new ImmediateExecutor();
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		ConnectionManager connectionManager =
-				context.mock(ConnectionManager.class);
-		ConnectionRegistry connectionRegistry =
-				context.mock(ConnectionRegistry.class);
-		PluginManager pluginManager = context.mock(PluginManager.class);
-		SecureRandom random = context.mock(SecureRandom.class);
-		Clock clock = context.mock(Clock.class);
-
-		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
-		TransportId transportId = new TransportId("id");
+		Plugin plugin = context.mock(Plugin.class);
 
 		context.checking(new Expectations() {{
 			allowing(plugin).getId();
@@ -224,6 +200,7 @@ public class PollerTest extends BrambleTestCase {
 			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with((long) pollingInterval), with(MILLISECONDS));
+			will(returnValue(future));
 		}});
 
 		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
@@ -231,27 +208,11 @@ public class PollerTest extends BrambleTestCase {
 
 		p.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
 				false));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testRescheduleDoesNotReplaceEarlierTask() throws Exception {
-		Mockery context = new Mockery();
-		context.setImposteriser(ClassImposteriser.INSTANCE);
-		Executor ioExecutor = new ImmediateExecutor();
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		ConnectionManager connectionManager =
-				context.mock(ConnectionManager.class);
-		ConnectionRegistry connectionRegistry =
-				context.mock(ConnectionRegistry.class);
-		PluginManager pluginManager = context.mock(PluginManager.class);
-		SecureRandom random = context.mock(SecureRandom.class);
-		Clock clock = context.mock(Clock.class);
-
-		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
-		TransportId transportId = new TransportId("id");
+		Plugin plugin = context.mock(Plugin.class);
 
 		context.checking(new Expectations() {{
 			allowing(plugin).getId();
@@ -270,6 +231,7 @@ public class PollerTest extends BrambleTestCase {
 			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with((long) pollingInterval), with(MILLISECONDS));
+			will(returnValue(future));
 			// Second event
 			// Get the plugin
 			oneOf(pluginManager).getPlugin(transportId);
@@ -291,27 +253,59 @@ public class PollerTest extends BrambleTestCase {
 				false));
 		p.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
 				false));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testPollOnTransportEnabled() throws Exception {
-		Mockery context = new Mockery();
-		context.setImposteriser(ClassImposteriser.INSTANCE);
-		Executor ioExecutor = new ImmediateExecutor();
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		ConnectionManager connectionManager =
-				context.mock(ConnectionManager.class);
-		ConnectionRegistry connectionRegistry =
-				context.mock(ConnectionRegistry.class);
-		PluginManager pluginManager = context.mock(PluginManager.class);
-		SecureRandom random = context.mock(SecureRandom.class);
-		Clock clock = context.mock(Clock.class);
-
+	public void testRescheduleReplacesLaterTask() throws Exception {
 		Plugin plugin = context.mock(Plugin.class);
-		TransportId transportId = new TransportId("id");
+
+		context.checking(new Expectations() {{
+			allowing(plugin).getId();
+			will(returnValue(transportId));
+			// First event
+			// Get the plugin
+			oneOf(pluginManager).getPlugin(transportId);
+			will(returnValue(plugin));
+			// The plugin supports polling
+			oneOf(plugin).shouldPoll();
+			will(returnValue(true));
+			// Schedule the next poll
+			oneOf(plugin).getPollingInterval();
+			will(returnValue(pollingInterval));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now));
+			oneOf(scheduler).schedule(with(any(Runnable.class)),
+					with((long) pollingInterval), with(MILLISECONDS));
+			will(returnValue(future));
+			// Second event
+			// Get the plugin
+			oneOf(pluginManager).getPlugin(transportId);
+			will(returnValue(plugin));
+			// The plugin supports polling
+			oneOf(plugin).shouldPoll();
+			will(returnValue(true));
+			// Replace the previously scheduled task, due later
+			oneOf(plugin).getPollingInterval();
+			will(returnValue(pollingInterval - 2));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now + 1));
+			oneOf(future).cancel(false);
+			oneOf(scheduler).schedule(with(any(Runnable.class)),
+					with((long) pollingInterval - 2), with(MILLISECONDS));
+		}});
+
+		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
+				connectionRegistry, pluginManager, random, clock);
+
+		p.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
+				false));
+		p.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
+				false));
+	}
+
+	@Test
+	public void testPollsOnTransportEnabled() throws Exception {
+		Plugin plugin = context.mock(Plugin.class);
 		List<ContactId> connected = Collections.singletonList(contactId);
 
 		context.checking(new Expectations() {{
@@ -328,6 +322,7 @@ public class PollerTest extends BrambleTestCase {
 			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)), with(0L),
 					with(MILLISECONDS));
+			will(returnValue(future));
 			will(new RunAction());
 			// Running the polling task schedules the next polling task
 			oneOf(plugin).getPollingInterval();
@@ -338,6 +333,7 @@ public class PollerTest extends BrambleTestCase {
 			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with((long) (pollingInterval * 0.5)), with(MILLISECONDS));
+			will(returnValue(future));
 			// Poll the plugin
 			oneOf(connectionRegistry).getConnectedContacts(transportId);
 			will(returnValue(connected));
@@ -348,7 +344,36 @@ public class PollerTest extends BrambleTestCase {
 				connectionRegistry, pluginManager, random, clock);
 
 		p.eventOccurred(new TransportEnabledEvent(transportId));
+	}
 
-		context.assertIsSatisfied();
+	@Test
+	public void testCancelsPollingOnTransportDisabled() throws Exception {
+		Plugin plugin = context.mock(Plugin.class);
+		List<ContactId> connected = Collections.singletonList(contactId);
+
+		context.checking(new Expectations() {{
+			allowing(plugin).getId();
+			will(returnValue(transportId));
+			// Get the plugin
+			oneOf(pluginManager).getPlugin(transportId);
+			will(returnValue(plugin));
+			// The plugin supports polling
+			oneOf(plugin).shouldPoll();
+			will(returnValue(true));
+			// Schedule a polling task immediately
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now));
+			oneOf(scheduler).schedule(with(any(Runnable.class)), with(0L),
+					with(MILLISECONDS));
+			will(returnValue(future));
+			// The plugin is disabled before the task runs - cancel the task
+			oneOf(future).cancel(false);
+		}});
+
+		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
+				connectionRegistry, pluginManager, random, clock);
+
+		p.eventOccurred(new TransportEnabledEvent(transportId));
+		p.eventOccurred(new TransportDisabledEvent(transportId));
 	}
 }
