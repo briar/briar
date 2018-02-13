@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementFailedEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementFinishedEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementListeningEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementStartedEvent;
+import org.briarproject.bramble.api.keyagreement.event.KeyAgreementStoppedListeningEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementWaitingEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -71,6 +72,7 @@ class KeyAgreementTaskImpl extends Thread implements KeyAgreementTask,
 		if (localPayload != null) {
 			if (remotePayload == null) connector.stopListening();
 			else interrupt();
+			eventBus.broadcast(new KeyAgreementStoppedListeningEvent());
 		}
 	}
 

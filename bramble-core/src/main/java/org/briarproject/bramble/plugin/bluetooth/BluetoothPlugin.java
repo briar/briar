@@ -7,6 +7,8 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
+import org.briarproject.bramble.api.keyagreement.event.KeyAgreementListeningEvent;
+import org.briarproject.bramble.api.keyagreement.event.KeyAgreementStoppedListeningEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -51,6 +53,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	private static final Logger LOG =
 			Logger.getLogger(BluetoothPlugin.class.getName());
 
+	final BluetoothConnectionLimiter connectionLimiter;
+
 	private final Executor ioExecutor;
 	private final SecureRandom secureRandom;
 	private final Backoff backoff;
@@ -91,8 +95,10 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	abstract DuplexTransportConnection connectTo(String address, String uuid)
 			throws IOException;
 
-	BluetoothPlugin(Executor ioExecutor, SecureRandom secureRandom,
+	BluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
+			Executor ioExecutor, SecureRandom secureRandom,
 			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
+		this.connectionLimiter = connectionLimiter;
 		this.ioExecutor = ioExecutor;
 		this.secureRandom = secureRandom;
 		this.backoff = backoff;
@@ -110,6 +116,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	void onAdapterDisabled() {
 		LOG.info("Bluetooth disabled");
 		tryToClose(socket);
+		connectionLimiter.allConnectionsClosed();
 		callback.transportDisabled();
 	}
 
@@ -213,7 +220,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				return;
 			}
 			backoff.reset();
-			callback.incomingConnectionCreated(conn);
+			if (connectionLimiter.contactConnectionOpened(conn))
+				callback.incomingConnectionCreated(conn);
 			if (!running) return;
 		}
 	}
@@ -257,10 +265,12 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			if (StringUtils.isNullOrEmpty(uuid)) continue;
 			ioExecutor.execute(() -> {
 				if (!isRunning() || !shouldAllowContactConnections()) return;
+				if (!connectionLimiter.canOpenContactConnection()) return;
 				DuplexTransportConnection conn = connect(address, uuid);
 				if (conn != null) {
 					backoff.reset();
-					callback.outgoingConnectionCreated(c, conn);
+					if (connectionLimiter.contactConnectionOpened(conn))
+						callback.outgoingConnectionCreated(c, conn);
 				}
 			});
 		}
@@ -300,12 +310,16 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if (!isRunning() || !shouldAllowContactConnections()) return null;
+		if (!connectionLimiter.canOpenContactConnection()) return null;
 		TransportProperties p = callback.getRemoteProperties(c);
 		String address = p.get(PROP_ADDRESS);
 		if (StringUtils.isNullOrEmpty(address)) return null;
 		String uuid = p.get(PROP_UUID);
 		if (StringUtils.isNullOrEmpty(uuid)) return null;
-		return connect(address, uuid);
+		DuplexTransportConnection conn = connect(address, uuid);
+		if (conn == null) return null;
+		// TODO: Why don't we reset the backoff here?
+		return connectionLimiter.contactConnectionOpened(conn) ? conn : null;
 	}
 
 	@Override
@@ -355,7 +369,9 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		if (LOG.isLoggable(INFO))
 			LOG.info("Connecting to key agreement UUID " + uuid);
-		return connect(address, uuid);
+		DuplexTransportConnection conn = connect(address, uuid);
+		if (conn != null) connectionLimiter.keyAgreementConnectionOpened(conn);
+		return conn;
 	}
 
 	private String parseAddress(BdfList descriptor) throws FormatException {
@@ -376,6 +392,10 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
 			if (s.getNamespace().equals(ID.getString()))
 				ioExecutor.execute(this::onSettingsUpdated);
+		} else if (e instanceof KeyAgreementListeningEvent) {
+			ioExecutor.execute(connectionLimiter::keyAgreementStarted);
+		} else if (e instanceof KeyAgreementStoppedListeningEvent) {
+			ioExecutor.execute(connectionLimiter::keyAgreementEnded);
 		}
 	}
 
@@ -408,6 +428,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		public KeyAgreementConnection accept() throws IOException {
 			DuplexTransportConnection conn = acceptConnection(ss);
 			if (LOG.isLoggable(INFO)) LOG.info(ID + ": Incoming connection");
+			connectionLimiter.keyAgreementConnectionOpened(conn);
 			return new KeyAgreementConnection(conn, ID);
 		}
 

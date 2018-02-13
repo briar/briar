@@ -55,10 +55,12 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	// Non-null if the plugin started successfully
 	private volatile BluetoothAdapter adapter = null;
 
-	AndroidBluetoothPlugin(Executor ioExecutor, AndroidExecutor androidExecutor,
+	AndroidBluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
+			Executor ioExecutor, AndroidExecutor androidExecutor,
 			Context appContext, SecureRandom secureRandom, Backoff backoff,
 			DuplexPluginCallback callback, int maxLatency) {
-		super(ioExecutor, secureRandom, backoff, callback, maxLatency);
+		super(connectionLimiter, ioExecutor, secureRandom, backoff, callback,
+				maxLatency);
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 	}
@@ -154,7 +156,8 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	}
 
 	private DuplexTransportConnection wrapSocket(BluetoothSocket s) {
-		return new AndroidBluetoothTransportConnection(this, s);
+		return new AndroidBluetoothTransportConnection(this,
+				connectionLimiter, s);
 	}
 
 	@Override
