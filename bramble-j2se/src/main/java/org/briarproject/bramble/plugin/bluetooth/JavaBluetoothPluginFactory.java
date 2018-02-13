@@ -51,10 +51,12 @@ public class JavaBluetoothPluginFactory implements DuplexPluginFactory {
 
 	@Override
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
+		BluetoothConnectionManager connectionManager =
+				new BluetoothConnectionManagerImpl();
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		JavaBluetoothPlugin plugin = new JavaBluetoothPlugin(ioExecutor,
-				secureRandom, backoff, callback, MAX_LATENCY);
+		JavaBluetoothPlugin plugin = new JavaBluetoothPlugin(connectionManager,
+				ioExecutor, secureRandom, backoff, callback, MAX_LATENCY);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

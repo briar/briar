@@ -14,11 +14,15 @@ import javax.microedition.io.StreamConnection;
 class JavaBluetoothTransportConnection
 		extends AbstractDuplexTransportConnection {
 
+	private final BluetoothConnectionManager connectionManager;
 	private final StreamConnection stream;
 
-	JavaBluetoothTransportConnection(Plugin plugin, StreamConnection stream) {
+	JavaBluetoothTransportConnection(Plugin plugin,
+			BluetoothConnectionManager connectionManager,
+			StreamConnection stream) {
 		super(plugin);
 		this.stream = stream;
+		this.connectionManager = connectionManager;
 	}
 
 	@Override
@@ -33,6 +37,10 @@ class JavaBluetoothTransportConnection
 
 	@Override
 	protected void closeConnection(boolean exception) throws IOException {
-		stream.close();
+		try {
+			stream.close();
+		} finally {
+			connectionManager.connectionClosed();
+		}
 	}
 }

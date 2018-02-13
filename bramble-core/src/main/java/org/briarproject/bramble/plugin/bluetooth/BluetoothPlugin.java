@@ -52,6 +52,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	private static final Logger LOG =
 			Logger.getLogger(BluetoothPlugin.class.getName());
 
+	protected final BluetoothConnectionManager connectionManager;
+
 	private final Executor ioExecutor;
 	private final SecureRandom secureRandom;
 	private final Backoff backoff;
@@ -92,8 +94,10 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	abstract DuplexTransportConnection connectTo(String address, String uuid)
 			throws IOException;
 
-	BluetoothPlugin(Executor ioExecutor, SecureRandom secureRandom,
+	BluetoothPlugin(BluetoothConnectionManager connectionManager,
+			Executor ioExecutor, SecureRandom secureRandom,
 			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
+		this.connectionManager = connectionManager;
 		this.ioExecutor = ioExecutor;
 		this.secureRandom = secureRandom;
 		this.backoff = backoff;
@@ -111,6 +115,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	void onAdapterDisabled() {
 		LOG.info("Bluetooth disabled");
 		tryToClose(socket);
+		connectionManager.allConnectionsClosed();
 		callback.transportDisabled();
 	}
 
@@ -214,8 +219,22 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				return;
 			}
 			backoff.reset();
-			callback.incomingConnectionCreated(conn);
+			if (connectionManager.connectionOpened()) {
+				callback.incomingConnectionCreated(conn);
+			} else {
+				LOG.info("Closing incoming connection");
+				tryToCloseUnusedConnection(conn);
+			}
 			if (!running) return;
+		}
+	}
+
+	private void tryToCloseUnusedConnection(DuplexTransportConnection conn) {
+		try {
+			conn.getWriter().dispose(false);
+			conn.getReader().dispose(false, false);
+		} catch (IOException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -258,10 +277,19 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			if (StringUtils.isNullOrEmpty(uuid)) continue;
 			ioExecutor.execute(() -> {
 				if (!isRunning() || !shouldAllowContactConnections()) return;
+				if (!connectionManager.canOpenConnection()) {
+					LOG.info("Not connecting, too many open connections");
+					return;
+				}
 				DuplexTransportConnection conn = connect(address, uuid);
 				if (conn != null) {
 					backoff.reset();
-					callback.outgoingConnectionCreated(c, conn);
+					if (connectionManager.connectionOpened()) {
+						callback.outgoingConnectionCreated(c, conn);
+					} else {
+						LOG.info("Closing outgoing connection");
+						tryToCloseUnusedConnection(conn);
+					}
 				}
 			});
 		}
@@ -301,12 +329,25 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if (!isRunning() || !shouldAllowContactConnections()) return null;
+		if (!connectionManager.canOpenConnection()) {
+			LOG.info("Not connecting, too many open connections");
+			return null;
+		}
 		TransportProperties p = callback.getRemoteProperties(c);
 		String address = p.get(PROP_ADDRESS);
 		if (StringUtils.isNullOrEmpty(address)) return null;
 		String uuid = p.get(PROP_UUID);
 		if (StringUtils.isNullOrEmpty(uuid)) return null;
-		return connect(address, uuid);
+		DuplexTransportConnection conn = connect(address, uuid);
+		if (conn == null) return null;
+		// TODO: Why don't we reset the backoff here?
+		if (connectionManager.connectionOpened()) {
+			return conn;
+		} else {
+			LOG.info("Closing outgoing connection");
+			tryToCloseUnusedConnection(conn);
+			return null;
+		}
 	}
 
 	@Override
@@ -356,7 +397,10 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		if (LOG.isLoggable(INFO))
 			LOG.info("Connecting to key agreement UUID " + uuid);
-		return connect(address, uuid);
+		DuplexTransportConnection conn = connect(address, uuid);
+		// The connection limit doesn't apply to key agreement
+		if (conn != null) connectionManager.connectionOpened();
+		return conn;
 	}
 
 	private String parseAddress(BdfList descriptor) throws FormatException {
@@ -411,6 +455,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				DuplexTransportConnection conn = acceptConnection(ss);
 				if (LOG.isLoggable(INFO))
 					LOG.info(ID.getString() + ": Incoming connection");
+				// The connection limit doesn't apply to key agreement
+				connectionManager.connectionOpened();
 				return new KeyAgreementConnection(conn, ID);
 			};
 		}
