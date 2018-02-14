@@ -71,7 +71,7 @@ import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 33;
+	static final int CODE_SCHEMA_VERSION = 34;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
