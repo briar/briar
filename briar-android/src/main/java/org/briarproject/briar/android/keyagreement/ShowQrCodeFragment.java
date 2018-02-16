@@ -11,7 +11,9 @@ import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -144,7 +146,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	public void onStart() {
 		super.onStart();
 		try {
-			cameraView.start();
+			cameraView.start(getScreenRotationDegrees());
 		} catch (CameraException e) {
 			logCameraExceptionAndFinish(e);
 		}
@@ -161,6 +163,22 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			eventBus.broadcast(new EnableBluetoothEvent());
 		} else {
 			startListening();
+		}
+	}
+
+	private int getScreenRotationDegrees() {
+		Display d = getActivity().getWindowManager().getDefaultDisplay();
+		switch (d.getRotation()) {
+			case Surface.ROTATION_0:
+				return 0;
+			case Surface.ROTATION_90:
+				return 90;
+			case Surface.ROTATION_180:
+				return 180;
+			case Surface.ROTATION_270:
+				return 270;
+			default:
+				throw new AssertionError();
 		}
 	}
 
@@ -219,10 +237,13 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			if (LOG.isLoggable(INFO))
 				LOG.info("Remote payload is " + encoded.length + " bytes");
 			Payload remotePayload = payloadParser.parse(encoded);
+			cameraView.stop();
 			cameraView.setVisibility(INVISIBLE);
 			statusView.setVisibility(VISIBLE);
 			status.setText(R.string.connecting_to_device);
 			task.connectAndRunProtocol(remotePayload);
+		} catch (CameraException e) {
+			logCameraExceptionAndFinish(e);
 		} catch (IOException | IllegalArgumentException e) {
 			// TODO show failure
 			Toast.makeText(getActivity(), R.string.qr_code_invalid,
