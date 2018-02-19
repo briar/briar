@@ -21,6 +21,8 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 
 import java.util.logging.Logger;
 
+import static com.google.zxing.DecodeHintType.CHARACTER_SET;
+import static java.util.Collections.singletonMap;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -87,9 +89,10 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 			LuminanceSource src = new PlanarYUVLuminanceSource(data, width,
 					height, 0, 0, width, height, false);
 			BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(src));
-			Result result = null;
+			Result result;
 			try {
-				result = reader.decode(bitmap);
+				result = reader.decode(bitmap,
+						singletonMap(CHARACTER_SET, "ISO8859_1"));
 			} catch (ReaderException e) {
 				return null; // No barcode found
 			} catch (RuntimeException e) {

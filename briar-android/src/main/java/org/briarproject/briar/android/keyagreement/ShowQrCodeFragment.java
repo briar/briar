@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
-import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +36,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseEventFragment;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -58,6 +58,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	private static final String TAG = ShowQrCodeFragment.class.getName();
 	private static final Logger LOG = Logger.getLogger(TAG);
+	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 
 	@Inject
 	Provider<KeyAgreementTask> keyAgreementTaskProvider;
@@ -192,10 +193,11 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	@UiThread
 	private void qrCodeScanned(String content) {
 		try {
-			byte[] encoded = Base64.decode(content, 0);
+			byte[] payloadBytes = content.getBytes(ISO_8859_1);
 			if (LOG.isLoggable(INFO))
-				LOG.info("Remote payload is " + encoded.length + " bytes");
-			Payload remotePayload = payloadParser.parse(encoded);
+				LOG.info("Remote payload is " + payloadBytes.length + " bytes");
+			Payload remotePayload = payloadParser.parse(payloadBytes);
+			gotRemotePayload = true;
 			cameraView.setVisibility(INVISIBLE);
 			statusView.setVisibility(VISIBLE);
 			status.setText(R.string.connecting_to_device);
@@ -240,11 +242,14 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 			@Override
 			protected Bitmap doInBackground(Void... params) {
-				byte[] encoded = payloadEncoder.encode(payload);
-				if (LOG.isLoggable(INFO))
-					LOG.info("Local payload is " + encoded.length + " bytes");
-				String input = Base64.encodeToString(encoded, 0);
-				return QrCodeUtils.createQrCode(dm, input);
+				byte[] payloadBytes = payloadEncoder.encode(payload);
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Local payload is " + payloadBytes.length
+							+ " bytes");
+				}
+				// Use ISO 8859-1 to encode bytes directly as a string
+				String content = new String(payloadBytes, ISO_8859_1);
+				return QrCodeUtils.createQrCode(dm, content);
 			}
 
 			@Override
@@ -303,13 +308,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		runOnUiThreadUnlessDestroyed(() -> {
 			LOG.info("Got result from decoder");
 			// Ignore results until the KeyAgreementTask is ready
-			if (!gotLocalPayload) {
-				return;
-			}
-			if (!gotRemotePayload) {
-				gotRemotePayload = true;
-				qrCodeScanned(result.getText());
-			}
+			if (!gotLocalPayload) return;
+			if (!gotRemotePayload) qrCodeScanned(result.getText());
 		});
 	}
 
