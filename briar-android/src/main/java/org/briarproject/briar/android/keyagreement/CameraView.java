@@ -13,6 +13,7 @@ import android.util.AttributeSet;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -38,18 +39,21 @@ import static java.util.logging.Level.WARNING;
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
-		AutoFocusCallback {
+		AutoFocusCallback, View.OnClickListener {
 
 	private static final int AUTO_FOCUS_RETRY_DELAY = 5000; // Milliseconds
 	private static final Logger LOG =
 			Logger.getLogger(CameraView.class.getName());
+
+	private final Runnable autoFocusRetry = this::retryAutoFocus;
 
 	@Nullable
 	private Camera camera = null;
 	private PreviewConsumer previewConsumer = null;
 	private Surface surface = null;
 	private int displayOrientation = 0, surfaceWidth = 0, surfaceHeight = 0;
-	private boolean previewStarted = false, autoFocus = false;
+	private boolean previewStarted = false;
+	private boolean autoFocusSupported = false, autoFocusRunning = false;
 
 	public CameraView(Context context) {
 		super(context);
@@ -74,6 +78,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		super.onAttachedToWindow();
 		setKeepScreenOn(true);
 		getHolder().addCallback(this);
+		setOnClickListener(this);
 	}
 
 	@Override
@@ -157,27 +162,41 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	@UiThread
 	private void startConsumer() throws CameraException {
 		if (camera == null) throw new CameraException("Camera is null");
-		if (autoFocus) {
+		startAutoFocus();
+		previewConsumer.start(camera);
+	}
+
+	@UiThread
+	private void startAutoFocus() throws CameraException {
+		if (camera != null && autoFocusSupported && !autoFocusRunning) {
 			try {
+				removeCallbacks(autoFocusRetry);
 				camera.autoFocus(this);
+				autoFocusRunning = true;
 			} catch (RuntimeException e) {
 				throw new CameraException(e);
 			}
 		}
-		previewConsumer.start(camera);
 	}
 
 	@UiThread
 	private void stopConsumer() throws CameraException {
 		if (camera == null) throw new CameraException("Camera is null");
-		if (autoFocus) {
+		cancelAutoFocus();
+		previewConsumer.stop();
+	}
+
+	@UiThread
+	private void cancelAutoFocus() throws CameraException {
+		if (camera != null && autoFocusSupported && autoFocusRunning) {
 			try {
+				removeCallbacks(autoFocusRetry);
 				camera.cancelAutoFocus();
+				autoFocusRunning = false;
 			} catch (RuntimeException e) {
 				throw new CameraException(e);
 			}
 		}
-		previewConsumer.stop();
 	}
 
 	@UiThread
@@ -325,7 +344,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	@UiThread
 	private void enableAutoFocus(String focusMode) {
-		autoFocus = FOCUS_MODE_AUTO.equals(focusMode) ||
+		autoFocusSupported = FOCUS_MODE_AUTO.equals(focusMode) ||
 				FOCUS_MODE_MACRO.equals(focusMode);
 	}
 
@@ -427,16 +446,23 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	@Override
 	public void onAutoFocus(boolean success, Camera camera) {
-		LOG.info("Auto focus succeeded: " + success);
-		postDelayed(this::retryAutoFocus, AUTO_FOCUS_RETRY_DELAY);
+		if (LOG.isLoggable(INFO))
+			LOG.info("Auto focus succeeded: " + success);
+		autoFocusRunning = false;
+		postDelayed(autoFocusRetry, AUTO_FOCUS_RETRY_DELAY);
 	}
 
 	@UiThread
 	private void retryAutoFocus() {
 		try {
-			if (camera != null) camera.autoFocus(this);
-		} catch (RuntimeException e) {
-			LOG.log(WARNING, "Error retrying auto focus", e);
+			startAutoFocus();
+		} catch (CameraException e) {
+			LOG.log(WARNING, e.toString(), e);
 		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		retryAutoFocus();
 	}
 }
