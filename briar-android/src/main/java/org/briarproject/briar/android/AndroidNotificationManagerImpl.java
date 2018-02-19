@@ -12,6 +12,7 @@ import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.v4.app.TaskStackBuilder;
 
+import org.briarproject.bramble.api.Multiset;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -45,8 +46,7 @@ import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
 import org.briarproject.briar.api.sharing.event.InvitationRequestReceivedEvent;
 import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -109,11 +109,10 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	// The following must only be accessed on the main UI thread
-	private final Map<ContactId, Integer> contactCounts = new HashMap<>();
-	private final Map<GroupId, Integer> groupCounts = new HashMap<>();
-	private final Map<GroupId, Integer> forumCounts = new HashMap<>();
-	private final Map<GroupId, Integer> blogCounts = new HashMap<>();
-	private int contactTotal = 0, groupTotal = 0, forumTotal = 0, blogTotal = 0;
+	private final Multiset<ContactId> contactCounts = new Multiset<>();
+	private final Multiset<GroupId> groupCounts = new Multiset<>();
+	private final Multiset<GroupId> forumCounts = new Multiset<>();
+	private final Multiset<GroupId> blogCounts = new Multiset<>();
 	private int introductionTotal = 0;
 	private int nextRequestId = 0;
 	private ContactId blockedContact = null;
@@ -197,28 +196,24 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@UiThread
 	private void clearContactNotification() {
 		contactCounts.clear();
-		contactTotal = 0;
 		notificationManager.cancel(PRIVATE_MESSAGE_NOTIFICATION_ID);
 	}
 
 	@UiThread
 	private void clearGroupMessageNotification() {
 		groupCounts.clear();
-		groupTotal = 0;
 		notificationManager.cancel(GROUP_MESSAGE_NOTIFICATION_ID);
 	}
 
 	@UiThread
 	private void clearForumPostNotification() {
 		forumCounts.clear();
-		forumTotal = 0;
 		notificationManager.cancel(FORUM_POST_NOTIFICATION_ID);
 	}
 
 	@UiThread
 	private void clearBlogPostNotification() {
 		blogCounts.clear();
-		blogTotal = 0;
 		notificationManager.cancel(BLOG_POST_NOTIFICATION_ID);
 	}
 
@@ -278,10 +273,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		androidExecutor.runOnUiThread(() -> {
 			if (blockContacts) return;
 			if (c.equals(blockedContact)) return;
-			Integer count = contactCounts.get(c);
-			if (count == null) contactCounts.put(c, 1);
-			else contactCounts.put(c, count + 1);
-			contactTotal++;
+			contactCounts.add(c);
 			updateContactNotification(true);
 		});
 	}
@@ -289,15 +281,14 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Override
 	public void clearContactNotification(ContactId c) {
 		androidExecutor.runOnUiThread(() -> {
-			Integer count = contactCounts.remove(c);
-			if (count == null) return; // Already cleared
-			contactTotal -= count;
-			updateContactNotification(false);
+			if (contactCounts.removeAll(c) > 0)
+				updateContactNotification(false);
 		});
 	}
 
 	@UiThread
 	private void updateContactNotification(boolean mayAlertAgain) {
+		int contactTotal = contactCounts.getTotal();
 		if (contactTotal == 0) {
 			clearContactNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_PRIVATE, true)) {
@@ -315,10 +306,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			b.setLockscreenVisibility(CATEGORY_MESSAGE, showOnLockScreen);
 			if (mayAlertAgain) setAlertProperties(b);
 			setDeleteIntent(b, CONTACT_URI);
-			if (contactCounts.size() == 1) {
+			Set<ContactId> contacts = contactCounts.keySet();
+			if (contacts.size() == 1) {
 				// Touching the notification shows the relevant conversation
 				Intent i = new Intent(appContext, ConversationActivity.class);
-				ContactId c = contactCounts.keySet().iterator().next();
+				ContactId c = contacts.iterator().next();
 				i.putExtra(CONTACT_ID, c.getInt());
 				i.setData(Uri.parse(CONTACT_URI + "/" + c.getInt()));
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
@@ -385,10 +377,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		androidExecutor.runOnUiThread(() -> {
 			if (blockGroups) return;
 			if (g.equals(blockedGroup)) return;
-			Integer count = groupCounts.get(g);
-			if (count == null) groupCounts.put(g, 1);
-			else groupCounts.put(g, count + 1);
-			groupTotal++;
+			groupCounts.add(g);
 			updateGroupMessageNotification(true);
 		});
 	}
@@ -396,15 +385,14 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Override
 	public void clearGroupMessageNotification(GroupId g) {
 		androidExecutor.runOnUiThread(() -> {
-			Integer count = groupCounts.remove(g);
-			if (count == null) return; // Already cleared
-			groupTotal -= count;
-			updateGroupMessageNotification(false);
+			if (groupCounts.removeAll(g) > 0)
+				updateGroupMessageNotification(false);
 		});
 	}
 
 	@UiThread
 	private void updateGroupMessageNotification(boolean mayAlertAgain) {
+		int groupTotal = groupCounts.getTotal();
 		if (groupTotal == 0) {
 			clearGroupMessageNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_GROUP, true)) {
@@ -422,10 +410,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			b.setLockscreenVisibility(CATEGORY_SOCIAL, showOnLockScreen);
 			if (mayAlertAgain) setAlertProperties(b);
 			setDeleteIntent(b, GROUP_URI);
-			if (groupCounts.size() == 1) {
+			Set<GroupId> groups = groupCounts.keySet();
+			if (groups.size() == 1) {
 				// Touching the notification shows the relevant group
 				Intent i = new Intent(appContext, GroupActivity.class);
-				GroupId g = groupCounts.keySet().iterator().next();
+				GroupId g = groups.iterator().next();
 				i.putExtra(GROUP_ID, g.getBytes());
 				String idHex = StringUtils.toHexString(g.getBytes());
 				i.setData(Uri.parse(GROUP_URI + "/" + idHex));
@@ -461,10 +450,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		androidExecutor.runOnUiThread(() -> {
 			if (blockForums) return;
 			if (g.equals(blockedGroup)) return;
-			Integer count = forumCounts.get(g);
-			if (count == null) forumCounts.put(g, 1);
-			else forumCounts.put(g, count + 1);
-			forumTotal++;
+			forumCounts.add(g);
 			updateForumPostNotification(true);
 		});
 	}
@@ -472,15 +458,14 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Override
 	public void clearForumPostNotification(GroupId g) {
 		androidExecutor.runOnUiThread(() -> {
-			Integer count = forumCounts.remove(g);
-			if (count == null) return; // Already cleared
-			forumTotal -= count;
-			updateForumPostNotification(false);
+			if (forumCounts.removeAll(g) > 0)
+				updateForumPostNotification(false);
 		});
 	}
 
 	@UiThread
 	private void updateForumPostNotification(boolean mayAlertAgain) {
+		int forumTotal = forumCounts.getTotal();
 		if (forumTotal == 0) {
 			clearForumPostNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_FORUM, true)) {
@@ -498,10 +483,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			b.setLockscreenVisibility(CATEGORY_SOCIAL, showOnLockScreen);
 			if (mayAlertAgain) setAlertProperties(b);
 			setDeleteIntent(b, FORUM_URI);
-			if (forumCounts.size() == 1) {
+			Set<GroupId> forums = forumCounts.keySet();
+			if (forums.size() == 1) {
 				// Touching the notification shows the relevant forum
 				Intent i = new Intent(appContext, ForumActivity.class);
-				GroupId g = forumCounts.keySet().iterator().next();
+				GroupId g = forums.iterator().next();
 				i.putExtra(GROUP_ID, g.getBytes());
 				String idHex = StringUtils.toHexString(g.getBytes());
 				i.setData(Uri.parse(FORUM_URI + "/" + idHex));
@@ -536,10 +522,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		androidExecutor.runOnUiThread(() -> {
 			if (blockBlogs) return;
 			if (g.equals(blockedGroup)) return;
-			Integer count = blogCounts.get(g);
-			if (count == null) blogCounts.put(g, 1);
-			else blogCounts.put(g, count + 1);
-			blogTotal++;
+			blogCounts.add(g);
 			updateBlogPostNotification(true);
 		});
 	}
@@ -547,15 +530,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Override
 	public void clearBlogPostNotification(GroupId g) {
 		androidExecutor.runOnUiThread(() -> {
-			Integer count = blogCounts.remove(g);
-			if (count == null) return; // Already cleared
-			blogTotal -= count;
-			updateBlogPostNotification(false);
+			if (blogCounts.removeAll(g) > 0) updateBlogPostNotification(false);
 		});
 	}
 
 	@UiThread
 	private void updateBlogPostNotification(boolean mayAlertAgain) {
+		int blogTotal = blogCounts.getTotal();
 		if (blogTotal == 0) {
 			clearBlogPostNotification();
 		} else if (settings.getBoolean(PREF_NOTIFY_BLOG, true)) {

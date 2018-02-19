@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin;
 
+import org.briarproject.bramble.api.Multiset;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -36,14 +37,14 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	private final Lock lock = new ReentrantLock();
 
 	// The following are locking: lock
-	private final Map<TransportId, Map<ContactId, Integer>> connections;
-	private final Map<ContactId, Integer> contactCounts;
+	private final Map<TransportId, Multiset<ContactId>> connections;
+	private final Multiset<ContactId> contactCounts;
 
 	@Inject
 	ConnectionRegistryImpl(EventBus eventBus) {
 		this.eventBus = eventBus;
 		connections = new HashMap<>();
-		contactCounts = new HashMap<>();
+		contactCounts = new Multiset<>();
 	}
 
 	@Override
@@ -56,21 +57,13 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		boolean firstConnection = false;
 		lock.lock();
 		try {
-			Map<ContactId, Integer> m = connections.get(t);
+			Multiset<ContactId> m = connections.get(t);
 			if (m == null) {
-				m = new HashMap<>();
+				m = new Multiset<>();
 				connections.put(t, m);
 			}
-			Integer count = m.get(c);
-			if (count == null) m.put(c, 1);
-			else m.put(c, count + 1);
-			count = contactCounts.get(c);
-			if (count == null) {
-				firstConnection = true;
-				contactCounts.put(c, 1);
-			} else {
-				contactCounts.put(c, count + 1);
-			}
+			m.add(c);
+			if (contactCounts.add(c) == 1) firstConnection = true;
 		} finally {
 			lock.unlock();
 		}
@@ -91,23 +84,10 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		boolean lastConnection = false;
 		lock.lock();
 		try {
-			Map<ContactId, Integer> m = connections.get(t);
+			Multiset<ContactId> m = connections.get(t);
 			if (m == null) throw new IllegalArgumentException();
-			Integer count = m.remove(c);
-			if (count == null) throw new IllegalArgumentException();
-			if (count == 1) {
-				if (m.isEmpty()) connections.remove(t);
-			} else {
-				m.put(c, count - 1);
-			}
-			count = contactCounts.get(c);
-			if (count == null) throw new IllegalArgumentException();
-			if (count == 1) {
-				lastConnection = true;
-				contactCounts.remove(c);
-			} else {
-				contactCounts.put(c, count - 1);
-			}
+			m.remove(c);
+			if (contactCounts.remove(c) == 0) lastConnection = true;
 		} finally {
 			lock.unlock();
 		}
@@ -122,7 +102,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	public Collection<ContactId> getConnectedContacts(TransportId t) {
 		lock.lock();
 		try {
-			Map<ContactId, Integer> m = connections.get(t);
+			Multiset<ContactId> m = connections.get(t);
 			if (m == null) return Collections.emptyList();
 			List<ContactId> ids = new ArrayList<>(m.keySet());
 			if (LOG.isLoggable(INFO))
@@ -137,8 +117,8 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	public boolean isConnected(ContactId c, TransportId t) {
 		lock.lock();
 		try {
-			Map<ContactId, Integer> m = connections.get(t);
-			return m != null && m.containsKey(c);
+			Multiset<ContactId> m = connections.get(t);
+			return m != null && m.contains(c);
 		} finally {
 			lock.unlock();
 		}
@@ -148,7 +128,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	public boolean isConnected(ContactId c) {
 		lock.lock();
 		try {
-			return contactCounts.containsKey(c);
+			return contactCounts.contains(c);
 		} finally {
 			lock.unlock();
 		}
