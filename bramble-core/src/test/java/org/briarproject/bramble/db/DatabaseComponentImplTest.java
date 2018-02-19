@@ -47,6 +47,7 @@ import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.CaptureArgumentAction;
 import org.briarproject.bramble.test.TestUtils;
 import org.jmock.Expectations;
 import org.junit.Test;
@@ -54,9 +55,12 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -158,7 +162,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 					ContactStatusChangedEvent.class)));
 			// getContacts()
 			oneOf(database).getContacts(txn);
-			will(returnValue(Collections.singletonList(contact)));
+			will(returnValue(singletonList(contact)));
 			// addGroup()
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(false));
@@ -169,12 +173,12 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(true));
 			// getGroups()
 			oneOf(database).getGroups(txn, clientId);
-			will(returnValue(Collections.singletonList(group)));
+			will(returnValue(singletonList(group)));
 			// removeGroup()
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
 			oneOf(database).getGroupVisibility(txn, groupId);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyMap()));
 			oneOf(database).removeGroup(txn, groupId);
 			oneOf(eventBus).broadcast(with(any(GroupRemovedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(
@@ -203,11 +207,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.addLocalAuthor(transaction, localAuthor);
 			assertEquals(contactId, db.addContact(transaction, author,
 					localAuthor.getId(), true, true));
-			assertEquals(Collections.singletonList(contact),
+			assertEquals(singletonList(contact),
 					db.getContacts(transaction));
 			db.addGroup(transaction, group); // First time - listeners called
 			db.addGroup(transaction, group); // Second time - not called
-			assertEquals(Collections.singletonList(group),
+			assertEquals(singletonList(group),
 					db.getGroups(transaction, clientId));
 			db.removeGroup(transaction, group);
 			db.removeContact(transaction, contactId);
@@ -252,13 +256,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(true));
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(false));
-			oneOf(database).addMessage(txn, message, DELIVERED, true);
+			oneOf(database).addMessage(txn, message, DELIVERED, true, null);
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
-			oneOf(database).getGroupVisibility(txn, groupId);
-			will(returnValue(Collections.singletonList(contactId)));
-			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
-			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, false, false);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listeners should be called
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
@@ -394,7 +393,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		transaction = db.startTransaction(false);
 		try {
-			Ack a = new Ack(Collections.singletonList(messageId));
+			Ack a = new Ack(singletonList(messageId));
 			db.receiveAck(transaction, contactId, a);
 			fail();
 		} catch (NoSuchContactException expected) {
@@ -415,7 +414,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		transaction = db.startTransaction(false);
 		try {
-			Offer o = new Offer(Collections.singletonList(messageId));
+			Offer o = new Offer(singletonList(messageId));
 			db.receiveOffer(transaction, contactId, o);
 			fail();
 		} catch (NoSuchContactException expected) {
@@ -426,7 +425,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		transaction = db.startTransaction(false);
 		try {
-			Request r = new Request(Collections.singletonList(messageId));
+			Request r = new Request(singletonList(messageId));
 			db.receiveRequest(transaction, contactId, r);
 			fail();
 		} catch (NoSuchContactException expected) {
@@ -1021,7 +1020,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		Transaction transaction = db.startTransaction(false);
 		try {
-			Ack a = new Ack(Collections.singletonList(messageId));
+			Ack a = new Ack(singletonList(messageId));
 			db.receiveAck(transaction, contactId, a);
 			db.commitTransaction(transaction);
 		} finally {
@@ -1041,12 +1040,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(VISIBLE));
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(false));
-			oneOf(database).addMessage(txn, message, UNKNOWN, false);
-			oneOf(database).getGroupVisibility(txn, groupId);
-			will(returnValue(Collections.singletonList(contactId)));
-			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
-			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, true, true);
+			oneOf(database).addMessage(txn, message, UNKNOWN, false, contactId);
 			// Second time
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -1196,7 +1190,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		Transaction transaction = db.startTransaction(false);
 		try {
-			Request r = new Request(Collections.singletonList(messageId));
+			Request r = new Request(singletonList(messageId));
 			db.receiveRequest(transaction, contactId, r);
 			db.commitTransaction(transaction);
 		} finally {
@@ -1205,7 +1199,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testChangingVisibilityCallsListeners() throws Exception {
+	public void testChangingVisibilityFromInvisibleToVisibleCallsListeners()
+			throws Exception {
+		AtomicReference<GroupVisibilityUpdatedEvent> event =
+				new AtomicReference<>();
+
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1214,16 +1212,13 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
 			oneOf(database).getGroupVisibility(txn, contactId, groupId);
-			will(returnValue(INVISIBLE)); // Not yet visible
+			will(returnValue(INVISIBLE));
 			oneOf(database).addGroupVisibility(txn, contactId, groupId, false);
-			oneOf(database).getMessageIds(txn, groupId);
-			will(returnValue(Collections.singletonList(messageId)));
-			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
-			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, false, false);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
 					GroupVisibilityUpdatedEvent.class)));
+			will(new CaptureArgumentAction<>(event,
+					GroupVisibilityUpdatedEvent.class, 0));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -1235,6 +1230,48 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		} finally {
 			db.endTransaction(transaction);
 		}
+
+		GroupVisibilityUpdatedEvent e = event.get();
+		assertNotNull(e);
+		assertEquals(singletonList(contactId), e.getAffectedContacts());
+	}
+
+	@Test
+	public void testChangingVisibilityFromVisibleToInvisibleCallsListeners()
+			throws Exception {
+		AtomicReference<GroupVisibilityUpdatedEvent> event =
+				new AtomicReference<>();
+
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsGroup(txn, groupId);
+			will(returnValue(true));
+			oneOf(database).getGroupVisibility(txn, contactId, groupId);
+			will(returnValue(VISIBLE));
+			oneOf(database).removeGroupVisibility(txn, contactId, groupId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(
+					GroupVisibilityUpdatedEvent.class)));
+			will(new CaptureArgumentAction<>(event,
+					GroupVisibilityUpdatedEvent.class, 0));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				shutdown);
+
+		Transaction transaction = db.startTransaction(false);
+		try {
+			db.setGroupVisibility(transaction, contactId, groupId, INVISIBLE);
+			db.commitTransaction(transaction);
+		} finally {
+			db.endTransaction(transaction);
+		}
+
+		GroupVisibilityUpdatedEvent e = event.get();
+		assertNotNull(e);
+		assertEquals(singletonList(contactId), e.getAffectedContacts());
 	}
 
 	@Test
@@ -1266,8 +1303,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	@Test
 	public void testTransportKeys() throws Exception {
 		TransportKeys transportKeys = createTransportKeys();
-		Map<ContactId, TransportKeys> keys = Collections.singletonMap(
-				contactId, transportKeys);
+		Map<ContactId, TransportKeys> keys =
+				singletonMap(contactId, transportKeys);
 		context.checking(new Expectations() {{
 			// startTransaction()
 			oneOf(database).startTransaction();
@@ -1476,13 +1513,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(true));
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(false));
-			oneOf(database).addMessage(txn, message, DELIVERED, true);
-			oneOf(database).getGroupVisibility(txn, groupId);
-			will(returnValue(Collections.singletonList(contactId)));
+			oneOf(database).addMessage(txn, message, DELIVERED, true, null);
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
-			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
-			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, false, false);
 			// addMessageDependencies()
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));
