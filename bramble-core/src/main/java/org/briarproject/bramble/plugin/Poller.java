@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
 import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
+import org.briarproject.bramble.api.plugin.event.TransportDisabledEvent;
 import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.system.Clock;
@@ -25,6 +26,7 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -50,7 +52,7 @@ class Poller implements EventListener {
 	private final SecureRandom random;
 	private final Clock clock;
 	private final Lock lock;
-	private final Map<TransportId, PollTask> tasks; // Locking: lock
+	private final Map<TransportId, ScheduledPollTask> tasks; // Locking: lock
 
 	@Inject
 	Poller(@IoExecutor Executor ioExecutor,
@@ -93,6 +95,10 @@ class Poller implements EventListener {
 			TransportEnabledEvent t = (TransportEnabledEvent) e;
 			// Poll the newly enabled transport
 			pollNow(t.getTransportId());
+		} else if (e instanceof TransportDisabledEvent) {
+			TransportDisabledEvent t = (TransportDisabledEvent) e;
+			// Cancel polling for the disabled transport
+			cancel(t.getTransportId());
 		}
 	}
 
@@ -151,13 +157,26 @@ class Poller implements EventListener {
 		TransportId t = p.getId();
 		lock.lock();
 		try {
-			PollTask scheduled = tasks.get(t);
-			if (scheduled == null || due < scheduled.due) {
+			ScheduledPollTask scheduled = tasks.get(t);
+			if (scheduled == null || due < scheduled.task.due) {
+				// If a later task exists, cancel it. If it's already started
+				// it will abort safely when it finds it's been replaced
+				if (scheduled != null) scheduled.future.cancel(false);
 				PollTask task = new PollTask(p, due, randomiseNext);
-				tasks.put(t, task);
-				scheduler.schedule(
+				Future future = scheduler.schedule(
 						() -> ioExecutor.execute(task), delay, MILLISECONDS);
+				tasks.put(t, new ScheduledPollTask(task, future));
 			}
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	private void cancel(TransportId t) {
+		lock.lock();
+		try {
+			ScheduledPollTask scheduled = tasks.remove(t);
+			if (scheduled != null) scheduled.future.cancel(false);
 		} finally {
 			lock.unlock();
 		}
@@ -168,6 +187,17 @@ class Poller implements EventListener {
 		TransportId t = p.getId();
 		if (LOG.isLoggable(INFO)) LOG.info("Polling plugin " + t);
 		p.poll(connectionRegistry.getConnectedContacts(t));
+	}
+
+	private class ScheduledPollTask {
+
+		private final PollTask task;
+		private final Future future;
+
+		private ScheduledPollTask(PollTask task, Future future) {
+			this.task = task;
+			this.future = future;
+		}
 	}
 
 	private class PollTask implements Runnable {
@@ -188,7 +218,9 @@ class Poller implements EventListener {
 			lock.lock();
 			try {
 				TransportId t = plugin.getId();
-				if (tasks.get(t) != this) return; // Replaced by another task
+				ScheduledPollTask scheduled = tasks.get(t);
+				if (scheduled != null && scheduled.task != this)
+					return; // Replaced by another task
 				tasks.remove(t);
 			} finally {
 				lock.unlock();
