@@ -1930,6 +1930,37 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public long getNextSendTime(Connection txn, ContactId c)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT expiry FROM statuses"
+					+ " WHERE contactId = ? AND state = ?"
+					+ " AND groupShared = TRUE AND messageShared = TRUE"
+					+ " AND deleted = FALSE"
+					+ " AND seen = FALSE AND requested = FALSE"
+					+ " ORDER BY expiry LIMIT 1";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, DELIVERED.getValue());
+			rs = ps.executeQuery();
+			long nextSendTime = Long.MAX_VALUE;
+			if (rs.next()) {
+				nextSendTime = rs.getLong(1);
+				if (rs.next()) throw new AssertionError();
+			}
+			rs.close();
+			ps.close();
+			return nextSendTime;
+		} catch (SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	@Nullable
 	public byte[] getRawMessage(Connection txn, MessageId m)
 			throws DbException {
