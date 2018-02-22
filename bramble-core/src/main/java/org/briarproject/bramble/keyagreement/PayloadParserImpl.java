@@ -40,22 +40,22 @@ class PayloadParserImpl implements PayloadParser {
 	@Override
 	public Payload parse(byte[] raw) throws IOException {
 		ByteArrayInputStream in = new ByteArrayInputStream(raw);
-		BdfReader r = bdfReaderFactory.createReader(in);
-		// The payload is a BDF list with two or more elements
-		BdfList payload = r.readList();
-		if (payload.size() < 2) throw new FormatException();
-		if (!r.eof()) throw new FormatException();
-		// First element: the protocol version
-		long protocolVersion = payload.getLong(0);
-		if (protocolVersion != PROTOCOL_VERSION) {
+		// First byte: the protocol version
+		int protocolVersion = in.read();
+		if (protocolVersion == -1) throw new FormatException();
+		if (protocolVersion != PROTOCOL_VERSION)
 			throw new UnsupportedVersionException();
-		}
-		// Second element: the public key commitment
-		byte[] commitment = payload.getRaw(1);
+		// The rest of the payload is a BDF list with one or more elements
+		BdfReader r = bdfReaderFactory.createReader(in);
+		BdfList payload = r.readList();
+		if (payload.isEmpty()) throw new FormatException();
+		if (!r.eof()) throw new FormatException();
+		// First element: the public key commitment
+		byte[] commitment = payload.getRaw(0);
 		if (commitment.length != COMMIT_LENGTH) throw new FormatException();
 		// Remaining elements: transport descriptors
 		List<TransportDescriptor> recognised = new ArrayList<>();
-		for (int i = 2; i < payload.size(); i++) {
+		for (int i = 1; i < payload.size(); i++) {
 			BdfList descriptor = payload.getList(i);
 			long transportId = descriptor.getLong(0);
 			if (transportId == TRANSPORT_ID_BLUETOOTH) {
