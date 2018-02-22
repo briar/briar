@@ -30,6 +30,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -50,12 +51,13 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD
 @NotNullByDefault
 class DuplexOutgoingSession implements SyncSession, EventListener {
 
-	// Check for retransmittable records once every 60 seconds
-	private static final int RETX_QUERY_INTERVAL = 60 * 1000;
 	private static final Logger LOG =
 			Logger.getLogger(DuplexOutgoingSession.class.getName());
 
 	private static final ThrowingRunnable<IOException> CLOSE = () -> {
+	};
+	private static final ThrowingRunnable<IOException>
+			NEXT_SEND_TIME_DECREASED = () -> {
 	};
 
 	private final DatabaseComponent db;
@@ -72,6 +74,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	private final AtomicBoolean generateOfferQueued = new AtomicBoolean(false);
 	private final AtomicBoolean generateRequestQueued =
 			new AtomicBoolean(false);
+	private final AtomicLong nextSendTime = new AtomicLong(Long.MAX_VALUE);
 
 	private volatile boolean interrupted = false;
 
@@ -101,15 +104,15 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			generateRequest();
 			long now = clock.currentTimeMillis();
 			long nextKeepalive = now + maxIdleTime;
-			long nextRetxQuery = now + RETX_QUERY_INTERVAL;
 			boolean dataToFlush = true;
 			// Write records until interrupted
 			try {
 				while (!interrupted) {
 					// Work out how long we should wait for a record
 					now = clock.currentTimeMillis();
-					long wait = Math.min(nextKeepalive, nextRetxQuery) - now;
-					if (wait < 0) wait = 0;
+					long keepaliveWait = Math.max(0, nextKeepalive - now);
+					long sendWait = Math.max(0, nextSendTime.get() - now);
+					long wait = Math.min(keepaliveWait, sendWait);
 					// Flush any unflushed data if we're going to wait
 					if (wait > 0 && dataToFlush && writerTasks.isEmpty()) {
 						recordWriter.flush();
@@ -121,20 +124,25 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 							MILLISECONDS);
 					if (task == null) {
 						now = clock.currentTimeMillis();
-						if (now >= nextRetxQuery) {
-							// Check for retransmittable records
+						if (now >= nextSendTime.get()) {
+							// Check for retransmittable messages
+							LOG.info("Checking for retransmittable messages");
+							setNextSendTime(Long.MAX_VALUE);
 							generateBatch();
 							generateOffer();
-							nextRetxQuery = now + RETX_QUERY_INTERVAL;
 						}
 						if (now >= nextKeepalive) {
 							// Flush the stream to keep it alive
+							LOG.info("Sending keepalive");
 							recordWriter.flush();
 							dataToFlush = false;
 							nextKeepalive = now + maxIdleTime;
 						}
 					} else if (task == CLOSE) {
+						LOG.info("Closed");
 						break;
+					} else if (task == NEXT_SEND_TIME_DECREASED) {
+						LOG.info("Next send time decreased");
 					} else {
 						task.run();
 						dataToFlush = true;
@@ -168,6 +176,11 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	private void generateRequest() {
 		if (generateRequestQueued.compareAndSet(false, true))
 			dbExecutor.execute(new GenerateRequest());
+	}
+
+	private void setNextSendTime(long time) {
+		long old = nextSendTime.getAndSet(time);
+		if (time < old) writerTasks.add(NEXT_SEND_TIME_DECREASED);
 	}
 
 	@Override
@@ -259,6 +272,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 				try {
 					b = db.generateRequestedBatch(txn, contactId,
 							MAX_RECORD_PAYLOAD_LENGTH, maxLatency);
+					setNextSendTime(db.getNextSendTime(txn, contactId));
 					db.commitTransaction(txn);
 				} finally {
 					db.endTransaction(txn);
@@ -305,6 +319,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 				try {
 					o = db.generateOffer(txn, contactId, MAX_MESSAGE_IDS,
 							maxLatency);
+					setNextSendTime(db.getNextSendTime(txn, contactId));
 					db.commitTransaction(txn);
 				} finally {
 					db.endTransaction(txn);
