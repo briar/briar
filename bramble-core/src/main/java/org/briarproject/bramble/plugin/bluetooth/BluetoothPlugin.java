@@ -73,6 +73,10 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	abstract void setEnabledByUs();
 
+	/**
+	 * Returns the local Bluetooth address, or null if no valid address can
+	 * be found.
+	 */
 	@Nullable
 	abstract String getBluetoothAddress();
 
@@ -176,7 +180,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	private void updateProperties() {
 		TransportProperties p = callback.getLocalProperties();
-		String address = p.get(PROP_ADDRESS), uuid = p.get(PROP_UUID);
+		String address = p.get(PROP_ADDRESS);
+		String uuid = p.get(PROP_UUID);
 		boolean changed = false;
 		if (address == null) {
 			address = getBluetoothAddress();
