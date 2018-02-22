@@ -29,10 +29,10 @@ class PayloadEncoderImpl implements PayloadEncoder {
 	@Override
 	public byte[] encode(Payload p) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		out.write(PROTOCOL_VERSION);
 		BdfWriter w = bdfWriterFactory.createWriter(out);
 		try {
 			w.writeListStart(); // Payload start
-			w.writeLong(PROTOCOL_VERSION);
 			w.writeRaw(p.getCommitment());
 			for (TransportDescriptor d : p.getTransportDescriptors())
 				w.writeList(d.getDescriptor());
