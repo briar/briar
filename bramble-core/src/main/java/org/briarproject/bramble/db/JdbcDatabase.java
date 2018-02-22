@@ -1938,8 +1938,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT expiry FROM statuses"
 					+ " WHERE contactId = ? AND state = ?"
 					+ " AND groupShared = TRUE AND messageShared = TRUE"
-					+ " AND deleted = FALSE"
-					+ " AND seen = FALSE AND requested = FALSE"
+					+ " AND deleted = FALSE AND seen = FALSE"
 					+ " ORDER BY expiry LIMIT 1";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
