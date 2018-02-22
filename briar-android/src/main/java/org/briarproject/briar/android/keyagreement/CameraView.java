@@ -223,6 +223,9 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		}
 	}
 
+	/**
+	 * See {@link Camera#setDisplayOrientation(int)}.
+	 */
 	@UiThread
 	private void setDisplayOrientation(int rotationDegrees)
 			throws CameraException {

@@ -2,6 +2,7 @@ package org.briarproject.briar.android.keyagreement;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
@@ -147,6 +148,9 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		startListening();
 	}
 
+	/**
+	 * See {@link Camera#setDisplayOrientation(int)}.
+	 */
 	private int getScreenRotationDegrees() {
 		Display d = getActivity().getWindowManager().getDefaultDisplay();
 		switch (d.getRotation()) {
