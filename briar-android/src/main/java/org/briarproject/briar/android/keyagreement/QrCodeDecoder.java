@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.keyagreement;
 
 import android.hardware.Camera;
+import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.os.AsyncTask;
@@ -38,20 +39,23 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	private final ResultCallback callback;
 
 	private Camera camera = null;
+	private int cameraIndex = 0;
 
 	QrCodeDecoder(ResultCallback callback) {
 		this.callback = callback;
 	}
 
 	@Override
-	public void start(Camera camera) {
+	public void start(Camera camera, int cameraIndex) {
 		this.camera = camera;
+		this.cameraIndex = cameraIndex;
 		askForPreviewFrame();
 	}
 
 	@Override
 	public void stop() {
 		camera = null;
+		cameraIndex = 0;
 	}
 
 	@UiThread
@@ -63,46 +67,65 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
 		if (camera == this.camera) {
+			LOG.info("Got preview frame");
 			try {
 				Size size = camera.getParameters().getPreviewSize();
-				new DecoderTask(data, size.width, size.height).execute();
+				// The preview should be in NV21 format: width * height bytes of
+				// Y followed by width * height / 2 bytes of interleaved U and V
+				if (data.length == size.width * size.height * 3 / 2) {
+					CameraInfo info = new CameraInfo();
+					Camera.getCameraInfo(cameraIndex, info);
+					new DecoderTask(data, size.width, size.height,
+							info.orientation).execute();
+				} else {
+					// Camera parameters have changed - ask for a new preview
+					LOG.info("Preview size does not match camera parameters");
+					askForPreviewFrame();
+				}
 			} catch (RuntimeException e) {
 				LOG.log(WARNING, "Error getting camera parameters.", e);
 			}
+		} else {
+			LOG.info("Camera has changed, ignoring preview frame");
 		}
 	}
 
 	private class DecoderTask extends AsyncTask<Void, Void, Void> {
 
 		private final byte[] data;
-		private final int width, height;
+		private final int width, height, orientation;
 
-		private DecoderTask(byte[] data, int width, int height) {
+		private DecoderTask(byte[] data, int width, int height,
+				int orientation) {
 			this.data = data;
 			this.width = width;
 			this.height = height;
+			this.orientation = orientation;
 		}
 
 		@Override
 		protected Void doInBackground(Void... params) {
 			long now = System.currentTimeMillis();
-			LuminanceSource src = new PlanarYUVLuminanceSource(data, width,
-					height, 0, 0, width, height, false);
-			BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(src));
+			BinaryBitmap bitmap = binarize(data, width, height, orientation);
 			Result result;
 			try {
 				result = reader.decode(bitmap,
 						singletonMap(CHARACTER_SET, "ISO8859_1"));
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Decoding barcode took " + duration + " ms");
 			} catch (ReaderException e) {
-				return null; // No barcode found
+				// No barcode found
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("No barcode found after " + duration + " ms");
+				return null;
 			} catch (RuntimeException e) {
-				return null; // Preview data did not match width and height
+				LOG.warning("Invalid preview frame");
+				return null;
 			} finally {
 				reader.reset();
 			}
-			long duration = System.currentTimeMillis() - now;
-			if (LOG.isLoggable(INFO))
-				LOG.info("Decoding barcode took " + duration + " ms");
 			callback.handleResult(result);
 			return null;
 		}
@@ -111,6 +134,19 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 		protected void onPostExecute(Void result) {
 			askForPreviewFrame();
 		}
+	}
+
+	private static BinaryBitmap binarize(byte[] data, int width, int height,
+			int orientation) {
+		// Crop to a square at the top (portrait) or left (landscape) of the
+		// screen - this will be faster to decode and should include
+		// everything visible in the viewfinder
+		int crop = Math.min(width, height);
+		int left = orientation >= 180 ? width - crop : 0;
+		int top = orientation >= 180 ? height - crop : 0;
+		LuminanceSource src = new PlanarYUVLuminanceSource(data, width,
+				height, left, top, crop, crop, false);
+		return new BinaryBitmap(new HybridBinarizer(src));
 	}
 
 	@NotNullByDefault

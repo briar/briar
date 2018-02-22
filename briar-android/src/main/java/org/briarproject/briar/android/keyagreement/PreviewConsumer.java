@@ -10,7 +10,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 interface PreviewConsumer {
 
 	@UiThread
-	void start(Camera camera);
+	void start(Camera camera, int cameraIndex);
 
 	@UiThread
 	void stop();

@@ -1,79 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
+	android:id="@+id/scrollView"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="horizontal">
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
 
-	<ImageView
-		android:id="@+id/imageView"
-		android:layout_width="0dp"
+	<android.support.constraint.ConstraintLayout
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center_vertical"
-		android:layout_weight="1"
-		android:adjustViewBounds="true"
-		android:paddingBottom="@dimen/margin_activity_vertical"
-		android:paddingEnd="@dimen/margin_activity_horizontal"
-		android:paddingLeft="@dimen/margin_activity_horizontal"
-		android:paddingRight="@dimen/margin_activity_horizontal"
-		android:paddingStart="@dimen/margin_activity_horizontal"
-		android:paddingTop="@dimen/margin_activity_vertical"
-		android:scaleType="fitCenter"
-		android:src="@drawable/qr_code_intro"/>
+		android:padding="@dimen/margin_large">
 
-	<ScrollView
-		android:id="@+id/scrollView"
-		android:layout_width="0dp"
-		android:layout_height="match_parent"
-		android:layout_weight="1">
+		<ImageView
+			android:id="@+id/diagram"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:adjustViewBounds="true"
+			android:padding="@dimen/margin_medium"
+			android:scaleType="fitCenter"
+			android:src="@drawable/qr_code_intro"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintEnd_toStartOf="@id/explanationText"
+			app:layout_constraintBottom_toBottomOf="@id/explanationText"/>
 
-		<LinearLayout
+		<ImageView
+			android:id="@+id/explanationImage"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:adjustViewBounds="true"
+			android:paddingTop="@dimen/margin_large"
+			android:paddingLeft="@dimen/margin_large"
+			android:paddingRight="@dimen/margin_large"
+			android:scaleType="fitCenter"
+			android:src="@drawable/qr_code_explanation"
+			tools:ignore="ContentDescription"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintStart_toEndOf="@id/diagram"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintBottom_toTopOf="@id/explanationText"/>
+
+		<TextView
+			android:id="@+id/explanationText"
+			style="@style/BriarTextBody"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:padding="@dimen/margin_large"
+			android:text="@string/face_to_face"
+			app:layout_constraintTop_toBottomOf="@id/explanationImage"
+			app:layout_constraintStart_toEndOf="@id/diagram"
+			app:layout_constraintEnd_toEndOf="parent"/>
+
+		<View
+			android:id="@+id/explanationBorder"
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:background="@drawable/border_explanation"
+			app:layout_constraintTop_toTopOf="@id/explanationImage"
+			app:layout_constraintStart_toStartOf="@id/explanationImage"
+			app:layout_constraintEnd_toEndOf="@id/explanationImage"
+			app:layout_constraintBottom_toBottomOf="@id/explanationText"/>
+
+		<android.support.constraint.Barrier
+			android:id="@+id/barrier"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			app:barrierDirection="bottom"
+			app:constraint_referenced_ids="diagram,explanationBorder"/>
+
+		<Button
+			android:id="@+id/continueButton"
+			style="@style/BriarButton.Default"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="vertical"
-			android:paddingBottom="@dimen/margin_activity_vertical"
-			android:paddingEnd="@dimen/margin_activity_horizontal"
-			android:paddingLeft="@dimen/margin_activity_horizontal"
-			android:paddingRight="@dimen/margin_activity_horizontal"
-			android:paddingStart="@dimen/margin_activity_horizontal"
-			android:paddingTop="@dimen/margin_activity_vertical">
+			android:layout_gravity="center_horizontal"
+			android:layout_marginTop="@dimen/margin_medium"
+			android:text="@string/continue_button"
+			app:layout_constraintTop_toBottomOf="@id/barrier"
+			app:layout_constraintBottom_toBottomOf="parent"/>
 
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:background="@drawable/border_explanation"
-				android:orientation="vertical"
-				android:padding="@dimen/margin_large">
+	</android.support.constraint.ConstraintLayout>
 
-				<ImageView
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:adjustViewBounds="true"
-					android:padding="@dimen/margin_medium"
-					android:src="@drawable/qr_code_explanation"
-					tools:ignore="ContentDescription"/>
-
-				<TextView
-					style="@style/BriarTextBody"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="@dimen/margin_medium"
-					android:text="@string/face_to_face"/>
-
-			</LinearLayout>
-
-			<Button
-				android:id="@+id/continueButton"
-				style="@style/BriarButton.Default"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center_horizontal"
-				android:layout_marginTop="@dimen/margin_medium"
-				android:text="@string/continue_button"/>
-
-		</LinearLayout>
-
-	</ScrollView>
-
-</LinearLayout>
+</ScrollView>

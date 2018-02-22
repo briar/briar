@@ -6,7 +6,6 @@ import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.Size;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.util.AttributeSet;
@@ -22,6 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK;
 import static android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT;
 import static android.hardware.Camera.Parameters.FLASH_MODE_OFF;
 import static android.hardware.Camera.Parameters.FOCUS_MODE_AUTO;
@@ -32,6 +32,7 @@ import static android.hardware.Camera.Parameters.FOCUS_MODE_FIXED;
 import static android.hardware.Camera.Parameters.FOCUS_MODE_MACRO;
 import static android.hardware.Camera.Parameters.SCENE_MODE_AUTO;
 import static android.hardware.Camera.Parameters.SCENE_MODE_BARCODE;
+import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -41,7 +42,12 @@ import static java.util.logging.Level.WARNING;
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		AutoFocusCallback, View.OnClickListener {
 
+	// Heuristic for the ideal preview size - small previews don't have enough
+	// detail, large previews are slow to decode
+	private static final int IDEAL_PIXELS = 500 * 1000;
+
 	private static final int AUTO_FOCUS_RETRY_DELAY = 5000; // Milliseconds
+
 	private static final Logger LOG =
 			Logger.getLogger(CameraView.class.getName());
 
@@ -49,6 +55,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	@Nullable
 	private Camera camera = null;
+	private int cameraIndex = 0;
 	private PreviewConsumer previewConsumer = null;
 	private Surface surface = null;
 	private int displayOrientation = 0, surfaceWidth = 0, surfaceHeight = 0;
@@ -89,15 +96,32 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@UiThread
-	public void start() throws CameraException {
+	public void start(int rotationDegrees) throws CameraException {
 		LOG.info("Opening camera");
 		try {
-			camera = Camera.open();
+			int cameras = Camera.getNumberOfCameras();
+			if (cameras == 0) throw new CameraException("No camera");
+			// Try to find a back-facing camera
+			for (int i = 0; i < cameras; i++) {
+				CameraInfo info = new CameraInfo();
+				Camera.getCameraInfo(i, info);
+				if (info.facing == CAMERA_FACING_BACK) {
+					LOG.info("Using back-facing camera");
+					camera = Camera.open(i);
+					cameraIndex = i;
+					break;
+				}
+			}
+			// If we can't find a back-facing camera, use a front-facing one
+			if (camera == null) {
+				LOG.info("Using front-facing camera");
+				camera = Camera.open(0);
+				cameraIndex = 0;
+			}
 		} catch (RuntimeException e) {
 			throw new CameraException(e);
 		}
-		if (camera == null) throw new CameraException("No back-facing camera");
-		setDisplayOrientation(0);
+		setDisplayOrientation(rotationDegrees);
 		// Use barcode scene mode if it's available
 		Parameters params = camera.getParameters();
 		params = setSceneMode(camera, params);
@@ -163,7 +187,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	private void startConsumer() throws CameraException {
 		if (camera == null) throw new CameraException("Camera is null");
 		startAutoFocus();
-		previewConsumer.start(camera);
+		previewConsumer.start(camera, cameraIndex);
 	}
 
 	@UiThread
@@ -199,13 +223,17 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		}
 	}
 
+	/**
+	 * See {@link Camera#setDisplayOrientation(int)}.
+	 */
 	@UiThread
 	private void setDisplayOrientation(int rotationDegrees)
 			throws CameraException {
+		if (camera == null) throw new CameraException("Camera is null");
 		int orientation;
 		CameraInfo info = new CameraInfo();
 		try {
-			Camera.getCameraInfo(0, info);
+			Camera.getCameraInfo(cameraIndex, info);
 		} catch (RuntimeException e) {
 			throw new CameraException(e);
 		}
@@ -215,9 +243,11 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		} else {
 			orientation = (info.orientation - rotationDegrees + 360) % 360;
 		}
-		if (LOG.isLoggable(INFO))
-			LOG.info("Display orientation " + orientation + " degrees");
-		if (camera == null) throw new CameraException("Camera is null");
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Screen rotation " + rotationDegrees
+					+ " degrees, camera orientation " + orientation
+					+ " degrees");
+		}
 		try {
 			camera.setDisplayOrientation(orientation);
 		} catch (RuntimeException e) {
@@ -285,8 +315,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	@UiThread
 	private void setVideoStabilisation(Parameters params) {
-		if (Build.VERSION.SDK_INT >= 15 &&
-				params.isVideoStabilizationSupported()) {
+		if (SDK_INT >= 15 && params.isVideoStabilizationSupported()) {
 			params.setVideoStabilization(true);
 		}
 	}
@@ -313,6 +342,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	@UiThread
 	private void setPreviewSize(Parameters params) {
 		if (surfaceWidth == 0 || surfaceHeight == 0) return;
+		// Choose a preview size that's close to the aspect ratio of the
+		// surface and close to the ideal size for decoding
 		float idealRatio = (float) surfaceWidth / surfaceHeight;
 		boolean rotatePreview = displayOrientation % 180 == 90;
 		List<Size> sizes = params.getSupportedPreviewSizes();
@@ -323,11 +354,12 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			int height = rotatePreview ? size.width : size.height;
 			float ratio = (float) width / height;
 			float stretch = Math.max(ratio / idealRatio, idealRatio / ratio);
-			int pixels = width * height;
-			float score = pixels / stretch;
+			float pixels = width * height;
+			float zoom = Math.max(pixels / IDEAL_PIXELS, IDEAL_PIXELS / pixels);
+			float score = 1 / (stretch * zoom);
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Size " + size.width + "x" + size.height
-						+ ", stretch " + stretch + ", pixels " + pixels
+						+ ", stretch " + stretch + ", zoom " + zoom
 						+ ", score " + score);
 			}
 			if (bestSize == null || score > bestScore) {
@@ -358,7 +390,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			} catch (RuntimeException e) {
 				throw new CameraException(e);
 			}
-			if (Build.VERSION.SDK_INT >= 15) {
+			if (SDK_INT >= 15) {
 				LOG.info("Video stabilisation enabled: "
 						+ params.getVideoStabilization());
 			}
@@ -389,8 +421,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			surface.release();
 		}
 		surface = holder.getSurface();
-		// Start the preview when the camera and the surface are both ready
-		if (camera != null && !previewStarted) startPreview(holder);
+		// We'll start the preview when surfaceChanged() is called
 	}
 
 	@Override
@@ -416,7 +447,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		surfaceWidth = w;
 		surfaceHeight = h;
 		if (camera == null) return; // We are stopped
-		stopPreview();
+		if (previewStarted) stopPreview();
 		try {
 			Parameters params = camera.getParameters();
 			setPreviewSize(params);
