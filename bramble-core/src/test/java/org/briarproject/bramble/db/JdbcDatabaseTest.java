@@ -1653,6 +1653,10 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.setMessageShared(txn, messageId);
 		assertEquals(0, db.getNextSendTime(txn, contactId));
 
+		// Mark the message as requested - it should still be sendable
+		db.raiseRequestedFlag(txn, contactId, messageId);
+		assertEquals(0, db.getNextSendTime(txn, contactId));
+
 		// Update the message's expiry time as though we sent it - now the
 		// message should be sendable after one round-trip
 		db.updateExpiryTime(txn, contactId, messageId, 1000);
