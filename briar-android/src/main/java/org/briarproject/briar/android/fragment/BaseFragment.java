@@ -30,7 +30,7 @@ public abstract class BaseFragment extends Fragment
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		// allow for "up" button to act as back button

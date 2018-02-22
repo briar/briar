@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.google.zxing.Result;
 
+import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementTask;
@@ -34,6 +35,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseEventFragment;
+import org.briarproject.briar.android.fragment.ErrorFragment;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -202,8 +204,14 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			statusView.setVisibility(VISIBLE);
 			status.setText(R.string.connecting_to_device);
 			task.connectAndRunProtocol(remotePayload);
+		} catch (UnsupportedVersionException e) {
+			reset();
+			String msg = getString(R.string.qr_code_unsupported,
+					getString(R.string.app_name));
+			showNextFragment(ErrorFragment.newInstance(msg));
 		} catch (IOException | IllegalArgumentException e) {
-			// TODO show failure
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, "QR Code Invalid", e);
+			reset();
 			Toast.makeText(getActivity(), R.string.qr_code_invalid,
 					LENGTH_LONG).show();
 		}
