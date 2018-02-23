@@ -25,7 +25,7 @@ public class StartupFailureActivity extends BaseActivity {
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
-
+		component.inject(this);
 	}
 
 	private void handleIntent(Intent i) {
