@@ -40,7 +40,7 @@ class JavaBluetoothTransportConnection
 		try {
 			stream.close();
 		} finally {
-			connectionManager.connectionClosed();
+			connectionManager.connectionClosed(this);
 		}
 	}
 }

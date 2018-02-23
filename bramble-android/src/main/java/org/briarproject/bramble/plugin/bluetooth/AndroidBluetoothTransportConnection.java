@@ -40,7 +40,7 @@ class AndroidBluetoothTransportConnection
 		try {
 			socket.close();
 		} finally {
-			connectionManager.connectionClosed();
+			connectionManager.connectionClosed(this);
 		}
 	}
 }

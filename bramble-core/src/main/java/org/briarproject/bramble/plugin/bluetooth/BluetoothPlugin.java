@@ -219,22 +219,9 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				return;
 			}
 			backoff.reset();
-			if (connectionManager.connectionOpened()) {
+			if (connectionManager.connectionOpened(conn, false))
 				callback.incomingConnectionCreated(conn);
-			} else {
-				LOG.info("Closing incoming connection");
-				tryToCloseUnusedConnection(conn);
-			}
 			if (!running) return;
-		}
-	}
-
-	private void tryToCloseUnusedConnection(DuplexTransportConnection conn) {
-		try {
-			conn.getWriter().dispose(false);
-			conn.getReader().dispose(false, false);
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -284,12 +271,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				DuplexTransportConnection conn = connect(address, uuid);
 				if (conn != null) {
 					backoff.reset();
-					if (connectionManager.connectionOpened()) {
+					if (connectionManager.connectionOpened(conn, false))
 						callback.outgoingConnectionCreated(c, conn);
-					} else {
-						LOG.info("Closing outgoing connection");
-						tryToCloseUnusedConnection(conn);
-					}
 				}
 			});
 		}
@@ -341,13 +324,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		DuplexTransportConnection conn = connect(address, uuid);
 		if (conn == null) return null;
 		// TODO: Why don't we reset the backoff here?
-		if (connectionManager.connectionOpened()) {
-			return conn;
-		} else {
-			LOG.info("Closing outgoing connection");
-			tryToCloseUnusedConnection(conn);
-			return null;
-		}
+		 return connectionManager.connectionOpened(conn, false) ? conn : null;
 	}
 
 	@Override
@@ -399,7 +376,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			LOG.info("Connecting to key agreement UUID " + uuid);
 		DuplexTransportConnection conn = connect(address, uuid);
 		// The connection limit doesn't apply to key agreement
-		if (conn != null) connectionManager.connectionOpened();
+		if (conn != null) connectionManager.connectionOpened(conn, true);
 		return conn;
 	}
 
@@ -456,7 +433,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				if (LOG.isLoggable(INFO))
 					LOG.info(ID.getString() + ": Incoming connection");
 				// The connection limit doesn't apply to key agreement
-				connectionManager.connectionOpened();
+				connectionManager.connectionOpened(conn, true);
 				return new KeyAgreementConnection(conn, ID);
 			};
 		}
