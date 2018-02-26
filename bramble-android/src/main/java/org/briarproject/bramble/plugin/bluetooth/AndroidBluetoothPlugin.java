@@ -21,6 +21,8 @@ import org.briarproject.bramble.util.AndroidUtils;
 import java.io.Closeable;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -37,7 +39,16 @@ import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERA
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_NONE;
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
+import static android.bluetooth.BluetoothDevice.ACTION_BOND_STATE_CHANGED;
+import static android.bluetooth.BluetoothDevice.BOND_BONDED;
+import static android.bluetooth.BluetoothDevice.BOND_BONDING;
+import static android.bluetooth.BluetoothDevice.BOND_NONE;
+import static android.bluetooth.BluetoothDevice.EXTRA_BOND_STATE;
+import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
+import static android.bluetooth.BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -72,6 +83,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_STATE_CHANGED);
 		filter.addAction(ACTION_SCAN_MODE_CHANGED);
+		filter.addAction(ACTION_BOND_STATE_CHANGED);
 		receiver = new BluetoothStateReceiver();
 		appContext.registerReceiver(receiver, filter);
 	}
@@ -168,6 +180,17 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	@Override
 	DuplexTransportConnection connectTo(String address, String uuid)
 			throws IOException {
+		if (LOG.isLoggable(INFO)) {
+			boolean found = false;
+			List<String> addresses = new ArrayList<>();
+			for (BluetoothDevice d : adapter.getBondedDevices()) {
+				addresses.add(scrubMacAddress(d.getAddress()));
+				if (d.getAddress().equals(address)) found = true;
+			}
+			LOG.info("Bonded devices: " + addresses);
+			if (found) LOG.info("Connecting to bonded device");
+			else LOG.info("Connecting to unbonded device");
+		}
 		BluetoothDevice d = adapter.getRemoteDevice(address);
 		UUID u = UUID.fromString(uuid);
 		BluetoothSocket s = null;
@@ -193,16 +216,42 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 
 		@Override
 		public void onReceive(Context ctx, Intent intent) {
-			int state = intent.getIntExtra(EXTRA_STATE, 0);
-			if (state == STATE_ON) onAdapterEnabled();
-			else if (state == STATE_OFF) onAdapterDisabled();
-			int scanMode = intent.getIntExtra(EXTRA_SCAN_MODE, 0);
-			if (scanMode == SCAN_MODE_NONE) {
-				LOG.info("Scan mode: None");
-			} else if (scanMode == SCAN_MODE_CONNECTABLE) {
-				LOG.info("Scan mode: Connectable");
-			} else if (scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-				LOG.info("Scan mode: Discoverable");
+			String action = intent.getAction();
+			if (ACTION_STATE_CHANGED.equals(action)) {
+				int state = intent.getIntExtra(EXTRA_STATE, 0);
+				if (state == STATE_ON) onAdapterEnabled();
+				else if (state == STATE_OFF) onAdapterDisabled();
+			} else if (ACTION_SCAN_MODE_CHANGED.equals(action)) {
+				int scanMode = intent.getIntExtra(EXTRA_SCAN_MODE, 0);
+				if (scanMode == SCAN_MODE_NONE) {
+					LOG.info("Scan mode: None");
+				} else if (scanMode == SCAN_MODE_CONNECTABLE) {
+					LOG.info("Scan mode: Connectable");
+				} else if (scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+					LOG.info("Scan mode: Discoverable");
+				}
+			} else if (ACTION_BOND_STATE_CHANGED.equals(action)) {
+				BluetoothDevice d = intent.getParcelableExtra(EXTRA_DEVICE);
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Bond state changed for "
+							+ scrubMacAddress(d.getAddress()));
+				}
+				int oldState = intent.getIntExtra(EXTRA_PREVIOUS_BOND_STATE, 0);
+				if (oldState == BOND_NONE) {
+					LOG.info("Old state: none");
+				} else if (oldState == BOND_BONDING) {
+					LOG.info("Old state: bonding");
+				} else if (oldState == BOND_BONDED) {
+					LOG.info("Old state: bonded");
+				}
+				int state = intent.getIntExtra(EXTRA_BOND_STATE, 0);
+				if (state == BOND_NONE) {
+					LOG.info("New state: none");
+				} else if (state == BOND_BONDING) {
+					LOG.info("New state: bonding");
+				} else if (state == BOND_BONDED) {
+					LOG.info("New state: bonded");
+				}
 			}
 		}
 	}
