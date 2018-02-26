@@ -30,6 +30,14 @@ public interface LifecycleManager {
 	}
 
 	/**
+	 * The state the lifecycle can be in.
+	 * Returned by {@link #getLifecycleState()}
+	 */
+	enum LifecycleState {
+		STARTING, MIGRATING, RUNNING
+	}
+
+	/**
 	 * Registers a {@link Service} to be started and stopped.
 	 */
 	void registerService(Service s);
@@ -76,4 +84,10 @@ public interface LifecycleManager {
 	 * the {@link DatabaseComponent} to be closed before returning.
 	 */
 	void waitForShutdown() throws InterruptedException;
+
+	/**
+	 * Returns the current state of the lifecycle.
+	 */
+	LifecycleState getLifecycleState();
+
 }

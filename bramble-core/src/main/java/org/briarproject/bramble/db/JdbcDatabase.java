@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DbClosedException;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
+import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -301,7 +302,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		this.clock = clock;
 	}
 
-	protected void open(String driverClass, boolean reopen) throws DbException {
+	protected void open(String driverClass, boolean reopen,
+			@Nullable MigrationListener listener) throws DbException {
 		// Load the JDBC driver
 		try {
 			Class.forName(driverClass);
@@ -312,7 +314,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Connection txn = startTransaction();
 		try {
 			if (reopen) {
-				checkSchemaVersion(txn);
+				checkSchemaVersion(txn, listener);
 			} else {
 				createTables(txn);
 				storeSchemaVersion(txn, CODE_SCHEMA_VERSION);
@@ -335,7 +337,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	 * @throws DataTooOldException if the data uses an older schema than the
 	 * current code and cannot be migrated
 	 */
-	private void checkSchemaVersion(Connection txn) throws DbException {
+	private void checkSchemaVersion(Connection txn,
+			@Nullable MigrationListener listener) throws DbException {
 		Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
 		int dataSchemaVersion = s.getInt(SCHEMA_VERSION_KEY, -1);
 		if (dataSchemaVersion == -1) throw new DbException();
@@ -348,6 +351,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (start == dataSchemaVersion) {
 				if (LOG.isLoggable(INFO))
 					LOG.info("Migrating from schema " + start + " to " + end);
+				if (listener != null) listener.onMigrationRun();
 				// Apply the migration
 				m.migrate(txn);
 				// Store the new schema version

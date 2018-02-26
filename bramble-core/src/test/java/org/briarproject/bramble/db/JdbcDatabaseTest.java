@@ -1700,7 +1700,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Database<Connection> db = createDatabase(
 				new TestDatabaseConfig(testDir, MAX_SIZE), clock);
 		if (!resume) TestUtils.deleteTestDirectory(testDir);
-		db.open();
+		db.open(null);
 		return db;
 	}
 

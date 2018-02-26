@@ -46,6 +46,8 @@
 	</plurals>
 	<string name="expiry_update">The testing expiry date has been extended. Your account will now expire in %d days.</string>
 	<string name="expiry_date_reached">This software has expired.\nThank you for testing!</string>
+	<string name="startup_open_database">Decrypting Database…</string>
+	<string name="startup_migrate_database">Upgrading Database…</string>
 
 	<!-- Navigation Drawer -->
 	<string name="nav_drawer_open_description">Open the navigation drawer</string>

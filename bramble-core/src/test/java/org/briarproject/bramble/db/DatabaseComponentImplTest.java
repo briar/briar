@@ -134,7 +134,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		int shutdownHandle = 12345;
 		context.checking(new Expectations() {{
 			// open()
-			oneOf(database).open();
+			oneOf(database).open(null);
 			will(returnValue(false));
 			oneOf(shutdown).addShutdownHook(with(any(Runnable.class)));
 			will(returnValue(shutdownHandle));
@@ -201,7 +201,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		assertFalse(db.open());
+		assertFalse(db.open(null));
 		Transaction transaction = db.startTransaction(false);
 		try {
 			db.addLocalAuthor(transaction, localAuthor);
@@ -1501,7 +1501,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
 		context.checking(new Expectations() {{
 			// open()
-			oneOf(database).open();
+			oneOf(database).open(null);
 			will(returnValue(false));
 			oneOf(shutdown).addShutdownHook(with(any(Runnable.class)));
 			will(returnValue(shutdownHandle));
@@ -1543,7 +1543,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		assertFalse(db.open());
+		assertFalse(db.open(null));
 		Transaction transaction = db.startTransaction(false);
 		try {
 			db.addLocalMessage(transaction, message, metadata, true);

@@ -71,7 +71,7 @@ public abstract class DatabasePerformanceComparisonTest
 			throws DbException {
 		Database<Connection> db = createDatabase(conditionA,
 				new TestDatabaseConfig(testDir, MAX_SIZE), new SystemClock());
-		db.open();
+		db.open(null);
 		return db;
 	}
 
