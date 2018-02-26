@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
+import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -45,7 +46,7 @@ interface Database<T> {
 	 * @throws DataTooOldException if the data uses an older schema than the
 	 * current code and cannot be migrated
 	 */
-	boolean open() throws DbException;
+	boolean open(@Nullable MigrationListener listener) throws DbException;
 
 	/**
 	 * Prevents new transactions from starting, waits for all current

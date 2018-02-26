@@ -3,7 +3,9 @@ package org.briarproject.bramble.lifecycle;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.DatabaseMigrationEvent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.AuthorFactory;
@@ -13,6 +15,7 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.lifecycle.event.ShutdownEvent;
+import org.briarproject.bramble.api.lifecycle.event.StartupEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 
@@ -29,6 +32,9 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.MIGRATING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.DB_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR;
@@ -36,7 +42,7 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResul
 
 @ThreadSafe
 @NotNullByDefault
-class LifecycleManagerImpl implements LifecycleManager {
+class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(LifecycleManagerImpl.class.getName());
@@ -53,6 +59,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 	private final CountDownLatch dbLatch = new CountDownLatch(1);
 	private final CountDownLatch startupLatch = new CountDownLatch(1);
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
+	private volatile LifecycleState state = STARTING;
 
 	@Inject
 	LifecycleManagerImpl(DatabaseComponent db, EventBus eventBus,
@@ -119,7 +126,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 			LOG.info("Starting services");
 			long start = System.currentTimeMillis();
 
-			boolean reopened = db.open();
+			boolean reopened = db.open(this);
 			long duration = System.currentTimeMillis() - start;
 			if (LOG.isLoggable(INFO)) {
 				if (reopened)
@@ -158,6 +165,8 @@ class LifecycleManagerImpl implements LifecycleManager {
 				}
 			}
 			startupLatch.countDown();
+			state = RUNNING;
+			eventBus.broadcast(new StartupEvent());
 			return SUCCESS;
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -168,6 +177,12 @@ class LifecycleManagerImpl implements LifecycleManager {
 		} finally {
 			startStopSemaphore.release();
 		}
+	}
+
+	@Override
+	public void onMigrationRun() {
+		state = MIGRATING;
+		eventBus.broadcast(new DatabaseMigrationEvent());
 	}
 
 	@Override
@@ -225,4 +240,8 @@ class LifecycleManagerImpl implements LifecycleManager {
 		shutdownLatch.await();
 	}
 
+	@Override
+	public LifecycleState getLifecycleState() {
+		return state;
+	}
 }

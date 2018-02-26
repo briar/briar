@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.login.OpenDatabaseActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import java.util.concurrent.CountDownLatch;
@@ -88,6 +89,12 @@ public class BriarService extends Service {
 			stopSelf();
 			return;
 		}
+
+		Intent intent =
+				new Intent(getApplicationContext(), OpenDatabaseActivity.class);
+		intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+		startActivity(intent);
+
 		// Create notification channels
 		if (SDK_INT >= 26) {
 			NotificationManager nm = (NotificationManager)
