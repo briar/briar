@@ -17,4 +17,7 @@ public interface ConfigController {
 	void deleteAccount(Context ctx);
 
 	boolean accountExists();
+
+	boolean accountSignedIn();
+
 }

@@ -43,10 +43,15 @@ public class SplashScreenActivity extends BaseActivity {
 
 		setContentView(R.layout.splash);
 
-		new Handler().postDelayed(() -> {
-			startNextActivity();
-			supportFinishAfterTransition();
-		}, 500);
+		if (configController.accountSignedIn()) {
+			startActivity(new Intent(this, NavDrawerActivity.class));
+			finish();
+		} else {
+			new Handler().postDelayed(() -> {
+				startNextActivity();
+				supportFinishAfterTransition();
+			}, 500);
+		}
 	}
 
 	@Override

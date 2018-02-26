@@ -46,8 +46,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static android.os.Build.MANUFACTURER;
-import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 import static android.support.v4.view.GravityCompat.START;
 import static android.support.v4.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
@@ -214,18 +212,6 @@ public class NavDrawerActivity extends BriarActivity implements
 	public void onBackPressed() {
 		if (drawerLayout.isDrawerOpen(START)) {
 			drawerLayout.closeDrawer(START);
-		} else if (getSupportFragmentManager().getBackStackEntryCount() == 0 &&
-				getSupportFragmentManager()
-						.findFragmentByTag(ContactListFragment.TAG) != null) {
-			if (SDK_INT == 19 && MANUFACTURER.equalsIgnoreCase("Samsung")) {
-				// workaround for #1116 causes splash screen to show again
-				super.onBackPressed();
-			} else {
-				Intent i = new Intent(Intent.ACTION_MAIN);
-				i.addCategory(Intent.CATEGORY_HOME);
-				i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				startActivity(i);
-			}
 		} else if (getSupportFragmentManager().getBackStackEntryCount() == 0 &&
 				getSupportFragmentManager()
 						.findFragmentByTag(ContactListFragment.TAG) == null) {
