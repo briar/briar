@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 
 @NotNullByDefault
 @ThreadSafe
@@ -61,10 +60,10 @@ class BluetoothConnectionManagerImpl implements BluetoothConnectionManager {
 
 	private void tryToClose(DuplexTransportConnection conn) {
 		try {
+			conn.getReader().dispose(false, true);
 			conn.getWriter().dispose(false);
-			conn.getReader().dispose(false, false);
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			if (LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 		}
 	}
 
