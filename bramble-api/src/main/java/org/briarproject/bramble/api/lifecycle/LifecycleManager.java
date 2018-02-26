@@ -21,7 +21,12 @@ public interface LifecycleManager {
 	 * The result of calling {@link #startServices(String)}.
 	 */
 	enum StartResult {
-		ALREADY_RUNNING, DB_ERROR, SERVICE_ERROR, SUCCESS
+		ALREADY_RUNNING,
+		DB_ERROR,
+		DATA_TOO_OLD_ERROR,
+		DATA_TOO_NEW_ERROR,
+		SERVICE_ERROR,
+		SUCCESS
 	}
 
 	/**
