@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
@@ -324,7 +323,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		DuplexTransportConnection conn = connect(address, uuid);
 		if (conn == null) return null;
 		// TODO: Why don't we reset the backoff here?
-		 return connectionManager.connectionOpened(conn, false) ? conn : null;
+		return connectionManager.connectionOpened(conn, false) ? conn : null;
 	}
 
 	@Override
@@ -361,7 +360,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, BdfList descriptor, long timeout) {
+			byte[] commitment, BdfList descriptor) {
 		if (!isRunning()) return null;
 		String address;
 		try {
@@ -427,15 +426,12 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		}
 
 		@Override
-		public Callable<KeyAgreementConnection> listen() {
-			return () -> {
-				DuplexTransportConnection conn = acceptConnection(ss);
-				if (LOG.isLoggable(INFO))
-					LOG.info(ID.getString() + ": Incoming connection");
-				// The connection limit doesn't apply to key agreement
-				connectionManager.connectionOpened(conn, true);
-				return new KeyAgreementConnection(conn, ID);
-			};
+		public KeyAgreementConnection accept() throws IOException {
+			DuplexTransportConnection conn = acceptConnection(ss);
+			if (LOG.isLoggable(INFO)) LOG.info(ID + ": Incoming connection");
+			// The connection limit doesn't apply to key agreement
+			connectionManager.connectionOpened(conn, true);
+			return new KeyAgreementConnection(conn, ID);
 		}
 
 		@Override

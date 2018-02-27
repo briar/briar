@@ -32,8 +32,7 @@ import static java.util.logging.Level.WARNING;
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 class KeyAgreementTaskImpl extends Thread implements
-		KeyAgreementTask, KeyAgreementConnector.Callbacks,
-		KeyAgreementProtocol.Callbacks {
+		KeyAgreementTask, KeyAgreementProtocol.Callbacks {
 
 	private static final Logger LOG =
 			Logger.getLogger(KeyAgreementTaskImpl.class.getName());
@@ -52,14 +51,15 @@ class KeyAgreementTaskImpl extends Thread implements
 	KeyAgreementTaskImpl(Clock clock, CryptoComponent crypto,
 			KeyAgreementCrypto keyAgreementCrypto, EventBus eventBus,
 			PayloadEncoder payloadEncoder, PluginManager pluginManager,
-			@IoExecutor Executor ioExecutor) {
+			@IoExecutor Executor ioExecutor,
+			ConnectionChooser connectionChooser) {
 		this.crypto = crypto;
 		this.keyAgreementCrypto = keyAgreementCrypto;
 		this.eventBus = eventBus;
 		this.payloadEncoder = payloadEncoder;
 		localKeyPair = crypto.generateAgreementKeyPair();
-		connector = new KeyAgreementConnector(this, clock, keyAgreementCrypto,
-				pluginManager, ioExecutor);
+		connector = new KeyAgreementConnector(clock, keyAgreementCrypto,
+				pluginManager, ioExecutor, connectionChooser);
 	}
 
 	@Override
@@ -73,10 +73,8 @@ class KeyAgreementTaskImpl extends Thread implements
 	@Override
 	public synchronized void stopListening() {
 		if (localPayload != null) {
-			if (remotePayload == null)
-				connector.stopListening();
-			else
-				interrupt();
+			if (remotePayload == null) connector.stopListening();
+			else interrupt();
 		}
 	}
 

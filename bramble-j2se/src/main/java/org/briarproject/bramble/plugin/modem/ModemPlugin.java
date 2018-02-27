@@ -177,7 +177,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, BdfList descriptor, long timeout) {
+			byte[] commitment, BdfList descriptor) {
 		throw new UnsupportedOperationException();
 	}
 

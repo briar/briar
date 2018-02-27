@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -224,7 +223,7 @@ class LanTcpPlugin extends TcpPlugin {
 
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, BdfList descriptor, long timeout) {
+			byte[] commitment, BdfList descriptor) {
 		if (!isRunning()) return null;
 		InetSocketAddress remote;
 		try {
@@ -283,14 +282,11 @@ class LanTcpPlugin extends TcpPlugin {
 		}
 
 		@Override
-		public Callable<KeyAgreementConnection> listen() {
-			return () -> {
-				Socket s = ss.accept();
-				if (LOG.isLoggable(INFO))
-					LOG.info(ID.getString() + ": Incoming connection");
-				return new KeyAgreementConnection(
-						new TcpTransportConnection(LanTcpPlugin.this, s), ID);
-			};
+		public KeyAgreementConnection accept() throws IOException {
+			Socket s = ss.accept();
+			if (LOG.isLoggable(INFO)) LOG.info(ID + ": Incoming connection");
+			return new KeyAgreementConnection(new TcpTransportConnection(
+					LanTcpPlugin.this, s), ID);
 		}
 
 		@Override
