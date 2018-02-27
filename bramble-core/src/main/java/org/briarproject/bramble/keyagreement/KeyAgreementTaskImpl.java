@@ -15,14 +15,11 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementFinishedEvent
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementListeningEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementStartedEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementWaitingEvent;
-import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
-import org.briarproject.bramble.api.system.Clock;
 
 import java.io.IOException;
-import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -31,9 +28,8 @@ import static java.util.logging.Level.WARNING;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class KeyAgreementTaskImpl extends Thread implements
-		KeyAgreementTask, KeyAgreementConnector.Callbacks,
-		KeyAgreementProtocol.Callbacks {
+class KeyAgreementTaskImpl extends Thread implements KeyAgreementTask,
+		KeyAgreementProtocol.Callbacks, KeyAgreementConnector.Callbacks {
 
 	private static final Logger LOG =
 			Logger.getLogger(KeyAgreementTaskImpl.class.getName());
@@ -49,17 +45,17 @@ class KeyAgreementTaskImpl extends Thread implements
 	private Payload remotePayload;
 
 	@Inject
-	KeyAgreementTaskImpl(Clock clock, CryptoComponent crypto,
+	KeyAgreementTaskImpl(CryptoComponent crypto,
 			KeyAgreementCrypto keyAgreementCrypto, EventBus eventBus,
 			PayloadEncoder payloadEncoder, PluginManager pluginManager,
-			@IoExecutor Executor ioExecutor) {
+			ConnectionChooser connectionChooser) {
 		this.crypto = crypto;
 		this.keyAgreementCrypto = keyAgreementCrypto;
 		this.eventBus = eventBus;
 		this.payloadEncoder = payloadEncoder;
 		localKeyPair = crypto.generateAgreementKeyPair();
-		connector = new KeyAgreementConnector(this, clock, keyAgreementCrypto,
-				pluginManager, ioExecutor);
+		connector = new KeyAgreementConnector(this, keyAgreementCrypto,
+				pluginManager, connectionChooser);
 	}
 
 	@Override
@@ -73,10 +69,8 @@ class KeyAgreementTaskImpl extends Thread implements
 	@Override
 	public synchronized void stopListening() {
 		if (localPayload != null) {
-			if (remotePayload == null)
-				connector.stopListening();
-			else
-				interrupt();
+			if (remotePayload == null) connector.stopListening();
+			else interrupt();
 		}
 	}
 

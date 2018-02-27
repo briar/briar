@@ -2,7 +2,6 @@ package org.briarproject.bramble.plugin.tcp;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfList;
-import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -26,11 +25,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -195,9 +192,16 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		KeyAgreementListener kal =
 				plugin.createKeyAgreementListener(new byte[COMMIT_LENGTH]);
 		assertNotNull(kal);
-		Callable<KeyAgreementConnection> c = kal.listen();
-		FutureTask<KeyAgreementConnection> f = new FutureTask<>(c);
-		new Thread(f).start();
+		CountDownLatch latch = new CountDownLatch(1);
+		AtomicBoolean error = new AtomicBoolean(false);
+		new Thread(() -> {
+			try {
+				kal.accept();
+				latch.countDown();
+			} catch (IOException e) {
+				error.set(true);
+			}
+		}).start();
 		// The plugin should have bound a socket and stored the port number
 		BdfList descriptor = kal.getDescriptor();
 		assertEquals(3, descriptor.size());
@@ -213,10 +217,12 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		InetSocketAddress socketAddr = new InetSocketAddress(addr, port);
 		Socket s = new Socket();
 		s.connect(socketAddr, 100);
-		assertNotNull(f.get(5, SECONDS));
+		// Check that the connection was accepted
+		assertTrue(latch.await(5, SECONDS));
+		assertFalse(error.get());
+		// Clean up
 		s.close();
 		kal.close();
-		// Stop the plugin
 		plugin.stop();
 	}
 
@@ -262,7 +268,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		descriptor.add(local.getPort());
 		// Connect to the port
 		DuplexTransportConnection d = plugin.createKeyAgreementConnection(
-				new byte[COMMIT_LENGTH], descriptor, 5000);
+				new byte[COMMIT_LENGTH], descriptor);
 		assertNotNull(d);
 		// Check that the connection was accepted
 		assertTrue(latch.await(5, SECONDS));

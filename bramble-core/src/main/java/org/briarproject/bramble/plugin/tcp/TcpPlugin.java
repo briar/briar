@@ -297,7 +297,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, BdfList descriptor, long timeout) {
+			byte[] commitment, BdfList descriptor) {
 		throw new UnsupportedOperationException();
 	}
 

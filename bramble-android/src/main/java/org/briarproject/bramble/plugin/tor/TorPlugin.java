@@ -614,7 +614,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, BdfList descriptor, long timeout) {
+			byte[] commitment, BdfList descriptor) {
 		throw new UnsupportedOperationException();
 	}
 
