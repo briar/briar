@@ -6,6 +6,8 @@ import android.support.annotation.ColorRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
+import org.briarproject.briar.R;
+
 import static android.support.v4.app.NotificationCompat.VISIBILITY_PRIVATE;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 
@@ -17,6 +19,9 @@ public class BriarNotificationBuilder extends NotificationCompat.Builder {
 		// Auto-cancel does not fire the delete intent, see
 		// https://issuetracker.google.com/issues/36961721
 		setAutoCancel(true);
+
+		setLights(ContextCompat.getColor(context, R.color.briar_green_light),
+				750, 500);
 	}
 
 	public BriarNotificationBuilder setColorRes(@ColorRes int res) {
