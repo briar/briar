@@ -146,7 +146,7 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 		ui.input.setVisibility(VISIBLE);
 	}
 
-	private static class ViewHolder {
+	private class ViewHolder {
 
 		private final ScrollView scrollView;
 		private final ProgressBar progressBar;
@@ -167,7 +167,7 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 						public void onAuthorClick(BlogPostItem post) {
 							// probably don't want to allow author clicks here
 						}
-					});
+					}, getFragmentManager());
 			input = v.findViewById(R.id.inputText);
 		}
 	}

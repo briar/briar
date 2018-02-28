@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spanned;
@@ -52,12 +53,16 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 	@NonNull
 	private final OnBlogPostClickListener listener;
+	@Nullable
+	private final FragmentManager fragmentManager;
 
 	BlogPostViewHolder(View v, boolean fullText,
-			@NonNull OnBlogPostClickListener listener) {
+			@NonNull OnBlogPostClickListener listener,
+			@Nullable FragmentManager fragmentManager) {
 		super(v);
 		this.fullText = fullText;
 		this.listener = listener;
+		this.fragmentManager = fragmentManager;
 
 		ctx = v.getContext();
 		layout = v.findViewById(R.id.postLayout);
@@ -117,7 +122,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		if (fullText) {
 			body.setText(bodyText);
 			body.setTextIsSelectable(true);
-			makeLinksClickable(body);
+			makeLinksClickable(body, fragmentManager);
 		} else {
 			body.setTextIsSelectable(false);
 			if (bodyText.length() > TEASER_LENGTH)

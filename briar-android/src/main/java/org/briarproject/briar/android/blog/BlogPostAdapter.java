@@ -1,21 +1,30 @@
 package org.briarproject.briar.android.blog;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
 
-class BlogPostAdapter
-		extends BriarAdapter<BlogPostItem, BlogPostViewHolder> {
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
+class BlogPostAdapter extends BriarAdapter<BlogPostItem, BlogPostViewHolder> {
 
 	private final OnBlogPostClickListener listener;
+	@Nullable
+	private final FragmentManager fragmentManager;
 
-	BlogPostAdapter(Context ctx, OnBlogPostClickListener listener) {
+	BlogPostAdapter(Context ctx, OnBlogPostClickListener listener,
+			@Nullable FragmentManager fragmentManager) {
 		super(ctx, BlogPostItem.class);
 		this.listener = listener;
+		this.fragmentManager = fragmentManager;
 	}
 
 	@Override
@@ -23,8 +32,7 @@ class BlogPostAdapter
 			int viewType) {
 		View v = LayoutInflater.from(ctx).inflate(
 				R.layout.list_item_blog_post, parent, false);
-		BlogPostViewHolder ui = new BlogPostViewHolder(v, false, listener);
-		return ui;
+		return new BlogPostViewHolder(v, false, listener, fragmentManager);
 	}
 
 	@Override
