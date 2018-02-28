@@ -74,7 +74,8 @@ public class FeedFragment extends BaseFragment implements
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
-		adapter = new BlogPostAdapter(getActivity(), this);
+		adapter =
+				new BlogPostAdapter(getActivity(), this, getFragmentManager());
 
 		layoutManager = new LinearLayoutManager(getActivity());
 		list = v.findViewById(R.id.postList);
