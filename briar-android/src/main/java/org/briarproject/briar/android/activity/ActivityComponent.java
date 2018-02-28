@@ -3,6 +3,7 @@ package org.briarproject.briar.android.activity;
 import android.app.Activity;
 
 import org.briarproject.briar.android.AndroidComponent;
+import org.briarproject.briar.android.StartupFailureActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.blog.BlogFragment;
 import org.briarproject.briar.android.blog.BlogModule;
@@ -150,6 +151,8 @@ public interface ActivityComponent {
 	void inject(RssFeedImportActivity activity);
 
 	void inject(RssFeedManageActivity activity);
+
+	void inject(StartupFailureActivity activity);
 
 	// Fragments
 	void inject(AuthorNameFragment fragment);
