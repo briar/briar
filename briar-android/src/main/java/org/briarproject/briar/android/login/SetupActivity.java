@@ -8,7 +8,6 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
-import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import javax.inject.Inject;
 
@@ -48,7 +47,7 @@ public class SetupActivity extends BaseActivity
 	}
 
 	public void showApp() {
-		Intent i = new Intent(this, NavDrawerActivity.class);
+		Intent i = new Intent(this, OpenDatabaseActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);
 		supportFinishAfterTransition();

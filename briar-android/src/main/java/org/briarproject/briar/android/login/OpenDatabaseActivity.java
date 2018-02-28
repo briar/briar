@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.login;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.widget.ImageView;
@@ -13,7 +14,8 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.event.StartupEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.activity.BaseActivity;
+import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
@@ -22,7 +24,7 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleS
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 
 @ParametersAreNonnullByDefault
-public class OpenDatabaseActivity extends BaseActivity
+public class OpenDatabaseActivity extends BriarActivity
 		implements EventListener {
 
 	@Inject
@@ -48,15 +50,10 @@ public class OpenDatabaseActivity extends BaseActivity
 	}
 
 	@Override
-	public void onBackPressed() {
-		// do not let the user bail out of here
-	}
-
-	@Override
-	protected void onStart() {
+	public void onStart() {
 		super.onStart();
 		if (lifecycleManager.getLifecycleState() == RUNNING) {
-			supportFinishAfterTransition();
+			finishAndStartApp();
 		} else {
 			if (lifecycleManager.getLifecycleState() == MIGRATING) {
 				showMigration();
@@ -74,7 +71,7 @@ public class OpenDatabaseActivity extends BaseActivity
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof StartupEvent) {
-			runOnUiThreadUnlessDestroyed(this::supportFinishAfterTransition);
+			runOnUiThreadUnlessDestroyed(this::finishAndStartApp);
 		} else if (e instanceof DatabaseMigrationEvent) {
 			runOnUiThreadUnlessDestroyed(this::showMigration);
 		}
@@ -85,6 +82,11 @@ public class OpenDatabaseActivity extends BaseActivity
 		textView.setText(R.string.startup_migrate_database);
 		imageView.setImageResource(R.drawable.startup_migration);
 		showingMigration = true;
+	}
+
+	private void finishAndStartApp() {
+		startActivity(new Intent(this, NavDrawerActivity.class));
+		supportFinishAfterTransition();
 	}
 
 }

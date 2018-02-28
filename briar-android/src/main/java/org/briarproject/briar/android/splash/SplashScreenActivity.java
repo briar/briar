@@ -12,8 +12,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.controller.ConfigController;
+import org.briarproject.briar.android.login.OpenDatabaseActivity;
 import org.briarproject.briar.android.login.SetupActivity;
-import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import java.util.logging.Logger;
 
@@ -44,7 +44,7 @@ public class SplashScreenActivity extends BaseActivity {
 		setContentView(R.layout.splash);
 
 		if (configController.accountSignedIn()) {
-			startActivity(new Intent(this, NavDrawerActivity.class));
+			startActivity(new Intent(this, OpenDatabaseActivity.class));
 			finish();
 		} else {
 			new Handler().postDelayed(() -> {
@@ -65,7 +65,7 @@ public class SplashScreenActivity extends BaseActivity {
 			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
 			if (configController.accountExists()) {
-				startActivity(new Intent(this, NavDrawerActivity.class));
+				startActivity(new Intent(this, OpenDatabaseActivity.class));
 			} else {
 				configController.deleteAccount(this);
 				startActivity(new Intent(this, SetupActivity.class));
