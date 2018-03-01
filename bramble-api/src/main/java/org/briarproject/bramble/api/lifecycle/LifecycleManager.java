@@ -34,7 +34,12 @@ public interface LifecycleManager {
 	 * Returned by {@link #getLifecycleState()}
 	 */
 	enum LifecycleState {
-		STARTING, MIGRATING, RUNNING
+
+		STARTING, MIGRATING_DATABASE, STARTING_SERVICES, RUNNING, STOPPING;
+
+		public boolean isAfter(LifecycleState state) {
+			return ordinal() > state.ordinal();
+		}
 	}
 
 	/**

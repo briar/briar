@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
-import org.briarproject.bramble.api.db.DatabaseMigrationEvent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.db.Transaction;
@@ -16,8 +15,7 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
-import org.briarproject.bramble.api.lifecycle.event.ShutdownEvent;
-import org.briarproject.bramble.api.lifecycle.event.StartupEvent;
+import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 
@@ -34,9 +32,11 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.MIGRATING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.MIGRATING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.DATA_TOO_NEW_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.DATA_TOO_OLD_ERROR;
@@ -63,6 +63,7 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 	private final CountDownLatch dbLatch = new CountDownLatch(1);
 	private final CountDownLatch startupLatch = new CountDownLatch(1);
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
+
 	private volatile LifecycleState state = STARTING;
 
 	@Inject
@@ -142,7 +143,10 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 				registerLocalAuthor(createLocalAuthor(nickname));
 			}
 
+			state = STARTING_SERVICES;
 			dbLatch.countDown();
+			eventBus.broadcast(new LifecycleEvent(STARTING_SERVICES));
+
 			Transaction txn = db.startTransaction(false);
 			try {
 				for (Client c : clients) {
@@ -168,9 +172,10 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 							+ " took " + duration + " ms");
 				}
 			}
-			startupLatch.countDown();
+
 			state = RUNNING;
-			eventBus.broadcast(new StartupEvent());
+			startupLatch.countDown();
+			eventBus.broadcast(new LifecycleEvent(RUNNING));
 			return SUCCESS;
 		} catch (DataTooOldException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -191,8 +196,8 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 
 	@Override
 	public void onMigrationRun() {
-		state = MIGRATING;
-		eventBus.broadcast(new DatabaseMigrationEvent());
+		state = MIGRATING_DATABASE;
+		eventBus.broadcast(new LifecycleEvent(MIGRATING_DATABASE));
 	}
 
 	@Override
@@ -205,7 +210,8 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 		}
 		try {
 			LOG.info("Stopping services");
-			eventBus.broadcast(new ShutdownEvent());
+			state = STOPPING;
+			eventBus.broadcast(new LifecycleEvent(STOPPING));
 			for (Service s : services) {
 				long start = System.currentTimeMillis();
 				s.stopService();
