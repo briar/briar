@@ -10,7 +10,7 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
-import org.briarproject.bramble.api.lifecycle.event.ShutdownEvent;
+import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Offer;
@@ -38,6 +38,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
 
@@ -209,8 +210,9 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		} else if (e instanceof MessageToRequestEvent) {
 			if (((MessageToRequestEvent) e).getContactId().equals(contactId))
 				generateRequest();
-		} else if (e instanceof ShutdownEvent) {
-			interrupt();
+		} else if (e instanceof LifecycleEvent) {
+			LifecycleEvent l = (LifecycleEvent) e;
+			if (l.getLifecycleState() == STOPPING) interrupt();
 		}
 	}
 
