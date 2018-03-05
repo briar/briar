@@ -26,6 +26,9 @@ import org.briarproject.bramble.util.StringUtils;
 
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
@@ -251,25 +254,32 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public void poll(Map<ContactId, TransportProperties> contacts) {
 		if (!isRunning() || !shouldAllowContactConnections()) return;
-		backoff.increment();
-		// Try to connect to known devices in parallel
+		// Try to connect to known devices in a random order
+		List<Entry<ContactId, TransportProperties>> entries = new ArrayList<>();
 		for (Entry<ContactId, TransportProperties> e : contacts.entrySet()) {
-			String address = e.getValue().get(PROP_ADDRESS);
-			if (StringUtils.isNullOrEmpty(address)) continue;
-			String uuid = e.getValue().get(PROP_UUID);
-			if (StringUtils.isNullOrEmpty(uuid)) continue;
-			ContactId c = e.getKey();
-			ioExecutor.execute(() -> {
+			TransportProperties p = e.getValue();
+			if (StringUtils.isNullOrEmpty(p.get(PROP_ADDRESS))) continue;
+			if (StringUtils.isNullOrEmpty(p.get(PROP_UUID))) continue;
+			entries.add(e);
+		}
+		if (entries.isEmpty()) return;
+		Collections.shuffle(entries);
+		backoff.increment();
+		ioExecutor.execute(() -> {
+			for (Entry<ContactId, TransportProperties> e : entries) {
 				if (!isRunning() || !shouldAllowContactConnections()) return;
 				if (!connectionLimiter.canOpenContactConnection()) return;
+				TransportProperties p = e.getValue();
+				String address = p.get(PROP_ADDRESS);
+				String uuid = p.get(PROP_UUID);
 				DuplexTransportConnection conn = connect(address, uuid);
 				if (conn != null) {
 					backoff.reset();
 					if (connectionLimiter.contactConnectionOpened(conn))
-						callback.outgoingConnectionCreated(c, conn);
+						callback.outgoingConnectionCreated(e.getKey(), conn);
 				}
-			});
-		}
+			}
+		});
 	}
 
 	@Nullable
