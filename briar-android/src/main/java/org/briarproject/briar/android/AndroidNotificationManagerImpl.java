@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.ContextCompat;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -171,9 +172,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@TargetApi(26)
 	private void createNotificationChannel(String channelId,
 			@StringRes int name) {
-		notificationManager.createNotificationChannel(
+		NotificationChannel nc =
 				new NotificationChannel(channelId, appContext.getString(name),
-						IMPORTANCE_DEFAULT));
+						IMPORTANCE_DEFAULT);
+		nc.enableLights(true);
+		nc.setLightColor(
+				ContextCompat.getColor(appContext, R.color.briar_green_light));
+		notificationManager.createNotificationChannel(nc);
 	}
 
 	@Override
