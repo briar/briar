@@ -21,6 +21,12 @@ public interface AndroidNotificationManager {
 	String PREF_NOTIFY_VIBRATION = "notifyVibration";
 	String PREF_NOTIFY_LOCK_SCREEN = "notifyLockScreen";
 
+	// Channel IDs
+	String CONTACT_CHANNEL_ID = "contacts";
+	String GROUP_CHANNEL_ID = "groups";
+	String FORUM_CHANNEL_ID = "forums";
+	String BLOG_CHANNEL_ID = "blogs";
+
 	// Content URIs for pending intents
 	String CONTACT_URI = "content://org.briarproject.briar/contact";
 	String GROUP_URI = "content://org.briarproject.briar/group";
