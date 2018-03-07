@@ -17,19 +17,16 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementWaitingEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
-import org.briarproject.bramble.api.system.Clock;
 
 import java.io.IOException;
-import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class KeyAgreementTaskImpl extends Thread implements
-		KeyAgreementTask, KeyAgreementConnector.Callbacks,
-		KeyAgreementProtocol.Callbacks {
+class KeyAgreementTaskImpl extends Thread implements KeyAgreementTask,
+		KeyAgreementProtocol.Callbacks, KeyAgreementConnector.Callbacks {
 
 	private static final Logger LOG =
 			Logger.getLogger(KeyAgreementTaskImpl.class.getName());
@@ -43,15 +40,15 @@ class KeyAgreementTaskImpl extends Thread implements
 	private Payload localPayload;
 	private Payload remotePayload;
 
-	KeyAgreementTaskImpl(Clock clock, CryptoComponent crypto,
-			EventBus eventBus, PayloadEncoder payloadEncoder,
-			PluginManager pluginManager, Executor ioExecutor) {
+	KeyAgreementTaskImpl(CryptoComponent crypto, EventBus eventBus,
+			PayloadEncoder payloadEncoder, PluginManager pluginManager,
+			ConnectionChooser connectionChooser) {
 		this.crypto = crypto;
 		this.eventBus = eventBus;
 		this.payloadEncoder = payloadEncoder;
 		localKeyPair = crypto.generateAgreementKeyPair();
-		connector = new KeyAgreementConnector(this, clock, crypto,
-				pluginManager, ioExecutor);
+		connector = new KeyAgreementConnector(this, crypto, pluginManager,
+				connectionChooser);
 	}
 
 	@Override
@@ -65,10 +62,8 @@ class KeyAgreementTaskImpl extends Thread implements
 	@Override
 	public synchronized void stopListening() {
 		if (localPayload != null) {
-			if (remotePayload == null)
-				connector.stopListening();
-			else
-				interrupt();
+			if (remotePayload == null) connector.stopListening();
+			else interrupt();
 		}
 	}
 
