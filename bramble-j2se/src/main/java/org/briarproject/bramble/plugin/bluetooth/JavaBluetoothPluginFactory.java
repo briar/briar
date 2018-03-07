@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
@@ -27,12 +28,15 @@ public class JavaBluetoothPluginFactory implements DuplexPluginFactory {
 	private final Executor ioExecutor;
 	private final SecureRandom secureRandom;
 	private final BackoffFactory backoffFactory;
+	private final EventBus eventBus;
 
 	public JavaBluetoothPluginFactory(Executor ioExecutor,
-			SecureRandom secureRandom, BackoffFactory backoffFactory) {
+			SecureRandom secureRandom, EventBus eventBus,
+			BackoffFactory backoffFactory) {
 		this.ioExecutor = ioExecutor;
 		this.secureRandom = secureRandom;
 		this.backoffFactory = backoffFactory;
+		this.eventBus = eventBus;
 	}
 
 	@Override
@@ -49,7 +53,9 @@ public class JavaBluetoothPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		return new JavaBluetoothPlugin(ioExecutor, secureRandom, backoff,
-				callback, MAX_LATENCY);
+		JavaBluetoothPlugin plugin = new JavaBluetoothPlugin(ioExecutor,
+				secureRandom, backoff, callback, MAX_LATENCY);
+		eventBus.addListener(plugin);
+		return plugin;
 	}
 }
