@@ -1,19 +1,8 @@
-package org.briarproject.bramble.plugin.droidtooth;
-
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+package org.briarproject.bramble.plugin.bluetooth;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfList;
-import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -24,14 +13,9 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
-import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
-import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
-import org.briarproject.bramble.api.system.AndroidExecutor;
-import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.StringUtils;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Collection;
@@ -39,22 +23,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
-import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
-import static android.bluetooth.BluetoothAdapter.EXTRA_SCAN_MODE;
-import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
-import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
-import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
-import static android.bluetooth.BluetoothAdapter.SCAN_MODE_NONE;
-import static android.bluetooth.BluetoothAdapter.STATE_OFF;
-import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_BLUETOOTH;
@@ -67,14 +41,13 @@ import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class DroidtoothPlugin implements DuplexPlugin, EventListener {
+abstract class BluetoothPlugin<SS> implements DuplexPlugin {
 
 	private static final Logger LOG =
-			Logger.getLogger(DroidtoothPlugin.class.getName());
+			Logger.getLogger(BluetoothPlugin.class.getName());
 
-	private final Executor ioExecutor;
-	private final AndroidExecutor androidExecutor;
-	private final Context appContext;
+	final Executor ioExecutor;
+
 	private final SecureRandom secureRandom;
 	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
@@ -82,23 +55,47 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	private volatile boolean running = false;
-	private volatile boolean wasEnabledByUs = false;
-	private volatile BluetoothStateReceiver receiver = null;
-	private volatile BluetoothServerSocket socket = null;
+	private volatile SS socket = null;
 
-	// Non-null if the plugin started successfully
-	private volatile BluetoothAdapter adapter = null;
+	abstract void initialiseAdapter() throws IOException;
 
-	DroidtoothPlugin(Executor ioExecutor, AndroidExecutor androidExecutor,
-			Context appContext, SecureRandom secureRandom, Backoff backoff,
-			DuplexPluginCallback callback, int maxLatency) {
+	abstract boolean isAdapterEnabled();
+
+	abstract void enableAdapter();
+
+	@Nullable
+	abstract String getBluetoothAddress();
+
+	abstract SS openServerSocket(String uuid) throws IOException;
+
+	abstract void tryToClose(@Nullable SS ss);
+
+	abstract DuplexTransportConnection acceptConnection(SS ss)
+			throws IOException;
+
+	abstract boolean isValidAddress(String address);
+
+	abstract DuplexTransportConnection connectTo(String address, String uuid)
+			throws IOException;
+
+	BluetoothPlugin(Executor ioExecutor, SecureRandom secureRandom,
+			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
 		this.ioExecutor = ioExecutor;
-		this.androidExecutor = androidExecutor;
-		this.appContext = appContext;
 		this.secureRandom = secureRandom;
 		this.backoff = backoff;
 		this.callback = callback;
 		this.maxLatency = maxLatency;
+	}
+
+	void onAdapterEnabled() {
+		LOG.info("Bluetooth enabled");
+		bind();
+	}
+
+	void onAdapterDisabled() {
+		LOG.info("Bluetooth disabled");
+		tryToClose(socket);
+		callback.transportDisabled();
 	}
 
 	@Override
@@ -120,31 +117,14 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 	@Override
 	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		// BluetoothAdapter.getDefaultAdapter() must be called on a thread
-		// with a message queue, so submit it to the AndroidExecutor
 		try {
-			adapter = androidExecutor.runOnBackgroundThread(
-					BluetoothAdapter::getDefaultAdapter).get();
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			LOG.warning("Interrupted while getting BluetoothAdapter");
+			initialiseAdapter();
+		} catch (IOException e) {
 			throw new PluginException(e);
-		} catch (ExecutionException e) {
-			throw new PluginException(e);
-		}
-		if (adapter == null) {
-			LOG.info("Bluetooth is not supported");
-			throw new PluginException();
 		}
 		running = true;
-		// Listen for changes to the Bluetooth state
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(ACTION_STATE_CHANGED);
-		filter.addAction(ACTION_SCAN_MODE_CHANGED);
-		receiver = new BluetoothStateReceiver();
-		appContext.registerReceiver(receiver, filter);
 		// If Bluetooth is enabled, bind a socket
-		if (adapter.isEnabled()) {
+		if (isAdapterEnabled()) {
 			bind();
 		} else {
 			// Enable Bluetooth if settings allow
@@ -159,21 +139,19 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 	private void bind() {
 		ioExecutor.execute(() -> {
 			if (!isRunning()) return;
-			String address = AndroidUtils.getBluetoothAddress(appContext,
-					adapter);
+			String address = getBluetoothAddress();
 			if (LOG.isLoggable(INFO))
 				LOG.info("Local address " + scrubMacAddress(address));
 			if (!StringUtils.isNullOrEmpty(address)) {
-				// Advertise the Bluetooth address to contacts
+				// Advertise our Bluetooth address to contacts
 				TransportProperties p = new TransportProperties();
 				p.put(PROP_ADDRESS, address);
 				callback.mergeLocalProperties(p);
 			}
 			// Bind a server socket to accept connections from contacts
-			BluetoothServerSocket ss;
+			SS ss;
 			try {
-				ss = adapter.listenUsingInsecureRfcommWithServiceRecord(
-						"RFCOMM", getUuid());
+				ss = openServerSocket(getUuid());
 			} catch (IOException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return;
@@ -182,7 +160,6 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 				tryToClose(ss);
 				return;
 			}
-			LOG.info("Socket bound");
 			socket = ss;
 			backoff.reset();
 			callback.transportEnabled();
@@ -190,7 +167,7 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 		});
 	}
 
-	private UUID getUuid() {
+	private String getUuid() {
 		String uuid = callback.getLocalProperties().get(PROP_UUID);
 		if (uuid == null) {
 			byte[] random = new byte[UUID_BYTES];
@@ -200,71 +177,35 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 			p.put(PROP_UUID, uuid);
 			callback.mergeLocalProperties(p);
 		}
-		return UUID.fromString(uuid);
-	}
-
-	private void tryToClose(@Nullable BluetoothServerSocket ss) {
-		try {
-			if (ss != null) ss.close();
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} finally {
-			callback.transportDisabled();
-		}
+		return uuid;
 	}
 
 	private void acceptContactConnections() {
-		while (isRunning()) {
-			BluetoothSocket s;
+		while (true) {
+			DuplexTransportConnection conn;
 			try {
-				s = socket.accept();
+				conn = acceptConnection(socket);
 			} catch (IOException e) {
 				// This is expected when the socket is closed
 				if (LOG.isLoggable(INFO)) LOG.info(e.toString());
 				return;
 			}
-			if (LOG.isLoggable(INFO)) {
-				String address = s.getRemoteDevice().getAddress();
-				LOG.info("Connection from " + scrubMacAddress(address));
-			}
 			backoff.reset();
-			callback.incomingConnectionCreated(wrapSocket(s));
-		}
-	}
-
-	private DuplexTransportConnection wrapSocket(BluetoothSocket s) {
-		return new DroidtoothTransportConnection(this, s);
-	}
-
-	private void enableAdapter() {
-		if (adapter != null && !adapter.isEnabled()) {
-			if (adapter.enable()) {
-				LOG.info("Enabling Bluetooth");
-				wasEnabledByUs = true;
-			} else {
-				LOG.info("Could not enable Bluetooth");
-			}
+			callback.incomingConnectionCreated(conn);
+			if (!running) return;
 		}
 	}
 
 	@Override
 	public void stop() {
 		running = false;
-		if (receiver != null) appContext.unregisterReceiver(receiver);
 		tryToClose(socket);
-		disableAdapter();
-	}
-
-	private void disableAdapter() {
-		if (adapter != null && adapter.isEnabled() && wasEnabledByUs) {
-			if (adapter.disable()) LOG.info("Disabling Bluetooth");
-			else LOG.info("Could not disable Bluetooth");
-		}
+		callback.transportDisabled();
 	}
 
 	@Override
 	public boolean isRunning() {
-		return running && adapter != null && adapter.isEnabled();
+		return running;
 	}
 
 	@Override
@@ -292,59 +233,44 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 			String uuid = e.getValue().get(PROP_UUID);
 			if (StringUtils.isNullOrEmpty(uuid)) continue;
 			ioExecutor.execute(() -> {
-				if (!running) return;
-				BluetoothSocket s = connect(address, uuid);
-				if (s != null) {
+				if (!isRunning()) return;
+				DuplexTransportConnection conn = connect(address, uuid);
+				if (conn != null) {
 					backoff.reset();
-					callback.outgoingConnectionCreated(c, wrapSocket(s));
+					callback.outgoingConnectionCreated(c, conn);
 				}
 			});
 		}
 	}
 
 	@Nullable
-	private BluetoothSocket connect(String address, String uuid) {
+	private DuplexTransportConnection connect(String address, String uuid) {
 		// Validate the address
-		if (!BluetoothAdapter.checkBluetoothAddress(address)) {
+		if (!isValidAddress(address)) {
 			if (LOG.isLoggable(WARNING))
-				// not scrubbing here to be able to figure out the problem
+				// Not scrubbing here to be able to figure out the problem
 				LOG.warning("Invalid address " + address);
 			return null;
 		}
 		// Validate the UUID
-		UUID u;
 		try {
-			u = UUID.fromString(uuid);
+			//noinspection ResultOfMethodCallIgnored
+			UUID.fromString(uuid);
 		} catch (IllegalArgumentException e) {
 			if (LOG.isLoggable(WARNING)) LOG.warning("Invalid UUID " + uuid);
 			return null;
 		}
-		// Try to connect
-		BluetoothDevice d = adapter.getRemoteDevice(address);
-		BluetoothSocket s = null;
+		if (LOG.isLoggable(INFO))
+			LOG.info("Connecting to " + scrubMacAddress(address));
 		try {
-			s = d.createInsecureRfcommSocketToServiceRecord(u);
-			if (LOG.isLoggable(INFO))
-				LOG.info("Connecting to " + scrubMacAddress(address));
-			s.connect();
+			DuplexTransportConnection conn = connectTo(address, uuid);
 			if (LOG.isLoggable(INFO))
 				LOG.info("Connected to " + scrubMacAddress(address));
-			return s;
+			return conn;
 		} catch (IOException e) {
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("Failed to connect to " + scrubMacAddress(address)
-						+ ": " + e);
-			}
-			tryToClose(s);
+			if (LOG.isLoggable(INFO))
+				LOG.info("Could not connect to " + scrubMacAddress(address));
 			return null;
-		}
-	}
-
-	private void tryToClose(@Nullable Closeable c) {
-		try {
-			if (c != null) c.close();
-		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -356,9 +282,7 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 		if (StringUtils.isNullOrEmpty(address)) return null;
 		String uuid = p.get(PROP_UUID);
 		if (StringUtils.isNullOrEmpty(uuid)) return null;
-		BluetoothSocket s = connect(address, uuid);
-		if (s == null) return null;
-		return new DroidtoothTransportConnection(this, s);
+		return connect(address, uuid);
 	}
 
 	@Override
@@ -370,18 +294,21 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
 		if (!isRunning()) return null;
 		// There's no point listening if we can't discover our own address
-		String address = AndroidUtils.getBluetoothAddress(appContext, adapter);
-		if (address.isEmpty()) return null;
+		String address = getBluetoothAddress();
+		if (address == null) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
-		UUID uuid = UUID.nameUUIDFromBytes(commitment);
+		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		if (LOG.isLoggable(INFO)) LOG.info("Key agreement UUID " + uuid);
 		// Bind a server socket for receiving key agreement connections
-		BluetoothServerSocket ss;
+		SS ss;
 		try {
-			ss = adapter.listenUsingInsecureRfcommWithServiceRecord(
-					"RFCOMM", uuid);
+			ss = openServerSocket(uuid);
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			return null;
+		}
+		if (!isRunning()) {
+			tryToClose(ss);
 			return null;
 		}
 		BdfList descriptor = new BdfList();
@@ -402,12 +329,10 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 			return null;
 		}
 		// No truncation necessary because COMMIT_LENGTH = 16
-		UUID uuid = UUID.nameUUIDFromBytes(commitment);
+		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		if (LOG.isLoggable(INFO))
 			LOG.info("Connecting to key agreement UUID " + uuid);
-		BluetoothSocket s = connect(address, uuid.toString());
-		if (s == null) return null;
-		return new DroidtoothTransportConnection(this, s);
+		return connect(address, uuid);
 	}
 
 	private String parseAddress(BdfList descriptor) throws FormatException {
@@ -416,52 +341,11 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 		return StringUtils.macToString(mac);
 	}
 
-	@Override
-	public void eventOccurred(Event e) {
-		if (e instanceof EnableBluetoothEvent) {
-			enableAdapterAsync();
-		} else if (e instanceof DisableBluetoothEvent) {
-			disableAdapterAsync();
-		}
-	}
-
-	private void enableAdapterAsync() {
-		ioExecutor.execute(this::enableAdapter);
-	}
-
-	private void disableAdapterAsync() {
-		ioExecutor.execute(this::disableAdapter);
-	}
-
-	private class BluetoothStateReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive(Context ctx, Intent intent) {
-			int state = intent.getIntExtra(EXTRA_STATE, 0);
-			if (state == STATE_ON) {
-				LOG.info("Bluetooth enabled");
-				bind();
-			} else if (state == STATE_OFF) {
-				LOG.info("Bluetooth disabled");
-				tryToClose(socket);
-			}
-			int scanMode = intent.getIntExtra(EXTRA_SCAN_MODE, 0);
-			if (scanMode == SCAN_MODE_NONE) {
-				LOG.info("Scan mode: None");
-			} else if (scanMode == SCAN_MODE_CONNECTABLE) {
-				LOG.info("Scan mode: Connectable");
-			} else if (scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-				LOG.info("Scan mode: Discoverable");
-			}
-		}
-	}
-
 	private class BluetoothKeyAgreementListener extends KeyAgreementListener {
 
-		private final BluetoothServerSocket ss;
+		private final SS ss;
 
-		private BluetoothKeyAgreementListener(BdfList descriptor,
-				BluetoothServerSocket ss) {
+		private BluetoothKeyAgreementListener(BdfList descriptor, SS ss) {
 			super(descriptor);
 			this.ss = ss;
 		}
@@ -469,22 +353,16 @@ class DroidtoothPlugin implements DuplexPlugin, EventListener {
 		@Override
 		public Callable<KeyAgreementConnection> listen() {
 			return () -> {
-				BluetoothSocket s = ss.accept();
+				DuplexTransportConnection conn = acceptConnection(ss);
 				if (LOG.isLoggable(INFO))
 					LOG.info(ID.getString() + ": Incoming connection");
-				return new KeyAgreementConnection(
-						new DroidtoothTransportConnection(
-								DroidtoothPlugin.this, s), ID);
+				return new KeyAgreementConnection(conn, ID);
 			};
 		}
 
 		@Override
 		public void close() {
-			try {
-				ss.close();
-			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			}
+			tryToClose(ss);
 		}
 	}
 }
