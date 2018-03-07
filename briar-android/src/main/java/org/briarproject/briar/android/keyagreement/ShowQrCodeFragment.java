@@ -1,10 +1,6 @@
 package org.briarproject.briar.android.keyagreement;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.AsyncTask;
@@ -40,7 +36,6 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementWaitingEvent;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseEventFragment;
@@ -52,9 +47,6 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
-import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
-import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -89,8 +81,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	private TextView mainProgressTitle;
 	private ViewGroup mainProgressContainer;
 
-	private BluetoothStateReceiver receiver;
-	private boolean gotRemotePayload, waitingForBluetooth;
+	private boolean gotRemotePayload;
 	private volatile boolean gotLocalPayload;
 	private KeyAgreementTask task;
 
@@ -151,20 +142,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		} catch (CameraException e) {
 			logCameraExceptionAndFinish(e);
 		}
-		// Listen for changes to the Bluetooth state
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(ACTION_STATE_CHANGED);
-		receiver = new BluetoothStateReceiver();
-		getActivity().registerReceiver(receiver, filter);
-
-		// Enable BT adapter if it is not already on.
-		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-		if (adapter != null && !adapter.isEnabled()) {
-			waitingForBluetooth = true;
-			eventBus.broadcast(new EnableBluetoothEvent());
-		} else {
-			startListening();
-		}
+		startListening();
 	}
 
 	/**
@@ -190,7 +168,6 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	public void onStop() {
 		super.onStop();
 		stopListening();
-		if (receiver != null) getActivity().unregisterReceiver(receiver);
 		try {
 			cameraView.stop();
 		} catch (CameraException e) {
@@ -361,17 +338,5 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	@Override
 	protected void finish() {
 		getActivity().getSupportFragmentManager().popBackStack();
-	}
-
-	private class BluetoothStateReceiver extends BroadcastReceiver {
-		@UiThread
-		@Override
-		public void onReceive(Context ctx, Intent intent) {
-			int state = intent.getIntExtra(EXTRA_STATE, 0);
-			if (state == STATE_ON && waitingForBluetooth) {
-				waitingForBluetooth = false;
-				startListening();
-			}
-		}
 	}
 }
