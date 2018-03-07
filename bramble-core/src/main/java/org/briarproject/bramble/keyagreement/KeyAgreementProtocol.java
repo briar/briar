@@ -99,7 +99,8 @@ class KeyAgreementProtocol {
 			PublicKey theirPublicKey;
 			if (alice) {
 				sendKey();
-				// Alice waits here until Bob obtains her payload.
+				// Alice waits here for Bob to scan her QR code, determine his
+				// role, receive her key and respond with his key
 				callbacks.connectionWaiting();
 				theirPublicKey = receiveKey();
 			} else {

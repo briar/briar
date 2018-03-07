@@ -27,4 +27,10 @@ public class KeyAgreementModule {
 	PayloadParser providePayloadParser(BdfReaderFactory bdfReaderFactory) {
 		return new PayloadParserImpl(bdfReaderFactory);
 	}
+
+	@Provides
+	ConnectionChooser provideConnectionChooser(
+			ConnectionChooserImpl connectionChooser) {
+		return connectionChooser;
+	}
 }

@@ -36,9 +36,9 @@ public interface DuplexPlugin extends Plugin {
 
 	/**
 	 * Attempts to connect to the remote peer specified in the given descriptor.
-	 * Returns null if no connection can be established within the given time.
+	 * Returns null if no connection can be established.
 	 */
 	@Nullable
 	DuplexTransportConnection createKeyAgreementConnection(
-			byte[] remoteCommitment, BdfList descriptor, long timeout);
+			byte[] remoteCommitment, BdfList descriptor);
 }

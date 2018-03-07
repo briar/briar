@@ -13,23 +13,19 @@ import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
-import org.briarproject.bramble.api.system.Clock;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.Future;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.CONNECTION_TIMEOUT;
@@ -45,29 +41,27 @@ class KeyAgreementConnector {
 			Logger.getLogger(KeyAgreementConnector.class.getName());
 
 	private final Callbacks callbacks;
-	private final Clock clock;
 	private final KeyAgreementCrypto keyAgreementCrypto;
 	private final PluginManager pluginManager;
-	private final CompletionService<KeyAgreementConnection> connect;
+	private final ConnectionChooser connectionChooser;
 
-	private final List<KeyAgreementListener> listeners = new ArrayList<>();
-	private final List<Future<KeyAgreementConnection>> pending =
-			new ArrayList<>();
+	private final List<KeyAgreementListener> listeners =
+			new CopyOnWriteArrayList<>();
+	private final CountDownLatch aliceLatch = new CountDownLatch(1);
+	private final AtomicBoolean waitingSent = new AtomicBoolean(false);
 
-	private volatile boolean connecting = false;
-	private volatile boolean alice = false;
+	private volatile boolean alice = false, stopped = false;
 
-	KeyAgreementConnector(Callbacks callbacks, Clock clock,
+	KeyAgreementConnector(Callbacks callbacks,
 			KeyAgreementCrypto keyAgreementCrypto, PluginManager pluginManager,
-			Executor ioExecutor) {
+			ConnectionChooser connectionChooser) {
 		this.callbacks = callbacks;
-		this.clock = clock;
 		this.keyAgreementCrypto = keyAgreementCrypto;
 		this.pluginManager = pluginManager;
-		connect = new ExecutorCompletionService<>(ioExecutor);
+		this.connectionChooser = connectionChooser;
 	}
 
-	public Payload listen(KeyPair localKeyPair) {
+	Payload listen(KeyPair localKeyPair) {
 		LOG.info("Starting BQP listeners");
 		// Derive commitment
 		byte[] commitment = keyAgreementCrypto.deriveKeyCommitment(
@@ -80,8 +74,9 @@ class KeyAgreementConnector {
 			if (l != null) {
 				TransportId id = plugin.getId();
 				descriptors.add(new TransportDescriptor(id, l.getDescriptor()));
-				pending.add(connect.submit(new ReadableTask(l.listen())));
+				if (LOG.isLoggable(INFO)) LOG.info("Listening via " + id);
 				listeners.add(l);
+				connectionChooser.submit(new ReadableTask(l::accept));
 			}
 		}
 		return new Payload(commitment, descriptors);
@@ -89,125 +84,92 @@ class KeyAgreementConnector {
 
 	void stopListening() {
 		LOG.info("Stopping BQP listeners");
-		for (KeyAgreementListener l : listeners) {
-			l.close();
-		}
-		listeners.clear();
+		stopped = true;
+		aliceLatch.countDown();
+		for (KeyAgreementListener l : listeners) l.close();
+		connectionChooser.stop();
 	}
 
 	@Nullable
-	public KeyAgreementTransport connect(Payload remotePayload,
-			boolean alice) {
-		// Let the listeners know if we are Alice
-		this.connecting = true;
+	public KeyAgreementTransport connect(Payload remotePayload, boolean alice) {
+		// Let the ReadableTasks know if we are Alice
 		this.alice = alice;
-		long end = clock.currentTimeMillis() + CONNECTION_TIMEOUT;
+		aliceLatch.countDown();
 
 		// Start connecting over supported transports
-		LOG.info("Starting outgoing BQP connections");
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Starting outgoing BQP connections as "
+					+ (alice ? "Alice" : "Bob"));
+		}
 		for (TransportDescriptor d : remotePayload.getTransportDescriptors()) {
 			Plugin p = pluginManager.getPlugin(d.getId());
 			if (p instanceof DuplexPlugin) {
+				if (LOG.isLoggable(INFO))
+					LOG.info("Connecting via " + d.getId());
 				DuplexPlugin plugin = (DuplexPlugin) p;
-				pending.add(connect.submit(new ReadableTask(
-						new ConnectorTask(plugin, remotePayload.getCommitment(),
-								d.getDescriptor(), end))));
+				byte[] commitment = remotePayload.getCommitment();
+				BdfList descriptor = d.getDescriptor();
+				connectionChooser.submit(new ReadableTask(
+						new ConnectorTask(plugin, commitment, descriptor)));
 			}
 		}
 
 		// Get chosen connection
-		KeyAgreementConnection chosen = null;
 		try {
-			long now = clock.currentTimeMillis();
-			Future<KeyAgreementConnection> f =
-					connect.poll(end - now, MILLISECONDS);
-			if (f == null)
-				return null; // No task completed within the timeout.
-			chosen = f.get();
+			KeyAgreementConnection chosen =
+					connectionChooser.poll(CONNECTION_TIMEOUT);
+			if (chosen == null) return null;
 			return new KeyAgreementTransport(chosen);
 		} catch (InterruptedException e) {
 			LOG.info("Interrupted while waiting for connection");
 			Thread.currentThread().interrupt();
 			return null;
-		} catch (ExecutionException | IOException e) {
+		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		} finally {
 			stopListening();
-			// Close all other connections
-			closePending(chosen);
 		}
 	}
 
-	private void closePending(@Nullable KeyAgreementConnection chosen) {
-		for (Future<KeyAgreementConnection> f : pending) {
-			try {
-				if (f.cancel(true)) {
-					LOG.info("Cancelled task");
-				} else if (!f.isCancelled()) {
-					KeyAgreementConnection c = f.get();
-					if (c != null && c != chosen)
-						tryToClose(c.getConnection(), false);
-				}
-			} catch (InterruptedException e) {
-				LOG.info("Interrupted while closing sockets");
-				Thread.currentThread().interrupt();
-				return;
-			} catch (ExecutionException e) {
-				if (LOG.isLoggable(INFO)) LOG.info(e.toString());
-			}
-		}
-	}
-
-	private void tryToClose(DuplexTransportConnection conn, boolean exception) {
-		try {
-			if (LOG.isLoggable(INFO))
-				LOG.info("Closing connection, exception: " + exception);
-			conn.getReader().dispose(exception, true);
-			conn.getWriter().dispose(exception);
-		} catch (IOException e) {
-			if (LOG.isLoggable(INFO)) LOG.info(e.toString());
-		}
+	private void waitingForAlice() {
+		if (!waitingSent.getAndSet(true)) callbacks.connectionWaiting();
 	}
 
 	private class ConnectorTask implements Callable<KeyAgreementConnection> {
 
 		private final byte[] commitment;
 		private final BdfList descriptor;
-		private final long end;
 		private final DuplexPlugin plugin;
 
 		private ConnectorTask(DuplexPlugin plugin, byte[] commitment,
-				BdfList descriptor, long end) {
+				BdfList descriptor) {
 			this.plugin = plugin;
 			this.commitment = commitment;
 			this.descriptor = descriptor;
-			this.end = end;
 		}
 
+		@Nullable
 		@Override
 		public KeyAgreementConnection call() throws Exception {
-			// Repeat attempts until we connect, get interrupted, or time out
-			while (true) {
-				long now = clock.currentTimeMillis();
-				if (now > end) throw new IOException();
+			// Repeat attempts until we connect, get stopped, or get interrupted
+			while (!stopped) {
 				DuplexTransportConnection conn =
 						plugin.createKeyAgreementConnection(commitment,
-								descriptor, end - now);
+								descriptor);
 				if (conn != null) {
 					if (LOG.isLoggable(INFO))
-						LOG.info(plugin.getId().getString() +
-								": Outgoing connection");
+						LOG.info(plugin.getId() + ": Outgoing connection");
 					return new KeyAgreementConnection(conn, plugin.getId());
 				}
 				// Wait 2s before retry (to circumvent transient failures)
 				Thread.sleep(2000);
 			}
+			return null;
 		}
 	}
 
-	private class ReadableTask
-			implements Callable<KeyAgreementConnection> {
+	private class ReadableTask implements Callable<KeyAgreementConnection> {
 
 		private final Callable<KeyAgreementConnection> connectionTask;
 
@@ -215,24 +177,23 @@ class KeyAgreementConnector {
 			this.connectionTask = connectionTask;
 		}
 
+		@Nullable
 		@Override
 		public KeyAgreementConnection call() throws Exception {
 			KeyAgreementConnection c = connectionTask.call();
+			if (c == null) return null;
+			aliceLatch.await();
+			if (alice || stopped) return c;
+			// Bob waits here for Alice to scan his QR code, determine her
+			// role, and send her key
 			InputStream in = c.getConnection().getReader().getInputStream();
-			boolean waitingSent = false;
-			while (!alice && in.available() == 0) {
-				if (!waitingSent && connecting && !alice) {
-					// Bob waits here until Alice obtains his payload.
-					callbacks.connectionWaiting();
-					waitingSent = true;
-				}
-				if (LOG.isLoggable(INFO)) {
-					LOG.info(c.getTransportId().getString() +
-							": Waiting for connection");
-				}
-				Thread.sleep(1000);
+			while (!stopped && in.available() == 0) {
+				if (LOG.isLoggable(INFO))
+					LOG.info(c.getTransportId() + ": Waiting for data");
+				waitingForAlice();
+				Thread.sleep(500);
 			}
-			if (!alice && LOG.isLoggable(INFO))
+			if (!stopped && LOG.isLoggable(INFO))
 				LOG.info(c.getTransportId().getString() + ": Data available");
 			return c;
 		}
