@@ -241,13 +241,10 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			if (LOG.isLoggable(INFO))
 				LOG.info("Remote payload is " + encoded.length + " bytes");
 			Payload remotePayload = payloadParser.parse(encoded);
-			cameraView.stop();
 			cameraView.setVisibility(INVISIBLE);
 			statusView.setVisibility(VISIBLE);
 			status.setText(R.string.connecting_to_device);
 			task.connectAndRunProtocol(remotePayload);
-		} catch (CameraException e) {
-			logCameraExceptionAndFinish(e);
 		} catch (IOException | IllegalArgumentException e) {
 			// TODO show failure
 			Toast.makeText(getActivity(), R.string.qr_code_invalid,
