@@ -17,7 +17,6 @@
   <string name="dialog_title_lost_password">Clave perdida</string>
   <string name="dialog_message_lost_password">Briar almacena a súa configuración encriptada no dispositivo, non na nube, así que non podemos restabelecer a súa clave. Querrías borrar a túa conta e empezar de novo?\n\nPrecaución: As túas identidades, contactos e mensaxes serán eliminadas de forma permanente.</string>
   <string name="startup_failed_notification_title">Briar non puido iniciarse</string>
-  <string name="startup_failed_notification_text">Pode que precises instalar Briar de novo</string>
   <string name="startup_failed_activity_title">Fallo de Inicio de Briar</string>
   <string name="startup_failed_service_error"> Briar non puido iniciar un complemento necesario. Xeralmente reinstalar Briar resolve este problema. Teña en conta que entón perderá a súa conta e todos os datos asociados a esta pois Briar non está a utilizar servidores centrais para almacenar os seus datos.</string>
   <string name="expiry_date_reached">Este software caducou.\nGrazas por probalo!</string>

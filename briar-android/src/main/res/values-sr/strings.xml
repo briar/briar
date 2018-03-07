@@ -17,7 +17,6 @@
   <string name="dialog_title_lost_password">Izgubljena šifra</string>
   <string name="dialog_message_lost_password">Vaš Briar račun je kriptovan i sačuvan na vašem uređaju, ne u server-oblaku, pa nemožemo resetovati vašu šifru. Želite li da izbrišete račun i počnete iz početka?\n\nPozor: Vaši identiteti, kontakti i poruke će biti premanentno izgubljeni.</string>
   <string name="startup_failed_notification_title">Brirar nije mogao da startuje</string>
-  <string name="startup_failed_notification_text">Možda ćete morati da reinstalirate Briar</string>
   <string name="startup_failed_activity_title">Briar neuspješno startovanje</string>
   <string name="startup_failed_service_error">Briar nije mogao da startuje potreban plugin. Reinstaliranje Briara obično riješi problem. Međutim, imajte na umu da ćete izgubiti vaš račun i sve podatke vezane za njega pošto Briar ne koristi centralne servere da sačuva vaše podatke.</string>
   <string name="expiry_date_reached">Ovaj softver je istekao.\nHvala na testiranju!</string>
@@ -309,6 +308,5 @@
   <string name="progress_title_logout">Isključujete se iz Briara...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Detektovano je prekrivanje ekrana</string>
-  <string name="screen_filter_body">Neka druga aplikacija crta interfejs preko Briara. Kako bi vas zaštitili, Briar neće reagovati na dodir kada druga aplikacija ispisuje preko njega.\n\nProbajte da ugasite slijedeće aplikacije kad koristite Briar:\n\n%1$s</string>
   <!--Permission Requests-->
 </resources>

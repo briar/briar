@@ -31,9 +31,7 @@
   <string name="dialog_title_lost_password">Wachtwoord vergeten</string>
   <string name="dialog_message_lost_password">Je Briar-account is versleuteld opgeslagen op je apparaat, niet in de cloud, dus kunnen we je wachtwoord niet resetten. Wil je je account verwijderen en opnieuw beginnen?\n\nLet op: Je identiteiten, contacten en berichten zullen permanent verloren gaan.</string>
   <string name="startup_failed_notification_title">Briar kon niet opstarten</string>
-  <string name="startup_failed_notification_text">Misschien moet je Briar opnieuw installeren</string>
   <string name="startup_failed_activity_title">Opstarten Briar mislukt</string>
-  <string name="startup_failed_db_error">Om de een of andere andere reden is je Briar-database corrupt geworden en niet meer te herstellen. Je account, je gegevens en al je contacten zijn verloren. Helaas dien je Briar opnieuw te installeren en een nieuw account aan te maken.</string>
   <string name="startup_failed_service_error">Briar kon de vereiste plug-in niet starten. Herinstalleren van Briar lost dit probleem meestal op. Let op dat je al je je account en alle gegevens die daaraan vast zitten zal verliezen omdat Briar geen centrale servers gebruikt om gegevens op te slaan.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Dit is een testversie van Briar. Je account verloopt binnen %d dag en kan niet worden vernieuwd.</item>
@@ -369,7 +367,6 @@
   <string name="progress_title_logout">Uitloggen van Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Schermoverlay detecteerd</string>
-  <string name="screen_filter_body">Een andere app ligt boven Briar. Om je veiligheid te beschermen zal Briar niet reageren op aanrakingen als er een andere app boven ligt.\n\nProbeer de volgende apps uit te schakelen als je Briar gebruikt:\n\n%1$s</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Cameratoestemming</string>
   <string name="permission_camera_request_body">Om de QR-code te scannen moet Briar toegang hebben tot de camera.</string>

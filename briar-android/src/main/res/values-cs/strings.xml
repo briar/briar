@@ -31,9 +31,7 @@
   <string name="dialog_title_lost_password">Ztracené heslo</string>
   <string name="dialog_message_lost_password">Váš Briar účet je šifrován a uložen ve vašem zařízení, nikoli v cloudu, z tohoto důvodu není možné obnovit Vaše heslo. Chcete odstranit svůj účet a začít znovu?\n\nUpozornění: Vaše identita, kontakty a zprávy budou permanentně ztraceny.</string>
   <string name="startup_failed_notification_title">Briar nemohl být spuštěn</string>
-  <string name="startup_failed_notification_text">Můžete zkusit Briar přeinstalovat.</string>
   <string name="startup_failed_activity_title">Spuštění Briar selhalo.</string>
-  <string name="startup_failed_db_error">Z nějakého důvodu je Briar databáze poškozena a není možná její obnova. Váš účet, data a všechny vaše kontakty jsou ztraceny. Bohužel musíte Briar přeinstalovat a nastavit nový účet.</string>
   <string name="startup_failed_service_error">Briar nemohl spustit vyžadovaný plugin. Tento problém vyřeší přeinstalování Briar. Mějte prosím na vědomí, že přeinstalováním ztratíte veškerá data pro váš účet, protože Briar nepoužívá centralizované ukládání vašich dat na serverech.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Toto je testovací verze Briar. Váš účet a jeho platnost vyprší po %d dnech a není možné ho obnovit.</item>
@@ -379,7 +377,6 @@
   <string name="progress_title_logout">Odhlásit se z Briar...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Bylo zjištěno překrytí obrazovky</string>
-  <string name="screen_filter_body">Jiná aplikace překrývá Briar. Pro vaši bezpečnost, Briar nebude odpovídat na kliknutí, pokud jej bude jiná aplikace překrývat.\n\nZkuste vypnout následující aplikace, když používáte Briar:\n\n%1$s</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Oprávnění pro přístup k fotoaparátu</string>
   <string name="permission_camera_request_body">Pro scan QR kódu, Briar vyžaduje přístup k fotoaparátu.</string>

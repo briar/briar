@@ -1,7 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
+  <string name="setup_title">Briar में आपका स्वागत है</string>
+  <string name="setup_name_explanation">आपके उपनाम आप पोस्ट किसी भी सामग्री के बगल में दिखाया जाएगा। आप अपना खाता बनाने के बाद इसे बदल नहीं सकते</string>
   <string name="setup_next">अगला</string>
+  <string name="setup_password_intro">अपना पासवर्ड चुनें</string>
+  <string name="setup_password_explanation">आपका ब्रियर खाता आपके डिवाइस पर एन्क्रिप्ट किया गया है, न कि क्लाउड में। यदि आप अपना पासवर्ड भूल जाते हैं या बियर को अनइंस्टॉल करते हैं, तो आपका खाता पुनर्प्राप्त करने का कोई तरीका नहीं है। \ N \ n एक लंबे पासवर्ड चुनें जो अनुमान लगाने में मुश्किल हो, जैसे चार यादृच्छिक शब्द, या दस यादृच्छिक वर्ण, संख्याएं और प्रतीकों।</string>
+  <string name="setup_doze_title">पृष्ठभूमि कनेक्शन</string>
+  <string name="setup_doze_intro">संदेश प्राप्त करने के लिए, बैर को पृष्ठभूमि में जुड़े रहने की आवश्यकता है।</string>
+  <string name="setup_doze_explanation">संदेश प्राप्त करने के लिए, बैर को पृष्ठभूमि में जुड़े रहने की आवश्यकता है। कृपया बैटरी ऑप्टिमाइजेशन अक्षम करें ताकि ब्रियर कनेक्ट रह सकें।</string>
+  <string name="setup_doze_button">कनेक्शन की अनुमति दें</string>
   <string name="choose_nickname">आपका मुंहबोला नाम चुनें</string>
   <string name="choose_password">अपना पासवर्ड चुनें</string>
   <string name="confirm_password">अपने पासवर्ड की पुष्टि करें</string>
@@ -10,6 +18,11 @@
   <string name="passwords_do_not_match">पासवर्ड मेल नहीं खाते</string>
   <string name="create_account_button">खाता बनाएं</string>
   <string name="more_info">अधिक जानकारी</string>
+  <string name="don_t_ask_again">फिर से मत पूछो</string>
+  <string name="setup_huawei_text">कृपया नीचे दिए गए बटन को टैप करें और सुनिश्चित करें कि \"संरक्षित ऐप्स\" स्क्रीन पर बियर सुरक्षित है</string>
+  <string name="setup_huawei_button">Briar की रक्षा करें</string>
+  <string name="setup_huawei_help">अगर Briar संरक्षित ऐप्स सूची में नहीं जोड़ा गया है, तो यह पृष्ठभूमि में चलने में असमर्थ होगा।</string>
+  <string name="warning_dozed">%sपृष्ठभूमि में चलाने में असमर्थ था</string>
   <!--Login-->
   <string name="enter_password">अपना पासवर्ड डालें:</string>
   <string name="try_again">गलत पासवर्ड, फिर से प्रयास करें</string>
@@ -18,9 +31,13 @@
   <string name="dialog_title_lost_password">पासवर्ड खो गया</string>
   <string name="dialog_message_lost_password">आपका ब्रियर खाता आपके डिवाइस पर एन्क्रिप्ट किया गया है, बादल में नहीं, इसलिए हम आपका पासवर्ड रीसेट नहीं कर सकते। क्या आप अपना खाता हटाना चाहते हैं और फिर से शुरू करना चाहते हैं? \ N \ n सावधानी: आपकी पहचान, संपर्क और संदेश स्थायी रूप से खो जाएंगे</string>
   <string name="startup_failed_notification_title">बियर शुरू नहीं हो सका</string>
-  <string name="startup_failed_notification_text">आपको ब्रियर को पुनर्स्थापित करने की आवश्यकता हो सकती है</string>
   <string name="startup_failed_activity_title">ब्रियर स्टार्टअप विफलता</string>
   <string name="startup_failed_service_error">ब्रियर एक आवश्यक प्लगइन प्रारंभ करने में असमर्थ था बरिअर को पुनः स्थापित करना आमतौर पर इस समस्या को हल करता है हालांकि, कृपया ध्यान दें कि बियर आपके डेटा को स्टोर करने के लिए केंद्रीय सर्वर का उपयोग नहीं कर रहा है, इसके बाद आप अपने खाता और उसके साथ जुड़े सभी डेटा खो देंगे।</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">यह Briar का एक परीक्षण संस्करण है आपका खाता %dदिनों में समाप्त हो जाएगा और नवीनीकरण नहीं किया जा सकता है</item>
+    <item quantity="other">यह Briar का एक परीक्षण संस्करण है आपका खाता %dदिनों में समाप्त हो जाएगा और नवीनीकरण नहीं किया जा सकता है</item>
+  </plurals>
+  <string name="expiry_update">परीक्षण समाप्ति तिथि बढ़ा दी गई है। आपका खाता अब %d दिनों में समाप्त हो जाएगा</string>
   <string name="expiry_date_reached">यह सॉफ्टवेयर समाप्त हो गया है। \n परीक्षण के लिए धन्यवाद!</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">नेविगेशन ड्रॉवर खोलें</string>
@@ -74,6 +91,7 @@
   <string name="ellipsis">…</string>
   <string name="text_too_long">प्रवेश किया हुआ पाठ बहुत लंबा है</string>
   <string name="show_onboarding">सहायता संवाद दिखाएं</string>
+  <string name="fix">ठीक कर</string>
   <string name="help">सहायता</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">ऐसा लगता है कि आप यहां नए हैं और अभी तक कोई संपर्क नहीं है। \ N \ n शीर्ष पर + आइकन टैप करें और कुछ मित्रों को अपनी सूची में जोड़ने के लिए निर्देशों का पालन करें। \ N \ n कृपया याद रखें: आप केवल नए संपर्कों को आमने-सामने जोड़ सकते हैं किसी भी व्यक्ति को भविष्य में आपके प्रतिरूपण या पढ़ने से रोकने के लिए -फाइल</string>
@@ -96,8 +114,10 @@
   <string name="contact_already_exists">संपर्क%s पहले से मौजूद है</string>
   <string name="contact_exchange_failed">संपर्क विनिमय विफल</string>
   <string name="qr_code_invalid">QR कोड अमान्य है</string>
+  <string name="camera_error">कैमरा त्रुटि</string>
   <string name="connecting_to_device">उपकरण \ u2026 से कनेक्ट हो रहा है</string>
   <string name="authenticating_with_device">डिवाइस के साथ प्रमाणीकरण \ u2026</string>
+  <string name="connection_aborted_local">कनेक्शन निरस्त कर दिया गया! इसका मतलब यह हो सकता है कि कोई आपके कनेक्शन में हस्तक्षेप करने का प्रयास कर रहा है</string>
   <string name="connection_aborted_remote">आपके संपर्क से कनेक्शन निरस्त! इसका मतलब यह हो सकता है कि कोई आपके कनेक्शन में हस्तक्षेप करने का प्रयास कर रहा है</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">अपने संपर्कों का परिचय दें</string>
@@ -318,6 +338,7 @@
   <string name="notify_sound_setting_default">बकाया घंटी</string>
   <string name="notify_sound_setting_disabled">कोई नहीं</string>
   <string name="choose_ringtone_title">रिंगटोन चुनें</string>
+  <string name="cannot_load_ringtone">रिंगटोन लोड नहीं कर सकता</string>
   <!--Settings Feedback-->
   <string name="feedback_settings_title">प्रतिक्रिया</string>
   <string name="send_feedback">प्रतिक्रिया भेजें</string>
@@ -346,6 +367,11 @@
   <string name="progress_title_logout">ब्रियर से साइन आउट हो रहा है ...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">स्क्रीन ओवरले का पता लगाया</string>
-  <string name="screen_filter_body">एक और ऐप ब्रियर के शीर्ष पर है। आपकी सुरक्षा की सुरक्षा के लिए, ब्रियर किसी अन्य ऐप को शीर्ष पर खींचने पर स्पर्श का जवाब नहीं देगा। \ N \ n बरिआर का उपयोग करते समय निम्नलिखित ऐप्स बंद कर दें: \ n \ n%1$s</string>
+  <string name="screen_filter_body">एक और ऐप ब्रियर के शीर्ष पर है। आपकी सुरक्षा की रक्षा के लिए, ब्रियर स्पर्श करने का जवाब नहीं देगा, जब किसी अन्य ऐप को शीर्ष पर आ रही है। \ N \ n निम्न एप्लिकेशन शीर्ष पर ड्राइंग कर सकते हैं: \ n \ n%1$s</string>
+  <string name="screen_filter_allow">इन ऐप्स को शीर्ष पर आकर्षित करने की अनुमति दें</string>
   <!--Permission Requests-->
+  <string name="permission_camera_title">कैमरा अनुमति</string>
+  <string name="permission_camera_request_body">QR कोड को स्कैन करने के लिए, Briar को कैमरे तक पहुंच की आवश्यकता है।</string>
+  <string name="permission_camera_denied_body">आपने कैमरे तक पहुंच से वंचित किया है, लेकिन संपर्क जोड़ने के लिए कैमरे का उपयोग करने की आवश्यकता है। \ N \ n कृपया पहुंच प्रदान करने पर विचार करें।</string>
+  <string name="permission_camera_denied_toast">कैमरा अनुमति नहीं दी गई थी</string>
 </resources>

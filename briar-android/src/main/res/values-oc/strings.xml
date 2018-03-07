@@ -18,7 +18,6 @@
 Volètz suprimir vòstre compte e ne crear un nòu ?\n
 \nMèfi : vòstra identitat, vòstres contactes e messatges seràn perduts per totjorn.</string>
   <string name="startup_failed_notification_title">Briar a pas pogut aviar</string>
-  <string name="startup_failed_notification_text">Benlèu que vos cal tornar installar Briar.</string>
   <string name="startup_failed_activity_title">Fracàs de l’aviada de Briar.</string>
   <string name="startup_failed_service_error">Briar a pas pogut aviar un modul necessari. Tornar installar Briar pòt resolver aquò. Que aquò siá dich : perdretz vòstre compte e totas las donadas ligadas a aqueste. Briar utiliza pas de servidor centralizat per salvar sas donadas.</string>
   <string name="expiry_date_reached">Vòstre logicial s’acabèt.\nMercés d’aver ensajat !</string>
@@ -346,6 +345,5 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="progress_title_logout">Desconnecion de Briar...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Superposicion detectada</string>
-  <string name="screen_filter_body">Una autra aplicacion s’aficha per dessús Briar. Per protegir vòstre seguretat Briar respond pas quand una autra aplicacion s’aficha par dessús.\n\nEnsajatz de tampar las aplicacions seguentas quand utilizatz Briar : \n\n%1$s</string>
   <!--Permission Requests-->
 </resources>

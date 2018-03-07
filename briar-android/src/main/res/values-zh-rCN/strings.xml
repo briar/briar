@@ -31,9 +31,11 @@
   <string name="dialog_title_lost_password">忘记密码</string>
   <string name="dialog_message_lost_password">您的 Briar 账号被加密储存在您的设备上，而非云端，因此我们无法重置您的密码。您是否希望删除帐号，重新开始？\n\n注意：您的身份、联系人和消息将会永久遗失。</string>
   <string name="startup_failed_notification_title">Briar 无法启动</string>
-  <string name="startup_failed_notification_text">你可能需要重新安装 Briar</string>
+  <string name="startup_failed_notification_text">点击查看更多信息。</string>
   <string name="startup_failed_activity_title">Briar 启动失败</string>
-  <string name="startup_failed_db_error">由于某种原因，您的 Briar 数据库损坏且无法修复。您的帐户、数据和所有联系人已经丢失。不幸的是，您需要重新安装 Briar 并建立新帐户。</string>
+  <string name="startup_failed_db_error">由于某种原因，您的 Briar 数据库损坏且无法修复。您的帐户、数据和所有联系人已经丢失。不幸的是，您需要在提示输入密码时选择“我忘记了我的密码”以重新安装 Briar 并建立新帐户。</string>
+  <string name="startup_failed_data_too_old_error">您的帐户由旧版本应用创建，无法在此版本上打开。您需要重新安装旧版本应用或在提示输入密码时选择“我忘记了我的密码”以删除旧帐户。</string>
+  <string name="startup_failed_data_too_new_error">该应用版本过旧。请升级至最新版本并重试。</string>
   <string name="startup_failed_service_error">Briar 无法开启一个必要插件。通常情况下，重新安装 Briar 可以解决这个问题。但是由于 Briar 并不采用中央服务器来储存您的数据，您将丢失您的账号和与您的账号相关的一切数据。</string>
   <plurals name="expiry_warning">
     <item quantity="other">这是 Briar 的一个测试版本。您的帐户将在 %d 天后过期，且无法继续使用。</item>
@@ -90,6 +92,7 @@
   <string name="show_onboarding">显示帮助对话</string>
   <string name="fix">修复</string>
   <string name="help">帮助</string>
+  <string name="sorry">抱歉</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">你似乎是新来的，目前还没有联系人。\n\n轻触上方的 + 按钮并根据提示添加联系人。\n\n请牢记：您只能通过面对面的方式添加新联系人，以防止未来他人冒充您的身份并查看您的信息。</string>
   <string name="date_no_private_messages">没有消息。</string>
@@ -111,6 +114,7 @@
   <string name="contact_already_exists">联系人 %s 已存在</string>
   <string name="contact_exchange_failed">联系人交换失败</string>
   <string name="qr_code_invalid">二维码无效</string>
+  <string name="qr_code_unsupported">您正在扫描的是来自 %s 版旧版本的二维码，目前不再支持。\n\n请确保你们两人都在运行最新版本并重试。</string>
   <string name="camera_error">摄像头出错</string>
   <string name="connecting_to_device">正在连接至设备\u2026</string>
   <string name="authenticating_with_device">正在验证设备\u2026</string>
@@ -359,7 +363,8 @@
   <string name="progress_title_logout">登出 Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">检测到屏幕覆盖</string>
-  <string name="screen_filter_body">另一个应用覆盖在 Briar 上。为了保护您的安全，在有其他应用覆盖的情况下， Briar 将不会对触控做出反应。\n\n使用 Briar 时请尝试关闭以下程序:\n\n%1$s</string>
+  <string name="screen_filter_body">另一个应用覆盖在 Briar 上。为了保护您的安全，在有其他应用覆盖的情况下， Briar 将不会对触控做出反应。\n\n这些应用可能覆盖在上:\n\n%1$s</string>
+  <string name="screen_filter_allow">允许这些应用覆盖在上</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">相机权限</string>
   <string name="permission_camera_request_body">Briar 需要获得相机权限以扫描二维码。</string>

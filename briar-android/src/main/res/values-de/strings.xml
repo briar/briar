@@ -31,9 +31,7 @@
   <string name="dialog_title_lost_password">Passwort vergessen</string>
   <string name="dialog_message_lost_password">Dein Briar-Konto ist auf deinem Gerät verschlüsselt und nicht in der Cloud gespeichert, deshalb kannst du dein Passwort nicht zurücksetzen. Willst du dein Konto löschen und neu beginnen?\n\nAchtung: Deine bestehenden Identitäten, Kontakte und Nachrichten gehen dann für immer verloren.</string>
   <string name="startup_failed_notification_title">Briar konnte nicht gestartet werden</string>
-  <string name="startup_failed_notification_text">Möglicherweise hilft eine Neuinstallation von Briar.</string>
   <string name="startup_failed_activity_title">Fehler beim Starten von Briar</string>
-  <string name="startup_failed_db_error">Aus irgendeinem Grund ist deine Briar-Datenbank irreparabel beschädigt. Dein Konto, deine Daten und alle deinen Kontakte sind verloren. Leider musst du Briar neu installieren und ein neues Konto einrichten.</string>
   <string name="startup_failed_service_error">Briar konnte ein benötigtes Plugin nicht starten. Normalerweise kann das Problem durch eine Neuinstallation von Briar gelöst werden. Eine Neuinstallation führt jedoch zum Verlust deines Kontos und aller dazugehörigen Daten, da Briar deine Daten nicht auf zentralen Servern speichert.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Dies ist eine Testversion von Briar. Dein Konto läuft in %d Tag ab und kann nicht verlängert werden.</item>
@@ -369,7 +367,8 @@
   <string name="progress_title_logout">Von Briar abmelden...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Bildschirmüberlagerung erkannt</string>
-  <string name="screen_filter_body">Eine andere App überlagert Briar. Um deine Sicherheit zu gewährleisten, reagiert Briar in diesem Fall nicht auf deine Eingaben.\n\nBeende deswegen die folgenden Apps während der Verwendung von Briar:\n\n%1$s</string>
+  <string name="screen_filter_body">Eine andere App überlagert Briar. Um deine Sicherheit zu gewährleisten, reagiert Briar in diesem Fall nicht auf deine Eingaben.\n\nDie folgenden Apps könnten überlagern:\n\n%1$s</string>
+  <string name="screen_filter_allow">Erlauben diesen Apps die Bildschirmüberlagerung</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Berechtigung Kamera</string>
   <string name="permission_camera_request_body">Um den QR-Code zu scannen, benötigt Briar Zugriff auf die Kamera.</string>

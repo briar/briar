@@ -23,7 +23,6 @@
   <string name="forgotten_password">Ankoueet em eus ma ger-tremen</string>
   <string name="dialog_title_lost_password">Kollet em eus ma ger-tremen</string>
   <string name="startup_failed_notification_title">N\'hall ket loc\'hañ Briar</string>
-  <string name="startup_failed_notification_text">Rankout a rit staliañ a nevez Briar.</string>
   <!--Navigation Drawer-->
   <string name="contact_list_button">Darempredoù</string>
   <string name="groups_button">Strolladoù prevez</string>
@@ -144,6 +143,7 @@
   <!--Settings Feedback-->
   <!--Link Warning-->
   <!--Crash Reporter-->
+  <string name="close">Serriñ</string>
   <!--Sign Out-->
   <!--Screen Filters & Tapjacking-->
   <!--Permission Requests-->

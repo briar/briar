@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
+  <string name="setup_title">Добре дошли в Briar</string>
   <string name="setup_next">Следващ</string>
   <string name="choose_nickname">Изберете име</string>
   <string name="choose_password">Изберете парола</string>
@@ -17,7 +18,6 @@
   <string name="dialog_title_lost_password">Забравена парола</string>
   <string name="dialog_message_lost_password">Briar профилът се съхранява криптиран във вашето устройство, не в облака, така че не можем да зададем нова парола. Искате ли да изтриете профила си и да започнете отначало?\n\nВнимание: Вашият профил, контакти и съобщения ще бъдат изтрити завинаги.</string>
   <string name="startup_failed_notification_title">Briar не можа да стартира</string>
-  <string name="startup_failed_notification_text">Може да се наложи да преинсталирате Briar.</string>
   <string name="startup_failed_activity_title">Неуспешно стартиране</string>
   <string name="startup_failed_service_error">Briar не успя да стартира задължителен плъгин. Обикновено преинсталирането на Briar решава този проблем. Моля, имайте предвид, че ще изгубите профила си и всички данни, асоциирани с него, тъй като Briar не съхранява данните ви в централни сървъри.</string>
   <string name="expiry_date_reached">Софтуерът е невалиден.\nБлагодарим ви за тестването!</string>
@@ -345,6 +345,5 @@
   <string name="progress_title_logout">Отписване от Briar...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Открит е овърлей на екрана</string>
-  <string name="screen_filter_body">Друго приложение чертае върху Briar. За да защити вашата сигурност, Briar няма да реагира на докосване, докато друго приложение чертае отгоре.\n\nОпитайте да изключите следните приложения, когато използвате Briar:\n\n%1$s</string>
   <!--Permission Requests-->
 </resources>

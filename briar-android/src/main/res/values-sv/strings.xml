@@ -31,8 +31,6 @@
   <string name="dialog_title_lost_password">Glömt lösenord?</string>
   <string name="dialog_message_lost_password">Eftersom ditt Briar-konto lagras krypterat på din mobil eller läsplatta och inte hos en molntjänst kan vi inte återställa ditt lösenord. Vill du radera ditt konto och skapa ett nytt?\n\nCaution: Du kommer att förlora din profil, dina kontakter och dina meddelanden.</string>
   <string name="startup_failed_notification_title">Briar kunde inte startas </string>
-  <string name="startup_failed_notification_text">Du kan behöva återinstallera Briar.</string>
-  <string name="startup_failed_db_error">Av någon anledning är din Briar-databas korrumperad och kan inte repareras. Ditt konto, dina data och alla dina kontakter har förlorats. Du behöver tyvärr återinstallera Briar och skapa ett nytt konto.</string>
   <string name="startup_failed_service_error">Briar kunde inte starta ett nödvändigt insticksprogram. Att återinstallera Briar brukar lösa problemet, men eftersom dina data inte lagras på en central server innebär detta att du kommer att förlora ditt konto och alla dess tillhörande data.</string>
   <string name="expiry_date_reached">Mjukvaran har gått ut.\nTack för att du bidragit till att testa!</string>
   <!--Navigation Drawer-->

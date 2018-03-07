@@ -31,9 +31,8 @@
   <string name="dialog_title_lost_password">Unohtunut salasana</string>
   <string name="dialog_message_lost_password">Sinun Briar tili on tallennettu salattuna sinun laitteelle, ei pilvipalvelimelle, joten emme voi palauttaa salasanaasi. Haluatko poistaa tilisi ja aloittaa alusta?\n\nVaroitus: Tulet menettämään tunnuksesi, yhteystietosi ja viestisi lopullisesti.</string>
   <string name="startup_failed_notification_title">Briarin käynnistys epäonnistui</string>
-  <string name="startup_failed_notification_text">Sinun täytyy ehkä uudelleenasentaa Briar.</string>
+  <string name="startup_failed_notification_text">Napauta nähdäksesi lisätietoja.</string>
   <string name="startup_failed_activity_title">Briarin käynnistys epäonnistui</string>
-  <string name="startup_failed_db_error">Jostain syystä sinun Briar tietokanta on korruptoitunut korjauskelvottomaksi. Tilisi, tietosi ja kaikki yhteystietosi on menetetty. Valitettavasti, sinun täytyy asentaa Briar uudelleen ja luoda uusi tili.</string>
   <string name="startup_failed_service_error">Briar ei kyennyt käynnistämään vaadittua liitännäistä. Briarin uudelleenasennus yleensä korjaa ongelman. Huomaa kuitenkin, että tulet menettämään tilisi ja kaikki siihen liittyvä data koska Briar ei käytä palvelimia sinun tietojesi säilyttämiseen.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Tämä on Briarin testiversio. Sinun tilisi tulee vanhentumaan %d päivän päästä eikä sitä voi uusia.</item>
@@ -95,6 +94,7 @@
   <string name="show_onboarding">Näytä apudialogi</string>
   <string name="fix">Korjaa</string>
   <string name="help">Ohje</string>
+  <string name="sorry">Anteeksi</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Näyttää siltä, että olet uusi täällä, eikä sinulla vielä ole yhteyshenkilöitä.\n\nNapauta yllä olevaa + -kuvaketta ja seuraa ohjeita lisätäksesi kavereita luetteloon.\n\nMuista: Voit ainoastaan lisätä uusia yhteyshenkilöitä tapaamalla heidät kasvokkain. Tämä estää sen, että joku voisi esittää olevansa sinä tai lukea viestejäsi tulevaisuudessa.</string>
   <string name="date_no_private_messages">Ei viestejä.</string>
@@ -369,7 +369,8 @@
   <string name="progress_title_logout">Kirjaudutaan ulos Briarista...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Näyttökerros havaittu</string>
-  <string name="screen_filter_body">Toinen sovellus on piirtämässä Briarin päälle. Suojellakseen sinun turvallisuutta, Briar ei tule vastaamaan kosketuksiin silloin kun toinen sovellus on piirtämässä Briarin päälle.\n\nYritä sulkea seuraavat sovellukset silloin kun käytät Briaria:\n\n%1$s</string>
+  <string name="screen_filter_body">Toinen sovellus on piirtämässä Briarin päälle. Suojellakseen sinun turvallisuutta, Briar ei tule vastaamaan kosketuksiin silloin kun toinen sovellus on piirtämässä Briarin päälle.\n\nOn mahdollista, että seuraavat sovellukset piirtävät päälle:\n\n%1$s</string>
+  <string name="screen_filter_allow">Salli näiden sovellusten piirtää päälle</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Kameralupa</string>
   <string name="permission_camera_request_body">Skannatakseen QR koodin, Briar tarvitsee luvan käyttää kameraa.</string>
