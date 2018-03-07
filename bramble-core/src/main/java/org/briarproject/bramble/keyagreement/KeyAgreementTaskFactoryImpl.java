@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.plugin.PluginManager;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 @Immutable
 @NotNullByDefault
@@ -19,22 +20,22 @@ class KeyAgreementTaskFactoryImpl implements KeyAgreementTaskFactory {
 	private final EventBus eventBus;
 	private final PayloadEncoder payloadEncoder;
 	private final PluginManager pluginManager;
-	private final ConnectionChooser connectionChooser;
+	private final Provider<ConnectionChooser> connectionChooserProvider;
 
 	@Inject
 	KeyAgreementTaskFactoryImpl(CryptoComponent crypto, EventBus eventBus,
 			PayloadEncoder payloadEncoder, PluginManager pluginManager,
-			ConnectionChooser connectionChooser) {
+			Provider<ConnectionChooser> connectionChooserProvider) {
 		this.crypto = crypto;
 		this.eventBus = eventBus;
 		this.payloadEncoder = payloadEncoder;
 		this.pluginManager = pluginManager;
-		this.connectionChooser = connectionChooser;
+		this.connectionChooserProvider = connectionChooserProvider;
 	}
 
 	@Override
 	public KeyAgreementTask createTask() {
 		return new KeyAgreementTaskImpl(crypto, eventBus, payloadEncoder,
-				pluginManager, connectionChooser);
+				pluginManager, connectionChooserProvider.get());
 	}
 }
