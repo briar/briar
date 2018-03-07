@@ -31,9 +31,11 @@
   <string name="dialog_title_lost_password">U humb Fjalëkalimi</string>
   <string name="dialog_message_lost_password">Llogaria juaj Briar depozitohet e fshehtëzuar në pajisjen tuaj, jo në re, ndaj s\’mund ta ricaktojmë fjalëkalimin tuaj. Do të donit ta fshini llogarinë tuaj dhe t\’ia filloni nga e para?\n\nKujdes: Identitetet, kontaktet dhe mesazhet tuaja do të humbin përgjithnjë.</string>
   <string name="startup_failed_notification_title">Briar-i s\’u nis dot</string>
-  <string name="startup_failed_notification_text">Mund të keni nevojë të ri-instaloni Briar-in.</string>
+  <string name="startup_failed_notification_text">Prekeni për më tepër të dhëna.</string>
   <string name="startup_failed_activity_title">Dështim Nisjeje i Briar-it</string>
-  <string name="startup_failed_db_error">Për ndonjë arsye, baza e të dhënave e Briar-it tuaj është aq e dëmtuar, sa s\’mund të ndreqet. Llogaria juaj, të dhënat tuaja dhe krejt lidhjet tuaja me kontaktet kanë humbur. Mjerisht lypset të ri-instaloni Briar-in dhe të rregulloni një llogari të re.</string>
+  <string name="startup_failed_db_error">Për ndonjë arsye, baza e të dhënave të Briar-it është e dëmtuar sa nuk ndreqet dot. Llogaria juaj, të dhënat tuaja dhe krejt kontaktet tuaja humbën. Mjerisht, ju duhet të ri-instaloni Briar-in dhe të rregulloni një llogari të re duke zgjedhur \'Kam harruar fjalëkalimin tim\' te hapi për fjalëkalimin.</string>
+  <string name="startup_failed_data_too_old_error">Llogaria juaj qe krijuar me një version të vjetër të këtij aplikacioni dhe s’mund të hapet me këtë version. Ose duhet të ri-instaloni versionin e vjetër, ose të fshini llogarinë tuaj të vjetër duke zgjedhur \'Kam harruar fjalëkalimin tim\' te hapi për fjalëkalimin.</string>
+  <string name="startup_failed_data_too_new_error">Ky version i aplikacionit është shumë i vjetër. Ju lutemi, përmirësojeni me versionin më të ri dhe riprovoni.</string>
   <string name="startup_failed_service_error">Briar-i s\’arriti të nisë një shtojcë të domosdoshme. Ri-instalimi i Briar-it zakonisht e zgjidh këtë problem. Por, ju lutemi, kini parasysh se me të do të humbni llogarinë tuaj dhe krejt të dhënat e lidhura me të, ngaqë Briar nuk përdor shërbyes qendrorë për të depozituar në ta të dhënat tuaja.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Ky është një version beta i Briar-it. Llogaria juaj do të skadojë për %d ditë dhe s\’mund të rinovohet.</item>
@@ -83,7 +85,8 @@
   <string name="delete">Fshije</string>
   <string name="accept">Pranoje</string>
   <string name="decline">Hidhe poshtë</string>
-	<string name="online">Në linjë</string>
+  <string name="options">Mundësi</string>
+  <string name="online">Në linjë</string>
   <string name="offline">Jo në linjë</string>
   <string name="send">Dërgoje</string>
   <string name="allow">Lejoje</string>
@@ -94,6 +97,7 @@
   <string name="show_onboarding">Shfaq Dialog Ndihme</string>
   <string name="fix">Ndreqeni</string>
   <string name="help">Ndihmë</string>
+  <string name="sorry">Na ndjeni</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Duket se jeni i ri këtu dhe ende s\’keni kontakte.\n\nPrekni ikonën + në krye dhe ndiqni udhëzimet që të shtoni ca shokë e miq te lista juaj.\n\nJu lutemi, mbani mend: Mundeni të shtoni kontakte të rinj vetëm duke qenë ballë për ballë me ta. që kështu të pengoni cilindo të hiqet si ju ose të lexojë në të ardhmen mesazhet tuaj.</string>
   <string name="date_no_private_messages">S\’ka mesazhe.</string>
@@ -115,6 +119,7 @@
   <string name="contact_already_exists">Kontakti %s ekziston tashmë</string>
   <string name="contact_exchange_failed">Shkëmbimi i kontaktit dështoi</string>
   <string name="qr_code_invalid">Kodi QR është i pavlefshëm</string>
+  <string name="qr_code_unsupported">Kodi QR që po provoni të skanoni më poshtë i përket një versioni të vjetër të %s-it, i cili nuk mbulohet më.\n\nJu lutemi, sigurohuni që që të dy ju xhironi versionin më të ri dhe mandej riprovoni.</string>
   <string name="camera_error">Gabim kamere</string>
   <string name="connecting_to_device">Po lidhet me pajisjen\u2026</string>
   <string name="authenticating_with_device">Po bëhet mirëfilltësimi me pajisjen\u2026</string>
@@ -368,7 +373,8 @@
   <string name="progress_title_logout">Po dilet nga Briar-i…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">U kap dalje jashtë ekrani</string>
-  <string name="screen_filter_body">Përsipër Briar-it po vizatohet nga një aplikacion tjetër. Që të mbrohet siguria juaj, Briar-i nuk do t\’u përgjigjet prekjeve kur përsipër vizatohet nga një aplikacion tjetër.\n\nProvoni të mbyllni aplikacionet vijuese, kur përdorni Briar-in:\n\n%1$s</string>
+  <string name="screen_filter_body">Sipër Briar-it po vizaton një tjetër aplikacion. Për të mbrojtur sigurinë tuaj, Briar-i nuk do t’u përgjigjet prekjeve kur një tjetër aplikacion vizaton përsipër.\n\nPërsipër mund të jenë duke vizatuar aplikacionet vijues:\n\n%1$s</string>
+  <string name="screen_filter_allow">Lejoji këto aplikacione të vizatojnë përsipër</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Leje mbi kamerën</string>
   <string name="permission_camera_request_body">Që të skanojë kodin QR, Briar-i lypset të hyjë te kamera.</string>

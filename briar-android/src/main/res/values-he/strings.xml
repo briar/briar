@@ -19,7 +19,6 @@
 
 זהירות: הזהויות שלכם, אנשי הקשר וההודעות יאבדו לצמיתות.</string>
   <string name="startup_failed_notification_title">אפליקציית בריאר נכשלה באיתחול</string>
-  <string name="startup_failed_notification_text">יכול להיות שתאלצו להתקין מחדש את אפליקציית בריאר.</string>
   <string name="startup_failed_activity_title">איתחול בריאר נכשל</string>
   <string name="startup_failed_service_error">בריאר לא הצליח לאתחל תוסף הכרחי. התקנת בריאר מחדש לרוב פותרת בעייה זו. שימו לב שאז תאבדו את חשבונכם וכל המידע המשוייך אליו כיוון שבריאר לא משתמש בשרתים מרכזיים לשמירת המידע שלכם עליהם.</string>
   <string name="expiry_date_reached">פג תוקפה של תוכנה זו.
@@ -66,7 +65,8 @@
   <string name="delete">מחק</string>
   <string name="accept">קבל</string>
   <string name="decline">סרב</string>
-	<string name="online">מחובר</string>
+  <string name="options">אפשרויות</string>
+  <string name="online">מחובר</string>
   <string name="offline">לא מחובר</string>
   <string name="send">שלח</string>
   <string name="allow">להתיר</string>

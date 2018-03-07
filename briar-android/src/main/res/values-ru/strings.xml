@@ -2,13 +2,13 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Добро пожаловать в Briar</string>
-  <string name="setup_name_explanation">Ваш ник будет показан рядом с любым контентом, который вы публикуете. Вы не сможете изменить его после создания аккаунта.</string>
+  <string name="setup_name_explanation">Ваш ник будет показан рядом с любым контентом, который вы публикуете. Его нельзя изменить после создания аккаунта.</string>
   <string name="setup_next">Вперед</string>
   <string name="setup_password_intro">Выберите пароль</string>
-  <string name="setup_password_explanation">Ваша учетная запись Briar хранится в зашифрованном виде только на устройстве. Если вы забудете свой пароль или удалите Briar, вы не сможете восстановить свою учетную запись.\n\nВыберите длинный пароль, который трудно угадать, например четыре случайных слова или десять случайных букв, цифр и символов.</string>
+  <string name="setup_password_explanation">Ваша учетная запись Briar хранится в зашифрованном виде только на устройстве. Если вы забудете свой пароль или удалите Briar, то не сможете восстановить свою учетную запись.\n\nВыберите длинный пароль, который трудно угадать, например четыре случайных слова или десять случайных букв, цифр и символов.</string>
   <string name="setup_doze_title">Фоновые подключения</string>
-  <string name="setup_doze_intro">Для получения сообщений, Briar должен работать в фоновом режиме.</string>
-  <string name="setup_doze_explanation">Для получения сообщений, Briar должен работать в фоновом режиме. Отключите оптимизацию электропитания для Briar.</string>
+  <string name="setup_doze_intro">Для получения сообщений Briar должен работать в фоновом режиме.</string>
+  <string name="setup_doze_explanation">Для получения сообщений Briar должен работать в фоновом режиме. Отключите оптимизацию электропитания для Briar.</string>
   <string name="setup_doze_button">Разрешить подключения</string>
   <string name="choose_nickname">Выберите псевдоним</string>
   <string name="choose_password">Выберите пароль</string>
@@ -28,12 +28,14 @@
   <string name="try_again">Неверный пароль, повторите попытку</string>
   <string name="sign_in_button">Войти</string>
   <string name="forgotten_password">Я забыл свой пароль</string>
-  <string name="dialog_title_lost_password">Потерянный пароль</string>
+  <string name="dialog_title_lost_password">Пароль утерян</string>
   <string name="dialog_message_lost_password">Ваша учетная запись Briar хранится в зашифрованном виде только на устройстве, поэтому мы не можем сбросить пароль. Удалить учетную запись и начать заново?\n\nВнимание: ваши идентификаторы, контакты и сообщения будут потеряны навсегда.</string>
   <string name="startup_failed_notification_title">Не удалось запустить Briar</string>
-  <string name="startup_failed_notification_text">Возможно, потребуется переустановить Briar.</string>
+  <string name="startup_failed_notification_text">Коснитесь для получения дополнительных сведений.</string>
   <string name="startup_failed_activity_title">Сбой при запуске Briar</string>
-  <string name="startup_failed_db_error">По какой-то причине, ваша база данных Briar повреждена без возможности восстановления. Ваша учетная запись, ваши данные и все ваши контакты потеряны. К сожалению, вам придется переустановить Briar и создать новую учетную запись.</string>
+  <string name="startup_failed_db_error">По какой-то причине, база данных Briar повреждена без возможности восстановления. Вместе с учетной записью будут потеряны ваши данные и ваши контакты. К сожалению, вам нужно переустановить Briar и создать новый аккаунт, выбрав \'я забыл свой пароль\'.</string>
+  <string name="startup_failed_data_too_old_error">Ваша учетная запись была создана в старой версии Briar и не может быть открыта в этой версии. Вы должны либо установить старую версию, либо удалить старую учетную запись, выбрав \'я забыл свой пароль\'.</string>
+  <string name="startup_failed_data_too_new_error">Версия приложения слишком старая. Обновите до последней версии и повторите попытку.</string>
   <string name="startup_failed_service_error">Briar не смог запустить требуемый подключаемый модуль. Переустановка Briar обычно решает эту проблему. Однако обратите внимание, что после этого вы потеряете свою учетную запись и все связанные с ней данные, поскольку Briar не использует центральных серверов для хранения данных.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Это бета-версия Briar. Срок действия вашей учетной записи истечет через %d день и не может быть продлен.</item>
@@ -93,7 +95,8 @@
   <string name="delete">Удалить</string>
   <string name="accept">Принять</string>
   <string name="decline">Отклонить</string>
-	<string name="online">В сети</string>
+  <string name="options">Опции</string>
+  <string name="online">В сети</string>
   <string name="offline">Не в сети</string>
   <string name="send">Отправить</string>
   <string name="allow">Разрешить</string>
@@ -104,6 +107,7 @@
   <string name="show_onboarding">Показать справку</string>
   <string name="fix">Исправить</string>
   <string name="help">Помощь</string>
+  <string name="sorry">Сожалеем</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Кажется, вы здесь новенький и у вас нет контактов.\n\nКоснитесь значка + вверху и следуйте инструкциям, чтобы добавить друзей в список.\n\nПомните: вы можете добавлять новые контакты только лично, чтобы никто не выдал себя за вас и не мог читать ваши сообщения.</string>
   <string name="date_no_private_messages">Нет сообщений.</string>
@@ -125,6 +129,7 @@
   <string name="contact_already_exists">Контакт %s уже существует</string>
   <string name="contact_exchange_failed">Обмен контактами не удался</string>
   <string name="qr_code_invalid">Неверный QR-код</string>
+  <string name="qr_code_unsupported">QR-код, который вы пытаетесь отсканировать, создан в старой версии %s, которая больше не поддерживается.\n\nУбедитесь, что вы работаете с последней версией, а затем повторите попытку.</string>
   <string name="camera_error">Ошибка камеры</string>
   <string name="connecting_to_device">Подключение к устройству\u2026</string>
   <string name="authenticating_with_device">Аутентификация с устройством\u2026</string>
@@ -239,7 +244,7 @@
   <string name="forum_share_button">Поделиться форумом</string>
   <string name="contacts_selected">Выбранные контакты</string>
   <string name="activity_share_toolbar_header">Выбор контактов</string>
-  <string name="no_contacts_selector">Кажется, вы здесь новенький и у вас нет контактов.\n\nПожалуйста, вернитесь сюда после того, как добавите свой первый контакт.</string>
+  <string name="no_contacts_selector">Кажется, вы здесь новенький и у вас нет контактов.\n\nЗагляните сюда после добавления  своего первого контакта.</string>
   <string name="forum_shared_snackbar">Поделиться форумом совместно с выбранными контактами</string>
   <string name="forum_share_message">Добавить сообщение (необязательно)</string>
   <string name="forum_share_error">Произошла ошибка при при попытке поделиться этим форумом.</string>
@@ -273,8 +278,8 @@
   <string name="blogs_publish_blog_post">Опубликовать</string>
   <string name="blogs_blog_post_created">Запись блога создана</string>
   <string name="blogs_blog_post_received">Появилась новая запись блога</string>
-  <string name="blogs_blog_post_scroll_to">Перейти к</string>
-  <string name="blogs_feed_empty_state">Это глобальный блог.\n\nПохоже, что никто ничего не писал.\n\nБудьте первым - коснитесь значка пера, чтобы написать новую запись блога.</string>
+  <string name="blogs_blog_post_scroll_to">Перейти</string>
+  <string name="blogs_feed_empty_state">Это глобальный блог.\n\nПохоже, что никто ничего не писал.\n\nБудьте первым - коснитесь значка пера для создания новой записи.</string>
   <string name="blogs_remove_blog">Удалить блог</string>
   <string name="blogs_remove_blog_dialog_message">Вы действительно хотите удалить этот блог со всеми записями?\nОбратите внимание, что это не приведет к удалению блога на устройствах других пользователей.</string>
   <string name="blogs_remove_blog_ok">Удалить блог</string>
@@ -366,13 +371,13 @@
   <!--Link Warning-->
   <string name="link_warning_title">Внимание</string>
   <string name="link_warning_intro">Вы собираетесь открыть следующую ссылку в стороннем приложении.</string>
-  <string name="link_warning_text">Возможно вас хотят идентифицировать. Подумайте, доверяете ли вы человеку, который прислал вам эту ссылку и рассмотрите возможность ее открытия в Orfox.</string>
+  <string name="link_warning_text">Возможно вас хотят идентифицировать. Подумайте, доверяете ли вы человеку, который прислал вам эту ссылку и рассмотрите возможность открытия ее в Orfox.</string>
   <string name="link_warning_open_link">Открыть ссылку</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Отчет о сбое Briar</string>
   <string name="briar_crashed">К сожалению, Briar неожиданно завершил работу.</string>
   <string name="not_your_fault">Это не ваша вина.</string>
-  <string name="please_send_report">Пожалуйста, помогите сделать Briar еще лучше, отправив нам отчет о сбоях.</string>
+  <string name="please_send_report">Пожалуйста, помогите сделать Briar лучше, отправив нам отчет о сбое.</string>
   <string name="report_is_encrypted">Мы обещаем, что отчет зашифрован и будет отправлен безопасно.</string>
   <string name="feedback_title">Обратная связь</string>
   <string name="describe_crash">Опишите, что произошло (необязательно)</string>
@@ -388,7 +393,8 @@
   <string name="progress_title_logout">Выход из Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Обнаружено наложение экрана</string>
-  <string name="screen_filter_body">Другое приложение рисуется поверх Briar. Чтобы защитить вашу безопасность, Briar не будет реагировать на прикосновения, когда другое приложение рисует сверху.\n\nПопробуйте отключить следующие приложения при использовании Briar:\n\n%1$s</string>
+  <string name="screen_filter_body">Другое приложение накладывается на Briar. Чтобы защитить вашу безопасность, Briar не будет реагировать на прикосновения, пока есть наложение.\n\nМогут накладываться следующие приложения:\n\n%1$s</string>
+  <string name="screen_filter_allow">Разрешить этим приложениям наложение?</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Разрешение камеры</string>
   <string name="permission_camera_request_body">Для сканирования QR-кода Briar необходим доступ к камере.</string>

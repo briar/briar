@@ -31,9 +31,11 @@
   <string name="dialog_title_lost_password">Contraseña olvidada</string>
   <string name="dialog_message_lost_password">Tu cuenta de Briar se almacena de manera cifrada en tu dispositivo y no en ninguna nube, así que no podemos reiniciar tu contraseña. ¿Deseas eliminar tu cuenta y empezar de nuevo?\n\nAdvertencia: tus identidades, contactos y mensajes se perderán para siempre.</string>
   <string name="startup_failed_notification_title">Briar no pudo iniciarse</string>
-  <string name="startup_failed_notification_text">Quizá tengas que reinstalar Briar.</string>
+  <string name="startup_failed_notification_text">Toca para más información.</string>
   <string name="startup_failed_activity_title">Fallo al iniciar Briar</string>
-  <string name="startup_failed_db_error">Por alguna razón, su base de datos Briar está dañada irreparablemente. Su cuenta, sus datos y todos sus contactos están perdidos. Desafortunadamente, necesita reinstalar Briar y configurar una nueva cuenta.</string>
+  <string name="startup_failed_db_error">Por alguna razón, la base de datos de Briar se ha dañada irreparablemente. Tu cuenta, tus datos y tus contactos se han perdido. Lamentablemente, necesitas reinstalar Briar y configurar una nueva cuenta. Puedes hacerlo seleccionando «He olvidado mi contraseña» al arrancar Briar.</string>
+  <string name="startup_failed_data_too_old_error">Tu cuenta se creó en una versión antigua de esta apli y no puede abrirse con la versión actual. Debes instalar la versión anterior o eliminar tu cuenta eligiendo «He olvidado mi contraseña» al arrancar Briar.</string>
+  <string name="startup_failed_data_too_new_error">La versión de esta apli es demasiado antigua. Por favor, actualiza a la última versión y prueba de nuevo.</string>
   <string name="startup_failed_service_error">Briar no pudo iniciar un complemento necesario. Reinstalar Briar suele solucionar el problema. Sin embargo, ten en cuenta que perderás tu cuenta y todos los datos asociados ya que Briar no almacena esta información en ningún servidor central.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Esta es una versión de prueba de Briar. Su cuenta expirará en %d día y no podrá ser renovada.</item>
@@ -83,7 +85,8 @@
   <string name="delete">Borrar</string>
   <string name="accept">Aceptar</string>
   <string name="decline">Rechazar</string>
-	<string name="online">En línea</string>
+  <string name="options">Configuración</string>
+  <string name="online">En línea</string>
   <string name="offline">Desconectado</string>
   <string name="send">Enviar</string>
   <string name="allow">Permitir</string>
@@ -94,6 +97,7 @@
   <string name="show_onboarding">Mostrar diálogo de ayuda</string>
   <string name="fix">Reparar</string>
   <string name="help">Ayuda</string>
+  <string name="sorry">Disculpe</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Parece que eres nuevo por aquí y no tienes aún contactos.\n\nPulsa el signo + en la parte superior y sigue las instrucciones para añadir amigos a tu lista.\n\nPor favor, recuerda: sólo puedes añadir nuevos contactos cara a cara para evitar que nadie suplante tu identidad o lea tus mensajes en el futuro. </string>
   <string name="date_no_private_messages">Sin mensajes.</string>
@@ -115,6 +119,7 @@
   <string name="contact_already_exists">El contacto %s ya existe</string>
   <string name="contact_exchange_failed">El intercambio del contacto falló</string>
   <string name="qr_code_invalid">El código QR no es válido</string>
+  <string name="qr_code_unsupported">El código QR que intenta escanear pertenece a una versión anterior de %s que ya no es compatible.\n\nAsegúrese de que ambos estén ejecutando la última versión y luego inténtelo de nuevo.</string>
   <string name="camera_error">Error de cámara</string>
   <string name="connecting_to_device">Conectando al dispositivo\u2026</string>
   <string name="authenticating_with_device">Autentificándose con el dispositivo\u2026</string>
@@ -368,7 +373,8 @@
   <string name="progress_title_logout">Saliendo de Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Superposición de pantalla detectada</string>
-  <string name="screen_filter_body">Otra aplicación se está mostrando encima de Briar. Por seguridad, Briar no responderá a los toques mientras se muestre otra aplicación encima.\n\nIntenta apagar las siguientes aplicaciones cuando uses Briar:\n\n%1$s</string>
+  <string name="screen_filter_body">Otra aplicación se está mostrando por encima de Briar. Por seguridad, Briar no reaccionará a los toques mientras otras aplicaciones se muestren por encima.\n\nLas siguientes aplis pueden ser las causantes:\n\n%1$s</string>
+  <string name="screen_filter_allow">Permitir a estas aplicaciones a mostrarse por encima</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Permiso de cámara</string>
   <string name="permission_camera_request_body">Para escanear el código QR, Briar necesita acceso a la cámara.</string>

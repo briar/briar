@@ -31,9 +31,7 @@
   <string name="dialog_title_lost_password">Pasahitz galdua</string>
   <string name="dialog_message_lost_password">Zure Briar kontua zure gailuan zifratuta gordetzen da, ez hodeian, beraz ezin dugu zure pasahitza berrezarri. Zure kontua ezabatu eta berriro hasi nahi duzu?\n\nKontuz: Zure identitateak, kontaktuak eta mezuak betirako galduko dira.</string>
   <string name="startup_failed_notification_title">Ezin izan da Briar abiatu</string>
-  <string name="startup_failed_notification_text">Agian Briar berrinstalatu behar duzu.</string>
   <string name="startup_failed_activity_title">Briar abio-hutsegitea</string>
-  <string name="startup_failed_db_error">Dena delakoagatik, zure Briar datu-basea hondatuta dago eta ezin da konpondu. Zure kontua, zure datuak eta zure kontaktuak galdu dira. Zoritxarrez Briar berrinstalatu behar duzu eta kontu berria sortu.</string>
   <string name="startup_failed_service_error">Briar aplikazioak ezin izan du ezinbesteko plugin bat abiatu. Briar berrinstalatzeak arazoa konpondu ohi du. Hala ere, jakin zure kontua eta datuak galduko dituzula Briar aplikazioak ez baititu zerbitzari zentralak erabiltzen zure datuak gordetzeko.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Hau Briar-en probetarako bertsio bat da. Zure kontua egun %d barru iraungituko da eta ezin da berriztu.</item>
@@ -83,7 +81,8 @@
   <string name="delete">Ezabatu</string>
   <string name="accept">Onartu</string>
   <string name="decline">Ukatu</string>
-	<string name="online">Konektatuta</string>
+  <string name="options">Aukerak</string>
+  <string name="online">Konektatuta</string>
   <string name="offline">Deskonektatuta</string>
   <string name="send">Bidali</string>
   <string name="allow">Baimendu</string>
@@ -94,6 +93,7 @@
   <string name="show_onboarding">Erakutsi laguntza elkarrizketa-koadroa</string>
   <string name="fix">Konpondu</string>
   <string name="help">Laguntza</string>
+  <string name="sorry">Sentitzen dugu</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Badirudi heldu berria zarela eta ez duzula kontakturik hemen oraindik.\n\nSakatu goiko + ikonoa eta jarraitu argibideak lagunak zure zerrendara gehitzeko.\nGogoratu: Kontaktu berriak aurrez aurre besterik ezin dira gehitu beste inork zure itxurak ez egiteko edo zure mezuak ez irakurtzeko.</string>
   <string name="date_no_private_messages">Mezurik ez.</string>
@@ -115,6 +115,7 @@
   <string name="contact_already_exists">%s kontaktua badago aurretik</string>
   <string name="contact_exchange_failed">Kontaktuen trukeak huts egin du</string>
   <string name="qr_code_invalid">QR kodea baliogabea da</string>
+  <string name="qr_code_unsupported">Eskaneatzen saiatu zaren QR kodea %s programaren bertsio zahar bati dagokio eta ez du euskarririk jada.\n\nZiurtatu biak azken bertsioa erabiltzen duzuela eta saiatu berriro.</string>
   <string name="camera_error">Kameraren errorea</string>
   <string name="connecting_to_device">Gailura konektatzen\u2026</string>
   <string name="authenticating_with_device">Gailuarekin autentifikatzen\u2026</string>
@@ -293,7 +294,7 @@
   <string name="blogs_rss_feeds_manage_error">Arazo bat egon da zure jarioak kargatzean. Saiatu berriro geroago.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Sareak</string>
-  <string name="bluetooth_setting">Bluetooth bidez konektatuta</string>
+  <string name="bluetooth_setting">Konektatu Bluetooth bidez</string>
   <string name="bluetooth_setting_enabled">Kontaktuak hurbil daudeneak</string>
   <string name="bluetooth_setting_disabled">Kontaktuak gehitzean besterik ez</string>
   <string name="tor_network_setting">Konektatu Tor bidez</string>
@@ -333,7 +334,7 @@
   <string name="notify_blog_posts_setting_title">Blog sarrerak</string>
   <string name="notify_blog_posts_setting_summary">Erakutsi blog sarreren alertak</string>
   <string name="notify_vibration_setting">Bibratu</string>
-  <string name="notify_lock_screen_setting_title">Blokeatu pantaila</string>
+  <string name="notify_lock_screen_setting_title">Blokeo-pantaila</string>
   <string name="notify_lock_screen_setting_summary">Erakutsi jakinarazpenak blokeo-pantailan</string>
   <string name="notify_sound_setting">Soinua</string>
   <string name="notify_sound_setting_default">Lehenetsitako dei-doinua</string>
@@ -368,7 +369,8 @@
   <string name="progress_title_logout">Briar saioa amaitzen...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Pantaila gainjartzea antzeman da</string>
-  <string name="screen_filter_body">Briar aplikazioaren gainean marrazten ari den beste aplikazio bat dago. Zure segurtasuna babesteko Briar aplikazioak ez dio ukimenari erantzungo beste aplikazio bat gainean marrazten dagoen bitartean.\n\nSaiatu honako aplikazioak ixten Briar erabiltzean:\n\n%1$s</string>
+  <string name="screen_filter_body">Briar aplikazioaren gainean marrazten ari den beste aplikazio bat dago, Briar aplikazioak ez dio ukimenari erantzungo beste aplikazio bat gainean marrazten dagoen bitartean.\n\nHauek dira gainean marrazten egon daitezkeen aplikazioak:\n\n%1$s</string>
+  <string name="screen_filter_allow">Baimendu aplikazio hauei gainean idazten</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Kamera baimena</string>
   <string name="permission_camera_request_body">QR kodea eskaneatzeko Briar-ek kamera atzitu behar du.</string>

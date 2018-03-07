@@ -17,7 +17,6 @@
   <string name="dialog_title_lost_password">パスワードを紛失</string>
   <string name="dialog_message_lost_password">あなたのBriarアカウントはクラウド上ではなく、暗号化さた上であなたのデバイスに保存さています。したがってBriarはパスワードをリセットできません。アカウントを削除しはじめからやりなおしますか？注意！あなたのID、連絡先、メッセージは永久に削除されます。</string>
   <string name="startup_failed_notification_title">Briarを起動できません。</string>
-  <string name="startup_failed_notification_text">Briarを再インストールする必要があります。</string>
   <string name="startup_failed_activity_title">起動に失敗</string>
   <string name="startup_failed_service_error">プラグインの起動に失敗しました。Briarを再インストールすることで通常は直ります。Briarは中央サーバにデータを保存していないため、アカウントとそれに関連する情報は全て失われることに注意してください。</string>
   <string name="expiry_date_reached">このソフトの有効期限が切れました。テストに参加してくださりありがとうございます！</string>
@@ -59,7 +58,8 @@
   <string name="delete">削除</string>
   <string name="accept">承認</string>
   <string name="decline">却下</string>
-	<string name="online">オプション</string>
+  <string name="options">オプション</string>
+  <string name="online">オプション</string>
   <string name="offline">オフライン</string>
   <string name="send">送信</string>
   <string name="allow">許可</string>

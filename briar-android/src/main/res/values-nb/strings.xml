@@ -31,9 +31,7 @@
   <string name="dialog_title_lost_password">Tapt passord</string>
   <string name="dialog_message_lost_password">Din Briar-konto er lagret kryptert på din enhet, ikke i skyen, så du kan ikke tilbakestille passordet ditt. Ønsker du å slette kontoen og starte igjen?\n\nMerk: Identitetene dine, kontaktene og meldingene vil gå tapt for alltid.</string>
   <string name="startup_failed_notification_title">Briar kunne ikke starte</string>
-  <string name="startup_failed_notification_text">Det kan hende du må reinstallere Briar.</string>
   <string name="startup_failed_activity_title">Oppstartsfeil med Briar</string>
-  <string name="startup_failed_db_error">Hvis din Briar-database av noen grunn skulle bli skadet uten mulighet for reparasjon, vil din konto, din data, og alle dine kontakter gå tapt. Uheldigvis, må du da reinstallere Briar og sett opp en ny konto.</string>
   <string name="startup_failed_service_error">Briar kunne ikke starte det nødvendige programtillegget. Reinstallasjon av Briar fikser vanligvis dette problemet. Merk deg dog at kontoen og all data tilknyttet den vil gå tapt for godt siden Briar ikke bruker sentrale tjenere å lagre dataen din på.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Dette er en test-versjon av Briar. Din konto vil utløpe om %d dag, og kan ikke fornyes.</item>
@@ -83,7 +81,8 @@
   <string name="delete">Slett</string>
   <string name="accept">Godta</string>
   <string name="decline">Avslå</string>
-	<string name="online">Pålogget</string>
+  <string name="options">Valg</string>
+  <string name="online">Pålogget</string>
   <string name="offline">Frakoblet</string>
   <string name="send">Send</string>
   <string name="allow">Tillat</string>
@@ -368,7 +367,6 @@
   <string name="progress_title_logout">Logger ut av Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Skjermoverlag oppdaget</string>
-  <string name="screen_filter_body">Et annet program tegner på toppen av Briar. For å beskytte din sikkerhet, vil Briar ikke reagere på trykk når et annet program tegner over det.\n\nPrøv å skru av følgende programmer når du bruker Briar.\n\n%1$s</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Kameratilgang</string>
   <string name="permission_camera_request_body">For å skanne QR-koden, trenger Briar tilgang til kameraet.</string>

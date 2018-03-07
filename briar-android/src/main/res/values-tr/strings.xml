@@ -17,7 +17,6 @@
   <string name="dialog_title_lost_password">Kayıp Parola</string>
   <string name="dialog_message_lost_password">Briar hesabınız, bulutta değil şifreli olarak cihazınızda saklanır, bu nedenle şifrenizi sıfırlayamıyoruz. Hesabınızı silmek ve tekrar başlamak ister misiniz? \n\nUyarı: Kimlikleriniz, kişileriniz ve iletileriniz kaybolur.</string>
   <string name="startup_failed_notification_title">Briar başlayamadı</string>
-  <string name="startup_failed_notification_text">Briar\'ı tekrar kurmanız gerekli.</string>
   <string name="startup_failed_activity_title">Briar Başlangıç Hatası</string>
   <string name="startup_failed_service_error">Briar gerekli bir eklentiyi başlatamadı. Briar\'ı yeniden yüklemek genellikle bu sorunu çözer. Bununla birlikte, lütfen Briar\'ın verilerinizi depolamak için merkezi sunucuları kullanmadığından hesabınızı ve onunla ilişkili tüm verileri kaybedeceğinizi unutmayın.</string>
   <!--Navigation Drawer-->
@@ -62,7 +61,8 @@
   <string name="delete">Sil</string>
   <string name="accept">Onayla</string>
   <string name="decline">Reddet</string>
-	<string name="online">Çevrimiçi</string>
+  <string name="options">Seçenekler</string>
+  <string name="online">Çevrimiçi</string>
   <string name="offline">Çevrimdışı</string>
   <string name="send">Gönder</string>
   <string name="allow">İzin ver</string>
