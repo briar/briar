@@ -11,7 +11,7 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
-import org.briarproject.bramble.api.lifecycle.event.ShutdownEvent;
+import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Message;
@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 
 /**
  * An incoming {@link SyncSession}.
@@ -96,8 +97,9 @@ class IncomingSession implements SyncSession, EventListener {
 		if (e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if (c.getContactId().equals(contactId)) interrupt();
-		} else if (e instanceof ShutdownEvent) {
-			interrupt();
+		} else if (e instanceof LifecycleEvent) {
+			LifecycleEvent l = (LifecycleEvent) e;
+			if (l.getLifecycleState() == STOPPING) interrupt();
 		}
 	}
 

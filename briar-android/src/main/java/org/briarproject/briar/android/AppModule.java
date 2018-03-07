@@ -94,6 +94,7 @@ public class AppModule {
 
 			@Override
 			public boolean databaseExists() {
+				// FIXME should not run on UiThread #620
 				if (!dir.isDirectory()) return false;
 				File[] files = dir.listFiles();
 				return files != null && files.length > 0;

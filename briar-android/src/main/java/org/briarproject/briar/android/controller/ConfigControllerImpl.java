@@ -52,4 +52,10 @@ public class ConfigControllerImpl implements ConfigController {
 		String hex = getEncryptedDatabaseKey();
 		return hex != null && databaseConfig.databaseExists();
 	}
+
+	@Override
+	public boolean accountSignedIn() {
+		return databaseConfig.getEncryptionKey() != null;
+	}
+
 }

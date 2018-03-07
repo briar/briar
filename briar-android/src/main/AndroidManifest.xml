@@ -78,6 +78,11 @@
 		</activity>
 
 		<activity
+			android:name=".android.login.OpenDatabaseActivity"
+			android:label="@string/app_name"
+			android:launchMode="singleTop"/>
+
+		<activity
 			android:name="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
 			android:theme="@style/BriarTheme.NoActionBar"
 		    android:launchMode="singleTop">

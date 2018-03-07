@@ -88,6 +88,7 @@ public class BriarService extends Service {
 			stopSelf();
 			return;
 		}
+
 		// Create notification channels
 		if (SDK_INT >= 26) {
 			NotificationManager nm = (NotificationManager)

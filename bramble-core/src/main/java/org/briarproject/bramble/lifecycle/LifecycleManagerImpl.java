@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.AuthorFactory;
@@ -14,7 +15,7 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
-import org.briarproject.bramble.api.lifecycle.event.ShutdownEvent;
+import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 
@@ -31,6 +32,11 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.MIGRATING_DATABASE;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.DATA_TOO_NEW_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.DATA_TOO_OLD_ERROR;
@@ -40,7 +46,7 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResul
 
 @ThreadSafe
 @NotNullByDefault
-class LifecycleManagerImpl implements LifecycleManager {
+class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(LifecycleManagerImpl.class.getName());
@@ -57,6 +63,8 @@ class LifecycleManagerImpl implements LifecycleManager {
 	private final CountDownLatch dbLatch = new CountDownLatch(1);
 	private final CountDownLatch startupLatch = new CountDownLatch(1);
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
+
+	private volatile LifecycleState state = STARTING;
 
 	@Inject
 	LifecycleManagerImpl(DatabaseComponent db, EventBus eventBus,
@@ -123,7 +131,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 			LOG.info("Starting services");
 			long start = System.currentTimeMillis();
 
-			boolean reopened = db.open();
+			boolean reopened = db.open(this);
 			long duration = System.currentTimeMillis() - start;
 			if (LOG.isLoggable(INFO)) {
 				if (reopened)
@@ -135,7 +143,10 @@ class LifecycleManagerImpl implements LifecycleManager {
 				registerLocalAuthor(createLocalAuthor(nickname));
 			}
 
+			state = STARTING_SERVICES;
 			dbLatch.countDown();
+			eventBus.broadcast(new LifecycleEvent(STARTING_SERVICES));
+
 			Transaction txn = db.startTransaction(false);
 			try {
 				for (Client c : clients) {
@@ -161,7 +172,10 @@ class LifecycleManagerImpl implements LifecycleManager {
 							+ " took " + duration + " ms");
 				}
 			}
+
+			state = RUNNING;
 			startupLatch.countDown();
+			eventBus.broadcast(new LifecycleEvent(RUNNING));
 			return SUCCESS;
 		} catch (DataTooOldException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -181,6 +195,12 @@ class LifecycleManagerImpl implements LifecycleManager {
 	}
 
 	@Override
+	public void onMigrationRun() {
+		state = MIGRATING_DATABASE;
+		eventBus.broadcast(new LifecycleEvent(MIGRATING_DATABASE));
+	}
+
+	@Override
 	public void stopServices() {
 		try {
 			startStopSemaphore.acquire();
@@ -190,7 +210,8 @@ class LifecycleManagerImpl implements LifecycleManager {
 		}
 		try {
 			LOG.info("Stopping services");
-			eventBus.broadcast(new ShutdownEvent());
+			state = STOPPING;
+			eventBus.broadcast(new LifecycleEvent(STOPPING));
 			for (Service s : services) {
 				long start = System.currentTimeMillis();
 				s.stopService();
@@ -235,4 +256,8 @@ class LifecycleManagerImpl implements LifecycleManager {
 		shutdownLatch.await();
 	}
 
+	@Override
+	public LifecycleState getLifecycleState() {
+		return state;
+	}
 }

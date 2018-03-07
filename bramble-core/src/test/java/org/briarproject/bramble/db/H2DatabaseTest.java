@@ -1708,7 +1708,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 		Database<Connection> db = new H2Database(new TestDatabaseConfig(testDir,
 				MAX_SIZE), clock);
 		if (!resume) TestUtils.deleteTestDirectory(testDir);
-		db.open();
+		db.open(null);
 		return db;
 	}
 
