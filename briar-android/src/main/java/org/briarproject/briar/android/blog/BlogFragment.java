@@ -91,7 +91,8 @@ public class BlogFragment extends BaseFragment
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
-		adapter = new BlogPostAdapter(getActivity(), this);
+		adapter =
+				new BlogPostAdapter(getActivity(), this, getFragmentManager());
 		list = v.findViewById(R.id.postList);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);

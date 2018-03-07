@@ -11,7 +11,6 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -25,6 +24,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
@@ -47,6 +48,8 @@ import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.BriarApplication.EXPIRY_DATE;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class UiUtils {
 
 	public static final long MIN_DATE_RESOLUTION = MINUTE_IN_MILLIS;
@@ -110,7 +113,9 @@ public class UiUtils {
 		return Html.fromHtml(s);
 	}
 
-	public static void makeLinksClickable(TextView v) {
+	public static void makeLinksClickable(TextView v,
+			@Nullable FragmentManager fm) {
+		if (fm == null) return;
 		SpannableStringBuilder ssb = new SpannableStringBuilder(v.getText());
 		URLSpan[] spans = ssb.getSpans(0, ssb.length(), URLSpan.class);
 		for (URLSpan span : spans) {
@@ -122,8 +127,6 @@ public class UiUtils {
 				@Override
 				public void onClick(View v2) {
 					LinkDialogFragment f = LinkDialogFragment.newInstance(url);
-					FragmentManager fm = ((AppCompatActivity) v2.getContext())
-							.getSupportFragmentManager();
 					f.show(fm, f.getUniqueTag());
 				}
 			};

@@ -73,7 +73,7 @@ abstract class BasePostFragment extends BaseFragment {
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				getContext().startActivity(i);
 			}
-		});
+		}, getFragmentManager());
 		return view;
 	}
 
