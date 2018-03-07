@@ -43,7 +43,7 @@ public interface DatabaseComponent {
 	 * @throws DataTooOldException if the data uses an older schema than the
 	 * current code and cannot be migrated
 	 */
-	boolean open() throws DbException;
+	boolean open(@Nullable MigrationListener listener) throws DbException;
 
 	/**
 	 * Waits for any open transactions to finish and closes the database.

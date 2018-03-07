@@ -17,6 +17,8 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
+
 @Module
 public class TestLifecycleModule {
 
@@ -56,6 +58,11 @@ public class TestLifecycleModule {
 
 			@Override
 			public void waitForShutdown() throws InterruptedException {
+			}
+
+			@Override
+			public LifecycleState getLifecycleState() {
+				return RUNNING;
 			}
 		};
 		return lifecycleManager;

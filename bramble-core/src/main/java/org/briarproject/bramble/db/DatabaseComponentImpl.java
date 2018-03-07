@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
+import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.db.NoSuchLocalAuthorException;
@@ -100,8 +101,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public boolean open() throws DbException {
-		boolean reopened = db.open();
+	public boolean open(@Nullable MigrationListener listener)
+			throws DbException {
+		boolean reopened = db.open(listener);
 		shutdown.addShutdownHook(() -> {
 			try {
 				close();

@@ -32,6 +32,7 @@ import org.briarproject.briar.android.keyagreement.ShowQrCodeFragment;
 import org.briarproject.briar.android.login.AuthorNameFragment;
 import org.briarproject.briar.android.login.ChangePasswordActivity;
 import org.briarproject.briar.android.login.DozeFragment;
+import org.briarproject.briar.android.login.OpenDatabaseActivity;
 import org.briarproject.briar.android.login.PasswordActivity;
 import org.briarproject.briar.android.login.PasswordFragment;
 import org.briarproject.briar.android.login.SetupActivity;
@@ -87,6 +88,8 @@ public interface ActivityComponent {
 	void inject(SplashScreenActivity activity);
 
 	void inject(SetupActivity activity);
+
+	void inject(OpenDatabaseActivity activity);
 
 	void inject(NavDrawerActivity activity);
 

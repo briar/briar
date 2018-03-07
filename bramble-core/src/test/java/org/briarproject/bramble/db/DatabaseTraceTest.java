@@ -43,7 +43,7 @@ public abstract class DatabaseTraceTest extends DatabasePerformanceTest {
 	private Database<Connection> openDatabase() throws DbException {
 		Database<Connection> db = createDatabase(
 				new TestDatabaseConfig(testDir, MAX_SIZE), new SystemClock());
-		db.open();
+		db.open(null);
 		return db;
 	}
 

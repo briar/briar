@@ -3,6 +3,7 @@ package org.briarproject.bramble.db;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.util.StringUtils;
@@ -13,6 +14,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 /**
@@ -42,10 +44,11 @@ class H2Database extends JdbcDatabase {
 	}
 
 	@Override
-	public boolean open() throws DbException {
+	public boolean open(@Nullable MigrationListener listener)
+			throws DbException {
 		boolean reopen = config.databaseExists();
 		if (!reopen) config.getDatabaseDirectory().mkdirs();
-		super.open("org.h2.Driver", reopen);
+		super.open("org.h2.Driver", reopen, listener);
 		return reopen;
 	}
 
