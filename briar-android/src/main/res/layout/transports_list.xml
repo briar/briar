@@ -2,9 +2,9 @@
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:orientation="vertical"
 	tools:showIn="@layout/navigation_menu">
 
 	<View style="@style/Divider.Horizontal"/>
@@ -13,8 +13,9 @@
 		android:id="@+id/transportsView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:padding="@dimen/margin_medium"
+		android:listSelector="@android:color/transparent"
 		android:numColumns="3"
+		android:padding="@dimen/margin_medium"
 		tools:listitem="@layout/list_item_transport"/>
 
 </LinearLayout>
