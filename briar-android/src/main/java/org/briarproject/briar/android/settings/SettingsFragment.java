@@ -1,11 +1,11 @@
 package org.briarproject.briar.android.settings;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
@@ -44,6 +44,10 @@ import static android.media.RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT;
 import static android.media.RingtoneManager.EXTRA_RINGTONE_TITLE;
 import static android.media.RingtoneManager.EXTRA_RINGTONE_TYPE;
 import static android.media.RingtoneManager.TYPE_NOTIFICATION;
+import static android.os.Build.VERSION.SDK_INT;
+import static android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS;
+import static android.provider.Settings.EXTRA_APP_PACKAGE;
+import static android.provider.Settings.EXTRA_CHANNEL_ID;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
@@ -53,6 +57,10 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_ALWAYS;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.BLOG_CHANNEL_ID;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.CONTACT_CHANNEL_ID;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.FORUM_CHANNEL_ID;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.GROUP_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_BLOG;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_FORUM;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_GROUP;
@@ -132,33 +140,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 		enableBluetooth.setOnPreferenceChangeListener(this);
 		torNetwork.setOnPreferenceChangeListener(this);
-		notifyPrivateMessages.setOnPreferenceChangeListener(this);
-		notifyGroupMessages.setOnPreferenceChangeListener(this);
-		notifyForumPosts.setOnPreferenceChangeListener(this);
-		notifyBlogPosts.setOnPreferenceChangeListener(this);
-		notifyVibration.setOnPreferenceChangeListener(this);
-		if (Build.VERSION.SDK_INT >= 21) {
+		if (SDK_INT >= 21) {
 			notifyLockscreen.setVisible(true);
 			notifyLockscreen.setOnPreferenceChangeListener(this);
 		}
-		notifySound.setOnPreferenceClickListener(preference -> {
-			String title = getString(R.string.choose_ringtone_title);
-			Intent i = new Intent(ACTION_RINGTONE_PICKER);
-			i.putExtra(EXTRA_RINGTONE_TYPE, TYPE_NOTIFICATION);
-			i.putExtra(EXTRA_RINGTONE_TITLE, title);
-			i.putExtra(EXTRA_RINGTONE_DEFAULT_URI, DEFAULT_NOTIFICATION_URI);
-			i.putExtra(EXTRA_RINGTONE_SHOW_SILENT, true);
-			if (settings.getBoolean(PREF_NOTIFY_SOUND, true)) {
-				Uri uri;
-				String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
-				if (StringUtils.isNullOrEmpty(ringtoneUri))
-					uri = DEFAULT_NOTIFICATION_URI;
-				else uri = Uri.parse(ringtoneUri);
-				i.putExtra(EXTRA_RINGTONE_EXISTING_URI, uri);
-			}
-			startActivityForResult(i, REQUEST_RINGTONE);
-			return true;
-		});
 
 		findPreference("pref_key_send_feedback").setOnPreferenceClickListener(
 				preference -> {
@@ -220,36 +205,50 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			enableBluetooth.setValue(Boolean.toString(btSetting));
 			torNetwork.setValue(Integer.toString(torSetting));
 
-			notifyPrivateMessages.setChecked(settings.getBoolean(
-					PREF_NOTIFY_PRIVATE, true));
-
-			notifyGroupMessages.setChecked(settings.getBoolean(
-					PREF_NOTIFY_GROUP, true));
-
-			notifyForumPosts.setChecked(settings.getBoolean(
-					PREF_NOTIFY_FORUM, true));
-
-			notifyBlogPosts.setChecked(settings.getBoolean(
-					PREF_NOTIFY_BLOG, true));
-
-			notifyVibration.setChecked(settings.getBoolean(
-					PREF_NOTIFY_VIBRATION, true));
-
-			notifyLockscreen.setChecked(settings.getBoolean(
-					PREF_NOTIFY_LOCK_SCREEN, false));
-
-			String text;
-			if (settings.getBoolean(PREF_NOTIFY_SOUND, true)) {
-				String ringtoneName = settings.get(PREF_NOTIFY_RINGTONE_NAME);
-				if (StringUtils.isNullOrEmpty(ringtoneName)) {
-					text = getString(R.string.notify_sound_setting_default);
+			if (SDK_INT < 26) {
+				notifyPrivateMessages.setChecked(settings.getBoolean(
+						PREF_NOTIFY_PRIVATE, true));
+				notifyGroupMessages.setChecked(settings.getBoolean(
+						PREF_NOTIFY_GROUP, true));
+				notifyForumPosts.setChecked(settings.getBoolean(
+						PREF_NOTIFY_FORUM, true));
+				notifyBlogPosts.setChecked(settings.getBoolean(
+						PREF_NOTIFY_BLOG, true));
+				notifyVibration.setChecked(settings.getBoolean(
+						PREF_NOTIFY_VIBRATION, true));
+				notifyPrivateMessages.setOnPreferenceChangeListener(this);
+				notifyGroupMessages.setOnPreferenceChangeListener(this);
+				notifyForumPosts.setOnPreferenceChangeListener(this);
+				notifyBlogPosts.setOnPreferenceChangeListener(this);
+				notifyVibration.setOnPreferenceChangeListener(this);
+				notifyLockscreen.setChecked(settings.getBoolean(
+						PREF_NOTIFY_LOCK_SCREEN, false));
+				notifySound.setOnPreferenceClickListener(
+						pref -> onNotificationSoundClicked());
+				String text;
+				if (settings.getBoolean(PREF_NOTIFY_SOUND, true)) {
+					String ringtoneName =
+							settings.get(PREF_NOTIFY_RINGTONE_NAME);
+					if (StringUtils.isNullOrEmpty(ringtoneName)) {
+						text = getString(R.string.notify_sound_setting_default);
+					} else {
+						text = ringtoneName;
+					}
 				} else {
-					text = ringtoneName;
+					text = getString(R.string.notify_sound_setting_disabled);
 				}
+				notifySound.setSummary(text);
 			} else {
-				text = getString(R.string.notify_sound_setting_disabled);
+				setupNotificationPreference(notifyPrivateMessages,
+						CONTACT_CHANNEL_ID);
+				setupNotificationPreference(notifyGroupMessages,
+						GROUP_CHANNEL_ID);
+				setupNotificationPreference(notifyForumPosts, FORUM_CHANNEL_ID);
+				setupNotificationPreference(notifyBlogPosts, BLOG_CHANNEL_ID);
+				notifyVibration.setVisible(false);
+				notifyLockscreen.setVisible(false);
+				notifySound.setVisible(false);
 			}
-			notifySound.setSummary(text);
 			setSettingsEnabled(true);
 		});
 	}
@@ -264,6 +263,40 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		notifyVibration.setEnabled(enabled);
 		notifyLockscreen.setEnabled(enabled);
 		notifySound.setEnabled(enabled);
+	}
+
+	@TargetApi(26)
+	private void setupNotificationPreference(CheckBoxPreference pref,
+			String channelId) {
+		pref.setWidgetLayoutResource(0);
+		pref.setOnPreferenceClickListener(clickedPref -> {
+			Intent intent = new Intent(ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+					.putExtra(EXTRA_APP_PACKAGE, getContext().getPackageName())
+					.putExtra(EXTRA_CHANNEL_ID, channelId);
+			startActivity(intent);
+			return true;
+		});
+	}
+
+	private boolean onNotificationSoundClicked() {
+		String title = getString(R.string.choose_ringtone_title);
+		Intent i = new Intent(ACTION_RINGTONE_PICKER);
+		i.putExtra(EXTRA_RINGTONE_TYPE, TYPE_NOTIFICATION);
+		i.putExtra(EXTRA_RINGTONE_TITLE, title);
+		i.putExtra(EXTRA_RINGTONE_DEFAULT_URI,
+				DEFAULT_NOTIFICATION_URI);
+		i.putExtra(EXTRA_RINGTONE_SHOW_SILENT, true);
+		if (settings.getBoolean(PREF_NOTIFY_SOUND, true)) {
+			Uri uri;
+			String ringtoneUri =
+					settings.get(PREF_NOTIFY_RINGTONE_URI);
+			if (StringUtils.isNullOrEmpty(ringtoneUri))
+				uri = DEFAULT_NOTIFICATION_URI;
+			else uri = Uri.parse(ringtoneUri);
+			i.putExtra(EXTRA_RINGTONE_EXISTING_URI, uri);
+		}
+		startActivityForResult(i, REQUEST_RINGTONE);
+		return true;
 	}
 
 	private void triggerFeedback() {

@@ -62,6 +62,7 @@ import javax.inject.Inject;
 import static android.app.Notification.DEFAULT_LIGHTS;
 import static android.app.Notification.DEFAULT_SOUND;
 import static android.app.Notification.DEFAULT_VIBRATE;
+import static android.app.Notification.VISIBILITY_SECRET;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
@@ -89,12 +90,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private static final int FORUM_POST_NOTIFICATION_ID = 5;
 	private static final int BLOG_POST_NOTIFICATION_ID = 6;
 	private static final int INTRODUCTION_SUCCESS_NOTIFICATION_ID = 7;
-
-	// Channel IDs
-	private static final String CONTACT_CHANNEL_ID = "contacts";
-	private static final String GROUP_CHANNEL_ID = "groups";
-	private static final String FORUM_CHANNEL_ID = "forums";
-	private static final String BLOG_CHANNEL_ID = "blogs";
 
 	private static final long SOUND_DELAY = TimeUnit.SECONDS.toMillis(2);
 
@@ -174,6 +169,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		NotificationChannel nc =
 				new NotificationChannel(channelId, appContext.getString(name),
 						IMPORTANCE_DEFAULT);
+		nc.setLockscreenVisibility(VISIBILITY_SECRET);
+		nc.enableVibration(true);
 		nc.enableLights(true);
 		nc.setLightColor(
 				ContextCompat.getColor(appContext, R.color.briar_green_light));
