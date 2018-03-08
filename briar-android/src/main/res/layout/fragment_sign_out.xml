@@ -1,23 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.constraint.ConstraintLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
+
+	<ImageView
+		android:id="@+id/imageView"
+		android:layout_width="128dp"
+		android:layout_height="128dp"
+		android:scaleType="center"
+		android:src="@drawable/startup_lock"
+		android:tint="@color/briar_primary"
+		app:layout_constraintBottom_toTopOf="@+id/textView"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_bias="0.5"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:ignore="ContentDescription"/>
 
 	<ProgressBar
 		android:id="@+id/progressBar"
 		style="?android:attr/progressBarStyleLarge"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_centerInParent="true"/>
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		app:layout_constraintBottom_toBottomOf="@+id/imageView"
+		app:layout_constraintEnd_toEndOf="@+id/imageView"
+		app:layout_constraintStart_toStartOf="@+id/imageView"
+		app:layout_constraintTop_toTopOf="@+id/imageView"/>
 
 	<TextView
-		android:id="@+id/title_progress_bar"
+		android:id="@+id/textView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/progressBar"
-		android:layout_centerHorizontal="true"
-		android:paddingTop="@dimen/margin_large"
-		android:text="@string/progress_title_logout"/>
+		android:layout_margin="8dp"
+		android:text="@string/progress_title_logout"
+		android:textSize="@dimen/text_size_large"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/imageView"/>
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>
