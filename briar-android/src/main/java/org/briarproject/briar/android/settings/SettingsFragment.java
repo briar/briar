@@ -128,6 +128,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				"pref_key_notify_lock_screen");
 		notifySound = findPreference("pref_key_notify_sound");
 
+		setSettingsEnabled(false);
+
 		enableBluetooth.setOnPreferenceChangeListener(this);
 		torNetwork.setOnPreferenceChangeListener(this);
 		notifyPrivateMessages.setOnPreferenceChangeListener(this);
@@ -248,7 +250,20 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				text = getString(R.string.notify_sound_setting_disabled);
 			}
 			notifySound.setSummary(text);
+			setSettingsEnabled(true);
 		});
+	}
+
+	private void setSettingsEnabled(boolean enabled) {
+		enableBluetooth.setEnabled(enabled);
+		torNetwork.setEnabled(enabled);
+		notifyPrivateMessages.setEnabled(enabled);
+		notifyGroupMessages.setEnabled(enabled);
+		notifyForumPosts.setEnabled(enabled);
+		notifyBlogPosts.setEnabled(enabled);
+		notifyVibration.setEnabled(enabled);
+		notifyLockscreen.setEnabled(enabled);
+		notifySound.setEnabled(enabled);
 	}
 
 	private void triggerFeedback() {
