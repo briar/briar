@@ -34,6 +34,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -361,7 +362,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
 	List<Migration<Connection>> getMigrations() {
-		return Collections.singletonList(new Migration30_31());
+		return Arrays.asList(new Migration30_31(), new Migration31_32());
 	}
 
 	private void storeSchemaVersion(Connection txn, int version)
