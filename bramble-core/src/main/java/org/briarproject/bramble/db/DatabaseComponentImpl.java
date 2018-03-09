@@ -455,24 +455,24 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public Collection<MessageId> getMessagesToValidate(Transaction transaction,
-			ClientId c) throws DbException {
+	public Collection<MessageId> getMessagesToValidate(Transaction transaction)
+			throws DbException {
 		T txn = unbox(transaction);
-		return db.getMessagesToValidate(txn, c);
+		return db.getMessagesToValidate(txn);
 	}
 
 	@Override
-	public Collection<MessageId> getPendingMessages(Transaction transaction,
-			ClientId c) throws DbException {
+	public Collection<MessageId> getPendingMessages(Transaction transaction)
+			throws DbException {
 		T txn = unbox(transaction);
-		return db.getPendingMessages(txn, c);
+		return db.getPendingMessages(txn);
 	}
 
 	@Override
-	public Collection<MessageId> getMessagesToShare(
-			Transaction transaction, ClientId c) throws DbException {
+	public Collection<MessageId> getMessagesToShare(Transaction transaction)
+			throws DbException {
 		T txn = unbox(transaction);
-		return db.getMessagesToShare(txn, c);
+		return db.getMessagesToShare(txn);
 	}
 
 	@Nullable
@@ -573,7 +573,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public long getNextSendTime(Transaction transaction, ContactId c)
-		throws DbException {
+			throws DbException {
 		T txn = unbox(transaction);
 		return db.getNextSendTime(txn, c);
 	}

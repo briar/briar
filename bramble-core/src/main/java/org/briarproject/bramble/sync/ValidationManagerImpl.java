@@ -71,11 +71,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@Override
 	public void startService() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		for (ClientId c : validators.keySet()) {
-			validateOutstandingMessagesAsync(c);
-			deliverOutstandingMessagesAsync(c);
-			shareOutstandingMessagesAsync(c);
-		}
+		validateOutstandingMessagesAsync();
+		deliverOutstandingMessagesAsync();
+		shareOutstandingMessagesAsync();
 	}
 
 	@Override
@@ -93,17 +91,17 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		hooks.put(c, hook);
 	}
 
-	private void validateOutstandingMessagesAsync(ClientId c) {
-		dbExecutor.execute(() -> validateOutstandingMessages(c));
+	private void validateOutstandingMessagesAsync() {
+		dbExecutor.execute(this::validateOutstandingMessages);
 	}
 
 	@DatabaseExecutor
-	private void validateOutstandingMessages(ClientId c) {
+	private void validateOutstandingMessages() {
 		try {
 			Queue<MessageId> unvalidated = new LinkedList<>();
 			Transaction txn = db.startTransaction(true);
 			try {
-				unvalidated.addAll(db.getMessagesToValidate(txn, c));
+				unvalidated.addAll(db.getMessagesToValidate(txn));
 				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
@@ -148,17 +146,17 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void deliverOutstandingMessagesAsync(ClientId c) {
-		dbExecutor.execute(() -> deliverOutstandingMessages(c));
+	private void deliverOutstandingMessagesAsync() {
+		dbExecutor.execute(this::deliverOutstandingMessages);
 	}
 
 	@DatabaseExecutor
-	private void deliverOutstandingMessages(ClientId c) {
+	private void deliverOutstandingMessages() {
 		try {
 			Queue<MessageId> pending = new LinkedList<>();
 			Transaction txn = db.startTransaction(true);
 			try {
-				pending.addAll(db.getPendingMessages(txn, c));
+				pending.addAll(db.getPendingMessages(txn));
 				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);
@@ -353,17 +351,17 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		return pending;
 	}
 
-	private void shareOutstandingMessagesAsync(ClientId c) {
-		dbExecutor.execute(() -> shareOutstandingMessages(c));
+	private void shareOutstandingMessagesAsync() {
+		dbExecutor.execute(this::shareOutstandingMessages);
 	}
 
 	@DatabaseExecutor
-	private void shareOutstandingMessages(ClientId c) {
+	private void shareOutstandingMessages() {
 		try {
 			Queue<MessageId> toShare = new LinkedList<>();
 			Transaction txn = db.startTransaction(true);
 			try {
-				toShare.addAll(db.getMessagesToShare(txn, c));
+				toShare.addAll(db.getMessagesToShare(txn));
 				db.commitTransaction(txn);
 			} finally {
 				db.endTransaction(txn);

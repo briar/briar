@@ -1372,12 +1372,12 @@ public class H2DatabaseTest extends BrambleTestCase {
 		Collection<MessageId> result;
 
 		// Retrieve messages to be validated
-		result = db.getMessagesToValidate(txn, clientId);
+		result = db.getMessagesToValidate(txn);
 		assertEquals(1, result.size());
 		assertTrue(result.contains(mId1));
 
 		// Retrieve pending messages
-		result = db.getPendingMessages(txn, clientId);
+		result = db.getPendingMessages(txn);
 		assertEquals(1, result.size());
 		assertTrue(result.contains(mId3));
 
@@ -1412,8 +1412,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 		db.addMessageDependency(txn, groupId, mId4, mId3);
 
 		// Retrieve messages to be shared
-		Collection<MessageId> result =
-				db.getMessagesToShare(txn, clientId);
+		Collection<MessageId> result = db.getMessagesToShare(txn);
 		assertEquals(2, result.size());
 		assertTrue(result.contains(mId2));
 		assertTrue(result.contains(mId3));
