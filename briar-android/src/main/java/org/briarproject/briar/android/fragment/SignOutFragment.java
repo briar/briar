@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 
 public class SignOutFragment extends BaseFragment {
 
-	private static final String TAG = SignOutFragment.class.getName();
+	public static final String TAG = SignOutFragment.class.getName();
 
 	@Override
 	public View onCreateView(LayoutInflater inflater,
@@ -30,5 +30,4 @@ public class SignOutFragment extends BaseFragment {
 	public void injectFragment(ActivityComponent component) {
 		// no need to inject
 	}
-
 }
