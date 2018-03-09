@@ -24,6 +24,7 @@ import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
+import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -34,7 +35,7 @@ public class Migration30_31Test extends BrambleTestCase {
 
 	private static final String CREATE_GROUPS_STUB =
 			"CREATE TABLE groups"
-					+ " (groupID BINARY(32) NOT NULL,"
+					+ " (groupId BINARY(32) NOT NULL,"
 					+ " PRIMARY KEY (groupId))";
 
 	private static final String CREATE_MESSAGES =
@@ -66,8 +67,8 @@ public class Migration30_31Test extends BrambleTestCase {
 	private final String url = "jdbc:h2:" + db.getAbsolutePath();
 	private final GroupId groupId = new GroupId(getRandomId());
 	private final GroupId groupId1 = new GroupId(getRandomId());
-	private final Message message = TestUtils.getMessage(groupId);
-	private final Message message1 = TestUtils.getMessage(groupId1);
+	private final Message message = getMessage(groupId);
+	private final Message message1 = getMessage(groupId1);
 	private final Metadata meta = new Metadata(), meta1 = new Metadata();
 
 	private Connection connection = null;
