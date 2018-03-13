@@ -21,6 +21,8 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.ValidationManager.State;
+import org.briarproject.bramble.api.transport.KeySet;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.Collection;
@@ -123,9 +125,10 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Stores transport keys for a newly added contact.
+	 * Stores the given transport keys, optionally binding them to the given
+	 * contact, and returns a key set ID.
 	 */
-	void addTransportKeys(T txn, ContactId c, TransportKeys k)
+	KeySetId addTransportKeys(T txn, @Nullable ContactId c, TransportKeys k)
 			throws DbException;
 
 	/**
@@ -486,7 +489,7 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Map<ContactId, TransportKeys> getTransportKeys(T txn, TransportId t)
+	Collection<KeySet> getTransportKeys(T txn, TransportId t)
 			throws DbException;
 
 	/**
@@ -619,10 +622,10 @@ interface Database<T> {
 	void setMessageState(T txn, MessageId m, State state) throws DbException;
 
 	/**
-	 * Sets the reordering window for the given contact and transport in the
+	 * Sets the reordering window for the given key set and transport in the
 	 * given rotation period.
 	 */
-	void setReorderingWindow(T txn, ContactId c, TransportId t,
+	void setReorderingWindow(T txn, KeySetId k, TransportId t,
 			long rotationPeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
@@ -636,6 +639,5 @@ interface Database<T> {
 	/**
 	 * Stores the given transport keys, deleting any keys they have replaced.
 	 */
-	void updateTransportKeys(T txn, Map<ContactId, TransportKeys> keys)
-			throws DbException;
+	void updateTransportKeys(T txn, Collection<KeySet> keys) throws DbException;
 }

@@ -19,6 +19,8 @@ import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.ValidationManager.State;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.IncomingKeys;
+import org.briarproject.bramble.api.transport.KeySet;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.system.SystemClock;
@@ -34,7 +36,6 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,6 +43,10 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -86,6 +91,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private final Message message;
 	private final TransportId transportId;
 	private final ContactId contactId;
+	private final KeySetId keySetId;
 
 	JdbcDatabaseTest() throws Exception {
 		groupId = new GroupId(getRandomId());
@@ -101,6 +107,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		message = new Message(messageId, groupId, timestamp, raw);
 		transportId = new TransportId("id");
 		contactId = new ContactId(1);
+		keySetId = new KeySetId(1);
 	}
 
 	protected abstract JdbcDatabase createDatabase(DatabaseConfig config,
@@ -190,9 +197,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// The contact has not seen the message, so it should be sendable
 		Collection<MessageId> ids =
 				db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
-		assertEquals(Collections.singletonList(messageId), ids);
+		assertEquals(singletonList(messageId), ids);
 		ids = db.getMessagesToOffer(txn, contactId, 100);
-		assertEquals(Collections.singletonList(messageId), ids);
+		assertEquals(singletonList(messageId), ids);
 
 		// Changing the status to seen = true should make the message unsendable
 		db.raiseSeenFlag(txn, contactId, messageId);
@@ -228,9 +235,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Marking the message delivered should make it sendable
 		db.setMessageState(txn, messageId, DELIVERED);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
-		assertEquals(Collections.singletonList(messageId), ids);
+		assertEquals(singletonList(messageId), ids);
 		ids = db.getMessagesToOffer(txn, contactId, 100);
-		assertEquals(Collections.singletonList(messageId), ids);
+		assertEquals(singletonList(messageId), ids);
 
 		// Marking the message invalid should make it unsendable
 		db.setMessageState(txn, messageId, INVALID);
@@ -279,9 +286,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Sharing the group should make the message sendable
 		db.setGroupVisibility(txn, contactId, groupId, true);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
-		assertEquals(Collections.singletonList(messageId), ids);
+		assertEquals(singletonList(messageId), ids);
 		ids = db.getMessagesToOffer(txn, contactId, 100);
-		assertEquals(Collections.singletonList(messageId), ids);
+		assertEquals(singletonList(messageId), ids);
 
 		// Unsharing the group should make the message unsendable
 		db.setGroupVisibility(txn, contactId, groupId, false);
@@ -324,9 +331,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Sharing the message should make it sendable
 		db.setMessageShared(txn, messageId);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
-		assertEquals(Collections.singletonList(messageId), ids);
+		assertEquals(singletonList(messageId), ids);
 		ids = db.getMessagesToOffer(txn, contactId, 100);
-		assertEquals(Collections.singletonList(messageId), ids);
+		assertEquals(singletonList(messageId), ids);
 
 		db.commitTransaction(txn);
 		db.close();
@@ -352,7 +359,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// The message is just the right size to send
 		ids = db.getMessagesToSend(txn, contactId, size);
-		assertEquals(Collections.singletonList(messageId), ids);
+		assertEquals(singletonList(messageId), ids);
 
 		db.commitTransaction(txn);
 		db.close();
@@ -384,7 +391,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.lowerAckFlag(txn, contactId, Arrays.asList(messageId, messageId1));
 
 		// Both message IDs should have been removed
-		assertEquals(Collections.emptyList(), db.getMessagesToAck(txn,
+		assertEquals(emptyList(), db.getMessagesToAck(txn,
 				contactId, 1234));
 
 		// Raise the ack flag again
@@ -415,7 +422,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Retrieve the message from the database and mark it as sent
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
 				ONE_MEGABYTE);
-		assertEquals(Collections.singletonList(messageId), ids);
+		assertEquals(singletonList(messageId), ids);
 		db.updateExpiryTime(txn, contactId, messageId, Integer.MAX_VALUE);
 
 		// The message should no longer be sendable
@@ -626,31 +633,31 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// The group should not be visible to the contact
 		assertEquals(INVISIBLE, db.getGroupVisibility(txn, contactId, groupId));
-		assertEquals(Collections.emptyMap(),
+		assertEquals(emptyMap(),
 				db.getGroupVisibility(txn, groupId));
 
 		// Make the group visible to the contact
 		db.addGroupVisibility(txn, contactId, groupId, false);
 		assertEquals(VISIBLE, db.getGroupVisibility(txn, contactId, groupId));
-		assertEquals(Collections.singletonMap(contactId, false),
+		assertEquals(singletonMap(contactId, false),
 				db.getGroupVisibility(txn, groupId));
 
 		// Share the group with the contact
 		db.setGroupVisibility(txn, contactId, groupId, true);
 		assertEquals(SHARED, db.getGroupVisibility(txn, contactId, groupId));
-		assertEquals(Collections.singletonMap(contactId, true),
+		assertEquals(singletonMap(contactId, true),
 				db.getGroupVisibility(txn, groupId));
 
 		// Unshare the group with the contact
 		db.setGroupVisibility(txn, contactId, groupId, false);
 		assertEquals(VISIBLE, db.getGroupVisibility(txn, contactId, groupId));
-		assertEquals(Collections.singletonMap(contactId, false),
+		assertEquals(singletonMap(contactId, false),
 				db.getGroupVisibility(txn, groupId));
 
 		// Make the group invisible again
 		db.removeGroupVisibility(txn, contactId, groupId);
 		assertEquals(INVISIBLE, db.getGroupVisibility(txn, contactId, groupId));
-		assertEquals(Collections.emptyMap(),
+		assertEquals(emptyMap(),
 				db.getGroupVisibility(txn, groupId));
 
 		db.commitTransaction(txn);
@@ -665,24 +672,22 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Initially there should be no transport keys in the database
-		assertEquals(Collections.emptyMap(),
-				db.getTransportKeys(txn, transportId));
+		assertEquals(emptyList(), db.getTransportKeys(txn, transportId));
 
 		// Add the contact, the transport and the transport keys
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addTransport(txn, transportId, 123);
-		db.addTransportKeys(txn, contactId, keys);
+		assertEquals(keySetId, db.addTransportKeys(txn, contactId, keys));
 
 		// Retrieve the transport keys
-		Map<ContactId, TransportKeys> newKeys =
-				db.getTransportKeys(txn, transportId);
+		Collection<KeySet> newKeys = db.getTransportKeys(txn, transportId);
 		assertEquals(1, newKeys.size());
-		Entry<ContactId, TransportKeys> e =
-				newKeys.entrySet().iterator().next();
-		assertEquals(contactId, e.getKey());
-		TransportKeys k = e.getValue();
+		KeySet ks = newKeys.iterator().next();
+		assertEquals(keySetId, ks.getKeySetId());
+		assertEquals(contactId, ks.getContactId());
+		TransportKeys k = ks.getTransportKeys();
 		assertEquals(transportId, k.getTransportId());
 		assertKeysEquals(keys.getPreviousIncomingKeys(),
 				k.getPreviousIncomingKeys());
@@ -695,8 +700,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Removing the contact should remove the transport keys
 		db.removeContact(txn, contactId);
-		assertEquals(Collections.emptyMap(),
-				db.getTransportKeys(txn, transportId));
+		assertEquals(emptyList(), db.getTransportKeys(txn, transportId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -735,18 +739,18 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addTransport(txn, transportId, 123);
-		db.updateTransportKeys(txn, Collections.singletonMap(contactId, keys));
+		db.updateTransportKeys(txn,
+				singletonList(new KeySet(keySetId, contactId, keys)));
 
 		// Increment the stream counter twice and retrieve the transport keys
 		db.incrementStreamCounter(txn, contactId, transportId, rotationPeriod);
 		db.incrementStreamCounter(txn, contactId, transportId, rotationPeriod);
-		Map<ContactId, TransportKeys> newKeys =
-				db.getTransportKeys(txn, transportId);
+		Collection<KeySet> newKeys = db.getTransportKeys(txn, transportId);
 		assertEquals(1, newKeys.size());
-		Entry<ContactId, TransportKeys> e =
-				newKeys.entrySet().iterator().next();
-		assertEquals(contactId, e.getKey());
-		TransportKeys k = e.getValue();
+		KeySet ks = newKeys.iterator().next();
+		assertEquals(keySetId, ks.getKeySetId());
+		assertEquals(contactId, ks.getContactId());
+		TransportKeys k = ks.getTransportKeys();
 		assertEquals(transportId, k.getTransportId());
 		OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
 		assertEquals(rotationPeriod, outCurr.getRotationPeriod());
@@ -771,19 +775,19 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addTransport(txn, transportId, 123);
-		db.updateTransportKeys(txn, Collections.singletonMap(contactId, keys));
+		db.updateTransportKeys(txn,
+				singletonList(new KeySet(keySetId, contactId, keys)));
 
 		// Update the reordering window and retrieve the transport keys
 		new Random().nextBytes(bitmap);
-		db.setReorderingWindow(txn, contactId, transportId, rotationPeriod,
+		db.setReorderingWindow(txn, keySetId, transportId, rotationPeriod,
 				base + 1, bitmap);
-		Map<ContactId, TransportKeys> newKeys =
-				db.getTransportKeys(txn, transportId);
+		Collection<KeySet> newKeys = db.getTransportKeys(txn, transportId);
 		assertEquals(1, newKeys.size());
-		Entry<ContactId, TransportKeys> e =
-				newKeys.entrySet().iterator().next();
-		assertEquals(contactId, e.getKey());
-		TransportKeys k = e.getValue();
+		KeySet ks = newKeys.iterator().next();
+		assertEquals(keySetId, ks.getKeySetId());
+		assertEquals(contactId, ks.getContactId());
+		TransportKeys k = ks.getTransportKeys();
 		assertEquals(transportId, k.getTransportId());
 		IncomingKeys inCurr = k.getCurrentIncomingKeys();
 		assertEquals(rotationPeriod, inCurr.getRotationPeriod());
@@ -830,18 +834,18 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		Collection<ContactId> contacts =
 				db.getContacts(txn, localAuthor.getId());
-		assertEquals(Collections.emptyList(), contacts);
+		assertEquals(emptyList(), contacts);
 
 		// Add a contact associated with the local author
 		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		contacts = db.getContacts(txn, localAuthor.getId());
-		assertEquals(Collections.singletonList(contactId), contacts);
+		assertEquals(singletonList(contactId), contacts);
 
 		// Remove the local author - the contact should be removed
 		db.removeLocalAuthor(txn, localAuthor.getId());
 		contacts = db.getContacts(txn, localAuthor.getId());
-		assertEquals(Collections.emptyList(), contacts);
+		assertEquals(emptyList(), contacts);
 		assertFalse(db.containsContact(txn, contactId));
 
 		db.commitTransaction(txn);
@@ -1560,9 +1564,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// The message should be sendable
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
 				ONE_MEGABYTE);
-		assertEquals(Collections.singletonList(messageId), ids);
+		assertEquals(singletonList(messageId), ids);
 		ids = db.getMessagesToOffer(txn, contactId, 100);
-		assertEquals(Collections.singletonList(messageId), ids);
+		assertEquals(singletonList(messageId), ids);
 
 		// The raw message should not be null
 		assertNotNull(db.getRawMessage(txn, messageId));

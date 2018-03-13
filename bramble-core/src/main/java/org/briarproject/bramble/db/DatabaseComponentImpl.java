@@ -51,15 +51,15 @@ import org.briarproject.bramble.api.sync.event.MessageToAckEvent;
 import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
+import org.briarproject.bramble.api.transport.KeySet;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
@@ -234,15 +234,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public void addTransportKeys(Transaction transaction, ContactId c,
-			TransportKeys k) throws DbException {
+	public KeySetId addTransportKeys(Transaction transaction,
+			@Nullable ContactId c, TransportKeys k) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		if (!db.containsContact(txn, c))
+		if (c != null && !db.containsContact(txn, c))
 			throw new NoSuchContactException();
 		if (!db.containsTransport(txn, k.getTransportId()))
 			throw new NoSuchTransportException();
-		db.addTransportKeys(txn, c, k);
+		return db.addTransportKeys(txn, c, k);
 	}
 
 	@Override
@@ -586,8 +586,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public Map<ContactId, TransportKeys> getTransportKeys(
-			Transaction transaction, TransportId t) throws DbException {
+	public Collection<KeySet> getTransportKeys(Transaction transaction,
+			TransportId t) throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
@@ -858,31 +858,25 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public void setReorderingWindow(Transaction transaction, ContactId c,
+	public void setReorderingWindow(Transaction transaction, KeySetId k,
 			TransportId t, long rotationPeriod, long base, byte[] bitmap)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		if (!db.containsContact(txn, c))
-			throw new NoSuchContactException();
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
-		db.setReorderingWindow(txn, c, t, rotationPeriod, base, bitmap);
+		db.setReorderingWindow(txn, k, t, rotationPeriod, base, bitmap);
 	}
 
 	@Override
 	public void updateTransportKeys(Transaction transaction,
-			Map<ContactId, TransportKeys> keys) throws DbException {
+			Collection<KeySet> keys) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		Map<ContactId, TransportKeys> filtered = new HashMap<>();
-		for (Entry<ContactId, TransportKeys> e : keys.entrySet()) {
-			ContactId c = e.getKey();
-			TransportKeys k = e.getValue();
-			if (db.containsContact(txn, c)
-					&& db.containsTransport(txn, k.getTransportId())) {
-				filtered.put(c, k);
-			}
+		Collection<KeySet> filtered = new ArrayList<>();
+		for (KeySet ks : keys) {
+			TransportId t = ks.getTransportKeys().getTransportId();
+			if (db.containsTransport(txn, t)) filtered.add(ks);
 		}
 		db.updateTransportKeys(txn, filtered);
 	}

@@ -6,7 +6,7 @@ import javax.annotation.concurrent.Immutable;
 
 /**
  * Type-safe wrapper for an integer that uniquely identifies a contact within
- * the scope of a single node.
+ * the scope of the local device.
  */
 @Immutable
 @NotNullByDefault
