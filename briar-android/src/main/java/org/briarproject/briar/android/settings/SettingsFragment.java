@@ -7,6 +7,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
@@ -240,11 +241,15 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				notifySound.setSummary(text);
 			} else {
 				setupNotificationPreference(notifyPrivateMessages,
-						CONTACT_CHANNEL_ID);
+						CONTACT_CHANNEL_ID,
+						R.string.notify_private_messages_setting_summary_26);
 				setupNotificationPreference(notifyGroupMessages,
-						GROUP_CHANNEL_ID);
-				setupNotificationPreference(notifyForumPosts, FORUM_CHANNEL_ID);
-				setupNotificationPreference(notifyBlogPosts, BLOG_CHANNEL_ID);
+						GROUP_CHANNEL_ID,
+						R.string.notify_group_messages_setting_summary_26);
+				setupNotificationPreference(notifyForumPosts, FORUM_CHANNEL_ID,
+						R.string.notify_forum_posts_setting_summary_26);
+				setupNotificationPreference(notifyBlogPosts, BLOG_CHANNEL_ID,
+						R.string.notify_blog_posts_setting_summary_26);
 				notifyVibration.setVisible(false);
 				notifyLockscreen.setVisible(false);
 				notifySound.setVisible(false);
@@ -267,8 +272,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	@TargetApi(26)
 	private void setupNotificationPreference(CheckBoxPreference pref,
-			String channelId) {
+			String channelId, @StringRes int summary) {
 		pref.setWidgetLayoutResource(0);
+		pref.setSummary(summary);
 		pref.setOnPreferenceClickListener(clickedPref -> {
 			Intent intent = new Intent(ACTION_CHANNEL_NOTIFICATION_SETTINGS)
 					.putExtra(EXTRA_APP_PACKAGE, getContext().getPackageName())
