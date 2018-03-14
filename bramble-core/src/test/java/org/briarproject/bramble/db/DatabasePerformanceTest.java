@@ -477,30 +477,30 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 
 	@Test
 	public void testGetMessagesToShare() throws Exception {
-		String name = "getMessagesToShare(T, ClientId)";
+		String name = "getMessagesToShare(T)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
-			db.getMessagesToShare(txn, pickRandom(clientIds));
+			db.getMessagesToShare(txn);
 			db.commitTransaction(txn);
 		});
 	}
 
 	@Test
 	public void testGetMessagesToValidate() throws Exception {
-		String name = "getMessagesToValidate(T, ClientId)";
+		String name = "getMessagesToValidate(T)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
-			db.getMessagesToValidate(txn, pickRandom(clientIds));
+			db.getMessagesToValidate(txn);
 			db.commitTransaction(txn);
 		});
 	}
 
 	@Test
 	public void testGetPendingMessages() throws Exception {
-		String name = "getPendingMessages(T, ClientId)";
+		String name = "getPendingMessages(T)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
-			db.getPendingMessages(txn, pickRandom(clientIds));
+			db.getPendingMessages(txn);
 			db.commitTransaction(txn);
 		});
 	}
