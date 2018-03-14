@@ -268,6 +268,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE INDEX IF NOT EXISTS messageMetadataByGroupIdState"
 					+ " ON messageMetadata (groupId, state)";
 
+	private static final String INDEX_MESSAGE_DEPENDENCIES_BY_DEPENDENCY_ID =
+			"CREATE INDEX IF NOT EXISTS messageDependenciesByDependencyId"
+					+ " ON messageDependencies (dependencyId)";
+
 	private static final String INDEX_STATUSES_BY_CONTACT_ID_GROUP_ID =
 			"CREATE INDEX IF NOT EXISTS statusesByContactIdGroupId"
 					+ " ON statuses (contactId, groupId)";
@@ -427,6 +431,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_CONTACTS_BY_AUTHOR_ID);
 			s.executeUpdate(INDEX_GROUPS_BY_CLIENT_ID);
 			s.executeUpdate(INDEX_MESSAGE_METADATA_BY_GROUP_ID_STATE);
+			s.executeUpdate(INDEX_MESSAGE_DEPENDENCIES_BY_DEPENDENCY_ID);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_GROUP_ID);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_TIMESTAMP);
 			s.close();
