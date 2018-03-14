@@ -50,6 +50,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import static java.sql.Types.INTEGER;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
@@ -71,7 +72,7 @@ import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 35;
+	static final int CODE_SCHEMA_VERSION = 36;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -169,6 +170,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (groupId _HASH NOT NULL,"
 					+ " messageId _HASH NOT NULL,"
 					+ " dependencyId _HASH NOT NULL," // Not a foreign key
+					+ " messageState INT NOT NULL," // Denormalised
+					// Denormalised, null if dependency is missing or in a
+					// different group
+					+ " dependencyState INT,"
 					+ " FOREIGN KEY (groupId)"
 					+ " REFERENCES groups (groupId)"
 					+ " ON DELETE CASCADE,"
@@ -714,6 +719,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 						m.getLength(), state, e.getValue(), messageShared,
 						false, seen);
 			}
+			// Update denormalised column in messageDependencies if dependency
+			// is in same group as dependent
+			sql = "UPDATE messageDependencies SET dependencyState = ?"
+					+ " WHERE groupId = ? AND dependencyId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, state.getValue());
+			ps.setBytes(2, m.getGroupId().getBytes());
+			ps.setBytes(3, m.getId().getBytes());
+			affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -783,21 +799,42 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void addMessageDependency(Connection txn, GroupId g,
-			MessageId dependent, MessageId dependency) throws DbException {
+	public void addMessageDependency(Connection txn, Message dependent,
+			MessageId dependency, State dependentState) throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
-			String sql = "INSERT INTO messageDependencies"
-					+ " (groupId, messageId, dependencyId)"
-					+ " VALUES (?, ?, ?)";
+			// Get state of dependency if present and in same group as dependent
+			String sql = "SELECT state FROM messages"
+					+ " WHERE messageId = ? AND groupId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
-			ps.setBytes(2, dependent.getBytes());
+			ps.setBytes(1, dependency.getBytes());
+			ps.setBytes(2, dependent.getGroupId().getBytes());
+			rs = ps.executeQuery();
+			State dependencyState = null;
+			if (rs.next()) {
+				dependencyState = State.fromValue(rs.getInt(1));
+				if (rs.next()) throw new DbStateException();
+			}
+			rs.close();
+			ps.close();
+			// Create messageDependencies row
+			sql = "INSERT INTO messageDependencies"
+					+ " (groupId, messageId, dependencyId, messageState,"
+					+ " dependencyState)"
+					+ " VALUES (?, ?, ?, ? ,?)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, dependent.getGroupId().getBytes());
+			ps.setBytes(2, dependent.getId().getBytes());
 			ps.setBytes(3, dependency.getBytes());
+			ps.setInt(4, dependentState.getValue());
+			if (dependencyState == null) ps.setNull(5, INTEGER);
+			else ps.setInt(5, dependencyState.getValue());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
+			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -1662,11 +1699,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT d.dependencyId, m.state, d.groupId, m.groupId"
-					+ " FROM messageDependencies AS d"
-					+ " LEFT OUTER JOIN messages AS m"
-					+ " ON d.dependencyId = m.messageId"
-					+ " WHERE d.messageId = ?";
+			String sql = "SELECT dependencyId, dependencyState"
+					+ " FROM messageDependencies"
+					+ " WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
@@ -1674,14 +1709,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) {
 				MessageId dependency = new MessageId(rs.getBytes(1));
 				State state = State.fromValue(rs.getInt(2));
-				if (rs.wasNull()) {
-					state = UNKNOWN; // Missing dependency
-				} else {
-					GroupId dependentGroupId = new GroupId(rs.getBytes(3));
-					GroupId dependencyGroupId = new GroupId(rs.getBytes(4));
-					if (!dependentGroupId.equals(dependencyGroupId))
-						state = UNKNOWN; // Dependency in another group
-				}
+				if (rs.wasNull())
+					state = UNKNOWN; // Missing or in a different group
 				dependencies.put(dependency, state);
 			}
 			rs.close();
@@ -1700,11 +1729,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT d.messageId, m.state"
-					+ " FROM messageDependencies AS d"
-					+ " JOIN messages AS m"
-					+ " ON d.messageId = m.messageId"
-					+ " WHERE dependencyId = ?";
+			// Exclude dependencies that are missing or in a different group
+			// from the dependent
+			String sql = "SELECT messageId, messageState"
+					+ " FROM messageDependencies"
+					+ " WHERE dependencyId = ?"
+					+ " AND dependencyState IS NOT NULL";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
@@ -2724,6 +2754,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Update denormalised column in statuses
 			sql = "UPDATE statuses SET state = ? WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, state.getValue());
+			ps.setBytes(2, m.getBytes());
+			affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+			// Update denormalised column in messageDependencies
+			sql = "UPDATE messageDependencies SET messageState = ?"
+					+ " WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, state.getValue());
+			ps.setBytes(2, m.getBytes());
+			affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+			// Update denormalised column in messageDependencies if dependency
+			// is present and in same group as dependent
+			sql = "UPDATE messageDependencies SET dependencyState = ?"
+					+ " WHERE dependencyId = ? AND dependencyState IS NOT NULL";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, state.getValue());
 			ps.setBytes(2, m.getBytes());

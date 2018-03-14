@@ -765,6 +765,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
+		// TODO: Don't allow messages with dependents to be removed
 		db.removeMessage(txn, m);
 	}
 
@@ -850,9 +851,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsMessage(txn, dependent.getId()))
 			throw new NoSuchMessageException();
+		State dependentState = db.getMessageState(txn, dependent.getId());
 		for (MessageId dependency : dependencies) {
-			db.addMessageDependency(txn, dependent.getGroupId(),
-					dependent.getId(), dependency);
+			db.addMessageDependency(txn, dependent, dependency, dependentState);
 		}
 	}
 
