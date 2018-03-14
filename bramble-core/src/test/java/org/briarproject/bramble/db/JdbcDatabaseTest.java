@@ -1332,8 +1332,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Map<MessageId, State> dependencies;
 		dependencies = db.getMessageDependencies(txn, messageId);
 
-		// The cross-group dependency should have state INVALID
-		assertEquals(INVALID, dependencies.get(messageId1));
+		// The cross-group dependency should have state UNKNOWN
+		assertEquals(UNKNOWN, dependencies.get(messageId1));
 
 		// The missing dependency should have state UNKNOWN
 		assertEquals(UNKNOWN, dependencies.get(messageId2));

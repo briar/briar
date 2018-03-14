@@ -57,7 +57,6 @@ import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
@@ -1681,7 +1680,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					GroupId dependentGroupId = new GroupId(rs.getBytes(3));
 					GroupId dependencyGroupId = new GroupId(rs.getBytes(4));
 					if (!dependentGroupId.equals(dependencyGroupId))
-						state = INVALID; // Dependency in another group
+						state = UNKNOWN; // Dependency in another group
 				}
 				dependencies.put(dependency, state);
 			}
