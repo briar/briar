@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 
 import static com.google.zxing.DecodeHintType.CHARACTER_SET;
 import static java.util.Collections.singletonMap;
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 @SuppressWarnings("deprecation")
@@ -67,7 +66,6 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
 		if (camera == this.camera) {
-			LOG.info("Got preview frame");
 			try {
 				Size size = camera.getParameters().getPreviewSize();
 				// The preview should be in NV21 format: width * height bytes of
@@ -105,20 +103,13 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			long now = System.currentTimeMillis();
 			BinaryBitmap bitmap = binarize(data, width, height, orientation);
 			Result result;
 			try {
 				result = reader.decode(bitmap,
 						singletonMap(CHARACTER_SET, "ISO8859_1"));
-				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Decoding barcode took " + duration + " ms");
 			} catch (ReaderException e) {
 				// No barcode found
-				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("No barcode found after " + duration + " ms");
 				return null;
 			} catch (RuntimeException e) {
 				LOG.warning("Invalid preview frame");
