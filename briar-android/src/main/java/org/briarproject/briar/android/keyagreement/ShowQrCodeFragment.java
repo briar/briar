@@ -208,6 +208,15 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	@UiThread
 	private void reset() {
+		// If we've stopped the camera view, restart it
+		if (gotRemotePayload) {
+			try {
+				cameraView.start(getScreenRotationDegrees());
+			} catch (CameraException e) {
+				logCameraExceptionAndFinish(e);
+				return;
+			}
+		}
 		statusView.setVisibility(INVISIBLE);
 		cameraView.setVisibility(VISIBLE);
 		gotRemotePayload = false;
