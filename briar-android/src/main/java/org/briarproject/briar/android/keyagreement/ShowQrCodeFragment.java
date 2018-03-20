@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,6 +53,7 @@ import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -131,20 +133,29 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		ImageView fullscreenButton = view.findViewById(R.id.fullscreen_button);
 		fullscreenButton.setOnClickListener(v -> {
 			View qrCodeContainer = view.findViewById(R.id.qr_code_container);
+			LinearLayout cameraOverlay = view.findViewById(R.id.camera_overlay);
+			LayoutParams statusParams, qrCodeParams;
 			if (fullscreen) {
-				// Shrink the QR code container
-				qrCodeContainer.setLayoutParams(
-						new LayoutParams(MATCH_PARENT, 0, 1f));
+				// Shrink the QR code container to fill half its parent
+				if (cameraOverlay.getOrientation() == HORIZONTAL) {
+					statusParams = new LayoutParams(0, MATCH_PARENT, 1f);
+					qrCodeParams = new LayoutParams(0, MATCH_PARENT, 1f);
+				} else {
+					statusParams = new LayoutParams(MATCH_PARENT, 0, 1f);
+					qrCodeParams = new LayoutParams(MATCH_PARENT, 0, 1f);
+				}
 				fullscreenButton.setBackgroundResource(
 						R.drawable.ic_fullscreen_black_48dp);
 			} else {
-				// Grow the QR code container
-				qrCodeContainer.setLayoutParams(
-						new LayoutParams(MATCH_PARENT, MATCH_PARENT, 1f));
+				// Grow the QR code container to fill its parent
+				statusParams = new LayoutParams(0, 0, 0f);
+				qrCodeParams = new LayoutParams(MATCH_PARENT, MATCH_PARENT, 1f);
 				fullscreenButton.setBackgroundResource(
 						R.drawable.ic_fullscreen_exit_black_48dp);
 			}
-			view.findViewById(R.id.camera_overlay).invalidate();
+			statusView.setLayoutParams(statusParams);
+			qrCodeContainer.setLayoutParams(qrCodeParams);
+			cameraOverlay.invalidate();
 			fullscreen = !fullscreen;
 		});
 	}
