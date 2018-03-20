@@ -1850,28 +1850,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Collection<MessageId> getMessagesToValidate(Connection txn,
-			ClientId c) throws DbException {
-		return getMessagesInState(txn, c, UNKNOWN);
+	public Collection<MessageId> getMessagesToValidate(Connection txn)
+			throws DbException {
+		return getMessagesInState(txn, UNKNOWN);
 	}
 
 	@Override
-	public Collection<MessageId> getPendingMessages(Connection txn,
-			ClientId c) throws DbException {
-		return getMessagesInState(txn, c, PENDING);
+	public Collection<MessageId> getPendingMessages(Connection txn)
+			throws DbException {
+		return getMessagesInState(txn, PENDING);
 	}
 
-	private Collection<MessageId> getMessagesInState(Connection txn, ClientId c,
+	private Collection<MessageId> getMessagesInState(Connection txn,
 			State state) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messageId FROM messages AS m"
-					+ " JOIN groups AS g ON m.groupId = g.groupId"
-					+ " WHERE state = ? AND clientId = ? AND raw IS NOT NULL";
+			String sql = "SELECT messageId FROM messages"
+					+ " WHERE state = ? AND raw IS NOT NULL";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, state.getValue());
-			ps.setString(2, c.getString());
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
@@ -1886,7 +1884,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Collection<MessageId> getMessagesToShare(Connection txn, ClientId c)
+	public Collection<MessageId> getMessagesToShare(Connection txn)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1896,12 +1894,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON m.messageId = d.dependencyId"
 					+ " JOIN messages AS m1"
 					+ " ON d.messageId = m1.messageId"
-					+ " JOIN groups AS g"
-					+ " ON m.groupId = g.groupId"
-					+ " WHERE m.shared = FALSE AND m1.shared = TRUE"
-					+ " AND g.clientId = ?";
+					+ " WHERE m.state = ?"
+					+ " AND m.shared = FALSE AND m1.shared = TRUE";
 			ps = txn.prepareStatement(sql);
-			ps.setString(1, c.getString());
+			ps.setInt(1, DELIVERED.getValue());
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));

@@ -259,31 +259,30 @@ public interface DatabaseComponent {
 	Collection<LocalAuthor> getLocalAuthors(Transaction txn) throws DbException;
 
 	/**
-	 * Returns the IDs of any messages that need to be validated by the given
-	 * client.
+	 * Returns the IDs of any messages that need to be validated.
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<MessageId> getMessagesToValidate(Transaction txn, ClientId c)
+	Collection<MessageId> getMessagesToValidate(Transaction txn)
 			throws DbException;
 
 	/**
-	 * Returns the IDs of any messages that are valid but pending delivery due
-	 * to dependencies on other messages for the given client.
+	 * Returns the IDs of any messages that are pending delivery due to
+	 * dependencies on other messages.
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<MessageId> getPendingMessages(Transaction txn, ClientId c)
+	Collection<MessageId> getPendingMessages(Transaction txn)
 			throws DbException;
 
 	/**
-	 * Returns the IDs of any messages from the given client
-	 * that have a shared dependent, but are still not shared themselves.
+	 * Returns the IDs of any messages that have shared dependents but have
+	 * not yet been shared themselves.
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<MessageId> getMessagesToShare(Transaction txn,
-			ClientId c) throws DbException;
+	Collection<MessageId> getMessagesToShare(Transaction txn)
+			throws DbException;
 
 	/**
 	 * Returns the message with the given ID, in serialised form, or null if

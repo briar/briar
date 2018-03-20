@@ -424,31 +424,27 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the IDs of any messages that need to be validated by the given
-	 * client.
+	 * Returns the IDs of any messages that need to be validated.
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<MessageId> getMessagesToValidate(T txn, ClientId c)
-			throws DbException;
+	Collection<MessageId> getMessagesToValidate(T txn) throws DbException;
 
 	/**
-	 * Returns the IDs of any messages that are still pending due to
-	 * dependencies to other messages for the given client.
+	 * Returns the IDs of any messages that are pending delivery due to
+	 * dependencies on other messages.
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<MessageId> getPendingMessages(T txn, ClientId c)
-			throws DbException;
+	Collection<MessageId> getPendingMessages(T txn) throws DbException;
 
 	/**
-	 * Returns the IDs of any messages from the given client
-	 * that have a shared dependent, but are still not shared themselves.
+	 * Returns the IDs of any messages that have a shared dependent but have
+	 * not yet been shared themselves.
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<MessageId> getMessagesToShare(T txn, ClientId c)
-			throws DbException;
+	Collection<MessageId> getMessagesToShare(T txn) throws DbException;
 
 	/**
 	 * Returns the next time (in milliseconds since the Unix epoch) when a

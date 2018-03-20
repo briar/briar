@@ -100,21 +100,21 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// validateOutstandingMessages()
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
-			oneOf(db).getMessagesToValidate(txn, clientId);
+			oneOf(db).getMessagesToValidate(txn);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// deliverOutstandingMessages()
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
-			oneOf(db).getPendingMessages(txn1, clientId);
+			oneOf(db).getPendingMessages(txn1);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// shareOutstandingMessages()
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn2));
-			oneOf(db).getMessagesToShare(txn2, clientId);
+			oneOf(db).getMessagesToShare(txn2);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
@@ -138,7 +138,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get messages to validate
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
-			oneOf(db).getMessagesToValidate(txn, clientId);
+			oneOf(db).getMessagesToValidate(txn);
 			will(returnValue(Arrays.asList(messageId, messageId1)));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
@@ -199,14 +199,14 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn5));
-			oneOf(db).getPendingMessages(txn5, clientId);
+			oneOf(db).getPendingMessages(txn5);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).commitTransaction(txn5);
 			oneOf(db).endTransaction(txn5);
 			// Get messages to share
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn6));
-			oneOf(db).getMessagesToShare(txn6, clientId);
+			oneOf(db).getMessagesToShare(txn6);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).commitTransaction(txn6);
 			oneOf(db).endTransaction(txn6);
@@ -227,14 +227,14 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get messages to validate
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
-			oneOf(db).getMessagesToValidate(txn, clientId);
+			oneOf(db).getMessagesToValidate(txn);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Get pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
-			oneOf(db).getPendingMessages(txn1, clientId);
+			oneOf(db).getPendingMessages(txn1);
 			will(returnValue(Collections.singletonList(messageId)));
 			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
@@ -292,7 +292,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get messages to share
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn4));
-			oneOf(db).getMessagesToShare(txn4, clientId);
+			oneOf(db).getMessagesToShare(txn4);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
@@ -313,14 +313,14 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// No messages to validate
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
-			oneOf(db).getMessagesToValidate(txn, clientId);
+			oneOf(db).getMessagesToValidate(txn);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// No pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
-			oneOf(db).getPendingMessages(txn1, clientId);
+			oneOf(db).getPendingMessages(txn1);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
@@ -328,7 +328,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get messages to share
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn2));
-			oneOf(db).getMessagesToShare(txn2, clientId);
+			oneOf(db).getMessagesToShare(txn2);
 			will(returnValue(Collections.singletonList(messageId)));
 			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
@@ -416,7 +416,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get messages to validate
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
-			oneOf(db).getMessagesToValidate(txn, clientId);
+			oneOf(db).getMessagesToValidate(txn);
 			will(returnValue(Arrays.asList(messageId, messageId1)));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
@@ -457,14 +457,14 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn4));
-			oneOf(db).getPendingMessages(txn4, clientId);
+			oneOf(db).getPendingMessages(txn4);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 			// Get messages to share
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn5));
-			oneOf(db).getMessagesToShare(txn5, clientId);
+			oneOf(db).getMessagesToShare(txn5);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).commitTransaction(txn5);
 			oneOf(db).endTransaction(txn5);
@@ -487,7 +487,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get messages to validate
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
-			oneOf(db).getMessagesToValidate(txn, clientId);
+			oneOf(db).getMessagesToValidate(txn);
 			will(returnValue(Arrays.asList(messageId, messageId1)));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
@@ -533,14 +533,14 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn4));
-			oneOf(db).getPendingMessages(txn4, clientId);
+			oneOf(db).getPendingMessages(txn4);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 			// Get messages to share
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn5));
-			oneOf(db).getMessagesToShare(txn5, clientId);
+			oneOf(db).getMessagesToShare(txn5);
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).commitTransaction(txn5);
 			oneOf(db).endTransaction(txn5);
