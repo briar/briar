@@ -69,7 +69,8 @@
 
 				<ImageView
 					android:id="@+id/fullscreen_button"
-					android:background="@drawable/ic_fullscreen_black_48dp"
+					android:background="?selectableItemBackground"
+					android:src="@drawable/ic_fullscreen_black_48dp"
 					android:alpha="0.54"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
