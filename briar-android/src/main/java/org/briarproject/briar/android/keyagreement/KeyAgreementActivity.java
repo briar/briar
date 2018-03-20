@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.widget.Toolbar;
@@ -206,11 +207,14 @@ public class KeyAgreementActivity extends BriarActivity implements
 
 	private void showQrCodeFragment() {
 		// FIXME #824
-		BaseFragment f = ShowQrCodeFragment.newInstance();
-		getSupportFragmentManager().beginTransaction()
-				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
-				.addToBackStack(f.getUniqueTag())
-				.commit();
+		FragmentManager fm = getSupportFragmentManager();
+		if (fm.findFragmentByTag(ShowQrCodeFragment.TAG) == null) {
+			BaseFragment f = ShowQrCodeFragment.newInstance();
+			fm.beginTransaction()
+					.replace(R.id.fragmentContainer, f, f.getUniqueTag())
+					.addToBackStack(f.getUniqueTag())
+					.commit();
+		}
 	}
 
 	private boolean checkPermissions() {

@@ -59,7 +59,8 @@ import static java.util.logging.Level.WARNING;
 public class ShowQrCodeFragment extends BaseEventFragment
 		implements QrCodeDecoder.ResultCallback {
 
-	private static final String TAG = ShowQrCodeFragment.class.getName();
+	static final String TAG = ShowQrCodeFragment.class.getName();
+
 	private static final Logger LOG = Logger.getLogger(TAG);
 
 	@Inject
@@ -204,6 +205,15 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	@UiThread
 	private void reset() {
+		// If we've stopped the camera view, restart it
+		if (gotRemotePayload) {
+			try {
+				cameraView.start(getScreenRotationDegrees());
+			} catch (CameraException e) {
+				logCameraExceptionAndFinish(e);
+				return;
+			}
+		}
 		statusView.setVisibility(INVISIBLE);
 		cameraView.setVisibility(VISIBLE);
 		gotRemotePayload = false;
@@ -218,12 +228,17 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			if (LOG.isLoggable(INFO))
 				LOG.info("Remote payload is " + encoded.length + " bytes");
 			Payload remotePayload = payloadParser.parse(encoded);
+			gotRemotePayload = true;
+			cameraView.stop();
 			cameraView.setVisibility(INVISIBLE);
 			statusView.setVisibility(VISIBLE);
 			status.setText(R.string.connecting_to_device);
 			task.connectAndRunProtocol(remotePayload);
+		} catch (CameraException e) {
+			logCameraExceptionAndFinish(e);
 		} catch (IOException | IllegalArgumentException e) {
-			// TODO show failure
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, "QR Code Invalid", e);
+			reset();
 			Toast.makeText(getActivity(), R.string.qr_code_invalid,
 					LENGTH_LONG).show();
 		}
@@ -261,6 +276,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		new AsyncTask<Void, Void, Bitmap>() {
 
 			@Override
+			@Nullable
 			protected Bitmap doInBackground(Void... params) {
 				byte[] encoded = payloadEncoder.encode(payload);
 				if (LOG.isLoggable(INFO))
@@ -325,13 +341,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		runOnUiThreadUnlessDestroyed(() -> {
 			LOG.info("Got result from decoder");
 			// Ignore results until the KeyAgreementTask is ready
-			if (!gotLocalPayload) {
-				return;
-			}
-			if (!gotRemotePayload) {
-				gotRemotePayload = true;
-				qrCodeScanned(result.getText());
-			}
+			if (!gotLocalPayload) return;
+			if (!gotRemotePayload) qrCodeScanned(result.getText());
 		});
 	}
 
