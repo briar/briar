@@ -146,13 +146,13 @@ public class ShowQrCodeFragment extends BaseEventFragment
 					statusParams = new LayoutParams(MATCH_PARENT, 0, 1f);
 					qrCodeParams = new LayoutParams(MATCH_PARENT, 0, 1f);
 				}
-				fullscreenButton.setBackgroundResource(
+				fullscreenButton.setImageResource(
 						R.drawable.ic_fullscreen_black_48dp);
 			} else {
 				// Grow the QR code container to fill its parent
 				statusParams = new LayoutParams(0, 0, 0f);
 				qrCodeParams = new LayoutParams(MATCH_PARENT, MATCH_PARENT, 1f);
-				fullscreenButton.setBackgroundResource(
+				fullscreenButton.setImageResource(
 						R.drawable.ic_fullscreen_exit_black_48dp);
 			}
 			statusView.setLayoutParams(statusParams);
