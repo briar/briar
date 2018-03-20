@@ -59,7 +59,8 @@ import static java.util.logging.Level.WARNING;
 public class ShowQrCodeFragment extends BaseEventFragment
 		implements QrCodeDecoder.ResultCallback {
 
-	private static final String TAG = ShowQrCodeFragment.class.getName();
+	static final String TAG = ShowQrCodeFragment.class.getName();
+
 	private static final Logger LOG = Logger.getLogger(TAG);
 
 	@Inject
