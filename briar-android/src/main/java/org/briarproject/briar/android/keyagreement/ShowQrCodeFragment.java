@@ -61,7 +61,8 @@ import static java.util.logging.Level.WARNING;
 public class ShowQrCodeFragment extends BaseEventFragment
 		implements QrCodeDecoder.ResultCallback {
 
-	private static final String TAG = ShowQrCodeFragment.class.getName();
+	static final String TAG = ShowQrCodeFragment.class.getName();
+
 	private static final Logger LOG = Logger.getLogger(TAG);
 	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 
