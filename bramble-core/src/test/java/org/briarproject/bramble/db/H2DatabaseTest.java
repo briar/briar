@@ -6,7 +6,6 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.settings.Settings;
@@ -25,7 +24,6 @@ import org.briarproject.bramble.system.SystemClock;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestDatabaseConfig;
 import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +43,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -55,6 +52,12 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERE
 import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -74,7 +77,6 @@ public class H2DatabaseTest extends BrambleTestCase {
 	private final ClientId clientId;
 	private final Group group;
 	private final Author author;
-	private final AuthorId localAuthorId;
 	private final LocalAuthor localAuthor;
 	private final MessageId messageId;
 	private final long timestamp;
@@ -85,19 +87,16 @@ public class H2DatabaseTest extends BrambleTestCase {
 	private final ContactId contactId;
 
 	public H2DatabaseTest() throws Exception {
-		groupId = new GroupId(TestUtils.getRandomId());
-		clientId = new ClientId(StringUtils.getRandomString(5));
+		groupId = new GroupId(getRandomId());
+		clientId = new ClientId(getRandomString(123));
 		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
 		group = new Group(groupId, clientId, descriptor);
-		AuthorId authorId = new AuthorId(TestUtils.getRandomId());
-		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);
-		localAuthorId = new AuthorId(TestUtils.getRandomId());
+		author = getAuthor();
+		localAuthor = getLocalAuthor();
+		messageId = new MessageId(getRandomId());
 		timestamp = System.currentTimeMillis();
-		localAuthor = new LocalAuthor(localAuthorId, "Bob",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp);
-		messageId = new MessageId(TestUtils.getRandomId());
 		size = 1234;
-		raw = TestUtils.getRandomBytes(size);
+		raw = getRandomBytes(size);
 		message = new Message(messageId, groupId, timestamp, raw);
 		transportId = new TransportId("id");
 		contactId = new ContactId(1);
@@ -115,7 +114,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		assertTrue(db.containsContact(txn, contactId));
 		assertFalse(db.containsGroup(txn, groupId));
@@ -178,7 +177,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
@@ -209,7 +208,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact, a shared group and a shared but unvalidated message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
@@ -254,7 +253,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact, an invisible group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addGroup(txn, group);
 		db.addMessage(txn, message, DELIVERED, true, null);
@@ -305,7 +304,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact, a shared group and an unshared message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
@@ -336,7 +335,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
@@ -362,13 +361,13 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact and a visible group
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, false);
 
 		// Add some messages to ack
-		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId1 = new MessageId(getRandomId());
 		Message message1 = new Message(messageId1, groupId, timestamp, raw);
 		db.addMessage(txn, message, DELIVERED, true, contactId);
 		db.addMessage(txn, message1, DELIVERED, true, contactId);
@@ -403,7 +402,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
@@ -560,7 +559,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact and a shared group
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
@@ -580,7 +579,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 
 		// The group is not in the database
@@ -598,7 +597,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact, an invisible group and a message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addGroup(txn, group);
 		db.addMessage(txn, message, DELIVERED, true, null);
@@ -617,7 +616,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact and a group
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addGroup(txn, group);
 
@@ -667,7 +666,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add the contact, the transport and the transport keys
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addTransport(txn, transportId, 123);
 		db.addTransportKeys(txn, contactId, keys);
@@ -729,7 +728,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add the contact, transport and transport keys
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addTransport(txn, transportId, 123);
 		db.updateTransportKeys(txn, Collections.singletonMap(contactId, keys));
@@ -765,7 +764,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add the contact, transport and transport keys
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addTransport(txn, transportId, 123);
 		db.updateTransportKeys(txn, Collections.singletonMap(contactId, keys));
@@ -800,7 +799,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 
 		// Add a contact associated with the local author
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 
 		// Ensure contact is returned from database by Author ID
@@ -825,18 +824,19 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a local author - no contacts should be associated
 		db.addLocalAuthor(txn, localAuthor);
-		Collection<ContactId> contacts = db.getContacts(txn, localAuthorId);
+		Collection<ContactId> contacts =
+				db.getContacts(txn, localAuthor.getId());
 		assertEquals(Collections.emptyList(), contacts);
 
 		// Add a contact associated with the local author
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
-		contacts = db.getContacts(txn, localAuthorId);
+		contacts = db.getContacts(txn, localAuthor.getId());
 		assertEquals(Collections.singletonList(contactId), contacts);
 
 		// Remove the local author - the contact should be removed
-		db.removeLocalAuthor(txn, localAuthorId);
-		contacts = db.getContacts(txn, localAuthorId);
+		db.removeLocalAuthor(txn, localAuthor.getId());
+		contacts = db.getContacts(txn, localAuthor.getId());
 		assertEquals(Collections.emptyList(), contacts);
 		assertFalse(db.containsContact(txn, contactId));
 
@@ -851,14 +851,14 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact - initially there should be no offered messages
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		assertEquals(0, db.countOfferedMessages(txn, contactId));
 
 		// Add some offered messages and count them
 		List<MessageId> ids = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
-			MessageId m = new MessageId(TestUtils.getRandomId());
+			MessageId m = new MessageId(getRandomId());
 			db.addOfferedMessage(txn, contactId, m);
 			ids.add(m);
 		}
@@ -1042,7 +1042,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testMetadataQueries() throws Exception {
-		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId1 = new MessageId(getRandomId());
 		Message message1 = new Message(messageId1, groupId, timestamp, raw);
 
 		Database<Connection> db = open(false);
@@ -1146,7 +1146,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testMetadataQueriesOnlyForDeliveredMessages() throws Exception {
-		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId1 = new MessageId(getRandomId());
 		Message message1 = new Message(messageId1, groupId, timestamp, raw);
 
 		Database<Connection> db = open(false);
@@ -1217,10 +1217,10 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testMessageDependencies() throws Exception {
-		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
-		MessageId messageId3 = new MessageId(TestUtils.getRandomId());
-		MessageId messageId4 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId1 = new MessageId(getRandomId());
+		MessageId messageId2 = new MessageId(getRandomId());
+		MessageId messageId3 = new MessageId(getRandomId());
+		MessageId messageId4 = new MessageId(getRandomId());
 		Message message1 = new Message(messageId1, groupId, timestamp, raw);
 		Message message2 = new Message(messageId2, groupId, timestamp, raw);
 
@@ -1301,21 +1301,21 @@ public class H2DatabaseTest extends BrambleTestCase {
 		db.addMessage(txn, message, PENDING, true, contactId);
 
 		// Add a second group
-		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
+		GroupId groupId1 = new GroupId(getRandomId());
 		Group group1 = new Group(groupId1, clientId,
-				TestUtils.getRandomBytes(MAX_GROUP_DESCRIPTOR_LENGTH));
+				getRandomBytes(MAX_GROUP_DESCRIPTOR_LENGTH));
 		db.addGroup(txn, group1);
 
 		// Add a message to the second group
-		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId1 = new MessageId(getRandomId());
 		Message message1 = new Message(messageId1, groupId1, timestamp, raw);
 		db.addMessage(txn, message1, DELIVERED, true, contactId);
 
 		// Create an ID for a missing message
-		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId2 = new MessageId(getRandomId());
 
 		// Add another message to the first group
-		MessageId messageId3 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId3 = new MessageId(getRandomId());
 		Message message3 = new Message(messageId3, groupId, timestamp, raw);
 		db.addMessage(txn, message3, DELIVERED, true, contactId);
 
@@ -1350,10 +1350,10 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testGetPendingMessagesForDelivery() throws Exception {
-		MessageId mId1 = new MessageId(TestUtils.getRandomId());
-		MessageId mId2 = new MessageId(TestUtils.getRandomId());
-		MessageId mId3 = new MessageId(TestUtils.getRandomId());
-		MessageId mId4 = new MessageId(TestUtils.getRandomId());
+		MessageId mId1 = new MessageId(getRandomId());
+		MessageId mId2 = new MessageId(getRandomId());
+		MessageId mId3 = new MessageId(getRandomId());
+		MessageId mId4 = new MessageId(getRandomId());
 		Message m1 = new Message(mId1, groupId, timestamp, raw);
 		Message m2 = new Message(mId2, groupId, timestamp, raw);
 		Message m3 = new Message(mId3, groupId, timestamp, raw);
@@ -1387,10 +1387,10 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testGetMessagesToShare() throws Exception {
-		MessageId mId1 = new MessageId(TestUtils.getRandomId());
-		MessageId mId2 = new MessageId(TestUtils.getRandomId());
-		MessageId mId3 = new MessageId(TestUtils.getRandomId());
-		MessageId mId4 = new MessageId(TestUtils.getRandomId());
+		MessageId mId1 = new MessageId(getRandomId());
+		MessageId mId2 = new MessageId(getRandomId());
+		MessageId mId3 = new MessageId(getRandomId());
+		MessageId mId4 = new MessageId(getRandomId());
 		Message m1 = new Message(mId1, groupId, timestamp, raw);
 		Message m2 = new Message(mId2, groupId, timestamp, raw);
 		Message m3 = new Message(mId3, groupId, timestamp, raw);
@@ -1428,7 +1428,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
@@ -1496,9 +1496,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 	@Test
 	public void testDifferentLocalAuthorsCanHaveTheSameContact()
 			throws Exception {
-		AuthorId localAuthorId1 = new AuthorId(TestUtils.getRandomId());
-		LocalAuthor localAuthor1 = new LocalAuthor(localAuthorId1, "Carol",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp);
+		LocalAuthor localAuthor1 = getLocalAuthor();
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -1509,15 +1507,15 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add the same contact for each local author
 		ContactId contactId =
-				db.addContact(txn, author, localAuthorId, true, true);
+				db.addContact(txn, author, localAuthor.getId(), true, true);
 		ContactId contactId1 =
-				db.addContact(txn, author, localAuthorId1, true, true);
+				db.addContact(txn, author, localAuthor1.getId(), true, true);
 
 		// The contacts should be distinct
 		assertNotEquals(contactId, contactId1);
 		assertEquals(2, db.getContacts(txn).size());
-		assertEquals(1, db.getContacts(txn, localAuthorId).size());
-		assertEquals(1, db.getContacts(txn, localAuthorId1).size());
+		assertEquals(1, db.getContacts(txn, localAuthor.getId()).size());
+		assertEquals(1, db.getContacts(txn, localAuthor1.getId()).size());
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1530,7 +1528,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
@@ -1575,7 +1573,7 @@ public class H2DatabaseTest extends BrambleTestCase {
 
 		// Add a contact
 		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 
 		// The contact should be active
@@ -1651,6 +1649,10 @@ public class H2DatabaseTest extends BrambleTestCase {
 		db.setMessageShared(txn, messageId);
 		assertEquals(0, db.getNextSendTime(txn, contactId));
 
+		// Mark the message as requested - it should still be sendable
+		db.raiseRequestedFlag(txn, contactId, messageId);
+		assertEquals(0, db.getNextSendTime(txn, contactId));
+
 		// Update the message's expiry time as though we sent it - now the
 		// message should be sendable after one round-trip
 		db.updateExpiryTime(txn, contactId, messageId, 1000);
@@ -1699,20 +1701,20 @@ public class H2DatabaseTest extends BrambleTestCase {
 	}
 
 	private TransportKeys createTransportKeys() {
-		SecretKey inPrevTagKey = TestUtils.getSecretKey();
-		SecretKey inPrevHeaderKey = TestUtils.getSecretKey();
+		SecretKey inPrevTagKey = getSecretKey();
+		SecretKey inPrevHeaderKey = getSecretKey();
 		IncomingKeys inPrev = new IncomingKeys(inPrevTagKey, inPrevHeaderKey,
 				1, 123, new byte[4]);
-		SecretKey inCurrTagKey = TestUtils.getSecretKey();
-		SecretKey inCurrHeaderKey = TestUtils.getSecretKey();
+		SecretKey inCurrTagKey = getSecretKey();
+		SecretKey inCurrHeaderKey = getSecretKey();
 		IncomingKeys inCurr = new IncomingKeys(inCurrTagKey, inCurrHeaderKey,
 				2, 234, new byte[4]);
-		SecretKey inNextTagKey = TestUtils.getSecretKey();
-		SecretKey inNextHeaderKey = TestUtils.getSecretKey();
+		SecretKey inNextTagKey = getSecretKey();
+		SecretKey inNextHeaderKey = getSecretKey();
 		IncomingKeys inNext = new IncomingKeys(inNextTagKey, inNextHeaderKey,
 				3, 345, new byte[4]);
-		SecretKey outCurrTagKey = TestUtils.getSecretKey();
-		SecretKey outCurrHeaderKey = TestUtils.getSecretKey();
+		SecretKey outCurrTagKey = getSecretKey();
+		SecretKey outCurrHeaderKey = getSecretKey();
 		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
 				2, 456);
 		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);
