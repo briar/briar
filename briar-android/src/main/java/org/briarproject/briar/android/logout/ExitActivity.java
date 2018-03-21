@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.panic;
+package org.briarproject.briar.android.logout;
 
 import android.os.Build;
 import android.os.Bundle;
