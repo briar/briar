@@ -109,9 +109,9 @@
 	<string name="sorry">Sorry</string>
 
 	<!-- Contacts and Private Conversations-->
-	<string name="no_contacts">It seems that you are new here and have no contacts yet.\n\nTap the + icon at the top and follow the instructions to add some friends to your list.\n\nPlease remember: You can only add new contacts face-to-face to prevent anyone from impersonating you or reading your messages in the future.</string>
+	<string name="no_contacts">No contacts to show\n\nTap the + icon to add a contact</string>
 	<string name="date_no_private_messages">No messages.</string>
-	<string name="no_private_messages">This is the conversation view.\n\nThere seems to be a lack of conversation.\n\nJust tap the input field at the bottom to start a conversation.</string>
+	<string name="no_private_messages">No messages to show</string>
 	<string name="message_hint">Type message</string>
 	<string name="delete_contact">Delete contact</string>
 	<string name="dialog_title_delete_contact">Confirm Contact Deletion</string>
@@ -162,7 +162,7 @@
 	</plurals>
 
 	<!-- Private Groups -->
-	<string name="groups_list_empty">You are not participating in any groups.\n\nTap the + icon at the top to create a group yourself or ask your contacts to get invited into one of their groups.</string>
+	<string name="groups_list_empty">No groups to show\n\nTap the + icon to create a group, or ask your contacts to share groups with you</string>
 	<string name="groups_created_by">Created by %s</string>
 	<plurals name="messages">
 		<item quantity="one">%d message</item>
@@ -218,7 +218,7 @@
 	<string name="groups_reveal_invisible">Contact relationship is not visible to the group</string>
 
 	<!-- Forums -->
-	<string name="no_forums">You don\'t have any forums yet.\n\nWhy don\'t you create a new one yourself by tapping the + icon at the top?\n\nYou can also ask your contacts to share forums with you.</string>
+	<string name="no_forums">No forums to show\n\nTap the + icon to create a forum, or ask your contacts to share forums with you</string>
 	<string name="create_forum_title">Create Forum</string>
 	<string name="choose_forum_hint">Choose a name for your forum</string>
 	<string name="create_forum_button">Create Forum</string>
@@ -243,7 +243,7 @@
 	<string name="forum_share_button">Share Forum</string>
 	<string name="contacts_selected">Contacts selected</string>
 	<string name="activity_share_toolbar_header">Choose Contacts</string>
-	<string name="no_contacts_selector">It seems that you are new here and have no contacts yet.\n\nPlease come back here after you added your first contact.</string>
+	<string name="no_contacts_selector">No contacts to show\n\nPlease come back here after adding a contact</string>
 	<string name="forum_shared_snackbar">Forum shared with chosen contacts</string>
 	<string name="forum_share_message">Add a message (optional)</string>
 	<string name="forum_share_error">There was an error sharing this forum.</string>
@@ -270,7 +270,7 @@
 	<string name="nobody">Nobody</string>
 
 	<!-- Blogs -->
-	<string name="blogs_other_blog_empty_state">This blog is currently empty.\n\nEither the author hasn\'t written anything yet, or the person who shared this blog with you needs to come online, so posts can be synchronized.</string>
+	<string name="blogs_other_blog_empty_state">No posts to show</string>
 	<string name="read_more">read more</string>
 	<string name="blogs_write_blog_post">Write Blog Post</string>
 	<string name="blogs_write_blog_post_body_hint">Type your blog post here</string>
@@ -278,7 +278,7 @@
 	<string name="blogs_blog_post_created">Blog Post Created</string>
 	<string name="blogs_blog_post_received">New Blog Post Received</string>
 	<string name="blogs_blog_post_scroll_to">Scroll To</string>
-	<string name="blogs_feed_empty_state">This is the global blog feed.\n\nIt looks like nobody blogged anything, yet.\n\nBe the first and tap the pen icon to write a new blog post.</string>
+	<string name="blogs_feed_empty_state">No posts to show\n\nPosts from your contacts and blogs you subscribe to will appear here\n\nTap the pen icon to write a post</string>
 	<string name="blogs_remove_blog">Remove Blog</string>
 	<string name="blogs_remove_blog_dialog_message">Are you sure that you want to remove this blog and all posts?\nNote that this will not remove the blog from other people\'s devices.</string>
 	<string name="blogs_remove_blog_ok">Remove Blog</string>
@@ -315,7 +315,7 @@
 	<string name="blogs_rss_remove_feed_dialog_message">Are you sure you want to remove this feed and all its posts?\nAny posts you have shared will not be removed from other people\'s devices.</string>
 	<string name="blogs_rss_remove_feed_ok">Remove Feed</string>
 	<string name="blogs_rss_feeds_manage_delete_error">The feed could not be deleted!</string>
-	<string name="blogs_rss_feeds_manage_empty_state">You haven\'t imported any RSS feeds.\n\nWhy don\'t you click the plus in the top right screen corner to add your first?</string>
+	<string name="blogs_rss_feeds_manage_empty_state">No RSS feeds to show\n\nTap the + icon to import a feed</string>
 	<string name="blogs_rss_feeds_manage_error">There was a problem loading your feeds. Please try again later.</string>
 
 	<!-- Settings Network -->
