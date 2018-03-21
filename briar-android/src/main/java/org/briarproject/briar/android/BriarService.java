@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import java.util.concurrent.CountDownLatch;
@@ -28,8 +29,11 @@ import javax.inject.Inject;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.app.NotificationManager.IMPORTANCE_NONE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SERVICE;
 import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
@@ -194,7 +198,29 @@ public class BriarService extends Service {
 	public void onLowMemory() {
 		super.onLowMemory();
 		LOG.warning("Memory is low");
-		// FIXME: Work out what to do about it
+		shutdownFromBackground();
+	}
+
+	private void shutdownFromBackground() {
+		// Stop the service
+		stopSelf();
+		// Hide the UI
+		Intent i = new Intent(this, HideUiActivity.class);
+		i.addFlags(FLAG_ACTIVITY_NEW_TASK
+				| FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+				| FLAG_ACTIVITY_NO_ANIMATION
+				| FLAG_ACTIVITY_CLEAR_TASK);
+		startActivity(i);
+		// Wait for shutdown to complete, then exit
+		new Thread(() -> {
+			try {
+				if (started) lifecycleManager.waitForShutdown();
+			} catch (InterruptedException e) {
+				LOG.info("Interrupted while waiting for shutdown");
+			}
+			LOG.info("Exiting");
+			System.exit(0);
+		}).start();
 	}
 
 	/**
