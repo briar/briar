@@ -223,7 +223,7 @@
 	<string name="choose_forum_hint">Choose a name for your forum</string>
 	<string name="create_forum_button">Create Forum</string>
 	<string name="forum_created_toast">Forum created</string>
-	<string name="no_forum_posts">This forum is empty.\n\nUse the pen icon at the top to compose the first post.\n\nFeeling lonely here? Share this forum with more of your contacts!</string>
+	<string name="no_forum_posts">No posts to show</string>
 	<string name="no_posts">No posts</string>
 	<plurals name="posts">
 		<item quantity="one">%d post</item>
