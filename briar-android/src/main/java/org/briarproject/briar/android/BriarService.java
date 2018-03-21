@@ -4,8 +4,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
@@ -24,11 +27,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.app.NotificationManager.IMPORTANCE_NONE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+import static android.content.Intent.ACTION_SHUTDOWN;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
@@ -64,6 +69,9 @@ public class BriarService extends Service {
 
 	private final AtomicBoolean created = new AtomicBoolean(false);
 	private final Binder binder = new BriarBinder();
+
+	@Nullable
+	private BroadcastReceiver receiver = null;
 
 	@Inject
 	protected DatabaseConfig databaseConfig;
@@ -144,6 +152,19 @@ public class BriarService extends Service {
 				stopSelf();
 			}
 		}).start();
+		// Register for device shutdown broadcasts
+		receiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				LOG.info("Device is shutting down");
+				shutdownFromBackground();
+			}
+		};
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(ACTION_SHUTDOWN);
+		filter.addAction("android.intent.action.QUICKBOOT_POWEROFF");
+		filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF");
+		registerReceiver(receiver, filter);
 	}
 
 	private void showStartupFailureNotification(StartResult result) {
@@ -188,6 +209,7 @@ public class BriarService extends Service {
 		super.onDestroy();
 		LOG.info("Destroyed");
 		stopForeground(true);
+		if (receiver != null) unregisterReceiver(receiver);
 		// Stop the services in a background thread
 		new Thread(() -> {
 			if (started) lifecycleManager.stopServices();
