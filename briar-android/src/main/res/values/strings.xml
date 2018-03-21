@@ -233,9 +233,9 @@
 	<string name="btn_reply">Reply</string>
 	<string name="forum_leave">Leave Forum</string>
 	<string name="dialog_title_leave_forum">Confirm Leaving Forum</string>
-	<string name="dialog_message_leave_forum">Are you sure that you want to leave this forum? Contacts you have shared this forum with might get cut off from receiving updates for this forum.</string>
+	<string name="dialog_message_leave_forum">Are you sure that you want to leave this forum?\n\nAny contacts you\'ve shared this forum with might stop receiving updates.</string>
 	<string name="dialog_button_leave">Leave</string>
-	<string name="forum_left_toast">Left Forum</string>
+	<string name="forum_left_toast">Left forum</string>
 
 	<!-- Forum Sharing -->
 	<string name="forum_share_button">Share Forum</string>
@@ -248,9 +248,9 @@
 	<string name="forum_invitation_received">%1$s has shared the forum \"%2$s\" with you.</string>
 	<string name="forum_invitation_sent">You have shared the forum \"%1$s\" with %2$s.</string>
 	<string name="forum_invitations_title">Forum Invitations</string>
-	<string name="forum_invitation_exists">You accepted an invitation to this forum already. Accepting more invitations will grow and strengthen the communication in the forum.</string>
-	<string name="forum_joined_toast">Joined Forum</string>
-	<string name="forum_declined_toast">Forum Invitation Declined</string>
+	<string name="forum_invitation_exists">You accepted an invitation to this forum already.\n\nAccepting more invitations will make your connection to the forum faster and more reliable.</string>
+	<string name="forum_joined_toast">Joined forum</string>
+	<string name="forum_declined_toast">Invitation declined</string>
 	<string name="shared_by_format">Shared by %s</string>
 	<string name="forum_invitation_already_sharing">Already sharing</string>
 	<string name="forum_invitation_response_accepted_sent">You accepted the forum invitation from %s.</string>
@@ -271,16 +271,16 @@
 	<string name="blogs_other_blog_empty_state">No posts to show</string>
 	<string name="read_more">read more</string>
 	<string name="blogs_write_blog_post">Write Blog Post</string>
-	<string name="blogs_write_blog_post_body_hint">Type your blog post here</string>
+	<string name="blogs_write_blog_post_body_hint">Type your blog post</string>
 	<string name="blogs_publish_blog_post">Publish</string>
 	<string name="blogs_blog_post_created">Blog Post Created</string>
 	<string name="blogs_blog_post_received">New Blog Post Received</string>
 	<string name="blogs_blog_post_scroll_to">Scroll To</string>
 	<string name="blogs_feed_empty_state">No posts to show\n\nPosts from your contacts and blogs you subscribe to will appear here\n\nTap the pen icon to write a post</string>
 	<string name="blogs_remove_blog">Remove Blog</string>
-	<string name="blogs_remove_blog_dialog_message">Are you sure that you want to remove this blog and all posts?\nNote that this will not remove the blog from other people\'s devices.</string>
-	<string name="blogs_remove_blog_ok">Remove Blog</string>
-	<string name="blogs_blog_removed">Blog Removed</string>
+	<string name="blogs_remove_blog_dialog_message">Are you sure that you want to remove this blog?\n\nPosts will be removed from your device but not from other people\'s devices.\n\nAny contacts you\'ve shared this blog with might stop receiving updates.</string>
+	<string name="blogs_remove_blog_ok">Remove</string>
+	<string name="blogs_blog_removed">Blog removed</string>
 	<string name="blogs_reblog_comment_hint">Add a comment (optional)</string>
 	<string name="blogs_reblog_button">Reblog</string>
 
@@ -296,8 +296,8 @@
 	<string name="blogs_sharing_invitation_received">%1$s has shared the blog \"%2$s\" with you.</string>
 	<string name="blogs_sharing_invitation_sent">You have shared the blog \"%1$s\" with %2$s.</string>
 	<string name="blogs_sharing_invitations_title">Blog Invitations</string>
-	<string name="blogs_sharing_joined_toast">Subscribed to Blog</string>
-	<string name="blogs_sharing_declined_toast">Blog Invitation Declined</string>
+	<string name="blogs_sharing_joined_toast">Subscribed to blog</string>
+	<string name="blogs_sharing_declined_toast">Invitation declined</string>
 	<string name="sharing_status_blog">Anyone who subscribes to a blog can share it with their contacts. You are sharing this blog with the following contacts. There may also be other subscribers who you can\'t see.</string>
 
 	<!-- RSS Feeds -->
@@ -310,8 +310,8 @@
 	<string name="blogs_rss_feeds_manage_author">Author:</string>
 	<string name="blogs_rss_feeds_manage_updated">Last Updated:</string>
 	<string name="blogs_rss_remove_feed">Remove Feed</string>
-	<string name="blogs_rss_remove_feed_dialog_message">Are you sure you want to remove this feed and all its posts?\nAny posts you have shared will not be removed from other people\'s devices.</string>
-	<string name="blogs_rss_remove_feed_ok">Remove Feed</string>
+	<string name="blogs_rss_remove_feed_dialog_message">Are you sure that you want to remove this feed?\n\nPosts will be removed from your device but not from other people\'s devices.\n\nAny contacts you\'ve shared this feed with might stop receiving updates.</string>
+	<string name="blogs_rss_remove_feed_ok">Remove</string>
 	<string name="blogs_rss_feeds_manage_delete_error">The feed could not be deleted!</string>
 	<string name="blogs_rss_feeds_manage_empty_state">No RSS feeds to show\n\nTap the + icon to import a feed</string>
 	<string name="blogs_rss_feeds_manage_error">There was a problem loading your feeds. Please try again later.</string>
