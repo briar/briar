@@ -716,8 +716,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		boolean online = net != null && net.isConnected();
 		boolean wifi = online && net.getType() == TYPE_WIFI;
 		String country = locationUtils.getCurrentCountry();
-		boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
-				country);
+		boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(country);
 		Settings s = callback.getSettings();
 		int network = s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_ALWAYS);
 

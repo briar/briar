@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -19,6 +20,8 @@ import javax.annotation.Nullable;
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.TYPE_WIFI;
+import static java.util.logging.Level.INFO;
+import static org.briarproject.bramble.util.AndroidUtils.logNetworkState;
 
 @NotNullByDefault
 class AndroidLanTcpPlugin extends LanTcpPlugin {
@@ -46,6 +49,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		networkStateReceiver = new NetworkStateReceiver();
 		IntentFilter filter = new IntentFilter(CONNECTIVITY_ACTION);
 		appContext.registerReceiver(networkStateReceiver, filter);
+		if (LOG.isLoggable(INFO)) logNetworkState(appContext, LOG);
 	}
 
 	@Override
@@ -61,10 +65,21 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		@Override
 		public void onReceive(Context ctx, Intent i) {
 			if (!running) return;
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Connectivity change");
+				Bundle extras = i.getExtras();
+				if (extras != null) {
+					LOG.info("Extras:");
+					for (String key : extras.keySet())
+						LOG.info("\t" + key + ": " + extras.get(key));
+				}
+				logNetworkState(appContext, LOG);
+			}
 			Object o = ctx.getSystemService(CONNECTIVITY_SERVICE);
 			ConnectivityManager cm = (ConnectivityManager) o;
 			NetworkInfo net = cm.getActiveNetworkInfo();
-			if (net != null && net.getType() == TYPE_WIFI && net.isConnected()) {
+			if (net != null && net.getType() == TYPE_WIFI
+					&& net.isConnected()) {
 				LOG.info("Connected to Wi-Fi");
 				if (socket == null || socket.isClosed()) bind();
 			} else {

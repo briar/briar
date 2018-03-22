@@ -173,12 +173,7 @@ public class BriarReportPrimer implements ReportPrimer {
 				WifiInfo wifiInfo = wm.getConnectionInfo();
 				if (wifiInfo != null) {
 					int ip = wifiInfo.getIpAddress(); // Nice API, Google
-					int ip1 = ip & 0xFF;
-					int ip2 = (ip >> 8) & 0xFF;
-					int ip3 = (ip >> 16) & 0xFF;
-					int ip4 = (ip >> 24) & 0xFF;
-					String address = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-					customData.put("Wi-Fi address", address);
+					customData.put("Wi-Fi address", StringUtils.ipToString(ip));
 				}
 			}
 

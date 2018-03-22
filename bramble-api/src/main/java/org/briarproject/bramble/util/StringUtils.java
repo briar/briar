@@ -146,6 +146,14 @@ public class StringUtils {
 		return s.toString();
 	}
 
+	public static String ipToString(int ip) {
+		int ip1 = ip & 0xFF;
+		int ip2 = (ip >> 8) & 0xFF;
+		int ip3 = (ip >> 16) & 0xFF;
+		int ip4 = (ip >> 24) & 0xFF;
+		return ip1 + "." + ip2 + "." + ip3 + "." + ip4;
+	}
+
 	public static String getRandomString(int length) {
 		char[] c = new char[length];
 		for (int i = 0; i < length; i++)
