@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -22,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.TorConstants;
@@ -51,6 +53,7 @@ import static android.support.v4.view.GravityCompat.START;
 import static android.support.v4.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
@@ -73,6 +76,8 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	@Inject
 	NavDrawerController controller;
+	@Inject
+	LifecycleManager lifecycleManager;
 
 	private DrawerLayout drawerLayout;
 	private NavigationView navigation;
@@ -128,7 +133,9 @@ public class NavDrawerActivity extends BriarActivity implements
 		initializeTransports(getLayoutInflater());
 		transportsView.setAdapter(transportsAdapter);
 
-		if (state == null) {
+		if (lifecycleManager.getLifecycleState().isAfter(RUNNING)) {
+			showSignOutFragment();
+		} else if (state == null) {
 			startFragment(ContactListFragment.newInstance(),
 					R.id.nav_btn_contacts);
 		}
@@ -212,19 +219,23 @@ public class NavDrawerActivity extends BriarActivity implements
 	public void onBackPressed() {
 		if (drawerLayout.isDrawerOpen(START)) {
 			drawerLayout.closeDrawer(START);
-		} else if (getSupportFragmentManager().getBackStackEntryCount() == 0 &&
-				getSupportFragmentManager()
-						.findFragmentByTag(ContactListFragment.TAG) == null) {
+		} else {
+			FragmentManager fm = getSupportFragmentManager();
+			if (fm.findFragmentByTag(SignOutFragment.TAG) != null) {
+				finish();
+			} else if (fm.getBackStackEntryCount() == 0
+					&& fm.findFragmentByTag(ContactListFragment.TAG) == null) {
 			/*
 			 * This makes sure that the first fragment (ContactListFragment) the
 			 * user sees is the same as the last fragment the user sees before
 			 * exiting. This models the typical Google navigation behaviour such
 			 * as in Gmail/Inbox.
 			 */
-			startFragment(ContactListFragment.newInstance(),
-					R.id.nav_btn_contacts);
-		} else {
-			super.onBackPressed();
+				startFragment(ContactListFragment.newInstance(),
+						R.id.nav_btn_contacts);
+			} else {
+				super.onBackPressed();
+			}
 		}
 	}
 
@@ -240,10 +251,15 @@ public class NavDrawerActivity extends BriarActivity implements
 		drawerToggle.onConfigurationChanged(newConfig);
 	}
 
-	private void signOut() {
+	private void showSignOutFragment() {
 		drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED);
 		startFragment(new SignOutFragment());
+	}
+
+	private void signOut() {
+		drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED);
 		signOut(false);
+		finish();
 	}
 
 	private void startFragment(BaseFragment fragment, int itemId) {
