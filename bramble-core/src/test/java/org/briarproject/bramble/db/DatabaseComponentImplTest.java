@@ -1518,10 +1518,12 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			// addMessageDependencies()
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));
-			oneOf(database).addMessageDependency(txn, groupId, messageId,
-					messageId1);
-			oneOf(database).addMessageDependency(txn, groupId, messageId,
-					messageId2);
+			oneOf(database).getMessageState(txn, messageId);
+			will(returnValue(DELIVERED));
+			oneOf(database).addMessageDependency(txn, message, messageId1,
+					DELIVERED);
+			oneOf(database).addMessageDependency(txn, message, messageId2,
+					DELIVERED);
 			// getMessageDependencies()
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));

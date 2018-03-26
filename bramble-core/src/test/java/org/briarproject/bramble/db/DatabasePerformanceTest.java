@@ -572,8 +572,9 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 					messageMeta.get(g.getId()).add(mm);
 					db.mergeMessageMetadata(txn, m.getId(), mm);
 					if (k > 0) {
-						db.addMessageDependency(txn, g.getId(), m.getId(),
-								pickRandom(groupMessages.get(g.getId())));
+						MessageId dependency =
+								pickRandom(groupMessages.get(g.getId()));
+						db.addMessageDependency(txn, m, dependency, state);
 					}
 					groupMessages.get(g.getId()).add(m.getId());
 				}
@@ -598,8 +599,9 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 				messageMeta.get(g.getId()).add(mm);
 				db.mergeMessageMetadata(txn, m.getId(), mm);
 				if (j > 0) {
-					db.addMessageDependency(txn, g.getId(), m.getId(),
-							pickRandom(groupMessages.get(g.getId())));
+					MessageId dependency =
+							pickRandom(groupMessages.get(g.getId()));
+					db.addMessageDependency(txn, m, dependency, DELIVERED);
 				}
 				groupMessages.get(g.getId()).add(m.getId());
 			}

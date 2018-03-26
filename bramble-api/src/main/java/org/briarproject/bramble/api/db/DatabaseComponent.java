@@ -18,7 +18,6 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
-import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.Collection;
@@ -339,12 +338,8 @@ public interface DatabaseComponent {
 
 	/**
 	 * Returns the IDs and states of all dependencies of the given message.
-	 * Missing dependencies have the state
-	 * {@link ValidationManager.State UNKNOWN}.
-	 * Dependencies in other groups have the state
-	 * {@link ValidationManager.State INVALID}.
-	 * Note that these states are not set on the dependencies themselves; the
-	 * returned states should only be taken in the context of the given message.
+	 * For missing dependencies and dependencies in other groups, the state
+	 * {@link State UNKNOWN} is returned.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -352,9 +347,9 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Returns all IDs of messages that depend on the given message.
-	 * Messages in other groups that declare a dependency on the given message
-	 * will be returned even though such dependencies are invalid.
+	 * Returns the IDs and states of all dependents of the given message.
+	 * Dependents in other groups are not returned. If the given message is
+	 * missing, no dependents are returned.
 	 * <p/>
 	 * Read-only.
 	 */

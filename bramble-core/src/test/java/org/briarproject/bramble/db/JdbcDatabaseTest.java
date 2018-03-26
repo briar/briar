@@ -1227,6 +1227,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		MessageId messageId4 = new MessageId(getRandomId());
 		Message message1 = new Message(messageId1, groupId, timestamp, raw);
 		Message message2 = new Message(messageId2, groupId, timestamp, raw);
+		Message message3 = new Message(messageId3, groupId, timestamp, raw);
+		Message message4 = new Message(messageId4, groupId, timestamp, raw);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -1234,21 +1236,21 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Add a group and some messages
 		db.addGroup(txn, group);
 		db.addMessage(txn, message, PENDING, true, contactId);
-		db.addMessage(txn, message1, DELIVERED, true, contactId);
+		db.addMessage(txn, message1, PENDING, true, contactId);
 		db.addMessage(txn, message2, INVALID, true, contactId);
 
 		// Add dependencies
-		db.addMessageDependency(txn, groupId, messageId, messageId1);
-		db.addMessageDependency(txn, groupId, messageId, messageId2);
-		db.addMessageDependency(txn, groupId, messageId1, messageId3);
-		db.addMessageDependency(txn, groupId, messageId2, messageId4);
+		db.addMessageDependency(txn, message, messageId1, PENDING);
+		db.addMessageDependency(txn, message, messageId2, PENDING);
+		db.addMessageDependency(txn, message1, messageId3, PENDING);
+		db.addMessageDependency(txn, message2, messageId4, INVALID);
 
 		Map<MessageId, State> dependencies;
 
 		// Retrieve dependencies for root
 		dependencies = db.getMessageDependencies(txn, messageId);
 		assertEquals(2, dependencies.size());
-		assertEquals(DELIVERED, dependencies.get(messageId1));
+		assertEquals(PENDING, dependencies.get(messageId1));
 		assertEquals(INVALID, dependencies.get(messageId2));
 
 		// Retrieve dependencies for message 1
@@ -1281,10 +1283,24 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(1, dependents.size());
 		assertEquals(PENDING, dependents.get(messageId));
 
+		// Message 3 is missing, so it has no dependents
+		dependents = db.getMessageDependents(txn, messageId3);
+		assertEquals(0, dependents.size());
+
+		// Add message 3
+		db.addMessage(txn, message3, UNKNOWN, false, contactId);
+
 		// Message 3 has message 1 as a dependent
 		dependents = db.getMessageDependents(txn, messageId3);
 		assertEquals(1, dependents.size());
-		assertEquals(DELIVERED, dependents.get(messageId1));
+		assertEquals(PENDING, dependents.get(messageId1));
+
+		// Message 4 is missing, so it has no dependents
+		dependents = db.getMessageDependents(txn, messageId4);
+		assertEquals(0, dependents.size());
+
+		// Add message 4
+		db.addMessage(txn, message4, UNKNOWN, false, contactId);
 
 		// Message 4 has message 2 as a dependent
 		dependents = db.getMessageDependents(txn, messageId4);
@@ -1324,16 +1340,16 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.addMessage(txn, message3, DELIVERED, true, contactId);
 
 		// Add dependencies between the messages
-		db.addMessageDependency(txn, groupId, messageId, messageId1);
-		db.addMessageDependency(txn, groupId, messageId, messageId2);
-		db.addMessageDependency(txn, groupId, messageId, messageId3);
+		db.addMessageDependency(txn, message, messageId1, PENDING);
+		db.addMessageDependency(txn, message, messageId2, PENDING);
+		db.addMessageDependency(txn, message, messageId3, PENDING);
 
 		// Retrieve the dependencies for the root
 		Map<MessageId, State> dependencies;
 		dependencies = db.getMessageDependencies(txn, messageId);
 
-		// The cross-group dependency should have state INVALID
-		assertEquals(INVALID, dependencies.get(messageId1));
+		// The cross-group dependency should have state UNKNOWN
+		assertEquals(UNKNOWN, dependencies.get(messageId1));
 
 		// The missing dependency should have state UNKNOWN
 		assertEquals(UNKNOWN, dependencies.get(messageId2));
@@ -1345,8 +1361,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Map<MessageId, State> dependents;
 		dependents = db.getMessageDependents(txn, messageId1);
 
-		// The cross-group dependent should have its real state
-		assertEquals(PENDING, dependents.get(messageId));
+		// The cross-group dependent should be excluded
+		assertFalse(dependents.containsKey(messageId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1411,9 +1427,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.addMessage(txn, m4, DELIVERED, true, contactId);
 
 		// Introduce dependencies between the messages
-		db.addMessageDependency(txn, groupId, mId1, mId2);
-		db.addMessageDependency(txn, groupId, mId3, mId1);
-		db.addMessageDependency(txn, groupId, mId4, mId3);
+		db.addMessageDependency(txn, m1, mId2, DELIVERED);
+		db.addMessageDependency(txn, m3, mId1, DELIVERED);
+		db.addMessageDependency(txn, m4, mId3, DELIVERED);
 
 		// Retrieve messages to be shared
 		Collection<MessageId> result = db.getMessagesToShare(txn);
