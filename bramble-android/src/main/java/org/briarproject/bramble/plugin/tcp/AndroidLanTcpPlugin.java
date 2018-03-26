@@ -20,12 +20,15 @@ import javax.annotation.Nullable;
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.TYPE_WIFI;
+import static android.net.wifi.WifiManager.EXTRA_WIFI_STATE;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.util.AndroidUtils.logNetworkState;
 
 @NotNullByDefault
 class AndroidLanTcpPlugin extends LanTcpPlugin {
 
+	private static final String WIFI_AP_STATE_ACTION =
+			"android.net.wifi.WIFI_AP_STATE_CHANGED";
 	private static final Logger LOG =
 			Logger.getLogger(AndroidLanTcpPlugin.class.getName());
 
@@ -47,7 +50,9 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		running = true;
 		// Register to receive network status events
 		networkStateReceiver = new NetworkStateReceiver();
-		IntentFilter filter = new IntentFilter(CONNECTIVITY_ACTION);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(CONNECTIVITY_ACTION);
+		filter.addAction(WIFI_AP_STATE_ACTION);
 		appContext.registerReceiver(networkStateReceiver, filter);
 		if (LOG.isLoggable(INFO)) logNetworkState(appContext, LOG);
 	}
@@ -66,12 +71,18 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		public void onReceive(Context ctx, Intent i) {
 			if (!running) return;
 			if (LOG.isLoggable(INFO)) {
-				LOG.info("Connectivity change");
-				Bundle extras = i.getExtras();
-				if (extras != null) {
-					LOG.info("Extras:");
-					for (String key : extras.keySet())
-						LOG.info("\t" + key + ": " + extras.get(key));
+				if (CONNECTIVITY_ACTION.equals(i.getAction())) {
+					LOG.info("Connectivity change");
+					Bundle extras = i.getExtras();
+					if (extras != null) {
+						LOG.info("Extras:");
+						for (String key : extras.keySet())
+							LOG.info("\t" + key + ": " + extras.get(key));
+					}
+				} else if (WIFI_AP_STATE_ACTION.equals(i.getAction())) {
+					int state = i.getIntExtra(EXTRA_WIFI_STATE, 0);
+					if (state == 13) LOG.info("Wifi AP enabled");
+					else LOG.info("Wifi AP state " + state);
 				}
 				logNetworkState(appContext, LOG);
 			}
