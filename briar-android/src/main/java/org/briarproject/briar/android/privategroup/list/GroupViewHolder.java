@@ -74,9 +74,7 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 			if (group.isEmpty()) {
 				postCount.setVisibility(GONE);
 				date.setVisibility(GONE);
-				avatar.setProblem(true);
-				status
-						.setText(ctx.getString(R.string.groups_group_is_empty));
+				status.setText(ctx.getString(R.string.groups_group_is_empty));
 				status.setVisibility(VISIBLE);
 			} else {
 				// Message Count
@@ -91,7 +89,6 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 				long lastUpdate = group.getTimestamp();
 				date.setText(UiUtils.formatDate(ctx, lastUpdate));
 				date.setVisibility(VISIBLE);
-				avatar.setProblem(false);
 				status.setVisibility(GONE);
 			}
 			remove.setVisibility(GONE);
