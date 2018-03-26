@@ -103,12 +103,13 @@ public class AndroidUtils {
 
 		StringBuilder s = new StringBuilder();
 		logWifiInfo(s, wm.getConnectionInfo());
+		logNetworkInfo(s, cm.getActiveNetworkInfo(), true);
 		if (SDK_INT >= 21) {
 			for (Network network : cm.getAllNetworks())
-				logNetworkInfo(s, cm.getNetworkInfo(network));
+				logNetworkInfo(s, cm.getNetworkInfo(network), false);
 		} else {
 			for (NetworkInfo info : cm.getAllNetworkInfo())
-				logNetworkInfo(s, info);
+				logNetworkInfo(s, info, false);
 		}
 		try {
 			for (NetworkInterface iface : list(getNetworkInterfaces()))
@@ -141,12 +142,14 @@ public class AndroidUtils {
 	}
 
 	private static void logNetworkInfo(StringBuilder s,
-			@Nullable NetworkInfo info) {
+			@Nullable NetworkInfo info, boolean active) {
 		if (info == null) {
-			s.append("Network info: null\n");
+			if (active) s.append("Active network info: null\n");
+			else s.append("Network info: null\n");
 			return;
 		}
-		s.append("Network info:\n");
+		if (active) s.append("Active network info:\n");
+		else s.append("Network info:\n");
 		s.append("\tType: ").append(info.getTypeName())
 				.append(" (").append(info.getType()).append(")\n");
 		s.append("\tSubtype: ").append(info.getSubtypeName())
