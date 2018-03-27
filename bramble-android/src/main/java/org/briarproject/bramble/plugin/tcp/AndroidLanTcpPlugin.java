@@ -29,6 +29,7 @@ import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.content.Context.WIFI_SERVICE;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.TYPE_WIFI;
+import static android.net.wifi.WifiManager.EXTRA_WIFI_STATE;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -36,11 +37,15 @@ import static java.util.Collections.singletonList;
 @NotNullByDefault
 class AndroidLanTcpPlugin extends LanTcpPlugin {
 
-	private static final String WIFI_AP_STATE_ACTION =
+	// See android.net.wifi.WifiManager
+	private static final String WIFI_AP_STATE_CHANGED_ACTION =
 			"android.net.wifi.WIFI_AP_STATE_CHANGED";
+	private static final int WIFI_AP_STATE_ENABLED = 13;
+
 	private static final byte[] WIFI_AP_ADDRESS_BYTES =
 			{(byte) 192, (byte) 168, 43, 1};
 	private static final InetAddress WIFI_AP_ADDRESS;
+
 	private static final Logger LOG =
 			Logger.getLogger(AndroidLanTcpPlugin.class.getName());
 
@@ -84,7 +89,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		networkStateReceiver = new NetworkStateReceiver();
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(CONNECTIVITY_ACTION);
-		filter.addAction(WIFI_AP_STATE_ACTION);
+		filter.addAction(WIFI_AP_STATE_CHANGED_ACTION);
 		appContext.registerReceiver(networkStateReceiver, filter);
 	}
 
@@ -149,11 +154,9 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		public void onReceive(Context ctx, Intent i) {
 			if (!running) return;
 			Collection<InetAddress> addrs = getLocalIpAddresses();
-			if (addrs.isEmpty()) {
-				LOG.info("Not connected to wifi");
-				socketFactory = SocketFactory.getDefault();
-				tryToClose(socket);
-			} else if (addrs.contains(WIFI_AP_ADDRESS)) {
+			// The state change may be broadcast before the AP address is
+			// visible, so check the intent as well as the local addresses
+			if (isApEnabledEvent(i) || addrs.contains(WIFI_AP_ADDRESS)) {
 				LOG.info("Providing wifi hotspot");
 				// There's no corresponding Network object and thus no way
 				// to get a suitable socket factory, so we won't be able to
@@ -161,11 +164,20 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 				// has internet access
 				socketFactory = SocketFactory.getDefault();
 				if (socket == null || socket.isClosed()) bind();
+			} else if (addrs.isEmpty()) {
+				LOG.info("Not connected to wifi");
+				socketFactory = SocketFactory.getDefault();
+				tryToClose(socket);
 			} else {
 				LOG.info("Connected to wifi");
 				socketFactory = getSocketFactory();
 				if (socket == null || socket.isClosed()) bind();
 			}
+		}
+
+		private boolean isApEnabledEvent(Intent i) {
+			return WIFI_AP_STATE_CHANGED_ACTION.equals(i.getAction()) &&
+					i.getIntExtra(EXTRA_WIFI_STATE, 0) == WIFI_AP_STATE_ENABLED;
 		}
 	}
 }
