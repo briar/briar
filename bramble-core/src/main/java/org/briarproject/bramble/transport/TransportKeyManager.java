@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
 
 import javax.annotation.Nullable;
@@ -17,7 +18,7 @@ interface TransportKeyManager {
 	void addContact(Transaction txn, ContactId c, SecretKey master,
 			long timestamp, boolean alice) throws DbException;
 
-	void addUnboundKeys(Transaction txn, SecretKey master, long timestamp,
+	KeySetId addUnboundKeys(Transaction txn, SecretKey master, long timestamp,
 			boolean alice) throws DbException;
 
 	void removeContact(ContactId c);

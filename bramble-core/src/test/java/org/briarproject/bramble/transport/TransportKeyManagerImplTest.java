@@ -179,7 +179,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				maxLatency);
 		// The timestamp is 1 ms before the start of rotation period 1000
 		long timestamp = rotationPeriodLength * 1000 - 1;
-		transportKeyManager.addUnboundKeys(txn, masterKey, timestamp, alice);
+		assertEquals(keySetId, transportKeyManager.addUnboundKeys(txn,
+				masterKey, timestamp, alice));
 	}
 
 	@Test

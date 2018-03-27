@@ -19,8 +19,11 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -105,10 +108,13 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
-	public void addUnboundKeys(Transaction txn, SecretKey master,
-			long timestamp, boolean alice) throws DbException {
+	public Collection<KeySetId> addUnboundKeys(Transaction txn,
+			SecretKey master, long timestamp, boolean alice)
+			throws DbException {
+		Collection<KeySetId> ids = new ArrayList<>();
 		for (TransportKeyManager m : managers.values())
-			m.addUnboundKeys(txn, master, timestamp, alice);
+			ids.add(m.addUnboundKeys(txn, master, timestamp, alice));
+		return ids;
 	}
 
 	@Override
@@ -121,7 +127,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
 			return null;
 		}
-		StreamContext ctx = null;
+		StreamContext ctx;
 		Transaction txn = db.startTransaction(false);
 		try {
 			ctx = m.getStreamContext(txn, c);
@@ -140,7 +146,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
 			return null;
 		}
-		StreamContext ctx = null;
+		StreamContext ctx;
 		Transaction txn = db.startTransaction(false);
 		try {
 			ctx = m.getStreamContext(txn, tag);

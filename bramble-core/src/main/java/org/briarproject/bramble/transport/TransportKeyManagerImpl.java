@@ -176,12 +176,12 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
-	public void addUnboundKeys(Transaction txn, SecretKey master,
+	public KeySetId addUnboundKeys(Transaction txn, SecretKey master,
 			long timestamp, boolean alice) throws DbException {
-		deriveAndAddKeys(txn, null, master, timestamp, alice);
+		return deriveAndAddKeys(txn, null, master, timestamp, alice);
 	}
 
-	private void deriveAndAddKeys(Transaction txn, @Nullable ContactId c,
+	private KeySetId deriveAndAddKeys(Transaction txn, @Nullable ContactId c,
 			SecretKey master, long timestamp, boolean alice)
 			throws DbException {
 		lock.lock();
@@ -198,6 +198,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			KeySetId keySetId = db.addTransportKeys(txn, c, k);
 			// Initialise mutable state for the contact
 			addKeys(keySetId, c, new MutableTransportKeys(k));
+			return keySetId;
 		} finally {
 			lock.unlock();
 		}

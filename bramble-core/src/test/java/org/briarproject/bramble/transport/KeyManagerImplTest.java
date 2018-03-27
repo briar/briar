@@ -12,19 +12,19 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
-import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.jmock.lib.concurrent.DeterministicExecutor;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Random;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
@@ -32,31 +32,29 @@ import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.junit.Assert.assertEquals;
 
-public class KeyManagerImplTest extends BrambleTestCase {
+public class KeyManagerImplTest extends BrambleMockTestCase {
 
-	private final Mockery context = new Mockery();
-	private final KeyManagerImpl keyManager;
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final PluginConfig pluginConfig = context.mock(PluginConfig.class);
 	private final TransportKeyManagerFactory transportKeyManagerFactory =
 			context.mock(TransportKeyManagerFactory.class);
 	private final TransportKeyManager transportKeyManager =
 			context.mock(TransportKeyManager.class);
+
 	private final DeterministicExecutor executor = new DeterministicExecutor();
 	private final Transaction txn = new Transaction(null, false);
-	private final ContactId contactId = new ContactId(42);
-	private final ContactId inactiveContactId = new ContactId(43);
-	private final TransportId transportId = new TransportId("tId");
-	private final TransportId unknownTransportId = new TransportId("id");
+	private final ContactId contactId = new ContactId(123);
+	private final ContactId inactiveContactId = new ContactId(234);
+	private final KeySetId keySetId = new KeySetId(345);
+	private final TransportId transportId = new TransportId("known");
+	private final TransportId unknownTransportId = new TransportId("unknown");
 	private final StreamContext streamContext =
 			new StreamContext(contactId, transportId, getSecretKey(),
 					getSecretKey(), 1);
 	private final byte[] tag = getRandomBytes(TAG_LENGTH);
 
-	public KeyManagerImplTest() {
-		keyManager = new KeyManagerImpl(db, executor, pluginConfig,
-				transportKeyManagerFactory);
-	}
+	private final KeyManagerImpl keyManager = new KeyManagerImpl(db, executor,
+			pluginConfig, transportKeyManagerFactory);
 
 	@Before
 	public void testStartService() throws Exception {
@@ -70,8 +68,8 @@ public class KeyManagerImplTest extends BrambleTestCase {
 				true, false));
 		SimplexPluginFactory pluginFactory =
 				context.mock(SimplexPluginFactory.class);
-		Collection<SimplexPluginFactory> factories = Collections
-				.singletonList(pluginFactory);
+		Collection<SimplexPluginFactory> factories =
+				singletonList(pluginFactory);
 		int maxLatency = 1337;
 
 		context.checking(new Expectations() {{
@@ -110,7 +108,6 @@ public class KeyManagerImplTest extends BrambleTestCase {
 		}});
 
 		keyManager.addContact(txn, contactId, secretKey, timestamp, alice);
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -122,10 +119,11 @@ public class KeyManagerImplTest extends BrambleTestCase {
 		context.checking(new Expectations() {{
 			oneOf(transportKeyManager).addUnboundKeys(txn, secretKey,
 					timestamp, alice);
+			will(returnValue(keySetId));
 		}});
 
-		keyManager.addUnboundKeys(txn, secretKey, timestamp, alice);
-		context.assertIsSatisfied();
+		assertEquals(singletonList(keySetId),
+				keyManager.addUnboundKeys(txn, secretKey, timestamp, alice));
 	}
 
 	@Test
@@ -153,7 +151,6 @@ public class KeyManagerImplTest extends BrambleTestCase {
 
 		assertEquals(streamContext,
 				keyManager.getStreamContext(contactId, transportId));
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -176,7 +173,6 @@ public class KeyManagerImplTest extends BrambleTestCase {
 
 		assertEquals(streamContext,
 				keyManager.getStreamContext(transportId, tag));
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -190,8 +186,6 @@ public class KeyManagerImplTest extends BrambleTestCase {
 		keyManager.eventOccurred(event);
 		executor.runUntilIdle();
 		assertEquals(null, keyManager.getStreamContext(contactId, transportId));
-
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -211,8 +205,5 @@ public class KeyManagerImplTest extends BrambleTestCase {
 		keyManager.eventOccurred(event);
 		assertEquals(streamContext,
 				keyManager.getStreamContext(inactiveContactId, transportId));
-
-		context.assertIsSatisfied();
 	}
-
 }

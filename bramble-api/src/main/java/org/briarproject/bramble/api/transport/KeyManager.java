@@ -6,6 +6,8 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.plugin.TransportId;
 
+import java.util.Collection;
+
 import javax.annotation.Nullable;
 
 /**
@@ -26,10 +28,11 @@ public interface KeyManager {
 			long timestamp, boolean alice) throws DbException;
 
 	/**
-	 * Derives and stores a set of unbound transport keys for each transport.
+	 * Derives and stores a set of unbound transport keys for each transport
+	 * and returns the key set IDs.
 	 */
-	void addUnboundKeys(Transaction txn, SecretKey master, long timestamp,
-			boolean alice) throws DbException;
+	Collection<KeySetId> addUnboundKeys(Transaction txn, SecretKey master,
+			long timestamp, boolean alice) throws DbException;
 
 	/**
 	 * Returns a {@link StreamContext} for sending a stream to the given
