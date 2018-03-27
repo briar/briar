@@ -172,6 +172,18 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	@Override
 	public void addContact(Transaction txn, ContactId c, SecretKey master,
 			long timestamp, boolean alice) throws DbException {
+		deriveAndAddKeys(txn, c, master, timestamp, alice);
+	}
+
+	@Override
+	public void addUnboundKeys(Transaction txn, SecretKey master,
+			long timestamp, boolean alice) throws DbException {
+		deriveAndAddKeys(txn, null, master, timestamp, alice);
+	}
+
+	private void deriveAndAddKeys(Transaction txn, @Nullable ContactId c,
+			SecretKey master, long timestamp, boolean alice)
+			throws DbException {
 		lock.lock();
 		try {
 			// Work out what rotation period the timestamp belongs to

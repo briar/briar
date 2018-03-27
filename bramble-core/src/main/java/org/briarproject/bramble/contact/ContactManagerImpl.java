@@ -50,7 +50,7 @@ class ContactManagerImpl implements ContactManager {
 
 	@Override
 	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			SecretKey master,long timestamp, boolean alice, boolean verified,
+			SecretKey master, long timestamp, boolean alice, boolean verified,
 			boolean active) throws DbException {
 		ContactId c = db.addContact(txn, remote, local, verified, active);
 		keyManager.addContact(txn, c, master, timestamp, alice);

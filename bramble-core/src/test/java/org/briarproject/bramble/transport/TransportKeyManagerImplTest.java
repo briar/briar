@@ -30,7 +30,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
@@ -57,6 +56,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	private final ContactId contactId = new ContactId(123);
 	private final ContactId contactId1 = new ContactId(234);
 	private final KeySetId keySetId = new KeySetId(345);
+	private final KeySetId keySetId1 = new KeySetId(456);
+	private final KeySetId keySetId2 = new KeySetId(567);
 	private final SecretKey tagKey = TestUtils.getSecretKey();
 	private final SecretKey headerKey = TestUtils.getSecretKey();
 	private final SecretKey masterKey = TestUtils.getSecretKey();
@@ -66,11 +67,14 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	public void testKeysAreRotatedAtStartup() throws Exception {
 		TransportKeys shouldRotate = createTransportKeys(900, 0);
 		TransportKeys shouldNotRotate = createTransportKeys(1000, 0);
+		TransportKeys shouldRotate1 = createTransportKeys(999, 0);
 		Collection<KeySet> loaded = asList(
 				new KeySet(keySetId, contactId, shouldRotate),
-				new KeySet(keySetId, contactId1, shouldNotRotate)
+				new KeySet(keySetId1, contactId1, shouldNotRotate),
+				new KeySet(keySetId2, null, shouldRotate1)
 		);
 		TransportKeys rotated = createTransportKeys(1000, 0);
+		TransportKeys rotated1 = createTransportKeys(1000, 0);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
@@ -85,6 +89,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(rotated));
 			oneOf(transportCrypto).rotateTransportKeys(shouldNotRotate, 1000);
 			will(returnValue(shouldNotRotate));
+			oneOf(transportCrypto).rotateTransportKeys(shouldRotate1, 1000);
+			will(returnValue(rotated1));
 			// Encode the tags (3 sets per contact)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(6).of(transportCrypto).encodeTag(
@@ -93,8 +99,10 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				will(new EncodeTagAction());
 			}
 			// Save the keys that were rotated
-			oneOf(db).updateTransportKeys(txn,
-					singletonList(new KeySet(keySetId, contactId, rotated)));
+			oneOf(db).updateTransportKeys(txn, asList(
+					new KeySet(keySetId, contactId, rotated),
+					new KeySet(keySetId2, null, rotated1))
+			);
 			// Schedule key rotation at the start of the next rotation period
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(rotationPeriodLength - 1), with(MILLISECONDS));
@@ -142,6 +150,36 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		long timestamp = rotationPeriodLength * 1000 - 1;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
 				alice);
+	}
+
+	@Test
+	public void testKeysAreRotatedWhenAddingUnboundKeys() throws Exception {
+		boolean alice = random.nextBoolean();
+		TransportKeys transportKeys = createTransportKeys(999, 0);
+		TransportKeys rotated = createTransportKeys(1000, 0);
+		Transaction txn = new Transaction(null, false);
+
+		context.checking(new Expectations() {{
+			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
+					999, alice);
+			will(returnValue(transportKeys));
+			// Get the current time (1 ms after start of rotation period 1000)
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(rotationPeriodLength * 1000 + 1));
+			// Rotate the transport keys
+			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
+			will(returnValue(rotated));
+			// Save the keys
+			oneOf(db).addTransportKeys(txn, null, rotated);
+			will(returnValue(keySetId));
+		}});
+
+		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
+				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
+				maxLatency);
+		// The timestamp is 1 ms before the start of rotation period 1000
+		long timestamp = rotationPeriodLength * 1000 - 1;
+		transportKeyManager.addUnboundKeys(txn, masterKey, timestamp, alice);
 	}
 
 	@Test
@@ -353,9 +391,13 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testKeysAreRotatedToCurrentPeriod() throws Exception {
 		TransportKeys transportKeys = createTransportKeys(1000, 0);
-		Collection<KeySet> loaded =
-				singletonList(new KeySet(keySetId, contactId, transportKeys));
+		TransportKeys transportKeys1 = createTransportKeys(1000, 0);
+		Collection<KeySet> loaded = asList(
+				new KeySet(keySetId, contactId, transportKeys),
+				new KeySet(keySetId1, null, transportKeys1)
+		);
 		TransportKeys rotated = createTransportKeys(1001, 0);
+		TransportKeys rotated1 = createTransportKeys(1001, 0);
 		Transaction txn = new Transaction(null, false);
 		Transaction txn1 = new Transaction(null, false);
 
@@ -369,6 +411,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			// Rotate the transport keys (the keys are unaffected)
 			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
+			oneOf(transportCrypto).rotateTransportKeys(transportKeys1, 1000);
+			will(returnValue(transportKeys1));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(transportCrypto).encodeTag(
@@ -392,6 +436,9 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			oneOf(transportCrypto).rotateTransportKeys(
 					with(any(TransportKeys.class)), with(1001L));
 			will(returnValue(rotated));
+			oneOf(transportCrypto).rotateTransportKeys(
+					with(any(TransportKeys.class)), with(1001L));
+			will(returnValue(rotated1));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(transportCrypto).encodeTag(
@@ -400,8 +447,10 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				will(new EncodeTagAction());
 			}
 			// Save the keys that were rotated
-			oneOf(db).updateTransportKeys(txn1,
-					singletonList(new KeySet(keySetId, contactId, rotated)));
+			oneOf(db).updateTransportKeys(txn1, asList(
+					new KeySet(keySetId, contactId, rotated),
+					new KeySet(keySetId1, null, rotated1)
+			));
 			// Schedule key rotation at the start of the next rotation period
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(rotationPeriodLength), with(MILLISECONDS));

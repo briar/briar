@@ -105,6 +105,13 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
+	public void addUnboundKeys(Transaction txn, SecretKey master,
+			long timestamp, boolean alice) throws DbException {
+		for (TransportKeyManager m : managers.values())
+			m.addUnboundKeys(txn, master, timestamp, alice);
+	}
+
+	@Override
 	public StreamContext getStreamContext(ContactId c, TransportId t)
 			throws DbException {
 		// Don't allow outgoing streams to inactive contacts

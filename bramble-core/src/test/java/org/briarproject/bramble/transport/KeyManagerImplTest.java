@@ -114,6 +114,21 @@ public class KeyManagerImplTest extends BrambleTestCase {
 	}
 
 	@Test
+	public void testAddUnboundKeys() throws Exception {
+		SecretKey secretKey = getSecretKey();
+		long timestamp = System.currentTimeMillis();
+		boolean alice = new Random().nextBoolean();
+
+		context.checking(new Expectations() {{
+			oneOf(transportKeyManager).addUnboundKeys(txn, secretKey,
+					timestamp, alice);
+		}});
+
+		keyManager.addUnboundKeys(txn, secretKey, timestamp, alice);
+		context.assertIsSatisfied();
+	}
+
+	@Test
 	public void testGetStreamContextForInactiveContact() throws Exception {
 		assertEquals(null,
 				keyManager.getStreamContext(inactiveContactId, transportId));

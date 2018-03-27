@@ -16,12 +16,20 @@ public interface KeyManager {
 
 	/**
 	 * Informs the key manager that a new contact has been added. Derives and
-	 * stores transport keys for communicating with the contact.
+	 * stores a set of transport keys for communicating with the contact over
+	 * each transport.
+	 * <p/>
 	 * {@link StreamContext StreamContexts} for the contact can be created
 	 * after this method has returned.
 	 */
 	void addContact(Transaction txn, ContactId c, SecretKey master,
 			long timestamp, boolean alice) throws DbException;
+
+	/**
+	 * Derives and stores a set of unbound transport keys for each transport.
+	 */
+	void addUnboundKeys(Transaction txn, SecretKey master, long timestamp,
+			boolean alice) throws DbException;
 
 	/**
 	 * Returns a {@link StreamContext} for sending a stream to the given
