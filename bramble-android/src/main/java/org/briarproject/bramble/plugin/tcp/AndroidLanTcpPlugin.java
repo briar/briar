@@ -36,8 +36,22 @@ import static java.util.Collections.singletonList;
 @NotNullByDefault
 class AndroidLanTcpPlugin extends LanTcpPlugin {
 
+	private static final String WIFI_AP_STATE_ACTION =
+			"android.net.wifi.WIFI_AP_STATE_CHANGED";
+	private static final byte[] WIFI_AP_ADDRESS_BYTES =
+			{(byte) 192, (byte) 168, 43, 1};
+	private static final InetAddress WIFI_AP_ADDRESS;
 	private static final Logger LOG =
 			Logger.getLogger(AndroidLanTcpPlugin.class.getName());
+
+	static {
+		try {
+			WIFI_AP_ADDRESS = InetAddress.getByAddress(WIFI_AP_ADDRESS_BYTES);
+		} catch (UnknownHostException e) {
+			// Should only be thrown if the address has an illegal length
+			throw new AssertionError(e);
+		}
+	}
 
 	private final Context appContext;
 	private final ConnectivityManager connectivityManager;
@@ -59,7 +73,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		this.connectivityManager = connectivityManager;
 		wifiManager = (WifiManager) appContext.getApplicationContext()
 				.getSystemService(WIFI_SERVICE);
-		socketFactory = getSocketFactory();
+		socketFactory = SocketFactory.getDefault();
 	}
 
 	@Override
@@ -68,7 +82,9 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		running = true;
 		// Register to receive network status events
 		networkStateReceiver = new NetworkStateReceiver();
-		IntentFilter filter = new IntentFilter(CONNECTIVITY_ACTION);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(CONNECTIVITY_ACTION);
+		filter.addAction(WIFI_AP_STATE_ACTION);
 		appContext.registerReceiver(networkStateReceiver, filter);
 	}
 
@@ -87,10 +103,17 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 
 	@Override
 	protected Collection<InetAddress> getLocalIpAddresses() {
+		// If the device doesn't have wifi, don't open any sockets
 		if (wifiManager == null) return emptyList();
+		// If we're connected to a wifi network, use that network
 		WifiInfo info = wifiManager.getConnectionInfo();
-		if (info == null || info.getIpAddress() == 0) return emptyList();
-		return singletonList(intToInetAddress(info.getIpAddress()));
+		if (info != null && info.getIpAddress() != 0)
+			return singletonList(intToInetAddress(info.getIpAddress()));
+		// If we're running an access point, return its address
+		if (super.getLocalIpAddresses().contains(WIFI_AP_ADDRESS))
+				return singletonList(WIFI_AP_ADDRESS);
+		// No suitable addresses
+		return emptyList();
 	}
 
 	private InetAddress intToInetAddress(int ip) {
@@ -124,12 +147,20 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 
 		@Override
 		public void onReceive(Context ctx, Intent i) {
-			if (!running || wifiManager == null) return;
-			WifiInfo info = wifiManager.getConnectionInfo();
-			if (info == null || info.getIpAddress() == 0) {
+			if (!running) return;
+			Collection<InetAddress> addrs = getLocalIpAddresses();
+			if (addrs.isEmpty()) {
 				LOG.info("Not connected to wifi");
 				socketFactory = SocketFactory.getDefault();
 				tryToClose(socket);
+			} else if (addrs.contains(WIFI_AP_ADDRESS)) {
+				LOG.info("Providing wifi hotspot");
+				// There's no corresponding Network object and thus no way
+				// to get a suitable socket factory, so we won't be able to
+				// make outgoing connections on API 21+ if another network
+				// has internet access
+				socketFactory = SocketFactory.getDefault();
+				if (socket == null || socket.isClosed()) bind();
 			} else {
 				LOG.info("Connected to wifi");
 				socketFactory = getSocketFactory();
