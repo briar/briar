@@ -61,6 +61,16 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
+	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
+			boolean verified, boolean active) throws DbException {
+		ContactId c = db.addContact(txn, remote, local, verified, active);
+		Contact contact = db.getContact(txn, c);
+		for (AddContactHook hook : addHooks)
+			hook.addingContact(txn, contact);
+		return c;
+	}
+
+	@Override
 	public ContactId addContact(Author remote, AuthorId local, SecretKey master,
 			long timestamp, boolean alice, boolean verified, boolean active)
 			throws DbException {

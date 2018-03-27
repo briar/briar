@@ -23,12 +23,20 @@ public interface ContactManager {
 	void registerRemoveContactHook(RemoveContactHook hook);
 
 	/**
-	 * Stores a contact within the given transaction associated with the given
-	 * local and remote pseudonyms, and returns an ID for the contact.
+	 * Stores a contact associated with the given local and remote pseudonyms,
+	 * derives and stores transport keys for each transport, and returns an ID
+	 * for the contact.
 	 */
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
 			SecretKey master, long timestamp, boolean alice, boolean verified,
 			boolean active) throws DbException;
+
+	/**
+	 * Stores a contact associated with the given local and remote pseudonyms
+	 * and returns an ID for the contact.
+	 */
+	ContactId addContact(Transaction txn, Author remote, AuthorId local,
+			boolean verified, boolean active) throws DbException;
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
