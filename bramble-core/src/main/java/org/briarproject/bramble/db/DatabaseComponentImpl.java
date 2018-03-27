@@ -792,6 +792,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void removeTransportKeys(Transaction transaction,
+			TransportId t, KeySetId k) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsTransport(txn, t))
+			throw new NoSuchTransportException();
+		db.removeTransportKeys(txn, t, k);
+	}
+
+	@Override
 	public void setContactVerified(Transaction transaction, ContactId c)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();

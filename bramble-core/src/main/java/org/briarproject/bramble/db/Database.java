@@ -594,6 +594,12 @@ interface Database<T> {
 	void removeTransport(T txn, TransportId t) throws DbException;
 
 	/**
+	 * Removes the given transport keys from the database.
+	 */
+	void removeTransportKeys(T txn, TransportId t, KeySetId k)
+			throws DbException;
+
+	/**
 	 * Resets the transmission count and expiry time of the given message with
 	 * respect to the given contact.
 	 */

@@ -23,6 +23,8 @@ interface TransportKeyManager {
 
 	void bindKeys(Transaction txn, ContactId c, KeySetId k) throws DbException;
 
+	void removeKeys(Transaction txn, KeySetId k) throws DbException;
+
 	void removeContact(ContactId c);
 
 	@Nullable

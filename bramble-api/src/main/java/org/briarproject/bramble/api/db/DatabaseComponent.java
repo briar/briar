@@ -482,6 +482,12 @@ public interface DatabaseComponent {
 	void removeTransport(Transaction txn, TransportId t) throws DbException;
 
 	/**
+	 * Removes the given transport keys from the database.
+	 */
+	void removeTransportKeys(Transaction txn, TransportId t, KeySetId k)
+		throws DbException;
+
+	/**
 	 * Marks the given contact as verified.
 	 */
 	void setContactVerified(Transaction txn, ContactId c) throws DbException;

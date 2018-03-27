@@ -133,6 +133,20 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
+	public void removeKeys(Transaction txn, Map<TransportId, KeySetId> keys)
+			throws DbException {
+		for (Entry<TransportId, KeySetId> e : keys.entrySet()) {
+			TransportId t = e.getKey();
+			TransportKeyManager m = managers.get(t);
+			if (m == null) {
+				if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
+			} else {
+				m.removeKeys(txn, e.getValue());
+			}
+		}
+	}
+
+	@Override
 	public StreamContext getStreamContext(ContactId c, TransportId t)
 			throws DbException {
 		// Don't allow outgoing streams to inactive contacts

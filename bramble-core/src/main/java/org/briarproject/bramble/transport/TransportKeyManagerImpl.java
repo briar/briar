@@ -220,6 +220,20 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
+	public void removeKeys(Transaction txn, KeySetId k) throws DbException {
+		lock.lock();
+		try {
+			MutableKeySet ks = keys.remove(k);
+			if (ks == null) throw new IllegalArgumentException();
+			if (ks.getContactId() != null) throw new IllegalArgumentException();
+			TransportId t = ks.getTransportKeys().getTransportId();
+			db.removeTransportKeys(txn, t, k);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
 	public void removeContact(ContactId c) {
 		lock.lock();
 		try {

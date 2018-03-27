@@ -41,6 +41,13 @@ public interface KeyManager {
 			throws DbException;
 
 	/**
+	 * Removes the given transport keys, which must not have been bound, from
+	 * the manager and the database.
+	 */
+	void removeKeys(Transaction txn, Map<TransportId, KeySetId> keys)
+		throws DbException;
+
+	/**
 	 * Returns a {@link StreamContext} for sending a stream to the given
 	 * contact over the given transport, or null if an error occurs or the
 	 * contact does not support the transport.

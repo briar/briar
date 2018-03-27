@@ -2682,6 +2682,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public void removeTransportKeys(Connection txn, TransportId t, KeySetId k)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			// Delete any existing outgoing keys - this will also remove any
+			// incoming keys with the same key set ID
+			String sql = "DELETE FROM outgoingKeys"
+					+ " WHERE transportId = ? AND keySetId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setString(1, t.getString());
+			ps.setInt(2, k.getInt());
+			int affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void resetExpiryTime(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2905,30 +2926,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 	@Override
 	public void updateTransportKeys(Connection txn, Collection<KeySet> keys)
 			throws DbException {
-		PreparedStatement ps = null;
-		try {
-			// Delete any existing outgoing keys - this will also remove any
-			// incoming keys with the same key set ID
-			// TODO: Add an index to speed this up?
-			String sql = "DELETE FROM outgoingKeys WHERE keySetId = ?";
-			ps = txn.prepareStatement(sql);
-			for (KeySet ks : keys) {
-				ps.setInt(1, ks.getKeySetId().getInt());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != keys.size())
-				throw new DbStateException();
-			for (int rows: batchAffected)
-				if (rows < 0) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-		// Store the new keys
 		for (KeySet ks : keys) {
-			addTransportKeys(txn, ks.getContactId(), ks.getTransportKeys());
+			TransportKeys k = ks.getTransportKeys();
+			removeTransportKeys(txn, k.getTransportId(), ks.getKeySetId());
+			addTransportKeys(txn, ks.getContactId(), k);
 		}
 	}
 }
