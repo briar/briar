@@ -132,6 +132,12 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Binds the given keys for the given transport to the given contact.
+	 */
+	void bindTransportKeys(T txn, ContactId c, TransportId t, KeySetId k)
+			throws DbException;
+
+	/**
 	 * Returns true if the database contains the given contact for the given
 	 * local pseudonym.
 	 * <p/>

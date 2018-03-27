@@ -246,6 +246,18 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void bindTransportKeys(Transaction transaction, ContactId c,
+			TransportId t, KeySetId k) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		if (!db.containsTransport(txn, t))
+			throw new NoSuchTransportException();
+		db.bindTransportKeys(txn, c, t, k);
+	}
+
+	@Override
 	public boolean containsContact(Transaction transaction, AuthorId remote,
 			AuthorId local) throws DbException {
 		T txn = unbox(transaction);

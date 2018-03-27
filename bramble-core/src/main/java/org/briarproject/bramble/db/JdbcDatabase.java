@@ -951,6 +951,33 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public void bindTransportKeys(Connection txn, ContactId c, TransportId t,
+			KeySetId k) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE outgoingKeys SET contactId = ?"
+					+ " WHERE keySetId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, k.getInt());
+			int affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+			sql = "UPDATE incomingKeys SET contactId = ?"
+					+ " WHERE keySetId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, k.getInt());
+			affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public boolean containsContact(Connection txn, AuthorId remote,
 			AuthorId local) throws DbException {
 		PreparedStatement ps = null;
@@ -2882,6 +2909,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			// Delete any existing outgoing keys - this will also remove any
 			// incoming keys with the same key set ID
+			// TODO: Add an index to speed this up?
 			String sql = "DELETE FROM outgoingKeys WHERE keySetId = ?";
 			ps = txn.prepareStatement(sql);
 			for (KeySet ks : keys) {

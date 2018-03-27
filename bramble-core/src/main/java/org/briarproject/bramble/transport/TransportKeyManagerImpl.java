@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -57,7 +56,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	private final ReentrantLock lock = new ReentrantLock();
 
 	// The following are locking: lock
-	private final Collection<MutableKeySet> keys = new ArrayList<>();
+	private final Map<KeySetId, MutableKeySet> keys = new HashMap<>();
 	private final Map<Bytes, TagContext> inContexts = new HashMap<>();
 	private final Map<ContactId, MutableKeySet> outContexts = new HashMap<>();
 
@@ -123,7 +122,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	private void addKeys(KeySetId keySetId, @Nullable ContactId contactId,
 			MutableTransportKeys m) {
 		MutableKeySet ks = new MutableKeySet(keySetId, contactId, m);
-		keys.add(ks);
+		keys.put(keySetId, ks);
 		if (contactId != null) {
 			encodeTags(keySetId, contactId, m.getPreviousIncomingKeys());
 			encodeTags(keySetId, contactId, m.getCurrentIncomingKeys());
@@ -205,21 +204,33 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
+	public void bindKeys(Transaction txn, ContactId c, KeySetId k)
+			throws DbException {
+		lock.lock();
+		try {
+			MutableKeySet ks = keys.get(k);
+			if (ks == null) throw new IllegalArgumentException();
+			if (ks.getContactId() != null) throw new IllegalArgumentException();
+			MutableTransportKeys m = ks.getTransportKeys();
+			addKeys(k, c, m);
+			db.bindTransportKeys(txn, c, m.getTransportId(), k);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
 	public void removeContact(ContactId c) {
 		lock.lock();
 		try {
 			// Remove mutable state for the contact
-			Iterator<Entry<Bytes, TagContext>> inContextsIter =
-					inContexts.entrySet().iterator();
-			while (inContextsIter.hasNext()) {
-				ContactId c1 = inContextsIter.next().getValue().contactId;
-				if (c1.equals(c)) inContextsIter.remove();
-			}
+			Iterator<TagContext> it = inContexts.values().iterator();
+			while (it.hasNext()) if (it.next().contactId.equals(c)) it.remove();
 			outContexts.remove(c);
-			Iterator<MutableKeySet> keysIter = keys.iterator();
-			while (keysIter.hasNext()) {
-				ContactId c1 = keysIter.next().getContactId();
-				if (c1 != null && c1.equals(c)) keysIter.remove();
+			Iterator<MutableKeySet> it1 = keys.values().iterator();
+			while (it1.hasNext()) {
+				ContactId c1 = it1.next().getContactId();
+				if (c1 != null && c1.equals(c)) it1.remove();
 			}
 		} finally {
 			lock.unlock();
@@ -300,7 +311,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		try {
 			// Rotate the keys to the current rotation period
 			Collection<KeySet> snapshot = new ArrayList<>(keys.size());
-			for (MutableKeySet ks : keys) {
+			for (MutableKeySet ks : keys.values()) {
 				snapshot.add(new KeySet(ks.getKeySetId(), ks.getContactId(),
 						ks.getTransportKeys().snapshot()));
 			}

@@ -21,6 +21,8 @@ interface TransportKeyManager {
 	KeySetId addUnboundKeys(Transaction txn, SecretKey master, long timestamp,
 			boolean alice) throws DbException;
 
+	void bindKeys(Transaction txn, ContactId c, KeySetId k) throws DbException;
+
 	void removeContact(ContactId c);
 
 	@Nullable

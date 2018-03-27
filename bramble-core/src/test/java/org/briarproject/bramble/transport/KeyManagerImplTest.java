@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Random;
 
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
@@ -122,7 +123,7 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(keySetId));
 		}});
 
-		assertEquals(singletonList(keySetId),
+		assertEquals(singletonMap(transportId, keySetId),
 				keyManager.addUnboundKeys(txn, secretKey, timestamp, alice));
 	}
 

@@ -22,8 +22,6 @@ import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -108,13 +106,30 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
-	public Collection<KeySetId> addUnboundKeys(Transaction txn,
+	public Map<TransportId, KeySetId> addUnboundKeys(Transaction txn,
 			SecretKey master, long timestamp, boolean alice)
 			throws DbException {
-		Collection<KeySetId> ids = new ArrayList<>();
-		for (TransportKeyManager m : managers.values())
-			ids.add(m.addUnboundKeys(txn, master, timestamp, alice));
+		Map<TransportId, KeySetId> ids = new HashMap<>();
+		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
+			TransportId t = e.getKey();
+			TransportKeyManager m = e.getValue();
+			ids.put(t, m.addUnboundKeys(txn, master, timestamp, alice));
+		}
 		return ids;
+	}
+
+	@Override
+	public void bindKeys(Transaction txn, ContactId c,
+			Map<TransportId, KeySetId> keys) throws DbException {
+		for (Entry<TransportId, KeySetId> e : keys.entrySet()) {
+			TransportId t = e.getKey();
+			TransportKeyManager m = managers.get(t);
+			if (m == null) {
+				if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
+			} else {
+				m.bindKeys(txn, c, e.getValue());
+			}
+		}
 	}
 
 	@Override

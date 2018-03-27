@@ -449,8 +449,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			}
 			// Save the keys that were rotated
 			oneOf(db).updateTransportKeys(txn1, asList(
-					new KeySet(keySetId, contactId, rotated),
-					new KeySet(keySetId1, null, rotated1)
+					new KeySet(keySetId1, null, rotated1),
+					new KeySet(keySetId, contactId, rotated)
 			));
 			// Schedule key rotation at the start of the next rotation period
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
