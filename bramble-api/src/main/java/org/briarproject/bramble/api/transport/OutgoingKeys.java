@@ -10,18 +10,20 @@ public class OutgoingKeys {
 
 	private final SecretKey tagKey, headerKey;
 	private final long rotationPeriod, streamCounter;
+	private final boolean active;
 
 	public OutgoingKeys(SecretKey tagKey, SecretKey headerKey,
-			long rotationPeriod) {
-		this(tagKey, headerKey, rotationPeriod, 0);
+			long rotationPeriod, boolean active) {
+		this(tagKey, headerKey, rotationPeriod, 0, active);
 	}
 
 	public OutgoingKeys(SecretKey tagKey, SecretKey headerKey,
-			long rotationPeriod, long streamCounter) {
+			long rotationPeriod, long streamCounter, boolean active) {
 		this.tagKey = tagKey;
 		this.headerKey = headerKey;
 		this.rotationPeriod = rotationPeriod;
 		this.streamCounter = streamCounter;
+		this.active = active;
 	}
 
 	public SecretKey getTagKey() {
@@ -38,5 +40,9 @@ public class OutgoingKeys {
 
 	public long getStreamCounter() {
 		return streamCounter;
+	}
+
+	public boolean isActive() {
+		return active;
 	}
 }

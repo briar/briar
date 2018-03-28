@@ -65,16 +65,16 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testKeysAreRotatedAtStartup() throws Exception {
-		TransportKeys shouldRotate = createTransportKeys(900, 0);
-		TransportKeys shouldNotRotate = createTransportKeys(1000, 0);
-		TransportKeys shouldRotate1 = createTransportKeys(999, 0);
+		TransportKeys shouldRotate = createTransportKeys(900, 0, true);
+		TransportKeys shouldNotRotate = createTransportKeys(1000, 0, true);
+		TransportKeys shouldRotate1 = createTransportKeys(999, 0, false);
 		Collection<KeySet> loaded = asList(
 				new KeySet(keySetId, contactId, shouldRotate),
 				new KeySet(keySetId1, contactId1, shouldNotRotate),
 				new KeySet(keySetId2, null, shouldRotate1)
 		);
-		TransportKeys rotated = createTransportKeys(1000, 0);
-		TransportKeys rotated1 = createTransportKeys(1000, 0);
+		TransportKeys rotated = createTransportKeys(1000, 0, true);
+		TransportKeys rotated1 = createTransportKeys(1000, 0, false);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
@@ -117,13 +117,13 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testKeysAreRotatedWhenAddingContact() throws Exception {
 		boolean alice = random.nextBoolean();
-		TransportKeys transportKeys = createTransportKeys(999, 0);
-		TransportKeys rotated = createTransportKeys(1000, 0);
+		TransportKeys transportKeys = createTransportKeys(999, 0, true);
+		TransportKeys rotated = createTransportKeys(1000, 0, true);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
-					999, alice);
+					999, alice, true);
 			will(returnValue(transportKeys));
 			// Get the current time (1 ms after start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
@@ -155,13 +155,13 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testKeysAreRotatedWhenAddingUnboundKeys() throws Exception {
 		boolean alice = random.nextBoolean();
-		TransportKeys transportKeys = createTransportKeys(999, 0);
-		TransportKeys rotated = createTransportKeys(1000, 0);
+		TransportKeys transportKeys = createTransportKeys(999, 0, false);
+		TransportKeys rotated = createTransportKeys(1000, 0, false);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
-					999, alice);
+					999, alice, false);
 			will(returnValue(transportKeys));
 			// Get the current time (1 ms after start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
@@ -200,7 +200,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		boolean alice = random.nextBoolean();
 		// The stream counter has been exhausted
 		TransportKeys transportKeys = createTransportKeys(1000,
-				MAX_32_BIT_UNSIGNED + 1);
+				MAX_32_BIT_UNSIGNED + 1, true);
 		Transaction txn = new Transaction(null, false);
 
 		expectAddContactNoRotation(alice, transportKeys, txn);
@@ -220,7 +220,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		boolean alice = random.nextBoolean();
 		// The stream counter can be used one more time before being exhausted
 		TransportKeys transportKeys = createTransportKeys(1000,
-				MAX_32_BIT_UNSIGNED);
+				MAX_32_BIT_UNSIGNED, true);
 		Transaction txn = new Transaction(null, false);
 
 		expectAddContactNoRotation(alice, transportKeys, txn);
@@ -254,7 +254,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	public void testIncomingStreamContextIsNullIfTagIsNotFound()
 			throws Exception {
 		boolean alice = random.nextBoolean();
-		TransportKeys transportKeys = createTransportKeys(1000, 0);
+		TransportKeys transportKeys = createTransportKeys(1000, 0, true);
 		Transaction txn = new Transaction(null, false);
 
 		expectAddContactNoRotation(alice, transportKeys, txn);
@@ -274,14 +274,14 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testTagIsNotRecognisedTwice() throws Exception {
 		boolean alice = random.nextBoolean();
-		TransportKeys transportKeys = createTransportKeys(1000, 0);
+		TransportKeys transportKeys = createTransportKeys(1000, 0, true);
 		// Keep a copy of the tags
 		List<byte[]> tags = new ArrayList<>();
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
-					1000, alice);
+					1000, alice, true);
 			will(returnValue(transportKeys));
 			// Get the current time (the start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
@@ -335,14 +335,14 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testKeysAreRotatedToCurrentPeriod() throws Exception {
-		TransportKeys transportKeys = createTransportKeys(1000, 0);
-		TransportKeys transportKeys1 = createTransportKeys(1000, 0);
+		TransportKeys transportKeys = createTransportKeys(1000, 0, true);
+		TransportKeys transportKeys1 = createTransportKeys(1000, 0, false);
 		Collection<KeySet> loaded = asList(
 				new KeySet(keySetId, contactId, transportKeys),
 				new KeySet(keySetId1, null, transportKeys1)
 		);
-		TransportKeys rotated = createTransportKeys(1001, 0);
-		TransportKeys rotated1 = createTransportKeys(1001, 0);
+		TransportKeys rotated = createTransportKeys(1001, 0, true);
+		TransportKeys rotated1 = createTransportKeys(1001, 0, false);
 		Transaction txn = new Transaction(null, false);
 		Transaction txn1 = new Transaction(null, false);
 
@@ -411,14 +411,14 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testTagsAreEncodedWhenKeysAreBound() throws Exception {
+	public void testBindingAndActivatingKeys() throws Exception {
 		boolean alice = random.nextBoolean();
-		TransportKeys transportKeys = createTransportKeys(1000, 0);
+		TransportKeys transportKeys = createTransportKeys(1000, 0, false);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
-					1000, alice);
+					1000, alice, false);
 			will(returnValue(transportKeys));
 			// Get the current time (the start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
@@ -438,6 +438,10 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			}
 			// Save the key binding
 			oneOf(db).bindTransportKeys(txn, contactId, transportId, keySetId);
+			// Activate the keys
+			oneOf(db).setTransportKeysActive(txn, transportId, keySetId);
+			// Increment the stream counter
+			oneOf(db).incrementStreamCounter(txn, contactId, transportId, 1000);
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
@@ -448,17 +452,29 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		assertEquals(keySetId, transportKeyManager.addUnboundKeys(txn,
 				masterKey, timestamp, alice));
 		transportKeyManager.bindKeys(txn, contactId, keySetId);
+		// The keys are inactive so no stream context should be returned
+		assertNull(transportKeyManager.getStreamContext(txn, contactId));
+		transportKeyManager.activateKeys(txn, keySetId);
+		// The keys are active so a stream context should be returned
+		StreamContext ctx = transportKeyManager.getStreamContext(txn,
+				contactId);
+		assertNotNull(ctx);
+		assertEquals(contactId, ctx.getContactId());
+		assertEquals(transportId, ctx.getTransportId());
+		assertEquals(tagKey, ctx.getTagKey());
+		assertEquals(headerKey, ctx.getHeaderKey());
+		assertEquals(0, ctx.getStreamNumber());
 	}
 
 	@Test
 	public void testRemovingUnboundKeys() throws Exception {
 		boolean alice = random.nextBoolean();
-		TransportKeys transportKeys = createTransportKeys(1000, 0);
+		TransportKeys transportKeys = createTransportKeys(1000, 0, false);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
-					1000, alice);
+					1000, alice, false);
 			will(returnValue(transportKeys));
 			// Get the current time (the start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
@@ -487,7 +503,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			TransportKeys transportKeys, Transaction txn) throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
-					1000, alice);
+					1000, alice, true);
 			will(returnValue(transportKeys));
 			// Get the current time (the start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
@@ -509,7 +525,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	}
 
 	private TransportKeys createTransportKeys(long rotationPeriod,
-			long streamCounter) {
+			long streamCounter, boolean active) {
 		IncomingKeys inPrev = new IncomingKeys(tagKey, headerKey,
 				rotationPeriod - 1);
 		IncomingKeys inCurr = new IncomingKeys(tagKey, headerKey,
@@ -517,7 +533,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		IncomingKeys inNext = new IncomingKeys(tagKey, headerKey,
 				rotationPeriod + 1);
 		OutgoingKeys outCurr = new OutgoingKeys(tagKey, headerKey,
-				rotationPeriod, streamCounter);
+				rotationPeriod, streamCounter, active);
 		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);
 	}
 

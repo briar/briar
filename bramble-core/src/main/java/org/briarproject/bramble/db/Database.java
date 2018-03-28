@@ -641,6 +641,12 @@ interface Database<T> {
 			long rotationPeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
+	 * Marks the given transport keys as usable for outgoing streams.
+	 */
+	void setTransportKeysActive(T txn, TransportId t, KeySetId k)
+		throws DbException;
+
+	/**
 	 * Updates the transmission count and expiry time of the given message
 	 * with respect to the given contact, using the latency of the transport
 	 * over which it was sent.

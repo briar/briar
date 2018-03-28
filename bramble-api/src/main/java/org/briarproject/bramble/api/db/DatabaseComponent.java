@@ -529,6 +529,12 @@ public interface DatabaseComponent {
 			long rotationPeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
+	 * Marks the given transport keys as usable for outgoing streams.
+	 */
+	void setTransportKeysActive(Transaction txn, TransportId t, KeySetId k)
+		throws DbException;
+
+	/**
 	 * Stores the given transport keys, deleting any keys they have replaced.
 	 */
 	void updateTransportKeys(Transaction txn, Collection<KeySet> keys)

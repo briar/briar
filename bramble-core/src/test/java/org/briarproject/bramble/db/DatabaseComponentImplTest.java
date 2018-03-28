@@ -71,6 +71,7 @@ import static org.briarproject.bramble.api.transport.TransportConstants.REORDERI
 import static org.briarproject.bramble.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -1356,22 +1357,22 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	}
 
 	private TransportKeys createTransportKeys() {
-		SecretKey inPrevTagKey = TestUtils.getSecretKey();
-		SecretKey inPrevHeaderKey = TestUtils.getSecretKey();
+		SecretKey inPrevTagKey = getSecretKey();
+		SecretKey inPrevHeaderKey = getSecretKey();
 		IncomingKeys inPrev = new IncomingKeys(inPrevTagKey, inPrevHeaderKey,
 				1, 123, new byte[4]);
-		SecretKey inCurrTagKey = TestUtils.getSecretKey();
-		SecretKey inCurrHeaderKey = TestUtils.getSecretKey();
+		SecretKey inCurrTagKey = getSecretKey();
+		SecretKey inCurrHeaderKey = getSecretKey();
 		IncomingKeys inCurr = new IncomingKeys(inCurrTagKey, inCurrHeaderKey,
 				2, 234, new byte[4]);
-		SecretKey inNextTagKey = TestUtils.getSecretKey();
-		SecretKey inNextHeaderKey = TestUtils.getSecretKey();
+		SecretKey inNextTagKey = getSecretKey();
+		SecretKey inNextHeaderKey = getSecretKey();
 		IncomingKeys inNext = new IncomingKeys(inNextTagKey, inNextHeaderKey,
 				3, 345, new byte[4]);
-		SecretKey outCurrTagKey = TestUtils.getSecretKey();
-		SecretKey outCurrHeaderKey = TestUtils.getSecretKey();
+		SecretKey outCurrTagKey = getSecretKey();
+		SecretKey outCurrHeaderKey = getSecretKey();
 		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
-				2, 456);
+				2, 456, true);
 		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);
 	}
 

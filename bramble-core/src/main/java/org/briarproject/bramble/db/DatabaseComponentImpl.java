@@ -891,6 +891,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void setTransportKeysActive(Transaction transaction, TransportId t,
+			KeySetId k) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsTransport(txn, t))
+			throw new NoSuchTransportException();
+		db.setTransportKeysActive(txn, t, k);
+	}
+
+	@Override
 	public void updateTransportKeys(Transaction transaction,
 			Collection<KeySet> keys) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();

@@ -804,6 +804,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				actual.getHeaderKey().getBytes());
 		assertEquals(expected.getRotationPeriod(), actual.getRotationPeriod());
 		assertEquals(expected.getStreamCounter(), actual.getStreamCounter());
+		assertEquals(expected.isActive(), actual.isActive());
 	}
 
 	@Test
@@ -1820,7 +1821,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		SecretKey outCurrTagKey = getSecretKey();
 		SecretKey outCurrHeaderKey = getSecretKey();
 		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
-				2, 456);
+				2, 456, true);
 		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);
 	}
 

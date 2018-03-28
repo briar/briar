@@ -127,10 +127,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			encodeTags(keySetId, contactId, m.getPreviousIncomingKeys());
 			encodeTags(keySetId, contactId, m.getCurrentIncomingKeys());
 			encodeTags(keySetId, contactId, m.getNextIncomingKeys());
-			// Use the outgoing keys with the highest key set ID
-			MutableKeySet old = outContexts.get(contactId);
-			if (old == null || old.getKeySetId().getInt() < keySetId.getInt())
-				outContexts.put(contactId, ks);
+			considerReplacingOutgoingKeys(ks);
 		}
 	}
 
@@ -144,6 +141,17 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			transportCrypto.encodeTag(tag, inKeys.getTagKey(), PROTOCOL_VERSION,
 					streamNumber);
 			inContexts.put(new Bytes(tag), tagCtx);
+		}
+	}
+
+	// Locking: lock
+	private void considerReplacingOutgoingKeys(MutableKeySet ks) {
+		// Use the active outgoing keys with the highest key set ID
+		if (ks.getTransportKeys().getCurrentOutgoingKeys().isActive()) {
+			MutableKeySet old = outContexts.get(ks.getContactId());
+			if (old == null ||
+					old.getKeySetId().getInt() < ks.getKeySetId().getInt())
+				outContexts.put(ks.getContactId(), ks);
 		}
 	}
 
@@ -171,17 +179,17 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	@Override
 	public void addContact(Transaction txn, ContactId c, SecretKey master,
 			long timestamp, boolean alice) throws DbException {
-		deriveAndAddKeys(txn, c, master, timestamp, alice);
+		deriveAndAddKeys(txn, c, master, timestamp, alice, true);
 	}
 
 	@Override
 	public KeySetId addUnboundKeys(Transaction txn, SecretKey master,
 			long timestamp, boolean alice) throws DbException {
-		return deriveAndAddKeys(txn, null, master, timestamp, alice);
+		return deriveAndAddKeys(txn, null, master, timestamp, alice, false);
 	}
 
 	private KeySetId deriveAndAddKeys(Transaction txn, @Nullable ContactId c,
-			SecretKey master, long timestamp, boolean alice)
+			SecretKey master, long timestamp, boolean alice, boolean active)
 			throws DbException {
 		lock.lock();
 		try {
@@ -189,7 +197,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			long rotationPeriod = timestamp / rotationPeriodLength;
 			// Derive the transport keys
 			TransportKeys k = transportCrypto.deriveTransportKeys(transportId,
-					master, rotationPeriod, alice);
+					master, rotationPeriod, alice, active);
 			// Rotate the keys to the current rotation period if necessary
 			rotationPeriod = clock.currentTimeMillis() / rotationPeriodLength;
 			k = transportCrypto.rotateTransportKeys(k, rotationPeriod);
@@ -210,10 +218,28 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		try {
 			MutableKeySet ks = keys.get(k);
 			if (ks == null) throw new IllegalArgumentException();
+			// Check that the keys haven't already been bound
 			if (ks.getContactId() != null) throw new IllegalArgumentException();
 			MutableTransportKeys m = ks.getTransportKeys();
 			addKeys(k, c, m);
 			db.bindTransportKeys(txn, c, m.getTransportId(), k);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
+	public void activateKeys(Transaction txn, KeySetId k) throws DbException {
+		lock.lock();
+		try {
+			MutableKeySet ks = keys.get(k);
+			if (ks == null) throw new IllegalArgumentException();
+			// Check that the keys have been bound
+			if (ks.getContactId() == null) throw new IllegalArgumentException();
+			MutableTransportKeys m = ks.getTransportKeys();
+			m.getCurrentOutgoingKeys().activate();
+			considerReplacingOutgoingKeys(ks);
+			db.setTransportKeysActive(txn, m.getTransportId(), k);
 		} finally {
 			lock.unlock();
 		}
@@ -225,6 +251,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		try {
 			MutableKeySet ks = keys.remove(k);
 			if (ks == null) throw new IllegalArgumentException();
+			// Check that the keys haven't been bound
 			if (ks.getContactId() != null) throw new IllegalArgumentException();
 			TransportId t = ks.getTransportKeys().getTransportId();
 			db.removeTransportKeys(txn, t, k);

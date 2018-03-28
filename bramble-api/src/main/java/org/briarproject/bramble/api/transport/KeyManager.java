@@ -30,6 +30,9 @@ public interface KeyManager {
 	/**
 	 * Derives and stores a set of unbound transport keys for each transport
 	 * and returns the key set IDs.
+	 * <p/>
+	 * The keys must be bound before they can be used for incoming streams,
+	 * and also activated before they can be used for outgoing streams.
 	 */
 	Map<TransportId, KeySetId> addUnboundKeys(Transaction txn, SecretKey master,
 			long timestamp, boolean alice) throws DbException;
@@ -38,6 +41,13 @@ public interface KeyManager {
 	 * Binds the given transport keys to the given contact.
 	 */
 	void bindKeys(Transaction txn, ContactId c, Map<TransportId, KeySetId> keys)
+			throws DbException;
+
+	/**
+	 * Marks the given transport keys as usable for outgoing streams. Keys must
+	 * be bound before they are activated.
+	 */
+	void activateKeys(Transaction txn, Map<TransportId, KeySetId> keys)
 			throws DbException;
 
 	/**

@@ -234,6 +234,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " tagKey _SECRET NOT NULL,"
 					+ " headerKey _SECRET NOT NULL,"
 					+ " stream BIGINT NOT NULL,"
+					+ " active BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (transportId, keySetId),"
 					+ " FOREIGN KEY (transportId)"
 					+ " REFERENCES transports (transportId)"
@@ -880,8 +881,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			// Store the outgoing keys
 			String sql = "INSERT INTO outgoingKeys (contactId, transportId,"
-					+ " rotationPeriod, tagKey, headerKey, stream)"
-					+ " VALUES (?, ?, ?, ?, ?, ?)";
+					+ " rotationPeriod, tagKey, headerKey, stream, active)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			if (c == null) ps.setNull(1, INTEGER);
 			else ps.setInt(1, c.getInt());
@@ -891,6 +892,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(4, outCurr.getTagKey().getBytes());
 			ps.setBytes(5, outCurr.getHeaderKey().getBytes());
 			ps.setLong(6, outCurr.getStreamCounter());
+			ps.setBoolean(7, outCurr.isActive());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -2157,7 +2159,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Retrieve the outgoing keys in the same order
 			sql = "SELECT keySetId, contactId, rotationPeriod,"
-					+ " tagKey, headerKey, stream"
+					+ " tagKey, headerKey, stream, active"
 					+ " FROM outgoingKeys"
 					+ " WHERE transportId = ?"
 					+ " ORDER BY keySetId";
@@ -2175,8 +2177,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 				SecretKey tagKey = new SecretKey(rs.getBytes(4));
 				SecretKey headerKey = new SecretKey(rs.getBytes(5));
 				long streamCounter = rs.getLong(6);
+				boolean active = rs.getBoolean(7);
 				OutgoingKeys outCurr = new OutgoingKeys(tagKey, headerKey,
-						rotationPeriod, streamCounter);
+						rotationPeriod, streamCounter, active);
 				IncomingKeys inPrev = inKeys.get(i * 3);
 				IncomingKeys inCurr = inKeys.get(i * 3 + 1);
 				IncomingKeys inNext = inKeys.get(i * 3 + 2);
@@ -2880,6 +2883,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setString(3, t.getString());
 			ps.setInt(4, k.getInt());
 			ps.setLong(5, rotationPeriod);
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void setTransportKeysActive(Connection txn, TransportId t,
+			KeySetId k) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE outgoingKeys SET active = true"
+					+ " WHERE transportId = ? AND keySetId = ?";
+			ps = txn.prepareStatement(sql);
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();

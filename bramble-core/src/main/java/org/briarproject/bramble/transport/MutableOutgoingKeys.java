@@ -13,17 +13,19 @@ class MutableOutgoingKeys {
 	private final SecretKey tagKey, headerKey;
 	private final long rotationPeriod;
 	private long streamCounter;
+	private boolean active;
 
 	MutableOutgoingKeys(OutgoingKeys out) {
 		tagKey = out.getTagKey();
 		headerKey = out.getHeaderKey();
 		rotationPeriod = out.getRotationPeriod();
 		streamCounter = out.getStreamCounter();
+		active = out.isActive();
 	}
 
 	OutgoingKeys snapshot() {
 		return new OutgoingKeys(tagKey, headerKey, rotationPeriod,
-				streamCounter);
+				streamCounter, active);
 	}
 
 	SecretKey getTagKey() {
@@ -44,5 +46,13 @@ class MutableOutgoingKeys {
 
 	void incrementStreamCounter() {
 		streamCounter++;
+	}
+
+	boolean isActive() {
+		return active;
+	}
+
+	void activate() {
+		active = true;
 	}
 }
