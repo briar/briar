@@ -227,7 +227,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 
 		context.checking(new Expectations() {{
 			// Increment the stream counter
-			oneOf(db).incrementStreamCounter(txn, contactId, transportId, 1000);
+			oneOf(db).incrementStreamCounter(txn, transportId, keySetId);
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
@@ -441,7 +441,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			// Activate the keys
 			oneOf(db).setTransportKeysActive(txn, transportId, keySetId);
 			// Increment the stream counter
-			oneOf(db).incrementStreamCounter(txn, contactId, transportId, 1000);
+			oneOf(db).incrementStreamCounter(txn, transportId, keySetId);
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(

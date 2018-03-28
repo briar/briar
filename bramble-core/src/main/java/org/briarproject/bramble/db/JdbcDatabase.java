@@ -2198,17 +2198,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void incrementStreamCounter(Connection txn, ContactId c,
-			TransportId t, long rotationPeriod) throws DbException {
+	public void incrementStreamCounter(Connection txn, TransportId t,
+			KeySetId k) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE outgoingKeys SET stream = stream + 1"
-					+ " WHERE contactId = ? AND transportId = ?"
-					+ " AND rotationPeriod = ?";
+					+ " WHERE transportId = ? AND keySetId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setString(2, t.getString());
-			ps.setLong(3, rotationPeriod);
+			ps.setString(1, t.getString());
+			ps.setInt(2, k.getInt());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();

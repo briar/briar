@@ -407,11 +407,10 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Increments the outgoing stream counter for the given contact and
-	 * transport in the given rotation period .
+	 * Increments the outgoing stream counter for the given transport keys.
 	 */
-	void incrementStreamCounter(Transaction txn, ContactId c, TransportId t,
-			long rotationPeriod) throws DbException;
+	void incrementStreamCounter(Transaction txn, TransportId t, KeySetId k)
+			throws DbException;
 
 	/**
 	 * Merges the given metadata with the existing metadata for the given

@@ -288,6 +288,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			if (ks == null) return null;
 			MutableOutgoingKeys outKeys =
 					ks.getTransportKeys().getCurrentOutgoingKeys();
+			if (!outKeys.isActive()) throw new AssertionError();
 			if (outKeys.getStreamCounter() > MAX_32_BIT_UNSIGNED) return null;
 			// Create a stream context
 			StreamContext ctx = new StreamContext(c, transportId,
@@ -295,8 +296,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 					outKeys.getStreamCounter());
 			// Increment the stream counter and write it back to the DB
 			outKeys.incrementStreamCounter();
-			db.incrementStreamCounter(txn, c, transportId,
-					outKeys.getRotationPeriod());
+			db.incrementStreamCounter(txn, transportId, ks.getKeySetId());
 			return ctx;
 		} finally {
 			lock.unlock();

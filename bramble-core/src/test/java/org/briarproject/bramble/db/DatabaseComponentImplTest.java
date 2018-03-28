@@ -285,11 +285,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(18).of(database).startTransaction();
+			exactly(17).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(18).of(database).containsContact(txn, contactId);
+			exactly(17).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(18).of(database).abortTransaction(txn);
+			exactly(17).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -377,16 +377,6 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		transaction = db.startTransaction(false);
 		try {
 			db.getMessageStatus(transaction, contactId, messageId);
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		} finally {
-			db.endTransaction(transaction);
-		}
-
-		transaction = db.startTransaction(false);
-		try {
-			db.incrementStreamCounter(transaction, contactId, transportId, 0);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -781,7 +771,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			// Check whether the transport is in the DB (which it's not)
 			exactly(6).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(2).of(database).containsContact(txn, contactId);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			exactly(6).of(database).containsTransport(txn, transportId);
 			will(returnValue(false));
@@ -822,7 +812,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		transaction = db.startTransaction(false);
 		try {
-			db.incrementStreamCounter(transaction, contactId, transportId, 0);
+			db.incrementStreamCounter(transaction, transportId, keySetId);
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected

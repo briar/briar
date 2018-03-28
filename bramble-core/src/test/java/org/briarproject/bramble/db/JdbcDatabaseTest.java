@@ -825,8 +825,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				singletonList(new KeySet(keySetId, contactId, keys)));
 
 		// Increment the stream counter twice and retrieve the transport keys
-		db.incrementStreamCounter(txn, contactId, transportId, rotationPeriod);
-		db.incrementStreamCounter(txn, contactId, transportId, rotationPeriod);
+		db.incrementStreamCounter(txn, transportId, keySetId);
+		db.incrementStreamCounter(txn, transportId, keySetId);
 		Collection<KeySet> newKeys = db.getTransportKeys(txn, transportId);
 		assertEquals(1, newKeys.size());
 		KeySet ks = newKeys.iterator().next();

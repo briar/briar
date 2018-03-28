@@ -499,11 +499,10 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Increments the outgoing stream counter for the given contact and
-	 * transport in the given rotation period.
+	 * Increments the outgoing stream counter for the given transport keys.
 	 */
-	void incrementStreamCounter(T txn, ContactId c, TransportId t,
-			long rotationPeriod) throws DbException;
+	void incrementStreamCounter(T txn, TransportId t, KeySetId k)
+			throws DbException;
 
 	/**
 	 * Marks the given messages as not needing to be acknowledged to the

@@ -607,15 +607,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public void incrementStreamCounter(Transaction transaction, ContactId c,
-			TransportId t, long rotationPeriod) throws DbException {
+	public void incrementStreamCounter(Transaction transaction, TransportId t,
+			KeySetId k) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		if (!db.containsContact(txn, c))
-			throw new NoSuchContactException();
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
-		db.incrementStreamCounter(txn, c, t, rotationPeriod);
+		db.incrementStreamCounter(txn, t, k);
 	}
 
 	@Override
