@@ -279,6 +279,21 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
+	public boolean canSendOutgoingStreams(ContactId c) {
+		lock.lock();
+		try {
+			MutableKeySet ks = outContexts.get(c);
+			if (ks == null) return false;
+			MutableOutgoingKeys outKeys =
+					ks.getTransportKeys().getCurrentOutgoingKeys();
+			if (!outKeys.isActive()) throw new AssertionError();
+			return outKeys.getStreamCounter() <= MAX_32_BIT_UNSIGNED;
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
 	public StreamContext getStreamContext(Transaction txn, ContactId c)
 			throws DbException {
 		lock.lock();

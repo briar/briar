@@ -29,6 +29,8 @@ interface TransportKeyManager {
 
 	void removeContact(ContactId c);
 
+	boolean canSendOutgoingStreams(ContactId c);
+
 	@Nullable
 	StreamContext getStreamContext(Transaction txn, ContactId c)
 			throws DbException;

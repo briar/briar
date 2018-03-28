@@ -58,6 +58,12 @@ public interface KeyManager {
 		throws DbException;
 
 	/**
+	 * Returns true if we have keys that can be used for outgoing streams to
+	 * the given contact over the given transport.
+	 */
+	boolean canSendOutgoingStreams(ContactId c, TransportId t);
+
+	/**
 	 * Returns a {@link StreamContext} for sending a stream to the given
 	 * contact over the given transport, or null if an error occurs or the
 	 * contact does not support the transport.

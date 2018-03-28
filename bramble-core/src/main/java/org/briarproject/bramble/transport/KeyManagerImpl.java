@@ -161,6 +161,12 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
+	public boolean canSendOutgoingStreams(ContactId c, TransportId t) {
+		TransportKeyManager m = managers.get(t);
+		return m == null ? false : m.canSendOutgoingStreams(c);
+	}
+
+	@Override
 	public StreamContext getStreamContext(ContactId c, TransportId t)
 			throws DbException {
 		// Don't allow outgoing streams to inactive contacts
