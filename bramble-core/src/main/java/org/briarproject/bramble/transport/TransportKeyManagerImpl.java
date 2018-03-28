@@ -355,6 +355,16 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			db.setReorderingWindow(txn, tagCtx.keySetId, transportId,
 					inKeys.getRotationPeriod(), window.getBase(),
 					window.getBitmap());
+			// If the outgoing keys are inactive, activate them
+			MutableKeySet ks = keys.get(tagCtx.keySetId);
+			MutableOutgoingKeys outKeys =
+					ks.getTransportKeys().getCurrentOutgoingKeys();
+			if (!outKeys.isActive()) {
+				LOG.info("Activating outgoing keys");
+				outKeys.activate();
+				considerReplacingOutgoingKeys(ks);
+				db.setTransportKeysActive(txn, transportId, tagCtx.keySetId);
+			}
 			return ctx;
 		} finally {
 			lock.unlock();
