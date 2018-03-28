@@ -203,27 +203,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				MAX_32_BIT_UNSIGNED + 1);
 		Transaction txn = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
-			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
-					1000, alice);
-			will(returnValue(transportKeys));
-			// Get the current time (the start of rotation period 1000)
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(rotationPeriodLength * 1000));
-			// Encode the tags (3 sets)
-			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
-				exactly(3).of(transportCrypto).encodeTag(
-						with(any(byte[].class)), with(tagKey),
-						with(PROTOCOL_VERSION), with(i));
-				will(new EncodeTagAction());
-			}
-			// Rotate the transport keys (the keys are unaffected)
-			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
-			will(returnValue(transportKeys));
-			// Save the keys
-			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
-			will(returnValue(keySetId));
-		}});
+		expectAddContactNoRotation(alice, transportKeys, txn);
 
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
@@ -243,26 +223,9 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				MAX_32_BIT_UNSIGNED);
 		Transaction txn = new Transaction(null, false);
 
+		expectAddContactNoRotation(alice, transportKeys, txn);
+
 		context.checking(new Expectations() {{
-			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
-					1000, alice);
-			will(returnValue(transportKeys));
-			// Get the current time (the start of rotation period 1000)
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(rotationPeriodLength * 1000));
-			// Encode the tags (3 sets)
-			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
-				exactly(3).of(transportCrypto).encodeTag(
-						with(any(byte[].class)), with(tagKey),
-						with(PROTOCOL_VERSION), with(i));
-				will(new EncodeTagAction());
-			}
-			// Rotate the transport keys (the keys are unaffected)
-			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
-			will(returnValue(transportKeys));
-			// Save the keys
-			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
-			will(returnValue(keySetId));
 			// Increment the stream counter
 			oneOf(db).incrementStreamCounter(txn, contactId, transportId, 1000);
 		}});
@@ -294,27 +257,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		TransportKeys transportKeys = createTransportKeys(1000, 0);
 		Transaction txn = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
-			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
-					1000, alice);
-			will(returnValue(transportKeys));
-			// Get the current time (the start of rotation period 1000)
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(rotationPeriodLength * 1000));
-			// Encode the tags (3 sets)
-			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
-				exactly(3).of(transportCrypto).encodeTag(
-						with(any(byte[].class)), with(tagKey),
-						with(PROTOCOL_VERSION), with(i));
-				will(new EncodeTagAction());
-			}
-			// Rotate the transport keys (the keys are unaffected)
-			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
-			will(returnValue(transportKeys));
-			// Save the keys
-			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
-			will(returnValue(keySetId));
-		}});
+		expectAddContactNoRotation(alice, transportKeys, txn);
 
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
@@ -323,6 +266,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		long timestamp = rotationPeriodLength * 1000;
 		transportKeyManager.addContact(txn, contactId, masterKey, timestamp,
 				alice);
+		// The tag should not be recognised
 		assertNull(transportKeyManager.getStreamContext(txn,
 				new byte[TAG_LENGTH]));
 	}
@@ -464,6 +408,104 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
 				maxLatency);
 		transportKeyManager.start(txn);
+	}
+
+	@Test
+	public void testTagsAreEncodedWhenKeysAreBound() throws Exception {
+		boolean alice = random.nextBoolean();
+		TransportKeys transportKeys = createTransportKeys(1000, 0);
+		Transaction txn = new Transaction(null, false);
+
+		context.checking(new Expectations() {{
+			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
+					1000, alice);
+			will(returnValue(transportKeys));
+			// Get the current time (the start of rotation period 1000)
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(rotationPeriodLength * 1000));
+			// Rotate the transport keys (the keys are unaffected)
+			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
+			will(returnValue(transportKeys));
+			// Save the unbound keys
+			oneOf(db).addTransportKeys(txn, null, transportKeys);
+			will(returnValue(keySetId));
+			// When the keys are bound, encode the tags (3 sets)
+			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
+				exactly(3).of(transportCrypto).encodeTag(
+						with(any(byte[].class)), with(tagKey),
+						with(PROTOCOL_VERSION), with(i));
+				will(new EncodeTagAction());
+			}
+			// Save the key binding
+			oneOf(db).bindTransportKeys(txn, contactId, transportId, keySetId);
+		}});
+
+		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
+				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
+				maxLatency);
+		// The timestamp is at the start of rotation period 1000
+		long timestamp = rotationPeriodLength * 1000;
+		assertEquals(keySetId, transportKeyManager.addUnboundKeys(txn,
+				masterKey, timestamp, alice));
+		transportKeyManager.bindKeys(txn, contactId, keySetId);
+	}
+
+	@Test
+	public void testRemovingUnboundKeys() throws Exception {
+		boolean alice = random.nextBoolean();
+		TransportKeys transportKeys = createTransportKeys(1000, 0);
+		Transaction txn = new Transaction(null, false);
+
+		context.checking(new Expectations() {{
+			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
+					1000, alice);
+			will(returnValue(transportKeys));
+			// Get the current time (the start of rotation period 1000)
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(rotationPeriodLength * 1000));
+			// Rotate the transport keys (the keys are unaffected)
+			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
+			will(returnValue(transportKeys));
+			// Save the unbound keys
+			oneOf(db).addTransportKeys(txn, null, transportKeys);
+			will(returnValue(keySetId));
+			// Remove the unbound keys
+			oneOf(db).removeTransportKeys(txn, transportId, keySetId);
+		}});
+
+		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
+				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
+				maxLatency);
+		// The timestamp is at the start of rotation period 1000
+		long timestamp = rotationPeriodLength * 1000;
+		assertEquals(keySetId, transportKeyManager.addUnboundKeys(txn,
+				masterKey, timestamp, alice));
+		transportKeyManager.removeKeys(txn, keySetId);
+	}
+
+	private void expectAddContactNoRotation(boolean alice,
+			TransportKeys transportKeys, Transaction txn) throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
+					1000, alice);
+			will(returnValue(transportKeys));
+			// Get the current time (the start of rotation period 1000)
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(rotationPeriodLength * 1000));
+			// Encode the tags (3 sets)
+			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
+				exactly(3).of(transportCrypto).encodeTag(
+						with(any(byte[].class)), with(tagKey),
+						with(PROTOCOL_VERSION), with(i));
+				will(new EncodeTagAction());
+			}
+			// Rotate the transport keys (the keys are unaffected)
+			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
+			will(returnValue(transportKeys));
+			// Save the keys
+			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
+			will(returnValue(keySetId));
+		}});
 	}
 
 	private TransportKeys createTransportKeys(long rotationPeriod,

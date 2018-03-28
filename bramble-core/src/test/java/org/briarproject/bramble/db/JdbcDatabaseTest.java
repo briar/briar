@@ -91,7 +91,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private final Message message;
 	private final TransportId transportId;
 	private final ContactId contactId;
-	private final KeySetId keySetId;
+	private final KeySetId keySetId, keySetId1;
 
 	JdbcDatabaseTest() throws Exception {
 		groupId = new GroupId(getRandomId());
@@ -108,6 +108,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		transportId = new TransportId("id");
 		contactId = new ContactId(1);
 		keySetId = new KeySetId(1);
+		keySetId1 = new KeySetId(2);
 	}
 
 	protected abstract JdbcDatabase createDatabase(DatabaseConfig config,
@@ -667,6 +668,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testTransportKeys() throws Exception {
 		TransportKeys keys = createTransportKeys();
+		TransportKeys keys1 = createTransportKeys();
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -680,23 +682,20 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				true, true));
 		db.addTransport(txn, transportId, 123);
 		assertEquals(keySetId, db.addTransportKeys(txn, contactId, keys));
+		assertEquals(keySetId1, db.addTransportKeys(txn, contactId, keys1));
 
 		// Retrieve the transport keys
-		Collection<KeySet> newKeys = db.getTransportKeys(txn, transportId);
-		assertEquals(1, newKeys.size());
-		KeySet ks = newKeys.iterator().next();
-		assertEquals(keySetId, ks.getKeySetId());
-		assertEquals(contactId, ks.getContactId());
-		TransportKeys k = ks.getTransportKeys();
-		assertEquals(transportId, k.getTransportId());
-		assertKeysEquals(keys.getPreviousIncomingKeys(),
-				k.getPreviousIncomingKeys());
-		assertKeysEquals(keys.getCurrentIncomingKeys(),
-				k.getCurrentIncomingKeys());
-		assertKeysEquals(keys.getNextIncomingKeys(),
-				k.getNextIncomingKeys());
-		assertKeysEquals(keys.getCurrentOutgoingKeys(),
-				k.getCurrentOutgoingKeys());
+		Collection<KeySet> allKeys = db.getTransportKeys(txn, transportId);
+		assertEquals(2, allKeys.size());
+		for (KeySet ks : allKeys) {
+			assertEquals(contactId, ks.getContactId());
+			if (ks.getKeySetId().equals(keySetId)) {
+				assertKeysEquals(keys, ks.getTransportKeys());
+			} else {
+				assertEquals(keySetId1, ks.getKeySetId());
+				assertKeysEquals(keys1, ks.getTransportKeys());
+			}
+		}
 
 		// Removing the contact should remove the transport keys
 		db.removeContact(txn, contactId);
@@ -704,6 +703,88 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		db.commitTransaction(txn);
 		db.close();
+	}
+
+	@Test
+	public void testUnboundTransportKeys() throws Exception {
+		TransportKeys keys = createTransportKeys();
+		TransportKeys keys1 = createTransportKeys();
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Initially there should be no transport keys in the database
+		assertEquals(emptyList(), db.getTransportKeys(txn, transportId));
+
+		// Add the contact, the transport and the unbound transport keys
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
+				true, true));
+		db.addTransport(txn, transportId, 123);
+		assertEquals(keySetId, db.addTransportKeys(txn, null, keys));
+		assertEquals(keySetId1, db.addTransportKeys(txn, null, keys1));
+
+		// Retrieve the transport keys
+		Collection<KeySet> allKeys = db.getTransportKeys(txn, transportId);
+		assertEquals(2, allKeys.size());
+		for (KeySet ks : allKeys) {
+			assertNull(ks.getContactId());
+			if (ks.getKeySetId().equals(keySetId)) {
+				assertKeysEquals(keys, ks.getTransportKeys());
+			} else {
+				assertEquals(keySetId1, ks.getKeySetId());
+				assertKeysEquals(keys1, ks.getTransportKeys());
+			}
+		}
+
+		// Bind the first set of transport keys
+		db.bindTransportKeys(txn, contactId, transportId, keySetId);
+
+		// Retrieve the keys again - the first set should be bound
+		allKeys = db.getTransportKeys(txn, transportId);
+		assertEquals(2, allKeys.size());
+		for (KeySet ks : allKeys) {
+			if (ks.getKeySetId().equals(keySetId)) {
+				assertEquals(contactId, ks.getContactId());
+				assertKeysEquals(keys, ks.getTransportKeys());
+			} else {
+				assertEquals(keySetId1, ks.getKeySetId());
+				assertNull(ks.getContactId());
+				assertKeysEquals(keys1, ks.getTransportKeys());
+			}
+		}
+
+		// Remove the unbound transport keys
+		db.removeTransportKeys(txn, transportId, keySetId1);
+
+		// Retrieve the keys again - the second set should be gone
+		allKeys = db.getTransportKeys(txn, transportId);
+		assertEquals(1, allKeys.size());
+		KeySet ks = allKeys.iterator().next();
+		assertEquals(keySetId, ks.getKeySetId());
+		assertEquals(contactId, ks.getContactId());
+		assertKeysEquals(keys, ks.getTransportKeys());
+
+		// Removing the transport should remove the remaining transport keys
+		db.removeTransport(txn, transportId);
+		assertEquals(emptyList(), db.getTransportKeys(txn, transportId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	private void assertKeysEquals(TransportKeys expected,
+			TransportKeys actual) {
+		assertEquals(expected.getTransportId(), actual.getTransportId());
+		assertEquals(expected.getRotationPeriod(), actual.getRotationPeriod());
+		assertKeysEquals(expected.getPreviousIncomingKeys(),
+				actual.getPreviousIncomingKeys());
+		assertKeysEquals(expected.getCurrentIncomingKeys(),
+				actual.getCurrentIncomingKeys());
+		assertKeysEquals(expected.getNextIncomingKeys(),
+				actual.getNextIncomingKeys());
+		assertKeysEquals(expected.getCurrentOutgoingKeys(),
+				actual.getCurrentOutgoingKeys());
 	}
 
 	private void assertKeysEquals(IncomingKeys expected, IncomingKeys actual) {

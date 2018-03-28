@@ -778,13 +778,13 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			// endTransaction()
 			oneOf(database).commitTransaction(txn);
 			// Check whether the transport is in the DB (which it's not)
-			exactly(5).of(database).startTransaction();
+			exactly(6).of(database).startTransaction();
 			will(returnValue(txn));
 			exactly(2).of(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			exactly(5).of(database).containsTransport(txn, transportId);
+			exactly(6).of(database).containsTransport(txn, transportId);
 			will(returnValue(false));
-			exactly(5).of(database).abortTransaction(txn);
+			exactly(6).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -832,6 +832,16 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		transaction = db.startTransaction(false);
 		try {
 			db.removeTransport(transaction, transportId);
+			fail();
+		} catch (NoSuchTransportException expected) {
+			// Expected
+		} finally {
+			db.endTransaction(transaction);
+		}
+
+		transaction = db.startTransaction(false);
+		try {
+			db.removeTransportKeys(transaction, transportId, keySetId);
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected
