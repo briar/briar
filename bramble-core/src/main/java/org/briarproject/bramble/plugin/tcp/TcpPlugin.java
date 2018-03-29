@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.tcp;
 
+import org.briarproject.bramble.PoliteExecutor;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
@@ -47,7 +48,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	private static final Logger LOG =
 			Logger.getLogger(TcpPlugin.class.getName());
 
-	protected final Executor ioExecutor;
+	protected final Executor ioExecutor, bindExecutor;
 	protected final Backoff backoff;
 	protected final DuplexPluginCallback callback;
 	protected final int maxLatency, maxIdleTime, socketTimeout;
@@ -90,6 +91,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 		if (maxIdleTime > Integer.MAX_VALUE / 2)
 			socketTimeout = Integer.MAX_VALUE;
 		else socketTimeout = maxIdleTime * 2;
+		// Don't execute more than one bind operation at a time
+		bindExecutor = new PoliteExecutor("TcpPlugin", ioExecutor, 1);
 	}
 
 	@Override
@@ -110,8 +113,9 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	protected void bind() {
-		ioExecutor.execute(() -> {
+		bindExecutor.execute(() -> {
 			if (!running) return;
+			if (socket != null && !socket.isClosed()) return;
 			ServerSocket ss = null;
 			for (InetSocketAddress addr : getLocalSocketAddresses()) {
 				try {
