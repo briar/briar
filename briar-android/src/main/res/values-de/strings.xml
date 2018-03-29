@@ -94,9 +94,7 @@
   <string name="fix">Behoben</string>
   <string name="help">Hilfe</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nTippe auf das \"+\"-Symbol am oberen Bildschirmrand und folge den Anweisungen, um Freunde zu deiner Kontaktliste hinzuzufügen.\n\nDenke daran, dass du neue Kontakte nur dann hinzufügen kannst, wenn du ihnen persönlich begegnest. Das hindert andere daran, sich als deine Person auszugeben oder deine Nachrichten zu lesen.</string>
   <string name="date_no_private_messages">Keine Nachrichten.</string>
-  <string name="no_private_messages">Das ist die Gesprächsansicht.\n\nEs scheint hier einen Mangel an Gesprächsthemen zu geben.\n\nUm ein neues Gespräch zu beginnen, verwende einfach das Eingabefeld am unteren Bildschirmrand.</string>
   <string name="message_hint">Nachricht eingeben</string>
   <string name="delete_contact">Kontakt löschen</string>
   <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
@@ -143,7 +141,6 @@
     <item quantity="other">%d neue Kontakte hinzugefügt.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Du bist in keiner Gruppe Mitglied.\n\nTippe auf das \"+\"-Symbol am oberen Bildschirmrand, um eine Gruppe zu erstellen, oder frage deine Kontakte um Aufnahme in einer ihrer Gruppen.</string>
   <string name="groups_created_by">Erstellt durch %s</string>
   <plurals name="messages">
     <item quantity="one">%d Nachrichten</item>
@@ -196,12 +193,10 @@
   <string name="groups_reveal_visible_revealed_by_contact">Verbindung zum Kontakt ist für diese Gruppe sichtbar (offengelegt durch %s)</string>
   <string name="groups_reveal_invisible">Verbindung zum Kontakt ist für diese Gruppe nicht sichtbar</string>
   <!--Forums-->
-  <string name="no_forums">Du hast noch keine Foren.\n\nWarum erstellst du nicht einfach selbst ein neues Forum, indem du auf das \"+\"-Symbol am oberen Bildschirmrand tippst?\n\nDu kannst auch deine Kontakte auffordern, Foren mit dir zu teilen.</string>
   <string name="create_forum_title">Forum erstellen</string>
   <string name="choose_forum_hint">Wähle einen Namen für dein Forum</string>
   <string name="create_forum_button">Forum erstellen</string>
   <string name="forum_created_toast">Forum wurde erstellt</string>
-  <string name="no_forum_posts">Dieses Forum ist leer.\n\nBenutze das Stift-Symbol am oberen Bildschirmrand, um den ersten Beitrag zu verfassen.\n\nFühlst du dich einsam hier? Dann teile das Forum mit weiteren Kontakten!</string>
   <string name="no_posts">Keine Beiträge</string>
   <plurals name="posts">
     <item quantity="one">%d Beitrag</item>
@@ -213,23 +208,17 @@
   <string name="btn_reply">Antworten</string>
   <string name="forum_leave">Forum verlassen</string>
   <string name="dialog_title_leave_forum">Verlassen des Forums bestätigen</string>
-  <string name="dialog_message_leave_forum">Bist du sicher, dass du dieses Forum verlassen willst? Kontakte, die du mit diesem Forum geteilt hast, werden keine Updates von diesem Forum mehr bekommen.</string>
   <string name="dialog_button_leave">Verlassen</string>
-  <string name="forum_left_toast">Forum wurde verlassen</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Forum teilen</string>
   <string name="contacts_selected">Ausgewählte Kontakte</string>
   <string name="activity_share_toolbar_header">Kontakte auswählen</string>
-  <string name="no_contacts_selector">Du scheinst hier neu zu sein und noch keine Kontakte zu haben.\n\nBitte komm zurück, wenn du deinen ersten Kontakt hinzugefügt hast.</string>
   <string name="forum_shared_snackbar">Forum mit gewählten Kontakten geteilt</string>
   <string name="forum_share_message">Nachricht hinzufügen (optional)</string>
   <string name="forum_share_error">Es gab einen Fehler beim Versuch, dieses Forum zu teilen.</string>
   <string name="forum_invitation_received">%1$s hat das Forum \"%2$s\" mit dir geteilt.</string>
   <string name="forum_invitation_sent">Du hast das Forum \"%1$s\" mit %2$s geteilt.</string>
   <string name="forum_invitations_title">Foreneinladungen</string>
-  <string name="forum_invitation_exists">Du hast bereits eine Einladung zu diesem Forum angenommen. Wenn du weitere Einladungen annimmst, wird die Kommunikation in dem Forum einfacher und das Forum wird wachsen.</string>
-  <string name="forum_joined_toast">Dem Forum beigetreten</string>
-  <string name="forum_declined_toast">Foreneinladung abgelehnt</string>
   <string name="shared_by_format">Geteilt durch %s</string>
   <string name="forum_invitation_already_sharing">Bereits geteilt.</string>
   <string name="forum_invitation_response_accepted_sent">Du hast die Forumseinladung von %s akzeptiert.</string>
@@ -245,19 +234,14 @@
   </plurals>
   <string name="nobody">Niemand</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Dieser Blog ist momentan leer.\n\nEntweder hat der Autor noch nichts geschrieben, oder die Person, die diesen Blog mit dir geteilt hat, muss online gehen, sodass Beiträge synchronisiert werden können.</string>
   <string name="read_more">weiterlesen</string>
   <string name="blogs_write_blog_post">Blogbeitrag erstellen</string>
-  <string name="blogs_write_blog_post_body_hint">Gib hier deinen Blogbeitrag ein</string>
   <string name="blogs_publish_blog_post">Veröffentlichen</string>
   <string name="blogs_blog_post_created">Blogbeitrag erstellt</string>
   <string name="blogs_blog_post_received">Neuen Blogbeitrag empfangen</string>
   <string name="blogs_blog_post_scroll_to">Scrolle zu</string>
-  <string name="blogs_feed_empty_state">Dies ist die globale Blog-Zeitleiste.\n\nOffensichtlich hat noch niemand etwas veröffentlicht.\n\nSei die oder der Erste und tippe auf das Stift-Symbol, um einen neuen Blogbeitrag zu verfassen.</string>
   <string name="blogs_remove_blog">Blog entfernen</string>
-  <string name="blogs_remove_blog_dialog_message">Bist du sicher, dass du diesen Blog und alle dazugehörigen Beiträge löschen möchtest?\nBeachte, dass dies nicht den Blog auf Geräten anderer Leute löscht.</string>
-  <string name="blogs_remove_blog_ok">Blog entfernen</string>
-  <string name="blogs_blog_removed">Blog wurde entfernt</string>
+  <string name="blogs_remove_blog_ok">Aufheben</string>
   <string name="blogs_reblog_comment_hint">Kommentar hinzufügen (optional)</string>
   <string name="blogs_reblog_button">Rebloggen</string>
   <!--Blog Sharing-->
@@ -272,8 +256,6 @@
   <string name="blogs_sharing_invitation_received">%1$shat den Blog \"%2$s\" mit dir geteilt.</string>
   <string name="blogs_sharing_invitation_sent">Du teilst den Blog \"%1$s\" mit %2$s.</string>
   <string name="blogs_sharing_invitations_title">Blogeinladungen</string>
-  <string name="blogs_sharing_joined_toast">Blog abonniert</string>
-  <string name="blogs_sharing_declined_toast">Blogeinladung abgelehnt</string>
   <string name="sharing_status_blog">Jeder Abonnent eines Blogs kann diesen mit seinen Kontakten teilen. Du teilst diesen Blog mit den folgenden Kontakten. Möglicherweise gibt es Abonnenten die nicht sichtbar sind.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">RSS-Feed importieren</string>
@@ -285,10 +267,8 @@
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Letzte Aktualisierung:</string>
   <string name="blogs_rss_remove_feed">Feed entfernen</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Soll der Feed mit allen Posts wirklich gelöscht werden?\nGeteilte Posts werden dabei nicht von anderen Geräten gelöscht.</string>
-  <string name="blogs_rss_remove_feed_ok">Feed entfernen</string>
+  <string name="blogs_rss_remove_feed_ok">Aufheben</string>
   <string name="blogs_rss_feeds_manage_delete_error">Der Feed konnte nicht gelöscht werden!</string>
-  <string name="blogs_rss_feeds_manage_empty_state">Du hast bisher noch keine RSS-Feeds importiert. Tippe auf das \"+\"-Symbol am oberen Bildschirmrand, um einen neuen Feed hinzuzufügen.</string>
   <string name="blogs_rss_feeds_manage_error">Es gab ein Problem beim Laden deiner Feeds. Bitte versuche es später erneut.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Netzwerke</string>

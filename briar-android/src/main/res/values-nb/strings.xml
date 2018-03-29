@@ -94,9 +94,7 @@
   <string name="fix">Fiks</string>
   <string name="help">Hjelp</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Det later til at du er ny her og ikke har noen kontakter enda.\n\nTrykk på \"+\"-ikonet på toppen og følg instruksjonene for å legge til noen venner på listen din.\n\nHusk: Du kan bare legge til nye kontakter ansikt-til-ansikt for å forhindre noen fra å etterligne deg eller fra å lese meldingene dine i framtiden.</string>
   <string name="date_no_private_messages">Ingen meldinger.</string>
-  <string name="no_private_messages">Dette er samtaleoversikten.\n\nDet ser ut til at det er mangel på samtaler.\n\nTrykk på inndatafeltet på bunnen for å starte en samtale.</string>
   <string name="message_hint">Skriv melding</string>
   <string name="delete_contact">Slett kontakt</string>
   <string name="dialog_title_delete_contact">Bekreft sletting av kontakt</string>
@@ -143,7 +141,6 @@
     <item quantity="other">%d nye kontakter lagt til.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Du deltar ikke i noen grupper.\n\nTrykk på \"+\"-ikonet på toppen for å opprette en gruppe selv, eller spørre noen av kontaktene dine om å bli invitert inn i en av deres grupper.</string>
   <string name="groups_created_by">Opprettet av %s</string>
   <plurals name="messages">
     <item quantity="one">%d melding</item>
@@ -196,12 +193,10 @@
   <string name="groups_reveal_visible_revealed_by_contact">Kontaktforhold er synlige for gruppen (avslørt av %s)</string>
   <string name="groups_reveal_invisible">Kontaktforhold er ikke synlige for gruppen</string>
   <!--Forums-->
-  <string name="no_forums">Du har ingen forum enda.\n\nHvorfor oppretter du ikke et selv ved å trukke på \"+\"-ikonet på toppen?\n\nDu kan også spørre dine kontakter om å dele forum med deg.</string>
   <string name="create_forum_title">Opprett forum</string>
   <string name="choose_forum_hint">Velg et navn for ditt forum</string>
   <string name="create_forum_button">Opprett forum</string>
   <string name="forum_created_toast">Forum opprettet</string>
-  <string name="no_forum_posts">Dette forumet er tomt.\n\nBruk penneikonet på toppen for å føre den første posten i pennen.\n\nEr det ensomt her? Del dette forumet med flere av dine kontakter!</string>
   <string name="no_posts">Ingen poster</string>
   <plurals name="posts">
     <item quantity="one">%d post</item>
@@ -213,23 +208,17 @@
   <string name="btn_reply">Svar</string>
   <string name="forum_leave">Forlat forum</string>
   <string name="dialog_title_leave_forum">Bekreft forlating av forum</string>
-  <string name="dialog_message_leave_forum">Er du sikker på at du vil forlate dette forumet? Kontakter du har delt dette forumet med kan bli forhindret fra å motta oppdateringer fra dette forumet.</string>
   <string name="dialog_button_leave">Forlat</string>
-  <string name="forum_left_toast">Forlot forum</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Del forum</string>
   <string name="contacts_selected">Kontakter valgt</string>
   <string name="activity_share_toolbar_header">Velg kontakter</string>
-  <string name="no_contacts_selector">Det later til at du er ny her og ikke har noen kontakter enda.\n\nKom tilbake hit etter at du har lagt til din første kontakt.</string>
   <string name="forum_shared_snackbar">Forum delt med valgte kontakter</string>
   <string name="forum_share_message">Legg til melding (valgfritt)</string>
   <string name="forum_share_error">Feil ved deling av dette forumet.</string>
   <string name="forum_invitation_received">%1$s har delt forumet \"%2$s\" med deg.</string>
   <string name="forum_invitation_sent">Du har det forumet \"%1$s\" med %2$s.</string>
   <string name="forum_invitations_title">Foruminvitasjoner</string>
-  <string name="forum_invitation_exists">Du godtok invitasjonen til dette forumet allerede. Å godta flere kontakter vil bidra til og styrke kommunikasjonen på forumet.</string>
-  <string name="forum_joined_toast">Tok del i forumet</string>
-  <string name="forum_declined_toast">Foruminvitasjon avslått</string>
   <string name="shared_by_format">Delt av %s</string>
   <string name="forum_invitation_already_sharing">Deler allerede</string>
   <string name="forum_invitation_response_accepted_sent">Du godtok foruminvitasjonen fra %s.</string>
@@ -245,19 +234,14 @@
   </plurals>
   <string name="nobody">Ingen</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Denne bloggen er foreløpig tom.\n\nEnten har forfatteren ikke skrevet noe enda, eller så må personen som delte denne bloggen med deg logge på, slik at postene kan synkroniseres.</string>
   <string name="read_more">les mer</string>
   <string name="blogs_write_blog_post">Skriv bloggpost</string>
-  <string name="blogs_write_blog_post_body_hint">Skriv din bloggpost her</string>
   <string name="blogs_publish_blog_post">Offentliggjør</string>
   <string name="blogs_blog_post_created">Bloggpost opprettet</string>
   <string name="blogs_blog_post_received">Ny bloggpost opprettet</string>
   <string name="blogs_blog_post_scroll_to">Rull til</string>
-  <string name="blogs_feed_empty_state">Dette er en verdensomspennende bloggstrøm.\n\nDet ser ikke ut til at noen har blogget noe enda.\n\nVær den første til å trykke på pennesymbolet for å føre en blogg i pennen.</string>
   <string name="blogs_remove_blog">Fjern blogg</string>
-  <string name="blogs_remove_blog_dialog_message">Er du sikker på at du ønsker å fjerne denne bloggen og alle bloggposter?\nMerk at dette ikke vil fjerne bloggen fra andre folks enheter.</string>
-  <string name="blogs_remove_blog_ok">Fjern blogg</string>
-  <string name="blogs_blog_removed">Blogg fjernet</string>
+  <string name="blogs_remove_blog_ok">Fjern</string>
   <string name="blogs_reblog_comment_hint">Legg til en kommentar (valgfritt)</string>
   <string name="blogs_reblog_button">Blogg dette</string>
   <!--Blog Sharing-->
@@ -272,8 +256,6 @@
   <string name="blogs_sharing_invitation_received">%1$s har delt bloggen \"%2$s\" med deg.</string>
   <string name="blogs_sharing_invitation_sent">Du har delt bloggen \"%1$s\" med %2$s.</string>
   <string name="blogs_sharing_invitations_title">Blogginvitasjoner</string>
-  <string name="blogs_sharing_joined_toast">Abonnerte på blogg</string>
-  <string name="blogs_sharing_declined_toast">Blogginvitasjon avslått</string>
   <string name="sharing_status_blog">Enhver som abonnerer på bloggen kan dele den med sine kontakter. Du deler denne bloggen med følgende kontakter. Det kan også være andre abonnementer du ikke kan se.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importer RSS-strøm</string>
@@ -285,10 +267,8 @@
   <string name="blogs_rss_feeds_manage_author">Forfatter:</string>
   <string name="blogs_rss_feeds_manage_updated">Sist oppdatert:</string>
   <string name="blogs_rss_remove_feed">Fjern strøm</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Er du sikker på at du vil fjerne denne strømmen og alle dens poster?\nAlle poster du har delt vil ikke fjernes fra andre folks enheter.</string>
-  <string name="blogs_rss_remove_feed_ok">Fjern strøm</string>
+  <string name="blogs_rss_remove_feed_ok">Fjern</string>
   <string name="blogs_rss_feeds_manage_delete_error">Strømmen kunne ikke fjernes!</string>
-  <string name="blogs_rss_feeds_manage_empty_state">Du har ikke importert noen RSS-strømmer enda.\n\nKlikk på \"+\"-tegnet øverst til høyre på skjermen for å legge til din først.</string>
   <string name="blogs_rss_feeds_manage_error">Feil ved lasting av dine strømmer. Prøv igjen senere.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Nettverk</string>

@@ -33,8 +33,6 @@
   <string name="startup_failed_notification_title">Briar no pudo iniciarse</string>
   <string name="startup_failed_notification_text">Toca para más información.</string>
   <string name="startup_failed_activity_title">Fallo al iniciar Briar</string>
-  <string name="startup_failed_db_error">Por alguna razón, la base de datos de Briar se ha dañada irreparablemente. Tu cuenta, tus datos y tus contactos se han perdido. Lamentablemente, necesitas reinstalar Briar y configurar una nueva cuenta. Puedes hacerlo seleccionando «He olvidado mi contraseña» al arrancar Briar.</string>
-  <string name="startup_failed_data_too_old_error">Tu cuenta se creó en una versión antigua de esta apli y no puede abrirse con la versión actual. Debes instalar la versión anterior o eliminar tu cuenta eligiendo «He olvidado mi contraseña» al arrancar Briar.</string>
   <string name="startup_failed_data_too_new_error">La versión de esta apli es demasiado antigua. Por favor, actualiza a la última versión y prueba de nuevo.</string>
   <string name="startup_failed_service_error">Briar no pudo iniciar un complemento necesario. Reinstalar Briar suele solucionar el problema. Sin embargo, ten en cuenta que perderás tu cuenta y todos los datos asociados ya que Briar no almacena esta información en ningún servidor central.</string>
   <plurals name="expiry_warning">
@@ -43,6 +41,8 @@
   </plurals>
   <string name="expiry_update">La fecha de caducidad de las pruebas se ha ampliado. Su cuenta expirará en  %d días.</string>
   <string name="expiry_date_reached">Esta versión ha caducado.\n¡Gracias por probarla!</string>
+  <string name="startup_open_database">Descifrando la base de datos...</string>
+  <string name="startup_migrate_database">Actualizando la base de datos...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Abrir el panel de navegación</string>
   <string name="nav_drawer_close_description">Cierra el panel de navegación</string>
@@ -99,9 +99,7 @@
   <string name="help">Ayuda</string>
   <string name="sorry">Disculpe</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Parece que eres nuevo por aquí y no tienes aún contactos.\n\nPulsa el signo + en la parte superior y sigue las instrucciones para añadir amigos a tu lista.\n\nPor favor, recuerda: sólo puedes añadir nuevos contactos cara a cara para evitar que nadie suplante tu identidad o lea tus mensajes en el futuro. </string>
   <string name="date_no_private_messages">Sin mensajes.</string>
-  <string name="no_private_messages">Esta es la vista de conversación.\n\nParece que aún no hay ninguna.\n\nPulsa el campo de texto en la parte inferior para empezar la conversación.</string>
   <string name="message_hint">Escribe un mensaje</string>
   <string name="delete_contact">Eliminar contacto</string>
   <string name="dialog_title_delete_contact">Confirmar eliminación de contacto</string>
@@ -149,7 +147,6 @@
     <item quantity="other">%d nuevos contactos añadido</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Aún no participas en ningún grupo.\n\nCrea un grupo pulsando en el signo + arriba o pide a tus contactos que te inviten a uno de sus grupos.</string>
   <string name="groups_created_by">Creado por %s</string>
   <plurals name="messages">
     <item quantity="one">%d mensaje</item>
@@ -202,12 +199,11 @@
   <string name="groups_reveal_visible_revealed_by_contact">Las relaciones entre los contactos son visibles al grupo (las reveló %s)</string>
   <string name="groups_reveal_invisible">Las relaciones entre los contactos no son visibles al grupo</string>
   <!--Forums-->
-  <string name="no_forums">No tienes ningún foro aún.\n\n¿Por qué no creas uno pulsando el signo + de la parte superior?\n\nTambién puedes pedirle a tus contactos que compartan foros contigo.</string>
   <string name="create_forum_title">Crear foro</string>
   <string name="choose_forum_hint">Elige un nombre para el foro</string>
   <string name="create_forum_button">Crear foro</string>
   <string name="forum_created_toast">Foro creado</string>
-  <string name="no_forum_posts">Este foro está vacío.\n\nUsa el signo del lápiz de la parte superior para redactar una primera publicación.\n\n¿No te sientes un poco solo aquí? ¡Comparte este foro con más contactos!</string>
+  <string name="no_forum_posts">No hay publicaciones para mostrar</string>
   <string name="no_posts">Sin publicaciones</string>
   <plurals name="posts">
     <item quantity="one">%d publicación</item>
@@ -219,23 +215,17 @@
   <string name="btn_reply">Responder</string>
   <string name="forum_leave">Abandonar foro</string>
   <string name="dialog_title_leave_forum">Confirmación abandono del foro</string>
-  <string name="dialog_message_leave_forum">¿Seguro que quieres abandonar el foro? Puede que los contactos que invitaste al foro dejen de recibir actualizaciones del mismo.</string>
   <string name="dialog_button_leave">Abandonar</string>
-  <string name="forum_left_toast">Foro abandonado</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Compartir foro</string>
   <string name="contacts_selected">Contactos seleccionados</string>
   <string name="activity_share_toolbar_header">Elige contactos</string>
-  <string name="no_contacts_selector">Parece que eres nuevo aquí y no tienes contactos aún.\n\nPor favor, vuelve cuando hayas añadido tu primer contacto.</string>
   <string name="forum_shared_snackbar">Foro compartido con los contactos seleccionados</string>
   <string name="forum_share_message">Añade un mensaje (opcional)</string>
   <string name="forum_share_error">Hubo un error compartiendo este foro.</string>
   <string name="forum_invitation_received">%1$s ha compartido el foro \"%2$s\" contigo.</string>
   <string name="forum_invitation_sent">Has compartido el foro \"%1$s\" con %2$s.</string>
   <string name="forum_invitations_title">Invitaciones a foros</string>
-  <string name="forum_invitation_exists">Ya aceptaste la invitación a este foro. Aceptar más invitaciones aumentará y fortalecerá la comunicación con el foro.</string>
-  <string name="forum_joined_toast">Te uniste al foro</string>
-  <string name="forum_declined_toast">Invitación al foro rechazada</string>
   <string name="shared_by_format">Compartido por %s</string>
   <string name="forum_invitation_already_sharing">Ya se está compartiendo</string>
   <string name="forum_invitation_response_accepted_sent">Aceptaste la invitación al foro de %s.</string>
@@ -251,19 +241,15 @@
   </plurals>
   <string name="nobody">Nadie</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Este blog está vacío.\n\nO el autor no ha escrito aún, o la persona que compartió este blog contigo necesita conectarse para que se puedan sincronizar los artículos.</string>
+  <string name="blogs_other_blog_empty_state">No hay publicaciones para mostrar</string>
   <string name="read_more">leer más</string>
   <string name="blogs_write_blog_post">Escribir artículo del blog</string>
-  <string name="blogs_write_blog_post_body_hint">Escribe tu artículo aquí</string>
   <string name="blogs_publish_blog_post">Publicar</string>
   <string name="blogs_blog_post_created">Creado artículo del blog</string>
   <string name="blogs_blog_post_received">Recibido nuevo artículo del blog</string>
   <string name="blogs_blog_post_scroll_to">Desplazarse hasta</string>
-  <string name="blogs_feed_empty_state">Esta es la lista global de entradas de blogs.\n\nParece que nadie ha publicado nada todavía.\n\nSé el primero: pulsa el signo del lápiz para escribir una nueva entrada de blog.</string>
   <string name="blogs_remove_blog">Eliminar blog</string>
-  <string name="blogs_remove_blog_dialog_message">¿Seguro que quieres eliminar este blog y todos sus artículos?\nTen en cuenta que no se eliminará el blog de los dispositivos de otras personas.</string>
-  <string name="blogs_remove_blog_ok">Eliminar blog</string>
-  <string name="blogs_blog_removed">Blog eliminado</string>
+  <string name="blogs_remove_blog_ok">Eliminar</string>
   <string name="blogs_reblog_comment_hint">Añade un comentario (opcional)</string>
   <string name="blogs_reblog_button">Rebloguear</string>
   <!--Blog Sharing-->
@@ -278,8 +264,6 @@
   <string name="blogs_sharing_invitation_received">%1$s ha compartido el blog \"%2$s\" contigo.</string>
   <string name="blogs_sharing_invitation_sent">Has compartido el blog \"%1$s\" con %2$s.</string>
   <string name="blogs_sharing_invitations_title">Invitaciones a blogs</string>
-  <string name="blogs_sharing_joined_toast">Suscrito al blog</string>
-  <string name="blogs_sharing_declined_toast">Rechazada invitación al blog</string>
   <string name="sharing_status_blog">Cualquiera que se suscriba a un blog puede compartirlo con sus contactos. Estás compartiendo este blog con contactos listados a continuación. Puede haber otros suscriptores que no puedes ver.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importar canal RSS</string>
@@ -291,10 +275,8 @@
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Última actualización:</string>
   <string name="blogs_rss_remove_feed">Eliminar canal RSS</string>
-  <string name="blogs_rss_remove_feed_dialog_message">¿Seguro que quieres borrar este canal RSS y todas sus publicaciones?\nNo se eliminará ningún artículo que hayas compartido de los dispositivos de otras personas.</string>
-  <string name="blogs_rss_remove_feed_ok">Eliminar canal RSS</string>
+  <string name="blogs_rss_remove_feed_ok">Eliminar</string>
   <string name="blogs_rss_feeds_manage_delete_error">¡El canal no pudo ser eliminado!</string>
-  <string name="blogs_rss_feeds_manage_empty_state">No has importado ningún canal RSS.\n\n¿Por qué no pulsas el signo más de la esquina superior derecha para añadir el primero?</string>
   <string name="blogs_rss_feeds_manage_error">Hubo un problema cargando tus canales RSS. Por favor, prueba más tarde.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Redes</string>

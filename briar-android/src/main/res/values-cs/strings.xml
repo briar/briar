@@ -99,9 +99,7 @@
   <string name="fix">Opravit</string>
   <string name="help">Pomoc</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Zdá se, že tu jste noví a dosud nemáte žádné kontakty.\n\nKliknětě na + v horní části a sledujte instrukce jak přidat kontakty.\n\n Prosím pamatuj: Můžeš přidat pouze nové kontakty, se kterými jsi tváří-tvář. Je to prevence situacím, kdy se za Tebe bude chtít někdo vydávat, či bude chtít číst Tvé zprávy.</string>
   <string name="date_no_private_messages">Žádné zprávy</string>
-  <string name="no_private_messages">Toto je konverzace a její náhled.\n\nZdá se, že postrádáte konverzace.\n\nKliknutím na vstupní pole v dolní části zahajte konverzaci.</string>
   <string name="message_hint">Psát zprávu</string>
   <string name="delete_contact">Odstranit kontakt</string>
   <string name="dialog_title_delete_contact">Potvrdit odstranění kontaktu</string>
@@ -149,7 +147,6 @@
     <item quantity="other">%d nových kontaktů bylo přidáno.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Nepodílíte se na žádné skupině.\n\nKlikněte na ikonu + výše pro vytvoření vaší skupiny nebo požádejte některého z vašich kontaktů o pozvání do některých skupin.</string>
   <string name="groups_created_by">Vytvořeno %s</string>
   <plurals name="messages">
     <item quantity="one">%d zpráva</item>
@@ -204,12 +201,10 @@
   <string name="groups_reveal_visible_revealed_by_contact">Vztah s kontaktem je viditelný ve skupině (byl odkrytý %s)</string>
   <string name="groups_reveal_invisible">Vztah s kontaktem není viditelný ve skupině</string>
   <!--Forums-->
-  <string name="no_forums">Dosud nemáte žádné fórum.\n\nProč si nějaké své nevytvoříte kliknutím v horní části na symbol +?\n\nMůžete taktéž požádat své kontakty o sdílení některých fór s vámi.</string>
   <string name="create_forum_title">Vytvořit fórum</string>
   <string name="choose_forum_hint">Vybrat jméno pro vaše fórum</string>
   <string name="create_forum_button">Vytvořit fórum</string>
   <string name="forum_created_toast">Fórum vytvořeno</string>
-  <string name="no_forum_posts">Toto fórum je prázdné.\n\nPoužij ikonu tužky nahoře k vytvoření prvního příspěvku.\n\nCítíš se tu dobře? Sdílej toto fórum s vícero svými kontakty.</string>
   <string name="no_posts">Žádné příspěvky</string>
   <plurals name="posts">
     <item quantity="one">%d příspěvek</item>
@@ -222,23 +217,17 @@
   <string name="btn_reply">Odpověď</string>
   <string name="forum_leave">Opustit fórum</string>
   <string name="dialog_title_leave_forum">Potvrdit opuštění fóra</string>
-  <string name="dialog_message_leave_forum">Opravdu chcete opustit toto fórum? Kontakty, které jste sdíleli s tímto fórem, mohou být odebrány z příjmu aktualizací tohoto fóra.</string>
   <string name="dialog_button_leave">Opustit</string>
-  <string name="forum_left_toast">Opustit fórum</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Sdílet fórum</string>
   <string name="contacts_selected">Zvolené kontakty</string>
   <string name="activity_share_toolbar_header">Zvolit kontakty</string>
-  <string name="no_contacts_selector">Zdá se, že jste tu noví a doposud nemáte žádné kontakty.\n\nProsím, vraťte se zpět po přidání svého prvního kontaktu.</string>
   <string name="forum_shared_snackbar">Fórum sdíleno s vybranými kontakty</string>
   <string name="forum_share_message">Přidat zprávu (volitelné)</string>
   <string name="forum_share_error">Při sdílení tohoto fóra nastala chyba.</string>
   <string name="forum_invitation_received">%1$s sdílel fórum \"%2$s\" s vámi.</string>
   <string name="forum_invitation_sent">Sdíleli jste fórum \"%1$s\" s %2$s.</string>
   <string name="forum_invitations_title">Pozvání do fóra</string>
-  <string name="forum_invitation_exists">Již jste přijali pozvání do tohoto fóra. Přijímání dalších pozvánek povede a posílí komunikaci ve fóru.</string>
-  <string name="forum_joined_toast">Vstoupit do fóra</string>
-  <string name="forum_declined_toast">Pozvánka do fóra byla zamítnuta</string>
   <string name="shared_by_format">Sdíleno %s</string>
   <string name="forum_invitation_already_sharing">Již sdílené</string>
   <string name="forum_invitation_response_accepted_sent">Přijali jste pozvání do fóra od %s.</string>
@@ -255,19 +244,14 @@
   </plurals>
   <string name="nobody">Nikdo</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Tento blog je momentálně prázdný.\n\nPokud autor nebo osoba, sdílící s vámi tento blog, ještě nic nenapsali, pro synchronizaci příspěvků je tedy nutné, aby byli online.</string>
   <string name="read_more">Číst dál</string>
   <string name="blogs_write_blog_post">Napsat příspěvek do Blogu</string>
-  <string name="blogs_write_blog_post_body_hint">Svůj příspěvek do blogu zadejte zde</string>
   <string name="blogs_publish_blog_post">Publikovat</string>
   <string name="blogs_blog_post_created">Příspěvek do blogu byl vytvořen</string>
   <string name="blogs_blog_post_received">Přijatý nový příspěvek v blogu.</string>
   <string name="blogs_blog_post_scroll_to">Přejít na</string>
-  <string name="blogs_feed_empty_state">Toto je globální kanál blogu.\n\nZdá se, že ještě nikdo neblogoval..\n\nBuďte první, klikněte na ikonu tužky a napište do blogu nový příspěvek.</string>
   <string name="blogs_remove_blog">Odstranit blog</string>
-  <string name="blogs_remove_blog_dialog_message">Jste si jisti, že chcete odstranit tento blog a všechny příspěvky v něm?\nPamatujte, že blog nebude odstraněn ze zařízení ostatních lidí.</string>
-  <string name="blogs_remove_blog_ok">Odstranit blog</string>
-  <string name="blogs_blog_removed">Blog byl odstraněn</string>
+  <string name="blogs_remove_blog_ok">Odstranit</string>
   <string name="blogs_reblog_comment_hint">Přidat komentář (volitelné)</string>
   <string name="blogs_reblog_button">Reblog</string>
   <!--Blog Sharing-->
@@ -282,8 +266,6 @@
   <string name="blogs_sharing_invitation_received">%1$s sdílel blog \"%2$s\" s vámi.</string>
   <string name="blogs_sharing_invitation_sent">Sdíleli jste blog \"%1$s\" s %2$s.</string>
   <string name="blogs_sharing_invitations_title">Pozvánky do blogu</string>
-  <string name="blogs_sharing_joined_toast">Přihlásit se k blogu</string>
-  <string name="blogs_sharing_declined_toast">Pozvání do blogu bylo zamítnuto</string>
   <string name="sharing_status_blog">Kdokoli, kdo odebírá blog ho může sdílet se svými kontakty. Sdílíte tento blog s následujícími kontakty. Mohou existovat i jiní účastníci, které nevidíte.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Import RSS kanálu</string>
@@ -295,10 +277,8 @@
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Naposledy aktualizováno:</string>
   <string name="blogs_rss_remove_feed">Odstranit kanál</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Skutečně chceš smazat tento kanál a s ním spojené příspěvky?\nVeškeré příspěvky, které jste sdíleli, nebudou odstraněny ze zařízení jiných lidí.</string>
-  <string name="blogs_rss_remove_feed_ok">Odstranit kanál</string>
+  <string name="blogs_rss_remove_feed_ok">Odstranit</string>
   <string name="blogs_rss_feeds_manage_delete_error">Kanál nemohl být odstraněn !</string>
-  <string name="blogs_rss_feeds_manage_empty_state">Nemáte naimportovaný žádný RSS kanál.\n\nProč nekliknete na znak plus v horní části obrazovky, kde můžete přidat svůj první zdroj?</string>
   <string name="blogs_rss_feeds_manage_error">Vyskytl se problém s načtením vašeho kanálu příspěvků. Zkuste to prosím později.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Sítě</string>

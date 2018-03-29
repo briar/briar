@@ -43,6 +43,8 @@
   </plurals>
   <string name="expiry_update">Data e skadimit të periudhës së testimit është shtyrë më tej. Tani llogaria juaj do të skadojë për %d ditë.</string>
   <string name="expiry_date_reached">Ky software ka skaduar.\nFaleminderit që e provuat!</string>
+  <string name="startup_open_database">Po shfshehtëzohet Baza e të dhënave…</string>
+  <string name="startup_migrate_database">Po përditësohet Baza e të dhënave…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Hap sirtarin e lëvizjeve</string>
   <string name="nav_drawer_close_description">Mbylle sirtarin e lëvizjeve</string>
@@ -99,9 +101,9 @@
   <string name="help">Ndihmë</string>
   <string name="sorry">Na ndjeni</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Duket se jeni i ri këtu dhe ende s\’keni kontakte.\n\nPrekni ikonën + në krye dhe ndiqni udhëzimet që të shtoni ca shokë e miq te lista juaj.\n\nJu lutemi, mbani mend: Mundeni të shtoni kontakte të rinj vetëm duke qenë ballë për ballë me ta. që kështu të pengoni cilindo të hiqet si ju ose të lexojë në të ardhmen mesazhet tuaj.</string>
+  <string name="no_contacts">S’ka kontakte për shfaqje\n\nPrekni ikonën + që të shtoni një kontakt</string>
   <string name="date_no_private_messages">S\’ka mesazhe.</string>
-  <string name="no_private_messages">Kjo është pamja e bisedave.\n\nDuket se ka mungesë bisedash.\n\nQë të filloni një bisedë, thjesht prekni fushën e teksteve në fund.</string>
+  <string name="no_private_messages">S’ka mesazhe për shfaqje</string>
   <string name="message_hint">Shtypni mesazhin</string>
   <string name="delete_contact">Fshije kontaktin</string>
   <string name="dialog_title_delete_contact">Ripohoni Fshirje Kontakti</string>
@@ -149,7 +151,7 @@
     <item quantity="other">U shtuan %d kontakte të rinj.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">S\’merrni pjesë në ndonjë grup.\n\nPrekni ikonën + në krye që të krijoni një grup ose kërkojuni kontakteve tuaj t\’ju ftojnë në një prej grupeve të tyre.</string>
+  <string name="groups_list_empty">S\’ka grupe për shfaqje.\n\nPrekni ikonën + që të krijoni një grup ose kërkojuni kontakteve tuaj t\’ju ftojnë në një prej grupeve të tyre</string>
   <string name="groups_created_by">Krijuar nga %s</string>
   <plurals name="messages">
     <item quantity="one">%d mesazh</item>
@@ -202,12 +204,12 @@
   <string name="groups_reveal_visible_revealed_by_contact">Marrëdhënia e kontaktit është e dukshme për grupin (shfaqur nga %s)</string>
   <string name="groups_reveal_invisible">Marrëdhënia e kontaktit s\’është e dukshme për grupin</string>
   <!--Forums-->
-  <string name="no_forums">Ende s\’keni forume.\n\nPse nuk krijoni vetë një të tillë duke prekur ikonën + në krye?\n\nMund edhe t\’u kërkoni kontakteve tuaj të ndajnë me ju forume.</string>
+  <string name="no_forums">S\’ka forume për shfaqje.\n\nPrekni ikonën + që të krijoni një forum ose kërkojuni kontakteve tuaj t\’ju ftojnë në një prej forumeve të tyre</string>
   <string name="create_forum_title">Krijoje Forumin</string>
   <string name="choose_forum_hint">Zgjidhni një emër për forumin tuaj</string>
   <string name="create_forum_button">Krijoje Forumin</string>
   <string name="forum_created_toast">Forumi u krijua</string>
-  <string name="no_forum_posts">Ky forum është i zbrazët.\n\nPërdorni ikonën penë që të hartoni postimin tuaj të parë.\n\nNdiheni vetëm? Ndajeni këtë forum me kontaktet tuaj!</string>
+  <string name="no_forum_posts">S\’ka postime për shfaqje</string>
   <string name="no_posts">S\’ka postime</string>
   <plurals name="posts">
     <item quantity="one">%d postim</item>
@@ -219,23 +221,23 @@
   <string name="btn_reply">Përgjigju</string>
   <string name="forum_leave">Braktiseni Forumin</string>
   <string name="dialog_title_leave_forum">Ripohoni Braktisjen e Forumit</string>
-  <string name="dialog_message_leave_forum">Jeni i sigurt se doni ta braktisni këtë forum? Kontaktet me të cilët e keni ndarë këtë forum mundet të mbeten jashtë marrjes së përditësimeve nga ky forum.</string>
+  <string name="dialog_message_leave_forum">Jeni i sigurt se doni ta braktisni këtë forum?\n\nÇfarëdo kontaktesh me të cilët e keni ndarë këtë forum mundet të reshtin së marri përditësime.</string>
   <string name="dialog_button_leave">Braktise</string>
-  <string name="forum_left_toast">E braktisët Forumin</string>
+  <string name="forum_left_toast">E braktisët forumin</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Ndajeni Forumin Me të Tjerë</string>
   <string name="contacts_selected">Kontaktet u përzgjodhën</string>
   <string name="activity_share_toolbar_header">Zgjidhni Kontakte</string>
-  <string name="no_contacts_selector">Duket se jeni i ri këtu dhe s\’keni ende kontakte.\n\nJu lutemi, rikthehuni këtu pasi të keni shtuar kontaktin tuaj të parë.</string>
+  <string name="no_contacts_selector">S’ka kontakte për shfaqje\n\nJu lutemi, rikthehuni këtu pasi të shtoni një kontakt</string>
   <string name="forum_shared_snackbar">Forumi u nda me kontaktet e zgjedhur</string>
   <string name="forum_share_message">Shtoni një mesazh (në daçi)</string>
   <string name="forum_share_error">Pati një gabim në ndarjen e këtij forumi me të tjerët.</string>
   <string name="forum_invitation_received">%1$s ndau me ju forumin \"%2$s\".</string>
   <string name="forum_invitation_sent">Ndatë me \"%2$s\" forumin %1$s.</string>
   <string name="forum_invitations_title">Ftesa Forumi</string>
-  <string name="forum_invitation_exists">Keni pranuar tashmë një ftesë te ky forum. Pranimi i më shumë ftesave do të rrisë dhe forcojë komunikimin në forum.</string>
-  <string name="forum_joined_toast">U bëtë Pjesë e Forumit</string>
-  <string name="forum_declined_toast">Ftesa e Forumit u Hodh Poshtë</string>
+  <string name="forum_invitation_exists">Keni pranuar tashmë një ftesë për te ky forum.\n\nPranimi i më tepër ftesave do ta bëjë lidhjen tuaj me këtë forum më të shpejtë dhe më të qëndrueshme.</string>
+  <string name="forum_joined_toast">Hytë në forum</string>
+  <string name="forum_declined_toast">Ftesa u hodh poshtë</string>
   <string name="shared_by_format">Ndarë nga %s</string>
   <string name="forum_invitation_already_sharing">Ndarë tashmë</string>
   <string name="forum_invitation_response_accepted_sent">Pranuat ftesën e forumit nga %s.</string>
@@ -251,19 +253,19 @@
   </plurals>
   <string name="nobody">Askush</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Hëpërhë ky blog është i zbrazët.\n\nOse autori s\’ka shkruar gjë ende, ose personi që ndau blogun me ju lypset të jetë në linjë, që të mund të njëkohësohen postimet.</string>
+  <string name="blogs_other_blog_empty_state">S\’ka postime për shfaqje</string>
   <string name="read_more">lexoni më tepër</string>
   <string name="blogs_write_blog_post">Shkruani Postim Blogu</string>
-  <string name="blogs_write_blog_post_body_hint">Shtypni këtu postimin tuaj të blogut</string>
+  <string name="blogs_write_blog_post_body_hint">Shtypni postimin tuaj të blogut</string>
   <string name="blogs_publish_blog_post">Botoje</string>
   <string name="blogs_blog_post_created">Postimi i Blogut u Krijua</string>
   <string name="blogs_blog_post_received">U morën Postime të Reja Blogu</string>
   <string name="blogs_blog_post_scroll_to">Kalo Te</string>
-  <string name="blogs_feed_empty_state">Kjo është prurja globale e blogjeve.\n\nDuket se askush s\’ka shkruar gjë në ndonjë blog.\n\nBëhuni ju i pari dhe prekni ikonën penë që të shkruani postimin e parë të një blogu të ri.</string>
+  <string name="blogs_feed_empty_state">S’ka postime për shfaqje\n\nPostimet prej kontakteve tuaja dhe blogjeve ku pajtoheni do të shfaqen këtu\n\nPrekni ikonën penë që të shkruani një postim</string>
   <string name="blogs_remove_blog">hiqe Blogun</string>
-  <string name="blogs_remove_blog_dialog_message">Jeni i sigurt se doni të hiqet ky blog dhe krejt postimet?\nMbani parasysh që kjo nuk do ta heqë blogun nga pajisjet e personave të tjerë.</string>
-  <string name="blogs_remove_blog_ok">Hiqe Blogun</string>
-  <string name="blogs_blog_removed">Blogu u Hoq</string>
+  <string name="blogs_remove_blog_dialog_message">Jeni i sigurt se doni të hiqet ky blog?\n\nPostimet do të hiqen nga pajisja juaj, por jo nga pajisjet e personave të tjerë.\n\nÇfarëdo kontaktesh me të cilët e keni ndarë këtë blog mund të reshtin së marri përditësime.</string>
+  <string name="blogs_remove_blog_ok">Hiqe</string>
+  <string name="blogs_blog_removed">Blogu u hoq</string>
   <string name="blogs_reblog_comment_hint">Shtoni një koment (në daçi)</string>
   <string name="blogs_reblog_button">Riblogojeni</string>
   <!--Blog Sharing-->
@@ -278,8 +280,8 @@
   <string name="blogs_sharing_invitation_received">%1$s ndau me ju \"%2$s\".</string>
   <string name="blogs_sharing_invitation_sent">Ndatë blogun \"%1$s\" me %2$s.</string>
   <string name="blogs_sharing_invitations_title">Ftesa Blogu</string>
-  <string name="blogs_sharing_joined_toast">U pajtuat te Blogu</string>
-  <string name="blogs_sharing_declined_toast">Ftesa e Blogut u Hodh Poshtë</string>
+  <string name="blogs_sharing_joined_toast">U pajtuat te blogu</string>
+  <string name="blogs_sharing_declined_toast">Ftesa u hodh poshtë</string>
   <string name="sharing_status_blog">Cilido që pajtohet te një blog mund ta ndajë atë me kontaktet e veta. Këtë blog po e ndani me kontaktet vijuese. Mund të ketë edhe pajtimtarë të tjerë, të cilët s\’mund t\’i shihni.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importoni Prurje RSS</string>
@@ -291,10 +293,10 @@
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Përditësuar Së Fundi:</string>
   <string name="blogs_rss_remove_feed">Hiqe Prurjen</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Jeni i sigurt se doni të hiqet kjo prurje dhe krejt postimet e saj?\nÇfarëdo postimi që keni ndarë me të tjerët, nuk do të hiqet nga pajisjet e personave të tjerë.</string>
-  <string name="blogs_rss_remove_feed_ok">Hiqe Prurjen</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Jeni i sigurt se doni të hiqet kjo prurje?\n\nPostimet do të hiqen nga pajisja juaj, por jo nga pajisjet e njerëzve të tjerë.\n\nÇfarëdo kontaktesh me të cilët e keni ndarë këtë prurje mund të reshtin së marri përditësime.</string>
+  <string name="blogs_rss_remove_feed_ok">Hiqe</string>
   <string name="blogs_rss_feeds_manage_delete_error">S\’u fshi dot prurja!</string>
-  <string name="blogs_rss_feeds_manage_empty_state">S\’keni importuar ende ndonjë prurje RSS.\n\nPse nuk klikoni mbi shenjën plus në cepin e sipërm djathtas që të shtoni të parën tuaj?</string>
+  <string name="blogs_rss_feeds_manage_empty_state">S’ka prurje RSS për shfaqje\n\nPrekni ikonën + që të importohet një prurje</string>
   <string name="blogs_rss_feeds_manage_error">Pati një problem me ngarkimin e prurjeve tuaja. Ju lutemi, riprovoni më vonë.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Rrjete</string>
@@ -331,12 +333,16 @@
   <string name="notification_settings_title">Njoftime</string>
   <string name="notify_private_messages_setting_title">Mesazhe private</string>
   <string name="notify_private_messages_setting_summary">Shfaq sinjalizime për mesazhe private</string>
+  <string name="notify_private_messages_setting_summary_26">Formësoni sinjalizimet për mesazhe private</string>
   <string name="notify_group_messages_setting_title">Mesazhe grupi</string>
   <string name="notify_group_messages_setting_summary">Shfaq sinjalizime për mesazhe grupi</string>
+  <string name="notify_group_messages_setting_summary_26">Formësoni sinjalizimet për mesazhi grupi</string>
   <string name="notify_forum_posts_setting_title">Postime forumi</string>
   <string name="notify_forum_posts_setting_summary">Shfaq sinjalizime për postime forumi</string>
+  <string name="notify_forum_posts_setting_summary_26">Formësoni sinjalizimet për postime forumi</string>
   <string name="notify_blog_posts_setting_title">Postime blogu</string>
   <string name="notify_blog_posts_setting_summary">Shfaq sinjalizime për postime blogu</string>
+  <string name="notify_blog_posts_setting_summary_26">Formësoni sinjalizime për postime blogu</string>
   <string name="notify_vibration_setting">Dridhu</string>
   <string name="notify_lock_screen_setting_title">Kyçe Ekranin</string>
   <string name="notify_lock_screen_setting_summary">Shfaqi njoftimet edhe me ekran të kyçur</string>
@@ -380,4 +386,6 @@
   <string name="permission_camera_request_body">Që të skanojë kodin QR, Briar-i lypset të hyjë te kamera.</string>
   <string name="permission_camera_denied_body">Keni mohuar hyrjen në kamera, por shtimi i kontakteve lyp përdorimin e kamerës.\n\nJu lutemi, shihni mundësinë e akordimit të hyrjes.</string>
   <string name="permission_camera_denied_toast">S\’u dhanë leje mbi kamerën</string>
+  <string name="qr_code">Kod QR</string>
+  <string name="show_qr_code_fullscreen">Shfaqe kodin QR sa tërë ekrani</string>
 </resources>

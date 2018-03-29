@@ -70,9 +70,6 @@
   <string name="show_onboarding">ヘルプを表示</string>
   <string name="help">ヘルプ</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">まだ連絡先がないようです。
-追加するには+アイコンをタップし、説明にしたがってください。
-なりすましやのぞき見を防ぐため、新しい連絡先は対面でしか追加できません。</string>
   <string name="date_no_private_messages">メッセージがありません。</string>
   <string name="message_hint">メッセージ入力</string>
   <string name="delete_contact">連絡先を削除</string>
@@ -97,11 +94,13 @@
   <!--Forum Sharing-->
   <!--Blogs-->
   <string name="blogs_publish_blog_post">公開</string>
+  <string name="blogs_remove_blog_ok">解除</string>
   <!--Blog Sharing-->
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import_button">インポート</string>
   <string name="blogs_rss_feeds_manage_author">著者:</string>
   <string name="blogs_rss_feeds_manage_updated">最終更新:</string>
+  <string name="blogs_rss_remove_feed_ok">解除</string>
   <!--Settings Network-->
   <string name="tor_network_setting_never">二度としない</string>
   <!--Settings Security and Panic-->
@@ -113,6 +112,7 @@
   <!--Settings Notifications-->
   <string name="notification_settings_title">通知</string>
   <string name="notify_private_messages_setting_title">プライベート・メッセージ</string>
+  <string name="notify_lock_screen_setting_title">ロック画面</string>
   <string name="notify_sound_setting_disabled">なし</string>
   <!--Settings Feedback-->
   <!--Link Warning-->

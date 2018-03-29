@@ -58,9 +58,7 @@
   <string name="show_onboarding">Pokazi Pomoc dijalog </string>
   <string name="help">Помоћ</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Čini se da ste ovdje novi i da nemate još kontakata.\n\nTaknite + ikonu na vrhu i pratite instrukcije da bi dodali neke prijatelje na listu.\n\nMolimo da upamtite: Mozete samo dodati nove kontakte postupkom lice-u-lice kako bi se spriječili pokušaji lažnog predstavljanja ili da bi pročitali poruke upućene vama.</string>
   <string name="date_no_private_messages">Nema poruka.</string>
-  <string name="no_private_messages">Ovo je pregled konverzacija.\n\nČini se da imamo nedostatak konverzacija.\n\nSamo taknite polje ya unos na dnu kako bi počeli konverzaciju.</string>
   <string name="message_hint">Ukucajte poruku</string>
   <string name="delete_contact">Izbrišite kontakt</string>
   <string name="dialog_title_delete_contact">Potvrdite brisanje kontakta</string>
@@ -101,7 +99,6 @@
   <string name="introduction_response_declined_received">%1$s je prihvatio-la upoznavanje sa kontaktom %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s kaže da je %2$s odbio-la upoznavanje.</string>
   <!--Private Groups-->
-  <string name="groups_list_empty">Ne učestvujete ni u jednoj grupi.\n\nTaknite + ikonu na vrhu da bi sami kreirali grupu ili tražite vašim kontaktima da vas pozovu u neku od njihovih grupa.</string>
   <string name="groups_created_by">Kreator je %s</string>
   <string name="groups_group_is_empty">Grupa je prazna</string>
   <string name="groups_group_is_dissolved">Ova grupa je rasformirana</string>
@@ -146,12 +143,10 @@
   <string name="groups_reveal_visible_revealed_by_contact">Veze kontakata su vidljive grupi (otkriveno od strane %s)</string>
   <string name="groups_reveal_invisible">Veze kontakata nisu vidljive grupi</string>
   <!--Forums-->
-  <string name="no_forums">Još nemate nijedan forum.\n\nZašto ne kreirate jedan sami dodirom na + ikonu pri vrhu?\n\nMožete takođe da pitate kontakte da podijele neki forum sa vama.</string>
   <string name="create_forum_title">Kreirajte forum</string>
   <string name="choose_forum_hint">Izaberite ime za vaš forum</string>
   <string name="create_forum_button">Kreirajte forum</string>
   <string name="forum_created_toast">Forum je kreiran</string>
-  <string name="no_forum_posts">Ovaj forum je prazan.\n\nKoristite ikonu olovke pri vrhu da napišete prvi post.\n\nOsjećate se usamljeno ovdje? Podijelite ovaj forum sa više vaših  kontakata!</string>
   <string name="no_posts">Nema postova</string>
   <string name="forum_new_entry_posted">Forumski zapis postovan</string>
   <string name="forum_new_message_hint">Novi zapis</string>
@@ -159,23 +154,17 @@
   <string name="btn_reply">Odgovor</string>
   <string name="forum_leave">Napustite forum</string>
   <string name="dialog_title_leave_forum">Potvrdite napuštanje foruma</string>
-  <string name="dialog_message_leave_forum">jeste li sigurni da želite da napustite forum? Kontakti kojima ste podijelili ovaj forum mogu prestati da dobijaju nove postove foruma. </string>
   <string name="dialog_button_leave">Napusti</string>
-  <string name="forum_left_toast">Napustili ste forum</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Dijelite forum</string>
   <string name="contacts_selected">Kontakti selektovani</string>
   <string name="activity_share_toolbar_header">Izaberite kontakte</string>
-  <string name="no_contacts_selector">Izgleda da ste ovdje novi i da nemate još kontakata.\n\nVratite se nazad ovdje kad dodate vaš prvi kontakt.</string>
   <string name="forum_shared_snackbar">Forum je podijeljen sa izabranim kontaktima</string>
   <string name="forum_share_message">Dodajte poruku (opciono)</string>
   <string name="forum_share_error">Došlo je do greške prilikom slanja ovog foruma.</string>
   <string name="forum_invitation_received">%1$s je podijelio-la forum \"%2$s\" sa vama.</string>
   <string name="forum_invitation_sent">Podijelili ste forum \"%1$s\" sa %2$s.</string>
   <string name="forum_invitations_title">Pozivnice za forum</string>
-  <string name="forum_invitation_exists">Vi ste već prihvatili poziv u ovaj forum. Prihvatanje dodatnih pozivnica će povećati i ojačati komunikaciju u forumu.</string>
-  <string name="forum_joined_toast">Pristupili ste forumu</string>
-  <string name="forum_declined_toast">Pozivnica za forum je odbijena</string>
   <string name="shared_by_format">Podijelio-la %s</string>
   <string name="forum_invitation_already_sharing">Već se dijeli</string>
   <string name="forum_invitation_response_accepted_sent">Prihvatili ste poziv u forum od %s.</string>
@@ -187,19 +176,14 @@
   <string name="shared_with">Pdijeljeno sa %1$d (%2$d na vezi)</string>
   <string name="nobody">Niko</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Ovaj blog je trenutno prazan.\n\nIli autor nije još ništa napisao, ili osoba koja je podijelila ovaj blog sa vama treba da bude na vezi, kako bi postovi bili sinhronizovani.</string>
   <string name="read_more">pročitaj ostalo</string>
   <string name="blogs_write_blog_post">Napiši Blog Post</string>
-  <string name="blogs_write_blog_post_body_hint">Ukucajte vaš blog post ovdje</string>
   <string name="blogs_publish_blog_post">Objavi</string>
   <string name="blogs_blog_post_created">Blog post je kreiran</string>
   <string name="blogs_blog_post_received">Primljen je novi blog post</string>
   <string name="blogs_blog_post_scroll_to">Skroluj do</string>
-  <string name="blogs_feed_empty_state">Ovo je globalni blog kanal.\n\nIzgleda da niko još uvjek nije ništa blogovao.\n\nBudi prvi i dotakni ikonu olovke da napišeš novi blog post.</string>
   <string name="blogs_remove_blog">Ukloni blog</string>
-  <string name="blogs_remove_blog_dialog_message">Jeste li sigurni da želite da uklonite ovaj blog i sve postove?\nUzmite u obzir da ovo neće ukloniti blog sa uređaja drugih osoba.</string>
-  <string name="blogs_remove_blog_ok">Uklonite blog</string>
-  <string name="blogs_blog_removed">Blog uklonjen</string>
+  <string name="blogs_remove_blog_ok">Ukloni</string>
   <string name="blogs_reblog_comment_hint">Dodajte komentar (opciono)</string>
   <string name="blogs_reblog_button">Reblogujte</string>
   <!--Blog Sharing-->
@@ -214,8 +198,6 @@
   <string name="blogs_sharing_invitation_received">%1$s je podijelio-la blog \"%2$s\" sa vama.</string>
   <string name="blogs_sharing_invitation_sent">Podijelili ste blog \"%1$s\" sa %2$s.</string>
   <string name="blogs_sharing_invitations_title">Blog pozivnice</string>
-  <string name="blogs_sharing_joined_toast">Potpisani ste na blog</string>
-  <string name="blogs_sharing_declined_toast">Blog poziv je Odbijen</string>
   <string name="sharing_status_blog">Ko god se potpiše za ovaj blog može da ga podijeli sa svojim kontaktima. Vi dijelite blog sa slijedećim kontaktima. Moguće je da ima još potpisnika koje nemožete da vidite.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Uvezi RSS kanal</string>
@@ -227,10 +209,8 @@
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Zadnje ažuriranje:</string>
   <string name="blogs_rss_remove_feed">Uklonite kanal</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Jeste li sigurni da želite da uklonite ovaj kanal i sve njegove postove?\nBilo koji post koji ste podijelili se neće ukloniti sa uređaja drugih osoba.</string>
-  <string name="blogs_rss_remove_feed_ok">Ukloni kanal</string>
+  <string name="blogs_rss_remove_feed_ok">Ukloni</string>
   <string name="blogs_rss_feeds_manage_delete_error">Kanal nije bilo moguće ukloniti!</string>
-  <string name="blogs_rss_feeds_manage_empty_state">Nijeste uvezli nijedan RSS kanal.\n\nYZašto nebi dotakli plus znak na vrhu desnog dijela ekrana da dodate prvi?</string>
   <string name="blogs_rss_feeds_manage_error">Došlo je do problema pri učitavanju vaših kanala. Probajte opet kasnije.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Mreže</string>

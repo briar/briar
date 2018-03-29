@@ -94,9 +94,7 @@
   <string name="fix">ठीक कर</string>
   <string name="help">सहायता</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">ऐसा लगता है कि आप यहां नए हैं और अभी तक कोई संपर्क नहीं है। \ N \ n शीर्ष पर + आइकन टैप करें और कुछ मित्रों को अपनी सूची में जोड़ने के लिए निर्देशों का पालन करें। \ N \ n कृपया याद रखें: आप केवल नए संपर्कों को आमने-सामने जोड़ सकते हैं किसी भी व्यक्ति को भविष्य में आपके प्रतिरूपण या पढ़ने से रोकने के लिए -फाइल</string>
   <string name="date_no_private_messages">कोई संदेश नहीं।</string>
-  <string name="no_private_messages">यह वार्तालाप दृश्य है। \ N \ n वार्तालाप की कमी महसूस होती है। \ N \ n वार्तालाप शुरू करने के लिए बस नीचे इनपुट फ़ील्ड को टैप करें।</string>
   <string name="message_hint">संदेश लिखें</string>
   <string name="delete_contact">संपर्क मिटा दें</string>
   <string name="dialog_title_delete_contact">संपर्क हटाने की पुष्टि करें</string>
@@ -143,7 +141,6 @@
     <item quantity="other">%dनया संपर्क जोड़ा।</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">आप किसी भी समूह में भाग नहीं ले रहे हैं। \ N \ n शीर्ष पर + आइकन टैप करें, खुद को समूह बनाएं या अपने संपर्कों से अपने समूह में से किसी एक को आमंत्रित करें।</string>
   <string name="groups_created_by">के द्वारा बनाई गई%s</string>
   <plurals name="messages">
     <item quantity="one">संदेशों%d</item>
@@ -196,12 +193,10 @@
   <string name="groups_reveal_visible_revealed_by_contact">संपर्क संबंध समूह को दिखाई देता है (%s द्वारा पता चला है)</string>
   <string name="groups_reveal_invisible">संपर्क संबंध समूह को दिखाई नहीं दे रहा है</string>
   <!--Forums-->
-  <string name="no_forums">आपके पास अभी तक कोई मंच नहीं है। \ N \ n शीर्ष पर + आइकन टैप करके आप अपने आप को एक नया क्यों नहीं बनाते? \ N \ n आप अपने संपर्कों को अपने साथ फ़ोरम साझा करने के लिए भी कह सकते हैं</string>
   <string name="create_forum_title">फोरम बनाएँ</string>
   <string name="choose_forum_hint">अपने मंच का नाम चुनें</string>
   <string name="create_forum_button">फोरम बनाएँ</string>
   <string name="forum_created_toast">फोरम बनाया</string>
-  <string name="no_forum_posts">यह फ़ोरम रिक्त है। \ N \ n पहली पोस्ट लिखने के लिए शीर्ष पर पेन आइकन का उपयोग करें। \ N \ n यहां अकेले आना? इस फोरम को अपने अधिक संपर्कों के साथ साझा करें!</string>
   <string name="no_posts">कोई पोस्ट नहीं</string>
   <plurals name="posts">
     <item quantity="one">%dपदों</item>
@@ -213,23 +208,17 @@
   <string name="btn_reply">जवाब दें</string>
   <string name="forum_leave">फोरम छोड़ें</string>
   <string name="dialog_title_leave_forum">फोरम छोड़ने की पुष्टि करें</string>
-  <string name="dialog_message_leave_forum">क्या आप वाकई इस मंच को छोड़ना चाहते हैं? जिन संपर्कों ने आप इस मंच को साझा किया है, वे इस फ़ोरम के अपडेट प्राप्त करने से कट हो सकते हैं।</string>
   <string name="dialog_button_leave">छोड़ना</string>
-  <string name="forum_left_toast">वाम फोरम</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">शेयर फ़ोरम</string>
   <string name="contacts_selected">संपर्क चयनित</string>
   <string name="activity_share_toolbar_header">संपर्क चुनें</string>
-  <string name="no_contacts_selector">ऐसा लगता है कि आप यहां नए हैं और अभी तक कोई संपर्क नहीं है। \ N \ n कृपया अपना पहला संपर्क जोड़ने के बाद यहां वापस आएँ।</string>
   <string name="forum_shared_snackbar">चयनित संपर्कों के साथ फ़ोरम साझा किया गया</string>
   <string name="forum_share_message">एक संदेश जोड़ें (वैकल्पिक)</string>
   <string name="forum_share_error">इस फ़ोरम को साझा करने में कोई त्रुटि थी।</string>
   <string name="forum_invitation_received">%1$sने आपके साथ \"%2$s\" मंच साझा किया है</string>
   <string name="forum_invitation_sent">आपने%2$s के साथ \"%1$s\" मंच साझा किया है</string>
   <string name="forum_invitations_title">फोरम निमंत्रण</string>
-  <string name="forum_invitation_exists">आपने पहले से ही इस मंच के लिए एक आमंत्रण स्वीकार कर लिया है। अधिक निमंत्रण स्वीकार करना मंच में संचार बढ़ेगा और मजबूत करेगा।</string>
-  <string name="forum_joined_toast">फ़ोरम में शामिल</string>
-  <string name="forum_declined_toast">फोरम आमंत्रण अस्वीकृत</string>
   <string name="shared_by_format">%s द्वारा साझा किया गया</string>
   <string name="forum_invitation_already_sharing">पहले से ही साझा करना</string>
   <string name="forum_invitation_response_accepted_sent">आपने%s से मंच निमंत्रण स्वीकार कर लिया है</string>
@@ -245,19 +234,14 @@
   </plurals>
   <string name="nobody">कोई भी नहीं</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">यह ब्लॉग वर्तमान में खाली है। \ N \ n या तो लेखक ने अभी तक कुछ भी लिखा नहीं है, या जिस व्यक्ति ने आपके साथ इस ब्लॉग को साझा किया है, वह ऑनलाइन आना होगा, ताकि पोस्ट सिंक्रनाइज़ हो सकें।</string>
   <string name="read_more">अधिक पढ़ें</string>
   <string name="blogs_write_blog_post">ब्लॉग पोस्ट लिखें</string>
-  <string name="blogs_write_blog_post_body_hint">अपना ब्लॉग पोस्ट यहाँ लिखें</string>
   <string name="blogs_publish_blog_post">प्रकाशित करना</string>
   <string name="blogs_blog_post_created">ब्लॉग पोस्ट बनाया</string>
   <string name="blogs_blog_post_received">नया ब्लॉग पोस्ट प्राप्त हुआ</string>
   <string name="blogs_blog_post_scroll_to">स्क्रॉल टू</string>
-  <string name="blogs_feed_empty_state">यह वैश्विक ब्लॉग फीड है। \ N \ n ऐसा लगता है कि कोई भी ब्लॉग को कुछ भी नहीं, फिर भी। \ N \ n एक नया ब्लॉग पोस्ट लिखने के लिए पहले और कलम आइकन टैप करें।</string>
   <string name="blogs_remove_blog">ब्लॉग निकालें</string>
-  <string name="blogs_remove_blog_dialog_message">क्या आप वाकई इस ब्लॉग और सभी पोस्ट को हटाना चाहते हैं? \ नोट यह ब्लॉग को अन्य लोगों के उपकरणों से नहीं हटाएगा</string>
-  <string name="blogs_remove_blog_ok">ब्लॉग निकालें</string>
-  <string name="blogs_blog_removed">ब्लॉग निकाला गया</string>
+  <string name="blogs_remove_blog_ok">हटाना</string>
   <string name="blogs_reblog_comment_hint">एक टिप्पणी जोड़ें (वैकल्पिक)</string>
   <string name="blogs_reblog_button">पुनः ब्लॉग</string>
   <!--Blog Sharing-->
@@ -272,8 +256,6 @@
   <string name="blogs_sharing_invitation_received">%1$sने आपके साथ \"%2$s\" ब्लॉग को साझा किया है</string>
   <string name="blogs_sharing_invitation_sent">आपने %1$s को%2$s के साथ साझा किया है</string>
   <string name="blogs_sharing_invitations_title">ब्लॉग आमंत्रण</string>
-  <string name="blogs_sharing_joined_toast">ब्लॉग के लिए सदस्यता लिया</string>
-  <string name="blogs_sharing_declined_toast">ब्लॉग आमंत्रण अस्वीकृत</string>
   <string name="sharing_status_blog">जो कोई भी ब्लॉग के लिए सदस्यता लेता है, उसे अपने संपर्कों के साथ साझा कर सकता है आप इस ब्लॉग को निम्नलिखित संपर्कों के साथ साझा कर रहे हैं। ऐसे अन्य सदस्य भी हो सकते हैं जिन्हें आप नहीं देख सकते हैं।</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">आरएसएस फ़ीड आयात करें</string>
@@ -285,10 +267,8 @@
   <string name="blogs_rss_feeds_manage_author">लेखक:</string>
   <string name="blogs_rss_feeds_manage_updated">आखरी अपडेट:</string>
   <string name="blogs_rss_remove_feed">फ़ीड निकालें</string>
-  <string name="blogs_rss_remove_feed_dialog_message">क्या आप वाकई इस फ़ीड और सभी पदों को निकालना चाहते हैं? \ N आपके द्वारा साझा की गईं अन्य पोस्ट अन्य लोगों के डिवाइस से नहीं हटाई जाएंगी</string>
-  <string name="blogs_rss_remove_feed_ok">फ़ीड निकालें</string>
+  <string name="blogs_rss_remove_feed_ok">हटाना</string>
   <string name="blogs_rss_feeds_manage_delete_error">फीड हटाया नहीं जा सका!</string>
-  <string name="blogs_rss_feeds_manage_empty_state">आपने किसी भी आरएसएस फ़ीड का आयात नहीं किया है। \ N \ n आप पहली बार जोड़ने के लिए शीर्ष दाएं स्क्रीन कोने में प्लस क्यों नहीं क्लिक करते हैं?</string>
   <string name="blogs_rss_feeds_manage_error">आपकी फ़ीड लोड करने में एक समस्या थी बाद में पुन: प्रयास करें।</string>
   <!--Settings Network-->
   <string name="network_settings_title">नेटवर्क</string>

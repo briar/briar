@@ -31,7 +31,9 @@
   <string name="dialog_title_lost_password">Wachtwoord vergeten</string>
   <string name="dialog_message_lost_password">Je Briar-account is versleuteld opgeslagen op je apparaat, niet in de cloud, dus kunnen we je wachtwoord niet resetten. Wil je je account verwijderen en opnieuw beginnen?\n\nLet op: Je identiteiten, contacten en berichten zullen permanent verloren gaan.</string>
   <string name="startup_failed_notification_title">Briar kon niet opstarten</string>
+  <string name="startup_failed_notification_text">Tap voor meer informatie.</string>
   <string name="startup_failed_activity_title">Opstarten Briar mislukt</string>
+  <string name="startup_failed_data_too_new_error">Deze versie van de is app is te oud. Upgrade a.u.b. naar de laatste versie en probeer het nog een keer.</string>
   <string name="startup_failed_service_error">Briar kon de vereiste plug-in niet starten. Herinstalleren van Briar lost dit probleem meestal op. Let op dat je al je je account en alle gegevens die daaraan vast zitten zal verliezen omdat Briar geen centrale servers gebruikt om gegevens op te slaan.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Dit is een testversie van Briar. Je account verloopt binnen %d dag en kan niet worden vernieuwd.</item>
@@ -39,6 +41,8 @@
   </plurals>
   <string name="expiry_update">De verloopdatum voor de test is vooruitgeschoven. Je account verloopt nu binnen %d dagen.</string>
   <string name="expiry_date_reached">Deze software is verlopen.\nBedankt vor het testen!</string>
+  <string name="startup_open_database">Database aan het ontsleutelen…</string>
+  <string name="startup_migrate_database">Database aan het upgraden…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Open de navigatielade</string>
   <string name="nav_drawer_close_description">Sluit de navigatielade</string>
@@ -93,10 +97,9 @@
   <string name="show_onboarding">Toon helpdialoog</string>
   <string name="fix">Fiks</string>
   <string name="help">Help</string>
+  <string name="sorry">Excuses</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Zo te zien ben je nieuw hier en heb je nog geen contacten.\n\nTap op het +-icoon bovenaan en volg de instructies om een aantal vrienden aan je list toe te voegen.\n\nHerinner a.u.b.: Je kan alleen in levenden lijve nieuwe contacten toevoevoegen om te voorkomen dat anderen zich als jou voor kunnen doen of in de toekomst je berichten kunnen lezen.</string>
   <string name="date_no_private_messages">Geen berichten.</string>
-  <string name="no_private_messages">Dit is de het gespreksscherm.\n\nHet ziet ernaar uit dat er nog geen gesprek heeft plaatsgevonden.\n\nEenvoudigweg tap op het invoerveld onderaan om een gesprek te starten.</string>
   <string name="message_hint">Typ een bericht</string>
   <string name="delete_contact">Verwijder bericht</string>
   <string name="dialog_title_delete_contact">Bevestig verwijderen contact</string>
@@ -114,6 +117,7 @@
   <string name="contact_already_exists">Contact %s bestaat al</string>
   <string name="contact_exchange_failed">Uitwisselen contact is mislukt</string>
   <string name="qr_code_invalid">De QR-code is ongeldig</string>
+  <string name="qr_code_unsupported">De QR-code die je probeert te scannen is van een oude ver van %s die niet meer wordt ondersteund.\n\nControleer a.u.b. dat jullie beide de laatste versie gebruiken en probeer het nog een keer.</string>
   <string name="camera_error">Camerafout</string>
   <string name="connecting_to_device">Aan het verbinden met apparaat\u2026</string>
   <string name="authenticating_with_device">Aan het authentificeren met apparaat\u2026</string>
@@ -143,7 +147,6 @@
     <item quantity="other">%d nieuwe contacten zijn toegevoegd.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Je hebt nog geen groepen gebruikt.\n\nTap op het +-icoon om zelf een groep aan te maken of vraag je contacten of ze je voor een van hun groepen willen uitnodigen.</string>
   <string name="groups_created_by">Is aangemaakt door %s</string>
   <plurals name="messages">
     <item quantity="one">%d bericht</item>
@@ -196,12 +199,10 @@
   <string name="groups_reveal_visible_revealed_by_contact">Contactrelaties zijn zichtbaar voor de groep (geopenbaard door %s)</string>
   <string name="groups_reveal_invisible">Contactrelatie is niet zichtbaar voor de groep</string>
   <!--Forums-->
-  <string name="no_forums">Je hebt nog heen fora.\n\nWaarom maak je er zelf geen aan door te tappen op het +-icoon bovenin?\n\nJe kan ook je contacten vragen om fora met je te delen.</string>
   <string name="create_forum_title">Maak forum aan</string>
   <string name="choose_forum_hint">Voer een naam in voor je forum</string>
   <string name="create_forum_button">Maak forum aan</string>
   <string name="forum_created_toast">Forum aangemaakt</string>
-  <string name="no_forum_posts">Dit forum is leeg.\n\nGebruik het penicoon bovenin om om de eerste post op te stellen.\n\nVoel je je hier eenzaam? Deel dit forum met meerdere van je contacten.</string>
   <string name="no_posts">Geen posts</string>
   <plurals name="posts">
     <item quantity="one">%d post</item>
@@ -213,23 +214,17 @@
   <string name="btn_reply">Antwoord</string>
   <string name="forum_leave">Verlaat forum</string>
   <string name="dialog_title_leave_forum">Bevestig verlaten forum</string>
-  <string name="dialog_message_leave_forum">Weet je zeker dat je dit forum wil verlaten? Contacten die je via dit forum hebt gedeeld kunnen afgesloten worden van het ontvangen van updates van dit forum.</string>
   <string name="dialog_button_leave">Verlaat</string>
-  <string name="forum_left_toast">Forum verlaten</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Deel forum</string>
   <string name="contacts_selected">Contacten geselecteerd</string>
   <string name="activity_share_toolbar_header">Kies contacten</string>
-  <string name="no_contacts_selector">Het ziet eruit dat je hier nieuw bent en nog geen contacten hebt.\n\nKom a.u.b. later hier terug om je eerste contact toe te voegen.</string>
   <string name="forum_shared_snackbar">Forum is gedeeld met uitgekozen contacten</string>
   <string name="forum_share_message">Voeg een bericht toe (optioneel)</string>
   <string name="forum_share_error">Er trad een fout op bij het delen van dit forum.</string>
   <string name="forum_invitation_received">%1$s heeft het forum \"%2$s\" met je gedeeld.</string>
   <string name="forum_invitation_sent">Jij hebt het forum \"%1$s\" gedeeld met %2$s.</string>
   <string name="forum_invitations_title">Forumuitnodigingen</string>
-  <string name="forum_invitation_exists">Je hebt al een uitnodiging van dit forum geaccepteerd. Het accepteren van meer uitnodigingen zal de communicatie in het forum laten groeien en versterken.</string>
-  <string name="forum_joined_toast">Forum lid geworden</string>
-  <string name="forum_declined_toast">Forumuitnodiging afgewezen</string>
   <string name="shared_by_format">Is gedeeld door %s</string>
   <string name="forum_invitation_already_sharing">Reeds gedeeld</string>
   <string name="forum_invitation_response_accepted_sent">Je hebt een forumuitnodiging geaccepteerd van %s.</string>
@@ -245,19 +240,14 @@
   </plurals>
   <string name="nobody">Niemand</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Deze blog is momenteel leeg.\n\nNog de auteur heeft iets geschreven, nog de personen met wie deze blog met je hebben gedeeld moeten nog online komen zodat posts gesynchroniseerd kunnen worden.</string>
   <string name="read_more">lees meer</string>
   <string name="blogs_write_blog_post">Schrijf blogpost</string>
-  <string name="blogs_write_blog_post_body_hint">Typ hier je blogpost</string>
   <string name="blogs_publish_blog_post">Publiceer</string>
   <string name="blogs_blog_post_created">Blogpost aangemaakt</string>
   <string name="blogs_blog_post_received">Nieuwe blogpost ontvangen</string>
   <string name="blogs_blog_post_scroll_to">Scroll naar</string>
-  <string name="blogs_feed_empty_state">Dit is de globale blogfeed.\n\nHet ziet ernaar uit dat nog niemand iets geblogd heeft.\n\nWees de eerste en tap op de pen om een nieuwe blogpost te schrijven.</string>
   <string name="blogs_remove_blog">Verwijder bblog</string>
-  <string name="blogs_remove_blog_dialog_message">Weet je zeker dat je deze blog en alle bijbehorende posts wil verwijderen?\n\nMerk op dat deze blog niet van apparaten van andere mensen wordt verwijderd?</string>
-  <string name="blogs_remove_blog_ok">Verwijder blog</string>
-  <string name="blogs_blog_removed">Blog is verwijderd</string>
+  <string name="blogs_remove_blog_ok">Verwijderen</string>
   <string name="blogs_reblog_comment_hint">Voeg commentaar toe (optioneel)</string>
   <string name="blogs_reblog_button">Reblog</string>
   <!--Blog Sharing-->
@@ -272,8 +262,6 @@
   <string name="blogs_sharing_invitation_received">%1$s heeft de blog \"%2$s\" met je gedeeld.</string>
   <string name="blogs_sharing_invitation_sent">Je hebt de blog \"%1$s\" gedeeld met %2$s.</string>
   <string name="blogs_sharing_invitations_title">Bloguitnodigingen</string>
-  <string name="blogs_sharing_joined_toast">Lid geworden van blog</string>
-  <string name="blogs_sharing_declined_toast">Bloguitnodiging afgewezen</string>
   <string name="sharing_status_blog">Alle leden die lid worden van een blog kunnen deze blog delen met hun contacten. Je deelt deze blog al met de volgende contacten. Er kunnen ook andere leden zijn die je niet kan zien.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importeer RSS-feed</string>
@@ -285,10 +273,8 @@
   <string name="blogs_rss_feeds_manage_author">Auteur:</string>
   <string name="blogs_rss_feeds_manage_updated">Laatst bijgewerkt:</string>
   <string name="blogs_rss_remove_feed">Verwijder feed</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Weet je zeker dat je deze feed en alle bijbehorende posts wil verwijderen?\nPosts die je hebt gedeeld worden niet van apparaten van anderen verwijderd.</string>
-  <string name="blogs_rss_remove_feed_ok">Verwijder feed</string>
+  <string name="blogs_rss_remove_feed_ok">Verwijderen</string>
   <string name="blogs_rss_feeds_manage_delete_error">De feed kon niet worden verwijderd.</string>
-  <string name="blogs_rss_feeds_manage_empty_state">Je hebt nog geen RSS-feeds geïmporteerd.\n\nWaarom klik je niet op de plus in de rechterbovenhoek van het scherm om de eerste toe te voegen?</string>
   <string name="blogs_rss_feeds_manage_error">Er was een probleem met het laden van je feeds. Probeer het later nog een keer.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Netwerken</string>
@@ -367,6 +353,8 @@
   <string name="progress_title_logout">Uitloggen van Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Schermoverlay detecteerd</string>
+  <string name="screen_filter_body">Een andere app ligt zich bovenop Briar. Om je veiligheid te beschermen zal Briar niet reageren op aanrakingen als er een andere app bovenop ligt.\n\nDe volgende apps proberen waarschijnlijk dit te doen:\n\n%1$s</string>
+  <string name="screen_filter_allow">Sta toe dat deze apps bovenop te liggen</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Cameratoestemming</string>
   <string name="permission_camera_request_body">Om de QR-code te scannen moet Briar toegang hebben tot de camera.</string>

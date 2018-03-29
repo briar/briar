@@ -75,9 +75,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="show_onboarding">Mostrar l’ajuda</string>
   <string name="help">Ajuda</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Sembla que sètz novèl aquí e qu’avètz pas cap de contacte.\n\nQuichatz l’icòna ennaut e seguètz las instruccions per n’apondre. Informacion : podètz pas qu’apondre lo monde se se tròban en fàcia de vos, aquò per evitar qu’òm vos raube l’identitat e que vòstres messatges sián legits per d’autres.</string>
   <string name="date_no_private_messages">Cap messatge</string>
-  <string name="no_private_messages">Aquò es la vista de las conversacions.\n\nSembla que n’i a pas fòrça.\n\nQuichatz lo camp tèxte per ne començar una.</string>
   <string name="message_hint">Picatz lo messatge</string>
   <string name="delete_contact">Suprimir lo contacte</string>
   <string name="dialog_title_delete_contact">Confirmatz la supression del contacte</string>
@@ -122,7 +120,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
     <item quantity="other">%d nòus contactes ajustats.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Sètz pas sòci de cap grop.\n\nTocatz l’icòna + ennaut per ne crear un o demandatz a vòstres contactes de vos convidar a un de lors grops.</string>
   <string name="groups_created_by">Fondat per %s</string>
   <plurals name="messages">
     <item quantity="one">1 messatge</item>
@@ -175,12 +172,10 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="groups_reveal_visible_revealed_by_contact">Vòstre ligam – revelat per %s – amb lo contacte es invisible pel grop</string>
   <string name="groups_reveal_invisible">Vòstre ligam amb lo contacte es invisible pel grop</string>
   <!--Forums-->
-  <string name="no_forums">Avètz pas de fòrum\n\n Perque pas ne crear un en tocar l’icòna + ennaut ?\n\nPodètz tanben demandar a vòstres contactes de partejar de fòrums amb vos.</string>
   <string name="create_forum_title">Crear un fòrum</string>
   <string name="choose_forum_hint">Donar un nom al fòrum</string>
   <string name="create_forum_button">Crear un fòrum</string>
   <string name="forum_created_toast">Fòrum creat</string>
-  <string name="no_forum_posts">Aqueste fòrum es void.\n\nUtilizatz l’icòna del gredon ennaut per escriure la primièra publicacion.\n\n Vos sentez soleton aquí ? Partejatz aqueste fòrum amb d’autres contactes !</string>
   <string name="no_posts">Cap publicacion</string>
   <plurals name="posts">
     <item quantity="one">%d publicacion</item>
@@ -192,23 +187,17 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="btn_reply">Respondre</string>
   <string name="forum_leave">Quitar lo fòrum</string>
   <string name="dialog_title_leave_forum">Confirmar la sortida del fòrum</string>
-  <string name="dialog_message_leave_forum">Sètz segur de voler quitar lo fòrum ? Los contactes qu’avètz convidats aquí auràn pas mai de mesa a jorn.</string>
   <string name="dialog_button_leave">Quitar</string>
-  <string name="forum_left_toast">Fòrum daissat</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Partejar lo fòrum</string>
   <string name="contacts_selected">Contactes seleccionats</string>
   <string name="activity_share_toolbar_header">Causissètz de contactes</string>
-  <string name="no_contacts_selector">Semblatz novèl aquí, avètz pas encara de contactes.\n\nTornatz aquí quand auretz apondut vòstre primièr contacte.</string>
   <string name="forum_shared_snackbar">Fòrom partejat amb los contactes causits</string>
   <string name="forum_share_message">Apondre un messatge (opcional)</string>
   <string name="forum_share_error">Error en partejar lo fòrum</string>
   <string name="forum_invitation_received">%1$s a partejat lo fòrom « %2$s » amb vos.</string>
   <string name="forum_invitation_sent">Avètz partejat lo fòrom « %1$s » amb %2$s.</string>
   <string name="forum_invitations_title">Convidacion al fòrum</string>
-  <string name="forum_invitation_exists">Avètz acceptat una convidacion a aqueste fòrum. En acceptar mai convidacion, fasètz mai fòrta la comunicacion e visibilitat del fòrum.</string>
-  <string name="forum_joined_toast">Fòrums que participi</string>
-  <string name="forum_declined_toast">Convidacions refusadas</string>
   <string name="shared_by_format">Partejat per %s</string>
   <string name="forum_invitation_already_sharing">Ja a partejar</string>
   <string name="forum_invitation_response_accepted_sent">Avètz acceptat la convidacion al fòrum de %s.</string>
@@ -224,19 +213,14 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   </plurals>
   <string name="nobody">Degun</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Aqueste blòg es void pel moment. Doas possibilitats : l’autor a pas encara escrich quicòm o alara la persona que vos a marcat al fòrum es pas en linha e la sincronizacion es pas encara realizada.</string>
   <string name="read_more">Legir la seguida</string>
   <string name="blogs_write_blog_post">Escriure un article de blòg</string>
-  <string name="blogs_write_blog_post_body_hint">Marcatz aquí vòstre messatge pel blòg</string>
   <string name="blogs_publish_blog_post">Publicar</string>
   <string name="blogs_blog_post_created">Article salvat</string>
   <string name="blogs_blog_post_received">Nòu article recebut</string>
   <string name="blogs_blog_post_scroll_to">Anar a</string>
-  <string name="blogs_feed_empty_state">Aquò es lo flux global dels blògs.\n\n Sembla que degun aja escrich aquí.\n\n Siatz lo primièr, tocatz l’icòna de l’estilò per escriure un article al blòg.</string>
   <string name="blogs_remove_blog">Suprimir lo blòg</string>
-  <string name="blogs_remove_blog_dialog_message">Sètz segur de voler suprimir aqueste blòg e totes sos messatges ?\n Aquò suprimirà pas lo blòg suls aparelhs dels autres.</string>
-  <string name="blogs_remove_blog_ok">Suprimir lo blòg</string>
-  <string name="blogs_blog_removed">Blòg mandat al diable</string>
+  <string name="blogs_remove_blog_ok">Suprimir</string>
   <string name="blogs_reblog_comment_hint">Apondre un comentari (opcional)</string>
   <string name="blogs_reblog_button">Partejar</string>
   <!--Blog Sharing-->
@@ -251,8 +235,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="blogs_sharing_invitation_received">%1$s a partejat lo blòg « %2$s » amb vos.</string>
   <string name="blogs_sharing_invitation_sent">Avètz partejat lo blòg « %1$s » amb %2$s.</string>
   <string name="blogs_sharing_invitations_title">Convidacion al blòg</string>
-  <string name="blogs_sharing_joined_toast">Seguidors del blòg</string>
-  <string name="blogs_sharing_declined_toast">Convidacions al blòg refusadas</string>
   <string name="sharing_status_blog">Qual que siá seguidor d’un blòg pòt lo partejar amb sos contactes. Partejatz lo blòg amb los contactes seguents. I a benlèu mai de monde qu’o seguen que vesètz pas.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importar de fluxes RSS</string>
@@ -264,10 +246,8 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="blogs_rss_feeds_manage_author">Autor :</string>
   <string name="blogs_rss_feeds_manage_updated">Darrièra mesa a jorn :</string>
   <string name="blogs_rss_remove_feed">Suprimir lo flux</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Sètz segur de voler suprimir aqueste flux e sos messatges ?\nLos messatges qu’avètz partejat seràn pas suprimits dels aparelhs dels autres.</string>
-  <string name="blogs_rss_remove_feed_ok">Suprimir lo flux</string>
+  <string name="blogs_rss_remove_feed_ok">Suprimir</string>
   <string name="blogs_rss_feeds_manage_delete_error">Impossible de suprimir lo flux !</string>
-  <string name="blogs_rss_feeds_manage_empty_state">Avètz pas importat cap flux RSS.\n\nPerque pas n’apondre un en clicar sul pichon + a man dreita ennaut ?</string>
   <string name="blogs_rss_feeds_manage_error">Error en cargar vòstres fluxes. Ensajatz mai tard.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Ret</string>

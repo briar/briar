@@ -73,9 +73,7 @@
   <string name="show_onboarding">Yardım Penceresini Göster</string>
   <string name="help">Yardım</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Görünüşe göre burada yeni başladınız ve henüz bir iletişim kurmadınız.\n\n en üstte bulunan + simgesine dokunun ve talimatları izleyerek listenize bazı arkadaşlar ekleyin.\n\nLütfen unutmayın: Gelecekte başkalarının kimliğinize bürünmesini veya mesajlarınızı okumasını önlemek için yeni kişileri sadece yüz yüze ekleyebilirsiniz.</string>
   <string name="date_no_private_messages">Hiç mesaj yok.</string>
-  <string name="no_private_messages">Bu görüşme penceresidir.\n\n Henüz hiç bir şey yazılmamış gibi görünüyor.\n\nBir konuşmaya başlamak için alt taraftaki giriş alanına hafifçe dokunun.</string>
   <string name="message_hint">Mesaj yazın</string>
   <string name="delete_contact">Kişiyi sil</string>
   <string name="dialog_title_delete_contact">Kişi Silmeyi Onayla</string>
@@ -119,7 +117,6 @@
     <item quantity="other">%d yeni kişi eklendi.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Şu anda herhangi bir gruba katılamazsınız.\n\n Kendiniz bir grup oluşturmak için + simgesini tıklayın veya kişilerinizden sizi gruplarından birine davet etmesini isteyin.</string>
   <string name="groups_created_by">%s tarafından oluşturuldu</string>
   <plurals name="messages">
     <item quantity="one">%d mesaj</item>
@@ -171,11 +168,9 @@
   <string name="groups_reveal_visible_revealed_by_contact">Kişi ilişkileri grup tarafından görülebilir (%s görünür yaptı)</string>
   <string name="groups_reveal_invisible">Kişi ilişkisi grup tarafından görülemez</string>
   <!--Forums-->
-  <string name="no_forums">Şu anda hiç forumunuz yok.\n\nÜstteki + simgesine dokunarak neden kendiniz yeni bir tane oluşturmuyorsunuz?\n\nAyrıca kişilerinizden sizinle forum paylaşmalarını isteyebilirsiniz.</string>
   <string name="create_forum_title">Forumu Ouştur</string>
   <string name="create_forum_button">Forumu Ouştur</string>
   <string name="forum_created_toast">Forum Oluşturuldu</string>
-  <string name="no_forum_posts">Bu forum boş\n\nİlk gönderiyi oluşturmak için üstteki kalem simgesini kullanın.\n\nBurada kendinizi yalnız hissediyor musunuz? Bu forumu daha fazla kişiyle paylaşın!</string>
   <string name="no_posts">Gönderi yok</string>
   <plurals name="posts">
     <item quantity="one">%d gönderi</item>
@@ -187,22 +182,16 @@
   <string name="btn_reply">Cevapla</string>
   <string name="forum_leave">Forumdan Ayrıl</string>
   <string name="dialog_title_leave_forum">Forumdan Ayrılmayı Onayla</string>
-  <string name="dialog_message_leave_forum">Bu forumdan ayrılmak istediğinizden emin misiniz? Bu forumu paylaştığınız kişilerin, bu foruma ilişkin güncellemeleri almaları kesilebilir.</string>
   <string name="dialog_button_leave">Ayrıl</string>
-  <string name="forum_left_toast">Forumdan Ayrıl</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Forumu Paylaş</string>
   <string name="contacts_selected">Kişiler Seçildi</string>
   <string name="activity_share_toolbar_header">Kişi Seç</string>
-  <string name="no_contacts_selector">Görünüşe göre burada yenisiniz ve henüz iletişim kuramıyorsunuz.\n\nİlk kişinizi ekledikten sonra lütfen buraya geri gelin.</string>
   <string name="forum_shared_snackbar">Forum, seçilen kişiler ile paylaşıldı</string>
   <string name="forum_share_error">Forumu paylaşırken bir hata meydana geldi.</string>
   <string name="forum_invitation_received">%1$s sizinle \"%2$s\" forumunu paylaştı.</string>
   <string name="forum_invitation_sent">\"%1$s\" forumunu %2$s ile paylaştınız.</string>
   <string name="forum_invitations_title">Forum Davetleri</string>
-  <string name="forum_invitation_exists">Zaten bu foruma ait bir  davetiyeyi kabul ettiniz. Daha fazla daveti kabul etmek forumda iletişimi artıracak ve güçlenecektir.</string>
-  <string name="forum_joined_toast">Foruma Katınıldı</string>
-  <string name="forum_declined_toast">Forum Daveti Reddedildi</string>
   <string name="shared_by_format">%s tarafından paylaşıldı</string>
   <string name="forum_invitation_already_sharing">Zaten paylaşılıyor</string>
   <string name="forum_invitation_response_accepted_sent">%s tarafından yapılan forum davetini kabul ettiniz.</string>
@@ -218,19 +207,14 @@
   </plurals>
   <string name="nobody">Hiç kimse</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Bu blog şu anda boş.\n\n Yazar henüz bir şey yazmadı ya da sizinle bu blogu paylaşan kişinin çevrimiçi olması gerekiyor, böylece gönderiler senkronize edilecektir.</string>
   <string name="read_more">daha fazlasını oku</string>
   <string name="blogs_write_blog_post">Blog Gönderisi Yaz</string>
-  <string name="blogs_write_blog_post_body_hint">Metninizi buraya yazın</string>
   <string name="blogs_publish_blog_post">Yayınla</string>
   <string name="blogs_blog_post_created">Blog Gönderisi Oluşturuldu</string>
   <string name="blogs_blog_post_received">Yeni Blog Gönderisi Alındı</string>
   <string name="blogs_blog_post_scroll_to">Kaydırma</string>
-  <string name="blogs_feed_empty_state">Bu, global blog yayınıdır\n\nHenüz birileri birşeyler yazmış gibi gibi görünmüyor\n\nİlk gönderiyi yazmak için kalem simgesine dokunun.</string>
   <string name="blogs_remove_blog">Blog\'u sil</string>
-  <string name="blogs_remove_blog_dialog_message">Bu blog\'u ve tüm yayınları kaldırmak istediğinizden emin misiniz? Bu, blog\'u başkalarının cihazlarından kaldırmaz.</string>
-  <string name="blogs_remove_blog_ok">Blog\'u Sil</string>
-  <string name="blogs_blog_removed">Blog Silindi</string>
+  <string name="blogs_remove_blog_ok">Tuşu Sil</string>
   <string name="blogs_reblog_button">Tekrar Blogla</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Blog\'u Paylaş</string>
@@ -242,8 +226,6 @@
   <string name="blogs_sharing_response_accepted_received">%s blog davetini kabul etti.</string>
   <string name="blogs_sharing_response_declined_received">%s blog davetini reddetti.</string>
   <string name="blogs_sharing_invitations_title">Blog Davetleri</string>
-  <string name="blogs_sharing_joined_toast">Blog Takip Edildi</string>
-  <string name="blogs_sharing_declined_toast">Blog Daveti Reddedildi</string>
   <string name="sharing_status_blog">Bir blog\'a abone olan herkes, blog\'u kişileriyle paylaşabilir. Bu blog\'u şu kişilerle paylaşıyorsunuz. Göremediğiniz diğer aboneler de olabilir.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">RSS kaynaklarını içeri aktar</string>
@@ -255,10 +237,8 @@
   <string name="blogs_rss_feeds_manage_author">Yazar:</string>
   <string name="blogs_rss_feeds_manage_updated">Son Güncelleme:</string>
   <string name="blogs_rss_remove_feed">Kaynağı Sil</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Bu yayını ve tüm yayınlarını kaldırmak istediğinizden emin misiniz? \nPaylaştığınız yayınlar diğer kullanıcıların cihazlarından kaldırılamaz.</string>
-  <string name="blogs_rss_remove_feed_ok">Kaynağı Sil</string>
+  <string name="blogs_rss_remove_feed_ok">Tuşu Sil</string>
   <string name="blogs_rss_feeds_manage_delete_error">Besleme silinemedi!</string>
-  <string name="blogs_rss_feeds_manage_empty_state">İçeri aktarılmış herhangi bir RSS beslemeniz yok.\n\nBir tane eklemek için neden ekranın üst tarafındaki + simgesini kullanmıyorsunuz?</string>
   <string name="blogs_rss_feeds_manage_error">Beslemeleriniz yüklenirken bir hata meydana geldi. Lütfen daha sonra tekrar deneyin.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Ağlar</string>

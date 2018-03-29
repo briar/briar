@@ -31,7 +31,9 @@
   <string name="dialog_title_lost_password">Pasahitz galdua</string>
   <string name="dialog_message_lost_password">Zure Briar kontua zure gailuan zifratuta gordetzen da, ez hodeian, beraz ezin dugu zure pasahitza berrezarri. Zure kontua ezabatu eta berriro hasi nahi duzu?\n\nKontuz: Zure identitateak, kontaktuak eta mezuak betirako galduko dira.</string>
   <string name="startup_failed_notification_title">Ezin izan da Briar abiatu</string>
+  <string name="startup_failed_notification_text">Sakatu informazio gehiagorako</string>
   <string name="startup_failed_activity_title">Briar abio-hutsegitea</string>
+  <string name="startup_failed_data_too_new_error">Aplikazioaren bertsio hau zaharregia da. Eguneratu azken bertsiora eta saiatu berriro.</string>
   <string name="startup_failed_service_error">Briar aplikazioak ezin izan du ezinbesteko plugin bat abiatu. Briar berrinstalatzeak arazoa konpondu ohi du. Hala ere, jakin zure kontua eta datuak galduko dituzula Briar aplikazioak ez baititu zerbitzari zentralak erabiltzen zure datuak gordetzeko.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Hau Briar-en probetarako bertsio bat da. Zure kontua egun %d barru iraungituko da eta ezin da berriztu.</item>
@@ -39,6 +41,8 @@
   </plurals>
   <string name="expiry_update">Probetarako iraungitze data luzatu da. Zure kontua %d egun barru iraungituko da.</string>
   <string name="expiry_date_reached">Programa hau iraungitu da.\nEskerrik asko probatzeagatik!</string>
+  <string name="startup_open_database">Datu-basea deszifratzen...</string>
+  <string name="startup_migrate_database">Datu-basea eguneratzen...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Ireki nabigazio tiradera</string>
   <string name="nav_drawer_close_description">Itxi nabigazio tiradera</string>
@@ -95,9 +99,7 @@
   <string name="help">Laguntza</string>
   <string name="sorry">Sentitzen dugu</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Badirudi heldu berria zarela eta ez duzula kontakturik hemen oraindik.\n\nSakatu goiko + ikonoa eta jarraitu argibideak lagunak zure zerrendara gehitzeko.\nGogoratu: Kontaktu berriak aurrez aurre besterik ezin dira gehitu beste inork zure itxurak ez egiteko edo zure mezuak ez irakurtzeko.</string>
   <string name="date_no_private_messages">Mezurik ez.</string>
-  <string name="no_private_messages">Hau elkarrizketa ikuspegia da.\n\nBadirudi ez dagoela elkarrizketarik.\n\nSakatu beheko sarrera eremua elkarrizketa hasteko.</string>
   <string name="message_hint">Idatzi mezua</string>
   <string name="delete_contact">Ezabatu kontaktua</string>
   <string name="dialog_title_delete_contact">Berretsi kontaktua ezabatzea</string>
@@ -145,7 +147,6 @@
     <item quantity="other">%d kontaktu berri gehituta.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Ez zaude inolako taldetan parte hartzen.\n\nSakatu goiko + ikonoa zuk zeuk talde bat sartzeko edo eskatu kontaktuei bere talderen batetara zu gonbidatzea.</string>
   <string name="groups_created_by">%s erabiltzaileak sortuta</string>
   <plurals name="messages">
     <item quantity="one">mezu %d</item>
@@ -198,12 +199,11 @@
   <string name="groups_reveal_visible_revealed_by_contact">Kontaktuen erlazioa taldean ikusgai dago (%s erabiltzaileak argitara emana)</string>
   <string name="groups_reveal_invisible">Kontaktuen erlazioa ez dago taldean ikusgai</string>
   <!--Forums-->
-  <string name="no_forums">Ez duzu fororik oraindik.\n\nSortu batu zuk zeuk goiko + ikonoa sakatuz.\n\nKontaktuei eskatu ahal diezu ere foroak zurekin partekatu ditzatela.</string>
   <string name="create_forum_title">Sortu foroa</string>
   <string name="choose_forum_hint">Hautatu zure foroaren izena</string>
   <string name="create_forum_button">Sortu foroa</string>
   <string name="forum_created_toast">Foroa sortuta</string>
-  <string name="no_forum_posts">Foro hau hutsik dago.\n\nErabili goiko arkatzaren ikonoa lehen mezua idazteko.\n\nBakarrik sentitzen zara hemen? Partekatu foro hau zure kontaktuekin!</string>
+  <string name="no_forum_posts">Ez dago mezurik erakusteko</string>
   <string name="no_posts">Sarrerarik ez</string>
   <plurals name="posts">
     <item quantity="one">Bidalketa %d</item>
@@ -215,23 +215,17 @@
   <string name="btn_reply">Erantzun</string>
   <string name="forum_leave">Utzi foroa</string>
   <string name="dialog_title_leave_forum">Berretsi foroa uztea</string>
-  <string name="dialog_message_leave_forum">Ziur foro hau utzi nahi duzula? Zure kontaktuekin foro hau partekatu baduzu, agian ez dituzte eguneraketa gehiago jasoko.</string>
   <string name="dialog_button_leave">Utzi</string>
-  <string name="forum_left_toast">Foroa utzita</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Partekatu foroa</string>
   <string name="contacts_selected">Kontaktuak hautatuta</string>
   <string name="activity_share_toolbar_header">Hautatu kontaktuak</string>
-  <string name="no_contacts_selector">Badirudi hemen berria zarela eta ez duzula kontakturik oraindik.\n\nItzuli hona gutxienez kontaktu bat gehitu eta gero.</string>
   <string name="forum_shared_snackbar">Foroa partekatuta hautatutako kontaktuekin</string>
   <string name="forum_share_message">Gehitu mezua (aukerazkoa)</string>
   <string name="forum_share_error">Errore bat egon da foro hau partekatzean.</string>
   <string name="forum_invitation_received">%1$s erabiltzaileak \"%2$s\" foroa partekatu du zurekin.</string>
   <string name="forum_invitation_sent">\"%1$s\" foroa partekatu duzu %2$s erabiltzailearekin.</string>
   <string name="forum_invitations_title">Forora gonbidapenak</string>
-  <string name="forum_invitation_exists">Onartu duzu jada foro honetarako gonbidapen bat. Gonbidapen gehiago onartzeak foroarekin komunikazioa hobetu eta indartuko du.</string>
-  <string name="forum_joined_toast">Forora elkartuta</string>
-  <string name="forum_declined_toast">Foro gonbidapena ukatuta</string>
   <string name="shared_by_format">%s erabiltzaileak partekatuta</string>
   <string name="forum_invitation_already_sharing">Dagoeneko partekatzen</string>
   <string name="forum_invitation_response_accepted_sent"> %s erabiltzailearen foro gonbidapena onartu duzu.</string>
@@ -247,19 +241,15 @@
   </plurals>
   <string name="nobody">Inor ez</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Blog hau orain hutsik dago.\n\nEgileak ez du ezer idatzi edo blog hau zurekin partekatu duen kontaktua deskonektatuta dago, eta ezin da orain sinkronizatu.</string>
+  <string name="blogs_other_blog_empty_state">Ez dago mezurik erakusteko</string>
   <string name="read_more">irakurri gehiago</string>
   <string name="blogs_write_blog_post">Idatzi blog sarrera</string>
-  <string name="blogs_write_blog_post_body_hint">Idatzi zure blog sarrera hemen</string>
   <string name="blogs_publish_blog_post">Argitaratu</string>
   <string name="blogs_blog_post_created">Blog sarrera sortuta</string>
   <string name="blogs_blog_post_received">Blog sarrera berria jasota</string>
   <string name="blogs_blog_post_scroll_to">Korritu hona</string>
-  <string name="blogs_feed_empty_state">Hau blogen jario orokorra da.\n\nBadirudi inork ez duela blog sarrerarik idatzi oraindik.\n\nIzan lehena eta sakatu arkatzaren ikonoa blog sarrera bat idazteko.</string>
   <string name="blogs_remove_blog">Kendu bloga</string>
-  <string name="blogs_remove_blog_dialog_message">Ziur blog hau eta sarrera guztiak kendu nahi dituzula?\nJakin honek ez duela bloga kenduko besteen gailuetatik.</string>
-  <string name="blogs_remove_blog_ok">Kendu bloga</string>
-  <string name="blogs_blog_removed">Bloga kenduta</string>
+  <string name="blogs_remove_blog_ok">Kendu</string>
   <string name="blogs_reblog_comment_hint">Gehitu iruzkina (aukerazkoa)</string>
   <string name="blogs_reblog_button">Birblogeatu</string>
   <!--Blog Sharing-->
@@ -274,8 +264,6 @@
   <string name="blogs_sharing_invitation_received">%1$s erabiltzaileak \"%2$s\" bloga partekatu du zurekin.</string>
   <string name="blogs_sharing_invitation_sent">\"%1$s\" bloga partekatu duzu %2$s erabiltzailearekin.</string>
   <string name="blogs_sharing_invitations_title">Blog gonbidapenak</string>
-  <string name="blogs_sharing_joined_toast">Blogera harpidetuta</string>
-  <string name="blogs_sharing_declined_toast">Blog gonbidapena ukatuta</string>
   <string name="sharing_status_blog">Blog batetara harpidetutako edonork berau partekatu dezake bere kontaktuekin. Honako kontaktuekin partekatzen duzu zuk. Ikusten ez dituzun harpidedun gehiago egon daitezke.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Inportatu RSS jarioa</string>
@@ -287,10 +275,8 @@
   <string name="blogs_rss_feeds_manage_author">Egilea:</string>
   <string name="blogs_rss_feeds_manage_updated">Azken eguneraketa:</string>
   <string name="blogs_rss_remove_feed">Kendu jarioa:</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Ziur jario hau eta bere sarrera guztiak kendu nahi dituzula?\nPartekatu dituzun sarrerak ez dira besteen gailuetatik kenduko.</string>
-  <string name="blogs_rss_remove_feed_ok">Kendu jarioa</string>
+  <string name="blogs_rss_remove_feed_ok">Kendu</string>
   <string name="blogs_rss_feeds_manage_delete_error">Ezin izan da jarioa ezabatu!</string>
-  <string name="blogs_rss_feeds_manage_empty_state">Ez duzu RSS jariorik inportatu.\n\nSakatu goiko eskumako + ikonoa lehena gehitzeko.</string>
   <string name="blogs_rss_feeds_manage_error">Arazo bat egon da zure jarioak kargatzean. Saiatu berriro geroago.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Sareak</string>

@@ -75,9 +75,7 @@
   <string name="show_onboarding">Показване на помощен диалог</string>
   <string name="help">Помощ</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Няма добавени контакти.\n\nНатиснете плюса и следвайте инструкциите, за да добавите приятели.\n\nВнимание: Трябва да се срещнете лично с човека, когото искате да добавите в Контакти. По този начин никой не може да се представи за вас или да чете съобщенията ви в бъдеще.</string>
   <string name="date_no_private_messages">Няма съобщения.</string>
-  <string name="no_private_messages">Тук се показват съобщенията ви.\n\nНяма съобщения.</string>
   <string name="message_hint">Напиши съобщение</string>
   <string name="delete_contact">Изтрий контакт</string>
   <string name="dialog_title_delete_contact">Потвърди изтриването на контакт</string>
@@ -122,7 +120,6 @@
     <item quantity="other">%d добавени нови контакти.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Не сте включен в група.\n\nНатиснете плюса, за да създадете своя група, или помолете контактите си да ви добавят в техните групи.</string>
   <string name="groups_created_by">Създаден от %s</string>
   <plurals name="messages">
     <item quantity="one">%d съобщение</item>
@@ -175,12 +172,10 @@
   <string name="groups_reveal_visible_revealed_by_contact">Връзка с контакта се вижда от групата (разкрита от %s)</string>
   <string name="groups_reveal_invisible">Връзка с контакта не се вижда от групата</string>
   <!--Forums-->
-  <string name="no_forums">Няма добавени форуми.\n\nНатиснете плюса, за да създадете нов форум.\n\nМожете също да помолите контактите си да споделят форуми с вас.</string>
   <string name="create_forum_title">Създаване на форум</string>
   <string name="choose_forum_hint">Изберете име за форума</string>
   <string name="create_forum_button">Създай форум</string>
   <string name="forum_created_toast">Форумът е създаден</string>
-  <string name="no_forum_posts">Форумът е празен.\n\nВъведете текст, за да съставите първата публикация.\n\nСподелете този форум с други ваши контакти!</string>
   <string name="no_posts">Няма публикации</string>
   <plurals name="posts">
     <item quantity="one">%d публикация</item>
@@ -192,23 +187,17 @@
   <string name="btn_reply">Отговори</string>
   <string name="forum_leave">Напусни форума</string>
   <string name="dialog_title_leave_forum">Потвърдете напускането на форума</string>
-  <string name="dialog_message_leave_forum">Сигурни ли сте, че искате да напуснете този форум? Контактите, с които сте споделили този форум, ще престанат да получават ъпдейти от него.</string>
   <string name="dialog_button_leave">Напусни</string>
-  <string name="forum_left_toast">Напуснахте форума</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Сподели форум</string>
   <string name="contacts_selected">Избрани контакти</string>
   <string name="activity_share_toolbar_header">Избиране на контакти</string>
-  <string name="no_contacts_selector">Няма добавени контакти.\n\nМоля, върнете се тук, когато добавите първия си контакт.</string>
   <string name="forum_shared_snackbar">Форумът е споделен с избраните контакти</string>
   <string name="forum_share_message">Добавете съобщение (незадължително)</string>
   <string name="forum_share_error">Възникна грешка при споделянето на този форум.</string>
   <string name="forum_invitation_received">%1$s сподели форума \"%2$s\" с вас.</string>
   <string name="forum_invitation_sent">Споделихте форума \"%1$s\" с %2$s.</string>
   <string name="forum_invitations_title">Покани във форум</string>
-  <string name="forum_invitation_exists">Вече приехте поканата за този форум. Приемането на още покани ще подпомогне развитието на форума. </string>
-  <string name="forum_joined_toast">Включихте се във форума</string>
-  <string name="forum_declined_toast">Поканата във форум е отказана</string>
   <string name="shared_by_format">Споделен от %s</string>
   <string name="forum_invitation_already_sharing">Вече е споделен</string>
   <string name="forum_invitation_response_accepted_sent">Приехте поканата за форум на %s.</string>
@@ -224,19 +213,14 @@
   </plurals>
   <string name="nobody">Никого</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Блогът е празен.\n\nИли авторът още не е публикувал нищо, или е нужно да е онлайн човекът, който е споделил този блог с вас, за да се синхронизират публикациите.</string>
   <string name="read_more">прочети още</string>
   <string name="blogs_write_blog_post">Нова блог публикация</string>
-  <string name="blogs_write_blog_post_body_hint">Въведете новата публикация тук</string>
   <string name="blogs_publish_blog_post">Публикуване</string>
   <string name="blogs_blog_post_created">Блог публикацията е създадена</string>
   <string name="blogs_blog_post_received">Нова блог публикация</string>
   <string name="blogs_blog_post_scroll_to">Отвори</string>
-  <string name="blogs_feed_empty_state">Това е глобалната блог емисия.\n\nНикой още не е публикувал нищо.\n\nБъдете първия и натиснете писалката, за да напишете първата блог публикация.</string>
   <string name="blogs_remove_blog">Премахване на блог</string>
-  <string name="blogs_remove_blog_dialog_message">Сигурни ли сте, че искате да премахнете този блог и всички публикации?\nБлогът няма да бъдат премахнат от устройствата на други хора.</string>
-  <string name="blogs_remove_blog_ok">Премахни блог</string>
-  <string name="blogs_blog_removed">Блогът е премахнат</string>
+  <string name="blogs_remove_blog_ok">Премахване</string>
   <string name="blogs_reblog_comment_hint">Добавете съобщение (незадължително)</string>
   <string name="blogs_reblog_button">Реблог</string>
   <!--Blog Sharing-->
@@ -251,8 +235,6 @@
   <string name="blogs_sharing_invitation_received">%1$s сподели блога \"%2$s\" с вас.</string>
   <string name="blogs_sharing_invitation_sent">Споделихте блога \"%1$s\" с %2$s.</string>
   <string name="blogs_sharing_invitations_title">Блог покани</string>
-  <string name="blogs_sharing_joined_toast">Абонирахте се за блога</string>
-  <string name="blogs_sharing_declined_toast">Поканата в блог е отказана</string>
   <string name="sharing_status_blog">Всеки абонат на блога може да го сподели с контактите си. Споделяте този блог със следните контакти. Възможно е да има и други, които не можете да видите.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Внасяне на RSS емисия</string>
@@ -264,10 +246,8 @@
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
   <string name="blogs_rss_feeds_manage_updated">Последно актуализиране:</string>
   <string name="blogs_rss_remove_feed">Премахване на емисия</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Сигурни ли сте, че искате да премахнете тази емисия и всички нейни публикации?\nВсички споделени от вас публикации няма да бъдат премахнати от устройствата на други хора.</string>
-  <string name="blogs_rss_remove_feed_ok">Емисията е премахната</string>
+  <string name="blogs_rss_remove_feed_ok">Премахване</string>
   <string name="blogs_rss_feeds_manage_delete_error">Емисията не можа да бъде изтрита!</string>
-  <string name="blogs_rss_feeds_manage_empty_state">Нямате добавени RSS емисии.\n\nНатиснете плюса в горния десен ъгъл на екрана, за да добавите нова емисия.</string>
   <string name="blogs_rss_feeds_manage_error">Възникна проблем при зареждането на емисиите ви. Моля, опитайте пак по-късно.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Мрежа</string>

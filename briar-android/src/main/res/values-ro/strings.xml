@@ -1,0 +1,359 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_title">Bine ai venit la Briar</string>
+  <string name="setup_name_explanation">Numele dumneavoastră va fi afișat lângă orice conținut trimiteți. Nu îl veți putea schimba după crearea contului.</string>
+  <string name="setup_next">Următorul</string>
+  <string name="setup_password_intro">Alegeți o parolă</string>
+  <string name="setup_doze_title">Conexiuni în fundal</string>
+  <string name="setup_doze_intro">Pentru a primi mesaje, Briar are nevoie să stea conectat în fundal.</string>
+  <string name="setup_doze_button">Permite conexiuni</string>
+  <string name="choose_nickname">Alegeți-vă numele de utilizator</string>
+  <string name="choose_password">Alegeți-vă parola</string>
+  <string name="confirm_password">Confirmați parola</string>
+  <string name="name_too_long">Numele este prea lung</string>
+  <string name="password_too_weak">Parola este prea slabă</string>
+  <string name="passwords_do_not_match">Parolele nu se potrivesc</string>
+  <string name="create_account_button">Creează un cont</string>
+  <string name="more_info">Informații suplimentare</string>
+  <string name="don_t_ask_again">Nu mai întreba din nou</string>
+  <string name="setup_huawei_text">Vă rugăm să apăsați butonul de mai jos și să vă asigurați că Briar este marcat ca protejat în fereastra de \"Aplicații protejate\".</string>
+  <string name="setup_huawei_button">Protejează Briar</string>
+  <string name="setup_huawei_help">Dacă Briar nu este adăugat în lista de aplicații protejate, nu v-a fi capabil să ruleze în fundal.</string>
+  <string name="warning_dozed">%s nu poate rula în fundal</string>
+  <!--Login-->
+  <string name="enter_password">Introduceți parola:</string>
+  <string name="try_again">Parolă greșită, reîncercați</string>
+  <string name="sign_in_button">Autentificare</string>
+  <string name="forgotten_password">Am uitat parola</string>
+  <string name="dialog_title_lost_password">Parolă uitată</string>
+  <string name="startup_failed_notification_title">Briar nu a putut pornii</string>
+  <string name="startup_failed_notification_text">Atingeți pentru informații suplimentare</string>
+  <string name="startup_failed_activity_title">Eroare de pornire Briar</string>
+  <string name="startup_failed_data_too_new_error">Această versiune a aplicației este prea veche. Vă rugăm să actualizați la cea mai nouă versiune și să încercați din nou.</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zi și nu se poate reînnoi</item>
+    <item quantity="few">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zile și nu se poate reînnoi.</item>
+    <item quantity="other">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d de zile și nu se poate reînnoi.</item>
+  </plurals>
+  <string name="expiry_update">Data de expirare a versiunii de test a fost extinsă. Contul dumneavoastră va expira acum în %d zile.</string>
+  <string name="expiry_date_reached">Acest program a expirat.\nVă mulțumim că l-ați testat!</string>
+  <string name="startup_open_database">Decriptare bază de date...</string>
+  <string name="startup_migrate_database">Actualizare bază de date...</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">Deschide bara de navigare</string>
+  <string name="nav_drawer_close_description">Închide bara de navigare</string>
+  <string name="contact_list_button">Contacte</string>
+  <string name="groups_button">Grupuri private</string>
+  <string name="forums_button">Forumuri</string>
+  <string name="blogs_button">Blog-uri</string>
+  <string name="settings_button">Setări</string>
+  <string name="sign_out_button">Ieșire</string>
+  <!--Transports-->
+  <string name="transport_tor">Internet</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_title">Autentificat în Briar</string>
+  <string name="ongoing_notification_text">Atingeți pentru a deschide Briar</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="one">Mesaj privat nou.</item>
+    <item quantity="few">%d mesaje private noi.</item>
+    <item quantity="other">%d de mesaje private noi.</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="one">Mesaj nou de grup.</item>
+    <item quantity="few">%d mesaje de grup noi.</item>
+    <item quantity="other">%d de mesaje de grup noi.</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one">Un nou mesaj pe forum.</item>
+    <item quantity="few">%d mesaje noi pe forum.</item>
+    <item quantity="other">%d de mesaje noi pe forum.</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">Un nou mesaj pe blog.</item>
+    <item quantity="few">%d mesaje noi pe blog.</item>
+    <item quantity="other">%d de mesaje noi pe blog.</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">acum</string>
+  <string name="show">Arată</string>
+  <string name="hide">Ascunde</string>
+  <string name="ok">Bine</string>
+  <string name="cancel">Anulează</string>
+  <string name="got_it">Am înțeles</string>
+  <string name="delete">Șterge</string>
+  <string name="accept">Acceptă</string>
+  <string name="decline">Refuză</string>
+  <string name="options">Opțiuni</string>
+  <string name="online">Conectat</string>
+  <string name="offline">Deconectat</string>
+  <string name="send">Trimite</string>
+  <string name="allow">Permite</string>
+  <string name="open">Deschide</string>
+  <string name="no_data">Fără date</string>
+  <string name="ellipsis">…</string>
+  <string name="text_too_long">Textul introdus este prea lung</string>
+  <string name="show_onboarding">Arata fereastra de ajutor</string>
+  <string name="fix">Rezolvă</string>
+  <string name="help">Ajutor</string>
+  <string name="sorry">Ne pare rău</string>
+  <!--Contacts and Private Conversations-->
+  <string name="date_no_private_messages">Fără mesaje.</string>
+  <string name="message_hint">Scrieți mesajul</string>
+  <string name="delete_contact">Șterge contactul</string>
+  <string name="dialog_title_delete_contact">Confirmare ștergere contact</string>
+  <string name="dialog_message_delete_contact">Sigur doriți să ștergeți acest contact și toate mesajele schimbate?</string>
+  <string name="contact_deleted_toast">Contact șters</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">Adaugă un contact</string>
+  <string name="continue_button">Continuă</string>
+  <string name="connection_failed">Conexiune eșuată</string>
+  <string name="try_again_button">Încearcă din nou</string>
+  <string name="waiting_for_contact_to_scan">Se așteaptă scanarea și conectarea contactului\u2026</string>
+  <string name="exchanging_contact_details">Se face schimbul de date de contact\u2026</string>
+  <string name="contact_added_toast">Contact adăugat: %s</string>
+  <string name="contact_already_exists">Contactul %s există deja</string>
+  <string name="contact_exchange_failed">Schimbul de date de contactului a eșuat</string>
+  <string name="qr_code_invalid">Codul QR este invalid!</string>
+  <string name="camera_error">Eroare la camera foto</string>
+  <string name="connecting_to_device">Conectare la dispozitiv\u2026</string>
+  <string name="authenticating_with_device">Autentificare cu dispozitivul\u2026</string>
+  <string name="connection_aborted_local">Conexiune întreruptă! Aceasta poate însemna că cineva încearcă să interfereze conexiunea dumneavoastră</string>
+  <string name="connection_aborted_remote">Conexiune întreruptă de către contactul dumneavoastră! Aceasta poate însemna că cineva încearcă să interfereze conexiunea dumneavoastră</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_title">Recomandați-vă contactele</string>
+  <string name="introduction_onboarding_text">Puteți să vă recomandați contactele unele altora, încât sa nu fie nevoie ca să se vadă față în față pentru a se putea conecta la Briar.</string>
+  <string name="introduction_activity_title">Alege un contact</string>
+  <string name="introduction_message_title">Recomandă contacte</string>
+  <string name="introduction_message_hint">Adaugă un mesaj (opțional)</string>
+  <string name="introduction_button">Fă o recomandare</string>
+  <string name="introduction_sent">Recomandarea dumneavoastră a fost trimisă.</string>
+  <string name="introduction_error">A apărut o eroare în procesul de recomandare.</string>
+  <string name="introduction_response_error">Eroare atunci când s-a răspuns la recomandare</string>
+  <string name="introduction_request_sent">Ați cerut recomandarea %1$s către %2$s.</string>
+  <string name="introduction_request_received">%1$s a cerut să vă recomande către %2$s. Doriți să adăugați pe %2$s la lista dumneavoastră de contacte?</string>
+  <string name="introduction_request_exists_received">%1$s a cerut să vă recomande către %2$s, dar %2$s este deja în lista dumneavoastră de contacte. Cum %1$s s-ar putea să nu știe asta, puteți totuși răspunde:</string>
+  <string name="introduction_request_answered_received">%1$s vă recomandă pe %2$s.</string>
+  <string name="introduction_response_accepted_sent">Ați acceptat recomandarea pentru %1$s.</string>
+  <string name="introduction_response_declined_sent">Ați refuzat recomandarea pentru %1$s.</string>
+  <string name="introduction_response_accepted_received">%1$s a acceptat recomandarea pentru %2$s.</string>
+  <string name="introduction_response_declined_received">%1$s a refuzat recomandarea pentru %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s spune că %2$s a refuzat recomandarea.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">Un nou contact adăugat.</item>
+    <item quantity="few">%d contacte noi adăugate.</item>
+    <item quantity="other">%d de contacte noi adăugate.</item>
+  </plurals>
+  <!--Private Groups-->
+  <string name="groups_created_by">Creat de %s</string>
+  <plurals name="messages">
+    <item quantity="one">%d mesaj</item>
+    <item quantity="few">%d mesaje</item>
+    <item quantity="other">%d de mesaje</item>
+  </plurals>
+  <string name="groups_group_is_empty">Acest grup este gol</string>
+  <string name="groups_group_is_dissolved">Acest grup a fost dizolvat</string>
+  <string name="groups_remove">Șterge</string>
+  <string name="groups_create_group_title">Creează grup privat</string>
+  <string name="groups_create_group_button">Creează grup</string>
+  <string name="groups_create_group_invitation_button">Trimite invitație</string>
+  <string name="groups_create_group_hint">Alegeți un nume pentru grupul dumneavoastră privat</string>
+  <string name="groups_invitation_sent">Invitația in grup a fost trimisă</string>
+  <string name="groups_message_sent">Mesaj trimis</string>
+  <string name="groups_member_list">Lista de membrii</string>
+  <string name="groups_invite_members">Invită membrii</string>
+  <string name="groups_member_created_you">Ați creat grupul</string>
+  <string name="groups_member_created">%s a creat grupul</string>
+  <string name="groups_member_joined_you">V-ați alăturat grupului</string>
+  <string name="groups_member_joined">%s s-a alăturat grupului</string>
+  <string name="groups_leave">Părăsește grupul</string>
+  <string name="groups_leave_dialog_title">Confirmare părăsire grup</string>
+  <string name="groups_leave_dialog_message">Sigur doriți să părăsiți acest grup?</string>
+  <string name="groups_dissolve">Dizolvă grupul</string>
+  <string name="groups_dissolve_dialog_title">Confirmă dizolvarea grupului</string>
+  <string name="groups_dissolve_button">Dizolvă</string>
+  <string name="groups_dissolved_dialog_title">Grupul a fost dizolvat</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">Invitații în grup</string>
+  <string name="groups_invitations_invitation_sent">Ați invitat pe %1$s să se alăture grupului \"%2$s\".</string>
+  <string name="groups_invitations_invitation_received">%1$s v-a invitat să vă alăturați grupului \"%2$s\".</string>
+  <string name="groups_invitations_joined">V-ați alăturat grupului</string>
+  <string name="groups_invitations_declined">Invitația în grup a fost refuzată</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="one">%d invitație în grup disponibilă</item>
+    <item quantity="few">%d invitații în grup disponibile</item>
+    <item quantity="other">%d de invitații în grup disponibile</item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">Ați acceptat invitația în grup de la %s.</string>
+  <string name="groups_invitations_response_declined_sent">Ați refuzat invitația în grup pentru %s.</string>
+  <string name="groups_invitations_response_accepted_received">%s a acceptat invitația în grup.</string>
+  <string name="groups_invitations_response_declined_received">%s a refuzat invitația în grup.</string>
+  <string name="sharing_status_groups">Doar persoana care a creat grupul poate invita noi membrii. Mai jos vedeți membrii actuali ai grupului.</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">Arată contactele</string>
+  <string name="groups_reveal_visible">Lista de contacte este vizibilă grupului</string>
+  <string name="groups_reveal_visible_revealed_by_us">Lista de contacte este vizibilă grupului (dezvăluită de dumneavoastră)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">Lista de contacte este vizibilă grupului (dezvăluită de %s)</string>
+  <string name="groups_reveal_invisible">Lista de contacte nu este vizibilă grupului</string>
+  <!--Forums-->
+  <string name="create_forum_title">Creează forum</string>
+  <string name="choose_forum_hint">Alegeți un nume pentru forumul dumneavoastră</string>
+  <string name="create_forum_button">Creează forum</string>
+  <string name="forum_created_toast">Forum creat</string>
+  <string name="no_posts">Nici un mesaj</string>
+  <plurals name="posts">
+    <item quantity="one">%d mesaj</item>
+    <item quantity="few">%d mesaje</item>
+    <item quantity="other">%d de mesaje</item>
+  </plurals>
+  <string name="forum_new_entry_posted">Mesajul a fost introdus pe forum</string>
+  <string name="forum_new_message_hint">Mesaj nou</string>
+  <string name="forum_message_reply_hint">Răspuns nou</string>
+  <string name="btn_reply">Răspunde</string>
+  <string name="forum_leave">Părăsește forum</string>
+  <string name="dialog_title_leave_forum">Confirmare părăsire forum</string>
+  <string name="dialog_button_leave">Părăsește</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">Partajează forum</string>
+  <string name="contacts_selected">Contacte selectate</string>
+  <string name="activity_share_toolbar_header">Alegeți contactele</string>
+  <string name="forum_shared_snackbar">Forum partajat cu contactele alese</string>
+  <string name="forum_share_message">Adaugă un mesaj (opțional)</string>
+  <string name="forum_share_error">A apărut o eroare la partajarea acestui forum.</string>
+  <string name="forum_invitation_received">%1$s a partajat forumul \"%2$s\" cu dumneavoastră.</string>
+  <string name="forum_invitation_sent">Ați partajat forumul \"%1$s\" cu %2$s.</string>
+  <string name="forum_invitations_title">Invitații la forum</string>
+  <string name="shared_by_format">Partajat de %s</string>
+  <string name="forum_invitation_already_sharing">Deja partajat</string>
+  <string name="forum_invitation_response_accepted_sent">Ați acceptat invitația la forum de la %s.</string>
+  <string name="forum_invitation_response_declined_sent">Ați refuzat invitația la forum pentru %s.</string>
+  <string name="forum_invitation_response_accepted_received">%s a acceptat invitația la forum.</string>
+  <string name="forum_invitation_response_declined_received">%s a refuzat invitația la forum.</string>
+  <string name="sharing_status">Partajare stare</string>
+  <string name="shared_with">Partajat cu %1$d (%2$d conectați)</string>
+  <plurals name="forums_shared">
+    <item quantity="one">%d forum partajat de contacte</item>
+    <item quantity="few">%d forumuri partajate de contacte</item>
+    <item quantity="other">%d de forumuri partajate de contacte</item>
+  </plurals>
+  <string name="nobody">Nimeni</string>
+  <!--Blogs-->
+  <string name="read_more">citește mai mult</string>
+  <string name="blogs_write_blog_post">Scrie mesaj pe blog</string>
+  <string name="blogs_publish_blog_post">Publică</string>
+  <string name="blogs_blog_post_created">Mesaj pe blog creat</string>
+  <string name="blogs_blog_post_received">O nou mesaj pe blog s-a primit</string>
+  <string name="blogs_blog_post_scroll_to">Derulează la</string>
+  <string name="blogs_remove_blog">Elimină blog</string>
+  <string name="blogs_remove_blog_ok">Eliminare</string>
+  <string name="blogs_reblog_comment_hint">Adaugă un comentariu (opțional)</string>
+  <string name="blogs_reblog_button">Repune mesaj</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">Partajează blog</string>
+  <string name="blogs_sharing_error">A apărut o eroare la partajarea acestui blog.</string>
+  <string name="blogs_sharing_button">Partajează blog</string>
+  <string name="blogs_sharing_snackbar">Blog partajat cu contactele alese</string>
+  <string name="blogs_sharing_response_accepted_sent">Ați acceptat invitația la blog de la %s.</string>
+  <string name="blogs_sharing_response_declined_sent">Ați refuzat invitația la blog de la %s.</string>
+  <string name="blogs_sharing_response_accepted_received">%s a acceptat invitația la blog.</string>
+  <string name="blogs_sharing_response_declined_received">%s a refuzat invitația la blog.</string>
+  <string name="blogs_sharing_invitation_received">%1$s a partajat blogul \"%2$s\" cu dumneavoastră.</string>
+  <string name="blogs_sharing_invitation_sent">Ați partajat blogul \"%1$s\" cu %2$s.</string>
+  <string name="blogs_sharing_invitations_title">Invitații la blog-uri</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">Importă flux RSS</string>
+  <string name="blogs_rss_feeds_import_button">Importă</string>
+  <string name="blogs_rss_feeds_import_hint">Introduceți URL-ul fluxului RSS</string>
+  <string name="blogs_rss_feeds_import_error">Ne pare rău! A apărut o eroare la importul fluxului dumneavoastră.</string>
+  <string name="blogs_rss_feeds_manage">Administrare fluxuri RSS</string>
+  <string name="blogs_rss_feeds_manage_imported">Importat:</string>
+  <string name="blogs_rss_feeds_manage_author">Autor:</string>
+  <string name="blogs_rss_feeds_manage_updated">Actualizat ultima dată:</string>
+  <string name="blogs_rss_remove_feed">Șterge flux</string>
+  <string name="blogs_rss_remove_feed_ok">Eliminare</string>
+  <string name="blogs_rss_feeds_manage_delete_error">Fluxul nu a putut fi șters!</string>
+  <string name="blogs_rss_feeds_manage_error">A apărut o eroare la încărcarea fluxurilor dumneavoastră. Vă rugăm să încercați din nou mai târziu.</string>
+  <!--Settings Network-->
+  <string name="network_settings_title">Rețele</string>
+  <string name="bluetooth_setting">Conectare prin Bluetooth</string>
+  <string name="bluetooth_setting_enabled">Atunci când contactele vă sunt în apropiere</string>
+  <string name="bluetooth_setting_disabled">Doar la adăugarea contactelor</string>
+  <string name="tor_network_setting">Conectare prin rețeaua Tor</string>
+  <string name="tor_network_setting_never">Niciodată</string>
+  <string name="tor_network_setting_wifi">Doar când se folosește Wi-Fi</string>
+  <string name="tor_network_setting_always">Când se folosește Wi-Fi sau date mobile</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">Securitate</string>
+  <string name="change_password">Schimbă parola</string>
+  <string name="current_password">Introduceți parola curentă:</string>
+  <string name="choose_new_password">Alegeți-vă parola nouă:</string>
+  <string name="confirm_new_password">Confirmați parola nouă:</string>
+  <string name="password_changed">Parola a fost schimbată.</string>
+  <string name="panic_setting">Setare buton de panică</string>
+  <string name="panic_setting_title">Buton de panică</string>
+  <string name="panic_setting_hint">Configurați cum va reacționa Briar atunci când folosiți o aplicație de buton de panică.</string>
+  <string name="panic_app_setting_title">Aplicația buton de panică</string>
+  <string name="unknown_app">aplicație necunoscută</string>
+  <string name="panic_app_setting_summary">Nu a fost setată nici o aplicație</string>
+  <string name="panic_app_setting_none">Nici una</string>
+  <string name="dialog_title_connect_panic_app">Confirmare aplicație de panică</string>
+  <string name="dialog_message_connect_panic_app">Sigur doriți să permiteți %1$s să declanșeze acțiuni destructive pentru butonul de panică?</string>
+  <string name="lock_setting_title">Ieșire</string>
+  <string name="lock_setting_summary">Ieși din Briar dacă un buton de panică este apăsat</string>
+  <string name="purge_setting_title">Șterge cont</string>
+  <string name="uninstall_setting_title">Dezinstalare Briar</string>
+  <string name="uninstall_setting_summary">Aceasta necesită o confirmare manuală în timpul unui eveniment de panică</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">Notificări</string>
+  <string name="notify_private_messages_setting_title">Mesaje private</string>
+  <string name="notify_private_messages_setting_summary">Arată alerte pentru mesajele private</string>
+  <string name="notify_group_messages_setting_title">Mesaje de grup</string>
+  <string name="notify_group_messages_setting_summary">Arată alerte pentru mesajele de grup</string>
+  <string name="notify_forum_posts_setting_title">Mesaje pe forum</string>
+  <string name="notify_forum_posts_setting_summary">Arată alerte pentru mesajele de pe forum</string>
+  <string name="notify_blog_posts_setting_title">Mesaje pe blog</string>
+  <string name="notify_blog_posts_setting_summary">Arată alerte pentru mesajele de pe blog</string>
+  <string name="notify_vibration_setting">Vibrează</string>
+  <string name="notify_lock_screen_setting_title">Ecran de blocare</string>
+  <string name="notify_lock_screen_setting_summary">Arată notificări pe ecranul de blocare</string>
+  <string name="notify_sound_setting">Sunet</string>
+  <string name="notify_sound_setting_default">Sunet implicit</string>
+  <string name="notify_sound_setting_disabled">Nici unul</string>
+  <string name="choose_ringtone_title">Alegeți sunetul</string>
+  <string name="cannot_load_ringtone">Nu se poate încărca sunetul</string>
+  <!--Settings Feedback-->
+  <string name="feedback_settings_title">Feed-back</string>
+  <string name="send_feedback">Trimiteți feed-back</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">Avertizare adresă</string>
+  <string name="link_warning_intro">Urmează să deschideți adresa următoare cu o aplicație externă</string>
+  <string name="link_warning_open_link">Deschide adresă</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">Raport de erori Briar</string>
+  <string name="briar_crashed">Ne pare rău, Briar a întâmpinat o eroare.</string>
+  <string name="not_your_fault">Nu este vina dumneavoastră.</string>
+  <string name="please_send_report">Vă rugăm să ne ajutați să facem Briar mai bun trimițându-ne raportul de erori.</string>
+  <string name="report_is_encrypted">Vă promitem ca raportul este criptat și este trimis securizat.</string>
+  <string name="feedback_title">Feed-back</string>
+  <string name="describe_crash">Descrieți ce s-a întâmplat (opțional)</string>
+  <string name="enter_feedback">Introduceți feed-back-ul dumneavoastră</string>
+  <string name="optional_contact_email">Adresa de email (opțional)</string>
+  <string name="include_debug_report_crash">Include date anonime despre eroare</string>
+  <string name="include_debug_report_feedback">Include date anonime despre acest dispozitiv</string>
+  <string name="could_not_load_report_data">Nu s-au putut încărca datele din raport.</string>
+  <string name="send_report">Trimite raport</string>
+  <string name="close">Închide</string>
+  <string name="dev_report_saved">Raport salvat. V-a fi trimis data viitoare când vă conectați la Briar.</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">Ieșire din Briar...</string>
+  <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_title">S-a detectat ceva suprapus pe ecran</string>
+  <string name="screen_filter_allow">Permite acestor aplicații să deseneze deasupra</string>
+  <!--Permission Requests-->
+  <string name="permission_camera_title">Permisiune de acces la camera foto</string>
+  <string name="permission_camera_request_body">Pentru a scana codul QR, Briar are nevoie să acceseze camera foto.</string>
+  <string name="permission_camera_denied_body">Ați refuzat accesul la camera foto, dar pentru a adăuga contacte este necesară folosirea camerei foto.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
+  <string name="permission_camera_denied_toast">Permisiunea de acces la camera foto nu a fost acordată</string>
+</resources>

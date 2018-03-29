@@ -33,8 +33,6 @@
   <string name="startup_failed_notification_title">Briar no s\'ha pogut iniciar</string>
   <string name="startup_failed_notification_text">Toqueu per obtenir més informació.</string>
   <string name="startup_failed_activity_title">Error iniciant Briar</string>
-  <string name="startup_failed_db_error">Per alguna raó, la vostra base de dades de Briar està malmesa més enllà de la reparació. El vostre compte, les vostres dades i tots els vostres contactes es perdran. Malauradament, necessiteu tornar a instal·lar Briar i configurar un nou compte escollint «He oblidat la meva contrasenya» quan se us demani la contrasenya.</string>
-  <string name="startup_failed_data_too_old_error">El vostre compte s\'ha creat amb una versió anterior d\'aquesta aplicació i no es pot obrir amb aquesta versió. Heu de tornar a instal·lar la versió antiga o eliminar el vostre antic compte escollint «He oblidat la meva contrasenya» quan se us demani la contrasenya.</string>
   <string name="startup_failed_data_too_new_error">Aquesta versió de l\'aplicació és massa antiga. Actualitzeu a la versió més recent i torneu-ho a provar.</string>
   <string name="startup_failed_service_error">Briar no ha pogut engegar un connector necessari. La solució sol ser reinstal·lar Briar. De tota manera, tingueu en compte que si ho feu perdreu el vostre compte i totes les dades associades, doncs Briar no usa servidors centrals per desar les vostres dades.</string>
   <plurals name="expiry_warning">
@@ -43,6 +41,8 @@
   </plurals>
   <string name="expiry_update">S\'ha ampliat la data de venciment de la prova. El vostre compte caducarà ara en %d dies.</string>
   <string name="expiry_date_reached">Aquest programa ha caducat.\nGràcies per haver-lo provat!</string>
+  <string name="startup_open_database">S\'està desxifrant la base de dades...</string>
+  <string name="startup_migrate_database">S\'està actualitzant la base de dades...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Obre el calaix de navegació</string>
   <string name="nav_drawer_close_description">Tanca el calaix de navegació</string>
@@ -99,9 +99,7 @@
   <string name="help">Ajuda</string>
   <string name="sorry">Ens sap greu</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Sembla que sou nouvingut i no teniu contactes encara.\n\nToqueu la icona + en la part superior i seguiu les instruccions per a afegir amics a la llista.\n\nRecordeu: afegiu només contactes cara a cara per a evitar que algú es faci passar per vós o pugui llegir els vostres missatges en el futur. </string>
   <string name="date_no_private_messages">Sense missatges.</string>
-  <string name="no_private_messages">Aquesta és la vista de conversa.\n\nSembla que hi manca una part de la conversa.\n\nNomés cal que toqueu el camp d\'entrada a la part inferior per iniciar una conversa.</string>
   <string name="message_hint">Escriu el missatge.</string>
   <string name="delete_contact">Suprimeix contacte</string>
   <string name="dialog_title_delete_contact">Confirma la supressió del contacte</string>
@@ -149,7 +147,6 @@
     <item quantity="other">S\'ha afegit %d nous contactes.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">No pertanyeu a cap grup.\n\nToqueu la icona + en la part superior per a crear un grup o demaneu als vostres contactes que us conviden a un grup.</string>
   <string name="groups_created_by">Creat per 1%s</string>
   <plurals name="messages">
     <item quantity="one">1%d missatge</item>
@@ -202,12 +199,11 @@
   <string name="groups_reveal_visible_revealed_by_contact">La relació del contacte és visible per al grup (revelat per %s)</string>
   <string name="groups_reveal_invisible">La relació del contacte no és visible per al grup</string>
   <!--Forums-->
-  <string name="no_forums">No teniu cap fòrum encara.\n\nPer què no en creeu un de nou tocant el + que hi ha a la part superior dreta?\n\nTambé podeu demanar els vostres contactes que us conviden a fòrums.</string>
   <string name="create_forum_title">Crea un fòrum</string>
   <string name="choose_forum_hint">Trieu un nom per al fòrum</string>
   <string name="create_forum_button">Crea el fòrum</string>
   <string name="forum_created_toast">S\'ha creat el fòrum</string>
-  <string name="no_forum_posts">Aquest fòrum està buit.\n\nUtilitzeu la icona de la ploma a la part superior per redactar la primera publicació.\n\nEsteu aquí sol? Compartiu aquest fòrum amb els vostres contactes!</string>
+  <string name="no_forum_posts">No hi ha publicacions per mostrar</string>
   <string name="no_posts">No hi ha publicacions</string>
   <plurals name="posts">
     <item quantity="one">%d publicacio</item>
@@ -219,23 +215,17 @@
   <string name="btn_reply">Respon</string>
   <string name="forum_leave">Abandona el fòrum</string>
   <string name="dialog_title_leave_forum">Confirmeu la sortida del Forum</string>
-  <string name="dialog_message_leave_forum">Esteu segur que voleu sortir del fòrum? Els contactes amb qui heu compartit aquest fòrum podrien deixar de rebre\'n actualitzacions.</string>
   <string name="dialog_button_leave">Abandona</string>
-  <string name="forum_left_toast">Abandona el fòrum</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Comparteix el fòrum</string>
   <string name="contacts_selected">Contactes seleccionats</string>
   <string name="activity_share_toolbar_header">Tria contactes</string>
-  <string name="no_contacts_selector">Sembla que sou nou aquí i no teniu cap contacte.\n\nTorneu aquí després d\'afegir el primer contacte.</string>
   <string name="forum_shared_snackbar">Fòrum compartit amb els contactes seleccionats</string>
   <string name="forum_share_message">Afegiu un missatge (opcional)</string>
   <string name="forum_share_error">S\'ha produït un error en compartir aquest fòrum.</string>
   <string name="forum_invitation_received">%1$s ha compartit el fòrum «%2$s» amb vós.</string>
   <string name="forum_invitation_sent">Heu compartit el fòrum «%1$s» amb %2$s.</string>
   <string name="forum_invitations_title">Invitacions al fòrum</string>
-  <string name="forum_invitation_exists">Ja heu acceptat una invitació a aquest fòrum. L\'acceptació de més invitacions augmentarà i enfortirà la comunicació al fòrum.</string>
-  <string name="forum_joined_toast">Us hi heu unit al fòrum</string>
-  <string name="forum_declined_toast">S\'ha rebutjat la invitació al fòrum</string>
   <string name="shared_by_format">Compartit per 1%s</string>
   <string name="forum_invitation_already_sharing">Ja esteu compartint</string>
   <string name="forum_invitation_response_accepted_sent">Heu acceptat la invitació del fòrum de %s.</string>
@@ -251,19 +241,15 @@
   </plurals>
   <string name="nobody">Ningú</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Aquest blog està buit.\n\nPotser l\'autor encara no hi ha escrit res o que la persona que us ha compartit aquest blog hagi de connectar-se, llavors es podran sincronitzar les publicacions.</string>
+  <string name="blogs_other_blog_empty_state">No hi ha publicacions per mostrar</string>
   <string name="read_more">llegir més</string>
   <string name="blogs_write_blog_post">Escriviu una publicació de blog</string>
-  <string name="blogs_write_blog_post_body_hint">Escriviu la vostra publicació al blog aquí</string>
   <string name="blogs_publish_blog_post">Publica</string>
   <string name="blogs_blog_post_created">S\'ha creat la publicació al blog</string>
   <string name="blogs_blog_post_received">S\'ha rebut una nova publicació al blog</string>
   <string name="blogs_blog_post_scroll_to">Desplaça</string>
-  <string name="blogs_feed_empty_state">Aquestes són totes les entrades del blog.\n\nSembla que ningú ha publicat res encara.\n\nSigueu el primer i premeu la icona del llapis per escriure una publicació nova al blog.</string>
   <string name="blogs_remove_blog">Elimina el blog</string>
-  <string name="blogs_remove_blog_dialog_message">Esteu segur que voleu esborrar aquest blog i totes les seves publicacions?\nTingueu present que això no esborrarà el blog dels dispositius d\'altres persones.</string>
-  <string name="blogs_remove_blog_ok">Elimina el blog</string>
-  <string name="blogs_blog_removed">S\'ha eliminat el blog</string>
+  <string name="blogs_remove_blog_ok">Eliminar</string>
   <string name="blogs_reblog_comment_hint">Afegiu un comentari (opcional)</string>
   <string name="blogs_reblog_button">Rebloga</string>
   <!--Blog Sharing-->
@@ -278,8 +264,6 @@
   <string name="blogs_sharing_invitation_received">%1$s us ha compartit el blog \"%2$s\".</string>
   <string name="blogs_sharing_invitation_sent">Heu compartit el blog \"%1$s\" amb %2$s.</string>
   <string name="blogs_sharing_invitations_title">Invitacions al blog</string>
-  <string name="blogs_sharing_joined_toast">Subscrit al blog</string>
-  <string name="blogs_sharing_declined_toast">Invitació al blog refusada</string>
   <string name="sharing_status_blog">Qualsevol subscrit a un blog el pot compartir amb els seus contactes. Esteu compartint aquest blog amb els següents contactes. També hi pot haver altres subscrits que no veieu.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importa canal RSS</string>
@@ -291,10 +275,8 @@
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Darrera actualització:</string>
   <string name="blogs_rss_remove_feed">Elimina el canal</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Esteu segurs que voleu eliminar aquest canal i totes les seves publicacions?\nLes publicacions que hàgiu compartit no se suprimiran dels dispositius d\'altres persones.</string>
-  <string name="blogs_rss_remove_feed_ok">Elimina el canal</string>
+  <string name="blogs_rss_remove_feed_ok">Eliminar</string>
   <string name="blogs_rss_feeds_manage_delete_error">El canal no s\'ha pogut esborrar.</string>
-  <string name="blogs_rss_feeds_manage_empty_state">No heu importat cap canal RSS.\n\nPer què no feu clic al botó més de la part superior dreta per afegir el primer?</string>
   <string name="blogs_rss_feeds_manage_error">S\'ha produït un problema en carregar els vostres canals. Torneu-ho a provar més tard.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Xarxes</string>

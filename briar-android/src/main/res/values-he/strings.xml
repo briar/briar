@@ -77,17 +77,7 @@
   <string name="show_onboarding">הצג עזרה</string>
   <string name="help">עזרה</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">נראה שאתם חדשים כאן ועדיין אין לכם אנשי קשר.
-
-לחצו על האייקון&amp;#160+ למעלה ועקבו אחר ההוראות להוספת חברים לרשימה.
-
-אנא זכרו: אתם יכולים להוסיף אנשי קשר רק פנים-מול-פנים, זאת על מנת למנוע מאנשים להתחזות לכם או לקרוא את הודעותיכם בעתיד.</string>
   <string name="date_no_private_messages">אין הודעות.</string>
-  <string name="no_private_messages">זהו מסך השיחה.
-
-נראה שאין שיחה.
-
-פשוט לחצו על השדה הטקסט בתחתית בשביל להתחיל שיחה.</string>
   <string name="message_hint">כתבו הודעה</string>
   <string name="delete_contact">מחיקת איש קשר</string>
   <string name="dialog_title_delete_contact">אישור מחיקת איש קשר</string>
@@ -134,9 +124,6 @@
     <item quantity="other">נוספו %d אנשי קשר חדשים.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">אתם לא משתתפים באף קבוצה.
-
-לחצו על אייקון + בראש המסך על מנת ליצור קבוצה בעצמכם או ביקשו מאנשי הקשר שלכם להוסיף אתכם לאחת הקבוצות שלהם.</string>
   <string name="groups_created_by">נוצר על ידי %s</string>
   <plurals name="messages">
     <item quantity="one">הודעה %d</item>
@@ -195,20 +182,10 @@
   <string name="groups_reveal_visible_revealed_by_contact">היחסים עם האיש קשר גלויים לקבוצה (נחשפו על %s)</string>
   <string name="groups_reveal_invisible">היחסים עם האיש קשר אינם גלויים לקבוצה</string>
   <!--Forums-->
-  <string name="no_forums">עדיין אין לכם פורומים.
-
-למה שלא תיצרו אחד חדש בעצמכם על ידי לחיצה על האייקון&amp;#160+ למעלה?
-
-ביכולתכם גם לבקש מאנשי הקשר לשתף אתכם בפורומים.</string>
   <string name="create_forum_title">יצירת פורום</string>
   <string name="choose_forum_hint">בחרו שם לפורום שלכם</string>
   <string name="create_forum_button">יצירת פורום</string>
   <string name="forum_created_toast">הפורום נוצר</string>
-  <string name="no_forum_posts">הפורום הזה ריק.
-
-לחצו על אייקון העט למעלה על מנת לכתוב את הפוסט הראשון.
-
-מרגישים בודדים כאן? שתפו את הפורום עם עוד אנשי קשר!</string>
   <string name="no_posts">אין פוסטים</string>
   <plurals name="posts">
     <item quantity="one">פוסט %d</item>
@@ -220,32 +197,26 @@
   <string name="btn_reply">להשיב</string>
   <string name="forum_leave">עזיבת הפורום</string>
   <string name="dialog_title_leave_forum">אשרו את עזיבת הפורום</string>
-  <string name="dialog_message_leave_forum">האם אתם בטוחים שברצונכם לעזוב את הפורום הזה? אנשי הקשר ששיתפתם בפורום עלולים לא לקבל יותר עדכונים מהפורום.</string>
   <string name="dialog_button_leave">לעזוב</string>
-  <string name="forum_left_toast">עזבתם את הפורום</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">שיתוף הפורום</string>
   <string name="contacts_selected">אנשי קשר נבחרו</string>
   <string name="activity_share_toolbar_header">בחרו אנשי קשר</string>
-  <string name="no_contacts_selector">נראה שאתם חדשים כאן ושעדיין אין לכם אנשי קשר.
-
-אנא חזרו הנה אחרי שתוסיפו את איש הקשר הראשון שלכם.</string>
   <string name="forum_shared_snackbar">שיתפתם את הפורום עם אנשי הקשר שנבחרו</string>
   <string name="forum_share_message">הוסיפו הודעה (לא חובה)</string>
   <string name="forum_share_error">הייתה שגיאה בעת שיתוף הפורום.</string>
   <string name="forum_invitation_received">%1$s שיתפו את הפורום \"%2$s\" איתכם.</string>
   <string name="forum_invitation_sent">שיתפתם את הפורום \"%1$s\" עם %2$s.</string>
   <string name="forum_invitations_title">הזמנות לפורום</string>
-  <string name="forum_invitation_exists">אישרתם כבר את ההזמנה לפורום הזה. אישור הזמנות נוספות יגדיל ויחזק את התקשורת בפורום.</string>
-  <string name="forum_joined_toast">הצטרפתם לפורום</string>
-  <string name="forum_declined_toast">הזמנה לפורום נדחתה</string>
   <string name="shared_by_format">שותף  על ידי %s</string>
   <!--Blogs-->
+  <string name="blogs_remove_blog_ok">להסיר</string>
   <!--Blog Sharing-->
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import_button">ייבא</string>
   <string name="blogs_rss_feeds_manage_author">מחבר:</string>
   <string name="blogs_rss_feeds_manage_updated">עודכן לאחרונה:</string>
+  <string name="blogs_rss_remove_feed_ok">להסיר</string>
   <!--Settings Network-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">אבטחה</string>

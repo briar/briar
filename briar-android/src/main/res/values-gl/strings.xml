@@ -107,11 +107,13 @@
   <!--Blogs-->
   <string name="read_more">ler mais</string>
   <string name="blogs_publish_blog_post">Publicar</string>
+  <string name="blogs_remove_blog_ok">Eliminar</string>
   <!--Blog Sharing-->
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import_button">Importar</string>
   <string name="blogs_rss_feeds_manage_author">Autor/a:</string>
   <string name="blogs_rss_feeds_manage_updated">Última actualización:</string>
+  <string name="blogs_rss_remove_feed_ok">Eliminar</string>
   <!--Settings Network-->
   <!--Settings Security and Panic-->
   <string name="change_password">Cambiar contrasinal</string>

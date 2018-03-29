@@ -70,7 +70,6 @@
   <string name="fix">Laga</string>
   <string name="help">Hjälp</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Det verkar som att du är ny här och inte hara några kontakter än.\n\nTryck på +-ikonen längre upp och följ anvisningarna för att lägga till några vänner till din lista.\n\nKom ihåg: Du kan bara lägga till nya kontakter då ni setts i verkligheten. Detta gör att ingen kan utge sig för att vara du från ett annat konto.</string>
   <string name="date_no_private_messages">Inga meddelanden</string>
   <string name="message_hint">Skriv ett meddelande</string>
   <string name="delete_contact">Radera kontakt</string>
@@ -86,7 +85,6 @@
   <string name="introduction_onboarding_text">Du kan presentera dina kontakter för varandra, på så sätt behöver de inte ses i verkligheten för att kunna lägga till varandra på Briar.</string>
   <string name="introduction_activity_title">Välj kontakt</string>
   <!--Private Groups-->
-  <string name="groups_list_empty">Du är inte medlem i några grupper.\n\nTryck på +-ikonen högst upp för att skapa en grupp eller för att be om att gå med i en grupp.</string>
   <string name="groups_group_is_empty">Denna grupp har inga medlemmar</string>
   <string name="groups_group_is_dissolved">Denna grupp har raderats</string>
   <string name="groups_remove">Ta bort</string>
@@ -108,11 +106,13 @@
   <string name="dialog_button_leave">Tillbaka</string>
   <!--Forum Sharing-->
   <!--Blogs-->
+  <string name="blogs_remove_blog_ok">&amp;Ta bort</string>
   <!--Blog Sharing-->
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import_button">Importera</string>
   <string name="blogs_rss_feeds_manage_author">Författare:</string>
   <string name="blogs_rss_feeds_manage_updated">Senast uppdaterad:</string>
+  <string name="blogs_rss_remove_feed_ok">&amp;Ta bort</string>
   <!--Settings Network-->
   <string name="network_settings_title">Nätverk</string>
   <string name="bluetooth_setting">Anslut via Bluetooth</string>

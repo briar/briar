@@ -33,8 +33,6 @@
   <string name="startup_failed_notification_title">Briar 无法启动</string>
   <string name="startup_failed_notification_text">点击查看更多信息。</string>
   <string name="startup_failed_activity_title">Briar 启动失败</string>
-  <string name="startup_failed_db_error">由于某种原因，您的 Briar 数据库损坏且无法修复。您的帐户、数据和所有联系人已经丢失。不幸的是，您需要在提示输入密码时选择“我忘记了我的密码”以重新安装 Briar 并建立新帐户。</string>
-  <string name="startup_failed_data_too_old_error">您的帐户由旧版本应用创建，无法在此版本上打开。您需要重新安装旧版本应用或在提示输入密码时选择“我忘记了我的密码”以删除旧帐户。</string>
   <string name="startup_failed_data_too_new_error">该应用版本过旧。请升级至最新版本并重试。</string>
   <string name="startup_failed_service_error">Briar 无法开启一个必要插件。通常情况下，重新安装 Briar 可以解决这个问题。但是由于 Briar 并不采用中央服务器来储存您的数据，您将丢失您的账号和与您的账号相关的一切数据。</string>
   <plurals name="expiry_warning">
@@ -42,6 +40,8 @@
   </plurals>
   <string name="expiry_update">测试到期时间延长，您的帐户将在 %d 天后过期。</string>
   <string name="expiry_date_reached">本软件已过期。\n感谢您的测试！</string>
+  <string name="startup_open_database">正在解密数据库……</string>
+  <string name="startup_migrate_database">正在升级数据库……</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">打开抽屉式导航栏</string>
   <string name="nav_drawer_close_description">关闭抽屉式导航栏</string>
@@ -94,9 +94,7 @@
   <string name="help">帮助</string>
   <string name="sorry">抱歉</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">你似乎是新来的，目前还没有联系人。\n\n轻触上方的 + 按钮并根据提示添加联系人。\n\n请牢记：您只能通过面对面的方式添加新联系人，以防止未来他人冒充您的身份并查看您的信息。</string>
   <string name="date_no_private_messages">没有消息。</string>
-  <string name="no_private_messages">这是对话视图。\n\n这里似乎缺少对话。\n\n轻触下方的输入框来开始对话。</string>
   <string name="message_hint">键入信息</string>
   <string name="delete_contact">删除联系人</string>
   <string name="dialog_title_delete_contact">确认删除联系人</string>
@@ -143,7 +141,6 @@
     <item quantity="other">已添加 %d 位新联系人。</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">您尚未参与任何群聊\n\n轻触上方的 + 按钮创建群聊或通过联系人邀请进入群聊。</string>
   <string name="groups_created_by">由 %s 创建</string>
   <plurals name="messages">
     <item quantity="other">%d 条消息。</item>
@@ -194,12 +191,11 @@
   <string name="groups_reveal_visible_revealed_by_contact">联系人关系对群聊可见 (由 %s 设定)</string>
   <string name="groups_reveal_invisible">联系人关系对群聊不可见</string>
   <!--Forums-->
-  <string name="no_forums">您目前还没有加入论坛\n\n轻触上方的 + 按钮以创建新论坛。\n\n您还可以通过联系人分享论坛给您。</string>
   <string name="create_forum_title">创建论坛</string>
   <string name="choose_forum_hint">为论坛命名</string>
   <string name="create_forum_button">创建论坛</string>
   <string name="forum_created_toast">论坛已创建</string>
-  <string name="no_forum_posts">该论坛是空的\n\n使用上方的钢笔按钮创建第一篇博文\n\n感觉很孤单？将此论坛分享给您的联系人吧！</string>
+  <string name="no_forum_posts">尚无帖子可供展示</string>
   <string name="no_posts">无帖子</string>
   <plurals name="posts">
     <item quantity="other">%d 条帖子</item>
@@ -210,23 +206,17 @@
   <string name="btn_reply">回复</string>
   <string name="forum_leave">退出论坛</string>
   <string name="dialog_title_leave_forum">确认退出论坛</string>
-  <string name="dialog_message_leave_forum">确认要离开此论坛吗？那些经过你的分享而进入该论坛的联系人将不会收到此论坛的更新。</string>
   <string name="dialog_button_leave">退出</string>
-  <string name="forum_left_toast">已退出论坛</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">分享论坛</string>
   <string name="contacts_selected">已选择联系人</string>
   <string name="activity_share_toolbar_header">选择联系人</string>
-  <string name="no_contacts_selector">似乎你是新来的，目前还没有联系人。\n\n请添加联系人后再来。</string>
   <string name="forum_shared_snackbar">论坛已分享给选中的联系人</string>
   <string name="forum_share_message">添加一句话 (选填)</string>
   <string name="forum_share_error">分享此论坛时发生错误。</string>
   <string name="forum_invitation_received">%1$s 已将论坛 “%2$s” 分享给你。</string>
   <string name="forum_invitation_sent">您已将论坛 “%1$s” 分享给 %2$s。</string>
   <string name="forum_invitations_title">论坛邀请</string>
-  <string name="forum_invitation_exists">您已接收了加入此论坛的一个邀请。接受更多邀请会促进和增强论坛的交流。</string>
-  <string name="forum_joined_toast">已加入论坛</string>
-  <string name="forum_declined_toast">论坛邀请已谢绝</string>
   <string name="shared_by_format">由 %s 分享</string>
   <string name="forum_invitation_already_sharing">已在分享</string>
   <string name="forum_invitation_response_accepted_sent">您接受了来自 %s的论坛邀请</string>
@@ -241,19 +231,15 @@
   </plurals>
   <string name="nobody">没有人</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">这个博客目前是空的。\n\n这有可能是因为作者尚未发布任何内容，或者是分享该博客给您的人需要上线以使博文同步。</string>
+  <string name="blogs_other_blog_empty_state">尚无帖子可供展示</string>
   <string name="read_more">阅读更多</string>
   <string name="blogs_write_blog_post">写博文</string>
-  <string name="blogs_write_blog_post_body_hint">在此输入博文</string>
   <string name="blogs_publish_blog_post">发布</string>
   <string name="blogs_blog_post_created">博文已创建</string>
   <string name="blogs_blog_post_received">收到新博文</string>
   <string name="blogs_blog_post_scroll_to">滑动至</string>
-  <string name="blogs_feed_empty_state">这里是环球博客订阅\n\n目前似乎还没有人发表博文。\n\n轻触钢笔按钮以书写一个新博文，成为第一个发表博文的人。</string>
   <string name="blogs_remove_blog">删除博客</string>
-  <string name="blogs_remove_blog_dialog_message">确认要删除此订阅及其所有博文吗？\n请注意该博客将不会从他人的设备中删除。</string>
-  <string name="blogs_remove_blog_ok">删除博客</string>
-  <string name="blogs_blog_removed">博客已删除</string>
+  <string name="blogs_remove_blog_ok">删除</string>
   <string name="blogs_reblog_comment_hint">添加评论 (选填)</string>
   <string name="blogs_reblog_button">转载</string>
   <!--Blog Sharing-->
@@ -268,8 +254,6 @@
   <string name="blogs_sharing_invitation_received">%1$s 向您分享博客 “%2$s”。</string>
   <string name="blogs_sharing_invitation_sent">您已将博客 “%1$s” 分享给 %2$s。</string>
   <string name="blogs_sharing_invitations_title">博客邀请</string>
-  <string name="blogs_sharing_joined_toast">订阅到博客</string>
-  <string name="blogs_sharing_declined_toast">博客邀请已谢绝</string>
   <string name="sharing_status_blog">任何订阅博客的人都可以将它分享给他的联系人。您正在将该博客分享给下列联系人。可能有其他您所不可见的订阅者存在。</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">导入 RSS 订阅</string>
@@ -281,10 +265,8 @@
   <string name="blogs_rss_feeds_manage_author">作者：</string>
   <string name="blogs_rss_feeds_manage_updated">最后更新于：</string>
   <string name="blogs_rss_remove_feed">删除订阅</string>
-  <string name="blogs_rss_remove_feed_dialog_message">确认要删除此订阅及其所有博文吗？\n任何您分享过的博文不会从他人的设备中删除。</string>
-  <string name="blogs_rss_remove_feed_ok">删除订阅</string>
+  <string name="blogs_rss_remove_feed_ok">删除</string>
   <string name="blogs_rss_feeds_manage_delete_error">该订阅无法被删除！</string>
-  <string name="blogs_rss_feeds_manage_empty_state">您尚未导入任何 RSS 订阅。\n\n轻触屏幕右上角的加号以添加第一个订阅。</string>
   <string name="blogs_rss_feeds_manage_error">加载订阅时出错。请稍候再试。</string>
   <!--Settings Network-->
   <string name="network_settings_title">网络</string>
