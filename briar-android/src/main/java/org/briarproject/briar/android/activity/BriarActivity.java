@@ -16,7 +16,7 @@ import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.DbController;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.login.PasswordActivity;
-import org.briarproject.briar.android.panic.ExitActivity;
+import org.briarproject.briar.android.logout.ExitActivity;
 
 import java.util.logging.Logger;
 

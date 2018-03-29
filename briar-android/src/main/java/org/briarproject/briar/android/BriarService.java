@@ -4,8 +4,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
@@ -17,19 +20,26 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
+import org.briarproject.briar.android.splash.SplashScreenActivity;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.app.NotificationManager.IMPORTANCE_NONE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+import static android.content.Intent.ACTION_SHUTDOWN;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SERVICE;
 import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
@@ -60,6 +70,9 @@ public class BriarService extends Service {
 
 	private final AtomicBoolean created = new AtomicBoolean(false);
 	private final Binder binder = new BriarBinder();
+
+	@Nullable
+	private BroadcastReceiver receiver = null;
 
 	@Inject
 	protected DatabaseConfig databaseConfig;
@@ -140,6 +153,19 @@ public class BriarService extends Service {
 				stopSelf();
 			}
 		}).start();
+		// Register for device shutdown broadcasts
+		receiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				LOG.info("Device is shutting down");
+				shutdownFromBackground();
+			}
+		};
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(ACTION_SHUTDOWN);
+		filter.addAction("android.intent.action.QUICKBOOT_POWEROFF");
+		filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF");
+		registerReceiver(receiver, filter);
 	}
 
 	private void showStartupFailureNotification(StartResult result) {
@@ -184,6 +210,7 @@ public class BriarService extends Service {
 		super.onDestroy();
 		LOG.info("Destroyed");
 		stopForeground(true);
+		if (receiver != null) unregisterReceiver(receiver);
 		// Stop the services in a background thread
 		new Thread(() -> {
 			if (started) lifecycleManager.stopServices();
@@ -194,7 +221,48 @@ public class BriarService extends Service {
 	public void onLowMemory() {
 		super.onLowMemory();
 		LOG.warning("Memory is low");
-		// FIXME: Work out what to do about it
+		shutdownFromBackground();
+		showLowMemoryShutdownNotification();
+	}
+
+	private void shutdownFromBackground() {
+		// Stop the service
+		stopSelf();
+		// Hide the UI
+		Intent i = new Intent(this, HideUiActivity.class);
+		i.addFlags(FLAG_ACTIVITY_NEW_TASK
+				| FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+				| FLAG_ACTIVITY_NO_ANIMATION
+				| FLAG_ACTIVITY_CLEAR_TASK);
+		startActivity(i);
+		// Wait for shutdown to complete, then exit
+		new Thread(() -> {
+			try {
+				if (started) lifecycleManager.waitForShutdown();
+			} catch (InterruptedException e) {
+				LOG.info("Interrupted while waiting for shutdown");
+			}
+			LOG.info("Exiting");
+			System.exit(0);
+		}).start();
+	}
+
+	private void showLowMemoryShutdownNotification() {
+		androidExecutor.runOnUiThread(() -> {
+			NotificationCompat.Builder b = new NotificationCompat.Builder(
+					BriarService.this, FAILURE_CHANNEL_ID);
+			b.setSmallIcon(android.R.drawable.stat_notify_error);
+			b.setContentTitle(getText(
+					R.string.low_memory_shutdown_notification_title));
+			b.setContentText(getText(
+					R.string.low_memory_shutdown_notification_text));
+			Intent i = new Intent(this, SplashScreenActivity.class);
+			b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
+			b.setAutoCancel(true);
+			Object o = getSystemService(NOTIFICATION_SERVICE);
+			NotificationManager nm = (NotificationManager) o;
+			nm.notify(FAILURE_NOTIFICATION_ID, b.build());
+		});
 	}
 
 	/**

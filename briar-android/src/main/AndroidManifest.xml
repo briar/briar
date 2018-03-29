@@ -374,7 +374,12 @@
 		</activity>
 
 		<activity
-			android:name="org.briarproject.briar.android.panic.ExitActivity"
+			android:name="org.briarproject.briar.android.logout.ExitActivity"
+			android:theme="@android:style/Theme.NoDisplay">
+		</activity>
+
+		<activity
+			android:name=".android.logout.HideUiActivity"
 			android:theme="@android:style/Theme.NoDisplay">
 		</activity>
 
