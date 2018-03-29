@@ -20,6 +20,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -33,6 +34,7 @@ import static android.net.wifi.WifiManager.EXTRA_WIFI_STATE;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 @NotNullByDefault
 class AndroidLanTcpPlugin extends LanTcpPlugin {
@@ -58,6 +60,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		}
 	}
 
+	private final ScheduledExecutorService scheduler;
 	private final Context appContext;
 	private final ConnectivityManager connectivityManager;
 	@Nullable
@@ -67,10 +70,11 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	private volatile BroadcastReceiver networkStateReceiver = null;
 	private volatile SocketFactory socketFactory;
 
-	AndroidLanTcpPlugin(Executor ioExecutor, Backoff backoff,
-			Context appContext, DuplexPluginCallback callback, int maxLatency,
-			int maxIdleTime) {
+	AndroidLanTcpPlugin(Executor ioExecutor, ScheduledExecutorService scheduler,
+			Backoff backoff, Context appContext, DuplexPluginCallback callback,
+			int maxLatency, int maxIdleTime) {
 		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime);
+		this.scheduler = scheduler;
 		this.appContext = appContext;
 		ConnectivityManager connectivityManager = (ConnectivityManager)
 				appContext.getSystemService(CONNECTIVITY_SERVICE);
@@ -153,10 +157,19 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		@Override
 		public void onReceive(Context ctx, Intent i) {
 			if (!running) return;
+			if (isApEnabledEvent(i)) {
+				// The state change may be broadcast before the AP address is
+				// visible, so delay handling the event
+				scheduler.schedule(this::handleConnectivityChange, 1, SECONDS);
+			} else {
+				handleConnectivityChange();
+			}
+		}
+
+		private void handleConnectivityChange() {
+			if (!running) return;
 			Collection<InetAddress> addrs = getLocalIpAddresses();
-			// The state change may be broadcast before the AP address is
-			// visible, so check the intent as well as the local addresses
-			if (isApEnabledEvent(i) || addrs.contains(WIFI_AP_ADDRESS)) {
+			if (addrs.contains(WIFI_AP_ADDRESS)) {
 				LOG.info("Providing wifi hotspot");
 				// There's no corresponding Network object and thus no way
 				// to get a suitable socket factory, so we won't be able to
