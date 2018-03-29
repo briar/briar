@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -27,12 +28,15 @@ public class AndroidLanTcpPluginFactory implements DuplexPluginFactory {
 	private static final double BACKOFF_BASE = 1.2;
 
 	private final Executor ioExecutor;
+	private final ScheduledExecutorService scheduler;
 	private final BackoffFactory backoffFactory;
 	private final Context appContext;
 
 	public AndroidLanTcpPluginFactory(Executor ioExecutor,
-			BackoffFactory backoffFactory, Context appContext) {
+			ScheduledExecutorService scheduler, BackoffFactory backoffFactory,
+			Context appContext) {
 		this.ioExecutor = ioExecutor;
+		this.scheduler = scheduler;
 		this.backoffFactory = backoffFactory;
 		this.appContext = appContext;
 	}
@@ -51,7 +55,7 @@ public class AndroidLanTcpPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		return new AndroidLanTcpPlugin(ioExecutor, backoff, appContext,
-				callback, MAX_LATENCY, MAX_IDLE_TIME);
+		return new AndroidLanTcpPlugin(ioExecutor, scheduler, backoff,
+				appContext, callback, MAX_LATENCY, MAX_IDLE_TIME);
 	}
 }
