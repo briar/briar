@@ -37,7 +37,7 @@ import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.forum.ForumListFragment;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
-import org.briarproject.briar.android.fragment.SignOutFragment;
+import org.briarproject.briar.android.logout.SignOutFragment;
 import org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning;
 import org.briarproject.briar.android.privategroup.list.GroupListFragment;
 import org.briarproject.briar.android.settings.SettingsActivity;

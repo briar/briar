@@ -415,4 +415,7 @@
 	<string name="qr_code">QR code</string>
 	<string name="show_qr_code_fullscreen">Show QR code fullscreen</string>
 
+	<!-- Low Memory Notification -->
+	<string name="low_memory_shutdown_notification_title">Signed out of Briar</string>
+	<string name="low_memory_shutdown_notification_text">Signed out due to lack of memory.</string>
 </resources>
