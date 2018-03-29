@@ -243,10 +243,11 @@ abstract class TcpPlugin implements DuplexPlugin {
 				}
 				continue;
 			}
-			Socket s = new Socket();
 			try {
 				if (LOG.isLoggable(INFO))
 					LOG.info("Connecting to " + scrubSocketAddress(remote));
+				Socket s = createSocket();
+				s.bind(new InetSocketAddress(socket.getInetAddress(), 0));
 				s.connect(remote);
 				s.setSoTimeout(socketTimeout);
 				if (LOG.isLoggable(INFO))
@@ -259,6 +260,10 @@ abstract class TcpPlugin implements DuplexPlugin {
 			}
 		}
 		return null;
+	}
+
+	protected Socket createSocket() throws IOException {
+		return new Socket();
 	}
 
 	@Nullable

@@ -241,10 +241,11 @@ class LanTcpPlugin extends TcpPlugin {
 			}
 			return null;
 		}
-		Socket s = new Socket();
 		try {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Connecting to " + scrubSocketAddress(remote));
+			Socket s = createSocket();
+			s.bind(new InetSocketAddress(socket.getInetAddress(), 0));
 			s.connect(remote);
 			s.setSoTimeout(socketTimeout);
 			if (LOG.isLoggable(INFO))
