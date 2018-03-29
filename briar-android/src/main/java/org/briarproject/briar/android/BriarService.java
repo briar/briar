@@ -22,6 +22,7 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
+import org.briarproject.briar.android.splash.SplashScreenActivity;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -221,6 +222,7 @@ public class BriarService extends Service {
 		super.onLowMemory();
 		LOG.warning("Memory is low");
 		shutdownFromBackground();
+		showLowMemoryShutdownNotification();
 	}
 
 	private void shutdownFromBackground() {
@@ -243,6 +245,24 @@ public class BriarService extends Service {
 			LOG.info("Exiting");
 			System.exit(0);
 		}).start();
+	}
+
+	private void showLowMemoryShutdownNotification() {
+		androidExecutor.runOnUiThread(() -> {
+			NotificationCompat.Builder b = new NotificationCompat.Builder(
+					BriarService.this, FAILURE_CHANNEL_ID);
+			b.setSmallIcon(android.R.drawable.stat_notify_error);
+			b.setContentTitle(getText(
+					R.string.low_memory_shutdown_notification_title));
+			b.setContentText(getText(
+					R.string.low_memory_shutdown_notification_text));
+			Intent i = new Intent(this, SplashScreenActivity.class);
+			b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
+			b.setAutoCancel(true);
+			Object o = getSystemService(NOTIFICATION_SERVICE);
+			NotificationManager nm = (NotificationManager) o;
+			nm.notify(FAILURE_NOTIFICATION_ID, b.build());
+		});
 	}
 
 	/**

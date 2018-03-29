@@ -411,4 +411,7 @@
 	<string name="permission_camera_denied_body">You have denied access to the camera, but adding contacts requires using the camera.\n\nPlease consider granting access.</string>
 	<string name="permission_camera_denied_toast">Camera permission was not granted</string>
 
+	<!-- Low Memory Notification -->
+	<string name="low_memory_shutdown_notification_title">Signed out of Briar</string>
+	<string name="low_memory_shutdown_notification_text">Signed out due to lack of memory.</string>
 </resources>
