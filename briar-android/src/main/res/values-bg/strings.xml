@@ -234,8 +234,8 @@
   <string name="blogs_blog_post_scroll_to">Отвори</string>
   <string name="blogs_feed_empty_state">Това е глобалната блог емисия.\n\nНикой още не е публикувал нищо.\n\nБъдете първия и натиснете писалката, за да напишете първата блог публикация.</string>
   <string name="blogs_remove_blog">Премахване на блог</string>
+  <string name="blogs_remove_blog_ok">Премахване</string>
   <string name="blogs_remove_blog_dialog_message">Сигурни ли сте, че искате да премахнете този блог и всички публикации?\nБлогът няма да бъдат премахнат от устройствата на други хора.</string>
-  <string name="blogs_remove_blog_ok">Премахни блог</string>
   <string name="blogs_blog_removed">Блогът е премахнат</string>
   <string name="blogs_reblog_comment_hint">Добавете съобщение (незадължително)</string>
   <string name="blogs_reblog_button">Реблог</string>
@@ -264,8 +264,8 @@
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
   <string name="blogs_rss_feeds_manage_updated">Последно актуализиране:</string>
   <string name="blogs_rss_remove_feed">Премахване на емисия</string>
+  <string name="blogs_rss_remove_feed_ok">Премахване</string>
   <string name="blogs_rss_remove_feed_dialog_message">Сигурни ли сте, че искате да премахнете тази емисия и всички нейни публикации?\nВсички споделени от вас публикации няма да бъдат премахнати от устройствата на други хора.</string>
-  <string name="blogs_rss_remove_feed_ok">Емисията е премахната</string>
   <string name="blogs_rss_feeds_manage_delete_error">Емисията не можа да бъде изтрита!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Нямате добавени RSS емисии.\n\nНатиснете плюса в горния десен ъгъл на екрана, за да добавите нова емисия.</string>
   <string name="blogs_rss_feeds_manage_error">Възникна проблем при зареждането на емисиите ви. Моля, опитайте пак по-късно.</string>

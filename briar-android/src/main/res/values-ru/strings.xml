@@ -45,6 +45,8 @@
   </plurals>
   <string name="expiry_update">Дата окончания тестирования была продлена. Срок действия вашей учетной записи истечет через %d дней.</string>
   <string name="expiry_date_reached">Срок действия этого программного обеспечения истек.\nСпасибо за тестирование!</string>
+  <string name="startup_open_database">Расшифровка базы данных...</string>
+  <string name="startup_migrate_database">Обновление базы данных...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Открыть навигационное меню</string>
   <string name="nav_drawer_close_description">Закрыть навигационное меню</string>
@@ -223,7 +225,7 @@
   <string name="choose_forum_hint">Выберите имя для вашего форума</string>
   <string name="create_forum_button">Создать форум</string>
   <string name="forum_created_toast">Форум создан</string>
-  <string name="no_forum_posts">Этот форум пуст.\n\nСоздайте свою первую запись.\n\nЧувствуете одиночество? Поделитесь этим форумом с вашими контактами!</string>
+  <string name="no_forum_posts">Нет постов для показа</string>
   <string name="no_posts">Нет постов</string>
   <plurals name="posts">
     <item quantity="one">%d пост</item>
@@ -271,7 +273,7 @@
   </plurals>
   <string name="nobody">Никого</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Этот блог пуст.\n\nЛибо автор еще ничего не написал, либо человек, который поделился с вами этим блогом, должен выйти в Интернет, чтобы сообщения могли быть синхронизированы.</string>
+  <string name="blogs_other_blog_empty_state">Нет постов для показа</string>
   <string name="read_more">подробнее</string>
   <string name="blogs_write_blog_post">Написать в блоге</string>
   <string name="blogs_write_blog_post_body_hint">Введите ваше сообщение здесь</string>

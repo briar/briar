@@ -33,8 +33,8 @@
   <string name="startup_failed_notification_title">Briar não pode iniciar</string>
   <string name="startup_failed_notification_text">Pressione para mais informações.</string>
   <string name="startup_failed_activity_title">Inicialização do Briar falhou</string>
-  <string name="startup_failed_db_error">Por algum motivo, o banco de dados do seu Briar está corrompido e não é possível repará-lo. Sua conta, seus dados e seus contatos foram perdidos. Infelizmente, você precisará reinstalar o Briar e criar uma nova conta escolhendo a opção \'Esqueci minha senha\'.</string>
-  <string name="startup_failed_data_too_old_error">Sua conta foi criada numa versão mais antiga do aplicativo e não pode ser aberta nesta versão. Você pode reinstalar a versão antiga ou deleter sua conta antiga escolhendo a opção \"Esqueci minha senha\".</string>
+  <string name="startup_failed_db_error">Por algum motivo, o banco de dados do seu Briar está corrompido e não é possível repará-lo. Sua conta, seus dados e seus contatos foram perdidos. Infelizmente, você precisará reinstalar o Briar ou criar uma nova conta escolhendo a opção \'Esqueci minha senha\'.</string>
+  <string name="startup_failed_data_too_old_error">Sua conta foi criada numa versão mais antiga do aplicativo e não pode ser aberta nesta versão. Você pode reinstalar a versão antiga ou criar uma conta nova escolhendo a opção \"Esqueci minha senha\".</string>
   <string name="startup_failed_data_too_new_error">A versão deste aplicativo é muito antiga. Por favor, atualize para a versão mais nova e tente novamente.</string>
   <string name="startup_failed_service_error">O Briar não pode iniciar devido a um plugin. Reinstalar o Briar geralmente resolve esse problema. Porém, note que ao fazer isso você perderá sua conta e todos os dados associados a ela,  já que o Briar não usa um servidor central para armazenar seus dados.</string>
   <plurals name="expiry_warning">
@@ -43,6 +43,8 @@
   </plurals>
   <string name="expiry_update">O prazo de validade da versão de teste foi extendido. Agora sua conta irá expirar em %d dias.</string>
   <string name="expiry_date_reached">Este software expirou.\nObrigado por testar!</string>
+  <string name="startup_open_database">Descriptografando Banco de Dados...</string>
+  <string name="startup_migrate_database">Atualizando Banco de Dados...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Abrir aba de navegação</string>
   <string name="nav_drawer_close_description">Fechar aba de navegação</string>
@@ -358,7 +360,7 @@
   <string name="briar_crashed">Briar encerrou de maneira inesperada</string>
   <string name="not_your_fault">Isso não é sua culpa.</string>
   <string name="please_send_report">Nós ajude a construir um Briar melhor enviando um relatório de falhas.</string>
-  <string name="report_is_encrypted">Nós prometemos que o relatório é encriptado e enviado de forma segura.</string>
+  <string name="report_is_encrypted">Nós prometemos que o relatório é criptografado e enviado de forma segura.</string>
   <string name="feedback_title">Comentário</string>
   <string name="describe_crash">Descreva o que aconteceu (opcional)</string>
   <string name="enter_feedback">Digite seu comentário</string>
@@ -378,6 +380,7 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Permissão da câmera</string>
   <string name="permission_camera_request_body">O Briar precisa acessar a câmera para pode escanear o QR code.</string>
-  <string name="permission_camera_denied_body">Você negou acesso à câmera, mas adicionar contatos requer que você use a câmera.\n\nPor favor, considere a concessão de acesso a ela.</string>
+  <string name="permission_camera_denied_body">Você negou acesso à câmera, mas para adicionar contatos você precisa da câmera.\n\nPor favor, pense em liberar o acesso a ela.</string>
   <string name="permission_camera_denied_toast">A permissão da câmera não foi concedida</string>
+  <string name="qr_code">Código QR</string>
 </resources>

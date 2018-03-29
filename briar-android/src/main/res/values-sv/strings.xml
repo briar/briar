@@ -108,11 +108,13 @@
   <string name="dialog_button_leave">Tillbaka</string>
   <!--Forum Sharing-->
   <!--Blogs-->
+  <string name="blogs_remove_blog_ok">&amp;Ta bort</string>
   <!--Blog Sharing-->
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import_button">Importera</string>
   <string name="blogs_rss_feeds_manage_author">Författare:</string>
   <string name="blogs_rss_feeds_manage_updated">Senast uppdaterad:</string>
+  <string name="blogs_rss_remove_feed_ok">&amp;Ta bort</string>
   <!--Settings Network-->
   <string name="network_settings_title">Nätverk</string>
   <string name="bluetooth_setting">Anslut via Bluetooth</string>

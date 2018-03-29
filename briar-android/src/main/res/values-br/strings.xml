@@ -134,8 +134,10 @@
   <!--Forum Sharing-->
   <string name="forum_share_message">Ouzhpennañ ur gemennadenn (diret)</string>
   <!--Blogs-->
+  <string name="blogs_remove_blog_ok">Dilemel</string>
   <!--Blog Sharing-->
   <!--RSS Feeds-->
+  <string name="blogs_rss_remove_feed_ok">Dilemel</string>
   <!--Settings Network-->
   <!--Settings Security and Panic-->
   <string name="lock_setting_title">Digevreañ</string>

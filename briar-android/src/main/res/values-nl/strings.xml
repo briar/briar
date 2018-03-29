@@ -31,7 +31,9 @@
   <string name="dialog_title_lost_password">Wachtwoord vergeten</string>
   <string name="dialog_message_lost_password">Je Briar-account is versleuteld opgeslagen op je apparaat, niet in de cloud, dus kunnen we je wachtwoord niet resetten. Wil je je account verwijderen en opnieuw beginnen?\n\nLet op: Je identiteiten, contacten en berichten zullen permanent verloren gaan.</string>
   <string name="startup_failed_notification_title">Briar kon niet opstarten</string>
+  <string name="startup_failed_notification_text">Tap voor meer informatie.</string>
   <string name="startup_failed_activity_title">Opstarten Briar mislukt</string>
+  <string name="startup_failed_data_too_new_error">Deze versie van de is app is te oud. Upgrade a.u.b. naar de laatste versie en probeer het nog een keer.</string>
   <string name="startup_failed_service_error">Briar kon de vereiste plug-in niet starten. Herinstalleren van Briar lost dit probleem meestal op. Let op dat je al je je account en alle gegevens die daaraan vast zitten zal verliezen omdat Briar geen centrale servers gebruikt om gegevens op te slaan.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Dit is een testversie van Briar. Je account verloopt binnen %d dag en kan niet worden vernieuwd.</item>
@@ -39,6 +41,8 @@
   </plurals>
   <string name="expiry_update">De verloopdatum voor de test is vooruitgeschoven. Je account verloopt nu binnen %d dagen.</string>
   <string name="expiry_date_reached">Deze software is verlopen.\nBedankt vor het testen!</string>
+  <string name="startup_open_database">Database aan het ontsleutelen…</string>
+  <string name="startup_migrate_database">Database aan het upgraden…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Open de navigatielade</string>
   <string name="nav_drawer_close_description">Sluit de navigatielade</string>
@@ -93,6 +97,7 @@
   <string name="show_onboarding">Toon helpdialoog</string>
   <string name="fix">Fiks</string>
   <string name="help">Help</string>
+  <string name="sorry">Excuses</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Zo te zien ben je nieuw hier en heb je nog geen contacten.\n\nTap op het +-icoon bovenaan en volg de instructies om een aantal vrienden aan je list toe te voegen.\n\nHerinner a.u.b.: Je kan alleen in levenden lijve nieuwe contacten toevoevoegen om te voorkomen dat anderen zich als jou voor kunnen doen of in de toekomst je berichten kunnen lezen.</string>
   <string name="date_no_private_messages">Geen berichten.</string>
@@ -114,6 +119,7 @@
   <string name="contact_already_exists">Contact %s bestaat al</string>
   <string name="contact_exchange_failed">Uitwisselen contact is mislukt</string>
   <string name="qr_code_invalid">De QR-code is ongeldig</string>
+  <string name="qr_code_unsupported">De QR-code die je probeert te scannen is van een oude ver van %s die niet meer wordt ondersteund.\n\nControleer a.u.b. dat jullie beide de laatste versie gebruiken en probeer het nog een keer.</string>
   <string name="camera_error">Camerafout</string>
   <string name="connecting_to_device">Aan het verbinden met apparaat\u2026</string>
   <string name="authenticating_with_device">Aan het authentificeren met apparaat\u2026</string>
@@ -367,6 +373,8 @@
   <string name="progress_title_logout">Uitloggen van Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Schermoverlay detecteerd</string>
+  <string name="screen_filter_body">Een andere app ligt zich bovenop Briar. Om je veiligheid te beschermen zal Briar niet reageren op aanrakingen als er een andere app bovenop ligt.\n\nDe volgende apps proberen waarschijnlijk dit te doen:\n\n%1$s</string>
+  <string name="screen_filter_allow">Sta toe dat deze apps bovenop te liggen</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Cameratoestemming</string>
   <string name="permission_camera_request_body">Om de QR-code te scannen moet Briar toegang hebben tot de camera.</string>

@@ -43,6 +43,8 @@
   </plurals>
   <string name="expiry_update">La scadenza della versione di prova è stata prorogata. Il tuo account ora scadrà fra %d giorni.</string>
   <string name="expiry_date_reached">Questo software è scaduto.\nGrazie per il test!</string>
+  <string name="startup_open_database">Decrittazione database...</string>
+  <string name="startup_migrate_database">Aggiornamento database...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Apri la barra di navigazione</string>
   <string name="nav_drawer_close_description">Chiudi la barra di navigazione</string>
@@ -207,7 +209,7 @@
   <string name="choose_forum_hint">Scegli un nome per il tuo forum</string>
   <string name="create_forum_button">Crea Forum</string>
   <string name="forum_created_toast">Forum creato</string>
-  <string name="no_forum_posts">Questo forum è vuoto.\n\nUsa l\'icona penna in alto per comporre il primo post.\n\nTi senti solo qui? Condividi questo forum con i tuoi contatti!</string>
+  <string name="no_forum_posts">Nessun post da mostrare</string>
   <string name="no_posts">Nessun post.</string>
   <plurals name="posts">
     <item quantity="one">%d post</item>
@@ -251,7 +253,7 @@
   </plurals>
   <string name="nobody">Nessuno</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Questo blog è attualmente vuoto.\n\nO l\'autore non ha ancora scritto nulla, oppure la persona che ha condiviso questo blog con te deve tornare in line, in modo che i post possano sincronizzarsi.</string>
+  <string name="blogs_other_blog_empty_state">Nessun post da mostrare</string>
   <string name="read_more">leggi ancora</string>
   <string name="blogs_write_blog_post">Scrivere un post sul blog</string>
   <string name="blogs_write_blog_post_body_hint">Scrivi qui il tuo post del blog</string>

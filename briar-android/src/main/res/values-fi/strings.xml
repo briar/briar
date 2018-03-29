@@ -40,6 +40,8 @@
   </plurals>
   <string name="expiry_update">Testiaikaa on pidennetty. Tilisi tulee nyt vanhentumaan %d päivän kuluttua.</string>
   <string name="expiry_date_reached">Tämä sovellus on vanhentunut.\nKiitos testaamisesta!</string>
+  <string name="startup_open_database">Puretaan tietokannan salaus...</string>
+  <string name="startup_migrate_database">Päivitetään tietokanta...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Avaa navigointilaatikko</string>
   <string name="nav_drawer_close_description">Sulje navigointilaatikko</string>
@@ -94,11 +96,11 @@
   <string name="show_onboarding">Näytä apudialogi</string>
   <string name="fix">Korjaa</string>
   <string name="help">Ohje</string>
-  <string name="sorry">Anteeksi</string>
+  <string name="sorry">Pahoittelemme</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Näyttää siltä, että olet uusi täällä, eikä sinulla vielä ole yhteyshenkilöitä.\n\nNapauta yllä olevaa + -kuvaketta ja seuraa ohjeita lisätäksesi kavereita luetteloon.\n\nMuista: Voit ainoastaan lisätä uusia yhteyshenkilöitä tapaamalla heidät kasvokkain. Tämä estää sen, että joku voisi esittää olevansa sinä tai lukea viestejäsi tulevaisuudessa.</string>
   <string name="date_no_private_messages">Ei viestejä.</string>
-  <string name="no_private_messages">Tämä on keskustelunäkymä.\n\nKeskustelu näyttää puuttuvan.\n\nNapauta syöttökenttää sivun pohjalla aloittaaksesi keskustelun.</string>
+  <string name="no_private_messages">Ei viestejä</string>
   <string name="message_hint">Kirjoita viesti</string>
   <string name="delete_contact">Poista yhteystieto</string>
   <string name="dialog_title_delete_contact">Vahvista yhteystiedon poistaminen</string>
@@ -203,7 +205,7 @@
   <string name="choose_forum_hint">Valitse nimi foorumillesi</string>
   <string name="create_forum_button">Luo foorumi</string>
   <string name="forum_created_toast">Foorumi luotu</string>
-  <string name="no_forum_posts">Tämä foorumi on tyhjä.\n\nKäytä yllä olevaa kynää kirjoittaaksesi ensimmäisen viestin.\n\nTuntuuko yksinäiseltä? Kerro tästä foorumista muille!</string>
+  <string name="no_forum_posts">Ei kirjoituksia</string>
   <string name="no_posts">Ei viestejä</string>
   <plurals name="posts">
     <item quantity="one">%d viesti</item>
@@ -231,7 +233,7 @@
   <string name="forum_invitations_title">Kutsut liittyä foorumeihin</string>
   <string name="forum_invitation_exists">Olet jo hyväksynyt kutsun liittyä tähän foorumiin. Useamman kutsun hyväksyminen kasvattaa ja vahvistaa foorumin kommunikaatiota.</string>
   <string name="forum_joined_toast">Liittyi foorumiin</string>
-  <string name="forum_declined_toast">Kutsu liittyä foorumiin on hylätty</string>
+  <string name="forum_declined_toast">Kutsu hylätty</string>
   <string name="shared_by_format">Jakanut %s</string>
   <string name="forum_invitation_already_sharing">On jo jakamassa</string>
   <string name="forum_invitation_response_accepted_sent">Olet hyväksynyt käyttäjän %s lähettämän foorumikutsun.</string>
@@ -247,10 +249,10 @@
   </plurals>
   <string name="nobody">Ei kukaan</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Blogi on tällä hetkellä tyhjä.\n\nJoko blogin julkaisija ei ole kirjoittanut mitään vielä, tai tämän blogin sinulle jakaneen henkilön on liityttävä takaisin verkkoon, jotta blogikirjoitukset voitaisiin synkronisoida.</string>
+  <string name="blogs_other_blog_empty_state">Ei kirjoituksia</string>
   <string name="read_more">lue lisää</string>
   <string name="blogs_write_blog_post">Julkaise blogikirjoitus</string>
-  <string name="blogs_write_blog_post_body_hint">Kirjoita blogikirjoitus tähän</string>
+  <string name="blogs_write_blog_post_body_hint">Kirjoita blogikirjoitus</string>
   <string name="blogs_publish_blog_post">Julkaise</string>
   <string name="blogs_blog_post_created">Blogikirjoitus julkaistu</string>
   <string name="blogs_blog_post_received">Uusi blogikirjoitus vastaanotettu</string>
@@ -275,7 +277,7 @@
   <string name="blogs_sharing_invitation_sent">Olet jakanut \"%1$s\" -nimisen blogin käyttäjälle %2$s.</string>
   <string name="blogs_sharing_invitations_title">Blogi kutsut</string>
   <string name="blogs_sharing_joined_toast">Blogi tilattu</string>
-  <string name="blogs_sharing_declined_toast">Kutsu blogiin on hylätty</string>
+  <string name="blogs_sharing_declined_toast">Kutsu hylätty</string>
   <string name="sharing_status_blog">Kuka tahansa joka tilaa blogin voi jakaa sen tuntemilleen käyttäjille. Olet jakamassa tämän blogin seuraaville käyttäjille. Voi myös olla muita blogin tilaajia, joita sinä et näe.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Tuo RSS syöte</string>
@@ -376,4 +378,6 @@
   <string name="permission_camera_request_body">Skannatakseen QR koodin, Briar tarvitsee luvan käyttää kameraa.</string>
   <string name="permission_camera_denied_body">Olet kieltänyt käyttämästä kameraa, mutta yhteyshenkilöiden lisääminen vaatii kameran käyttöä.\n\nOle hyvä ja harkitse kameraluvan myöntämistä.</string>
   <string name="permission_camera_denied_toast">Kameralupaa ei myönnetty</string>
+  <string name="qr_code">QR-koodi</string>
+  <string name="show_qr_code_fullscreen">Näytä QR-koodi koko näytöllä</string>
 </resources>

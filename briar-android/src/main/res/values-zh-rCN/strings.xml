@@ -42,6 +42,8 @@
   </plurals>
   <string name="expiry_update">测试到期时间延长，您的帐户将在 %d 天后过期。</string>
   <string name="expiry_date_reached">本软件已过期。\n感谢您的测试！</string>
+  <string name="startup_open_database">正在解密数据库……</string>
+  <string name="startup_migrate_database">正在升级数据库……</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">打开抽屉式导航栏</string>
   <string name="nav_drawer_close_description">关闭抽屉式导航栏</string>
@@ -199,7 +201,7 @@
   <string name="choose_forum_hint">为论坛命名</string>
   <string name="create_forum_button">创建论坛</string>
   <string name="forum_created_toast">论坛已创建</string>
-  <string name="no_forum_posts">该论坛是空的\n\n使用上方的钢笔按钮创建第一篇博文\n\n感觉很孤单？将此论坛分享给您的联系人吧！</string>
+  <string name="no_forum_posts">尚无帖子可供展示</string>
   <string name="no_posts">无帖子</string>
   <plurals name="posts">
     <item quantity="other">%d 条帖子</item>
@@ -241,7 +243,7 @@
   </plurals>
   <string name="nobody">没有人</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">这个博客目前是空的。\n\n这有可能是因为作者尚未发布任何内容，或者是分享该博客给您的人需要上线以使博文同步。</string>
+  <string name="blogs_other_blog_empty_state">尚无帖子可供展示</string>
   <string name="read_more">阅读更多</string>
   <string name="blogs_write_blog_post">写博文</string>
   <string name="blogs_write_blog_post_body_hint">在此输入博文</string>

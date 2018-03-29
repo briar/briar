@@ -43,6 +43,8 @@
   </plurals>
   <string name="expiry_update">S\'ha ampliat la data de venciment de la prova. El vostre compte caducarà ara en %d dies.</string>
   <string name="expiry_date_reached">Aquest programa ha caducat.\nGràcies per haver-lo provat!</string>
+  <string name="startup_open_database">S\'està desxifrant la base de dades...</string>
+  <string name="startup_migrate_database">S\'està actualitzant la base de dades...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Obre el calaix de navegació</string>
   <string name="nav_drawer_close_description">Tanca el calaix de navegació</string>
@@ -207,7 +209,7 @@
   <string name="choose_forum_hint">Trieu un nom per al fòrum</string>
   <string name="create_forum_button">Crea el fòrum</string>
   <string name="forum_created_toast">S\'ha creat el fòrum</string>
-  <string name="no_forum_posts">Aquest fòrum està buit.\n\nUtilitzeu la icona de la ploma a la part superior per redactar la primera publicació.\n\nEsteu aquí sol? Compartiu aquest fòrum amb els vostres contactes!</string>
+  <string name="no_forum_posts">No hi ha publicacions per mostrar</string>
   <string name="no_posts">No hi ha publicacions</string>
   <plurals name="posts">
     <item quantity="one">%d publicacio</item>
@@ -251,7 +253,7 @@
   </plurals>
   <string name="nobody">Ningú</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Aquest blog està buit.\n\nPotser l\'autor encara no hi ha escrit res o que la persona que us ha compartit aquest blog hagi de connectar-se, llavors es podran sincronitzar les publicacions.</string>
+  <string name="blogs_other_blog_empty_state">No hi ha publicacions per mostrar</string>
   <string name="read_more">llegir més</string>
   <string name="blogs_write_blog_post">Escriviu una publicació de blog</string>
   <string name="blogs_write_blog_post_body_hint">Escriviu la vostra publicació al blog aquí</string>
