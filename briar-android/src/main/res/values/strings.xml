@@ -353,12 +353,16 @@
 	<string name="notification_settings_title">Notifications</string>
 	<string name="notify_private_messages_setting_title">Private messages</string>
 	<string name="notify_private_messages_setting_summary">Show alerts for private messages</string>
+	<string name="notify_private_messages_setting_summary_26">Configure alerts for private messages</string>
 	<string name="notify_group_messages_setting_title">Group messages</string>
 	<string name="notify_group_messages_setting_summary">Show alerts for group messages</string>
+	<string name="notify_group_messages_setting_summary_26">Configure alerts for group messages</string>
 	<string name="notify_forum_posts_setting_title">Forum posts</string>
 	<string name="notify_forum_posts_setting_summary">Show alerts for forum posts</string>
+	<string name="notify_forum_posts_setting_summary_26">Configure alerts for forum posts</string>
 	<string name="notify_blog_posts_setting_title">Blog posts</string>
 	<string name="notify_blog_posts_setting_summary">Show alerts for blog posts</string>
+	<string name="notify_blog_posts_setting_summary_26">Configure alerts for blog posts</string>
 	<string name="notify_vibration_setting">Vibrate</string>
 	<string name="notify_lock_screen_setting_title">Lock Screen</string>
 	<string name="notify_lock_screen_setting_summary">Show notifications on the lock screen</string>
