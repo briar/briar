@@ -238,7 +238,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		// Tor
 		TransportProperties tor = new TransportProperties();
 		String torAddress = getRandomTorAddress();
-		tor.put(TorConstants.PROP_ONION, torAddress);
+		tor.put(TorConstants.PROP_ONION_V2, torAddress);
 		props.put(TorConstants.ID, tor);
 
 		return props;
