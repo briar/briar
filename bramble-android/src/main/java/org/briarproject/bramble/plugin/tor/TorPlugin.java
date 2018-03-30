@@ -778,7 +778,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 		private synchronized void enableNetwork(boolean enable) {
 			networkEnabled = enable;
-			circuitBuilt = false;
+			if (!enable) circuitBuilt = false;
 		}
 
 		private synchronized boolean isConnected() {
