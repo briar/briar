@@ -15,7 +15,7 @@ public interface TransportPropertyManager {
 	/**
 	 * The unique ID of the transport property client.
 	 */
-	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.properties");
+	ClientId CLIENT_ID = new ClientId("org.briarproject.bramble.properties");
 
 	/**
 	 * The current version of the transport property client.
