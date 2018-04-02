@@ -37,8 +37,8 @@ public interface TransportPropertyManager {
 
 	/**
 	 * Returns the local transport properties for all transports.
-	 * <br/>
-	 * TODO: Transaction can be read-only when code is simplified
+	 * <p/>
+	 * Read-only.
 	 */
 	Map<TransportId, TransportProperties> getLocalProperties(Transaction txn)
 			throws DbException;
