@@ -159,10 +159,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		deliveryWaiter = new Waiter();
 
 		startLifecycles();
-
 		getDefaultIdentities();
-		addDefaultContacts();
 		listenToEvents();
+		addDefaultContacts();
 	}
 
 	abstract protected void createComponents();
@@ -187,7 +186,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	}
 
 	private void startLifecycles() throws InterruptedException {
-		// Start the lifecycle manager and wait for it to finish
+		// Start the lifecycle manager and wait for it to finish starting
 		lifecycleManager0 = c0.getLifecycleManager();
 		lifecycleManager1 = c1.getLifecycleManager();
 		lifecycleManager2 = c2.getLifecycleManager();
@@ -234,7 +233,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		author2 = identityManager2.getLocalAuthor();
 	}
 
-	protected void addDefaultContacts() throws DbException {
+	protected void addDefaultContacts() throws Exception {
 		contactId1From0 = contactManager0
 				.addContact(author1, author0.getId(), getSecretKey(),
 						clock.currentTimeMillis(), true, true, true);
@@ -251,15 +250,25 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 				.addContact(author0, author2.getId(), getSecretKey(),
 						clock.currentTimeMillis(), true, true, true);
 		contact0From2 = contactManager2.getContact(contactId0From2);
+
+		// Sync initial client versioning updates
+		sync0To1(1, true);
+		sync0To2(1, true);
+		sync1To0(1, true);
+		sync2To0(1, true);
 	}
 
-	protected void addContacts1And2() throws DbException {
+	protected void addContacts1And2() throws Exception {
 		contactId2From1 = contactManager1
 				.addContact(author2, author1.getId(), getSecretKey(),
 						clock.currentTimeMillis(), true, true, true);
 		contactId1From2 = contactManager2
 				.addContact(author1, author2.getId(), getSecretKey(),
 						clock.currentTimeMillis(), true, true, true);
+
+		// Sync initial client versioning updates
+		sync1To2(1, true);
+		sync2To1(1, true);
 	}
 
 	@After

@@ -1,12 +1,16 @@
 package org.briarproject.bramble.sync;
 
 import org.briarproject.bramble.PoliteExecutor;
+import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
+import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.bramble.api.sync.GroupFactory;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.RecordReaderFactory;
@@ -23,12 +27,18 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
+import static org.briarproject.bramble.api.sync.ClientVersioningManager.CLIENT_ID;
+
 @Module
 public class SyncModule {
 
 	public static class EagerSingletons {
 		@Inject
 		ValidationManager validationManager;
+		@Inject
+		ClientVersioningManager clientVersioningManager;
+		@Inject
+		ClientVersioningValidator clientVersioningValidator;
 	}
 
 	/**
@@ -89,5 +99,30 @@ public class SyncModule {
 			@CryptoExecutor Executor cryptoExecutor) {
 		return new PoliteExecutor("ValidationExecutor", cryptoExecutor,
 				MAX_CONCURRENT_VALIDATION_TASKS);
+	}
+
+	@Provides
+	@Singleton
+	ClientVersioningManager provideClientVersioningManager(
+			ClientVersioningManagerImpl clientVersioningManager,
+			LifecycleManager lifecycleManager, ContactManager contactManager,
+			ValidationManager validationManager) {
+		lifecycleManager.registerClient(clientVersioningManager);
+		lifecycleManager.registerService(clientVersioningManager);
+		contactManager.registerContactHook(clientVersioningManager);
+		validationManager.registerIncomingMessageHook(CLIENT_ID,
+				clientVersioningManager);
+		return clientVersioningManager;
+	}
+
+	@Provides
+	@Singleton
+	ClientVersioningValidator provideClientVersioningValidator(
+			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
+			Clock clock, ValidationManager validationManager) {
+		ClientVersioningValidator validator = new ClientVersioningValidator(
+				clientHelper, metadataEncoder, clock);
+		validationManager.registerMessageValidator(CLIENT_ID, validator);
+		return validator;
 	}
 }

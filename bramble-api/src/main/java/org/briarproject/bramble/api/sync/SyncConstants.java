@@ -19,7 +19,9 @@ public interface SyncConstants {
 	 */
 	int MAX_RECORD_PAYLOAD_LENGTH = 48 * 1024; // 48 KiB
 
-	/** The maximum length of a group descriptor in bytes. */
+	/**
+	 * The maximum length of a group descriptor in bytes.
+	 */
 	int MAX_GROUP_DESCRIPTOR_LENGTH = 16 * 1024; // 16 KiB
 
 	/**
