@@ -3,6 +3,7 @@ package org.briarproject.bramble.api.sync;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 
@@ -19,8 +20,17 @@ public interface ClientVersioningManager {
 	 */
 	int CLIENT_VERSION = 0;
 
+	/**
+	 * Registers a client that will be advertised to contacts. This method
+	 * should be called before {@link LifecycleManager#startServices(String)}.
+	 */
 	void registerClient(ClientId clientId, int clientVersion);
 
+	/**
+	 * Registers a hook that will be called when the visibility of the given
+	 * client changes. This method should be called before
+	 * {@link LifecycleManager#startServices(String)}.
+	 */
 	void registerClientVersioningHook(ClientId clientId, int clientVersion,
 			ClientVersioningHook hook);
 

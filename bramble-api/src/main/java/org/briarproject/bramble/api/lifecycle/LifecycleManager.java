@@ -43,17 +43,20 @@ public interface LifecycleManager {
 	}
 
 	/**
-	 * Registers a {@link Service} to be started and stopped.
+	 * Registers a {@link Service} to be started and stopped. This method
+	 * should be called before {@link #startServices(String)}.
 	 */
 	void registerService(Service s);
 
 	/**
-	 * Registers a {@link Client} to be started.
+	 * Registers a {@link Client} to be started. This method should be called
+	 * before {@link #startServices(String)}.
 	 */
 	void registerClient(Client c);
 
 	/**
-	 * Registers an {@link ExecutorService} to be shut down.
+	 * Registers an {@link ExecutorService} to be shut down. This method
+	 * should be called before {@link #startServices(String)}.
 	 */
 	void registerForShutdown(ExecutorService e);
 
