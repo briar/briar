@@ -5,9 +5,24 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPT
 public class Group {
 
 	public enum Visibility {
-		INVISIBLE, // The group is not visible
-		VISIBLE, // The group is visible but messages are not shared
-		SHARED // The group is visible and messages are shared
+
+		INVISIBLE(0), // The group is not visible
+		VISIBLE(1), // The group is visible, messages are accepted but not sent
+		SHARED(2); // The group is visible, messages are accepted and sent
+
+		private final int value;
+
+		Visibility(int value) {
+			this.value = value;
+		}
+
+		public int getValue() {
+			return value;
+		}
+
+		public static Visibility min(Visibility a, Visibility b) {
+			return a.getValue() < b.getValue() ? a : b;
+		}
 	}
 
 	/**
