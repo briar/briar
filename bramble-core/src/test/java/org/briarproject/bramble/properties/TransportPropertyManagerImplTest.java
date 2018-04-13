@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_VERSION;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
@@ -87,39 +88,27 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testCreatesGroupsAtStartup() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact1 = getContact(true);
-		Contact contact2 = getContact(true);
-		List<Contact> contacts = Arrays.asList(contact1, contact2);
-		Group contactGroup1 = getGroup(CLIENT_ID, CLIENT_VERSION);
-		Group contactGroup2 = getGroup(CLIENT_ID, CLIENT_VERSION);
+		Contact contact = getContact(true);
+		Group contactGroup = getGroup(CLIENT_ID, CLIENT_VERSION);
 
 		context.checking(new Expectations() {{
 			oneOf(db).containsGroup(txn, localGroup.getId());
 			will(returnValue(false));
 			oneOf(db).addGroup(txn, localGroup);
 			oneOf(db).getContacts(txn);
-			will(returnValue(contacts));
-			// The first contact's group has already been set up
+			will(returnValue(singletonList(contact)));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact1);
-			will(returnValue(contactGroup1));
-			oneOf(db).containsGroup(txn, contactGroup1.getId());
-			will(returnValue(true));
-			// The second contact's group hasn't been set up
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact2);
-			will(returnValue(contactGroup2));
-			oneOf(db).containsGroup(txn, contactGroup2.getId());
-			will(returnValue(false));
-			oneOf(db).addGroup(txn, contactGroup2);
-			oneOf(db).setGroupVisibility(txn, contact2.getId(),
-					contactGroup2.getId(), SHARED);
+					CLIENT_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).addGroup(txn, contactGroup);
+			oneOf(db).setGroupVisibility(txn, contact.getId(),
+					contactGroup.getId(), SHARED);
 		}});
 		// Copy the latest local properties into the group
 		expectGetLocalProperties(txn);
-		expectStoreMessage(txn, contactGroup2.getId(), "foo", fooPropertiesDict,
+		expectStoreMessage(txn, contactGroup.getId(), "foo", fooPropertiesDict,
 				1, true, true);
-		expectStoreMessage(txn, contactGroup2.getId(), "bar", barPropertiesDict,
+		expectStoreMessage(txn, contactGroup.getId(), "bar", barPropertiesDict,
 				1, true, true);
 
 		TransportPropertyManagerImpl t = createInstance();
@@ -151,8 +140,6 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(false));
 			oneOf(db).addGroup(txn, contactGroup);
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
 					contactGroup.getId(), SHARED);
@@ -538,7 +525,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 					fooPropertiesDict, 1, true, false);
 			// Store the new properties in each contact's group, version 1
 			oneOf(db).getContacts(txn);
-			will(returnValue(Collections.singletonList(contact)));
+			will(returnValue(singletonList(contact)));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
@@ -597,7 +584,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).removeMessage(txn, localGroupUpdateId);
 			// Store the merged properties in each contact's group, version 2
 			oneOf(db).getContacts(txn);
-			will(returnValue(Collections.singletonList(contact)));
+			will(returnValue(singletonList(contact)));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));

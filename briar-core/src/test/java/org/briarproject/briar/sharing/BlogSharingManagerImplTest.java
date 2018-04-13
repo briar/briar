@@ -91,7 +91,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testCreateLocalStateFirstTimeWithExistingContactNotSetUp()
+	public void testCreateLocalStateFirstTimeWithExistingContact()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
 
@@ -119,19 +119,10 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		Map<MessageId, BdfDictionary> sessions = Collections.emptyMap();
 
 		context.checking(new Expectations() {{
-			// Check for contact group in BlogSharingManagerImpl
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(false));
-			// Check for contact group again in SharingManagerImpl
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(false));
 			// Create the contact group and share it with the contact
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					CLIENT_VERSION, contact);
+			will(returnValue(contactGroup));
 			oneOf(db).addGroup(txn, contactGroup);
 			oneOf(db).setGroupVisibility(txn, contactId, contactGroup.getId(),
 					SHARED);
@@ -149,33 +140,6 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		// Pre-share our blog with the contact and vice versa
 		expectPreShareShareable(txn, contact, localBlog, sessions);
 		expectPreShareShareable(txn, contact, blog, sessions);
-	}
-
-	@Test
-	public void testCreateLocalStateFirstTimeWithExistingContactAlreadySetUp()
-			throws Exception {
-		Transaction txn = new Transaction(null, false);
-
-		context.checking(new Expectations() {{
-			// The local group doesn't exist - we need to set things up
-			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
-					CLIENT_VERSION);
-			will(returnValue(localGroup));
-			oneOf(db).containsGroup(txn, localGroup.getId());
-			will(returnValue(false));
-			oneOf(db).addGroup(txn, localGroup);
-			// Get contacts
-			oneOf(db).getContacts(txn);
-			will(returnValue(contacts));
-			// The contact has already been set up
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(true));
-		}});
-
-		blogSharingManager.createLocalState(txn);
 	}
 
 	@Test

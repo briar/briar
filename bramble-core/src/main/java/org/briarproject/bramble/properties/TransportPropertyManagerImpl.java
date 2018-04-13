@@ -65,7 +65,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	public void createLocalState(Transaction txn) throws DbException {
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
-		// Ensure we've set things up for any pre-existing contacts
+		// Set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
 
@@ -73,8 +73,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Create a group to share with the contact
 		Group g = getContactGroup(c);
-		// Return if we've already set things up for this contact
-		if (db.containsGroup(txn, g.getId())) return;
 		// Store the group and share it with the contact
 		db.addGroup(txn, g);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);

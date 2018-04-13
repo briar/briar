@@ -159,7 +159,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getContacts(txn);
 			will(returnValue(Collections.singletonList(contact)));
 		}});
-		expectAddingContact(contact, true);
+		expectAddingContact(contact);
 		groupInvitationManager.createLocalState(txn);
 	}
 
@@ -175,20 +175,14 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		groupInvitationManager.createLocalState(txn);
 	}
 
-	private void expectAddingContact(Contact c, boolean contactExists)
-			throws Exception {
+	private void expectAddingContact(Contact c) throws Exception {
+		BdfDictionary meta = BdfDictionary
+				.of(new BdfEntry(GROUP_KEY_CONTACT_ID, c.getId().getInt()));
+
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					CLIENT_VERSION, c);
 			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(contactExists));
-		}});
-		if (contactExists) return;
-
-		BdfDictionary meta = BdfDictionary
-				.of(new BdfEntry(GROUP_KEY_CONTACT_ID, c.getId().getInt()));
-		context.checking(new Expectations() {{
 			oneOf(db).addGroup(txn, contactGroup);
 			oneOf(db).setGroupVisibility(txn, c.getId(), contactGroup.getId(),
 					SHARED);
@@ -197,8 +191,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getGroups(txn, PrivateGroupManager.CLIENT_ID,
 					PrivateGroupManager.CLIENT_VERSION);
 			will(returnValue(Collections.singletonList(privateGroup)));
-			oneOf(privateGroupManager)
-					.isMember(txn, privateGroup.getId(), c.getAuthor());
+			oneOf(privateGroupManager).isMember(txn, privateGroup.getId(),
+					c.getAuthor());
 			will(returnValue(true));
 		}});
 		expectAddingMember(privateGroup.getId(), c);
@@ -255,7 +249,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testAddingContact() throws Exception {
-		expectAddingContact(contact, false);
+		expectAddingContact(contact);
 		groupInvitationManager.addingContact(txn, contact);
 	}
 

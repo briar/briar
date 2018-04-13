@@ -56,23 +56,17 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 		return CLIENT_VERSION;
 	}
 
-	/**
-	 * This is called during each startup for each existing Contact.
-	 */
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
-		// Return if we've already set things up for this contact
-		if (db.containsGroup(txn, getContactGroup(c).getId())) return;
-
-		// creates a group to share with the contact
+		// Create a group to share with the contact
 		super.addingContact(txn, c);
 
-		// get our blog and that of Contact c
+		// Get our blog and that of the contact
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		Blog ourBlog = blogManager.getPersonalBlog(localAuthor);
 		Blog theirBlog = blogManager.getPersonalBlog(c.getAuthor());
 
-		// pre-share both blogs, if they have not been shared already
+		// Pre-share both blogs, if they have not been shared already
 		try {
 			preShareShareable(txn, c, ourBlog);
 			preShareShareable(txn, c, theirBlog);

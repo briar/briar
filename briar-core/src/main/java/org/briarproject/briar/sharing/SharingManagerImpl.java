@@ -87,7 +87,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 				getClientVersion());
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
-		// Ensure we've set things up for any pre-existing contacts
+		// Set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
 
@@ -96,8 +96,6 @@ abstract class SharingManagerImpl<S extends Shareable>
 		try {
 			// Create a group to share with the contact
 			Group g = getContactGroup(c);
-			// Return if we've already set things up for this contact
-			if (db.containsGroup(txn, g.getId())) return;
 			// Store the group and share it with the contact
 			db.addGroup(txn, g);
 			db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
@@ -152,17 +150,17 @@ abstract class SharingManagerImpl<S extends Shareable>
 	 */
 	void preShareShareable(Transaction txn, Contact c, S shareable)
 			throws DbException, FormatException {
-		// return if a session already exists with that Contact
+		// Return if a session already exists with the contact
 		GroupId contactGroupId = getContactGroup(c).getId();
 		StoredSession existingSession = getSession(txn, contactGroupId,
 				getSessionId(shareable.getId()));
 		if (existingSession != null) return;
 
-		// add and shares the shareable with the Contact
+		// Add and share the shareable with the contact
 		db.addGroup(txn, shareable.getGroup());
 		db.setGroupVisibility(txn, c.getId(), shareable.getId(), SHARED);
 
-		// initialize session in sharing state
+		// Initialize session in sharing state
 		Session session = new Session(SHARING, contactGroupId,
 				shareable.getId(), null, null, 0, 0);
 		MessageId storageId = createStorageId(txn, contactGroupId);
