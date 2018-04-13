@@ -1,6 +1,7 @@
 package org.briarproject.bramble.api.sync;
 
 import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
@@ -33,6 +34,13 @@ public interface ClientVersioningManager {
 	 */
 	void registerClientVersioningHook(ClientId clientId, int clientVersion,
 			ClientVersioningHook hook);
+
+	/**
+	 * Returns the visibility of the given client with respect to the given
+	 * contact.
+	 */
+	Visibility getClientVisibility(Transaction txn, ContactId contactId,
+			ClientId clientId, int clientVersion) throws DbException;
 
 	interface ClientVersioningHook {
 

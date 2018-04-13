@@ -90,6 +90,28 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	}
 
 	@Override
+	public Visibility getClientVisibility(Transaction txn,
+			ContactId contactId, ClientId clientId, int clientVersion)
+			throws DbException {
+		try {
+			Contact contact = db.getContact(txn, contactId);
+			Group g = getContactGroup(contact);
+			LatestUpdates latest = findLatestUpdates(txn, g.getId());
+			if (latest.local == null) throw new DbException();
+			if (latest.remote == null) return INVISIBLE;
+			Update localUpdate = loadUpdate(txn, latest.local.messageId);
+			Update remoteUpdate = loadUpdate(txn, latest.remote.messageId);
+			Map<ClientVersion, Visibility> visibilities =
+					getVisibilities(localUpdate.states, remoteUpdate.states);
+			ClientVersion cv = new ClientVersion(clientId, clientVersion);
+			Visibility v = visibilities.get(cv);
+			return v == null ? INVISIBLE : v;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void createLocalState(Transaction txn) throws DbException {
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
