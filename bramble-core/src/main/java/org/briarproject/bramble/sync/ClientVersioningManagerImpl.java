@@ -501,39 +501,6 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		}
 	}
 
-	private static class ClientVersion implements Comparable<ClientVersion> {
-
-		private final ClientId clientId;
-		private final int clientVersion;
-
-		private ClientVersion(ClientId clientId, int clientVersion) {
-			this.clientId = clientId;
-			this.clientVersion = clientVersion;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (o instanceof ClientVersion) {
-				ClientVersion cv = (ClientVersion) o;
-				return clientId.equals(cv.clientId)
-						&& clientVersion == cv.clientVersion;
-			}
-			return false;
-		}
-
-		@Override
-		public int hashCode() {
-			return (clientId.hashCode() << 16) + clientVersion;
-		}
-
-		@Override
-		public int compareTo(ClientVersion c) {
-			int compare = clientId.compareTo(c.clientId);
-			if (compare != 0) return compare;
-			return clientVersion - c.clientVersion;
-		}
-	}
-
 	private static class ClientState {
 
 		private final ClientVersion version;
