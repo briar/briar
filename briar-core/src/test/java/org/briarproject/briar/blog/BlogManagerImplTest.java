@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.blog.Blog;
@@ -49,6 +50,7 @@ import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIME_RECEIVED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TYPE;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_COMMENT_LENGTH;
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
+import static org.briarproject.briar.api.blog.BlogManager.CLIENT_VERSION;
 import static org.briarproject.briar.api.blog.MessageType.COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.POST;
 import static org.briarproject.briar.api.blog.MessageType.WRAPPED_COMMENT;
@@ -866,7 +868,8 @@ public class BlogManagerImplTest extends BriarTestCase {
 	}
 
 	private Blog createBlog(LocalAuthor localAuthor, boolean rssFeed) {
-		return new Blog(getGroup(CLIENT_ID), localAuthor, rssFeed);
+		Group group = getGroup(CLIENT_ID, CLIENT_VERSION);
+		return new Blog(group, localAuthor, rssFeed);
 	}
 
 	private BdfList authorToBdfList(Author a) {

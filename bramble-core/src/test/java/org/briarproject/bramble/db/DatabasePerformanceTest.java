@@ -267,7 +267,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		String name = "getGroups(T, ClientId)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
-			db.getGroups(txn, pickRandom(clientIds));
+			db.getGroups(txn, pickRandom(clientIds), 123);
 			db.commitTransaction(txn);
 		});
 	}
@@ -550,7 +550,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 			contacts.add(db.getContact(txn, c));
 			contactGroups.put(c, new ArrayList<>());
 			for (int j = 0; j < GROUPS_PER_CONTACT; j++) {
-				Group g = getGroup(clientIds.get(j % CLIENTS));
+				Group g = getGroup(clientIds.get(j % CLIENTS), 123);
 				groups.add(g);
 				messageMeta.put(g.getId(), new ArrayList<>());
 				contactGroups.get(c).add(g);
@@ -584,7 +584,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 			}
 		}
 		for (int i = 0; i < LOCAL_GROUPS; i++) {
-			Group g = getGroup(clientIds.get(i % CLIENTS));
+			Group g = getGroup(clientIds.get(i % CLIENTS), 123);
 			groups.add(g);
 			messageMeta.put(g.getId(), new ArrayList<>());
 			groupMessages.put(g.getId(), new ArrayList<>());

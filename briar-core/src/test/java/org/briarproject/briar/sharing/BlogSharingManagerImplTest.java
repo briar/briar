@@ -65,11 +65,13 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 			new Contact(contactId, author, localAuthor.getId(), true, true);
 	private final Collection<Contact> contacts =
 			Collections.singletonList(contact);
-	private final Group localGroup = getGroup(CLIENT_ID);
-	private final Group contactGroup = getGroup(CLIENT_ID);
-	private final Group blogGroup = getGroup(BlogManager.CLIENT_ID);
+	private final Group localGroup = getGroup(CLIENT_ID, CLIENT_VERSION);
+	private final Group contactGroup = getGroup(CLIENT_ID, CLIENT_VERSION);
+	private final Group blogGroup =
+			getGroup(BlogManager.CLIENT_ID, BlogManager.CLIENT_VERSION);
 	private final Blog blog = new Blog(blogGroup, author, false);
-	private final Group localBlogGroup = getGroup(BlogManager.CLIENT_ID);
+	private final Group localBlogGroup =
+			getGroup(BlogManager.CLIENT_ID, BlogManager.CLIENT_VERSION);
 	private final Blog localBlog = new Blog(localBlogGroup, localAuthor, false);
 	@SuppressWarnings("unchecked")
 	private final ProtocolEngine<Blog> engine =
@@ -225,7 +227,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	private void expectPreShareShareable(Transaction txn, Contact contact,
 			Blog blog, Map<MessageId, BdfDictionary> sessions)
 			throws Exception {
-		Group contactGroup = getGroup(CLIENT_ID);
+		Group contactGroup = getGroup(CLIENT_ID, CLIENT_VERSION);
 		BdfDictionary sessionDict = new BdfDictionary();
 		Message message = new Message(new MessageId(getRandomId()),
 				contactGroup.getId(), 42L, getRandomBytes(1337));

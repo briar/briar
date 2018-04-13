@@ -34,6 +34,6 @@ class GroupFactoryImpl implements GroupFactory {
 		byte[] hash = crypto.hash(LABEL, new byte[] {FORMAT_VERSION},
 				StringUtils.toUtf8(c.getString()), clientVersionBytes,
 				descriptor);
-		return new Group(new GroupId(hash), c, descriptor);
+		return new Group(new GroupId(hash), c, clientVersion, descriptor);
 	}
 }

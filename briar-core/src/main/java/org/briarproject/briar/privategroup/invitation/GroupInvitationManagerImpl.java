@@ -122,7 +122,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			throw new AssertionError(e);
 		}
 		// If the contact belongs to any private groups, create a peer session
-		for (Group pg : db.getGroups(txn, PrivateGroupManager.CLIENT_ID)) {
+		for (Group pg : db.getGroups(txn, PrivateGroupManager.CLIENT_ID,
+				PrivateGroupManager.CLIENT_VERSION)) {
 			if (privateGroupManager.isMember(txn, pg.getId(), c.getAuthor()))
 				addingMember(txn, pg.getId(), c);
 		}

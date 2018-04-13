@@ -241,7 +241,8 @@ public interface DatabaseComponent {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<Group> getGroups(Transaction txn, ClientId c) throws DbException;
+	Collection<Group> getGroups(Transaction txn, ClientId c, int clientVersion)
+			throws DbException;
 
 	/**
 	 * Returns the given group's visibility to the given contact, or

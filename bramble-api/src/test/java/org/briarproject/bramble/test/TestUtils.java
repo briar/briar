@@ -117,15 +117,16 @@ public class TestUtils {
 		return new Author(id, FORMAT_VERSION, name, publicKey);
 	}
 
-	public static Group getGroup(ClientId clientId) {
+	public static Group getGroup(ClientId clientId, int clientVersion) {
 		int descriptorLength = 1 + random.nextInt(MAX_GROUP_DESCRIPTOR_LENGTH);
-		return getGroup(clientId, descriptorLength);
+		return getGroup(clientId, clientVersion, descriptorLength);
 	}
 
-	public static Group getGroup(ClientId clientId, int descriptorLength) {
+	public static Group getGroup(ClientId clientId, int clientVersion,
+			int descriptorLength) {
 		GroupId groupId = new GroupId(getRandomId());
 		byte[] descriptor = getRandomBytes(descriptorLength);
-		return new Group(groupId, clientId, descriptor);
+		return new Group(groupId, clientId, clientVersion, descriptor);
 	}
 
 	public static Message getMessage(GroupId groupId) {

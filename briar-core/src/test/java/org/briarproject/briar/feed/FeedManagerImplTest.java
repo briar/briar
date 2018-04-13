@@ -61,9 +61,10 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	private final Clock clock = context.mock(Clock.class);
 	private final Dns noDnsLookups = context.mock(Dns.class);
 
-	private final Group localGroup = getGroup(CLIENT_ID);
+	private final Group localGroup = getGroup(CLIENT_ID, CLIENT_VERSION);
 	private final GroupId localGroupId = localGroup.getId();
-	private final Group blogGroup = getGroup(BlogManager.CLIENT_ID);
+	private final Group blogGroup =
+			getGroup(BlogManager.CLIENT_ID, BlogManager.CLIENT_VERSION);
 	private final GroupId blogGroupId = blogGroup.getId();
 	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final Blog blog = new Blog(blogGroup, localAuthor, true);

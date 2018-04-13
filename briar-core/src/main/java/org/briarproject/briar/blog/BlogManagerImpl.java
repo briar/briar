@@ -425,7 +425,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			Collection<Group> groups;
 			Transaction txn = db.startTransaction(true);
 			try {
-				groups = db.getGroups(txn, CLIENT_ID);
+				groups = db.getGroups(txn, CLIENT_ID, CLIENT_VERSION);
 				for (Group g : groups) {
 					blogs.add(blogFactory.parseBlog(g));
 				}

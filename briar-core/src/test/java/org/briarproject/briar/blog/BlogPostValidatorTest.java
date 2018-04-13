@@ -64,7 +64,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	private final String body = getRandomString(42);
 
 	public BlogPostValidatorTest() {
-		group = getGroup(CLIENT_ID);
+		group = getGroup(CLIENT_ID, CLIENT_VERSION);
 		descriptor = group.getDescriptor();
 		author = getAuthor();
 		authorList = BdfList.of(

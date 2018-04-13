@@ -435,10 +435,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public Collection<Group> getGroups(Transaction transaction, ClientId c)
-			throws DbException {
+	public Collection<Group> getGroups(Transaction transaction, ClientId c,
+			int clientVersion) throws DbException {
 		T txn = unbox(transaction);
-		return db.getGroups(txn, c);
+		return db.getGroups(txn, c, clientVersion);
 	}
 
 	@Override

@@ -99,9 +99,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	private final Author author = getAuthor();
 	private final Contact contact = new Contact(contactId, author,
 			new AuthorId(getRandomId()), true, true);
-	private final Group localGroup = getGroup(CLIENT_ID);
-	private final Group contactGroup = getGroup(CLIENT_ID);
-	private final Group privateGroup = getGroup(CLIENT_ID);
+	private final Group localGroup = getGroup(CLIENT_ID, CLIENT_VERSION);
+	private final Group contactGroup = getGroup(CLIENT_ID, CLIENT_VERSION);
+	private final Group privateGroup = getGroup(CLIENT_ID, CLIENT_VERSION);
 	private final BdfDictionary meta = BdfDictionary.of(new BdfEntry("m", "e"));
 	private final Message message =
 			new Message(new MessageId(getRandomId()), contactGroup.getId(),
@@ -194,7 +194,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 					SHARED);
 			oneOf(clientHelper)
 					.mergeGroupMetadata(txn, contactGroup.getId(), meta);
-			oneOf(db).getGroups(txn, PrivateGroupManager.CLIENT_ID);
+			oneOf(db).getGroups(txn, PrivateGroupManager.CLIENT_ID,
+					PrivateGroupManager.CLIENT_VERSION);
 			will(returnValue(Collections.singletonList(privateGroup)));
 			oneOf(privateGroupManager)
 					.isMember(txn, privateGroup.getId(), c.getAuthor());
@@ -854,8 +855,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		Collection<Contact> contacts =
 				Arrays.asList(contact, contact2, contact3);
 
-		Group contactGroup2 = getGroup(CLIENT_ID);
-		Group contactGroup3 = getGroup(CLIENT_ID);
+		Group contactGroup2 = getGroup(CLIENT_ID, CLIENT_VERSION);
+		Group contactGroup3 = getGroup(CLIENT_ID, CLIENT_VERSION);
 
 		MessageId storageId2 = new MessageId(getRandomId());
 		MessageId storageId3 = new MessageId(getRandomId());

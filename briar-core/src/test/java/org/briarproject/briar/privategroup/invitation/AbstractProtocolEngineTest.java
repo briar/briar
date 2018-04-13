@@ -33,6 +33,7 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROU
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_MSG_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
+import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_VERSION;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
@@ -64,7 +65,8 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 
 	protected final Transaction txn = new Transaction(null, false);
 	protected final GroupId contactGroupId = new GroupId(getRandomId());
-	protected final Group privateGroupGroup = getGroup(CLIENT_ID);
+	protected final Group privateGroupGroup =
+			getGroup(CLIENT_ID, CLIENT_VERSION);
 	protected final GroupId privateGroupId = privateGroupGroup.getId();
 	protected final Author author = getAuthor();
 	protected final PrivateGroup privateGroup =

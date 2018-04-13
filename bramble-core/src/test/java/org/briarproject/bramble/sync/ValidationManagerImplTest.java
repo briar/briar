@@ -56,7 +56,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	private final MessageId messageId = new MessageId(getRandomId());
 	private final MessageId messageId1 = new MessageId(getRandomId());
 	private final MessageId messageId2 = new MessageId(getRandomId());
-	private final Group group = getGroup(clientId);
+	private final Group group = getGroup(clientId, 123);
 	private final GroupId groupId = group.getId();
 	private final long timestamp = System.currentTimeMillis();
 	private final byte[] raw = new byte[123];
