@@ -16,7 +16,8 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
-import static org.briarproject.briar.messaging.MessagingManagerImpl.CLIENT_ID;
+import static org.briarproject.briar.api.messaging.MessagingManager.CLIENT_ID;
+import static org.briarproject.briar.api.messaging.MessagingManager.CLIENT_VERSION;
 
 @Module
 public class MessagingModule {
@@ -43,7 +44,8 @@ public class MessagingModule {
 			Clock clock) {
 		PrivateMessageValidator validator = new PrivateMessageValidator(
 				clientHelper, metadataEncoder, clock);
-		validationManager.registerMessageValidator(CLIENT_ID, validator);
+		validationManager.registerMessageValidator(CLIENT_ID, CLIENT_VERSION,
+				validator);
 		return validator;
 	}
 
@@ -55,8 +57,8 @@ public class MessagingModule {
 			MessagingManagerImpl messagingManager) {
 		lifecycleManager.registerClient(messagingManager);
 		contactManager.registerContactHook(messagingManager);
-		validationManager
-				.registerIncomingMessageHook(CLIENT_ID, messagingManager);
+		validationManager.registerIncomingMessageHook(CLIENT_ID, CLIENT_VERSION,
+				messagingManager);
 		conversationManager.registerConversationClient(messagingManager);
 		return messagingManager;
 	}

@@ -35,13 +35,15 @@ public interface ValidationManager {
 	/**
 	 * Sets the message validator for the given client.
 	 */
-	void registerMessageValidator(ClientId c, MessageValidator v);
+	void registerMessageValidator(ClientId c, int clientVersion,
+			MessageValidator v);
 
 	/**
 	 * Sets the incoming message hook for the given client. The hook will be
 	 * called once for each incoming message that passes validation.
 	 */
-	void registerIncomingMessageHook(ClientId c, IncomingMessageHook hook);
+	void registerIncomingMessageHook(ClientId c, int clientVersion,
+			IncomingMessageHook hook);
 
 	interface MessageValidator {
 

@@ -18,7 +18,8 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
-import static org.briarproject.briar.blog.BlogManagerImpl.CLIENT_ID;
+import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
+import static org.briarproject.briar.api.blog.BlogManager.CLIENT_VERSION;
 
 @Module
 public class BlogModule {
@@ -35,10 +36,10 @@ public class BlogModule {
 	BlogManager provideBlogManager(BlogManagerImpl blogManager,
 			LifecycleManager lifecycleManager, ContactManager contactManager,
 			ValidationManager validationManager) {
-
 		lifecycleManager.registerClient(blogManager);
 		contactManager.registerContactHook(blogManager);
-		validationManager.registerIncomingMessageHook(CLIENT_ID, blogManager);
+		validationManager.registerIncomingMessageHook(CLIENT_ID, CLIENT_VERSION,
+				blogManager);
 		return blogManager;
 	}
 
@@ -60,12 +61,11 @@ public class BlogModule {
 			MessageFactory messageFactory, BlogFactory blogFactory,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
 			Clock clock) {
-
 		BlogPostValidator validator = new BlogPostValidator(groupFactory,
 				messageFactory, blogFactory, clientHelper, metadataEncoder,
 				clock);
-		validationManager.registerMessageValidator(CLIENT_ID, validator);
-
+		validationManager.registerMessageValidator(CLIENT_ID, CLIENT_VERSION,
+				validator);
 		return validator;
 	}
 

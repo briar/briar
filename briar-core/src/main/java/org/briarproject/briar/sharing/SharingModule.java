@@ -59,11 +59,11 @@ public class SharingModule {
 			ValidationManager validationManager, MessageEncoder messageEncoder,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
 			Clock clock, BlogFactory blogFactory) {
-		BlogSharingValidator validator =
-				new BlogSharingValidator(messageEncoder, clientHelper,
-						metadataEncoder, clock, blogFactory);
+		BlogSharingValidator validator = new BlogSharingValidator(
+				messageEncoder, clientHelper, metadataEncoder, clock,
+				blogFactory);
 		validationManager.registerMessageValidator(BlogSharingManager.CLIENT_ID,
-				validator);
+				BlogSharingManager.CLIENT_VERSION, validator);
 		return validator;
 	}
 
@@ -77,10 +77,10 @@ public class SharingModule {
 		lifecycleManager.registerClient(blogSharingManager);
 		contactManager.registerContactHook(blogSharingManager);
 		validationManager.registerIncomingMessageHook(
-				BlogSharingManager.CLIENT_ID, blogSharingManager);
+				BlogSharingManager.CLIENT_ID, BlogSharingManager.CLIENT_VERSION,
+				blogSharingManager);
 		conversationManager.registerConversationClient(blogSharingManager);
 		blogManager.registerRemoveBlogHook(blogSharingManager);
-
 		return blogSharingManager;
 	}
 
@@ -108,12 +108,12 @@ public class SharingModule {
 			ValidationManager validationManager, MessageEncoder messageEncoder,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
 			Clock clock, ForumFactory forumFactory) {
-		ForumSharingValidator validator =
-				new ForumSharingValidator(messageEncoder, clientHelper,
-						metadataEncoder, clock, forumFactory);
-		validationManager
-				.registerMessageValidator(ForumSharingManager.CLIENT_ID,
-						validator);
+		ForumSharingValidator validator = new ForumSharingValidator(
+				messageEncoder, clientHelper, metadataEncoder, clock,
+				forumFactory);
+		validationManager.registerMessageValidator(
+				ForumSharingManager.CLIENT_ID,
+				ForumSharingManager.CLIENT_VERSION, validator);
 		return validator;
 	}
 
@@ -124,14 +124,13 @@ public class SharingModule {
 			ValidationManager validationManager,
 			ConversationManager conversationManager, ForumManager forumManager,
 			ForumSharingManagerImpl forumSharingManager) {
-
 		lifecycleManager.registerClient(forumSharingManager);
 		contactManager.registerContactHook(forumSharingManager);
 		validationManager.registerIncomingMessageHook(
-				ForumSharingManager.CLIENT_ID, forumSharingManager);
+				ForumSharingManager.CLIENT_ID,
+				ForumSharingManager.CLIENT_VERSION, forumSharingManager);
 		conversationManager.registerConversationClient(forumSharingManager);
 		forumManager.registerRemoveForumHook(forumSharingManager);
-
 		return forumSharingManager;
 	}
 

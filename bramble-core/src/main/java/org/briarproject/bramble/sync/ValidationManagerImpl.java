@@ -51,8 +51,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	private final DatabaseComponent db;
 	private final Executor dbExecutor, validationExecutor;
 	private final MessageFactory messageFactory;
-	private final Map<ClientId, MessageValidator> validators;
-	private final Map<ClientId, IncomingMessageHook> hooks;
+	private final Map<ClientVersion, MessageValidator> validators;
+	private final Map<ClientVersion, IncomingMessageHook> hooks;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	@Inject
@@ -81,14 +81,15 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	@Override
-	public void registerMessageValidator(ClientId c, MessageValidator v) {
-		validators.put(c, v);
+	public void registerMessageValidator(ClientId c, int clientVersion,
+			MessageValidator v) {
+		validators.put(new ClientVersion(c, clientVersion), v);
 	}
 
 	@Override
-	public void registerIncomingMessageHook(ClientId c,
+	public void registerIncomingMessageHook(ClientId c, int clientVersion,
 			IncomingMessageHook hook) {
-		hooks.put(c, hook);
+		hooks.put(new ClientVersion(c, clientVersion), hook);
 	}
 
 	private void validateOutstandingMessagesAsync() {
@@ -199,9 +200,11 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						Message m = messageFactory.createMessage(id, raw);
 						Group g = db.getGroup(txn, m.getGroupId());
 						ClientId c = g.getClientId();
+						int clientVersion = g.getClientVersion();
 						Metadata meta =
 								db.getMessageMetadataForValidator(txn, id);
-						DeliveryResult result = deliverMessage(txn, m, c, meta);
+						DeliveryResult result =
+								deliverMessage(txn, m, c, clientVersion, meta);
 						if (result.valid) {
 							pending.addAll(getPendingDependents(txn, id));
 							if (result.share) {
@@ -237,14 +240,16 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	@ValidationExecutor
 	private void validateMessage(Message m, Group g) {
-		MessageValidator v = validators.get(g.getClientId());
+		ClientVersion cv =
+				new ClientVersion(g.getClientId(), g.getClientVersion());
+		MessageValidator v = validators.get(cv);
 		if (v == null) {
-			if (LOG.isLoggable(WARNING))
-				LOG.warning("No validator for " + g.getClientId().getString());
+			if (LOG.isLoggable(WARNING)) LOG.warning("No validator for " + cv);
 		} else {
 			try {
 				MessageContext context = v.validateMessage(m, g);
-				storeMessageContextAsync(m, g.getClientId(), context);
+				storeMessageContextAsync(m, g.getClientId(),
+						g.getClientVersion(), context);
 			} catch (InvalidMessageException e) {
 				if (LOG.isLoggable(INFO))
 					LOG.log(INFO, e.toString(), e);
@@ -256,12 +261,13 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	private void storeMessageContextAsync(Message m, ClientId c,
-			MessageContext result) {
-		dbExecutor.execute(() -> storeMessageContext(m, c, result));
+			int clientVersion, MessageContext result) {
+		dbExecutor.execute(() ->
+				storeMessageContext(m, c, clientVersion, result));
 	}
 
 	@DatabaseExecutor
-	private void storeMessageContext(Message m, ClientId c,
+	private void storeMessageContext(Message m, ClientId c, int clientVersion,
 			MessageContext context) {
 		try {
 			MessageId id = m.getId();
@@ -292,7 +298,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 					Metadata meta = context.getMetadata();
 					db.mergeMessageMetadata(txn, id, meta);
 					if (allDelivered) {
-						DeliveryResult result = deliverMessage(txn, m, c, meta);
+						DeliveryResult result =
+								deliverMessage(txn, m, c, clientVersion, meta);
 						if (result.valid) {
 							pending = getPendingDependents(txn, id);
 							if (result.share) {
@@ -324,10 +331,11 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	@DatabaseExecutor
 	private DeliveryResult deliverMessage(Transaction txn, Message m,
-			ClientId c, Metadata meta) throws DbException {
+			ClientId c, int clientVersion, Metadata meta) throws DbException {
 		// Deliver the message to the client if it's registered a hook
 		boolean shareMsg = false;
-		IncomingMessageHook hook = hooks.get(c);
+		ClientVersion cv = new ClientVersion(c, clientVersion);
+		IncomingMessageHook hook = hooks.get(cv);
 		if (hook != null) {
 			try {
 				shareMsg = hook.incomingMessage(txn, m, meta);

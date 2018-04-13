@@ -38,5 +38,10 @@ class ClientVersion implements Comparable<ClientVersion> {
 		if (compare != 0) return compare;
 		return clientVersion - c.clientVersion;
 	}
+
+	@Override
+	public String toString() {
+		return clientId.getString() + ":" + clientVersion;
+	}
 }
 

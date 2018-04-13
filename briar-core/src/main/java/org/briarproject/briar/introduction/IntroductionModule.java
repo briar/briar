@@ -16,6 +16,7 @@ import dagger.Module;
 import dagger.Provides;
 
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
+import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_VERSION;
 
 @Module
 public class IntroductionModule {
@@ -32,13 +33,11 @@ public class IntroductionModule {
 	IntroductionValidator provideValidator(ValidationManager validationManager,
 			MessageEncoder messageEncoder, MetadataEncoder metadataEncoder,
 			ClientHelper clientHelper, Clock clock) {
-
 		IntroductionValidator introductionValidator =
 				new IntroductionValidator(messageEncoder, clientHelper,
 						metadataEncoder, clock);
-		validationManager.registerMessageValidator(CLIENT_ID,
+		validationManager.registerMessageValidator(CLIENT_ID, CLIENT_VERSION,
 				introductionValidator);
-
 		return introductionValidator;
 	}
 
@@ -52,9 +51,8 @@ public class IntroductionModule {
 		lifecycleManager.registerClient(introductionManager);
 		contactManager.registerContactHook(introductionManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID,
-				introductionManager);
+				CLIENT_VERSION, introductionManager);
 		conversationManager.registerConversationClient(introductionManager);
-
 		return introductionManager;
 	}
 
