@@ -8,9 +8,11 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
+import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumManager.RemoveForumHook;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 
@@ -22,15 +24,16 @@ class ForumSharingManagerImpl extends SharingManagerImpl<Forum>
 
 	@Inject
 	ForumSharingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageParser<Forum> messageParser,
 			SessionEncoder sessionEncoder, SessionParser sessionParser,
 			MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory,
 			ProtocolEngine<Forum> engine,
 			InvitationFactory<Forum, ForumInvitationResponse> invitationFactory) {
-		super(db, clientHelper, metadataParser, messageParser, sessionEncoder,
-				sessionParser, messageTracker, contactGroupFactory, engine,
-				invitationFactory);
+		super(db, clientHelper, clientVersioningManager, metadataParser,
+				messageParser, sessionEncoder, sessionParser, messageTracker,
+				contactGroupFactory, engine, invitationFactory);
 	}
 
 	@Override
@@ -41,6 +44,16 @@ class ForumSharingManagerImpl extends SharingManagerImpl<Forum>
 	@Override
 	protected int getClientVersion() {
 		return CLIENT_VERSION;
+	}
+
+	@Override
+	protected ClientId getShareableClientId() {
+		return ForumManager.CLIENT_ID;
+	}
+
+	@Override
+	protected int getShareableClientVersion() {
+		return ForumManager.CLIENT_VERSION;
 	}
 
 	@Override

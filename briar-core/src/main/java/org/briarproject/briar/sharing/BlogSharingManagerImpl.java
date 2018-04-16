@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogManager;
@@ -32,6 +33,7 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 
 	@Inject
 	BlogSharingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageParser<Blog> messageParser,
 			SessionEncoder sessionEncoder, SessionParser sessionParser,
 			MessageTracker messageTracker,
@@ -39,9 +41,9 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 			ProtocolEngine<Blog> engine,
 			InvitationFactory<Blog, BlogInvitationResponse> invitationFactory,
 			IdentityManager identityManager, BlogManager blogManager) {
-		super(db, clientHelper, metadataParser, messageParser, sessionEncoder,
-				sessionParser, messageTracker, contactGroupFactory, engine,
-				invitationFactory);
+		super(db, clientHelper, clientVersioningManager, metadataParser,
+				messageParser, sessionEncoder, sessionParser, messageTracker,
+				contactGroupFactory, engine, invitationFactory);
 		this.identityManager = identityManager;
 		this.blogManager = blogManager;
 	}
@@ -54,6 +56,16 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 	@Override
 	protected int getClientVersion() {
 		return CLIENT_VERSION;
+	}
+
+	@Override
+	protected ClientId getShareableClientId() {
+		return BlogManager.CLIENT_ID;
+	}
+
+	@Override
+	protected int getShareableClientVersion() {
+		return BlogManager.CLIENT_VERSION;
 	}
 
 	@Override

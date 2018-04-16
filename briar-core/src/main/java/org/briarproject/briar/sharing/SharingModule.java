@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.blog.Blog;
@@ -73,6 +74,7 @@ public class SharingModule {
 			LifecycleManager lifecycleManager, ContactManager contactManager,
 			ValidationManager validationManager,
 			ConversationManager conversationManager, BlogManager blogManager,
+			ClientVersioningManager clientVersioningManager,
 			BlogSharingManagerImpl blogSharingManager) {
 		lifecycleManager.registerClient(blogSharingManager);
 		contactManager.registerContactHook(blogSharingManager);
@@ -81,6 +83,18 @@ public class SharingModule {
 				blogSharingManager);
 		conversationManager.registerConversationClient(blogSharingManager);
 		blogManager.registerRemoveBlogHook(blogSharingManager);
+		clientVersioningManager.registerClient(BlogSharingManager.CLIENT_ID,
+				BlogSharingManager.CLIENT_VERSION);
+		clientVersioningManager.registerClientVersioningHook(
+				BlogSharingManager.CLIENT_ID, BlogSharingManager.CLIENT_VERSION,
+				blogSharingManager);
+		// The blog sharing manager handles client visibility changes for the
+		// blog manager
+		clientVersioningManager.registerClient(BlogManager.CLIENT_ID,
+				BlogManager.CLIENT_VERSION);
+		clientVersioningManager.registerClientVersioningHook(
+				BlogManager.CLIENT_ID, BlogManager.CLIENT_VERSION,
+				blogSharingManager.getShareableClientVersioningHook());
 		return blogSharingManager;
 	}
 
@@ -123,6 +137,7 @@ public class SharingModule {
 			LifecycleManager lifecycleManager, ContactManager contactManager,
 			ValidationManager validationManager,
 			ConversationManager conversationManager, ForumManager forumManager,
+			ClientVersioningManager clientVersioningManager,
 			ForumSharingManagerImpl forumSharingManager) {
 		lifecycleManager.registerClient(forumSharingManager);
 		contactManager.registerContactHook(forumSharingManager);
@@ -131,6 +146,18 @@ public class SharingModule {
 				ForumSharingManager.CLIENT_VERSION, forumSharingManager);
 		conversationManager.registerConversationClient(forumSharingManager);
 		forumManager.registerRemoveForumHook(forumSharingManager);
+		clientVersioningManager.registerClient(ForumSharingManager.CLIENT_ID,
+				ForumSharingManager.CLIENT_VERSION);
+		clientVersioningManager.registerClientVersioningHook(
+				ForumSharingManager.CLIENT_ID,
+				ForumSharingManager.CLIENT_VERSION, forumSharingManager);
+		// The forum sharing manager handles client visibility changes for the
+		// forum manager
+		clientVersioningManager.registerClient(ForumManager.CLIENT_ID,
+				ForumManager.CLIENT_VERSION);
+		clientVersioningManager.registerClientVersioningHook(
+				ForumManager.CLIENT_ID, ForumManager.CLIENT_VERSION,
+				forumSharingManager.getShareableClientVersioningHook());
 		return forumSharingManager;
 	}
 

@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -52,19 +53,27 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	protected final ClientHelper clientHelper;
 	protected final MessageParser<S> messageParser;
 
+	private final ClientVersioningManager clientVersioningManager;
 	private final MessageEncoder messageEncoder;
 	private final MessageTracker messageTracker;
 	private final Clock clock;
+	private final ClientId shareableClientId;
+	private final int shareableClientVersion;
 
 	ProtocolEngineImpl(DatabaseComponent db, ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
 			MessageEncoder messageEncoder, MessageParser<S> messageParser,
-			MessageTracker messageTracker, Clock clock) {
+			MessageTracker messageTracker, Clock clock,
+			ClientId shareableClientId, int shareableClientVersion) {
 		this.db = db;
 		this.clientHelper = clientHelper;
+		this.clientVersioningManager = clientVersioningManager;
 		this.messageEncoder = messageEncoder;
 		this.messageParser = messageParser;
 		this.messageTracker = messageTracker;
 		this.clock = clock;
+		this.shareableClientId = shareableClientId;
+		this.shareableClientVersion = shareableClientVersion;
 	}
 
 	@Override
@@ -598,9 +607,13 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	}
 
 	private void setShareableVisibility(Transaction txn, Session session,
-			Visibility v) throws DbException, FormatException {
+			Visibility preferred) throws DbException, FormatException {
+		// Apply min of preferred visibility and client's visibility
 		ContactId contactId = getContactId(txn, session.getContactGroupId());
-		db.setGroupVisibility(txn, contactId, session.getShareableId(), v);
+		Visibility client = clientVersioningManager.getClientVisibility(txn,
+				contactId, shareableClientId, shareableClientVersion);
+		Visibility min = Visibility.min(preferred, client);
+		db.setGroupVisibility(txn, contactId, session.getShareableId(), min);
 	}
 
 	private ContactId getContactId(Transaction txn, GroupId contactGroupId)

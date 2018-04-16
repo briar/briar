@@ -256,6 +256,8 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		sync0To2(1, true);
 		sync1To0(1, true);
 		sync2To0(1, true);
+		sync0To1(1, true);
+		sync0To2(1, true);
 	}
 
 	protected void addContacts1And2() throws Exception {
@@ -269,6 +271,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		// Sync initial client versioning updates
 		sync1To2(1, true);
 		sync2To1(1, true);
+		sync1To2(1, true);
 	}
 
 	@After

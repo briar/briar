@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -24,7 +25,6 @@ import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -44,12 +44,13 @@ import static org.briarproject.briar.sharing.SharingConstants.GROUP_KEY_CONTACT_
 
 public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 
-	private final Mockery context = new Mockery();
 	private final BlogSharingManagerImpl blogSharingManager;
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final IdentityManager identityManager =
 			context.mock(IdentityManager.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
+	private final ClientVersioningManager clientVersioningManager =
+			context.mock(ClientVersioningManager.class);
 	private final SessionEncoder sessionEncoder =
 			context.mock(SessionEncoder.class);
 	private final SessionParser sessionParser =
@@ -80,14 +81,15 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	@SuppressWarnings("unchecked")
 	public BlogSharingManagerImplTest() {
 		MetadataParser metadataParser = context.mock(MetadataParser.class);
-		MessageTracker messageTracker = context.mock(MessageTracker.class);
 		MessageParser<Blog> messageParser = context.mock(MessageParser.class);
+		MessageTracker messageTracker = context.mock(MessageTracker.class);
 		InvitationFactory<Blog, BlogInvitationResponse> invitationFactory =
 				context.mock(InvitationFactory.class);
 		blogSharingManager = new BlogSharingManagerImpl(db, clientHelper,
-				metadataParser, messageParser, sessionEncoder, sessionParser,
-				messageTracker, contactGroupFactory, engine, invitationFactory,
-				identityManager, blogManager);
+				clientVersioningManager, metadataParser, messageParser,
+				sessionEncoder, sessionParser, messageTracker,
+				contactGroupFactory, engine, invitationFactory, identityManager,
+				blogManager);
 	}
 
 	@Test
@@ -124,6 +126,9 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 					CLIENT_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(db).addGroup(txn, contactGroup);
+			oneOf(clientVersioningManager).getClientVisibility(txn, contactId,
+					CLIENT_ID, CLIENT_VERSION);
+			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contactId, contactGroup.getId(),
 					SHARED);
 			// Attach the contact ID to the group
@@ -207,6 +212,10 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(sessions));
 			if (sessions.size() == 0) {
 				oneOf(db).addGroup(txn, blog.getGroup());
+				oneOf(clientVersioningManager).getClientVisibility(txn,
+						contactId, BlogManager.CLIENT_ID,
+						BlogManager.CLIENT_VERSION);
+				will(returnValue(SHARED));
 				oneOf(db).setGroupVisibility(txn, contact.getId(),
 						blog.getGroup().getId(), SHARED);
 				oneOf(clientHelper)

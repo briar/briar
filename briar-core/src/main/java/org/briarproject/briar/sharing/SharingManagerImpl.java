@@ -16,7 +16,10 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.ClientId;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
+import org.briarproject.bramble.api.sync.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -37,9 +40,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.briar.sharing.MessageType.ABORT;
 import static org.briarproject.briar.sharing.MessageType.ACCEPT;
@@ -52,8 +57,13 @@ import static org.briarproject.briar.sharing.State.SHARING;
 @NotNullByDefault
 abstract class SharingManagerImpl<S extends Shareable>
 		extends ConversationClientImpl
-		implements SharingManager<S>, Client, ContactHook {
+		implements SharingManager<S>, Client, ContactHook,
+		ClientVersioningHook {
 
+	private static final Logger LOG =
+			Logger.getLogger(SharingManagerImpl.class.getName());
+
+	private final ClientVersioningManager clientVersioningManager;
 	private final MessageParser<S> messageParser;
 	private final SessionEncoder sessionEncoder;
 	private final SessionParser sessionParser;
@@ -62,12 +72,14 @@ abstract class SharingManagerImpl<S extends Shareable>
 	private final InvitationFactory<S, ?> invitationFactory;
 
 	SharingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageParser<S> messageParser,
 			SessionEncoder sessionEncoder, SessionParser sessionParser,
 			MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory, ProtocolEngine<S> engine,
 			InvitationFactory<S, ?> invitationFactory) {
 		super(db, clientHelper, metadataParser, messageTracker);
+		this.clientVersioningManager = clientVersioningManager;
 		this.messageParser = messageParser;
 		this.sessionEncoder = sessionEncoder;
 		this.sessionParser = sessionParser;
@@ -79,6 +91,10 @@ abstract class SharingManagerImpl<S extends Shareable>
 	protected abstract ClientId getClientId();
 
 	protected abstract int getClientVersion();
+
+	protected abstract ClientId getShareableClientId();
+
+	protected abstract int getShareableClientVersion();
 
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
@@ -93,18 +109,22 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
+		// Create a group to share with the contact
+		Group g = getContactGroup(c);
+		// Store the group and share it with the contact
+		db.addGroup(txn, g);
+		Visibility client = clientVersioningManager.getClientVisibility(txn,
+				c.getId(), getClientId(), getClientVersion());
+		if (LOG.isLoggable(INFO))
+			LOG.info("Applying visibility " + client + " to new contact group");
+		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
+		// Attach the contact ID to the group
+		BdfDictionary meta = new BdfDictionary();
+		meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
 		try {
-			// Create a group to share with the contact
-			Group g = getContactGroup(c);
-			// Store the group and share it with the contact
-			db.addGroup(txn, g);
-			db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
-			// Attach the contact ID to the group
-			BdfDictionary meta = new BdfDictionary();
-			meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
 			clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
 		} catch (FormatException e) {
-			throw new DbException(e);
+			throw new AssertionError(e);
 		}
 	}
 
@@ -156,9 +176,13 @@ abstract class SharingManagerImpl<S extends Shareable>
 				getSessionId(shareable.getId()));
 		if (existingSession != null) return;
 
-		// Add and share the shareable with the contact
+		// Add the shareable
 		db.addGroup(txn, shareable.getGroup());
-		db.setGroupVisibility(txn, c.getId(), shareable.getId(), SHARED);
+
+		// Apply the client's visibility
+		Visibility client = clientVersioningManager.getClientVisibility(txn,
+				c.getId(), getShareableClientId(), getShareableClientVersion());
+		db.setGroupVisibility(txn, c.getId(), shareable.getId(), client);
 
 		// Initialize session in sharing state
 		Session session = new Session(SHARING, contactGroupId,
@@ -420,6 +444,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 		Transaction txn = db.startTransaction(true);
 		try {
 			for (Contact c : db.getContacts(txn)) {
+				// FIXME: Check the session for the preferred visibility?
 				if (db.getGroupVisibility(txn, c.getId(), g) == SHARED)
 					contacts.add(c);
 			}
@@ -478,6 +503,58 @@ abstract class SharingManagerImpl<S extends Shareable>
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	@Override
+	public void onClientVisibilityChanging(Transaction txn, Contact c,
+			Visibility v) throws DbException {
+		// Apply the client's visibility to the contact group
+		Group g = getContactGroup(c);
+		if (LOG.isLoggable(INFO))
+			LOG.info("Applying visibility " + v + " to contact group");
+		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
+	}
+
+	ClientVersioningHook getShareableClientVersioningHook() {
+		return this::onShareableClientVisibilityChanging;
+	}
+
+	// Versioning hook for the shareable client
+	private void onShareableClientVisibilityChanging(Transaction txn, Contact c,
+			Visibility client) throws DbException {
+		try {
+			Collection<Group> shareables = db.getGroups(txn,
+					getShareableClientId(), getShareableClientVersion());
+			Map<GroupId, Visibility> m = getPreferredVisibilities(txn, c);
+			for (Group g : shareables) {
+				Visibility preferred = m.get(g.getId());
+				if (preferred == null) continue; // No session for this group
+				// Apply min of preferred visibility and client's visibility
+				Visibility min = Visibility.min(preferred, client);
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Applying visibility " + min
+							+ " to shareable, preferred " + preferred
+							+ ", client" + client);
+				}
+				db.setGroupVisibility(txn, c.getId(), g.getId(), min);
+			}
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	private Map<GroupId, Visibility> getPreferredVisibilities(Transaction txn,
+			Contact c) throws DbException, FormatException {
+		GroupId contactGroupId = getContactGroup(c).getId();
+		BdfDictionary query = sessionParser.getAllSessionsQuery();
+		Map<MessageId, BdfDictionary> results = clientHelper
+				.getMessageMetadataAsDictionary(txn, contactGroupId, query);
+		Map<GroupId, Visibility> m = new HashMap<>();
+		for (BdfDictionary d : results.values()) {
+			Session s = sessionParser.parseSession(contactGroupId, d);
+			m.put(s.getShareableId(), s.getState().getVisibility());
+		}
+		return m;
 	}
 
 	private static class StoredSession {

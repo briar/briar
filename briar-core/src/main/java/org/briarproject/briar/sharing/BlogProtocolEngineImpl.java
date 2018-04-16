@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.blog.Blog;
@@ -22,6 +23,9 @@ import org.briarproject.briar.api.sharing.InvitationRequest;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
+import static org.briarproject.briar.api.blog.BlogManager.CLIENT_VERSION;
+
 @Immutable
 @NotNullByDefault
 class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
@@ -31,13 +35,14 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 			invitationFactory;
 
 	@Inject
-	BlogProtocolEngineImpl(DatabaseComponent db,
-			ClientHelper clientHelper, MessageEncoder messageEncoder,
-			MessageParser<Blog> messageParser, MessageTracker messageTracker,
-			Clock clock, BlogManager blogManager,
+	BlogProtocolEngineImpl(DatabaseComponent db, ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
+			MessageEncoder messageEncoder, MessageParser<Blog> messageParser,
+			MessageTracker messageTracker, Clock clock, BlogManager blogManager,
 			InvitationFactory<Blog, BlogInvitationResponse> invitationFactory) {
-		super(db, clientHelper, messageEncoder, messageParser, messageTracker,
-				clock);
+		super(db, clientHelper, clientVersioningManager, messageEncoder,
+				messageParser, messageTracker, clock, CLIENT_ID,
+				CLIENT_VERSION);
 		this.blogManager = blogManager;
 		this.invitationFactory = invitationFactory;
 	}
@@ -46,8 +51,8 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 	Event getInvitationRequestReceivedEvent(InviteMessage<Blog> m,
 			ContactId contactId, boolean available, boolean canBeOpened) {
 		InvitationRequest<Blog> request = invitationFactory
-						.createInvitationRequest(false, false, true, false, m,
-								contactId, available, canBeOpened);
+				.createInvitationRequest(false, false, true, false, m,
+						contactId, available, canBeOpened);
 		return new BlogInvitationRequestReceivedEvent(m.getShareable(),
 				contactId, request);
 	}
@@ -74,7 +79,7 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 
 	@Override
 	protected ClientId getShareableClientId() {
-		return BlogManager.CLIENT_ID;
+		return CLIENT_ID;
 	}
 
 	@Override
