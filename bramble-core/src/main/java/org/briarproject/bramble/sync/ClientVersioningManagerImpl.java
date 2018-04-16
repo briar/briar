@@ -96,6 +96,9 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		try {
 			Contact contact = db.getContact(txn, contactId);
 			Group g = getContactGroup(contact);
+			// Contact may be in the process of being added or removed, so
+			// contact group may not exist
+			if (!db.containsGroup(txn, g.getId())) return INVISIBLE;
 			LatestUpdates latest = findLatestUpdates(txn, g.getId());
 			if (latest.local == null) throw new DbException();
 			if (latest.remote == null) return INVISIBLE;
