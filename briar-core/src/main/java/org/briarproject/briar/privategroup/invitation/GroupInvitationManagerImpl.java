@@ -43,13 +43,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static java.util.logging.Level.INFO;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.START;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
@@ -65,9 +63,6 @@ import static org.briarproject.briar.privategroup.invitation.Role.PEER;
 class GroupInvitationManagerImpl extends ConversationClientImpl
 		implements GroupInvitationManager, Client, ContactHook,
 		PrivateGroupHook, ClientVersioningHook {
-
-	private static final Logger LOG =
-			Logger.getLogger(GroupInvitationManagerImpl.class.getName());
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
@@ -123,8 +118,6 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		db.addGroup(txn, g);
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				c.getId(), CLIENT_ID, MAJOR_VERSION);
-		if (LOG.isLoggable(INFO))
-			LOG.info("Applying visibility " + client + " to new contact group");
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
 		BdfDictionary meta = new BdfDictionary();
@@ -584,8 +577,6 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	public void onClientVisibilityChanging(Transaction txn, Contact c,
 			Visibility v) throws DbException {
 		// Apply the client's visibility to the contact group
-		if (LOG.isLoggable(INFO))
-			LOG.info("Applying visibility " + v + " to contact group");
 		Group g = getContactGroup(c);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
@@ -606,11 +597,6 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				if (preferred == null) continue; // No session for this group
 				// Apply min of preferred visibility and client's visibility
 				Visibility min = Visibility.min(preferred, client);
-				if (LOG.isLoggable(INFO)) {
-					LOG.info("Applying visibility " + min
-							+ " to private group, preferred " + preferred
-							+ ", client " + client);
-				}
 				db.setGroupVisibility(txn, c.getId(), g.getId(), min);
 			}
 		} catch (FormatException e) {

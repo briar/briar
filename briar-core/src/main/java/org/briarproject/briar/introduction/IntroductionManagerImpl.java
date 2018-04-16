@@ -48,7 +48,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
@@ -128,8 +127,6 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		// Apply the client's visibility to the contact group
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				c.getId(), CLIENT_ID, MAJOR_VERSION);
-		if (LOG.isLoggable(INFO))
-			LOG.info("Applying visibility " + client + " to new contact group");db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
 		BdfDictionary meta = new BdfDictionary();
@@ -156,8 +153,6 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			Visibility v) throws DbException {
 		// Apply the client's visibility to the contact group
 		Group g = getContactGroup(c);
-		if (LOG.isLoggable(INFO))
-			LOG.info("Applying visibility " + v + " to contact group");
 		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 

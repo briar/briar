@@ -32,21 +32,16 @@ import org.briarproject.briar.client.ConversationClientImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static java.util.logging.Level.INFO;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
 @NotNullByDefault
 class MessagingManagerImpl extends ConversationClientImpl
 		implements MessagingManager, Client, ContactHook, ClientVersioningHook {
-
-	private static final Logger LOG =
-			Logger.getLogger(MessagingManagerImpl.class.getName());
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
@@ -81,8 +76,6 @@ class MessagingManagerImpl extends ConversationClientImpl
 		// Apply the client's visibility to the contact group
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				c.getId(), CLIENT_ID, MAJOR_VERSION);
-		if (LOG.isLoggable(INFO))
-			LOG.info("Applying visibility " + client + " to new contact group");
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
 		BdfDictionary d = new BdfDictionary();
@@ -110,8 +103,6 @@ class MessagingManagerImpl extends ConversationClientImpl
 			Visibility v) throws DbException {
 		// Apply the client's visibility to the contact group
 		Group g = getContactGroup(c);
-		if (LOG.isLoggable(INFO))
-			LOG.info("Applying visibility " + v + " to contact group");
 		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 

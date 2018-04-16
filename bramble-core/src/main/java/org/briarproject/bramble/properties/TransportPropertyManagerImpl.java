@@ -32,21 +32,15 @@ import org.briarproject.bramble.api.system.Clock;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static java.util.logging.Level.INFO;
-
 @Immutable
 @NotNullByDefault
 class TransportPropertyManagerImpl implements TransportPropertyManager,
 		Client, ContactHook, ClientVersioningHook, IncomingMessageHook {
-
-	private static final Logger LOG =
-			Logger.getLogger(TransportPropertyManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
@@ -89,8 +83,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		// Apply the client's visibility to the contact group
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				c.getId(), CLIENT_ID, MAJOR_VERSION);
-		if (LOG.isLoggable(INFO))
-			LOG.info("Applying visibility " + client + " to new contact group");
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Copy the latest local properties into the group
 		Map<TransportId, TransportProperties> local = getLocalProperties(txn);
@@ -110,8 +102,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			Visibility v) throws DbException {
 		// Apply the client's visibility to the contact group
 		Group g = getContactGroup(c);
-		if (LOG.isLoggable(INFO))
-			LOG.info("Applying visibility " + v + " to contact group");
 		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 

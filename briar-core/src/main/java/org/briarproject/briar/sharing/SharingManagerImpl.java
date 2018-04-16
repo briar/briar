@@ -40,11 +40,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.briar.sharing.MessageType.ABORT;
 import static org.briarproject.briar.sharing.MessageType.ACCEPT;
@@ -59,9 +57,6 @@ abstract class SharingManagerImpl<S extends Shareable>
 		extends ConversationClientImpl
 		implements SharingManager<S>, Client, ContactHook,
 		ClientVersioningHook {
-
-	private static final Logger LOG =
-			Logger.getLogger(SharingManagerImpl.class.getName());
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final MessageParser<S> messageParser;
@@ -115,8 +110,6 @@ abstract class SharingManagerImpl<S extends Shareable>
 		db.addGroup(txn, g);
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				c.getId(), getClientId(), getClientVersion());
-		if (LOG.isLoggable(INFO))
-			LOG.info("Applying visibility " + client + " to new contact group");
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
 		BdfDictionary meta = new BdfDictionary();
@@ -510,8 +503,6 @@ abstract class SharingManagerImpl<S extends Shareable>
 			Visibility v) throws DbException {
 		// Apply the client's visibility to the contact group
 		Group g = getContactGroup(c);
-		if (LOG.isLoggable(INFO))
-			LOG.info("Applying visibility " + v + " to contact group");
 		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 
@@ -531,11 +522,6 @@ abstract class SharingManagerImpl<S extends Shareable>
 				if (preferred == null) continue; // No session for this group
 				// Apply min of preferred visibility and client's visibility
 				Visibility min = Visibility.min(preferred, client);
-				if (LOG.isLoggable(INFO)) {
-					LOG.info("Applying visibility " + min
-							+ " to shareable, preferred " + preferred
-							+ ", client" + client);
-				}
 				db.setGroupVisibility(txn, c.getId(), g.getId(), min);
 			}
 		} catch (FormatException e) {
