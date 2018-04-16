@@ -16,4 +16,10 @@ public interface CryptoConstants {
 	 * The maximum length of a signature in bytes.
 	 */
 	int MAX_SIGNATURE_BYTES = 64;
+
+	/**
+	 * The length of a MAC in bytes.
+	 */
+	int MAC_BYTES = SecretKey.LENGTH;
+
 }
