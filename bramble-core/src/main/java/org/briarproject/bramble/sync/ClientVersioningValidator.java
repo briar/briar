@@ -39,13 +39,15 @@ class ClientVersioningValidator extends BdfMessageValidator {
 		int size = states.size();
 		for (int i = 0; i < size; i++) {
 			BdfList clientState = states.getList(i);
-			// Client ID, major version, active
-			checkSize(clientState, 3);
+			// Client ID, major version, minor version, active
+			checkSize(clientState, 4);
 			String clientId = clientState.getString(0);
 			checkLength(clientId, 1, MAX_CLIENT_ID_LENGTH);
 			int majorVersion = clientState.getLong(1).intValue();
 			if (majorVersion < 0) throw new FormatException();
-			clientState.getBoolean(2);
+			int minorVersion = clientState.getLong(2).intValue();
+			if (minorVersion < 0) throw new FormatException();
+			clientState.getBoolean(3);
 		}
 		// Update version
 		long updateVersion = body.getLong(1);

@@ -84,14 +84,15 @@ public class SharingModule {
 		conversationManager.registerConversationClient(blogSharingManager);
 		blogManager.registerRemoveBlogHook(blogSharingManager);
 		clientVersioningManager.registerClient(BlogSharingManager.CLIENT_ID,
-				BlogSharingManager.MAJOR_VERSION);
+				BlogSharingManager.MAJOR_VERSION,
+				BlogSharingManager.MINOR_VERSION);
 		clientVersioningManager.registerClientVersioningHook(
 				BlogSharingManager.CLIENT_ID, BlogSharingManager.MAJOR_VERSION,
 				blogSharingManager);
 		// The blog sharing manager handles client visibility changes for the
 		// blog manager
 		clientVersioningManager.registerClient(BlogManager.CLIENT_ID,
-				BlogManager.MAJOR_VERSION);
+				BlogManager.MAJOR_VERSION, BlogManager.MINOR_VERSION);
 		clientVersioningManager.registerClientVersioningHook(
 				BlogManager.CLIENT_ID, BlogManager.MAJOR_VERSION,
 				blogSharingManager.getShareableClientVersioningHook());
@@ -147,14 +148,15 @@ public class SharingModule {
 		conversationManager.registerConversationClient(forumSharingManager);
 		forumManager.registerRemoveForumHook(forumSharingManager);
 		clientVersioningManager.registerClient(ForumSharingManager.CLIENT_ID,
-				ForumSharingManager.MAJOR_VERSION);
+				ForumSharingManager.MAJOR_VERSION,
+				ForumSharingManager.MINOR_VERSION);
 		clientVersioningManager.registerClientVersioningHook(
 				ForumSharingManager.CLIENT_ID,
 				ForumSharingManager.MAJOR_VERSION, forumSharingManager);
 		// The forum sharing manager handles client visibility changes for the
 		// forum manager
 		clientVersioningManager.registerClient(ForumManager.CLIENT_ID,
-				ForumManager.MAJOR_VERSION);
+				ForumManager.MAJOR_VERSION, ForumManager.MINOR_VERSION);
 		clientVersioningManager.registerClientVersioningHook(
 				ForumManager.CLIENT_ID, ForumManager.MAJOR_VERSION,
 				forumSharingManager.getShareableClientVersioningHook());

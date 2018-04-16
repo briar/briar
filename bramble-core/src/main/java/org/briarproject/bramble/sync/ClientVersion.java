@@ -33,15 +33,10 @@ class ClientVersion implements Comparable<ClientVersion> {
 	}
 
 	@Override
-	public int compareTo(ClientVersion c) {
-		int compare = clientId.compareTo(c.clientId);
+	public int compareTo(ClientVersion cv) {
+		int compare = clientId.compareTo(cv.clientId);
 		if (compare != 0) return compare;
-		return majorVersion - c.majorVersion;
-	}
-
-	@Override
-	public String toString() {
-		return clientId.getString() + ":" + majorVersion;
+		return majorVersion - cv.majorVersion;
 	}
 }
 

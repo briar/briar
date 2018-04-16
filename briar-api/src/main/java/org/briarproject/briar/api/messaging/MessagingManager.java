@@ -24,6 +24,11 @@ public interface MessagingManager extends ConversationClient {
 	int MAJOR_VERSION = 0;
 
 	/**
+	 * The current minor version of the messaging client.
+	 */
+	int MINOR_VERSION = 0;
+
+	/**
 	 * Stores a local private message.
 	 */
 	void addLocalMessage(PrivateMessage m) throws DbException;

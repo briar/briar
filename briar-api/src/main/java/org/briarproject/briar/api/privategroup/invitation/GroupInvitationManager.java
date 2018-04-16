@@ -31,6 +31,11 @@ public interface GroupInvitationManager extends ConversationClient {
 	int MAJOR_VERSION = 0;
 
 	/**
+	 * The current minor version of the private group invitation client.
+	 */
+	int MINOR_VERSION = 0;
+
+	/**
 	 * Sends an invitation to share the given private group with the given
 	 * contact, including an optional message.
 	 *

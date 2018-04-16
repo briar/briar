@@ -31,6 +31,11 @@ public interface IntroductionManager extends ConversationClient {
 	boolean canIntroduce(Contact c1, Contact c2) throws DbException;
 
 	/**
+	 * The current minor version of the introduction client.
+	 */
+	int MINOR_VERSION = 0;
+
+	/**
 	 * Sends two initial introduction messages.
 	 */
 	void makeIntroduction(Contact c1, Contact c2, @Nullable String msg,

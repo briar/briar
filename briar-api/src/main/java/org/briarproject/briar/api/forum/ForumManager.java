@@ -28,6 +28,11 @@ public interface ForumManager {
 	int MAJOR_VERSION = 0;
 
 	/**
+	 * The current minor version of the forum client.
+	 */
+	int MINOR_VERSION = 0;
+
+	/**
 	 * Subscribes to a forum.
 	 */
 	Forum addForum(String name) throws DbException;

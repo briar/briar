@@ -19,6 +19,7 @@ import dagger.Provides;
 
 import static org.briarproject.briar.api.messaging.MessagingManager.CLIENT_ID;
 import static org.briarproject.briar.api.messaging.MessagingManager.MAJOR_VERSION;
+import static org.briarproject.briar.api.messaging.MessagingManager.MINOR_VERSION;
 
 @Module
 public class MessagingModule {
@@ -62,7 +63,8 @@ public class MessagingModule {
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				messagingManager);
 		conversationManager.registerConversationClient(messagingManager);
-		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION);
+		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
+				MINOR_VERSION);
 		clientVersioningManager.registerClientVersioningHook(CLIENT_ID,
 				MAJOR_VERSION, messagingManager);
 		return messagingManager;

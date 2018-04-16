@@ -27,6 +27,11 @@ public interface BlogManager {
 	int MAJOR_VERSION = 0;
 
 	/**
+	 * The current minor version of the blog client.
+	 */
+	int MINOR_VERSION = 0;
+
+	/**
 	 * Adds the given {@link Blog).}
 	 */
 	void addBlog(Blog b) throws DbException;

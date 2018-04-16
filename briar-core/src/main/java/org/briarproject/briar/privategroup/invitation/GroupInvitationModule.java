@@ -21,6 +21,7 @@ import dagger.Provides;
 
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.MAJOR_VERSION;
+import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.MINOR_VERSION;
 
 @Module
 public class GroupInvitationModule {
@@ -47,13 +48,15 @@ public class GroupInvitationModule {
 		contactManager.registerContactHook(groupInvitationManager);
 		privateGroupManager.registerPrivateGroupHook(groupInvitationManager);
 		conversationManager.registerConversationClient(groupInvitationManager);
-		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION);
+		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
+				MINOR_VERSION);
 		clientVersioningManager.registerClientVersioningHook(CLIENT_ID,
 				MAJOR_VERSION, groupInvitationManager);
 		// The group invitation manager handles client visibility changes for
 		// the private group manager
 		clientVersioningManager.registerClient(PrivateGroupManager.CLIENT_ID,
-				PrivateGroupManager.MAJOR_VERSION);
+				PrivateGroupManager.MAJOR_VERSION,
+				PrivateGroupManager.MINOR_VERSION);
 		clientVersioningManager.registerClientVersioningHook(
 				PrivateGroupManager.CLIENT_ID,
 				PrivateGroupManager.MAJOR_VERSION,

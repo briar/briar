@@ -27,6 +27,11 @@ public interface PrivateGroupManager {
 	int MAJOR_VERSION = 0;
 
 	/**
+	 * The current minor version of the private group client.
+	 */
+	int MINOR_VERSION = 0;
+
+	/**
 	 * Adds a new private group and joins it.
 	 *
 	 * @param group The private group to add

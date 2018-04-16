@@ -61,7 +61,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	private final Clock clock;
 	private final Group localGroup;
 
-	private final Collection<ClientVersion> clients =
+	private final List<ClientMinorVersion> clients =
 			new CopyOnWriteArrayList<>();
 	private final Map<ClientVersion, ClientVersioningHook> hooks =
 			new ConcurrentHashMap<>();
@@ -79,8 +79,10 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	}
 
 	@Override
-	public void registerClient(ClientId clientId, int majorVersion) {
-		clients.add(new ClientVersion(clientId, majorVersion));
+	public void registerClient(ClientId clientId, int majorVersion,
+			int minorVersion) {
+		clients.add(new ClientMinorVersion(clientId, majorVersion,
+				minorVersion));
 	}
 
 	@Override
@@ -124,7 +126,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 	@Override
 	public void startService() throws ServiceException {
-		List<ClientVersion> versions = new ArrayList<>(clients);
+		List<ClientMinorVersion> versions = new ArrayList<>(clients);
 		Collections.sort(versions);
 		try {
 			Transaction txn = db.startTransaction(false);
@@ -161,7 +163,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 			throw new AssertionError(e);
 		}
 		// Create and store the first local update
-		List<ClientVersion> versions = new ArrayList<>(clients);
+		List<ClientMinorVersion> versions = new ArrayList<>(clients);
 		Collections.sort(versions);
 		storeFirstUpdate(txn, g.getId(), versions);
 	}
@@ -230,7 +232,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	}
 
 	private void storeClientVersions(Transaction txn,
-			List<ClientVersion> versions) throws DbException {
+			List<ClientMinorVersion> versions) throws DbException {
 		long now = clock.currentTimeMillis();
 		BdfList body = encodeClientVersions(versions);
 		try {
@@ -242,30 +244,35 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		}
 	}
 
-	private BdfList encodeClientVersions(List<ClientVersion> versions) {
+	private BdfList encodeClientVersions(List<ClientMinorVersion> versions) {
 		BdfList encoded = new BdfList();
-		for (ClientVersion cv : versions)
-			encoded.add(BdfList.of(cv.clientId.getString(), cv.majorVersion));
+		for (ClientMinorVersion cm : versions)
+			encoded.add(encodeClientVersion(cm));
 		return encoded;
 	}
 
+	private BdfList encodeClientVersion(ClientMinorVersion cm) {
+		return BdfList.of(cm.version.clientId.getString(),
+				cm.version.majorVersion, cm.minorVersion);
+	}
+
 	private boolean updateClientVersions(Transaction txn,
-			List<ClientVersion> newVersions) throws DbException {
+			List<ClientMinorVersion> newVersions) throws DbException {
 		Collection<MessageId> ids = db.getMessageIds(txn, localGroup.getId());
 		if (ids.isEmpty()) {
 			storeClientVersions(txn, newVersions);
 			return true;
 		}
 		MessageId m = ids.iterator().next();
-		List<ClientVersion> oldVersions = loadClientVersions(txn, m);
+		List<ClientMinorVersion> oldVersions = loadClientVersions(txn, m);
 		if (oldVersions.equals(newVersions)) return false;
 		db.removeMessage(txn, m);
 		storeClientVersions(txn, newVersions);
 		return true;
 	}
 
-	private List<ClientVersion> loadClientVersions(Transaction txn, MessageId m)
-			throws DbException {
+	private List<ClientMinorVersion> loadClientVersions(Transaction txn,
+			MessageId m) throws DbException {
 		try {
 			BdfList body = clientHelper.getMessageAsList(txn, m);
 			if (body == null) throw new DbException();
@@ -275,21 +282,23 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		}
 	}
 
-	private List<ClientVersion> parseClientVersions(BdfList body)
+	private List<ClientMinorVersion> parseClientVersions(BdfList body)
 			throws FormatException {
 		int size = body.size();
-		List<ClientVersion> parsed = new ArrayList<>(size);
+		List<ClientMinorVersion> parsed = new ArrayList<>(size);
 		for (int i = 0; i < size; i++) {
 			BdfList cv = body.getList(i);
 			ClientId clientId = new ClientId(cv.getString(0));
 			int majorVersion = cv.getLong(1).intValue();
-			parsed.add(new ClientVersion(clientId, majorVersion));
+			int minorVersion = cv.getLong(2).intValue();
+			parsed.add(new ClientMinorVersion(clientId, majorVersion,
+					minorVersion));
 		}
 		return parsed;
 	}
 
 	private void clientVersionsUpdated(Transaction txn, Contact c,
-			List<ClientVersion> versions) throws DbException {
+			List<ClientMinorVersion> versions) throws DbException {
 		try {
 			// Find the latest local and remote updates
 			Group g = getContactGroup(c);
@@ -372,11 +381,12 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 	private ClientState parseClientState(BdfList clientState)
 			throws FormatException {
-		// Client ID, major version, active
+		// Client ID, major version, minor version, active
 		ClientId clientId = new ClientId(clientState.getString(0));
 		int majorVersion = clientState.getLong(1).intValue();
-		boolean active = clientState.getBoolean(2);
-		return new ClientState(clientId, majorVersion, active);
+		int minorVersion = clientState.getLong(2).intValue();
+		boolean active = clientState.getBoolean(3);
+		return new ClientState(clientId, majorVersion, minorVersion, active);
 	}
 
 	private long parseUpdateVersion(BdfList body) throws FormatException {
@@ -385,14 +395,15 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	}
 
 	private List<ClientState> updateStatesFromLocalVersions(
-			List<ClientState> oldStates, List<ClientVersion> newVersions) {
+			List<ClientState> oldStates, List<ClientMinorVersion> newVersions) {
 		Map<ClientVersion, ClientState> oldMap = new HashMap<>();
 		for (ClientState cs : oldStates) oldMap.put(cs.version, cs);
 		List<ClientState> newStates = new ArrayList<>(newVersions.size());
-		for (ClientVersion newVersion : newVersions) {
-			ClientState oldState = oldMap.get(newVersion);
+		for (ClientMinorVersion newVersion : newVersions) {
+			ClientState oldState = oldMap.get(newVersion.version);
 			boolean active = oldState != null && oldState.active;
-			newStates.add(new ClientState(newVersion, active));
+			newStates.add(new ClientState(newVersion.version,
+					newVersion.minorVersion, active));
 		}
 		return newStates;
 	}
@@ -420,7 +431,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 	private BdfList encodeClientState(ClientState cs) {
 		return BdfList.of(cs.version.clientId.getString(),
-				cs.version.majorVersion, cs.active);
+				cs.version.majorVersion, cs.minorVersion, cs.active);
 	}
 
 	private Map<ClientVersion, Visibility> getVisibilities(
@@ -461,10 +472,10 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	}
 
 	private void storeFirstUpdate(Transaction txn, GroupId g,
-			List<ClientVersion> versions) throws DbException {
+			List<ClientMinorVersion> versions) throws DbException {
 		List<ClientState> states = new ArrayList<>(versions.size());
-		for (ClientVersion cv : versions)
-			states.add(new ClientState(cv, false));
+		for (ClientMinorVersion cm : versions)
+			states.add(new ClientState(cm.version, cm.minorVersion, false));
 		storeUpdate(txn, g, states, 1);
 	}
 
@@ -487,7 +498,8 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 				new ArrayList<>(oldLocalStates.size());
 		for (ClientState oldState : oldLocalStates) {
 			boolean active = remoteSet.contains(oldState.version);
-			newLocalStates.add(new ClientState(oldState.version, active));
+			newLocalStates.add(new ClientState(oldState.version,
+					oldState.minorVersion, active));
 		}
 		return newLocalStates;
 	}
@@ -526,26 +538,71 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		}
 	}
 
+	private static class ClientMinorVersion
+			implements Comparable<ClientMinorVersion> {
+
+		private final ClientVersion version;
+		private final int minorVersion;
+
+		private ClientMinorVersion(ClientVersion version, int minorVersion) {
+			this.version = version;
+			this.minorVersion = minorVersion;
+		}
+
+		private ClientMinorVersion(ClientId clientId, int majorVersion,
+				int minorVersion) {
+			this(new ClientVersion(clientId, majorVersion), minorVersion);
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof ClientMinorVersion) {
+				ClientMinorVersion cm = (ClientMinorVersion) o;
+				return version.equals(cm.version)
+						&& minorVersion == cm.minorVersion;
+			}
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return version.hashCode();
+		}
+
+		@Override
+		public int compareTo(ClientMinorVersion cm) {
+			int compare = version.compareTo(cm.version);
+			if (compare != 0) return compare;
+			return minorVersion - cm.minorVersion;
+		}
+	}
+
 	private static class ClientState {
 
 		private final ClientVersion version;
+		private final int minorVersion;
 		private final boolean active;
 
-		private ClientState(ClientVersion version, boolean active) {
+		private ClientState(ClientVersion version, int minorVersion,
+				boolean active) {
 			this.version = version;
+			this.minorVersion = minorVersion;
 			this.active = active;
 		}
 
 		private ClientState(ClientId clientId, int majorVersion,
-				boolean active) {
-			this(new ClientVersion(clientId, majorVersion), active);
+				int minorVersion, boolean active) {
+			this(new ClientVersion(clientId, majorVersion), minorVersion,
+					active);
 		}
 
 		@Override
 		public boolean equals(Object o) {
 			if (o instanceof ClientState) {
 				ClientState cs = (ClientState) o;
-				return version.equals(cs.version) && active == cs.active;
+				return version.equals(cs.version)
+						&& minorVersion == cs.minorVersion
+						&& active == cs.active;
 			}
 			return false;
 		}

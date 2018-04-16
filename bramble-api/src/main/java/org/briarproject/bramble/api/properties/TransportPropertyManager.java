@@ -23,6 +23,11 @@ public interface TransportPropertyManager {
 	int MAJOR_VERSION = 0;
 
 	/**
+	 * The current minor version of the transport property client.
+	 */
+	int MINOR_VERSION = 0;
+
+	/**
 	 * Stores the given properties received while adding a contact - they will
 	 * be superseded by any properties synced from the contact.
 	 */
