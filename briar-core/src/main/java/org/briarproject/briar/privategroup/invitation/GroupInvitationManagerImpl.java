@@ -16,7 +16,10 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
+import org.briarproject.bramble.api.sync.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -36,15 +39,17 @@ import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static java.util.logging.Level.INFO;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.START;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
@@ -59,8 +64,12 @@ import static org.briarproject.briar.privategroup.invitation.Role.PEER;
 @NotNullByDefault
 class GroupInvitationManagerImpl extends ConversationClientImpl
 		implements GroupInvitationManager, Client, ContactHook,
-		PrivateGroupHook {
+		PrivateGroupHook, ClientVersioningHook {
 
+	private static final Logger LOG =
+			Logger.getLogger(GroupInvitationManagerImpl.class.getName());
+
+	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
 	private final PrivateGroupFactory privateGroupFactory;
 	private final PrivateGroupManager privateGroupManager;
@@ -73,8 +82,9 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	@Inject
 	GroupInvitationManagerImpl(DatabaseComponent db,
-			ClientHelper clientHelper, MetadataParser metadataParser,
-			MessageTracker messageTracker,
+			ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
+			MetadataParser metadataParser, MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory,
 			PrivateGroupFactory privateGroupFactory,
 			PrivateGroupManager privateGroupManager,
@@ -82,6 +92,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			SessionEncoder sessionEncoder,
 			ProtocolEngineFactory engineFactory) {
 		super(db, clientHelper, metadataParser, messageTracker);
+		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
 		this.privateGroupFactory = privateGroupFactory;
 		this.privateGroupManager = privateGroupManager;
@@ -110,7 +121,11 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		Group g = getContactGroup(c);
 		// Store the group and share it with the contact
 		db.addGroup(txn, g);
-		db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
+		Visibility client = clientVersioningManager.getClientVisibility(txn,
+				c.getId(), CLIENT_ID, CLIENT_VERSION);
+		if (LOG.isLoggable(INFO))
+			LOG.info("Applying visibility " + client + " to new contact group");
+		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
@@ -563,6 +578,72 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		} else {
 			throw new AssertionError();
 		}
+	}
+
+	@Override
+	public void onClientVisibilityChanging(Transaction txn, Contact c,
+			Visibility v) throws DbException {
+		// Apply the client's visibility to the contact group
+		if (LOG.isLoggable(INFO))
+			LOG.info("Applying visibility " + v + " to contact group");
+		Group g = getContactGroup(c);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
+	}
+
+	ClientVersioningHook getPrivateGroupClientVersioningHook() {
+		return this::onPrivateGroupClientVisibilityChanging;
+	}
+
+	private void onPrivateGroupClientVisibilityChanging(Transaction txn,
+			Contact c, Visibility client) throws DbException {
+		try {
+			Collection<Group> shareables =
+					db.getGroups(txn, PrivateGroupManager.CLIENT_ID,
+							PrivateGroupManager.CLIENT_VERSION);
+			Map<GroupId, Visibility> m = getPreferredVisibilities(txn, c);
+			for (Group g : shareables) {
+				Visibility preferred = m.get(g.getId());
+				if (preferred == null) continue; // No session for this group
+				// Apply min of preferred visibility and client's visibility
+				Visibility min = Visibility.min(preferred, client);
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Applying visibility " + min
+							+ " to private group, preferred " + preferred
+							+ ", client " + client);
+				}
+				db.setGroupVisibility(txn, c.getId(), g.getId(), min);
+			}
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	private Map<GroupId, Visibility> getPreferredVisibilities(Transaction txn,
+			Contact c) throws DbException, FormatException {
+		GroupId contactGroupId = getContactGroup(c).getId();
+		BdfDictionary query = sessionParser.getAllSessionsQuery();
+		Map<MessageId, BdfDictionary> results = clientHelper
+				.getMessageMetadataAsDictionary(txn, contactGroupId, query);
+		Map<GroupId, Visibility> m = new HashMap<>();
+		for (BdfDictionary d : results.values()) {
+			Role role = sessionParser.getRole(d);
+			if (role == CREATOR) {
+				CreatorSession s =
+						sessionParser.parseCreatorSession(contactGroupId, d);
+				m.put(s.getPrivateGroupId(), s.getState().getVisibility());
+			} else if (role == INVITEE) {
+				InviteeSession s =
+						sessionParser.parseInviteeSession(contactGroupId, d);
+				m.put(s.getPrivateGroupId(), s.getState().getVisibility());
+			} else if (role == PEER) {
+				PeerSession s =
+						sessionParser.parsePeerSession(contactGroupId, d);
+				m.put(s.getPrivateGroupId(), s.getState().getVisibility());
+			} else {
+				throw new AssertionError();
+			}
+		}
+		return m;
 	}
 
 	private static class StoredSession {

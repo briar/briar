@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -28,6 +29,8 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
+import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_VERSION;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
@@ -45,6 +48,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 	protected final PrivateGroupFactory privateGroupFactory;
 	protected final MessageTracker messageTracker;
 
+	private final ClientVersioningManager clientVersioningManager;
 	private final GroupMessageFactory groupMessageFactory;
 	private final IdentityManager identityManager;
 	private final MessageParser messageParser;
@@ -52,6 +56,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 	private final Clock clock;
 
 	AbstractProtocolEngine(DatabaseComponent db, ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
 			PrivateGroupManager privateGroupManager,
 			PrivateGroupFactory privateGroupFactory,
 			GroupMessageFactory groupMessageFactory,
@@ -60,6 +65,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 			Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
+		this.clientVersioningManager = clientVersioningManager;
 		this.privateGroupManager = privateGroupManager;
 		this.privateGroupFactory = privateGroupFactory;
 		this.groupMessageFactory = groupMessageFactory;
@@ -90,10 +96,14 @@ abstract class AbstractProtocolEngine<S extends Session>
 		return expected != null && dependency.equals(expected);
 	}
 
-	void setPrivateGroupVisibility(Transaction txn, S session, Visibility v)
-			throws DbException, FormatException {
+	void setPrivateGroupVisibility(Transaction txn, S session,
+			Visibility preferred) throws DbException, FormatException {
+		// Apply min of preferred visibility and client's visibility
 		ContactId contactId = getContactId(txn, session.getContactGroupId());
-		db.setGroupVisibility(txn, contactId, session.getPrivateGroupId(), v);
+		Visibility client = clientVersioningManager.getClientVisibility(txn,
+				contactId, CLIENT_ID, CLIENT_VERSION);
+		Visibility min = Visibility.min(preferred, client);
+		db.setGroupVisibility(txn, contactId, session.getPrivateGroupId(), min);
 	}
 
 	Message sendInviteMessage(Transaction txn, S session,

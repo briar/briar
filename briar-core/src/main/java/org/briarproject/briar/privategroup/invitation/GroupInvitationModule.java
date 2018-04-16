@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.messaging.ConversationManager;
@@ -38,13 +39,25 @@ public class GroupInvitationModule {
 			LifecycleManager lifecycleManager,
 			ValidationManager validationManager, ContactManager contactManager,
 			PrivateGroupManager privateGroupManager,
-			ConversationManager conversationManager) {
+			ConversationManager conversationManager,
+			ClientVersioningManager clientVersioningManager) {
 		lifecycleManager.registerClient(groupInvitationManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, CLIENT_VERSION,
 				groupInvitationManager);
 		contactManager.registerContactHook(groupInvitationManager);
 		privateGroupManager.registerPrivateGroupHook(groupInvitationManager);
 		conversationManager.registerConversationClient(groupInvitationManager);
+		clientVersioningManager.registerClient(CLIENT_ID, CLIENT_VERSION);
+		clientVersioningManager.registerClientVersioningHook(CLIENT_ID,
+				CLIENT_VERSION, groupInvitationManager);
+		// The group invitation manager handles client visibility changes for
+		// the private group manager
+		clientVersioningManager.registerClient(PrivateGroupManager.CLIENT_ID,
+				PrivateGroupManager.CLIENT_VERSION);
+		clientVersioningManager.registerClientVersioningHook(
+				PrivateGroupManager.CLIENT_ID,
+				PrivateGroupManager.CLIENT_VERSION,
+				groupInvitationManager.getPrivateGroupClientVersioningHook());
 		return groupInvitationManager;
 	}
 

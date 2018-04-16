@@ -10,7 +10,9 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -24,6 +26,7 @@ import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.jmock.Expectations;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
@@ -47,6 +50,8 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 			context.mock(DatabaseComponent.class);
 	protected final ClientHelper clientHelper =
 			context.mock(ClientHelper.class);
+	protected final ClientVersioningManager clientVersioningManager =
+			context.mock(ClientVersioningManager.class);
 	protected final PrivateGroupFactory privateGroupFactory =
 			context.mock(PrivateGroupFactory.class);
 	protected final PrivateGroupManager privateGroupManager =
@@ -181,10 +186,13 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		}});
 	}
 
-	protected void expectSetPrivateGroupVisibility(Group.Visibility v)
+	protected void expectSetPrivateGroupVisibility(Visibility v)
 			throws Exception {
 		expectGetContactId();
 		context.checking(new Expectations() {{
+			oneOf(clientVersioningManager).getClientVisibility(txn, contactId,
+					CLIENT_ID, CLIENT_VERSION);
+			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contactId, privateGroupId, v);
 		}});
 	}

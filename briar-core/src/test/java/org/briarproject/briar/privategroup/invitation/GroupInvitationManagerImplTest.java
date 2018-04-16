@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -69,6 +70,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
+	private final ClientVersioningManager clientVersioningManager =
+			context.mock(ClientVersioningManager.class);
 	private final ContactGroupFactory contactGroupFactory =
 			context.mock(ContactGroupFactory.class);
 	private final PrivateGroupFactory privateGroupFactory =
@@ -140,11 +143,11 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		}});
 		MetadataParser metadataParser = context.mock(MetadataParser.class);
 		MessageTracker messageTracker = context.mock(MessageTracker.class);
-		groupInvitationManager =
-				new GroupInvitationManagerImpl(db, clientHelper, metadataParser,
-						messageTracker, contactGroupFactory,
-						privateGroupFactory, privateGroupManager, messageParser,
-						sessionParser, sessionEncoder, engineFactory);
+		groupInvitationManager = new GroupInvitationManagerImpl(db,
+				clientHelper, clientVersioningManager, metadataParser,
+				messageTracker, contactGroupFactory, privateGroupFactory,
+				privateGroupManager, messageParser, sessionParser,
+				sessionEncoder, engineFactory);
 	}
 
 	@Test
@@ -184,6 +187,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 					CLIENT_VERSION, c);
 			will(returnValue(contactGroup));
 			oneOf(db).addGroup(txn, contactGroup);
+			oneOf(clientVersioningManager).getClientVisibility(txn, contactId,
+					CLIENT_ID, CLIENT_VERSION);
+			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, c.getId(), contactGroup.getId(),
 					SHARED);
 			oneOf(clientHelper)

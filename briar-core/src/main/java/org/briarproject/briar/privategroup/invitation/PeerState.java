@@ -2,25 +2,42 @@ package org.briarproject.briar.privategroup.invitation;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.Group.Visibility;
 
 import javax.annotation.concurrent.Immutable;
+
+import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
+import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
 
 @Immutable
 @NotNullByDefault
 enum PeerState implements State {
 
-	START(0), AWAIT_MEMBER(1), NEITHER_JOINED(2), LOCAL_JOINED(3),
-	BOTH_JOINED(4), LOCAL_LEFT(5), ERROR(6);
+	START(0, INVISIBLE),
+	AWAIT_MEMBER(1, INVISIBLE),
+	NEITHER_JOINED(2, INVISIBLE),
+	LOCAL_JOINED(3, VISIBLE),
+	BOTH_JOINED(4, SHARED),
+	LOCAL_LEFT(5, INVISIBLE),
+	ERROR(6, INVISIBLE);
 
 	private final int value;
+	private final Visibility visibility;
 
-	PeerState(int value) {
+	PeerState(int value, Visibility visibility) {
 		this.value = value;
+		this.visibility = visibility;
 	}
 
 	@Override
 	public int getValue() {
 		return value;
+	}
+
+	@Override
+	public Visibility getVisibility() {
+		return visibility;
 	}
 
 	static PeerState fromValue(int value) throws FormatException {

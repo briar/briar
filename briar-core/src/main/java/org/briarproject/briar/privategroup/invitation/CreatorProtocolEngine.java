@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -36,15 +37,16 @@ import static org.briarproject.briar.privategroup.invitation.CreatorState.START;
 class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 
 	CreatorProtocolEngine(DatabaseComponent db, ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
 			PrivateGroupManager privateGroupManager,
 			PrivateGroupFactory privateGroupFactory,
 			GroupMessageFactory groupMessageFactory,
 			IdentityManager identityManager, MessageParser messageParser,
 			MessageEncoder messageEncoder, MessageTracker messageTracker,
 			Clock clock) {
-		super(db, clientHelper, privateGroupManager, privateGroupFactory,
-				groupMessageFactory, identityManager, messageParser,
-				messageEncoder, messageTracker, clock);
+		super(db, clientHelper, clientVersioningManager, privateGroupManager,
+				privateGroupFactory, groupMessageFactory, identityManager,
+				messageParser, messageEncoder, messageTracker, clock);
 	}
 
 	@Override

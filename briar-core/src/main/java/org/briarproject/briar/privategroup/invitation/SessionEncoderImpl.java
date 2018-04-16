@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.SESSION_KEY_INVITE_TIMESTAMP;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.SESSION_KEY_IS_SESSION;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.SESSION_KEY_LAST_LOCAL_MESSAGE_ID;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.SESSION_KEY_LAST_REMOTE_MESSAGE_ID;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.SESSION_KEY_LOCAL_TIMESTAMP;
@@ -28,6 +29,7 @@ class SessionEncoderImpl implements SessionEncoder {
 	@Override
 	public BdfDictionary encodeSession(Session s) {
 		BdfDictionary d = new BdfDictionary();
+		d.put(SESSION_KEY_IS_SESSION, true);
 		d.put(SESSION_KEY_SESSION_ID, s.getPrivateGroupId());
 		d.put(SESSION_KEY_PRIVATE_GROUP_ID, s.getPrivateGroupId());
 		MessageId lastLocalMessageId = s.getLastLocalMessageId();

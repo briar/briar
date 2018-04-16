@@ -15,6 +15,7 @@ interface GroupInvitationConstants {
 	String MSG_KEY_INVITATION_ACCEPTED = "invitationAccepted";
 
 	// Session keys
+	String SESSION_KEY_IS_SESSION = "isSession";
 	String SESSION_KEY_SESSION_ID = "sessionId";
 	String SESSION_KEY_PRIVATE_GROUP_ID = "privateGroupId";
 	String SESSION_KEY_LAST_LOCAL_MESSAGE_ID = "lastLocalMessageId";
