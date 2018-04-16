@@ -18,7 +18,10 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Client;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
+import org.briarproject.bramble.api.sync.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
@@ -29,20 +32,25 @@ import org.briarproject.bramble.api.system.Clock;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static java.util.logging.Level.INFO;
 
 @Immutable
 @NotNullByDefault
 class TransportPropertyManagerImpl implements TransportPropertyManager,
-		Client, ContactHook, IncomingMessageHook {
+		Client, ContactHook, ClientVersioningHook, IncomingMessageHook {
+
+	private static final Logger LOG =
+			Logger.getLogger(TransportPropertyManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
+	private final ClientVersioningManager clientVersioningManager;
 	private final MetadataParser metadataParser;
 	private final ContactGroupFactory contactGroupFactory;
 	private final Clock clock;
@@ -50,10 +58,13 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	@Inject
 	TransportPropertyManagerImpl(DatabaseComponent db,
-			ClientHelper clientHelper, MetadataParser metadataParser,
+			ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
+			MetadataParser metadataParser,
 			ContactGroupFactory contactGroupFactory, Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
+		this.clientVersioningManager = clientVersioningManager;
 		this.metadataParser = metadataParser;
 		this.contactGroupFactory = contactGroupFactory;
 		this.clock = clock;
@@ -75,7 +86,12 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		Group g = getContactGroup(c);
 		// Store the group and share it with the contact
 		db.addGroup(txn, g);
-		db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
+		// Apply the client's visibility to the contact group
+		Visibility client = clientVersioningManager.getClientVisibility(txn,
+				c.getId(), CLIENT_ID, CLIENT_VERSION);
+		if (LOG.isLoggable(INFO))
+			LOG.info("Applying visibility " + client + " to new contact group");
+		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Copy the latest local properties into the group
 		Map<TransportId, TransportProperties> local = getLocalProperties(txn);
 		for (Entry<TransportId, TransportProperties> e : local.entrySet()) {
@@ -87,6 +103,16 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
 		db.removeGroup(txn, getContactGroup(c));
+	}
+
+	@Override
+	public void onClientVisibilityChanging(Transaction txn, Contact c,
+			Visibility v) throws DbException {
+		// Apply the client's visibility to the contact group
+		Group g = getContactGroup(c);
+		if (LOG.isLoggable(INFO))
+			LOG.info("Applying visibility " + v + " to contact group");
+		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 
 	@Override

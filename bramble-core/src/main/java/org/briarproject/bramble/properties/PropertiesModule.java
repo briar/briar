@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 
@@ -44,11 +45,15 @@ public class PropertiesModule {
 	TransportPropertyManager getTransportPropertyManager(
 			LifecycleManager lifecycleManager,
 			ValidationManager validationManager, ContactManager contactManager,
+			ClientVersioningManager clientVersioningManager,
 			TransportPropertyManagerImpl transportPropertyManager) {
 		lifecycleManager.registerClient(transportPropertyManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, CLIENT_VERSION,
 				transportPropertyManager);
 		contactManager.registerContactHook(transportPropertyManager);
+		clientVersioningManager.registerClient(CLIENT_ID, CLIENT_VERSION);
+		clientVersioningManager.registerClientVersioningHook(CLIENT_ID,
+				CLIENT_VERSION, transportPropertyManager);
 		return transportPropertyManager;
 	}
 }
