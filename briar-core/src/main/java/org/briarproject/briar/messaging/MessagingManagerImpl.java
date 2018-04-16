@@ -14,7 +14,10 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
+import org.briarproject.bramble.api.sync.ClientVersioningManager;
+import org.briarproject.bramble.api.sync.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -29,25 +32,32 @@ import org.briarproject.briar.client.ConversationClientImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static java.util.logging.Level.INFO;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
 @NotNullByDefault
 class MessagingManagerImpl extends ConversationClientImpl
-		implements MessagingManager, Client, ContactHook {
+		implements MessagingManager, Client, ContactHook, ClientVersioningHook {
 
+	private static final Logger LOG =
+			Logger.getLogger(MessagingManagerImpl.class.getName());
+
+	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
 
 	@Inject
 	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory) {
 		super(db, clientHelper, metadataParser, messageTracker);
+		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
 	}
 
@@ -64,18 +74,23 @@ class MessagingManagerImpl extends ConversationClientImpl
 
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
+		// Create a group to share with the contact
+		Group g = getContactGroup(c);
+		// Store the group and share it with the contact
+		db.addGroup(txn, g);
+		// Apply the client's visibility to the contact group
+		Visibility client = clientVersioningManager.getClientVisibility(txn,
+				c.getId(), CLIENT_ID, CLIENT_VERSION);
+		if (LOG.isLoggable(INFO))
+			LOG.info("Applying visibility " + client + " to new contact group");
+		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
+		// Attach the contact ID to the group
+		BdfDictionary d = new BdfDictionary();
+		d.put("contactId", c.getId().getInt());
 		try {
-			// Create a group to share with the contact
-			Group g = getContactGroup(c);
-			// Store the group and share it with the contact
-			db.addGroup(txn, g);
-			db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
-			// Attach the contact ID to the group
-			BdfDictionary d = new BdfDictionary();
-			d.put("contactId", c.getId().getInt());
 			clientHelper.mergeGroupMetadata(txn, g.getId(), d);
 		} catch (FormatException e) {
-			throw new RuntimeException(e);
+			throw new AssertionError(e);
 		}
 	}
 
@@ -88,6 +103,16 @@ class MessagingManagerImpl extends ConversationClientImpl
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
 		db.removeGroup(txn, getContactGroup(c));
+	}
+
+	@Override
+	public void onClientVisibilityChanging(Transaction txn, Contact c,
+			Visibility v) throws DbException {
+		// Apply the client's visibility to the contact group
+		Group g = getContactGroup(c);
+		if (LOG.isLoggable(INFO))
+			LOG.info("Applying visibility " + v + " to contact group");
+		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 
 	@Override
