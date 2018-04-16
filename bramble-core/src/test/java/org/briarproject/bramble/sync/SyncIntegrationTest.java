@@ -81,9 +81,9 @@ public class SyncIntegrationTest extends BrambleTestCase {
 		streamNumber = 123;
 		// Create a group
 		ClientId clientId = getClientId();
-		int clientVersion = 1234567890;
+		int majorVersion = 1234567890;
 		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
-		Group group = groupFactory.createGroup(clientId, clientVersion,
+		Group group = groupFactory.createGroup(clientId, majorVersion,
 				descriptor);
 		// Add two messages to the group
 		long timestamp = System.currentTimeMillis();

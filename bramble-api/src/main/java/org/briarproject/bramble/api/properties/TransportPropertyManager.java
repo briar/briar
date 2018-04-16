@@ -18,9 +18,9 @@ public interface TransportPropertyManager {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.bramble.properties");
 
 	/**
-	 * The current version of the transport property client.
+	 * The current major version of the transport property client.
 	 */
-	int CLIENT_VERSION = 0;
+	int MAJOR_VERSION = 0;
 
 	/**
 	 * Stores the given properties received while adding a contact - they will

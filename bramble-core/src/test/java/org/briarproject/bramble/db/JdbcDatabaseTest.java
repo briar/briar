@@ -82,7 +82,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private final File testDir = TestUtils.getTestDirectory();
 	private final GroupId groupId;
 	private final ClientId clientId;
-	private final int clientVersion;
+	private final int majorVersion;
 	private final Group group;
 	private final Author author;
 	private final LocalAuthor localAuthor;
@@ -97,8 +97,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	JdbcDatabaseTest() throws Exception {
 		clientId = getClientId();
-		clientVersion = 123;
-		group = getGroup(clientId, clientVersion);
+		majorVersion = 123;
+		group = getGroup(clientId, majorVersion);
 		groupId = group.getId();
 		author = getAuthor();
 		localAuthor = getLocalAuthor();
@@ -1835,12 +1835,12 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		assertEquals(emptyList(), db.getGroups(txn, clientId, clientVersion));
+		assertEquals(emptyList(), db.getGroups(txn, clientId, majorVersion));
 		db.addGroup(txn, group);
 		assertEquals(singletonList(group),
-				db.getGroups(txn, clientId, clientVersion));
+				db.getGroups(txn, clientId, majorVersion));
 		db.removeGroup(txn, groupId);
-		assertEquals(emptyList(), db.getGroups(txn, clientId, clientVersion));
+		assertEquals(emptyList(), db.getGroups(txn, clientId, majorVersion));
 
 		db.commitTransaction(txn);
 		db.close();

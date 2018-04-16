@@ -18,7 +18,7 @@ import dagger.Module;
 import dagger.Provides;
 
 import static org.briarproject.briar.api.messaging.MessagingManager.CLIENT_ID;
-import static org.briarproject.briar.api.messaging.MessagingManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.messaging.MessagingManager.MAJOR_VERSION;
 
 @Module
 public class MessagingModule {
@@ -45,7 +45,7 @@ public class MessagingModule {
 			Clock clock) {
 		PrivateMessageValidator validator = new PrivateMessageValidator(
 				clientHelper, metadataEncoder, clock);
-		validationManager.registerMessageValidator(CLIENT_ID, CLIENT_VERSION,
+		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
 				validator);
 		return validator;
 	}
@@ -59,12 +59,12 @@ public class MessagingModule {
 			MessagingManagerImpl messagingManager) {
 		lifecycleManager.registerClient(messagingManager);
 		contactManager.registerContactHook(messagingManager);
-		validationManager.registerIncomingMessageHook(CLIENT_ID, CLIENT_VERSION,
+		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				messagingManager);
 		conversationManager.registerConversationClient(messagingManager);
-		clientVersioningManager.registerClient(CLIENT_ID, CLIENT_VERSION);
+		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION);
 		clientVersioningManager.registerClientVersioningHook(CLIENT_ID,
-				CLIENT_VERSION, messagingManager);
+				MAJOR_VERSION, messagingManager);
 		return messagingManager;
 	}
 

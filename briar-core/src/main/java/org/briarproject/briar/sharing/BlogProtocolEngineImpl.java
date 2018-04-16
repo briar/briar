@@ -24,7 +24,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
-import static org.briarproject.briar.api.blog.BlogManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.blog.BlogManager.MAJOR_VERSION;
 
 @Immutable
 @NotNullByDefault
@@ -42,7 +42,7 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 			InvitationFactory<Blog, BlogInvitationResponse> invitationFactory) {
 		super(db, clientHelper, clientVersioningManager, messageEncoder,
 				messageParser, messageTracker, clock, CLIENT_ID,
-				CLIENT_VERSION);
+				MAJOR_VERSION);
 		this.blogManager = blogManager;
 		this.invitationFactory = invitationFactory;
 	}

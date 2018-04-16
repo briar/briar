@@ -81,15 +81,15 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	@Override
-	public void registerMessageValidator(ClientId c, int clientVersion,
+	public void registerMessageValidator(ClientId c, int majorVersion,
 			MessageValidator v) {
-		validators.put(new ClientVersion(c, clientVersion), v);
+		validators.put(new ClientVersion(c, majorVersion), v);
 	}
 
 	@Override
-	public void registerIncomingMessageHook(ClientId c, int clientVersion,
+	public void registerIncomingMessageHook(ClientId c, int majorVersion,
 			IncomingMessageHook hook) {
-		hooks.put(new ClientVersion(c, clientVersion), hook);
+		hooks.put(new ClientVersion(c, majorVersion), hook);
 	}
 
 	private void validateOutstandingMessagesAsync() {
@@ -200,11 +200,11 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						Message m = messageFactory.createMessage(id, raw);
 						Group g = db.getGroup(txn, m.getGroupId());
 						ClientId c = g.getClientId();
-						int clientVersion = g.getClientVersion();
+						int majorVersion = g.getMajorVersion();
 						Metadata meta =
 								db.getMessageMetadataForValidator(txn, id);
 						DeliveryResult result =
-								deliverMessage(txn, m, c, clientVersion, meta);
+								deliverMessage(txn, m, c, majorVersion, meta);
 						if (result.valid) {
 							pending.addAll(getPendingDependents(txn, id));
 							if (result.share) {
@@ -241,7 +241,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@ValidationExecutor
 	private void validateMessage(Message m, Group g) {
 		ClientVersion cv =
-				new ClientVersion(g.getClientId(), g.getClientVersion());
+				new ClientVersion(g.getClientId(), g.getMajorVersion());
 		MessageValidator v = validators.get(cv);
 		if (v == null) {
 			if (LOG.isLoggable(WARNING)) LOG.warning("No validator for " + cv);
@@ -249,7 +249,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			try {
 				MessageContext context = v.validateMessage(m, g);
 				storeMessageContextAsync(m, g.getClientId(),
-						g.getClientVersion(), context);
+						g.getMajorVersion(), context);
 			} catch (InvalidMessageException e) {
 				if (LOG.isLoggable(INFO))
 					LOG.log(INFO, e.toString(), e);
@@ -261,13 +261,13 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	private void storeMessageContextAsync(Message m, ClientId c,
-			int clientVersion, MessageContext result) {
+			int majorVersion, MessageContext result) {
 		dbExecutor.execute(() ->
-				storeMessageContext(m, c, clientVersion, result));
+				storeMessageContext(m, c, majorVersion, result));
 	}
 
 	@DatabaseExecutor
-	private void storeMessageContext(Message m, ClientId c, int clientVersion,
+	private void storeMessageContext(Message m, ClientId c, int majorVersion,
 			MessageContext context) {
 		try {
 			MessageId id = m.getId();
@@ -299,7 +299,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 					db.mergeMessageMetadata(txn, id, meta);
 					if (allDelivered) {
 						DeliveryResult result =
-								deliverMessage(txn, m, c, clientVersion, meta);
+								deliverMessage(txn, m, c, majorVersion, meta);
 						if (result.valid) {
 							pending = getPendingDependents(txn, id);
 							if (result.share) {
@@ -331,10 +331,10 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	@DatabaseExecutor
 	private DeliveryResult deliverMessage(Transaction txn, Message m,
-			ClientId c, int clientVersion, Metadata meta) throws DbException {
+			ClientId c, int majorVersion, Metadata meta) throws DbException {
 		// Deliver the message to the client if it's registered a hook
 		boolean shareMsg = false;
-		ClientVersion cv = new ClientVersion(c, clientVersion);
+		ClientVersion cv = new ClientVersion(c, majorVersion);
 		IncomingMessageHook hook = hooks.get(cv);
 		if (hook != null) {
 			try {

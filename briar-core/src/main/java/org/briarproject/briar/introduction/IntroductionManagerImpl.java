@@ -127,7 +127,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		db.addGroup(txn, g);
 		// Apply the client's visibility to the contact group
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
-				c.getId(), CLIENT_ID, CLIENT_VERSION);
+				c.getId(), CLIENT_ID, MAJOR_VERSION);
 		if (LOG.isLoggable(INFO))
 			LOG.info("Applying visibility " + client + " to new contact group");db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);

@@ -17,22 +17,22 @@ public interface ClientVersioningManager {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.bramble.versioning");
 
 	/**
-	 * The current version of the versioning client.
+	 * The current major version of the versioning client.
 	 */
-	int CLIENT_VERSION = 0;
+	int MAJOR_VERSION = 0;
 
 	/**
 	 * Registers a client that will be advertised to contacts. This method
 	 * should be called before {@link LifecycleManager#startServices(String)}.
 	 */
-	void registerClient(ClientId clientId, int clientVersion);
+	void registerClient(ClientId clientId, int majorVersion);
 
 	/**
 	 * Registers a hook that will be called when the visibility of the given
 	 * client changes. This method should be called before
 	 * {@link LifecycleManager#startServices(String)}.
 	 */
-	void registerClientVersioningHook(ClientId clientId, int clientVersion,
+	void registerClientVersioningHook(ClientId clientId, int majorVersion,
 			ClientVersioningHook hook);
 
 	/**
@@ -40,7 +40,7 @@ public interface ClientVersioningManager {
 	 * contact.
 	 */
 	Visibility getClientVisibility(Transaction txn, ContactId contactId,
-			ClientId clientId, int clientVersion) throws DbException;
+			ClientId clientId, int majorVersion) throws DbException;
 
 	interface ClientVersioningHook {
 

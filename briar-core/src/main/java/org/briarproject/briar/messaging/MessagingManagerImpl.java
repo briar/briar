@@ -65,7 +65,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 	public void createLocalState(Transaction txn) throws DbException {
 		// Create a local group to indicate that we've set this client up
 		Group localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
-				CLIENT_VERSION);
+				MAJOR_VERSION);
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
 		// Set things up for any pre-existing contacts
@@ -80,7 +80,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 		db.addGroup(txn, g);
 		// Apply the client's visibility to the contact group
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
-				c.getId(), CLIENT_ID, CLIENT_VERSION);
+				c.getId(), CLIENT_ID, MAJOR_VERSION);
 		if (LOG.isLoggable(INFO))
 			LOG.info("Applying visibility " + client + " to new contact group");
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
@@ -97,7 +97,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 	@Override
 	public Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
-				CLIENT_VERSION, c);
+				MAJOR_VERSION, c);
 	}
 
 	@Override

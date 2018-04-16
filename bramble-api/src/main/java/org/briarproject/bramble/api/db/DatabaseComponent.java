@@ -241,7 +241,7 @@ public interface DatabaseComponent {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<Group> getGroups(Transaction txn, ClientId c, int clientVersion)
+	Collection<Group> getGroups(Transaction txn, ClientId c, int majorVersion)
 			throws DbException;
 
 	/**

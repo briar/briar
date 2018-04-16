@@ -69,7 +69,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		this.contactGroupFactory = contactGroupFactory;
 		this.clock = clock;
 		localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
-				CLIENT_VERSION);
+				MAJOR_VERSION);
 	}
 
 	@Override
@@ -88,7 +88,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		db.addGroup(txn, g);
 		// Apply the client's visibility to the contact group
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
-				c.getId(), CLIENT_ID, CLIENT_VERSION);
+				c.getId(), CLIENT_ID, MAJOR_VERSION);
 		if (LOG.isLoggable(INFO))
 			LOG.info("Applying visibility " + client + " to new contact group");
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
@@ -313,7 +313,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	private Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
-				CLIENT_VERSION, c);
+				MAJOR_VERSION, c);
 	}
 
 	private void storeMessage(Transaction txn, GroupId g, TransportId t,

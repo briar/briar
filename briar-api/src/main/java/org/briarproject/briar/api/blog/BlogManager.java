@@ -22,9 +22,9 @@ public interface BlogManager {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.blog");
 
 	/**
-	 * The current version of the blog client.
+	 * The current major version of the blog client.
 	 */
-	int CLIENT_VERSION = 0;
+	int MAJOR_VERSION = 0;
 
 	/**
 	 * Adds the given {@link Blog).}

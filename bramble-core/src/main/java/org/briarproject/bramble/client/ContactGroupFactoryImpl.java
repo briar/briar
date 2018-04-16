@@ -32,25 +32,25 @@ class ContactGroupFactoryImpl implements ContactGroupFactory {
 	}
 
 	@Override
-	public Group createLocalGroup(ClientId clientId, int clientVersion) {
-		return groupFactory.createGroup(clientId, clientVersion,
+	public Group createLocalGroup(ClientId clientId, int majorVersion) {
+		return groupFactory.createGroup(clientId, majorVersion,
 				LOCAL_GROUP_DESCRIPTOR);
 	}
 
 	@Override
-	public Group createContactGroup(ClientId clientId, int clientVersion,
+	public Group createContactGroup(ClientId clientId, int majorVersion,
 			Contact contact) {
 		AuthorId local = contact.getLocalAuthorId();
 		AuthorId remote = contact.getAuthor().getId();
 		byte[] descriptor = createGroupDescriptor(local, remote);
-		return groupFactory.createGroup(clientId, clientVersion, descriptor);
+		return groupFactory.createGroup(clientId, majorVersion, descriptor);
 	}
 
 	@Override
-	public Group createContactGroup(ClientId clientId, int clientVersion,
+	public Group createContactGroup(ClientId clientId, int majorVersion,
 			AuthorId authorId1, AuthorId authorId2) {
 		byte[] descriptor = createGroupDescriptor(authorId1, authorId2);
-		return groupFactory.createGroup(clientId, clientVersion, descriptor);
+		return groupFactory.createGroup(clientId, majorVersion, descriptor);
 	}
 
 	private byte[] createGroupDescriptor(AuthorId local, AuthorId remote) {

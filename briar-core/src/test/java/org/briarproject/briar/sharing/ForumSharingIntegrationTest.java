@@ -39,7 +39,7 @@ import java.util.List;
 import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.forum.ForumSharingManager.CLIENT_ID;
-import static org.briarproject.briar.api.forum.ForumSharingManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.forum.ForumSharingManager.MAJOR_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -402,7 +402,7 @@ public class ForumSharingIntegrationTest
 
 		// response and invitation got tracked
 		Group group = contactGroupFactory.createContactGroup(CLIENT_ID,
-				CLIENT_VERSION, contact0From1);
+				MAJOR_VERSION, contact0From1);
 		assertEquals(2, c1.getMessageTracker().getGroupCount(group.getId())
 				.getMsgCount());
 
@@ -434,7 +434,7 @@ public class ForumSharingIntegrationTest
 
 		// assert that the invitation arrived
 		Group group = contactGroupFactory.createContactGroup(CLIENT_ID,
-				CLIENT_VERSION, contact0From1);
+				MAJOR_VERSION, contact0From1);
 		assertEquals(1, c1.getMessageTracker().getGroupCount(group.getId())
 				.getMsgCount());
 

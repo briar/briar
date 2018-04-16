@@ -108,7 +108,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	public void createLocalState(Transaction txn) throws DbException {
 		// Create a local group to indicate that we've set this client up
 		Group localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
-				CLIENT_VERSION);
+				MAJOR_VERSION);
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
 		// Set things up for any pre-existing contacts
@@ -122,7 +122,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		// Store the group and share it with the contact
 		db.addGroup(txn, g);
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
-				c.getId(), CLIENT_ID, CLIENT_VERSION);
+				c.getId(), CLIENT_ID, MAJOR_VERSION);
 		if (LOG.isLoggable(INFO))
 			LOG.info("Applying visibility " + client + " to new contact group");
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
@@ -136,7 +136,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 		// If the contact belongs to any private groups, create a peer session
 		for (Group pg : db.getGroups(txn, PrivateGroupManager.CLIENT_ID,
-				PrivateGroupManager.CLIENT_VERSION)) {
+				PrivateGroupManager.MAJOR_VERSION)) {
 			if (privateGroupManager.isMember(txn, pg.getId(), c.getAuthor()))
 				addingMember(txn, pg.getId(), c);
 		}
@@ -151,7 +151,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	@Override
 	public Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
-				CLIENT_VERSION, c);
+				MAJOR_VERSION, c);
 	}
 
 	@Override
@@ -599,7 +599,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		try {
 			Collection<Group> shareables =
 					db.getGroups(txn, PrivateGroupManager.CLIENT_ID,
-							PrivateGroupManager.CLIENT_VERSION);
+							PrivateGroupManager.MAJOR_VERSION);
 			Map<GroupId, Visibility> m = getPreferredVisibilities(txn, c);
 			for (Group g : shareables) {
 				Visibility preferred = m.get(g.getId());

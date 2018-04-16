@@ -15,7 +15,7 @@ import dagger.Module;
 import dagger.Provides;
 
 import static org.briarproject.briar.api.forum.ForumManager.CLIENT_ID;
-import static org.briarproject.briar.api.forum.ForumManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.forum.ForumManager.MAJOR_VERSION;
 
 @Module
 public class ForumModule {
@@ -31,7 +31,7 @@ public class ForumModule {
 	@Singleton
 	ForumManager provideForumManager(ForumManagerImpl forumManager,
 			ValidationManager validationManager) {
-		validationManager.registerIncomingMessageHook(CLIENT_ID, CLIENT_VERSION,
+		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				forumManager);
 		return forumManager;
 	}
@@ -54,7 +54,7 @@ public class ForumModule {
 			MetadataEncoder metadataEncoder, Clock clock) {
 		ForumPostValidator validator = new ForumPostValidator(clientHelper,
 				metadataEncoder, clock);
-		validationManager.registerMessageValidator(CLIENT_ID, CLIENT_VERSION,
+		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
 				validator);
 		return validator;
 	}

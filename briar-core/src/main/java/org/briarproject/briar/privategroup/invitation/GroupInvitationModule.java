@@ -20,7 +20,7 @@ import dagger.Module;
 import dagger.Provides;
 
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
-import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.MAJOR_VERSION;
 
 @Module
 public class GroupInvitationModule {
@@ -42,21 +42,21 @@ public class GroupInvitationModule {
 			ConversationManager conversationManager,
 			ClientVersioningManager clientVersioningManager) {
 		lifecycleManager.registerClient(groupInvitationManager);
-		validationManager.registerIncomingMessageHook(CLIENT_ID, CLIENT_VERSION,
+		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				groupInvitationManager);
 		contactManager.registerContactHook(groupInvitationManager);
 		privateGroupManager.registerPrivateGroupHook(groupInvitationManager);
 		conversationManager.registerConversationClient(groupInvitationManager);
-		clientVersioningManager.registerClient(CLIENT_ID, CLIENT_VERSION);
+		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION);
 		clientVersioningManager.registerClientVersioningHook(CLIENT_ID,
-				CLIENT_VERSION, groupInvitationManager);
+				MAJOR_VERSION, groupInvitationManager);
 		// The group invitation manager handles client visibility changes for
 		// the private group manager
 		clientVersioningManager.registerClient(PrivateGroupManager.CLIENT_ID,
-				PrivateGroupManager.CLIENT_VERSION);
+				PrivateGroupManager.MAJOR_VERSION);
 		clientVersioningManager.registerClientVersioningHook(
 				PrivateGroupManager.CLIENT_ID,
-				PrivateGroupManager.CLIENT_VERSION,
+				PrivateGroupManager.MAJOR_VERSION,
 				groupInvitationManager.getPrivateGroupClientVersioningHook());
 		return groupInvitationManager;
 	}
@@ -71,7 +71,7 @@ public class GroupInvitationModule {
 		GroupInvitationValidator validator = new GroupInvitationValidator(
 				clientHelper, metadataEncoder, clock, privateGroupFactory,
 				messageEncoder);
-		validationManager.registerMessageValidator(CLIENT_ID, CLIENT_VERSION,
+		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
 				validator);
 		return validator;
 	}

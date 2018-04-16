@@ -32,16 +32,16 @@ public class Group {
 
 	private final GroupId id;
 	private final ClientId clientId;
-	private final int clientVersion;
+	private final int majorVersion;
 	private final byte[] descriptor;
 
-	public Group(GroupId id, ClientId clientId, int clientVersion,
+	public Group(GroupId id, ClientId clientId, int majorVersion,
 			byte[] descriptor) {
 		if (descriptor.length > MAX_GROUP_DESCRIPTOR_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
 		this.clientId = clientId;
-		this.clientVersion = clientVersion;
+		this.majorVersion = majorVersion;
 		this.descriptor = descriptor;
 	}
 
@@ -60,10 +60,10 @@ public class Group {
 	}
 
 	/**
-	 * Returns the version of the client to which the group belongs.
+	 * Returns the major version of the client to which the group belongs.
 	 */
-	public int getClientVersion() {
-		return clientVersion;
+	public int getMajorVersion() {
+		return majorVersion;
 	}
 
 	/**

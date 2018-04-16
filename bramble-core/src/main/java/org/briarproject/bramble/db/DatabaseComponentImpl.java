@@ -436,9 +436,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public Collection<Group> getGroups(Transaction transaction, ClientId c,
-			int clientVersion) throws DbException {
+			int majorVersion) throws DbException {
 		T txn = unbox(transaction);
-		return db.getGroups(txn, c, clientVersion);
+		return db.getGroups(txn, c, majorVersion);
 	}
 
 	@Override

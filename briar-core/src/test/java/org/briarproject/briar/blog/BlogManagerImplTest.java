@@ -50,7 +50,7 @@ import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIME_RECEIVED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TYPE;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_COMMENT_LENGTH;
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
-import static org.briarproject.briar.api.blog.BlogManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.blog.BlogManager.MAJOR_VERSION;
 import static org.briarproject.briar.api.blog.MessageType.COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.POST;
 import static org.briarproject.briar.api.blog.MessageType.WRAPPED_COMMENT;
@@ -868,7 +868,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 	}
 
 	private Blog createBlog(LocalAuthor localAuthor, boolean rssFeed) {
-		Group group = getGroup(CLIENT_ID, CLIENT_VERSION);
+		Group group = getGroup(CLIENT_ID, MAJOR_VERSION);
 		return new Blog(group, localAuthor, rssFeed);
 	}
 

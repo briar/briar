@@ -37,7 +37,7 @@ public interface ValidationManager {
 	 * Registers the message validator for the given client. This method
 	 * should be called before {@link LifecycleManager#startServices(String)}.
 	 */
-	void registerMessageValidator(ClientId c, int clientVersion,
+	void registerMessageValidator(ClientId c, int majorVersion,
 			MessageValidator v);
 
 	/**
@@ -46,7 +46,7 @@ public interface ValidationManager {
 	 * method should be called before
 	 * {@link LifecycleManager#startServices(String)}.
 	 */
-	void registerIncomingMessageHook(ClientId c, int clientVersion,
+	void registerIncomingMessageHook(ClientId c, int majorVersion,
 			IncomingMessageHook hook);
 
 	interface MessageValidator {

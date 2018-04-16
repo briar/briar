@@ -55,7 +55,7 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 
 	@Override
 	protected int getClientVersion() {
-		return CLIENT_VERSION;
+		return MAJOR_VERSION;
 	}
 
 	@Override
@@ -65,7 +65,7 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 
 	@Override
 	protected int getShareableClientVersion() {
-		return BlogManager.CLIENT_VERSION;
+		return BlogManager.MAJOR_VERSION;
 	}
 
 	@Override

@@ -89,7 +89,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 	private final Object txn = new Object();
 	private final ClientId clientId;
-	private final int clientVersion;
+	private final int majorVersion;
 	private final GroupId groupId;
 	private final Group group;
 	private final Author author;
@@ -107,8 +107,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 	public DatabaseComponentImplTest() {
 		clientId = getClientId();
-		clientVersion = 123;
-		group = getGroup(clientId, clientVersion);
+		majorVersion = 123;
+		group = getGroup(clientId, majorVersion);
 		groupId = group.getId();
 		author = getAuthor();
 		localAuthor = getLocalAuthor();
@@ -177,7 +177,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
 			// getGroups()
-			oneOf(database).getGroups(txn, clientId, clientVersion);
+			oneOf(database).getGroups(txn, clientId, majorVersion);
 			will(returnValue(singletonList(group)));
 			// removeGroup()
 			oneOf(database).containsGroup(txn, groupId);
@@ -217,7 +217,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.addGroup(transaction, group); // First time - listeners called
 			db.addGroup(transaction, group); // Second time - not called
 			assertEquals(singletonList(group),
-					db.getGroups(transaction, clientId, clientVersion));
+					db.getGroups(transaction, clientId, majorVersion));
 			db.removeGroup(transaction, group);
 			db.removeContact(transaction, contactId);
 			db.removeLocalAuthor(transaction, localAuthor.getId());

@@ -21,7 +21,7 @@ import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
-import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.privategroup.PrivateGroupManager.MAJOR_VERSION;
 
 @Immutable
 @NotNullByDefault
@@ -57,7 +57,7 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 			BdfList creatorList = clientHelper.toList(creator);
 			BdfList group = BdfList.of(creatorList, name, salt);
 			byte[] descriptor = clientHelper.toByteArray(group);
-			Group g = groupFactory.createGroup(CLIENT_ID, CLIENT_VERSION,
+			Group g = groupFactory.createGroup(CLIENT_ID, MAJOR_VERSION,
 					descriptor);
 			return new PrivateGroup(g, name, creator, salt);
 		} catch (FormatException e) {

@@ -43,7 +43,7 @@ class ForumSharingManagerImpl extends SharingManagerImpl<Forum>
 
 	@Override
 	protected int getClientVersion() {
-		return CLIENT_VERSION;
+		return MAJOR_VERSION;
 	}
 
 	@Override
@@ -53,7 +53,7 @@ class ForumSharingManagerImpl extends SharingManagerImpl<Forum>
 
 	@Override
 	protected int getShareableClientVersion() {
-		return ForumManager.CLIENT_VERSION;
+		return ForumManager.MAJOR_VERSION;
 	}
 
 	@Override

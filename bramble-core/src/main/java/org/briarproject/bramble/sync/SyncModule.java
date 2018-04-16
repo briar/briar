@@ -28,7 +28,7 @@ import dagger.Module;
 import dagger.Provides;
 
 import static org.briarproject.bramble.api.sync.ClientVersioningManager.CLIENT_ID;
-import static org.briarproject.bramble.api.sync.ClientVersioningManager.CLIENT_VERSION;
+import static org.briarproject.bramble.api.sync.ClientVersioningManager.MAJOR_VERSION;
 
 @Module
 public class SyncModule {
@@ -111,7 +111,7 @@ public class SyncModule {
 		lifecycleManager.registerClient(clientVersioningManager);
 		lifecycleManager.registerService(clientVersioningManager);
 		contactManager.registerContactHook(clientVersioningManager);
-		validationManager.registerIncomingMessageHook(CLIENT_ID, CLIENT_VERSION,
+		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				clientVersioningManager);
 		return clientVersioningManager;
 	}
@@ -123,7 +123,7 @@ public class SyncModule {
 			Clock clock, ValidationManager validationManager) {
 		ClientVersioningValidator validator = new ClientVersioningValidator(
 				clientHelper, metadataEncoder, clock);
-		validationManager.registerMessageValidator(CLIENT_ID, CLIENT_VERSION,
+		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
 				validator);
 		return validator;
 	}

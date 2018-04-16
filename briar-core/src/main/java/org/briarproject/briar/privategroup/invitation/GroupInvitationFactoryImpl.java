@@ -17,7 +17,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
-import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.MAJOR_VERSION;
 
 @Immutable
 @NotNullByDefault
@@ -53,7 +53,7 @@ class GroupInvitationFactoryImpl implements GroupInvitationFactory {
 	public BdfList createInviteToken(AuthorId creatorId, AuthorId memberId,
 			GroupId privateGroupId, long timestamp) {
 		Group contactGroup = contactGroupFactory.createContactGroup(CLIENT_ID,
-				CLIENT_VERSION, creatorId, memberId);
+				MAJOR_VERSION, creatorId, memberId);
 		return BdfList.of(
 				timestamp,
 				contactGroup.getId(),

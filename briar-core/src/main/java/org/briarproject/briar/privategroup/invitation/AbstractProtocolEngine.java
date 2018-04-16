@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
-import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.privategroup.PrivateGroupManager.MAJOR_VERSION;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
@@ -101,7 +101,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 		// Apply min of preferred visibility and client's visibility
 		ContactId contactId = getContactId(txn, session.getContactGroupId());
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
-				contactId, CLIENT_ID, CLIENT_VERSION);
+				contactId, CLIENT_ID, MAJOR_VERSION);
 		Visibility min = Visibility.min(preferred, client);
 		db.setGroupVisibility(txn, contactId, session.getPrivateGroupId(), min);
 	}

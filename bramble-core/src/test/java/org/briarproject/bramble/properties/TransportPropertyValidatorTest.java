@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import static org.briarproject.bramble.api.plugin.TransportId.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
-import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_VERSION;
+import static org.briarproject.bramble.api.properties.TransportPropertyManager.MAJOR_VERSION;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
@@ -43,7 +43,7 @@ public class TransportPropertyValidatorTest extends BrambleMockTestCase {
 		transportProperties = new TransportProperties();
 		transportProperties.put("foo", "bar");
 
-		group = getGroup(CLIENT_ID, CLIENT_VERSION);
+		group = getGroup(CLIENT_ID, MAJOR_VERSION);
 		message = getMessage(group.getId());
 
 		MetadataEncoder metadataEncoder = context.mock(MetadataEncoder.class);

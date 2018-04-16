@@ -75,23 +75,23 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		this.contactGroupFactory = contactGroupFactory;
 		this.clock = clock;
 		localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
-				CLIENT_VERSION);
+				MAJOR_VERSION);
 	}
 
 	@Override
-	public void registerClient(ClientId clientId, int clientVersion) {
-		clients.add(new ClientVersion(clientId, clientVersion));
+	public void registerClient(ClientId clientId, int majorVersion) {
+		clients.add(new ClientVersion(clientId, majorVersion));
 	}
 
 	@Override
 	public void registerClientVersioningHook(ClientId clientId,
-			int clientVersion, ClientVersioningHook hook) {
-		hooks.put(new ClientVersion(clientId, clientVersion), hook);
+			int majorVersion, ClientVersioningHook hook) {
+		hooks.put(new ClientVersion(clientId, majorVersion), hook);
 	}
 
 	@Override
 	public Visibility getClientVisibility(Transaction txn,
-			ContactId contactId, ClientId clientId, int clientVersion)
+			ContactId contactId, ClientId clientId, int majorVersion)
 			throws DbException {
 		try {
 			Contact contact = db.getContact(txn, contactId);
@@ -106,7 +106,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 			Update remoteUpdate = loadUpdate(txn, latest.remote.messageId);
 			Map<ClientVersion, Visibility> visibilities =
 					getVisibilities(localUpdate.states, remoteUpdate.states);
-			ClientVersion cv = new ClientVersion(clientId, clientVersion);
+			ClientVersion cv = new ClientVersion(clientId, majorVersion);
 			Visibility v = visibilities.get(cv);
 			return v == null ? INVISIBLE : v;
 		} catch (FormatException e) {
@@ -245,7 +245,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	private BdfList encodeClientVersions(List<ClientVersion> versions) {
 		BdfList encoded = new BdfList();
 		for (ClientVersion cv : versions)
-			encoded.add(BdfList.of(cv.clientId.getString(), cv.clientVersion));
+			encoded.add(BdfList.of(cv.clientId.getString(), cv.majorVersion));
 		return encoded;
 	}
 
@@ -282,8 +282,8 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		for (int i = 0; i < size; i++) {
 			BdfList cv = body.getList(i);
 			ClientId clientId = new ClientId(cv.getString(0));
-			int clientVersion = cv.getLong(1).intValue();
-			parsed.add(new ClientVersion(clientId, clientVersion));
+			int majorVersion = cv.getLong(1).intValue();
+			parsed.add(new ClientVersion(clientId, majorVersion));
 		}
 		return parsed;
 	}
@@ -325,7 +325,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 	private Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
-				CLIENT_VERSION, c);
+				MAJOR_VERSION, c);
 	}
 
 	private LatestUpdates findLatestUpdates(Transaction txn, GroupId g)
@@ -372,11 +372,11 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 	private ClientState parseClientState(BdfList clientState)
 			throws FormatException {
-		// Client ID, client version, active
+		// Client ID, major version, active
 		ClientId clientId = new ClientId(clientState.getString(0));
-		int clientVersion = clientState.getLong(1).intValue();
+		int majorVersion = clientState.getLong(1).intValue();
 		boolean active = clientState.getBoolean(2);
-		return new ClientState(clientId, clientVersion, active);
+		return new ClientState(clientId, majorVersion, active);
 	}
 
 	private long parseUpdateVersion(BdfList body) throws FormatException {
@@ -420,7 +420,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 	private BdfList encodeClientState(ClientState cs) {
 		return BdfList.of(cs.version.clientId.getString(),
-				cs.version.clientVersion, cs.active);
+				cs.version.majorVersion, cs.active);
 	}
 
 	private Map<ClientVersion, Visibility> getVisibilities(
@@ -536,9 +536,9 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 			this.active = active;
 		}
 
-		private ClientState(ClientId clientId, int clientVersion,
+		private ClientState(ClientId clientId, int majorVersion,
 				boolean active) {
-			this(new ClientVersion(clientId, clientVersion), active);
+			this(new ClientVersion(clientId, majorVersion), active);
 		}
 
 		@Override

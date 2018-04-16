@@ -10,11 +10,11 @@ import javax.annotation.concurrent.Immutable;
 class ClientVersion implements Comparable<ClientVersion> {
 
 	final ClientId clientId;
-	final int clientVersion;
+	final int majorVersion;
 
-	ClientVersion(ClientId clientId, int clientVersion) {
+	ClientVersion(ClientId clientId, int majorVersion) {
 		this.clientId = clientId;
-		this.clientVersion = clientVersion;
+		this.majorVersion = majorVersion;
 	}
 
 	@Override
@@ -22,26 +22,26 @@ class ClientVersion implements Comparable<ClientVersion> {
 		if (o instanceof ClientVersion) {
 			ClientVersion cv = (ClientVersion) o;
 			return clientId.equals(cv.clientId)
-					&& clientVersion == cv.clientVersion;
+					&& majorVersion == cv.majorVersion;
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return (clientId.hashCode() << 16) + clientVersion;
+		return (clientId.hashCode() << 16) + majorVersion;
 	}
 
 	@Override
 	public int compareTo(ClientVersion c) {
 		int compare = clientId.compareTo(c.clientId);
 		if (compare != 0) return compare;
-		return clientVersion - c.clientVersion;
+		return majorVersion - c.majorVersion;
 	}
 
 	@Override
 	public String toString() {
-		return clientId.getString() + ":" + clientVersion;
+		return clientId.getString() + ":" + majorVersion;
 	}
 }
 

@@ -266,7 +266,7 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<Group> getGroups(T txn, ClientId c, int clientVersion)
+	Collection<Group> getGroups(T txn, ClientId c, int majorVersion)
 			throws DbException;
 
 	/**

@@ -19,7 +19,7 @@ import dagger.Module;
 import dagger.Provides;
 
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
-import static org.briarproject.briar.api.blog.BlogManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.blog.BlogManager.MAJOR_VERSION;
 
 @Module
 public class BlogModule {
@@ -38,7 +38,7 @@ public class BlogModule {
 			ValidationManager validationManager) {
 		lifecycleManager.registerClient(blogManager);
 		contactManager.registerContactHook(blogManager);
-		validationManager.registerIncomingMessageHook(CLIENT_ID, CLIENT_VERSION,
+		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				blogManager);
 		return blogManager;
 	}
@@ -64,7 +64,7 @@ public class BlogModule {
 		BlogPostValidator validator = new BlogPostValidator(groupFactory,
 				messageFactory, blogFactory, clientHelper, metadataEncoder,
 				clock);
-		validationManager.registerMessageValidator(CLIENT_ID, CLIENT_VERSION,
+		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
 				validator);
 		return validator;
 	}

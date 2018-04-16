@@ -16,7 +16,7 @@ import dagger.Module;
 import dagger.Provides;
 
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
-import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_VERSION;
+import static org.briarproject.bramble.api.properties.TransportPropertyManager.MAJOR_VERSION;
 
 @Module
 public class PropertiesModule {
@@ -35,7 +35,7 @@ public class PropertiesModule {
 			Clock clock) {
 		TransportPropertyValidator validator = new TransportPropertyValidator(
 				clientHelper, metadataEncoder, clock);
-		validationManager.registerMessageValidator(CLIENT_ID, CLIENT_VERSION,
+		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
 				validator);
 		return validator;
 	}
@@ -48,12 +48,12 @@ public class PropertiesModule {
 			ClientVersioningManager clientVersioningManager,
 			TransportPropertyManagerImpl transportPropertyManager) {
 		lifecycleManager.registerClient(transportPropertyManager);
-		validationManager.registerIncomingMessageHook(CLIENT_ID, CLIENT_VERSION,
+		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				transportPropertyManager);
 		contactManager.registerContactHook(transportPropertyManager);
-		clientVersioningManager.registerClient(CLIENT_ID, CLIENT_VERSION);
+		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION);
 		clientVersioningManager.registerClientVersioningHook(CLIENT_ID,
-				CLIENT_VERSION, transportPropertyManager);
+				MAJOR_VERSION, transportPropertyManager);
 		return transportPropertyManager;
 	}
 }

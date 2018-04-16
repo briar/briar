@@ -24,7 +24,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.briar.api.forum.ForumManager.CLIENT_ID;
-import static org.briarproject.briar.api.forum.ForumManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.forum.ForumManager.MAJOR_VERSION;
 
 @Immutable
 @NotNullByDefault
@@ -44,7 +44,7 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 			InvitationFactory<Forum, ForumInvitationResponse> invitationFactory) {
 		super(db, clientHelper, clientVersioningManager, messageEncoder,
 				messageParser, messageTracker, clock, CLIENT_ID,
-				CLIENT_VERSION);
+				MAJOR_VERSION);
 		this.forumManager = forumManager;
 		this.invitationFactory = invitationFactory;
 	}
