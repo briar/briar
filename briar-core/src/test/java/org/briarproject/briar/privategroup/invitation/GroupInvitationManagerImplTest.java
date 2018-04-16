@@ -826,6 +826,10 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(contactGroup));
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
+			oneOf(clientVersioningManager).getClientVisibility(txn, contactId,
+					PrivateGroupManager.CLIENT_ID,
+					PrivateGroupManager.MAJOR_VERSION);
+			will(returnValue(SHARED));
 			oneOf(sessionParser)
 					.parseCreatorSession(contactGroup.getId(), bdfSession);
 			will(returnValue(creatorSession));

@@ -85,17 +85,17 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 	protected abstract ClientId getClientId();
 
-	protected abstract int getClientVersion();
+	protected abstract int getMajorVersion();
 
 	protected abstract ClientId getShareableClientId();
 
-	protected abstract int getShareableClientVersion();
+	protected abstract int getShareableMajorVersion();
 
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
 		// Create a local group to indicate that we've set this client up
 		Group localGroup = contactGroupFactory.createLocalGroup(getClientId(),
-				getClientVersion());
+				getMajorVersion());
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
 		// Set things up for any pre-existing contacts
@@ -109,7 +109,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 		// Store the group and share it with the contact
 		db.addGroup(txn, g);
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
-				c.getId(), getClientId(), getClientVersion());
+				c.getId(), getClientId(), getMajorVersion());
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
 		BdfDictionary meta = new BdfDictionary();
@@ -123,14 +123,14 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
-		// remove the contact group (all messages will be removed with it)
+		// Remove the contact group (all messages will be removed with it)
 		db.removeGroup(txn, getContactGroup(c));
 	}
 
 	@Override
 	public Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(getClientId(),
-				getClientVersion(), c);
+				getMajorVersion(), c);
 	}
 
 	@Override
@@ -174,7 +174,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 		// Apply the client's visibility
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
-				c.getId(), getShareableClientId(), getShareableClientVersion());
+				c.getId(), getShareableClientId(), getShareableMajorVersion());
 		db.setGroupVisibility(txn, c.getId(), shareable.getId(), client);
 
 		// Initialize session in sharing state
@@ -437,7 +437,6 @@ abstract class SharingManagerImpl<S extends Shareable>
 		Transaction txn = db.startTransaction(true);
 		try {
 			for (Contact c : db.getContacts(txn)) {
-				// FIXME: Check the session for the preferred visibility?
 				if (db.getGroupVisibility(txn, c.getId(), g) == SHARED)
 					contacts.add(c);
 			}
@@ -462,6 +461,10 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 	private boolean canBeShared(Transaction txn, GroupId g, Contact c)
 			throws DbException {
+		// The group can't be shared unless the contact supports the client
+		Visibility client = clientVersioningManager.getClientVisibility(txn,
+				c.getId(), getShareableClientId(), getShareableMajorVersion());
+		if (client != SHARED) return false;
 		GroupId contactGroupId = getContactGroup(c).getId();
 		SessionId sessionId = getSessionId(g);
 		try {
@@ -515,7 +518,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 			Visibility client) throws DbException {
 		try {
 			Collection<Group> shareables = db.getGroups(txn,
-					getShareableClientId(), getShareableClientVersion());
+					getShareableClientId(), getShareableMajorVersion());
 			Map<GroupId, Visibility> m = getPreferredVisibilities(txn, c);
 			for (Group g : shareables) {
 				Visibility preferred = m.get(g.getId());

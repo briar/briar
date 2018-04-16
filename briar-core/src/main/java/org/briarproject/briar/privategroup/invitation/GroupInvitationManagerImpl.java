@@ -48,6 +48,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.START;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
@@ -468,8 +469,13 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		SessionId sessionId = getSessionId(privateGroupId);
 		Transaction txn = db.startTransaction(true);
 		try {
+			Visibility client = clientVersioningManager.getClientVisibility(txn,
+					c.getId(), PrivateGroupManager.CLIENT_ID,
+					PrivateGroupManager.MAJOR_VERSION);
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
 			db.commitTransaction(txn);
+			// The group can't be shared unless the contact supports the client
+			if (client != SHARED) return false;
 			// If there's no session, the contact can be invited
 			if (ss == null) return true;
 			// If the session's in the start state, the contact can be invited
