@@ -52,7 +52,6 @@ import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
@@ -60,6 +59,7 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -95,10 +95,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private final KeySetId keySetId, keySetId1;
 
 	JdbcDatabaseTest() throws Exception {
-		groupId = new GroupId(getRandomId());
 		clientId = getClientId();
-		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
-		group = new Group(groupId, clientId, descriptor);
+		group = getGroup(clientId);
+		groupId = group.getId();
 		author = getAuthor();
 		localAuthor = getLocalAuthor();
 		messageId = new MessageId(getRandomId());
@@ -1408,9 +1407,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.addMessage(txn, message, PENDING, true, contactId);
 
 		// Add a second group
-		GroupId groupId1 = new GroupId(getRandomId());
-		Group group1 = new Group(groupId1, clientId,
-				getRandomBytes(MAX_GROUP_DESCRIPTOR_LENGTH));
+		Group group1 = getGroup(clientId);
+		GroupId groupId1 = group1.getId();
 		db.addGroup(txn, group1);
 
 		// Add a message to the second group

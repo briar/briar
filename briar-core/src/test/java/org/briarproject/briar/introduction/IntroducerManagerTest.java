@@ -12,9 +12,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
@@ -27,6 +25,7 @@ import org.junit.Test;
 import java.security.SecureRandom;
 
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.introduction.IntroducerProtocolState.AWAIT_RESPONSES;
@@ -50,6 +49,7 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.STAT
 import static org.briarproject.briar.api.introduction.IntroductionConstants.STORAGE_ID;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_REQUEST;
+import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
 import static org.junit.Assert.assertFalse;
 
 public class IntroducerManagerTest extends BriarTestCase {
@@ -93,12 +93,9 @@ public class IntroducerManagerTest extends BriarTestCase {
 		introducee2 =
 				new Contact(contactId2, author2, localAuthorId2, true, true);
 
-		localGroup0 = new Group(new GroupId(getRandomId()),
-				getClientId(), new byte[0]);
-		introductionGroup1 = new Group(new GroupId(getRandomId()),
-				getClientId(), new byte[0]);
-		introductionGroup2 = new Group(new GroupId(getRandomId()),
-				getClientId(), new byte[0]);
+		localGroup0 = getGroup(CLIENT_ID);
+		introductionGroup1 = getGroup(CLIENT_ID);
+		introductionGroup2 = getGroup(CLIENT_ID);
 
 		context.assertIsSatisfied();
 	}
@@ -177,10 +174,6 @@ public class IntroducerManagerTest extends BriarTestCase {
 
 		context.assertIsSatisfied();
 		assertFalse(txn.isCommitted());
-	}
-
-	private ClientId getClientId() {
-		return IntroductionManagerImpl.CLIENT_ID;
 	}
 
 }

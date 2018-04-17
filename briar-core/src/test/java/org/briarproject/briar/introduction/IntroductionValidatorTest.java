@@ -8,9 +8,7 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
@@ -27,6 +25,8 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATUR
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getClientId;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -61,11 +61,7 @@ public class IntroductionValidatorTest extends BriarTestCase {
 	private final Clock clock = new SystemClock();
 
 	public IntroductionValidatorTest() {
-		GroupId groupId = new GroupId(getRandomId());
-		ClientId clientId = new ClientId(getRandomString(5));
-		byte[] descriptor = getRandomBytes(12);
-		group = new Group(groupId, clientId, descriptor);
-
+		group = getGroup(getClientId());
 		MessageId messageId = new MessageId(getRandomId());
 		long timestamp = System.currentTimeMillis();
 		byte[] raw = getRandomBytes(123);

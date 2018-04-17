@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupFactory;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -25,6 +24,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -64,9 +64,8 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	private final String body = getRandomString(42);
 
 	public BlogPostValidatorTest() {
-		GroupId groupId = new GroupId(getRandomId());
-		descriptor = getRandomBytes(42);
-		group = new Group(groupId, CLIENT_ID, descriptor);
+		group = getGroup(CLIENT_ID);
+		descriptor = group.getDescriptor();
 		author = getAuthor();
 		authorList = BdfList.of(
 				author.getFormatVersion(),

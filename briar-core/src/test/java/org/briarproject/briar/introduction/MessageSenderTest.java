@@ -11,7 +11,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.sync.Group;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.client.MessageQueueManager;
 import org.briarproject.briar.api.client.SessionId;
@@ -22,6 +21,7 @@ import org.junit.Test;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID;
@@ -59,8 +59,7 @@ public class MessageSenderTest extends BriarTestCase {
 	@Test
 	public void testSendMessage() throws DbException, FormatException {
 		Transaction txn = new Transaction(null, false);
-		Group privateGroup = new Group(new GroupId(getRandomId()),
-				getClientId(), new byte[0]);
+		Group privateGroup = getGroup(getClientId());
 		SessionId sessionId = new SessionId(getRandomId());
 		byte[] mac = getRandomBytes(42);
 		byte[] sig = getRandomBytes(MAX_SIGNATURE_LENGTH);

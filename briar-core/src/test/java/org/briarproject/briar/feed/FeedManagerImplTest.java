@@ -37,6 +37,7 @@ import javax.net.SocketFactory;
 
 import okhttp3.Dns;
 
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -60,12 +61,10 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	private final Clock clock = context.mock(Clock.class);
 	private final Dns noDnsLookups = context.mock(Dns.class);
 
-	private final GroupId localGroupId = new GroupId(getRandomId());
-	private final Group localGroup =
-			new Group(localGroupId, CLIENT_ID, getRandomBytes(42));
-	private final GroupId blogGroupId = new GroupId(getRandomId());
-	private final Group blogGroup =
-			new Group(blogGroupId, BlogManager.CLIENT_ID, getRandomBytes(42));
+	private final Group localGroup = getGroup(CLIENT_ID);
+	private final GroupId localGroupId = localGroup.getId();
+	private final Group blogGroup = getGroup(BlogManager.CLIENT_ID);
+	private final GroupId blogGroupId = blogGroup.getId();
 	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final Blog blog = new Blog(blogGroup, localAuthor, true);
 	private final Feed feed =

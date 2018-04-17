@@ -854,10 +854,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		Collection<Contact> contacts =
 				Arrays.asList(contact, contact2, contact3);
 
-		Group contactGroup2 = new Group(new GroupId(getRandomId()),
-				CLIENT_ID, getRandomBytes(5));
-		Group contactGroup3 = new Group(new GroupId(getRandomId()),
-				CLIENT_ID, getRandomBytes(5));
+		Group contactGroup2 = getGroup(CLIENT_ID);
+		Group contactGroup3 = getGroup(CLIENT_ID);
 
 		MessageId storageId2 = new MessageId(getRandomId());
 		MessageId storageId3 = new MessageId(getRandomId());

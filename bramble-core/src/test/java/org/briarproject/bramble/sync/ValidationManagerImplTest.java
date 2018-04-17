@@ -37,6 +37,7 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 
 public class ValidationManagerImplTest extends BrambleMockTestCase {
@@ -55,9 +56,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	private final MessageId messageId = new MessageId(getRandomId());
 	private final MessageId messageId1 = new MessageId(getRandomId());
 	private final MessageId messageId2 = new MessageId(getRandomId());
-	private final GroupId groupId = new GroupId(getRandomId());
-	private final byte[] descriptor = new byte[32];
-	private final Group group = new Group(groupId, clientId, descriptor);
+	private final Group group = getGroup(clientId);
+	private final GroupId groupId = group.getId();
 	private final long timestamp = System.currentTimeMillis();
 	private final byte[] raw = new byte[123];
 	private final Message message = new Message(messageId, groupId, timestamp,

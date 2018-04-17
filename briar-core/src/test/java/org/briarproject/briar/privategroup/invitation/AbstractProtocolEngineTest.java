@@ -25,6 +25,7 @@ import org.jmock.Expectations;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -63,9 +64,8 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 
 	protected final Transaction txn = new Transaction(null, false);
 	protected final GroupId contactGroupId = new GroupId(getRandomId());
-	protected final GroupId privateGroupId = new GroupId(getRandomId());
-	protected final Group privateGroupGroup =
-			new Group(privateGroupId, CLIENT_ID, getRandomBytes(123));
+	protected final Group privateGroupGroup = getGroup(CLIENT_ID);
+	protected final GroupId privateGroupId = privateGroupGroup.getId();
 	protected final Author author = getAuthor();
 	protected final PrivateGroup privateGroup =
 			new PrivateGroup(privateGroupGroup,

@@ -32,9 +32,9 @@ import java.util.Map;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_VERSION;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -51,7 +51,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			context.mock(ContactGroupFactory.class);
 	private final Clock clock = context.mock(Clock.class);
 
-	private final Group localGroup = getGroup();
+	private final Group localGroup = getGroup(CLIENT_ID);
 	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final BdfDictionary fooPropertiesDict = BdfDictionary.of(
 			new BdfEntry("fooKey1", "fooValue1"),
@@ -90,7 +90,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Contact contact1 = getContact(true);
 		Contact contact2 = getContact(true);
 		List<Contact> contacts = Arrays.asList(contact1, contact2);
-		Group contactGroup1 = getGroup(), contactGroup2 = getGroup();
+		Group contactGroup1 = getGroup(CLIENT_ID);
+		Group contactGroup2 = getGroup(CLIENT_ID);
 
 		context.checking(new Expectations() {{
 			oneOf(db).containsGroup(txn, localGroup.getId());
@@ -143,7 +144,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testCreatesContactGroupWhenAddingContact() throws Exception {
 		Transaction txn = new Transaction(null, false);
 		Contact contact = getContact(true);
-		Group contactGroup = getGroup();
+		Group contactGroup = getGroup(CLIENT_ID);
 
 		context.checking(new Expectations() {{
 			// Create the group and share it with the contact
@@ -171,7 +172,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testRemovesGroupWhenRemovingContact() throws Exception {
 		Transaction txn = new Transaction(null, false);
 		Contact contact = getContact(true);
-		Group contactGroup = getGroup();
+		Group contactGroup = getGroup(CLIENT_ID);
 
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
@@ -306,7 +307,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testStoresRemotePropertiesWithVersion0() throws Exception {
 		Contact contact = getContact(true);
-		Group contactGroup = getGroup();
+		Group contactGroup = getGroup(CLIENT_ID);
 		Transaction txn = new Transaction(null, false);
 		Map<TransportId, TransportProperties> properties =
 				new LinkedHashMap<>();
@@ -417,8 +418,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Contact contact3 = getContact(true);
 		List<Contact> contacts =
 				Arrays.asList(contact1, contact2, contact3);
-		Group contactGroup2 = getGroup();
-		Group contactGroup3 = getGroup();
+		Group contactGroup2 = getGroup(CLIENT_ID);
+		Group contactGroup3 = getGroup(CLIENT_ID);
 		Map<MessageId, BdfDictionary> messageMetadata3 =
 				new LinkedHashMap<>();
 		// A remote update for another transport should be ignored
@@ -514,7 +515,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testMergingNewPropertiesCreatesUpdate() throws Exception {
 		Transaction txn = new Transaction(null, false);
 		Contact contact = getContact(true);
-		Group contactGroup = getGroup();
+		Group contactGroup = getGroup(CLIENT_ID);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
@@ -549,7 +550,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testMergingUpdatedPropertiesCreatesUpdate() throws Exception {
 		Transaction txn = new Transaction(null, false);
 		Contact contact = getContact(true);
-		Group contactGroup = getGroup();
+		Group contactGroup = getGroup(CLIENT_ID);
 		BdfDictionary oldMetadata = BdfDictionary.of(
 				new BdfEntry("transportId", "foo"),
 				new BdfEntry("version", 1),
@@ -598,12 +599,6 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 
 		TransportPropertyManagerImpl t = createInstance();
 		t.mergeLocalProperties(new TransportId("foo"), fooProperties);
-	}
-
-	private Group getGroup() {
-		GroupId g = new GroupId(getRandomId());
-		byte[] descriptor = getRandomBytes(MAX_GROUP_DESCRIPTOR_LENGTH);
-		return new Group(g, CLIENT_ID, descriptor);
 	}
 
 	private Contact getContact(boolean active) {

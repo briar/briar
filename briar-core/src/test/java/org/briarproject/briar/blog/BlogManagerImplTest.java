@@ -14,8 +14,6 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.sync.Group;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.blog.Blog;
@@ -34,6 +32,7 @@ import static org.briarproject.bramble.api.identity.Author.Status.NONE;
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.Author.Status.VERIFIED;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -867,9 +866,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 	}
 
 	private Blog createBlog(LocalAuthor localAuthor, boolean rssFeed) {
-		GroupId groupId = new GroupId(getRandomId());
-		Group group = new Group(groupId, CLIENT_ID, getRandomBytes(42));
-		return new Blog(group, localAuthor, rssFeed);
+		return new Blog(getGroup(CLIENT_ID), localAuthor, rssFeed);
 	}
 
 	private BdfList authorToBdfList(Author a) {
