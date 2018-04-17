@@ -5,8 +5,7 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.contact.ContactManager.AddContactHook;
-import org.briarproject.bramble.api.contact.ContactManager.RemoveContactHook;
+import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
@@ -40,7 +39,7 @@ import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 @Immutable
 @NotNullByDefault
 class TransportPropertyManagerImpl implements TransportPropertyManager,
-		Client, AddContactHook, RemoveContactHook, IncomingMessageHook {
+		Client, ContactHook, IncomingMessageHook {
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;

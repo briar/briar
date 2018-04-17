@@ -54,8 +54,7 @@ public class MessagingModule {
 			ConversationManager conversationManager,
 			MessagingManagerImpl messagingManager) {
 		lifecycleManager.registerClient(messagingManager);
-		contactManager.registerAddContactHook(messagingManager);
-		contactManager.registerRemoveContactHook(messagingManager);
+		contactManager.registerContactHook(messagingManager);
 		validationManager
 				.registerIncomingMessageHook(CLIENT_ID, messagingManager);
 		conversationManager.registerConversationClient(messagingManager);

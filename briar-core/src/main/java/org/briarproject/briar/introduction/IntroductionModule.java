@@ -51,8 +51,7 @@ public class IntroductionModule {
 			IntroductionManagerImpl introductionManager) {
 
 		lifecycleManager.registerClient(introductionManager);
-		contactManager.registerAddContactHook(introductionManager);
-		contactManager.registerRemoveContactHook(introductionManager);
+		contactManager.registerContactHook(introductionManager);
 		messageQueueManager.registerIncomingMessageHook(CLIENT_ID,
 				introductionManager);
 		conversationManager.registerConversationClient(introductionManager);

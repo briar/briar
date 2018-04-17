@@ -41,8 +41,7 @@ public class GroupInvitationModule {
 		lifecycleManager.registerClient(groupInvitationManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID,
 				groupInvitationManager);
-		contactManager.registerAddContactHook(groupInvitationManager);
-		contactManager.registerRemoveContactHook(groupInvitationManager);
+		contactManager.registerContactHook(groupInvitationManager);
 		privateGroupManager.registerPrivateGroupHook(groupInvitationManager);
 		conversationManager.registerConversationClient(groupInvitationManager);
 		return groupInvitationManager;

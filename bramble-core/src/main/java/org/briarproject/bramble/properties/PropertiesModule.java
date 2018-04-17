@@ -46,8 +46,7 @@ public class PropertiesModule {
 		lifecycleManager.registerClient(transportPropertyManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID,
 				transportPropertyManager);
-		contactManager.registerAddContactHook(transportPropertyManager);
-		contactManager.registerRemoveContactHook(transportPropertyManager);
+		contactManager.registerContactHook(transportPropertyManager);
 		return transportPropertyManager;
 	}
 }

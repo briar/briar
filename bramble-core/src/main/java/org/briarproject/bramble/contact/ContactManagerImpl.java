@@ -27,25 +27,18 @@ class ContactManagerImpl implements ContactManager {
 
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
-	private final List<AddContactHook> addHooks;
-	private final List<RemoveContactHook> removeHooks;
+	private final List<ContactHook> hooks;
 
 	@Inject
 	ContactManagerImpl(DatabaseComponent db, KeyManager keyManager) {
 		this.db = db;
 		this.keyManager = keyManager;
-		addHooks = new CopyOnWriteArrayList<>();
-		removeHooks = new CopyOnWriteArrayList<>();
+		hooks = new CopyOnWriteArrayList<>();
 	}
 
 	@Override
-	public void registerAddContactHook(AddContactHook hook) {
-		addHooks.add(hook);
-	}
-
-	@Override
-	public void registerRemoveContactHook(RemoveContactHook hook) {
-		removeHooks.add(hook);
+	public void registerContactHook(ContactHook hook) {
+		hooks.add(hook);
 	}
 
 	@Override
@@ -55,8 +48,7 @@ class ContactManagerImpl implements ContactManager {
 		ContactId c = db.addContact(txn, remote, local, verified, active);
 		keyManager.addContact(txn, c, master, timestamp, alice);
 		Contact contact = db.getContact(txn, c);
-		for (AddContactHook hook : addHooks)
-			hook.addingContact(txn, contact);
+		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
 		return c;
 	}
 
@@ -65,8 +57,7 @@ class ContactManagerImpl implements ContactManager {
 			boolean verified, boolean active) throws DbException {
 		ContactId c = db.addContact(txn, remote, local, verified, active);
 		Contact contact = db.getContact(txn, c);
-		for (AddContactHook hook : addHooks)
-			hook.addingContact(txn, contact);
+		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
 		return c;
 	}
 
@@ -166,7 +157,7 @@ class ContactManagerImpl implements ContactManager {
 	@Override
 	public boolean contactExists(AuthorId remoteAuthorId,
 			AuthorId localAuthorId) throws DbException {
-		boolean exists = false;
+		boolean exists;
 		Transaction txn = db.startTransaction(true);
 		try {
 			exists = contactExists(txn, remoteAuthorId, localAuthorId);
@@ -181,8 +172,7 @@ class ContactManagerImpl implements ContactManager {
 	public void removeContact(Transaction txn, ContactId c)
 			throws DbException {
 		Contact contact = db.getContact(txn, c);
-		for (RemoveContactHook hook : removeHooks)
-			hook.removingContact(txn, contact);
+		for (ContactHook hook : hooks) hook.removingContact(txn, contact);
 		db.removeContact(txn, c);
 	}
 
