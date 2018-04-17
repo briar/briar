@@ -2,6 +2,7 @@ package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.client.ClientModule;
 import org.briarproject.bramble.contact.ContactModule;
+import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.crypto.CryptoModule;
 import org.briarproject.bramble.data.DataModule;
 import org.briarproject.bramble.db.DatabaseModule;
@@ -38,6 +39,7 @@ import dagger.Component;
 		ClientModule.class,
 		ContactModule.class,
 		CryptoModule.class,
+		CryptoExecutorModule.class,
 		DataModule.class,
 		DatabaseModule.class,
 		EventModule.class,

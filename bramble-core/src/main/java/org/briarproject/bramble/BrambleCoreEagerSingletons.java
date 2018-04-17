@@ -1,7 +1,7 @@
 package org.briarproject.bramble;
 
 import org.briarproject.bramble.contact.ContactModule;
-import org.briarproject.bramble.crypto.CryptoModule;
+import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.db.DatabaseExecutorModule;
 import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
@@ -15,7 +15,7 @@ public interface BrambleCoreEagerSingletons {
 
 	void inject(ContactModule.EagerSingletons init);
 
-	void inject(CryptoModule.EagerSingletons init);
+	void inject(CryptoExecutorModule.EagerSingletons init);
 
 	void inject(DatabaseExecutorModule.EagerSingletons init);
 
