@@ -1,22 +1,23 @@
 package org.briarproject.bramble.api.plugin;
 
-import java.nio.charset.Charset;
+import org.briarproject.bramble.util.StringUtils;
 
 /**
- * Type-safe wrapper for a string that uniquely identifies a transport plugin.
+ * Type-safe wrapper for a namespaced string that uniquely identifies a
+ * transport plugin.
  */
 public class TransportId {
 
 	/**
-	 * The maximum length of transport identifier in UTF-8 bytes.
+	 * The maximum length of a transport identifier in UTF-8 bytes.
 	 */
-	public static int MAX_TRANSPORT_ID_LENGTH = 64;
+	public static int MAX_TRANSPORT_ID_LENGTH = 100;
 
 	private final String id;
 
 	public TransportId(String id) {
-		byte[] b = id.getBytes(Charset.forName("UTF-8"));
-		if (b.length == 0 || b.length > MAX_TRANSPORT_ID_LENGTH)
+		int length = StringUtils.toUtf8(id).length;
+		if (length == 0 || length > MAX_TRANSPORT_ID_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
 	}

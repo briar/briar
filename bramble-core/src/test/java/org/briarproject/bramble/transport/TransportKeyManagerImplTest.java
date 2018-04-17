@@ -36,6 +36,7 @@ import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOC
 import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.briarproject.bramble.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -53,7 +54,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			context.mock(ScheduledExecutorService.class);
 	private final Clock clock = context.mock(Clock.class);
 
-	private final TransportId transportId = new TransportId("id");
+	private final TransportId transportId = getTransportId();
 	private final long maxLatency = 30 * 1000; // 30 seconds
 	private final long rotationPeriodLength = maxLatency + MAX_CLOCK_DIFFERENCE;
 	private final ContactId contactId = new ContactId(123);

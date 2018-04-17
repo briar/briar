@@ -19,7 +19,6 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Group;
@@ -54,6 +53,7 @@ import javax.inject.Inject;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.client.MessageQueueManager.QUEUE_STATE_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ALICE_MAC_KEY_LABEL;
@@ -372,7 +372,7 @@ public class IntroductionIntegrationTest
 		TransportProperties tp = new TransportProperties(
 				Collections.singletonMap("key", "value"));
 		c0.getTransportPropertyManager()
-				.mergeLocalProperties(new TransportId("fake"), tp);
+				.mergeLocalProperties(getTransportId(), tp);
 		sync0To1(1, true);
 
 		// sync second response

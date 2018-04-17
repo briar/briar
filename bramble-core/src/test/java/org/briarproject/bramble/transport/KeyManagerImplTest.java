@@ -31,6 +31,7 @@ import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertEquals;
 
 public class KeyManagerImplTest extends BrambleMockTestCase {
@@ -47,8 +48,8 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	private final ContactId contactId = new ContactId(123);
 	private final ContactId inactiveContactId = new ContactId(234);
 	private final KeySetId keySetId = new KeySetId(345);
-	private final TransportId transportId = new TransportId("known");
-	private final TransportId unknownTransportId = new TransportId("unknown");
+	private final TransportId transportId = getTransportId();
+	private final TransportId unknownTransportId = getTransportId();
 	private final StreamContext streamContext =
 			new StreamContext(contactId, transportId, getSecretKey(),
 					getSecretKey(), 1);

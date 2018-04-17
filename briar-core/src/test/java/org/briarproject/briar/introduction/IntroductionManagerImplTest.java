@@ -33,9 +33,9 @@ import java.util.Map;
 
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getClientId;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID_1;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID_2;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ROLE;
@@ -79,7 +79,7 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		introducee2 =
 				new Contact(contactId2, author2, localAuthorId2, true, true);
 
-		ClientId clientId = new ClientId(getRandomString(5));
+		ClientId clientId = getClientId();
 		introductionGroup1 = new Group(new GroupId(getRandomId()),
 				clientId, new byte[0]);
 		introductionGroup2 = new Group(new GroupId(getRandomId()),

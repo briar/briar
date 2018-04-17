@@ -70,9 +70,10 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
 import static org.briarproject.bramble.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getClientId;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -104,7 +105,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	private final KeySetId keySetId;
 
 	public DatabaseComponentImplTest() {
-		clientId = new ClientId(getRandomString(123));
+		clientId = getClientId();
 		groupId = new GroupId(TestUtils.getRandomId());
 		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
 		group = new Group(groupId, clientId, descriptor);
@@ -118,7 +119,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		message = new Message(messageId, groupId, timestamp, raw);
 		metadata = new Metadata();
 		metadata.put("foo", new byte[] {'b', 'a', 'r'});
-		transportId = new TransportId("id");
+		transportId = getTransportId();
 		maxLatency = Integer.MAX_VALUE;
 		contactId = new ContactId(234);
 		contact = new Contact(contactId, author, localAuthor.getId(),

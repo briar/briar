@@ -19,6 +19,7 @@ import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.RE
 import static org.briarproject.bramble.api.keyagreement.RecordTypes.ABORT;
 import static org.briarproject.bramble.api.keyagreement.RecordTypes.CONFIRM;
 import static org.briarproject.bramble.api.keyagreement.RecordTypes.KEY;
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -31,7 +32,7 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 	private final TransportConnectionWriter transportConnectionWriter =
 			context.mock(TransportConnectionWriter.class);
 
-	private final TransportId transportId = new TransportId("test");
+	private final TransportId transportId = getTransportId();
 	private final KeyAgreementConnection keyAgreementConnection =
 			new KeyAgreementConnection(duplexTransportConnection, transportId);
 

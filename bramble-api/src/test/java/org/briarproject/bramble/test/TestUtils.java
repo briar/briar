@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -23,6 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.api.plugin.TransportId.MAX_TRANSPORT_ID_LENGTH;
+import static org.briarproject.bramble.api.sync.ClientId.MAX_CLIENT_ID_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
@@ -52,6 +55,14 @@ public class TestUtils {
 
 	public static byte[] getRandomId() {
 		return getRandomBytes(UniqueId.LENGTH);
+	}
+
+	public static ClientId getClientId() {
+		return new ClientId(getRandomString(MAX_CLIENT_ID_LENGTH));
+	}
+
+	public static TransportId getTransportId() {
+		return new TransportId(getRandomString(MAX_TRANSPORT_ID_LENGTH));
 	}
 
 	public static SecretKey getSecretKey() {

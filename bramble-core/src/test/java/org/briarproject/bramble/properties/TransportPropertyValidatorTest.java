@@ -6,14 +6,11 @@ import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -22,6 +19,11 @@ import java.io.IOException;
 
 import static org.briarproject.bramble.api.plugin.TransportId.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
+import static org.briarproject.bramble.test.TestUtils.getClientId;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertEquals;
 
 public class TransportPropertyValidatorTest extends BrambleTestCase {
@@ -33,18 +35,14 @@ public class TransportPropertyValidatorTest extends BrambleTestCase {
 	private final TransportPropertyValidator tpv;
 
 	public TransportPropertyValidatorTest() {
-		transportId = new TransportId("test");
+		transportId = getTransportId();
 		bdfDictionary = new BdfDictionary();
 
-		GroupId groupId = new GroupId(TestUtils.getRandomId());
-		ClientId clientId = new ClientId(StringUtils.getRandomString(5));
-		byte[] descriptor = TestUtils.getRandomBytes(12);
-		group = new Group(groupId, clientId, descriptor);
-
-		MessageId messageId = new MessageId(TestUtils.getRandomId());
+		group = getGroup(getClientId());
+		MessageId messageId = new MessageId(getRandomId());
 		long timestamp = System.currentTimeMillis();
-		byte[] body = TestUtils.getRandomBytes(123);
-		message = new Message(messageId, groupId, timestamp, body);
+		byte[] body = getRandomBytes(123);
+		message = new Message(messageId, group.getId(), timestamp, body);
 
 		Mockery context = new Mockery();
 		ClientHelper clientHelper = context.mock(ClientHelper.class);
@@ -63,7 +61,7 @@ public class TransportPropertyValidatorTest extends BrambleTestCase {
 		BdfDictionary result = tpv.validateMessage(message, group, body)
 				.getDictionary();
 
-		assertEquals("test", result.getString("transportId"));
+		assertEquals(transportId.getString(), result.getString("transportId"));
 		assertEquals(4, result.getLong("version").longValue());
 	}
 

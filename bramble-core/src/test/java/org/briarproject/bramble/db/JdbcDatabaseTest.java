@@ -59,11 +59,12 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getClientId;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -95,7 +96,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	JdbcDatabaseTest() throws Exception {
 		groupId = new GroupId(getRandomId());
-		clientId = new ClientId(getRandomString(123));
+		clientId = getClientId();
 		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
 		group = new Group(groupId, clientId, descriptor);
 		author = getAuthor();
@@ -105,7 +106,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		size = 1234;
 		raw = getRandomBytes(size);
 		message = new Message(messageId, groupId, timestamp, raw);
-		transportId = new TransportId("id");
+		transportId = getTransportId();
 		contactId = new ContactId(1);
 		keySetId = new KeySetId(1);
 		keySetId1 = new KeySetId(2);
