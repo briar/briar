@@ -11,19 +11,24 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.Scheduler;
+import org.briarproject.bramble.api.transport.KeySet;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.transport.ReorderingWindow.Change;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -47,12 +52,13 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	private final Clock clock;
 	private final TransportId transportId;
 	private final long rotationPeriodLength;
-	private final ReentrantLock lock;
+	private final AtomicBoolean used = new AtomicBoolean(false);
+	private final ReentrantLock lock = new ReentrantLock();
 
 	// The following are locking: lock
-	private final Map<Bytes, TagContext> inContexts;
-	private final Map<ContactId, MutableOutgoingKeys> outContexts;
-	private final Map<ContactId, MutableTransportKeys> keys;
+	private final Map<KeySetId, MutableKeySet> keys = new HashMap<>();
+	private final Map<Bytes, TagContext> inContexts = new HashMap<>();
+	private final Map<ContactId, MutableKeySet> outContexts = new HashMap<>();
 
 	TransportKeyManagerImpl(DatabaseComponent db,
 			TransportCrypto transportCrypto, Executor dbExecutor,
@@ -65,20 +71,16 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		this.clock = clock;
 		this.transportId = transportId;
 		rotationPeriodLength = maxLatency + MAX_CLOCK_DIFFERENCE;
-		lock = new ReentrantLock();
-		inContexts = new HashMap<>();
-		outContexts = new HashMap<>();
-		keys = new HashMap<>();
 	}
 
 	@Override
 	public void start(Transaction txn) throws DbException {
+		if (used.getAndSet(true)) throw new IllegalStateException();
 		long now = clock.currentTimeMillis();
 		lock.lock();
 		try {
 			// Load the transport keys from the DB
-			Map<ContactId, TransportKeys> loaded =
-					db.getTransportKeys(txn, transportId);
+			Collection<KeySet> loaded = db.getTransportKeys(txn, transportId);
 			// Rotate the keys to the current rotation period
 			RotationResult rotationResult = rotateKeys(loaded, now);
 			// Initialise mutable state for all contacts
@@ -93,45 +95,63 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		scheduleKeyRotation(now);
 	}
 
-	private RotationResult rotateKeys(Map<ContactId, TransportKeys> keys,
-			long now) {
+	private RotationResult rotateKeys(Collection<KeySet> keys, long now) {
 		RotationResult rotationResult = new RotationResult();
 		long rotationPeriod = now / rotationPeriodLength;
-		for (Entry<ContactId, TransportKeys> e : keys.entrySet()) {
-			ContactId c = e.getKey();
-			TransportKeys k = e.getValue();
+		for (KeySet ks : keys) {
+			TransportKeys k = ks.getTransportKeys();
 			TransportKeys k1 =
 					transportCrypto.rotateTransportKeys(k, rotationPeriod);
+			KeySet ks1 = new KeySet(ks.getKeySetId(), ks.getContactId(), k1);
 			if (k1.getRotationPeriod() > k.getRotationPeriod())
-				rotationResult.rotated.put(c, k1);
-			rotationResult.current.put(c, k1);
+				rotationResult.rotated.add(ks1);
+			rotationResult.current.add(ks1);
 		}
 		return rotationResult;
 	}
 
 	// Locking: lock
-	private void addKeys(Map<ContactId, TransportKeys> m) {
-		for (Entry<ContactId, TransportKeys> e : m.entrySet())
-			addKeys(e.getKey(), new MutableTransportKeys(e.getValue()));
+	private void addKeys(Collection<KeySet> keys) {
+		for (KeySet ks : keys) {
+			addKeys(ks.getKeySetId(), ks.getContactId(),
+					new MutableTransportKeys(ks.getTransportKeys()));
+		}
 	}
 
 	// Locking: lock
-	private void addKeys(ContactId c, MutableTransportKeys m) {
-		encodeTags(c, m.getPreviousIncomingKeys());
-		encodeTags(c, m.getCurrentIncomingKeys());
-		encodeTags(c, m.getNextIncomingKeys());
-		outContexts.put(c, m.getCurrentOutgoingKeys());
-		keys.put(c, m);
+	private void addKeys(KeySetId keySetId, @Nullable ContactId contactId,
+			MutableTransportKeys m) {
+		MutableKeySet ks = new MutableKeySet(keySetId, contactId, m);
+		keys.put(keySetId, ks);
+		if (contactId != null) {
+			encodeTags(keySetId, contactId, m.getPreviousIncomingKeys());
+			encodeTags(keySetId, contactId, m.getCurrentIncomingKeys());
+			encodeTags(keySetId, contactId, m.getNextIncomingKeys());
+			considerReplacingOutgoingKeys(ks);
+		}
 	}
 
 	// Locking: lock
-	private void encodeTags(ContactId c, MutableIncomingKeys inKeys) {
+	private void encodeTags(KeySetId keySetId, ContactId contactId,
+			MutableIncomingKeys inKeys) {
 		for (long streamNumber : inKeys.getWindow().getUnseen()) {
-			TagContext tagCtx = new TagContext(c, inKeys, streamNumber);
+			TagContext tagCtx =
+					new TagContext(keySetId, contactId, inKeys, streamNumber);
 			byte[] tag = new byte[TAG_LENGTH];
 			transportCrypto.encodeTag(tag, inKeys.getTagKey(), PROTOCOL_VERSION,
 					streamNumber);
 			inContexts.put(new Bytes(tag), tagCtx);
+		}
+	}
+
+	// Locking: lock
+	private void considerReplacingOutgoingKeys(MutableKeySet ks) {
+		// Use the active outgoing keys with the highest key set ID
+		if (ks.getTransportKeys().getCurrentOutgoingKeys().isActive()) {
+			MutableKeySet old = outContexts.get(ks.getContactId());
+			if (old == null ||
+					old.getKeySetId().getInt() < ks.getKeySetId().getInt())
+				outContexts.put(ks.getContactId(), ks);
 		}
 	}
 
@@ -159,20 +179,82 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	@Override
 	public void addContact(Transaction txn, ContactId c, SecretKey master,
 			long timestamp, boolean alice) throws DbException {
+		deriveAndAddKeys(txn, c, master, timestamp, alice, true);
+	}
+
+	@Override
+	public KeySetId addUnboundKeys(Transaction txn, SecretKey master,
+			long timestamp, boolean alice) throws DbException {
+		return deriveAndAddKeys(txn, null, master, timestamp, alice, false);
+	}
+
+	private KeySetId deriveAndAddKeys(Transaction txn, @Nullable ContactId c,
+			SecretKey master, long timestamp, boolean alice, boolean active)
+			throws DbException {
 		lock.lock();
 		try {
 			// Work out what rotation period the timestamp belongs to
 			long rotationPeriod = timestamp / rotationPeriodLength;
 			// Derive the transport keys
 			TransportKeys k = transportCrypto.deriveTransportKeys(transportId,
-					master, rotationPeriod, alice);
+					master, rotationPeriod, alice, active);
 			// Rotate the keys to the current rotation period if necessary
 			rotationPeriod = clock.currentTimeMillis() / rotationPeriodLength;
 			k = transportCrypto.rotateTransportKeys(k, rotationPeriod);
-			// Initialise mutable state for the contact
-			addKeys(c, new MutableTransportKeys(k));
 			// Write the keys back to the DB
-			db.addTransportKeys(txn, c, k);
+			KeySetId keySetId = db.addTransportKeys(txn, c, k);
+			// Initialise mutable state for the contact
+			addKeys(keySetId, c, new MutableTransportKeys(k));
+			return keySetId;
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
+	public void bindKeys(Transaction txn, ContactId c, KeySetId k)
+			throws DbException {
+		lock.lock();
+		try {
+			MutableKeySet ks = keys.get(k);
+			if (ks == null) throw new IllegalArgumentException();
+			// Check that the keys haven't already been bound
+			if (ks.getContactId() != null) throw new IllegalArgumentException();
+			MutableTransportKeys m = ks.getTransportKeys();
+			addKeys(k, c, m);
+			db.bindTransportKeys(txn, c, m.getTransportId(), k);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
+	public void activateKeys(Transaction txn, KeySetId k) throws DbException {
+		lock.lock();
+		try {
+			MutableKeySet ks = keys.get(k);
+			if (ks == null) throw new IllegalArgumentException();
+			// Check that the keys have been bound
+			if (ks.getContactId() == null) throw new IllegalArgumentException();
+			MutableTransportKeys m = ks.getTransportKeys();
+			m.getCurrentOutgoingKeys().activate();
+			considerReplacingOutgoingKeys(ks);
+			db.setTransportKeysActive(txn, m.getTransportId(), k);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
+	public void removeKeys(Transaction txn, KeySetId k) throws DbException {
+		lock.lock();
+		try {
+			MutableKeySet ks = keys.remove(k);
+			if (ks == null) throw new IllegalArgumentException();
+			// Check that the keys haven't been bound
+			if (ks.getContactId() != null) throw new IllegalArgumentException();
+			TransportId t = ks.getTransportKeys().getTransportId();
+			db.removeTransportKeys(txn, t, k);
 		} finally {
 			lock.unlock();
 		}
@@ -183,12 +265,29 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		lock.lock();
 		try {
 			// Remove mutable state for the contact
-			Iterator<Entry<Bytes, TagContext>> it =
-					inContexts.entrySet().iterator();
-			while (it.hasNext())
-				if (it.next().getValue().contactId.equals(c)) it.remove();
+			Iterator<TagContext> it = inContexts.values().iterator();
+			while (it.hasNext()) if (it.next().contactId.equals(c)) it.remove();
 			outContexts.remove(c);
-			keys.remove(c);
+			Iterator<MutableKeySet> it1 = keys.values().iterator();
+			while (it1.hasNext()) {
+				ContactId c1 = it1.next().getContactId();
+				if (c1 != null && c1.equals(c)) it1.remove();
+			}
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
+	public boolean canSendOutgoingStreams(ContactId c) {
+		lock.lock();
+		try {
+			MutableKeySet ks = outContexts.get(c);
+			if (ks == null) return false;
+			MutableOutgoingKeys outKeys =
+					ks.getTransportKeys().getCurrentOutgoingKeys();
+			if (!outKeys.isActive()) throw new AssertionError();
+			return outKeys.getStreamCounter() <= MAX_32_BIT_UNSIGNED;
 		} finally {
 			lock.unlock();
 		}
@@ -200,8 +299,11 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		lock.lock();
 		try {
 			// Look up the outgoing keys for the contact
-			MutableOutgoingKeys outKeys = outContexts.get(c);
-			if (outKeys == null) return null;
+			MutableKeySet ks = outContexts.get(c);
+			if (ks == null) return null;
+			MutableOutgoingKeys outKeys =
+					ks.getTransportKeys().getCurrentOutgoingKeys();
+			if (!outKeys.isActive()) throw new AssertionError();
 			if (outKeys.getStreamCounter() > MAX_32_BIT_UNSIGNED) return null;
 			// Create a stream context
 			StreamContext ctx = new StreamContext(c, transportId,
@@ -209,8 +311,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 					outKeys.getStreamCounter());
 			// Increment the stream counter and write it back to the DB
 			outKeys.incrementStreamCounter();
-			db.incrementStreamCounter(txn, c, transportId,
-					outKeys.getRotationPeriod());
+			db.incrementStreamCounter(txn, transportId, ks.getKeySetId());
 			return ctx;
 		} finally {
 			lock.unlock();
@@ -238,8 +339,9 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 				byte[] addTag = new byte[TAG_LENGTH];
 				transportCrypto.encodeTag(addTag, inKeys.getTagKey(),
 						PROTOCOL_VERSION, streamNumber);
-				inContexts.put(new Bytes(addTag), new TagContext(
-						tagCtx.contactId, inKeys, streamNumber));
+				TagContext tagCtx1 = new TagContext(tagCtx.keySetId,
+						tagCtx.contactId, inKeys, streamNumber);
+				inContexts.put(new Bytes(addTag), tagCtx1);
 			}
 			// Remove tags for any stream numbers removed from the window
 			for (long streamNumber : change.getRemoved()) {
@@ -250,9 +352,19 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 				inContexts.remove(new Bytes(removeTag));
 			}
 			// Write the window back to the DB
-			db.setReorderingWindow(txn, tagCtx.contactId, transportId,
+			db.setReorderingWindow(txn, tagCtx.keySetId, transportId,
 					inKeys.getRotationPeriod(), window.getBase(),
 					window.getBitmap());
+			// If the outgoing keys are inactive, activate them
+			MutableKeySet ks = keys.get(tagCtx.keySetId);
+			MutableOutgoingKeys outKeys =
+					ks.getTransportKeys().getCurrentOutgoingKeys();
+			if (!outKeys.isActive()) {
+				LOG.info("Activating outgoing keys");
+				outKeys.activate();
+				considerReplacingOutgoingKeys(ks);
+				db.setTransportKeysActive(txn, transportId, tagCtx.keySetId);
+			}
 			return ctx;
 		} finally {
 			lock.unlock();
@@ -264,9 +376,11 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		lock.lock();
 		try {
 			// Rotate the keys to the current rotation period
-			Map<ContactId, TransportKeys> snapshot = new HashMap<>();
-			for (Entry<ContactId, MutableTransportKeys> e : keys.entrySet())
-				snapshot.put(e.getKey(), e.getValue().snapshot());
+			Collection<KeySet> snapshot = new ArrayList<>(keys.size());
+			for (MutableKeySet ks : keys.values()) {
+				snapshot.add(new KeySet(ks.getKeySetId(), ks.getContactId(),
+						ks.getTransportKeys().snapshot()));
+			}
 			RotationResult rotationResult = rotateKeys(snapshot, now);
 			// Rebuild the mutable state for all contacts
 			inContexts.clear();
@@ -285,12 +399,14 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 
 	private static class TagContext {
 
+		private final KeySetId keySetId;
 		private final ContactId contactId;
 		private final MutableIncomingKeys inKeys;
 		private final long streamNumber;
 
-		private TagContext(ContactId contactId, MutableIncomingKeys inKeys,
-				long streamNumber) {
+		private TagContext(KeySetId keySetId, ContactId contactId,
+				MutableIncomingKeys inKeys, long streamNumber) {
+			this.keySetId = keySetId;
 			this.contactId = contactId;
 			this.inKeys = inKeys;
 			this.streamNumber = streamNumber;
@@ -299,11 +415,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 
 	private static class RotationResult {
 
-		private final Map<ContactId, TransportKeys> current, rotated;
-
-		private RotationResult() {
-			current = new HashMap<>();
-			rotated = new HashMap<>();
-		}
+		private final Collection<KeySet> current = new ArrayList<>();
+		private final Collection<KeySet> rotated = new ArrayList<>();
 	}
 }

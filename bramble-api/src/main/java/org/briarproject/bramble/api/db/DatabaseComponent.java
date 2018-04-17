@@ -18,6 +18,8 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.transport.KeySet;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.Collection;
@@ -102,10 +104,17 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Stores transport keys for a newly added contact.
+	 * Stores the given transport keys, optionally binding them to the given
+	 * contact, and returns a key set ID.
 	 */
-	void addTransportKeys(Transaction txn, ContactId c, TransportKeys k)
-			throws DbException;
+	KeySetId addTransportKeys(Transaction txn, @Nullable ContactId c,
+			TransportKeys k) throws DbException;
+
+	/**
+	 * Binds the given keys for the given transport to the given contact.
+	 */
+	void bindTransportKeys(Transaction txn, ContactId c, TransportId t,
+			KeySetId k) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact for the given
@@ -394,15 +403,14 @@ public interface DatabaseComponent {
 	 * <p/>
 	 * Read-only.
 	 */
-	Map<ContactId, TransportKeys> getTransportKeys(Transaction txn,
-			TransportId t) throws DbException;
+	Collection<KeySet> getTransportKeys(Transaction txn, TransportId t)
+			throws DbException;
 
 	/**
-	 * Increments the outgoing stream counter for the given contact and
-	 * transport in the given rotation period .
+	 * Increments the outgoing stream counter for the given transport keys.
 	 */
-	void incrementStreamCounter(Transaction txn, ContactId c, TransportId t,
-			long rotationPeriod) throws DbException;
+	void incrementStreamCounter(Transaction txn, TransportId t, KeySetId k)
+			throws DbException;
 
 	/**
 	 * Merges the given metadata with the existing metadata for the given
@@ -473,6 +481,12 @@ public interface DatabaseComponent {
 	void removeTransport(Transaction txn, TransportId t) throws DbException;
 
 	/**
+	 * Removes the given transport keys from the database.
+	 */
+	void removeTransportKeys(Transaction txn, TransportId t, KeySetId k)
+		throws DbException;
+
+	/**
 	 * Marks the given contact as verified.
 	 */
 	void setContactVerified(Transaction txn, ContactId c) throws DbException;
@@ -507,15 +521,21 @@ public interface DatabaseComponent {
 			Collection<MessageId> dependencies) throws DbException;
 
 	/**
-	 * Sets the reordering window for the given contact and transport in the
+	 * Sets the reordering window for the given key set and transport in the
 	 * given rotation period.
 	 */
-	void setReorderingWindow(Transaction txn, ContactId c, TransportId t,
+	void setReorderingWindow(Transaction txn, KeySetId k, TransportId t,
 			long rotationPeriod, long base, byte[] bitmap) throws DbException;
+
+	/**
+	 * Marks the given transport keys as usable for outgoing streams.
+	 */
+	void setTransportKeysActive(Transaction txn, TransportId t, KeySetId k)
+		throws DbException;
 
 	/**
 	 * Stores the given transport keys, deleting any keys they have replaced.
 	 */
-	void updateTransportKeys(Transaction txn,
-			Map<ContactId, TransportKeys> keys) throws DbException;
+	void updateTransportKeys(Transaction txn, Collection<KeySet> keys)
+			throws DbException;
 }

@@ -14,9 +14,10 @@ public interface TransportCrypto {
 	 * rotation period from the given master secret.
 	 *
 	 * @param alice whether the keys are for use by Alice or Bob.
+	 * @param active whether the keys are usable for outgoing streams.
 	 */
 	TransportKeys deriveTransportKeys(TransportId t, SecretKey master,
-			long rotationPeriod, boolean alice);
+			long rotationPeriod, boolean alice, boolean active);
 
 	/**
 	 * Rotates the given transport keys to the given rotation period. If the

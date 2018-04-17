@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
 
 import java.util.HashMap;
@@ -105,6 +106,67 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
+	public Map<TransportId, KeySetId> addUnboundKeys(Transaction txn,
+			SecretKey master, long timestamp, boolean alice)
+			throws DbException {
+		Map<TransportId, KeySetId> ids = new HashMap<>();
+		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
+			TransportId t = e.getKey();
+			TransportKeyManager m = e.getValue();
+			ids.put(t, m.addUnboundKeys(txn, master, timestamp, alice));
+		}
+		return ids;
+	}
+
+	@Override
+	public void bindKeys(Transaction txn, ContactId c,
+			Map<TransportId, KeySetId> keys) throws DbException {
+		for (Entry<TransportId, KeySetId> e : keys.entrySet()) {
+			TransportId t = e.getKey();
+			TransportKeyManager m = managers.get(t);
+			if (m == null) {
+				if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
+			} else {
+				m.bindKeys(txn, c, e.getValue());
+			}
+		}
+	}
+
+	@Override
+	public void activateKeys(Transaction txn, Map<TransportId, KeySetId> keys)
+			throws DbException {
+		for (Entry<TransportId, KeySetId> e : keys.entrySet()) {
+			TransportId t = e.getKey();
+			TransportKeyManager m = managers.get(t);
+			if (m == null) {
+				if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
+			} else {
+				m.activateKeys(txn, e.getValue());
+			}
+		}
+	}
+
+	@Override
+	public void removeKeys(Transaction txn, Map<TransportId, KeySetId> keys)
+			throws DbException {
+		for (Entry<TransportId, KeySetId> e : keys.entrySet()) {
+			TransportId t = e.getKey();
+			TransportKeyManager m = managers.get(t);
+			if (m == null) {
+				if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
+			} else {
+				m.removeKeys(txn, e.getValue());
+			}
+		}
+	}
+
+	@Override
+	public boolean canSendOutgoingStreams(ContactId c, TransportId t) {
+		TransportKeyManager m = managers.get(t);
+		return m == null ? false : m.canSendOutgoingStreams(c);
+	}
+
+	@Override
 	public StreamContext getStreamContext(ContactId c, TransportId t)
 			throws DbException {
 		// Don't allow outgoing streams to inactive contacts
@@ -114,7 +176,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
 			return null;
 		}
-		StreamContext ctx = null;
+		StreamContext ctx;
 		Transaction txn = db.startTransaction(false);
 		try {
 			ctx = m.getStreamContext(txn, c);
@@ -133,7 +195,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
 			return null;
 		}
-		StreamContext ctx = null;
+		StreamContext ctx;
 		Transaction txn = db.startTransaction(false);
 		try {
 			ctx = m.getStreamContext(txn, tag);
