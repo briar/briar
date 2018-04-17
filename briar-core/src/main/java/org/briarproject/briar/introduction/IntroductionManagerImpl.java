@@ -4,8 +4,7 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.contact.ContactManager.AddContactHook;
-import org.briarproject.bramble.api.contact.ContactManager.RemoveContactHook;
+import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
@@ -81,8 +80,7 @@ import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ
 @Immutable
 @NotNullByDefault
 class IntroductionManagerImpl extends ConversationClientImpl
-		implements IntroductionManager, Client, AddContactHook,
-		RemoveContactHook {
+		implements IntroductionManager, Client, ContactHook {
 
 	private static final Logger LOG =
 			Logger.getLogger(IntroductionManagerImpl.class.getName());

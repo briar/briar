@@ -75,8 +75,7 @@ public class SharingModule {
 			ConversationManager conversationManager, BlogManager blogManager,
 			BlogSharingManagerImpl blogSharingManager) {
 		lifecycleManager.registerClient(blogSharingManager);
-		contactManager.registerAddContactHook(blogSharingManager);
-		contactManager.registerRemoveContactHook(blogSharingManager);
+		contactManager.registerContactHook(blogSharingManager);
 		validationManager.registerIncomingMessageHook(
 				BlogSharingManager.CLIENT_ID, blogSharingManager);
 		conversationManager.registerConversationClient(blogSharingManager);
@@ -127,8 +126,7 @@ public class SharingModule {
 			ForumSharingManagerImpl forumSharingManager) {
 
 		lifecycleManager.registerClient(forumSharingManager);
-		contactManager.registerAddContactHook(forumSharingManager);
-		contactManager.registerRemoveContactHook(forumSharingManager);
+		contactManager.registerContactHook(forumSharingManager);
 		validationManager.registerIncomingMessageHook(
 				ForumSharingManager.CLIENT_ID, forumSharingManager);
 		conversationManager.registerConversationClient(forumSharingManager);

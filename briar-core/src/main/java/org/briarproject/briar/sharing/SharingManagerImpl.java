@@ -5,8 +5,7 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.contact.ContactManager.AddContactHook;
-import org.briarproject.bramble.api.contact.ContactManager.RemoveContactHook;
+import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
@@ -53,8 +52,7 @@ import static org.briarproject.briar.sharing.State.SHARING;
 @NotNullByDefault
 abstract class SharingManagerImpl<S extends Shareable>
 		extends ConversationClientImpl
-		implements SharingManager<S>, Client, AddContactHook,
-		RemoveContactHook {
+		implements SharingManager<S>, Client, ContactHook {
 
 	private final MessageParser<S> messageParser;
 	private final SessionEncoder sessionEncoder;

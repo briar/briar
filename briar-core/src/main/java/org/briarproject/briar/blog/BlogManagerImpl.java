@@ -3,6 +3,7 @@ package org.briarproject.briar.blog;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
@@ -48,7 +49,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.contact.ContactManager.RemoveContactHook;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_COMMENT;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_MSG_ID;
@@ -66,7 +66,7 @@ import static org.briarproject.briar.api.blog.MessageType.WRAPPED_POST;
 
 @NotNullByDefault
 class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
-		RemoveContactHook, Client {
+		ContactHook, Client {
 
 	private final IdentityManager identityManager;
 	private final BlogFactory blogFactory;
@@ -91,6 +91,10 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		LocalAuthor a = identityManager.getLocalAuthor(txn);
 		Blog b = blogFactory.createBlog(a);
 		db.addGroup(txn, b.getGroup());  // does nothing, if group exists
+	}
+
+	@Override
+	public void addingContact(Transaction txn, Contact c) throws DbException {
 	}
 
 	@Override

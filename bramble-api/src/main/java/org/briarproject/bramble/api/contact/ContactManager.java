@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
@@ -13,14 +14,11 @@ import java.util.Collection;
 public interface ContactManager {
 
 	/**
-	 * Registers a hook to be called whenever a contact is added.
+	 * Registers a hook to be called whenever a contact is added or removed.
+	 * This method should be called before
+	 * {@link LifecycleManager#startServices(String)}.
 	 */
-	void registerAddContactHook(AddContactHook hook);
-
-	/**
-	 * Registers a hook to be called whenever a contact is removed.
-	 */
-	void registerRemoveContactHook(RemoveContactHook hook);
+	void registerContactHook(ContactHook hook);
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
@@ -102,11 +100,10 @@ public interface ContactManager {
 	boolean contactExists(AuthorId remoteAuthorId, AuthorId localAuthorId)
 			throws DbException;
 
-	interface AddContactHook {
-		void addingContact(Transaction txn, Contact c) throws DbException;
-	}
+	interface ContactHook {
 
-	interface RemoveContactHook {
+		void addingContact(Transaction txn, Contact c) throws DbException;
+
 		void removingContact(Transaction txn, Contact c) throws DbException;
 	}
 }
