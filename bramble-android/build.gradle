@@ -74,18 +74,26 @@ def downloadBinary(name) {
 				.replace('geoip', "geoip-${geoipVersion}")
 				.replaceAll('_', '-')
 		dest "${torBinaryDir}/${name}.zip"
-		onlyIfNewer true
 	}
 }
 
 def verifyBinary(name, chksum) {
-	return tasks.create([
-			name     : "verifyBinary${name}",
-			type     : Verify,
-			dependsOn: downloadBinary(name)]) {
-		src "${torBinaryDir}/${name}.zip"
-		algorithm 'SHA-256'
-		checksum chksum
+	String filename = "${torBinaryDir}/${name}.zip"
+	if (new File("bramble-android/${filename}").exists()) {
+		return tasks.create("verifyBinary${name}", Verify) {
+			src filename
+			algorithm 'SHA-256'
+			checksum chksum
+		}
+	} else {
+		return tasks.create([
+				name     : "verifyBinary${name}",
+				type     : Verify,
+				dependsOn: downloadBinary(name)]) {
+			src filename
+			algorithm 'SHA-256'
+			checksum chksum
+		}
 	}
 }
 
