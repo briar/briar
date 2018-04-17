@@ -19,7 +19,6 @@ import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
-import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -40,6 +39,7 @@ import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
@@ -79,6 +79,7 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_ACK;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_RESPONSE;
+import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
 import static org.hamcrest.Matchers.array;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.Assert.assertFalse;
@@ -145,11 +146,8 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		introducee2 =
 				new Contact(contactId2, author2, localAuthorId, true, true);
 
-		ClientId clientId = IntroductionManagerImpl.CLIENT_ID;
-		localGroup1 = new Group(new GroupId(getRandomId()),
-				clientId, new byte[0]);
-		introductionGroup1 = new Group(new GroupId(getRandomId()),
-				clientId, new byte[0]);
+		localGroup1 = getGroup(CLIENT_ID);
+		introductionGroup1 = getGroup(CLIENT_ID);
 
 		sessionId = new SessionId(getRandomId());
 		localStateMessage = new Message(

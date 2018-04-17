@@ -16,10 +16,12 @@ import javax.annotation.Nullable;
 import dagger.Module;
 import dagger.Provides;
 
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
+
 @Module
 public class TestPluginConfigModule {
 
-	public static final TransportId TRANSPORT_ID = new TransportId("id");
+	public static final TransportId TRANSPORT_ID = getTransportId();
 	public static final int MAX_LATENCY = 2 * 60 * 1000; // 2 minutes
 
 	@NotNullByDefault

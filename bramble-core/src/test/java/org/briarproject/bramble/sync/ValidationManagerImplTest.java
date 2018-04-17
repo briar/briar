@@ -21,9 +21,7 @@ import org.briarproject.bramble.api.sync.ValidationManager.State;
 import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.ByteUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +36,9 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERE
 import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
+import static org.briarproject.bramble.test.TestUtils.getClientId;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 
 public class ValidationManagerImplTest extends BrambleMockTestCase {
 
@@ -51,14 +52,12 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	private final Executor dbExecutor = new ImmediateExecutor();
 	private final Executor validationExecutor = new ImmediateExecutor();
-	private final ClientId clientId =
-			new ClientId(StringUtils.getRandomString(5));
-	private final MessageId messageId = new MessageId(TestUtils.getRandomId());
-	private final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-	private final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
-	private final GroupId groupId = new GroupId(TestUtils.getRandomId());
-	private final byte[] descriptor = new byte[32];
-	private final Group group = new Group(groupId, clientId, descriptor);
+	private final ClientId clientId = getClientId();
+	private final MessageId messageId = new MessageId(getRandomId());
+	private final MessageId messageId1 = new MessageId(getRandomId());
+	private final MessageId messageId2 = new MessageId(getRandomId());
+	private final Group group = getGroup(clientId);
+	private final GroupId groupId = group.getId();
 	private final long timestamp = System.currentTimeMillis();
 	private final byte[] raw = new byte[123];
 	private final Message message = new Message(messageId, groupId, timestamp,
@@ -716,8 +715,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testRecursiveInvalidation() throws Exception {
-		MessageId messageId3 = new MessageId(TestUtils.getRandomId());
-		MessageId messageId4 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId3 = new MessageId(getRandomId());
+		MessageId messageId4 = new MessageId(getRandomId());
 		Map<MessageId, State> twoDependents = new LinkedHashMap<>();
 		twoDependents.put(messageId1, PENDING);
 		twoDependents.put(messageId2, PENDING);
@@ -819,8 +818,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testPendingDependentsGetDelivered() throws Exception {
-		MessageId messageId3 = new MessageId(TestUtils.getRandomId());
-		MessageId messageId4 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId3 = new MessageId(getRandomId());
+		MessageId messageId4 = new MessageId(getRandomId());
 		Message message3 = new Message(messageId3, groupId, timestamp,
 				raw);
 		Message message4 = new Message(messageId4, groupId, timestamp,

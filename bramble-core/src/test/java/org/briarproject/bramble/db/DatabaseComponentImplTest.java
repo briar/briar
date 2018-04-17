@@ -50,7 +50,6 @@ import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
-import org.briarproject.bramble.test.TestUtils;
 import org.jmock.Expectations;
 import org.junit.Test;
 
@@ -64,15 +63,17 @@ import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
 import static org.briarproject.bramble.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getClientId;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -104,21 +105,20 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	private final KeySetId keySetId;
 
 	public DatabaseComponentImplTest() {
-		clientId = new ClientId(getRandomString(123));
-		groupId = new GroupId(TestUtils.getRandomId());
-		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
-		group = new Group(groupId, clientId, descriptor);
+		clientId = getClientId();
+		group = getGroup(clientId);
+		groupId = group.getId();
 		author = getAuthor();
 		localAuthor = getLocalAuthor();
-		messageId = new MessageId(TestUtils.getRandomId());
-		messageId1 = new MessageId(TestUtils.getRandomId());
+		messageId = new MessageId(getRandomId());
+		messageId1 = new MessageId(getRandomId());
 		long timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
 		message = new Message(messageId, groupId, timestamp, raw);
 		metadata = new Metadata();
 		metadata.put("foo", new byte[] {'b', 'a', 'r'});
-		transportId = new TransportId("id");
+		transportId = getTransportId();
 		maxLatency = Integer.MAX_VALUE;
 		contactId = new ContactId(234);
 		contact = new Contact(contactId, author, localAuthor.getId(),
@@ -919,7 +919,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testGenerateOffer() throws Exception {
-		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId1 = new MessageId(getRandomId());
 		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
@@ -950,7 +950,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testGenerateRequest() throws Exception {
-		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId1 = new MessageId(getRandomId());
 		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
@@ -1138,9 +1138,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testReceiveOffer() throws Exception {
-		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
-		MessageId messageId3 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId1 = new MessageId(getRandomId());
+		MessageId messageId2 = new MessageId(getRandomId());
+		MessageId messageId3 = new MessageId(getRandomId());
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1508,7 +1508,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	@SuppressWarnings("unchecked")
 	public void testMessageDependencies() throws Exception {
 		int shutdownHandle = 12345;
-		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId2 = new MessageId(getRandomId());
 		context.checking(new Expectations() {{
 			// open()
 			oneOf(database).open(null);

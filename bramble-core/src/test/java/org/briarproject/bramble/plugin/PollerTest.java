@@ -32,6 +32,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
 public class PollerTest extends BrambleMockTestCase {
 
@@ -48,7 +49,7 @@ public class PollerTest extends BrambleMockTestCase {
 	private final SecureRandom random;
 
 	private final Executor ioExecutor = new ImmediateExecutor();
-	private final TransportId transportId = new TransportId("id");
+	private final TransportId transportId = getTransportId();
 	private final ContactId contactId = new ContactId(234);
 	private final int pollingInterval = 60 * 1000;
 	private final long now = System.currentTimeMillis();
@@ -64,7 +65,7 @@ public class PollerTest extends BrambleMockTestCase {
 		SimplexPlugin simplexPlugin = context.mock(SimplexPlugin.class);
 		SimplexPlugin simplexPlugin1 =
 				context.mock(SimplexPlugin.class, "simplexPlugin1");
-		TransportId simplexId1 = new TransportId("simplex1");
+		TransportId simplexId1 = getTransportId();
 		List<SimplexPlugin> simplexPlugins = Arrays.asList(simplexPlugin,
 				simplexPlugin1);
 		TransportConnectionWriter simplexWriter =
@@ -72,7 +73,7 @@ public class PollerTest extends BrambleMockTestCase {
 
 		// Two duplex plugins: one supports polling, the other doesn't
 		DuplexPlugin duplexPlugin = context.mock(DuplexPlugin.class);
-		TransportId duplexId = new TransportId("duplex");
+		TransportId duplexId = getTransportId();
 		DuplexPlugin duplexPlugin1 =
 				context.mock(DuplexPlugin.class, "duplexPlugin1");
 		List<DuplexPlugin> duplexPlugins = Arrays.asList(duplexPlugin,
@@ -349,7 +350,6 @@ public class PollerTest extends BrambleMockTestCase {
 	@Test
 	public void testCancelsPollingOnTransportDisabled() throws Exception {
 		Plugin plugin = context.mock(Plugin.class);
-		List<ContactId> connected = Collections.singletonList(contactId);
 
 		context.checking(new Expectations() {{
 			allowing(plugin).getId();

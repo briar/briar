@@ -15,7 +15,6 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.Group;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleMockTestCase;
@@ -226,8 +225,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	private void expectPreShareShareable(Transaction txn, Contact contact,
 			Blog blog, Map<MessageId, BdfDictionary> sessions)
 			throws Exception {
-		Group contactGroup = new Group(new GroupId(getRandomId()), CLIENT_ID,
-				getRandomBytes(42));
+		Group contactGroup = getGroup(CLIENT_ID);
 		BdfDictionary sessionDict = new BdfDictionary();
 		Message message = new Message(new MessageId(getRandomId()),
 				contactGroup.getId(), 42L, getRandomBytes(1337));

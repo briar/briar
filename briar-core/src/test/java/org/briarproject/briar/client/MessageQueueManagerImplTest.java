@@ -19,7 +19,6 @@ import org.briarproject.bramble.api.sync.ValidationManager.MessageValidator;
 import org.briarproject.bramble.test.CaptureArgumentAction;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.ByteUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.client.MessageQueueManager.IncomingQueueMessageHook;
 import org.briarproject.briar.api.client.MessageQueueManager.QueueMessageValidator;
 import org.briarproject.briar.api.client.QueueMessage;
@@ -35,6 +34,8 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getClientId;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.briar.api.client.MessageQueueManager.QUEUE_STATE_KEY;
 import static org.briarproject.briar.api.client.QueueMessage.QUEUE_MESSAGE_HEADER_LENGTH;
 import static org.junit.Assert.assertEquals;
@@ -44,11 +45,9 @@ import static org.junit.Assert.fail;
 
 public class MessageQueueManagerImplTest extends BriarTestCase {
 
-	private final GroupId groupId = new GroupId(TestUtils.getRandomId());
-	private final ClientId clientId =
-			new ClientId(StringUtils.getRandomString(5));
-	private final byte[] descriptor = new byte[0];
-	private final Group group = new Group(groupId, clientId, descriptor);
+	private final ClientId clientId = getClientId();
+	private final Group group = getGroup(clientId);
+	private final GroupId groupId = group.getId();
 	private final long timestamp = System.currentTimeMillis();
 
 	@Test

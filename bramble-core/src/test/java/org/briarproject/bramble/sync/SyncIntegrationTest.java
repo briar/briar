@@ -36,7 +36,8 @@ import javax.inject.Inject;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.bramble.test.TestUtils.getClientId;
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -73,13 +74,13 @@ public class SyncIntegrationTest extends BrambleTestCase {
 		component.inject(this);
 
 		contactId = new ContactId(234);
-		transportId = new TransportId("id");
+		transportId = getTransportId();
 		// Create the transport keys
 		tagKey = TestUtils.getSecretKey();
 		headerKey = TestUtils.getSecretKey();
 		streamNumber = 123;
 		// Create a group
-		ClientId clientId = new ClientId(getRandomString(123));
+		ClientId clientId = getClientId();
 		int clientVersion = 1234567890;
 		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
 		Group group = groupFactory.createGroup(clientId, clientVersion,

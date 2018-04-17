@@ -13,9 +13,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
@@ -33,9 +31,9 @@ import java.util.Map;
 
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID_1;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID_2;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.ROLE;
@@ -44,6 +42,7 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.SESS
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_REQUEST;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_RESPONSE;
+import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
 import static org.junit.Assert.assertFalse;
 
 public class IntroductionManagerImplTest extends BriarTestCase {
@@ -79,11 +78,8 @@ public class IntroductionManagerImplTest extends BriarTestCase {
 		introducee2 =
 				new Contact(contactId2, author2, localAuthorId2, true, true);
 
-		ClientId clientId = new ClientId(getRandomString(5));
-		introductionGroup1 = new Group(new GroupId(getRandomId()),
-				clientId, new byte[0]);
-		introductionGroup2 = new Group(new GroupId(getRandomId()),
-				clientId, new byte[0]);
+		introductionGroup1 = getGroup(CLIENT_ID);
+		introductionGroup2 = getGroup(CLIENT_ID);
 
 		message1 = new Message(
 				new MessageId(getRandomId()),

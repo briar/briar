@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
+
 public class PluginManagerImplTest extends BrambleTestCase {
 
 	@Test
@@ -46,21 +48,21 @@ public class PluginManagerImplTest extends BrambleTestCase {
 		SimplexPluginFactory simplexFactory =
 				context.mock(SimplexPluginFactory.class);
 		SimplexPlugin simplexPlugin = context.mock(SimplexPlugin.class);
-		TransportId simplexId = new TransportId("simplex");
+		TransportId simplexId = getTransportId();
 		SimplexPluginFactory simplexFailFactory =
 				context.mock(SimplexPluginFactory.class, "simplexFailFactory");
 		SimplexPlugin simplexFailPlugin =
 				context.mock(SimplexPlugin.class, "simplexFailPlugin");
-		TransportId simplexFailId = new TransportId("simplex1");
+		TransportId simplexFailId = getTransportId();
 
 		// Two duplex plugin factories: one creates a plugin, the other fails
 		DuplexPluginFactory duplexFactory =
 				context.mock(DuplexPluginFactory.class);
 		DuplexPlugin duplexPlugin = context.mock(DuplexPlugin.class);
-		TransportId duplexId = new TransportId("duplex");
+		TransportId duplexId = getTransportId();
 		DuplexPluginFactory duplexFailFactory =
 				context.mock(DuplexPluginFactory.class, "duplexFailFactory");
-		TransportId duplexFailId = new TransportId("duplex1");
+		TransportId duplexFailId = getTransportId();
 
 		context.checking(new Expectations() {{
 			allowing(simplexPlugin).getId();
