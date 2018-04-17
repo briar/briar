@@ -28,7 +28,6 @@ import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.introduction2.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
 import static org.briarproject.briar.introduction2.MessageType.ACCEPT;
 import static org.briarproject.briar.introduction2.MessageType.AUTH;
-import static org.briarproject.briar.introduction2.MessageType.REQUEST;
 
 
 @Immutable
@@ -79,8 +78,8 @@ class IntroductionValidator extends BdfMessageValidator {
 		checkLength(msg, 1, MAX_REQUEST_MESSAGE_LENGTH);
 
 		BdfDictionary meta = messageEncoder
-				.encodeRequestMetadata(REQUEST, m.getTimestamp(), false,
-						false, false, false, false);
+				.encodeRequestMetadata(m.getTimestamp(), false, false,
+						false, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -92,7 +91,7 @@ class IntroductionValidator extends BdfMessageValidator {
 
 	private BdfMessageContext validateAcceptMessage(Message m, BdfList body)
 			throws FormatException {
-		checkSize(body, 5);
+		checkSize(body, 6);
 
 		byte[] sessionIdBytes = body.getRaw(1);
 		checkLength(sessionIdBytes, UniqueId.LENGTH);
@@ -103,7 +102,9 @@ class IntroductionValidator extends BdfMessageValidator {
 		byte[] ephemeralPublicKey = body.getRaw(3);
 		checkLength(ephemeralPublicKey, 0, MAX_PUBLIC_KEY_LENGTH);
 
-		BdfDictionary transportProperties = body.getDictionary(4);
+		body.getLong(4);
+
+		BdfDictionary transportProperties = body.getDictionary(5);
 		if (transportProperties.size() < 1) throw new FormatException();
 		for (String tId : transportProperties.keySet()) {
 			checkLength(tId, 1, MAX_TRANSPORT_ID_LENGTH);

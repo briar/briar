@@ -18,16 +18,19 @@ class AcceptMessage extends IntroductionMessage {
 
 	private final SessionId sessionId;
 	private final byte[] ephemeralPublicKey;
+	private final long acceptTimestamp;
 	private final Map<TransportId, TransportProperties> transportProperties;
 
 	protected AcceptMessage(MessageId messageId, GroupId groupId,
 			long timestamp, @Nullable MessageId previousMessageId,
 			SessionId sessionId,
 			byte[] ephemeralPublicKey,
+			long acceptTimestamp,
 			Map<TransportId, TransportProperties> transportProperties) {
 		super(messageId, groupId, timestamp, previousMessageId);
 		this.sessionId = sessionId;
 		this.ephemeralPublicKey = ephemeralPublicKey;
+		this.acceptTimestamp = acceptTimestamp;
 		this.transportProperties = transportProperties;
 	}
 
@@ -37,6 +40,10 @@ class AcceptMessage extends IntroductionMessage {
 
 	public byte[] getEphemeralPublicKey() {
 		return ephemeralPublicKey;
+	}
+
+	public long getAcceptTimestamp() {
+		return acceptTimestamp;
 	}
 
 	public Map<TransportId, TransportProperties> getTransportProperties() {

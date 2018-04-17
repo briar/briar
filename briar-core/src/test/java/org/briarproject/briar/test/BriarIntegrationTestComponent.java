@@ -37,6 +37,7 @@ import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.introduction.IntroductionModule;
+import org.briarproject.briar.introduction2.MessageEncoderParserIntegrationTest;
 import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
 import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
@@ -75,6 +76,8 @@ import dagger.Component;
 public interface BriarIntegrationTestComponent {
 
 	void inject(BriarIntegrationTest<BriarIntegrationTestComponent> init);
+
+	void inject(MessageEncoderParserIntegrationTest init);
 
 	void inject(BlogModule.EagerSingletons init);
 

@@ -41,6 +41,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	private final String text =
 			getRandomString(MAX_INTRODUCTION_MESSAGE_LENGTH);
 	private final BdfDictionary meta = new BdfDictionary();
+	private final long acceptTimestamp = 42;
 	private final BdfDictionary transportProperties = BdfDictionary.of(
 			new BdfEntry("transportId",  new BdfDictionary())
 	);
@@ -124,7 +125,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	public void testAcceptsAccept() throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
 				previousMsgId.getBytes(), getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-				transportProperties);
+				acceptTimestamp, transportProperties);
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).parseAndValidateTransportProperties(
 					transportProperties.getDictionary("transportId"));
@@ -140,7 +141,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	public void testRejectsTooShortBodyForAccept() throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
 				previousMsgId.getBytes(),
-				getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+				getRandomBytes(MAX_PUBLIC_KEY_LENGTH), acceptTimestamp);
 		validator.validateMessage(message, group, body);
 	}
 
@@ -148,7 +149,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	public void testRejectsTooLongBodyForAccept() throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
 				previousMsgId.getBytes(), getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-				transportProperties, null);
+				acceptTimestamp, transportProperties, null);
 		validator.validateMessage(message, group, body);
 	}
 
@@ -156,7 +157,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	public void testRejectsInvalidSessionIdForAccept() throws Exception {
 		BdfList body =
 				BdfList.of(ACCEPT.getValue(), null, previousMsgId.getBytes(),
-						getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
+						getRandomBytes(MAX_PUBLIC_KEY_LENGTH), acceptTimestamp,
 						transportProperties);
 		validator.validateMessage(message, group, body);
 	}
@@ -164,7 +165,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	@Test(expected = FormatException.class)
 	public void testRejectsInvalidPreviousMsgIdForAccept() throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
-				null, getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
+				null, getRandomBytes(MAX_PUBLIC_KEY_LENGTH), acceptTimestamp,
 				transportProperties);
 		validator.validateMessage(message, group, body);
 	}
@@ -173,7 +174,8 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	public void testRejectsTooLongPublicKeyForAccept() throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
 				previousMsgId.getBytes(),
-				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1), transportProperties);
+				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1), acceptTimestamp,
+				transportProperties);
 		validator.validateMessage(message, group, body);
 	}
 
@@ -182,7 +184,8 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 			throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
 				previousMsgId.getBytes(),
-				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1), new BdfDictionary());
+				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1), acceptTimestamp,
+				new BdfDictionary());
 		validator.validateMessage(message, group, body);
 	}
 
@@ -397,9 +400,8 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	private void expectEncodeRequestMetadata() {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder)
-					.encodeRequestMetadata(REQUEST, message.getTimestamp(),
-							false, false,
-							false, false, false);
+					.encodeRequestMetadata(message.getTimestamp(), false, false,
+							false, false);
 			will(returnValue(meta));
 		}});
 	}
