@@ -12,8 +12,8 @@ import org.briarproject.bramble.util.StringUtils;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.sync.Group.FORMAT_VERSION;
 import static org.briarproject.bramble.api.sync.GroupId.LABEL;
-import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
 
 @Immutable
@@ -31,7 +31,7 @@ class GroupFactoryImpl implements GroupFactory {
 	public Group createGroup(ClientId c, int clientVersion, byte[] descriptor) {
 		byte[] clientVersionBytes = new byte[INT_32_BYTES];
 		ByteUtils.writeUint32(clientVersion, clientVersionBytes, 0);
-		byte[] hash = crypto.hash(LABEL, new byte[] {PROTOCOL_VERSION},
+		byte[] hash = crypto.hash(LABEL, new byte[] {FORMAT_VERSION},
 				StringUtils.toUtf8(c.getString()), clientVersionBytes,
 				descriptor);
 		return new Group(new GroupId(hash), c, descriptor);

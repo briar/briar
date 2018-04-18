@@ -16,7 +16,13 @@ public class MessageId extends UniqueId {
 	/**
 	 * Label for hashing messages to calculate their identifiers.
 	 */
-	public static final String LABEL = "org.briarproject.bramble/MESSAGE_ID";
+	public static final String ID_LABEL = "org.briarproject.bramble/MESSAGE_ID";
+
+	/**
+	 * Label for hashing the root blocks of messages.
+	 */
+	public static final String ROOT_LABEL =
+			"org.briarproject.bramble/MESSAGE_ROOT";
 
 	public MessageId(byte[] id) {
 		super(id);

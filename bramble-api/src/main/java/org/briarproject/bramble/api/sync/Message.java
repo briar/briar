@@ -5,6 +5,11 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LEN
 
 public class Message {
 
+	/**
+	 * The current version of the message format.
+	 */
+	public static final int FORMAT_VERSION = 1;
+
 	private final MessageId id;
 	private final GroupId groupId;
 	private final long timestamp;
