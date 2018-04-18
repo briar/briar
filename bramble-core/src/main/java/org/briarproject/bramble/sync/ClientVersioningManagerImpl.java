@@ -80,14 +80,9 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 	@Override
 	public void registerClient(ClientId clientId, int majorVersion,
-			int minorVersion) {
+			int minorVersion, ClientVersioningHook hook) {
 		clients.add(new ClientMinorVersion(clientId, majorVersion,
 				minorVersion));
-	}
-
-	@Override
-	public void registerClientVersioningHook(ClientId clientId,
-			int majorVersion, ClientVersioningHook hook) {
 		hooks.put(new ClientVersion(clientId, majorVersion), hook);
 	}
 

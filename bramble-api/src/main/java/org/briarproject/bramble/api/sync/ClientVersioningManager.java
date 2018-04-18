@@ -22,17 +22,11 @@ public interface ClientVersioningManager {
 	int MAJOR_VERSION = 0;
 
 	/**
-	 * Registers a client that will be advertised to contacts. This method
-	 * should be called before {@link LifecycleManager#startServices(String)}.
+	 * Registers a client that will be advertised to contacts. The hook will
+	 * be called when the visibility of the client changes. This method should
+	 * be called before {@link LifecycleManager#startServices(String)}.
 	 */
-	void registerClient(ClientId clientId, int majorVersion, int minorVersion);
-
-	/**
-	 * Registers a hook that will be called when the visibility of the given
-	 * client changes. This method should be called before
-	 * {@link LifecycleManager#startServices(String)}.
-	 */
-	void registerClientVersioningHook(ClientId clientId, int majorVersion,
+	void registerClient(ClientId clientId, int majorVersion, int minorVersion,
 			ClientVersioningHook hook);
 
 	/**

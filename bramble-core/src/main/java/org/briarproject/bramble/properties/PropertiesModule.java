@@ -53,9 +53,7 @@ public class PropertiesModule {
 				transportPropertyManager);
 		contactManager.registerContactHook(transportPropertyManager);
 		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
-				MINOR_VERSION);
-		clientVersioningManager.registerClientVersioningHook(CLIENT_ID,
-				MAJOR_VERSION, transportPropertyManager);
+				MINOR_VERSION, transportPropertyManager);
 		return transportPropertyManager;
 	}
 }

@@ -64,9 +64,7 @@ public class MessagingModule {
 				messagingManager);
 		conversationManager.registerConversationClient(messagingManager);
 		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
-				MINOR_VERSION);
-		clientVersioningManager.registerClientVersioningHook(CLIENT_ID,
-				MAJOR_VERSION, messagingManager);
+				MINOR_VERSION, messagingManager);
 		return messagingManager;
 	}
 

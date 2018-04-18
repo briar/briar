@@ -49,17 +49,12 @@ public class GroupInvitationModule {
 		privateGroupManager.registerPrivateGroupHook(groupInvitationManager);
 		conversationManager.registerConversationClient(groupInvitationManager);
 		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
-				MINOR_VERSION);
-		clientVersioningManager.registerClientVersioningHook(CLIENT_ID,
-				MAJOR_VERSION, groupInvitationManager);
+				MINOR_VERSION, groupInvitationManager);
 		// The group invitation manager handles client visibility changes for
 		// the private group manager
 		clientVersioningManager.registerClient(PrivateGroupManager.CLIENT_ID,
 				PrivateGroupManager.MAJOR_VERSION,
-				PrivateGroupManager.MINOR_VERSION);
-		clientVersioningManager.registerClientVersioningHook(
-				PrivateGroupManager.CLIENT_ID,
-				PrivateGroupManager.MAJOR_VERSION,
+				PrivateGroupManager.MINOR_VERSION,
 				groupInvitationManager.getPrivateGroupClientVersioningHook());
 		return groupInvitationManager;
 	}

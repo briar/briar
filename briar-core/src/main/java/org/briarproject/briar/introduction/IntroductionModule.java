@@ -57,9 +57,7 @@ public class IntroductionModule {
 				MAJOR_VERSION, introductionManager);
 		conversationManager.registerConversationClient(introductionManager);
 		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
-				MINOR_VERSION);
-		clientVersioningManager.registerClientVersioningHook(CLIENT_ID,
-				MAJOR_VERSION, introductionManager);
+				MINOR_VERSION, introductionManager);
 		return introductionManager;
 	}
 
