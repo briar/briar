@@ -69,22 +69,23 @@ def torBinaries = [
 		"geoip"      : '8239b98374493529a29096e45fc5877d4d6fdad0146ad8380b291f90d61484ea'
 ]
 
-def verifyOrDeleteBinary(name, chksum) {
+def verifyOrDeleteBinary(name, chksum, alreadyVerified) {
 	return tasks.create("verifyOrDeleteBinary${name}", VerifyOrDelete) {
 		src "${torBinaryDir}/${name}.zip"
 		algorithm 'SHA-256'
 		checksum chksum
+		result alreadyVerified
 		onlyIf {
 			src.exists()
 		}
 	}
 }
 
-def downloadBinary(name, chksum) {
+def downloadBinary(name, chksum, alreadyVerified) {
 	return tasks.create([
 			name: "downloadBinary${name}",
 			type: Download,
-			dependsOn: verifyOrDeleteBinary(name, chksum)]) {
+			dependsOn: verifyOrDeleteBinary(name, chksum, alreadyVerified)]) {
 		src "${torDownloadUrl}${name}.zip"
 				.replace('tor_', "tor-${torVersion}-")
 				.replace('geoip', "geoip-${geoipVersion}")
@@ -97,13 +98,17 @@ def downloadBinary(name, chksum) {
 }
 
 def verifyBinary(name, chksum) {
+	boolean[] alreadyVerified = [false]
 	return tasks.create([
 			name     : "verifyBinary${name}",
 			type     : Verify,
-			dependsOn: downloadBinary(name, chksum)]) {
+			dependsOn: downloadBinary(name, chksum, alreadyVerified)]) {
 		src "${torBinaryDir}/${name}.zip"
 		algorithm 'SHA-256'
 		checksum chksum
+		onlyIf {
+			!alreadyVerified[0]
+		}
 	}
 }
 
@@ -115,11 +120,14 @@ project.afterEvaluate {
 
 class VerifyOrDelete extends Verify {
 
+	boolean[] result
+
 	@TaskAction
 	@Override
 	void verify() throws IOException, NoSuchAlgorithmException {
 		try {
 			super.verify()
+			result[0] = true
 		} catch (Exception e) {
 			println "${src} failed verification - deleting"
 			src.delete()
