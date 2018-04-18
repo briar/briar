@@ -51,8 +51,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	private final DatabaseComponent db;
 	private final Executor dbExecutor, validationExecutor;
 	private final MessageFactory messageFactory;
-	private final Map<ClientVersion, MessageValidator> validators;
-	private final Map<ClientVersion, IncomingMessageHook> hooks;
+	private final Map<ClientMajorVersion, MessageValidator> validators;
+	private final Map<ClientMajorVersion, IncomingMessageHook> hooks;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	@Inject
@@ -83,13 +83,13 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@Override
 	public void registerMessageValidator(ClientId c, int majorVersion,
 			MessageValidator v) {
-		validators.put(new ClientVersion(c, majorVersion), v);
+		validators.put(new ClientMajorVersion(c, majorVersion), v);
 	}
 
 	@Override
 	public void registerIncomingMessageHook(ClientId c, int majorVersion,
 			IncomingMessageHook hook) {
-		hooks.put(new ClientVersion(c, majorVersion), hook);
+		hooks.put(new ClientMajorVersion(c, majorVersion), hook);
 	}
 
 	private void validateOutstandingMessagesAsync() {
@@ -240,8 +240,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	@ValidationExecutor
 	private void validateMessage(Message m, Group g) {
-		ClientVersion cv =
-				new ClientVersion(g.getClientId(), g.getMajorVersion());
+		ClientMajorVersion cv =
+				new ClientMajorVersion(g.getClientId(), g.getMajorVersion());
 		MessageValidator v = validators.get(cv);
 		if (v == null) {
 			if (LOG.isLoggable(WARNING)) LOG.warning("No validator for " + cv);
@@ -334,7 +334,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			ClientId c, int majorVersion, Metadata meta) throws DbException {
 		// Deliver the message to the client if it's registered a hook
 		boolean shareMsg = false;
-		ClientVersion cv = new ClientVersion(c, majorVersion);
+		ClientMajorVersion cv = new ClientMajorVersion(c, majorVersion);
 		IncomingMessageHook hook = hooks.get(cv);
 		if (hook != null) {
 			try {

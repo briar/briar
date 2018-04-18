@@ -61,15 +61,13 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	private final Clock clock;
 	private final Group localGroup;
 
-	private final List<ClientMinorVersion> clients =
-			new CopyOnWriteArrayList<>();
-	private final Map<ClientVersion, ClientVersioningHook> hooks =
+	private final List<ClientVersion> clients = new CopyOnWriteArrayList<>();
+	private final Map<ClientMajorVersion, ClientVersioningHook> hooks =
 			new ConcurrentHashMap<>();
 
 	@Inject
-	ClientVersioningManagerImpl(DatabaseComponent db,
-			ClientHelper clientHelper, ContactGroupFactory contactGroupFactory,
-			Clock clock) {
+	ClientVersioningManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+			ContactGroupFactory contactGroupFactory, Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.contactGroupFactory = contactGroupFactory;
@@ -81,15 +79,14 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	@Override
 	public void registerClient(ClientId clientId, int majorVersion,
 			int minorVersion, ClientVersioningHook hook) {
-		clients.add(new ClientMinorVersion(clientId, majorVersion,
-				minorVersion));
-		hooks.put(new ClientVersion(clientId, majorVersion), hook);
+		ClientMajorVersion cv = new ClientMajorVersion(clientId, majorVersion);
+		clients.add(new ClientVersion(cv, minorVersion));
+		hooks.put(cv, hook);
 	}
 
 	@Override
-	public Visibility getClientVisibility(Transaction txn,
-			ContactId contactId, ClientId clientId, int majorVersion)
-			throws DbException {
+	public Visibility getClientVisibility(Transaction txn, ContactId contactId,
+			ClientId clientId, int majorVersion) throws DbException {
 		try {
 			Contact contact = db.getContact(txn, contactId);
 			Group g = getContactGroup(contact);
@@ -101,9 +98,10 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 			if (latest.remote == null) return INVISIBLE;
 			Update localUpdate = loadUpdate(txn, latest.local.messageId);
 			Update remoteUpdate = loadUpdate(txn, latest.remote.messageId);
-			Map<ClientVersion, Visibility> visibilities =
+			Map<ClientMajorVersion, Visibility> visibilities =
 					getVisibilities(localUpdate.states, remoteUpdate.states);
-			ClientVersion cv = new ClientVersion(clientId, majorVersion);
+			ClientMajorVersion cv =
+					new ClientMajorVersion(clientId, majorVersion);
 			Visibility v = visibilities.get(cv);
 			return v == null ? INVISIBLE : v;
 		} catch (FormatException e) {
@@ -121,7 +119,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 	@Override
 	public void startService() throws ServiceException {
-		List<ClientMinorVersion> versions = new ArrayList<>(clients);
+		List<ClientVersion> versions = new ArrayList<>(clients);
 		Collections.sort(versions);
 		try {
 			Transaction txn = db.startTransaction(false);
@@ -158,7 +156,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 			throw new AssertionError(e);
 		}
 		// Create and store the first local update
-		List<ClientMinorVersion> versions = new ArrayList<>(clients);
+		List<ClientVersion> versions = new ArrayList<>(clients);
 		Collections.sort(versions);
 		storeFirstUpdate(txn, g.getId(), versions);
 	}
@@ -213,9 +211,9 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 						oldLocalUpdateVersion + 1);
 			}
 			// Calculate the old and new client visibilities
-			Map<ClientVersion, Visibility> before =
+			Map<ClientMajorVersion, Visibility> before =
 					getVisibilities(oldLocalStates, oldRemoteStates);
-			Map<ClientVersion, Visibility> after =
+			Map<ClientMajorVersion, Visibility> after =
 					getVisibilities(newLocalStates, newRemoteStates);
 			// Call hooks for any visibilities that have changed
 			Contact c = getContact(txn, m.getGroupId());
@@ -227,7 +225,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	}
 
 	private void storeClientVersions(Transaction txn,
-			List<ClientMinorVersion> versions) throws DbException {
+			List<ClientVersion> versions) throws DbException {
 		long now = clock.currentTimeMillis();
 		BdfList body = encodeClientVersions(versions);
 		try {
@@ -239,34 +237,37 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		}
 	}
 
-	private BdfList encodeClientVersions(List<ClientMinorVersion> versions) {
+	private BdfList encodeClientVersions(List<ClientVersion> versions) {
 		BdfList encoded = new BdfList();
-		for (ClientMinorVersion cm : versions)
-			encoded.add(encodeClientVersion(cm));
+		for (ClientVersion cv : versions) encoded.add(encodeClientVersion(cv));
 		return encoded;
 	}
 
-	private BdfList encodeClientVersion(ClientMinorVersion cm) {
-		return BdfList.of(cm.version.clientId.getString(),
-				cm.version.majorVersion, cm.minorVersion);
+	private BdfList encodeClientVersion(ClientVersion cv) {
+		return BdfList.of(cv.majorVersion.clientId.getString(),
+				cv.majorVersion.majorVersion, cv.minorVersion);
 	}
 
+	/**
+	 * Stores the local client versions and returns true if an update needs to
+	 * be sent to contacts.
+	 */
 	private boolean updateClientVersions(Transaction txn,
-			List<ClientMinorVersion> newVersions) throws DbException {
+			List<ClientVersion> newVersions) throws DbException {
 		Collection<MessageId> ids = db.getMessageIds(txn, localGroup.getId());
 		if (ids.isEmpty()) {
 			storeClientVersions(txn, newVersions);
 			return true;
 		}
 		MessageId m = ids.iterator().next();
-		List<ClientMinorVersion> oldVersions = loadClientVersions(txn, m);
+		List<ClientVersion> oldVersions = loadClientVersions(txn, m);
 		if (oldVersions.equals(newVersions)) return false;
 		db.removeMessage(txn, m);
 		storeClientVersions(txn, newVersions);
 		return true;
 	}
 
-	private List<ClientMinorVersion> loadClientVersions(Transaction txn,
+	private List<ClientVersion> loadClientVersions(Transaction txn,
 			MessageId m) throws DbException {
 		try {
 			BdfList body = clientHelper.getMessageAsList(txn, m);
@@ -277,23 +278,23 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		}
 	}
 
-	private List<ClientMinorVersion> parseClientVersions(BdfList body)
+	private List<ClientVersion> parseClientVersions(BdfList body)
 			throws FormatException {
 		int size = body.size();
-		List<ClientMinorVersion> parsed = new ArrayList<>(size);
+		List<ClientVersion> parsed = new ArrayList<>(size);
 		for (int i = 0; i < size; i++) {
 			BdfList cv = body.getList(i);
 			ClientId clientId = new ClientId(cv.getString(0));
 			int majorVersion = cv.getLong(1).intValue();
 			int minorVersion = cv.getLong(2).intValue();
-			parsed.add(new ClientMinorVersion(clientId, majorVersion,
+			parsed.add(new ClientVersion(clientId, majorVersion,
 					minorVersion));
 		}
 		return parsed;
 	}
 
 	private void clientVersionsUpdated(Transaction txn, Contact c,
-			List<ClientMinorVersion> versions) throws DbException {
+			List<ClientVersion> versions) throws DbException {
 		try {
 			// Find the latest local and remote updates
 			Group g = getContactGroup(c);
@@ -316,9 +317,9 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 			if (latest.remote == null) remoteStates = emptyList();
 			else remoteStates = loadUpdate(txn, latest.remote.messageId).states;
 			// Calculate the old and new client visibilities
-			Map<ClientVersion, Visibility> before =
+			Map<ClientMajorVersion, Visibility> before =
 					getVisibilities(oldLocalStates, remoteStates);
-			Map<ClientVersion, Visibility> after =
+			Map<ClientMajorVersion, Visibility> after =
 					getVisibilities(newLocalStates, remoteStates);
 			// Call hooks for any visibilities that have changed
 			callVisibilityHooks(txn, c, before, after);
@@ -390,14 +391,14 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	}
 
 	private List<ClientState> updateStatesFromLocalVersions(
-			List<ClientState> oldStates, List<ClientMinorVersion> newVersions) {
-		Map<ClientVersion, ClientState> oldMap = new HashMap<>();
-		for (ClientState cs : oldStates) oldMap.put(cs.version, cs);
+			List<ClientState> oldStates, List<ClientVersion> newVersions) {
+		Map<ClientMajorVersion, ClientState> oldMap = new HashMap<>();
+		for (ClientState cs : oldStates) oldMap.put(cs.majorVersion, cs);
 		List<ClientState> newStates = new ArrayList<>(newVersions.size());
-		for (ClientMinorVersion newVersion : newVersions) {
-			ClientState oldState = oldMap.get(newVersion.version);
+		for (ClientVersion newVersion : newVersions) {
+			ClientState oldState = oldMap.get(newVersion.majorVersion);
 			boolean active = oldState != null && oldState.active;
-			newStates.add(new ClientState(newVersion.version,
+			newStates.add(new ClientState(newVersion.majorVersion,
 					newVersion.minorVersion, active));
 		}
 		return newStates;
@@ -425,32 +426,31 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	}
 
 	private BdfList encodeClientState(ClientState cs) {
-		return BdfList.of(cs.version.clientId.getString(),
-				cs.version.majorVersion, cs.minorVersion, cs.active);
+		return BdfList.of(cs.majorVersion.clientId.getString(),
+				cs.majorVersion.majorVersion, cs.minorVersion, cs.active);
 	}
 
-	private Map<ClientVersion, Visibility> getVisibilities(
+	private Map<ClientMajorVersion, Visibility> getVisibilities(
 			List<ClientState> localStates, List<ClientState> remoteStates) {
-		Map<ClientVersion, ClientState> remoteMap = new HashMap<>();
-		for (ClientState remote : remoteStates)
-			remoteMap.put(remote.version, remote);
-		Map<ClientVersion, Visibility> visibilities = new HashMap<>();
+		Map<ClientMajorVersion, ClientState> remoteMap = new HashMap<>();
+		for (ClientState cs : remoteStates) remoteMap.put(cs.majorVersion, cs);
+		Map<ClientMajorVersion, Visibility> visibilities = new HashMap<>();
 		for (ClientState local : localStates) {
-			ClientState remote = remoteMap.get(local.version);
-			if (remote == null) visibilities.put(local.version, INVISIBLE);
-			else if (remote.active) visibilities.put(local.version, SHARED);
-			else visibilities.put(local.version, VISIBLE);
+			ClientState remote = remoteMap.get(local.majorVersion);
+			if (remote == null) visibilities.put(local.majorVersion, INVISIBLE);
+			else if (remote.active) visibilities.put(local.majorVersion, SHARED);
+			else visibilities.put(local.majorVersion, VISIBLE);
 		}
 		return visibilities;
 	}
 
 	private void callVisibilityHooks(Transaction txn, Contact c,
-			Map<ClientVersion, Visibility> before,
-			Map<ClientVersion, Visibility> after) throws DbException {
-		Set<ClientVersion> keys = new TreeSet<>();
+			Map<ClientMajorVersion, Visibility> before,
+			Map<ClientMajorVersion, Visibility> after) throws DbException {
+		Set<ClientMajorVersion> keys = new TreeSet<>();
 		keys.addAll(before.keySet());
 		keys.addAll(after.keySet());
-		for (ClientVersion cv : keys) {
+		for (ClientMajorVersion cv : keys) {
 			Visibility vBefore = before.get(cv), vAfter = after.get(cv);
 			if (vAfter == null) {
 				callVisibilityHook(txn, cv, c, INVISIBLE);
@@ -460,17 +460,19 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		}
 	}
 
-	private void callVisibilityHook(Transaction txn, ClientVersion cv,
+	private void callVisibilityHook(Transaction txn, ClientMajorVersion cv,
 			Contact c, Visibility v) throws DbException {
 		ClientVersioningHook hook = hooks.get(cv);
 		if (hook != null) hook.onClientVisibilityChanging(txn, c, v);
 	}
 
 	private void storeFirstUpdate(Transaction txn, GroupId g,
-			List<ClientMinorVersion> versions) throws DbException {
+			List<ClientVersion> versions) throws DbException {
 		List<ClientState> states = new ArrayList<>(versions.size());
-		for (ClientMinorVersion cm : versions)
-			states.add(new ClientState(cm.version, cm.minorVersion, false));
+		for (ClientVersion cv : versions) {
+			states.add(new ClientState(cv.majorVersion, cv.minorVersion,
+					false));
+		}
 		storeUpdate(txn, g, states, 1);
 	}
 
@@ -487,13 +489,13 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 	private List<ClientState> updateStatesFromRemoteStates(
 			List<ClientState> oldLocalStates, List<ClientState> remoteStates) {
-		Set<ClientVersion> remoteSet = new HashSet<>();
-		for (ClientState remote : remoteStates) remoteSet.add(remote.version);
+		Set<ClientMajorVersion> remoteSet = new HashSet<>();
+		for (ClientState cs : remoteStates) remoteSet.add(cs.majorVersion);
 		List<ClientState> newLocalStates =
 				new ArrayList<>(oldLocalStates.size());
 		for (ClientState oldState : oldLocalStates) {
-			boolean active = remoteSet.contains(oldState.version);
-			newLocalStates.add(new ClientState(oldState.version,
+			boolean active = remoteSet.contains(oldState.majorVersion);
+			newLocalStates.add(new ClientState(oldState.majorVersion,
 					oldState.minorVersion, active));
 		}
 		return newLocalStates;
@@ -533,61 +535,61 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		}
 	}
 
-	private static class ClientMinorVersion
-			implements Comparable<ClientMinorVersion> {
+	private static class ClientVersion implements Comparable<ClientVersion> {
 
-		private final ClientVersion version;
+		private final ClientMajorVersion majorVersion;
 		private final int minorVersion;
 
-		private ClientMinorVersion(ClientVersion version, int minorVersion) {
-			this.version = version;
+		private ClientVersion(ClientMajorVersion majorVersion,
+				int minorVersion) {
+			this.majorVersion = majorVersion;
 			this.minorVersion = minorVersion;
 		}
 
-		private ClientMinorVersion(ClientId clientId, int majorVersion,
+		private ClientVersion(ClientId clientId, int majorVersion,
 				int minorVersion) {
-			this(new ClientVersion(clientId, majorVersion), minorVersion);
+			this(new ClientMajorVersion(clientId, majorVersion), minorVersion);
 		}
 
 		@Override
 		public boolean equals(Object o) {
-			if (o instanceof ClientMinorVersion) {
-				ClientMinorVersion cm = (ClientMinorVersion) o;
-				return version.equals(cm.version)
-						&& minorVersion == cm.minorVersion;
+			if (o instanceof ClientVersion) {
+				ClientVersion cv = (ClientVersion) o;
+				return majorVersion.equals(cv.majorVersion)
+						&& minorVersion == cv.minorVersion;
 			}
 			return false;
 		}
 
 		@Override
 		public int hashCode() {
-			return version.hashCode();
+			return majorVersion.hashCode();
 		}
 
 		@Override
-		public int compareTo(ClientMinorVersion cm) {
-			int compare = version.compareTo(cm.version);
+		public int compareTo(ClientVersion cv) {
+			int compare = majorVersion.compareTo(cv.majorVersion);
 			if (compare != 0) return compare;
-			return minorVersion - cm.minorVersion;
+			return minorVersion - cv.minorVersion;
 		}
 	}
 
 	private static class ClientState {
 
-		private final ClientVersion version;
+		private final ClientMajorVersion majorVersion;
 		private final int minorVersion;
 		private final boolean active;
 
-		private ClientState(ClientVersion version, int minorVersion,
+		private ClientState(ClientMajorVersion majorVersion, int minorVersion,
 				boolean active) {
-			this.version = version;
+			this.majorVersion = majorVersion;
 			this.minorVersion = minorVersion;
 			this.active = active;
 		}
 
 		private ClientState(ClientId clientId, int majorVersion,
 				int minorVersion, boolean active) {
-			this(new ClientVersion(clientId, majorVersion), minorVersion,
+			this(new ClientMajorVersion(clientId, majorVersion), minorVersion,
 					active);
 		}
 
@@ -595,7 +597,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		public boolean equals(Object o) {
 			if (o instanceof ClientState) {
 				ClientState cs = (ClientState) o;
-				return version.equals(cs.version)
+				return majorVersion.equals(cs.majorVersion)
 						&& minorVersion == cs.minorVersion
 						&& active == cs.active;
 			}
@@ -604,7 +606,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 		@Override
 		public int hashCode() {
-			return version.hashCode();
+			return majorVersion.hashCode();
 		}
 	}
 }
