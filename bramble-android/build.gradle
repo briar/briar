@@ -1,6 +1,8 @@
 import de.undercouch.gradle.tasks.download.Download
 import de.undercouch.gradle.tasks.download.Verify
 
+import java.security.NoSuchAlgorithmException
+
 apply plugin: 'com.android.library'
 apply plugin: 'witness'
 apply plugin: 'de.undercouch.download'
@@ -67,38 +69,60 @@ def torBinaries = [
 		"geoip"      : '8239b98374493529a29096e45fc5877d4d6fdad0146ad8380b291f90d61484ea'
 ]
 
-def downloadBinary(name) {
-	return tasks.create("downloadBinary${name}", Download) {
+def verifyOrDeleteBinary(name, chksum) {
+	return tasks.create("verifyOrDeleteBinary${name}", VerifyOrDelete) {
+		src "${torBinaryDir}/${name}.zip"
+		algorithm 'SHA-256'
+		checksum chksum
+		onlyIf {
+			src.exists()
+		}
+	}
+}
+
+def downloadBinary(name, chksum) {
+	return tasks.create([
+			name: "downloadBinary${name}",
+			type: Download,
+			dependsOn: verifyOrDeleteBinary(name, chksum)]) {
 		src "${torDownloadUrl}${name}.zip"
 				.replace('tor_', "tor-${torVersion}-")
 				.replace('geoip', "geoip-${geoipVersion}")
 				.replaceAll('_', '-')
 		dest "${torBinaryDir}/${name}.zip"
+		onlyIf {
+			!dest.exists()
+		}
 	}
 }
 
 def verifyBinary(name, chksum) {
-	String filename = "${torBinaryDir}/${name}.zip"
-	if (new File("bramble-android/${filename}").exists()) {
-		return tasks.create("verifyBinary${name}", Verify) {
-			src filename
-			algorithm 'SHA-256'
-			checksum chksum
-		}
-	} else {
-		return tasks.create([
-				name     : "verifyBinary${name}",
-				type     : Verify,
-				dependsOn: downloadBinary(name)]) {
-			src filename
-			algorithm 'SHA-256'
-			checksum chksum
-		}
+	return tasks.create([
+			name     : "verifyBinary${name}",
+			type     : Verify,
+			dependsOn: downloadBinary(name, chksum)]) {
+		src "${torBinaryDir}/${name}.zip"
+		algorithm 'SHA-256'
+		checksum chksum
 	}
 }
 
 project.afterEvaluate {
-	torBinaries.every { key, value ->
-		preBuild.dependsOn.add(verifyBinary(key, value))
+	torBinaries.every { name, checksum ->
+		preBuild.dependsOn.add(verifyBinary(name, checksum))
+	}
+}
+
+class VerifyOrDelete extends Verify {
+
+	@TaskAction
+	@Override
+	void verify() throws IOException, NoSuchAlgorithmException {
+		try {
+			super.verify()
+		} catch (Exception e) {
+			println "${src} failed verification - deleting"
+			src.delete()
+		}
 	}
 }
