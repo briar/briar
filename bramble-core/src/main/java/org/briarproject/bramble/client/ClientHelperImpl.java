@@ -392,9 +392,9 @@ class ClientHelperImpl implements ClientHelper {
 		checkSize(properties, 0, MAX_PROPERTIES_PER_TRANSPORT);
 		TransportProperties p = new TransportProperties();
 		for (String key : properties.keySet()) {
-			checkLength(key, 0, MAX_PROPERTY_LENGTH);
+			checkLength(key, 1, MAX_PROPERTY_LENGTH);
 			String value = properties.getString(key);
-			checkLength(value, 0, MAX_PROPERTY_LENGTH);
+			checkLength(value, 1, MAX_PROPERTY_LENGTH);
 			p.put(key, value);
 		}
 		return p;
