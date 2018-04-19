@@ -24,9 +24,9 @@ public class BdfDictionary extends TreeMap<String, Object> {
 	 * );
 	 * </pre>
 	 */
-	public static BdfDictionary of(Entry<String, Object>... entries) {
+	public static BdfDictionary of(Entry<String, ?>... entries) {
 		BdfDictionary d = new BdfDictionary();
-		for (Entry<String, Object> e : entries) d.put(e.getKey(), e.getValue());
+		for (Entry<String, ?> e : entries) d.put(e.getKey(), e.getValue());
 		return d;
 	}
 
