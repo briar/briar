@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RecordReaderImplTest extends BrambleMockTestCase {
+public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 
 	private final MessageFactory messageFactory =
 			context.mock(MessageFactory.class);
@@ -32,7 +32,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 	public void testFormatExceptionIfAckIsTooLarge() throws Exception {
 		byte[] b = createAck(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		reader.readAck();
 	}
 
@@ -40,7 +41,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 	public void testNoFormatExceptionIfAckIsMaximumSize() throws Exception {
 		byte[] b = createAck(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		reader.readAck();
 	}
 
@@ -48,7 +50,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 	public void testFormatExceptionIfAckIsEmpty() throws Exception {
 		byte[] b = createEmptyAck();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		reader.readAck();
 	}
 
@@ -56,7 +59,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 	public void testFormatExceptionIfOfferIsTooLarge() throws Exception {
 		byte[] b = createOffer(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		reader.readOffer();
 	}
 
@@ -64,7 +68,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 	public void testNoFormatExceptionIfOfferIsMaximumSize() throws Exception {
 		byte[] b = createOffer(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		reader.readOffer();
 	}
 
@@ -72,7 +77,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 	public void testFormatExceptionIfOfferIsEmpty() throws Exception {
 		byte[] b = createEmptyOffer();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		reader.readOffer();
 	}
 
@@ -80,7 +86,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 	public void testFormatExceptionIfRequestIsTooLarge() throws Exception {
 		byte[] b = createRequest(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		reader.readRequest();
 	}
 
@@ -88,7 +95,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 	public void testNoFormatExceptionIfRequestIsMaximumSize() throws Exception {
 		byte[] b = createRequest(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		reader.readRequest();
 	}
 
@@ -96,14 +104,16 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 	public void testFormatExceptionIfRequestIsEmpty() throws Exception {
 		byte[] b = createEmptyRequest();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		reader.readRequest();
 	}
 
 	@Test
 	public void testEofReturnsTrueWhenAtEndOfStream() throws Exception {
 		ByteArrayInputStream in = new ByteArrayInputStream(new byte[0]);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		assertTrue(reader.eof());
 	}
 
@@ -111,7 +121,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 	public void testEofReturnsFalseWhenNotAtEndOfStream() throws Exception {
 		byte[] b = createAck(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		assertFalse(reader.eof());
 	}
 
@@ -121,7 +132,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 		b[0] = PROTOCOL_VERSION;
 		b[1] = ACK;
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		reader.eof();
 	}
 
@@ -133,7 +145,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 		b[1] = ACK;
 		ByteUtils.writeUint16(payloadLength, b, 2);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		reader.eof();
 	}
 
@@ -143,7 +156,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 		byte version = (byte) (PROTOCOL_VERSION + 1);
 		byte[] b = createRecord(version, ACK, new byte[0]);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		reader.eof();
 	}
 
@@ -152,7 +166,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 		byte[] payload = new byte[MAX_RECORD_PAYLOAD_LENGTH + 1];
 		byte[] b = createRecord(PROTOCOL_VERSION, ACK, payload);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		reader.eof();
 	}
 
@@ -168,7 +183,8 @@ public class RecordReaderImplTest extends BrambleMockTestCase {
 		input.write(skip2);
 		input.write(ack);
 		ByteArrayInputStream in = new ByteArrayInputStream(input.toByteArray());
-		RecordReaderImpl reader = new RecordReaderImpl(messageFactory, in);
+		SyncRecordReaderImpl
+				reader = new SyncRecordReaderImpl(messageFactory, in);
 		assertTrue(reader.hasAck());
 		Ack a = reader.readAck();
 		assertEquals(MAX_MESSAGE_IDS, a.getMessageIds().size());

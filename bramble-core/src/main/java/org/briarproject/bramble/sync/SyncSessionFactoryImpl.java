@@ -5,10 +5,10 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.RecordReader;
-import org.briarproject.bramble.api.sync.RecordReaderFactory;
-import org.briarproject.bramble.api.sync.RecordWriter;
-import org.briarproject.bramble.api.sync.RecordWriterFactory;
+import org.briarproject.bramble.api.sync.SyncRecordReader;
+import org.briarproject.bramble.api.sync.SyncRecordReaderFactory;
+import org.briarproject.bramble.api.sync.SyncRecordWriter;
+import org.briarproject.bramble.api.sync.SyncRecordWriterFactory;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.system.Clock;
@@ -28,14 +28,14 @@ class SyncSessionFactoryImpl implements SyncSessionFactory {
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
 	private final Clock clock;
-	private final RecordReaderFactory recordReaderFactory;
-	private final RecordWriterFactory recordWriterFactory;
+	private final SyncRecordReaderFactory recordReaderFactory;
+	private final SyncRecordWriterFactory recordWriterFactory;
 
 	@Inject
 	SyncSessionFactoryImpl(DatabaseComponent db,
 			@DatabaseExecutor Executor dbExecutor, EventBus eventBus,
-			Clock clock, RecordReaderFactory recordReaderFactory,
-			RecordWriterFactory recordWriterFactory) {
+			Clock clock, SyncRecordReaderFactory recordReaderFactory,
+			SyncRecordWriterFactory recordWriterFactory) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
@@ -46,14 +46,16 @@ class SyncSessionFactoryImpl implements SyncSessionFactory {
 
 	@Override
 	public SyncSession createIncomingSession(ContactId c, InputStream in) {
-		RecordReader recordReader = recordReaderFactory.createRecordReader(in);
+		SyncRecordReader recordReader =
+				recordReaderFactory.createRecordReader(in);
 		return new IncomingSession(db, dbExecutor, eventBus, c, recordReader);
 	}
 
 	@Override
 	public SyncSession createSimplexOutgoingSession(ContactId c,
 			int maxLatency, OutputStream out) {
-		RecordWriter recordWriter = recordWriterFactory.createRecordWriter(out);
+		SyncRecordWriter recordWriter =
+				recordWriterFactory.createRecordWriter(out);
 		return new SimplexOutgoingSession(db, dbExecutor, eventBus, c,
 				maxLatency, recordWriter);
 	}
@@ -61,7 +63,8 @@ class SyncSessionFactoryImpl implements SyncSessionFactory {
 	@Override
 	public SyncSession createDuplexOutgoingSession(ContactId c, int maxLatency,
 			int maxIdleTime, OutputStream out) {
-		RecordWriter recordWriter = recordWriterFactory.createRecordWriter(out);
+		SyncRecordWriter recordWriter =
+				recordWriterFactory.createRecordWriter(out);
 		return new DuplexOutgoingSession(db, dbExecutor, eventBus, clock, c,
 				maxLatency, maxIdleTime, recordWriter);
 	}

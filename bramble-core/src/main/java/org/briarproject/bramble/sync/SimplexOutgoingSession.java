@@ -13,7 +13,7 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
-import org.briarproject.bramble.api.sync.RecordWriter;
+import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.SyncSession;
 
 import java.io.IOException;
@@ -51,7 +51,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	private final EventBus eventBus;
 	private final ContactId contactId;
 	private final int maxLatency;
-	private final RecordWriter recordWriter;
+	private final SyncRecordWriter recordWriter;
 	private final AtomicInteger outstandingQueries;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
 
@@ -59,7 +59,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 
 	SimplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, ContactId contactId,
-			int maxLatency, RecordWriter recordWriter) {
+			int maxLatency, SyncRecordWriter recordWriter) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;

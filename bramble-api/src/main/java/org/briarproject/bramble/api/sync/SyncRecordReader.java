@@ -5,7 +5,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import java.io.IOException;
 
 @NotNullByDefault
-public interface RecordReader {
+public interface SyncRecordReader {
 
 	boolean eof() throws IOException;
 

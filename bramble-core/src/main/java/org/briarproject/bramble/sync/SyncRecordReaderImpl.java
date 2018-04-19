@@ -9,8 +9,8 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
-import org.briarproject.bramble.api.sync.RecordReader;
 import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.sync.SyncRecordReader;
 import org.briarproject.bramble.util.ByteUtils;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ import static org.briarproject.bramble.api.sync.SyncConstants.RECORD_HEADER_LENG
 
 @NotThreadSafe
 @NotNullByDefault
-class RecordReaderImpl implements RecordReader {
+class SyncRecordReaderImpl implements SyncRecordReader {
 
 	private enum State {BUFFER_EMPTY, BUFFER_FULL, EOF}
 
@@ -42,7 +42,7 @@ class RecordReaderImpl implements RecordReader {
 	private State state = State.BUFFER_EMPTY;
 	private int payloadLength = 0;
 
-	RecordReaderImpl(MessageFactory messageFactory, InputStream in) {
+	SyncRecordReaderImpl(MessageFactory messageFactory, InputStream in) {
 		this.messageFactory = messageFactory;
 		this.in = in;
 		header = new byte[RECORD_HEADER_LENGTH];

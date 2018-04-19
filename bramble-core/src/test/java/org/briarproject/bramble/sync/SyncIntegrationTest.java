@@ -12,11 +12,11 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
-import org.briarproject.bramble.api.sync.RecordReader;
-import org.briarproject.bramble.api.sync.RecordReaderFactory;
-import org.briarproject.bramble.api.sync.RecordWriter;
-import org.briarproject.bramble.api.sync.RecordWriterFactory;
 import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.sync.SyncRecordReader;
+import org.briarproject.bramble.api.sync.SyncRecordReaderFactory;
+import org.briarproject.bramble.api.sync.SyncRecordWriter;
+import org.briarproject.bramble.api.sync.SyncRecordWriterFactory;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
@@ -54,9 +54,9 @@ public class SyncIntegrationTest extends BrambleTestCase {
 	@Inject
 	StreamWriterFactory streamWriterFactory;
 	@Inject
-	RecordReaderFactory recordReaderFactory;
+	SyncRecordReaderFactory recordReaderFactory;
 	@Inject
-	RecordWriterFactory recordWriterFactory;
+	SyncRecordWriterFactory recordWriterFactory;
 	@Inject
 	TransportCrypto transportCrypto;
 
@@ -104,7 +104,7 @@ public class SyncIntegrationTest extends BrambleTestCase {
 				headerKey, streamNumber);
 		OutputStream streamWriter = streamWriterFactory.createStreamWriter(out,
 				ctx);
-		RecordWriter recordWriter = recordWriterFactory.createRecordWriter(
+		SyncRecordWriter recordWriter = recordWriterFactory.createRecordWriter(
 				streamWriter);
 
 		recordWriter.writeAck(new Ack(messageIds));
@@ -134,7 +134,7 @@ public class SyncIntegrationTest extends BrambleTestCase {
 				headerKey, streamNumber);
 		InputStream streamReader = streamReaderFactory.createStreamReader(in,
 				ctx);
-		RecordReader recordReader = recordReaderFactory.createRecordReader(
+		SyncRecordReader recordReader = recordReaderFactory.createRecordReader(
 				streamReader);
 
 		// Read the ack

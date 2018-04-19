@@ -16,8 +16,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.Offer;
-import org.briarproject.bramble.api.sync.RecordReader;
 import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.sync.SyncRecordReader;
 import org.briarproject.bramble.api.sync.SyncSession;
 
 import java.io.IOException;
@@ -43,13 +43,13 @@ class IncomingSession implements SyncSession, EventListener {
 	private final Executor dbExecutor;
 	private final EventBus eventBus;
 	private final ContactId contactId;
-	private final RecordReader recordReader;
+	private final SyncRecordReader recordReader;
 
 	private volatile boolean interrupted = false;
 
 	IncomingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, ContactId contactId,
-			RecordReader recordReader) {
+			SyncRecordReader recordReader) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;

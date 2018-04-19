@@ -2,8 +2,8 @@ package org.briarproject.bramble.sync;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageFactory;
-import org.briarproject.bramble.api.sync.RecordReader;
-import org.briarproject.bramble.api.sync.RecordReaderFactory;
+import org.briarproject.bramble.api.sync.SyncRecordReader;
+import org.briarproject.bramble.api.sync.SyncRecordReaderFactory;
 
 import java.io.InputStream;
 
@@ -12,17 +12,17 @@ import javax.inject.Inject;
 
 @Immutable
 @NotNullByDefault
-class RecordReaderFactoryImpl implements RecordReaderFactory {
+class SyncRecordReaderFactoryImpl implements SyncRecordReaderFactory {
 
 	private final MessageFactory messageFactory;
 
 	@Inject
-	RecordReaderFactoryImpl(MessageFactory messageFactory) {
+	SyncRecordReaderFactoryImpl(MessageFactory messageFactory) {
 		this.messageFactory = messageFactory;
 	}
 
 	@Override
-	public RecordReader createRecordReader(InputStream in) {
-		return new RecordReaderImpl(messageFactory, in);
+	public SyncRecordReader createRecordReader(InputStream in) {
+		return new SyncRecordReaderImpl(messageFactory, in);
 	}
 }

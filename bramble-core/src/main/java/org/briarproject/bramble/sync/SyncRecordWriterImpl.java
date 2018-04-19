@@ -5,8 +5,8 @@ import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.RecordTypes;
-import org.briarproject.bramble.api.sync.RecordWriter;
 import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.util.ByteUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -19,18 +19,18 @@ import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
 import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
 import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
-import static org.briarproject.bramble.api.sync.SyncConstants.RECORD_HEADER_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
+import static org.briarproject.bramble.api.sync.SyncConstants.RECORD_HEADER_LENGTH;
 
 @NotThreadSafe
 @NotNullByDefault
-class RecordWriterImpl implements RecordWriter {
+class SyncRecordWriterImpl implements SyncRecordWriter {
 
 	private final OutputStream out;
 	private final byte[] header;
 	private final ByteArrayOutputStream payload;
 
-	RecordWriterImpl(OutputStream out) {
+	SyncRecordWriterImpl(OutputStream out) {
 		this.out = out;
 		header = new byte[RECORD_HEADER_LENGTH];
 		header[0] = PROTOCOL_VERSION;
