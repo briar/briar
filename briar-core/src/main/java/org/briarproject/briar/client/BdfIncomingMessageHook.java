@@ -40,6 +40,7 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
 	/**
 	 * Called once for each incoming message that passes validation.
 	 *
+	 * @return whether or not this message should be shared
 	 * @throws DbException Should only be used for real database errors.
 	 * If this is thrown, delivery will be attempted again at next startup,
 	 * whereas if a FormatException is thrown, the message will be permanently
