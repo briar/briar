@@ -13,8 +13,8 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.sync.Message.FORMAT_VERSION;
+import static org.briarproject.bramble.api.sync.MessageId.BLOCK_LABEL;
 import static org.briarproject.bramble.api.sync.MessageId.ID_LABEL;
-import static org.briarproject.bramble.api.sync.MessageId.ROOT_LABEL;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.util.ByteUtils.INT_64_BYTES;
@@ -36,7 +36,7 @@ class MessageFactoryImpl implements MessageFactory {
 			throw new IllegalArgumentException();
 		byte[] versionBytes = new byte[] {FORMAT_VERSION};
 		// There's only one block, so the root hash is the hash of the block
-		byte[] rootHash = crypto.hash(ROOT_LABEL, versionBytes, body);
+		byte[] rootHash = crypto.hash(BLOCK_LABEL, versionBytes, body);
 		byte[] timeBytes = new byte[INT_64_BYTES];
 		ByteUtils.writeUint64(timestamp, timeBytes, 0);
 		byte[] idHash = crypto.hash(ID_LABEL, versionBytes, g.getBytes(),

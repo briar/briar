@@ -19,10 +19,10 @@ public class MessageId extends UniqueId {
 	public static final String ID_LABEL = "org.briarproject.bramble/MESSAGE_ID";
 
 	/**
-	 * Label for hashing the root blocks of messages.
+	 * Label for hashing blocks of messages.
 	 */
-	public static final String ROOT_LABEL =
-			"org.briarproject.bramble/MESSAGE_ROOT";
+	public static final String BLOCK_LABEL =
+			"org.briarproject.bramble/MESSAGE_BLOCK";
 
 	public MessageId(byte[] id) {
 		super(id);
