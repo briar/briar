@@ -20,6 +20,9 @@ import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
 @NotNullByDefault
 class GroupFactoryImpl implements GroupFactory {
 
+	private static final byte[] FORMAT_VERSION_BYTES =
+			new byte[] {FORMAT_VERSION};
+
 	private final CryptoComponent crypto;
 
 	@Inject
@@ -31,7 +34,7 @@ class GroupFactoryImpl implements GroupFactory {
 	public Group createGroup(ClientId c, int majorVersion, byte[] descriptor) {
 		byte[] majorVersionBytes = new byte[INT_32_BYTES];
 		ByteUtils.writeUint32(majorVersion, majorVersionBytes, 0);
-		byte[] hash = crypto.hash(LABEL, new byte[] {FORMAT_VERSION},
+		byte[] hash = crypto.hash(LABEL, FORMAT_VERSION_BYTES,
 				StringUtils.toUtf8(c.getString()), majorVersionBytes,
 				descriptor);
 		return new Group(new GroupId(hash), c, majorVersion, descriptor);

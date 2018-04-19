@@ -6,7 +6,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordReader;
 import org.briarproject.bramble.api.sync.Ack;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -126,20 +125,11 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 		assert nextRecord != null;
 		byte[] payload = nextRecord.getPayload();
 		if (payload.length < MESSAGE_HEADER_LENGTH) throw new FormatException();
-		// Group ID
-		byte[] id = new byte[UniqueId.LENGTH];
-		System.arraycopy(payload, 0, id, 0, UniqueId.LENGTH);
-		GroupId groupId = new GroupId(id);
-		// Timestamp
+		// Validate timestamp
 		long timestamp = ByteUtils.readUint64(payload, UniqueId.LENGTH);
 		if (timestamp < 0) throw new FormatException();
-		// Body
-		byte[] body = new byte[payload.length - MESSAGE_HEADER_LENGTH];
-		System.arraycopy(payload, MESSAGE_HEADER_LENGTH, body, 0,
-				payload.length - MESSAGE_HEADER_LENGTH);
 		nextRecord = null;
-		// TODO: Add a method that reuses the raw message
-		return messageFactory.createMessage(groupId, timestamp, body);
+		return messageFactory.createMessage(payload);
 	}
 
 	@Override

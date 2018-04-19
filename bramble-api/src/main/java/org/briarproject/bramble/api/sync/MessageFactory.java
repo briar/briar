@@ -7,5 +7,7 @@ public interface MessageFactory {
 
 	Message createMessage(GroupId g, long timestamp, byte[] body);
 
+	Message createMessage(byte[] raw);
+
 	Message createMessage(MessageId m, byte[] raw);
 }
