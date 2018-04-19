@@ -1,8 +1,8 @@
 package org.briarproject.briar.client;
 
 import org.briarproject.bramble.api.client.ClientHelper;
-import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.briar.api.client.MessageQueueManager;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -26,8 +26,9 @@ public class BriarClientModule {
 	}
 
 	@Provides
-	QueueMessageFactory provideQueueMessageFactory(CryptoComponent crypto) {
-		return new QueueMessageFactoryImpl(crypto);
+	QueueMessageFactory provideQueueMessageFactory(
+			MessageFactory messageFactory) {
+		return new QueueMessageFactoryImpl(messageFactory);
 	}
 
 	@Provides

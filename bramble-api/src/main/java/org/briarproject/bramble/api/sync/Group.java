@@ -10,6 +10,11 @@ public class Group {
 		SHARED // The group is visible and messages are shared
 	}
 
+	/**
+	 * The current version of the group format.
+	 */
+	public static final int FORMAT_VERSION = 1;
+
 	private final GroupId id;
 	private final ClientId clientId;
 	private final byte[] descriptor;
