@@ -13,6 +13,8 @@ import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.record.RecordReaderFactory;
+import org.briarproject.bramble.api.record.RecordWriterFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +46,8 @@ class KeyAgreementConnector {
 	private final KeyAgreementCrypto keyAgreementCrypto;
 	private final PluginManager pluginManager;
 	private final ConnectionChooser connectionChooser;
+	private final RecordReaderFactory recordReaderFactory;
+	private final RecordWriterFactory recordWriterFactory;
 
 	private final List<KeyAgreementListener> listeners =
 			new CopyOnWriteArrayList<>();
@@ -54,11 +58,15 @@ class KeyAgreementConnector {
 
 	KeyAgreementConnector(Callbacks callbacks,
 			KeyAgreementCrypto keyAgreementCrypto, PluginManager pluginManager,
-			ConnectionChooser connectionChooser) {
+			ConnectionChooser connectionChooser,
+			RecordReaderFactory recordReaderFactory,
+			RecordWriterFactory recordWriterFactory) {
 		this.callbacks = callbacks;
 		this.keyAgreementCrypto = keyAgreementCrypto;
 		this.pluginManager = pluginManager;
 		this.connectionChooser = connectionChooser;
+		this.recordReaderFactory = recordReaderFactory;
+		this.recordWriterFactory = recordWriterFactory;
 	}
 
 	Payload listen(KeyPair localKeyPair) {
@@ -119,7 +127,8 @@ class KeyAgreementConnector {
 			KeyAgreementConnection chosen =
 					connectionChooser.poll(CONNECTION_TIMEOUT);
 			if (chosen == null) return null;
-			return new KeyAgreementTransport(chosen);
+			return new KeyAgreementTransport(recordReaderFactory,
+					recordWriterFactory, chosen);
 		} catch (InterruptedException e) {
 			LOG.info("Interrupted while waiting for connection");
 			Thread.currentThread().interrupt();

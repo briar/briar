@@ -19,6 +19,8 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementWaitingEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginManager;
+import org.briarproject.bramble.api.record.RecordReaderFactory;
+import org.briarproject.bramble.api.record.RecordWriterFactory;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -49,14 +51,17 @@ class KeyAgreementTaskImpl extends Thread implements KeyAgreementTask,
 	KeyAgreementTaskImpl(CryptoComponent crypto,
 			KeyAgreementCrypto keyAgreementCrypto, EventBus eventBus,
 			PayloadEncoder payloadEncoder, PluginManager pluginManager,
-			ConnectionChooser connectionChooser) {
+			ConnectionChooser connectionChooser,
+			RecordReaderFactory recordReaderFactory,
+			RecordWriterFactory recordWriterFactory) {
 		this.crypto = crypto;
 		this.keyAgreementCrypto = keyAgreementCrypto;
 		this.eventBus = eventBus;
 		this.payloadEncoder = payloadEncoder;
 		localKeyPair = crypto.generateAgreementKeyPair();
 		connector = new KeyAgreementConnector(this, keyAgreementCrypto,
-				pluginManager, connectionChooser);
+				pluginManager, connectionChooser, recordReaderFactory,
+				recordWriterFactory);
 	}
 
 	@Override
