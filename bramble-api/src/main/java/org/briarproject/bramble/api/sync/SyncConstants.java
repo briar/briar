@@ -2,22 +2,14 @@ package org.briarproject.bramble.api.sync;
 
 import org.briarproject.bramble.api.UniqueId;
 
+import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
+
 public interface SyncConstants {
 
 	/**
 	 * The current version of the sync protocol.
 	 */
 	byte PROTOCOL_VERSION = 0;
-
-	/**
-	 * The length of the record header in bytes.
-	 */
-	int RECORD_HEADER_LENGTH = 4;
-
-	/**
-	 * The maximum length of the record payload in bytes.
-	 */
-	int MAX_RECORD_PAYLOAD_LENGTH = 48 * 1024; // 48 KiB
 
 	/**
 	 * The maximum length of a group descriptor in bytes.
@@ -42,5 +34,5 @@ public interface SyncConstants {
 	/**
 	 * The maximum number of message IDs in an ack, offer or request record.
 	 */
-	int MAX_MESSAGE_IDS = MAX_RECORD_PAYLOAD_LENGTH / UniqueId.LENGTH;
+	int MAX_MESSAGE_IDS = MAX_RECORD_PAYLOAD_BYTES / UniqueId.LENGTH;
 }

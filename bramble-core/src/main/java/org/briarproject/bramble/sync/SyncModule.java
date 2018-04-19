@@ -58,8 +58,9 @@ public class SyncModule {
 	}
 
 	@Provides
-	SyncRecordWriterFactory provideRecordWriterFactory() {
-		return new SyncRecordWriterFactoryImpl();
+	SyncRecordWriterFactory provideRecordWriterFactory(
+			SyncRecordWriterFactoryImpl recordWriterFactory) {
+		return recordWriterFactory;
 	}
 
 	@Provides

@@ -26,7 +26,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
+import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
@@ -63,7 +63,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		int length = message.getMessage().getRaw().length;
 		assertTrue(
 				length > UniqueId.LENGTH + 8 + MAX_PRIVATE_MESSAGE_BODY_LENGTH);
-		assertTrue(length <= MAX_RECORD_PAYLOAD_LENGTH);
+		assertTrue(length <= MAX_RECORD_PAYLOAD_BYTES);
 	}
 
 	@Test
@@ -87,7 +87,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		assertTrue(length > UniqueId.LENGTH + 8 + UniqueId.LENGTH + 4
 				+ MAX_AUTHOR_NAME_LENGTH + MAX_PUBLIC_KEY_LENGTH
 				+ MAX_FORUM_POST_BODY_LENGTH);
-		assertTrue(length <= MAX_RECORD_PAYLOAD_LENGTH);
+		assertTrue(length <= MAX_RECORD_PAYLOAD_BYTES);
 	}
 
 	private static void injectEagerSingletons(

@@ -16,6 +16,7 @@ import static org.briarproject.bramble.api.sync.Message.FORMAT_VERSION;
 import static org.briarproject.bramble.api.sync.MessageId.BLOCK_LABEL;
 import static org.briarproject.bramble.api.sync.MessageId.ID_LABEL;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.util.ByteUtils.INT_64_BYTES;
 
@@ -52,6 +53,8 @@ class MessageFactoryImpl implements MessageFactory {
 	@Override
 	public Message createMessage(MessageId m, byte[] raw) {
 		if (raw.length < MESSAGE_HEADER_LENGTH)
+			throw new IllegalArgumentException();
+		if (raw.length > MAX_MESSAGE_LENGTH)
 			throw new IllegalArgumentException();
 		byte[] groupId = new byte[UniqueId.LENGTH];
 		System.arraycopy(raw, 0, groupId, 0, UniqueId.LENGTH);

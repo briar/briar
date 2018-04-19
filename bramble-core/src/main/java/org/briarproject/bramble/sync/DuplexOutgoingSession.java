@@ -39,8 +39,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
+import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
 
 /**
  * An outgoing {@link SyncSession} suitable for duplex transports. The session
@@ -273,7 +273,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 				Transaction txn = db.startTransaction(false);
 				try {
 					b = db.generateRequestedBatch(txn, contactId,
-							MAX_RECORD_PAYLOAD_LENGTH, maxLatency);
+							MAX_RECORD_PAYLOAD_BYTES, maxLatency);
 					setNextSendTime(db.getNextSendTime(txn, contactId));
 					db.commitTransaction(txn);
 				} finally {

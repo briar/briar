@@ -2,23 +2,28 @@ package org.briarproject.bramble.sync;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UniqueId;
+import org.briarproject.bramble.api.record.Record;
+import org.briarproject.bramble.api.record.RecordReader;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.MessageFactory;
+import org.briarproject.bramble.api.sync.Offer;
+import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.sync.SyncRecordReader;
 import org.briarproject.bramble.test.BrambleMockTestCase;
-import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.util.ByteUtils;
+import org.jmock.Expectations;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 
+import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
 import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
 import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
-import static org.briarproject.bramble.api.sync.SyncConstants.RECORD_HEADER_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -27,209 +32,164 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 
 	private final MessageFactory messageFactory =
 			context.mock(MessageFactory.class);
-
-	@Test(expected = FormatException.class)
-	public void testFormatExceptionIfAckIsTooLarge() throws Exception {
-		byte[] b = createAck(true);
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
-		reader.readAck();
-	}
+	private final RecordReader recordReader = context.mock(RecordReader.class);
 
 	@Test
 	public void testNoFormatExceptionIfAckIsMaximumSize() throws Exception {
-		byte[] b = createAck(false);
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
-		reader.readAck();
+		expectReadRecord(createAck());
+
+		SyncRecordReader reader =
+				new SyncRecordReaderImpl(messageFactory, recordReader);
+		Ack ack = reader.readAck();
+		assertEquals(MAX_MESSAGE_IDS, ack.getMessageIds().size());
 	}
 
 	@Test(expected = FormatException.class)
 	public void testFormatExceptionIfAckIsEmpty() throws Exception {
-		byte[] b = createEmptyAck();
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
-		reader.readAck();
-	}
+		expectReadRecord(createEmptyAck());
 
-	@Test(expected = FormatException.class)
-	public void testFormatExceptionIfOfferIsTooLarge() throws Exception {
-		byte[] b = createOffer(true);
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
-		reader.readOffer();
+		SyncRecordReader reader =
+				new SyncRecordReaderImpl(messageFactory, recordReader);
+		reader.readAck();
 	}
 
 	@Test
 	public void testNoFormatExceptionIfOfferIsMaximumSize() throws Exception {
-		byte[] b = createOffer(false);
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
-		reader.readOffer();
+		expectReadRecord(createOffer());
+
+		SyncRecordReader reader =
+				new SyncRecordReaderImpl(messageFactory, recordReader);
+		Offer offer = reader.readOffer();
+		assertEquals(MAX_MESSAGE_IDS, offer.getMessageIds().size());
 	}
 
 	@Test(expected = FormatException.class)
 	public void testFormatExceptionIfOfferIsEmpty() throws Exception {
-		byte[] b = createEmptyOffer();
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
-		reader.readOffer();
-	}
+		expectReadRecord(createEmptyOffer());
 
-	@Test(expected = FormatException.class)
-	public void testFormatExceptionIfRequestIsTooLarge() throws Exception {
-		byte[] b = createRequest(true);
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
-		reader.readRequest();
+		SyncRecordReader reader =
+				new SyncRecordReaderImpl(messageFactory, recordReader);
+		reader.readOffer();
 	}
 
 	@Test
 	public void testNoFormatExceptionIfRequestIsMaximumSize() throws Exception {
-		byte[] b = createRequest(false);
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
-		reader.readRequest();
+		expectReadRecord(createRequest());
+
+		SyncRecordReader reader =
+				new SyncRecordReaderImpl(messageFactory, recordReader);
+		Request request = reader.readRequest();
+		assertEquals(MAX_MESSAGE_IDS, request.getMessageIds().size());
 	}
 
 	@Test(expected = FormatException.class)
 	public void testFormatExceptionIfRequestIsEmpty() throws Exception {
-		byte[] b = createEmptyRequest();
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
+		expectReadRecord(createEmptyRequest());
+
+		SyncRecordReader reader =
+				new SyncRecordReaderImpl(messageFactory, recordReader);
 		reader.readRequest();
 	}
 
 	@Test
 	public void testEofReturnsTrueWhenAtEndOfStream() throws Exception {
-		ByteArrayInputStream in = new ByteArrayInputStream(new byte[0]);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
+		context.checking(new Expectations() {{
+			oneOf(recordReader).readRecord();
+			will(throwException(new EOFException()));
+		}});
+
+		SyncRecordReader reader =
+				new SyncRecordReaderImpl(messageFactory, recordReader);
+		assertTrue(reader.eof());
 		assertTrue(reader.eof());
 	}
 
 	@Test
 	public void testEofReturnsFalseWhenNotAtEndOfStream() throws Exception {
-		byte[] b = createAck(false);
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
+		expectReadRecord(createAck());
+
+		SyncRecordReader reader =
+				new SyncRecordReaderImpl(messageFactory, recordReader);
 		assertFalse(reader.eof());
-	}
-
-	@Test(expected = FormatException.class)
-	public void testThrowsExceptionIfHeaderIsTooShort() throws Exception {
-		byte[] b = new byte[RECORD_HEADER_LENGTH - 1];
-		b[0] = PROTOCOL_VERSION;
-		b[1] = ACK;
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
-		reader.eof();
-	}
-
-	@Test(expected = FormatException.class)
-	public void testThrowsExceptionIfPayloadIsTooShort() throws Exception {
-		int payloadLength = 123;
-		byte[] b = new byte[RECORD_HEADER_LENGTH + payloadLength - 1];
-		b[0] = PROTOCOL_VERSION;
-		b[1] = ACK;
-		ByteUtils.writeUint16(payloadLength, b, 2);
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
-		reader.eof();
+		assertFalse(reader.eof());
 	}
 
 	@Test(expected = FormatException.class)
 	public void testThrowsExceptionIfProtocolVersionIsUnrecognised()
 			throws Exception {
 		byte version = (byte) (PROTOCOL_VERSION + 1);
-		byte[] b = createRecord(version, ACK, new byte[0]);
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
-		reader.eof();
-	}
+		byte[] payload = getRandomId();
 
-	@Test(expected = FormatException.class)
-	public void testThrowsExceptionIfPayloadIsTooLong() throws Exception {
-		byte[] payload = new byte[MAX_RECORD_PAYLOAD_LENGTH + 1];
-		byte[] b = createRecord(PROTOCOL_VERSION, ACK, payload);
-		ByteArrayInputStream in = new ByteArrayInputStream(b);
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
+		expectReadRecord(new Record(version, ACK, payload));
+
+		SyncRecordReader reader =
+				new SyncRecordReaderImpl(messageFactory, recordReader);
 		reader.eof();
 	}
 
 	@Test
 	public void testSkipsUnrecognisedRecordTypes() throws Exception {
-		byte[] skip1 = createRecord(PROTOCOL_VERSION, (byte) (REQUEST + 1),
-				new byte[123]);
-		byte[] skip2 = createRecord(PROTOCOL_VERSION, (byte) (REQUEST + 2),
-				new byte[0]);
-		byte[] ack = createAck(false);
-		ByteArrayOutputStream input = new ByteArrayOutputStream();
-		input.write(skip1);
-		input.write(skip2);
-		input.write(ack);
-		ByteArrayInputStream in = new ByteArrayInputStream(input.toByteArray());
-		SyncRecordReaderImpl
-				reader = new SyncRecordReaderImpl(messageFactory, in);
+		byte type1 = (byte) (REQUEST + 1);
+		byte[] payload1 = getRandomBytes(123);
+		Record unknownRecord1 = new Record(PROTOCOL_VERSION, type1, payload1);
+		byte type2 = (byte) (REQUEST + 2);
+		byte[] payload2 = new byte[0];
+		Record unknownRecord2 = new Record(PROTOCOL_VERSION, type2, payload2);
+		Record ackRecord = createAck();
+
+		context.checking(new Expectations() {{
+			oneOf(recordReader).readRecord();
+			will(returnValue(unknownRecord1));
+			oneOf(recordReader).readRecord();
+			will(returnValue(unknownRecord2));
+			oneOf(recordReader).readRecord();
+			will(returnValue(ackRecord));
+
+		}});
+
+		SyncRecordReader reader =
+				new SyncRecordReaderImpl(messageFactory, recordReader);
 		assertTrue(reader.hasAck());
 		Ack a = reader.readAck();
 		assertEquals(MAX_MESSAGE_IDS, a.getMessageIds().size());
 	}
 
-	private byte[] createAck(boolean tooBig) throws Exception {
-		return createRecord(PROTOCOL_VERSION, ACK, createPayload(tooBig));
+	private void expectReadRecord(Record record) throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(recordReader).readRecord();
+			will(returnValue(record));
+		}});
 	}
 
-	private byte[] createEmptyAck() throws Exception {
-		return createRecord(PROTOCOL_VERSION, ACK, new byte[0]);
+	private Record createAck() throws Exception {
+		return new Record(PROTOCOL_VERSION, ACK, createPayload());
 	}
 
-	private byte[] createOffer(boolean tooBig) throws Exception {
-		return createRecord(PROTOCOL_VERSION, OFFER, createPayload(tooBig));
+	private Record createEmptyAck() throws Exception {
+		return new Record(PROTOCOL_VERSION, ACK, new byte[0]);
 	}
 
-	private byte[] createEmptyOffer() throws Exception {
-		return createRecord(PROTOCOL_VERSION, OFFER, new byte[0]);
+	private Record createOffer() throws Exception {
+		return new Record(PROTOCOL_VERSION, OFFER, createPayload());
 	}
 
-	private byte[] createRequest(boolean tooBig) throws Exception {
-		return createRecord(PROTOCOL_VERSION, REQUEST, createPayload(tooBig));
+	private Record createEmptyOffer() throws Exception {
+		return new Record(PROTOCOL_VERSION, OFFER, new byte[0]);
 	}
 
-	private byte[] createEmptyRequest() throws Exception {
-		return createRecord(PROTOCOL_VERSION, REQUEST, new byte[0]);
+	private Record createRequest() throws Exception {
+		return new Record(PROTOCOL_VERSION, REQUEST, createPayload());
 	}
 
-	private byte[] createRecord(byte version, byte type, byte[] payload) {
-		byte[] b = new byte[RECORD_HEADER_LENGTH + payload.length];
-		b[0] = version;
-		b[1] = type;
-		ByteUtils.writeUint16(payload.length, b, 2);
-		System.arraycopy(payload, 0, b, RECORD_HEADER_LENGTH, payload.length);
-		return b;
+	private Record createEmptyRequest() throws Exception {
+		return new Record(PROTOCOL_VERSION, REQUEST, new byte[0]);
 	}
 
-	private byte[] createPayload(boolean tooBig) throws Exception {
+	private byte[] createPayload() throws Exception {
 		ByteArrayOutputStream payload = new ByteArrayOutputStream();
-		while (payload.size() + UniqueId.LENGTH <= MAX_RECORD_PAYLOAD_LENGTH) {
-			payload.write(TestUtils.getRandomId());
+		while (payload.size() + UniqueId.LENGTH <= MAX_RECORD_PAYLOAD_BYTES) {
+			payload.write(getRandomId());
 		}
-		if (tooBig) payload.write(TestUtils.getRandomId());
-		assertEquals(tooBig, payload.size() > MAX_RECORD_PAYLOAD_LENGTH);
 		return payload.toByteArray();
 	}
 }

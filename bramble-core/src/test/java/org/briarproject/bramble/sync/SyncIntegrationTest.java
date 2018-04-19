@@ -112,8 +112,8 @@ public class SyncIntegrationTest extends BrambleTestCase {
 		recordWriter.writeMessage(message1.getRaw());
 		recordWriter.writeOffer(new Offer(messageIds));
 		recordWriter.writeRequest(new Request(messageIds));
+		recordWriter.flush();
 
-		streamWriter.flush();
 		return out.toByteArray();
 	}
 
