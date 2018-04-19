@@ -15,8 +15,6 @@ import org.briarproject.bramble.api.system.Clock;
 import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.bramble.api.plugin.TransportId.MAX_TRANSPORT_ID_LENGTH;
-import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
-import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
@@ -42,12 +40,7 @@ class TransportPropertyValidator extends BdfMessageValidator {
 		if (version < 0) throw new FormatException();
 		// Properties
 		BdfDictionary dictionary = body.getDictionary(2);
-		checkSize(dictionary, 0, MAX_PROPERTIES_PER_TRANSPORT);
-		for (String key : dictionary.keySet()) {
-			checkLength(key, 0, MAX_PROPERTY_LENGTH);
-			String value = dictionary.getString(key);
-			checkLength(value, 0, MAX_PROPERTY_LENGTH);
-		}
+		clientHelper.parseAndValidateTransportProperties(dictionary);
 		// Return the metadata
 		BdfDictionary meta = new BdfDictionary();
 		meta.put("transportId", transportId);
