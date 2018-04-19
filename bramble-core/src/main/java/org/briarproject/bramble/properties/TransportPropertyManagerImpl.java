@@ -347,10 +347,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			throws FormatException {
 		// Transport ID, version, properties
 		BdfDictionary dictionary = message.getDictionary(2);
-		TransportProperties p = new TransportProperties();
-		for (String key : dictionary.keySet())
-			p.put(key, dictionary.getString(key));
-		return p;
+		return clientHelper.parseAndValidateTransportProperties(dictionary);
 	}
 
 	private static class LatestUpdate {

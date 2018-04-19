@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
@@ -37,6 +38,8 @@ import javax.inject.Inject;
 import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
@@ -381,5 +384,19 @@ class ClientHelperImpl implements ClientHelper {
 		byte[] publicKey = author.getRaw(2);
 		checkLength(publicKey, 1, MAX_PUBLIC_KEY_LENGTH);
 		return authorFactory.createAuthor(formatVersion, name, publicKey);
+	}
+
+	@Override
+	public TransportProperties parseAndValidateTransportProperties(
+			BdfDictionary properties) throws FormatException {
+		checkSize(properties, 0, MAX_PROPERTIES_PER_TRANSPORT);
+		TransportProperties p = new TransportProperties();
+		for (String key : properties.keySet()) {
+			checkLength(key, 0, MAX_PROPERTY_LENGTH);
+			String value = properties.getString(key);
+			checkLength(value, 0, MAX_PROPERTY_LENGTH);
+			p.put(key, value);
+		}
+		return p;
 	}
 }

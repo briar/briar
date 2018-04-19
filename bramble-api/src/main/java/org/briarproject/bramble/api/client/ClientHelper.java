@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -103,4 +104,7 @@ public interface ClientHelper {
 			BdfList signed) throws FormatException, GeneralSecurityException;
 
 	Author parseAndValidateAuthor(BdfList author) throws FormatException;
+
+	TransportProperties parseAndValidateTransportProperties(
+			BdfDictionary properties) throws FormatException;
 }
