@@ -37,6 +37,7 @@ import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.introduction.IntroductionModule;
+import org.briarproject.briar.introduction2.IntroductionCryptoImplTest;
 import org.briarproject.briar.introduction2.MessageEncoderParserIntegrationTest;
 import org.briarproject.briar.introduction2.SessionEncoderParserIntegrationTest;
 import org.briarproject.briar.messaging.MessagingModule;
@@ -80,6 +81,7 @@ public interface BriarIntegrationTestComponent {
 
 	void inject(MessageEncoderParserIntegrationTest init);
 	void inject(SessionEncoderParserIntegrationTest init);
+	void inject(IntroductionCryptoImplTest init);
 
 	void inject(BlogModule.EagerSingletons init);
 
