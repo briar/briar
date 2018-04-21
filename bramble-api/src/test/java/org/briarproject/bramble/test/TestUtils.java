@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -17,7 +18,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,6 +28,7 @@ import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.plugin.TransportId.MAX_TRANSPORT_ID_LENGTH;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.bramble.api.sync.ClientId.MAX_CLIENT_ID_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
@@ -63,6 +67,25 @@ public class TestUtils {
 
 	public static TransportId getTransportId() {
 		return new TransportId(getRandomString(MAX_TRANSPORT_ID_LENGTH));
+	}
+
+	public static TransportProperties getTransportProperties(int number) {
+		TransportProperties tp = new TransportProperties();
+		for (int i = 0; i < number; i++) {
+			tp.put(getRandomString(1 + random.nextInt(MAX_PROPERTY_LENGTH)),
+					getRandomString(1 + random.nextInt(MAX_PROPERTY_LENGTH))
+			);
+		}
+		return tp;
+	}
+
+	public static Map<TransportId, TransportProperties> getTransportPropertiesMap(
+			int number) {
+		Map<TransportId, TransportProperties> map = new HashMap<>();
+		for (int i = 0; i < number; i++) {
+			map.put(getTransportId(), getTransportProperties(number));
+		}
+		return map;
 	}
 
 	public static SecretKey getSecretKey() {

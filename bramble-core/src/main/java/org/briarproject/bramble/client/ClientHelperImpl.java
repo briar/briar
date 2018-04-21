@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -328,6 +329,20 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
+	public BdfDictionary toDictionary(TransportProperties transportProperties) {
+		return new BdfDictionary(transportProperties);
+	}
+
+	@Override
+	public BdfDictionary toDictionary(
+			Map<TransportId, TransportProperties> map) {
+		BdfDictionary d = new BdfDictionary();
+		for (Entry<TransportId, TransportProperties> e : map.entrySet())
+			d.put(e.getKey().getString(), new BdfDictionary(e.getValue()));
+		return d;
+	}
+
+	@Override
 	public BdfList toList(byte[] b, int off, int len) throws FormatException {
 		ByteArrayInputStream in = new ByteArrayInputStream(b, off, len);
 		BdfReader reader = bdfReaderFactory.createReader(in);
@@ -399,4 +414,19 @@ class ClientHelperImpl implements ClientHelper {
 		}
 		return p;
 	}
+
+	@Override
+	public Map<TransportId, TransportProperties> parseAndValidateTransportPropertiesMap(
+			BdfDictionary properties) throws FormatException {
+		Map<TransportId, TransportProperties> tpMap = new HashMap<>();
+		for (String key : properties.keySet()) {
+			TransportId transportId = new TransportId(key);
+			TransportProperties transportProperties =
+					parseAndValidateTransportProperties(
+							properties.getDictionary(key));
+			tpMap.put(transportId, transportProperties);
+		}
+		return tpMap;
+	}
+
 }

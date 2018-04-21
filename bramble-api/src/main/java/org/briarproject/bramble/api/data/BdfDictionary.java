@@ -34,7 +34,7 @@ public class BdfDictionary extends TreeMap<String, Object> {
 		super();
 	}
 
-	public BdfDictionary(Map<String, Object> m) {
+	public BdfDictionary(Map<String, ?> m) {
 		super(m);
 	}
 
