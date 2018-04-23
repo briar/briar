@@ -11,7 +11,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -35,7 +34,7 @@ import static android.app.Activity.RESULT_OK;
 import static android.view.View.GONE;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_MESSAGE_LENGTH;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
 
 public class IntroductionMessageFragment extends BaseFragment
 		implements TextInputListener {
@@ -175,7 +174,7 @@ public class IntroductionMessageFragment extends BaseFragment
 		ui.message.setSendButtonEnabled(false);
 
 		String msg = ui.message.getText().toString();
-		msg = StringUtils.truncateUtf8(msg, MAX_INTRODUCTION_MESSAGE_LENGTH);
+		msg = StringUtils.truncateUtf8(msg, MAX_REQUEST_MESSAGE_LENGTH);
 		makeIntroduction(contact1, contact2, msg);
 
 		// don't wait for the introduction to be made before finishing activity
@@ -190,7 +189,7 @@ public class IntroductionMessageFragment extends BaseFragment
 			try {
 				long timestamp = System.currentTimeMillis();
 				introductionManager.makeIntroduction(c1, c2, msg, timestamp);
-			} catch (DbException | FormatException e) {
+			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				introductionError();
 			}

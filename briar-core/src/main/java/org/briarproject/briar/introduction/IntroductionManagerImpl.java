@@ -2,19 +2,20 @@ package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
-import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.NoSuchContactException;
-import org.briarproject.bramble.api.db.NoSuchMessageException;
+import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
@@ -24,264 +25,278 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.api.introduction.IntroducerProtocolState;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionMessage;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
+import org.briarproject.briar.api.introduction.Role;
 import org.briarproject.briar.client.ConversationClientImpl;
+import org.briarproject.briar.introduction.IntroducerSession.Introducee;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
-import static org.briarproject.briar.api.introduction.IntroduceeProtocolState.FINISHED;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.ACCEPT;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.ANSWERED;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.AUTHOR_ID_1;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.AUTHOR_ID_2;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.CONTACT;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.CONTACT_1;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.CONTACT_2;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.CONTACT_ID_1;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.CONTACT_ID_2;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.EXISTS;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID_1;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID_2;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MESSAGE_TIME;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MSG;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.NAME;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.NOT_OUR_RESPONSE;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.REMOTE_AUTHOR_ID;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.REMOTE_AUTHOR_IS_US;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.RESPONSE_1;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.RESPONSE_2;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.ROLE;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.ROLE_INTRODUCEE;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.ROLE_INTRODUCER;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.SESSION_ID;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.STATE;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_ABORT;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_ACK;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_REQUEST;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_RESPONSE;
-import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
+import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
+import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
+import static org.briarproject.briar.introduction.IntroductionConstants.GROUP_KEY_CONTACT_ID;
+import static org.briarproject.briar.introduction.MessageType.ABORT;
+import static org.briarproject.briar.introduction.MessageType.ACCEPT;
+import static org.briarproject.briar.introduction.MessageType.ACTIVATE;
+import static org.briarproject.briar.introduction.MessageType.AUTH;
+import static org.briarproject.briar.introduction.MessageType.DECLINE;
+import static org.briarproject.briar.introduction.MessageType.REQUEST;
 
 @Immutable
 @NotNullByDefault
 class IntroductionManagerImpl extends ConversationClientImpl
 		implements IntroductionManager, Client, ContactHook {
 
-	private static final Logger LOG =
-			Logger.getLogger(IntroductionManagerImpl.class.getName());
-
-	private final IntroducerManager introducerManager;
-	private final IntroduceeManager introduceeManager;
-	private final IntroductionGroupFactory introductionGroupFactory;
+	private final ContactGroupFactory contactGroupFactory;
+	private final MessageParser messageParser;
+	private final SessionEncoder sessionEncoder;
+	private final SessionParser sessionParser;
+	private final IntroducerProtocolEngine introducerEngine;
+	private final IntroduceeProtocolEngine introduceeEngine;
+	private final IntroductionCrypto crypto;
+	private final IdentityManager identityManager;
 
 	@Inject
-	IntroductionManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
-			MetadataParser metadataParser, MessageTracker messageTracker,
-			IntroducerManager introducerManager,
-			IntroduceeManager introduceeManager,
-			IntroductionGroupFactory introductionGroupFactory) {
-
+	IntroductionManagerImpl(
+			DatabaseComponent db,
+			ClientHelper clientHelper,
+			MetadataParser metadataParser,
+			MessageTracker messageTracker,
+			ContactGroupFactory contactGroupFactory,
+			MessageParser messageParser,
+			SessionEncoder sessionEncoder,
+			SessionParser sessionParser,
+			IntroducerProtocolEngine introducerEngine,
+			IntroduceeProtocolEngine introduceeEngine,
+			IntroductionCrypto crypto,
+			IdentityManager identityManager) {
 		super(db, clientHelper, metadataParser, messageTracker);
-		this.introducerManager = introducerManager;
-		this.introduceeManager = introduceeManager;
-		this.introductionGroupFactory = introductionGroupFactory;
+		this.contactGroupFactory = contactGroupFactory;
+		this.messageParser = messageParser;
+		this.sessionEncoder = sessionEncoder;
+		this.sessionParser = sessionParser;
+		this.introducerEngine = introducerEngine;
+		this.introduceeEngine = introduceeEngine;
+		this.crypto = crypto;
+		this.identityManager = identityManager;
 	}
 
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
-		Group localGroup = introductionGroupFactory.createLocalGroup();
+		// Create a local group to store protocol sessions
+		Group localGroup = getLocalGroup();
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
-		// Ensure we've set things up for any pre-existing contacts
+		// Set up groups for communication with any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
 
 	@Override
+	// TODO adapt to use upcoming ClientVersioning client
 	public void addingContact(Transaction txn, Contact c) throws DbException {
+		// Create a group to share with the contact
+		Group g = getContactGroup(c);
+		// Return if we've already set things up for this contact
+		if (db.containsGroup(txn, g.getId())) return;
+		// Store the group and share it with the contact
+		db.addGroup(txn, g);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
+		// Attach the contact ID to the group
+		BdfDictionary meta = new BdfDictionary();
+		meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
 		try {
-			// Create an introduction group for sending introduction messages
-			Group g = getContactGroup(c);
-			// Return if we've already set things up for this contact
-			if (db.containsGroup(txn, g.getId())) return;
-			// Store the group and share it with the contact
-			db.addGroup(txn, g);
-			db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
-			// Attach the contact ID to the group
-			BdfDictionary gm = new BdfDictionary();
-			gm.put(CONTACT, c.getId().getInt());
-			clientHelper.mergeGroupMetadata(txn, g.getId(), gm);
+			clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
 		} catch (FormatException e) {
-			throw new RuntimeException(e);
+			throw new AssertionError(e);
 		}
 	}
 
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
-		GroupId gId = introductionGroupFactory.createLocalGroup().getId();
-
-		// search for session states where c introduced us
-		BdfDictionary query = BdfDictionary.of(
-				new BdfEntry(ROLE, ROLE_INTRODUCEE),
-				new BdfEntry(CONTACT_ID_1, c.getId().getInt())
-		);
 		try {
-			Map<MessageId, BdfDictionary> map = clientHelper
-					.getMessageMetadataAsDictionary(txn, gId, query);
-			for (Map.Entry<MessageId, BdfDictionary> entry : map.entrySet()) {
-				// delete states if introducee removes introducer
-				deleteMessage(txn, entry.getKey());
-			}
+			removeSessionWithIntroducer(txn, c);
+			abortOrRemoveSessionWithIntroducee(txn, c);
 		} catch (FormatException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			throw new AssertionError();
 		}
-
-		// check for open sessions with c and abort those,
-		// so the other introducee knows
-		query = BdfDictionary.of(
-				new BdfEntry(ROLE, ROLE_INTRODUCER)
-		);
-		try {
-			Map<MessageId, BdfDictionary> map = clientHelper
-					.getMessageMetadataAsDictionary(txn, gId, query);
-			for (Map.Entry<MessageId, BdfDictionary> entry : map.entrySet()) {
-				BdfDictionary d = entry.getValue();
-				ContactId c1 = new ContactId(d.getLong(CONTACT_ID_1).intValue());
-				ContactId c2 = new ContactId(d.getLong(CONTACT_ID_2).intValue());
-
-				if (c1.equals(c.getId()) || c2.equals(c.getId())) {
-					IntroducerProtocolState state = IntroducerProtocolState
-							.fromValue(d.getLong(STATE).intValue());
-					// abort protocol if still ongoing
-					if (IntroducerProtocolState.isOngoing(state)) {
-						introducerManager.abort(txn, d);
-					}
-					// also delete state if both contacts have been deleted
-					if (c1.equals(c.getId())) {
-						try {
-							db.getContact(txn, c2);
-						} catch (NoSuchContactException e) {
-							deleteMessage(txn, entry.getKey());
-						}
-					} else if (c2.equals(c.getId())) {
-						try {
-							db.getContact(txn, c1);
-						} catch (NoSuchContactException e) {
-							deleteMessage(txn, entry.getKey());
-						}
-					}
-				}
-			}
-		} catch (FormatException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
-
-		// remove the group (all messages will be removed with it)
-		// this contact won't get our abort message, but the other will
+		// Remove the contact group (all messages will be removed with it)
 		db.removeGroup(txn, getContactGroup(c));
 	}
 
-	/**
-	 * This is called when a new message arrived and is being validated.
-	 * It is the central method where we determine which role we play
-	 * in the introduction protocol and which engine we need to start.
-	 */
 	@Override
-	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary message) throws DbException, FormatException {
-
-		// Get message data and type
-		GroupId groupId = m.getGroupId();
-		long type = message.getLong(TYPE, -1L);
-
-		// we are an introducee, need to initialize new state
-		if (type == TYPE_REQUEST) {
-			boolean stateExists = true;
-			try {
-				getSessionState(txn, groupId, message.getRaw(SESSION_ID), false);
-			} catch (FormatException e) {
-				stateExists = false;
-			}
-			if (stateExists) throw new FormatException();
-			BdfDictionary state =
-					introduceeManager.initialize(txn, groupId, message);
-			try {
-				introduceeManager.incomingMessage(txn, state, message);
-				messageTracker.trackIncomingMessage(txn, m);
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				introduceeManager.abort(txn, state);
-			} catch (FormatException e) {
-				// FIXME necessary?
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				introduceeManager.abort(txn, state);
-			}
-		}
-		// our role can be anything
-		else if (type == TYPE_RESPONSE || type == TYPE_ACK || type == TYPE_ABORT) {
-			BdfDictionary state =
-					getSessionState(txn, groupId, message.getRaw(SESSION_ID));
-
-			long role = state.getLong(ROLE, -1L);
-			try {
-				if (role == ROLE_INTRODUCER) {
-					introducerManager.incomingMessage(txn, state, message);
-					if (type == TYPE_RESPONSE)
-						messageTracker.trackIncomingMessage(txn, m);
-				} else if (role == ROLE_INTRODUCEE) {
-					introduceeManager.incomingMessage(txn, state, message);
-					if (type == TYPE_RESPONSE && !message.getBoolean(ACCEPT))
-						messageTracker.trackIncomingMessage(txn, m);
-				} else {
-					if (LOG.isLoggable(WARNING))
-						LOG.warning("Unknown role '" + role + "'");
-					throw new DbException();
-				}
-			} catch (DbException | FormatException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				if (role == ROLE_INTRODUCER) introducerManager.abort(txn, state);
-				else introduceeManager.abort(txn, state);
-			}
-		} else {
-			// the message has been validated, so this should not happen
-			if(LOG.isLoggable(WARNING)) {
-				LOG.warning("Unknown message type '" + type + "', deleting...");
-			}
-		}
-		return false;
+	public Group getContactGroup(Contact c) {
+		return contactGroupFactory
+				.createContactGroup(CLIENT_ID, CLIENT_VERSION, c);
 	}
 
 	@Override
-	public Group getContactGroup(Contact contact) {
-		return introductionGroupFactory.createIntroductionGroup(contact);
+	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
+			BdfDictionary bdfMeta) throws DbException, FormatException {
+		// Parse the metadata
+		MessageMetadata meta = messageParser.parseMetadata(bdfMeta);
+		// Look up the session, if there is one
+		SessionId sessionId = meta.getSessionId();
+		IntroduceeSession newIntroduceeSession = null;
+		if (sessionId == null) {
+			if (meta.getMessageType() != REQUEST) throw new AssertionError();
+			newIntroduceeSession = createNewIntroduceeSession(txn, m, body);
+			sessionId = newIntroduceeSession.getSessionId();
+		}
+		StoredSession ss = getSession(txn, sessionId);
+		// Handle the message
+		Session session;
+		MessageId storageId;
+		if (ss == null) {
+			if (meta.getMessageType() != REQUEST) throw new FormatException();
+			if (newIntroduceeSession == null) throw new AssertionError();
+			storageId = createStorageId(txn);
+			session = handleMessage(txn, m, body, meta.getMessageType(),
+					newIntroduceeSession, introduceeEngine);
+		} else {
+			storageId = ss.storageId;
+			Role role = sessionParser.getRole(ss.bdfSession);
+			if (role == INTRODUCER) {
+				session = handleMessage(txn, m, body, meta.getMessageType(),
+						sessionParser.parseIntroducerSession(ss.bdfSession),
+						introducerEngine);
+			} else if (role == INTRODUCEE) {
+				session = handleMessage(txn, m, body, meta.getMessageType(),
+						sessionParser.parseIntroduceeSession(m.getGroupId(),
+								ss.bdfSession), introduceeEngine);
+			} else throw new AssertionError();
+		}
+		// Store the updated session
+		storeSession(txn, storageId, session);
+		return false;
+	}
+
+	private IntroduceeSession createNewIntroduceeSession(Transaction txn,
+			Message m, BdfList body) throws DbException, FormatException {
+		ContactId introducerId = getContactId(txn, m.getGroupId());
+		Author introducer = db.getContact(txn, introducerId).getAuthor();
+		Author alice = identityManager.getLocalAuthor(txn);
+		Author bob = messageParser.parseRequestMessage(m, body).getAuthor();
+		if (alice.equals(bob)) throw new FormatException();
+		SessionId sessionId = crypto.getSessionId(introducer, alice, bob);
+		return IntroduceeSession
+				.getInitial(m.getGroupId(), sessionId, introducer, bob);
+	}
+
+	private <S extends Session> S handleMessage(Transaction txn, Message m,
+			BdfList body, MessageType type, S session, ProtocolEngine<S> engine)
+			throws DbException, FormatException {
+		if (type == REQUEST) {
+			RequestMessage request = messageParser.parseRequestMessage(m, body);
+			return engine.onRequestMessage(txn, session, request);
+		} else if (type == ACCEPT) {
+			AcceptMessage accept = messageParser.parseAcceptMessage(m, body);
+			return engine.onAcceptMessage(txn, session, accept);
+		} else if (type == DECLINE) {
+			DeclineMessage decline = messageParser.parseDeclineMessage(m, body);
+			return engine.onDeclineMessage(txn, session, decline);
+		} else if (type == AUTH) {
+			AuthMessage auth = messageParser.parseAuthMessage(m, body);
+			return engine.onAuthMessage(txn, session, auth);
+		} else if (type == ACTIVATE) {
+			ActivateMessage activate =
+					messageParser.parseActivateMessage(m, body);
+			return engine.onActivateMessage(txn, session, activate);
+		} else if (type == ABORT) {
+			AbortMessage abort = messageParser.parseAbortMessage(m, body);
+			return engine.onAbortMessage(txn, session, abort);
+		} else {
+			throw new AssertionError();
+		}
+	}
+
+	@Nullable
+	private StoredSession getSession(Transaction txn,
+			@Nullable SessionId sessionId) throws DbException, FormatException {
+		if (sessionId == null) return null;
+		BdfDictionary query = sessionParser.getSessionQuery(sessionId);
+		Map<MessageId, BdfDictionary> results = clientHelper
+				.getMessageMetadataAsDictionary(txn, getLocalGroup().getId(),
+						query);
+		if (results.size() > 1) throw new DbException();
+		if (results.isEmpty()) return null;
+		return new StoredSession(results.keySet().iterator().next(),
+				results.values().iterator().next());
+	}
+
+	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
+			throws DbException, FormatException {
+		BdfDictionary meta =
+				clientHelper.getGroupMetadataAsDictionary(txn, contactGroupId);
+		return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
+	}
+
+	private MessageId createStorageId(Transaction txn) throws DbException {
+		Message m = clientHelper
+				.createMessageForStoringMetadata(getLocalGroup().getId());
+		db.addLocalMessage(txn, m, new Metadata(), false);
+		return m.getId();
+	}
+
+	private void storeSession(Transaction txn, MessageId storageId,
+			Session session) throws DbException, FormatException {
+		BdfDictionary d;
+		if (session.getRole() == INTRODUCER) {
+			d = sessionEncoder
+					.encodeIntroducerSession((IntroducerSession) session);
+		} else if (session.getRole() == INTRODUCEE) {
+			d = sessionEncoder
+					.encodeIntroduceeSession((IntroduceeSession) session);
+		} else {
+			throw new AssertionError();
+		}
+		clientHelper.mergeMessageMetadata(txn, storageId, d);
 	}
 
 	@Override
 	public void makeIntroduction(Contact c1, Contact c2, @Nullable String msg,
-			long timestamp) throws DbException, FormatException {
-
+			long timestamp) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
-			introducerManager.makeIntroduction(txn, c1, c2, msg, timestamp);
-			Group g1 = getContactGroup(c1);
-			Group g2 = getContactGroup(c2);
-			messageTracker.trackMessage(txn, g1.getId(), timestamp, true);
-			messageTracker.trackMessage(txn, g2.getId(), timestamp, true);
+			// Look up the session, if there is one
+			Author introducer = identityManager.getLocalAuthor(txn);
+			SessionId sessionId =
+					crypto.getSessionId(introducer, c1.getAuthor(),
+							c2.getAuthor());
+			StoredSession ss = getSession(txn, sessionId);
+			// Create or parse the session
+			IntroducerSession session;
+			MessageId storageId;
+			if (ss == null) {
+				// This is the first request - create a new session
+				GroupId groupId1 = getContactGroup(c1).getId();
+				GroupId groupId2 = getContactGroup(c2).getId();
+				session = new IntroducerSession(sessionId, groupId1,
+						c1.getAuthor(), groupId2, c2.getAuthor());
+				storageId = createStorageId(txn);
+			} else {
+				// An earlier request exists, so we already have a session
+				session = sessionParser.parseIntroducerSession(ss.bdfSession);
+				storageId = ss.storageId;
+			}
+			// Handle the request action
+			session = introducerEngine
+					.onRequestAction(txn, session, msg, timestamp);
+			// Store the updated session
+			storeSession(txn, storageId, session);
 			db.commitTransaction(txn);
+		} catch (FormatException e) {
+			throw new DbException(e);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -289,147 +304,78 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	@Override
 	public void acceptIntroduction(ContactId contactId, SessionId sessionId,
-			long timestamp) throws DbException, FormatException {
-
-		Transaction txn = db.startTransaction(false);
-		try {
-			Contact c = db.getContact(txn, contactId);
-			Group g = getContactGroup(c);
-			BdfDictionary state =
-					getSessionState(txn, g.getId(), sessionId.getBytes());
-
-			introduceeManager.acceptIntroduction(txn, state, timestamp);
-			messageTracker.trackMessage(txn, g.getId(), timestamp, true);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
+			long timestamp) throws DbException {
+		respondToRequest(contactId, sessionId, timestamp, true);
 	}
 
 	@Override
 	public void declineIntroduction(ContactId contactId, SessionId sessionId,
-			long timestamp) throws DbException, FormatException {
+			long timestamp) throws DbException {
+		respondToRequest(contactId, sessionId, timestamp, false);
+	}
 
+	private void respondToRequest(ContactId contactId, SessionId sessionId,
+			long timestamp, boolean accept) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
-			Contact c = db.getContact(txn, contactId);
-			Group g = getContactGroup(c);
-			BdfDictionary state =
-					getSessionState(txn, g.getId(), sessionId.getBytes());
-
-			introduceeManager.declineIntroduction(txn, state, timestamp);
-			messageTracker.trackMessage(txn, g.getId(), timestamp, true);
+			// Look up the session
+			StoredSession ss = getSession(txn, sessionId);
+			if (ss == null) throw new IllegalArgumentException();
+			// Parse the session
+			Contact contact = db.getContact(txn, contactId);
+			GroupId contactGroupId = getContactGroup(contact).getId();
+			IntroduceeSession session = sessionParser
+					.parseIntroduceeSession(contactGroupId, ss.bdfSession);
+			// Handle the join or leave action
+			if (accept) {
+				session = introduceeEngine
+						.onAcceptAction(txn, session, timestamp);
+			} else {
+				session = introduceeEngine
+						.onDeclineAction(txn, session, timestamp);
+			}
+			// Store the updated session
+			storeSession(txn, ss.storageId, session);
 			db.commitTransaction(txn);
+		} catch (FormatException e) {
+			throw new DbException(e);
 		} finally {
 			db.endTransaction(txn);
 		}
 	}
 
 	@Override
-	public Collection<IntroductionMessage> getIntroductionMessages(
-			ContactId contactId) throws DbException {
-
-		Collection<IntroductionMessage> list = new ArrayList<>();
-
-		Map<MessageId, BdfDictionary> metadata;
-		Collection<MessageStatus> statuses;
+	public Collection<IntroductionMessage> getIntroductionMessages(ContactId c)
+			throws DbException {
+		List<IntroductionMessage> messages;
 		Transaction txn = db.startTransaction(true);
 		try {
-			// get messages and their status
-			GroupId g = getContactGroup(db.getContact(txn, contactId)).getId();
-			metadata = clientHelper.getMessageMetadataAsDictionary(txn, g);
-			statuses = db.getMessageStatus(txn, contactId, g);
-
-			// turn messages into classes for the UI
-			for (MessageStatus s : statuses) {
-				MessageId messageId = s.getMessageId();
-				BdfDictionary msg = metadata.get(messageId);
-				if (msg == null) continue;
-
-				try {
-					long type = msg.getLong(TYPE);
-					if (type == TYPE_ACK || type == TYPE_ABORT) continue;
-
-					// get session state
-					SessionId sessionId = new SessionId(msg.getRaw(SESSION_ID));
-					BdfDictionary state =
-							getSessionState(txn, g, sessionId.getBytes());
-
-					int role = state.getLong(ROLE).intValue();
-					boolean local;
-					long time = msg.getLong(MESSAGE_TIME);
-					boolean accepted = msg.getBoolean(ACCEPT, false);
-					boolean read = msg.getBoolean(MSG_KEY_READ, false);
-					AuthorId authorId;
-					String name;
-					if (type == TYPE_RESPONSE) {
-						if (role == ROLE_INTRODUCER) {
-							if (!concernsThisContact(contactId, messageId, state)) {
-								// this response is not from contactId
-								continue;
-							}
-							local = false;
-							authorId =
-									getAuthorIdForIntroducer(contactId, state);
-							name = getNameForIntroducer(contactId, state);
-						} else {
-							if (Arrays.equals(state.getRaw(NOT_OUR_RESPONSE),
-									messageId.getBytes())) {
-								// this response is not ours,
-								// check if it was a decline
-								if (!accepted) {
-									local = false;
-								} else {
-									// don't include positive responses
-									continue;
-								}
-							} else {
-								local = true;
-							}
-							authorId = new AuthorId(
-									state.getRaw(REMOTE_AUTHOR_ID));
-							name = state.getString(NAME);
-						}
-						IntroductionResponse ir = new IntroductionResponse(
-								sessionId, messageId, g, role, time, local,
-								s.isSent(), s.isSeen(), read, authorId, name,
-								accepted);
-						list.add(ir);
-					} else if (type == TYPE_REQUEST) {
-						String message;
-						boolean answered, exists, introducesOtherIdentity;
-						if (role == ROLE_INTRODUCER) {
-							local = true;
-							authorId =
-									getAuthorIdForIntroducer(contactId, state);
-							name = getNameForIntroducer(contactId, state);
-							message = msg.getOptionalString(MSG);
-							answered = false;
-							exists = false;
-							introducesOtherIdentity = false;
-						} else {
-							local = false;
-							authorId = new AuthorId(
-									state.getRaw(REMOTE_AUTHOR_ID));
-							name = state.getString(NAME);
-							message = state.getOptionalString(MSG);
-							boolean finished = state.getLong(STATE) ==
-									FINISHED.getValue();
-							answered = finished || state.getBoolean(ANSWERED);
-							exists = state.getBoolean(EXISTS);
-							introducesOtherIdentity =
-									state.getBoolean(REMOTE_AUTHOR_IS_US);
-						}
-						IntroductionRequest ir = new IntroductionRequest(
-								sessionId, messageId, g, role, time, local,
-								s.isSent(), s.isSeen(), read, authorId, name,
-								accepted, message, answered, exists,
-								introducesOtherIdentity);
-						list.add(ir);
-					}
-				} catch (FormatException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
+			Contact contact = db.getContact(txn, c);
+			GroupId contactGroupId = getContactGroup(contact).getId();
+			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
+			Map<MessageId, BdfDictionary> results = clientHelper
+					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
+			messages = new ArrayList<>(results.size());
+			for (Map.Entry<MessageId, BdfDictionary> e : results.entrySet()) {
+				MessageId m = e.getKey();
+				MessageMetadata meta =
+						messageParser.parseMetadata(e.getValue());
+				MessageStatus status = db.getMessageStatus(txn, c, m);
+				StoredSession ss = getSession(txn, meta.getSessionId());
+				if (ss == null) throw new AssertionError();
+				MessageType type = meta.getMessageType();
+				if (type == REQUEST) {
+					messages.add(
+							parseInvitationRequest(txn, contactGroupId, m,
+									meta, status, ss.bdfSession));
+				} else if (type == ACCEPT) {
+					messages.add(
+							parseInvitationResponse(txn, contactGroupId, m,
+									meta, status, ss.bdfSession, true));
+				} else if (type == DECLINE) {
+					messages.add(
+							parseInvitationResponse(txn, contactGroupId, m,
+									meta, status, ss.bdfSession, false));
 				}
 			}
 			db.commitTransaction(txn);
@@ -438,88 +384,129 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		} finally {
 			db.endTransaction(txn);
 		}
-		return list;
+		return messages;
 	}
 
-	private String getNameForIntroducer(ContactId contactId,
-			BdfDictionary state) throws FormatException {
-
-		if (contactId.getInt() == state.getLong(CONTACT_ID_1).intValue())
-			return state.getString(CONTACT_2);
-		if (contactId.getInt() == state.getLong(CONTACT_ID_2).intValue())
-			return state.getString(CONTACT_1);
-		throw new RuntimeException(
-				"Contact not part of this introduction session");
-	}
-
-	private AuthorId getAuthorIdForIntroducer(ContactId contactId,
-			BdfDictionary state) throws FormatException {
-
-		if (contactId.getInt() == state.getLong(CONTACT_ID_1).intValue())
-			return new AuthorId(state.getRaw(AUTHOR_ID_2));
-		if (contactId.getInt() == state.getLong(CONTACT_ID_2).intValue())
-			return new AuthorId(state.getRaw(AUTHOR_ID_1));
-		throw new RuntimeException(
-				"Contact not part of this introduction session");
-	}
-
-	private boolean concernsThisContact(ContactId contactId, MessageId messageId,
-			BdfDictionary state) throws FormatException {
-
-		if (contactId.getInt() == state.getLong(CONTACT_ID_1).intValue()) {
-			return Arrays.equals(state.getRaw(RESPONSE_1, new byte[0]),
-					messageId.getBytes());
-		} else {
-			return Arrays.equals(state.getRaw(RESPONSE_2, new byte[0]),
-					messageId.getBytes());
-		}
-	}
-
-	private BdfDictionary getSessionState(Transaction txn, GroupId groupId,
-			byte[] sessionId, boolean warn)
+	private IntroductionRequest parseInvitationRequest(Transaction txn,
+			GroupId contactGroupId, MessageId m, MessageMetadata meta,
+			MessageStatus status, BdfDictionary bdfSession)
 			throws DbException, FormatException {
+		Role role = sessionParser.getRole(bdfSession);
+		SessionId sessionId;
+		Author author;
+		if (role == INTRODUCER) {
+			IntroducerSession session =
+					sessionParser.parseIntroducerSession(bdfSession);
+			sessionId = session.getSessionId();
+			LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
+			if (localAuthor.equals(session.getIntroducee1().author)) {
+				author = session.getIntroducee2().author;
+			} else {
+				author = session.getIntroducee1().author;
+			}
+		} else if (role == INTRODUCEE) {
+			IntroduceeSession session = sessionParser
+					.parseIntroduceeSession(contactGroupId, bdfSession);
+			sessionId = session.getSessionId();
+			author = session.getRemoteAuthor();
+		} else throw new AssertionError();
+		String message = ""; // TODO
+		boolean contactExists = false; // TODO
 
-		try {
-			// See if we can find the state directly for the introducer
-			BdfDictionary state = clientHelper
-					.getMessageMetadataAsDictionary(txn,
-							new MessageId(sessionId));
-			GroupId g1 = new GroupId(state.getRaw(GROUP_ID_1));
-			GroupId g2 = new GroupId(state.getRaw(GROUP_ID_2));
-			if (!g1.equals(groupId) && !g2.equals(groupId)) {
-				throw new NoSuchMessageException();
+		return new IntroductionRequest(sessionId, m, contactGroupId,
+				role, meta.getTimestamp(), meta.isLocal(),
+				status.isSent(), status.isSeen(), meta.isRead(),
+				author.getName(), false, message, !meta.isAvailableToAnswer(),
+				contactExists);
+	}
+
+	private IntroductionResponse parseInvitationResponse(Transaction txn,
+			GroupId contactGroupId, MessageId m, MessageMetadata meta,
+			MessageStatus status, BdfDictionary bdfSession, boolean accept)
+			throws FormatException, DbException {
+		Role role = sessionParser.getRole(bdfSession);
+		SessionId sessionId;
+		Author author;
+		if (role == INTRODUCER) {
+			IntroducerSession session =
+					sessionParser.parseIntroducerSession(bdfSession);
+			sessionId = session.getSessionId();
+			LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
+			if (localAuthor.equals(session.getIntroducee1().author)) {
+				author = session.getIntroducee2().author;
+			} else {
+				author = session.getIntroducee1().author;
 			}
-			return state;
-		} catch (NoSuchMessageException e) {
-			// State not found directly, so iterate over all states
-			// to find state for introducee
-			Map<MessageId, BdfDictionary> map = clientHelper
-					.getMessageMetadataAsDictionary(txn,
-							introductionGroupFactory.createLocalGroup().getId());
-			for (Map.Entry<MessageId, BdfDictionary> m : map.entrySet()) {
-				if (Arrays.equals(m.getValue().getRaw(SESSION_ID), sessionId)) {
-					BdfDictionary state = m.getValue();
-					GroupId g = new GroupId(state.getRaw(GROUP_ID));
-					if (g.equals(groupId)) return state;
-				}
-			}
-			if (warn && LOG.isLoggable(WARNING))
-				LOG.warning("No session state found");
-			throw new FormatException();
+		} else if (role == INTRODUCEE) {
+			IntroduceeSession session = sessionParser
+					.parseIntroduceeSession(contactGroupId, bdfSession);
+			sessionId = session.getSessionId();
+			author = session.getRemoteAuthor();
+		} else throw new AssertionError();
+		return new IntroductionResponse(sessionId, m, contactGroupId,
+				role, meta.getTimestamp(), meta.isLocal(), status.isSent(),
+				status.isSeen(), meta.isRead(), author.getName(), accept);
+	}
+
+	private void removeSessionWithIntroducer(Transaction txn,
+			Contact introducer) throws DbException, FormatException {
+		BdfDictionary query = sessionEncoder
+				.getIntroduceeSessionsByIntroducerQuery(introducer.getAuthor());
+		Map<MessageId, BdfDictionary> sessions = clientHelper
+				.getMessageMetadataAsDictionary(txn, getLocalGroup().getId(),
+						query);
+		for (MessageId id : sessions.keySet()) {
+			db.deleteMessageMetadata(txn, id); // TODO needed?
+			db.removeMessage(txn, id);
 		}
 	}
 
-	private BdfDictionary getSessionState(Transaction txn, GroupId groupId,
-			byte[] sessionId) throws DbException, FormatException {
-
-		return getSessionState(txn, groupId, sessionId, true);
+	private void abortOrRemoveSessionWithIntroducee(Transaction txn,
+			Contact c) throws DbException, FormatException {
+		BdfDictionary query = sessionEncoder.getIntroducerSessionsQuery();
+		Map<MessageId, BdfDictionary> sessions = clientHelper
+				.getMessageMetadataAsDictionary(txn, getLocalGroup().getId(),
+						query);
+		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
+		for (Map.Entry<MessageId, BdfDictionary> session : sessions
+				.entrySet()) {
+			IntroducerSession s =
+					sessionParser.parseIntroducerSession(session.getValue());
+			if (s.getIntroducee1().author.equals(c.getAuthor())) {
+				abortOrRemoveSessionWithIntroducee(txn, s, session.getKey(),
+						s.getIntroducee2(), localAuthor);
+			} else if (s.getIntroducee2().author.equals(c.getAuthor())) {
+				abortOrRemoveSessionWithIntroducee(txn, s, session.getKey(),
+						s.getIntroducee1(), localAuthor);
+			}
+		}
 	}
 
-	private void deleteMessage(Transaction txn, MessageId messageId)
-			throws DbException {
+	private void abortOrRemoveSessionWithIntroducee(Transaction txn,
+			IntroducerSession s, MessageId storageId, Introducee i,
+			LocalAuthor localAuthor) throws DbException, FormatException {
+		if (db.containsContact(txn, i.author.getId(), localAuthor.getId())) {
+			IntroducerSession session = introducerEngine.onAbortAction(txn, s);
+			storeSession(txn, storageId, session);
+		} else {
+			db.deleteMessageMetadata(txn, storageId); // TODO needed?
+			db.removeMessage(txn, storageId);
+		}
+	}
 
-		db.deleteMessage(txn, messageId);
-		db.deleteMessageMetadata(txn, messageId);
+	private Group getLocalGroup() {
+		return contactGroupFactory.createLocalGroup(CLIENT_ID, CLIENT_VERSION);
+	}
+
+	private static class StoredSession {
+
+		private final MessageId storageId;
+		private final BdfDictionary bdfSession;
+
+		private StoredSession(MessageId storageId, BdfDictionary bdfSession) {
+			this.storageId = storageId;
+			this.bdfSession = bdfSession;
+		}
 	}
 
 }

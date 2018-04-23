@@ -8,7 +8,7 @@ import org.briarproject.briar.api.client.SessionId;
 
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.briar.api.introduction.IntroductionConstants.ROLE_INTRODUCER;
+import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
 
 @Immutable
 @NotNullByDefault
@@ -16,10 +16,10 @@ public class IntroductionMessage extends BaseMessageHeader {
 
 	private final SessionId sessionId;
 	private final MessageId messageId;
-	private final int role;
+	private final Role role;
 
 	IntroductionMessage(SessionId sessionId, MessageId messageId,
-			GroupId groupId, int role, long time, boolean local, boolean sent,
+			GroupId groupId, Role role, long time, boolean local, boolean sent,
 			boolean seen, boolean read) {
 
 		super(messageId, groupId, time, local, sent, seen, read);
@@ -37,7 +37,7 @@ public class IntroductionMessage extends BaseMessageHeader {
 	}
 
 	public boolean isIntroducer() {
-		return role == ROLE_INTRODUCER;
+		return role == INTRODUCER;
 	}
 
 }

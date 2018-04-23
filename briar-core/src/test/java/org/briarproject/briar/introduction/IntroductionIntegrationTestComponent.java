@@ -59,6 +59,7 @@ interface IntroductionIntegrationTestComponent
 
 	void inject(IntroductionIntegrationTest init);
 
-	MessageSender getMessageSender();
+	MessageEncoder getMessageEncoder();
+	MessageParser getMessageParser();
 
 }

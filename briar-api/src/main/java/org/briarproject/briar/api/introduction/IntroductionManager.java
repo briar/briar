@@ -1,6 +1,5 @@
 package org.briarproject.briar.api.introduction;
 
-import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
@@ -24,25 +23,25 @@ public interface IntroductionManager extends ConversationClient {
 	/**
 	 * The current version of the introduction client.
 	 */
-	int CLIENT_VERSION = 0;
+	int CLIENT_VERSION = 1;
 
 	/**
 	 * Sends two initial introduction messages.
 	 */
 	void makeIntroduction(Contact c1, Contact c2, @Nullable String msg,
-			long timestamp) throws DbException, FormatException;
+			long timestamp) throws DbException;
 
 	/**
 	 * Accepts an introduction.
 	 */
 	void acceptIntroduction(ContactId contactId, SessionId sessionId,
-			long timestamp) throws DbException, FormatException;
+			long timestamp) throws DbException;
 
 	/**
 	 * Declines an introduction.
 	 */
 	void declineIntroduction(ContactId contactId, SessionId sessionId,
-			long timestamp) throws DbException, FormatException;
+			long timestamp) throws DbException;
 
 	/**
 	 * Returns all introduction messages for the given contact.
