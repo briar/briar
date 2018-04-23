@@ -28,7 +28,9 @@ import org.briarproject.bramble.api.system.Scheduler;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -58,6 +60,7 @@ class Poller implements EventListener {
 	private final Clock clock;
 	private final Lock lock;
 	private final Map<TransportId, ScheduledPollTask> tasks; // Locking: lock
+	private final Set<TransportId> polling; // Locking: lock
 
 	Poller(@IoExecutor Executor ioExecutor,
 			@Scheduler ScheduledExecutorService scheduler,
@@ -75,6 +78,7 @@ class Poller implements EventListener {
 		this.clock = clock;
 		lock = new ReentrantLock();
 		tasks = new HashMap<>();
+		polling = new HashSet<>();
 	}
 
 	@Override
@@ -241,20 +245,33 @@ class Poller implements EventListener {
 		@Override
 		@IoExecutor
 		public void run() {
+			TransportId t = plugin.getId();
+			boolean shouldPoll;
 			lock.lock();
 			try {
-				TransportId t = plugin.getId();
 				ScheduledPollTask scheduled = tasks.get(t);
 				if (scheduled != null && scheduled.task != this)
 					return; // Replaced by another task
 				tasks.remove(t);
+				// Don't poll again if last poll is still running
+				shouldPoll = polling.add(t);
 			} finally {
 				lock.unlock();
 			}
 			int delay = plugin.getPollingInterval();
 			if (randomiseNext) delay = (int) (delay * random.nextDouble());
 			schedule(plugin, delay, false);
-			poll(plugin);
+			if (shouldPoll) {
+				poll(plugin);
+			} else if (LOG.isLoggable(INFO)) {
+				LOG.info("Last poll for " + t + " is still running");
+			}
+			lock.lock();
+			try {
+				polling.remove(t);
+			} finally {
+				lock.unlock();
+			}
 		}
 	}
 }
