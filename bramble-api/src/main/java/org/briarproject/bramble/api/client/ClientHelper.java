@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -89,6 +90,10 @@ public interface ClientHelper {
 	BdfDictionary toDictionary(byte[] b, int off, int len)
 			throws FormatException;
 
+	BdfDictionary toDictionary(TransportProperties transportProperties);
+
+	BdfDictionary toDictionary(Map<TransportId, TransportProperties> map);
+
 	BdfList toList(byte[] b, int off, int len) throws FormatException;
 
 	BdfList toList(byte[] b) throws FormatException;
@@ -107,4 +112,8 @@ public interface ClientHelper {
 
 	TransportProperties parseAndValidateTransportProperties(
 			BdfDictionary properties) throws FormatException;
+
+	Map<TransportId, TransportProperties> parseAndValidateTransportPropertiesMap(
+			BdfDictionary properties) throws FormatException;
+
 }
