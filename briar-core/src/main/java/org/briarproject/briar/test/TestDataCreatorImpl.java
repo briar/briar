@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -52,6 +53,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.test.TestData.AUTHOR_NAMES;
@@ -206,7 +208,9 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		// Bluetooth
 		TransportProperties bt = new TransportProperties();
 		String btAddress = getRandomBluetoothAddress();
+		String uuid = getRandomUUID();
 		bt.put(BluetoothConstants.PROP_ADDRESS, btAddress);
+		bt.put(BluetoothConstants.PROP_UUID,uuid);
 		props.put(BluetoothConstants.ID, bt);
 
 		// LAN
@@ -231,9 +235,15 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		StringBuilder sb = new StringBuilder(18);
 		for (byte b : mac) {
 			if (sb.length() > 0) sb.append(":");
-			sb.append(String.format("%02x", b));
+			sb.append(String.format("%02X", b));
 		}
 		return sb.toString();
+	}
+
+	private String getRandomUUID() {
+		byte[] uuid = new byte[UUID_BYTES];
+		random.nextBytes(uuid);
+		return UUID.nameUUIDFromBytes(uuid).toString();
 	}
 
 	private String getRandomLanAddress() {
