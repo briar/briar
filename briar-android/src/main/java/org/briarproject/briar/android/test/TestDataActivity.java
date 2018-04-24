@@ -16,6 +16,8 @@ import org.briarproject.briar.api.test.TestDataCreator;
 
 import javax.inject.Inject;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+
 public class TestDataActivity extends BriarActivity {
 
 	@Inject
@@ -52,9 +54,8 @@ public class TestDataActivity extends BriarActivity {
 					new OnSeekBarChangeListener() {
 						@Override
 						public void onProgressChanged(SeekBar seekBar,
-								int progress,
-								boolean fromUser) {
-							textView.setText("" + progress);
+								int progress, boolean fromUser) {
+							textView.setText(String.valueOf(progress));
 						}
 
 						@Override
@@ -64,14 +65,11 @@ public class TestDataActivity extends BriarActivity {
 						@Override
 						public void onStopTrackingTouch(SeekBar seekBar) {
 						}
-
 					});
 		}
 
 		findViewById(R.id.buttonCreateTestData).setOnClickListener(
-				v -> {
-					createTestData();
-				});
+				v -> createTestData());
 	}
 
 	private void createTestData() {
@@ -79,7 +77,7 @@ public class TestDataActivity extends BriarActivity {
 				seekBars[1].getProgress(), seekBars[2].getProgress(),
 				seekBars[3].getProgress(), seekBars[4].getProgress());
 		Intent intent = new Intent(this, NavDrawerActivity.class);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		intent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 		finish();
 	}

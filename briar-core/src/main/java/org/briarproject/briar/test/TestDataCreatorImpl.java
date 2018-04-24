@@ -117,7 +117,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			int numBlogPosts, int numForums, int numForumPosts) {
 		ioExecutor.execute(() -> {
 			try {
-				createTestDataOnDbExecutor(numContacts, numPrivateMsgs,
+				createTestDataOnIoExecutor(numContacts, numPrivateMsgs,
 						numBlogPosts, numForums, numForumPosts);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
@@ -127,7 +127,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	@IoExecutor
-	private void createTestDataOnDbExecutor(int numContacts, int numPrivateMsgs,
+	private void createTestDataOnIoExecutor(int numContacts, int numPrivateMsgs,
 			int numBlogPosts, int numForums, int numForumPosts)
 			throws DbException {
 		List<Contact> contacts = createContacts(numContacts);
@@ -261,17 +261,14 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		StringBuilder sb = new StringBuilder();
 		// address
 		for (int i = 0; i < 16; i++) {
-			if (random.nextBoolean())
-				sb.append(2 + random.nextInt(5));
-			else
-				sb.append((char) (random.nextInt(26) + 'a'));
+			if (random.nextBoolean()) sb.append(2 + random.nextInt(5));
+			else sb.append((char) (random.nextInt(26) + 'a'));
 		}
 		return sb.toString();
 	}
 
 	private void createPrivateMessages(List<Contact> contacts,
-			int numPrivateMsgs)
-			throws DbException {
+			int numPrivateMsgs) throws DbException {
 		for (Contact contact : contacts) {
 			Group group = messagingManager.getContactGroup(contact);
 			for (int i = 0; i < numPrivateMsgs; i++) {
@@ -329,9 +326,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		long timestamp = clock.currentTimeMillis() - num * 60 * 1000;
 		String body = getRandomText();
 		try {
-			BlogPost blogPost = blogPostFactory
-					.createBlogPost(blog.getId(), timestamp, null, author,
-							body);
+			BlogPost blogPost = blogPostFactory.createBlogPost(blog.getId(),
+					timestamp, null, author, body);
 			blogManager.addLocalPost(blogPost);
 		} catch (FormatException | GeneralSecurityException e) {
 			throw new RuntimeException(e);
@@ -339,8 +335,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	private List<Forum> createForums(List<Contact> contacts, int numForums,
-			int numForumPosts)
-			throws DbException {
+			int numForumPosts) throws DbException {
 		List<Forum> forums = new ArrayList<>(numForums);
 		for (int i = 0; i < numForums; i++) {
 			// create forum
@@ -368,8 +363,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	private void createRandomForumPosts(Forum forum, List<Contact> contacts,
-			int numForumPosts)
-			throws DbException {
+			int numForumPosts) throws DbException {
 		List<ForumPost> posts = new ArrayList<>();
 		for (int i = 0; i < numForumPosts; i++) {
 			Contact contact = contacts.get(random.nextInt(contacts.size()));
@@ -382,15 +376,13 @@ public class TestDataCreatorImpl implements TestDataCreator {
 						posts.get(random.nextInt(posts.size()));
 				parent = parentPost.getMessage().getId();
 			}
-			ForumPost post = forumManager
-					.createLocalPost(forum.getId(), body, timestamp, parent,
-							author);
+			ForumPost post = forumManager.createLocalPost(forum.getId(), body,
+					timestamp, parent, author);
 			posts.add(post);
 			forumManager.addLocalPost(post);
 			if (random.nextBoolean()) {
-				forumManager
-						.setReadFlag(forum.getId(), post.getMessage().getId(),
-								false);
+				forumManager.setReadFlag(forum.getId(),
+						post.getMessage().getId(), false);
 			}
 		}
 	}
