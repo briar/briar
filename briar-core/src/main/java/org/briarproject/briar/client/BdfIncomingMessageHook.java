@@ -13,18 +13,14 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.ValidationManager.IncomingMessageHook;
-import org.briarproject.briar.api.client.MessageQueueManager.IncomingQueueMessageHook;
-import org.briarproject.briar.api.client.QueueMessage;
 
 import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
-import static org.briarproject.briar.api.client.QueueMessage.QUEUE_MESSAGE_HEADER_LENGTH;
 
 @Immutable
 @NotNullByDefault
-public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
-		IncomingQueueMessageHook {
+public abstract class BdfIncomingMessageHook implements IncomingMessageHook {
 
 	protected final DatabaseComponent db;
 	protected final ClientHelper clientHelper;
@@ -62,16 +58,6 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook,
 			throws DbException, InvalidMessageException {
 		try {
 			return incomingMessage(txn, m, meta, MESSAGE_HEADER_LENGTH);
-		} catch (FormatException e) {
-			throw new InvalidMessageException(e);
-		}
-	}
-
-	@Override
-	public void incomingMessage(Transaction txn, QueueMessage q, Metadata meta)
-			throws DbException, InvalidMessageException {
-		try {
-			incomingMessage(txn, q, meta, QUEUE_MESSAGE_HEADER_LENGTH);
 		} catch (FormatException e) {
 			throw new InvalidMessageException(e);
 		}
