@@ -30,7 +30,6 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.UserFeedback;
-import org.briarproject.briar.api.test.TestDataCreator;
 
 import java.util.logging.Logger;
 
@@ -105,8 +104,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	@Inject
 	AndroidExecutor androidExecutor;
-	@Inject
-	TestDataCreator testDataCreator;
 
 	@Override
 	public void onAttach(Context context) {
@@ -153,14 +150,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				});
 
 		Preference testData = findPreference("pref_key_test_data");
-		if (IS_DEBUG_BUILD) {
-			testData.setOnPreferenceClickListener(preference -> {
-				LOG.info("Creating test data");
-				testDataCreator.createTestData();
-				getActivity().finish();
-				return true;
-			});
-		} else {
+		if (!IS_DEBUG_BUILD) {
 			testData.setVisible(false);
 		}
 

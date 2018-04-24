@@ -61,12 +61,6 @@ import static org.briarproject.briar.test.TestData.GROUP_NAMES;
 
 public class TestDataCreatorImpl implements TestDataCreator {
 
-	private final static int NUM_CONTACTS = 20;
-	private final static int NUM_PRIVATE_MSGS = 15;
-	private final static int NUM_BLOG_POSTS = 30;
-	private final static int NUM_FORUMS = 3;
-	private final static int NUM_FORUM_POSTS = 30;
-
 	private final Logger LOG =
 			Logger.getLogger(TestDataCreatorImpl.class.getName());
 
@@ -119,10 +113,12 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		this.ioExecutor = ioExecutor;
 	}
 
-	public void createTestData() {
+	public void createTestData(int numContacts, int numPrivateMsgs,
+			int numBlogPosts, int numForums, int numForumPosts) {
 		ioExecutor.execute(() -> {
 			try {
-				createTestDataOnDbExecutor();
+				createTestDataOnDbExecutor(numContacts, numPrivateMsgs,
+						numBlogPosts, numForums, numForumPosts);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, "Creating test data failed", e);
@@ -131,21 +127,23 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	@IoExecutor
-	private void createTestDataOnDbExecutor() throws DbException {
-		List<Contact> contacts = createContacts();
-		createPrivateMessages(contacts);
-		createBlogPosts(contacts);
-		List<Forum> forums = createForums(contacts);
+	private void createTestDataOnDbExecutor(int numContacts, int numPrivateMsgs,
+			int numBlogPosts, int numForums, int numForumPosts)
+			throws DbException {
+		List<Contact> contacts = createContacts(numContacts);
+		createPrivateMessages(contacts, numPrivateMsgs);
+		createBlogPosts(contacts, numBlogPosts);
+		List<Forum> forums = createForums(contacts, numForums, numForumPosts);
 
 		for (Forum forum : forums) {
-			createRandomForumPosts(forum, contacts);
+			createRandomForumPosts(forum, contacts, numForumPosts);
 		}
 	}
 
-	private List<Contact> createContacts() throws DbException {
-		List<Contact> contacts = new ArrayList<>(NUM_CONTACTS);
+	private List<Contact> createContacts(int numContacts) throws DbException {
+		List<Contact> contacts = new ArrayList<>(numContacts);
 		LocalAuthor localAuthor = identityManager.getLocalAuthor();
-		for (int i = 0; i < NUM_CONTACTS; i++) {
+		for (int i = 0; i < numContacts; i++) {
 			Contact contact = addRandomContact(localAuthor);
 			contacts.add(contact);
 		}
@@ -210,7 +208,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		String btAddress = getRandomBluetoothAddress();
 		String uuid = getRandomUUID();
 		bt.put(BluetoothConstants.PROP_ADDRESS, btAddress);
-		bt.put(BluetoothConstants.PROP_UUID,uuid);
+		bt.put(BluetoothConstants.PROP_UUID, uuid);
 		props.put(BluetoothConstants.ID, bt);
 
 		// LAN
@@ -271,11 +269,12 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		return sb.toString();
 	}
 
-	private void createPrivateMessages(List<Contact> contacts)
+	private void createPrivateMessages(List<Contact> contacts,
+			int numPrivateMsgs)
 			throws DbException {
 		for (Contact contact : contacts) {
 			Group group = messagingManager.getContactGroup(contact);
-			for (int i = 0; i < NUM_PRIVATE_MSGS; i++) {
+			for (int i = 0; i < numPrivateMsgs; i++) {
 				try {
 					createPrivateMessage(group.getId(), i);
 				} catch (FormatException e) {
@@ -284,7 +283,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			}
 		}
 		if (LOG.isLoggable(INFO)) {
-			LOG.info("Created " + NUM_PRIVATE_MSGS +
+			LOG.info("Created " + numPrivateMsgs +
 					" private messages per contact.");
 		}
 	}
@@ -313,15 +312,15 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		}
 	}
 
-	private void createBlogPosts(List<Contact> contacts)
+	private void createBlogPosts(List<Contact> contacts, int numBlogPosts)
 			throws DbException {
-		for (int i = 0; i < NUM_BLOG_POSTS; i++) {
+		for (int i = 0; i < numBlogPosts; i++) {
 			Contact contact = contacts.get(random.nextInt(contacts.size()));
 			LocalAuthor author = localAuthors.get(contact);
 			addBlogPost(author, i);
 		}
 		if (LOG.isLoggable(INFO)) {
-			LOG.info("Created " + NUM_BLOG_POSTS + " blog posts.");
+			LOG.info("Created " + numBlogPosts + " blog posts.");
 		}
 	}
 
@@ -339,10 +338,11 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		}
 	}
 
-	private List<Forum> createForums(List<Contact> contacts)
+	private List<Forum> createForums(List<Contact> contacts, int numForums,
+			int numForumPosts)
 			throws DbException {
-		List<Forum> forums = new ArrayList<>(NUM_FORUMS);
-		for (int i = 0; i < NUM_FORUMS; i++) {
+		List<Forum> forums = new ArrayList<>(numForums);
+		for (int i = 0; i < numForums; i++) {
 			// create forum
 			String name = GROUP_NAMES[random.nextInt(GROUP_NAMES.length)];
 			Forum forum = forumManager.addForum(name);
@@ -361,16 +361,17 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			forums.add(forum);
 		}
 		if (LOG.isLoggable(INFO)) {
-			LOG.info("Created " + NUM_FORUMS + " forums with " +
-					NUM_FORUM_POSTS + " posts each.");
+			LOG.info("Created " + numForums + " forums with " +
+					numForumPosts + " posts each.");
 		}
 		return forums;
 	}
 
-	private void createRandomForumPosts(Forum forum, List<Contact> contacts)
+	private void createRandomForumPosts(Forum forum, List<Contact> contacts,
+			int numForumPosts)
 			throws DbException {
 		List<ForumPost> posts = new ArrayList<>();
-		for (int i = 0; i < NUM_FORUM_POSTS; i++) {
+		for (int i = 0; i < numForumPosts; i++) {
 			Contact contact = contacts.get(random.nextInt(contacts.size()));
 			LocalAuthor author = localAuthors.get(contact);
 			long timestamp = clock.currentTimeMillis() - i * 60 * 1000;

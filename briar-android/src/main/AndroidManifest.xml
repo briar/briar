@@ -353,6 +353,16 @@
 		</activity>
 
 		<activity
+			android:name="org.briarproject.briar.android.test.TestDataActivity"
+			android:label="Create test data"
+			android:parentActivityName="org.briarproject.briar.android.settings.SettingsActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.settings.SettingsActivity"
+				/>
+		</activity>
+
+		<activity
 			android:name="org.briarproject.briar.android.panic.PanicPreferencesActivity"
 			android:label="@string/panic_setting"
 			android:parentActivityName="org.briarproject.briar.android.settings.SettingsActivity">
