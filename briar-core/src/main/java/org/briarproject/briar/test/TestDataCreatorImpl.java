@@ -86,12 +86,6 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private final Random random = new Random();
 	private final Map<Contact, LocalAuthor> localAuthors = new HashMap<>();
 
-	private int numContacts = 20;
-	private int numPrivateMsgs = 15;
-	private int numBlogPosts = 30;
-	private int numForums = 3;
-	private int numForumPosts = 30;
-
 	@Inject
 	TestDataCreatorImpl(AuthorFactory authorFactory, Clock clock,
 			PrivateMessageFactory privateMessageFactory,
@@ -119,20 +113,12 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		this.ioExecutor = ioExecutor;
 	}
 
-	public void createTestData(int numContacts, int numPrivateMsgs, int numBlogPosts, int numForums,
-			int numForumPosts){
-		this.numContacts = numContacts;
-		this.numPrivateMsgs = numPrivateMsgs;
-		this.numBlogPosts = numBlogPosts;
-		this.numForums = numForums;
-		this.numForumPosts = numForumPosts;
-		createTestData();
-	}
-
-	public void createTestData() {
+	public void createTestData(int numContacts, int numPrivateMsgs,
+			int numBlogPosts, int numForums, int numForumPosts) {
 		ioExecutor.execute(() -> {
 			try {
-				createTestDataOnDbExecutor();
+				createTestDataOnDbExecutor(numContacts, numPrivateMsgs,
+						numBlogPosts, numForums, numForumPosts);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, "Creating test data failed", e);
@@ -140,19 +126,25 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		});
 	}
 
+	public void createTestData() {
+		createTestData(20, 15, 30, 3, 30);
+	}
+
 	@IoExecutor
-	private void createTestDataOnDbExecutor() throws DbException {
-		List<Contact> contacts = createContacts();
-		createPrivateMessages(contacts);
-		createBlogPosts(contacts);
-		List<Forum> forums = createForums(contacts);
+	private void createTestDataOnDbExecutor(int numContacts, int numPrivateMsgs,
+			int numBlogPosts, int numForums, int numForumPosts)
+			throws DbException {
+		List<Contact> contacts = createContacts(numContacts);
+		createPrivateMessages(contacts, numPrivateMsgs);
+		createBlogPosts(contacts, numBlogPosts);
+		List<Forum> forums = createForums(contacts, numForums, numForumPosts);
 
 		for (Forum forum : forums) {
-			createRandomForumPosts(forum, contacts);
+			createRandomForumPosts(forum, contacts, numForumPosts);
 		}
 	}
 
-	private List<Contact> createContacts() throws DbException {
+	private List<Contact> createContacts(int numContacts) throws DbException {
 		List<Contact> contacts = new ArrayList<>(numContacts);
 		LocalAuthor localAuthor = identityManager.getLocalAuthor();
 		for (int i = 0; i < numContacts; i++) {
@@ -281,7 +273,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		return sb.toString();
 	}
 
-	private void createPrivateMessages(List<Contact> contacts)
+	private void createPrivateMessages(List<Contact> contacts,
+			int numPrivateMsgs)
 			throws DbException {
 		for (Contact contact : contacts) {
 			Group group = messagingManager.getContactGroup(contact);
@@ -323,7 +316,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		}
 	}
 
-	private void createBlogPosts(List<Contact> contacts)
+	private void createBlogPosts(List<Contact> contacts, int numBlogPosts)
 			throws DbException {
 		for (int i = 0; i < numBlogPosts; i++) {
 			Contact contact = contacts.get(random.nextInt(contacts.size()));
@@ -349,7 +342,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		}
 	}
 
-	private List<Forum> createForums(List<Contact> contacts)
+	private List<Forum> createForums(List<Contact> contacts, int numForums,
+			int numForumPosts)
 			throws DbException {
 		List<Forum> forums = new ArrayList<>(numForums);
 		for (int i = 0; i < numForums; i++) {
@@ -377,7 +371,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		return forums;
 	}
 
-	private void createRandomForumPosts(Forum forum, List<Contact> contacts)
+	private void createRandomForumPosts(Forum forum, List<Contact> contacts,
+			int numForumPosts)
 			throws DbException {
 		List<ForumPost> posts = new ArrayList<>();
 		for (int i = 0; i < numForumPosts; i++) {

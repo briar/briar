@@ -21,8 +21,8 @@ public class TestDataActivity extends BriarActivity {
 	@Inject
 	TestDataCreator testDataCreator;
 
-	private TextView[] textviews = new TextView[5];
-	private SeekBar[] seekbars = new SeekBar[5];
+	private TextView[] textViews = new TextView[5];
+	private SeekBar[] seekBars = new SeekBar[5];
 
 	@Override
 	public void onCreate(Bundle bundle) {
@@ -35,20 +35,20 @@ public class TestDataActivity extends BriarActivity {
 		}
 
 		setContentView(R.layout.activity_test_data);
-		textviews[0] = findViewById(R.id.textViewContactsSb);
-		textviews[1] = findViewById(R.id.textViewMessagesSb);
-		textviews[2] = findViewById(R.id.TextViewBlogPostsSb);
-		textviews[3] = findViewById(R.id.TextViewForumsSb);
-		textviews[4] = findViewById(R.id.TextViewForumMessagesSb);
-		seekbars[0] = findViewById(R.id.seekBarContacts);
-		seekbars[1] = findViewById(R.id.seekBarMessages);
-		seekbars[2] = findViewById(R.id.seekBarBlogPosts);
-		seekbars[3] = findViewById(R.id.seekBarForums);
-		seekbars[4] = findViewById(R.id.seekBarForumMessages);
+		textViews[0] = findViewById(R.id.textViewContactsSb);
+		textViews[1] = findViewById(R.id.textViewMessagesSb);
+		textViews[2] = findViewById(R.id.TextViewBlogPostsSb);
+		textViews[3] = findViewById(R.id.TextViewForumsSb);
+		textViews[4] = findViewById(R.id.TextViewForumMessagesSb);
+		seekBars[0] = findViewById(R.id.seekBarContacts);
+		seekBars[1] = findViewById(R.id.seekBarMessages);
+		seekBars[2] = findViewById(R.id.seekBarBlogPosts);
+		seekBars[3] = findViewById(R.id.seekBarForums);
+		seekBars[4] = findViewById(R.id.seekBarForumMessages);
 
 		for (int i = 0; i < 5; i++) {
-			final TextView textView = textviews[i];
-			seekbars[i].setOnSeekBarChangeListener(
+			final TextView textView = textViews[i];
+			seekBars[i].setOnSeekBarChangeListener(
 					new OnSeekBarChangeListener() {
 						@Override
 						public void onProgressChanged(SeekBar seekBar,
@@ -75,9 +75,9 @@ public class TestDataActivity extends BriarActivity {
 	}
 
 	private void createTestData() {
-		testDataCreator.createTestData(seekbars[0].getProgress(),
-				seekbars[1].getProgress(), seekbars[2].getProgress(),
-				seekbars[3].getProgress(), seekbars[4].getProgress());
+		testDataCreator.createTestData(seekBars[0].getProgress(),
+				seekBars[1].getProgress(), seekBars[2].getProgress(),
+				seekBars[3].getProgress(), seekBars[4].getProgress());
 		Intent intent = new Intent(this, NavDrawerActivity.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
