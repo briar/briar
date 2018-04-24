@@ -217,8 +217,10 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 			Map<ClientMajorVersion, Visibility> after =
 					getVisibilities(newLocalStates, newRemoteStates);
 			// Call hooks for any visibilities that have changed
-			Contact c = getContact(txn, m.getGroupId());
-			callVisibilityHooks(txn, c, before, after);
+			if (!before.equals(after)) {
+				Contact c = getContact(txn, m.getGroupId());
+				callVisibilityHooks(txn, c, before, after);
+			}
 		} catch (FormatException e) {
 			throw new InvalidMessageException(e);
 		}
