@@ -305,14 +305,17 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 			Update oldLocalUpdate = loadUpdate(txn, latest.local.messageId);
 			List<ClientState> oldLocalStates = oldLocalUpdate.states;
 			long oldLocalUpdateVersion = oldLocalUpdate.updateVersion;
-			// Delete the latest local update
-			db.deleteMessage(txn, latest.local.messageId);
-			db.deleteMessageMetadata(txn, latest.local.messageId);
-			// Store a new local update
+			// Update the local states if necessary
 			List<ClientState> newLocalStates =
 					updateStatesFromLocalVersions(oldLocalStates, versions);
-			storeUpdate(txn, g.getId(), newLocalStates,
-					oldLocalUpdateVersion + 1);
+			if (!oldLocalStates.equals(newLocalStates)) {
+				// Delete the latest local update
+				db.deleteMessage(txn, latest.local.messageId);
+				db.deleteMessageMetadata(txn, latest.local.messageId);
+				// Store a new local update
+				storeUpdate(txn, g.getId(), newLocalStates,
+						oldLocalUpdateVersion + 1);
+			}
 			// Load and parse the latest remote update, if any
 			List<ClientState> remoteStates;
 			if (latest.remote == null) remoteStates = emptyList();
