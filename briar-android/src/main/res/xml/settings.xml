@@ -124,6 +124,11 @@
 
 	<Preference
 		android:key="pref_key_test_data"
-		android:title="Create Test Data"/>
+		android:title="Create Test Data">
+
+		<intent
+			android:targetClass="org.briarproject.briar.android.test.TestDataActivity"
+			android:targetPackage="@string/app_package"/>
+	</Preference>
 
 </PreferenceScreen>

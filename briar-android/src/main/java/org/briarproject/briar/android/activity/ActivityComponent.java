@@ -70,6 +70,7 @@ import org.briarproject.briar.android.sharing.ShareForumFragment;
 import org.briarproject.briar.android.sharing.ShareForumMessageFragment;
 import org.briarproject.briar.android.sharing.SharingModule;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
+import org.briarproject.briar.android.test.TestDataActivity;
 
 import dagger.Component;
 
@@ -146,6 +147,8 @@ public interface ActivityComponent {
 	void inject(ReblogActivity activity);
 
 	void inject(SettingsActivity activity);
+
+	void inject(TestDataActivity activity);
 
 	void inject(ChangePasswordActivity activity);
 
