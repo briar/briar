@@ -25,6 +25,7 @@ import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestSecureRandomModule;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
@@ -75,7 +76,8 @@ import dagger.Component;
 		SharingModule.class,
 		SyncModule.class,
 		SystemModule.class,
-		TransportModule.class
+		TransportModule.class,
+		VersioningModule.class
 })
 public interface BriarIntegrationTestComponent {
 
@@ -110,6 +112,8 @@ public interface BriarIntegrationTestComponent {
 	void inject(SystemModule.EagerSingletons init);
 
 	void inject(TransportModule.EagerSingletons init);
+
+	void inject(VersioningModule.EagerSingletons init);
 
 	LifecycleManager getLifecycleManager();
 

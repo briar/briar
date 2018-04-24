@@ -10,6 +10,7 @@ import org.briarproject.bramble.properties.PropertiesModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.versioning.VersioningModule;
 
 public interface BrambleCoreEagerSingletons {
 
@@ -32,4 +33,6 @@ public interface BrambleCoreEagerSingletons {
 	void inject(SystemModule.EagerSingletons init);
 
 	void inject(TransportModule.EagerSingletons init);
+
+	void inject(VersioningModule.EagerSingletons init);
 }

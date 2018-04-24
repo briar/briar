@@ -13,6 +13,7 @@ import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostFactory;
 import org.briarproject.briar.api.messaging.PrivateMessage;
@@ -99,5 +100,6 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		component.inject(new SyncModule.EagerSingletons());
 		component.inject(new SystemModule.EagerSingletons());
 		component.inject(new TransportModule.EagerSingletons());
+		component.inject(new VersioningModule.EagerSingletons());
 	}
 }

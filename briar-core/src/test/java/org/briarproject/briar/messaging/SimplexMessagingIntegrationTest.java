@@ -25,6 +25,7 @@ import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -193,6 +194,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		component.inject(new SyncModule.EagerSingletons());
 		component.inject(new SystemModule.EagerSingletons());
 		component.inject(new TransportModule.EagerSingletons());
+		component.inject(new VersioningModule.EagerSingletons());
 	}
 
 	@NotNullByDefault

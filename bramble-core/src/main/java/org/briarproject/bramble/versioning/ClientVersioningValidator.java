@@ -1,4 +1,4 @@
-package org.briarproject.bramble.sync;
+package org.briarproject.bramble.versioning;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.BdfMessageContext;
@@ -15,10 +15,10 @@ import org.briarproject.bramble.api.system.Clock;
 import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.bramble.api.sync.ClientId.MAX_CLIENT_ID_LENGTH;
-import static org.briarproject.bramble.sync.ClientVersioningConstants.MSG_KEY_LOCAL;
-import static org.briarproject.bramble.sync.ClientVersioningConstants.MSG_KEY_UPDATE_VERSION;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
+import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_LOCAL;
+import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_UPDATE_VERSION;
 
 @Immutable
 @NotNullByDefault

@@ -18,8 +18,6 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Client;
-import org.briarproject.bramble.api.sync.ClientVersioningManager;
-import org.briarproject.bramble.api.sync.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -28,6 +26,8 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 
 import java.util.HashMap;
 import java.util.Map;

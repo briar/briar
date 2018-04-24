@@ -15,6 +15,7 @@ import org.briarproject.bramble.test.TestLifecycleModule;
 import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestSecureRandomModule;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
 
@@ -41,7 +42,8 @@ import dagger.Component;
 		MessagingModule.class,
 		SyncModule.class,
 		SystemModule.class,
-		TransportModule.class
+		TransportModule.class,
+		VersioningModule.class
 })
 interface MessageSizeIntegrationTestComponent {
 
@@ -62,4 +64,6 @@ interface MessageSizeIntegrationTestComponent {
 	void inject(SystemModule.EagerSingletons init);
 
 	void inject(TransportModule.EagerSingletons init);
+
+	void inject(VersioningModule.EagerSingletons init);
 }

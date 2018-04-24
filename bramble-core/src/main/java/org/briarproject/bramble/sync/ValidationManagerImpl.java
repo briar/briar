@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
+import org.briarproject.bramble.api.versioning.ClientMajorVersion;
 
 import java.util.Collection;
 import java.util.LinkedList;

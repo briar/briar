@@ -1,4 +1,4 @@
-package org.briarproject.bramble.sync;
+package org.briarproject.bramble.versioning;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
@@ -17,7 +17,6 @@ import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.ClientId;
-import org.briarproject.bramble.api.sync.ClientVersioningManager;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -26,6 +25,8 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.versioning.ClientMajorVersion;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,9 +48,9 @@ import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
-import static org.briarproject.bramble.sync.ClientVersioningConstants.GROUP_KEY_CONTACT_ID;
-import static org.briarproject.bramble.sync.ClientVersioningConstants.MSG_KEY_LOCAL;
-import static org.briarproject.bramble.sync.ClientVersioningConstants.MSG_KEY_UPDATE_VERSION;
+import static org.briarproject.bramble.versioning.ClientVersioningConstants.GROUP_KEY_CONTACT_ID;
+import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_LOCAL;
+import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_UPDATE_VERSION;
 
 @NotNullByDefault
 class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
@@ -244,8 +245,8 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	}
 
 	private BdfList encodeClientVersion(ClientVersion cv) {
-		return BdfList.of(cv.majorVersion.clientId.getString(),
-				cv.majorVersion.majorVersion, cv.minorVersion);
+		return BdfList.of(cv.majorVersion.getClientId().getString(),
+				cv.majorVersion.getMajorVersion(), cv.minorVersion);
 	}
 
 	/**
@@ -426,8 +427,8 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	}
 
 	private BdfList encodeClientState(ClientState cs) {
-		return BdfList.of(cs.majorVersion.clientId.getString(),
-				cs.majorVersion.majorVersion, cs.minorVersion, cs.active);
+		return BdfList.of(cs.majorVersion.getClientId().getString(),
+				cs.majorVersion.getMajorVersion(), cs.minorVersion, cs.active);
 	}
 
 	private Map<ClientMajorVersion, Visibility> getVisibilities(

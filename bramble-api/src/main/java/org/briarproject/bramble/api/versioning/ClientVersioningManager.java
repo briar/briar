@@ -1,4 +1,4 @@
-package org.briarproject.bramble.api.sync;
+package org.briarproject.bramble.api.versioning;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 
 @NotNullByDefault

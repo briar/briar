@@ -1,4 +1,4 @@
-package org.briarproject.bramble.sync;
+package org.briarproject.bramble.versioning;
 
 interface ClientVersioningConstants {
 

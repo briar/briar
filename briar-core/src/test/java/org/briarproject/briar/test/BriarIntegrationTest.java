@@ -32,6 +32,7 @@ import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -183,6 +184,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		component.inject(new SyncModule.EagerSingletons());
 		component.inject(new SystemModule.EagerSingletons());
 		component.inject(new TransportModule.EagerSingletons());
+		component.inject(new VersioningModule.EagerSingletons());
 	}
 
 	private void startLifecycles() throws InterruptedException {

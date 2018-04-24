@@ -17,6 +17,7 @@ import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestSecureRandomModule;
 import org.briarproject.bramble.test.TestSocksModule;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.feed.FeedManager;
 import org.briarproject.briar.blog.BlogModule;
@@ -48,7 +49,8 @@ import dagger.Component;
 		LifecycleModule.class,
 		SyncModule.class,
 		SystemModule.class,
-		TransportModule.class
+		TransportModule.class,
+		VersioningModule.class
 })
 interface FeedManagerIntegrationTestComponent {
 
@@ -71,6 +73,8 @@ interface FeedManagerIntegrationTestComponent {
 	void inject(SystemModule.EagerSingletons init);
 
 	void inject(TransportModule.EagerSingletons init);
+
+	void inject(VersioningModule.EagerSingletons init);
 
 	LifecycleManager getLifecycleManager();
 

@@ -1,4 +1,4 @@
-package org.briarproject.bramble.sync;
+package org.briarproject.bramble.api.versioning;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -7,14 +7,22 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-class ClientMajorVersion implements Comparable<ClientMajorVersion> {
+public class ClientMajorVersion implements Comparable<ClientMajorVersion> {
 
-	final ClientId clientId;
-	final int majorVersion;
+	private final ClientId clientId;
+	private final int majorVersion;
 
-	ClientMajorVersion(ClientId clientId, int majorVersion) {
+	public ClientMajorVersion(ClientId clientId, int majorVersion) {
 		this.clientId = clientId;
 		this.majorVersion = majorVersion;
+	}
+
+	public ClientId getClientId() {
+		return clientId;
+	}
+
+	public int getMajorVersion() {
+		return majorVersion;
 	}
 
 	@Override
