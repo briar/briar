@@ -305,9 +305,15 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 			Update oldLocalUpdate = loadUpdate(txn, latest.local.messageId);
 			List<ClientState> oldLocalStates = oldLocalUpdate.states;
 			long oldLocalUpdateVersion = oldLocalUpdate.updateVersion;
+			// Load and parse the latest remote update, if any
+			List<ClientState> remoteStates;
+			if (latest.remote == null) remoteStates = emptyList();
+			else remoteStates = loadUpdate(txn, latest.remote.messageId).states;
 			// Update the local states if necessary
 			List<ClientState> newLocalStates =
 					updateStatesFromLocalVersions(oldLocalStates, versions);
+			newLocalStates = updateStatesFromRemoteStates(newLocalStates,
+					remoteStates);
 			if (!oldLocalStates.equals(newLocalStates)) {
 				// Delete the latest local update
 				db.deleteMessage(txn, latest.local.messageId);
@@ -316,10 +322,6 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 				storeUpdate(txn, g.getId(), newLocalStates,
 						oldLocalUpdateVersion + 1);
 			}
-			// Load and parse the latest remote update, if any
-			List<ClientState> remoteStates;
-			if (latest.remote == null) remoteStates = emptyList();
-			else remoteStates = loadUpdate(txn, latest.remote.messageId).states;
 			// Calculate the old and new client visibilities
 			Map<ClientMajorVersion, Visibility> before =
 					getVisibilities(oldLocalStates, remoteStates);
@@ -442,7 +444,8 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		for (ClientState local : localStates) {
 			ClientState remote = remoteMap.get(local.majorVersion);
 			if (remote == null) visibilities.put(local.majorVersion, INVISIBLE);
-			else if (remote.active) visibilities.put(local.majorVersion, SHARED);
+			else if (remote.active)
+				visibilities.put(local.majorVersion, SHARED);
 			else visibilities.put(local.majorVersion, VISIBLE);
 		}
 		return visibilities;
