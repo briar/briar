@@ -126,10 +126,6 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		});
 	}
 
-	public void createTestData() {
-		createTestData(20, 15, 30, 3, 30);
-	}
-
 	@IoExecutor
 	private void createTestDataOnDbExecutor(int numContacts, int numPrivateMsgs,
 			int numBlogPosts, int numForums, int numForumPosts)

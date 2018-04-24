@@ -5,11 +5,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 @NotNullByDefault
 public interface TestDataCreator {
 
-	/* Creates fake test data on the DatabaseExecutor */
-	void createTestData();
-
 	/**
-	 * Creates a configurable amount of fake test data on the DatabaseExecutor
+	 * Create fake test data on the DatabaseExecutor
 	 *
 	 * @param numContacts Number of contacts to create.
 	 * @param numPrivateMsgs Number of private messages to create for each
