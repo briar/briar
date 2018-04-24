@@ -2898,6 +2898,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "UPDATE outgoingKeys SET active = true"
 					+ " WHERE transportId = ? AND keySetId = ?";
 			ps = txn.prepareStatement(sql);
+			ps.setString(1, t.getString());
+			ps.setInt(2, k.getInt());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
