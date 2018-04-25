@@ -559,6 +559,58 @@ public class IntroductionIntegrationTest
 	}
 
 	@Test
+	public void testIntroductionToRemovedContact() throws Exception {
+		// let contact1 and contact2 add each other
+		addContacts1And2();
+		assertNotNull(contactId2From1);
+		assertNotNull(contactId1From2);
+
+		// only introducee1 removes introducee2
+		contactManager1.removeContact(contactId2From1);
+
+		// both will accept the introduction
+		addListeners(true, true);
+
+		// make the introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync REQUEST messages
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// sync ACCEPT messages back to introducer
+		sync1To0(1, true);
+		sync2To0(1, true);
+
+		// sync forwarded ACCEPT messages to introducees
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// sync first AUTH and its forward
+		sync1To0(1, true);
+		sync0To2(1, true);
+
+		// sync second AUTH and its forward as well as the following ACTIVATE
+		sync2To0(2, true);
+		sync0To1(2, true);
+
+		// sync second ACTIVATE and its forward
+		sync1To0(1, true);
+		sync0To2(1, true);
+
+		// Introduction only succeeded for introducee1
+		assertTrue(listener1.succeeded);
+		assertFalse(listener2.succeeded);
+
+		// assert that no session was aborted
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
+	}
+
+	@Test
 	public void testIntroducerRemovedCleanup() throws Exception {
 		addListeners(true, true);
 
