@@ -23,6 +23,7 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionMessage;
@@ -444,6 +445,26 @@ public class IntroductionIntegrationTest
 		assertFalse(listener0.aborted);
 		assertFalse(listener1.aborted);
 		assertFalse(listener2.aborted);
+	}
+
+	@Test(expected = ProtocolStateException.class)
+	public void testDoubleIntroduction() throws Exception {
+		// we can make an introduction
+		assertTrue(introductionManager0
+				.canIntroduce(contact1From0, contact2From0));
+
+		// make the introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// no more introduction allowed while the existing one is in progress
+		assertFalse(introductionManager0
+				.canIntroduce(contact1From0, contact2From0));
+
+		// try it anyway and fail
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
 	}
 
 	@Test

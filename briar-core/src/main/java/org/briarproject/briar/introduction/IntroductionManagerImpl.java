@@ -47,6 +47,7 @@ import javax.inject.Inject;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
+import static org.briarproject.briar.introduction.IntroducerState.START;
 import static org.briarproject.briar.introduction.IntroductionConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
@@ -268,6 +269,28 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
+	public boolean canIntroduce(Contact c1, Contact c2) throws DbException {
+		Transaction txn = db.startTransaction(true);
+		try {
+			// Look up the session, if there is one
+			Author introducer = identityManager.getLocalAuthor(txn);
+			SessionId sessionId =
+					crypto.getSessionId(introducer, c1.getAuthor(),
+							c2.getAuthor());
+			StoredSession ss = getSession(txn, sessionId);
+			if (ss == null) return true;
+			IntroducerSession session =
+					sessionParser.parseIntroducerSession(ss.bdfSession);
+			if (session.getState() == START) return true;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+		return false;
+	}
+
+	@Override
 	public void makeIntroduction(Contact c1, Contact c2, @Nullable String msg,
 			long timestamp) throws DbException {
 		Transaction txn = db.startTransaction(false);
@@ -398,12 +421,11 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		Role role = sessionParser.getRole(bdfSession);
 		SessionId sessionId;
 		Author author;
-		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		if (role == INTRODUCER) {
 			IntroducerSession session =
 					sessionParser.parseIntroducerSession(bdfSession);
 			sessionId = session.getSessionId();
-			if (localAuthor.equals(session.getIntroducee1().author)) {
+			if (contactGroupId.equals(session.getIntroducee1().groupId)) {
 				author = session.getIntroducee2().author;
 			} else {
 				author = session.getIntroducee1().author;
@@ -419,6 +441,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		if (msg == null || body == null) throw new AssertionError();
 		RequestMessage rm = messageParser.parseRequestMessage(msg, body);
 		String message = rm.getMessage();
+		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		boolean contactExists = contactManager
 				.contactExists(txn, rm.getAuthor().getId(),
 						localAuthor.getId());
