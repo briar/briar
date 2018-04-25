@@ -3,14 +3,17 @@ package org.briarproject.briar.introduction;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
@@ -29,6 +32,7 @@ import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getTransportPropertiesMap;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
+import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
 import static org.briarproject.briar.introduction.MessageType.REQUEST;
 import static org.briarproject.briar.test.BriarTestUtils.getRealAuthor;
@@ -45,12 +49,18 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 	@Inject
 	MessageFactory messageFactory;
 	@Inject
+	MetadataEncoder metadataEncoder;
+	@Inject
 	AuthorFactory authorFactory;
+	@Inject
+	Clock clock;
 
 	private final MessageEncoder messageEncoder;
 	private final MessageParser messageParser;
+	private final IntroductionValidator validator;
 
 	private final GroupId groupId = new GroupId(getRandomId());
+	private final Group group = new Group(groupId, CLIENT_ID, getRandomId());
 	private final long timestamp = 42L;
 	private final SessionId sessionId = new SessionId(getRandomId());
 	private final MessageId previousMsgId = new MessageId(getRandomId());
@@ -68,6 +78,8 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 
 		messageEncoder = new MessageEncoderImpl(clientHelper, messageFactory);
 		messageParser = new MessageParserImpl(clientHelper);
+		validator = new IntroductionValidator(messageEncoder, clientHelper,
+				metadataEncoder, clock);
 		author = getRealAuthor(authorFactory);
 	}
 
@@ -107,6 +119,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		Message m = messageEncoder
 				.encodeRequestMessage(groupId, timestamp, previousMsgId, author,
 						text);
+		validator.validateMessage(m, group, clientHelper.toList(m));
 		RequestMessage rm =
 				messageParser.parseRequestMessage(m, clientHelper.toList(m));
 
@@ -122,6 +135,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 	public void testRequestMessageWithPreviousMsgNull() throws FormatException {
 		Message m = messageEncoder
 				.encodeRequestMessage(groupId, timestamp, null, author, text);
+		validator.validateMessage(m, group, clientHelper.toList(m));
 		RequestMessage rm =
 				messageParser.parseRequestMessage(m, clientHelper.toList(m));
 
@@ -133,6 +147,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		Message m = messageEncoder
 				.encodeRequestMessage(groupId, timestamp, previousMsgId, author,
 						null);
+		validator.validateMessage(m, group, clientHelper.toList(m));
 		RequestMessage rm =
 				messageParser.parseRequestMessage(m, clientHelper.toList(m));
 
@@ -149,6 +164,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 				.encodeAcceptMessage(groupId, timestamp, previousMsgId,
 						sessionId, ephemeralPublicKey, acceptTimestamp,
 						transportProperties);
+		validator.validateMessage(m, group, clientHelper.toList(m));
 		AcceptMessage rm =
 				messageParser.parseAcceptMessage(m, clientHelper.toList(m));
 
@@ -167,6 +183,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		Message m = messageEncoder
 				.encodeDeclineMessage(groupId, timestamp, previousMsgId,
 						sessionId);
+		validator.validateMessage(m, group, clientHelper.toList(m));
 		DeclineMessage rm =
 				messageParser.parseDeclineMessage(m, clientHelper.toList(m));
 
@@ -182,6 +199,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		Message m = messageEncoder
 				.encodeAuthMessage(groupId, timestamp, previousMsgId,
 						sessionId, mac, signature);
+		validator.validateMessage(m, group, clientHelper.toList(m));
 		AuthMessage rm =
 				messageParser.parseAuthMessage(m, clientHelper.toList(m));
 
@@ -199,6 +217,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		Message m = messageEncoder
 				.encodeActivateMessage(groupId, timestamp, previousMsgId,
 						sessionId);
+		validator.validateMessage(m, group, clientHelper.toList(m));
 		ActivateMessage rm =
 				messageParser.parseActivateMessage(m, clientHelper.toList(m));
 
@@ -214,6 +233,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		Message m = messageEncoder
 				.encodeAbortMessage(groupId, timestamp, previousMsgId,
 						sessionId);
+		validator.validateMessage(m, group, clientHelper.toList(m));
 		AbortMessage rm =
 				messageParser.parseAbortMessage(m, clientHelper.toList(m));
 
