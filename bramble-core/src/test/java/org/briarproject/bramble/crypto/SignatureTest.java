@@ -28,8 +28,8 @@ public abstract class SignatureTest extends BrambleTestCase {
 	protected abstract byte[] sign(String label, byte[] toSign,
 			byte[] privateKey) throws GeneralSecurityException;
 
-	protected abstract boolean verify(String label, byte[] signedData,
-			byte[] publicKey, byte[] signature) throws GeneralSecurityException;
+	protected abstract boolean verify(byte[] signature, String label,
+			byte[] signed, byte[] publicKey) throws GeneralSecurityException;
 
 	SignatureTest() {
 		crypto = new CryptoComponentImpl(new TestSecureRandomProvider(), null);
@@ -85,7 +85,7 @@ public abstract class SignatureTest extends BrambleTestCase {
 	@Test
 	public void testSignatureVerification() throws Exception {
 		byte[] sig = sign(label, inputBytes, privateKey);
-		assertTrue(verify(label, inputBytes, publicKey, sig));
+		assertTrue(verify(sig, label, inputBytes, publicKey));
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public abstract class SignatureTest extends BrambleTestCase {
 		byte[] privateKey2 = k2.getPrivate().getEncoded();
 		// calculate the signature with different key, should fail to verify
 		byte[] sig = sign(label, inputBytes, privateKey2);
-		assertFalse(verify(label, inputBytes, publicKey, sig));
+		assertFalse(verify(sig, label, inputBytes, publicKey));
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public abstract class SignatureTest extends BrambleTestCase {
 		byte[] inputBytes2 = TestUtils.getRandomBytes(123);
 		// calculate the signature with different input, should fail to verify
 		byte[] sig = sign(label, inputBytes, privateKey);
-		assertFalse(verify(label, inputBytes2, publicKey, sig));
+		assertFalse(verify(sig, label, inputBytes2, publicKey));
 	}
 
 	@Test
@@ -113,7 +113,7 @@ public abstract class SignatureTest extends BrambleTestCase {
 		String label2 = StringUtils.getRandomString(42);
 		// calculate the signature with different label, should fail to verify
 		byte[] sig = sign(label, inputBytes, privateKey);
-		assertFalse(verify(label2, inputBytes, publicKey, sig));
+		assertFalse(verify(sig, label2, inputBytes, publicKey));
 	}
 
 }

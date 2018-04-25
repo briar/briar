@@ -500,7 +500,7 @@ class IntroduceeManager {
 		byte[] key = localState.getRaw(PUBLIC_KEY);
 
 		// Verify the signature
-		if (!cryptoComponent.verify(SIGNING_LABEL, nonce, key, sig)) {
+		if (!cryptoComponent.verifySignature(sig, SIGNING_LABEL, nonce, key)) {
 			LOG.warning("Invalid nonce signature in ACK");
 			throw new GeneralSecurityException();
 		}

@@ -262,8 +262,8 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		);
 
 		context.checking(new Expectations() {{
-			oneOf(cryptoComponent).verify(SIGNING_LABEL, nonce,
-					introducee2.getAuthor().getPublicKey(), sig);
+			oneOf(cryptoComponent).verifySignature(sig, SIGNING_LABEL, nonce,
+					introducee2.getAuthor().getPublicKey());
 			will(returnValue(false));
 		}});
 
@@ -292,8 +292,8 @@ public class IntroduceeManagerTest extends BriarTestCase {
 		state.put(SIGNATURE, sig);
 
 		context.checking(new Expectations() {{
-			oneOf(cryptoComponent).verify(SIGNING_LABEL, nonce,
-					publicKeyBytes, sig);
+			oneOf(cryptoComponent).verifySignature(sig, SIGNING_LABEL, nonce,
+					publicKeyBytes);
 			will(returnValue(true));
 		}});
 		introduceeManager.verifySignature(state);

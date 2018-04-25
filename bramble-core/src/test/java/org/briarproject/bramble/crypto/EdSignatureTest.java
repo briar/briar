@@ -143,9 +143,9 @@ public class EdSignatureTest extends SignatureTest {
 	}
 
 	@Override
-	protected boolean verify(String label, byte[] signedData, byte[] publicKey,
-			byte[] signature) throws GeneralSecurityException {
-		return crypto.verify(label, signedData, publicKey, signature);
+	protected boolean verify(byte[] signature, String label, byte[] signed,
+			byte[] publicKey) throws GeneralSecurityException {
+		return crypto.verifySignature(signature, label, signed, publicKey);
 	}
 
 	@Test

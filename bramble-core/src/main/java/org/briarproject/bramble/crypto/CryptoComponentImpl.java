@@ -205,12 +205,12 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public boolean verify(String label, byte[] signedData, byte[] publicKey,
-			byte[] signature) throws GeneralSecurityException {
+	public boolean verifySignature(byte[] signature, String label,
+			byte[] signed, byte[] publicKey) throws GeneralSecurityException {
 		PublicKey key = signatureKeyParser.parsePublicKey(publicKey);
 		Signature sig = new EdSignature();
 		sig.initVerify(key);
-		updateSignature(sig, label, signedData);
+		updateSignature(sig, label, signed);
 		return sig.verify(signature);
 	}
 
@@ -260,6 +260,17 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] output = new byte[mac.getDigestSize()];
 		mac.doFinal(output, 0);
 		return output;
+	}
+
+	@Override
+	public boolean verifyMac(byte[] mac, String label, SecretKey macKey,
+			byte[]... inputs) {
+		byte[] expected = mac(label, macKey, inputs);
+		if (mac.length != expected.length) return false;
+		// Constant-time comparison
+		int cmp = 0;
+		for (int i = 0; i < mac.length; i++) cmp |= mac[i] ^ expected[i];
+		return cmp == 0;
 	}
 
 	@Override

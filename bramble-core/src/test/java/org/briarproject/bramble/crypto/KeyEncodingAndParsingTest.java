@@ -126,13 +126,13 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 		byte[] signature = crypto.sign("test", message,
 				privateKey.getEncoded());
 		// Verify the signature
-		assertTrue(crypto.verify("test", message, publicKey.getEncoded(),
-				signature));
+		assertTrue(crypto.verifySignature(signature, "test", message,
+				publicKey.getEncoded()));
 		// Encode and parse the public key - no exceptions should be thrown
 		publicKey = parser.parsePublicKey(publicKey.getEncoded());
 		// Verify the signature again
-		assertTrue(crypto.verify("test", message, publicKey.getEncoded(),
-				signature));
+		assertTrue(crypto.verifySignature(signature, "test", message,
+				publicKey.getEncoded()));
 	}
 
 	@Test
@@ -146,15 +146,15 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 		byte[] signature = crypto.sign("test", message,
 				privateKey.getEncoded());
 		// Verify the signature
-		assertTrue(crypto.verify("test", message, publicKey.getEncoded(),
-				signature));
+		assertTrue(crypto.verifySignature(signature, "test", message,
+				publicKey.getEncoded()));
 		// Encode and parse the private key - no exceptions should be thrown
 		privateKey = parser.parsePrivateKey(privateKey.getEncoded());
 		// Sign the data again - the signatures should be the same
 		byte[] signature1 = crypto.sign("test", message,
 				privateKey.getEncoded());
-		assertTrue(crypto.verify("test", message, publicKey.getEncoded(),
-				signature1));
+		assertTrue(crypto.verifySignature(signature1, "test", message,
+				publicKey.getEncoded()));
 		assertArrayEquals(signature, signature1);
 	}
 

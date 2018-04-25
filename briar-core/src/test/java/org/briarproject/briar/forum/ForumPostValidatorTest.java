@@ -64,8 +64,8 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 	public void testAcceptsNullParentId() throws Exception {
 		expectCreateAuthor();
 		context.checking(new Expectations() {{
-			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
-					authorPublicKey, signedWithoutParent);
+			oneOf(clientHelper).verifySignature(signature, SIGNING_LABEL_POST,
+					signedWithoutParent, authorPublicKey);
 		}});
 
 		BdfMessageContext messageContext = v.validateMessage(message, group,
@@ -139,8 +139,8 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 
 		expectCreateAuthor();
 		context.checking(new Expectations() {{
-			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
-					authorPublicKey, signedWithShortContent);
+			oneOf(clientHelper).verifySignature(signature, SIGNING_LABEL_POST,
+					signedWithShortContent, authorPublicKey);
 		}});
 
 		BdfMessageContext messageContext = v.validateMessage(message, group,
@@ -189,8 +189,8 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 			throws Exception {
 		expectCreateAuthor();
 		context.checking(new Expectations() {{
-			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
-					authorPublicKey, signedWithParent);
+			oneOf(clientHelper).verifySignature(signature, SIGNING_LABEL_POST,
+					signedWithParent, authorPublicKey);
 			will(throwException(new FormatException()));
 		}});
 
@@ -203,8 +203,8 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 			throws Exception {
 		expectCreateAuthor();
 		context.checking(new Expectations() {{
-			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST, signature,
-					authorPublicKey, signedWithParent);
+			oneOf(clientHelper).verifySignature(signature, SIGNING_LABEL_POST,
+					signedWithParent, authorPublicKey);
 			will(throwException(new GeneralSecurityException()));
 		}});
 

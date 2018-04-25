@@ -66,8 +66,8 @@ class ForumPostValidator extends BdfMessageValidator {
 		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), parent,
 				authorList, content);
 		try {
-			clientHelper.verifySignature(SIGNING_LABEL_POST, sig,
-					author.getPublicKey(), signed);
+			clientHelper.verifySignature(sig, SIGNING_LABEL_POST,
+					signed, author.getPublicKey());
 		} catch (GeneralSecurityException e) {
 			throw new InvalidMessageException(e);
 		}

@@ -280,7 +280,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 			oneOf(clientHelper).toList(b.getAuthor());
 			will(returnValue(authorList));
 			oneOf(clientHelper)
-					.verifySignature(label, sig, author.getPublicKey(), signed);
+					.verifySignature(sig, label, signed, author.getPublicKey());
 		}});
 	}
 

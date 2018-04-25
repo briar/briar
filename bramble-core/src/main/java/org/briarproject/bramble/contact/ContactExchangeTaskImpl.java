@@ -251,7 +251,8 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		r.readListEnd();
 		LOG.info("Received pseudonym");
 		// Verify the signature
-		if (!crypto.verify(SIGNING_LABEL_EXCHANGE, nonce, publicKey, sig)) {
+		if (!crypto.verifySignature(sig, SIGNING_LABEL_EXCHANGE, nonce,
+				publicKey)) {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Invalid signature");
 			throw new GeneralSecurityException();
