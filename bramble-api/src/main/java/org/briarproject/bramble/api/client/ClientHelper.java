@@ -105,8 +105,8 @@ public interface ClientHelper {
 	byte[] sign(String label, BdfList toSign, byte[] privateKey)
 			throws FormatException, GeneralSecurityException;
 
-	void verifySignature(String label, byte[] sig, byte[] publicKey,
-			BdfList signed) throws FormatException, GeneralSecurityException;
+	void verifySignature(byte[] signature, String label, BdfList signed,
+			byte[] publicKey) throws FormatException, GeneralSecurityException;
 
 	Author parseAndValidateAuthor(BdfList author) throws FormatException;
 

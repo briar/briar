@@ -401,8 +401,8 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 		expectParseAuthor(creatorList, creator);
 		expectParsePrivateGroup();
 		context.checking(new Expectations() {{
-			oneOf(clientHelper).verifySignature(SIGNING_LABEL_JOIN,
-					memberSignature, creator.getPublicKey(), signed);
+			oneOf(clientHelper).verifySignature(memberSignature,
+					SIGNING_LABEL_JOIN, signed, creator.getPublicKey());
 			if (!memberSigValid)
 				will(throwException(new GeneralSecurityException()));
 		}});
@@ -422,13 +422,13 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 			oneOf(groupInvitationFactory).createInviteToken(creator.getId(),
 					member.getId(), privateGroup.getId(), inviteTimestamp);
 			will(returnValue(token));
-			oneOf(clientHelper).verifySignature(SIGNING_LABEL_INVITE,
-					creatorSignature, creator.getPublicKey(), token);
+			oneOf(clientHelper).verifySignature(creatorSignature,
+					SIGNING_LABEL_INVITE, token, creator.getPublicKey());
 			if (!creatorSigValid) {
 				will(throwException(new GeneralSecurityException()));
 			} else {
-				oneOf(clientHelper).verifySignature(SIGNING_LABEL_JOIN,
-						memberSignature, member.getPublicKey(), signed);
+				oneOf(clientHelper).verifySignature(memberSignature,
+						SIGNING_LABEL_JOIN, signed, member.getPublicKey());
 				if (!memberSigValid)
 					will(throwException(new GeneralSecurityException()));
 			}
@@ -648,8 +648,8 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 		);
 		expectParseAuthor(memberList, member);
 		context.checking(new Expectations() {{
-			oneOf(clientHelper).verifySignature(SIGNING_LABEL_POST,
-					memberSignature, member.getPublicKey(), signed);
+			oneOf(clientHelper).verifySignature(memberSignature,
+					SIGNING_LABEL_POST, signed, member.getPublicKey());
 			if (!sigValid)
 				will(throwException(new GeneralSecurityException()));
 		}});

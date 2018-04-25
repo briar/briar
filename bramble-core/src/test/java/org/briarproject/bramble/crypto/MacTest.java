@@ -13,6 +13,7 @@ import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MacTest extends BrambleTestCase {
 
@@ -32,6 +33,7 @@ public class MacTest extends BrambleTestCase {
 		byte[] mac = crypto.mac(label1, key1, input1, input2, input3);
 		byte[] mac1 = crypto.mac(label1, key1, input1, input2, input3);
 		assertArrayEquals(mac, mac1);
+		assertTrue(crypto.verifyMac(mac, label1, key1, input1, input2, input3));
 	}
 
 	@Test
@@ -40,6 +42,11 @@ public class MacTest extends BrambleTestCase {
 		byte[] mac = crypto.mac(label1, key1, input1, input2, input3);
 		byte[] mac1 = crypto.mac(label2, key1, input1, input2, input3);
 		assertFalse(Arrays.equals(mac, mac1));
+		// Each MAC should fail to verify with the other MAC's label
+		assertFalse(crypto.verifyMac(mac, label2, key1, input1, input2,
+				input3));
+		assertFalse(crypto.verifyMac(mac1, label1, key2, input1, input2,
+				input3));
 	}
 
 	@Test
@@ -48,6 +55,11 @@ public class MacTest extends BrambleTestCase {
 		byte[] mac = crypto.mac(label1, key1, input1, input2, input3);
 		byte[] mac1 = crypto.mac(label1, key2, input1, input2, input3);
 		assertFalse(Arrays.equals(mac, mac1));
+		// Each MAC should fail to verify with the other MAC's key
+		assertFalse(crypto.verifyMac(mac, label1, key2, input1, input2,
+				input3));
+		assertFalse(crypto.verifyMac(mac1, label2, key1, input1, input2,
+				input3));
 	}
 
 	@Test
@@ -57,6 +69,11 @@ public class MacTest extends BrambleTestCase {
 		byte[] mac = crypto.mac(label1, key1, input1, input2, input3);
 		byte[] mac1 = crypto.mac(label1, key1, input3, input2, input1);
 		assertFalse(Arrays.equals(mac, mac1));
+		// Each MAC should fail to verify with the other MAC's inputs
+		assertFalse(crypto.verifyMac(mac, label1, key2, input3, input2,
+				input1));
+		assertFalse(crypto.verifyMac(mac1, label1, key1, input1, input2,
+				input3));
 	}
 
 }

@@ -67,8 +67,8 @@ public interface CryptoComponent {
 	 * signature created for another purpose
 	 * @return true if the signature was valid, false otherwise.
 	 */
-	boolean verify(String label, byte[] signedData, byte[] publicKey,
-			byte[] signature) throws GeneralSecurityException;
+	boolean verifySignature(byte[] signature, String label, byte[] signed,
+			byte[] publicKey) throws GeneralSecurityException;
 
 	/**
 	 * Returns the hash of the given inputs. The inputs are unambiguously
@@ -90,6 +90,18 @@ public interface CryptoComponent {
 	 * another purpose
 	 */
 	byte[] mac(String label, SecretKey macKey, byte[]... inputs);
+
+	/**
+	 * Verifies that the given message authentication code is valid for the
+	 * given secret key and inputs.
+	 *
+	 * @param label a namespaced label indicating the purpose of this MAC, to
+	 * prevent it from being repurposed or colliding with a MAC created for
+	 * another purpose
+	 * @return true if the MAC was valid, false otherwise.
+	 */
+	boolean verifyMac(byte[] mac, String label, SecretKey macKey,
+			byte[]... inputs);
 
 	/**
 	 * Encrypts and authenticates the given plaintext so it can be written to

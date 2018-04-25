@@ -111,8 +111,8 @@ class BlogPostValidator extends BdfMessageValidator {
 		Blog b = blogFactory.parseBlog(g);
 		Author a = b.getAuthor();
 		try {
-			clientHelper.verifySignature(SIGNING_LABEL_POST, sig,
-					a.getPublicKey(), signed);
+			clientHelper.verifySignature(sig, SIGNING_LABEL_POST, signed,
+					a.getPublicKey());
 		} catch (GeneralSecurityException e) {
 			throw new InvalidMessageException(e);
 		}
@@ -157,8 +157,8 @@ class BlogPostValidator extends BdfMessageValidator {
 		Blog b = blogFactory.parseBlog(g);
 		Author a = b.getAuthor();
 		try {
-			clientHelper.verifySignature(SIGNING_LABEL_COMMENT, sig,
-					a.getPublicKey(), signed);
+			clientHelper.verifySignature(sig, SIGNING_LABEL_COMMENT,
+					signed, a.getPublicKey());
 		} catch (GeneralSecurityException e) {
 			throw new InvalidMessageException(e);
 		}

@@ -37,6 +37,7 @@ import java.util.Random;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -300,30 +301,34 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testVerifySignature() throws Exception {
+		byte[] signature = getRandomBytes(MAX_SIGNATURE_LENGTH);
 		byte[] publicKey = getRandomBytes(42);
-		byte[] bytes = expectToByteArray(list);
+		byte[] signed = expectToByteArray(list);
 
 		context.checking(new Expectations() {{
-			oneOf(cryptoComponent).verify(label, bytes, publicKey, rawMessage);
+			oneOf(cryptoComponent).verifySignature(signature, label, signed,
+					publicKey);
 			will(returnValue(true));
 		}});
 
-		clientHelper.verifySignature(label, rawMessage, publicKey, list);
+		clientHelper.verifySignature(signature, label, list, publicKey);
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testVerifyWrongSignature() throws Exception {
+		byte[] signature = getRandomBytes(MAX_SIGNATURE_LENGTH);
 		byte[] publicKey = getRandomBytes(42);
-		byte[] bytes = expectToByteArray(list);
+		byte[] signed = expectToByteArray(list);
 
 		context.checking(new Expectations() {{
-			oneOf(cryptoComponent).verify(label, bytes, publicKey, rawMessage);
+			oneOf(cryptoComponent).verifySignature(signature, label, signed,
+					publicKey);
 			will(returnValue(false));
 		}});
 
 		try {
-			clientHelper.verifySignature(label, rawMessage, publicKey, list);
+			clientHelper.verifySignature(signature, label, list, publicKey);
 			fail();
 		} catch (GeneralSecurityException e) {
 			// expected

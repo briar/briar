@@ -256,8 +256,8 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 			oneOf(privateGroupFactory).createPrivateGroup(groupName, creator,
 					salt);
 			will(returnValue(privateGroup));
-			oneOf(clientHelper).verifySignature(SIGNING_LABEL_INVITE, signature,
-					creator.getPublicKey(), signed);
+			oneOf(clientHelper).verifySignature(signature, SIGNING_LABEL_INVITE,
+					signed, creator.getPublicKey());
 			if (exception) {
 				will(throwException(new GeneralSecurityException()));
 			} else {

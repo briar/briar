@@ -94,8 +94,8 @@ class GroupInvitationValidator extends BdfMessageValidator {
 				privateGroup.getId()
 		);
 		try {
-			clientHelper.verifySignature(SIGNING_LABEL_INVITE, signature,
-					creator.getPublicKey(), signed);
+			clientHelper.verifySignature(signature, SIGNING_LABEL_INVITE,
+					signed, creator.getPublicKey());
 		} catch (GeneralSecurityException e) {
 			throw new FormatException();
 		}

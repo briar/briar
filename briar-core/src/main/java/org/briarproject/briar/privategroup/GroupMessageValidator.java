@@ -112,8 +112,9 @@ class GroupMessageValidator extends BdfMessageValidator {
 					creator.getId(), member.getId(), g.getId(),
 					inviteTimestamp);
 			try {
-				clientHelper.verifySignature(SIGNING_LABEL_INVITE,
-						creatorSignature, creator.getPublicKey(), token);
+				clientHelper.verifySignature(creatorSignature,
+						SIGNING_LABEL_INVITE,
+						token, creator.getPublicKey());
 			} catch (GeneralSecurityException e) {
 				throw new FormatException();
 			}
@@ -128,8 +129,8 @@ class GroupMessageValidator extends BdfMessageValidator {
 				inviteList
 		);
 		try {
-			clientHelper.verifySignature(SIGNING_LABEL_JOIN, memberSignature,
-					member.getPublicKey(), signed);
+			clientHelper.verifySignature(memberSignature, SIGNING_LABEL_JOIN,
+					signed, member.getPublicKey());
 		} catch (GeneralSecurityException e) {
 			throw new FormatException();
 		}
@@ -165,8 +166,8 @@ class GroupMessageValidator extends BdfMessageValidator {
 				content
 		);
 		try {
-			clientHelper.verifySignature(SIGNING_LABEL_POST, signature,
-					member.getPublicKey(), signed);
+			clientHelper.verifySignature(signature, SIGNING_LABEL_POST,
+					signed, member.getPublicKey());
 		} catch (GeneralSecurityException e) {
 			throw new FormatException();
 		}

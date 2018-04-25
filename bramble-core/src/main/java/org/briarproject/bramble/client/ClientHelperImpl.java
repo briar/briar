@@ -381,9 +381,10 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public void verifySignature(String label, byte[] sig, byte[] publicKey,
-			BdfList signed) throws FormatException, GeneralSecurityException {
-		if (!crypto.verify(label, toByteArray(signed), publicKey, sig)) {
+	public void verifySignature(byte[] signature, String label, BdfList signed,
+			byte[] publicKey) throws FormatException, GeneralSecurityException {
+		if (!crypto.verifySignature(signature, label, toByteArray(signed),
+				publicKey)) {
 			throw new GeneralSecurityException("Invalid signature");
 		}
 	}
