@@ -397,7 +397,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder)
 					.encodeRequestMetadata(message.getTimestamp(), false, false,
-							false, false);
+							false);
 			will(returnValue(meta));
 		}});
 	}

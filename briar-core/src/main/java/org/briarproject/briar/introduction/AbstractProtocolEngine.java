@@ -13,7 +13,6 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
-import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
@@ -25,8 +24,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
-import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_VERSION;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
 import static org.briarproject.briar.introduction.MessageType.ACTIVATE;
@@ -153,28 +150,6 @@ abstract class AbstractProtocolEngine<S extends Session>
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
-	}
-
-	void markRequestUnavailableToAnswer(Transaction txn, MessageId m)
-			throws DbException {
-		BdfDictionary meta = new BdfDictionary();
-		messageEncoder.setAvailableToAnswer(meta, false);
-		try {
-			clientHelper.mergeMessageMetadata(txn, m, meta);
-		} catch (FormatException e) {
-			throw new AssertionError(e);
-		}
-	}
-
-	Map<MessageId, BdfDictionary> getSessions(Transaction txn,
-			BdfDictionary query) throws DbException, FormatException {
-		return clientHelper
-				.getMessageMetadataAsDictionary(txn, getLocalGroup().getId(),
-						query);
-	}
-
-	private Group getLocalGroup() {
-		return contactGroupFactory.createLocalGroup(CLIENT_ID, CLIENT_VERSION);
 	}
 
 	boolean isInvalidDependency(@Nullable MessageId lastRemoteMessageId,

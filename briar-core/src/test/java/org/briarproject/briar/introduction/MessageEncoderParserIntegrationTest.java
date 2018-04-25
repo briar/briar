@@ -74,8 +74,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 	@Test
 	public void testRequestMessageMetadata() throws FormatException {
 		BdfDictionary d = messageEncoder
-				.encodeRequestMetadata(timestamp, true, false, false,
-						true);
+				.encodeRequestMetadata(timestamp, true, false, false);
 		MessageMetadata meta = messageParser.parseMetadata(d);
 
 		assertEquals(REQUEST, meta.getMessageType());
@@ -85,7 +84,6 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		assertFalse(meta.isRead());
 		assertFalse(meta.isVisibleInConversation());
 		assertFalse(meta.isAvailableToAnswer());
-		assertTrue(meta.wasAccepted());
 	}
 
 	@Test
@@ -102,7 +100,6 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		assertTrue(meta.isRead());
 		assertFalse(meta.isVisibleInConversation());
 		assertFalse(meta.isAvailableToAnswer());
-		assertFalse(meta.wasAccepted());
 	}
 
 	@Test

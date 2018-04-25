@@ -1,11 +1,9 @@
 package org.briarproject.briar.introduction;
 
-import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactManager;
-import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -22,8 +20,6 @@ import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 import org.briarproject.briar.introduction.IntroducerSession.Introducee;
-
-import java.util.Map;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -97,21 +93,19 @@ class IntroducerProtocolEngine
 	}
 
 	IntroducerSession onAbortAction(Transaction txn, IntroducerSession s)
-			throws DbException, FormatException {
+			throws DbException {
 		return abort(txn, s);
 	}
 
 	@Override
 	public IntroducerSession onRequestMessage(Transaction txn,
-			IntroducerSession s, RequestMessage m)
-			throws DbException, FormatException {
+			IntroducerSession s, RequestMessage m) throws DbException {
 		return abort(txn, s); // Invalid in this role
 	}
 
 	@Override
 	public IntroducerSession onAcceptMessage(Transaction txn,
-			IntroducerSession s, AcceptMessage m)
-			throws DbException, FormatException {
+			IntroducerSession s, AcceptMessage m) throws DbException {
 		switch (s.getState()) {
 			case AWAIT_RESPONSES:
 			case AWAIT_RESPONSE_A:
@@ -133,8 +127,7 @@ class IntroducerProtocolEngine
 
 	@Override
 	public IntroducerSession onDeclineMessage(Transaction txn,
-			IntroducerSession s, DeclineMessage m)
-			throws DbException, FormatException {
+			IntroducerSession s, DeclineMessage m) throws DbException {
 		switch (s.getState()) {
 			case AWAIT_RESPONSES:
 			case AWAIT_RESPONSE_A:
@@ -156,7 +149,7 @@ class IntroducerProtocolEngine
 
 	@Override
 	public IntroducerSession onAuthMessage(Transaction txn, IntroducerSession s,
-			AuthMessage m) throws DbException, FormatException {
+			AuthMessage m) throws DbException {
 		switch (s.getState()) {
 			case AWAIT_AUTHS:
 			case AWAIT_AUTH_A:
@@ -177,8 +170,7 @@ class IntroducerProtocolEngine
 
 	@Override
 	public IntroducerSession onActivateMessage(Transaction txn,
-			IntroducerSession s, ActivateMessage m)
-			throws DbException, FormatException {
+			IntroducerSession s, ActivateMessage m) throws DbException {
 		switch (s.getState()) {
 			case AWAIT_ACTIVATES:
 			case AWAIT_ACTIVATE_A:
@@ -199,8 +191,7 @@ class IntroducerProtocolEngine
 
 	@Override
 	public IntroducerSession onAbortMessage(Transaction txn,
-			IntroducerSession s, AbortMessage m)
-			throws DbException, FormatException {
+			IntroducerSession s, AbortMessage m) throws DbException {
 		return onRemoteAbort(txn, s, m);
 	}
 
@@ -227,8 +218,7 @@ class IntroducerProtocolEngine
 	}
 
 	private IntroducerSession onRemoteAccept(Transaction txn,
-			IntroducerSession s, AcceptMessage m)
-			throws DbException, FormatException {
+			IntroducerSession s, AcceptMessage m) throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
 			return abort(txn, s);
@@ -284,8 +274,7 @@ class IntroducerProtocolEngine
 	}
 
 	private IntroducerSession onRemoteDecline(Transaction txn,
-			IntroducerSession s, DeclineMessage m)
-			throws DbException, FormatException {
+			IntroducerSession s, DeclineMessage m) throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
 			return abort(txn, s);
@@ -337,7 +326,7 @@ class IntroducerProtocolEngine
 
 	private IntroducerSession onRemoteResponseInStart(Transaction txn,
 			IntroducerSession s, AbstractIntroductionMessage m)
-			throws DbException, FormatException {
+			throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
 			return abort(txn, s);
@@ -384,8 +373,7 @@ class IntroducerProtocolEngine
 	}
 
 	private IntroducerSession onRemoteAuth(Transaction txn,
-			IntroducerSession s, AuthMessage m)
-			throws DbException, FormatException {
+			IntroducerSession s, AuthMessage m) throws DbException {
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
 			return abort(txn, s);
@@ -413,8 +401,7 @@ class IntroducerProtocolEngine
 	}
 
 	private IntroducerSession onRemoteActivate(Transaction txn,
-			IntroducerSession s, ActivateMessage m)
-			throws DbException, FormatException {
+			IntroducerSession s, ActivateMessage m) throws DbException {
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
 			return abort(txn, s);
@@ -441,11 +428,7 @@ class IntroducerProtocolEngine
 	}
 
 	private IntroducerSession onRemoteAbort(Transaction txn,
-			IntroducerSession s, AbortMessage m)
-			throws DbException, FormatException {
-		// Mark any REQUEST messages in the session unavailable to answer
-		markRequestsUnavailableToAnswer(txn, s);
-
+			IntroducerSession s, AbortMessage m) throws DbException {
 		// Forward ABORT message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
 		long timestamp = getLocalTimestamp(s, i);
@@ -468,10 +451,7 @@ class IntroducerProtocolEngine
 	}
 
 	private IntroducerSession abort(Transaction txn,
-			IntroducerSession s) throws DbException, FormatException {
-		// Mark any REQUEST messages in the session unavailable to answer
-		markRequestsUnavailableToAnswer(txn, s);
-
+			IntroducerSession s) throws DbException {
 		// Broadcast abort event for testing
 		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
 
@@ -485,15 +465,6 @@ class IntroducerProtocolEngine
 		Introducee introducee2 = new Introducee(s.getIntroducee2(), sent2);
 		return new IntroducerSession(s.getSessionId(), START,
 				s.getRequestTimestamp(), introducee1, introducee2);
-	}
-
-	private void markRequestsUnavailableToAnswer(Transaction txn, Session s)
-			throws DbException, FormatException {
-		BdfDictionary query = messageParser
-				.getInvitesAvailableToAnswerQuery(s.getSessionId());
-		Map<MessageId, BdfDictionary> results = getSessions(txn, query);
-		for (MessageId m : results.keySet())
-			markRequestUnavailableToAnswer(txn, m);
 	}
 
 	private Introducee getIntroducee(IntroducerSession s, GroupId g) {

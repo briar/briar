@@ -18,7 +18,6 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.briar.api.client.SessionId;
 
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
 import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
@@ -49,14 +48,14 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	}
 
 	@Override
-	public SessionId getSessionId(Author introducer, Author alice,
-			Author bob) {
-		boolean isAlice = isAlice(alice.getId(), bob.getId());
+	public SessionId getSessionId(Author introducer, Author local,
+			Author remote) {
+		boolean isAlice = isAlice(local.getId(), remote.getId());
 		byte[] hash = crypto.hash(
 				LABEL_SESSION_ID,
 				introducer.getId().getBytes(),
-				isAlice ? alice.getId().getBytes() : bob.getId().getBytes(),
-				isAlice ? bob.getId().getBytes() : alice.getId().getBytes()
+				isAlice ? local.getId().getBytes() : remote.getId().getBytes(),
+				isAlice ? remote.getId().getBytes() : local.getId().getBytes()
 		);
 		return new SessionId(hash);
 	}
@@ -67,9 +66,9 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	}
 
 	@Override
-	public boolean isAlice(AuthorId alice, AuthorId bob) {
-		byte[] a = alice.getBytes();
-		byte[] b = bob.getBytes();
+	public boolean isAlice(AuthorId local, AuthorId remote) {
+		byte[] a = local.getBytes();
+		byte[] b = remote.getBytes();
 		return Bytes.COMPARATOR.compare(new Bytes(a), new Bytes(b)) < 0;
 	}
 
@@ -110,7 +109,7 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	@Override
 	@SuppressWarnings("ConstantConditions")
 	public byte[] mac(SecretKey macKey, IntroduceeSession s,
-			AuthorId localAuthorId, boolean alice) throws FormatException {
+			AuthorId localAuthorId, boolean alice) {
 		return mac(macKey, s.getIntroducer().getId(), localAuthorId,
 				s.getRemoteAuthor().getId(), s.getAcceptTimestamp(),
 				s.getRemoteAcceptTimestamp(), s.getEphemeralPublicKey(),
@@ -124,7 +123,59 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 			byte[] ephemeralPublicKey, byte[] remoteEphemeralPublicKey,
 			Map<TransportId, TransportProperties> transportProperties,
 			Map<TransportId, TransportProperties> remoteTransportProperties,
-			boolean alice) throws FormatException {
+			boolean alice) {
+		byte[] inputs =
+				getMacInputs(introducerId, localAuthorId, remoteAuthorId,
+						acceptTimestamp, remoteAcceptTimestamp,
+						ephemeralPublicKey, remoteEphemeralPublicKey,
+						transportProperties, remoteTransportProperties, alice);
+		return crypto.mac(
+				LABEL_AUTH_MAC,
+				macKey,
+				inputs
+		);
+	}
+
+	@Override
+	@SuppressWarnings("ConstantConditions")
+	public void verifyMac(byte[] mac, IntroduceeSession s,
+			AuthorId localAuthorId)
+			throws GeneralSecurityException {
+		boolean alice = isAlice(localAuthorId, s.getRemoteAuthor().getId());
+		verifyMac(mac, new SecretKey(s.getMasterKey()),
+				s.getIntroducer().getId(), localAuthorId,
+				s.getRemoteAuthor().getId(), s.getAcceptTimestamp(),
+				s.getRemoteAcceptTimestamp(), s.getEphemeralPublicKey(),
+				s.getRemotePublicKey(), s.getTransportProperties(),
+				s.getRemoteTransportProperties(), !alice);
+	}
+
+	void verifyMac(byte[] mac, SecretKey masterKey,
+			AuthorId introducerId, AuthorId localAuthorId,
+			AuthorId remoteAuthorId, long acceptTimestamp,
+			long remoteAcceptTimestamp, byte[] ephemeralPublicKey,
+			byte[] remoteEphemeralPublicKey,
+			Map<TransportId, TransportProperties> transportProperties,
+			Map<TransportId, TransportProperties> remoteTransportProperties,
+			boolean alice) throws GeneralSecurityException {
+		SecretKey macKey = deriveMacKey(masterKey, alice);
+		byte[] inputs =
+				getMacInputs(introducerId, localAuthorId, remoteAuthorId,
+						acceptTimestamp, remoteAcceptTimestamp,
+						ephemeralPublicKey, remoteEphemeralPublicKey,
+						transportProperties, remoteTransportProperties, !alice);
+		if (!crypto.verifyMac(mac, LABEL_AUTH_MAC, macKey, inputs)) {
+			throw new GeneralSecurityException();
+		}
+	}
+
+	private byte[] getMacInputs(AuthorId introducerId,
+			AuthorId localAuthorId, AuthorId remoteAuthorId,
+			long acceptTimestamp, long remoteAcceptTimestamp,
+			byte[] ephemeralPublicKey, byte[] remoteEphemeralPublicKey,
+			Map<TransportId, TransportProperties> transportProperties,
+			Map<TransportId, TransportProperties> remoteTransportProperties,
+			boolean alice) {
 		BdfList localInfo = BdfList.of(
 				localAuthorId,
 				acceptTimestamp,
@@ -142,43 +193,10 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 				alice ? localInfo : remoteInfo,
 				alice ? remoteInfo : localInfo
 		);
-		return crypto.mac(
-				LABEL_AUTH_MAC,
-				macKey,
-				clientHelper.toByteArray(macList)
-		);
-	}
-
-	@Override
-	@SuppressWarnings("ConstantConditions")
-	public void verifyMac(byte[] mac, IntroduceeSession s,
-			AuthorId localAuthorId)
-			throws GeneralSecurityException, FormatException {
-		boolean alice = isAlice(localAuthorId, s.getRemoteAuthor().getId());
-		verifyMac(mac, new SecretKey(s.getMasterKey()),
-				s.getIntroducer().getId(), localAuthorId,
-				s.getRemoteAuthor().getId(), s.getAcceptTimestamp(),
-				s.getRemoteAcceptTimestamp(), s.getEphemeralPublicKey(),
-				s.getRemotePublicKey(), s.getTransportProperties(),
-				s.getRemoteTransportProperties(), !alice);
-	}
-
-	void verifyMac(byte[] mac, SecretKey masterKey,
-			AuthorId introducerId, AuthorId localAuthorId,
-			AuthorId remoteAuthorId, long acceptTimestamp,
-			long remoteAcceptTimestamp, byte[] ephemeralPublicKey,
-			byte[] remoteEphemeralPublicKey,
-			Map<TransportId, TransportProperties> transportProperties,
-			Map<TransportId, TransportProperties> remoteTransportProperties,
-			boolean alice) throws GeneralSecurityException, FormatException {
-		SecretKey macKey = deriveMacKey(masterKey, alice);
-		byte[] calculatedMac =
-				mac(macKey, introducerId, localAuthorId, remoteAuthorId,
-						acceptTimestamp, remoteAcceptTimestamp,
-						ephemeralPublicKey, remoteEphemeralPublicKey,
-						transportProperties, remoteTransportProperties, !alice);
-		if (!Arrays.equals(mac, calculatedMac)) {
-			throw new GeneralSecurityException();
+		try {
+			return clientHelper.toByteArray(macList);
+		} catch (FormatException e) {
+			throw new AssertionError();
 		}
 	}
 
@@ -204,7 +222,8 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	void verifySignature(SecretKey macKey, byte[] publicKey,
 			byte[] signature) throws GeneralSecurityException {
 		byte[] nonce = getNonce(macKey);
-		if (!crypto.verify(LABEL_AUTH_SIGN, nonce, publicKey, signature)) {
+		if (!crypto.verifySignature(signature, LABEL_AUTH_SIGN, nonce,
+				publicKey)) {
 			throw new GeneralSecurityException();
 		}
 	}

@@ -12,7 +12,7 @@ interface MessageParser {
 
 	BdfDictionary getMessagesVisibleInUiQuery();
 
-	BdfDictionary getInvitesAvailableToAnswerQuery(SessionId sessionId);
+	BdfDictionary getRequestsAvailableToAnswerQuery(SessionId sessionId);
 
 	MessageMetadata parseMetadata(BdfDictionary meta) throws FormatException;
 

@@ -12,7 +12,6 @@ interface IntroductionConstants {
 	String MSG_KEY_LOCAL = "local";
 	String MSG_KEY_VISIBLE_IN_UI = "visibleInUi";
 	String MSG_KEY_AVAILABLE_TO_ANSWER = "availableToAnswer";
-	String MSG_KEY_INVITATION_ACCEPTED = "invitationAccepted";
 
 	// Session Keys
 	String SESSION_KEY_SESSION_ID = "sessionId";

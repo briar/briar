@@ -21,7 +21,6 @@ import javax.inject.Inject;
 
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
-import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_INVITATION_ACCEPTED;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_SESSION_ID;
@@ -49,12 +48,10 @@ class MessageEncoderImpl implements MessageEncoder {
 
 	@Override
 	public BdfDictionary encodeRequestMetadata(long timestamp,
-			boolean local, boolean read, boolean available,
-			boolean accepted) {
+			boolean local, boolean read, boolean available) {
 		BdfDictionary meta =
 				encodeMetadata(REQUEST, null, timestamp, local, read, false);
 		meta.put(MSG_KEY_AVAILABLE_TO_ANSWER, available);
-		meta.put(MSG_KEY_INVITATION_ACCEPTED, accepted);
 		return meta;
 	}
 
@@ -88,11 +85,6 @@ class MessageEncoderImpl implements MessageEncoder {
 	@Override
 	public void setAvailableToAnswer(BdfDictionary meta, boolean available) {
 		meta.put(MSG_KEY_AVAILABLE_TO_ANSWER, available);
-	}
-
-	@Override
-	public void setInvitationAccepted(BdfDictionary meta, boolean accepted) {
-		meta.put(MSG_KEY_INVITATION_ACCEPTED, accepted);
 	}
 
 	@Override

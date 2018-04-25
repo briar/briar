@@ -8,7 +8,6 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-// TODO still needed?
 public class IntroductionSucceededEvent extends Event {
 
 	private final Contact contact;

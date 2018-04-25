@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 interface MessageEncoder {
 
 	BdfDictionary encodeRequestMetadata(long timestamp, boolean local,
-			boolean read, boolean available, boolean accepted);
+			boolean read, boolean available);
 
 	BdfDictionary encodeMetadata(MessageType type,
 			@Nullable SessionId sessionId, long timestamp, boolean local,
@@ -29,8 +29,6 @@ interface MessageEncoder {
 	void setVisibleInUi(BdfDictionary meta, boolean visible);
 
 	void setAvailableToAnswer(BdfDictionary meta, boolean available);
-
-	void setInvitationAccepted(BdfDictionary meta, boolean accepted);
 
 	Message encodeRequestMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, Author author,

@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -59,6 +61,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		implements IntroductionManager, Client, ContactHook {
 
 	private final ContactGroupFactory contactGroupFactory;
+	private final ContactManager contactManager;
 	private final MessageParser messageParser;
 	private final SessionEncoder sessionEncoder;
 	private final SessionParser sessionParser;
@@ -74,6 +77,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			MetadataParser metadataParser,
 			MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory,
+			ContactManager contactManager,
 			MessageParser messageParser,
 			SessionEncoder sessionEncoder,
 			SessionParser sessionParser,
@@ -83,6 +87,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			IdentityManager identityManager) {
 		super(db, clientHelper, metadataParser, messageTracker);
 		this.contactGroupFactory = contactGroupFactory;
+		this.contactManager = contactManager;
 		this.messageParser = messageParser;
 		this.sessionEncoder = sessionEncoder;
 		this.sessionParser = sessionParser;
@@ -107,8 +112,6 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Create a group to share with the contact
 		Group g = getContactGroup(c);
-		// Return if we've already set things up for this contact
-		if (db.containsGroup(txn, g.getId())) return;
 		// Store the group and share it with the contact
 		db.addGroup(txn, g);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
@@ -124,12 +127,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
-		try {
-			removeSessionWithIntroducer(txn, c);
-			abortOrRemoveSessionWithIntroducee(txn, c);
-		} catch (FormatException e) {
-			throw new AssertionError();
-		}
+		removeSessionWithIntroducer(txn, c);
+		abortOrRemoveSessionWithIntroducee(txn, c);
+
 		// Remove the contact group (all messages will be removed with it)
 		db.removeGroup(txn, getContactGroup(c));
 	}
@@ -185,12 +185,12 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			Message m, BdfList body) throws DbException, FormatException {
 		ContactId introducerId = getContactId(txn, m.getGroupId());
 		Author introducer = db.getContact(txn, introducerId).getAuthor();
-		Author alice = identityManager.getLocalAuthor(txn);
-		Author bob = messageParser.parseRequestMessage(m, body).getAuthor();
-		if (alice.equals(bob)) throw new FormatException();
-		SessionId sessionId = crypto.getSessionId(introducer, alice, bob);
+		Author local = identityManager.getLocalAuthor(txn);
+		Author remote = messageParser.parseRequestMessage(m, body).getAuthor();
+		if (local.equals(remote)) throw new FormatException();
+		SessionId sessionId = crypto.getSessionId(introducer, local, remote);
 		return IntroduceeSession
-				.getInitial(m.getGroupId(), sessionId, introducer, bob);
+				.getInitial(m.getGroupId(), sessionId, introducer, remote);
 	}
 
 	private <S extends Session> S handleMessage(Transaction txn, Message m,
@@ -249,7 +249,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	private void storeSession(Transaction txn, MessageId storageId,
-			Session session) throws DbException, FormatException {
+			Session session) throws DbException {
 		BdfDictionary d;
 		if (session.getRole() == INTRODUCER) {
 			d = sessionEncoder
@@ -260,7 +260,11 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		} else {
 			throw new AssertionError();
 		}
-		clientHelper.mergeMessageMetadata(txn, storageId, d);
+		try {
+			clientHelper.mergeMessageMetadata(txn, storageId, d);
+		} catch (FormatException e) {
+			throw new AssertionError();
+		}
 	}
 
 	@Override
@@ -356,7 +360,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
 			messages = new ArrayList<>(results.size());
-			for (Map.Entry<MessageId, BdfDictionary> e : results.entrySet()) {
+			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();
 				MessageMetadata meta =
 						messageParser.parseMetadata(e.getValue());
@@ -394,11 +398,11 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		Role role = sessionParser.getRole(bdfSession);
 		SessionId sessionId;
 		Author author;
+		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		if (role == INTRODUCER) {
 			IntroducerSession session =
 					sessionParser.parseIntroducerSession(bdfSession);
 			sessionId = session.getSessionId();
-			LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 			if (localAuthor.equals(session.getIntroducee1().author)) {
 				author = session.getIntroducee2().author;
 			} else {
@@ -410,8 +414,14 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			sessionId = session.getSessionId();
 			author = session.getRemoteAuthor();
 		} else throw new AssertionError();
-		String message = ""; // TODO
-		boolean contactExists = false; // TODO
+		Message msg = clientHelper.getMessage(txn, m);
+		BdfList body = clientHelper.getMessageAsList(txn, m);
+		if (msg == null || body == null) throw new AssertionError();
+		RequestMessage rm = messageParser.parseRequestMessage(msg, body);
+		String message = rm.getMessage();
+		boolean contactExists = contactManager
+				.contactExists(txn, rm.getAuthor().getId(),
+						localAuthor.getId());
 
 		return new IntroductionRequest(sessionId, m, contactGroupId,
 				role, meta.getTimestamp(), meta.isLocal(),
@@ -449,12 +459,16 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	private void removeSessionWithIntroducer(Transaction txn,
-			Contact introducer) throws DbException, FormatException {
+			Contact introducer) throws DbException {
 		BdfDictionary query = sessionEncoder
 				.getIntroduceeSessionsByIntroducerQuery(introducer.getAuthor());
-		Map<MessageId, BdfDictionary> sessions = clientHelper
-				.getMessageMetadataAsDictionary(txn, getLocalGroup().getId(),
-						query);
+		Map<MessageId, BdfDictionary> sessions;
+		try {
+			sessions = clientHelper.getMessageMetadataAsDictionary(txn,
+					getLocalGroup().getId(), query);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
 		for (MessageId id : sessions.keySet()) {
 			db.deleteMessageMetadata(txn, id); // TODO needed?
 			db.removeMessage(txn, id);
@@ -462,16 +476,23 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	private void abortOrRemoveSessionWithIntroducee(Transaction txn,
-			Contact c) throws DbException, FormatException {
+			Contact c) throws DbException {
 		BdfDictionary query = sessionEncoder.getIntroducerSessionsQuery();
-		Map<MessageId, BdfDictionary> sessions = clientHelper
-				.getMessageMetadataAsDictionary(txn, getLocalGroup().getId(),
-						query);
+		Map<MessageId, BdfDictionary> sessions;
+		try {
+			sessions = clientHelper.getMessageMetadataAsDictionary(txn,
+					getLocalGroup().getId(), query);
+		} catch (FormatException e) {
+			throw new AssertionError();
+		}
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
-		for (Map.Entry<MessageId, BdfDictionary> session : sessions
-				.entrySet()) {
-			IntroducerSession s =
-					sessionParser.parseIntroducerSession(session.getValue());
+		for (Entry<MessageId, BdfDictionary> session : sessions.entrySet()) {
+			IntroducerSession s;
+			try {
+				s = sessionParser.parseIntroducerSession(session.getValue());
+			} catch (FormatException e) {
+				throw new AssertionError();
+			}
 			if (s.getIntroducee1().author.equals(c.getAuthor())) {
 				abortOrRemoveSessionWithIntroducee(txn, s, session.getKey(),
 						s.getIntroducee2(), localAuthor);
@@ -484,7 +505,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	private void abortOrRemoveSessionWithIntroducee(Transaction txn,
 			IntroducerSession s, MessageId storageId, Introducee i,
-			LocalAuthor localAuthor) throws DbException, FormatException {
+			LocalAuthor localAuthor) throws DbException {
 		if (db.containsContact(txn, i.author.getId(), localAuthor.getId())) {
 			IntroducerSession session = introducerEngine.onAbortAction(txn, s);
 			storeSession(txn, storageId, session);

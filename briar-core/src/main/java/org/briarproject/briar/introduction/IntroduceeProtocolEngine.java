@@ -124,8 +124,7 @@ class IntroduceeProtocolEngine
 
 	@Override
 	public IntroduceeSession onRequestMessage(Transaction txn,
-			IntroduceeSession session, RequestMessage m)
-			throws DbException, FormatException {
+			IntroduceeSession session, RequestMessage m) throws DbException {
 		switch (session.getState()) {
 			case START:
 				return onRemoteRequest(txn, session, m);
@@ -143,8 +142,7 @@ class IntroduceeProtocolEngine
 
 	@Override
 	public IntroduceeSession onAcceptMessage(Transaction txn,
-			IntroduceeSession session, AcceptMessage m)
-			throws DbException, FormatException {
+			IntroduceeSession session, AcceptMessage m) throws DbException {
 		switch (session.getState()) {
 			case START:
 				return onRemoteResponseInStart(txn, session, m);
@@ -163,8 +161,7 @@ class IntroduceeProtocolEngine
 
 	@Override
 	public IntroduceeSession onDeclineMessage(Transaction txn,
-			IntroduceeSession session, DeclineMessage m)
-			throws DbException, FormatException {
+			IntroduceeSession session, DeclineMessage m) throws DbException {
 		switch (session.getState()) {
 			case START:
 				return onRemoteResponseInStart(txn, session, m);
@@ -183,8 +180,7 @@ class IntroduceeProtocolEngine
 
 	@Override
 	public IntroduceeSession onAuthMessage(Transaction txn,
-			IntroduceeSession session, AuthMessage m)
-			throws DbException, FormatException {
+			IntroduceeSession session, AuthMessage m) throws DbException {
 		switch (session.getState()) {
 			case AWAIT_AUTH:
 				return onRemoteAuth(txn, session, m);
@@ -202,8 +198,7 @@ class IntroduceeProtocolEngine
 
 	@Override
 	public IntroduceeSession onActivateMessage(Transaction txn,
-			IntroduceeSession session, ActivateMessage m)
-			throws DbException, FormatException {
+			IntroduceeSession session, ActivateMessage m) throws DbException {
 		switch (session.getState()) {
 			case AWAIT_ACTIVATE:
 				return onRemoteActivate(txn, session, m);
@@ -221,8 +216,7 @@ class IntroduceeProtocolEngine
 
 	@Override
 	public IntroduceeSession onAbortMessage(Transaction txn,
-			IntroduceeSession session, AbortMessage m)
-			throws DbException, FormatException {
+			IntroduceeSession session, AbortMessage m) throws DbException {
 		return onRemoteAbort(txn, session, m);
 	}
 
@@ -232,8 +226,9 @@ class IntroduceeProtocolEngine
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
 
-		// Mark the request visible in the UI
+		// Mark the request visible in the UI and available to answer
 		markMessageVisibleInUi(txn, m.getMessageId());
+		markRequestAvailableToAnswer(txn, m.getMessageId(), true);
 
 		// Add SessionId to message metadata
 		addSessionId(txn, m.getMessageId(), s.getSessionId());
@@ -243,9 +238,11 @@ class IntroduceeProtocolEngine
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 
 		// Broadcast IntroductionRequestReceivedEvent
+		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		Contact c = contactManager.getContact(txn, s.getIntroducer().getId(),
-				identityManager.getLocalAuthor(txn).getId());
-		boolean contactExists = false; // TODO
+				localAuthor.getId());
+		boolean contactExists = contactManager
+				.contactExists(txn, m.getAuthor().getId(), localAuthor.getId());
 		IntroductionRequest request =
 				new IntroductionRequest(s.getSessionId(), m.getMessageId(),
 						m.getGroupId(), INTRODUCEE, m.getTimestamp(), false,
@@ -260,11 +257,10 @@ class IntroduceeProtocolEngine
 	}
 
 	private IntroduceeSession onLocalAccept(Transaction txn,
-			IntroduceeSession s, long timestamp) throws DbException {
+			IntroduceeSession s, long timestamp)
+			throws DbException {
 		// Mark the request message unavailable to answer
-		MessageId requestId = s.getLastRemoteMessageId();
-		if (requestId == null) throw new IllegalStateException();
-		markRequestUnavailableToAnswer(txn, requestId);
+		markRequestsUnavailableToAnswer(txn, s);
 
 		// Create ephemeral key pair and get local transport properties
 		KeyPair keyPair = crypto.generateKeyPair();
@@ -275,7 +271,7 @@ class IntroduceeProtocolEngine
 
 		// Send a ACCEPT message
 		long localTimestamp =
-				Math.max(timestamp, getLocalTimestamp(s));
+				Math.max(timestamp + 1, getLocalTimestamp(s));
 		Message sent = sendAcceptMessage(txn, s, localTimestamp, publicKey,
 				localTimestamp, transportProperties, true);
 		// Track the message
@@ -297,14 +293,13 @@ class IntroduceeProtocolEngine
 	}
 
 	private IntroduceeSession onLocalDecline(Transaction txn,
-			IntroduceeSession s, long timestamp) throws DbException {
+			IntroduceeSession s, long timestamp)
+			throws DbException {
 		// Mark the request message unavailable to answer
-		MessageId requestId = s.getLastRemoteMessageId();
-		if (requestId == null) throw new IllegalStateException();
-		markRequestUnavailableToAnswer(txn, requestId);
+		markRequestsUnavailableToAnswer(txn, s);
 
 		// Send a DECLINE message
-		long localTimestamp = Math.max(timestamp, getLocalTimestamp(s));
+		long localTimestamp = Math.max(timestamp + 1, getLocalTimestamp(s));
 		Message sent = sendDeclineMessage(txn, s, localTimestamp, true);
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
@@ -316,7 +311,7 @@ class IntroduceeProtocolEngine
 
 	private IntroduceeSession onRemoteAccept(Transaction txn,
 			IntroduceeSession s, AcceptMessage m)
-			throws DbException, FormatException {
+			throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
 			return abort(txn, s);
@@ -346,7 +341,7 @@ class IntroduceeProtocolEngine
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
 
-		// Mark the request visible in the UI
+		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getMessageId());
 
 		// Track the incoming message
@@ -401,8 +396,6 @@ class IntroduceeProtocolEngine
 		} catch (GeneralSecurityException e) {
 			// TODO
 			return abort(txn, s);
-		} catch (FormatException e) {
-			throw new AssertionError(e);
 		}
 		if (s.getState() != AWAIT_AUTH) throw new AssertionError();
 		Message sent = sendAuthMessage(txn, s, getLocalTimestamp(s), mac,
@@ -411,8 +404,7 @@ class IntroduceeProtocolEngine
 	}
 
 	private IntroduceeSession onRemoteAuth(Transaction txn,
-			IntroduceeSession s, AuthMessage m)
-			throws DbException, FormatException {
+			IntroduceeSession s, AuthMessage m) throws DbException {
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
@@ -479,9 +471,7 @@ class IntroduceeProtocolEngine
 			IntroduceeSession s, AbortMessage m)
 			throws DbException {
 		// Mark the request message unavailable to answer
-		MessageId requestId = s.getLastRemoteMessageId();
-		if (requestId == null) throw new IllegalStateException();
-		markRequestUnavailableToAnswer(txn, requestId);
+		markRequestsUnavailableToAnswer(txn, s);
 
 		// Broadcast abort event for testing
 		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
@@ -495,9 +485,7 @@ class IntroduceeProtocolEngine
 	private IntroduceeSession abort(Transaction txn, IntroduceeSession s)
 			throws DbException {
 		// Mark the request message unavailable to answer
-		MessageId requestId = s.getLastRemoteMessageId();
-		if (requestId == null) throw new IllegalStateException();
-		markRequestUnavailableToAnswer(txn, requestId);
+		markRequestsUnavailableToAnswer(txn, s);
 
 		// Send an ABORT message
 		Message sent = sendAbortMessage(txn, s, getLocalTimestamp(s));
@@ -530,6 +518,32 @@ class IntroduceeProtocolEngine
 			throws DbException {
 		BdfDictionary meta = new BdfDictionary();
 		messageEncoder.addSessionId(meta, sessionId);
+		try {
+			clientHelper.mergeMessageMetadata(txn, m, meta);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	private void markRequestsUnavailableToAnswer(Transaction txn,
+			IntroduceeSession s) throws DbException {
+		BdfDictionary query = messageParser
+				.getRequestsAvailableToAnswerQuery(s.getSessionId());
+		try {
+			Map<MessageId, BdfDictionary> results =
+					clientHelper.getMessageMetadataAsDictionary(txn,
+							s.getContactGroupId(), query);
+			for (MessageId m : results.keySet())
+				markRequestAvailableToAnswer(txn, m, false);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	private void markRequestAvailableToAnswer(Transaction txn, MessageId m,
+			boolean available) throws DbException {
+		BdfDictionary meta = new BdfDictionary();
+		messageEncoder.setAvailableToAnswer(meta, available);
 		try {
 			clientHelper.mergeMessageMetadata(txn, m, meta);
 		} catch (FormatException e) {

@@ -57,19 +57,14 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook {
 	public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
 			throws DbException, InvalidMessageException {
 		try {
-			return incomingMessage(txn, m, meta, MESSAGE_HEADER_LENGTH);
+			byte[] raw = m.getRaw();
+			BdfList body = clientHelper.toList(raw, MESSAGE_HEADER_LENGTH,
+					raw.length - MESSAGE_HEADER_LENGTH);
+			BdfDictionary metaDictionary = metadataParser.parse(meta);
+			return incomingMessage(txn, m, body, metaDictionary);
 		} catch (FormatException e) {
 			throw new InvalidMessageException(e);
 		}
-	}
-
-	private boolean incomingMessage(Transaction txn, Message m, Metadata meta,
-			int headerLength) throws DbException, FormatException {
-		byte[] raw = m.getRaw();
-		BdfList body = clientHelper.toList(raw, headerLength,
-				raw.length - headerLength);
-		BdfDictionary metaDictionary = metadataParser.parse(meta);
-		return incomingMessage(txn, m, body, metaDictionary);
 	}
 
 }

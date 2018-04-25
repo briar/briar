@@ -78,8 +78,7 @@ class IntroductionValidator extends BdfMessageValidator {
 		checkLength(msg, 1, MAX_REQUEST_MESSAGE_LENGTH);
 
 		BdfDictionary meta = messageEncoder
-				.encodeRequestMetadata(m.getTimestamp(), false, false,
-						false, false);
+				.encodeRequestMetadata(m.getTimestamp(), false, false, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {

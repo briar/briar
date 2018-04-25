@@ -14,11 +14,11 @@ class MessageMetadata {
 	@Nullable
 	private final SessionId sessionId;
 	private final long timestamp;
-	private final boolean local, read, visible, available, accepted;
+	private final boolean local, read, visible, available;
 
 	MessageMetadata(MessageType type, @Nullable SessionId sessionId,
 			long timestamp, boolean local, boolean read, boolean visible,
-			boolean available, boolean accepted) {
+			boolean available) {
 		this.type = type;
 		this.sessionId = sessionId;
 		this.timestamp = timestamp;
@@ -26,7 +26,6 @@ class MessageMetadata {
 		this.read = read;
 		this.visible = visible;
 		this.available = available;
-		this.accepted = accepted;
 	}
 
 	MessageType getMessageType() {
@@ -56,10 +55,6 @@ class MessageMetadata {
 
 	boolean isAvailableToAnswer() {
 		return available;
-	}
-
-	public boolean wasAccepted() {
-		return accepted;
 	}
 
 }

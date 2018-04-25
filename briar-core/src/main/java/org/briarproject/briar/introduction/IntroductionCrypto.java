@@ -1,6 +1,5 @@
 package org.briarproject.briar.introduction;
 
-import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.Author;
@@ -15,15 +14,13 @@ interface IntroductionCrypto {
 	/**
 	 * Returns the {@link SessionId} based on the introducer
 	 * and the two introducees.
-	 *
-	 * Note: The roles of Alice and Bob can be switched.
 	 */
-	SessionId getSessionId(Author introducer, Author alice, Author bob);
+	SessionId getSessionId(Author introducer, Author local, Author remote);
 
 	/**
-	 * Returns true if the first author is indeed alice
+	 * Returns true if the local author is alice
 	 */
-	boolean isAlice(AuthorId alice, AuthorId bob);
+	boolean isAlice(AuthorId local, AuthorId remote);
 
 	/**
 	 * Generates an agreement key pair.
@@ -49,11 +46,11 @@ interface IntroductionCrypto {
 	SecretKey deriveMacKey(SecretKey masterKey, boolean alice);
 
 	/**
-	 * Generates a MAC that covers both introducee's ephemeral public keys and
-	 * transport properties.
+	 * Generates a MAC that covers both introducee's ephemeral public keys,
+	 * transport properties, Author IDs and timestamps of the accept message.
 	 */
 	byte[] mac(SecretKey macKey, IntroduceeSession s, AuthorId localAuthorId,
-			boolean alice) throws FormatException;
+			boolean alice);
 
 	/**
 	 * Verifies a received MAC
@@ -63,7 +60,7 @@ interface IntroductionCrypto {
 	 * @throws GeneralSecurityException if the verification fails
 	 */
 	void verifyMac(byte[] mac, IntroduceeSession s, AuthorId localAuthorId)
-			throws GeneralSecurityException, FormatException;
+			throws GeneralSecurityException;
 
 	/**
 	 * Signs a nonce derived from the macKey
