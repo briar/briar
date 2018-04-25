@@ -132,7 +132,7 @@ class IntroduceeSession extends Session<IntroduceeState>
 	}
 
 	static IntroduceeSession awaitActivate(IntroduceeSession s, AuthMessage m,
-			Message sent, Map<TransportId, KeySetId> transportKeys) {
+			Message sent, @Nullable Map<TransportId, KeySetId> transportKeys) {
 		return new IntroduceeSession(s.getSessionId(), AWAIT_ACTIVATE,
 				s.getRequestTimestamp(), s.contactGroupId, sent.getId(),
 				sent.getTimestamp(), m.getMessageId(), s.introducer, null, null,

@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
+import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.client.ClientModule;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoModule;
@@ -144,6 +145,8 @@ public interface BriarIntegrationTestComponent {
 	PrivateGroupManager getPrivateGroupManager();
 
 	TransportPropertyManager getTransportPropertyManager();
+
+	KeyManager getKeyManager();
 
 	AuthorFactory getAuthorFactory();
 

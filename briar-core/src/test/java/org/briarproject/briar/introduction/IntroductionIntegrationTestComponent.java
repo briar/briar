@@ -61,5 +61,6 @@ interface IntroductionIntegrationTestComponent
 
 	MessageEncoder getMessageEncoder();
 	MessageParser getMessageParser();
+	SessionParser getSessionParser();
 
 }

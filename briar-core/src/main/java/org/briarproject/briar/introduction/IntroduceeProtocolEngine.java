@@ -416,26 +416,26 @@ class IntroduceeProtocolEngine
 		} catch (GeneralSecurityException e) {
 			return abort(txn, s);
 		}
-
-		try {
-			ContactId c = contactManager
-					.addContact(txn, s.getRemoteAuthor(), localAuthor.getId(),
-							false, false);
-			//noinspection ConstantConditions
-			transportPropertyManager.addRemoteProperties(txn, c,
-					s.getRemoteTransportProperties());
-		} catch (ContactExistsException e) {
-			// TODO
-		}
-
 		long timestamp =
 				Math.min(s.getAcceptTimestamp(), s.getRemoteAcceptTimestamp());
 		if (timestamp == -1) throw new AssertionError();
 
-		//noinspection ConstantConditions
-		Map<TransportId, KeySetId> keys = keyManager
-				.addUnboundKeys(txn, new SecretKey(s.getMasterKey()), timestamp,
-						isAlice(txn, s));
+		Map<TransportId, KeySetId> keys = null;
+		try {
+			ContactId c = contactManager
+					.addContact(txn, s.getRemoteAuthor(), localAuthor.getId(),
+							false, false);
+			if (s.getRemoteTransportProperties() == null ||
+					s.getMasterKey() == null) throw new AssertionError();
+			transportPropertyManager.addRemoteProperties(txn, c,
+					s.getRemoteTransportProperties());
+			keys = keyManager
+					.addUnboundKeys(txn, new SecretKey(s.getMasterKey()),
+							timestamp, isAlice(txn, s));
+		} catch (ContactExistsException e) {
+			// Ignore this and continue without adding transport properties
+			// or unbound transport keys. Continue with keys as null.
+		}
 
 		Message sent = sendActivateMessage(txn, s, getLocalTimestamp(s));
 
@@ -449,17 +449,22 @@ class IntroduceeProtocolEngine
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
 
-		Contact c = contactManager.getContact(txn, s.getRemoteAuthor().getId(),
-				identityManager.getLocalAuthor(txn).getId());
-		keyManager.bindKeys(txn, c.getId(), s.getTransportKeys());
-		keyManager.activateKeys(txn, s.getTransportKeys());
+		// Only bind keys if contact did not exist during AUTH
+		if (s.getTransportKeys() != null) {
+			Contact c =
+					contactManager.getContact(txn, s.getRemoteAuthor().getId(),
+							identityManager.getLocalAuthor(txn).getId());
+			keyManager.bindKeys(txn, c.getId(), s.getTransportKeys());
+			keyManager.activateKeys(txn, s.getTransportKeys());
 
-		// TODO remove when concept of inactive contacts is removed
-		contactManager.setContactActive(txn, c.getId(), true);
+			// TODO remove when concept of inactive contacts is removed
+			contactManager.setContactActive(txn, c.getId(), true);
 
-		// Broadcast IntroductionSucceededEvent
-		IntroductionSucceededEvent e = new IntroductionSucceededEvent(c);
-		txn.attach(e);
+			// TODO move this to AUTH step when concept of inactive contacts is removed
+			// Broadcast IntroductionSucceededEvent
+			IntroductionSucceededEvent e = new IntroductionSucceededEvent(c);
+			txn.attach(e);
+		}
 
 		// Move back to START state
 		return IntroduceeSession

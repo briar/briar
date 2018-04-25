@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
@@ -61,6 +62,8 @@ import static org.briarproject.briar.introduction.MessageType.ACCEPT;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class IntroductionIntegrationTest
@@ -166,11 +169,34 @@ public class IntroductionIntegrationTest
 		sync1To0(1, true);
 		sync0To2(1, true);
 
+		// assert that introducee2 added introducee1
+		Contact contact1From2 = c2.getContactManager()
+				.getContact(author1.getId(), author2.getId());
+
+		// assert that introducee2 did add transport properties
+		// TODO check when notion of inactive contacts has been removed
+//		TransportProperties tp2 = c2.getTransportPropertyManager()
+//				.getRemoteProperties(contact1From2.getId(), TRANSPORT_ID);
+//		assertFalse(tp2.isEmpty());
+
+		// assert that introducee2 did add the transport keys
+		IntroduceeSession session2 = getIntroduceeSession(c2.getClientHelper(),
+				introductionManager2.getContactGroup(contact0From2).getId());
+		assertNotNull(session2.getTransportKeys());
+		assertFalse(session2.getTransportKeys().isEmpty());
+
 		// sync second AUTH and its forward as well as the following ACTIVATE
 		sync2To0(2, true);
 		sync0To1(2, true);
 
-		// sync first ACTIVATE and its forward
+		// assert that introducee1 really purged the key material
+		IntroduceeSession session1 = getIntroduceeSession(c1.getClientHelper(),
+				introductionManager1.getContactGroup(contact0From1).getId());
+		assertNull(session1.getMasterKey());
+		assertNull(session1.getEphemeralPrivateKey());
+		assertNull(session1.getTransportKeys());
+
+		// sync second ACTIVATE and its forward
 		sync1To0(1, true);
 		sync0To2(1, true);
 
@@ -468,6 +494,71 @@ public class IntroductionIntegrationTest
 	}
 
 	@Test
+	public void testIntroductionToExistingContact() throws Exception {
+		// let contact1 and contact2 add each other already
+		addContacts1And2();
+		assertNotNull(contactId2From1);
+		assertNotNull(contactId1From2);
+
+		// both will still accept the introduction
+		addListeners(true, true);
+
+		// make the introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync REQUEST messages
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// assert that introducees get notified about the existing contact
+		IntroductionRequest ir1 =
+				getIntroductionRequest(introductionManager1, contactId0From1);
+		assertTrue(ir1.contactExists());
+		IntroductionRequest ir2 =
+				getIntroductionRequest(introductionManager2, contactId0From2);
+		assertTrue(ir2.contactExists());
+
+		// sync ACCEPT messages back to introducer
+		sync1To0(1, true);
+		sync2To0(1, true);
+
+		// sync forwarded ACCEPT messages to introducees
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// sync first AUTH and its forward
+		sync1To0(1, true);
+		sync0To2(1, true);
+
+		// assert that introducee2 did not add any transport properties
+		TransportProperties tp2 = c2.getTransportPropertyManager()
+				.getRemoteProperties(contactId1From2, TRANSPORT_ID);
+		assertTrue(tp2.isEmpty());
+
+		// assert that introducee2 did not add any transport keys
+		IntroduceeSession session2 = getIntroduceeSession(c2.getClientHelper(),
+				introductionManager2.getContactGroup(contact0From2).getId());
+		assertNull(session2.getTransportKeys());
+
+		// sync second AUTH and its forward as well as the following ACTIVATE
+		sync2To0(2, true);
+		sync0To1(2, true);
+
+		// sync second ACTIVATE and its forward
+		sync1To0(1, true);
+		sync0To2(1, true);
+
+		// assert that no session was aborted and no success event was broadcast
+		assertFalse(listener1.succeeded);
+		assertFalse(listener2.succeeded);
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
+	}
+
+	@Test
 	public void testIntroducerRemovedCleanup() throws Exception {
 		addListeners(true, true);
 
@@ -482,8 +573,7 @@ public class IntroductionIntegrationTest
 		assertTrue(listener1.requestReceived);
 
 		// get local group for introducee1
-		Group group1 =
-				contactGroupFactory.createLocalGroup(CLIENT_ID, CLIENT_VERSION);
+		Group group1 = getLocalGroup();
 
 		// check that we have one session state
 		assertEquals(1, c1.getClientHelper()
@@ -512,8 +602,7 @@ public class IntroductionIntegrationTest
 		assertTrue(listener1.requestReceived);
 
 		// get local group for introducer
-		Group group0 =
-				contactGroupFactory.createLocalGroup(CLIENT_ID, CLIENT_VERSION);
+		Group group0 = getLocalGroup();
 
 		// check that we have one session state
 		assertEquals(1, c0.getClientHelper()
@@ -580,8 +669,7 @@ public class IntroductionIntegrationTest
 							m.getTransportProperties());
 			c0.getClientHelper()
 					.addLocalMessage(txn, msg, new BdfDictionary(), true);
-			Group group0 = contactGroupFactory
-					.createLocalGroup(CLIENT_ID, CLIENT_VERSION);
+			Group group0 = getLocalGroup();
 			BdfDictionary query = BdfDictionary.of(
 					new BdfEntry(SESSION_KEY_SESSION_ID, m.getSessionId())
 			);
@@ -848,6 +936,31 @@ public class IntroductionIntegrationTest
 		BdfList body = ch.getMessageAsList(id);
 		//noinspection ConstantConditions
 		return c0.getMessageParser().parseAcceptMessage(m, body);
+	}
+
+	private IntroductionRequest getIntroductionRequest(
+			IntroductionManager manager, ContactId contactId)
+			throws DbException {
+		for (IntroductionMessage im : manager
+				.getIntroductionMessages(contactId)) {
+			if (im instanceof IntroductionRequest) {
+				return (IntroductionRequest) im;
+			}
+		}
+		throw new AssertionError("No IntroductionRequest found");
+	}
+
+	private IntroduceeSession getIntroduceeSession(ClientHelper ch,
+			GroupId introducerGroup) throws DbException, FormatException {
+		Map<MessageId, BdfDictionary> dicts =
+				ch.getMessageMetadataAsDictionary(getLocalGroup().getId());
+		assertEquals(1, dicts.size());
+		BdfDictionary d = dicts.values().iterator().next();
+		return c0.getSessionParser().parseIntroduceeSession(introducerGroup, d);
+	}
+
+	private Group getLocalGroup() {
+		return contactGroupFactory.createLocalGroup(CLIENT_ID, CLIENT_VERSION);
 	}
 
 }
