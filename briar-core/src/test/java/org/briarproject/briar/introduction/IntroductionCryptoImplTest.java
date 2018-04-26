@@ -96,35 +96,35 @@ public class IntroductionCryptoImplTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testAliceMac() throws Exception {
+	public void testAliceAuthMac() throws Exception {
 		SecretKey aliceMacKey = crypto.deriveMacKey(masterKey, true);
 		byte[] aliceMac =
-				crypto.mac(aliceMacKey, introducer.getId(), alice.getId(),
+				crypto.authMac(aliceMacKey, introducer.getId(), alice.getId(),
 						bob.getId(), aliceAcceptTimestamp, bobAcceptTimestamp,
 						aliceEphemeral.getPublic().getEncoded(),
 						bobEphemeral.getPublic().getEncoded(), aliceTransport,
 						bobTransport, true);
 
-		crypto.verifyMac(aliceMac, masterKey, introducer.getId(), bob.getId(),
-				alice.getId(), bobAcceptTimestamp, aliceAcceptTimestamp,
-				bobEphemeral.getPublic().getEncoded(),
+		crypto.verifyAuthMac(aliceMac, aliceMacKey, introducer.getId(),
+				bob.getId(), alice.getId(), bobAcceptTimestamp,
+				aliceAcceptTimestamp, bobEphemeral.getPublic().getEncoded(),
 				aliceEphemeral.getPublic().getEncoded(), bobTransport,
 				aliceTransport, true);
 	}
 
 	@Test
-	public void testBobMac() throws Exception {
+	public void testBobAuthMac() throws Exception {
 		SecretKey bobMacKey = crypto.deriveMacKey(masterKey, false);
 		byte[] bobMac =
-				crypto.mac(bobMacKey, introducer.getId(), bob.getId(),
+				crypto.authMac(bobMacKey, introducer.getId(), bob.getId(),
 						alice.getId(), bobAcceptTimestamp, aliceAcceptTimestamp,
 						bobEphemeral.getPublic().getEncoded(),
 						aliceEphemeral.getPublic().getEncoded(), bobTransport,
 						aliceTransport, false);
 
-		crypto.verifyMac(bobMac, masterKey, introducer.getId(), alice.getId(),
-				bob.getId(), aliceAcceptTimestamp, bobAcceptTimestamp,
-				aliceEphemeral.getPublic().getEncoded(),
+		crypto.verifyAuthMac(bobMac, bobMacKey, introducer.getId(),
+				alice.getId(), bob.getId(), aliceAcceptTimestamp,
+				bobAcceptTimestamp, aliceEphemeral.getPublic().getEncoded(),
 				bobEphemeral.getPublic().getEncoded(), aliceTransport,
 				bobTransport, false);
 	}
@@ -137,6 +137,22 @@ public class IntroductionCryptoImplTest extends BrambleTestCase {
 				crypto.sign(macKey, keyPair.getPrivate().getEncoded());
 		crypto.verifySignature(macKey, keyPair.getPublic().getEncoded(),
 				signature);
+	}
+
+	@Test
+	public void testAliceActivateMac() throws Exception {
+		SecretKey aliceMacKey = crypto.deriveMacKey(masterKey, true);
+		byte[] aliceMac = crypto.activateMac(aliceMacKey);
+
+		crypto.verifyActivateMac(aliceMac, aliceMacKey);
+	}
+
+	@Test
+	public void testBobActivateMac() throws Exception {
+		SecretKey bobMacKey = crypto.deriveMacKey(masterKey, false);
+		byte[] bobMac = crypto.activateMac(bobMacKey);
+
+		crypto.verifyActivateMac(bobMac, bobMacKey);
 	}
 
 }

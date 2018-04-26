@@ -7,6 +7,9 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.transport.KeySetId;
+import org.briarproject.briar.introduction.IntroduceeSession.Common;
+import org.briarproject.briar.introduction.IntroduceeSession.Local;
+import org.briarproject.briar.introduction.IntroduceeSession.Remote;
 import org.briarproject.briar.introduction.IntroducerSession.Introducee;
 
 import java.util.Map;
@@ -19,6 +22,7 @@ import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_ACCEPT_TIMESTAMP;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_ALICE;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_AUTHOR;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_EPHEMERAL_PRIVATE_KEY;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_EPHEMERAL_PUBLIC_KEY;
@@ -28,12 +32,12 @@ import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCER;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_LAST_LOCAL_MESSAGE_ID;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_LAST_REMOTE_MESSAGE_ID;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_LOCAL;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_LOCAL_TIMESTAMP;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_MAC_KEY;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_MASTER_KEY;
-import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_REMOTE_ACCEPT_TIMESTAMP;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_REMOTE;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_REMOTE_AUTHOR;
-import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_REMOTE_EPHEMERAL_PUBLIC_KEY;
-import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_REMOTE_TRANSPORT_PROPERTIES;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_REQUEST_TIMESTAMP;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_ROLE;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_SESSION_ID;
@@ -91,31 +95,40 @@ class SessionEncoderImpl implements SessionEncoder {
 	@Override
 	public BdfDictionary encodeIntroduceeSession(IntroduceeSession s) {
 		BdfDictionary d = encodeSession(s);
-		d.put(SESSION_KEY_LOCAL_TIMESTAMP, s.getLocalTimestamp());
-		putNullable(d, SESSION_KEY_LAST_LOCAL_MESSAGE_ID,
-				s.getLastLocalMessageId());
-		putNullable(d, SESSION_KEY_LAST_REMOTE_MESSAGE_ID,
-				s.getLastRemoteMessageId());
 		d.put(SESSION_KEY_INTRODUCER, clientHelper.toList(s.getIntroducer()));
-		d.put(SESSION_KEY_REMOTE_AUTHOR,
-				clientHelper.toList(s.getRemoteAuthor()));
-		putNullable(d, SESSION_KEY_EPHEMERAL_PUBLIC_KEY,
-				s.getEphemeralPublicKey());
-		putNullable(d, SESSION_KEY_EPHEMERAL_PRIVATE_KEY,
-				s.getEphemeralPrivateKey());
-		putNullable(d, SESSION_KEY_TRANSPORT_PROPERTIES,
-				s.getTransportProperties() == null ? null :
-						clientHelper.toDictionary(s.getTransportProperties()));
-		d.put(SESSION_KEY_ACCEPT_TIMESTAMP, s.getAcceptTimestamp());
+		d.put(SESSION_KEY_LOCAL, encodeLocal(s.getLocal()));
+		d.put(SESSION_KEY_REMOTE, encodeRemote(s.getRemote()));
 		putNullable(d, SESSION_KEY_MASTER_KEY, s.getMasterKey());
-		putNullable(d, SESSION_KEY_REMOTE_EPHEMERAL_PUBLIC_KEY,
-				s.getRemotePublicKey());
-		putNullable(d, SESSION_KEY_REMOTE_TRANSPORT_PROPERTIES,
-				s.getRemoteTransportProperties() == null ? null : clientHelper
-						.toDictionary(s.getRemoteTransportProperties()));
-		d.put(SESSION_KEY_REMOTE_ACCEPT_TIMESTAMP, s.getRemoteAcceptTimestamp());
 		putNullable(d, SESSION_KEY_TRANSPORT_KEYS,
 				encodeTransportKeys(s.getTransportKeys()));
+		return d;
+	}
+
+	private BdfDictionary encodeCommon(Common s) {
+		BdfDictionary d = new BdfDictionary();
+		d.put(SESSION_KEY_ALICE, s.alice);
+		putNullable(d, SESSION_KEY_EPHEMERAL_PUBLIC_KEY, s.ephemeralPublicKey);
+		putNullable(d, SESSION_KEY_TRANSPORT_PROPERTIES,
+				s.transportProperties == null ? null :
+						clientHelper.toDictionary(s.transportProperties));
+		d.put(SESSION_KEY_ACCEPT_TIMESTAMP, s.acceptTimestamp);
+		putNullable(d, SESSION_KEY_MAC_KEY, s.macKey);
+		return d;
+	}
+
+	private BdfDictionary encodeLocal(Local s) {
+		BdfDictionary d = encodeCommon(s);
+		d.put(SESSION_KEY_LOCAL_TIMESTAMP, s.lastMessageTimestamp);
+		putNullable(d, SESSION_KEY_LAST_LOCAL_MESSAGE_ID, s.lastMessageId);
+		putNullable(d, SESSION_KEY_EPHEMERAL_PRIVATE_KEY,
+				s.ephemeralPrivateKey);
+		return d;
+	}
+
+	private BdfDictionary encodeRemote(Remote s) {
+		BdfDictionary d = encodeCommon(s);
+		d.put(SESSION_KEY_REMOTE_AUTHOR, clientHelper.toList(s.author));
+		putNullable(d, SESSION_KEY_LAST_REMOTE_MESSAGE_ID, s.lastMessageId);
 		return d;
 	}
 

@@ -12,7 +12,7 @@ abstract class Session<S extends State> {
 
 	private final SessionId sessionId;
 	private final S state;
-	private long requestTimestamp;
+	private final long requestTimestamp;
 
 	Session(SessionId sessionId, S state, long requestTimestamp) {
 		this.sessionId = sessionId;
@@ -30,7 +30,7 @@ abstract class Session<S extends State> {
 		return state;
 	}
 
-	public long getRequestTimestamp() {
+	long getRequestTimestamp() {
 		return requestTimestamp;
 	}
 

@@ -27,68 +27,44 @@ class IntroduceeSession extends Session<IntroduceeState>
 		implements PeerSession {
 
 	private final GroupId contactGroupId;
-	private final long localTimestamp, acceptTimestamp, remoteAcceptTimestamp;
+	private final Author introducer;
+	private final Local local;
+	private final Remote remote;
 	@Nullable
-	private final MessageId lastLocalMessageId, lastRemoteMessageId;
-	private final Author introducer, remoteAuthor;
-	@Nullable
-	private final byte[] ephemeralPublicKey, ephemeralPrivateKey;
-	@Nullable
-	private final byte[] masterKey, remoteEphemeralPublicKey;
-	@Nullable
-	private final Map<TransportId, TransportProperties> transportProperties;
-	@Nullable
-	private final Map<TransportId, TransportProperties>
-			remoteTransportProperties;
+	private final byte[] masterKey;
 	@Nullable
 	private final Map<TransportId, KeySetId> transportKeys;
 
 	IntroduceeSession(SessionId sessionId, IntroduceeState state,
-			long requestTimestamp, GroupId contactGroupId,
-			@Nullable MessageId lastLocalMessageId, long localTimestamp,
-			@Nullable MessageId lastRemoteMessageId, Author introducer,
-			@Nullable byte[] ephemeralPublicKey,
-			@Nullable byte[] ephemeralPrivateKey,
-			@Nullable Map<TransportId, TransportProperties> transportProperties,
-			long acceptTimestamp, @Nullable byte[] masterKey,
-			Author remoteAuthor,
-			@Nullable byte[] remoteEphemeralPublicKey, @Nullable
-			Map<TransportId, TransportProperties> remoteTransportProperties,
-			long remoteAcceptTimestamp,
+			long requestTimestamp, GroupId contactGroupId, Author introducer,
+			Local local, Remote remote, @Nullable byte[] masterKey,
 			@Nullable Map<TransportId, KeySetId> transportKeys) {
 		super(sessionId, state, requestTimestamp);
 		this.contactGroupId = contactGroupId;
-		this.lastLocalMessageId = lastLocalMessageId;
-		this.localTimestamp = localTimestamp;
-		this.lastRemoteMessageId = lastRemoteMessageId;
 		this.introducer = introducer;
-		this.ephemeralPublicKey = ephemeralPublicKey;
-		this.ephemeralPrivateKey = ephemeralPrivateKey;
-		this.transportProperties = transportProperties;
-		this.acceptTimestamp = acceptTimestamp;
+		this.local = local;
+		this.remote = remote;
 		this.masterKey = masterKey;
-		this.remoteAuthor = remoteAuthor;
-		this.remoteEphemeralPublicKey = remoteEphemeralPublicKey;
-		this.remoteTransportProperties = remoteTransportProperties;
-		this.remoteAcceptTimestamp = remoteAcceptTimestamp;
 		this.transportKeys = transportKeys;
 	}
 
 	static IntroduceeSession getInitial(GroupId contactGroupId,
-			SessionId sessionId, Author introducer, Author remoteAuthor) {
-		return new IntroduceeSession(sessionId, START, -1, contactGroupId, null,
-				-1, null, introducer, null, null, null, -1, null, remoteAuthor,
-				null, null, -1, null);
+			SessionId sessionId, Author introducer, boolean localIsAlice,
+			Author remoteAuthor) {
+		Local local =
+				new Local(localIsAlice, null, -1, null, null, null, -1, null);
+		Remote remote =
+				new Remote(!localIsAlice, remoteAuthor, null, null, null, -1,
+						null);
+		return new IntroduceeSession(sessionId, START, -1, contactGroupId,
+				introducer, local, remote, null, null);
 	}
 
 	static IntroduceeSession addRemoteRequest(IntroduceeSession s,
 			IntroduceeState state, RequestMessage m) {
+		Remote remote = new Remote(s.remote, m.getMessageId());
 		return new IntroduceeSession(s.getSessionId(), state, m.getTimestamp(),
-				s.contactGroupId, s.lastLocalMessageId, s.localTimestamp,
-				m.getMessageId(), s.introducer, s.ephemeralPublicKey,
-				s.ephemeralPrivateKey, s.transportProperties, s.acceptTimestamp,
-				s.masterKey, s.remoteAuthor, s.remoteEphemeralPublicKey,
-				s.remoteTransportProperties, s.remoteAcceptTimestamp,
+				s.contactGroupId, s.introducer, s.local, remote, s.masterKey,
 				s.transportKeys);
 	}
 
@@ -97,57 +73,66 @@ class IntroduceeSession extends Session<IntroduceeState>
 			byte[] ephemeralPublicKey, byte[] ephemeralPrivateKey,
 			long acceptTimestamp,
 			Map<TransportId, TransportProperties> transportProperties) {
+		Local local = new Local(s.local.alice, acceptMessage.getId(),
+				acceptMessage.getTimestamp(), ephemeralPublicKey,
+				ephemeralPrivateKey, transportProperties, acceptTimestamp,
+				null);
 		return new IntroduceeSession(s.getSessionId(), state,
-				s.getRequestTimestamp(), s.contactGroupId,
-				acceptMessage.getId(), acceptMessage.getTimestamp(),
-				s.lastRemoteMessageId, s.introducer, ephemeralPublicKey,
-				ephemeralPrivateKey, transportProperties,
-				acceptTimestamp, s.masterKey, s.remoteAuthor,
-				s.remoteEphemeralPublicKey, s.remoteTransportProperties,
-				s.remoteAcceptTimestamp, s.transportKeys);
+				s.getRequestTimestamp(), s.contactGroupId, s.introducer, local,
+				s.remote, s.masterKey, s.transportKeys);
 	}
 
 	static IntroduceeSession addRemoteAccept(IntroduceeSession s,
-			IntroduceeState state, AcceptMessage acceptMessage) {
+			IntroduceeState state, AcceptMessage m) {
+		Remote remote =
+				new Remote(s.remote.alice, s.remote.author, m.getMessageId(),
+						m.getEphemeralPublicKey(), m.getTransportProperties(),
+						m.getAcceptTimestamp(), s.remote.macKey);
 		return new IntroduceeSession(s.getSessionId(), state,
-				s.getRequestTimestamp(), s.contactGroupId, s.lastLocalMessageId,
-				s.localTimestamp, acceptMessage.getMessageId(), s.introducer,
-				s.ephemeralPublicKey, s.ephemeralPrivateKey,
-				s.transportProperties, s.acceptTimestamp, s.masterKey,
-				s.remoteAuthor, acceptMessage.getEphemeralPublicKey(),
-				acceptMessage.getTransportProperties(),
-				acceptMessage.getAcceptTimestamp(), s.transportKeys);
+				s.getRequestTimestamp(), s.contactGroupId, s.introducer,
+				s.local, remote, s.masterKey, s.transportKeys);
 	}
 
 	static IntroduceeSession addLocalAuth(IntroduceeSession s,
-			IntroduceeState state, SecretKey masterKey, Message m) {
+			IntroduceeState state, Message m, SecretKey masterKey,
+			SecretKey aliceMacKey, SecretKey bobMacKey) {
+		// add mac key and sent message
+		Local local = new Local(s.local.alice, m.getId(), m.getTimestamp(),
+				s.local.ephemeralPublicKey, s.local.ephemeralPrivateKey,
+				s.local.transportProperties, s.local.acceptTimestamp,
+				s.local.alice ? aliceMacKey.getBytes() : bobMacKey.getBytes());
+		// just add the mac key
+		Remote remote = new Remote(s.remote.alice, s.remote.author,
+				s.remote.lastMessageId, s.remote.ephemeralPublicKey,
+				s.remote.transportProperties, s.remote.acceptTimestamp,
+				s.remote.alice ? aliceMacKey.getBytes() : bobMacKey.getBytes());
+		// add master key
 		return new IntroduceeSession(s.getSessionId(), state,
-				s.getRequestTimestamp(), s.contactGroupId, m.getId(),
-				m.getTimestamp(), s.lastRemoteMessageId, s.introducer,
-				s.ephemeralPublicKey, s.ephemeralPrivateKey,
-				s.transportProperties, s.acceptTimestamp, masterKey.getBytes(),
-				s.remoteAuthor, s.remoteEphemeralPublicKey,
-				s.remoteTransportProperties, s.remoteAcceptTimestamp,
-				s.transportKeys);
+				s.getRequestTimestamp(), s.contactGroupId, s.introducer, local,
+				remote, masterKey.getBytes(), s.transportKeys);
 	}
 
 	static IntroduceeSession awaitActivate(IntroduceeSession s, AuthMessage m,
 			Message sent, @Nullable Map<TransportId, KeySetId> transportKeys) {
+		Local local = new Local(s.local, sent.getId(), sent.getTimestamp());
+		Remote remote = new Remote(s.remote, m.getMessageId());
 		return new IntroduceeSession(s.getSessionId(), AWAIT_ACTIVATE,
-				s.getRequestTimestamp(), s.contactGroupId, sent.getId(),
-				sent.getTimestamp(), m.getMessageId(), s.introducer, null, null,
-				null, s.acceptTimestamp, null, s.getRemoteAuthor(), null, null,
-				s.remoteAcceptTimestamp, transportKeys);
+				s.getRequestTimestamp(), s.contactGroupId, s.introducer, local,
+				remote, null, transportKeys);
 	}
 
 	static IntroduceeSession clear(IntroduceeSession s,
 			@Nullable MessageId lastLocalMessageId, long localTimestamp,
 			@Nullable MessageId lastRemoteMessageId) {
+		Local local =
+				new Local(s.local.alice, lastLocalMessageId, localTimestamp,
+						null, null, null, -1, null);
+		Remote remote =
+				new Remote(s.remote.alice, s.remote.author, lastRemoteMessageId,
+						null, null, -1, null);
 		return new IntroduceeSession(s.getSessionId(), START,
-				s.getRequestTimestamp(), s.getContactGroupId(),
-				lastLocalMessageId, localTimestamp, lastRemoteMessageId,
-				s.getIntroducer(), null, null, null, -1, null,
-				s.getRemoteAuthor(), null, null, -1, null);
+				s.getRequestTimestamp(), s.contactGroupId, s.introducer, local,
+				remote, null, null);
 	}
 
 	@Override
@@ -155,45 +140,38 @@ class IntroduceeSession extends Session<IntroduceeState>
 		return INTRODUCEE;
 	}
 
+	@Override
 	public GroupId getContactGroupId() {
 		return contactGroupId;
 	}
 
+	@Override
 	public long getLocalTimestamp() {
-		return localTimestamp;
+		return local.lastMessageTimestamp;
 	}
 
 	@Nullable
+	@Override
 	public MessageId getLastLocalMessageId() {
-		return lastLocalMessageId;
+		return local.lastMessageId;
 	}
 
 	@Nullable
+	@Override
 	public MessageId getLastRemoteMessageId() {
-		return lastRemoteMessageId;
+		return remote.lastMessageId;
 	}
 
 	Author getIntroducer() {
 		return introducer;
 	}
 
-	@Nullable
-	byte[] getEphemeralPublicKey() {
-		return ephemeralPublicKey;
+	public Local getLocal() {
+		return local;
 	}
 
-	@Nullable
-	byte[] getEphemeralPrivateKey() {
-		return ephemeralPrivateKey;
-	}
-
-	@Nullable
-	Map<TransportId, TransportProperties> getTransportProperties() {
-		return transportProperties;
-	}
-
-	long getAcceptTimestamp() {
-		return acceptTimestamp;
+	public Remote getRemote() {
+		return remote;
 	}
 
 	@Nullable
@@ -201,27 +179,77 @@ class IntroduceeSession extends Session<IntroduceeState>
 		return masterKey;
 	}
 
-	Author getRemoteAuthor() {
-		return remoteAuthor;
-	}
-
-	@Nullable
-	byte[] getRemotePublicKey() {
-		return remoteEphemeralPublicKey;
-	}
-
-	@Nullable
-	Map<TransportId, TransportProperties> getRemoteTransportProperties() {
-		return remoteTransportProperties;
-	}
-
-	long getRemoteAcceptTimestamp() {
-		return remoteAcceptTimestamp;
-	}
-
 	@Nullable
 	Map<TransportId, KeySetId> getTransportKeys() {
 		return transportKeys;
+	}
+
+	abstract static class Common {
+		final boolean alice;
+		@Nullable
+		final MessageId lastMessageId;
+		@Nullable
+		final byte[] ephemeralPublicKey;
+		@Nullable
+		final Map<TransportId, TransportProperties> transportProperties;
+		final long acceptTimestamp;
+		@Nullable
+		final byte[] macKey;
+
+		private Common(boolean alice, @Nullable MessageId lastMessageId,
+				@Nullable byte[] ephemeralPublicKey, @Nullable
+				Map<TransportId, TransportProperties> transportProperties,
+				long acceptTimestamp, @Nullable byte[] macKey) {
+			this.alice = alice;
+			this.lastMessageId = lastMessageId;
+			this.ephemeralPublicKey = ephemeralPublicKey;
+			this.transportProperties = transportProperties;
+			this.acceptTimestamp = acceptTimestamp;
+			this.macKey = macKey;
+		}
+	}
+
+	static class Local extends Common {
+		final long lastMessageTimestamp;
+		@Nullable
+		final byte[] ephemeralPrivateKey;
+
+		Local(boolean alice, @Nullable MessageId lastMessageId,
+				long lastMessageTimestamp, @Nullable byte[] ephemeralPublicKey,
+				@Nullable byte[] ephemeralPrivateKey, @Nullable
+				Map<TransportId, TransportProperties> transportProperties,
+				long acceptTimestamp, @Nullable byte[] macKey) {
+			super(alice, lastMessageId, ephemeralPublicKey, transportProperties,
+					acceptTimestamp, macKey);
+			this.lastMessageTimestamp = lastMessageTimestamp;
+			this.ephemeralPrivateKey = ephemeralPrivateKey;
+		}
+
+		private Local(Local s, @Nullable MessageId lastMessageId,
+				long lastMessageTimestamp) {
+			this(s.alice, lastMessageId, lastMessageTimestamp,
+					s.ephemeralPublicKey, s.ephemeralPrivateKey,
+					s.transportProperties, s.acceptTimestamp, s.macKey);
+		}
+	}
+
+	static class Remote extends Common {
+		final Author author;
+
+		Remote(boolean alice, Author author,
+				@Nullable MessageId lastMessageId,
+				@Nullable byte[] ephemeralPublicKey, @Nullable
+				Map<TransportId, TransportProperties> transportProperties,
+				long acceptTimestamp, @Nullable byte[] macKey) {
+			super(alice, lastMessageId, ephemeralPublicKey, transportProperties,
+					acceptTimestamp, macKey);
+			this.author = author;
+		}
+
+		private Remote(Remote s, @Nullable MessageId lastMessageId) {
+			this(s.alice, s.author, lastMessageId, s.ephemeralPublicKey,
+					s.transportProperties, s.acceptTimestamp, s.macKey);
+		}
 	}
 
 }

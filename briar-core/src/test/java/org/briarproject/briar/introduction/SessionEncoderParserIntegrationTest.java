@@ -28,15 +28,19 @@ import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.briarproject.bramble.test.TestUtils.getTransportPropertiesMap;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
+import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
+import static org.briarproject.briar.introduction.IntroduceeSession.Local;
+import static org.briarproject.briar.introduction.IntroduceeSession.Remote;
 import static org.briarproject.briar.introduction.IntroduceeState.LOCAL_ACCEPTED;
 import static org.briarproject.briar.introduction.IntroducerState.AWAIT_AUTHS;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_ROLE;
-import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
-import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
+import static org.briarproject.briar.test.BriarTestUtils.getRealAuthor;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 
@@ -74,6 +78,8 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 	private final Map<TransportId, TransportProperties>
 			remoteTransportProperties = getTransportPropertiesMap(3);
 	private final Map<TransportId, KeySetId> transportKeys = new HashMap<>();
+	private final byte[] localMacKey = getRandomBytes(SecretKey.LENGTH);
+	private final byte[] remoteMacKey = getRandomBytes(SecretKey.LENGTH);
 
 	public SessionEncoderParserIntegrationTest() {
 		BriarIntegrationTestComponent component =
@@ -82,8 +88,8 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 
 		sessionEncoder = new SessionEncoderImpl(clientHelper);
 		sessionParser = new SessionParserImpl(clientHelper);
-		author1 = getRealAuthor();
-		author2 = getRealAuthor();
+		author1 = getRealAuthor(authorFactory);
+		author2 = getRealAuthor(authorFactory);
 		transportKeys.put(getTransportId(), new KeySetId(1));
 		transportKeys.put(getTransportId(), new KeySetId(2));
 		transportKeys.put(getTransportId(), new KeySetId(3));
@@ -167,48 +173,70 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(s1.getSessionId(), s2.getSessionId());
 		assertEquals(groupId1, s1.getContactGroupId());
 		assertEquals(s1.getContactGroupId(), s2.getContactGroupId());
+		assertEquals(author1, s1.getIntroducer());
+		assertEquals(s1.getIntroducer(), s2.getIntroducer());
+		assertArrayEquals(masterKey, s1.getMasterKey());
+		assertArrayEquals(s1.getMasterKey(), s2.getMasterKey());
+		assertEquals(transportKeys, s1.getTransportKeys());
+		assertEquals(s1.getTransportKeys(), s2.getTransportKeys());
 		assertEquals(localTimestamp, s1.getLocalTimestamp());
 		assertEquals(s1.getLocalTimestamp(), s2.getLocalTimestamp());
 		assertEquals(lastLocalMessageId, s1.getLastLocalMessageId());
 		assertEquals(s1.getLastLocalMessageId(), s2.getLastLocalMessageId());
 		assertEquals(lastRemoteMessageId, s1.getLastRemoteMessageId());
 		assertEquals(s1.getLastRemoteMessageId(), s2.getLastRemoteMessageId());
-		assertEquals(author1, s1.getIntroducer());
-		assertEquals(s1.getIntroducer(), s2.getIntroducer());
-		assertEquals(author2, s1.getRemoteAuthor());
-		assertEquals(s1.getRemoteAuthor(), s2.getRemoteAuthor());
-		assertArrayEquals(ephemeralPublicKey, s1.getEphemeralPublicKey());
-		assertArrayEquals(s1.getEphemeralPublicKey(),
-				s2.getEphemeralPublicKey());
-		assertArrayEquals(ephemeralPrivateKey, s1.getEphemeralPrivateKey());
-		assertArrayEquals(s1.getEphemeralPrivateKey(),
-				s2.getEphemeralPrivateKey());
-		assertEquals(acceptTimestamp, s1.getAcceptTimestamp());
-		assertEquals(s1.getAcceptTimestamp(), s2.getAcceptTimestamp());
-		assertArrayEquals(masterKey, s1.getMasterKey());
-		assertArrayEquals(s1.getMasterKey(), s2.getMasterKey());
-		assertArrayEquals(remoteEphemeralPublicKey, s1.getRemotePublicKey());
-		assertArrayEquals(s1.getRemotePublicKey(),
-				s2.getRemotePublicKey());
-		assertEquals(transportProperties, s1.getTransportProperties());
-		assertEquals(s1.getTransportProperties(), s2.getTransportProperties());
+
+		// check local
+		assertTrue(s1.getLocal().alice);
+		assertEquals(s1.getLocal().alice, s2.getLocal().alice);
+		assertEquals(lastLocalMessageId, s1.getLocal().lastMessageId);
+		assertEquals(s1.getLocal().lastMessageId, s2.getLocal().lastMessageId);
+		assertEquals(localTimestamp, s1.getLocal().lastMessageTimestamp);
+		assertEquals(s1.getLocal().lastMessageTimestamp,
+				s2.getLocal().lastMessageTimestamp);
+		assertArrayEquals(ephemeralPublicKey, s1.getLocal().ephemeralPublicKey);
+		assertArrayEquals(s1.getLocal().ephemeralPublicKey,
+				s2.getLocal().ephemeralPublicKey);
+		assertArrayEquals(ephemeralPrivateKey,
+				s1.getLocal().ephemeralPrivateKey);
+		assertArrayEquals(s1.getLocal().ephemeralPrivateKey,
+				s2.getLocal().ephemeralPrivateKey);
+		assertEquals(transportProperties, s1.getLocal().transportProperties);
+		assertEquals(s1.getLocal().transportProperties,
+				s2.getLocal().transportProperties);
+		assertEquals(acceptTimestamp, s1.getLocal().acceptTimestamp);
+		assertEquals(s1.getLocal().acceptTimestamp,
+				s2.getLocal().acceptTimestamp);
+		assertArrayEquals(localMacKey, s1.getLocal().macKey);
+		assertArrayEquals(s1.getLocal().macKey, s2.getLocal().macKey);
+
+		// check remote
+		assertFalse(s1.getRemote().alice);
+		assertEquals(s1.getRemote().alice, s2.getRemote().alice);
+		assertEquals(author2, s1.getRemote().author);
+		assertEquals(s1.getRemote().author, s2.getRemote().author);
+		assertEquals(lastRemoteMessageId, s1.getRemote().lastMessageId);
+		assertEquals(s1.getRemote().lastMessageId,
+				s2.getRemote().lastMessageId);
+		assertArrayEquals(remoteEphemeralPublicKey,
+				s1.getRemote().ephemeralPublicKey);
+		assertArrayEquals(s1.getRemote().ephemeralPublicKey,
+				s2.getRemote().ephemeralPublicKey);
 		assertEquals(remoteTransportProperties,
-				s1.getRemoteTransportProperties());
-		assertEquals(s1.getRemoteTransportProperties(),
-				s2.getRemoteTransportProperties());
-		assertEquals(remoteAcceptTimestamp, s1.getRemoteAcceptTimestamp());
-		assertEquals(s1.getRemoteAcceptTimestamp(), s2.getRemoteAcceptTimestamp());
-		assertEquals(transportKeys, s1.getTransportKeys());
-		assertEquals(s1.getTransportKeys(), s2.getTransportKeys());
+				s1.getRemote().transportProperties);
+		assertEquals(s1.getRemote().transportProperties,
+				s2.getRemote().transportProperties);
+		assertEquals(remoteAcceptTimestamp, s1.getRemote().acceptTimestamp);
+		assertEquals(s1.getRemote().acceptTimestamp,
+				s2.getRemote().acceptTimestamp);
+		assertArrayEquals(remoteMacKey, s1.getRemote().macKey);
+		assertArrayEquals(s1.getRemote().macKey, s2.getRemote().macKey);
 	}
 
 	@Test
 	public void testIntroduceeSessionWithNulls() throws FormatException {
-		IntroduceeSession s1 =
-				new IntroduceeSession(sessionId, LOCAL_ACCEPTED,
-						requestTimestamp, groupId1, null, localTimestamp, null,
-						author1, null, null, null, acceptTimestamp, null,
-						author2, null, null, remoteAcceptTimestamp, null);
+		IntroduceeSession s1 = IntroduceeSession
+				.getInitial(groupId1, sessionId, author1, false, author2);
 
 		BdfDictionary d = sessionEncoder.encodeIntroduceeSession(s1);
 		IntroduceeSession s2 =
@@ -218,14 +246,38 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(s1.getLastLocalMessageId(), s2.getLastLocalMessageId());
 		assertNull(s1.getLastRemoteMessageId());
 		assertEquals(s1.getLastRemoteMessageId(), s2.getLastRemoteMessageId());
-		assertNull(s1.getEphemeralPublicKey());
-		assertArrayEquals(s1.getEphemeralPublicKey(),
-				s2.getEphemeralPublicKey());
-		assertNull(s1.getEphemeralPrivateKey());
-		assertArrayEquals(s1.getEphemeralPrivateKey(),
-				s2.getEphemeralPrivateKey());
+		assertNull(s1.getMasterKey());
+		assertEquals(s1.getMasterKey(), s2.getMasterKey());
 		assertNull(s1.getTransportKeys());
 		assertEquals(s1.getTransportKeys(), s2.getTransportKeys());
+
+		// check local
+		assertNull(s1.getLocal().lastMessageId);
+		assertEquals(s1.getLocal().lastMessageId, s2.getLocal().lastMessageId);
+		assertNull(s1.getLocal().ephemeralPublicKey);
+		assertEquals(s1.getLocal().ephemeralPublicKey,
+				s2.getLocal().ephemeralPublicKey);
+		assertNull(s1.getLocal().ephemeralPrivateKey);
+		assertEquals(s1.getLocal().ephemeralPrivateKey,
+				s2.getLocal().ephemeralPrivateKey);
+		assertNull(s1.getLocal().transportProperties);
+		assertEquals(s1.getLocal().transportProperties,
+				s2.getLocal().transportProperties);
+		assertNull(s1.getLocal().macKey);
+		assertEquals(s1.getLocal().macKey, s2.getLocal().macKey);
+
+		// check remote
+		assertNull(s1.getRemote().lastMessageId);
+		assertEquals(s1.getRemote().lastMessageId,
+				s2.getRemote().lastMessageId);
+		assertNull(s1.getRemote().ephemeralPublicKey);
+		assertEquals(s1.getRemote().ephemeralPublicKey,
+				s2.getRemote().ephemeralPublicKey);
+		assertNull(s1.getRemote().transportProperties);
+		assertEquals(s1.getRemote().transportProperties,
+				s2.getRemote().transportProperties);
+		assertNull(s1.getRemote().macKey);
+		assertEquals(s1.getRemote().macKey, s2.getRemote().macKey);
 	}
 
 	@Test(expected = FormatException.class)
@@ -256,13 +308,15 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 	}
 
 	private IntroduceeSession getIntroduceeSession() {
+		Local local = new Local(true, lastLocalMessageId, localTimestamp,
+				ephemeralPublicKey, ephemeralPrivateKey, transportProperties,
+				acceptTimestamp, localMacKey);
+		Remote remote = new Remote(false, author2, lastRemoteMessageId,
+				remoteEphemeralPublicKey,  remoteTransportProperties,
+				remoteAcceptTimestamp, remoteMacKey);
 		return new IntroduceeSession(sessionId, LOCAL_ACCEPTED,
-				requestTimestamp, groupId1, lastLocalMessageId, localTimestamp,
-				lastRemoteMessageId, author1, ephemeralPublicKey,
-				ephemeralPrivateKey, transportProperties, acceptTimestamp,
-				masterKey, author2, remoteEphemeralPublicKey,
-				remoteTransportProperties, remoteAcceptTimestamp,
-				transportKeys);
+				requestTimestamp, groupId1, author1, local, remote,
+				masterKey, transportKeys);
 	}
 
 	private void assertIntroduceeEquals(Introducee i1, Introducee i2) {
@@ -271,11 +325,6 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(i1.localTimestamp, i2.localTimestamp);
 		assertEquals(i1.lastLocalMessageId, i2.lastLocalMessageId);
 		assertEquals(i1.lastRemoteMessageId, i2.lastRemoteMessageId);
-	}
-
-	private Author getRealAuthor() {
-		return authorFactory.createAuthor(getRandomString(5),
-				getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
 	}
 
 }

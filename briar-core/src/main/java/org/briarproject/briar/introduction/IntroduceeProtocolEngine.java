@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -13,7 +12,6 @@ import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -354,7 +352,7 @@ class IntroduceeProtocolEngine
 		IntroductionResponse request =
 				new IntroductionResponse(s.getSessionId(), m.getMessageId(),
 						m.getGroupId(), INTRODUCEE, m.getTimestamp(), false,
-						false, false, false, s.getRemoteAuthor().getName(),
+						false, false, false, s.getRemote().author.getName(),
 						false);
 		IntroductionResponseReceivedEvent e =
 				new IntroductionResponseReceivedEvent(c.getId(), request);
@@ -383,16 +381,18 @@ class IntroduceeProtocolEngine
 
 	private IntroduceeSession onLocalAuth(Transaction txn, IntroduceeSession s)
 			throws DbException {
-		boolean alice = isAlice(txn, s);
 		byte[] mac;
 		byte[] signature;
-		SecretKey masterKey;
+		SecretKey masterKey, aliceMacKey, bobMacKey;
 		try {
-			masterKey = crypto.deriveMasterKey(s, alice);
-			SecretKey macKey = crypto.deriveMacKey(masterKey, alice);
+			masterKey = crypto.deriveMasterKey(s);
+			aliceMacKey = crypto.deriveMacKey(masterKey, true);
+			bobMacKey = crypto.deriveMacKey(masterKey, false);
+			SecretKey ourMacKey = s.getLocal().alice ? aliceMacKey : bobMacKey;
 			LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
-			mac = crypto.mac(macKey, s, localAuthor.getId(), alice);
-			signature = crypto.sign(macKey, localAuthor.getPrivateKey());
+			mac = crypto.authMac(ourMacKey, s, localAuthor.getId(),
+					s.getLocal().alice);
+			signature = crypto.sign(ourMacKey, localAuthor.getPrivateKey());
 		} catch (GeneralSecurityException e) {
 			// TODO
 			return abort(txn, s);
@@ -400,7 +400,8 @@ class IntroduceeProtocolEngine
 		if (s.getState() != AWAIT_AUTH) throw new AssertionError();
 		Message sent = sendAuthMessage(txn, s, getLocalTimestamp(s), mac,
 				signature);
-		return IntroduceeSession.addLocalAuth(s, AWAIT_AUTH, masterKey, sent);
+		return IntroduceeSession.addLocalAuth(s, AWAIT_AUTH, sent, masterKey,
+				aliceMacKey, bobMacKey);
 	}
 
 	private IntroduceeSession onRemoteAuth(Transaction txn,
@@ -411,33 +412,50 @@ class IntroduceeProtocolEngine
 
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		try {
-			crypto.verifyMac(m.getMac(), s, localAuthor.getId());
+			crypto.verifyAuthMac(m.getMac(), s, localAuthor.getId());
 			crypto.verifySignature(m.getSignature(), s, localAuthor.getId());
 		} catch (GeneralSecurityException e) {
 			return abort(txn, s);
 		}
-		long timestamp =
-				Math.min(s.getAcceptTimestamp(), s.getRemoteAcceptTimestamp());
+		long timestamp = Math.min(s.getLocal().acceptTimestamp,
+				s.getRemote().acceptTimestamp);
 		if (timestamp == -1) throw new AssertionError();
 
-		Map<TransportId, KeySetId> keys = null;
+		boolean contactAdded = false;
 		try {
-			ContactId c = contactManager
-					.addContact(txn, s.getRemoteAuthor(), localAuthor.getId(),
-							false, false);
-			if (s.getRemoteTransportProperties() == null ||
-					s.getMasterKey() == null) throw new AssertionError();
-			transportPropertyManager.addRemoteProperties(txn, c,
-					s.getRemoteTransportProperties());
-			keys = keyManager
-					.addUnboundKeys(txn, new SecretKey(s.getMasterKey()),
-							timestamp, isAlice(txn, s));
+			contactManager
+					.addContact(txn, s.getRemote().author, localAuthor.getId(),
+							false, true);
+			contactAdded = true;
 		} catch (ContactExistsException e) {
-			// Ignore this and continue without adding transport properties
-			// or unbound transport keys. Continue with keys as null.
+			// Ignore this, because the other introducee might have deleted us.
+			// So we still want updated transport properties
+			// and new transport keys.
 		}
+		Contact c = contactManager.getContact(txn, s.getRemote().author.getId(),
+				localAuthor.getId());
 
-		Message sent = sendActivateMessage(txn, s, getLocalTimestamp(s));
+		// bind the keys to the new (or existing) contact
+		//noinspection ConstantConditions
+		Map<TransportId, KeySetId> keys = keyManager
+				.addUnboundKeys(txn, new SecretKey(s.getMasterKey()),
+						timestamp, s.getRemote().alice);
+		keyManager.bindKeys(txn, c.getId(), keys);
+
+		// add signed transport properties for the contact
+		//noinspection ConstantConditions
+		transportPropertyManager.addRemoteProperties(txn, c.getId(),
+				s.getRemote().transportProperties);
+
+		// send ACTIVATE message with a MAC
+		byte[] mac = crypto.activateMac(s);
+		Message sent = sendActivateMessage(txn, s, getLocalTimestamp(s), mac);
+
+		if (contactAdded) {
+			// Broadcast IntroductionSucceededEvent, because contact got added
+			IntroductionSucceededEvent e = new IntroductionSucceededEvent(c);
+			txn.attach(e);
+		}
 
 		// Move to AWAIT_ACTIVATE state and clear key material from session
 		return IntroduceeSession.awaitActivate(s, m, sent, keys);
@@ -449,22 +467,16 @@ class IntroduceeProtocolEngine
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
 
-		// Only bind keys if contact did not exist during AUTH
-		if (s.getTransportKeys() != null) {
-			Contact c =
-					contactManager.getContact(txn, s.getRemoteAuthor().getId(),
-							identityManager.getLocalAuthor(txn).getId());
-			keyManager.bindKeys(txn, c.getId(), s.getTransportKeys());
-			keyManager.activateKeys(txn, s.getTransportKeys());
-
-			// TODO remove when concept of inactive contacts is removed
-			contactManager.setContactActive(txn, c.getId(), true);
-
-			// TODO move this to AUTH step when concept of inactive contacts is removed
-			// Broadcast IntroductionSucceededEvent
-			IntroductionSucceededEvent e = new IntroductionSucceededEvent(c);
-			txn.attach(e);
+		// Validate MAC
+		try {
+			crypto.verifyActivateMac(m.getMac(), s);
+		} catch (GeneralSecurityException e) {
+			// TODO remove transport keys?
+			return abort(txn, s);
 		}
+
+		// Activate transport keys
+		keyManager.activateKeys(txn, s.getTransportKeys());
 
 		// Move back to START state
 		return IntroduceeSession
@@ -511,12 +523,6 @@ class IntroduceeProtocolEngine
 	private long getLocalTimestamp(IntroduceeSession s) {
 		return getLocalTimestamp(s.getLocalTimestamp(),
 				s.getRequestTimestamp());
-	}
-
-	private boolean isAlice(Transaction txn, IntroduceeSession s)
-			throws DbException {
-		Author localAuthor = identityManager.getLocalAuthor(txn);
-		return crypto.isAlice(localAuthor.getId(), s.getRemoteAuthor().getId());
 	}
 
 	private void addSessionId(Transaction txn, MessageId m, SessionId sessionId)

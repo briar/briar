@@ -124,8 +124,9 @@ class MessageParserImpl implements MessageParser {
 		SessionId sessionId = new SessionId(body.getRaw(1));
 		byte[] previousMsgBytes = body.getRaw(2);
 		MessageId previousMessageId = new MessageId(previousMsgBytes);
+		byte[] mac = body.getRaw(3);
 		return new ActivateMessage(m.getId(), m.getGroupId(), m.getTimestamp(),
-				previousMessageId, sessionId);
+				previousMessageId, sessionId, mac);
 	}
 
 	@Override

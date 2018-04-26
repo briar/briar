@@ -312,7 +312,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	@Test
 	public void testAcceptsActivate() throws Exception {
 		BdfList body = BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(),
-				previousMsgId.getBytes());
+				previousMsgId.getBytes(), mac);
 
 		expectEncodeMetadata(ACTIVATE);
 		BdfMessageContext messageContext =
@@ -323,27 +323,37 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortBodyForActivate() throws Exception {
-		BdfList body = BdfList.of(ACTIVATE.getValue(), sessionId.getBytes());
+		BdfList body = BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes());
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongBodyForActivate() throws Exception {
 		BdfList body = BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(),
-				previousMsgId.getBytes(), null);
+				previousMsgId.getBytes(), mac, null);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInvalidSessionIdForActivate() throws Exception {
 		BdfList body =
-				BdfList.of(ACTIVATE.getValue(), null, previousMsgId.getBytes());
+				BdfList.of(ACTIVATE.getValue(), null, previousMsgId.getBytes(),
+						mac);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInvalidPreviousMsgIdForActivate() throws Exception {
-		BdfList body = BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(), 1);
+		BdfList body =
+				BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(), 1, mac);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvalidMacForActivate() throws Exception {
+		BdfList body = BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), getRandomBytes(MAC_BYTES - 1));
 		validator.validateMessage(message, group, body);
 	}
 

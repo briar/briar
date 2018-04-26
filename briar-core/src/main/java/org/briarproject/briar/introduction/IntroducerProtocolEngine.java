@@ -440,7 +440,7 @@ class IntroducerProtocolEngine
 		// Forward ACTIVATE message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
 		long timestamp = getLocalTimestamp(s, i);
-		Message sent = sendActivateMessage(txn, i, timestamp);
+		Message sent = sendActivateMessage(txn, i, timestamp, m.getMac());
 
 		// Move to the next state
 		IntroducerState state = START;

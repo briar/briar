@@ -190,8 +190,10 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		Author remote = messageParser.parseRequestMessage(m, body).getAuthor();
 		if (local.equals(remote)) throw new FormatException();
 		SessionId sessionId = crypto.getSessionId(introducer, local, remote);
+		boolean alice = crypto.isAlice(local.getId(), remote.getId());
 		return IntroduceeSession
-				.getInitial(m.getGroupId(), sessionId, introducer, remote);
+				.getInitial(m.getGroupId(), sessionId, introducer, alice,
+						remote);
 	}
 
 	private <S extends Session> S handleMessage(Transaction txn, Message m,
@@ -441,7 +443,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			IntroduceeSession session = sessionParser
 					.parseIntroduceeSession(contactGroupId, bdfSession);
 			sessionId = session.getSessionId();
-			author = session.getRemoteAuthor();
+			author = session.getRemote().author;
 		} else throw new AssertionError();
 		Message msg = clientHelper.getMessage(txn, m);
 		BdfList body = clientHelper.getMessageAsList(txn, m);
@@ -481,7 +483,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			IntroduceeSession session = sessionParser
 					.parseIntroduceeSession(contactGroupId, bdfSession);
 			sessionId = session.getSessionId();
-			author = session.getRemoteAuthor();
+			author = session.getRemote().author;
 		} else throw new AssertionError();
 		return new IntroductionResponse(sessionId, m, contactGroupId,
 				role, meta.getTimestamp(), meta.isLocal(), status.isSent(),

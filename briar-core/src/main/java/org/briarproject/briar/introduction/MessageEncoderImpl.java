@@ -100,12 +100,7 @@ class MessageEncoderImpl implements MessageEncoder {
 				clientHelper.toList(author),
 				message
 		);
-		try {
-			return messageFactory.createMessage(contactGroupId, timestamp,
-					clientHelper.toByteArray(body));
-		} catch (FormatException e) {
-			throw new AssertionError(e);
-		}
+		return createMessage(contactGroupId, timestamp, body);
 	}
 
 	@Override
@@ -119,14 +114,9 @@ class MessageEncoderImpl implements MessageEncoder {
 				previousMessageId,
 				ephemeralPublicKey,
 				acceptTimestamp,
-				encodeTransportProperties(transportProperties)
+				clientHelper.toDictionary(transportProperties)
 		);
-		try {
-			return messageFactory.createMessage(contactGroupId, timestamp,
-					clientHelper.toByteArray(body));
-		} catch (FormatException e) {
-			throw new AssertionError(e);
-		}
+		return createMessage(contactGroupId, timestamp, body);
 	}
 
 	@Override
@@ -147,19 +137,20 @@ class MessageEncoderImpl implements MessageEncoder {
 				mac,
 				signature
 		);
-		try {
-			return messageFactory.createMessage(contactGroupId, timestamp,
-					clientHelper.toByteArray(body));
-		} catch (FormatException e) {
-			throw new AssertionError(e);
-		}
+		return createMessage(contactGroupId, timestamp, body);
 	}
 
 	@Override
 	public Message encodeActivateMessage(GroupId contactGroupId, long timestamp,
-			@Nullable MessageId previousMessageId, SessionId sessionId) {
-		return encodeMessage(ACTIVATE, contactGroupId, sessionId, timestamp,
-				previousMessageId);
+			@Nullable MessageId previousMessageId, SessionId sessionId,
+			byte[] mac) {
+		BdfList body = BdfList.of(
+				ACTIVATE.getValue(),
+				sessionId,
+				previousMessageId,
+				mac
+		);
+		return createMessage(contactGroupId, timestamp, body);
 	}
 
 	@Override
@@ -177,21 +168,17 @@ class MessageEncoderImpl implements MessageEncoder {
 				sessionId,
 				previousMessageId
 		);
+		return createMessage(contactGroupId, timestamp, body);
+	}
+
+	private Message createMessage(GroupId contactGroupId, long timestamp,
+			BdfList body) {
 		try {
 			return messageFactory.createMessage(contactGroupId, timestamp,
 					clientHelper.toByteArray(body));
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
-	}
-
-	private BdfDictionary encodeTransportProperties(
-			Map<TransportId, TransportProperties> map) {
-		BdfDictionary d = new BdfDictionary();
-		for (Map.Entry<TransportId, TransportProperties> e : map.entrySet()) {
-			d.put(e.getKey().getString(), e.getValue());
-		}
-		return d;
 	}
 
 }

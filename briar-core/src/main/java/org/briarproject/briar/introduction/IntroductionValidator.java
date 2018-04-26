@@ -27,6 +27,7 @@ import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
+import static org.briarproject.briar.introduction.MessageType.ACTIVATE;
 import static org.briarproject.briar.introduction.MessageType.AUTH;
 
 
@@ -55,8 +56,9 @@ class IntroductionValidator extends BdfMessageValidator {
 				return validateAcceptMessage(m, body);
 			case AUTH:
 				return validateAuthMessage(m, body);
-			case DECLINE:
 			case ACTIVATE:
+				return validateActivateMessage(m, body);
+			case DECLINE:
 			case ABORT:
 				return validateOtherMessage(type, m, body);
 			default:
@@ -147,6 +149,32 @@ class IntroductionValidator extends BdfMessageValidator {
 		MessageId dependency = new MessageId(previousMessageId);
 		return new BdfMessageContext(meta,
 				Collections.singletonList(dependency));
+	}
+
+	private BdfMessageContext validateActivateMessage(Message m, BdfList body)
+			throws FormatException {
+		checkSize(body, 4);
+
+		byte[] sessionIdBytes = body.getRaw(1);
+		checkLength(sessionIdBytes, UniqueId.LENGTH);
+
+		byte[] previousMessageId = body.getOptionalRaw(2);
+		checkLength(previousMessageId, UniqueId.LENGTH);
+
+		byte[] mac = body.getOptionalRaw(3);
+		checkLength(mac, MAC_BYTES);
+
+		SessionId sessionId = new SessionId(sessionIdBytes);
+		BdfDictionary meta = messageEncoder
+				.encodeMetadata(ACTIVATE, sessionId, m.getTimestamp(), false,
+						false, false);
+		if (previousMessageId == null) {
+			return new BdfMessageContext(meta);
+		} else {
+			MessageId dependency = new MessageId(previousMessageId);
+			return new BdfMessageContext(meta,
+					Collections.singletonList(dependency));
+		}
 	}
 
 	private BdfMessageContext validateOtherMessage(MessageType type,

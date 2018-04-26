@@ -110,11 +110,11 @@ abstract class AbstractProtocolEngine<S extends Session>
 		return m;
 	}
 
-	Message sendActivateMessage(Transaction txn, PeerSession s, long timestamp)
-			throws DbException {
+	Message sendActivateMessage(Transaction txn, PeerSession s, long timestamp,
+			byte[] mac) throws DbException {
 		Message m = messageEncoder
 				.encodeActivateMessage(s.getContactGroupId(), timestamp,
-						s.getLastLocalMessageId(), s.getSessionId());
+						s.getLastLocalMessageId(), s.getSessionId(), mac);
 		sendMessage(txn, ACTIVATE, s.getSessionId(), m, false);
 		return m;
 	}

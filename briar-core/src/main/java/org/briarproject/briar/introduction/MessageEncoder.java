@@ -47,7 +47,8 @@ interface MessageEncoder {
 			byte[] mac, byte[] signature);
 
 	Message encodeActivateMessage(GroupId contactGroupId, long timestamp,
-			@Nullable MessageId previousMessageId, SessionId sessionId);
+			@Nullable MessageId previousMessageId, SessionId sessionId,
+			byte[] mac);
 
 	Message encodeAbortMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, SessionId sessionId);

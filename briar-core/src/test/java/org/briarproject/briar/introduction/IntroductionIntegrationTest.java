@@ -170,16 +170,6 @@ public class IntroductionIntegrationTest
 		sync1To0(1, true);
 		sync0To2(1, true);
 
-		// assert that introducee2 added introducee1
-		Contact contact1From2 = c2.getContactManager()
-				.getContact(author1.getId(), author2.getId());
-
-		// assert that introducee2 did add transport properties
-		// TODO check when notion of inactive contacts has been removed
-//		TransportProperties tp2 = c2.getTransportPropertyManager()
-//				.getRemoteProperties(contact1From2.getId(), TRANSPORT_ID);
-//		assertFalse(tp2.isEmpty());
-
 		// assert that introducee2 did add the transport keys
 		IntroduceeSession session2 = getIntroduceeSession(c2.getClientHelper(),
 				introductionManager2.getContactGroup(contact0From2).getId());
@@ -194,7 +184,7 @@ public class IntroductionIntegrationTest
 		IntroduceeSession session1 = getIntroduceeSession(c1.getClientHelper(),
 				introductionManager1.getContactGroup(contact0From1).getId());
 		assertNull(session1.getMasterKey());
-		assertNull(session1.getEphemeralPrivateKey());
+		assertNull(session1.getLocal().ephemeralPrivateKey);
 		assertNull(session1.getTransportKeys());
 
 		// sync second ACTIVATE and its forward
@@ -532,16 +522,6 @@ public class IntroductionIntegrationTest
 		// sync first AUTH and its forward
 		sync1To0(1, true);
 		sync0To2(1, true);
-
-		// assert that introducee2 did not add any transport properties
-		TransportProperties tp2 = c2.getTransportPropertyManager()
-				.getRemoteProperties(contactId1From2, TRANSPORT_ID);
-		assertTrue(tp2.isEmpty());
-
-		// assert that introducee2 did not add any transport keys
-		IntroduceeSession session2 = getIntroduceeSession(c2.getClientHelper(),
-				introductionManager2.getContactGroup(contact0From2).getId());
-		assertNull(session2.getTransportKeys());
 
 		// sync second AUTH and its forward as well as the following ACTIVATE
 		sync2To0(2, true);

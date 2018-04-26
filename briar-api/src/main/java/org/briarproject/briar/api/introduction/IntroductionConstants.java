@@ -26,4 +26,7 @@ public interface IntroductionConstants {
 
 	String LABEL_AUTH_NONCE = "org.briarproject.briar.introduction/AUTH_NONCE";
 
+	String LABEL_ACTIVATE_MAC =
+			"org.briarproject.briar.introduction/ACTIVATE_MAC";
+
 }

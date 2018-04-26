@@ -30,16 +30,19 @@ interface IntroductionConstants {
 
 	// Session Keys Introducee
 	String SESSION_KEY_INTRODUCER = "introducer";
+	String SESSION_KEY_LOCAL = "local";
+	String SESSION_KEY_REMOTE = "remote";
+
+	String SESSION_KEY_MASTER_KEY = "masterKey";
+	String SESSION_KEY_TRANSPORT_KEYS = "transportKeys";
+
+	String SESSION_KEY_ALICE = "alice";
 	String SESSION_KEY_EPHEMERAL_PUBLIC_KEY = "ephemeralPublicKey";
 	String SESSION_KEY_EPHEMERAL_PRIVATE_KEY = "ephemeralPrivateKey";
 	String SESSION_KEY_TRANSPORT_PROPERTIES = "transportProperties";
 	String SESSION_KEY_ACCEPT_TIMESTAMP = "acceptTimestamp";
-	String SESSION_KEY_MASTER_KEY = "masterKey";
+	String SESSION_KEY_MAC_KEY = "macKey";
+
 	String SESSION_KEY_REMOTE_AUTHOR = "remoteAuthor";
-	String SESSION_KEY_REMOTE_EPHEMERAL_PUBLIC_KEY = "remoteEphemeralPublicKey";
-	String SESSION_KEY_REMOTE_TRANSPORT_PROPERTIES =
-			"remoteTransportProperties";
-	String SESSION_KEY_REMOTE_ACCEPT_TIMESTAMP = "remoteAcceptTimestamp";
-	String SESSION_KEY_TRANSPORT_KEYS = "transportKeys";
 
 }

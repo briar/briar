@@ -165,17 +165,17 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 						sessionId, ephemeralPublicKey, acceptTimestamp,
 						transportProperties);
 		validator.validateMessage(m, group, clientHelper.toList(m));
-		AcceptMessage rm =
+		AcceptMessage am =
 				messageParser.parseAcceptMessage(m, clientHelper.toList(m));
 
-		assertEquals(m.getId(), rm.getMessageId());
-		assertEquals(m.getGroupId(), rm.getGroupId());
-		assertEquals(m.getTimestamp(), rm.getTimestamp());
-		assertEquals(previousMsgId, rm.getPreviousMessageId());
-		assertEquals(sessionId, rm.getSessionId());
-		assertArrayEquals(ephemeralPublicKey, rm.getEphemeralPublicKey());
-		assertEquals(acceptTimestamp, rm.getAcceptTimestamp());
-		assertEquals(transportProperties, rm.getTransportProperties());
+		assertEquals(m.getId(), am.getMessageId());
+		assertEquals(m.getGroupId(), am.getGroupId());
+		assertEquals(m.getTimestamp(), am.getTimestamp());
+		assertEquals(previousMsgId, am.getPreviousMessageId());
+		assertEquals(sessionId, am.getSessionId());
+		assertArrayEquals(ephemeralPublicKey, am.getEphemeralPublicKey());
+		assertEquals(acceptTimestamp, am.getAcceptTimestamp());
+		assertEquals(transportProperties, am.getTransportProperties());
 	}
 
 	@Test
@@ -184,14 +184,14 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 				.encodeDeclineMessage(groupId, timestamp, previousMsgId,
 						sessionId);
 		validator.validateMessage(m, group, clientHelper.toList(m));
-		DeclineMessage rm =
+		DeclineMessage dm =
 				messageParser.parseDeclineMessage(m, clientHelper.toList(m));
 
-		assertEquals(m.getId(), rm.getMessageId());
-		assertEquals(m.getGroupId(), rm.getGroupId());
-		assertEquals(m.getTimestamp(), rm.getTimestamp());
-		assertEquals(previousMsgId, rm.getPreviousMessageId());
-		assertEquals(sessionId, rm.getSessionId());
+		assertEquals(m.getId(), dm.getMessageId());
+		assertEquals(m.getGroupId(), dm.getGroupId());
+		assertEquals(m.getTimestamp(), dm.getTimestamp());
+		assertEquals(previousMsgId, dm.getPreviousMessageId());
+		assertEquals(sessionId, dm.getSessionId());
 	}
 
 	@Test
@@ -200,32 +200,33 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 				.encodeAuthMessage(groupId, timestamp, previousMsgId,
 						sessionId, mac, signature);
 		validator.validateMessage(m, group, clientHelper.toList(m));
-		AuthMessage rm =
+		AuthMessage am =
 				messageParser.parseAuthMessage(m, clientHelper.toList(m));
 
-		assertEquals(m.getId(), rm.getMessageId());
-		assertEquals(m.getGroupId(), rm.getGroupId());
-		assertEquals(m.getTimestamp(), rm.getTimestamp());
-		assertEquals(previousMsgId, rm.getPreviousMessageId());
-		assertEquals(sessionId, rm.getSessionId());
-		assertArrayEquals(mac, rm.getMac());
-		assertArrayEquals(signature, rm.getSignature());
+		assertEquals(m.getId(), am.getMessageId());
+		assertEquals(m.getGroupId(), am.getGroupId());
+		assertEquals(m.getTimestamp(), am.getTimestamp());
+		assertEquals(previousMsgId, am.getPreviousMessageId());
+		assertEquals(sessionId, am.getSessionId());
+		assertArrayEquals(mac, am.getMac());
+		assertArrayEquals(signature, am.getSignature());
 	}
 
 	@Test
 	public void testActivateMessage() throws Exception {
 		Message m = messageEncoder
 				.encodeActivateMessage(groupId, timestamp, previousMsgId,
-						sessionId);
+						sessionId, mac);
 		validator.validateMessage(m, group, clientHelper.toList(m));
-		ActivateMessage rm =
+		ActivateMessage am =
 				messageParser.parseActivateMessage(m, clientHelper.toList(m));
 
-		assertEquals(m.getId(), rm.getMessageId());
-		assertEquals(m.getGroupId(), rm.getGroupId());
-		assertEquals(m.getTimestamp(), rm.getTimestamp());
-		assertEquals(previousMsgId, rm.getPreviousMessageId());
-		assertEquals(sessionId, rm.getSessionId());
+		assertEquals(m.getId(), am.getMessageId());
+		assertEquals(m.getGroupId(), am.getGroupId());
+		assertEquals(m.getTimestamp(), am.getTimestamp());
+		assertEquals(previousMsgId, am.getPreviousMessageId());
+		assertEquals(sessionId, am.getSessionId());
+		assertArrayEquals(mac, am.getMac());
 	}
 
 	@Test
@@ -234,14 +235,14 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 				.encodeAbortMessage(groupId, timestamp, previousMsgId,
 						sessionId);
 		validator.validateMessage(m, group, clientHelper.toList(m));
-		AbortMessage rm =
+		AbortMessage am =
 				messageParser.parseAbortMessage(m, clientHelper.toList(m));
 
-		assertEquals(m.getId(), rm.getMessageId());
-		assertEquals(m.getGroupId(), rm.getGroupId());
-		assertEquals(m.getTimestamp(), rm.getTimestamp());
-		assertEquals(previousMsgId, rm.getPreviousMessageId());
-		assertEquals(sessionId, rm.getSessionId());
+		assertEquals(m.getId(), am.getMessageId());
+		assertEquals(m.getGroupId(), am.getGroupId());
+		assertEquals(m.getTimestamp(), am.getTimestamp());
+		assertEquals(previousMsgId, am.getPreviousMessageId());
+		assertEquals(sessionId, am.getSessionId());
 	}
 
 }

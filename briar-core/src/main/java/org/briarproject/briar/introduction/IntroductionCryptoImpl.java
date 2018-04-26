@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.briar.api.introduction.IntroductionConstants.LABEL_ACTIVATE_MAC;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.LABEL_ALICE_MAC_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.LABEL_AUTH_MAC;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.LABEL_AUTH_NONCE;
@@ -74,10 +75,14 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 
 	@Override
 	@SuppressWarnings("ConstantConditions")
-	public SecretKey deriveMasterKey(IntroduceeSession s, boolean alice)
+	public SecretKey deriveMasterKey(IntroduceeSession s)
 			throws GeneralSecurityException {
-		return deriveMasterKey(s.getEphemeralPublicKey(),
-				s.getEphemeralPrivateKey(), s.getRemotePublicKey(), alice);
+		return deriveMasterKey(
+				s.getLocal().ephemeralPublicKey,
+				s.getLocal().ephemeralPrivateKey,
+				s.getRemote().ephemeralPublicKey,
+				s.getLocal().alice
+		);
 	}
 
 	SecretKey deriveMasterKey(byte[] publicKey, byte[] privateKey,
@@ -108,16 +113,17 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 
 	@Override
 	@SuppressWarnings("ConstantConditions")
-	public byte[] mac(SecretKey macKey, IntroduceeSession s,
+	public byte[] authMac(SecretKey macKey, IntroduceeSession s,
 			AuthorId localAuthorId, boolean alice) {
-		return mac(macKey, s.getIntroducer().getId(), localAuthorId,
-				s.getRemoteAuthor().getId(), s.getAcceptTimestamp(),
-				s.getRemoteAcceptTimestamp(), s.getEphemeralPublicKey(),
-				s.getRemotePublicKey(), s.getTransportProperties(),
-				s.getRemoteTransportProperties(), alice);
+		return authMac(macKey, s.getIntroducer().getId(), localAuthorId,
+				s.getRemote().author.getId(), s.getLocal().acceptTimestamp,
+				s.getRemote().acceptTimestamp, s.getLocal().ephemeralPublicKey,
+				s.getRemote().ephemeralPublicKey,
+				s.getLocal().transportProperties,
+				s.getRemote().transportProperties, alice);
 	}
 
-	byte[] mac(SecretKey macKey, AuthorId introducerId,
+	byte[] authMac(SecretKey macKey, AuthorId introducerId,
 			AuthorId localAuthorId, AuthorId remoteAuthorId,
 			long acceptTimestamp, long remoteAcceptTimestamp,
 			byte[] ephemeralPublicKey, byte[] remoteEphemeralPublicKey,
@@ -125,7 +131,7 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 			Map<TransportId, TransportProperties> remoteTransportProperties,
 			boolean alice) {
 		byte[] inputs =
-				getMacInputs(introducerId, localAuthorId, remoteAuthorId,
+				getAuthMacInputs(introducerId, localAuthorId, remoteAuthorId,
 						acceptTimestamp, remoteAcceptTimestamp,
 						ephemeralPublicKey, remoteEphemeralPublicKey,
 						transportProperties, remoteTransportProperties, alice);
@@ -138,19 +144,20 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 
 	@Override
 	@SuppressWarnings("ConstantConditions")
-	public void verifyMac(byte[] mac, IntroduceeSession s,
+	public void verifyAuthMac(byte[] mac, IntroduceeSession s,
 			AuthorId localAuthorId)
 			throws GeneralSecurityException {
-		boolean alice = isAlice(localAuthorId, s.getRemoteAuthor().getId());
-		verifyMac(mac, new SecretKey(s.getMasterKey()),
+		boolean alice = isAlice(localAuthorId, s.getRemote().author.getId());
+		verifyAuthMac(mac, new SecretKey(s.getRemote().macKey),
 				s.getIntroducer().getId(), localAuthorId,
-				s.getRemoteAuthor().getId(), s.getAcceptTimestamp(),
-				s.getRemoteAcceptTimestamp(), s.getEphemeralPublicKey(),
-				s.getRemotePublicKey(), s.getTransportProperties(),
-				s.getRemoteTransportProperties(), !alice);
+				s.getRemote().author.getId(), s.getLocal().acceptTimestamp,
+				s.getRemote().acceptTimestamp, s.getLocal().ephemeralPublicKey,
+				s.getRemote().ephemeralPublicKey,
+				s.getLocal().transportProperties,
+				s.getRemote().transportProperties, !alice);
 	}
 
-	void verifyMac(byte[] mac, SecretKey masterKey,
+	void verifyAuthMac(byte[] mac, SecretKey macKey,
 			AuthorId introducerId, AuthorId localAuthorId,
 			AuthorId remoteAuthorId, long acceptTimestamp,
 			long remoteAcceptTimestamp, byte[] ephemeralPublicKey,
@@ -158,9 +165,8 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 			Map<TransportId, TransportProperties> transportProperties,
 			Map<TransportId, TransportProperties> remoteTransportProperties,
 			boolean alice) throws GeneralSecurityException {
-		SecretKey macKey = deriveMacKey(masterKey, alice);
 		byte[] inputs =
-				getMacInputs(introducerId, localAuthorId, remoteAuthorId,
+				getAuthMacInputs(introducerId, localAuthorId, remoteAuthorId,
 						acceptTimestamp, remoteAcceptTimestamp,
 						ephemeralPublicKey, remoteEphemeralPublicKey,
 						transportProperties, remoteTransportProperties, !alice);
@@ -169,7 +175,7 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 		}
 	}
 
-	private byte[] getMacInputs(AuthorId introducerId,
+	private byte[] getAuthMacInputs(AuthorId introducerId,
 			AuthorId localAuthorId, AuthorId remoteAuthorId,
 			long acceptTimestamp, long remoteAcceptTimestamp,
 			byte[] ephemeralPublicKey, byte[] remoteEphemeralPublicKey,
@@ -214,9 +220,8 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	@SuppressWarnings("ConstantConditions")
 	public void verifySignature(byte[] signature, IntroduceeSession s,
 			AuthorId localAuthorId) throws GeneralSecurityException {
-		boolean alice = isAlice(s.getRemoteAuthor().getId(), localAuthorId);
-		SecretKey macKey = deriveMacKey(new SecretKey(s.getMasterKey()), alice);
-		verifySignature(macKey, s.getRemoteAuthor().getPublicKey(), signature);
+		SecretKey macKey = new SecretKey(s.getRemote().macKey);
+		verifySignature(macKey, s.getRemote().author.getPublicKey(), signature);
 	}
 
 	void verifySignature(SecretKey macKey, byte[] publicKey,
@@ -230,6 +235,35 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 
 	private byte[] getNonce(SecretKey macKey) {
 		return crypto.mac(LABEL_AUTH_NONCE, macKey);
+	}
+
+	@Override
+	public byte[] activateMac(IntroduceeSession s) {
+		if (s.getLocal().macKey == null)
+			throw new AssertionError("Local MAC key is null");
+		return activateMac(new SecretKey(s.getLocal().macKey));
+	}
+
+	byte[] activateMac(SecretKey macKey) {
+		return crypto.mac(
+				LABEL_ACTIVATE_MAC,
+				macKey
+		);
+	}
+
+	@Override
+	public void verifyActivateMac(byte[] mac, IntroduceeSession s)
+			throws GeneralSecurityException {
+		if (s.getRemote().macKey == null)
+			throw new AssertionError("Remote MAC key is null");
+		verifyActivateMac(mac, new SecretKey(s.getRemote().macKey));
+	}
+
+	void verifyActivateMac(byte[] mac, SecretKey macKey)
+			throws GeneralSecurityException {
+		if (!crypto.verifyMac(mac, LABEL_ACTIVATE_MAC, macKey)) {
+			throw new GeneralSecurityException();
+		}
 	}
 
 }

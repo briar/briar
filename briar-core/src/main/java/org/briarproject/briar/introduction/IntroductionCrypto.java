@@ -30,16 +30,15 @@ interface IntroductionCrypto {
 	/**
 	 * Derives a session master key for Alice or Bob.
 	 *
-	 * @param alice true if the session owner is Alice
 	 * @return The secret master key
 	 */
-	SecretKey deriveMasterKey(IntroduceeSession s, boolean alice)
+	SecretKey deriveMasterKey(IntroduceeSession s)
 			throws GeneralSecurityException;
 
 	/**
 	 * Derives a MAC key from the session's master key for Alice or Bob.
 	 *
-	 * @param masterKey The key returned by {@link #deriveMasterKey(IntroduceeSession, boolean)}
+	 * @param masterKey The key returned by {@link #deriveMasterKey(IntroduceeSession)}
 	 * @param alice true for Alice's MAC key, false for Bob's
 	 * @return The MAC key
 	 */
@@ -49,17 +48,17 @@ interface IntroductionCrypto {
 	 * Generates a MAC that covers both introducee's ephemeral public keys,
 	 * transport properties, Author IDs and timestamps of the accept message.
 	 */
-	byte[] mac(SecretKey macKey, IntroduceeSession s, AuthorId localAuthorId,
-			boolean alice);
+	byte[] authMac(SecretKey macKey, IntroduceeSession s,
+			AuthorId localAuthorId, boolean alice);
 
 	/**
 	 * Verifies a received MAC
 	 *
 	 * @param mac The MAC to verify
-	 * as returned by {@link #deriveMasterKey(IntroduceeSession, boolean)}
+	 * as returned by {@link #deriveMasterKey(IntroduceeSession)}
 	 * @throws GeneralSecurityException if the verification fails
 	 */
-	void verifyMac(byte[] mac, IntroduceeSession s, AuthorId localAuthorId)
+	void verifyAuthMac(byte[] mac, IntroduceeSession s, AuthorId localAuthorId)
 			throws GeneralSecurityException;
 
 	/**
@@ -81,5 +80,18 @@ interface IntroductionCrypto {
 	 */
 	void verifySignature(byte[] signature, IntroduceeSession s,
 			AuthorId localAuthorId) throws GeneralSecurityException;
+
+	/**
+	 * Generates a MAC using the local MAC key.
+	 */
+	byte[] activateMac(IntroduceeSession s);
+
+	/**
+	 * Verifies a MAC from an ACTIVATE message.
+	 *
+	 * @throws GeneralSecurityException if the verification fails
+	 */
+	void verifyActivateMac(byte[] mac, IntroduceeSession s)
+			throws GeneralSecurityException;
 
 }
