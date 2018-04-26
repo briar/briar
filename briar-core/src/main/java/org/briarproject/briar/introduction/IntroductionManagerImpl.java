@@ -339,18 +339,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public void acceptIntroduction(ContactId contactId, SessionId sessionId,
-			long timestamp) throws DbException {
-		respondToRequest(contactId, sessionId, timestamp, true);
-	}
-
-	@Override
-	public void declineIntroduction(ContactId contactId, SessionId sessionId,
-			long timestamp) throws DbException {
-		respondToRequest(contactId, sessionId, timestamp, false);
-	}
-
-	private void respondToRequest(ContactId contactId, SessionId sessionId,
+	public void respondToIntroduction(ContactId contactId, SessionId sessionId,
 			long timestamp, boolean accept) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {

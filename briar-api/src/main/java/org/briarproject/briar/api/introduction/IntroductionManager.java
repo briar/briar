@@ -34,16 +34,10 @@ public interface IntroductionManager extends ConversationClient {
 			long timestamp) throws DbException;
 
 	/**
-	 * Accepts an introduction.
+	 * Responds to an introduction.
 	 */
-	void acceptIntroduction(ContactId contactId, SessionId sessionId,
-			long timestamp) throws DbException;
-
-	/**
-	 * Declines an introduction.
-	 */
-	void declineIntroduction(ContactId contactId, SessionId sessionId,
-			long timestamp) throws DbException;
+	void respondToIntroduction(ContactId contactId, SessionId sessionId,
+			long timestamp, boolean accept) throws DbException;
 
 	/**
 	 * Returns all introduction messages for the given contact.

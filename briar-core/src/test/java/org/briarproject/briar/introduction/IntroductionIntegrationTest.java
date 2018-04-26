@@ -445,7 +445,8 @@ public class IntroductionIntegrationTest
 
 		// answer request manually
 		introductionManager2
-				.acceptIntroduction(contactId0From2, listener2.sessionId, time);
+				.respondToIntroduction(contactId0From2, listener2.sessionId, time,
+						true);
 
 		// sync second response and ACK and make sure there is no abort
 		sync2To0(2, true);
@@ -1003,25 +1004,13 @@ public class IntroductionIntegrationTest
 				long time = clock.currentTimeMillis();
 				try {
 					if (introducee == 1 && answerRequests) {
-						if (accept) {
-							introductionManager1
-									.acceptIntroduction(contactId, sessionId,
-											time);
-						} else {
-							introductionManager1
-									.declineIntroduction(contactId, sessionId,
-											time);
-						}
+						introductionManager1
+								.respondToIntroduction(contactId, sessionId,
+										time, accept);
 					} else if (introducee == 2 && answerRequests) {
-						if (accept) {
-							introductionManager2
-									.acceptIntroduction(contactId, sessionId,
-											time);
-						} else {
-							introductionManager2
-									.declineIntroduction(contactId, sessionId,
-											time);
-						}
+						introductionManager2
+								.respondToIntroduction(contactId, sessionId,
+										time, accept);
 					}
 				} catch (DbException exception) {
 					eventWaiter.rethrow(exception);

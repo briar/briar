@@ -865,7 +865,8 @@ introductionOnboardingSeen();
 								"Unknown Request Type");
 				}
 				loadMessages();
-			} catch (DbException | FormatException e) {
+			} catch (DbException e) {
+				// TODO use more generic error message
 				introductionResponseError();
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, e.toString(), e);
@@ -898,11 +899,14 @@ introductionOnboardingSeen();
 
 	@DatabaseExecutor
 	private void respondToIntroductionRequest(SessionId sessionId,
-			boolean accept, long time) throws DbException, FormatException {
-		if (accept) {
-			introductionManager.acceptIntroduction(contactId, sessionId, time);
-		} else {
-			introductionManager.declineIntroduction(contactId, sessionId, time);
+			boolean accept, long time) throws DbException {
+		try {
+			introductionManager
+					.respondToIntroduction(contactId, sessionId, time, accept);
+		} catch (ProtocolStateException e) {
+			if (LOG.isLoggable(WARNING))
+				LOG.log(WARNING, e.toString(), e);
+			introductionResponseError();
 		}
 	}
 
