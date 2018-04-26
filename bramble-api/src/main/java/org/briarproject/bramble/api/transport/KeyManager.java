@@ -19,46 +19,22 @@ public interface KeyManager {
 	/**
 	 * Informs the key manager that a new contact has been added. Derives and
 	 * stores a set of transport keys for communicating with the contact over
-	 * each transport.
+	 * each transport and returns the key set IDs.
 	 * <p/>
 	 * {@link StreamContext StreamContexts} for the contact can be created
 	 * after this method has returned.
 	 *
 	 * @param alice true if the local party is Alice
+	 * @param active whether the derived keys can be used for outgoing streams
 	 */
-	void addContact(Transaction txn, ContactId c, SecretKey master,
-			long timestamp, boolean alice) throws DbException;
-
-	/**
-	 * Derives and stores a set of unbound transport keys for each transport
-	 * and returns the key set IDs.
-	 * <p/>
-	 * The keys must be bound before they can be used for incoming streams,
-	 * and also activated before they can be used for outgoing streams.
-	 *
-	 * @param alice true if the local party is Alice
-	 */
-	Map<TransportId, KeySetId> addUnboundKeys(Transaction txn, SecretKey master,
-			long timestamp, boolean alice) throws DbException;
-
-	/**
-	 * Binds the given transport keys to the given contact.
-	 */
-	void bindKeys(Transaction txn, ContactId c, Map<TransportId, KeySetId> keys)
+	Map<TransportId, KeySetId> addContact(Transaction txn, ContactId c,
+			SecretKey master, long timestamp, boolean alice, boolean active)
 			throws DbException;
 
 	/**
-	 * Marks the given transport keys as usable for outgoing streams. Keys must
-	 * be bound before they are activated.
+	 * Marks the given transport keys as usable for outgoing streams.
 	 */
 	void activateKeys(Transaction txn, Map<TransportId, KeySetId> keys)
-			throws DbException;
-
-	/**
-	 * Removes the given transport keys, which must not have been bound, from
-	 * the manager and the database.
-	 */
-	void removeKeys(Transaction txn, Map<TransportId, KeySetId> keys)
 			throws DbException;
 
 	/**

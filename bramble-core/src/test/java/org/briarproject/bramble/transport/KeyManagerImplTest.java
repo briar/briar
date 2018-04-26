@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Random;
 
 import static java.util.Collections.singletonList;
@@ -54,6 +55,7 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 			new StreamContext(contactId, transportId, getSecretKey(),
 					getSecretKey(), 1);
 	private final byte[] tag = getRandomBytes(TAG_LENGTH);
+	private final Random random = new Random();
 
 	private final KeyManagerImpl keyManager = new KeyManagerImpl(db, executor,
 			pluginConfig, transportKeyManagerFactory);
@@ -102,30 +104,18 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	public void testAddContact() throws Exception {
 		SecretKey secretKey = getSecretKey();
 		long timestamp = System.currentTimeMillis();
-		boolean alice = new Random().nextBoolean();
+		boolean alice = random.nextBoolean();
+		boolean active = random.nextBoolean();
 
 		context.checking(new Expectations() {{
 			oneOf(transportKeyManager).addContact(txn, contactId, secretKey,
-					timestamp, alice);
-		}});
-
-		keyManager.addContact(txn, contactId, secretKey, timestamp, alice);
-	}
-
-	@Test
-	public void testAddUnboundKeys() throws Exception {
-		SecretKey secretKey = getSecretKey();
-		long timestamp = System.currentTimeMillis();
-		boolean alice = new Random().nextBoolean();
-
-		context.checking(new Expectations() {{
-			oneOf(transportKeyManager).addUnboundKeys(txn, secretKey,
-					timestamp, alice);
+					timestamp, alice, active);
 			will(returnValue(keySetId));
 		}});
 
-		assertEquals(singletonMap(transportId, keySetId),
-				keyManager.addUnboundKeys(txn, secretKey, timestamp, alice));
+		Map<TransportId, KeySetId> ids = keyManager.addContact(txn, contactId,
+				secretKey, timestamp, alice, active);
+		assertEquals(singletonMap(transportId, keySetId), ids);
 	}
 
 	@Test

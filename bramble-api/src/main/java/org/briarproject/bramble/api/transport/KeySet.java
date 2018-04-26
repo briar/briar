@@ -3,23 +3,20 @@ package org.briarproject.bramble.api.transport;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A set of transport keys for communicating with a contact. If the keys have
- * not yet been bound to a contact, {@link #getContactId()}} returns null.
+ * A set of transport keys for communicating with a contact.
  */
 @Immutable
 @NotNullByDefault
 public class KeySet {
 
 	private final KeySetId keySetId;
-	@Nullable
 	private final ContactId contactId;
 	private final TransportKeys transportKeys;
 
-	public KeySet(KeySetId keySetId, @Nullable ContactId contactId,
+	public KeySet(KeySetId keySetId, ContactId contactId,
 			TransportKeys transportKeys) {
 		this.keySetId = keySetId;
 		this.contactId = contactId;
@@ -30,7 +27,6 @@ public class KeySet {
 		return keySetId;
 	}
 
-	@Nullable
 	public ContactId getContactId() {
 		return contactId;
 	}

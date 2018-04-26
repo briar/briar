@@ -55,8 +55,8 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(db).addContact(txn, remote, local, verified, active);
 			will(returnValue(contactId));
-			oneOf(keyManager)
-					.addContact(txn, contactId, master, timestamp, alice);
+			oneOf(keyManager).addContact(txn, contactId, master, timestamp,
+					alice, active);
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
 			oneOf(db).commitTransaction(txn);

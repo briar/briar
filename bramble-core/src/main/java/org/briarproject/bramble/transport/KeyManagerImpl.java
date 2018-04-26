@@ -99,37 +99,16 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
-	public void addContact(Transaction txn, ContactId c, SecretKey master,
-			long timestamp, boolean alice) throws DbException {
-		for (TransportKeyManager m : managers.values())
-			m.addContact(txn, c, master, timestamp, alice);
-	}
-
-	@Override
-	public Map<TransportId, KeySetId> addUnboundKeys(Transaction txn,
-			SecretKey master, long timestamp, boolean alice)
+	public Map<TransportId, KeySetId> addContact(Transaction txn, ContactId c,
+			SecretKey master, long timestamp, boolean alice, boolean active)
 			throws DbException {
 		Map<TransportId, KeySetId> ids = new HashMap<>();
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
 			TransportId t = e.getKey();
 			TransportKeyManager m = e.getValue();
-			ids.put(t, m.addUnboundKeys(txn, master, timestamp, alice));
+			ids.put(t, m.addContact(txn, c, master, timestamp, alice, active));
 		}
 		return ids;
-	}
-
-	@Override
-	public void bindKeys(Transaction txn, ContactId c,
-			Map<TransportId, KeySetId> keys) throws DbException {
-		for (Entry<TransportId, KeySetId> e : keys.entrySet()) {
-			TransportId t = e.getKey();
-			TransportKeyManager m = managers.get(t);
-			if (m == null) {
-				if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
-			} else {
-				m.bindKeys(txn, c, e.getValue());
-			}
-		}
 	}
 
 	@Override
@@ -147,23 +126,9 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
-	public void removeKeys(Transaction txn, Map<TransportId, KeySetId> keys)
-			throws DbException {
-		for (Entry<TransportId, KeySetId> e : keys.entrySet()) {
-			TransportId t = e.getKey();
-			TransportKeyManager m = managers.get(t);
-			if (m == null) {
-				if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
-			} else {
-				m.removeKeys(txn, e.getValue());
-			}
-		}
-	}
-
-	@Override
 	public boolean canSendOutgoingStreams(ContactId c, TransportId t) {
 		TransportKeyManager m = managers.get(t);
-		return m == null ? false : m.canSendOutgoingStreams(c);
+		return m != null && m.canSendOutgoingStreams(c);
 	}
 
 	@Override
