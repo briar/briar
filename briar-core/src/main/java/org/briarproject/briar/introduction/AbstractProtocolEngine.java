@@ -3,12 +3,14 @@ package org.briarproject.briar.introduction;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
+import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -18,6 +20,8 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.introduction.IntroductionResponse;
+import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 
 import java.util.Map;
 
@@ -139,6 +143,21 @@ abstract class AbstractProtocolEngine<S extends Session>
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
+	}
+
+	void broadcastIntroductionResponseReceivedEvent(Transaction txn,
+			Session s, AuthorId sender, AbstractIntroductionMessage m)
+			throws DbException {
+		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
+		Contact c = contactManager.getContact(txn, sender, localAuthorId);
+		IntroductionResponse response =
+				new IntroductionResponse(s.getSessionId(), m.getMessageId(),
+						m.getGroupId(), s.getRole(), m.getTimestamp(), false,
+						false, false, false, c.getAuthor().getName(),
+						m instanceof AcceptMessage);
+		IntroductionResponseReceivedEvent e =
+				new IntroductionResponseReceivedEvent(c.getId(), response);
+		txn.attach(e);
 	}
 
 	void markMessageVisibleInUi(Transaction txn, MessageId m)

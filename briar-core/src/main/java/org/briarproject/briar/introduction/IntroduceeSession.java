@@ -121,7 +121,7 @@ class IntroduceeSession extends Session<IntroduceeState>
 				remote, null, transportKeys);
 	}
 
-	static IntroduceeSession clear(IntroduceeSession s,
+	static IntroduceeSession clear(IntroduceeSession s, IntroduceeState state,
 			@Nullable MessageId lastLocalMessageId, long localTimestamp,
 			@Nullable MessageId lastRemoteMessageId) {
 		Local local =
@@ -130,7 +130,7 @@ class IntroduceeSession extends Session<IntroduceeState>
 		Remote remote =
 				new Remote(s.remote.alice, s.remote.author, lastRemoteMessageId,
 						null, null, -1, null);
-		return new IntroduceeSession(s.getSessionId(), START,
+		return new IntroduceeSession(s.getSessionId(), state,
 				s.getRequestTimestamp(), s.contactGroupId, s.introducer, local,
 				remote, null, null);
 	}

@@ -27,10 +27,8 @@ import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
-import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
-import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
 
 import java.security.GeneralSecurityException;
@@ -44,7 +42,9 @@ import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_AUTH;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_RESPONSES;
 import static org.briarproject.briar.introduction.IntroduceeState.LOCAL_ACCEPTED;
+import static org.briarproject.briar.introduction.IntroduceeState.LOCAL_DECLINED;
 import static org.briarproject.briar.introduction.IntroduceeState.REMOTE_ACCEPTED;
+import static org.briarproject.briar.introduction.IntroduceeState.START;
 
 @Immutable
 @NotNullByDefault
@@ -142,12 +142,12 @@ class IntroduceeProtocolEngine
 	public IntroduceeSession onAcceptMessage(Transaction txn,
 			IntroduceeSession session, AcceptMessage m) throws DbException {
 		switch (session.getState()) {
-			case START:
-				return onRemoteResponseInStart(txn, session, m);
+			case LOCAL_DECLINED:
+				return onRemoteResponseWhenDeclined(txn, session, m);
 			case AWAIT_RESPONSES:
 			case LOCAL_ACCEPTED:
 				return onRemoteAccept(txn, session, m);
-			case LOCAL_DECLINED:
+			case START:
 			case REMOTE_ACCEPTED:
 			case AWAIT_AUTH:
 			case AWAIT_ACTIVATE:
@@ -161,12 +161,12 @@ class IntroduceeProtocolEngine
 	public IntroduceeSession onDeclineMessage(Transaction txn,
 			IntroduceeSession session, DeclineMessage m) throws DbException {
 		switch (session.getState()) {
-			case START:
-				return onRemoteResponseInStart(txn, session, m);
-			case AWAIT_RESPONSES:
 			case LOCAL_DECLINED:
+				return onRemoteResponseWhenDeclined(txn, session, m);
+			case AWAIT_RESPONSES:
 			case LOCAL_ACCEPTED:
 				return onRemoteDecline(txn, session, m);
+			case START:
 			case REMOTE_ACCEPTED:
 			case AWAIT_AUTH:
 			case AWAIT_ACTIVATE:
@@ -255,8 +255,7 @@ class IntroduceeProtocolEngine
 	}
 
 	private IntroduceeSession onLocalAccept(Transaction txn,
-			IntroduceeSession s, long timestamp)
-			throws DbException {
+			IntroduceeSession s, long timestamp) throws DbException {
 		// Mark the request message unavailable to answer
 		markRequestsUnavailableToAnswer(txn, s);
 
@@ -291,20 +290,23 @@ class IntroduceeProtocolEngine
 	}
 
 	private IntroduceeSession onLocalDecline(Transaction txn,
-			IntroduceeSession s, long timestamp)
-			throws DbException {
+			IntroduceeSession s, long timestamp) throws DbException {
 		// Mark the request message unavailable to answer
 		markRequestsUnavailableToAnswer(txn, s);
 
 		// Send a DECLINE message
 		long localTimestamp = Math.max(timestamp + 1, getLocalTimestamp(s));
 		Message sent = sendDeclineMessage(txn, s, localTimestamp, true);
+
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
 
-		// Move to the START state
-		return IntroduceeSession.clear(s, sent.getId(), sent.getTimestamp(),
-				s.getLastRemoteMessageId());
+		// Move to the START or LOCAL_DECLINED state, if still awaiting response
+		IntroduceeState state =
+				s.getState() == REMOTE_ACCEPTED ? START : LOCAL_DECLINED;
+		return IntroduceeSession
+				.clear(s, state, sent.getId(), sent.getTimestamp(),
+						s.getLastRemoteMessageId());
 	}
 
 	private IntroduceeSession onRemoteAccept(Transaction txn,
@@ -347,25 +349,17 @@ class IntroduceeProtocolEngine
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 
 		// Broadcast IntroductionResponseReceivedEvent
-		Contact c = contactManager.getContact(txn, s.getIntroducer().getId(),
-				identityManager.getLocalAuthor(txn).getId());
-		IntroductionResponse request =
-				new IntroductionResponse(s.getSessionId(), m.getMessageId(),
-						m.getGroupId(), INTRODUCEE, m.getTimestamp(), false,
-						false, false, false, s.getRemote().author.getName(),
-						false);
-		IntroductionResponseReceivedEvent e =
-				new IntroductionResponseReceivedEvent(c.getId(), request);
-		txn.attach(e);
+		broadcastIntroductionResponseReceivedEvent(txn, s,
+				s.getIntroducer().getId(), m);
 
 		// Move back to START state
-		return IntroduceeSession
-				.clear(s, s.getLastLocalMessageId(), s.getLocalTimestamp(),
-						m.getMessageId());
+		return IntroduceeSession.clear(s, START, s.getLastLocalMessageId(),
+				s.getLocalTimestamp(), m.getMessageId());
 	}
 
-	private IntroduceeSession onRemoteResponseInStart(Transaction txn,
-			IntroduceeSession s, AbstractIntroductionMessage m) throws DbException {
+	private IntroduceeSession onRemoteResponseWhenDeclined(Transaction txn,
+			IntroduceeSession s, AbstractIntroductionMessage m)
+			throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
 			return abort(txn, s);
@@ -373,10 +367,9 @@ class IntroduceeProtocolEngine
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
 
-		// Stay in START state
-		return IntroduceeSession
-				.clear(s, s.getLastLocalMessageId(), s.getLocalTimestamp(),
-						m.getMessageId());
+		// Move to START state
+		return IntroduceeSession.clear(s, START, s.getLastLocalMessageId(),
+				s.getLocalTimestamp(), m.getMessageId());
 	}
 
 	private IntroduceeSession onLocalAuth(Transaction txn, IntroduceeSession s)
@@ -479,9 +472,8 @@ class IntroduceeProtocolEngine
 		keyManager.activateKeys(txn, s.getTransportKeys());
 
 		// Move back to START state
-		return IntroduceeSession
-				.clear(s, s.getLastLocalMessageId(), s.getLocalTimestamp(),
-						m.getMessageId());
+		return IntroduceeSession.clear(s, START, s.getLastLocalMessageId(),
+				s.getLocalTimestamp(), m.getMessageId());
 	}
 
 	private IntroduceeSession onRemoteAbort(Transaction txn,
@@ -494,9 +486,8 @@ class IntroduceeProtocolEngine
 		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
 
 		// Reset the session back to initial state
-		return IntroduceeSession
-				.clear(s, s.getLastLocalMessageId(), s.getLocalTimestamp(),
-						m.getMessageId());
+		return IntroduceeSession.clear(s, START, s.getLastLocalMessageId(),
+				s.getLocalTimestamp(), m.getMessageId());
 	}
 
 	private IntroduceeSession abort(Transaction txn, IntroduceeSession s)
@@ -511,8 +502,9 @@ class IntroduceeProtocolEngine
 		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
 
 		// Reset the session back to initial state
-		return IntroduceeSession.clear(s, sent.getId(), sent.getTimestamp(),
-				s.getLastRemoteMessageId());
+		return IntroduceeSession
+				.clear(s, START, sent.getId(), sent.getTimestamp(),
+						s.getLastRemoteMessageId());
 	}
 
 	private boolean isInvalidDependency(IntroduceeSession s,

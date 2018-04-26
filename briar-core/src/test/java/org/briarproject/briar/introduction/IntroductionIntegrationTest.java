@@ -20,7 +20,6 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Group;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
@@ -52,6 +51,10 @@ import static org.briarproject.bramble.test.TestUtils.getTransportProperties;
 import static org.briarproject.bramble.test.TestUtils.getTransportPropertiesMap;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_VERSION;
+import static org.briarproject.briar.introduction.IntroduceeState.LOCAL_DECLINED;
+import static org.briarproject.briar.introduction.IntroducerState.A_DECLINED;
+import static org.briarproject.briar.introduction.IntroducerState.B_DECLINED;
+import static org.briarproject.briar.introduction.IntroducerState.START;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_AUTHOR;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_A;
@@ -171,8 +174,7 @@ public class IntroductionIntegrationTest
 		sync0To2(1, true);
 
 		// assert that introducee2 did add the transport keys
-		IntroduceeSession session2 = getIntroduceeSession(c2.getClientHelper(),
-				introductionManager2.getContactGroup(contact0From2).getId());
+		IntroduceeSession session2 = getIntroduceeSession(c2);
 		assertNotNull(session2.getTransportKeys());
 		assertFalse(session2.getTransportKeys().isEmpty());
 
@@ -181,8 +183,7 @@ public class IntroductionIntegrationTest
 		sync0To1(2, true);
 
 		// assert that introducee1 really purged the key material
-		IntroduceeSession session1 = getIntroduceeSession(c1.getClientHelper(),
-				introductionManager1.getContactGroup(contact0From1).getId());
+		IntroduceeSession session1 = getIntroduceeSession(c1);
 		assertNull(session1.getMasterKey());
 		assertNull(session1.getLocal().ephemeralPrivateKey);
 		assertNull(session1.getTransportKeys());
@@ -240,15 +241,31 @@ public class IntroductionIntegrationTest
 		assertTrue(listener1.requestReceived);
 		assertTrue(listener2.requestReceived);
 
+		// assert that introducee is in correct state
+		IntroduceeSession introduceeSession = getIntroduceeSession(c1);
+		assertEquals(LOCAL_DECLINED, introduceeSession.getState());
+
 		// sync first response
 		sync1To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response1Received);
 
+		// assert that introducer is in correct state
+		boolean alice = c0.getIntroductionCrypto()
+				.isAlice(introducee1.getAuthor().getId(),
+						introducee2.getAuthor().getId());
+		IntroducerSession introducerSession = getIntroducerSession();
+		assertEquals(alice ? A_DECLINED : B_DECLINED,
+				introducerSession.getState());
+
 		// sync second response
 		sync2To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response2Received);
+
+		// assert that introducer now moved to START state
+		introducerSession = getIntroducerSession();
+		assertEquals(START, introducerSession.getState());
 
 		// sync first forwarded response
 		sync0To2(1, true);
@@ -1114,13 +1131,17 @@ public class IntroductionIntegrationTest
 		return c0.getSessionParser().parseIntroducerSession(d);
 	}
 
-	private IntroduceeSession getIntroduceeSession(ClientHelper ch,
-			GroupId introducerGroup) throws DbException, FormatException {
-		Map<MessageId, BdfDictionary> dicts =
-				ch.getMessageMetadataAsDictionary(getLocalGroup().getId());
+	private IntroduceeSession getIntroduceeSession(
+			IntroductionIntegrationTestComponent c)
+			throws DbException, FormatException {
+		Map<MessageId, BdfDictionary> dicts = c.getClientHelper()
+				.getMessageMetadataAsDictionary(getLocalGroup().getId());
 		assertEquals(1, dicts.size());
 		BdfDictionary d = dicts.values().iterator().next();
-		return c0.getSessionParser().parseIntroduceeSession(introducerGroup, d);
+		Group introducerGroup =
+				introductionManager2.getContactGroup(contact0From2);
+		return c.getSessionParser()
+				.parseIntroduceeSession(introducerGroup.getId(), d);
 	}
 
 	private Group getLocalGroup() {

@@ -2,12 +2,11 @@ package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
-import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -16,16 +15,13 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
-import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
-import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 import org.briarproject.briar.introduction.IntroducerSession.Introducee;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
 import static org.briarproject.briar.introduction.IntroducerState.AWAIT_ACTIVATES;
 import static org.briarproject.briar.introduction.IntroducerState.AWAIT_ACTIVATE_A;
 import static org.briarproject.briar.introduction.IntroducerState.AWAIT_ACTIVATE_B;
@@ -35,6 +31,8 @@ import static org.briarproject.briar.introduction.IntroducerState.AWAIT_AUTH_B;
 import static org.briarproject.briar.introduction.IntroducerState.AWAIT_RESPONSES;
 import static org.briarproject.briar.introduction.IntroducerState.AWAIT_RESPONSE_A;
 import static org.briarproject.briar.introduction.IntroducerState.AWAIT_RESPONSE_B;
+import static org.briarproject.briar.introduction.IntroducerState.A_DECLINED;
+import static org.briarproject.briar.introduction.IntroducerState.B_DECLINED;
 import static org.briarproject.briar.introduction.IntroducerState.START;
 
 @Immutable
@@ -68,6 +66,8 @@ class IntroducerProtocolEngine
 			case AWAIT_RESPONSES:
 			case AWAIT_RESPONSE_A:
 			case AWAIT_RESPONSE_B:
+			case A_DECLINED:
+			case B_DECLINED:
 			case AWAIT_AUTHS:
 			case AWAIT_AUTH_A:
 			case AWAIT_AUTH_B:
@@ -111,8 +111,10 @@ class IntroducerProtocolEngine
 			case AWAIT_RESPONSE_A:
 			case AWAIT_RESPONSE_B:
 				return onRemoteAccept(txn, s, m);
+			case A_DECLINED:
+			case B_DECLINED:
+				return onRemoteResponseWhenDeclined(txn, s, m);
 			case START:
-				return onRemoteResponseInStart(txn, s, m);
 			case AWAIT_AUTHS:
 			case AWAIT_AUTH_A:
 			case AWAIT_AUTH_B:
@@ -133,8 +135,10 @@ class IntroducerProtocolEngine
 			case AWAIT_RESPONSE_A:
 			case AWAIT_RESPONSE_B:
 				return onRemoteDecline(txn, s, m);
+			case A_DECLINED:
+			case B_DECLINED:
+				return onRemoteResponseWhenDeclined(txn, s, m);
 			case START:
-				return onRemoteResponseInStart(txn, s, m);
 			case AWAIT_AUTHS:
 			case AWAIT_AUTH_A:
 			case AWAIT_AUTH_B:
@@ -159,6 +163,8 @@ class IntroducerProtocolEngine
 			case AWAIT_RESPONSES:
 			case AWAIT_RESPONSE_A:
 			case AWAIT_RESPONSE_B:
+			case A_DECLINED:
+			case B_DECLINED:
 			case AWAIT_ACTIVATES:
 			case AWAIT_ACTIVATE_A:
 			case AWAIT_ACTIVATE_B:
@@ -180,6 +186,8 @@ class IntroducerProtocolEngine
 			case AWAIT_RESPONSES:
 			case AWAIT_RESPONSE_A:
 			case AWAIT_RESPONSE_B:
+			case A_DECLINED:
+			case B_DECLINED:
 			case AWAIT_AUTHS:
 			case AWAIT_AUTH_A:
 			case AWAIT_AUTH_B:
@@ -262,17 +270,8 @@ class IntroducerProtocolEngine
 		}
 
 		// Broadcast IntroductionResponseReceivedEvent
-		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
-		Contact c = contactManager.getContact(txn,
-				senderIsAlice ? introduceeA.author.getId() :
-						introduceeB.author.getId(), localAuthorId);
-		IntroductionResponse request =
-				new IntroductionResponse(s.getSessionId(), m.getMessageId(),
-						m.getGroupId(), INTRODUCER, m.getTimestamp(), false,
-						false, false, false, c.getAuthor().getName(), true);
-		IntroductionResponseReceivedEvent e =
-				new IntroductionResponseReceivedEvent(c.getId(), request);
-		txn.attach(e);
+		Author sender = senderIsAlice ? introduceeA.author : introduceeB.author;
+		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(), m);
 
 		// Move to the next state
 		return new IntroducerSession(s.getSessionId(), state,
@@ -312,34 +311,28 @@ class IntroducerProtocolEngine
 		long timestamp = getLocalTimestamp(s, i);
 		Message sent = sendDeclineMessage(txn, i, timestamp, false);
 
-		// Update introducee state
+		// Create the next state
+		IntroducerState state = START;
 		Introducee introduceeA, introduceeB;
 		if (senderIsAlice) {
+			if (s.getState() == AWAIT_RESPONSES) state = A_DECLINED;
 			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
 			introduceeB = new Introducee(s.getIntroduceeB(), sent);
 		} else {
+			if (s.getState() == AWAIT_RESPONSES) state = B_DECLINED;
 			introduceeA = new Introducee(s.getIntroduceeA(), sent);
 			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
 		}
 
 		// Broadcast IntroductionResponseReceivedEvent
-		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
-		Contact c = contactManager.getContact(txn,
-				senderIsAlice ? introduceeA.author.getId() :
-						introduceeB.author.getId(), localAuthorId);
-		IntroductionResponse request =
-				new IntroductionResponse(s.getSessionId(), m.getMessageId(),
-						m.getGroupId(), INTRODUCER, m.getTimestamp(), false,
-						false, false, false, c.getAuthor().getName(), false);
-		IntroductionResponseReceivedEvent e =
-				new IntroductionResponseReceivedEvent(c.getId(), request);
-		txn.attach(e);
+		Author sender = senderIsAlice ? introduceeA.author : introduceeB.author;
+		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(), m);
 
-		return new IntroducerSession(s.getSessionId(), START,
+		return new IntroducerSession(s.getSessionId(), state,
 				s.getRequestTimestamp(), introduceeA, introduceeB);
 	}
 
-	private IntroducerSession onRemoteResponseInStart(Transaction txn,
+	private IntroducerSession onRemoteResponseWhenDeclined(Transaction txn,
 			IntroducerSession s, AbstractIntroductionMessage m)
 			throws DbException {
 		// The timestamp must be higher than the last request message
@@ -355,33 +348,19 @@ class IntroducerProtocolEngine
 		messageTracker
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 
-		Introducee i = getIntroducee(s, m.getGroupId());
+		boolean senderIsAlice = senderIsAlice(s, m);
 		Introducee introduceeA, introduceeB;
-		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
-		Contact c;
-		if (i.equals(s.getIntroduceeA())) {
+		if (senderIsAlice) {
 			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
 			introduceeB = s.getIntroduceeB();
-			c = contactManager
-					.getContact(txn, s.getIntroduceeA().author.getId(),
-							localAuthorId);
-		} else if (i.equals(s.getIntroduceeB())) {
+		} else {
 			introduceeA = s.getIntroduceeA();
 			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
-			c = contactManager
-					.getContact(txn, s.getIntroduceeB().author.getId(),
-							localAuthorId);
-		} else throw new AssertionError();
+		}
 
 		// Broadcast IntroductionResponseReceivedEvent
-		IntroductionResponse request =
-				new IntroductionResponse(s.getSessionId(), m.getMessageId(),
-						m.getGroupId(), INTRODUCER, m.getTimestamp(), false,
-						false, false, false, c.getAuthor().getName(),
-						m instanceof AcceptMessage);
-		IntroductionResponseReceivedEvent e =
-				new IntroductionResponseReceivedEvent(c.getId(), request);
-		txn.attach(e);
+		Author sender = senderIsAlice ? introduceeA.author : introduceeB.author;
+		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(), m);
 
 		return new IntroducerSession(s.getSessionId(), START,
 				s.getRequestTimestamp(), introduceeA, introduceeB);
