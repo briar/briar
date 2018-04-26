@@ -23,8 +23,8 @@ import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_EPHEMERAL_PRIVATE_KEY;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_EPHEMERAL_PUBLIC_KEY;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_GROUP_ID;
-import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_1;
-import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_2;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_A;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_B;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCER;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_LAST_LOCAL_MESSAGE_ID;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_LAST_REMOTE_MESSAGE_ID;
@@ -72,8 +72,8 @@ class SessionEncoderImpl implements SessionEncoder {
 	@Override
 	public BdfDictionary encodeIntroducerSession(IntroducerSession s) {
 		BdfDictionary d = encodeSession(s);
-		d.put(SESSION_KEY_INTRODUCEE_1, encodeIntroducee(s.getIntroducee1()));
-		d.put(SESSION_KEY_INTRODUCEE_2, encodeIntroducee(s.getIntroducee2()));
+		d.put(SESSION_KEY_INTRODUCEE_A, encodeIntroducee(s.getIntroduceeA()));
+		d.put(SESSION_KEY_INTRODUCEE_B, encodeIntroducee(s.getIntroduceeB()));
 		return d;
 	}
 

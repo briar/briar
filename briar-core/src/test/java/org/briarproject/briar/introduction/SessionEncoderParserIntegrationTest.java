@@ -102,8 +102,8 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(s1.getSessionId(), s2.getSessionId());
 		assertEquals(AWAIT_AUTHS, s1.getState());
 		assertEquals(s1.getState(), s2.getState());
-		assertIntroduceeEquals(s1.getIntroducee1(), s2.getIntroducee1());
-		assertIntroduceeEquals(s1.getIntroducee2(), s2.getIntroducee2());
+		assertIntroduceeEquals(s1.getIntroduceeA(), s2.getIntroduceeA());
+		assertIntroduceeEquals(s1.getIntroduceeB(), s2.getIntroduceeB());
 	}
 
 	@Test
@@ -121,19 +121,19 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 		BdfDictionary d = sessionEncoder.encodeIntroducerSession(s1);
 		IntroducerSession s2 = sessionParser.parseIntroducerSession(d);
 
-		assertNull(s1.getIntroducee1().lastLocalMessageId);
-		assertEquals(s1.getIntroducee1().lastLocalMessageId,
-				s2.getIntroducee1().lastLocalMessageId);
-		assertNull(s1.getIntroducee1().lastRemoteMessageId);
-		assertEquals(s1.getIntroducee1().lastRemoteMessageId,
-				s2.getIntroducee1().lastRemoteMessageId);
+		assertNull(s1.getIntroduceeA().lastLocalMessageId);
+		assertEquals(s1.getIntroduceeA().lastLocalMessageId,
+				s2.getIntroduceeA().lastLocalMessageId);
+		assertNull(s1.getIntroduceeA().lastRemoteMessageId);
+		assertEquals(s1.getIntroduceeA().lastRemoteMessageId,
+				s2.getIntroduceeA().lastRemoteMessageId);
 
-		assertNull(s1.getIntroducee2().lastLocalMessageId);
-		assertEquals(s1.getIntroducee2().lastLocalMessageId,
-				s2.getIntroducee2().lastLocalMessageId);
-		assertNull(s1.getIntroducee2().lastRemoteMessageId);
-		assertEquals(s1.getIntroducee2().lastRemoteMessageId,
-				s2.getIntroducee2().lastRemoteMessageId);
+		assertNull(s1.getIntroduceeB().lastLocalMessageId);
+		assertEquals(s1.getIntroduceeB().lastLocalMessageId,
+				s2.getIntroduceeB().lastLocalMessageId);
+		assertNull(s1.getIntroduceeB().lastRemoteMessageId);
+		assertEquals(s1.getIntroduceeB().lastRemoteMessageId,
+				s2.getIntroduceeB().lastRemoteMessageId);
 	}
 
 	@Test(expected = FormatException.class)

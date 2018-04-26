@@ -23,8 +23,8 @@ interface IntroductionConstants {
 	String SESSION_KEY_LAST_REMOTE_MESSAGE_ID = "lastRemoteMessageId";
 
 	// Session Keys Introducer
-	String SESSION_KEY_INTRODUCEE_1 = "introducee1";
-	String SESSION_KEY_INTRODUCEE_2 = "introducee2";
+	String SESSION_KEY_INTRODUCEE_A = "introduceeA";
+	String SESSION_KEY_INTRODUCEE_B = "introduceeB";
 	String SESSION_KEY_GROUP_ID = "groupId";
 	String SESSION_KEY_AUTHOR = "author";
 

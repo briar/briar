@@ -308,8 +308,15 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				// This is the first request - create a new session
 				GroupId groupId1 = getContactGroup(c1).getId();
 				GroupId groupId2 = getContactGroup(c2).getId();
-				session = new IntroducerSession(sessionId, groupId1,
-						c1.getAuthor(), groupId2, c2.getAuthor());
+				boolean alice = crypto.isAlice(c1.getAuthor().getId(),
+						c2.getAuthor().getId());
+				// use fixed deterministic roles for the introducees
+				session = new IntroducerSession(sessionId,
+						alice ? groupId1 : groupId2,
+						alice ? c1.getAuthor() : c2.getAuthor(),
+						alice ? groupId2 : groupId1,
+						alice ? c2.getAuthor() : c1.getAuthor()
+				);
 				storageId = createStorageId(txn);
 			} else {
 				// An earlier request exists, so we already have a session
@@ -425,10 +432,10 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			IntroducerSession session =
 					sessionParser.parseIntroducerSession(bdfSession);
 			sessionId = session.getSessionId();
-			if (contactGroupId.equals(session.getIntroducee1().groupId)) {
-				author = session.getIntroducee2().author;
+			if (contactGroupId.equals(session.getIntroduceeA().groupId)) {
+				author = session.getIntroduceeB().author;
 			} else {
-				author = session.getIntroducee1().author;
+				author = session.getIntroduceeA().author;
 			}
 		} else if (role == INTRODUCEE) {
 			IntroduceeSession session = sessionParser
@@ -465,10 +472,10 @@ class IntroductionManagerImpl extends ConversationClientImpl
 					sessionParser.parseIntroducerSession(bdfSession);
 			sessionId = session.getSessionId();
 			LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
-			if (localAuthor.equals(session.getIntroducee1().author)) {
-				author = session.getIntroducee2().author;
+			if (localAuthor.equals(session.getIntroduceeA().author)) {
+				author = session.getIntroduceeB().author;
 			} else {
-				author = session.getIntroducee1().author;
+				author = session.getIntroduceeA().author;
 			}
 		} else if (role == INTRODUCEE) {
 			IntroduceeSession session = sessionParser
@@ -516,12 +523,12 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			} catch (FormatException e) {
 				throw new AssertionError();
 			}
-			if (s.getIntroducee1().author.equals(c.getAuthor())) {
+			if (s.getIntroduceeA().author.equals(c.getAuthor())) {
 				abortOrRemoveSessionWithIntroducee(txn, s, session.getKey(),
-						s.getIntroducee2(), localAuthor);
-			} else if (s.getIntroducee2().author.equals(c.getAuthor())) {
+						s.getIntroduceeB(), localAuthor);
+			} else if (s.getIntroduceeB().author.equals(c.getAuthor())) {
 				abortOrRemoveSessionWithIntroducee(txn, s, session.getKey(),
-						s.getIntroducee1(), localAuthor);
+						s.getIntroduceeA(), localAuthor);
 			}
 		}
 	}

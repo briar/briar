@@ -200,21 +200,21 @@ class IntroducerProtocolEngine
 			@Nullable String message, long timestamp) throws DbException {
 		// Send REQUEST messages
 		long localTimestamp =
-				Math.max(timestamp, getLocalTimestamp(s, s.getIntroducee1()));
-		Message sent1 = sendRequestMessage(txn, s.getIntroducee1(),
-				localTimestamp, s.getIntroducee2().author, message
+				Math.max(timestamp, getLocalTimestamp(s, s.getIntroduceeA()));
+		Message sentA = sendRequestMessage(txn, s.getIntroduceeA(),
+				localTimestamp, s.getIntroduceeB().author, message
 		);
-		Message sent2 = sendRequestMessage(txn, s.getIntroducee2(),
-				localTimestamp, s.getIntroducee1().author, message
+		Message sentB = sendRequestMessage(txn, s.getIntroduceeB(),
+				localTimestamp, s.getIntroduceeA().author, message
 		);
 		// Track the messages
-		messageTracker.trackOutgoingMessage(txn, sent1);
-		messageTracker.trackOutgoingMessage(txn, sent2);
+		messageTracker.trackOutgoingMessage(txn, sentA);
+		messageTracker.trackOutgoingMessage(txn, sentB);
 		// Move to the AWAIT_RESPONSES state
-		Introducee introducee1 = new Introducee(s.getIntroducee1(), sent1);
-		Introducee introducee2 = new Introducee(s.getIntroducee2(), sent2);
+		Introducee introduceeA = new Introducee(s.getIntroduceeA(), sentA);
+		Introducee introduceeB = new Introducee(s.getIntroduceeB(), sentB);
 		return new IntroducerSession(s.getSessionId(), AWAIT_RESPONSES,
-				localTimestamp, introducee1, introducee2);
+				localTimestamp, introduceeA, introduceeB);
 	}
 
 	private IntroducerSession onRemoteAccept(Transaction txn,
@@ -225,6 +225,14 @@ class IntroducerProtocolEngine
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
 			return abort(txn, s);
+		// The message must be expected in the current state
+		boolean senderIsAlice = senderIsAlice(s, m);
+		if (s.getState() != AWAIT_RESPONSES) {
+			if (senderIsAlice && s.getState() != AWAIT_RESPONSE_A)
+				return abort(txn, s);
+			else if (!senderIsAlice && s.getState() != AWAIT_RESPONSE_B)
+				return abort(txn, s);
+		}
 
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getMessageId());
@@ -240,27 +248,24 @@ class IntroducerProtocolEngine
 						m.getAcceptTimestamp(), m.getTransportProperties(),
 						false);
 
-		// Move to the next state
+		// Create the next state
 		IntroducerState state = AWAIT_AUTHS;
-		Introducee introducee1, introducee2;
-		Contact c;
-		if (i.equals(s.getIntroducee1())) {
-			if (s.getState() == AWAIT_RESPONSES) state = AWAIT_RESPONSE_A;
-			introducee1 = new Introducee(s.getIntroducee1(), sent);
-			introducee2 = new Introducee(s.getIntroducee2(), m.getMessageId());
-			c = contactManager
-					.getContact(txn, s.getIntroducee2().author.getId(),
-							identityManager.getLocalAuthor(txn).getId());
-		} else if (i.equals(s.getIntroducee2())) {
+		Introducee introduceeA, introduceeB;
+		if (senderIsAlice) {
 			if (s.getState() == AWAIT_RESPONSES) state = AWAIT_RESPONSE_B;
-			introducee1 = new Introducee(s.getIntroducee1(), m.getMessageId());
-			introducee2 = new Introducee(s.getIntroducee2(), sent);
-			c = contactManager
-					.getContact(txn, s.getIntroducee1().author.getId(),
-							identityManager.getLocalAuthor(txn).getId());
-		} else throw new AssertionError();
+			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
+			introduceeB = new Introducee(s.getIntroduceeB(), sent);
+		} else {
+			if (s.getState() == AWAIT_RESPONSES) state = AWAIT_RESPONSE_A;
+			introduceeA = new Introducee(s.getIntroduceeA(), sent);
+			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
+		}
 
 		// Broadcast IntroductionResponseReceivedEvent
+		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
+		Contact c = contactManager.getContact(txn,
+				senderIsAlice ? introduceeA.author.getId() :
+						introduceeB.author.getId(), localAuthorId);
 		IntroductionResponse request =
 				new IntroductionResponse(s.getSessionId(), m.getMessageId(),
 						m.getGroupId(), INTRODUCER, m.getTimestamp(), false,
@@ -269,8 +274,14 @@ class IntroducerProtocolEngine
 				new IntroductionResponseReceivedEvent(c.getId(), request);
 		txn.attach(e);
 
+		// Move to the next state
 		return new IntroducerSession(s.getSessionId(), state,
-				s.getRequestTimestamp(), introducee1, introducee2);
+				s.getRequestTimestamp(), introduceeA, introduceeB);
+	}
+
+	private boolean senderIsAlice(IntroducerSession s,
+			AbstractIntroductionMessage m) {
+		return m.getGroupId().equals(s.getIntroduceeA().groupId);
 	}
 
 	private IntroducerSession onRemoteDecline(Transaction txn,
@@ -281,6 +292,14 @@ class IntroducerProtocolEngine
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
 			return abort(txn, s);
+		// The message must be expected in the current state
+		boolean senderIsAlice = senderIsAlice(s, m);
+		if (s.getState() != AWAIT_RESPONSES) {
+			if (senderIsAlice && s.getState() != AWAIT_RESPONSE_A)
+				return abort(txn, s);
+			else if (!senderIsAlice && s.getState() != AWAIT_RESPONSE_B)
+				return abort(txn, s);
+		}
 
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getMessageId());
@@ -293,25 +312,21 @@ class IntroducerProtocolEngine
 		long timestamp = getLocalTimestamp(s, i);
 		Message sent = sendDeclineMessage(txn, i, timestamp, false);
 
-		// Move to the START state
-		Introducee introducee1, introducee2;
-		AuthorId localAuthorId =identityManager.getLocalAuthor(txn).getId();
-		Contact c;
-		if (i.equals(s.getIntroducee1())) {
-			introducee1 = new Introducee(s.getIntroducee1(), sent);
-			introducee2 = new Introducee(s.getIntroducee2(), m.getMessageId());
-			c = contactManager
-					.getContact(txn, s.getIntroducee2().author.getId(),
-							localAuthorId);
-		} else if (i.equals(s.getIntroducee2())) {
-			introducee1 = new Introducee(s.getIntroducee1(), m.getMessageId());
-			introducee2 = new Introducee(s.getIntroducee2(), sent);
-			c = contactManager
-					.getContact(txn, s.getIntroducee1().author.getId(),
-							localAuthorId);
-		} else throw new AssertionError();
+		// Update introducee state
+		Introducee introduceeA, introduceeB;
+		if (senderIsAlice) {
+			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
+			introduceeB = new Introducee(s.getIntroduceeB(), sent);
+		} else {
+			introduceeA = new Introducee(s.getIntroduceeA(), sent);
+			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
+		}
 
 		// Broadcast IntroductionResponseReceivedEvent
+		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
+		Contact c = contactManager.getContact(txn,
+				senderIsAlice ? introduceeA.author.getId() :
+						introduceeB.author.getId(), localAuthorId);
 		IntroductionResponse request =
 				new IntroductionResponse(s.getSessionId(), m.getMessageId(),
 						m.getGroupId(), INTRODUCER, m.getTimestamp(), false,
@@ -321,7 +336,7 @@ class IntroducerProtocolEngine
 		txn.attach(e);
 
 		return new IntroducerSession(s.getSessionId(), START,
-				s.getRequestTimestamp(), introducee1, introducee2);
+				s.getRequestTimestamp(), introduceeA, introduceeB);
 	}
 
 	private IntroducerSession onRemoteResponseInStart(Transaction txn,
@@ -341,20 +356,20 @@ class IntroducerProtocolEngine
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 
 		Introducee i = getIntroducee(s, m.getGroupId());
-		Introducee introducee1, introducee2;
+		Introducee introduceeA, introduceeB;
 		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
 		Contact c;
-		if (i.equals(s.getIntroducee1())) {
-			introducee1 = new Introducee(s.getIntroducee1(), m.getMessageId());
-			introducee2 = s.getIntroducee2();
+		if (i.equals(s.getIntroduceeA())) {
+			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
+			introduceeB = s.getIntroduceeB();
 			c = contactManager
-					.getContact(txn, s.getIntroducee1().author.getId(),
+					.getContact(txn, s.getIntroduceeA().author.getId(),
 							localAuthorId);
-		} else if (i.equals(s.getIntroducee2())) {
-			introducee1 = s.getIntroducee1();
-			introducee2 = new Introducee(s.getIntroducee2(), m.getMessageId());
+		} else if (i.equals(s.getIntroduceeB())) {
+			introduceeA = s.getIntroduceeA();
+			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
 			c = contactManager
-					.getContact(txn, s.getIntroducee2().author.getId(),
+					.getContact(txn, s.getIntroduceeB().author.getId(),
 							localAuthorId);
 		} else throw new AssertionError();
 
@@ -369,7 +384,7 @@ class IntroducerProtocolEngine
 		txn.attach(e);
 
 		return new IntroducerSession(s.getSessionId(), START,
-				s.getRequestTimestamp(), introducee1, introducee2);
+				s.getRequestTimestamp(), introduceeA, introduceeB);
 	}
 
 	private IntroducerSession onRemoteAuth(Transaction txn,
@@ -377,6 +392,14 @@ class IntroducerProtocolEngine
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
 			return abort(txn, s);
+		// The message must be expected in the current state
+		boolean senderIsAlice = senderIsAlice(s, m);
+		if (s.getState() != AWAIT_AUTHS) {
+			if (senderIsAlice && s.getState() != AWAIT_AUTH_A)
+				return abort(txn, s);
+			else if (!senderIsAlice && s.getState() != AWAIT_AUTH_B)
+				return abort(txn, s);
+		}
 
 		// Forward AUTH message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
@@ -386,18 +409,18 @@ class IntroducerProtocolEngine
 
 		// Move to the next state
 		IntroducerState state = AWAIT_ACTIVATES;
-		Introducee introducee1, introducee2;
-		if (i.equals(s.getIntroducee1())) {
-			if (s.getState() == AWAIT_AUTHS) state = AWAIT_AUTH_A;
-			introducee1 = new Introducee(s.getIntroducee1(), sent);
-			introducee2 = new Introducee(s.getIntroducee2(), m.getMessageId());
-		} else if (i.equals(s.getIntroducee2())) {
+		Introducee introduceeA, introduceeB;
+		if (senderIsAlice) {
 			if (s.getState() == AWAIT_AUTHS) state = AWAIT_AUTH_B;
-			introducee1 = new Introducee(s.getIntroducee1(), m.getMessageId());
-			introducee2 = new Introducee(s.getIntroducee2(), sent);
-		} else throw new AssertionError();
+			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
+			introduceeB = new Introducee(s.getIntroduceeB(), sent);
+		} else {
+			if (s.getState() == AWAIT_AUTHS) state = AWAIT_AUTH_A;
+			introduceeA = new Introducee(s.getIntroduceeA(), sent);
+			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
+		}
 		return new IntroducerSession(s.getSessionId(), state,
-				s.getRequestTimestamp(), introducee1, introducee2);
+				s.getRequestTimestamp(), introduceeA, introduceeB);
 	}
 
 	private IntroducerSession onRemoteActivate(Transaction txn,
@@ -405,26 +428,34 @@ class IntroducerProtocolEngine
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
 			return abort(txn, s);
+		// The message must be expected in the current state
+		boolean senderIsAlice = senderIsAlice(s, m);
+		if (s.getState() != AWAIT_ACTIVATES) {
+			if (senderIsAlice && s.getState() != AWAIT_ACTIVATE_A)
+				return abort(txn, s);
+			else if (!senderIsAlice && s.getState() != AWAIT_ACTIVATE_B)
+				return abort(txn, s);
+		}
 
-		// Forward AUTH message
+		// Forward ACTIVATE message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
 		long timestamp = getLocalTimestamp(s, i);
 		Message sent = sendActivateMessage(txn, i, timestamp);
 
 		// Move to the next state
 		IntroducerState state = START;
-		Introducee introducee1, introducee2;
-		if (i.equals(s.getIntroducee1())) {
-			if (s.getState() == AWAIT_ACTIVATES) state = AWAIT_ACTIVATE_A;
-			introducee1 = new Introducee(s.getIntroducee1(), sent);
-			introducee2 = new Introducee(s.getIntroducee2(), m.getMessageId());
-		} else if (i.equals(s.getIntroducee2())) {
+		Introducee introduceeA, introduceeB;
+		if (senderIsAlice) {
 			if (s.getState() == AWAIT_ACTIVATES) state = AWAIT_ACTIVATE_B;
-			introducee1 = new Introducee(s.getIntroducee1(), m.getMessageId());
-			introducee2 = new Introducee(s.getIntroducee2(), sent);
-		} else throw new AssertionError();
+			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
+			introduceeB = new Introducee(s.getIntroduceeB(), sent);
+		} else {
+			if (s.getState() == AWAIT_ACTIVATES) state = AWAIT_ACTIVATE_A;
+			introduceeA = new Introducee(s.getIntroduceeA(), sent);
+			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
+		}
 		return new IntroducerSession(s.getSessionId(), state,
-				s.getRequestTimestamp(), introducee1, introducee2);
+				s.getRequestTimestamp(), introduceeA, introduceeB);
 	}
 
 	private IntroducerSession onRemoteAbort(Transaction txn,
@@ -438,16 +469,16 @@ class IntroducerProtocolEngine
 		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
 
 		// Reset the session back to initial state
-		Introducee introducee1, introducee2;
-		if (i.equals(s.getIntroducee1())) {
-			introducee1 = new Introducee(s.getIntroducee1(), sent);
-			introducee2 = new Introducee(s.getIntroducee2(), m.getMessageId());
-		} else if (i.equals(s.getIntroducee2())) {
-			introducee1 = new Introducee(s.getIntroducee1(), m.getMessageId());
-			introducee2 = new Introducee(s.getIntroducee2(), sent);
+		Introducee introduceeA, introduceeB;
+		if (i.equals(s.getIntroduceeA())) {
+			introduceeA = new Introducee(s.getIntroduceeA(), sent);
+			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
+		} else if (i.equals(s.getIntroduceeB())) {
+			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
+			introduceeB = new Introducee(s.getIntroduceeB(), sent);
 		} else throw new AssertionError();
 		return new IntroducerSession(s.getSessionId(), START,
-				s.getRequestTimestamp(), introducee1, introducee2);
+				s.getRequestTimestamp(), introduceeA, introduceeB);
 	}
 
 	private IntroducerSession abort(Transaction txn,
@@ -456,28 +487,28 @@ class IntroducerProtocolEngine
 		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
 
 		// Send an ABORT message to both introducees
-		long timestamp1 = getLocalTimestamp(s, s.getIntroducee1());
-		Message sent1 = sendAbortMessage(txn, s.getIntroducee1(), timestamp1);
-		long timestamp2 = getLocalTimestamp(s, s.getIntroducee2());
-		Message sent2 = sendAbortMessage(txn, s.getIntroducee2(), timestamp2);
+		long timestampA = getLocalTimestamp(s, s.getIntroduceeA());
+		Message sentA = sendAbortMessage(txn, s.getIntroduceeA(), timestampA);
+		long timestampB = getLocalTimestamp(s, s.getIntroduceeB());
+		Message sentB = sendAbortMessage(txn, s.getIntroduceeB(), timestampB);
 		// Reset the session back to initial state
-		Introducee introducee1 = new Introducee(s.getIntroducee1(), sent1);
-		Introducee introducee2 = new Introducee(s.getIntroducee2(), sent2);
+		Introducee introduceeA = new Introducee(s.getIntroduceeA(), sentA);
+		Introducee introduceeB = new Introducee(s.getIntroduceeB(), sentB);
 		return new IntroducerSession(s.getSessionId(), START,
-				s.getRequestTimestamp(), introducee1, introducee2);
+				s.getRequestTimestamp(), introduceeA, introduceeB);
 	}
 
 	private Introducee getIntroducee(IntroducerSession s, GroupId g) {
-		if (s.getIntroducee1().groupId.equals(g)) return s.getIntroducee1();
-		else if (s.getIntroducee2().groupId.equals(g))
-			return s.getIntroducee2();
+		if (s.getIntroduceeA().groupId.equals(g)) return s.getIntroduceeA();
+		else if (s.getIntroduceeB().groupId.equals(g))
+			return s.getIntroduceeB();
 		else throw new AssertionError();
 	}
 
 	private Introducee getOtherIntroducee(IntroducerSession s, GroupId g) {
-		if (s.getIntroducee1().groupId.equals(g)) return s.getIntroducee2();
-		else if (s.getIntroducee2().groupId.equals(g))
-			return s.getIntroducee1();
+		if (s.getIntroduceeA().groupId.equals(g)) return s.getIntroduceeB();
+		else if (s.getIntroduceeB().groupId.equals(g))
+			return s.getIntroduceeA();
 		else throw new AssertionError();
 	}
 

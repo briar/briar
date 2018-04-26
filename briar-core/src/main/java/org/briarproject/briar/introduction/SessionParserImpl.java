@@ -27,8 +27,8 @@ import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_EPHEMERAL_PRIVATE_KEY;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_EPHEMERAL_PUBLIC_KEY;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_GROUP_ID;
-import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_1;
-import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_2;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_A;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_B;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCER;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_LAST_LOCAL_MESSAGE_ID;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_LAST_REMOTE_MESSAGE_ID;
@@ -75,12 +75,12 @@ class SessionParserImpl implements SessionParser {
 		SessionId sessionId = getSessionId(d);
 		IntroducerState state = IntroducerState.fromValue(getState(d));
 		long requestTimestamp = d.getLong(SESSION_KEY_REQUEST_TIMESTAMP);
-		Introducee introducee1 = parseIntroducee(sessionId,
-				d.getDictionary(SESSION_KEY_INTRODUCEE_1));
-		Introducee introducee2 = parseIntroducee(sessionId,
-				d.getDictionary(SESSION_KEY_INTRODUCEE_2));
+		Introducee introduceeA = parseIntroducee(sessionId,
+				d.getDictionary(SESSION_KEY_INTRODUCEE_A));
+		Introducee introduceeB = parseIntroducee(sessionId,
+				d.getDictionary(SESSION_KEY_INTRODUCEE_B));
 		return new IntroducerSession(sessionId, state, requestTimestamp,
-				introducee1, introducee2);
+				introduceeA, introduceeB);
 	}
 
 	private Introducee parseIntroducee(SessionId sessionId, BdfDictionary d)

@@ -54,11 +54,12 @@ import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_VERSION;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_AUTHOR;
-import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_1;
-import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_2;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_A;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_B;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_LAST_LOCAL_MESSAGE_ID;
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_SESSION_ID;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
+import static org.briarproject.briar.introduction.MessageType.AUTH;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -610,6 +611,123 @@ public class IntroductionIntegrationTest
 		assertFalse(listener2.aborted);
 	}
 
+	/**
+	 * One introducee illegally sends two ACCEPT messages in a row.
+	 * The introducer should notice this and ABORT the session.
+	 */
+	@Test
+	public void testDoubleAccept() throws Exception {
+		addListeners(true, true);
+
+		// make the introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync REQUEST to introducee1
+		sync0To1(1, true);
+
+		// save ACCEPT from introducee1
+		AcceptMessage m = (AcceptMessage) getMessageFor(c1.getClientHelper(),
+				contact0From1, ACCEPT);
+
+		// sync ACCEPT back to introducer
+		sync1To0(1, true);
+
+		// fake a second ACCEPT message from introducee1
+		Message msg = c1.getMessageEncoder()
+				.encodeAcceptMessage(m.getGroupId(), clock.currentTimeMillis(),
+						m.getMessageId(), m.getSessionId(),
+						m.getEphemeralPublicKey(), m.getAcceptTimestamp(),
+						m.getTransportProperties());
+		c1.getClientHelper().addLocalMessage(msg, new BdfDictionary(), true);
+
+		// sync fake ACCEPT back to introducer
+		sync1To0(1, true);
+
+		assertTrue(listener0.aborted);
+	}
+
+	/**
+	 * One introducee sends an ACCEPT and then another DECLINE message.
+	 * The introducer should notice this and ABORT the session.
+	 */
+	@Test
+	public void testAcceptAndDecline() throws Exception {
+		addListeners(true, true);
+
+		// make the introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync REQUEST to introducee1
+		sync0To1(1, true);
+
+		// save ACCEPT from introducee1
+		AcceptMessage m = (AcceptMessage) getMessageFor(c1.getClientHelper(),
+				contact0From1, ACCEPT);
+
+		// sync ACCEPT back to introducer
+		sync1To0(1, true);
+
+		// fake a second DECLINE message also from introducee1
+		Message msg = c1.getMessageEncoder()
+				.encodeDeclineMessage(m.getGroupId(), clock.currentTimeMillis(),
+						m.getMessageId(), m.getSessionId());
+		c1.getClientHelper().addLocalMessage(msg, new BdfDictionary(), true);
+
+		// sync fake DECLINE back to introducer
+		sync1To0(1, true);
+
+		assertTrue(listener0.aborted);
+	}
+
+	/**
+	 * One introducee sends two AUTH messages.
+	 * The introducer should notice this and ABORT the session.
+	 */
+	@Test
+	public void testDoubleAuth() throws Exception {
+		addListeners(true, true);
+
+		// make the introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync REQUEST messages
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// sync ACCEPT messages
+		sync1To0(1, true);
+		sync2To0(1, true);
+
+		// sync forwarded ACCEPT messages to introducees
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// save AUTH from introducee1
+		AuthMessage m = (AuthMessage) getMessageFor(c1.getClientHelper(),
+				contact0From1, AUTH);
+
+		// sync first AUTH message
+		sync1To0(1, true);
+
+		// fake a second AUTH message also from introducee1
+		Message msg = c1.getMessageEncoder()
+				.encodeAuthMessage(m.getGroupId(), clock.currentTimeMillis(),
+						m.getMessageId(), m.getSessionId(), m.getMac(),
+						m.getSignature());
+		c1.getClientHelper().addLocalMessage(msg, new BdfDictionary(), true);
+
+		// sync second AUTH message
+		sync1To0(1, true);
+
+		assertTrue(listener0.aborted);
+	}
+
 	@Test
 	public void testIntroducerRemovedCleanup() throws Exception {
 		addListeners(true, true);
@@ -955,8 +1073,8 @@ public class IntroductionIntegrationTest
 
 	private void replacePreviousLocalMessageId(Author author,
 			BdfDictionary d, MessageId id) throws FormatException {
-		BdfDictionary i1 = d.getDictionary(SESSION_KEY_INTRODUCEE_1);
-		BdfDictionary i2 = d.getDictionary(SESSION_KEY_INTRODUCEE_2);
+		BdfDictionary i1 = d.getDictionary(SESSION_KEY_INTRODUCEE_A);
+		BdfDictionary i2 = d.getDictionary(SESSION_KEY_INTRODUCEE_B);
 		Author a1 = clientHelper
 				.parseAndValidateAuthor(i1.getList(SESSION_KEY_AUTHOR));
 		Author a2 = clientHelper
@@ -964,10 +1082,10 @@ public class IntroductionIntegrationTest
 
 		if (a1.equals(author)) {
 			i1.put(SESSION_KEY_LAST_LOCAL_MESSAGE_ID, id);
-			d.put(SESSION_KEY_INTRODUCEE_1, i1);
+			d.put(SESSION_KEY_INTRODUCEE_A, i1);
 		} else if (a2.equals(author)) {
 			i2.put(SESSION_KEY_LAST_LOCAL_MESSAGE_ID, id);
-			d.put(SESSION_KEY_INTRODUCEE_2, i2);
+			d.put(SESSION_KEY_INTRODUCEE_B, i2);
 		} else {
 			throw new AssertionError();
 		}
@@ -986,8 +1104,13 @@ public class IntroductionIntegrationTest
 		MessageId id = map.entrySet().iterator().next().getKey();
 		Message m = ch.getMessage(id);
 		BdfList body = ch.getMessageAsList(id);
-		//noinspection ConstantConditions
-		return c0.getMessageParser().parseAcceptMessage(m, body);
+		if (type == ACCEPT) {
+			//noinspection ConstantConditions
+			return c0.getMessageParser().parseAcceptMessage(m, body);
+		} else if (type == AUTH) {
+			//noinspection ConstantConditions
+			return c0.getMessageParser().parseAuthMessage(m, body);
+		} else throw new AssertionError("Not implemented");
 	}
 
 	private IntroductionRequest getIntroductionRequest(
@@ -1000,6 +1123,15 @@ public class IntroductionIntegrationTest
 			}
 		}
 		throw new AssertionError("No IntroductionRequest found");
+	}
+
+	private IntroducerSession getIntroducerSession()
+			throws DbException, FormatException {
+		Map<MessageId, BdfDictionary> dicts = c0.getClientHelper()
+				.getMessageMetadataAsDictionary(getLocalGroup().getId());
+		assertEquals(1, dicts.size());
+		BdfDictionary d = dicts.values().iterator().next();
+		return c0.getSessionParser().parseIntroducerSession(d);
 	}
 
 	private IntroduceeSession getIntroduceeSession(ClientHelper ch,

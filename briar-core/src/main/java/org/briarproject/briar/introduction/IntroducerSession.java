@@ -17,21 +17,21 @@ import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
 @NotNullByDefault
 class IntroducerSession extends Session<IntroducerState> {
 
-	private final Introducee introducee1, introducee2;
+	private final Introducee introduceeA, introduceeB;
 
 	IntroducerSession(SessionId sessionId, IntroducerState state,
-			long requestTimestamp, Introducee introducee1,
-			Introducee introducee2) {
+			long requestTimestamp, Introducee introduceeA,
+			Introducee introduceeB) {
 		super(sessionId, state, requestTimestamp);
-		this.introducee1 = introducee1;
-		this.introducee2 = introducee2;
+		this.introduceeA = introduceeA;
+		this.introduceeB = introduceeB;
 	}
 
-	IntroducerSession(SessionId sessionId, GroupId groupId1, Author author1,
-			GroupId groupId2, Author author2) {
+	IntroducerSession(SessionId sessionId, GroupId groupIdA, Author authorA,
+			GroupId groupIdB, Author authorB) {
 		this(sessionId, IntroducerState.START, -1,
-				new Introducee(sessionId, groupId1, author1),
-				new Introducee(sessionId, groupId2, author2));
+				new Introducee(sessionId, groupIdA, authorA),
+				new Introducee(sessionId, groupIdB, authorB));
 	}
 
 	@Override
@@ -39,12 +39,12 @@ class IntroducerSession extends Session<IntroducerState> {
 		return INTRODUCER;
 	}
 
-	Introducee getIntroducee1() {
-		return introducee1;
+	Introducee getIntroduceeA() {
+		return introduceeA;
 	}
 
-	Introducee getIntroducee2() {
-		return introducee2;
+	Introducee getIntroduceeB() {
+		return introduceeB;
 	}
 
 	@Immutable
