@@ -49,7 +49,7 @@ interface IntroductionCrypto {
 	 * transport properties, Author IDs and timestamps of the accept message.
 	 */
 	byte[] authMac(SecretKey macKey, IntroduceeSession s,
-			AuthorId localAuthorId, boolean alice);
+			AuthorId localAuthorId);
 
 	/**
 	 * Verifies a received MAC
@@ -74,12 +74,12 @@ interface IntroductionCrypto {
 			throws GeneralSecurityException;
 
 	/**
-	 * Verifies the signature on a corresponding MAC key.
+	 * Verifies the signature on a nonce derived from the MAC key.
 	 *
 	 * @throws GeneralSecurityException if the signature is invalid
 	 */
-	void verifySignature(byte[] signature, IntroduceeSession s,
-			AuthorId localAuthorId) throws GeneralSecurityException;
+	void verifySignature(byte[] signature, IntroduceeSession s)
+			throws GeneralSecurityException;
 
 	/**
 	 * Generates a MAC using the local MAC key.

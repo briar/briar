@@ -16,8 +16,6 @@ import org.briarproject.bramble.api.sync.ValidationManager.IncomingMessageHook;
 
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
-
 @Immutable
 @NotNullByDefault
 public abstract class BdfIncomingMessageHook implements IncomingMessageHook {
@@ -57,9 +55,7 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook {
 	public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
 			throws DbException, InvalidMessageException {
 		try {
-			byte[] raw = m.getRaw();
-			BdfList body = clientHelper.toList(raw, MESSAGE_HEADER_LENGTH,
-					raw.length - MESSAGE_HEADER_LENGTH);
+			BdfList body = clientHelper.toList(m);
 			BdfDictionary metaDictionary = metadataParser.parse(meta);
 			return incomingMessage(txn, m, body, metaDictionary);
 		} catch (FormatException e) {

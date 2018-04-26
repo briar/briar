@@ -1,8 +1,11 @@
 package org.briarproject.briar.test;
 
+import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
@@ -33,6 +36,14 @@ public class BriarTestUtils {
 	public static Author getRealAuthor(AuthorFactory authorFactory) {
 		return authorFactory.createAuthor(getRandomString(5),
 				getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+	}
+
+	public static LocalAuthor getRealLocalAuthor(
+			CryptoComponent cryptoComponent, AuthorFactory authorFactory) {
+		KeyPair keyPair = cryptoComponent.generateSignatureKeyPair();
+		return authorFactory.createLocalAuthor(getRandomString(5),
+				keyPair.getPublic().getEncoded(),
+				keyPair.getPrivate().getEncoded());
 	}
 
 }

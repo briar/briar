@@ -126,8 +126,8 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 				previousMsgId.getBytes(), getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
 				acceptTimestamp, transportProperties);
 		context.checking(new Expectations() {{
-			oneOf(clientHelper).parseAndValidateTransportProperties(
-					transportProperties.getDictionary("transportId"));
+			oneOf(clientHelper).parseAndValidateTransportPropertiesMap(
+					transportProperties);
 		}});
 		expectEncodeMetadata(ACCEPT);
 		BdfMessageContext messageContext =
@@ -175,6 +175,14 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 				previousMsgId.getBytes(),
 				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1), acceptTimestamp,
 				transportProperties);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsNegativeTimestampForAccept() throws Exception {
+		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
+				-1, transportProperties);
 		validator.validateMessage(message, group, body);
 	}
 
@@ -405,9 +413,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 
 	private void expectEncodeRequestMetadata() {
 		context.checking(new Expectations() {{
-			oneOf(messageEncoder)
-					.encodeRequestMetadata(message.getTimestamp(), false, false,
-							false);
+			oneOf(messageEncoder).encodeRequestMetadata(message.getTimestamp());
 			will(returnValue(meta));
 		}});
 	}

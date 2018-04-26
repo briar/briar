@@ -17,8 +17,7 @@ import javax.annotation.Nullable;
 @NotNullByDefault
 interface MessageEncoder {
 
-	BdfDictionary encodeRequestMetadata(long timestamp, boolean local,
-			boolean read, boolean available);
+	BdfDictionary encodeRequestMetadata(long timestamp);
 
 	BdfDictionary encodeMetadata(MessageType type,
 			@Nullable SessionId sessionId, long timestamp, boolean local,

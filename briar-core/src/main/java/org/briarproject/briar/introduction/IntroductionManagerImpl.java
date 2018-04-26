@@ -71,6 +71,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	private final IntroductionCrypto crypto;
 	private final IdentityManager identityManager;
 
+	private final Group localGroup;
+
 	@Inject
 	IntroductionManagerImpl(
 			DatabaseComponent db,
@@ -96,12 +98,13 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		this.introduceeEngine = introduceeEngine;
 		this.crypto = crypto;
 		this.identityManager = identityManager;
+		this.localGroup =
+				contactGroupFactory.createLocalGroup(CLIENT_ID, CLIENT_VERSION);
 	}
 
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
 		// Create a local group to store protocol sessions
-		Group localGroup = getLocalGroup();
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
 		// Set up groups for communication with any pre-existing contacts
@@ -229,8 +232,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		if (sessionId == null) return null;
 		BdfDictionary query = sessionParser.getSessionQuery(sessionId);
 		Map<MessageId, BdfDictionary> results = clientHelper
-				.getMessageMetadataAsDictionary(txn, getLocalGroup().getId(),
-						query);
+				.getMessageMetadataAsDictionary(txn, localGroup.getId(), query);
 		if (results.size() > 1) throw new DbException();
 		if (results.isEmpty()) return null;
 		return new StoredSession(results.keySet().iterator().next(),
@@ -246,7 +248,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	private MessageId createStorageId(Transaction txn) throws DbException {
 		Message m = clientHelper
-				.createMessageForStoringMetadata(getLocalGroup().getId());
+				.createMessageForStoringMetadata(localGroup.getId());
 		db.addLocalMessage(txn, m, new Metadata(), false);
 		return m.getId();
 	}
@@ -274,22 +276,28 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	public boolean canIntroduce(Contact c1, Contact c2) throws DbException {
 		Transaction txn = db.startTransaction(true);
 		try {
-			// Look up the session, if there is one
-			Author introducer = identityManager.getLocalAuthor(txn);
-			SessionId sessionId =
-					crypto.getSessionId(introducer, c1.getAuthor(),
-							c2.getAuthor());
-			StoredSession ss = getSession(txn, sessionId);
-			if (ss == null) return true;
-			IntroducerSession session =
-					sessionParser.parseIntroducerSession(ss.bdfSession);
-			if (session.getState() == START) return true;
+			boolean can = canIntroduce(txn, c1, c2);
+			db.commitTransaction(txn);
+			return can;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		} finally {
 			db.endTransaction(txn);
 		}
-		return false;
+	}
+
+	private boolean canIntroduce(Transaction txn, Contact c1, Contact c2)
+			throws DbException, FormatException {
+		// Look up the session, if there is one
+		Author introducer = identityManager.getLocalAuthor(txn);
+		SessionId sessionId =
+				crypto.getSessionId(introducer, c1.getAuthor(),
+						c2.getAuthor());
+		StoredSession ss = getSession(txn, sessionId);
+		if (ss == null) return true;
+		IntroducerSession session =
+				sessionParser.parseIntroducerSession(ss.bdfSession);
+		return session.getState() == START;
 	}
 
 	@Override
@@ -395,12 +403,12 @@ class IntroductionManagerImpl extends ConversationClientImpl
 									meta, status, ss.bdfSession));
 				} else if (type == ACCEPT) {
 					messages.add(
-							parseInvitationResponse(txn, contactGroupId, m,
-									meta, status, ss.bdfSession, true));
+							parseInvitationResponse(contactGroupId, m, meta,
+									status, ss.bdfSession, true));
 				} else if (type == DECLINE) {
 					messages.add(
-							parseInvitationResponse(txn, contactGroupId, m,
-									meta, status, ss.bdfSession, false));
+							parseInvitationResponse(contactGroupId, m, meta,
+									status, ss.bdfSession, false));
 				}
 			}
 			db.commitTransaction(txn);
@@ -435,8 +443,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			author = session.getRemote().author;
 		} else throw new AssertionError();
 		Message msg = clientHelper.getMessage(txn, m);
-		BdfList body = clientHelper.getMessageAsList(txn, m);
-		if (msg == null || body == null) throw new AssertionError();
+		if (msg == null) throw new AssertionError();
+		BdfList body = clientHelper.toList(msg);
 		RequestMessage rm = messageParser.parseRequestMessage(msg, body);
 		String message = rm.getMessage();
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
@@ -451,10 +459,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				contactExists);
 	}
 
-	private IntroductionResponse parseInvitationResponse(Transaction txn,
-			GroupId contactGroupId, MessageId m, MessageMetadata meta,
-			MessageStatus status, BdfDictionary bdfSession, boolean accept)
-			throws FormatException, DbException {
+	private IntroductionResponse parseInvitationResponse(GroupId contactGroupId,
+			MessageId m, MessageMetadata meta, MessageStatus status,
+			BdfDictionary bdfSession, boolean accept) throws FormatException {
 		Role role = sessionParser.getRole(bdfSession);
 		SessionId sessionId;
 		Author author;
@@ -462,8 +469,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			IntroducerSession session =
 					sessionParser.parseIntroducerSession(bdfSession);
 			sessionId = session.getSessionId();
-			LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
-			if (localAuthor.equals(session.getIntroduceeA().author)) {
+			if (contactGroupId.equals(session.getIntroduceeA().groupId)) {
 				author = session.getIntroduceeB().author;
 			} else {
 				author = session.getIntroduceeA().author;
@@ -485,13 +491,13 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				.getIntroduceeSessionsByIntroducerQuery(introducer.getAuthor());
 		Map<MessageId, BdfDictionary> sessions;
 		try {
-			sessions = clientHelper.getMessageMetadataAsDictionary(txn,
-					getLocalGroup().getId(), query);
+			sessions = clientHelper
+					.getMessageMetadataAsDictionary(txn, localGroup.getId(),
+							query);
 		} catch (FormatException e) {
-			throw new AssertionError(e);
+			throw new DbException(e);
 		}
 		for (MessageId id : sessions.keySet()) {
-			db.deleteMessageMetadata(txn, id); // TODO needed?
 			db.removeMessage(txn, id);
 		}
 	}
@@ -501,10 +507,11 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		BdfDictionary query = sessionEncoder.getIntroducerSessionsQuery();
 		Map<MessageId, BdfDictionary> sessions;
 		try {
-			sessions = clientHelper.getMessageMetadataAsDictionary(txn,
-					getLocalGroup().getId(), query);
+			sessions = clientHelper
+					.getMessageMetadataAsDictionary(txn, localGroup.getId(),
+							query);
 		} catch (FormatException e) {
-			throw new AssertionError();
+			throw new DbException();
 		}
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		for (Entry<MessageId, BdfDictionary> session : sessions.entrySet()) {
@@ -512,7 +519,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			try {
 				s = sessionParser.parseIntroducerSession(session.getValue());
 			} catch (FormatException e) {
-				throw new AssertionError();
+				throw new DbException();
 			}
 			if (s.getIntroduceeA().author.equals(c.getAuthor())) {
 				abortOrRemoveSessionWithIntroducee(txn, s, session.getKey(),
@@ -531,13 +538,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			IntroducerSession session = introducerEngine.onAbortAction(txn, s);
 			storeSession(txn, storageId, session);
 		} else {
-			db.deleteMessageMetadata(txn, storageId); // TODO needed?
 			db.removeMessage(txn, storageId);
 		}
-	}
-
-	private Group getLocalGroup() {
-		return contactGroupFactory.createLocalGroup(CLIENT_ID, CLIENT_VERSION);
 	}
 
 	private static class StoredSession {

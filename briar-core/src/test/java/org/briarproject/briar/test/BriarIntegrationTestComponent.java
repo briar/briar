@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
-import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.client.ClientModule;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoModule;
@@ -37,8 +36,8 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
+import org.briarproject.briar.introduction.IntroductionCryptoIntegrationTest;
 import org.briarproject.briar.introduction.IntroductionModule;
-import org.briarproject.briar.introduction.IntroductionCryptoImplTest;
 import org.briarproject.briar.introduction.MessageEncoderParserIntegrationTest;
 import org.briarproject.briar.introduction.SessionEncoderParserIntegrationTest;
 import org.briarproject.briar.messaging.MessagingModule;
@@ -79,10 +78,6 @@ import dagger.Component;
 public interface BriarIntegrationTestComponent {
 
 	void inject(BriarIntegrationTest<BriarIntegrationTestComponent> init);
-
-	void inject(MessageEncoderParserIntegrationTest init);
-	void inject(SessionEncoderParserIntegrationTest init);
-	void inject(IntroductionCryptoImplTest init);
 
 	void inject(BlogModule.EagerSingletons init);
 
@@ -145,8 +140,6 @@ public interface BriarIntegrationTestComponent {
 	PrivateGroupManager getPrivateGroupManager();
 
 	TransportPropertyManager getTransportPropertyManager();
-
-	KeyManager getKeyManager();
 
 	AuthorFactory getAuthorFactory();
 

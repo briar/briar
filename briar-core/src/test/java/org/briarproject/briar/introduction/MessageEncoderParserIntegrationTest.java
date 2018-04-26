@@ -16,8 +16,6 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.test.BriarIntegrationTestComponent;
-import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
 import org.junit.Test;
 
 import java.util.Map;
@@ -72,8 +70,8 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 	private final byte[] signature = getRandomBytes(MAX_SIGNATURE_BYTES);
 
 	public MessageEncoderParserIntegrationTest() {
-		BriarIntegrationTestComponent component =
-				DaggerBriarIntegrationTestComponent.builder().build();
+		IntroductionIntegrationTestComponent component =
+				DaggerIntroductionIntegrationTestComponent.builder().build();
 		component.inject(this);
 
 		messageEncoder = new MessageEncoderImpl(clientHelper, messageFactory);
@@ -86,13 +84,13 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 	@Test
 	public void testRequestMessageMetadata() throws FormatException {
 		BdfDictionary d = messageEncoder
-				.encodeRequestMetadata(timestamp, true, false, false);
+				.encodeRequestMetadata(timestamp);
 		MessageMetadata meta = messageParser.parseMetadata(d);
 
 		assertEquals(REQUEST, meta.getMessageType());
 		assertNull(meta.getSessionId());
 		assertEquals(timestamp, meta.getTimestamp());
-		assertTrue(meta.isLocal());
+		assertFalse(meta.isLocal());
 		assertFalse(meta.isRead());
 		assertFalse(meta.isVisibleInConversation());
 		assertFalse(meta.isAvailableToAnswer());

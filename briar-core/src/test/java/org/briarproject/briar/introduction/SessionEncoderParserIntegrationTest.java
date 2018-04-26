@@ -14,8 +14,6 @@ import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.introduction.IntroducerSession.Introducee;
-import org.briarproject.briar.test.BriarIntegrationTestComponent;
-import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -82,8 +80,8 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 	private final byte[] remoteMacKey = getRandomBytes(SecretKey.LENGTH);
 
 	public SessionEncoderParserIntegrationTest() {
-		BriarIntegrationTestComponent component =
-				DaggerBriarIntegrationTestComponent.builder().build();
+		IntroductionIntegrationTestComponent component =
+				DaggerIntroductionIntegrationTestComponent.builder().build();
 		component.inject(this);
 
 		sessionEncoder = new SessionEncoderImpl(clientHelper);

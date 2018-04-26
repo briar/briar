@@ -11,23 +11,25 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.test.BriarIntegrationTestComponent;
-import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
 import org.junit.Test;
 
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportPropertiesMap;
-import static org.briarproject.bramble.util.StringUtils.fromHexString;
+import static org.briarproject.briar.introduction.IntroduceeSession.Local;
+import static org.briarproject.briar.introduction.IntroduceeSession.Remote;
+import static org.briarproject.briar.test.BriarTestUtils.getRealAuthor;
+import static org.briarproject.briar.test.BriarTestUtils.getRealLocalAuthor;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-public class IntroductionCryptoImplTest extends BrambleTestCase {
+public class IntroductionCryptoIntegrationTest extends BrambleTestCase {
 
 	@Inject
 	ClientHelper clientHelper;
@@ -42,33 +44,28 @@ public class IntroductionCryptoImplTest extends BrambleTestCase {
 	private final LocalAuthor alice, bob;
 	private final long aliceAcceptTimestamp = 42L;
 	private final long bobAcceptTimestamp = 1337L;
-	private final SecretKey masterKey =
-			new SecretKey(getRandomBytes(SecretKey.LENGTH));
+	private final SecretKey masterKey = getSecretKey();
 	private final KeyPair aliceEphemeral, bobEphemeral;
 	private final Map<TransportId, TransportProperties> aliceTransport =
 			getTransportPropertiesMap(3);
 	private final Map<TransportId, TransportProperties> bobTransport =
 			getTransportPropertiesMap(3);
 
-	public IntroductionCryptoImplTest() {
-		BriarIntegrationTestComponent component =
-				DaggerBriarIntegrationTestComponent.builder().build();
+	public IntroductionCryptoIntegrationTest() {
+		IntroductionIntegrationTestComponent component =
+				DaggerIntroductionIntegrationTestComponent.builder().build();
 		component.inject(this);
 		crypto = new IntroductionCryptoImpl(cryptoComponent, clientHelper);
 
-		// create actual deterministic authors for testing
-		introducer = authorFactory
-				.createAuthor("Introducer", new byte[] {0x1, 0x2, 0x3});
-		alice = authorFactory.createLocalAuthor("Alice",
-				fromHexString(
-						"A626F080C94771698F86B4B4094C4F560904B53398805AE02BA2343F1829187A"),
-				fromHexString(
-						"60F010187AF91ACA15141E8C811EC8E79C7CAA6461C21A852BB03066C89B0A70"));
-		bob = authorFactory.createLocalAuthor("Bob",
-				fromHexString(
-						"A0D0FED1CE4674D8B6441AD0A664E41BF60D489F35DA11F52AF923540848546F"),
-				fromHexString(
-						"20B25BE7E999F68FE07189449E91984FA79121DBFF28A651669A3CF512D6A758"));
+		introducer = getRealAuthor(authorFactory);
+		LocalAuthor introducee1 =
+				getRealLocalAuthor(cryptoComponent, authorFactory);
+		LocalAuthor introducee2 =
+				getRealLocalAuthor(cryptoComponent, authorFactory);
+		boolean isAlice =
+				crypto.isAlice(introducee1.getId(), introducee2.getId());
+		alice = isAlice ? introducee1 : introducee2;
+		bob = isAlice ? introducee2 : introducee1;
 		aliceEphemeral = crypto.generateKeyPair();
 		bobEphemeral = crypto.generateKeyPair();
 	}
@@ -78,6 +75,9 @@ public class IntroductionCryptoImplTest extends BrambleTestCase {
 		SessionId s1 = crypto.getSessionId(introducer, alice, bob);
 		SessionId s2 = crypto.getSessionId(introducer, bob, alice);
 		assertEquals(s1, s2);
+
+		SessionId s3 = crypto.getSessionId(alice, bob, introducer);
+		assertNotEquals(s1, s3);
 	}
 
 	@Test
@@ -88,62 +88,66 @@ public class IntroductionCryptoImplTest extends BrambleTestCase {
 
 	@Test
 	public void testDeriveMasterKey() throws Exception {
-		SecretKey aliceMasterKey = crypto.deriveMasterKey(alice.getPublicKey(),
-				alice.getPrivateKey(), bob.getPublicKey(), true);
-		SecretKey bobMasterKey = crypto.deriveMasterKey(bob.getPublicKey(),
-				bob.getPrivateKey(), alice.getPublicKey(), false);
+		SecretKey aliceMasterKey =
+				crypto.deriveMasterKey(aliceEphemeral.getPublic().getEncoded(),
+						aliceEphemeral.getPrivate().getEncoded(),
+						bobEphemeral.getPublic().getEncoded(), true);
+		SecretKey bobMasterKey =
+				crypto.deriveMasterKey(bobEphemeral.getPublic().getEncoded(),
+						bobEphemeral.getPrivate().getEncoded(),
+						aliceEphemeral.getPublic().getEncoded(), false);
 		assertArrayEquals(aliceMasterKey.getBytes(), bobMasterKey.getBytes());
 	}
 
 	@Test
 	public void testAliceAuthMac() throws Exception {
 		SecretKey aliceMacKey = crypto.deriveMacKey(masterKey, true);
+		Local local = new Local(true, null, -1,
+				aliceEphemeral.getPublic().getEncoded(),
+				aliceEphemeral.getPrivate().getEncoded(), aliceTransport,
+				aliceAcceptTimestamp, aliceMacKey.getBytes());
+		Remote remote = new Remote(false, bob, null,
+				bobEphemeral.getPublic().getEncoded(), bobTransport,
+				bobAcceptTimestamp, null);
 		byte[] aliceMac =
 				crypto.authMac(aliceMacKey, introducer.getId(), alice.getId(),
-						bob.getId(), aliceAcceptTimestamp, bobAcceptTimestamp,
-						aliceEphemeral.getPublic().getEncoded(),
-						bobEphemeral.getPublic().getEncoded(), aliceTransport,
-						bobTransport, true);
+						local, remote);
 
+		// verify from Bob's perspective
 		crypto.verifyAuthMac(aliceMac, aliceMacKey, introducer.getId(),
-				bob.getId(), alice.getId(), bobAcceptTimestamp,
-				aliceAcceptTimestamp, bobEphemeral.getPublic().getEncoded(),
-				aliceEphemeral.getPublic().getEncoded(), bobTransport,
-				aliceTransport, true);
+				bob.getId(), remote, alice.getId(), local);
 	}
 
 	@Test
 	public void testBobAuthMac() throws Exception {
 		SecretKey bobMacKey = crypto.deriveMacKey(masterKey, false);
+		Local local = new Local(false, null, -1,
+				bobEphemeral.getPublic().getEncoded(),
+				bobEphemeral.getPrivate().getEncoded(), bobTransport,
+				bobAcceptTimestamp, bobMacKey.getBytes());
+		Remote remote = new Remote(true, alice, null,
+				aliceEphemeral.getPublic().getEncoded(), aliceTransport,
+				aliceAcceptTimestamp, null);
 		byte[] bobMac =
 				crypto.authMac(bobMacKey, introducer.getId(), bob.getId(),
-						alice.getId(), bobAcceptTimestamp, aliceAcceptTimestamp,
-						bobEphemeral.getPublic().getEncoded(),
-						aliceEphemeral.getPublic().getEncoded(), bobTransport,
-						aliceTransport, false);
+						local, remote);
 
+		// verify from Alice's perspective
 		crypto.verifyAuthMac(bobMac, bobMacKey, introducer.getId(),
-				alice.getId(), bob.getId(), aliceAcceptTimestamp,
-				bobAcceptTimestamp, aliceEphemeral.getPublic().getEncoded(),
-				bobEphemeral.getPublic().getEncoded(), aliceTransport,
-				bobTransport, false);
+				alice.getId(), remote, bob.getId(), local);
 	}
 
 	@Test
 	public void testSign() throws Exception {
-		KeyPair keyPair = cryptoComponent.generateSignatureKeyPair();
 		SecretKey macKey = crypto.deriveMacKey(masterKey, true);
-		byte[] signature =
-				crypto.sign(macKey, keyPair.getPrivate().getEncoded());
-		crypto.verifySignature(macKey, keyPair.getPublic().getEncoded(),
-				signature);
+		byte[] signature = crypto.sign(macKey, alice.getPrivateKey());
+		crypto.verifySignature(macKey, alice.getPublicKey(), signature);
 	}
 
 	@Test
 	public void testAliceActivateMac() throws Exception {
 		SecretKey aliceMacKey = crypto.deriveMacKey(masterKey, true);
 		byte[] aliceMac = crypto.activateMac(aliceMacKey);
-
 		crypto.verifyActivateMac(aliceMac, aliceMacKey);
 	}
 
@@ -151,7 +155,6 @@ public class IntroductionCryptoImplTest extends BrambleTestCase {
 	public void testBobActivateMac() throws Exception {
 		SecretKey bobMacKey = crypto.deriveMacKey(masterKey, false);
 		byte[] bobMac = crypto.activateMac(bobMacKey);
-
 		crypto.verifyActivateMac(bobMac, bobMacKey);
 	}
 

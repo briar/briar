@@ -22,7 +22,6 @@ import javax.annotation.concurrent.Immutable;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAC_BYTES;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_BYTES;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.bramble.api.plugin.TransportId.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
@@ -79,8 +78,8 @@ class IntroductionValidator extends BdfMessageValidator {
 		String msg = body.getOptionalString(3);
 		checkLength(msg, 1, MAX_REQUEST_MESSAGE_LENGTH);
 
-		BdfDictionary meta = messageEncoder
-				.encodeRequestMetadata(m.getTimestamp(), false, false, false);
+		BdfDictionary meta =
+				messageEncoder.encodeRequestMetadata(m.getTimestamp());
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -103,15 +102,13 @@ class IntroductionValidator extends BdfMessageValidator {
 		byte[] ephemeralPublicKey = body.getRaw(3);
 		checkLength(ephemeralPublicKey, 0, MAX_PUBLIC_KEY_LENGTH);
 
-		body.getLong(4);
+		long timestamp = body.getLong(4);
+		if (timestamp < 0) throw new FormatException();
 
 		BdfDictionary transportProperties = body.getDictionary(5);
 		if (transportProperties.size() < 1) throw new FormatException();
-		for (String tId : transportProperties.keySet()) {
-			checkLength(tId, 1, MAX_TRANSPORT_ID_LENGTH);
-			BdfDictionary tProps = transportProperties.getDictionary(tId);
-			clientHelper.parseAndValidateTransportProperties(tProps);
-		}
+		clientHelper
+				.parseAndValidateTransportPropertiesMap(transportProperties);
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
 		BdfDictionary meta = messageEncoder

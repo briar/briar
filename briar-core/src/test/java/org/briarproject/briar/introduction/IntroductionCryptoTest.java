@@ -1,6 +1,5 @@
 package org.briarproject.briar.introduction;
 
-import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.identity.Author;
@@ -10,7 +9,7 @@ import org.jmock.Expectations;
 import org.junit.Test;
 
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.LABEL_SESSION_ID;
 import static org.junit.Assert.assertEquals;
 
@@ -25,7 +24,7 @@ public class IntroductionCryptoTest extends BrambleMockTestCase {
 
 	private final Author introducer = getAuthor();
 	private final Author alice = getAuthor(), bob = getAuthor();
-	private final byte[] hash = getRandomBytes(UniqueId.LENGTH);
+	private final byte[] hash = getRandomId();
 
 	@Test
 	public void testGetSessionId() {

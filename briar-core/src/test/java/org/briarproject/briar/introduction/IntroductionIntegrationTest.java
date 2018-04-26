@@ -634,7 +634,7 @@ public class IntroductionIntegrationTest
 
 		// fake a second ACCEPT message from introducee1
 		Message msg = c1.getMessageEncoder()
-				.encodeAcceptMessage(m.getGroupId(), clock.currentTimeMillis(),
+				.encodeAcceptMessage(m.getGroupId(), m.getTimestamp() + 1,
 						m.getMessageId(), m.getSessionId(),
 						m.getEphemeralPublicKey(), m.getAcceptTimestamp(),
 						m.getTransportProperties());
@@ -671,7 +671,7 @@ public class IntroductionIntegrationTest
 
 		// fake a second DECLINE message also from introducee1
 		Message msg = c1.getMessageEncoder()
-				.encodeDeclineMessage(m.getGroupId(), clock.currentTimeMillis(),
+				.encodeDeclineMessage(m.getGroupId(), m.getTimestamp() + 1,
 						m.getMessageId(), m.getSessionId());
 		c1.getClientHelper().addLocalMessage(msg, new BdfDictionary(), true);
 
@@ -715,7 +715,7 @@ public class IntroductionIntegrationTest
 
 		// fake a second AUTH message also from introducee1
 		Message msg = c1.getMessageEncoder()
-				.encodeAuthMessage(m.getGroupId(), clock.currentTimeMillis(),
+				.encodeAuthMessage(m.getGroupId(), m.getTimestamp() + 1,
 						m.getMessageId(), m.getSessionId(), m.getMac(),
 						m.getSignature());
 		c1.getClientHelper().addLocalMessage(msg, new BdfDictionary(), true);

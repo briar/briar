@@ -33,11 +33,13 @@ import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
 
 import java.security.GeneralSecurityException;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_AUTH;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_RESPONSES;
@@ -50,6 +52,9 @@ import static org.briarproject.briar.introduction.IntroduceeState.START;
 @NotNullByDefault
 class IntroduceeProtocolEngine
 		extends AbstractProtocolEngine<IntroduceeSession> {
+
+	private final static Logger LOG =
+			Logger.getLogger(IntroduceeProtocolEngine.class.getSimpleName());
 
 	private final IntroductionCrypto crypto;
 	private final KeyManager keyManager;
@@ -383,11 +388,12 @@ class IntroduceeProtocolEngine
 			bobMacKey = crypto.deriveMacKey(masterKey, false);
 			SecretKey ourMacKey = s.getLocal().alice ? aliceMacKey : bobMacKey;
 			LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
-			mac = crypto.authMac(ourMacKey, s, localAuthor.getId(),
-					s.getLocal().alice);
+			mac = crypto.authMac(ourMacKey, s, localAuthor.getId());
 			signature = crypto.sign(ourMacKey, localAuthor.getPrivateKey());
 		} catch (GeneralSecurityException e) {
 			// TODO
+			if (LOG.isLoggable(WARNING))
+				LOG.log(WARNING, e.toString(), e);
 			return abort(txn, s);
 		}
 		if (s.getState() != AWAIT_AUTH) throw new AssertionError();
@@ -406,7 +412,7 @@ class IntroduceeProtocolEngine
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		try {
 			crypto.verifyAuthMac(m.getMac(), s, localAuthor.getId());
-			crypto.verifySignature(m.getSignature(), s, localAuthor.getId());
+			crypto.verifySignature(m.getSignature(), s);
 		} catch (GeneralSecurityException e) {
 			return abort(txn, s);
 		}

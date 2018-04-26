@@ -47,11 +47,10 @@ class MessageEncoderImpl implements MessageEncoder {
 	}
 
 	@Override
-	public BdfDictionary encodeRequestMetadata(long timestamp,
-			boolean local, boolean read, boolean available) {
+	public BdfDictionary encodeRequestMetadata(long timestamp) {
 		BdfDictionary meta =
-				encodeMetadata(REQUEST, null, timestamp, local, read, false);
-		meta.put(MSG_KEY_AVAILABLE_TO_ANSWER, available);
+				encodeMetadata(REQUEST, null, timestamp, false, false, false);
+		meta.put(MSG_KEY_AVAILABLE_TO_ANSWER, false);
 		return meta;
 	}
 

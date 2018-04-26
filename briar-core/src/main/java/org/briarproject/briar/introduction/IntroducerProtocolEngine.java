@@ -207,8 +207,10 @@ class IntroducerProtocolEngine
 			IntroducerSession s,
 			@Nullable String message, long timestamp) throws DbException {
 		// Send REQUEST messages
-		long localTimestamp =
-				Math.max(timestamp, getLocalTimestamp(s, s.getIntroduceeA()));
+		long maxIntroduceeTimestamp =
+				Math.max(getLocalTimestamp(s, s.getIntroduceeA()),
+						getLocalTimestamp(s, s.getIntroduceeB()));
+		long localTimestamp = Math.max(timestamp, maxIntroduceeTimestamp);
 		Message sentA = sendRequestMessage(txn, s.getIntroduceeA(),
 				localTimestamp, s.getIntroduceeB().author, message
 		);
