@@ -3,30 +3,33 @@ package org.briarproject.bramble.record;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordWriter;
+import org.briarproject.bramble.util.ByteUtils;
 
-import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import static org.briarproject.bramble.api.record.Record.RECORD_HEADER_BYTES;
+
 @NotThreadSafe
 @NotNullByDefault
 class RecordWriterImpl implements RecordWriter {
 
-	private final DataOutputStream out;
+	private final OutputStream out;
+	private final byte[] header = new byte[RECORD_HEADER_BYTES];
 
 	RecordWriterImpl(OutputStream out) {
-		this.out = new DataOutputStream(new BufferedOutputStream(out, 1024));
+		this.out = out;
 	}
 
 	@Override
 	public void writeRecord(Record r) throws IOException {
-		out.write(r.getProtocolVersion());
-		out.write(r.getRecordType());
 		byte[] payload = r.getPayload();
-		out.writeShort(payload.length);
+		header[0] = r.getProtocolVersion();
+		header[1] = r.getRecordType();
+		ByteUtils.writeUint16(payload.length, header, 2);
+		out.write(header);
 		out.write(payload);
 	}
 
