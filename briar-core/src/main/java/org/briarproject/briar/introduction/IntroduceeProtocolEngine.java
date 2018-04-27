@@ -365,9 +365,6 @@ class IntroduceeProtocolEngine
 			Message sent =
 					sendDeclineMessage(txn, s, getLocalTimestamp(s), false);
 
-			// Track the message
-			messageTracker.trackOutgoingMessage(txn, sent);
-
 			// Move back to START state
 			return IntroduceeSession.clear(s, START, sent.getId(),
 					sent.getTimestamp(), m.getMessageId());
