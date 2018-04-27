@@ -575,6 +575,10 @@ public class ConversationActivity extends BriarActivity
 			@Override
 			public void onSuccess(String contactName) {
 				runOnUiThreadUnlessDestroyed(() -> {
+					// If the other introducee declined, we can no longer
+					// respond to the request
+					if (!m.isIntroducer() && !m.wasAccepted())
+						markRequestAnswered(m.getSessionId());
 					ConversationItem item = ConversationItem
 							.from(ConversationActivity.this, contactName, m);
 					addConversationItem(item);
@@ -625,6 +629,26 @@ public class ConversationActivity extends BriarActivity
 						() -> handleDbException((DbException) exception));
 			}
 		});
+	}
+
+	private void markRequestAnswered(SessionId sessionId) {
+		int size = adapter.getItemCount();
+		for (int i = 0; i < size; i++) {
+			ConversationItem item = adapter.getItemAt(i);
+			if (item instanceof ConversationRequestItem) {
+				ConversationRequestItem req = (ConversationRequestItem) item;
+				if (req.getSessionId().equals(sessionId)
+						&& !req.wasAnswered()) {
+					LOG.info("Marking request answered");
+					req.setAnswered(true);
+					int position = adapter.findItemPosition(req);
+					if (position != INVALID_POSITION)
+						adapter.notifyItemChanged(position, req);
+					// There shouldn't be more than one unanswered request
+					return;
+				}
+			}
+		}
 	}
 
 	private void markMessages(Collection<MessageId> messageIds,
@@ -781,25 +805,18 @@ public class ConversationActivity extends BriarActivity
 				return;
 			}
 
-				PromptStateChangeListener listener = new PromptStateChangeListener() {
-					@Override
-					public void onPromptStateChanged(
-							MaterialTapTargetPrompt prompt, int state) {
-						if (state == STATE_DISMISSED ||
-					state == STATE_FINISHED) {
-introductionOnboardingSeen();
-					}
-					}
-
-				};
-				new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
-						R.style.OnboardingDialogTheme).setTarget(target)
-						.setPrimaryText(R.string.introduction_onboarding_title)
-						.setSecondaryText(R.string.introduction_onboarding_text)
-						.setIcon(R.drawable.ic_more_vert_accent)
-						.setPromptStateChangeListener(listener)
-						.show();
-
+			PromptStateChangeListener listener = (prompt, state) -> {
+				if (state == STATE_DISMISSED || state == STATE_FINISHED) {
+					introductionOnboardingSeen();
+				}
+			};
+			new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
+					R.style.OnboardingDialogTheme).setTarget(target)
+					.setPrimaryText(R.string.introduction_onboarding_title)
+					.setSecondaryText(R.string.introduction_onboarding_text)
+					.setIcon(R.drawable.ic_more_vert_accent)
+					.setPromptStateChangeListener(listener)
+					.show();
 		});
 	}
 
@@ -865,11 +882,12 @@ introductionOnboardingSeen();
 								"Unknown Request Type");
 				}
 				loadMessages();
+			} catch (ProtocolStateException e) {
+				// Action is no longer valid - reloading should solve the issue
+				if (LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 			} catch (DbException e) {
-				// TODO use more generic error message
-				introductionResponseError();
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				// TODO show an error message
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
@@ -900,14 +918,8 @@ introductionOnboardingSeen();
 	@DatabaseExecutor
 	private void respondToIntroductionRequest(SessionId sessionId,
 			boolean accept, long time) throws DbException {
-		try {
-			introductionManager
-					.respondToIntroduction(contactId, sessionId, time, accept);
-		} catch (ProtocolStateException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e.toString(), e);
-			introductionResponseError();
-		}
+		introductionManager.respondToIntroduction(contactId, sessionId, time,
+				accept);
 	}
 
 	@DatabaseExecutor
@@ -925,18 +937,7 @@ introductionOnboardingSeen();
 	@DatabaseExecutor
 	private void respondToGroupRequest(SessionId id, boolean accept)
 			throws DbException {
-		try {
-			groupInvitationManager.respondToInvitation(contactId, id, accept);
-		} catch (ProtocolStateException e) {
-			// this action is no longer possible
-		}
-	}
-
-	private void introductionResponseError() {
-		runOnUiThreadUnlessDestroyed(() ->
-				Toast.makeText(ConversationActivity.this,
-						R.string.introduction_response_error,
-						Toast.LENGTH_SHORT).show());
+		groupInvitationManager.respondToInvitation(contactId, id, accept);
 	}
 
 	private ListenableFutureTask<String> getContactNameTask() {

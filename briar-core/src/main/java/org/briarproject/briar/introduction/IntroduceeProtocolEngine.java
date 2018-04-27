@@ -357,9 +357,22 @@ class IntroduceeProtocolEngine
 		broadcastIntroductionResponseReceivedEvent(txn, s,
 				s.getIntroducer().getId(), m);
 
-		// Move back to START state
-		return IntroduceeSession.clear(s, START, s.getLastLocalMessageId(),
-				s.getLocalTimestamp(), m.getMessageId());
+		if (s.getState() == AWAIT_RESPONSES) {
+			// Mark the request message unavailable to answer
+			markRequestsUnavailableToAnswer(txn, s);
+
+			// Send a DECLINE message
+			Message sent =
+					sendDeclineMessage(txn, s, getLocalTimestamp(s), false);
+
+			// Move back to START state
+			return IntroduceeSession.clear(s, START, sent.getId(),
+					sent.getTimestamp(), m.getMessageId());
+		} else {
+			// Move back to START state
+			return IntroduceeSession.clear(s, START, s.getLastLocalMessageId(),
+					s.getLocalTimestamp(), m.getMessageId());
+		}
 	}
 
 	private IntroduceeSession onRemoteResponseWhenDeclined(Transaction txn,

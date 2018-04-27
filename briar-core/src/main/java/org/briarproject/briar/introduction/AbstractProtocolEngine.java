@@ -84,8 +84,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 	Message sendAcceptMessage(Transaction txn, PeerSession s, long timestamp,
 			byte[] ephemeralPublicKey, long acceptTimestamp,
 			Map<TransportId, TransportProperties> transportProperties,
-			boolean visible)
-			throws DbException {
+			boolean visible) throws DbException {
 		Message m = messageEncoder
 				.encodeAcceptMessage(s.getContactGroupId(), timestamp,
 						s.getLastLocalMessageId(), s.getSessionId(),
