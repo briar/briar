@@ -156,6 +156,7 @@
 	<string name="introduction_request_exists_received">%1$s has asked to introduce you to %2$s, but %2$s is already in your contact list. Since %1$s might not know that, you can still respond:</string>
 	<string name="introduction_request_answered_received">%1$s has asked to introduce you to %2$s.</string>
 	<string name="introduction_response_accepted_sent">You accepted the introduction to %1$s.</string>
+	<string name="introduction_response_accepted_sent_info">Before %1$s gets added to your contacts, they need to accept the introduction as well. This might take some time.</string>
 	<string name="introduction_response_declined_sent">You declined the introduction to %1$s.</string>
 	<string name="introduction_response_accepted_received">%1$s accepted the introduction to %2$s.</string>
 	<string name="introduction_response_declined_received">%1$s declined the introduction to %2$s.</string>

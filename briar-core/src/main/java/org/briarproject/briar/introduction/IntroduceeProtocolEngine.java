@@ -355,7 +355,7 @@ class IntroduceeProtocolEngine
 
 		// Broadcast IntroductionResponseReceivedEvent
 		broadcastIntroductionResponseReceivedEvent(txn, s,
-				s.getIntroducer().getId(), m);
+				s.getIntroducer().getId(), s.getRemote().author, m);
 
 		if (s.getState() == AWAIT_RESPONSES) {
 			// Mark the request message unavailable to answer

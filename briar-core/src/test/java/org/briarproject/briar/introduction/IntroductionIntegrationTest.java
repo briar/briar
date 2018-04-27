@@ -28,6 +28,7 @@ import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionMessage;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
+import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
@@ -51,6 +52,7 @@ import static org.briarproject.bramble.test.TestUtils.getTransportProperties;
 import static org.briarproject.bramble.test.TestUtils.getTransportPropertiesMap;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_VERSION;
+import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_RESPONSES;
 import static org.briarproject.briar.introduction.IntroduceeState.LOCAL_DECLINED;
 import static org.briarproject.briar.introduction.IntroducerState.A_DECLINED;
 import static org.briarproject.briar.introduction.IntroducerState.B_DECLINED;
@@ -146,24 +148,32 @@ public class IntroductionIntegrationTest
 		sync0To1(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener1.requestReceived);
+		assertEquals(introducee2.getAuthor().getName(),
+				listener1.getRequest().getName());
 		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
 
 		// sync second REQUEST message
 		sync0To2(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener2.requestReceived);
+		assertEquals(introducee1.getAuthor().getName(),
+				listener2.getRequest().getName());
 		assertGroupCount(messageTracker2, g2.getId(), 2, 1);
 
 		// sync first ACCEPT message
 		sync1To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response1Received);
+		assertEquals(introducee2.getAuthor().getName(),
+				listener0.getResponse().getName());
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
 
 		// sync second ACCEPT message
 		sync2To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response2Received);
+		assertEquals(introducee1.getAuthor().getName(),
+				listener0.getResponse().getName());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
 
 		// sync forwarded ACCEPT messages to introducees
@@ -259,6 +269,10 @@ public class IntroductionIntegrationTest
 		assertEquals(alice ? A_DECLINED : B_DECLINED,
 				introducerSession.getState());
 
+		// assert that the name on the decline event is correct
+		assertEquals(introducee2.getAuthor().getName(),
+				listener0.getResponse().getName());
+
 		// sync second response
 		sync2To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
@@ -270,6 +284,11 @@ public class IntroductionIntegrationTest
 
 		// sync first forwarded response
 		sync0To2(1, true);
+
+		// assert that the name on the decline event is correct
+		eventWaiter.await(TIMEOUT, 1);
+		assertEquals(introducee1.getAuthor().getName(),
+				listener2.getResponse().getName());
 
 		// note how the introducer does not forward the second response,
 		// because after the first decline the protocol finished
@@ -338,6 +357,11 @@ public class IntroductionIntegrationTest
 		// sync both forwarded response
 		sync0To2(1, true);
 		sync0To1(1, true);
+
+		// assert that the name on the decline event is correct
+		eventWaiter.await(TIMEOUT, 1);
+		assertEquals(contact2From0.getAuthor().getName(),
+				listener1.getResponse().getName());
 
 		assertFalse(contactManager1
 				.contactExists(author2.getId(), author1.getId()));
@@ -408,8 +432,6 @@ public class IntroductionIntegrationTest
 		assertFalse(contactManager2
 				.contactExists(author1.getId(), author2.getId()));
 
-		// since introducee2 was already in FINISHED state when
-		// introducee1's response arrived, she ignores and deletes it
 		assertDefaultUiMessages();
 		assertFalse(listener0.aborted);
 		assertFalse(listener1.aborted);
@@ -417,7 +439,7 @@ public class IntroductionIntegrationTest
 	}
 
 	@Test
-	public void testResponseAndAckInOneSession() throws Exception {
+	public void testResponseAndAuthInOneSync() throws Exception {
 		addListeners(true, true);
 
 		// make introduction
@@ -449,10 +471,125 @@ public class IntroductionIntegrationTest
 				.respondToIntroduction(contactId0From2, listener2.sessionId, time,
 						true);
 
-		// sync second response and ACK and make sure there is no abort
+		// sync second response and AUTH
 		sync2To0(2, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response2Received);
+
+		// Forward AUTH
+		sync0To1(1, true);
+
+		// Second AUTH and ACTIATE and forward them
+		sync1To0(2, true);
+		sync0To2(2, true);
+
+		assertTrue(contactManager1
+				.contactExists(author2.getId(), author1.getId()));
+		assertTrue(contactManager2
+				.contactExists(author1.getId(), author2.getId()));
+
+		assertDefaultUiMessages();
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
+	}
+
+	/**
+	 * When an introducee declines an introduction,
+	 * the other introducee needs to respond before returning to START state,
+	 * otherwise a subsequent attempt at introducing the same contacts will fail
+	 */
+	@Test
+	public void testAutomaticSecondDecline() throws Exception {
+		// introducee1 declines automatically and introducee2 doesn't answer
+		addListeners(false, true);
+		listener2.answerRequests = false;
+
+		// make introduction
+		long time = clock.currentTimeMillis();
+		Contact introducee1 = contact1From0;
+		Contact introducee2 = contact2From0;
+		introductionManager0
+				.makeIntroduction(introducee1, introducee2, null, time);
+
+		// sync request messages
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// assert that introducee1 is in correct state
+		IntroduceeSession introduceeSession = getIntroduceeSession(c1);
+		assertEquals(LOCAL_DECLINED, introduceeSession.getState());
+
+		// sync first response
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener0.response1Received);
+
+		// assert that introducer is in correct state
+		boolean alice = c0.getIntroductionCrypto()
+				.isAlice(introducee1.getAuthor().getId(),
+						introducee2.getAuthor().getId());
+		IntroducerSession introducerSession = getIntroducerSession();
+		assertEquals(alice ? A_DECLINED : B_DECLINED,
+				introducerSession.getState());
+
+		// assert that introducee2 is in correct state
+		introduceeSession = getIntroduceeSession(c2);
+		assertEquals(AWAIT_RESPONSES, introduceeSession.getState());
+
+		// forward first DECLINE
+		sync0To2(1, true);
+
+		// assert that the name on the decline event is correct
+		eventWaiter.await(TIMEOUT, 1);
+		assertEquals(introducee1.getAuthor().getName(),
+				listener2.getResponse().getName());
+
+		// assert that introducee2 is in correct state
+		introduceeSession = getIntroduceeSession(c2);
+		assertEquals(IntroduceeState.START, introduceeSession.getState());
+
+		// second response should be an immediate automatic DECLINE
+		sync2To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener0.response2Received);
+
+		// assert that introducer now moved to START state
+		introducerSession = getIntroducerSession();
+		assertEquals(START, introducerSession.getState());
+
+		// introducee1 is still waiting for second response
+		introduceeSession = getIntroduceeSession(c1);
+		assertEquals(LOCAL_DECLINED, introduceeSession.getState());
+
+		// forward automatic decline
+		sync0To1(1, true);
+
+		// introducee1 can finally move to the START
+		introduceeSession = getIntroduceeSession(c1);
+		assertEquals(IntroduceeState.START, introduceeSession.getState());
+
+		Group g1 = introductionManager0.getContactGroup(introducee1);
+		Group g2 = introductionManager0.getContactGroup(introducee2);
+		assertEquals(2,
+				introductionManager0.getIntroductionMessages(contactId1From0)
+						.size());
+		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
+		assertEquals(2,
+				introductionManager0.getIntroductionMessages(contactId2From0)
+						.size());
+		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
+		assertEquals(2,
+				introductionManager1.getIntroductionMessages(contactId0From1)
+						.size());
+		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
+		// the automatic DECLINE is invisible in the UI
+		// so there's just the remote REQUEST and remote DECLINE
+		assertEquals(2,
+				introductionManager2.getIntroductionMessages(contactId0From2)
+						.size());
+		assertGroupCount(messageTracker2, g2.getId(), 2, 2);
+
 		assertFalse(listener0.aborted);
 		assertFalse(listener1.aborted);
 		assertFalse(listener2.aborted);
@@ -1012,11 +1149,25 @@ public class IntroductionIntegrationTest
 
 	@MethodsNotNullByDefault
 	@ParametersNotNullByDefault
-	private class IntroduceeListener implements EventListener {
+	private abstract class IntroductionListener implements EventListener {
+
+		protected volatile boolean aborted = false;
+		protected volatile Event latestEvent;
+
+		IntroductionResponse getResponse() {
+			assertTrue(
+					latestEvent instanceof IntroductionResponseReceivedEvent);
+			return ((IntroductionResponseReceivedEvent) latestEvent)
+					.getIntroductionResponse();
+		}
+	}
+
+	@MethodsNotNullByDefault
+	@ParametersNotNullByDefault
+	private class IntroduceeListener extends IntroductionListener {
 
 		private volatile boolean requestReceived = false;
 		private volatile boolean succeeded = false;
-		private volatile boolean aborted = false;
 		private volatile boolean answerRequests = true;
 		private volatile SessionId sessionId;
 
@@ -1031,6 +1182,7 @@ public class IntroductionIntegrationTest
 		@Override
 		public void eventOccurred(Event e) {
 			if (e instanceof IntroductionRequestReceivedEvent) {
+				latestEvent = e;
 				IntroductionRequestReceivedEvent introEvent =
 						((IntroductionRequestReceivedEvent) e);
 				requestReceived = true;
@@ -1053,29 +1205,42 @@ public class IntroductionIntegrationTest
 				} finally {
 					eventWaiter.resume();
 				}
+			} else if (e instanceof IntroductionResponseReceivedEvent) {
+				// only broadcast for DECLINE messages in introducee role
+				latestEvent = e;
+				eventWaiter.resume();
 			} else if (e instanceof IntroductionSucceededEvent) {
+				latestEvent = e;
 				succeeded = true;
 				Contact contact = ((IntroductionSucceededEvent) e).getContact();
 				eventWaiter
 						.assertFalse(contact.getId().equals(contactId0From1));
 				eventWaiter.resume();
 			} else if (e instanceof IntroductionAbortedEvent) {
+				latestEvent = e;
 				aborted = true;
 				eventWaiter.resume();
 			}
 		}
+
+		private IntroductionRequest getRequest() {
+			assertTrue(
+					latestEvent instanceof IntroductionRequestReceivedEvent);
+			return ((IntroductionRequestReceivedEvent) latestEvent)
+					.getIntroductionRequest();
+		}
 	}
 
 	@NotNullByDefault
-	private class IntroducerListener implements EventListener {
+	private class IntroducerListener extends IntroductionListener {
 
 		private volatile boolean response1Received = false;
 		private volatile boolean response2Received = false;
-		private volatile boolean aborted = false;
 
 		@Override
 		public void eventOccurred(Event e) {
 			if (e instanceof IntroductionResponseReceivedEvent) {
+				latestEvent = e;
 				ContactId c =
 						((IntroductionResponseReceivedEvent) e)
 								.getContactId();
@@ -1086,6 +1251,7 @@ public class IntroductionIntegrationTest
 				}
 				eventWaiter.resume();
 			} else if (e instanceof IntroductionAbortedEvent) {
+				latestEvent = e;
 				aborted = true;
 				eventWaiter.resume();
 			}

@@ -124,6 +124,9 @@ abstract class ConversationItem {
 				text = ctx.getString(
 						R.string.introduction_response_accepted_sent,
 						ir.getName());
+				text += "\n\n" + ctx.getString(
+						R.string.introduction_response_accepted_sent_info,
+						ir.getName());
 			} else {
 				text = ctx.getString(
 						R.string.introduction_response_declined_sent,

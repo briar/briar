@@ -144,15 +144,15 @@ abstract class AbstractProtocolEngine<S extends Session>
 		}
 	}
 
-	void broadcastIntroductionResponseReceivedEvent(Transaction txn,
-			Session s, AuthorId sender, AbstractIntroductionMessage m)
+	void broadcastIntroductionResponseReceivedEvent(Transaction txn, Session s,
+			AuthorId sender, Author otherAuthor, AbstractIntroductionMessage m)
 			throws DbException {
 		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
 		Contact c = contactManager.getContact(txn, sender, localAuthorId);
 		IntroductionResponse response =
 				new IntroductionResponse(s.getSessionId(), m.getMessageId(),
 						m.getGroupId(), s.getRole(), m.getTimestamp(), false,
-						false, false, false, c.getAuthor().getName(),
+						false, false, false, otherAuthor.getName(),
 						m instanceof AcceptMessage);
 		IntroductionResponseReceivedEvent e =
 				new IntroductionResponseReceivedEvent(c.getId(), response);
