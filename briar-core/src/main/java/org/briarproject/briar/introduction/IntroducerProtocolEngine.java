@@ -113,7 +113,7 @@ class IntroducerProtocolEngine
 				return onRemoteAccept(txn, s, m);
 			case A_DECLINED:
 			case B_DECLINED:
-				return onRemoteResponseWhenDeclined(txn, s, m);
+				return onRemoteAcceptWhenDeclined(txn, s, m);
 			case START:
 			case AWAIT_AUTHS:
 			case AWAIT_AUTH_A:
@@ -137,7 +137,7 @@ class IntroducerProtocolEngine
 				return onRemoteDecline(txn, s, m);
 			case A_DECLINED:
 			case B_DECLINED:
-				return onRemoteResponseWhenDeclined(txn, s, m);
+				return onRemoteDeclineWhenDeclined(txn, s, m);
 			case START:
 			case AWAIT_AUTHS:
 			case AWAIT_AUTH_A:
@@ -204,8 +204,8 @@ class IntroducerProtocolEngine
 	}
 
 	private IntroducerSession onLocalRequest(Transaction txn,
-			IntroducerSession s,
-			@Nullable String message, long timestamp) throws DbException {
+			IntroducerSession s, @Nullable String message, long timestamp)
+			throws DbException {
 		// Send REQUEST messages
 		long maxIntroduceeTimestamp =
 				Math.max(getLocalTimestamp(s, s.getIntroduceeA()),
@@ -285,6 +285,50 @@ class IntroducerProtocolEngine
 		return m.getGroupId().equals(s.getIntroduceeA().groupId);
 	}
 
+	private IntroducerSession onRemoteAcceptWhenDeclined(Transaction txn,
+			IntroducerSession s, AcceptMessage m) throws DbException {
+		// The timestamp must be higher than the last request message
+		if (m.getTimestamp() <= s.getRequestTimestamp())
+			return abort(txn, s);
+		// The dependency, if any, must be the last remote message
+		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
+			return abort(txn, s);
+		// The message must be expected in the current state
+		boolean senderIsAlice = senderIsAlice(s, m);
+		if (senderIsAlice && s.getState() != B_DECLINED)
+			return abort(txn, s);
+		else if (!senderIsAlice && s.getState() != A_DECLINED)
+			return abort(txn, s);
+
+		// Mark the response visible in the UI
+		markMessageVisibleInUi(txn, m.getMessageId());
+		// Track the incoming message
+		messageTracker
+				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
+
+		// Forward ACCEPT message
+		Introducee i = getOtherIntroducee(s, m.getGroupId());
+		Message sent = sendAcceptMessage(txn, i, getLocalTimestamp(s, i),
+				m.getEphemeralPublicKey(), m.getAcceptTimestamp(),
+				m.getTransportProperties(), false);
+
+		Introducee introduceeA, introduceeB;
+		if (senderIsAlice) {
+			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
+			introduceeB = new Introducee(s.getIntroduceeB(), sent);
+		} else {
+			introduceeA = new Introducee(s.getIntroduceeA(), sent);
+			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
+		}
+
+		// Broadcast IntroductionResponseReceivedEvent
+		Author sender = senderIsAlice ? introduceeA.author : introduceeB.author;
+		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(), m);
+
+		return new IntroducerSession(s.getSessionId(), START,
+				s.getRequestTimestamp(), introduceeA, introduceeB);
+	}
+
 	private IntroducerSession onRemoteDecline(Transaction txn,
 			IntroducerSession s, DeclineMessage m) throws DbException {
 		// The timestamp must be higher than the last request message
@@ -334,9 +378,8 @@ class IntroducerProtocolEngine
 				s.getRequestTimestamp(), introduceeA, introduceeB);
 	}
 
-	private IntroducerSession onRemoteResponseWhenDeclined(Transaction txn,
-			IntroducerSession s, AbstractIntroductionMessage m)
-			throws DbException {
+	private IntroducerSession onRemoteDeclineWhenDeclined(Transaction txn,
+			IntroducerSession s, DeclineMessage m) throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
 			return abort(txn, s);
@@ -356,12 +399,17 @@ class IntroducerProtocolEngine
 		messageTracker
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 
+		// Forward DECLINE message
+		Introducee i = getOtherIntroducee(s, m.getGroupId());
+		long timestamp = getLocalTimestamp(s, i);
+		Message sent = sendDeclineMessage(txn, i, timestamp, false);
+
 		Introducee introduceeA, introduceeB;
 		if (senderIsAlice) {
 			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
-			introduceeB = s.getIntroduceeB();
+			introduceeB = new Introducee(s.getIntroduceeB(), sent);
 		} else {
-			introduceeA = s.getIntroduceeA();
+			introduceeA = new Introducee(s.getIntroduceeA(), sent);
 			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
 		}
 
