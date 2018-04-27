@@ -25,6 +25,9 @@ public interface IntroductionManager extends ConversationClient {
 	 */
 	int CLIENT_VERSION = 1;
 
+	/**
+	 * Returns true if both contacts can be introduced at this moment.
+	 */
 	boolean canIntroduce(Contact c1, Contact c2) throws DbException;
 
 	/**

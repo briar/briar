@@ -261,19 +261,24 @@ class IntroducerProtocolEngine
 		// Create the next state
 		IntroducerState state = AWAIT_AUTHS;
 		Introducee introduceeA, introduceeB;
+		Author sender, other;
 		if (senderIsAlice) {
 			if (s.getState() == AWAIT_RESPONSES) state = AWAIT_RESPONSE_B;
 			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
 			introduceeB = new Introducee(s.getIntroduceeB(), sent);
+			sender = introduceeA.author;
+			other = introduceeB.author;
 		} else {
 			if (s.getState() == AWAIT_RESPONSES) state = AWAIT_RESPONSE_A;
 			introduceeA = new Introducee(s.getIntroduceeA(), sent);
 			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
+			sender = introduceeB.author;
+			other = introduceeA.author;
 		}
 
 		// Broadcast IntroductionResponseReceivedEvent
-		Author sender = senderIsAlice ? introduceeA.author : introduceeB.author;
-		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(), m);
+		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(),
+				other, m);
 
 		// Move to the next state
 		return new IntroducerSession(s.getSessionId(), state,
@@ -313,17 +318,22 @@ class IntroducerProtocolEngine
 				m.getTransportProperties(), false);
 
 		Introducee introduceeA, introduceeB;
+		Author sender, other;
 		if (senderIsAlice) {
 			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
 			introduceeB = new Introducee(s.getIntroduceeB(), sent);
+			sender = introduceeA.author;
+			other = introduceeB.author;
 		} else {
 			introduceeA = new Introducee(s.getIntroduceeA(), sent);
 			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
+			sender = introduceeB.author;
+			other = introduceeA.author;
 		}
 
 		// Broadcast IntroductionResponseReceivedEvent
-		Author sender = senderIsAlice ? introduceeA.author : introduceeB.author;
-		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(), m);
+		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(),
+				other, m);
 
 		return new IntroducerSession(s.getSessionId(), START,
 				s.getRequestTimestamp(), introduceeA, introduceeB);
@@ -360,19 +370,24 @@ class IntroducerProtocolEngine
 		// Create the next state
 		IntroducerState state = START;
 		Introducee introduceeA, introduceeB;
+		Author sender, other;
 		if (senderIsAlice) {
 			if (s.getState() == AWAIT_RESPONSES) state = A_DECLINED;
 			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
 			introduceeB = new Introducee(s.getIntroduceeB(), sent);
+			sender = introduceeA.author;
+			other = introduceeB.author;
 		} else {
 			if (s.getState() == AWAIT_RESPONSES) state = B_DECLINED;
 			introduceeA = new Introducee(s.getIntroduceeA(), sent);
 			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
+			sender = introduceeB.author;
+			other = introduceeA.author;
 		}
 
 		// Broadcast IntroductionResponseReceivedEvent
-		Author sender = senderIsAlice ? introduceeA.author : introduceeB.author;
-		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(), m);
+		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(),
+				other, m);
 
 		return new IntroducerSession(s.getSessionId(), state,
 				s.getRequestTimestamp(), introduceeA, introduceeB);
@@ -405,17 +420,22 @@ class IntroducerProtocolEngine
 		Message sent = sendDeclineMessage(txn, i, timestamp, false);
 
 		Introducee introduceeA, introduceeB;
+		Author sender, other;
 		if (senderIsAlice) {
 			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());
 			introduceeB = new Introducee(s.getIntroduceeB(), sent);
+			sender = introduceeA.author;
+			other = introduceeB.author;
 		} else {
 			introduceeA = new Introducee(s.getIntroduceeA(), sent);
 			introduceeB = new Introducee(s.getIntroduceeB(), m.getMessageId());
+			sender = introduceeB.author;
+			other = introduceeA.author;
 		}
 
 		// Broadcast IntroductionResponseReceivedEvent
-		Author sender = senderIsAlice ? introduceeA.author : introduceeB.author;
-		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(), m);
+		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(),
+				other, m);
 
 		return new IntroducerSession(s.getSessionId(), START,
 				s.getRequestTimestamp(), introduceeA, introduceeB);
