@@ -150,7 +150,7 @@ public abstract class SharingValidatorTest extends ValidatorTestCase {
 	}
 
 	void assertExpectedContext(BdfMessageContext messageContext,
-			@Nullable MessageId previousMsgId) throws FormatException {
+			@Nullable MessageId previousMsgId) {
 		Collection<MessageId> dependencies = messageContext.getDependencies();
 		if (previousMsgId == null) {
 			assertTrue(dependencies.isEmpty());

@@ -1,6 +1,5 @@
 package org.briarproject.briar.api.introduction;
 
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -15,21 +14,19 @@ public class IntroductionRequest extends IntroductionResponse {
 
 	@Nullable
 	private final String message;
-	private final boolean answered, exists, introducesOtherIdentity;
+	private final boolean answered, exists;
 
 	public IntroductionRequest(SessionId sessionId, MessageId messageId,
-			GroupId groupId, int role, long time, boolean local, boolean sent,
-			boolean seen, boolean read, AuthorId authorId, String name,
-			boolean accepted, @Nullable String message, boolean answered,
-			boolean exists, boolean introducesOtherIdentity) {
+			GroupId groupId, Role role, long time, boolean local, boolean sent,
+			boolean seen, boolean read, String name, boolean accepted,
+			@Nullable String message, boolean answered, boolean exists) {
 
 		super(sessionId, messageId, groupId, role, time, local, sent, seen,
-				read, authorId, name, accepted);
+				read, name, accepted);
 
 		this.message = message;
 		this.answered = answered;
 		this.exists = exists;
-		this.introducesOtherIdentity = introducesOtherIdentity;
 	}
 
 	@Nullable
@@ -43,9 +40,5 @@ public class IntroductionRequest extends IntroductionResponse {
 
 	public boolean contactExists() {
 		return exists;
-	}
-
-	public boolean doesIntroduceOtherIdentity() {
-		return introducesOtherIdentity;
 	}
 }

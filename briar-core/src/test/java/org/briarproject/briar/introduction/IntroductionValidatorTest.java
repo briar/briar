@@ -1,361 +1,463 @@
 package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.client.BdfMessageContext;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
-import org.briarproject.bramble.api.data.MetadataEncoder;
-import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.sync.Group;
-import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.system.SystemClock;
+import org.briarproject.bramble.test.ValidatorTestCase;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.test.BriarTestCase;
-import org.jmock.Mockery;
+import org.jmock.Expectations;
 import org.junit.Test;
 
-import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import javax.annotation.Nullable;
+
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAC_BYTES;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_BYTES;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
-import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
-import static org.briarproject.bramble.test.TestUtils.getAuthor;
-import static org.briarproject.bramble.test.TestUtils.getClientId;
-import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.ACCEPT;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC_LENGTH;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_MESSAGE_LENGTH;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MSG;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.NAME;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.PUBLIC_KEY;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.SESSION_ID;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.SIGNATURE;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TIME;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TRANSPORT;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_ABORT;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_ACK;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_REQUEST;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_RESPONSE;
-import static org.junit.Assert.assertArrayEquals;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
+import static org.briarproject.briar.introduction.MessageType.ABORT;
+import static org.briarproject.briar.introduction.MessageType.ACCEPT;
+import static org.briarproject.briar.introduction.MessageType.ACTIVATE;
+import static org.briarproject.briar.introduction.MessageType.AUTH;
+import static org.briarproject.briar.introduction.MessageType.DECLINE;
+import static org.briarproject.briar.introduction.MessageType.REQUEST;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
-public class IntroductionValidatorTest extends BriarTestCase {
+public class IntroductionValidatorTest extends ValidatorTestCase {
 
-	private final Mockery context = new Mockery();
-	private final Group group;
-	private final Message message;
-	private final IntroductionValidator validator;
-	private final Clock clock = new SystemClock();
+	private final MessageEncoder messageEncoder =
+			context.mock(MessageEncoder.class);
+	private final IntroductionValidator validator =
+			new IntroductionValidator(messageEncoder, clientHelper,
+					metadataEncoder, clock);
 
-	public IntroductionValidatorTest() {
-		group = getGroup(getClientId());
-		MessageId messageId = new MessageId(getRandomId());
-		long timestamp = System.currentTimeMillis();
-		byte[] raw = getRandomBytes(123);
-		message = new Message(messageId, group.getId(), timestamp, raw);
-
-
-		ClientHelper clientHelper = context.mock(ClientHelper.class);
-		MetadataEncoder metadataEncoder = context.mock(MetadataEncoder.class);
-		validator = new IntroductionValidator(clientHelper, metadataEncoder,
-				clock);
-		context.assertIsSatisfied();
-	}
+	private final SessionId sessionId = new SessionId(getRandomId());
+	private final MessageId previousMsgId = new MessageId(getRandomId());
+	private final String text = getRandomString(MAX_REQUEST_MESSAGE_LENGTH);
+	private final BdfDictionary meta = new BdfDictionary();
+	private final long acceptTimestamp = 42;
+	private final BdfDictionary transportProperties = BdfDictionary.of(
+			new BdfEntry("transportId",  new BdfDictionary())
+	);
+	private final byte[] mac = getRandomBytes(MAC_BYTES);
+	private final byte[] signature = getRandomBytes(MAX_SIGNATURE_BYTES);
 
 	//
-	// Introduction Requests
+	// Introduction REQUEST
 	//
 
 	@Test
-	public void testValidateProperIntroductionRequest() throws Exception {
-		byte[] sessionId = getRandomId();
-		String name = getRandomString(MAX_AUTHOR_NAME_LENGTH);
-		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		String text = getRandomString(MAX_INTRODUCTION_MESSAGE_LENGTH);
+	public void testAcceptsRequest() throws Exception {
+		BdfList body = BdfList.of(REQUEST.getValue(), previousMsgId.getBytes(),
+				authorList, text);
 
-		BdfList body = BdfList.of(TYPE_REQUEST, sessionId,
-				name, publicKey, text);
+		expectParseAuthor(authorList, author);
+		expectEncodeRequestMetadata();
+		BdfMessageContext messageContext =
+				validator.validateMessage(message, group, body);
 
-		BdfDictionary result =
-				validator.validateMessage(message, group, body).getDictionary();
-
-		assertEquals(Long.valueOf(TYPE_REQUEST), result.getLong(TYPE));
-		assertEquals(sessionId, result.getRaw(SESSION_ID));
-		assertEquals(name, result.getString(NAME));
-		assertEquals(publicKey, result.getRaw(PUBLIC_KEY));
-		assertEquals(text, result.getString(MSG));
-		context.assertIsSatisfied();
-	}
-
-	@Test(expected = FormatException.class)
-	public void testValidateIntroductionRequestWithNoName() throws Exception {
-		BdfDictionary msg = getValidIntroductionRequest();
-
-		// no NAME is message
-		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
-				msg.getRaw(PUBLIC_KEY));
-		if (msg.containsKey(MSG)) body.add(msg.getString(MSG));
-
-		validator.validateMessage(message, group, body);
-	}
-
-	@Test(expected = FormatException.class)
-	public void testValidateIntroductionRequestWithLongName() throws Exception {
-		// too long NAME in message
-		BdfDictionary msg = getValidIntroductionRequest();
-		msg.put(NAME, msg.get(NAME) + "x");
-		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
-				msg.getString(NAME), msg.getRaw(PUBLIC_KEY));
-		if (msg.containsKey(MSG)) body.add(msg.getString(MSG));
-
-		validator.validateMessage(message, group, body);
-	}
-
-	@Test(expected = FormatException.class)
-	public void testValidateIntroductionRequestWithWrongType()
-			throws Exception {
-		// wrong message type
-		BdfDictionary msg = getValidIntroductionRequest();
-		msg.put(TYPE, 324234);
-
-		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
-				msg.getString(NAME), msg.getRaw(PUBLIC_KEY));
-		if (msg.containsKey(MSG)) body.add(msg.getString(MSG));
-		validator.validateMessage(message, group, body);
-	}
-
-	private BdfDictionary getValidIntroductionRequest() throws Exception {
-		byte[] sessionId = getRandomId();
-		Author author = getAuthor();
-		String text = getRandomString(MAX_MESSAGE_BODY_LENGTH);
-
-		BdfDictionary msg = new BdfDictionary();
-		msg.put(TYPE, TYPE_REQUEST);
-		msg.put(SESSION_ID, sessionId);
-		msg.put(NAME, author.getName());
-		msg.put(PUBLIC_KEY, author.getPublicKey());
-		msg.put(MSG, text);
-
-		return msg;
-	}
-
-	//
-	// Introduction Responses
-	//
-
-	@Test
-	public void testValidateIntroductionAcceptResponse() throws Exception {
-		byte[] groupId = getRandomId();
-		byte[] sessionId = getRandomId();
-		long time = clock.currentTimeMillis();
-		byte[] publicKey = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
-		String transportId =
-				getRandomString(TransportId.MAX_TRANSPORT_ID_LENGTH);
-		BdfDictionary tProps = BdfDictionary.of(
-				new BdfEntry(getRandomString(MAX_PROPERTY_LENGTH),
-						getRandomString(MAX_PROPERTY_LENGTH))
-		);
-		BdfDictionary tp = BdfDictionary.of(
-				new BdfEntry(transportId, tProps)
-		);
-
-		BdfDictionary msg = new BdfDictionary();
-		msg.put(TYPE, TYPE_RESPONSE);
-		msg.put(GROUP_ID, groupId);
-		msg.put(SESSION_ID, sessionId);
-		msg.put(ACCEPT, true);
-		msg.put(TIME, time);
-		msg.put(E_PUBLIC_KEY, publicKey);
-		msg.put(TRANSPORT, tp);
-
-		BdfList body = BdfList.of(TYPE_RESPONSE, msg.getRaw(SESSION_ID),
-				msg.getBoolean(ACCEPT), msg.getLong(TIME),
-				msg.getRaw(E_PUBLIC_KEY), msg.getDictionary(TRANSPORT));
-
-		BdfDictionary result =
-				validator.validateMessage(message, group, body).getDictionary();
-
-		assertEquals(Long.valueOf(TYPE_RESPONSE), result.getLong(TYPE));
-		assertEquals(sessionId, result.getRaw(SESSION_ID));
-		assertEquals(true, result.getBoolean(ACCEPT));
-		assertEquals(publicKey, result.getRaw(E_PUBLIC_KEY));
-		assertEquals(tp, result.getDictionary(TRANSPORT));
-		context.assertIsSatisfied();
+		assertExpectedContext(messageContext, previousMsgId);
 	}
 
 	@Test
-	public void testValidateIntroductionDeclineResponse() throws Exception {
-		BdfDictionary msg = getValidIntroductionResponse(false);
-		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
-				msg.getBoolean(ACCEPT));
+	public void testAcceptsRequestWithPreviousMsgIdNull() throws Exception {
+		BdfList body = BdfList.of(REQUEST.getValue(), null, authorList, text);
 
-		BdfDictionary result = validator.validateMessage(message, group, body)
-				.getDictionary();
+		expectParseAuthor(authorList, author);
+		expectEncodeRequestMetadata();
+		BdfMessageContext messageContext =
+				validator.validateMessage(message, group, body);
 
-		assertFalse(result.getBoolean(ACCEPT));
-		context.assertIsSatisfied();
+		assertExpectedContext(messageContext, null);
+	}
+
+	@Test
+	public void testAcceptsRequestWithMessageNull() throws Exception {
+		BdfList body = BdfList.of(REQUEST.getValue(), null, authorList, null);
+
+		expectParseAuthor(authorList, author);
+		expectEncodeRequestMetadata();
+		BdfMessageContext messageContext =
+				validator.validateMessage(message, group, body);
+
+		assertExpectedContext(messageContext, null);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testValidateIntroductionResponseWithoutAccept()
-			throws Exception {
-		BdfDictionary msg = getValidIntroductionResponse(false);
-		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID));
-
+	public void testRejectsTooShortBodyForRequest() throws Exception {
+		BdfList body = BdfList.of(REQUEST.getValue(), null, authorList);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testValidateIntroductionResponseWithBrokenTp()
-			throws Exception {
-		BdfDictionary msg = getValidIntroductionResponse(true);
-		BdfDictionary tp = msg.getDictionary(TRANSPORT);
-		tp.put(
-				getRandomString(TransportId.MAX_TRANSPORT_ID_LENGTH), "X");
-		msg.put(TRANSPORT, tp);
-
-		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
-				msg.getBoolean(ACCEPT), msg.getLong(TIME),
-				msg.getRaw(E_PUBLIC_KEY), msg.getDictionary(TRANSPORT));
-
+	public void testRejectsTooLongBodyForRequest() throws Exception {
+		BdfList body =
+				BdfList.of(REQUEST.getValue(), null, authorList, text, null);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testValidateIntroductionResponseWithoutPublicKey()
-			throws Exception {
-		BdfDictionary msg = getValidIntroductionResponse(true);
-
-		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
-				msg.getBoolean(ACCEPT), msg.getLong(TIME),
-				msg.getDictionary(TRANSPORT));
-
+	public void testRejectsRawMessageForRequest() throws Exception {
+		BdfList body =
+				BdfList.of(REQUEST.getValue(), null, authorList, getRandomId());
+		expectParseAuthor(authorList, author);
 		validator.validateMessage(message, group, body);
 	}
 
-	private BdfDictionary getValidIntroductionResponse(boolean accept)
+	@Test(expected = FormatException.class)
+	public void testRejectsStringMessageIdForRequest() throws Exception {
+		BdfList body =
+				BdfList.of(REQUEST.getValue(), "NoMessageId", authorList, null);
+		validator.validateMessage(message, group, body);
+	}
+
+	//
+	// Introduction ACCEPT
+	//
+
+	@Test
+	public void testAcceptsAccept() throws Exception {
+		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
+				acceptTimestamp, transportProperties);
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).parseAndValidateTransportPropertiesMap(
+					transportProperties);
+		}});
+		expectEncodeMetadata(ACCEPT);
+		BdfMessageContext messageContext =
+				validator.validateMessage(message, group, body);
+
+		assertExpectedContext(messageContext, previousMsgId);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooShortBodyForAccept() throws Exception {
+		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(),
+				getRandomBytes(MAX_PUBLIC_KEY_LENGTH), acceptTimestamp);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooLongBodyForAccept() throws Exception {
+		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
+				acceptTimestamp, transportProperties, null);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvalidSessionIdForAccept() throws Exception {
+		BdfList body =
+				BdfList.of(ACCEPT.getValue(), null, previousMsgId.getBytes(),
+						getRandomBytes(MAX_PUBLIC_KEY_LENGTH), acceptTimestamp,
+						transportProperties);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvalidPreviousMsgIdForAccept() throws Exception {
+		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(), 1,
+				getRandomBytes(MAX_PUBLIC_KEY_LENGTH), acceptTimestamp,
+				transportProperties);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooLongPublicKeyForAccept() throws Exception {
+		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(),
+				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1), acceptTimestamp,
+				transportProperties);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsNegativeTimestampForAccept() throws Exception {
+		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
+				-1, transportProperties);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsEmptyTransportPropertiesForAccept()
 			throws Exception {
+		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(),
+				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1), acceptTimestamp,
+				new BdfDictionary());
+		validator.validateMessage(message, group, body);
+	}
 
-		byte[] groupId = getRandomId();
-		byte[] sessionId = getRandomId();
-		long time = clock.currentTimeMillis();
-		byte[] publicKey = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
-		String transportId =
-				getRandomString(TransportId.MAX_TRANSPORT_ID_LENGTH);
-		BdfDictionary tProps = BdfDictionary.of(
-				new BdfEntry(getRandomString(MAX_PROPERTY_LENGTH),
-						getRandomString(MAX_PROPERTY_LENGTH))
-		);
-		BdfDictionary tp = BdfDictionary.of(
-				new BdfEntry(transportId, tProps)
-		);
+	//
+	// Introduction DECLINE
+	//
 
-		BdfDictionary msg = new BdfDictionary();
-		msg.put(TYPE, TYPE_RESPONSE);
-		msg.put(GROUP_ID, groupId);
-		msg.put(SESSION_ID, sessionId);
-		msg.put(ACCEPT, accept);
-		if (accept) {
-			msg.put(TIME, time);
-			msg.put(E_PUBLIC_KEY, publicKey);
-			msg.put(TRANSPORT, tp);
+	@Test
+	public void testAcceptsDecline() throws Exception {
+		BdfList body = BdfList.of(DECLINE.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes());
+
+		expectEncodeMetadata(DECLINE);
+		BdfMessageContext messageContext =
+				validator.validateMessage(message, group, body);
+
+		assertExpectedContext(messageContext, previousMsgId);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooShortBodyForDecline() throws Exception {
+		BdfList body = BdfList.of(DECLINE.getValue(), sessionId.getBytes());
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooLongBodyForDecline() throws Exception {
+		BdfList body = BdfList.of(DECLINE.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), null);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvalidSessionIdForDecline() throws Exception {
+		BdfList body =
+				BdfList.of(DECLINE.getValue(), null, previousMsgId.getBytes());
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvalidPreviousMsgIdForDecline() throws Exception {
+		BdfList body = BdfList.of(DECLINE.getValue(), sessionId.getBytes(), 1);
+		validator.validateMessage(message, group, body);
+	}
+
+	//
+	// Introduction AUTH
+	//
+
+	@Test
+	public void testAcceptsAuth() throws Exception {
+		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), mac, signature);
+
+		expectEncodeMetadata(AUTH);
+		BdfMessageContext messageContext =
+				validator.validateMessage(message, group, body);
+
+		assertExpectedContext(messageContext, previousMsgId);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooShortBodyForAuth() throws Exception {
+		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), mac);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooLongBodyForAuth() throws Exception {
+		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), mac, signature, null);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvalidPreviousMsgIdForAuth() throws Exception {
+		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
+				1, getRandomBytes(MAC_BYTES),
+				signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPreviousMsgIdNullForAuth() throws Exception {
+		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(), null,
+				getRandomBytes(MAC_BYTES), signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooShortMacForAuth() throws Exception {
+		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), getRandomBytes(MAC_BYTES - 1),
+				signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooLongMacForAuth() throws Exception {
+		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(),
+				getRandomBytes(MAC_BYTES + 1), signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvalidMacForAuth() throws Exception {
+		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), null, signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooShortSignatureForAuth() throws Exception {
+		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), mac, getRandomBytes(0));
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooLongSignatureForAuth() throws Exception {
+		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), mac,
+				getRandomBytes(MAX_SIGNATURE_BYTES + 1));
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvalidSignatureForAuth() throws Exception {
+		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), mac, null);
+		validator.validateMessage(message, group, body);
+	}
+
+	//
+	// Introduction ACTIVATE
+	//
+
+	@Test
+	public void testAcceptsActivate() throws Exception {
+		BdfList body = BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), mac);
+
+		expectEncodeMetadata(ACTIVATE);
+		BdfMessageContext messageContext =
+				validator.validateMessage(message, group, body);
+
+		assertExpectedContext(messageContext, previousMsgId);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooShortBodyForActivate() throws Exception {
+		BdfList body = BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes());
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooLongBodyForActivate() throws Exception {
+		BdfList body = BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), mac, null);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvalidSessionIdForActivate() throws Exception {
+		BdfList body =
+				BdfList.of(ACTIVATE.getValue(), null, previousMsgId.getBytes(),
+						mac);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvalidPreviousMsgIdForActivate() throws Exception {
+		BdfList body =
+				BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(), 1, mac);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPreviousMsgIdNullForActivate() throws Exception {
+		BdfList body =
+				BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(), null,
+						mac);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvalidMacForActivate() throws Exception {
+		BdfList body = BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), getRandomBytes(MAC_BYTES - 1));
+		validator.validateMessage(message, group, body);
+	}
+
+	//
+	// Introduction ABORT
+	//
+
+	@Test
+	public void testAcceptsAbort() throws Exception {
+		BdfList body = BdfList.of(ABORT.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes());
+
+		expectEncodeMetadata(ABORT);
+		BdfMessageContext messageContext =
+				validator.validateMessage(message, group, body);
+
+		assertExpectedContext(messageContext, previousMsgId);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooShortBodyForAbort() throws Exception {
+		BdfList body = BdfList.of(ABORT.getValue(), sessionId.getBytes());
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooLongBodyForAbort() throws Exception {
+		BdfList body = BdfList.of(ABORT.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), null);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvalidSessionIdForAbort() throws Exception {
+		BdfList body =
+				BdfList.of(ABORT.getValue(), null, previousMsgId.getBytes());
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvalidPreviousMsgIdForAbort() throws Exception {
+		BdfList body = BdfList.of(ABORT.getValue(), sessionId.getBytes(), 1);
+		validator.validateMessage(message, group, body);
+	}
+
+	//
+	// Introduction Helper Methods
+	//
+
+	private void expectEncodeRequestMetadata() {
+		context.checking(new Expectations() {{
+			oneOf(messageEncoder).encodeRequestMetadata(message.getTimestamp());
+			will(returnValue(meta));
+		}});
+	}
+
+	private void expectEncodeMetadata(MessageType type) {
+		context.checking(new Expectations() {{
+			oneOf(messageEncoder)
+					.encodeMetadata(type, sessionId, message.getTimestamp(),
+							false, false, false);
+			will(returnValue(meta));
+		}});
+	}
+
+	private void assertExpectedContext(BdfMessageContext c,
+			@Nullable MessageId dependency) {
+		assertEquals(meta, c.getDictionary());
+		if (dependency == null) {
+			assertEquals(0, c.getDependencies().size());
+		} else {
+			assertEquals(dependency, c.getDependencies().iterator().next());
 		}
-
-		return msg;
-	}
-
-	//
-	// Introduction ACK
-	//
-
-	@Test
-	public void testValidateProperIntroductionAck() throws Exception {
-		byte[] sessionId = getRandomId();
-		byte[] mac = getRandomBytes(MAC_LENGTH);
-		byte[] sig = getRandomBytes(MAX_SIGNATURE_LENGTH);
-		BdfList body = BdfList.of(TYPE_ACK, sessionId, mac, sig);
-
-		BdfDictionary result =
-				validator.validateMessage(message, group, body).getDictionary();
-
-		assertEquals(Long.valueOf(TYPE_ACK), result.getLong(TYPE));
-		assertArrayEquals(sessionId, result.getRaw(SESSION_ID));
-		assertArrayEquals(mac, result.getRaw(MAC));
-		assertArrayEquals(sig, result.getRaw(SIGNATURE));
-		context.assertIsSatisfied();
-	}
-
-	@Test(expected = FormatException.class)
-	public void testValidateTooLongIntroductionAck() throws Exception {
-		BdfDictionary msg = BdfDictionary.of(
-				new BdfEntry(TYPE, TYPE_ACK),
-				new BdfEntry(SESSION_ID, getRandomId()),
-				new BdfEntry("garbage", getRandomString(255))
-		);
-		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
-				msg.getString("garbage"));
-
-		validator.validateMessage(message, group, body);
-	}
-
-	@Test(expected = FormatException.class)
-	public void testValidateIntroductionAckWithLongSessionId()
-			throws Exception {
-		BdfDictionary msg = BdfDictionary.of(
-				new BdfEntry(TYPE, TYPE_ACK),
-				new BdfEntry(SESSION_ID, new byte[SessionId.LENGTH + 1])
-		);
-		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID));
-
-		validator.validateMessage(message, group, body);
-	}
-
-	//
-	// Introduction Abort
-	//
-
-	@Test
-	public void testValidateProperIntroductionAbort() throws Exception {
-		byte[] sessionId = getRandomId();
-
-		BdfDictionary msg = new BdfDictionary();
-		msg.put(TYPE, TYPE_ABORT);
-		msg.put(SESSION_ID, sessionId);
-
-		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID));
-
-		BdfDictionary result =
-				validator.validateMessage(message, group, body).getDictionary();
-
-		assertEquals(Long.valueOf(TYPE_ABORT), result.getLong(TYPE));
-		assertEquals(sessionId, result.getRaw(SESSION_ID));
-		context.assertIsSatisfied();
-	}
-
-	@Test(expected = FormatException.class)
-	public void testValidateTooLongIntroductionAbort() throws Exception {
-		BdfDictionary msg = BdfDictionary.of(
-				new BdfEntry(TYPE, TYPE_ABORT),
-				new BdfEntry(SESSION_ID, getRandomId()),
-				new BdfEntry("garbage", getRandomString(255))
-		);
-		BdfList body = BdfList.of(msg.getLong(TYPE), msg.getRaw(SESSION_ID),
-				msg.getString("garbage"));
-
-		validator.validateMessage(message, group, body);
 	}
 
 }

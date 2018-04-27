@@ -6,25 +6,24 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.crypto.KeyPair;
-import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
+import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Group;
-import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionMessage;
@@ -38,55 +37,42 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
-
-import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.api.client.MessageQueueManager.QUEUE_STATE_KEY;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.ALICE_MAC_KEY_LABEL;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.ALICE_NONCE_LABEL;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.E_PUBLIC_KEY;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.GROUP_ID;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC_KEY;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MAC_LABEL;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.NAME;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.NONCE;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.PUBLIC_KEY;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.SESSION_ID;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.SHARED_SECRET_LABEL;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.SIGNATURE;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.SIGNING_LABEL;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TIME;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TRANSPORT;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_REQUEST;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.TYPE_RESPONSE;
+import static org.briarproject.bramble.test.TestUtils.getTransportProperties;
+import static org.briarproject.bramble.test.TestUtils.getTransportPropertiesMap;
+import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_VERSION;
+import static org.briarproject.briar.introduction.IntroduceeState.LOCAL_DECLINED;
+import static org.briarproject.briar.introduction.IntroducerState.A_DECLINED;
+import static org.briarproject.briar.introduction.IntroducerState.B_DECLINED;
+import static org.briarproject.briar.introduction.IntroducerState.START;
+import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_MESSAGE_TYPE;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_AUTHOR;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_A;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_INTRODUCEE_B;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_LAST_LOCAL_MESSAGE_ID;
+import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_SESSION_ID;
+import static org.briarproject.briar.introduction.MessageType.ACCEPT;
+import static org.briarproject.briar.introduction.MessageType.AUTH;
+import static org.briarproject.briar.introduction.MessageType.DECLINE;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class IntroductionIntegrationTest
 		extends BriarIntegrationTest<IntroductionIntegrationTestComponent> {
-
-	@Inject
-	IntroductionGroupFactory introductionGroupFactory;
 
 	// objects accessed from background threads need to be volatile
 	private volatile IntroductionManager introductionManager0;
@@ -102,7 +88,7 @@ public class IntroductionIntegrationTest
 			Logger.getLogger(IntroductionIntegrationTest.class.getName());
 
 	interface StateVisitor {
-		boolean visit(BdfDictionary response);
+		AcceptMessage visit(AcceptMessage response);
 	}
 
 	@Before
@@ -151,50 +137,61 @@ public class IntroductionIntegrationTest
 				.makeIntroduction(introducee1, introducee2, "Hi!", time);
 
 		// check that messages are tracked properly
-		Group g1 = introductionGroupFactory
-				.createIntroductionGroup(introducee1);
-		Group g2 = introductionGroupFactory
-				.createIntroductionGroup(introducee2);
-		assertGroupCount(messageTracker0, g1.getId(), 1, 0, time);
-		assertGroupCount(messageTracker0, g2.getId(), 1, 0, time);
+		Group g1 = introductionManager0.getContactGroup(introducee1);
+		Group g2 = introductionManager0.getContactGroup(introducee2);
+		assertGroupCount(messageTracker0, g1.getId(), 1, 0);
+		assertGroupCount(messageTracker0, g2.getId(), 1, 0);
 
-		// sync first request message
+		// sync first REQUEST message
 		sync0To1(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener1.requestReceived);
 		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
 
-		// sync second request message
+		// sync second REQUEST message
 		sync0To2(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener2.requestReceived);
 		assertGroupCount(messageTracker2, g2.getId(), 2, 1);
 
-		// sync first response
+		// sync first ACCEPT message
 		sync1To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response1Received);
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
 
-		// sync second response
+		// sync second ACCEPT message
 		sync2To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response2Received);
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
 
-		// sync forwarded responses to introducees
+		// sync forwarded ACCEPT messages to introducees
 		sync0To1(1, true);
 		sync0To2(1, true);
-		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
-		assertGroupCount(messageTracker2, g2.getId(), 2, 1);
 
-		// sync first ACK and its forward
+		// sync first AUTH and its forward
 		sync1To0(1, true);
 		sync0To2(1, true);
 
-		// sync second ACK and its forward
-		sync2To0(1, true);
-		sync0To1(1, true);
+		// assert that introducee2 did add the transport keys
+		IntroduceeSession session2 = getIntroduceeSession(c2);
+		assertNotNull(session2.getTransportKeys());
+		assertFalse(session2.getTransportKeys().isEmpty());
+
+		// sync second AUTH and its forward as well as the following ACTIVATE
+		sync2To0(2, true);
+		sync0To1(2, true);
+
+		// assert that introducee1 really purged the key material
+		IntroduceeSession session1 = getIntroduceeSession(c1);
+		assertNull(session1.getMasterKey());
+		assertNull(session1.getLocal().ephemeralPrivateKey);
+		assertNull(session1.getTransportKeys());
+
+		// sync second ACTIVATE and its forward
+		sync1To0(1, true);
+		sync0To2(1, true);
 
 		// wait for introduction to succeed
 		eventWaiter.await(TIMEOUT, 2);
@@ -245,15 +242,31 @@ public class IntroductionIntegrationTest
 		assertTrue(listener1.requestReceived);
 		assertTrue(listener2.requestReceived);
 
+		// assert that introducee is in correct state
+		IntroduceeSession introduceeSession = getIntroduceeSession(c1);
+		assertEquals(LOCAL_DECLINED, introduceeSession.getState());
+
 		// sync first response
 		sync1To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response1Received);
 
+		// assert that introducer is in correct state
+		boolean alice = c0.getIntroductionCrypto()
+				.isAlice(introducee1.getAuthor().getId(),
+						introducee2.getAuthor().getId());
+		IntroducerSession introducerSession = getIntroducerSession();
+		assertEquals(alice ? A_DECLINED : B_DECLINED,
+				introducerSession.getState());
+
 		// sync second response
 		sync2To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response2Received);
+
+		// assert that introducer now moved to START state
+		introducerSession = getIntroducerSession();
+		assertEquals(START, introducerSession.getState());
 
 		// sync first forwarded response
 		sync0To2(1, true);
@@ -269,10 +282,8 @@ public class IntroductionIntegrationTest
 		assertFalse(contactManager2
 				.contactExists(author1.getId(), author2.getId()));
 
-		Group g1 = introductionGroupFactory
-				.createIntroductionGroup(introducee1);
-		Group g2 = introductionGroupFactory
-				.createIntroductionGroup(introducee2);
+		Group g1 = introductionManager0.getContactGroup(introducee1);
+		Group g2 = introductionManager0.getContactGroup(introducee2);
 		assertEquals(2,
 				introductionManager0.getIntroductionMessages(contactId1From0)
 						.size());
@@ -290,6 +301,10 @@ public class IntroductionIntegrationTest
 				introductionManager2.getIntroductionMessages(contactId0From2)
 						.size());
 		assertGroupCount(messageTracker2, g2.getId(), 3, 2);
+
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
 	}
 
 	@Test
@@ -342,6 +357,9 @@ public class IntroductionIntegrationTest
 		assertEquals(2,
 				introductionManager2.getIntroductionMessages(contactId0From2)
 						.size());
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
 	}
 
 	@Test
@@ -393,6 +411,9 @@ public class IntroductionIntegrationTest
 		// since introducee2 was already in FINISHED state when
 		// introducee1's response arrived, she ignores and deletes it
 		assertDefaultUiMessages();
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
 	}
 
 	@Test
@@ -425,13 +446,16 @@ public class IntroductionIntegrationTest
 
 		// answer request manually
 		introductionManager2
-				.acceptIntroduction(contactId0From2, listener2.sessionId, time);
+				.respondToIntroduction(contactId0From2, listener2.sessionId, time,
+						true);
 
 		// sync second response and ACK and make sure there is no abort
 		sync2To0(2, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response2Received);
 		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
 	}
 
 	@Test
@@ -452,61 +476,290 @@ public class IntroductionIntegrationTest
 		// make really sure we don't have that request
 		assertTrue(introductionManager1.getIntroductionMessages(contactId0From1)
 				.isEmpty());
+
+		// The message was invalid, so no abort message was sent
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
+	}
+
+	@Test(expected = ProtocolStateException.class)
+	public void testDoubleIntroduction() throws Exception {
+		// we can make an introduction
+		assertTrue(introductionManager0
+				.canIntroduce(contact1From0, contact2From0));
+
+		// make the introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// no more introduction allowed while the existing one is in progress
+		assertFalse(introductionManager0
+				.canIntroduce(contact1From0, contact2From0));
+
+		// try it anyway and fail
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
 	}
 
 	@Test
-	public void testSessionIdReuse() throws Exception {
+	public void testIntroductionToExistingContact() throws Exception {
+		// let contact1 and contact2 add each other already
+		addContacts1And2();
+		assertNotNull(contactId2From1);
+		assertNotNull(contactId1From2);
+
+		// both will still accept the introduction
 		addListeners(true, true);
 
-		// make introduction
+		// make the introduction
 		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, "Hi!", time);
+				.makeIntroduction(contact1From0, contact2From0, null, time);
 
-		// sync first request message
+		// sync REQUEST messages
 		sync0To1(1, true);
-		eventWaiter.await(TIMEOUT, 1);
-		assertTrue(listener1.requestReceived);
+		sync0To2(1, true);
 
-		// get SessionId
-		List<IntroductionMessage> list = new ArrayList<>(
-				introductionManager1.getIntroductionMessages(contactId0From1));
-		assertEquals(2, list.size());
-		assertTrue(list.get(0) instanceof IntroductionRequest);
-		IntroductionRequest msg = (IntroductionRequest) list.get(0);
-		SessionId sessionId = msg.getSessionId();
+		// assert that introducees get notified about the existing contact
+		IntroductionRequest ir1 =
+				getIntroductionRequest(introductionManager1, contactId0From1);
+		assertTrue(ir1.contactExists());
+		IntroductionRequest ir2 =
+				getIntroductionRequest(introductionManager2, contactId0From2);
+		assertTrue(ir2.contactExists());
 
-		// get contact group
-		Group group =
-				introductionGroupFactory.createIntroductionGroup(contact1From0);
+		// sync ACCEPT messages back to introducer
+		sync1To0(1, true);
+		sync2To0(1, true);
 
-		// create new message with same SessionId
-		BdfDictionary d = BdfDictionary.of(
-				new BdfEntry(TYPE, TYPE_REQUEST),
-				new BdfEntry(SESSION_ID, sessionId),
-				new BdfEntry(GROUP_ID, group.getId()),
-				new BdfEntry(NAME, getRandomString(42)),
-				new BdfEntry(PUBLIC_KEY, getRandomBytes(MAX_PUBLIC_KEY_LENGTH))
-		);
+		// sync forwarded ACCEPT messages to introducees
+		sync0To1(1, true);
+		sync0To2(1, true);
 
-		// reset request received state
-		listener1.requestReceived = false;
+		// sync first AUTH and its forward
+		sync1To0(1, true);
+		sync0To2(1, true);
 
-		// add the message to the queue
-		MessageSender sender0 = c0.getMessageSender();
-		Transaction txn = db0.startTransaction(false);
-		try {
-			sender0.sendMessage(txn, d);
-			db0.commitTransaction(txn);
-		} finally {
-			db0.endTransaction(txn);
-		}
+		// sync second AUTH and its forward as well as the following ACTIVATE
+		sync2To0(2, true);
+		sync0To1(2, true);
 
-		// actually send message
-		sync0To1(1, false);
+		// sync second ACTIVATE and its forward
+		sync1To0(1, true);
+		sync0To2(1, true);
 
-		// make sure it does not arrive
-		assertFalse(listener1.requestReceived);
+		// assert that no session was aborted and no success event was broadcast
+		assertFalse(listener1.succeeded);
+		assertFalse(listener2.succeeded);
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
+	}
+
+	@Test
+	public void testIntroductionToRemovedContact() throws Exception {
+		// let contact1 and contact2 add each other
+		addContacts1And2();
+		assertNotNull(contactId2From1);
+		assertNotNull(contactId1From2);
+
+		// only introducee1 removes introducee2
+		contactManager1.removeContact(contactId2From1);
+
+		// both will accept the introduction
+		addListeners(true, true);
+
+		// make the introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync REQUEST messages
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// sync ACCEPT messages back to introducer
+		sync1To0(1, true);
+		sync2To0(1, true);
+
+		// sync forwarded ACCEPT messages to introducees
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// sync first AUTH and its forward
+		sync1To0(1, true);
+		sync0To2(1, true);
+
+		// sync second AUTH and its forward as well as the following ACTIVATE
+		sync2To0(2, true);
+		sync0To1(2, true);
+
+		// sync second ACTIVATE and its forward
+		sync1To0(1, true);
+		sync0To2(1, true);
+
+		// Introduction only succeeded for introducee1
+		assertTrue(listener1.succeeded);
+		assertFalse(listener2.succeeded);
+
+		// assert that no session was aborted
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
+	}
+
+	/**
+	 * One introducee illegally sends two ACCEPT messages in a row.
+	 * The introducer should notice this and ABORT the session.
+	 */
+	@Test
+	public void testDoubleAccept() throws Exception {
+		addListeners(true, true);
+
+		// make the introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync REQUEST to introducee1
+		sync0To1(1, true);
+
+		// save ACCEPT from introducee1
+		AcceptMessage m = (AcceptMessage) getMessageFor(c1.getClientHelper(),
+				contact0From1, ACCEPT);
+
+		// sync ACCEPT back to introducer
+		sync1To0(1, true);
+
+		// fake a second ACCEPT message from introducee1
+		Message msg = c1.getMessageEncoder()
+				.encodeAcceptMessage(m.getGroupId(), m.getTimestamp() + 1,
+						m.getMessageId(), m.getSessionId(),
+						m.getEphemeralPublicKey(), m.getAcceptTimestamp(),
+						m.getTransportProperties());
+		c1.getClientHelper().addLocalMessage(msg, new BdfDictionary(), true);
+
+		// sync fake ACCEPT back to introducer
+		sync1To0(1, true);
+
+		assertTrue(listener0.aborted);
+	}
+
+	/**
+	 * One introducee sends an ACCEPT and then another DECLINE message.
+	 * The introducer should notice this and ABORT the session.
+	 */
+	@Test
+	public void testAcceptAndDecline() throws Exception {
+		addListeners(true, true);
+
+		// make the introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync REQUEST to introducee1
+		sync0To1(1, true);
+
+		// save ACCEPT from introducee1
+		AcceptMessage m = (AcceptMessage) getMessageFor(c1.getClientHelper(),
+				contact0From1, ACCEPT);
+
+		// sync ACCEPT back to introducer
+		sync1To0(1, true);
+
+		// fake a second DECLINE message also from introducee1
+		Message msg = c1.getMessageEncoder()
+				.encodeDeclineMessage(m.getGroupId(), m.getTimestamp() + 1,
+						m.getMessageId(), m.getSessionId());
+		c1.getClientHelper().addLocalMessage(msg, new BdfDictionary(), true);
+
+		// sync fake DECLINE back to introducer
+		sync1To0(1, true);
+
+		assertTrue(listener0.aborted);
+	}
+
+	/**
+	 * One introducee sends an DECLINE and then another DECLINE message.
+	 * The introducer should notice this and ABORT the session.
+	 */
+	@Test
+	public void testDoubleDecline() throws Exception {
+		addListeners(false, true);
+
+		// make the introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync REQUEST to introducee1
+		sync0To1(1, true);
+
+		// save DECLINE from introducee1
+		DeclineMessage m = (DeclineMessage) getMessageFor(c1.getClientHelper(),
+				contact0From1, DECLINE);
+
+		// sync DECLINE back to introducer
+		sync1To0(1, true);
+
+		// fake a second DECLINE message also from introducee1
+		Message msg = c1.getMessageEncoder()
+				.encodeDeclineMessage(m.getGroupId(), m.getTimestamp() + 1,
+						m.getMessageId(), m.getSessionId());
+		c1.getClientHelper().addLocalMessage(msg, new BdfDictionary(), true);
+
+		// sync fake DECLINE back to introducer
+		sync1To0(1, true);
+
+		assertTrue(listener0.aborted);
+	}
+
+	/**
+	 * One introducee sends two AUTH messages.
+	 * The introducer should notice this and ABORT the session.
+	 */
+	@Test
+	public void testDoubleAuth() throws Exception {
+		addListeners(true, true);
+
+		// make the introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync REQUEST messages
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// sync ACCEPT messages
+		sync1To0(1, true);
+		sync2To0(1, true);
+
+		// sync forwarded ACCEPT messages to introducees
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// save AUTH from introducee1
+		AuthMessage m = (AuthMessage) getMessageFor(c1.getClientHelper(),
+				contact0From1, AUTH);
+
+		// sync first AUTH message
+		sync1To0(1, true);
+
+		// fake a second AUTH message also from introducee1
+		Message msg = c1.getMessageEncoder()
+				.encodeAuthMessage(m.getGroupId(), m.getTimestamp() + 1,
+						m.getMessageId(), m.getSessionId(), m.getMac(),
+						m.getSignature());
+		c1.getClientHelper().addLocalMessage(msg, new BdfDictionary(), true);
+
+		// sync second AUTH message
+		sync1To0(1, true);
+
+		assertTrue(listener0.aborted);
 	}
 
 	@Test
@@ -523,34 +776,19 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener1.requestReceived);
 
-		// get database and local group for introducee
-		Group group1 = introductionGroupFactory.createLocalGroup();
+		// get local group for introducee1
+		Group group1 = getLocalGroup();
 
-		// get local session state messages
-		Map<MessageId, Metadata> map;
-		Transaction txn = db1.startTransaction(false);
-		try {
-			map = db1.getMessageMetadata(txn, group1.getId());
-			db1.commitTransaction(txn);
-		} finally {
-			db1.endTransaction(txn);
-		}
 		// check that we have one session state
-		assertEquals(1, map.size());
+		assertEquals(1, c1.getClientHelper()
+				.getMessageMetadataAsDictionary(group1.getId()).size());
 
 		// introducee1 removes introducer
 		contactManager1.removeContact(contactId0From1);
 
-		// get local session state messages again
-		txn = db1.startTransaction(false);
-		try {
-			map = db1.getMessageMetadata(txn, group1.getId());
-			db1.commitTransaction(txn);
-		} finally {
-			db1.endTransaction(txn);
-		}
 		// make sure local state got deleted
-		assertEquals(0, map.size());
+		assertEquals(0, c1.getClientHelper()
+				.getMessageMetadataAsDictionary(group1.getId()).size());
 	}
 
 	@Test
@@ -567,48 +805,35 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener1.requestReceived);
 
-		// get database and local group for introducee
-		Group group1 = introductionGroupFactory.createLocalGroup();
+		// get local group for introducer
+		Group group0 = getLocalGroup();
 
-		// get local session state messages
-		Map<MessageId, Metadata> map;
-		Transaction txn = db0.startTransaction(false);
-		try {
-			map = db0.getMessageMetadata(txn, group1.getId());
-			db0.commitTransaction(txn);
-		} finally {
-			db0.endTransaction(txn);
-		}
 		// check that we have one session state
-		assertEquals(1, map.size());
+		assertEquals(1, c0.getClientHelper()
+				.getMessageMetadataAsDictionary(group0.getId()).size());
 
 		// introducer removes introducee1
 		contactManager0.removeContact(contactId1From0);
 
-		// get local session state messages again
-		txn = db0.startTransaction(false);
-		try {
-			map = db0.getMessageMetadata(txn, group1.getId());
-			db0.commitTransaction(txn);
-		} finally {
-			db0.endTransaction(txn);
-		}
 		// make sure local state is still there
-		assertEquals(1, map.size());
+		assertEquals(1, c0.getClientHelper()
+				.getMessageMetadataAsDictionary(group0.getId()).size());
+
+		// ensure introducer has aborted the session
+		assertTrue(listener0.aborted);
+
+		// sync REQUEST and ABORT message
+		sync0To2(2, true);
+
+		// ensure introducee2 has aborted the session as well
+		assertTrue(listener2.aborted);
 
 		// introducer removes other introducee
 		contactManager0.removeContact(contactId2From0);
 
-		// get local session state messages again
-		txn = db0.startTransaction(false);
-		try {
-			map = db0.getMessageMetadata(txn, group1.getId());
-			db0.commitTransaction(txn);
-		} finally {
-			db0.endTransaction(txn);
-		}
 		// make sure local state is gone now
-		assertEquals(0, map.size());
+		assertEquals(0, c0.getClientHelper()
+				.getMessageMetadataAsDictionary(group0.getId()).size());
 	}
 
 	private void testModifiedResponse(StateVisitor visitor)
@@ -630,26 +855,35 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 
 		// get response to be forwarded
-		ClientHelper ch = c0.getClientHelper(); // need 0's ClientHelper here
-		Entry<MessageId, BdfDictionary> resp =
-				getMessageFor(ch, contact2From0, TYPE_RESPONSE);
-		MessageId responseId = resp.getKey();
-		BdfDictionary response = resp.getValue();
-
-		// adapt outgoing message queue to removed message
-		Group g2 = introductionGroupFactory
-				.createIntroductionGroup(contact2From0);
-		decreaseOutgoingMessageCounter(ch, g2.getId());
+		AcceptMessage message =
+				(AcceptMessage) getMessageFor(c0.getClientHelper(),
+						contact2From0, ACCEPT);
 
 		// allow visitor to modify response
-		boolean earlyAbort = visitor.visit(response);
+		AcceptMessage m = visitor.visit(message);
 
 		// replace original response with modified one
-		MessageSender sender0 = c0.getMessageSender();
 		Transaction txn = db0.startTransaction(false);
 		try {
-			db0.deleteMessage(txn, responseId);
-			sender0.sendMessage(txn, response);
+			db0.removeMessage(txn, message.getMessageId());
+			Message msg = c0.getMessageEncoder()
+					.encodeAcceptMessage(m.getGroupId(), m.getTimestamp(),
+							m.getPreviousMessageId(), m.getSessionId(),
+							m.getEphemeralPublicKey(), m.getAcceptTimestamp(),
+							m.getTransportProperties());
+			c0.getClientHelper()
+					.addLocalMessage(txn, msg, new BdfDictionary(), true);
+			Group group0 = getLocalGroup();
+			BdfDictionary query = BdfDictionary.of(
+					new BdfEntry(SESSION_KEY_SESSION_ID, m.getSessionId())
+			);
+			Map.Entry<MessageId, BdfDictionary> session = c0.getClientHelper()
+					.getMessageMetadataAsDictionary(txn, group0.getId(), query)
+					.entrySet().iterator().next();
+			replacePreviousLocalMessageId(contact2From0.getAuthor(),
+					session.getValue(), msg.getId());
+			c0.getClientHelper().mergeMessageMetadata(txn, session.getKey(),
+					session.getValue());
 			db0.commitTransaction(txn);
 		} finally {
 			db0.endTransaction(txn);
@@ -663,21 +897,14 @@ public class IntroductionIntegrationTest
 		sync0To1(1, true);
 		sync0To2(1, true);
 
-		// sync first ACK and forward it
+		// sync first AUTH and forward it
 		sync1To0(1, true);
 		sync0To2(1, true);
 
 		// introducee2 should have detected the fake now
-		// and deleted introducee1 again
-		Collection<Contact> contacts2;
-		txn = db2.startTransaction(true);
-		try {
-			contacts2 = db2.getContacts(txn);
-			db2.commitTransaction(txn);
-		} finally {
-			db2.endTransaction(txn);
-		}
-		assertEquals(1, contacts2.size());
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertTrue(listener2.aborted);
 
 		// sync introducee2's ack and following abort
 		sync2To0(2, true);
@@ -687,144 +914,44 @@ public class IntroductionIntegrationTest
 
 		// sync abort messages to introducees
 		sync0To1(2, true);
-		sync0To2(1, true);
 
-		if (earlyAbort) {
-			assertTrue(listener1.aborted);
-			assertTrue(listener2.aborted);
-		} else {
-			assertTrue(listener2.aborted);
-			// when aborted late, introducee1 keeps the contact,
-			// so introducer can not make contacts disappear by aborting
-			Collection<Contact> contacts1;
-			txn = db1.startTransaction(true);
-			try {
-				contacts1 = db1.getContacts(txn);
-				db1.commitTransaction(txn);
-			} finally {
-				db1.endTransaction(txn);
-			}
-			assertEquals(2, contacts1.size());
-		}
+		// ensure everybody got the abort now
+		assertTrue(listener0.aborted);
+		assertTrue(listener1.aborted);
+		assertTrue(listener2.aborted);
 	}
 
 	@Test
 	public void testModifiedTransportProperties() throws Exception {
-		testModifiedResponse(response -> {
-			BdfDictionary tp = response.getDictionary(TRANSPORT, null);
-			tp.put("fakeId", BdfDictionary.of(new BdfEntry("fake", "fake")));
-			response.put(TRANSPORT, tp);
-			return false;
-		});
+		testModifiedResponse(
+				m -> new AcceptMessage(m.getMessageId(), m.getGroupId(),
+						m.getTimestamp(), m.getPreviousMessageId(),
+						m.getSessionId(), m.getEphemeralPublicKey(),
+						m.getAcceptTimestamp(),
+						getTransportPropertiesMap(2))
+		);
 	}
 
 	@Test
 	public void testModifiedTimestamp() throws Exception {
-		testModifiedResponse(response -> {
-			long timestamp = response.getLong(TIME, 0L);
-			response.put(TIME, timestamp + 1);
-			return false;
-		});
+		testModifiedResponse(
+				m -> new AcceptMessage(m.getMessageId(), m.getGroupId(),
+						m.getTimestamp(), m.getPreviousMessageId(),
+						m.getSessionId(), m.getEphemeralPublicKey(),
+						clock.currentTimeMillis(),
+						m.getTransportProperties())
+		);
 	}
 
 	@Test
 	public void testModifiedEphemeralPublicKey() throws Exception {
-		testModifiedResponse(response -> {
-			KeyPair keyPair = crypto.generateAgreementKeyPair();
-			response.put(E_PUBLIC_KEY, keyPair.getPublic().getEncoded());
-			return true;
-		});
-	}
-
-	@Test
-	public void testModifiedEphemeralPublicKeyWithFakeMac()
-			throws Exception {
-		// initialize a real introducee manager
-		MessageSender messageSender = c2.getMessageSender();
-		TransportPropertyManager tpManager = c2.getTransportPropertyManager();
-		IntroduceeManager manager2 =
-				new IntroduceeManager(messageSender, db2, clientHelper, clock,
-						crypto, tpManager, authorFactory, contactManager2,
-						identityManager2, introductionGroupFactory);
-
-		// create keys
-		KeyPair keyPair1 = crypto.generateSignatureKeyPair();
-		KeyPair eKeyPair1 = crypto.generateAgreementKeyPair();
-		KeyPair eKeyPair2 = crypto.generateAgreementKeyPair();
-
-		// Nonce 1
-		byte[][] inputs = {
-				new byte[] {CLIENT_VERSION},
-				eKeyPair1.getPublic().getEncoded(),
-				eKeyPair2.getPublic().getEncoded()
-		};
-		SecretKey sharedSecret = crypto.deriveSharedSecret(SHARED_SECRET_LABEL,
-				eKeyPair2.getPublic(), eKeyPair1, inputs);
-		byte[] nonce1 = crypto.mac(ALICE_NONCE_LABEL, sharedSecret);
-
-		// Signature 1
-		byte[] sig1 = crypto.sign(SIGNING_LABEL, nonce1,
-				keyPair1.getPrivate().getEncoded());
-
-		// MAC 1
-		SecretKey macKey1 = crypto.deriveKey(ALICE_MAC_KEY_LABEL, sharedSecret);
-		BdfDictionary tp1 = BdfDictionary.of(new BdfEntry("fake", "fake"));
-		long time1 = clock.currentTimeMillis();
-		BdfList toMacList = BdfList.of(keyPair1.getPublic().getEncoded(),
-				eKeyPair1.getPublic().getEncoded(), tp1, time1);
-		byte[] toMac = clientHelper.toByteArray(toMacList);
-		byte[] mac1 = crypto.mac(MAC_LABEL, macKey1, toMac);
-
-		// create only relevant part of state for introducee2
-		BdfDictionary state = new BdfDictionary();
-		state.put(PUBLIC_KEY, keyPair1.getPublic().getEncoded());
-		state.put(TRANSPORT, tp1);
-		state.put(TIME, time1);
-		state.put(E_PUBLIC_KEY, eKeyPair1.getPublic().getEncoded());
-		state.put(MAC, mac1);
-		state.put(MAC_KEY, macKey1.getBytes());
-		state.put(NONCE, nonce1);
-		state.put(SIGNATURE, sig1);
-
-		// MAC and signature verification should pass
-		manager2.verifyMac(state);
-		manager2.verifySignature(state);
-
-		// replace ephemeral key pair and recalculate matching keys and nonce
-		KeyPair eKeyPair1f = crypto.generateAgreementKeyPair();
-		byte[][] fakeInputs = {
-				new byte[] {CLIENT_VERSION},
-				eKeyPair1f.getPublic().getEncoded(),
-				eKeyPair2.getPublic().getEncoded()
-		};
-		sharedSecret = crypto.deriveSharedSecret(SHARED_SECRET_LABEL,
-				eKeyPair2.getPublic(), eKeyPair1f, fakeInputs);
-		nonce1 = crypto.mac(ALICE_NONCE_LABEL, sharedSecret);
-
-		// recalculate MAC
-		macKey1 = crypto.deriveKey(ALICE_MAC_KEY_LABEL, sharedSecret);
-		toMacList = BdfList.of(keyPair1.getPublic().getEncoded(),
-				eKeyPair1f.getPublic().getEncoded(), tp1, time1);
-		toMac = clientHelper.toByteArray(toMacList);
-		mac1 = crypto.mac(MAC_LABEL, macKey1, toMac);
-
-		// update state with faked information
-		state.put(E_PUBLIC_KEY, eKeyPair1f.getPublic().getEncoded());
-		state.put(MAC, mac1);
-		state.put(MAC_KEY, macKey1.getBytes());
-		state.put(NONCE, nonce1);
-
-		// MAC verification should still pass
-		manager2.verifyMac(state);
-
-		// Signature can not be verified, because we don't have private
-		// long-term key to fake it
-		try {
-			manager2.verifySignature(state);
-			fail();
-		} catch (GeneralSecurityException e) {
-			// expected
-		}
+		testModifiedResponse(
+				m -> new AcceptMessage(m.getMessageId(), m.getGroupId(),
+						m.getTimestamp(), m.getPreviousMessageId(),
+						m.getSessionId(),
+						getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
+						m.getAcceptTimestamp(), m.getTransportProperties())
+		);
 	}
 
 	private void addTransportProperties()
@@ -832,17 +959,15 @@ public class IntroductionIntegrationTest
 		TransportPropertyManager tpm0 = c0.getTransportPropertyManager();
 		TransportPropertyManager tpm1 = c1.getTransportPropertyManager();
 		TransportPropertyManager tpm2 = c2.getTransportPropertyManager();
-		TransportProperties tp = new TransportProperties(
-				Collections.singletonMap("key", "value"));
 
-		tpm0.mergeLocalProperties(TRANSPORT_ID, tp);
+		tpm0.mergeLocalProperties(TRANSPORT_ID, getTransportProperties(2));
 		sync0To1(1, true);
 		sync0To2(1, true);
 
-		tpm1.mergeLocalProperties(TRANSPORT_ID, tp);
+		tpm1.mergeLocalProperties(TRANSPORT_ID, getTransportProperties(2));
 		sync1To0(1, true);
 
-		tpm2.mergeLocalProperties(TRANSPORT_ID, tp);
+		tpm2.mergeLocalProperties(TRANSPORT_ID, getTransportProperties(2));
 		sync2To0(1, true);
 	}
 
@@ -915,27 +1040,15 @@ public class IntroductionIntegrationTest
 				long time = clock.currentTimeMillis();
 				try {
 					if (introducee == 1 && answerRequests) {
-						if (accept) {
-							introductionManager1
-									.acceptIntroduction(contactId, sessionId,
-											time);
-						} else {
-							introductionManager1
-									.declineIntroduction(contactId, sessionId,
-											time);
-						}
+						introductionManager1
+								.respondToIntroduction(contactId, sessionId,
+										time, accept);
 					} else if (introducee == 2 && answerRequests) {
-						if (accept) {
-							introductionManager2
-									.acceptIntroduction(contactId, sessionId,
-											time);
-						} else {
-							introductionManager2
-									.declineIntroduction(contactId, sessionId,
-											time);
-						}
+						introductionManager2
+								.respondToIntroduction(contactId, sessionId,
+										time, accept);
 					}
-				} catch (DbException | FormatException exception) {
+				} catch (DbException exception) {
 					eventWaiter.rethrow(exception);
 				} finally {
 					eventWaiter.resume();
@@ -945,7 +1058,6 @@ public class IntroductionIntegrationTest
 				Contact contact = ((IntroductionSucceededEvent) e).getContact();
 				eventWaiter
 						.assertFalse(contact.getId().equals(contactId0From1));
-				eventWaiter.assertTrue(contact.isActive());
 				eventWaiter.resume();
 			} else if (e instanceof IntroductionAbortedEvent) {
 				aborted = true;
@@ -981,30 +1093,87 @@ public class IntroductionIntegrationTest
 
 	}
 
-	private void decreaseOutgoingMessageCounter(ClientHelper ch, GroupId g)
-			throws FormatException, DbException {
-		BdfDictionary gD = ch.getGroupMetadataAsDictionary(g);
-		LOG.warning(gD.toString());
-		BdfDictionary queue = gD.getDictionary(QUEUE_STATE_KEY);
-		queue.put("nextOut", queue.getLong("nextOut") - 1);
-		gD.put(QUEUE_STATE_KEY, queue);
-		ch.mergeGroupMetadata(g, gD);
+	private void replacePreviousLocalMessageId(Author author,
+			BdfDictionary d, MessageId id) throws FormatException {
+		BdfDictionary i1 = d.getDictionary(SESSION_KEY_INTRODUCEE_A);
+		BdfDictionary i2 = d.getDictionary(SESSION_KEY_INTRODUCEE_B);
+		Author a1 = clientHelper
+				.parseAndValidateAuthor(i1.getList(SESSION_KEY_AUTHOR));
+		Author a2 = clientHelper
+				.parseAndValidateAuthor(i2.getList(SESSION_KEY_AUTHOR));
+
+		if (a1.equals(author)) {
+			i1.put(SESSION_KEY_LAST_LOCAL_MESSAGE_ID, id);
+			d.put(SESSION_KEY_INTRODUCEE_A, i1);
+		} else if (a2.equals(author)) {
+			i2.put(SESSION_KEY_LAST_LOCAL_MESSAGE_ID, id);
+			d.put(SESSION_KEY_INTRODUCEE_B, i2);
+		} else {
+			throw new AssertionError();
+		}
 	}
 
-	private Entry<MessageId, BdfDictionary> getMessageFor(ClientHelper ch,
-			Contact contact, long type) throws FormatException, DbException {
-		Entry<MessageId, BdfDictionary> response = null;
-		Group g = introductionGroupFactory
-				.createIntroductionGroup(contact);
+	private AbstractIntroductionMessage getMessageFor(ClientHelper ch,
+			Contact contact, MessageType type)
+			throws FormatException, DbException {
+		Group g = introductionManager0.getContactGroup(contact);
+		BdfDictionary query = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_MESSAGE_TYPE, type.getValue())
+		);
 		Map<MessageId, BdfDictionary> map =
-				ch.getMessageMetadataAsDictionary(g.getId());
-		for (Entry<MessageId, BdfDictionary> entry : map.entrySet()) {
-			if (entry.getValue().getLong(TYPE) == type) {
-				response = entry;
+				ch.getMessageMetadataAsDictionary(g.getId(), query);
+		assertEquals(1, map.size());
+		MessageId id = map.entrySet().iterator().next().getKey();
+		Message m = ch.getMessage(id);
+		BdfList body = ch.getMessageAsList(id);
+		if (type == ACCEPT) {
+			//noinspection ConstantConditions
+			return c0.getMessageParser().parseAcceptMessage(m, body);
+		} else if (type == DECLINE) {
+			//noinspection ConstantConditions
+			return c0.getMessageParser().parseDeclineMessage(m, body);
+		} else if (type == AUTH) {
+			//noinspection ConstantConditions
+			return c0.getMessageParser().parseAuthMessage(m, body);
+		} else throw new AssertionError("Not implemented");
+	}
+
+	private IntroductionRequest getIntroductionRequest(
+			IntroductionManager manager, ContactId contactId)
+			throws DbException {
+		for (IntroductionMessage im : manager
+				.getIntroductionMessages(contactId)) {
+			if (im instanceof IntroductionRequest) {
+				return (IntroductionRequest) im;
 			}
 		}
-		assertTrue(response != null);
-		return response;
+		throw new AssertionError("No IntroductionRequest found");
+	}
+
+	private IntroducerSession getIntroducerSession()
+			throws DbException, FormatException {
+		Map<MessageId, BdfDictionary> dicts = c0.getClientHelper()
+				.getMessageMetadataAsDictionary(getLocalGroup().getId());
+		assertEquals(1, dicts.size());
+		BdfDictionary d = dicts.values().iterator().next();
+		return c0.getSessionParser().parseIntroducerSession(d);
+	}
+
+	private IntroduceeSession getIntroduceeSession(
+			IntroductionIntegrationTestComponent c)
+			throws DbException, FormatException {
+		Map<MessageId, BdfDictionary> dicts = c.getClientHelper()
+				.getMessageMetadataAsDictionary(getLocalGroup().getId());
+		assertEquals(1, dicts.size());
+		BdfDictionary d = dicts.values().iterator().next();
+		Group introducerGroup =
+				introductionManager2.getContactGroup(contact0From2);
+		return c.getSessionParser()
+				.parseIntroduceeSession(introducerGroup.getId(), d);
+	}
+
+	private Group getLocalGroup() {
+		return contactGroupFactory.createLocalGroup(CLIENT_ID, CLIENT_VERSION);
 	}
 
 }

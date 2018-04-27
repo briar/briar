@@ -2,6 +2,7 @@ package org.briarproject.briar.android.introduction;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -11,7 +12,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -33,9 +33,10 @@ import im.delight.android.identicons.IdenticonDrawable;
 
 import static android.app.Activity.RESULT_OK;
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_MESSAGE_LENGTH;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
 
 public class IntroductionMessageFragment extends BaseFragment
 		implements TextInputListener {
@@ -125,14 +126,15 @@ public class IntroductionMessageFragment extends BaseFragment
 						new ContactId(contactId1));
 				Contact c2 = contactManager.getContact(
 						new ContactId(contactId2));
-				setUpViews(c1, c2);
+				boolean possible = introductionManager.canIntroduce(c1, c2);
+				setUpViews(c1, c2, possible);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
 
-	private void setUpViews(Contact c1, Contact c2) {
+	private void setUpViews(Contact c1, Contact c2, boolean possible) {
 		introductionActivity.runOnUiThreadUnlessDestroyed(() -> {
 			contact1 = c1;
 			contact2 = c2;
@@ -147,13 +149,22 @@ public class IntroductionMessageFragment extends BaseFragment
 			ui.contactName1.setText(c1.getAuthor().getName());
 			ui.contactName2.setText(c2.getAuthor().getName());
 
-			// set button action
-			ui.message.setListener(IntroductionMessageFragment.this);
-
-			// hide progress bar and show views
+			// hide progress bar
 			ui.progressBar.setVisibility(GONE);
-			ui.message.setSendButtonEnabled(true);
-			ui.message.showSoftKeyboard();
+
+			if (possible) {
+				// set button action
+				ui.message.setListener(IntroductionMessageFragment.this);
+
+				// show views
+				ui.notPossible.setVisibility(GONE);
+				ui.message.setVisibility(VISIBLE);
+				ui.message.setSendButtonEnabled(true);
+				ui.message.showSoftKeyboard();
+			} else {
+				ui.notPossible.setVisibility(VISIBLE);
+				ui.message.setVisibility(GONE);
+			}
 		});
 	}
 
@@ -175,7 +186,8 @@ public class IntroductionMessageFragment extends BaseFragment
 		ui.message.setSendButtonEnabled(false);
 
 		String msg = ui.message.getText().toString();
-		msg = StringUtils.truncateUtf8(msg, MAX_INTRODUCTION_MESSAGE_LENGTH);
+		if (msg.equals("")) msg = null;
+		else msg = StringUtils.truncateUtf8(msg, MAX_REQUEST_MESSAGE_LENGTH);
 		makeIntroduction(contact1, contact2, msg);
 
 		// don't wait for the introduction to be made before finishing activity
@@ -184,13 +196,14 @@ public class IntroductionMessageFragment extends BaseFragment
 		introductionActivity.supportFinishAfterTransition();
 	}
 
-	private void makeIntroduction(Contact c1, Contact c2, String msg) {
+	private void makeIntroduction(Contact c1, Contact c2,
+			@Nullable String msg) {
 		introductionActivity.runOnDbThread(() -> {
 			// actually make the introduction
 			try {
 				long timestamp = System.currentTimeMillis();
 				introductionManager.makeIntroduction(c1, c2, msg, timestamp);
-			} catch (DbException | FormatException e) {
+			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				introductionError();
 			}
@@ -208,6 +221,7 @@ public class IntroductionMessageFragment extends BaseFragment
 		private final ProgressBar progressBar;
 		private final CircleImageView avatar1, avatar2;
 		private final TextView contactName1, contactName2;
+		private final TextView notPossible;
 		private final TextInputView message;
 
 		private ViewHolder(View v) {
@@ -216,6 +230,7 @@ public class IntroductionMessageFragment extends BaseFragment
 			avatar2 = v.findViewById(R.id.avatarContact2);
 			contactName1 = v.findViewById(R.id.nameContact1);
 			contactName2 = v.findViewById(R.id.nameContact2);
+			notPossible = v.findViewById(R.id.introductionNotPossibleView);
 			message = v.findViewById(R.id.introductionMessageView);
 		}
 	}

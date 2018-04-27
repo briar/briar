@@ -94,13 +94,25 @@
 			android:layout_gravity="center"
 			tools:visibility="gone"/>
 
+		<TextView
+			android:id="@+id/introductionNotPossibleView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_activity_horizontal"
+			android:text="@string/introduction_not_possible"
+			android:textSize="@dimen/text_size_large"
+			android:visibility="gone"
+			tools:visibility="visible"/>
+
 		<org.briarproject.briar.android.view.LargeTextInputView
 			android:id="@+id/introductionMessageView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:visibility="gone"
 			app:buttonText="@string/introduction_button"
 			app:hint="@string/introduction_message_hint"
-			app:maxLines="5"/>
+			app:maxLines="5"
+			tools:visibility="visible"/>
 
 	</LinearLayout>
 </ScrollView>

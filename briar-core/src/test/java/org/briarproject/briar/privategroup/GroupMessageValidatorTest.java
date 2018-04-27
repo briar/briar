@@ -368,14 +368,6 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 				.getBoolean(KEY_INITIAL_JOIN_MSG));
 	}
 
-	private void expectParseAuthor(BdfList authorList, Author author)
-			throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(clientHelper).parseAndValidateAuthor(authorList);
-			will(returnValue(author));
-		}});
-	}
-
 	private void expectRejectAuthor(BdfList authorList) throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).parseAndValidateAuthor(authorList);

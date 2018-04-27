@@ -4,8 +4,8 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.briar.api.client.MessageQueueManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.messaging.ConversationManager;
 
@@ -22,21 +22,21 @@ public class IntroductionModule {
 
 	public static class EagerSingletons {
 		@Inject
-		IntroductionManager introductionManager;
-		@Inject
 		IntroductionValidator introductionValidator;
+		@Inject
+		IntroductionManager introductionManager;
 	}
 
 	@Provides
 	@Singleton
-	IntroductionValidator provideValidator(
-			MessageQueueManager messageQueueManager,
-			MetadataEncoder metadataEncoder, ClientHelper clientHelper,
-			Clock clock) {
+	IntroductionValidator provideValidator(ValidationManager validationManager,
+			MessageEncoder messageEncoder, MetadataEncoder metadataEncoder,
+			ClientHelper clientHelper, Clock clock) {
 
-		IntroductionValidator introductionValidator = new IntroductionValidator(
-				clientHelper, metadataEncoder, clock);
-		messageQueueManager.registerMessageValidator(CLIENT_ID,
+		IntroductionValidator introductionValidator =
+				new IntroductionValidator(messageEncoder, clientHelper,
+						metadataEncoder, clock);
+		validationManager.registerMessageValidator(CLIENT_ID,
 				introductionValidator);
 
 		return introductionValidator;
@@ -46,16 +46,42 @@ public class IntroductionModule {
 	@Singleton
 	IntroductionManager provideIntroductionManager(
 			LifecycleManager lifecycleManager, ContactManager contactManager,
-			MessageQueueManager messageQueueManager,
+			ValidationManager validationManager,
 			ConversationManager conversationManager,
 			IntroductionManagerImpl introductionManager) {
-
 		lifecycleManager.registerClient(introductionManager);
 		contactManager.registerContactHook(introductionManager);
-		messageQueueManager.registerIncomingMessageHook(CLIENT_ID,
+		validationManager.registerIncomingMessageHook(CLIENT_ID,
 				introductionManager);
 		conversationManager.registerConversationClient(introductionManager);
 
 		return introductionManager;
 	}
+
+	@Provides
+	MessageParser provideMessageParser(MessageParserImpl messageParser) {
+		return messageParser;
+	}
+
+	@Provides
+	MessageEncoder provideMessageEncoder(MessageEncoderImpl messageEncoder) {
+		return messageEncoder;
+	}
+
+	@Provides
+	SessionParser provideSessionParser(SessionParserImpl sessionParser) {
+		return sessionParser;
+	}
+
+	@Provides
+	SessionEncoder provideSessionEncoder(SessionEncoderImpl sessionEncoder) {
+		return sessionEncoder;
+	}
+
+	@Provides
+	IntroductionCrypto provideIntroductionCrypto(
+			IntroductionCryptoImpl introductionCrypto) {
+		return introductionCrypto;
+	}
+
 }

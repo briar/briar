@@ -144,6 +144,7 @@
 	<string name="introduction_onboarding_title">Introduce your contacts</string>
 	<string name="introduction_onboarding_text">You can introduce your contacts to each other, so they don\'t need to meet in person to connect on Briar.</string>
 	<string name="introduction_activity_title">Select Contact</string>
+	<string name="introduction_not_possible">You already have one introduction in progress with these contacts. Please allow for this to finish first. If you or your contacts are rarely online, this can take some time.</string>
 	<string name="introduction_message_title">Introduce Contacts</string>
 	<string name="introduction_message_hint">Add a message (optional)</string>
 	<string name="introduction_button">Make Introduction</string>
