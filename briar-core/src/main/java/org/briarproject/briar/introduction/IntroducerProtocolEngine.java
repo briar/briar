@@ -343,6 +343,12 @@ class IntroducerProtocolEngine
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getGroupId(), m.getPreviousMessageId()))
 			return abort(txn, s);
+		// The message must be expected in the current state
+		boolean senderIsAlice = senderIsAlice(s, m);
+		if (senderIsAlice && s.getState() != B_DECLINED)
+			return abort(txn, s);
+		else if (!senderIsAlice && s.getState() != A_DECLINED)
+			return abort(txn, s);
 
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getMessageId());
@@ -350,7 +356,6 @@ class IntroducerProtocolEngine
 		messageTracker
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 
-		boolean senderIsAlice = senderIsAlice(s, m);
 		Introducee introduceeA, introduceeB;
 		if (senderIsAlice) {
 			introduceeA = new Introducee(s.getIntroduceeA(), m.getMessageId());

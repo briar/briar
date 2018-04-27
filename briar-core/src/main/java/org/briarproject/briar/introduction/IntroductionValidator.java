@@ -155,7 +155,7 @@ class IntroductionValidator extends BdfMessageValidator {
 		byte[] sessionIdBytes = body.getRaw(1);
 		checkLength(sessionIdBytes, UniqueId.LENGTH);
 
-		byte[] previousMessageId = body.getOptionalRaw(2);
+		byte[] previousMessageId = body.getRaw(2);
 		checkLength(previousMessageId, UniqueId.LENGTH);
 
 		byte[] mac = body.getOptionalRaw(3);

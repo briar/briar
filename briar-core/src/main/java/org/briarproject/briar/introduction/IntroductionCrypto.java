@@ -19,6 +19,9 @@ interface IntroductionCrypto {
 
 	/**
 	 * Returns true if the local author is alice
+	 *
+	 * Alice is the Author whose unique ID has the lower ID,
+	 * comparing the IDs as byte strings.
 	 */
 	boolean isAlice(AuthorId local, AuthorId remote);
 

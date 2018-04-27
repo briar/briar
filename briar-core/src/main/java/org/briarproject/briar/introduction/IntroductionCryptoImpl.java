@@ -1,6 +1,5 @@
 package org.briarproject.briar.introduction;
 
-import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
@@ -68,9 +67,7 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 
 	@Override
 	public boolean isAlice(AuthorId local, AuthorId remote) {
-		byte[] a = local.getBytes();
-		byte[] b = remote.getBytes();
-		return Bytes.COMPARATOR.compare(new Bytes(a), new Bytes(b)) < 0;
+		return local.compareTo(remote) < 0;
 	}
 
 	@Override

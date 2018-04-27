@@ -63,6 +63,7 @@ import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_
 import static org.briarproject.briar.introduction.IntroductionConstants.SESSION_KEY_SESSION_ID;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
 import static org.briarproject.briar.introduction.MessageType.AUTH;
+import static org.briarproject.briar.introduction.MessageType.DECLINE;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -682,6 +683,41 @@ public class IntroductionIntegrationTest
 	}
 
 	/**
+	 * One introducee sends an DECLINE and then another DECLINE message.
+	 * The introducer should notice this and ABORT the session.
+	 */
+	@Test
+	public void testDoubleDecline() throws Exception {
+		addListeners(false, true);
+
+		// make the introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync REQUEST to introducee1
+		sync0To1(1, true);
+
+		// save DECLINE from introducee1
+		DeclineMessage m = (DeclineMessage) getMessageFor(c1.getClientHelper(),
+				contact0From1, DECLINE);
+
+		// sync DECLINE back to introducer
+		sync1To0(1, true);
+
+		// fake a second DECLINE message also from introducee1
+		Message msg = c1.getMessageEncoder()
+				.encodeDeclineMessage(m.getGroupId(), m.getTimestamp() + 1,
+						m.getMessageId(), m.getSessionId());
+		c1.getClientHelper().addLocalMessage(msg, new BdfDictionary(), true);
+
+		// sync fake DECLINE back to introducer
+		sync1To0(1, true);
+
+		assertTrue(listener0.aborted);
+	}
+
+	/**
 	 * One introducee sends two AUTH messages.
 	 * The introducer should notice this and ABORT the session.
 	 */
@@ -1093,6 +1129,9 @@ public class IntroductionIntegrationTest
 		if (type == ACCEPT) {
 			//noinspection ConstantConditions
 			return c0.getMessageParser().parseAcceptMessage(m, body);
+		} else if (type == DECLINE) {
+			//noinspection ConstantConditions
+			return c0.getMessageParser().parseDeclineMessage(m, body);
 		} else if (type == AUTH) {
 			//noinspection ConstantConditions
 			return c0.getMessageParser().parseAuthMessage(m, body);

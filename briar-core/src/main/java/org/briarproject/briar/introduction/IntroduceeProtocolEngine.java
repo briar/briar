@@ -391,7 +391,6 @@ class IntroduceeProtocolEngine
 			mac = crypto.authMac(ourMacKey, s, localAuthor.getId());
 			signature = crypto.sign(ourMacKey, localAuthor.getPrivateKey());
 		} catch (GeneralSecurityException e) {
-			// TODO
 			if (LOG.isLoggable(WARNING))
 				LOG.log(WARNING, e.toString(), e);
 			return abort(txn, s);

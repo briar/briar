@@ -269,6 +269,21 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	}
 
 	@Test(expected = FormatException.class)
+	public void testRejectsInvalidPreviousMsgIdForAuth() throws Exception {
+		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
+				1, getRandomBytes(MAC_BYTES),
+				signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPreviousMsgIdNullForAuth() throws Exception {
+		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(), null,
+				getRandomBytes(MAC_BYTES), signature);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
 	public void testRejectsTooShortMacForAuth() throws Exception {
 		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
 				previousMsgId.getBytes(), getRandomBytes(MAC_BYTES - 1),
@@ -355,6 +370,14 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	public void testRejectsInvalidPreviousMsgIdForActivate() throws Exception {
 		BdfList body =
 				BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(), 1, mac);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsPreviousMsgIdNullForActivate() throws Exception {
+		BdfList body =
+				BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(), null,
+						mac);
 		validator.validateMessage(message, group, body);
 	}
 

@@ -353,7 +353,12 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		try {
 			// Look up the session
 			StoredSession ss = getSession(txn, sessionId);
-			if (ss == null) throw new IllegalArgumentException();
+			if (ss == null) {
+				// Actions from the UI may be based on stale information.
+				// The contact might just have been deleted, for example.
+				// Throwing a DbException here aborts gracefully.
+				throw new DbException();
+			}
 			// Parse the session
 			Contact contact = db.getContact(txn, contactId);
 			GroupId contactGroupId = getContactGroup(contact).getId();
