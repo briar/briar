@@ -29,7 +29,7 @@ import static org.briarproject.briar.api.introduction.IntroductionConstants.LABE
 import static org.briarproject.briar.api.introduction.IntroductionConstants.LABEL_BOB_MAC_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.LABEL_MASTER_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.LABEL_SESSION_ID;
-import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.introduction.IntroductionManager.MAJOR_VERSION;
 import static org.briarproject.briar.introduction.IntroduceeSession.Local;
 
 @Immutable
@@ -94,7 +94,7 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 				LABEL_MASTER_KEY,
 				remoteEphemeralPublicKey,
 				keyPair,
-				new byte[] {CLIENT_VERSION},
+				new byte[] {MAJOR_VERSION},
 				alice ? publicKey : remotePublicKey,
 				alice ? remotePublicKey : publicKey
 		);

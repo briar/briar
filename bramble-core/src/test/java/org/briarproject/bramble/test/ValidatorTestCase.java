@@ -24,7 +24,7 @@ public abstract class ValidatorTestCase extends BrambleMockTestCase {
 			context.mock(MetadataEncoder.class);
 	protected final Clock clock = context.mock(Clock.class);
 
-	protected final Group group = getGroup(getClientId());
+	protected final Group group = getGroup(getClientId(), 123);
 	protected final GroupId groupId = group.getId();
 	protected final byte[] descriptor = group.getDescriptor();
 	protected final Message message = getMessage(groupId);
