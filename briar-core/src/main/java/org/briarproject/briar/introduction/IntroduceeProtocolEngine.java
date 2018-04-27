@@ -419,41 +419,43 @@ class IntroduceeProtocolEngine
 				s.getRemote().acceptTimestamp);
 		if (timestamp == -1) throw new AssertionError();
 
-		boolean contactAdded = false;
+		Map<TransportId, KeySetId> keys = null;
 		try {
 			contactManager
 					.addContact(txn, s.getRemote().author, localAuthor.getId(),
 							false, true);
-			contactAdded = true;
+
+			// Only add transport properties and keys when the contact was added
+			// This will be changed once we have a way to reset state for peers
+			// that were contacts already at some point in the past.
+			Contact c = contactManager
+					.getContact(txn, s.getRemote().author.getId(),
+							localAuthor.getId());
+
+			// bind the keys to the new contact
+			//noinspection ConstantConditions
+			keys = keyManager
+					.addUnboundKeys(txn, new SecretKey(s.getMasterKey()),
+							timestamp, s.getRemote().alice);
+			keyManager.bindKeys(txn, c.getId(), keys);
+
+			// add signed transport properties for the contact
+			//noinspection ConstantConditions
+			transportPropertyManager.addRemoteProperties(txn, c.getId(),
+					s.getRemote().transportProperties);
+
+			// Broadcast IntroductionSucceededEvent, because contact got added
+			IntroductionSucceededEvent e = new IntroductionSucceededEvent(c);
+			txn.attach(e);
 		} catch (ContactExistsException e) {
 			// Ignore this, because the other introducee might have deleted us.
 			// So we still want updated transport properties
 			// and new transport keys.
 		}
-		Contact c = contactManager.getContact(txn, s.getRemote().author.getId(),
-				localAuthor.getId());
-
-		// bind the keys to the new (or existing) contact
-		//noinspection ConstantConditions
-		Map<TransportId, KeySetId> keys = keyManager
-				.addUnboundKeys(txn, new SecretKey(s.getMasterKey()),
-						timestamp, s.getRemote().alice);
-		keyManager.bindKeys(txn, c.getId(), keys);
-
-		// add signed transport properties for the contact
-		//noinspection ConstantConditions
-		transportPropertyManager.addRemoteProperties(txn, c.getId(),
-				s.getRemote().transportProperties);
 
 		// send ACTIVATE message with a MAC
 		byte[] mac = crypto.activateMac(s);
 		Message sent = sendActivateMessage(txn, s, getLocalTimestamp(s), mac);
-
-		if (contactAdded) {
-			// Broadcast IntroductionSucceededEvent, because contact got added
-			IntroductionSucceededEvent e = new IntroductionSucceededEvent(c);
-			txn.attach(e);
-		}
 
 		// Move to AWAIT_ACTIVATE state and clear key material from session
 		return IntroduceeSession.awaitActivate(s, m, sent, keys);
@@ -469,12 +471,15 @@ class IntroduceeProtocolEngine
 		try {
 			crypto.verifyActivateMac(m.getMac(), s);
 		} catch (GeneralSecurityException e) {
-			// TODO remove transport keys?
 			return abort(txn, s);
 		}
 
-		// Activate transport keys
-		keyManager.activateKeys(txn, s.getTransportKeys());
+		// We might not have added transport keys
+		// if the contact existed when the remote AUTH was received.
+		if (s.getTransportKeys() != null) {
+			// Activate transport keys
+			keyManager.activateKeys(txn, s.getTransportKeys());
+		}
 
 		// Move back to START state
 		return IntroduceeSession.clear(s, START, s.getLastLocalMessageId(),
