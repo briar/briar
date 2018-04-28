@@ -903,11 +903,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			Collection<KeySet> keys) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		Collection<KeySet> filtered = new ArrayList<>();
 		for (KeySet ks : keys) {
 			TransportId t = ks.getTransportKeys().getTransportId();
-			if (db.containsTransport(txn, t)) filtered.add(ks);
+			if (db.containsTransport(txn, t)) db.updateTransportKeys(txn, ks);
 		}
-		db.updateTransportKeys(txn, filtered);
 	}
 }

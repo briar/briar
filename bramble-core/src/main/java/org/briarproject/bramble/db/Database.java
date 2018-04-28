@@ -654,7 +654,7 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Stores the given transport keys, deleting any keys they have replaced.
+	 * Updates the given transport keys following key rotation.
 	 */
-	void updateTransportKeys(T txn, Collection<KeySet> keys) throws DbException;
+	void updateTransportKeys(T txn, KeySet ks) throws DbException;
 }

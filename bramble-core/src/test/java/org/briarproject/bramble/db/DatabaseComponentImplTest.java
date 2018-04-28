@@ -1315,8 +1315,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	@Test
 	public void testTransportKeys() throws Exception {
 		TransportKeys transportKeys = createTransportKeys();
-		Collection<KeySet> keys =
-				singletonList(new KeySet(keySetId, contactId, transportKeys));
+		KeySet ks = new KeySet(keySetId, contactId, transportKeys);
+		Collection<KeySet> keys = singletonList(ks);
 		context.checking(new Expectations() {{
 			// startTransaction()
 			oneOf(database).startTransaction();
@@ -1324,7 +1324,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			// updateTransportKeys()
 			oneOf(database).containsTransport(txn, transportId);
 			will(returnValue(true));
-			oneOf(database).updateTransportKeys(txn, keys);
+			oneOf(database).updateTransportKeys(txn, ks);
 			// getTransportKeys()
 			oneOf(database).containsTransport(txn, transportId);
 			will(returnValue(true));
