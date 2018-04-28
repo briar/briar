@@ -149,11 +149,12 @@ abstract class AbstractProtocolEngine<S extends Session>
 			throws DbException {
 		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
 		Contact c = contactManager.getContact(txn, sender, localAuthorId);
+		boolean possible = s.getState().successPossible();
 		IntroductionResponse response =
 				new IntroductionResponse(s.getSessionId(), m.getMessageId(),
 						m.getGroupId(), s.getRole(), m.getTimestamp(), false,
 						false, false, false, otherAuthor.getName(),
-						m instanceof AcceptMessage);
+						m instanceof AcceptMessage, possible);
 		IntroductionResponseReceivedEvent e =
 				new IntroductionResponseReceivedEvent(c.getId(), response);
 		txn.attach(e);

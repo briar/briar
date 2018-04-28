@@ -34,4 +34,9 @@ enum IntroducerState implements State {
 		throw new FormatException();
 	}
 
+	@Override
+	public boolean successPossible() {
+		return this != START && this != A_DECLINED && this != B_DECLINED;
+	}
+
 }

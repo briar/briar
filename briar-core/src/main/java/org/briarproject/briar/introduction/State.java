@@ -4,4 +4,6 @@ interface State {
 
 	int getValue();
 
+	boolean successPossible();
+
 }

@@ -470,6 +470,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		Role role = sessionParser.getRole(bdfSession);
 		SessionId sessionId;
 		Author author;
+		boolean successPossible;
 		if (role == INTRODUCER) {
 			IntroducerSession session =
 					sessionParser.parseIntroducerSession(bdfSession);
@@ -479,15 +480,18 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			} else {
 				author = session.getIntroduceeA().author;
 			}
+			successPossible = session.getState().successPossible();
 		} else if (role == INTRODUCEE) {
 			IntroduceeSession session = sessionParser
 					.parseIntroduceeSession(contactGroupId, bdfSession);
 			sessionId = session.getSessionId();
 			author = session.getRemote().author;
+			successPossible = session.getState().successPossible();
 		} else throw new AssertionError();
 		return new IntroductionResponse(sessionId, m, contactGroupId,
 				role, meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), author.getName(), accept);
+				status.isSeen(), meta.isRead(), author.getName(), accept,
+				successPossible);
 	}
 
 	private void removeSessionWithIntroducer(Transaction txn,

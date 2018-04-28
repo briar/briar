@@ -415,8 +415,8 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response2Received);
 
-		// Forward AUTH
-		sync0To1(1, true);
+		// Forward AUTH and response
+		sync0To1(2, true);
 
 		// Second AUTH and ACTIVATE and forward them
 		sync1To0(2, true);

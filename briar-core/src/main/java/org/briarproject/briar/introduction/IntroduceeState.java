@@ -34,4 +34,10 @@ enum IntroduceeState implements State {
 		throw new FormatException();
 	}
 
+	@Override
+	public boolean successPossible() {
+		return this != START && this != LOCAL_DECLINED &&
+				this != REMOTE_DECLINED;
+	}
+
 }

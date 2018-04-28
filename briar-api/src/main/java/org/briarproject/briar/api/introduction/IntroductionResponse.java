@@ -12,16 +12,18 @@ import javax.annotation.concurrent.Immutable;
 public class IntroductionResponse extends IntroductionMessage {
 
 	private final String name;
-	private final boolean accepted;
+	private final boolean accepted, successPossible;
 
 	public IntroductionResponse(SessionId sessionId, MessageId messageId,
 			GroupId groupId, Role role, long time, boolean local, boolean sent,
-			boolean seen, boolean read, String name, boolean accepted) {
+			boolean seen, boolean read, String name, boolean accepted,
+			boolean successPossible) {
 		super(sessionId, messageId, groupId, role, time, local, sent, seen,
 				read);
 
 		this.name = name;
 		this.accepted = accepted;
+		this.successPossible = successPossible;
 	}
 
 	public String getName() {
@@ -30,6 +32,10 @@ public class IntroductionResponse extends IntroductionMessage {
 
 	public boolean wasAccepted() {
 		return accepted;
+	}
+
+	public boolean isSuccessPossible() {
+		return successPossible;
 	}
 
 }

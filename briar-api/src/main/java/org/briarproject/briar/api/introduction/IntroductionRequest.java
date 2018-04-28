@@ -22,7 +22,7 @@ public class IntroductionRequest extends IntroductionResponse {
 			@Nullable String message, boolean answered, boolean exists) {
 
 		super(sessionId, messageId, groupId, role, time, local, sent, seen,
-				read, name, accepted);
+				read, name, accepted, false);
 
 		this.message = message;
 		this.answered = answered;
@@ -41,4 +41,11 @@ public class IntroductionRequest extends IntroductionResponse {
 	public boolean contactExists() {
 		return exists;
 	}
+
+	@Override
+	public boolean isSuccessPossible() {
+		// TODO fix this IntroductionMessage mess
+		throw new AssertionError();
+	}
+
 }
