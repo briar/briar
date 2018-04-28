@@ -1,5 +1,6 @@
 package org.briarproject.bramble.test;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import static org.briarproject.bramble.test.UTest.Result.LARGER;
 import static org.briarproject.bramble.test.UTest.Result.SMALLER;
 import static org.junit.Assert.assertEquals;
 
+@Ignore
 public class UTestTest extends BrambleTestCase {
 
 	private final Random random = new Random();
