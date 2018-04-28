@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.StreamEncrypterFactory;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.transport.StreamContext;
+import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 
 import java.io.OutputStream;
@@ -23,14 +24,14 @@ class StreamWriterFactoryImpl implements StreamWriterFactory {
 	}
 
 	@Override
-	public OutputStream createStreamWriter(OutputStream out,
+	public StreamWriter createStreamWriter(OutputStream out,
 			StreamContext ctx) {
 		return new StreamWriterImpl(
 				streamEncrypterFactory.createStreamEncrypter(out, ctx));
 	}
 
 	@Override
-	public OutputStream createContactExchangeStreamWriter(OutputStream out,
+	public StreamWriter createContactExchangeStreamWriter(OutputStream out,
 			SecretKey headerKey) {
 		return new StreamWriterImpl(
 				streamEncrypterFactory.createContactExchangeStreamDecrypter(out,

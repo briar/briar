@@ -14,12 +14,12 @@ import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
+import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -101,7 +101,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 
 	private SyncSession createSimplexOutgoingSession(StreamContext ctx,
 			TransportConnectionWriter w) throws IOException {
-		OutputStream streamWriter = streamWriterFactory.createStreamWriter(
+		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
 		return syncSessionFactory.createSimplexOutgoingSession(
 				ctx.getContactId(), w.getMaxLatency(), streamWriter);
@@ -109,7 +109,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 
 	private SyncSession createDuplexOutgoingSession(StreamContext ctx,
 			TransportConnectionWriter w) throws IOException {
-		OutputStream streamWriter = streamWriterFactory.createStreamWriter(
+		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
 		return syncSessionFactory.createDuplexOutgoingSession(
 				ctx.getContactId(), w.getMaxLatency(), w.getMaxIdleTime(),

@@ -30,6 +30,7 @@ import org.briarproject.bramble.api.record.RecordWriter;
 import org.briarproject.bramble.api.record.RecordWriterFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
+import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 
 import java.io.EOFException;
@@ -152,11 +153,11 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 				recordReaderFactory.createRecordReader(streamReader);
 
 		// Create the writers
-		OutputStream streamWriter =
+		StreamWriter streamWriter =
 				streamWriterFactory.createContactExchangeStreamWriter(out,
 						alice ? aliceHeaderKey : bobHeaderKey);
 		RecordWriter recordWriter =
-				recordWriterFactory.createRecordWriter(streamWriter);
+				recordWriterFactory.createRecordWriter(streamWriter.getOutputStream());
 
 		// Derive the nonces to be signed
 		byte[] aliceNonce = crypto.mac(ALICE_NONCE_LABEL, masterSecret,
@@ -184,8 +185,8 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 						localSignature, localTimestamp);
 				recordWriter.flush();
 			}
-			// Close the outgoing stream
-			recordWriter.close();
+			// Send EOF on the outgoing stream
+			streamWriter.sendEndOfStream();
 			// Skip any remaining records from the incoming stream
 			try {
 				while (true) recordReader.readRecord();

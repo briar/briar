@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.SyncSession;
+import org.briarproject.bramble.api.transport.StreamWriter;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -51,6 +52,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	private final EventBus eventBus;
 	private final ContactId contactId;
 	private final int maxLatency;
+	private final StreamWriter streamWriter;
 	private final SyncRecordWriter recordWriter;
 	private final AtomicInteger outstandingQueries;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
@@ -58,13 +60,14 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	private volatile boolean interrupted = false;
 
 	SimplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
-			EventBus eventBus, ContactId contactId,
-			int maxLatency, SyncRecordWriter recordWriter) {
+			EventBus eventBus, ContactId contactId, int maxLatency,
+			StreamWriter streamWriter, SyncRecordWriter recordWriter) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
 		this.contactId = contactId;
 		this.maxLatency = maxLatency;
+		this.streamWriter = streamWriter;
 		this.recordWriter = recordWriter;
 		outstandingQueries = new AtomicInteger(2); // One per type of record
 		writerTasks = new LinkedBlockingQueue<>();
@@ -85,7 +88,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 					if (task == CLOSE) break;
 					task.run();
 				}
-				recordWriter.flush();
+				streamWriter.sendEndOfStream();
 			} catch (InterruptedException e) {
 				LOG.info("Interrupted while waiting for a record to write");
 				Thread.currentThread().interrupt();

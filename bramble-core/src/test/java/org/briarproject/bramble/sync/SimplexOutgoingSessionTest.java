@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
+import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.bramble.test.TestUtils;
@@ -20,6 +21,7 @@ import java.util.concurrent.Executor;
 
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
 
+// TODO: Convert to BrambleMockTestCase
 public class SimplexOutgoingSessionTest extends BrambleTestCase {
 
 	private final Mockery context;
@@ -29,6 +31,7 @@ public class SimplexOutgoingSessionTest extends BrambleTestCase {
 	private final ContactId contactId;
 	private final MessageId messageId;
 	private final int maxLatency;
+	private final StreamWriter streamWriter;
 	private final SyncRecordWriter recordWriter;
 
 	public SimplexOutgoingSessionTest() {
@@ -36,6 +39,7 @@ public class SimplexOutgoingSessionTest extends BrambleTestCase {
 		db = context.mock(DatabaseComponent.class);
 		dbExecutor = new ImmediateExecutor();
 		eventBus = context.mock(EventBus.class);
+		streamWriter = context.mock(StreamWriter.class);
 		recordWriter = context.mock(SyncRecordWriter.class);
 		contactId = new ContactId(234);
 		messageId = new MessageId(TestUtils.getRandomId());
@@ -45,7 +49,8 @@ public class SimplexOutgoingSessionTest extends BrambleTestCase {
 	@Test
 	public void testNothingToSend() throws Exception {
 		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				dbExecutor, eventBus, contactId, maxLatency, recordWriter);
+				dbExecutor, eventBus, contactId, maxLatency, streamWriter,
+				recordWriter);
 		Transaction noAckTxn = new Transaction(null, false);
 		Transaction noMsgTxn = new Transaction(null, false);
 
@@ -67,8 +72,8 @@ public class SimplexOutgoingSessionTest extends BrambleTestCase {
 			will(returnValue(null));
 			oneOf(db).commitTransaction(noMsgTxn);
 			oneOf(db).endTransaction(noMsgTxn);
-			// Flush the output stream
-			oneOf(recordWriter).flush();
+			// Send the end of stream marker
+			oneOf(streamWriter).sendEndOfStream();
 			// Remove listener
 			oneOf(eventBus).removeListener(session);
 		}});
@@ -83,7 +88,8 @@ public class SimplexOutgoingSessionTest extends BrambleTestCase {
 		Ack ack = new Ack(Collections.singletonList(messageId));
 		byte[] raw = new byte[1234];
 		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				dbExecutor, eventBus, contactId, maxLatency, recordWriter);
+				dbExecutor, eventBus, contactId, maxLatency, streamWriter,
+				recordWriter);
 		Transaction ackTxn = new Transaction(null, false);
 		Transaction noAckTxn = new Transaction(null, false);
 		Transaction msgTxn = new Transaction(null, false);
@@ -124,8 +130,8 @@ public class SimplexOutgoingSessionTest extends BrambleTestCase {
 			will(returnValue(null));
 			oneOf(db).commitTransaction(noMsgTxn);
 			oneOf(db).endTransaction(noMsgTxn);
-			// Flush the output stream
-			oneOf(recordWriter).flush();
+			// Send the end of stream marker
+			oneOf(streamWriter).sendEndOfStream();
 			// Remove listener
 			oneOf(eventBus).removeListener(session);
 		}});
