@@ -46,6 +46,7 @@ import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_RESPONSE
 import static org.briarproject.briar.introduction.IntroduceeState.LOCAL_ACCEPTED;
 import static org.briarproject.briar.introduction.IntroduceeState.LOCAL_DECLINED;
 import static org.briarproject.briar.introduction.IntroduceeState.REMOTE_ACCEPTED;
+import static org.briarproject.briar.introduction.IntroduceeState.REMOTE_DECLINED;
 import static org.briarproject.briar.introduction.IntroduceeState.START;
 
 @Immutable
@@ -94,6 +95,7 @@ class IntroduceeProtocolEngine
 			IntroduceeSession session, long timestamp) throws DbException {
 		switch (session.getState()) {
 			case AWAIT_RESPONSES:
+			case REMOTE_DECLINED:
 			case REMOTE_ACCEPTED:
 				return onLocalAccept(txn, session, timestamp);
 			case START:
@@ -112,6 +114,7 @@ class IntroduceeProtocolEngine
 			IntroduceeSession session, long timestamp) throws DbException {
 		switch (session.getState()) {
 			case AWAIT_RESPONSES:
+			case REMOTE_DECLINED:
 			case REMOTE_ACCEPTED:
 				return onLocalDecline(txn, session, timestamp);
 			case START:
@@ -133,6 +136,7 @@ class IntroduceeProtocolEngine
 				return onRemoteRequest(txn, session, m);
 			case AWAIT_RESPONSES:
 			case LOCAL_DECLINED:
+			case REMOTE_DECLINED:
 			case LOCAL_ACCEPTED:
 			case REMOTE_ACCEPTED:
 			case AWAIT_AUTH:
@@ -153,6 +157,7 @@ class IntroduceeProtocolEngine
 			case LOCAL_ACCEPTED:
 				return onRemoteAccept(txn, session, m);
 			case START:
+			case REMOTE_DECLINED:
 			case REMOTE_ACCEPTED:
 			case AWAIT_AUTH:
 			case AWAIT_ACTIVATE:
@@ -172,6 +177,7 @@ class IntroduceeProtocolEngine
 			case LOCAL_ACCEPTED:
 				return onRemoteDecline(txn, session, m);
 			case START:
+			case REMOTE_DECLINED:
 			case REMOTE_ACCEPTED:
 			case AWAIT_AUTH:
 			case AWAIT_ACTIVATE:
@@ -190,6 +196,7 @@ class IntroduceeProtocolEngine
 			case START:
 			case AWAIT_RESPONSES:
 			case LOCAL_DECLINED:
+			case REMOTE_DECLINED:
 			case LOCAL_ACCEPTED:
 			case REMOTE_ACCEPTED:
 			case AWAIT_ACTIVATE:
@@ -208,6 +215,7 @@ class IntroduceeProtocolEngine
 			case START:
 			case AWAIT_RESPONSES:
 			case LOCAL_DECLINED:
+			case REMOTE_DECLINED:
 			case LOCAL_ACCEPTED:
 			case REMOTE_ACCEPTED:
 			case AWAIT_AUTH:
@@ -272,26 +280,28 @@ class IntroduceeProtocolEngine
 				transportPropertyManager.getLocalProperties(txn);
 
 		// Send a ACCEPT message
-		long localTimestamp =
-				Math.max(timestamp + 1, getLocalTimestamp(s));
+		long localTimestamp = Math.max(timestamp + 1, getLocalTimestamp(s));
 		Message sent = sendAcceptMessage(txn, s, localTimestamp, publicKey,
 				localTimestamp, transportProperties, true);
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
 
 		// Determine the next state
-		IntroduceeState state =
-				s.getState() == AWAIT_RESPONSES ? LOCAL_ACCEPTED : AWAIT_AUTH;
-		IntroduceeSession sNew = IntroduceeSession
-				.addLocalAccept(s, state, sent, publicKey, privateKey,
-						localTimestamp, transportProperties);
-
-		if (state == AWAIT_AUTH) {
-			// Move to the AWAIT_AUTH state
-			return onLocalAuth(txn, sNew);
+		switch (s.getState()) {
+			case AWAIT_RESPONSES:
+				return IntroduceeSession.addLocalAccept(s, LOCAL_ACCEPTED, sent,
+						publicKey, privateKey, localTimestamp,
+						transportProperties);
+			case REMOTE_DECLINED:
+				return IntroduceeSession.clear(s, START, sent.getId(),
+						localTimestamp, s.getLastRemoteMessageId());
+			case REMOTE_ACCEPTED:
+				return onLocalAuth(txn, IntroduceeSession.addLocalAccept(s,
+						AWAIT_AUTH, sent, publicKey, privateKey, localTimestamp,
+						transportProperties));
+			default:
+				throw new AssertionError();
 		}
-		// Move to the LOCAL_ACCEPTED state
-		return sNew;
 	}
 
 	private IntroduceeSession onLocalDecline(Transaction txn,
@@ -308,10 +318,9 @@ class IntroduceeProtocolEngine
 
 		// Move to the START or LOCAL_DECLINED state, if still awaiting response
 		IntroduceeState state =
-				s.getState() == REMOTE_ACCEPTED ? START : LOCAL_DECLINED;
-		return IntroduceeSession
-				.clear(s, state, sent.getId(), sent.getTimestamp(),
-						s.getLastRemoteMessageId());
+				s.getState() == AWAIT_RESPONSES ? LOCAL_DECLINED : START;
+		return IntroduceeSession.clear(s, state, sent.getId(),
+				sent.getTimestamp(), s.getLastRemoteMessageId());
 	}
 
 	private IntroduceeSession onRemoteAccept(Transaction txn,
@@ -357,22 +366,10 @@ class IntroduceeProtocolEngine
 		broadcastIntroductionResponseReceivedEvent(txn, s,
 				s.getIntroducer().getId(), s.getRemote().author, m);
 
-		if (s.getState() == AWAIT_RESPONSES) {
-			// Mark the request message unavailable to answer
-			markRequestsUnavailableToAnswer(txn, s);
-
-			// Send a DECLINE message
-			Message sent =
-					sendDeclineMessage(txn, s, getLocalTimestamp(s), false);
-
-			// Move back to START state
-			return IntroduceeSession.clear(s, START, sent.getId(),
-					sent.getTimestamp(), m.getMessageId());
-		} else {
-			// Move back to START state
-			return IntroduceeSession.clear(s, START, s.getLastLocalMessageId(),
-					s.getLocalTimestamp(), m.getMessageId());
-		}
+		// Move to REMOTE_DECLINED state
+		return IntroduceeSession.clear(s, REMOTE_DECLINED,
+				s.getLastLocalMessageId(), s.getLocalTimestamp(),
+				m.getMessageId());
 	}
 
 	private IntroduceeSession onRemoteResponseWhenDeclined(Transaction txn,
@@ -384,6 +381,17 @@ class IntroduceeProtocolEngine
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
+
+		// Mark the response visible in the UI
+		markMessageVisibleInUi(txn, m.getMessageId());
+
+		// Track the incoming message
+		messageTracker
+				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
+
+		// Broadcast IntroductionResponseReceivedEvent
+		broadcastIntroductionResponseReceivedEvent(txn, s,
+				s.getIntroducer().getId(), s.getRemote().author, m);
 
 		// Move to START state
 		return IntroduceeSession.clear(s, START, s.getLastLocalMessageId(),
@@ -525,9 +533,8 @@ class IntroduceeProtocolEngine
 		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
 
 		// Reset the session back to initial state
-		return IntroduceeSession
-				.clear(s, START, sent.getId(), sent.getTimestamp(),
-						s.getLastRemoteMessageId());
+		return IntroduceeSession.clear(s, START, sent.getId(),
+				sent.getTimestamp(), s.getLastRemoteMessageId());
 	}
 
 	private boolean isInvalidDependency(IntroduceeSession s,

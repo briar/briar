@@ -17,7 +17,6 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Message;
@@ -39,15 +38,12 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.Logger;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
-import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.briarproject.bramble.test.TestUtils.getTransportProperties;
 import static org.briarproject.bramble.test.TestUtils.getTransportPropertiesMap;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
@@ -85,9 +81,6 @@ public class IntroductionIntegrationTest
 	private IntroducerListener listener0;
 	private IntroduceeListener listener1;
 	private IntroduceeListener listener2;
-
-	private static final Logger LOG =
-			Logger.getLogger(IntroductionIntegrationTest.class.getName());
 
 	interface StateVisitor {
 		AcceptMessage visit(AcceptMessage response);
@@ -374,65 +367,12 @@ public class IntroductionIntegrationTest
 		assertEquals(2,
 				introductionManager0.getIntroductionMessages(contactId2From0)
 						.size());
-		// introducee1 also sees the decline response from introducee2
 		assertEquals(3,
 				introductionManager1.getIntroductionMessages(contactId0From1)
 						.size());
-		assertEquals(2,
+		assertEquals(3,
 				introductionManager2.getIntroductionMessages(contactId0From2)
 						.size());
-		assertFalse(listener0.aborted);
-		assertFalse(listener1.aborted);
-		assertFalse(listener2.aborted);
-	}
-
-	@Test
-	public void testIntroductionSessionDelayedFirstDecline() throws Exception {
-		addListeners(false, false);
-
-		// make introduction
-		long time = clock.currentTimeMillis();
-		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
-
-		// sync request messages
-		sync0To1(1, true);
-		sync0To2(1, true);
-
-		// wait for requests to arrive
-		eventWaiter.await(TIMEOUT, 2);
-		assertTrue(listener1.requestReceived);
-		assertTrue(listener2.requestReceived);
-
-		// sync first response
-		sync1To0(1, true);
-		eventWaiter.await(TIMEOUT, 1);
-		assertTrue(listener0.response1Received);
-
-		// sync fake transport properties back to 1, so Message ACK can arrive
-		// and the assertDefaultUiMessages() check at the end will not fail
-		TransportProperties tp = new TransportProperties(
-				Collections.singletonMap("key", "value"));
-		c0.getTransportPropertyManager()
-				.mergeLocalProperties(getTransportId(), tp);
-		sync0To1(1, true);
-
-		// sync second response
-		sync2To0(1, true);
-		eventWaiter.await(TIMEOUT, 1);
-		assertTrue(listener0.response2Received);
-
-		// sync first forwarded response
-		sync0To2(1, true);
-
-		// note how the second response will not be forwarded anymore
-
-		assertFalse(contactManager1
-				.contactExists(author2.getId(), author1.getId()));
-		assertFalse(contactManager2
-				.contactExists(author1.getId(), author2.getId()));
-
-		assertDefaultUiMessages();
 		assertFalse(listener0.aborted);
 		assertFalse(listener1.aborted);
 		assertFalse(listener2.aborted);
@@ -467,9 +407,8 @@ public class IntroductionIntegrationTest
 		assertTrue(listener2.requestReceived);
 
 		// answer request manually
-		introductionManager2
-				.respondToIntroduction(contactId0From2, listener2.sessionId, time,
-						true);
+		introductionManager2.respondToIntroduction(contactId0From2,
+				listener2.sessionId, time, true);
 
 		// sync second response and AUTH
 		sync2To0(2, true);
@@ -479,7 +418,7 @@ public class IntroductionIntegrationTest
 		// Forward AUTH
 		sync0To1(1, true);
 
-		// Second AUTH and ACTIATE and forward them
+		// Second AUTH and ACTIVATE and forward them
 		sync1To0(2, true);
 		sync0To2(2, true);
 
@@ -495,13 +434,12 @@ public class IntroductionIntegrationTest
 	}
 
 	/**
-	 * When an introducee declines an introduction,
-	 * the other introducee needs to respond before returning to START state,
-	 * otherwise a subsequent attempt at introducing the same contacts will fail
+	 * When an introducee declines an introduction, the other introducee needs
+	 * to respond before returning to the START state, otherwise a subsequent
+	 * attempt at introducing the same contacts will fail.
 	 */
 	@Test
-	public void testAutomaticSecondDecline() throws Exception {
-		// introducee1 declines automatically and introducee2 doesn't answer
+	public void testIntroductionSessionManualDecline() throws Exception {
 		addListeners(false, true);
 		listener2.answerRequests = false;
 
@@ -547,9 +485,18 @@ public class IntroductionIntegrationTest
 
 		// assert that introducee2 is in correct state
 		introduceeSession = getIntroduceeSession(c2);
+		assertEquals(IntroduceeState.REMOTE_DECLINED,
+				introduceeSession.getState());
+
+		// answer request manually
+		introductionManager2.respondToIntroduction(contactId0From2,
+				listener2.sessionId, time, false);
+
+		// now introducee2 should have returned to the START state
+		introduceeSession = getIntroduceeSession(c2);
 		assertEquals(IntroduceeState.START, introduceeSession.getState());
 
-		// second response should be an immediate automatic DECLINE
+		// sync second response
 		sync2To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response2Received);
@@ -562,7 +509,7 @@ public class IntroductionIntegrationTest
 		introduceeSession = getIntroduceeSession(c1);
 		assertEquals(LOCAL_DECLINED, introduceeSession.getState());
 
-		// forward automatic decline
+		// forward second response
 		sync0To1(1, true);
 
 		// introducee1 can finally move to the START
@@ -579,16 +526,14 @@ public class IntroductionIntegrationTest
 				introductionManager0.getIntroductionMessages(contactId2From0)
 						.size());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
-		assertEquals(2,
+		assertEquals(3,
 				introductionManager1.getIntroductionMessages(contactId0From1)
 						.size());
-		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
-		// the automatic DECLINE is invisible in the UI
-		// so there's just the remote REQUEST and remote DECLINE
-		assertEquals(2,
+		assertGroupCount(messageTracker1, g1.getId(), 3, 2);
+		assertEquals(3,
 				introductionManager2.getIntroductionMessages(contactId0From2)
 						.size());
-		assertGroupCount(messageTracker2, g2.getId(), 2, 2);
+		assertGroupCount(messageTracker2, g2.getId(), 3, 2);
 
 		assertFalse(listener0.aborted);
 		assertFalse(listener1.aborted);

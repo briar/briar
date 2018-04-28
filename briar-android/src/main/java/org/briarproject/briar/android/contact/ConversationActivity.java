@@ -575,10 +575,6 @@ public class ConversationActivity extends BriarActivity
 			@Override
 			public void onSuccess(String contactName) {
 				runOnUiThreadUnlessDestroyed(() -> {
-					// If the other introducee declined, we can no longer
-					// respond to the request
-					if (!m.isIntroducer() && !m.wasAccepted())
-						markRequestAnswered(m.getSessionId());
 					ConversationItem item = ConversationItem
 							.from(ConversationActivity.this, contactName, m);
 					addConversationItem(item);
@@ -629,26 +625,6 @@ public class ConversationActivity extends BriarActivity
 						() -> handleDbException((DbException) exception));
 			}
 		});
-	}
-
-	private void markRequestAnswered(SessionId sessionId) {
-		int size = adapter.getItemCount();
-		for (int i = 0; i < size; i++) {
-			ConversationItem item = adapter.getItemAt(i);
-			if (item instanceof ConversationRequestItem) {
-				ConversationRequestItem req = (ConversationRequestItem) item;
-				if (req.getSessionId().equals(sessionId)
-						&& !req.wasAnswered()) {
-					LOG.info("Marking request answered");
-					req.setAnswered(true);
-					int position = adapter.findItemPosition(req);
-					if (position != INVALID_POSITION)
-						adapter.notifyItemChanged(position, req);
-					// There shouldn't be more than one unanswered request
-					return;
-				}
-			}
-		}
 	}
 
 	private void markMessages(Collection<MessageId> messageIds,
