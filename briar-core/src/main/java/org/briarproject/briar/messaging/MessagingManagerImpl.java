@@ -71,7 +71,6 @@ class MessagingManagerImpl extends ConversationClientImpl
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Create a group to share with the contact
 		Group g = getContactGroup(c);
-		// Store the group and share it with the contact
 		db.addGroup(txn, g);
 		// Apply the client's visibility to the contact group
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
