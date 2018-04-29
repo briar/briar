@@ -262,6 +262,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 			storeClientVersions(txn, newVersions);
 			return true;
 		}
+		if (ids.size() != 1) throw new DbException();
 		MessageId m = ids.iterator().next();
 		List<ClientVersion> oldVersions = loadClientVersions(txn, m);
 		if (oldVersions.equals(newVersions)) return false;
