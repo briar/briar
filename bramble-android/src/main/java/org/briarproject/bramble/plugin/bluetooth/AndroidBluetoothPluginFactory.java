@@ -59,11 +59,13 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 
 	@Override
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
+		BluetoothConnectionLimiter connectionLimiter =
+				new BluetoothConnectionLimiterImpl();
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		AndroidBluetoothPlugin plugin = new AndroidBluetoothPlugin(ioExecutor,
-				androidExecutor, appContext, secureRandom, backoff, callback,
-				MAX_LATENCY);
+		AndroidBluetoothPlugin plugin = new AndroidBluetoothPlugin(
+				connectionLimiter, ioExecutor, androidExecutor, appContext,
+				secureRandom, backoff, callback, MAX_LATENCY);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

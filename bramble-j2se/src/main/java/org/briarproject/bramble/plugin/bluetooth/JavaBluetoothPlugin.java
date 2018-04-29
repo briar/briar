@@ -31,9 +31,11 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 	// Non-null if the plugin started successfully
 	private volatile LocalDevice localDevice = null;
 
-	JavaBluetoothPlugin(Executor ioExecutor, SecureRandom secureRandom,
+	JavaBluetoothPlugin(BluetoothConnectionLimiter connectionManager,
+			Executor ioExecutor, SecureRandom secureRandom,
 			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
-		super(ioExecutor, secureRandom, backoff, callback, maxLatency);
+		super(connectionManager, ioExecutor, secureRandom, backoff, callback,
+				maxLatency);
 	}
 
 	@Override
@@ -110,6 +112,6 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 	}
 
 	private DuplexTransportConnection wrapSocket(StreamConnection s) {
-		return new JavaBluetoothTransportConnection(this, s);
+		return new JavaBluetoothTransportConnection(this, connectionLimiter, s);
 	}
 }

@@ -14,10 +14,14 @@ import java.io.OutputStream;
 class AndroidBluetoothTransportConnection
 		extends AbstractDuplexTransportConnection {
 
+	private final BluetoothConnectionLimiter connectionManager;
 	private final BluetoothSocket socket;
 
-	AndroidBluetoothTransportConnection(Plugin plugin, BluetoothSocket socket) {
+	AndroidBluetoothTransportConnection(Plugin plugin,
+			BluetoothConnectionLimiter connectionManager,
+			BluetoothSocket socket) {
 		super(plugin);
+		this.connectionManager = connectionManager;
 		this.socket = socket;
 	}
 
@@ -33,6 +37,10 @@ class AndroidBluetoothTransportConnection
 
 	@Override
 	protected void closeConnection(boolean exception) throws IOException {
-		socket.close();
+		try {
+			socket.close();
+		} finally {
+			connectionManager.connectionClosed(this);
+		}
 	}
 }
