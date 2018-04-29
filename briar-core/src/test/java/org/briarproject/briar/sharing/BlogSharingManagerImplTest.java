@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
@@ -24,7 +25,6 @@ import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -39,17 +39,18 @@ import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
-import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.blog.BlogSharingManager.MAJOR_VERSION;
 import static org.briarproject.briar.sharing.SharingConstants.GROUP_KEY_CONTACT_ID;
 
 public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 
-	private final Mockery context = new Mockery();
 	private final BlogSharingManagerImpl blogSharingManager;
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final IdentityManager identityManager =
 			context.mock(IdentityManager.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
+	private final ClientVersioningManager clientVersioningManager =
+			context.mock(ClientVersioningManager.class);
 	private final SessionEncoder sessionEncoder =
 			context.mock(SessionEncoder.class);
 	private final SessionParser sessionParser =
@@ -65,11 +66,13 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 			new Contact(contactId, author, localAuthor.getId(), true, true);
 	private final Collection<Contact> contacts =
 			Collections.singletonList(contact);
-	private final Group localGroup = getGroup(CLIENT_ID);
-	private final Group contactGroup = getGroup(CLIENT_ID);
-	private final Group blogGroup = getGroup(BlogManager.CLIENT_ID);
+	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
+	private final Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
+	private final Group blogGroup =
+			getGroup(BlogManager.CLIENT_ID, BlogManager.MAJOR_VERSION);
 	private final Blog blog = new Blog(blogGroup, author, false);
-	private final Group localBlogGroup = getGroup(BlogManager.CLIENT_ID);
+	private final Group localBlogGroup =
+			getGroup(BlogManager.CLIENT_ID, BlogManager.MAJOR_VERSION);
 	private final Blog localBlog = new Blog(localBlogGroup, localAuthor, false);
 	@SuppressWarnings("unchecked")
 	private final ProtocolEngine<Blog> engine =
@@ -78,25 +81,26 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	@SuppressWarnings("unchecked")
 	public BlogSharingManagerImplTest() {
 		MetadataParser metadataParser = context.mock(MetadataParser.class);
-		MessageTracker messageTracker = context.mock(MessageTracker.class);
 		MessageParser<Blog> messageParser = context.mock(MessageParser.class);
+		MessageTracker messageTracker = context.mock(MessageTracker.class);
 		InvitationFactory<Blog, BlogInvitationResponse> invitationFactory =
 				context.mock(InvitationFactory.class);
 		blogSharingManager = new BlogSharingManagerImpl(db, clientHelper,
-				metadataParser, messageParser, sessionEncoder, sessionParser,
-				messageTracker, contactGroupFactory, engine, invitationFactory,
-				identityManager, blogManager);
+				clientVersioningManager, metadataParser, messageParser,
+				sessionEncoder, sessionParser, messageTracker,
+				contactGroupFactory, engine, invitationFactory, identityManager,
+				blogManager);
 	}
 
 	@Test
-	public void testCreateLocalStateFirstTimeWithExistingContactNotSetUp()
+	public void testCreateLocalStateFirstTimeWithExistingContact()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// The local group doesn't exist - we need to set things up
 			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
-					CLIENT_VERSION);
+					MAJOR_VERSION);
 			will(returnValue(localGroup));
 			oneOf(db).containsGroup(txn, localGroup.getId());
 			will(returnValue(false));
@@ -117,20 +121,14 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		Map<MessageId, BdfDictionary> sessions = Collections.emptyMap();
 
 		context.checking(new Expectations() {{
-			// Check for contact group in BlogSharingManagerImpl
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(false));
-			// Check for contact group again in SharingManagerImpl
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(false));
 			// Create the contact group and share it with the contact
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
 			oneOf(db).addGroup(txn, contactGroup);
+			oneOf(clientVersioningManager).getClientVisibility(txn, contactId,
+					CLIENT_ID, MAJOR_VERSION);
+			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contactId, contactGroup.getId(),
 					SHARED);
 			// Attach the contact ID to the group
@@ -150,40 +148,13 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testCreateLocalStateFirstTimeWithExistingContactAlreadySetUp()
-			throws Exception {
-		Transaction txn = new Transaction(null, false);
-
-		context.checking(new Expectations() {{
-			// The local group doesn't exist - we need to set things up
-			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
-					CLIENT_VERSION);
-			will(returnValue(localGroup));
-			oneOf(db).containsGroup(txn, localGroup.getId());
-			will(returnValue(false));
-			oneOf(db).addGroup(txn, localGroup);
-			// Get contacts
-			oneOf(db).getContacts(txn);
-			will(returnValue(contacts));
-			// The contact has already been set up
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(true));
-		}});
-
-		blogSharingManager.createLocalState(txn);
-	}
-
-	@Test
 	public void testCreateLocalStateSubsequentTime() throws Exception {
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			// The local group exists - everything has been set up
 			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
-					CLIENT_VERSION);
+					MAJOR_VERSION);
 			will(returnValue(localGroup));
 			oneOf(db).containsGroup(txn, localGroup.getId());
 			will(returnValue(true));
@@ -225,13 +196,13 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	private void expectPreShareShareable(Transaction txn, Contact contact,
 			Blog blog, Map<MessageId, BdfDictionary> sessions)
 			throws Exception {
-		Group contactGroup = getGroup(CLIENT_ID);
+		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		BdfDictionary sessionDict = new BdfDictionary();
 		Message message = new Message(new MessageId(getRandomId()),
 				contactGroup.getId(), 42L, getRandomBytes(1337));
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact);
+					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(sessionParser)
 					.getSessionQuery(new SessionId(blog.getId().getBytes()));
@@ -241,6 +212,10 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(sessions));
 			if (sessions.size() == 0) {
 				oneOf(db).addGroup(txn, blog.getGroup());
+				oneOf(clientVersioningManager).getClientVisibility(txn,
+						contactId, BlogManager.CLIENT_ID,
+						BlogManager.MAJOR_VERSION);
+				will(returnValue(SHARED));
 				oneOf(db).setGroupVisibility(txn, contact.getId(),
 						blog.getGroup().getId(), SHARED);
 				oneOf(clientHelper)
@@ -265,7 +240,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact);
+					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(sessionParser)
 					.getSessionQuery(new SessionId(blog.getId().getBytes()));

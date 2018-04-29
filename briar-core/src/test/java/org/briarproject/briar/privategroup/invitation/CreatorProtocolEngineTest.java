@@ -19,9 +19,10 @@ import static org.junit.Assert.assertEquals;
 public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	private final CreatorProtocolEngine engine =
-			new CreatorProtocolEngine(db, clientHelper, privateGroupManager,
-					privateGroupFactory, groupMessageFactory, identityManager,
-					messageParser, messageEncoder, messageTracker, clock);
+			new CreatorProtocolEngine(db, clientHelper, clientVersioningManager,
+					privateGroupManager, privateGroupFactory,
+					groupMessageFactory, identityManager, messageParser,
+					messageEncoder, messageTracker, clock);
 
 	private CreatorSession getDefaultSession(CreatorState state) {
 		return new CreatorSession(contactGroupId, privateGroupId,

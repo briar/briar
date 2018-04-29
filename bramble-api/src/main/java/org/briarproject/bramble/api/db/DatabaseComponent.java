@@ -241,7 +241,8 @@ public interface DatabaseComponent {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<Group> getGroups(Transaction txn, ClientId c) throws DbException;
+	Collection<Group> getGroups(Transaction txn, ClientId c, int majorVersion)
+			throws DbException;
 
 	/**
 	 * Returns the given group's visibility to the given contact, or
@@ -265,6 +266,14 @@ public interface DatabaseComponent {
 	 * Read-only.
 	 */
 	Collection<LocalAuthor> getLocalAuthors(Transaction txn) throws DbException;
+
+	/**
+	 * Returns the IDs of all messages in the given group.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<MessageId> getMessageIds(Transaction txn, GroupId g)
+		throws DbException;
 
 	/**
 	 * Returns the IDs of any messages that need to be validated.

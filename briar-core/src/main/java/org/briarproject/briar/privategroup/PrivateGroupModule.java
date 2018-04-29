@@ -16,6 +16,7 @@ import dagger.Module;
 import dagger.Provides;
 
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
+import static org.briarproject.briar.api.privategroup.PrivateGroupManager.MAJOR_VERSION;
 
 @Module
 public class PrivateGroupModule {
@@ -32,7 +33,8 @@ public class PrivateGroupModule {
 	PrivateGroupManager provideGroupManager(
 			PrivateGroupManagerImpl groupManager,
 			ValidationManager validationManager) {
-		validationManager.registerIncomingMessageHook(CLIENT_ID, groupManager);
+		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
+				groupManager);
 		return groupManager;
 	}
 
@@ -58,7 +60,8 @@ public class PrivateGroupModule {
 		GroupMessageValidator validator = new GroupMessageValidator(
 				privateGroupFactory, clientHelper, metadataEncoder, clock,
 				groupInvitationFactory);
-		validationManager.registerMessageValidator(CLIENT_ID, validator);
+		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
+				validator);
 		return validator;
 	}
 

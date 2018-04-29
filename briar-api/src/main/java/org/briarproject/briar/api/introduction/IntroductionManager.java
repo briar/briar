@@ -21,14 +21,19 @@ public interface IntroductionManager extends ConversationClient {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.introduction");
 
 	/**
-	 * The current version of the introduction client.
+	 * The current major version of the introduction client.
 	 */
-	int CLIENT_VERSION = 1;
+	int MAJOR_VERSION = 1;
 
 	/**
 	 * Returns true if both contacts can be introduced at this moment.
 	 */
 	boolean canIntroduce(Contact c1, Contact c2) throws DbException;
+
+	/**
+	 * The current minor version of the introduction client.
+	 */
+	int MINOR_VERSION = 0;
 
 	/**
 	 * Sends two initial introduction messages.

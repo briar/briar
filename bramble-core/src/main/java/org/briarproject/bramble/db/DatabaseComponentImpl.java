@@ -435,10 +435,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public Collection<Group> getGroups(Transaction transaction, ClientId c)
-			throws DbException {
+	public Collection<Group> getGroups(Transaction transaction, ClientId c,
+			int majorVersion) throws DbException {
 		T txn = unbox(transaction);
-		return db.getGroups(txn, c);
+		return db.getGroups(txn, c, majorVersion);
 	}
 
 	@Override
@@ -464,6 +464,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throws DbException {
 		T txn = unbox(transaction);
 		return db.getLocalAuthors(txn);
+	}
+
+	@Override
+	public Collection<MessageId> getMessageIds(Transaction transaction,
+			GroupId g) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsGroup(txn, g))
+			throw new NoSuchGroupException();
+		return db.getMessageIds(txn, g);
 	}
 
 	@Override

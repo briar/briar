@@ -36,7 +36,7 @@ import static org.briarproject.briar.api.blog.BlogConstants.KEY_PARENT_MSG_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_READ;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_RSS_FEED;
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
-import static org.briarproject.briar.api.blog.BlogManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.blog.BlogManager.MAJOR_VERSION;
 import static org.briarproject.briar.api.blog.BlogPostFactory.SIGNING_LABEL_COMMENT;
 import static org.briarproject.briar.api.blog.BlogPostFactory.SIGNING_LABEL_POST;
 import static org.briarproject.briar.api.blog.MessageType.COMMENT;
@@ -64,7 +64,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	private final String body = getRandomString(42);
 
 	public BlogPostValidatorTest() {
-		group = getGroup(CLIENT_ID);
+		group = getGroup(CLIENT_ID, MAJOR_VERSION);
 		descriptor = group.getDescriptor();
 		author = getAuthor();
 		authorList = BdfList.of(
@@ -206,7 +206,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		byte[] originalBody = getRandomBytes(42);
 
 		context.checking(new Expectations() {{
-			oneOf(groupFactory).createGroup(CLIENT_ID, CLIENT_VERSION,
+			oneOf(groupFactory).createGroup(CLIENT_ID, MAJOR_VERSION,
 					descriptor);
 			will(returnValue(b.getGroup()));
 			oneOf(blogFactory).parseBlog(b.getGroup());
@@ -250,7 +250,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		byte[] originalBody = getRandomBytes(42);
 
 		context.checking(new Expectations() {{
-			oneOf(groupFactory).createGroup(CLIENT_ID, CLIENT_VERSION,
+			oneOf(groupFactory).createGroup(CLIENT_ID, MAJOR_VERSION,
 					descriptor);
 			will(returnValue(blog.getGroup()));
 			oneOf(clientHelper).toByteArray(originalList);

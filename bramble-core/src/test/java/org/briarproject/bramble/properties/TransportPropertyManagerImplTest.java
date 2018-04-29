@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
 import org.junit.Test;
@@ -29,8 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
-import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_VERSION;
+import static org.briarproject.bramble.api.properties.TransportPropertyManager.MAJOR_VERSION;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
@@ -45,13 +47,15 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
+	private final ClientVersioningManager clientVersioningManager =
+			context.mock(ClientVersioningManager.class);
 	private final MetadataParser metadataParser =
 			context.mock(MetadataParser.class);
 	private final ContactGroupFactory contactGroupFactory =
 			context.mock(ContactGroupFactory.class);
 	private final Clock clock = context.mock(Clock.class);
 
-	private final Group localGroup = getGroup(CLIENT_ID);
+	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final BdfDictionary fooPropertiesDict = BdfDictionary.of(
 			new BdfEntry("fooKey1", "fooValue1"),
@@ -77,49 +81,41 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	private TransportPropertyManagerImpl createInstance() {
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
-					CLIENT_VERSION);
+					MAJOR_VERSION);
 			will(returnValue(localGroup));
 		}});
 		return new TransportPropertyManagerImpl(db, clientHelper,
-				metadataParser, contactGroupFactory, clock);
+				clientVersioningManager, metadataParser, contactGroupFactory,
+				clock);
 	}
 
 	@Test
 	public void testCreatesGroupsAtStartup() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Contact contact1 = getContact(true);
-		Contact contact2 = getContact(true);
-		List<Contact> contacts = Arrays.asList(contact1, contact2);
-		Group contactGroup1 = getGroup(CLIENT_ID);
-		Group contactGroup2 = getGroup(CLIENT_ID);
+		Contact contact = getContact(true);
+		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 
 		context.checking(new Expectations() {{
 			oneOf(db).containsGroup(txn, localGroup.getId());
 			will(returnValue(false));
 			oneOf(db).addGroup(txn, localGroup);
 			oneOf(db).getContacts(txn);
-			will(returnValue(contacts));
-			// The first contact's group has already been set up
+			will(returnValue(singletonList(contact)));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact1);
-			will(returnValue(contactGroup1));
-			oneOf(db).containsGroup(txn, contactGroup1.getId());
-			will(returnValue(true));
-			// The second contact's group hasn't been set up
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact2);
-			will(returnValue(contactGroup2));
-			oneOf(db).containsGroup(txn, contactGroup2.getId());
-			will(returnValue(false));
-			oneOf(db).addGroup(txn, contactGroup2);
-			oneOf(db).setGroupVisibility(txn, contact2.getId(),
-					contactGroup2.getId(), SHARED);
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).addGroup(txn, contactGroup);
+			oneOf(clientVersioningManager).getClientVisibility(txn,
+					contact.getId(), CLIENT_ID, MAJOR_VERSION);
+			will(returnValue(SHARED));
+			oneOf(db).setGroupVisibility(txn, contact.getId(),
+					contactGroup.getId(), SHARED);
 		}});
 		// Copy the latest local properties into the group
 		expectGetLocalProperties(txn);
-		expectStoreMessage(txn, contactGroup2.getId(), "foo", fooPropertiesDict,
+		expectStoreMessage(txn, contactGroup.getId(), "foo", fooPropertiesDict,
 				1, true, true);
-		expectStoreMessage(txn, contactGroup2.getId(), "bar", barPropertiesDict,
+		expectStoreMessage(txn, contactGroup.getId(), "bar", barPropertiesDict,
 				1, true, true);
 
 		TransportPropertyManagerImpl t = createInstance();
@@ -144,16 +140,17 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testCreatesContactGroupWhenAddingContact() throws Exception {
 		Transaction txn = new Transaction(null, false);
 		Contact contact = getContact(true);
-		Group contactGroup = getGroup(CLIENT_ID);
+		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 
 		context.checking(new Expectations() {{
 			// Create the group and share it with the contact
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact);
+					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(false));
 			oneOf(db).addGroup(txn, contactGroup);
+			oneOf(clientVersioningManager).getClientVisibility(txn,
+					contact.getId(), CLIENT_ID, MAJOR_VERSION);
+			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
 					contactGroup.getId(), SHARED);
 		}});
@@ -172,11 +169,11 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testRemovesGroupWhenRemovingContact() throws Exception {
 		Transaction txn = new Transaction(null, false);
 		Contact contact = getContact(true);
-		Group contactGroup = getGroup(CLIENT_ID);
+		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact);
+					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(db).removeGroup(txn, contactGroup);
 		}});
@@ -307,7 +304,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testStoresRemotePropertiesWithVersion0() throws Exception {
 		Contact contact = getContact(true);
-		Group contactGroup = getGroup(CLIENT_ID);
+		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		Transaction txn = new Transaction(null, false);
 		Map<TransportId, TransportProperties> properties =
 				new LinkedHashMap<>();
@@ -318,7 +315,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getContact(txn, contact.getId());
 			will(returnValue(contact));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact);
+					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 		}});
 		expectStoreMessage(txn, contactGroup.getId(), "foo", fooPropertiesDict,
@@ -421,8 +418,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Contact contact3 = getContact(true);
 		List<Contact> contacts =
 				Arrays.asList(contact1, contact2, contact3);
-		Group contactGroup2 = getGroup(CLIENT_ID);
-		Group contactGroup3 = getGroup(CLIENT_ID);
+		Group contactGroup2 = getGroup(CLIENT_ID, MAJOR_VERSION);
+		Group contactGroup3 = getGroup(CLIENT_ID, MAJOR_VERSION);
 		Map<MessageId, BdfDictionary> messageMetadata3 =
 				new LinkedHashMap<>();
 		// A remote update for another transport should be ignored
@@ -456,14 +453,14 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			// First contact: skipped because not active
 			// Second contact: no updates
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact2);
+					MAJOR_VERSION, contact2);
 			will(returnValue(contactGroup2));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup2.getId());
 			will(returnValue(Collections.emptyMap()));
 			// Third contact: returns an update
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact3);
+					MAJOR_VERSION, contact3);
 			will(returnValue(contactGroup3));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup3.getId());
@@ -524,7 +521,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testMergingNewPropertiesCreatesUpdate() throws Exception {
 		Transaction txn = new Transaction(null, false);
 		Contact contact = getContact(true);
-		Group contactGroup = getGroup(CLIENT_ID);
+		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(false);
@@ -538,9 +535,9 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 					fooPropertiesDict, 1, true, false);
 			// Store the new properties in each contact's group, version 1
 			oneOf(db).getContacts(txn);
-			will(returnValue(Collections.singletonList(contact)));
+			will(returnValue(singletonList(contact)));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact);
+					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
@@ -559,7 +556,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testMergingUpdatedPropertiesCreatesUpdate() throws Exception {
 		Transaction txn = new Transaction(null, false);
 		Contact contact = getContact(true);
-		Group contactGroup = getGroup(CLIENT_ID);
+		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		BdfDictionary oldMetadata = BdfDictionary.of(
 				new BdfEntry("transportId", "foo"),
 				new BdfEntry("version", 1),
@@ -597,9 +594,9 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).removeMessage(txn, localGroupUpdateId);
 			// Store the merged properties in each contact's group, version 2
 			oneOf(db).getContacts(txn);
-			will(returnValue(Collections.singletonList(contact)));
+			will(returnValue(singletonList(contact)));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					CLIENT_VERSION, contact);
+					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());

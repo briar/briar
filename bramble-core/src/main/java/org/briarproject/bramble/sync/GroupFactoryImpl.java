@@ -28,12 +28,12 @@ class GroupFactoryImpl implements GroupFactory {
 	}
 
 	@Override
-	public Group createGroup(ClientId c, int clientVersion, byte[] descriptor) {
-		byte[] clientVersionBytes = new byte[INT_32_BYTES];
-		ByteUtils.writeUint32(clientVersion, clientVersionBytes, 0);
+	public Group createGroup(ClientId c, int majorVersion, byte[] descriptor) {
+		byte[] majorVersionBytes = new byte[INT_32_BYTES];
+		ByteUtils.writeUint32(majorVersion, majorVersionBytes, 0);
 		byte[] hash = crypto.hash(LABEL, new byte[] {FORMAT_VERSION},
-				StringUtils.toUtf8(c.getString()), clientVersionBytes,
+				StringUtils.toUtf8(c.getString()), majorVersionBytes,
 				descriptor);
-		return new Group(new GroupId(hash), c, descriptor);
+		return new Group(new GroupId(hash), c, majorVersion, descriptor);
 	}
 }

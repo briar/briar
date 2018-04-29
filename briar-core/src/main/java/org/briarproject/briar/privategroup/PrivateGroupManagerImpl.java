@@ -271,7 +271,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		Collection<Group> groups;
 		Transaction txn = db.startTransaction(true);
 		try {
-			groups = db.getGroups(txn, CLIENT_ID);
+			groups = db.getGroups(txn, CLIENT_ID, MAJOR_VERSION);
 			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);

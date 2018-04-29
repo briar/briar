@@ -496,7 +496,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	}
 
 	private Group getLocalGroup() {
-		return contactGroupFactory.createLocalGroup(CLIENT_ID, CLIENT_VERSION);
+		return contactGroupFactory.createLocalGroup(CLIENT_ID, MAJOR_VERSION);
 	}
 
 }

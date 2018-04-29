@@ -11,10 +11,12 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
@@ -24,6 +26,7 @@ import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.jmock.Expectations;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
@@ -33,6 +36,7 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROU
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_MSG_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
+import static org.briarproject.briar.api.privategroup.PrivateGroupManager.MAJOR_VERSION;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
@@ -46,6 +50,8 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 			context.mock(DatabaseComponent.class);
 	protected final ClientHelper clientHelper =
 			context.mock(ClientHelper.class);
+	protected final ClientVersioningManager clientVersioningManager =
+			context.mock(ClientVersioningManager.class);
 	protected final PrivateGroupFactory privateGroupFactory =
 			context.mock(PrivateGroupFactory.class);
 	protected final PrivateGroupManager privateGroupManager =
@@ -64,7 +70,8 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 
 	protected final Transaction txn = new Transaction(null, false);
 	protected final GroupId contactGroupId = new GroupId(getRandomId());
-	protected final Group privateGroupGroup = getGroup(CLIENT_ID);
+	protected final Group privateGroupGroup =
+			getGroup(CLIENT_ID, MAJOR_VERSION);
 	protected final GroupId privateGroupId = privateGroupGroup.getId();
 	protected final Author author = getAuthor();
 	protected final PrivateGroup privateGroup =
@@ -179,10 +186,13 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		}});
 	}
 
-	protected void expectSetPrivateGroupVisibility(Group.Visibility v)
+	protected void expectSetPrivateGroupVisibility(Visibility v)
 			throws Exception {
 		expectGetContactId();
 		context.checking(new Expectations() {{
+			oneOf(clientVersioningManager).getClientVisibility(txn, contactId,
+					CLIENT_ID, MAJOR_VERSION);
+			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contactId, privateGroupId, v);
 		}});
 	}

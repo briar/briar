@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.client.ClientModule;
 import org.briarproject.bramble.contact.ContactModule;
+import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.crypto.CryptoModule;
 import org.briarproject.bramble.data.DataModule;
 import org.briarproject.bramble.db.DatabaseModule;
@@ -24,6 +25,7 @@ import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestSecureRandomModule;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
@@ -59,6 +61,7 @@ import dagger.Component;
 		ClientModule.class,
 		ContactModule.class,
 		CryptoModule.class,
+		CryptoExecutorModule.class,
 		DataModule.class,
 		DatabaseModule.class,
 		EventModule.class,
@@ -73,7 +76,8 @@ import dagger.Component;
 		SharingModule.class,
 		SyncModule.class,
 		SystemModule.class,
-		TransportModule.class
+		TransportModule.class,
+		VersioningModule.class
 })
 public interface BriarIntegrationTestComponent {
 
@@ -83,7 +87,7 @@ public interface BriarIntegrationTestComponent {
 
 	void inject(ContactModule.EagerSingletons init);
 
-	void inject(CryptoModule.EagerSingletons init);
+	void inject(CryptoExecutorModule.EagerSingletons init);
 
 	void inject(ForumModule.EagerSingletons init);
 
@@ -108,6 +112,8 @@ public interface BriarIntegrationTestComponent {
 	void inject(SystemModule.EagerSingletons init);
 
 	void inject(TransportModule.EagerSingletons init);
+
+	void inject(VersioningModule.EagerSingletons init);
 
 	LifecycleManager getLifecycleManager();
 

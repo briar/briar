@@ -3,6 +3,7 @@ package org.briarproject.bramble.api.sync;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 /**
@@ -33,15 +34,20 @@ public interface ValidationManager {
 	}
 
 	/**
-	 * Sets the message validator for the given client.
+	 * Registers the message validator for the given client. This method
+	 * should be called before {@link LifecycleManager#startServices(String)}.
 	 */
-	void registerMessageValidator(ClientId c, MessageValidator v);
+	void registerMessageValidator(ClientId c, int majorVersion,
+			MessageValidator v);
 
 	/**
-	 * Sets the incoming message hook for the given client. The hook will be
-	 * called once for each incoming message that passes validation.
+	 * Registers the incoming message hook for the given client. The hook will
+	 * be called once for each incoming message that passes validation. This
+	 * method should be called before
+	 * {@link LifecycleManager#startServices(String)}.
 	 */
-	void registerIncomingMessageHook(ClientId c, IncomingMessageHook hook);
+	void registerIncomingMessageHook(ClientId c, int majorVersion,
+			IncomingMessageHook hook);
 
 	interface MessageValidator {
 

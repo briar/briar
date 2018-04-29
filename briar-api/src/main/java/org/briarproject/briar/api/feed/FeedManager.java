@@ -16,9 +16,9 @@ public interface FeedManager {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.feed");
 
 	/**
-	 * The current version of the RSS feed client.
+	 * The current major version of the RSS feed client.
 	 */
-	int CLIENT_VERSION = 0;
+	int MAJOR_VERSION = 0;
 
 	/**
 	 * Adds an RSS feed as a new dedicated blog.

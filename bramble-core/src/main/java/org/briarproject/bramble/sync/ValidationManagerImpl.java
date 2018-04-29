@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
+import org.briarproject.bramble.api.versioning.ClientMajorVersion;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -51,8 +52,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	private final DatabaseComponent db;
 	private final Executor dbExecutor, validationExecutor;
 	private final MessageFactory messageFactory;
-	private final Map<ClientId, MessageValidator> validators;
-	private final Map<ClientId, IncomingMessageHook> hooks;
+	private final Map<ClientMajorVersion, MessageValidator> validators;
+	private final Map<ClientMajorVersion, IncomingMessageHook> hooks;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	@Inject
@@ -81,14 +82,15 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	@Override
-	public void registerMessageValidator(ClientId c, MessageValidator v) {
-		validators.put(c, v);
+	public void registerMessageValidator(ClientId c, int majorVersion,
+			MessageValidator v) {
+		validators.put(new ClientMajorVersion(c, majorVersion), v);
 	}
 
 	@Override
-	public void registerIncomingMessageHook(ClientId c,
+	public void registerIncomingMessageHook(ClientId c, int majorVersion,
 			IncomingMessageHook hook) {
-		hooks.put(c, hook);
+		hooks.put(new ClientMajorVersion(c, majorVersion), hook);
 	}
 
 	private void validateOutstandingMessagesAsync() {
@@ -199,9 +201,11 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						Message m = messageFactory.createMessage(id, raw);
 						Group g = db.getGroup(txn, m.getGroupId());
 						ClientId c = g.getClientId();
+						int majorVersion = g.getMajorVersion();
 						Metadata meta =
 								db.getMessageMetadataForValidator(txn, id);
-						DeliveryResult result = deliverMessage(txn, m, c, meta);
+						DeliveryResult result =
+								deliverMessage(txn, m, c, majorVersion, meta);
 						if (result.valid) {
 							pending.addAll(getPendingDependents(txn, id));
 							if (result.share) {
@@ -237,14 +241,16 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	@ValidationExecutor
 	private void validateMessage(Message m, Group g) {
-		MessageValidator v = validators.get(g.getClientId());
+		ClientMajorVersion cv =
+				new ClientMajorVersion(g.getClientId(), g.getMajorVersion());
+		MessageValidator v = validators.get(cv);
 		if (v == null) {
-			if (LOG.isLoggable(WARNING))
-				LOG.warning("No validator for " + g.getClientId().getString());
+			if (LOG.isLoggable(WARNING)) LOG.warning("No validator for " + cv);
 		} else {
 			try {
 				MessageContext context = v.validateMessage(m, g);
-				storeMessageContextAsync(m, g.getClientId(), context);
+				storeMessageContextAsync(m, g.getClientId(),
+						g.getMajorVersion(), context);
 			} catch (InvalidMessageException e) {
 				if (LOG.isLoggable(INFO))
 					LOG.log(INFO, e.toString(), e);
@@ -256,12 +262,13 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	private void storeMessageContextAsync(Message m, ClientId c,
-			MessageContext result) {
-		dbExecutor.execute(() -> storeMessageContext(m, c, result));
+			int majorVersion, MessageContext result) {
+		dbExecutor.execute(() ->
+				storeMessageContext(m, c, majorVersion, result));
 	}
 
 	@DatabaseExecutor
-	private void storeMessageContext(Message m, ClientId c,
+	private void storeMessageContext(Message m, ClientId c, int majorVersion,
 			MessageContext context) {
 		try {
 			MessageId id = m.getId();
@@ -292,7 +299,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 					Metadata meta = context.getMetadata();
 					db.mergeMessageMetadata(txn, id, meta);
 					if (allDelivered) {
-						DeliveryResult result = deliverMessage(txn, m, c, meta);
+						DeliveryResult result =
+								deliverMessage(txn, m, c, majorVersion, meta);
 						if (result.valid) {
 							pending = getPendingDependents(txn, id);
 							if (result.share) {
@@ -324,10 +332,11 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	@DatabaseExecutor
 	private DeliveryResult deliverMessage(Transaction txn, Message m,
-			ClientId c, Metadata meta) throws DbException {
+			ClientId c, int majorVersion, Metadata meta) throws DbException {
 		// Deliver the message to the client if it's registered a hook
 		boolean shareMsg = false;
-		IncomingMessageHook hook = hooks.get(c);
+		ClientMajorVersion cv = new ClientMajorVersion(c, majorVersion);
+		IncomingMessageHook hook = hooks.get(cv);
 		if (hook != null) {
 			try {
 				shareMsg = hook.incomingMessage(txn, m, meta);

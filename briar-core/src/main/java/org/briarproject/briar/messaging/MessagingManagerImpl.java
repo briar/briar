@@ -15,10 +15,13 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
@@ -33,21 +36,23 @@ import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
 @NotNullByDefault
 class MessagingManagerImpl extends ConversationClientImpl
-		implements MessagingManager, Client, ContactHook {
+		implements MessagingManager, Client, ContactHook, ClientVersioningHook {
 
+	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
 
 	@Inject
 	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory) {
 		super(db, clientHelper, metadataParser, messageTracker);
+		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
 	}
 
@@ -55,41 +60,49 @@ class MessagingManagerImpl extends ConversationClientImpl
 	public void createLocalState(Transaction txn) throws DbException {
 		// Create a local group to indicate that we've set this client up
 		Group localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
-				CLIENT_VERSION);
+				MAJOR_VERSION);
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
-		// Ensure we've set things up for any pre-existing contacts
+		// Set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
 
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
+		// Create a group to share with the contact
+		Group g = getContactGroup(c);
+		db.addGroup(txn, g);
+		// Apply the client's visibility to the contact group
+		Visibility client = clientVersioningManager.getClientVisibility(txn,
+				c.getId(), CLIENT_ID, MAJOR_VERSION);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
+		// Attach the contact ID to the group
+		BdfDictionary d = new BdfDictionary();
+		d.put("contactId", c.getId().getInt());
 		try {
-			// Create a group to share with the contact
-			Group g = getContactGroup(c);
-			// Return if we've already set things up for this contact
-			if (db.containsGroup(txn, g.getId())) return;
-			// Store the group and share it with the contact
-			db.addGroup(txn, g);
-			db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
-			// Attach the contact ID to the group
-			BdfDictionary d = new BdfDictionary();
-			d.put("contactId", c.getId().getInt());
 			clientHelper.mergeGroupMetadata(txn, g.getId(), d);
 		} catch (FormatException e) {
-			throw new RuntimeException(e);
+			throw new AssertionError(e);
 		}
 	}
 
 	@Override
 	public Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
-				CLIENT_VERSION, c);
+				MAJOR_VERSION, c);
 	}
 
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
 		db.removeGroup(txn, getContactGroup(c));
+	}
+
+	@Override
+	public void onClientVisibilityChanging(Transaction txn, Contact c,
+			Visibility v) throws DbException {
+		// Apply the client's visibility to the contact group
+		Group g = getContactGroup(c);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 
 	@Override

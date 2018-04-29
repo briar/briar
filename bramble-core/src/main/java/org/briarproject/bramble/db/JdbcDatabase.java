@@ -74,7 +74,7 @@ import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 37;
+	static final int CODE_SCHEMA_VERSION = 38;
 
 	// Rotation period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
@@ -117,6 +117,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE TABLE groups"
 					+ " (groupId _HASH NOT NULL,"
 					+ " clientId _STRING NOT NULL,"
+					+ " majorVersion INT NOT NULL,"
 					+ " descriptor _BINARY NOT NULL,"
 					+ " PRIMARY KEY (groupId))";
 
@@ -275,9 +276,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE INDEX IF NOT EXISTS contactsByAuthorId"
 					+ " ON contacts (authorId)";
 
-	private static final String INDEX_GROUPS_BY_CLIENT_ID =
-			"CREATE INDEX IF NOT EXISTS groupsByClientId"
-					+ " ON groups (clientId)";
+	private static final String INDEX_GROUPS_BY_CLIENT_ID_MAJOR_VERSION =
+			"CREATE INDEX IF NOT EXISTS groupsByClientIdMajorVersion"
+					+ " ON groups (clientId, majorVersion)";
 
 	private static final String INDEX_MESSAGE_METADATA_BY_GROUP_ID_STATE =
 			"CREATE INDEX IF NOT EXISTS messageMetadataByGroupIdState"
@@ -444,7 +445,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			s = txn.createStatement();
 			s.executeUpdate(INDEX_CONTACTS_BY_AUTHOR_ID);
-			s.executeUpdate(INDEX_GROUPS_BY_CLIENT_ID);
+			s.executeUpdate(INDEX_GROUPS_BY_CLIENT_ID_MAJOR_VERSION);
 			s.executeUpdate(INDEX_MESSAGE_METADATA_BY_GROUP_ID_STATE);
 			s.executeUpdate(INDEX_MESSAGE_DEPENDENCIES_BY_DEPENDENCY_ID);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_GROUP_ID);
@@ -612,12 +613,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void addGroup(Connection txn, Group g) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO groups (groupId, clientId, descriptor)"
-					+ " VALUES (?, ?, ?)";
+			String sql = "INSERT INTO groups"
+					+ " (groupId, clientId, majorVersion, descriptor)"
+					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setString(2, g.getClientId().getString());
-			ps.setBytes(3, g.getDescriptor());
+			ps.setInt(3, g.getMajorVersion());
+			ps.setBytes(4, g.getDescriptor());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -1346,17 +1349,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT clientId, descriptor FROM groups"
-					+ " WHERE groupId = ?";
+			String sql = "SELECT clientId, majorVersion, descriptor"
+					+ " FROM groups WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
 			if (!rs.next()) throw new DbStateException();
 			ClientId clientId = new ClientId(rs.getString(1));
-			byte[] descriptor = rs.getBytes(2);
+			int majorVersion = rs.getInt(2);
+			byte[] descriptor = rs.getBytes(3);
 			rs.close();
 			ps.close();
-			return new Group(g, clientId, descriptor);
+			return new Group(g, clientId, majorVersion, descriptor);
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1365,21 +1369,22 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Collection<Group> getGroups(Connection txn, ClientId c)
-			throws DbException {
+	public Collection<Group> getGroups(Connection txn, ClientId c,
+			int majorVersion) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT groupId, descriptor FROM groups"
-					+ " WHERE clientId = ?";
+					+ " WHERE clientId = ? AND majorVersion = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, c.getString());
+			ps.setInt(2, majorVersion);
 			rs = ps.executeQuery();
 			List<Group> groups = new ArrayList<>();
 			while (rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
 				byte[] descriptor = rs.getBytes(2);
-				groups.add(new Group(id, c, descriptor));
+				groups.add(new Group(id, c, majorVersion, descriptor));
 			}
 			rs.close();
 			ps.close();

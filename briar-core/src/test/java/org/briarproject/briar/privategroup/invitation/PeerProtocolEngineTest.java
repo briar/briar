@@ -24,9 +24,10 @@ import static org.junit.Assert.assertTrue;
 public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	private final PeerProtocolEngine engine =
-			new PeerProtocolEngine(db, clientHelper, privateGroupManager,
-					privateGroupFactory, groupMessageFactory, identityManager,
-					messageParser, messageEncoder, messageTracker, clock);
+			new PeerProtocolEngine(db, clientHelper, clientVersioningManager,
+					privateGroupManager, privateGroupFactory,
+					groupMessageFactory, identityManager, messageParser,
+					messageEncoder, messageTracker, clock);
 
 	private PeerSession getDefaultSession(PeerState state) {
 		return new PeerSession(contactGroupId, privateGroupId,

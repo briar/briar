@@ -25,12 +25,14 @@ import javax.inject.Inject;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAC_BYTES;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_BYTES;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getTransportPropertiesMap;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
+import static org.briarproject.briar.api.introduction.IntroductionManager.MAJOR_VERSION;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
 import static org.briarproject.briar.introduction.MessageType.REQUEST;
 import static org.briarproject.briar.test.BriarTestUtils.getRealAuthor;
@@ -57,8 +59,8 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 	private final MessageParser messageParser;
 	private final IntroductionValidator validator;
 
-	private final GroupId groupId = new GroupId(getRandomId());
-	private final Group group = new Group(groupId, CLIENT_ID, getRandomId());
+	private final Group group = getGroup(CLIENT_ID, MAJOR_VERSION);
+	private final GroupId groupId = group.getId();
 	private final long timestamp = 42L;
 	private final SessionId sessionId = new SessionId(getRandomId());
 	private final MessageId previousMsgId = new MessageId(getRandomId());

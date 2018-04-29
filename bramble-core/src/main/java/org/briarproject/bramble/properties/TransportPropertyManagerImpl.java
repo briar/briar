@@ -19,12 +19,15 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,15 +37,14 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
-
 @Immutable
 @NotNullByDefault
 class TransportPropertyManagerImpl implements TransportPropertyManager,
-		Client, ContactHook, IncomingMessageHook {
+		Client, ContactHook, ClientVersioningHook, IncomingMessageHook {
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
+	private final ClientVersioningManager clientVersioningManager;
 	private final MetadataParser metadataParser;
 	private final ContactGroupFactory contactGroupFactory;
 	private final Clock clock;
@@ -50,22 +52,25 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	@Inject
 	TransportPropertyManagerImpl(DatabaseComponent db,
-			ClientHelper clientHelper, MetadataParser metadataParser,
+			ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
+			MetadataParser metadataParser,
 			ContactGroupFactory contactGroupFactory, Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
+		this.clientVersioningManager = clientVersioningManager;
 		this.metadataParser = metadataParser;
 		this.contactGroupFactory = contactGroupFactory;
 		this.clock = clock;
 		localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
-				CLIENT_VERSION);
+				MAJOR_VERSION);
 	}
 
 	@Override
 	public void createLocalState(Transaction txn) throws DbException {
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
-		// Ensure we've set things up for any pre-existing contacts
+		// Set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
 
@@ -73,11 +78,11 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Create a group to share with the contact
 		Group g = getContactGroup(c);
-		// Return if we've already set things up for this contact
-		if (db.containsGroup(txn, g.getId())) return;
-		// Store the group and share it with the contact
 		db.addGroup(txn, g);
-		db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
+		// Apply the client's visibility to the contact group
+		Visibility client = clientVersioningManager.getClientVisibility(txn,
+				c.getId(), CLIENT_ID, MAJOR_VERSION);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Copy the latest local properties into the group
 		Map<TransportId, TransportProperties> local = getLocalProperties(txn);
 		for (Entry<TransportId, TransportProperties> e : local.entrySet()) {
@@ -89,6 +94,14 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
 		db.removeGroup(txn, getContactGroup(c));
+	}
+
+	@Override
+	public void onClientVisibilityChanging(Transaction txn, Contact c,
+			Visibility v) throws DbException {
+		// Apply the client's visibility to the contact group
+		Group g = getContactGroup(c);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 
 	@Override
@@ -289,7 +302,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	private Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
-				CLIENT_VERSION, c);
+				MAJOR_VERSION, c);
 	}
 
 	private void storeMessage(Transaction txn, GroupId g, TransportId t,

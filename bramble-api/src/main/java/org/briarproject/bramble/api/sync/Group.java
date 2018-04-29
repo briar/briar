@@ -5,9 +5,24 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPT
 public class Group {
 
 	public enum Visibility {
-		INVISIBLE, // The group is not visible
-		VISIBLE, // The group is visible but messages are not shared
-		SHARED // The group is visible and messages are shared
+
+		INVISIBLE(0), // The group is not visible
+		VISIBLE(1), // The group is visible, messages are accepted but not sent
+		SHARED(2); // The group is visible, messages are accepted and sent
+
+		private final int value;
+
+		Visibility(int value) {
+			this.value = value;
+		}
+
+		public int getValue() {
+			return value;
+		}
+
+		public static Visibility min(Visibility a, Visibility b) {
+			return a.getValue() < b.getValue() ? a : b;
+		}
 	}
 
 	/**
@@ -17,13 +32,16 @@ public class Group {
 
 	private final GroupId id;
 	private final ClientId clientId;
+	private final int majorVersion;
 	private final byte[] descriptor;
 
-	public Group(GroupId id, ClientId clientId, byte[] descriptor) {
+	public Group(GroupId id, ClientId clientId, int majorVersion,
+			byte[] descriptor) {
 		if (descriptor.length > MAX_GROUP_DESCRIPTOR_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
 		this.clientId = clientId;
+		this.majorVersion = majorVersion;
 		this.descriptor = descriptor;
 	}
 
@@ -39,6 +57,13 @@ public class Group {
 	 */
 	public ClientId getClientId() {
 		return clientId;
+	}
+
+	/**
+	 * Returns the major version of the client to which the group belongs.
+	 */
+	public int getMajorVersion() {
+		return majorVersion;
 	}
 
 	/**

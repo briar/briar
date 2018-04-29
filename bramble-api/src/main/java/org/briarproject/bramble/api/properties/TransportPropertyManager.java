@@ -15,12 +15,17 @@ public interface TransportPropertyManager {
 	/**
 	 * The unique ID of the transport property client.
 	 */
-	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.properties");
+	ClientId CLIENT_ID = new ClientId("org.briarproject.bramble.properties");
 
 	/**
-	 * The current version of the transport property client.
+	 * The current major version of the transport property client.
 	 */
-	int CLIENT_VERSION = 0;
+	int MAJOR_VERSION = 0;
+
+	/**
+	 * The current minor version of the transport property client.
+	 */
+	int MINOR_VERSION = 0;
 
 	/**
 	 * Stores the given properties received while adding a contact - they will
@@ -37,8 +42,8 @@ public interface TransportPropertyManager {
 
 	/**
 	 * Returns the local transport properties for all transports.
-	 * <br/>
-	 * TODO: Transaction can be read-only when code is simplified
+	 * <p/>
+	 * Read-only.
 	 */
 	Map<TransportId, TransportProperties> getLocalProperties(Transaction txn)
 			throws DbException;

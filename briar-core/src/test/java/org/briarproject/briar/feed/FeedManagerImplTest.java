@@ -43,7 +43,7 @@ import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEEDS;
 import static org.briarproject.briar.api.feed.FeedManager.CLIENT_ID;
-import static org.briarproject.briar.api.feed.FeedManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.feed.FeedManager.MAJOR_VERSION;
 
 public class FeedManagerImplTest extends BrambleMockTestCase {
 
@@ -61,9 +61,10 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	private final Clock clock = context.mock(Clock.class);
 	private final Dns noDnsLookups = context.mock(Dns.class);
 
-	private final Group localGroup = getGroup(CLIENT_ID);
+	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final GroupId localGroupId = localGroup.getId();
-	private final Group blogGroup = getGroup(BlogManager.CLIENT_ID);
+	private final Group blogGroup =
+			getGroup(BlogManager.CLIENT_ID, BlogManager.MAJOR_VERSION);
 	private final GroupId blogGroupId = blogGroup.getId();
 	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final Blog blog = new Blog(blogGroup, localAuthor, true);
@@ -131,7 +132,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	private void expectGetLocalGroup() {
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
-					CLIENT_VERSION);
+					MAJOR_VERSION);
 			will(returnValue(localGroup));
 		}});
 	}

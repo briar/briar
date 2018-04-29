@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.messaging.ConversationManager;
 
@@ -16,6 +17,8 @@ import dagger.Module;
 import dagger.Provides;
 
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
+import static org.briarproject.briar.api.introduction.IntroductionManager.MAJOR_VERSION;
+import static org.briarproject.briar.api.introduction.IntroductionManager.MINOR_VERSION;
 
 @Module
 public class IntroductionModule {
@@ -32,13 +35,11 @@ public class IntroductionModule {
 	IntroductionValidator provideValidator(ValidationManager validationManager,
 			MessageEncoder messageEncoder, MetadataEncoder metadataEncoder,
 			ClientHelper clientHelper, Clock clock) {
-
 		IntroductionValidator introductionValidator =
 				new IntroductionValidator(messageEncoder, clientHelper,
 						metadataEncoder, clock);
-		validationManager.registerMessageValidator(CLIENT_ID,
+		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
 				introductionValidator);
-
 		return introductionValidator;
 	}
 
@@ -48,13 +49,15 @@ public class IntroductionModule {
 			LifecycleManager lifecycleManager, ContactManager contactManager,
 			ValidationManager validationManager,
 			ConversationManager conversationManager,
+			ClientVersioningManager clientVersioningManager,
 			IntroductionManagerImpl introductionManager) {
 		lifecycleManager.registerClient(introductionManager);
 		contactManager.registerContactHook(introductionManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID,
-				introductionManager);
+				MAJOR_VERSION, introductionManager);
 		conversationManager.registerConversationClient(introductionManager);
-
+		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
+				MINOR_VERSION, introductionManager);
 		return introductionManager;
 	}
 

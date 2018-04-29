@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
@@ -59,11 +60,11 @@ public class SharingModule {
 			ValidationManager validationManager, MessageEncoder messageEncoder,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
 			Clock clock, BlogFactory blogFactory) {
-		BlogSharingValidator validator =
-				new BlogSharingValidator(messageEncoder, clientHelper,
-						metadataEncoder, clock, blogFactory);
+		BlogSharingValidator validator = new BlogSharingValidator(
+				messageEncoder, clientHelper, metadataEncoder, clock,
+				blogFactory);
 		validationManager.registerMessageValidator(BlogSharingManager.CLIENT_ID,
-				validator);
+				BlogSharingManager.MAJOR_VERSION, validator);
 		return validator;
 	}
 
@@ -73,14 +74,23 @@ public class SharingModule {
 			LifecycleManager lifecycleManager, ContactManager contactManager,
 			ValidationManager validationManager,
 			ConversationManager conversationManager, BlogManager blogManager,
+			ClientVersioningManager clientVersioningManager,
 			BlogSharingManagerImpl blogSharingManager) {
 		lifecycleManager.registerClient(blogSharingManager);
 		contactManager.registerContactHook(blogSharingManager);
 		validationManager.registerIncomingMessageHook(
-				BlogSharingManager.CLIENT_ID, blogSharingManager);
+				BlogSharingManager.CLIENT_ID, BlogSharingManager.MAJOR_VERSION,
+				blogSharingManager);
 		conversationManager.registerConversationClient(blogSharingManager);
 		blogManager.registerRemoveBlogHook(blogSharingManager);
-
+		clientVersioningManager.registerClient(BlogSharingManager.CLIENT_ID,
+				BlogSharingManager.MAJOR_VERSION,
+				BlogSharingManager.MINOR_VERSION, blogSharingManager);
+		// The blog sharing manager handles client visibility changes for the
+		// blog manager
+		clientVersioningManager.registerClient(BlogManager.CLIENT_ID,
+				BlogManager.MAJOR_VERSION, BlogManager.MINOR_VERSION,
+				blogSharingManager.getShareableClientVersioningHook());
 		return blogSharingManager;
 	}
 
@@ -108,12 +118,12 @@ public class SharingModule {
 			ValidationManager validationManager, MessageEncoder messageEncoder,
 			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
 			Clock clock, ForumFactory forumFactory) {
-		ForumSharingValidator validator =
-				new ForumSharingValidator(messageEncoder, clientHelper,
-						metadataEncoder, clock, forumFactory);
-		validationManager
-				.registerMessageValidator(ForumSharingManager.CLIENT_ID,
-						validator);
+		ForumSharingValidator validator = new ForumSharingValidator(
+				messageEncoder, clientHelper, metadataEncoder, clock,
+				forumFactory);
+		validationManager.registerMessageValidator(
+				ForumSharingManager.CLIENT_ID,
+				ForumSharingManager.MAJOR_VERSION, validator);
 		return validator;
 	}
 
@@ -123,15 +133,23 @@ public class SharingModule {
 			LifecycleManager lifecycleManager, ContactManager contactManager,
 			ValidationManager validationManager,
 			ConversationManager conversationManager, ForumManager forumManager,
+			ClientVersioningManager clientVersioningManager,
 			ForumSharingManagerImpl forumSharingManager) {
-
 		lifecycleManager.registerClient(forumSharingManager);
 		contactManager.registerContactHook(forumSharingManager);
 		validationManager.registerIncomingMessageHook(
-				ForumSharingManager.CLIENT_ID, forumSharingManager);
+				ForumSharingManager.CLIENT_ID,
+				ForumSharingManager.MAJOR_VERSION, forumSharingManager);
 		conversationManager.registerConversationClient(forumSharingManager);
 		forumManager.registerRemoveForumHook(forumSharingManager);
-
+		clientVersioningManager.registerClient(ForumSharingManager.CLIENT_ID,
+				ForumSharingManager.MAJOR_VERSION,
+				ForumSharingManager.MINOR_VERSION, forumSharingManager);
+		// The forum sharing manager handles client visibility changes for the
+		// forum manager
+		clientVersioningManager.registerClient(ForumManager.CLIENT_ID,
+				ForumManager.MAJOR_VERSION, ForumManager.MINOR_VERSION,
+				forumSharingManager.getShareableClientVersioningHook());
 		return forumSharingManager;
 	}
 

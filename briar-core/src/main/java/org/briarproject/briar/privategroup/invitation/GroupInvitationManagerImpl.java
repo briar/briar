@@ -17,10 +17,13 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
@@ -36,6 +39,7 @@ import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -59,8 +63,9 @@ import static org.briarproject.briar.privategroup.invitation.Role.PEER;
 @NotNullByDefault
 class GroupInvitationManagerImpl extends ConversationClientImpl
 		implements GroupInvitationManager, Client, ContactHook,
-		PrivateGroupHook {
+		PrivateGroupHook, ClientVersioningHook {
 
+	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
 	private final PrivateGroupFactory privateGroupFactory;
 	private final PrivateGroupManager privateGroupManager;
@@ -73,8 +78,9 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	@Inject
 	GroupInvitationManagerImpl(DatabaseComponent db,
-			ClientHelper clientHelper, MetadataParser metadataParser,
-			MessageTracker messageTracker,
+			ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
+			MetadataParser metadataParser, MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory,
 			PrivateGroupFactory privateGroupFactory,
 			PrivateGroupManager privateGroupManager,
@@ -82,6 +88,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			SessionEncoder sessionEncoder,
 			ProtocolEngineFactory engineFactory) {
 		super(db, clientHelper, metadataParser, messageTracker);
+		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
 		this.privateGroupFactory = privateGroupFactory;
 		this.privateGroupManager = privateGroupManager;
@@ -97,10 +104,10 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	public void createLocalState(Transaction txn) throws DbException {
 		// Create a local group to indicate that we've set this client up
 		Group localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
-				CLIENT_VERSION);
+				MAJOR_VERSION);
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
-		// Ensure we've set things up for any pre-existing contacts
+		// Set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
 	}
 
@@ -108,11 +115,10 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Create a group to share with the contact
 		Group g = getContactGroup(c);
-		// Return if we've already set things up for this contact
-		if (db.containsGroup(txn, g.getId())) return;
-		// Store the group and share it with the contact
 		db.addGroup(txn, g);
-		db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
+		Visibility client = clientVersioningManager.getClientVisibility(txn,
+				c.getId(), CLIENT_ID, MAJOR_VERSION);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
@@ -122,7 +128,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			throw new AssertionError(e);
 		}
 		// If the contact belongs to any private groups, create a peer session
-		for (Group pg : db.getGroups(txn, PrivateGroupManager.CLIENT_ID)) {
+		for (Group pg : db.getGroups(txn, PrivateGroupManager.CLIENT_ID,
+				PrivateGroupManager.MAJOR_VERSION)) {
 			if (privateGroupManager.isMember(txn, pg.getId(), c.getAuthor()))
 				addingMember(txn, pg.getId(), c);
 		}
@@ -137,7 +144,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	@Override
 	public Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
-				CLIENT_VERSION, c);
+				MAJOR_VERSION, c);
 	}
 
 	@Override
@@ -461,8 +468,13 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		SessionId sessionId = getSessionId(privateGroupId);
 		Transaction txn = db.startTransaction(true);
 		try {
+			Visibility client = clientVersioningManager.getClientVisibility(txn,
+					c.getId(), PrivateGroupManager.CLIENT_ID,
+					PrivateGroupManager.MAJOR_VERSION);
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
 			db.commitTransaction(txn);
+			// The group can't be shared unless the contact supports the client
+			if (client != SHARED) return false;
 			// If there's no session, the contact can be invited
 			if (ss == null) return true;
 			// If the session's in the start state, the contact can be invited
@@ -564,6 +576,65 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		} else {
 			throw new AssertionError();
 		}
+	}
+
+	@Override
+	public void onClientVisibilityChanging(Transaction txn, Contact c,
+			Visibility v) throws DbException {
+		// Apply the client's visibility to the contact group
+		Group g = getContactGroup(c);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
+	}
+
+	ClientVersioningHook getPrivateGroupClientVersioningHook() {
+		return this::onPrivateGroupClientVisibilityChanging;
+	}
+
+	private void onPrivateGroupClientVisibilityChanging(Transaction txn,
+			Contact c, Visibility client) throws DbException {
+		try {
+			Collection<Group> shareables =
+					db.getGroups(txn, PrivateGroupManager.CLIENT_ID,
+							PrivateGroupManager.MAJOR_VERSION);
+			Map<GroupId, Visibility> m = getPreferredVisibilities(txn, c);
+			for (Group g : shareables) {
+				Visibility preferred = m.get(g.getId());
+				if (preferred == null) continue; // No session for this group
+				// Apply min of preferred visibility and client's visibility
+				Visibility min = Visibility.min(preferred, client);
+				db.setGroupVisibility(txn, c.getId(), g.getId(), min);
+			}
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	private Map<GroupId, Visibility> getPreferredVisibilities(Transaction txn,
+			Contact c) throws DbException, FormatException {
+		GroupId contactGroupId = getContactGroup(c).getId();
+		BdfDictionary query = sessionParser.getAllSessionsQuery();
+		Map<MessageId, BdfDictionary> results = clientHelper
+				.getMessageMetadataAsDictionary(txn, contactGroupId, query);
+		Map<GroupId, Visibility> m = new HashMap<>();
+		for (BdfDictionary d : results.values()) {
+			Role role = sessionParser.getRole(d);
+			if (role == CREATOR) {
+				CreatorSession s =
+						sessionParser.parseCreatorSession(contactGroupId, d);
+				m.put(s.getPrivateGroupId(), s.getState().getVisibility());
+			} else if (role == INVITEE) {
+				InviteeSession s =
+						sessionParser.parseInviteeSession(contactGroupId, d);
+				m.put(s.getPrivateGroupId(), s.getState().getVisibility());
+			} else if (role == PEER) {
+				PeerSession s =
+						sessionParser.parsePeerSession(contactGroupId, d);
+				m.put(s.getPrivateGroupId(), s.getState().getVisibility());
+			} else {
+				throw new AssertionError();
+			}
+		}
+		return m;
 	}
 
 	private static class StoredSession {

@@ -20,10 +20,13 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroductionManager;
@@ -44,7 +47,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
 import static org.briarproject.briar.introduction.IntroducerState.START;
@@ -59,8 +61,10 @@ import static org.briarproject.briar.introduction.MessageType.REQUEST;
 @Immutable
 @NotNullByDefault
 class IntroductionManagerImpl extends ConversationClientImpl
-		implements IntroductionManager, Client, ContactHook {
+		implements IntroductionManager, Client, ContactHook,
+		ClientVersioningHook {
 
+	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
 	private final ContactManager contactManager;
 	private final MessageParser messageParser;
@@ -77,6 +81,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	IntroductionManagerImpl(
 			DatabaseComponent db,
 			ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser,
 			MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory,
@@ -89,6 +94,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			IntroductionCrypto crypto,
 			IdentityManager identityManager) {
 		super(db, clientHelper, metadataParser, messageTracker);
+		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
 		this.contactManager = contactManager;
 		this.messageParser = messageParser;
@@ -99,7 +105,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		this.crypto = crypto;
 		this.identityManager = identityManager;
 		this.localGroup =
-				contactGroupFactory.createLocalGroup(CLIENT_ID, CLIENT_VERSION);
+				contactGroupFactory.createLocalGroup(CLIENT_ID, MAJOR_VERSION);
 	}
 
 	@Override
@@ -112,13 +118,14 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	// TODO adapt to use upcoming ClientVersioning client
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Create a group to share with the contact
 		Group g = getContactGroup(c);
-		// Store the group and share it with the contact
 		db.addGroup(txn, g);
-		db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
+		// Apply the client's visibility to the contact group
+		Visibility client = clientVersioningManager.getClientVisibility(txn,
+				c.getId(), CLIENT_ID, MAJOR_VERSION);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
@@ -139,9 +146,17 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
+	public void onClientVisibilityChanging(Transaction txn, Contact c,
+			Visibility v) throws DbException {
+		// Apply the client's visibility to the contact group
+		Group g = getContactGroup(c);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
+	}
+
+	@Override
 	public Group getContactGroup(Contact c) {
 		return contactGroupFactory
-				.createContactGroup(CLIENT_ID, CLIENT_VERSION, c);
+				.createContactGroup(CLIENT_ID, MAJOR_VERSION, c);
 	}
 
 	@Override

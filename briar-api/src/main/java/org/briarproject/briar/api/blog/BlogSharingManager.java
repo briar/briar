@@ -11,7 +11,12 @@ public interface BlogSharingManager extends SharingManager<Blog> {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.blog.sharing");
 
 	/**
-	 * The current version of the blog sharing client.
+	 * The current major version of the blog sharing client.
 	 */
-	int CLIENT_VERSION = 0;
+	int MAJOR_VERSION = 0;
+
+	/**
+	 * The current minor version of the blog sharing client.
+	 */
+	int MINOR_VERSION = 0;
 }

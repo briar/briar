@@ -18,6 +18,7 @@ interface SharingConstants {
 	String MSG_KEY_INVITATION_ACCEPTED = "invitationAccepted";
 
 	// Session keys
+	String SESSION_KEY_IS_SESSION = "isSession";
 	String SESSION_KEY_STATE = "state";
 	String SESSION_KEY_SESSION_ID = "sessionId";
 	String SESSION_KEY_SHAREABLE_ID = "shareableId";

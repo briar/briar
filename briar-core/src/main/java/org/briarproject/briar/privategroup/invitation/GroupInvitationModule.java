@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.messaging.ConversationManager;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -19,6 +20,8 @@ import dagger.Module;
 import dagger.Provides;
 
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
+import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.MAJOR_VERSION;
+import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.MINOR_VERSION;
 
 @Module
 public class GroupInvitationModule {
@@ -37,13 +40,22 @@ public class GroupInvitationModule {
 			LifecycleManager lifecycleManager,
 			ValidationManager validationManager, ContactManager contactManager,
 			PrivateGroupManager privateGroupManager,
-			ConversationManager conversationManager) {
+			ConversationManager conversationManager,
+			ClientVersioningManager clientVersioningManager) {
 		lifecycleManager.registerClient(groupInvitationManager);
-		validationManager.registerIncomingMessageHook(CLIENT_ID,
+		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				groupInvitationManager);
 		contactManager.registerContactHook(groupInvitationManager);
 		privateGroupManager.registerPrivateGroupHook(groupInvitationManager);
 		conversationManager.registerConversationClient(groupInvitationManager);
+		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
+				MINOR_VERSION, groupInvitationManager);
+		// The group invitation manager handles client visibility changes for
+		// the private group manager
+		clientVersioningManager.registerClient(PrivateGroupManager.CLIENT_ID,
+				PrivateGroupManager.MAJOR_VERSION,
+				PrivateGroupManager.MINOR_VERSION,
+				groupInvitationManager.getPrivateGroupClientVersioningHook());
 		return groupInvitationManager;
 	}
 
@@ -57,7 +69,8 @@ public class GroupInvitationModule {
 		GroupInvitationValidator validator = new GroupInvitationValidator(
 				clientHelper, metadataEncoder, clock, privateGroupFactory,
 				messageEncoder);
-		validationManager.registerMessageValidator(CLIENT_ID, validator);
+		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
+				validator);
 		return validator;
 	}
 

@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 public interface GroupFactory {
 
 	/**
-	 * Creates a group with the given client ID, client version and descriptor.
+	 * Creates a group with the given client ID, major version and descriptor.
 	 */
-	Group createGroup(ClientId c, int clientVersion, byte[] descriptor);
+	Group createGroup(ClientId c, int majorVersion, byte[] descriptor);
 }

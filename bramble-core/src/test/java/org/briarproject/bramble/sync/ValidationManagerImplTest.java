@@ -53,10 +53,11 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	private final Executor dbExecutor = new ImmediateExecutor();
 	private final Executor validationExecutor = new ImmediateExecutor();
 	private final ClientId clientId = getClientId();
+	private final int majorVersion = 123;
 	private final MessageId messageId = new MessageId(getRandomId());
 	private final MessageId messageId1 = new MessageId(getRandomId());
 	private final MessageId messageId2 = new MessageId(getRandomId());
-	private final Group group = getGroup(clientId);
+	private final Group group = getGroup(clientId, majorVersion);
 	private final GroupId groupId = group.getId();
 	private final long timestamp = System.currentTimeMillis();
 	private final byte[] raw = new byte[123];
@@ -85,8 +86,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	public void setUp() {
 		vm = new ValidationManagerImpl(db, dbExecutor, validationExecutor,
 				messageFactory);
-		vm.registerMessageValidator(clientId, validator);
-		vm.registerIncomingMessageHook(clientId, hook);
+		vm.registerMessageValidator(clientId, majorVersion, validator);
+		vm.registerIncomingMessageHook(clientId, majorVersion, hook);
 	}
 
 	@Test

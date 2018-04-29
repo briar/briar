@@ -23,9 +23,14 @@ public interface ForumManager {
 	ClientId CLIENT_ID = new ClientId("org.briarproject.briar.forum");
 
 	/**
-	 * The current version of the forum client.
+	 * The current major version of the forum client.
 	 */
-	int CLIENT_VERSION = 0;
+	int MAJOR_VERSION = 0;
+
+	/**
+	 * The current minor version of the forum client.
+	 */
+	int MINOR_VERSION = 0;
 
 	/**
 	 * Subscribes to a forum.

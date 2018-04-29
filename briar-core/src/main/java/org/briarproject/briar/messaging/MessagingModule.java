@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.messaging.ConversationManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -16,7 +17,9 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
-import static org.briarproject.briar.messaging.MessagingManagerImpl.CLIENT_ID;
+import static org.briarproject.briar.api.messaging.MessagingManager.CLIENT_ID;
+import static org.briarproject.briar.api.messaging.MessagingManager.MAJOR_VERSION;
+import static org.briarproject.briar.api.messaging.MessagingManager.MINOR_VERSION;
 
 @Module
 public class MessagingModule {
@@ -43,7 +46,8 @@ public class MessagingModule {
 			Clock clock) {
 		PrivateMessageValidator validator = new PrivateMessageValidator(
 				clientHelper, metadataEncoder, clock);
-		validationManager.registerMessageValidator(CLIENT_ID, validator);
+		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
+				validator);
 		return validator;
 	}
 
@@ -52,12 +56,15 @@ public class MessagingModule {
 	MessagingManager getMessagingManager(LifecycleManager lifecycleManager,
 			ContactManager contactManager, ValidationManager validationManager,
 			ConversationManager conversationManager,
+			ClientVersioningManager clientVersioningManager,
 			MessagingManagerImpl messagingManager) {
 		lifecycleManager.registerClient(messagingManager);
 		contactManager.registerContactHook(messagingManager);
-		validationManager
-				.registerIncomingMessageHook(CLIENT_ID, messagingManager);
+		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
+				messagingManager);
 		conversationManager.registerConversationClient(messagingManager);
+		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
+				MINOR_VERSION, messagingManager);
 		return messagingManager;
 	}
 

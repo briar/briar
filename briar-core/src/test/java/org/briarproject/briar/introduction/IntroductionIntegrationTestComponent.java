@@ -2,6 +2,7 @@ package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.client.ClientModule;
 import org.briarproject.bramble.contact.ContactModule;
+import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.crypto.CryptoModule;
 import org.briarproject.bramble.data.DataModule;
 import org.briarproject.bramble.db.DatabaseModule;
@@ -15,6 +16,7 @@ import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestSecureRandomModule;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
@@ -38,6 +40,7 @@ import dagger.Component;
 		ClientModule.class,
 		ContactModule.class,
 		CryptoModule.class,
+		CryptoExecutorModule.class,
 		DataModule.class,
 		DatabaseModule.class,
 		EventModule.class,
@@ -52,7 +55,8 @@ import dagger.Component;
 		SharingModule.class,
 		SyncModule.class,
 		SystemModule.class,
-		TransportModule.class
+		TransportModule.class,
+		VersioningModule.class
 })
 interface IntroductionIntegrationTestComponent
 		extends BriarIntegrationTestComponent {

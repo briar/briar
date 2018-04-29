@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
@@ -22,6 +23,9 @@ import org.briarproject.briar.api.sharing.InvitationRequest;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.briar.api.forum.ForumManager.CLIENT_ID;
+import static org.briarproject.briar.api.forum.ForumManager.MAJOR_VERSION;
+
 @Immutable
 @NotNullByDefault
 class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
@@ -32,12 +36,15 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 
 	@Inject
 	ForumProtocolEngineImpl(DatabaseComponent db,
-			ClientHelper clientHelper, MessageEncoder messageEncoder,
-			MessageParser<Forum> messageParser, MessageTracker messageTracker,
-			Clock clock, ForumManager forumManager,
+			ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
+			MessageEncoder messageEncoder, MessageParser<Forum> messageParser,
+			MessageTracker messageTracker, Clock clock,
+			ForumManager forumManager,
 			InvitationFactory<Forum, ForumInvitationResponse> invitationFactory) {
-		super(db, clientHelper, messageEncoder, messageParser, messageTracker,
-				clock);
+		super(db, clientHelper, clientVersioningManager, messageEncoder,
+				messageParser, messageTracker, clock, CLIENT_ID,
+				MAJOR_VERSION);
 		this.forumManager = forumManager;
 		this.invitationFactory = invitationFactory;
 	}
@@ -46,8 +53,8 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 	Event getInvitationRequestReceivedEvent(InviteMessage<Forum> m,
 			ContactId contactId, boolean available, boolean canBeOpened) {
 		InvitationRequest<Forum> request = invitationFactory
-						.createInvitationRequest(false, false, true, false, m,
-								contactId, available, canBeOpened);
+				.createInvitationRequest(false, false, true, false, m,
+						contactId, available, canBeOpened);
 		return new ForumInvitationRequestReceivedEvent(m.getShareable(),
 				contactId, request);
 	}
@@ -74,7 +81,7 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 
 	@Override
 	protected ClientId getShareableClientId() {
-		return ForumManager.CLIENT_ID;
+		return CLIENT_ID;
 	}
 
 	@Override

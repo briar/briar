@@ -47,7 +47,7 @@ import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getTransportProperties;
 import static org.briarproject.bramble.test.TestUtils.getTransportPropertiesMap;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
-import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_VERSION;
+import static org.briarproject.briar.api.introduction.IntroductionManager.MAJOR_VERSION;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_RESPONSES;
 import static org.briarproject.briar.introduction.IntroduceeState.LOCAL_DECLINED;
 import static org.briarproject.briar.introduction.IntroducerState.A_DECLINED;
@@ -1284,7 +1284,7 @@ public class IntroductionIntegrationTest
 	}
 
 	private Group getLocalGroup() {
-		return contactGroupFactory.createLocalGroup(CLIENT_ID, CLIENT_VERSION);
+		return contactGroupFactory.createLocalGroup(CLIENT_ID, MAJOR_VERSION);
 	}
 
 }

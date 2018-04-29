@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
@@ -41,15 +42,16 @@ import static org.briarproject.briar.privategroup.invitation.InviteeState.START;
 class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 
 	InviteeProtocolEngine(DatabaseComponent db, ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
 			PrivateGroupManager privateGroupManager,
 			PrivateGroupFactory privateGroupFactory,
 			GroupMessageFactory groupMessageFactory,
 			IdentityManager identityManager, MessageParser messageParser,
 			MessageEncoder messageEncoder, MessageTracker messageTracker,
 			Clock clock) {
-		super(db, clientHelper, privateGroupManager, privateGroupFactory,
-				groupMessageFactory, identityManager, messageParser,
-				messageEncoder, messageTracker, clock);
+		super(db, clientHelper, clientVersioningManager, privateGroupManager,
+				privateGroupFactory, groupMessageFactory, identityManager,
+				messageParser, messageEncoder, messageTracker, clock);
 	}
 
 	@Override
@@ -212,6 +214,12 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 			throws DbException {
 		// Send a LEAVE message
 		Message sent = sendLeaveMessage(txn, s, false);
+		try {
+			// Make the private group invisible to the contact
+			setPrivateGroupVisibility(txn, s, INVISIBLE);
+		} catch (FormatException e) {
+			throw new DbException(e); // Invalid group metadata
+		}
 		// Move to the LEFT state
 		return new InviteeSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), sent.getTimestamp(),

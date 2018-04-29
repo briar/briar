@@ -1,7 +1,7 @@
 package org.briarproject.bramble;
 
 import org.briarproject.bramble.contact.ContactModule;
-import org.briarproject.bramble.crypto.CryptoModule;
+import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.db.DatabaseExecutorModule;
 import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
@@ -10,12 +10,13 @@ import org.briarproject.bramble.properties.PropertiesModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.versioning.VersioningModule;
 
 public interface BrambleCoreEagerSingletons {
 
 	void inject(ContactModule.EagerSingletons init);
 
-	void inject(CryptoModule.EagerSingletons init);
+	void inject(CryptoExecutorModule.EagerSingletons init);
 
 	void inject(DatabaseExecutorModule.EagerSingletons init);
 
@@ -32,4 +33,6 @@ public interface BrambleCoreEagerSingletons {
 	void inject(SystemModule.EagerSingletons init);
 
 	void inject(TransportModule.EagerSingletons init);
+
+	void inject(VersioningModule.EagerSingletons init);
 }

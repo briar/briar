@@ -2,6 +2,7 @@ package org.briarproject.bramble;
 
 import org.briarproject.bramble.client.ClientModule;
 import org.briarproject.bramble.contact.ContactModule;
+import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.crypto.CryptoModule;
 import org.briarproject.bramble.data.DataModule;
 import org.briarproject.bramble.db.DatabaseExecutorModule;
@@ -19,6 +20,7 @@ import org.briarproject.bramble.socks.SocksModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.versioning.VersioningModule;
 
 import dagger.Module;
 
@@ -26,6 +28,7 @@ import dagger.Module;
 		ClientModule.class,
 		ContactModule.class,
 		CryptoModule.class,
+		CryptoExecutorModule.class,
 		DataModule.class,
 		DatabaseModule.class,
 		DatabaseExecutorModule.class,
@@ -41,13 +44,14 @@ import dagger.Module;
 		SocksModule.class,
 		SyncModule.class,
 		SystemModule.class,
-		TransportModule.class
+		TransportModule.class,
+		VersioningModule.class
 })
 public class BrambleCoreModule {
 
 	public static void initEagerSingletons(BrambleCoreEagerSingletons c) {
 		c.inject(new ContactModule.EagerSingletons());
-		c.inject(new CryptoModule.EagerSingletons());
+		c.inject(new CryptoExecutorModule.EagerSingletons());
 		c.inject(new DatabaseExecutorModule.EagerSingletons());
 		c.inject(new IdentityModule.EagerSingletons());
 		c.inject(new LifecycleModule.EagerSingletons());
@@ -56,5 +60,6 @@ public class BrambleCoreModule {
 		c.inject(new SyncModule.EagerSingletons());
 		c.inject(new SystemModule.EagerSingletons());
 		c.inject(new TransportModule.EagerSingletons());
+		c.inject(new VersioningModule.EagerSingletons());
 	}
 }

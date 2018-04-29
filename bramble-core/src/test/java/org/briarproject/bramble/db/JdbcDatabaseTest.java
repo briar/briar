@@ -82,6 +82,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private final File testDir = TestUtils.getTestDirectory();
 	private final GroupId groupId;
 	private final ClientId clientId;
+	private final int majorVersion;
 	private final Group group;
 	private final Author author;
 	private final LocalAuthor localAuthor;
@@ -96,7 +97,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	JdbcDatabaseTest() throws Exception {
 		clientId = getClientId();
-		group = getGroup(clientId);
+		majorVersion = 123;
+		group = getGroup(clientId, majorVersion);
 		groupId = group.getId();
 		author = getAuthor();
 		localAuthor = getLocalAuthor();
@@ -1460,7 +1462,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.addMessage(txn, message, PENDING, true, contactId);
 
 		// Add a second group
-		Group group1 = getGroup(clientId);
+		Group group1 = getGroup(clientId, 123);
 		GroupId groupId1 = group1.getId();
 		db.addGroup(txn, group1);
 
@@ -1823,6 +1825,22 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Delete the message - there should be no messages to send
 		db.deleteMessage(txn, messageId);
 		assertEquals(Long.MAX_VALUE, db.getNextSendTime(txn, contactId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetGroups() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		assertEquals(emptyList(), db.getGroups(txn, clientId, majorVersion));
+		db.addGroup(txn, group);
+		assertEquals(singletonList(group),
+				db.getGroups(txn, clientId, majorVersion));
+		db.removeGroup(txn, groupId);
+		assertEquals(emptyList(), db.getGroups(txn, clientId, majorVersion));
 
 		db.commitTransaction(txn);
 		db.close();

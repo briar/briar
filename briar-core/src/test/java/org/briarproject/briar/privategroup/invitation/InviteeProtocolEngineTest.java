@@ -38,9 +38,10 @@ import static org.junit.Assert.assertTrue;
 public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 
 	private final InviteeProtocolEngine engine =
-			new InviteeProtocolEngine(db, clientHelper, privateGroupManager,
-					privateGroupFactory, groupMessageFactory, identityManager,
-					messageParser, messageEncoder, messageTracker, clock);
+			new InviteeProtocolEngine(db, clientHelper, clientVersioningManager,
+					privateGroupManager, privateGroupFactory,
+					groupMessageFactory, identityManager, messageParser,
+					messageEncoder, messageTracker, clock);
 	private final LocalAuthor localAuthor = getLocalAuthor();
 
 	private InviteeSession getDefaultSession(InviteeState state) {
@@ -238,6 +239,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test
 	public void testOnLeaveActionFromAccepted() throws Exception {
 		expectSendLeaveMessage(false);
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		InviteeSession session = getDefaultSession(ACCEPTED);
 		InviteeSession newSession = engine.onLeaveAction(txn, session);
 
@@ -249,6 +251,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test
 	public void testOnLeaveActionFromJoined() throws Exception {
 		expectSendLeaveMessage(false);
+		expectSetPrivateGroupVisibility(INVISIBLE);
 		InviteeSession session = getDefaultSession(JOINED);
 		InviteeSession newSession = engine.onLeaveAction(txn, session);
 

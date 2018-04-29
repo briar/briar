@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogManager;
@@ -32,6 +33,7 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 
 	@Inject
 	BlogSharingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageParser<Blog> messageParser,
 			SessionEncoder sessionEncoder, SessionParser sessionParser,
 			MessageTracker messageTracker,
@@ -39,9 +41,9 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 			ProtocolEngine<Blog> engine,
 			InvitationFactory<Blog, BlogInvitationResponse> invitationFactory,
 			IdentityManager identityManager, BlogManager blogManager) {
-		super(db, clientHelper, metadataParser, messageParser, sessionEncoder,
-				sessionParser, messageTracker, contactGroupFactory, engine,
-				invitationFactory);
+		super(db, clientHelper, clientVersioningManager, metadataParser,
+				messageParser, sessionEncoder, sessionParser, messageTracker,
+				contactGroupFactory, engine, invitationFactory);
 		this.identityManager = identityManager;
 		this.blogManager = blogManager;
 	}
@@ -52,27 +54,31 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 	}
 
 	@Override
-	protected int getClientVersion() {
-		return CLIENT_VERSION;
+	protected int getMajorVersion() {
+		return MAJOR_VERSION;
 	}
 
-	/**
-	 * This is called during each startup for each existing Contact.
-	 */
+	@Override
+	protected ClientId getShareableClientId() {
+		return BlogManager.CLIENT_ID;
+	}
+
+	@Override
+	protected int getShareableMajorVersion() {
+		return BlogManager.MAJOR_VERSION;
+	}
+
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
-		// Return if we've already set things up for this contact
-		if (db.containsGroup(txn, getContactGroup(c).getId())) return;
-
-		// creates a group to share with the contact
+		// Create a group to share with the contact
 		super.addingContact(txn, c);
 
-		// get our blog and that of Contact c
+		// Get our blog and that of the contact
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		Blog ourBlog = blogManager.getPersonalBlog(localAuthor);
 		Blog theirBlog = blogManager.getPersonalBlog(c.getAuthor());
 
-		// pre-share both blogs, if they have not been shared already
+		// Pre-share both blogs, if they have not been shared already
 		try {
 			preShareShareable(txn, c, ourBlog);
 			preShareShareable(txn, c, theirBlog);

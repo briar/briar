@@ -18,10 +18,12 @@ import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.system.SystemModule;
+import org.briarproject.bramble.test.TestCryptoExecutorModule;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestSecureRandomModule;
 import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.client.BriarClientModule;
@@ -32,6 +34,7 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
+		TestCryptoExecutorModule.class,
 		TestDatabaseModule.class,
 		TestPluginConfigModule.class,
 		TestSecureRandomModule.class,
@@ -47,13 +50,26 @@ import dagger.Component;
 		MessagingModule.class,
 		SyncModule.class,
 		SystemModule.class,
-		TransportModule.class
+		TransportModule.class,
+		VersioningModule.class
 })
 interface SimplexMessagingIntegrationTestComponent {
 
+	void inject(ContactModule.EagerSingletons init);
+
+	void inject(IdentityModule.EagerSingletons init);
+
+	void inject(LifecycleModule.EagerSingletons init);
+
 	void inject(MessagingModule.EagerSingletons init);
 
+	void inject(SyncModule.EagerSingletons init);
+
 	void inject(SystemModule.EagerSingletons init);
+
+	void inject(TransportModule.EagerSingletons init);
+
+	void inject(VersioningModule.EagerSingletons init);
 
 	LifecycleManager getLifecycleManager();
 
