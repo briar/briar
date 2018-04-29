@@ -9,8 +9,8 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.GroupFactory;
 import org.briarproject.bramble.api.sync.MessageFactory;
-import org.briarproject.bramble.api.sync.RecordReaderFactory;
-import org.briarproject.bramble.api.sync.RecordWriterFactory;
+import org.briarproject.bramble.api.sync.SyncRecordReaderFactory;
+import org.briarproject.bramble.api.sync.SyncRecordWriterFactory;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
@@ -52,22 +52,23 @@ public class SyncModule {
 	}
 
 	@Provides
-	RecordReaderFactory provideRecordReaderFactory(
-			RecordReaderFactoryImpl recordReaderFactory) {
+	SyncRecordReaderFactory provideRecordReaderFactory(
+			SyncRecordReaderFactoryImpl recordReaderFactory) {
 		return recordReaderFactory;
 	}
 
 	@Provides
-	RecordWriterFactory provideRecordWriterFactory() {
-		return new RecordWriterFactoryImpl();
+	SyncRecordWriterFactory provideRecordWriterFactory(
+			SyncRecordWriterFactoryImpl recordWriterFactory) {
+		return recordWriterFactory;
 	}
 
 	@Provides
 	@Singleton
 	SyncSessionFactory provideSyncSessionFactory(DatabaseComponent db,
 			@DatabaseExecutor Executor dbExecutor, EventBus eventBus,
-			Clock clock, RecordReaderFactory recordReaderFactory,
-			RecordWriterFactory recordWriterFactory) {
+			Clock clock, SyncRecordReaderFactory recordReaderFactory,
+			SyncRecordWriterFactory recordWriterFactory) {
 		return new SyncSessionFactoryImpl(db, dbExecutor, eventBus, clock,
 				recordReaderFactory, recordWriterFactory);
 	}

@@ -5,7 +5,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import java.io.InputStream;
 
 @NotNullByDefault
-public interface RecordReaderFactory {
+public interface SyncRecordReaderFactory {
 
-	RecordReader createRecordReader(InputStream in);
+	SyncRecordReader createRecordReader(InputStream in);
 }

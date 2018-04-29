@@ -1,23 +1,20 @@
 package org.briarproject.bramble.contact;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactExchangeListener;
 import org.briarproject.bramble.api.contact.ContactExchangeTask;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
-import org.briarproject.bramble.api.data.BdfReader;
-import org.briarproject.bramble.api.data.BdfReaderFactory;
-import org.briarproject.bramble.api.data.BdfWriter;
-import org.briarproject.bramble.api.data.BdfWriterFactory;
 import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -26,30 +23,30 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.record.Record;
+import org.briarproject.bramble.api.record.RecordReader;
+import org.briarproject.bramble.api.record.RecordReaderFactory;
+import org.briarproject.bramble.api.record.RecordWriter;
+import org.briarproject.bramble.api.record.RecordWriterFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.api.contact.RecordTypes.CONTACT_INFO;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
-import static org.briarproject.bramble.api.plugin.TransportId.MAX_TRANSPORT_ID_LENGTH;
-import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
-import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
+import static org.briarproject.bramble.util.ValidationUtils.checkLength;
+import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -62,9 +59,9 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			"org.briarproject.briar.contact/EXCHANGE";
 
 	private final DatabaseComponent db;
-	private final AuthorFactory authorFactory;
-	private final BdfReaderFactory bdfReaderFactory;
-	private final BdfWriterFactory bdfWriterFactory;
+	private final ClientHelper clientHelper;
+	private final RecordReaderFactory recordReaderFactory;
+	private final RecordWriterFactory recordWriterFactory;
 	private final Clock clock;
 	private final ConnectionManager connectionManager;
 	private final ContactManager contactManager;
@@ -81,17 +78,17 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 	private volatile boolean alice;
 
 	@Inject
-	ContactExchangeTaskImpl(DatabaseComponent db,
-			AuthorFactory authorFactory, BdfReaderFactory bdfReaderFactory,
-			BdfWriterFactory bdfWriterFactory, Clock clock,
+	ContactExchangeTaskImpl(DatabaseComponent db, ClientHelper clientHelper,
+			RecordReaderFactory recordReaderFactory,
+			RecordWriterFactory recordWriterFactory, Clock clock,
 			ConnectionManager connectionManager, ContactManager contactManager,
 			TransportPropertyManager transportPropertyManager,
 			CryptoComponent crypto, StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory) {
 		this.db = db;
-		this.authorFactory = authorFactory;
-		this.bdfReaderFactory = bdfReaderFactory;
-		this.bdfWriterFactory = bdfWriterFactory;
+		this.clientHelper = clientHelper;
+		this.recordReaderFactory = recordReaderFactory;
+		this.recordWriterFactory = recordWriterFactory;
 		this.clock = clock;
 		this.connectionManager = connectionManager;
 		this.contactManager = contactManager;
@@ -126,18 +123,18 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			listener.contactExchangeFailed();
-			tryToClose(conn, true);
+			tryToClose(conn);
 			return;
 		}
 
 		// Get the local transport properties
-		Map<TransportId, TransportProperties> localProperties, remoteProperties;
+		Map<TransportId, TransportProperties> localProperties;
 		try {
 			localProperties = transportPropertyManager.getLocalProperties();
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			listener.contactExchangeFailed();
-			tryToClose(conn, true);
+			tryToClose(conn);
 			return;
 		}
 
@@ -151,159 +148,138 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		InputStream streamReader =
 				streamReaderFactory.createContactExchangeStreamReader(in,
 						alice ? bobHeaderKey : aliceHeaderKey);
-		BdfReader r = bdfReaderFactory.createReader(streamReader);
+		RecordReader recordReader =
+				recordReaderFactory.createRecordReader(streamReader);
+
 		// Create the writers
 		OutputStream streamWriter =
 				streamWriterFactory.createContactExchangeStreamWriter(out,
 						alice ? aliceHeaderKey : bobHeaderKey);
-		BdfWriter w = bdfWriterFactory.createWriter(streamWriter);
+		RecordWriter recordWriter =
+				recordWriterFactory.createRecordWriter(streamWriter);
 
 		// Derive the nonces to be signed
 		byte[] aliceNonce = crypto.mac(ALICE_NONCE_LABEL, masterSecret,
 				new byte[] {PROTOCOL_VERSION});
 		byte[] bobNonce = crypto.mac(BOB_NONCE_LABEL, masterSecret,
 				new byte[] {PROTOCOL_VERSION});
+		byte[] localNonce = alice ? aliceNonce : bobNonce;
+		byte[] remoteNonce = alice ? bobNonce : aliceNonce;
 
-		// Exchange pseudonyms, signed nonces, and timestamps
+		// Sign the nonce
+		byte[] localSignature = sign(localAuthor, localNonce);
+
+		// Exchange contact info
 		long localTimestamp = clock.currentTimeMillis();
-		Author remoteAuthor;
-		long remoteTimestamp;
+		ContactInfo remoteInfo;
 		try {
 			if (alice) {
-				sendPseudonym(w, aliceNonce);
-				sendTimestamp(w, localTimestamp);
-				sendTransportProperties(w, localProperties);
-				w.flush();
-				remoteAuthor = receivePseudonym(r, bobNonce);
-				remoteTimestamp = receiveTimestamp(r);
-				remoteProperties = receiveTransportProperties(r);
+				sendContactInfo(recordWriter, localAuthor, localProperties,
+						localSignature, localTimestamp);
+				recordWriter.flush();
+				remoteInfo = receiveContactInfo(recordReader);
 			} else {
-				remoteAuthor = receivePseudonym(r, aliceNonce);
-				remoteTimestamp = receiveTimestamp(r);
-				remoteProperties = receiveTransportProperties(r);
-				sendPseudonym(w, bobNonce);
-				sendTimestamp(w, localTimestamp);
-				sendTransportProperties(w, localProperties);
-				w.flush();
+				remoteInfo = receiveContactInfo(recordReader);
+				sendContactInfo(recordWriter, localAuthor, localProperties,
+						localSignature, localTimestamp);
+				recordWriter.flush();
 			}
-			// Close the outgoing stream and expect EOF on the incoming stream
-			w.close();
-			if (!r.eof()) LOG.warning("Unexpected data at end of connection");
-		} catch (GeneralSecurityException | IOException e) {
+			// Close the outgoing stream
+			recordWriter.close();
+			// Skip any remaining records from the incoming stream
+			try {
+				while (true) recordReader.readRecord();
+			} catch (EOFException expected) {
+				LOG.info("End of stream");
+			}
+		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			listener.contactExchangeFailed();
-			tryToClose(conn, true);
+			tryToClose(conn);
+			return;
+		}
+
+		// Verify the contact's signature
+		if (!verify(remoteInfo.author, remoteNonce, remoteInfo.signature)) {
+			LOG.warning("Invalid signature");
+			listener.contactExchangeFailed();
+			tryToClose(conn);
 			return;
 		}
 
 		// The agreed timestamp is the minimum of the peers' timestamps
-		long timestamp = Math.min(localTimestamp, remoteTimestamp);
+		long timestamp = Math.min(localTimestamp, remoteInfo.timestamp);
 
 		try {
 			// Add the contact
-			ContactId contactId = addContact(remoteAuthor, timestamp,
-					remoteProperties);
+			ContactId contactId = addContact(remoteInfo.author, timestamp,
+					remoteInfo.properties);
 			// Reuse the connection as a transport connection
 			connectionManager.manageOutgoingConnection(contactId, transportId,
 					conn);
 			// Pseudonym exchange succeeded
 			LOG.info("Pseudonym exchange succeeded");
-			listener.contactExchangeSucceeded(remoteAuthor);
+			listener.contactExchangeSucceeded(remoteInfo.author);
 		} catch (ContactExistsException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			tryToClose(conn, true);
-			listener.duplicateContact(remoteAuthor);
+			tryToClose(conn);
+			listener.duplicateContact(remoteInfo.author);
 		} catch (DbException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			tryToClose(conn, true);
+			tryToClose(conn);
 			listener.contactExchangeFailed();
 		}
 	}
 
-	private void sendPseudonym(BdfWriter w, byte[] nonce)
-			throws GeneralSecurityException, IOException {
-		// Sign the nonce
-		byte[] privateKey = localAuthor.getPrivateKey();
-		byte[] sig = crypto.sign(SIGNING_LABEL_EXCHANGE, nonce, privateKey);
-
-		// Write the name, public key and signature
-		w.writeListStart();
-		w.writeLong(localAuthor.getFormatVersion());
-		w.writeString(localAuthor.getName());
-		w.writeRaw(localAuthor.getPublicKey());
-		w.writeRaw(sig);
-		w.writeListEnd();
-		LOG.info("Sent pseudonym");
-	}
-
-	private Author receivePseudonym(BdfReader r, byte[] nonce)
-			throws GeneralSecurityException, IOException {
-		// Read the format version, name, public key and signature
-		r.readListStart();
-		int formatVersion = (int) r.readLong();
-		if (formatVersion != FORMAT_VERSION) throw new FormatException();
-		String name = r.readString(MAX_AUTHOR_NAME_LENGTH);
-		if (name.isEmpty()) throw new FormatException();
-		byte[] publicKey = r.readRaw(MAX_PUBLIC_KEY_LENGTH);
-		if (publicKey.length == 0) throw new FormatException();
-		byte[] sig = r.readRaw(MAX_SIGNATURE_LENGTH);
-		if (sig.length == 0) throw new FormatException();
-		r.readListEnd();
-		LOG.info("Received pseudonym");
-		// Verify the signature
-		if (!crypto.verifySignature(sig, SIGNING_LABEL_EXCHANGE, nonce,
-				publicKey)) {
-			if (LOG.isLoggable(INFO))
-				LOG.info("Invalid signature");
-			throw new GeneralSecurityException();
+	private byte[] sign(LocalAuthor author, byte[] nonce) {
+		try {
+			return crypto.sign(SIGNING_LABEL_EXCHANGE, nonce,
+					author.getPrivateKey());
+		} catch (GeneralSecurityException e) {
+			throw new AssertionError();
 		}
-		return authorFactory.createAuthor(formatVersion, name, publicKey);
 	}
 
-	private void sendTimestamp(BdfWriter w, long timestamp)
+	private boolean verify(Author author, byte[] nonce, byte[] signature) {
+		try {
+			return crypto.verifySignature(signature, SIGNING_LABEL_EXCHANGE,
+					nonce, author.getPublicKey());
+		} catch (GeneralSecurityException e) {
+			return false;
+		}
+	}
+
+	private void sendContactInfo(RecordWriter recordWriter, Author author,
+			Map<TransportId, TransportProperties> properties, byte[] signature,
+			long timestamp) throws IOException {
+		BdfList authorList = clientHelper.toList(author);
+		BdfDictionary props = clientHelper.toDictionary(properties);
+		BdfList payload = BdfList.of(authorList, props, signature, timestamp);
+		recordWriter.writeRecord(new Record(PROTOCOL_VERSION, CONTACT_INFO,
+				clientHelper.toByteArray(payload)));
+		LOG.info("Sent contact info");
+	}
+
+	private ContactInfo receiveContactInfo(RecordReader recordReader)
 			throws IOException {
-		w.writeLong(timestamp);
-		LOG.info("Sent timestamp");
-	}
-
-	private long receiveTimestamp(BdfReader r) throws IOException {
-		long timestamp = r.readLong();
+		Record record;
+		do {
+			record = recordReader.readRecord();
+			if (record.getProtocolVersion() != PROTOCOL_VERSION)
+				throw new FormatException();
+		} while (record.getRecordType() != CONTACT_INFO);
+		LOG.info("Received contact info");
+		BdfList payload = clientHelper.toList(record.getPayload());
+		checkSize(payload, 4);
+		Author author = clientHelper.parseAndValidateAuthor(payload.getList(0));
+		BdfDictionary props = payload.getDictionary(1);
+		Map<TransportId, TransportProperties> properties =
+				clientHelper.parseAndValidateTransportPropertiesMap(props);
+		byte[] signature = payload.getRaw(2);
+		checkLength(signature, 1, MAX_SIGNATURE_LENGTH);
+		long timestamp = payload.getLong(3);
 		if (timestamp < 0) throw new FormatException();
-		LOG.info("Received timestamp");
-		return timestamp;
-	}
-
-	private void sendTransportProperties(BdfWriter w,
-			Map<TransportId, TransportProperties> local) throws IOException {
-		w.writeListStart();
-		for (Entry<TransportId, TransportProperties> e : local.entrySet())
-			w.writeList(BdfList.of(e.getKey().getString(), e.getValue()));
-		w.writeListEnd();
-	}
-
-	private Map<TransportId, TransportProperties> receiveTransportProperties(
-			BdfReader r) throws IOException {
-		Map<TransportId, TransportProperties> remote = new HashMap<>();
-		r.readListStart();
-		while (!r.hasListEnd()) {
-			r.readListStart();
-			String id = r.readString(MAX_TRANSPORT_ID_LENGTH);
-			if (id.isEmpty()) throw new FormatException();
-			TransportProperties p = new TransportProperties();
-			r.readDictionaryStart();
-			while (!r.hasDictionaryEnd()) {
-				if (p.size() == MAX_PROPERTIES_PER_TRANSPORT)
-					throw new FormatException();
-				String key = r.readString(MAX_PROPERTY_LENGTH);
-				String value = r.readString(MAX_PROPERTY_LENGTH);
-				p.put(key, value);
-			}
-			r.readDictionaryEnd();
-			r.readListEnd();
-			remote.put(new TransportId(id), p);
-		}
-		r.readListEnd();
-		return remote;
+		return new ContactInfo(author, properties, signature, timestamp);
 	}
 
 	private ContactId addContact(Author remoteAuthor, long timestamp,
@@ -324,13 +300,30 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		return contactId;
 	}
 
-	private void tryToClose(DuplexTransportConnection conn, boolean exception) {
+	private void tryToClose(DuplexTransportConnection conn) {
 		try {
 			LOG.info("Closing connection");
-			conn.getReader().dispose(exception, true);
-			conn.getWriter().dispose(exception);
+			conn.getReader().dispose(true, true);
+			conn.getWriter().dispose(true);
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
+	}
+
+	private static class ContactInfo {
+
+		private final Author author;
+		private final Map<TransportId, TransportProperties> properties;
+		private final byte[] signature;
+		private final long timestamp;
+
+		private ContactInfo(Author author,
+				Map<TransportId, TransportProperties> properties,
+				byte[] signature, long timestamp) {
+			this.author = author;
+			this.properties = properties;
+			this.signature = signature;
+			this.timestamp = timestamp;
 		}
 	}
 }

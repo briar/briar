@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.sync.RecordWriter;
+import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.bramble.test.TestUtils;
@@ -29,14 +29,14 @@ public class SimplexOutgoingSessionTest extends BrambleTestCase {
 	private final ContactId contactId;
 	private final MessageId messageId;
 	private final int maxLatency;
-	private final RecordWriter recordWriter;
+	private final SyncRecordWriter recordWriter;
 
 	public SimplexOutgoingSessionTest() {
 		context = new Mockery();
 		db = context.mock(DatabaseComponent.class);
 		dbExecutor = new ImmediateExecutor();
 		eventBus = context.mock(EventBus.class);
-		recordWriter = context.mock(RecordWriter.class);
+		recordWriter = context.mock(SyncRecordWriter.class);
 		contactId = new ContactId(234);
 		messageId = new MessageId(TestUtils.getRandomId());
 		maxLatency = Integer.MAX_VALUE;

@@ -3,88 +3,67 @@ package org.briarproject.bramble.sync;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.record.Record;
+import org.briarproject.bramble.api.record.RecordReader;
 import org.briarproject.bramble.api.sync.Ack;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
-import org.briarproject.bramble.api.sync.RecordReader;
 import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.sync.SyncRecordReader;
 import org.briarproject.bramble.util.ByteUtils;
 
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
 import static org.briarproject.bramble.api.sync.RecordTypes.MESSAGE;
 import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
 import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
-import static org.briarproject.bramble.api.sync.SyncConstants.RECORD_HEADER_LENGTH;
 
 @NotThreadSafe
 @NotNullByDefault
-class RecordReaderImpl implements RecordReader {
-
-	private enum State {BUFFER_EMPTY, BUFFER_FULL, EOF}
+class SyncRecordReaderImpl implements SyncRecordReader {
 
 	private final MessageFactory messageFactory;
-	private final InputStream in;
-	private final byte[] header, payload;
+	private final RecordReader reader;
 
-	private State state = State.BUFFER_EMPTY;
-	private int payloadLength = 0;
+	@Nullable
+	private Record nextRecord = null;
+	private boolean eof = false;
 
-	RecordReaderImpl(MessageFactory messageFactory, InputStream in) {
+	SyncRecordReaderImpl(MessageFactory messageFactory, RecordReader reader) {
 		this.messageFactory = messageFactory;
-		this.in = in;
-		header = new byte[RECORD_HEADER_LENGTH];
-		payload = new byte[MAX_RECORD_PAYLOAD_LENGTH];
+		this.reader = reader;
 	}
 
 	private void readRecord() throws IOException {
-		if (state != State.BUFFER_EMPTY) throw new IllegalStateException();
+		assert nextRecord == null;
 		while (true) {
-			// Read the header
-			int offset = 0;
-			while (offset < RECORD_HEADER_LENGTH) {
-				int read =
-						in.read(header, offset, RECORD_HEADER_LENGTH - offset);
-				if (read == -1) {
-					if (offset > 0) throw new FormatException();
-					state = State.EOF;
-					return;
-				}
-				offset += read;
-			}
-			byte version = header[0], type = header[1];
-			payloadLength = ByteUtils.readUint16(header, 2);
+			nextRecord = reader.readRecord();
 			// Check the protocol version
+			byte version = nextRecord.getProtocolVersion();
 			if (version != PROTOCOL_VERSION) throw new FormatException();
-			// Check the payload length
-			if (payloadLength > MAX_RECORD_PAYLOAD_LENGTH)
-				throw new FormatException();
-			// Read the payload
-			offset = 0;
-			while (offset < payloadLength) {
-				int read = in.read(payload, offset, payloadLength - offset);
-				if (read == -1) throw new FormatException();
-				offset += read;
-			}
-			state = State.BUFFER_FULL;
+			byte type = nextRecord.getRecordType();
 			// Return if this is a known record type, otherwise continue
 			if (type == ACK || type == MESSAGE || type == OFFER ||
 					type == REQUEST) {
 				return;
 			}
 		}
+	}
+
+	private byte getNextRecordType() {
+		assert nextRecord != null;
+		return nextRecord.getRecordType();
 	}
 
 	/**
@@ -97,14 +76,21 @@ class RecordReaderImpl implements RecordReader {
 	 */
 	@Override
 	public boolean eof() throws IOException {
-		if (state == State.BUFFER_EMPTY) readRecord();
-		if (state == State.BUFFER_EMPTY) throw new IllegalStateException();
-		return state == State.EOF;
+		if (nextRecord != null) return false;
+		if (eof) return true;
+		try {
+			readRecord();
+			return false;
+		} catch (EOFException e) {
+			nextRecord = null;
+			eof = true;
+			return true;
+		}
 	}
 
 	@Override
 	public boolean hasAck() throws IOException {
-		return !eof() && header[1] == ACK;
+		return !eof() && getNextRecordType() == ACK;
 	}
 
 	@Override
@@ -114,45 +100,41 @@ class RecordReaderImpl implements RecordReader {
 	}
 
 	private List<MessageId> readMessageIds() throws IOException {
-		if (payloadLength == 0) throw new FormatException();
-		if (payloadLength % UniqueId.LENGTH != 0) throw new FormatException();
-		List<MessageId> ids = new ArrayList<>();
-		for (int off = 0; off < payloadLength; off += UniqueId.LENGTH) {
+		assert nextRecord != null;
+		byte[] payload = nextRecord.getPayload();
+		if (payload.length == 0) throw new FormatException();
+		if (payload.length % UniqueId.LENGTH != 0) throw new FormatException();
+		List<MessageId> ids = new ArrayList<>(payload.length / UniqueId.LENGTH);
+		for (int off = 0; off < payload.length; off += UniqueId.LENGTH) {
 			byte[] id = new byte[UniqueId.LENGTH];
 			System.arraycopy(payload, off, id, 0, UniqueId.LENGTH);
 			ids.add(new MessageId(id));
 		}
-		state = State.BUFFER_EMPTY;
+		nextRecord = null;
 		return ids;
 	}
 
 	@Override
 	public boolean hasMessage() throws IOException {
-		return !eof() && header[1] == MESSAGE;
+		return !eof() && getNextRecordType() == MESSAGE;
 	}
 
 	@Override
 	public Message readMessage() throws IOException {
 		if (!hasMessage()) throw new FormatException();
-		if (payloadLength <= MESSAGE_HEADER_LENGTH) throw new FormatException();
-		// Group ID
-		byte[] id = new byte[UniqueId.LENGTH];
-		System.arraycopy(payload, 0, id, 0, UniqueId.LENGTH);
-		GroupId groupId = new GroupId(id);
-		// Timestamp
+		assert nextRecord != null;
+		byte[] payload = nextRecord.getPayload();
+		if (payload.length < MESSAGE_HEADER_LENGTH) throw new FormatException();
+		// Validate timestamp
 		long timestamp = ByteUtils.readUint64(payload, UniqueId.LENGTH);
 		if (timestamp < 0) throw new FormatException();
-		// Body
-		byte[] body = new byte[payloadLength - MESSAGE_HEADER_LENGTH];
-		System.arraycopy(payload, MESSAGE_HEADER_LENGTH, body, 0,
-				payloadLength - MESSAGE_HEADER_LENGTH);
-		state = State.BUFFER_EMPTY;
-		return messageFactory.createMessage(groupId, timestamp, body);
+		nextRecord = null;
+		return messageFactory.createMessage(payload);
 	}
 
 	@Override
 	public boolean hasOffer() throws IOException {
-		return !eof() && header[1] == OFFER;
+		return !eof() && getNextRecordType() == OFFER;
 	}
 
 	@Override
@@ -163,7 +145,7 @@ class RecordReaderImpl implements RecordReader {
 
 	@Override
 	public boolean hasRequest() throws IOException {
-		return !eof() && header[1] == REQUEST;
+		return !eof() && getNextRecordType() == REQUEST;
 	}
 
 	@Override

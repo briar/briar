@@ -14,8 +14,8 @@ import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Offer;
-import org.briarproject.bramble.api.sync.RecordWriter;
 import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.event.GroupVisibilityUpdatedEvent;
 import org.briarproject.bramble.api.sync.event.MessageRequestedEvent;
@@ -39,8 +39,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
+import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_RECORD_PAYLOAD_LENGTH;
 
 /**
  * An outgoing {@link SyncSession} suitable for duplex transports. The session
@@ -67,7 +67,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	private final Clock clock;
 	private final ContactId contactId;
 	private final int maxLatency, maxIdleTime;
-	private final RecordWriter recordWriter;
+	private final SyncRecordWriter recordWriter;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
 
 	private final AtomicBoolean generateAckQueued = new AtomicBoolean(false);
@@ -81,7 +81,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 
 	DuplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, Clock clock, ContactId contactId, int maxLatency,
-			int maxIdleTime, RecordWriter recordWriter) {
+			int maxIdleTime, SyncRecordWriter recordWriter) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
@@ -273,7 +273,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 				Transaction txn = db.startTransaction(false);
 				try {
 					b = db.generateRequestedBatch(txn, contactId,
-							MAX_RECORD_PAYLOAD_LENGTH, maxLatency);
+							MAX_RECORD_PAYLOAD_BYTES, maxLatency);
 					setNextSendTime(db.getNextSendTime(txn, contactId));
 					db.commitTransaction(txn);
 				} finally {

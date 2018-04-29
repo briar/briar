@@ -5,7 +5,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import java.io.OutputStream;
 
 @NotNullByDefault
-public interface RecordWriterFactory {
+public interface SyncRecordWriterFactory {
 
-	RecordWriter createRecordWriter(OutputStream out);
+	SyncRecordWriter createRecordWriter(OutputStream out);
 }

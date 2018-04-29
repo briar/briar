@@ -4,9 +4,12 @@ import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
-import org.briarproject.bramble.util.ByteUtils;
+import org.briarproject.bramble.api.record.Record;
+import org.briarproject.bramble.api.record.RecordReader;
+import org.briarproject.bramble.api.record.RecordReaderFactory;
+import org.briarproject.bramble.api.record.RecordWriter;
+import org.briarproject.bramble.api.record.RecordWriterFactory;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,8 +17,6 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.PROTOCOL_VERSION;
-import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.RECORD_HEADER_LENGTH;
-import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.RECORD_HEADER_PAYLOAD_LENGTH_OFFSET;
 import static org.briarproject.bramble.api.keyagreement.RecordTypes.ABORT;
 import static org.briarproject.bramble.api.keyagreement.RecordTypes.CONFIRM;
 import static org.briarproject.bramble.api.keyagreement.RecordTypes.KEY;
@@ -30,14 +31,17 @@ class KeyAgreementTransport {
 			Logger.getLogger(KeyAgreementTransport.class.getName());
 
 	private final KeyAgreementConnection kac;
-	private final InputStream in;
-	private final OutputStream out;
+	private final RecordReader reader;
+	private final RecordWriter writer;
 
-	KeyAgreementTransport(KeyAgreementConnection kac)
+	KeyAgreementTransport(RecordReaderFactory recordReaderFactory,
+			RecordWriterFactory recordWriterFactory, KeyAgreementConnection kac)
 			throws IOException {
 		this.kac = kac;
-		in = kac.getConnection().getReader().getInputStream();
-		out = kac.getConnection().getWriter().getOutputStream();
+		InputStream in = kac.getConnection().getReader().getInputStream();
+		reader = recordReaderFactory.createRecordReader(in);
+		OutputStream out = kac.getConnection().getWriter().getOutputStream();
+		writer = recordWriterFactory.createRecordWriter(out);
 	}
 
 	public DuplexTransportConnection getConnection() {
@@ -74,9 +78,8 @@ class KeyAgreementTransport {
 		tryToClose(exception);
 	}
 
-	public void tryToClose(boolean exception) {
+	private void tryToClose(boolean exception) {
 		try {
-			LOG.info("Closing connection");
 			kac.getConnection().getReader().dispose(exception, true);
 			kac.getConnection().getWriter().dispose(exception);
 		} catch (IOException e) {
@@ -85,59 +88,27 @@ class KeyAgreementTransport {
 	}
 
 	private void writeRecord(byte type, byte[] payload) throws IOException {
-		byte[] recordHeader = new byte[RECORD_HEADER_LENGTH];
-		recordHeader[0] = PROTOCOL_VERSION;
-		recordHeader[1] = type;
-		ByteUtils.writeUint16(payload.length, recordHeader,
-				RECORD_HEADER_PAYLOAD_LENGTH_OFFSET);
-		out.write(recordHeader);
-		out.write(payload);
-		out.flush();
+		writer.writeRecord(new Record(PROTOCOL_VERSION, type, payload));
+		writer.flush();
 	}
 
 	private byte[] readRecord(byte expectedType) throws AbortException {
 		while (true) {
-			byte[] header = readHeader();
-			byte version = header[0], type = header[1];
-			int len = ByteUtils.readUint16(header,
-					RECORD_HEADER_PAYLOAD_LENGTH_OFFSET);
-			// Reject unrecognised protocol version
-			if (version != PROTOCOL_VERSION) throw new AbortException(false);
-			if (type == ABORT) throw new AbortException(true);
-			if (type == expectedType) {
-				try {
-					return readData(len);
-				} catch (IOException e) {
-					throw new AbortException(e);
-				}
-			}
-			// Reject recognised but unexpected record type
-			if (type == KEY || type == CONFIRM) throw new AbortException(false);
-			// Skip unrecognised record type
 			try {
-				readData(len);
+				Record record = reader.readRecord();
+				// Reject unrecognised protocol version
+				if (record.getProtocolVersion() != PROTOCOL_VERSION)
+					throw new AbortException(false);
+				byte type = record.getRecordType();
+				if (type == ABORT) throw new AbortException(true);
+				if (type == expectedType) return record.getPayload();
+				// Reject recognised but unexpected record type
+				if (type == KEY || type == CONFIRM)
+					throw new AbortException(false);
+				// Skip unrecognised record type
 			} catch (IOException e) {
 				throw new AbortException(e);
 			}
 		}
-	}
-
-	private byte[] readHeader() throws AbortException {
-		try {
-			return readData(RECORD_HEADER_LENGTH);
-		} catch (IOException e) {
-			throw new AbortException(e);
-		}
-	}
-
-	private byte[] readData(int len) throws IOException {
-		byte[] data = new byte[len];
-		int offset = 0;
-		while (offset < data.length) {
-			int read = in.read(data, offset, data.length - offset);
-			if (read == -1) throw new EOFException();
-			offset += read;
-		}
-		return data;
 	}
 }
