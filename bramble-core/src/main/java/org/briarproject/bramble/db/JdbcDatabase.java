@@ -74,7 +74,12 @@ import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 36;
+	static final int CODE_SCHEMA_VERSION = 37;
+
+	// Rotation period offsets for incoming transport keys
+	private static final int OFFSET_PREV = -1;
+	private static final int OFFSET_CURR = 0;
+	private static final int OFFSET_NEXT = 1;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -254,7 +259,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " headerKey _SECRET NOT NULL,"
 					+ " base BIGINT NOT NULL,"
 					+ " bitmap _BINARY NOT NULL,"
-					+ " PRIMARY KEY (transportId, keySetId, rotationPeriod),"
+					+ " periodOffset INT NOT NULL,"
+					+ " PRIMARY KEY (transportId, keySetId, periodOffset),"
 					+ " FOREIGN KEY (transportId)"
 					+ " REFERENCES transports (transportId)"
 					+ " ON DELETE CASCADE,"
@@ -908,8 +914,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Store the incoming keys
 			sql = "INSERT INTO incomingKeys (keySetId, contactId, transportId,"
-					+ " rotationPeriod, tagKey, headerKey, base, bitmap)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+					+ " rotationPeriod, tagKey, headerKey, base, bitmap,"
+					+ " periodOffset)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, keySetId.getInt());
 			if (c == null) ps.setNull(2, INTEGER);
@@ -922,6 +929,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(6, inPrev.getHeaderKey().getBytes());
 			ps.setLong(7, inPrev.getWindowBase());
 			ps.setBytes(8, inPrev.getWindowBitmap());
+			ps.setInt(9, OFFSET_PREV);
 			ps.addBatch();
 			// Current rotation period
 			IncomingKeys inCurr = k.getCurrentIncomingKeys();
@@ -930,6 +938,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(6, inCurr.getHeaderKey().getBytes());
 			ps.setLong(7, inCurr.getWindowBase());
 			ps.setBytes(8, inCurr.getWindowBitmap());
+			ps.setInt(9, OFFSET_CURR);
 			ps.addBatch();
 			// Next rotation period
 			IncomingKeys inNext = k.getNextIncomingKeys();
@@ -938,6 +947,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(6, inNext.getHeaderKey().getBytes());
 			ps.setLong(7, inNext.getWindowBase());
 			ps.setBytes(8, inNext.getWindowBitmap());
+			ps.setInt(9, OFFSET_NEXT);
 			ps.addBatch();
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != 3) throw new DbStateException();
@@ -2141,7 +2151,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " base, bitmap"
 					+ " FROM incomingKeys"
 					+ " WHERE transportId = ?"
-					+ " ORDER BY keySetId, rotationPeriod";
+					+ " ORDER BY keySetId, periodOffset";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
@@ -2944,12 +2954,69 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void updateTransportKeys(Connection txn, Collection<KeySet> keys)
+	public void updateTransportKeys(Connection txn, KeySet ks)
 			throws DbException {
-		for (KeySet ks : keys) {
+		PreparedStatement ps = null;
+		try {
+			// Update the outgoing keys
+			String sql = "UPDATE outgoingKeys SET rotationPeriod = ?,"
+					+ " tagKey = ?, headerKey = ?, stream = ?"
+					+ " WHERE transportId = ? AND keySetId = ?";
+			ps = txn.prepareStatement(sql);
 			TransportKeys k = ks.getTransportKeys();
-			removeTransportKeys(txn, k.getTransportId(), ks.getKeySetId());
-			addTransportKeys(txn, ks.getContactId(), k);
+			OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
+			ps.setLong(1, outCurr.getRotationPeriod());
+			ps.setBytes(2, outCurr.getTagKey().getBytes());
+			ps.setBytes(3, outCurr.getHeaderKey().getBytes());
+			ps.setLong(4, outCurr.getStreamCounter());
+			ps.setString(5, k.getTransportId().getString());
+			ps.setInt(6, ks.getKeySetId().getInt());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+			// Update the incoming keys
+			sql = "UPDATE incomingKeys SET rotationPeriod = ?,"
+					+ " tagKey = ?, headerKey = ?, base = ?, bitmap = ?"
+					+ " WHERE transportId = ? AND keySetId = ?"
+					+ " AND periodOffset = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setString(6, k.getTransportId().getString());
+			ps.setInt(7, ks.getKeySetId().getInt());
+			// Previous rotation period
+			IncomingKeys inPrev = k.getPreviousIncomingKeys();
+			ps.setLong(1, inPrev.getRotationPeriod());
+			ps.setBytes(2, inPrev.getTagKey().getBytes());
+			ps.setBytes(3, inPrev.getHeaderKey().getBytes());
+			ps.setLong(4, inPrev.getWindowBase());
+			ps.setBytes(5, inPrev.getWindowBitmap());
+			ps.setInt(8, OFFSET_PREV);
+			ps.addBatch();
+			// Current rotation period
+			IncomingKeys inCurr = k.getCurrentIncomingKeys();
+			ps.setLong(1, inCurr.getRotationPeriod());
+			ps.setBytes(2, inCurr.getTagKey().getBytes());
+			ps.setBytes(3, inCurr.getHeaderKey().getBytes());
+			ps.setLong(4, inCurr.getWindowBase());
+			ps.setBytes(5, inCurr.getWindowBitmap());
+			ps.setInt(8, OFFSET_CURR);
+			ps.addBatch();
+			// Next rotation period
+			IncomingKeys inNext = k.getNextIncomingKeys();
+			ps.setLong(1, inNext.getRotationPeriod());
+			ps.setBytes(2, inNext.getTagKey().getBytes());
+			ps.setBytes(3, inNext.getHeaderKey().getBytes());
+			ps.setLong(4, inNext.getWindowBase());
+			ps.setBytes(5, inNext.getWindowBitmap());
+			ps.setInt(8, OFFSET_NEXT);
+			ps.addBatch();
+			int[] batchAffected = ps.executeBatch();
+			if (batchAffected.length != 3) throw new DbStateException();
+			for (int rows : batchAffected)
+				if (rows < 0 || rows > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
 		}
 	}
 }

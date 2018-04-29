@@ -667,8 +667,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testTransportKeys() throws Exception {
-		TransportKeys keys = createTransportKeys();
-		TransportKeys keys1 = createTransportKeys();
+		long rotationPeriod = 123, rotationPeriod1 = 234;
+		TransportKeys keys = createTransportKeys(rotationPeriod);
+		TransportKeys keys1 = createTransportKeys(rotationPeriod1);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -697,6 +698,25 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 			}
 		}
 
+		// Rotate the transport keys
+		TransportKeys rotated = createTransportKeys(rotationPeriod + 1);
+		TransportKeys rotated1 = createTransportKeys(rotationPeriod1 + 1);
+		db.updateTransportKeys(txn, new KeySet(keySetId, contactId, rotated));
+		db.updateTransportKeys(txn, new KeySet(keySetId1, contactId, rotated1));
+
+		// Retrieve the transport keys again
+		allKeys = db.getTransportKeys(txn, transportId);
+		assertEquals(2, allKeys.size());
+		for (KeySet ks : allKeys) {
+			assertEquals(contactId, ks.getContactId());
+			if (ks.getKeySetId().equals(keySetId)) {
+				assertKeysEquals(rotated, ks.getTransportKeys());
+			} else {
+				assertEquals(keySetId1, ks.getKeySetId());
+				assertKeysEquals(rotated1, ks.getTransportKeys());
+			}
+		}
+
 		// Removing the contact should remove the transport keys
 		db.removeContact(txn, contactId);
 		assertEquals(emptyList(), db.getTransportKeys(txn, transportId));
@@ -707,8 +727,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testUnboundTransportKeys() throws Exception {
-		TransportKeys keys = createTransportKeys();
-		TransportKeys keys1 = createTransportKeys();
+		long rotationPeriod = 123, rotationPeriod1 = 234;
+		TransportKeys keys = createTransportKeys(rotationPeriod);
+		TransportKeys keys1 = createTransportKeys(rotationPeriod1);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -754,6 +775,26 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 			}
 		}
 
+		// Rotate the transport keys
+		TransportKeys rotated = createTransportKeys(rotationPeriod + 1);
+		TransportKeys rotated1 = createTransportKeys(rotationPeriod1 + 1);
+		db.updateTransportKeys(txn, new KeySet(keySetId, contactId, rotated));
+		db.updateTransportKeys(txn, new KeySet(keySetId1, null, rotated1));
+
+		// Retrieve the transport keys again
+		allKeys = db.getTransportKeys(txn, transportId);
+		assertEquals(2, allKeys.size());
+		for (KeySet ks : allKeys) {
+			if (ks.getKeySetId().equals(keySetId)) {
+				assertEquals(contactId, ks.getContactId());
+				assertKeysEquals(rotated, ks.getTransportKeys());
+			} else {
+				assertEquals(keySetId1, ks.getKeySetId());
+				assertNull(ks.getContactId());
+				assertKeysEquals(rotated1, ks.getTransportKeys());
+			}
+		}
+
 		// Remove the unbound transport keys
 		db.removeTransportKeys(txn, transportId, keySetId1);
 
@@ -763,7 +804,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		KeySet ks = allKeys.iterator().next();
 		assertEquals(keySetId, ks.getKeySetId());
 		assertEquals(contactId, ks.getContactId());
-		assertKeysEquals(keys, ks.getTransportKeys());
+		assertKeysEquals(rotated, ks.getTransportKeys());
 
 		// Removing the transport should remove the remaining transport keys
 		db.removeTransport(txn, transportId);
@@ -809,8 +850,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testIncrementStreamCounter() throws Exception {
-		TransportKeys keys = createTransportKeys();
-		long rotationPeriod = keys.getCurrentOutgoingKeys().getRotationPeriod();
+		long rotationPeriod = 123;
+		TransportKeys keys = createTransportKeys(rotationPeriod);
 		long streamCounter = keys.getCurrentOutgoingKeys().getStreamCounter();
 
 		Database<Connection> db = open(false);
@@ -821,8 +862,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addTransport(txn, transportId, 123);
-		db.updateTransportKeys(txn,
-				singletonList(new KeySet(keySetId, contactId, keys)));
+		assertEquals(keySetId, db.addTransportKeys(txn, contactId, keys));
 
 		// Increment the stream counter twice and retrieve the transport keys
 		db.incrementStreamCounter(txn, transportId, keySetId);
@@ -838,14 +878,21 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(rotationPeriod, outCurr.getRotationPeriod());
 		assertEquals(streamCounter + 2, outCurr.getStreamCounter());
 
+		// The rest of the keys should be unaffected
+		assertKeysEquals(keys.getPreviousIncomingKeys(),
+				k.getPreviousIncomingKeys());
+		assertKeysEquals(keys.getCurrentIncomingKeys(),
+				k.getCurrentIncomingKeys());
+		assertKeysEquals(keys.getNextIncomingKeys(), k.getNextIncomingKeys());
+
 		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
 	public void testSetReorderingWindow() throws Exception {
-		TransportKeys keys = createTransportKeys();
-		long rotationPeriod = keys.getCurrentIncomingKeys().getRotationPeriod();
+		long rotationPeriod = 123;
+		TransportKeys keys = createTransportKeys(rotationPeriod);
 		long base = keys.getCurrentIncomingKeys().getWindowBase();
 		byte[] bitmap = keys.getCurrentIncomingKeys().getWindowBitmap();
 
@@ -857,8 +904,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addTransport(txn, transportId, 123);
-		db.updateTransportKeys(txn,
-				singletonList(new KeySet(keySetId, contactId, keys)));
+		assertEquals(keySetId, db.addTransportKeys(txn, contactId, keys));
 
 		// Update the reordering window and retrieve the transport keys
 		new Random().nextBytes(bitmap);
@@ -875,6 +921,13 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(rotationPeriod, inCurr.getRotationPeriod());
 		assertEquals(base + 1, inCurr.getWindowBase());
 		assertArrayEquals(bitmap, inCurr.getWindowBitmap());
+
+		// The rest of the keys should be unaffected
+		assertKeysEquals(keys.getPreviousIncomingKeys(),
+				k.getPreviousIncomingKeys());
+		assertKeysEquals(keys.getNextIncomingKeys(), k.getNextIncomingKeys());
+		assertKeysEquals(keys.getCurrentOutgoingKeys(),
+				k.getCurrentOutgoingKeys());
 
 		db.commitTransaction(txn);
 		db.close();
@@ -973,8 +1026,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Attach some metadata to the group
 		Metadata metadata = new Metadata();
-		metadata.put("foo", new byte[]{'b', 'a', 'r'});
-		metadata.put("baz", new byte[]{'b', 'a', 'm'});
+		metadata.put("foo", new byte[] {'b', 'a', 'r'});
+		metadata.put("baz", new byte[] {'b', 'a', 'm'});
 		db.mergeGroupMetadata(txn, groupId, metadata);
 
 		// Retrieve the metadata for the group
@@ -1012,8 +1065,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Attach some metadata to the message
 		Metadata metadata = new Metadata();
-		metadata.put("foo", new byte[]{'b', 'a', 'r'});
-		metadata.put("baz", new byte[]{'b', 'a', 'm'});
+		metadata.put("foo", new byte[] {'b', 'a', 'r'});
+		metadata.put("baz", new byte[] {'b', 'a', 'm'});
 		db.mergeMessageMetadata(txn, messageId, metadata);
 
 		// Retrieve the metadata for the message
@@ -1083,8 +1136,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Attach some metadata to the message
 		Metadata metadata = new Metadata();
-		metadata.put("foo", new byte[]{'b', 'a', 'r'});
-		metadata.put("baz", new byte[]{'b', 'a', 'm'});
+		metadata.put("foo", new byte[] {'b', 'a', 'r'});
+		metadata.put("baz", new byte[] {'b', 'a', 'm'});
 		db.mergeMessageMetadata(txn, messageId, metadata);
 
 		// Retrieve the metadata for the message
@@ -1145,11 +1198,11 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Attach some metadata to the messages
 		Metadata metadata = new Metadata();
-		metadata.put("foo", new byte[]{'b', 'a', 'r'});
-		metadata.put("baz", new byte[]{'b', 'a', 'm'});
+		metadata.put("foo", new byte[] {'b', 'a', 'r'});
+		metadata.put("baz", new byte[] {'b', 'a', 'm'});
 		db.mergeMessageMetadata(txn, messageId, metadata);
 		Metadata metadata1 = new Metadata();
-		metadata1.put("foo", new byte[]{'q', 'u', 'x'});
+		metadata1.put("foo", new byte[] {'q', 'u', 'x'});
 		db.mergeMessageMetadata(txn, messageId1, metadata1);
 
 		// Retrieve all the metadata for the group
@@ -1249,11 +1302,11 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Attach some metadata to the messages
 		Metadata metadata = new Metadata();
-		metadata.put("foo", new byte[]{'b', 'a', 'r'});
-		metadata.put("baz", new byte[]{'b', 'a', 'm'});
+		metadata.put("foo", new byte[] {'b', 'a', 'r'});
+		metadata.put("baz", new byte[] {'b', 'a', 'm'});
 		db.mergeMessageMetadata(txn, messageId, metadata);
 		Metadata metadata1 = new Metadata();
-		metadata1.put("foo", new byte[]{'b', 'a', 'r'});
+		metadata1.put("foo", new byte[] {'b', 'a', 'r'});
 		db.mergeMessageMetadata(txn, messageId1, metadata1);
 
 		for (int i = 0; i < 2; i++) {
@@ -1264,7 +1317,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 			} else {
 				// Query for foo
 				query = new Metadata();
-				query.put("foo", new byte[]{'b', 'a', 'r'});
+				query.put("foo", new byte[] {'b', 'a', 'r'});
 			}
 
 			db.setMessageState(txn, messageId, DELIVERED);
@@ -1804,23 +1857,23 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		return db;
 	}
 
-	private TransportKeys createTransportKeys() {
+	private TransportKeys createTransportKeys(long rotationPeriod) {
 		SecretKey inPrevTagKey = getSecretKey();
 		SecretKey inPrevHeaderKey = getSecretKey();
 		IncomingKeys inPrev = new IncomingKeys(inPrevTagKey, inPrevHeaderKey,
-				1, 123, new byte[4]);
+				rotationPeriod - 1, 123, new byte[4]);
 		SecretKey inCurrTagKey = getSecretKey();
 		SecretKey inCurrHeaderKey = getSecretKey();
 		IncomingKeys inCurr = new IncomingKeys(inCurrTagKey, inCurrHeaderKey,
-				2, 234, new byte[4]);
+				rotationPeriod, 234, new byte[4]);
 		SecretKey inNextTagKey = getSecretKey();
 		SecretKey inNextHeaderKey = getSecretKey();
 		IncomingKeys inNext = new IncomingKeys(inNextTagKey, inNextHeaderKey,
-				3, 345, new byte[4]);
+				rotationPeriod + 1, 345, new byte[4]);
 		SecretKey outCurrTagKey = getSecretKey();
 		SecretKey outCurrHeaderKey = getSecretKey();
 		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
-				2, 456, true);
+				rotationPeriod, 456, true);
 		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);
 	}
 
