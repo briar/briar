@@ -457,7 +457,7 @@ class IntroduceeProtocolEngine
 			//noinspection ConstantConditions
 			keys = keyManager
 					.addUnboundKeys(txn, new SecretKey(s.getMasterKey()),
-							timestamp, s.getRemote().alice);
+							timestamp, s.getLocal().alice);
 			keyManager.bindKeys(txn, c.getId(), keys);
 
 			// add signed transport properties for the contact

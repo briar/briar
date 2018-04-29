@@ -23,6 +23,8 @@ public interface KeyManager {
 	 * <p/>
 	 * {@link StreamContext StreamContexts} for the contact can be created
 	 * after this method has returned.
+	 *
+	 * @param alice true if the local party is Alice
 	 */
 	void addContact(Transaction txn, ContactId c, SecretKey master,
 			long timestamp, boolean alice) throws DbException;
@@ -33,6 +35,8 @@ public interface KeyManager {
 	 * <p/>
 	 * The keys must be bound before they can be used for incoming streams,
 	 * and also activated before they can be used for outgoing streams.
+	 *
+	 * @param alice true if the local party is Alice
 	 */
 	Map<TransportId, KeySetId> addUnboundKeys(Transaction txn, SecretKey master,
 			long timestamp, boolean alice) throws DbException;
@@ -55,7 +59,7 @@ public interface KeyManager {
 	 * the manager and the database.
 	 */
 	void removeKeys(Transaction txn, Map<TransportId, KeySetId> keys)
-		throws DbException;
+			throws DbException;
 
 	/**
 	 * Returns true if we have keys that can be used for outgoing streams to

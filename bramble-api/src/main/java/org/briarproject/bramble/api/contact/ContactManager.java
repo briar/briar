@@ -24,6 +24,8 @@ public interface ContactManager {
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * derives and stores transport keys for each transport, and returns an ID
 	 * for the contact.
+	 *
+	 * @param alice true if the local party is Alice
 	 */
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
 			SecretKey master, long timestamp, boolean alice, boolean verified,
@@ -38,7 +40,10 @@ public interface ContactManager {
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
-	 * and returns an ID for the contact.
+	 * derives and stores transport keys for each transport, and returns an ID
+	 * for the contact.
+	 *
+	 * @param alice true if the local party is Alice
 	 */
 	ContactId addContact(Author remote, AuthorId local,
 			SecretKey master, long timestamp, boolean alice, boolean verified,
