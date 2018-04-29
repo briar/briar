@@ -37,9 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -47,7 +45,6 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.contact.RecordTypes.CONTACT_INFO;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
-import static org.briarproject.bramble.api.plugin.TransportId.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
@@ -256,9 +253,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			Map<TransportId, TransportProperties> properties, byte[] signature,
 			long timestamp) throws IOException {
 		BdfList authorList = clientHelper.toList(author);
-		BdfDictionary props = new BdfDictionary();
-		for (Entry<TransportId, TransportProperties> e : properties.entrySet())
-			props.put(e.getKey().getString(), new BdfDictionary(e.getValue()));
+		BdfDictionary props = clientHelper.toDictionary(properties);
 		BdfList payload = BdfList.of(authorList, props, signature, timestamp);
 		recordWriter.writeRecord(new Record(PROTOCOL_VERSION, CONTACT_INFO,
 				clientHelper.toByteArray(payload)));
@@ -279,25 +274,12 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		Author author = clientHelper.parseAndValidateAuthor(payload.getList(0));
 		BdfDictionary props = payload.getDictionary(1);
 		Map<TransportId, TransportProperties> properties =
-				parseTransportProperties(props);
+				clientHelper.parseAndValidateTransportPropertiesMap(props);
 		byte[] signature = payload.getRaw(2);
 		checkLength(signature, 1, MAX_SIGNATURE_LENGTH);
 		long timestamp = payload.getLong(3);
 		if (timestamp < 0) throw new FormatException();
 		return new ContactInfo(author, properties, signature, timestamp);
-	}
-
-	private Map<TransportId, TransportProperties> parseTransportProperties(
-			BdfDictionary props) throws FormatException {
-		Map<TransportId, TransportProperties> properties = new HashMap<>();
-		for (String id : props.keySet()) {
-			checkLength(id, 1, MAX_TRANSPORT_ID_LENGTH);
-			BdfDictionary d = props.getDictionary(id);
-			TransportProperties p =
-					clientHelper.parseAndValidateTransportProperties(d);
-			properties.put(new TransportId(id), p);
-		}
-		return properties;
 	}
 
 	private ContactId addContact(Author remoteAuthor, long timestamp,
