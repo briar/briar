@@ -43,6 +43,9 @@
   </plurals>
   <string name="expiry_update">S\'ha ampliat la data de venciment de la prova. El vostre compte caducarà ara en %d dies.</string>
   <string name="expiry_date_reached">Aquest programa ha caducat.\nGràcies per haver-lo provat!</string>
+  <string name="download_briar">Per continuar utilitzant Briar, baixeu la versió 1.0.</string>
+  <string name="create_new_account">Haureu de crear un compte nou, però podeu utilitzar el mateix sobrenom.</string>
+  <string name="download_briar_button">Baixa Briar 1.0</string>
   <string name="startup_open_database">S\'està desxifrant la base de dades...</string>
   <string name="startup_migrate_database">S\'està actualitzant la base de dades...</string>
   <!--Navigation Drawer-->
@@ -131,6 +134,7 @@
   <string name="introduction_onboarding_title">Introdueix els teus contactes</string>
   <string name="introduction_onboarding_text">Pots presentar els teus contactes entre si, de manera que no necessiten trobar-se en persona per a donar-se d\'alta com a contactes a Briar.</string>
   <string name="introduction_activity_title">Seleccionar contacte</string>
+  <string name="introduction_not_possible">Ja teniu una introducció en progrés amb aquests contactes. Permeteu que això finalitzi primer. Si vostè o els vostres contactes poques vegades són en línia, això pot trigar un temps.</string>
   <string name="introduction_message_title">Introduir contacte</string>
   <string name="introduction_message_hint">Afegir un missatge (opcional)</string>
   <string name="introduction_button">Presentar contactes entre si</string>
@@ -142,6 +146,7 @@
   <string name="introduction_request_exists_received">%1$s ha demanat que us presenteu a %2$s, però %2$s ja està a la vostra llista de contactes. Com que %1$s no sap això, encara podeu respondre:</string>
   <string name="introduction_request_answered_received">%1$s ha demanat que us presenteu a %2$s.</string>
   <string name="introduction_response_accepted_sent">Has acceptat la presentació amb el contacte %1$s.</string>
+  <string name="introduction_response_accepted_sent_info">Abans que %1$s s\'afegeixi als vostres contactes, també heu d\'acceptar la introducció. Això pot trigar un temps.</string>
   <string name="introduction_response_declined_sent">Heu rebutjat la presentació a %1$s.</string>
   <string name="introduction_response_accepted_received">%1$s va acceptar la presentació de %2$s.</string>
   <string name="introduction_response_declined_received">%1$s va rebutjar la presentació a %2$s.</string>
