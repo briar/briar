@@ -1596,6 +1596,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// The message should not be sent or seen
 		MessageStatus status = db.getMessageStatus(txn, contactId, messageId);
+		assertNotNull(status);
 		assertEquals(messageId, status.getMessageId());
 		assertEquals(contactId, status.getContactId());
 		assertFalse(status.isSent());
@@ -1616,6 +1617,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// The message should be sent but not seen
 		status = db.getMessageStatus(txn, contactId, messageId);
+		assertNotNull(status);
 		assertEquals(messageId, status.getMessageId());
 		assertEquals(contactId, status.getContactId());
 		assertTrue(status.isSent());
@@ -1635,6 +1637,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// The message should be sent and seen
 		status = db.getMessageStatus(txn, contactId, messageId);
+		assertNotNull(status);
 		assertEquals(messageId, status.getMessageId());
 		assertEquals(contactId, status.getContactId());
 		assertTrue(status.isSent());
@@ -1648,6 +1651,36 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(contactId, status.getContactId());
 		assertTrue(status.isSent());
 		assertTrue(status.isSeen());
+
+		// Make the group invisible to the contact
+		db.removeGroupVisibility(txn, contactId, groupId);
+
+		// Null should be returned when querying by message
+		assertNull(db.getMessageStatus(txn, contactId, messageId));
+
+		// No statuses should be returned when querying by group
+		statuses = db.getMessageStatus(txn, contactId, groupId);
+		assertEquals(0, statuses.size());
+
+		// Make the group visible to the contact again
+		db.addGroupVisibility(txn, contactId, groupId, false);
+
+		// The default status should be returned when querying by message
+		status = db.getMessageStatus(txn, contactId, messageId);
+		assertNotNull(status);
+		assertEquals(messageId, status.getMessageId());
+		assertEquals(contactId, status.getContactId());
+		assertFalse(status.isSent());
+		assertFalse(status.isSeen());
+
+		// The default status should be returned when querying by group
+		statuses = db.getMessageStatus(txn, contactId, groupId);
+		assertEquals(1, statuses.size());
+		status = statuses.iterator().next();
+		assertEquals(messageId, status.getMessageId());
+		assertEquals(contactId, status.getContactId());
+		assertFalse(status.isSent());
+		assertFalse(status.isSeen());
 
 		db.commitTransaction(txn);
 		db.close();
