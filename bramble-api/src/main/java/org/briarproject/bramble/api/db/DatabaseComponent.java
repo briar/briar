@@ -136,8 +136,8 @@ public interface DatabaseComponent {
 
 	/**
 	 * Deletes the message with the given ID. Unlike
-	 * {@link #removeMessage(Transaction, MessageId)}, the message ID and any
-	 * other associated data are not deleted.
+	 * {@link #removeMessage(Transaction, MessageId)}, the message ID,
+	 * dependencies, metadata, and any other associated state are not deleted.
 	 */
 	void deleteMessage(Transaction txn, MessageId m) throws DbException;
 
@@ -268,7 +268,7 @@ public interface DatabaseComponent {
 	Collection<LocalAuthor> getLocalAuthors(Transaction txn) throws DbException;
 
 	/**
-	 * Returns the IDs of all messages in the given group.
+	 * Returns the IDs of all delivered messages in the given group.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -319,9 +319,9 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Returns the metadata for any messages in the given group with metadata
-	 * that matches all entries in the given query. If the query is empty, the
-	 * metadata for all messages is returned.
+	 * Returns the metadata for any delivered messages in the given group with
+	 * metadata that matches all entries in the given query. If the query is
+	 * empty, the metadata for all delivered messages is returned.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -337,8 +337,8 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Returns the metadata for the given delivered and pending message.
-	 * This is meant to be only used by the ValidationManager
+	 * Returns the metadata for the given delivered or pending message.
+	 * This is only meant to be used by the ValidationManager.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -346,8 +346,8 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Returns the status of all messages in the given group with respect to
-	 * the given contact.
+	 * Returns the status of all delivered messages in the given group with
+	 * respect to the given contact.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -382,8 +382,8 @@ public interface DatabaseComponent {
 	State getMessageState(Transaction txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns the status of the given message with respect to the given
-	 * contact.
+	 * Returns the status of the given delivered message with respect to the
+	 * given contact.
 	 * <p/>
 	 * Read-only.
 	 */

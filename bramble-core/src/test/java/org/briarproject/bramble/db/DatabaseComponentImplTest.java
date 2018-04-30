@@ -30,6 +30,7 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.event.GroupAddedEvent;
@@ -77,6 +78,7 @@ import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class DatabaseComponentImplTest extends BrambleMockTestCase {
@@ -1319,6 +1321,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		TransportKeys transportKeys = createTransportKeys();
 		KeySet ks = new KeySet(keySetId, contactId, transportKeys);
 		Collection<KeySet> keys = singletonList(ks);
+
 		context.checking(new Expectations() {{
 			// startTransaction()
 			oneOf(database).startTransaction();
@@ -1342,6 +1345,114 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		try {
 			db.updateTransportKeys(transaction, keys);
 			assertEquals(keys, db.getTransportKeys(transaction, transportId));
+			db.commitTransaction(transaction);
+		} finally {
+			db.endTransaction(transaction);
+		}
+	}
+
+	@Test
+	public void testGetMessageStatusByGroupId() throws Exception {
+		MessageStatus status =
+				new MessageStatus(messageId, contactId, true, true);
+
+		context.checking(new Expectations() {{
+			// startTransaction()
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			// getMessageStatus()
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsGroup(txn, groupId);
+			will(returnValue(true));
+			oneOf(database).getGroupVisibility(txn, contactId, groupId);
+			will(returnValue(VISIBLE));
+			oneOf(database).getMessageStatus(txn, contactId, groupId);
+			will(returnValue(singletonList(status)));
+			// getMessageStatus() again
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsGroup(txn, groupId);
+			will(returnValue(true));
+			oneOf(database).getGroupVisibility(txn, contactId, groupId);
+			will(returnValue(INVISIBLE));
+			oneOf(database).getMessageIds(txn, groupId);
+			will(returnValue(singletonList(messageId)));
+			// endTransaction()
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				shutdown);
+
+		Transaction transaction = db.startTransaction(true);
+		try {
+			// With visible group - return stored status
+			Collection<MessageStatus> statuses =
+					db.getMessageStatus(transaction, contactId, groupId);
+			assertEquals(1, statuses.size());
+			MessageStatus s = statuses.iterator().next();
+			assertEquals(messageId, s.getMessageId());
+			assertEquals(contactId, s.getContactId());
+			assertTrue(s.isSent());
+			assertTrue(s.isSeen());
+			// With invisible group - return default status
+			statuses = db.getMessageStatus(transaction, contactId, groupId);
+			assertEquals(1, statuses.size());
+			s = statuses.iterator().next();
+			assertEquals(messageId, s.getMessageId());
+			assertEquals(contactId, s.getContactId());
+			assertFalse(s.isSent());
+			assertFalse(s.isSeen());
+			db.commitTransaction(transaction);
+		} finally {
+			db.endTransaction(transaction);
+		}
+	}
+
+	@Test
+	public void testGetMessageStatusByMessageId() throws Exception {
+		MessageStatus status =
+				new MessageStatus(messageId, contactId, true, true);
+
+		context.checking(new Expectations() {{
+			// startTransaction()
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			// getMessageStatus()
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsMessage(txn, messageId);
+			will(returnValue(true));
+			oneOf(database).getMessageStatus(txn, contactId, messageId);
+			will(returnValue(status));
+			// getMessageStatus() again
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsMessage(txn, messageId);
+			will(returnValue(true));
+			oneOf(database).getMessageStatus(txn, contactId, messageId);
+			will(returnValue(null));
+			// endTransaction()
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				shutdown);
+
+		Transaction transaction = db.startTransaction(true);
+		try {
+			// With visible group - return stored status
+			MessageStatus s =
+					db.getMessageStatus(transaction, contactId, messageId);
+			assertEquals(messageId, s.getMessageId());
+			assertEquals(contactId, s.getContactId());
+			assertTrue(s.isSent());
+			assertTrue(s.isSeen());
+			// With invisible group - return default status
+			s = db.getMessageStatus(transaction, contactId, messageId);
+			assertEquals(messageId, s.getMessageId());
+			assertEquals(contactId, s.getContactId());
+			assertFalse(s.isSent());
+			assertFalse(s.isSeen());
 			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);

@@ -1516,32 +1516,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messageId FROM messages WHERE groupId = ?";
+			String sql = "SELECT messageId FROM messages"
+					+ " WHERE groupId = ? AND state = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
-			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<>();
-			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
-			rs.close();
-			ps.close();
-			return ids;
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	private Collection<MessageId> getMessageIds(Connection txn, GroupId g,
-			State state) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT messageId FROM messages"
-					+ " WHERE state = ? AND groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, state.getValue());
-			ps.setBytes(2, g.getBytes());
+			ps.setInt(2, DELIVERED.getValue());
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
@@ -1559,7 +1538,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public Collection<MessageId> getMessageIds(Connection txn, GroupId g,
 			Metadata query) throws DbException {
 		// If there are no query terms, return all delivered messages
-		if (query.isEmpty()) return getMessageIds(txn, g, DELIVERED);
+		if (query.isEmpty()) return getMessageIds(txn, g);
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1718,10 +1697,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT messageId, txCount > 0, seen FROM statuses"
-					+ " WHERE groupId = ? AND contactId = ?";
+					+ " WHERE groupId = ? AND contactId = ? AND state = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			ps.setInt(2, c.getInt());
+			ps.setInt(3, DELIVERED.getValue());
 			rs = ps.executeQuery();
 			List<MessageStatus> statuses = new ArrayList<>();
 			while (rs.next()) {
@@ -1741,24 +1721,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	@Nullable
 	public MessageStatus getMessageStatus(Connection txn, ContactId c,
 			MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT txCount > 0, seen FROM statuses"
-					+ " WHERE messageId = ? AND contactId = ?";
+					+ " WHERE messageId = ? AND contactId = ? AND state = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
+			ps.setInt(3, DELIVERED.getValue());
 			rs = ps.executeQuery();
-			if (!rs.next()) throw new DbStateException();
-			boolean sent = rs.getBoolean(1);
-			boolean seen = rs.getBoolean(2);
+			MessageStatus status = null;
+			if (rs.next()) {
+				boolean sent = rs.getBoolean(1);
+				boolean seen = rs.getBoolean(2);
+				status = new MessageStatus(m, c, sent, seen);
+			}
 			if (rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			return new MessageStatus(m, c, sent, seen);
+			return status;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -2578,7 +2563,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 			// Remove status rows for the messages in the group
-			for (MessageId m : getMessageIds(txn, g)) removeStatus(txn, c, m);
+			sql = "DELETE FROM statuses"
+					+ " WHERE contactId = ? AND groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, g.getBytes());
+			affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2655,24 +2647,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 				throw new DbStateException();
 			for (int rows : batchAffected)
 				if (rows != 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	private void removeStatus(Connection txn, ContactId c, MessageId m)
-			throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "DELETE FROM statuses"
-					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			ps.setInt(2, c.getInt());
-			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);

@@ -560,6 +560,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchContactException();
 		if (!db.containsGroup(txn, g))
 			throw new NoSuchGroupException();
+		if (db.getGroupVisibility(txn, c, g) == INVISIBLE) {
+			// No status rows exist - return default statuses
+			Collection<MessageStatus> statuses = new ArrayList<>();
+			for (MessageId m : db.getMessageIds(txn, g))
+				statuses.add(new MessageStatus(m, c, false, false));
+			return statuses;
+		}
 		return db.getMessageStatus(txn, c, g);
 	}
 
@@ -571,7 +578,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchContactException();
 		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
-		return db.getMessageStatus(txn, c, m);
+		MessageStatus status = db.getMessageStatus(txn, c, m);
+		if (status == null) return new MessageStatus(m, c, false, false);
+		return status;
 	}
 
 	@Override

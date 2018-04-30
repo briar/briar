@@ -322,16 +322,16 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the IDs of all messages in the given group.
+	 * Returns the IDs of all delivered messages in the given group.
 	 * <p/>
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessageIds(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns the IDs of any messages in the given group with metadata
-	 * matching all entries in the given query. If the query is empty, the IDs
-	 * of all messages are returned.
+	 * Returns the IDs of any delivered messages in the given group with
+	 * metadata that matches all entries in the given query. If the query is
+	 * empty, the IDs of all delivered messages are returned.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -347,9 +347,9 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the metadata for any messages in the given group with metadata
-	 * matching all entries in the given query. If the query is empty, the
-	 * metadata for all messages is returned.
+	 * Returns the metadata for any delivered messages in the given group with
+	 * metadata that matches all entries in the given query. If the query is
+	 * empty, the metadata for all delivered messages is returned.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -357,7 +357,8 @@ interface Database<T> {
 			Metadata query) throws DbException;
 
 	/**
-	 * Returns the metadata for the given delivered message.
+	 * Returns the metadata for the given delivered or pending message.
+	 * This is only meant to be used by the ValidationManager.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -365,7 +366,7 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the metadata for the given message.
+	 * Returns the metadata for the given delivered message.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -379,8 +380,8 @@ interface Database<T> {
 	State getMessageState(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns the status of all messages in the given group with respect
-	 * to the given contact.
+	 * Returns the status of all delivered messages in the given group with
+	 * respect to the given contact.
 	 * <p/>
 	 * Read-only.
 	 */
@@ -388,11 +389,13 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the status of the given message with respect to the given
+	 * Returns the status of the given delivered message with respect to the
+	 * given contact, or null if the message's group is invisible to the
 	 * contact.
 	 * <p/>
 	 * Read-only.
 	 */
+	@Nullable
 	MessageStatus getMessageStatus(T txn, ContactId c, MessageId m)
 			throws DbException;
 
