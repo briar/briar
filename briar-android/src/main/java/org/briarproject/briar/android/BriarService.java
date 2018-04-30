@@ -221,8 +221,6 @@ public class BriarService extends Service {
 	public void onLowMemory() {
 		super.onLowMemory();
 		LOG.warning("Memory is low");
-		shutdownFromBackground();
-		showLowMemoryShutdownNotification();
 	}
 
 	private void shutdownFromBackground() {
@@ -247,6 +245,7 @@ public class BriarService extends Service {
 		}).start();
 	}
 
+	// TODO: Remove if low memory shutdowns are not appropriate
 	private void showLowMemoryShutdownNotification() {
 		androidExecutor.runOnUiThread(() -> {
 			NotificationCompat.Builder b = new NotificationCompat.Builder(
