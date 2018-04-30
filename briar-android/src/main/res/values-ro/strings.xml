@@ -7,6 +7,7 @@
   <string name="setup_password_intro">Alegeți o parolă</string>
   <string name="setup_doze_title">Conexiuni în fundal</string>
   <string name="setup_doze_intro">Pentru a primi mesaje, Briar are nevoie să stea conectat în fundal.</string>
+  <string name="setup_doze_explanation">Pentru a primi mesaje, Briar are nevoie să stea conectat în fundal. Vă rugăm să dezactivați optimizarea bateriei ca Briar să rămână conectat.</string>
   <string name="setup_doze_button">Permite conexiuni</string>
   <string name="choose_nickname">Alegeți-vă numele de utilizator</string>
   <string name="choose_password">Alegeți-vă parola</string>
@@ -38,6 +39,9 @@
   </plurals>
   <string name="expiry_update">Data de expirare a versiunii de test a fost extinsă. Contul dumneavoastră va expira acum în %d zile.</string>
   <string name="expiry_date_reached">Acest program a expirat.\nVă mulțumim că l-ați testat!</string>
+  <string name="download_briar">Pentru a putea să continuați utilizarea Briar, vă rugăm să descărcați versiunea 1.0.</string>
+  <string name="create_new_account">Va trebui să creați un cont nou, dar puteți să folosiți același nume.</string>
+  <string name="download_briar_button">Descarcă Briar 1.0</string>
   <string name="startup_open_database">Decriptare bază de date...</string>
   <string name="startup_migrate_database">Actualizare bază de date...</string>
   <!--Navigation Drawer-->
@@ -100,7 +104,9 @@
   <string name="help">Ajutor</string>
   <string name="sorry">Ne pare rău</string>
   <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Nici un contact de arătat\n\nAtingeți iconița + pentru a adăuga un contact</string>
   <string name="date_no_private_messages">Fără mesaje.</string>
+  <string name="no_private_messages">Nici un mesaj de arătat</string>
   <string name="message_hint">Scrieți mesajul</string>
   <string name="delete_contact">Șterge contactul</string>
   <string name="dialog_title_delete_contact">Confirmare ștergere contact</string>
@@ -147,6 +153,7 @@
     <item quantity="other">%d de contacte noi adăugate.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">Nici un grup de arătat\n\nAtingeți iconița + pentru a crea un grup sau rugați-vă contactele să partajele grupuri cu dumneavoastră</string>
   <string name="groups_created_by">Creat de %s</string>
   <plurals name="messages">
     <item quantity="one">%d mesaj</item>
@@ -198,10 +205,13 @@
   <string name="groups_reveal_visible_revealed_by_contact">Lista de contacte este vizibilă grupului (dezvăluită de %s)</string>
   <string name="groups_reveal_invisible">Lista de contacte nu este vizibilă grupului</string>
   <!--Forums-->
+  <string name="no_forums">Nici un forum de arătat\n\nAtingeți iconița + pentru a crea un forum sau
+ rugați-vă contactele să partajele forumuri cu dumneavoastră</string>
   <string name="create_forum_title">Creează forum</string>
   <string name="choose_forum_hint">Alegeți un nume pentru forumul dumneavoastră</string>
   <string name="create_forum_button">Creează forum</string>
   <string name="forum_created_toast">Forum creat</string>
+  <string name="no_forum_posts">Nici un mesaj de arătat</string>
   <string name="no_posts">Nici un mesaj</string>
   <plurals name="posts">
     <item quantity="one">%d mesaj</item>
@@ -215,16 +225,20 @@
   <string name="forum_leave">Părăsește forum</string>
   <string name="dialog_title_leave_forum">Confirmare părăsire forum</string>
   <string name="dialog_button_leave">Părăsește</string>
+  <string name="forum_left_toast">Forum părăsit</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Partajează forum</string>
   <string name="contacts_selected">Contacte selectate</string>
   <string name="activity_share_toolbar_header">Alegeți contactele</string>
+  <string name="no_contacts_selector">Nici un contact de arătat\n\nReveniți după ce ați adăugat un contact</string>
   <string name="forum_shared_snackbar">Forum partajat cu contactele alese</string>
   <string name="forum_share_message">Adaugă un mesaj (opțional)</string>
   <string name="forum_share_error">A apărut o eroare la partajarea acestui forum.</string>
   <string name="forum_invitation_received">%1$s a partajat forumul \"%2$s\" cu dumneavoastră.</string>
   <string name="forum_invitation_sent">Ați partajat forumul \"%1$s\" cu %2$s.</string>
   <string name="forum_invitations_title">Invitații la forum</string>
+  <string name="forum_joined_toast">Alăturare forum</string>
+  <string name="forum_declined_toast">Invitația a fost refuzată</string>
   <string name="shared_by_format">Partajat de %s</string>
   <string name="forum_invitation_already_sharing">Deja partajat</string>
   <string name="forum_invitation_response_accepted_sent">Ați acceptat invitația la forum de la %s.</string>
@@ -240,14 +254,18 @@
   </plurals>
   <string name="nobody">Nimeni</string>
   <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">Nici un mesaj de arătat</string>
   <string name="read_more">citește mai mult</string>
   <string name="blogs_write_blog_post">Scrie mesaj pe blog</string>
+  <string name="blogs_write_blog_post_body_hint">Introduceți mesajul pentru blog aici</string>
   <string name="blogs_publish_blog_post">Publică</string>
   <string name="blogs_blog_post_created">Mesaj pe blog creat</string>
   <string name="blogs_blog_post_received">O nou mesaj pe blog s-a primit</string>
   <string name="blogs_blog_post_scroll_to">Derulează la</string>
+  <string name="blogs_feed_empty_state">Nici un mesaj de arătat\n\nMesajele de la contactele dumneavoastră și de pe blog-urile la care sunteți abonați vor apărea aici\n\nAtingeți iconița cu creion pentru a scrie un mesaj</string>
   <string name="blogs_remove_blog">Elimină blog</string>
   <string name="blogs_remove_blog_ok">Eliminare</string>
+  <string name="blogs_blog_removed">Blog eliminat</string>
   <string name="blogs_reblog_comment_hint">Adaugă un comentariu (opțional)</string>
   <string name="blogs_reblog_button">Repune mesaj</string>
   <!--Blog Sharing-->
@@ -262,6 +280,8 @@
   <string name="blogs_sharing_invitation_received">%1$s a partajat blogul \"%2$s\" cu dumneavoastră.</string>
   <string name="blogs_sharing_invitation_sent">Ați partajat blogul \"%1$s\" cu %2$s.</string>
   <string name="blogs_sharing_invitations_title">Invitații la blog-uri</string>
+  <string name="blogs_sharing_joined_toast">Abonare la blog</string>
+  <string name="blogs_sharing_declined_toast">Invitația a fost refuzată</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importă flux RSS</string>
   <string name="blogs_rss_feeds_import_button">Importă</string>
@@ -274,6 +294,7 @@
   <string name="blogs_rss_remove_feed">Șterge flux</string>
   <string name="blogs_rss_remove_feed_ok">Eliminare</string>
   <string name="blogs_rss_feeds_manage_delete_error">Fluxul nu a putut fi șters!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Nici un flux RSS de arătat\n\nAtingeți iconița + pentru a adăuga un flux</string>
   <string name="blogs_rss_feeds_manage_error">A apărut o eroare la încărcarea fluxurilor dumneavoastră. Vă rugăm să încercați din nou mai târziu.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Rețele</string>
@@ -309,12 +330,16 @@
   <string name="notification_settings_title">Notificări</string>
   <string name="notify_private_messages_setting_title">Mesaje private</string>
   <string name="notify_private_messages_setting_summary">Arată alerte pentru mesajele private</string>
+  <string name="notify_private_messages_setting_summary_26">Configurare alerte pentru mesajele private</string>
   <string name="notify_group_messages_setting_title">Mesaje de grup</string>
   <string name="notify_group_messages_setting_summary">Arată alerte pentru mesajele de grup</string>
+  <string name="notify_group_messages_setting_summary_26">Configurare alerte pentru mesajele de grup</string>
   <string name="notify_forum_posts_setting_title">Mesaje pe forum</string>
   <string name="notify_forum_posts_setting_summary">Arată alerte pentru mesajele de pe forum</string>
+  <string name="notify_forum_posts_setting_summary_26">Configurare alerte pentru mesajele de pe forum</string>
   <string name="notify_blog_posts_setting_title">Mesaje pe blog</string>
   <string name="notify_blog_posts_setting_summary">Arată alerte pentru mesajele de pe blog</string>
+  <string name="notify_blog_posts_setting_summary_26">Configurare alerte pentru mesajele de pe blog</string>
   <string name="notify_vibration_setting">Vibrează</string>
   <string name="notify_lock_screen_setting_title">Ecran de blocare</string>
   <string name="notify_lock_screen_setting_summary">Arată notificări pe ecranul de blocare</string>
@@ -356,4 +381,9 @@
   <string name="permission_camera_request_body">Pentru a scana codul QR, Briar are nevoie să acceseze camera foto.</string>
   <string name="permission_camera_denied_body">Ați refuzat accesul la camera foto, dar pentru a adăuga contacte este necesară folosirea camerei foto.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
   <string name="permission_camera_denied_toast">Permisiunea de acces la camera foto nu a fost acordată</string>
+  <string name="qr_code">Cod QR</string>
+  <string name="show_qr_code_fullscreen">Arată codul QR pe tot ecranul</string>
+  <!--Low Memory Notification-->
+  <string name="low_memory_shutdown_notification_title">Ieșire din Briar</string>
+  <string name="low_memory_shutdown_notification_text">Ați ieșit din Briar din cauza lipsei memoriei</string>
 </resources>

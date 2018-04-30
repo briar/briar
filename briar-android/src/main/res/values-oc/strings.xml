@@ -326,4 +326,5 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Superposicion detectada</string>
   <!--Permission Requests-->
+  <!--Low Memory Notification-->
 </resources>

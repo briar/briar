@@ -289,4 +289,5 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Detektovano je prekrivanje ekrana</string>
   <!--Permission Requests-->
+  <!--Low Memory Notification-->
 </resources>

@@ -43,6 +43,9 @@
   </plurals>
   <string name="expiry_update">La date de fin de test a été repoussée. Votre compte arrivera maintenant à expiration dans %d jours.</string>
   <string name="expiry_date_reached">Ce logiciel est arrivé à expiration.\nMerci de l’avoir testé !</string>
+  <string name="download_briar">Pour continuer à utiliser Briar, veuillez télécharger la version 1.0.</string>
+  <string name="create_new_account">Vous devrez créer un nouveau compte, mais vous pouvez utiliser le même pseudonyme.</string>
+  <string name="download_briar_button">Télécharger Briar 1.0</string>
   <string name="startup_open_database">Déchiffrement de la base de données…</string>
   <string name="startup_migrate_database">Mise à niveau de la base de données…</string>
   <!--Navigation Drawer-->
@@ -388,4 +391,7 @@
   <string name="permission_camera_denied_toast">L’accès à la caméra n’a pas été accordé</string>
   <string name="qr_code">Code QR</string>
   <string name="show_qr_code_fullscreen">Afficher le code QR en plein écran</string>
+  <!--Low Memory Notification-->
+  <string name="low_memory_shutdown_notification_title">Déconnecté de Briar</string>
+  <string name="low_memory_shutdown_notification_text">Vous avez été déconnecté en raison de mémoire insuffisante.</string>
 </resources>

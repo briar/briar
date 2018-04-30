@@ -311,4 +311,5 @@
   <string name="progress_title_logout">Briar\'dan çıkılıyor...</string>
   <!--Screen Filters & Tapjacking-->
   <!--Permission Requests-->
+  <!--Low Memory Notification-->
 </resources>

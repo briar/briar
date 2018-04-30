@@ -33,6 +33,8 @@
   <string name="startup_failed_notification_title">Briar no pudo iniciarse</string>
   <string name="startup_failed_notification_text">Toca para más información.</string>
   <string name="startup_failed_activity_title">Fallo al iniciar Briar</string>
+  <string name="startup_failed_db_error">Por alguna razón, su base de datos Briar está dañada irreparablemente. Su cuenta, sus datos y todos sus contactos se pierden. Desafortunadamente, necesita reinstalar Briar o crear una nueva cuenta seleccionando `He olvidado mi contraseña\' en la solicitud de contraseña.</string>
+  <string name="startup_failed_data_too_old_error">Su cuenta fue creada con una versión antigua de esta aplicación y no se puede abrir con esta versión. Debe reinstalar la versión antigua o crear una nueva cuenta seleccionando \'He olvidado mi contraseña\' en la solicitud de contraseña.</string>
   <string name="startup_failed_data_too_new_error">La versión de esta apli es demasiado antigua. Por favor, actualiza a la última versión y prueba de nuevo.</string>
   <string name="startup_failed_service_error">Briar no pudo iniciar un complemento necesario. Reinstalar Briar suele solucionar el problema. Sin embargo, ten en cuenta que perderás tu cuenta y todos los datos asociados ya que Briar no almacena esta información en ningún servidor central.</string>
   <plurals name="expiry_warning">
@@ -41,6 +43,9 @@
   </plurals>
   <string name="expiry_update">La fecha de caducidad de las pruebas se ha ampliado. Su cuenta expirará en  %d días.</string>
   <string name="expiry_date_reached">Esta versión ha caducado.\n¡Gracias por probarla!</string>
+  <string name="download_briar">Para continuar usando Briar, por favor descargue la versión 1.0.</string>
+  <string name="create_new_account">Necesitarás crear una nueva cuenta, pero puedes usar el mismo usuario.</string>
+  <string name="download_briar_button">Descargar Briar 1.0</string>
   <string name="startup_open_database">Descifrando la base de datos...</string>
   <string name="startup_migrate_database">Actualizando la base de datos...</string>
   <!--Navigation Drawer-->
@@ -100,6 +105,7 @@
   <string name="sorry">Disculpe</string>
   <!--Contacts and Private Conversations-->
   <string name="date_no_private_messages">Sin mensajes.</string>
+  <string name="no_private_messages">No hay mensajes que mostrar</string>
   <string name="message_hint">Escribe un mensaje</string>
   <string name="delete_contact">Eliminar contacto</string>
   <string name="dialog_title_delete_contact">Confirmar eliminación de contacto</string>
@@ -127,6 +133,7 @@
   <string name="introduction_onboarding_title">Presenta a tus contactos</string>
   <string name="introduction_onboarding_text">Presenta a tus contactos entre sí para ahorrarles encontrarse en persona para poder conectar mediante Briar.</string>
   <string name="introduction_activity_title">Seleccionar contacto</string>
+  <string name="introduction_not_possible">Usted ya tiene una introducción en curso con estos contactos. Por favor, deje que esto termine primero. Si usted o sus contactos raramente están en línea, esto puede tomar algún tiempo.</string>
   <string name="introduction_message_title">Presentar a dos contactos</string>
   <string name="introduction_message_hint">Añade un mensaje (opcional)</string>
   <string name="introduction_button">Presentar contactos</string>
@@ -215,7 +222,9 @@
   <string name="btn_reply">Responder</string>
   <string name="forum_leave">Abandonar foro</string>
   <string name="dialog_title_leave_forum">Confirmación abandono del foro</string>
+  <string name="dialog_message_leave_forum">¿Estás seguro de que quieres dejar este foro?\n\nCualquier contacto con el que hayas compartido este foro puede dejar de recibir actualizaciones.</string>
   <string name="dialog_button_leave">Abandonar</string>
+  <string name="forum_left_toast">Foro abandonado</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Compartir foro</string>
   <string name="contacts_selected">Contactos seleccionados</string>
@@ -226,6 +235,9 @@
   <string name="forum_invitation_received">%1$s ha compartido el foro \"%2$s\" contigo.</string>
   <string name="forum_invitation_sent">Has compartido el foro \"%1$s\" con %2$s.</string>
   <string name="forum_invitations_title">Invitaciones a foros</string>
+  <string name="forum_invitation_exists">Ya aceptaste una invitación a este foro. Aceptar más invitaciones hará que tu conexión al foro sea más rápida y confiable.</string>
+  <string name="forum_joined_toast">Foro en el que se ha inscrito</string>
+  <string name="forum_declined_toast">La invitación ha sido rechazada</string>
   <string name="shared_by_format">Compartido por %s</string>
   <string name="forum_invitation_already_sharing">Ya se está compartiendo</string>
   <string name="forum_invitation_response_accepted_sent">Aceptaste la invitación al foro de %s.</string>
@@ -244,12 +256,14 @@
   <string name="blogs_other_blog_empty_state">No hay publicaciones para mostrar</string>
   <string name="read_more">leer más</string>
   <string name="blogs_write_blog_post">Escribir artículo del blog</string>
+  <string name="blogs_write_blog_post_body_hint">Escriba su entrada en el blog</string>
   <string name="blogs_publish_blog_post">Publicar</string>
   <string name="blogs_blog_post_created">Creado artículo del blog</string>
   <string name="blogs_blog_post_received">Recibido nuevo artículo del blog</string>
   <string name="blogs_blog_post_scroll_to">Desplazarse hasta</string>
   <string name="blogs_remove_blog">Eliminar blog</string>
   <string name="blogs_remove_blog_ok">Eliminar</string>
+  <string name="blogs_blog_removed">Blog eliminado</string>
   <string name="blogs_reblog_comment_hint">Añade un comentario (opcional)</string>
   <string name="blogs_reblog_button">Rebloguear</string>
   <!--Blog Sharing-->
@@ -264,6 +278,8 @@
   <string name="blogs_sharing_invitation_received">%1$s ha compartido el blog \"%2$s\" contigo.</string>
   <string name="blogs_sharing_invitation_sent">Has compartido el blog \"%1$s\" con %2$s.</string>
   <string name="blogs_sharing_invitations_title">Invitaciones a blogs</string>
+  <string name="blogs_sharing_joined_toast">Suscrito al blog</string>
+  <string name="blogs_sharing_declined_toast">La invitación ha sido rechazada</string>
   <string name="sharing_status_blog">Cualquiera que se suscriba a un blog puede compartirlo con sus contactos. Estás compartiendo este blog con contactos listados a continuación. Puede haber otros suscriptores que no puedes ver.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importar canal RSS</string>
@@ -275,8 +291,10 @@
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Última actualización:</string>
   <string name="blogs_rss_remove_feed">Eliminar canal RSS</string>
+  <string name="blogs_rss_remove_feed_dialog_message">¿Estás seguro de que quieres quitar este feed?\n\nLos mensajes se eliminarán del dispositivo, pero no de los dispositivos de otras personas.\n\nEs posible que los contactos con los que hayas compartido esta fuente dejen de recibir actualizaciones.</string>
   <string name="blogs_rss_remove_feed_ok">Eliminar</string>
   <string name="blogs_rss_feeds_manage_delete_error">¡El canal no pudo ser eliminado!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">No hay canales RSS que mostrar\n\nToque el icono + para importar un feed</string>
   <string name="blogs_rss_feeds_manage_error">Hubo un problema cargando tus canales RSS. Por favor, prueba más tarde.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Redes</string>
@@ -313,12 +331,16 @@
   <string name="notification_settings_title">Notificaciones</string>
   <string name="notify_private_messages_setting_title">Mensajes privados</string>
   <string name="notify_private_messages_setting_summary">Notificar mensajes privados</string>
+  <string name="notify_private_messages_setting_summary_26">Configurar alertas para mensajes privados</string>
   <string name="notify_group_messages_setting_title">Mensajes de grupo</string>
   <string name="notify_group_messages_setting_summary">Notificar mensajes de grupo</string>
+  <string name="notify_group_messages_setting_summary_26">Configurar alertas para mensajes de grupo</string>
   <string name="notify_forum_posts_setting_title">Publicaciones en foros</string>
   <string name="notify_forum_posts_setting_summary">Notificar publicaciones en foros</string>
+  <string name="notify_forum_posts_setting_summary_26">Configurar alertas para los mensajes del foro</string>
   <string name="notify_blog_posts_setting_title">Entradas de blog</string>
   <string name="notify_blog_posts_setting_summary">Notificar entradas de blog</string>
+  <string name="notify_blog_posts_setting_summary_26">Configurar alertas para entradas de blog</string>
   <string name="notify_vibration_setting">Vibrar</string>
   <string name="notify_lock_screen_setting_title">Pantalla de bloqueo</string>
   <string name="notify_lock_screen_setting_summary">Notificaciones en la pantalla de bloqueo</string>
@@ -362,4 +384,9 @@
   <string name="permission_camera_request_body">Para escanear el código QR, Briar necesita acceso a la cámara.</string>
   <string name="permission_camera_denied_body">Ha denegado el acceso a la cámara, pero para añadir contactos se requiere el uso de la cámara.\n\nPor favor considere la posibilidad de conceder el acceso.</string>
   <string name="permission_camera_denied_toast">No se concedió el permiso de cámara</string>
+  <string name="qr_code">Código QR</string>
+  <string name="show_qr_code_fullscreen">Mostrar código QR a pantalla completa</string>
+  <!--Low Memory Notification-->
+  <string name="low_memory_shutdown_notification_title">Desconectado de Briar</string>
+  <string name="low_memory_shutdown_notification_text">Desconectado por falta de memoria.</string>
 </resources>

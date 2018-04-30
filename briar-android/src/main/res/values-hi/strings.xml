@@ -354,4 +354,5 @@
   <string name="permission_camera_request_body">QR कोड को स्कैन करने के लिए, Briar को कैमरे तक पहुंच की आवश्यकता है।</string>
   <string name="permission_camera_denied_body">आपने कैमरे तक पहुंच से वंचित किया है, लेकिन संपर्क जोड़ने के लिए कैमरे का उपयोग करने की आवश्यकता है। \ N \ n कृपया पहुंच प्रदान करने पर विचार करें।</string>
   <string name="permission_camera_denied_toast">कैमरा अनुमति नहीं दी गई थी</string>
+  <!--Low Memory Notification-->
 </resources>

@@ -33,6 +33,8 @@
   <string name="startup_failed_notification_title">Briar no s\'ha pogut iniciar</string>
   <string name="startup_failed_notification_text">Toqueu per obtenir més informació.</string>
   <string name="startup_failed_activity_title">Error iniciant Briar</string>
+  <string name="startup_failed_db_error">Per alguna raó, la vostra base de dades de Briar ha estat corrompuda i no es pot reparar. El vostre compte, les dades i els contactes s\'han perdut. Malhauradament, has de reinstal·lar Briar o crear un nou compte triant \"He oblidat la contrasenya\" en la pantalla on poses la contrasenya.</string>
+  <string name="startup_failed_data_too_old_error">El teu compte es va crear amb una versió antiga d\'aquesta app i no es pot obrir amb aquesta versió. O bé reinstal·les la versió antiga o crea un nou compte triant \"Ho oblidat la contrasenya\" en la pantalla on poses la contrasenya.</string>
   <string name="startup_failed_data_too_new_error">Aquesta versió de l\'aplicació és massa antiga. Actualitzeu a la versió més recent i torneu-ho a provar.</string>
   <string name="startup_failed_service_error">Briar no ha pogut engegar un connector necessari. La solució sol ser reinstal·lar Briar. De tota manera, tingueu en compte que si ho feu perdreu el vostre compte i totes les dades associades, doncs Briar no usa servidors centrals per desar les vostres dades.</string>
   <plurals name="expiry_warning">
@@ -99,7 +101,9 @@
   <string name="help">Ajuda</string>
   <string name="sorry">Ens sap greu</string>
   <!--Contacts and Private Conversations-->
+  <string name="no_contacts">No hi ha contactes\n\nPulsa l\'icona + per afegir un contacte</string>
   <string name="date_no_private_messages">Sense missatges.</string>
+  <string name="no_private_messages">No hi ha missatges</string>
   <string name="message_hint">Escriu el missatge.</string>
   <string name="delete_contact">Suprimeix contacte</string>
   <string name="dialog_title_delete_contact">Confirma la supressió del contacte</string>
@@ -147,6 +151,7 @@
     <item quantity="other">S\'ha afegit %d nous contactes.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">No hi ha grups\n\nApreta l\'icona de + per crear un grup, o demana als teus contactes de compartir els seus grups amb tu</string>
   <string name="groups_created_by">Creat per 1%s</string>
   <plurals name="messages">
     <item quantity="one">1%d missatge</item>
@@ -199,6 +204,7 @@
   <string name="groups_reveal_visible_revealed_by_contact">La relació del contacte és visible per al grup (revelat per %s)</string>
   <string name="groups_reveal_invisible">La relació del contacte no és visible per al grup</string>
   <!--Forums-->
+  <string name="no_forums">No hi ha fòrums\n\nApreta l\'icona + per crear un fòrum, o demana els teus contactes que comparteixin els seus fòrums amb tu</string>
   <string name="create_forum_title">Crea un fòrum</string>
   <string name="choose_forum_hint">Trieu un nom per al fòrum</string>
   <string name="create_forum_button">Crea el fòrum</string>
@@ -215,17 +221,23 @@
   <string name="btn_reply">Respon</string>
   <string name="forum_leave">Abandona el fòrum</string>
   <string name="dialog_title_leave_forum">Confirmeu la sortida del Forum</string>
+  <string name="dialog_message_leave_forum">Estàs segur/a que vols marxar d\'aquest fòrum?\n\nTots els contactes que tinguis compartits en aquest fòrum poden deixar de rebre actualitzacions</string>
   <string name="dialog_button_leave">Abandona</string>
+  <string name="forum_left_toast">Has deixat el fòrum</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Comparteix el fòrum</string>
   <string name="contacts_selected">Contactes seleccionats</string>
   <string name="activity_share_toolbar_header">Tria contactes</string>
+  <string name="no_contacts_selector">No hi ha contactes\n\nSi us plau torna quan hagis afegit algun contacte</string>
   <string name="forum_shared_snackbar">Fòrum compartit amb els contactes seleccionats</string>
   <string name="forum_share_message">Afegiu un missatge (opcional)</string>
   <string name="forum_share_error">S\'ha produït un error en compartir aquest fòrum.</string>
   <string name="forum_invitation_received">%1$s ha compartit el fòrum «%2$s» amb vós.</string>
   <string name="forum_invitation_sent">Heu compartit el fòrum «%1$s» amb %2$s.</string>
   <string name="forum_invitations_title">Invitacions al fòrum</string>
+  <string name="forum_invitation_exists">Ja has acceptat una invitació a aquest fòrum.\n\nAcceptant més invitacions farà que la teva connexió amb el fòrum sigui més ràpida i fiable</string>
+  <string name="forum_joined_toast">T\'has unit al fòrum</string>
+  <string name="forum_declined_toast">Has declinat la invitació</string>
   <string name="shared_by_format">Compartit per 1%s</string>
   <string name="forum_invitation_already_sharing">Ja esteu compartint</string>
   <string name="forum_invitation_response_accepted_sent">Heu acceptat la invitació del fòrum de %s.</string>
@@ -244,12 +256,16 @@
   <string name="blogs_other_blog_empty_state">No hi ha publicacions per mostrar</string>
   <string name="read_more">llegir més</string>
   <string name="blogs_write_blog_post">Escriviu una publicació de blog</string>
+  <string name="blogs_write_blog_post_body_hint">Escriu el que vulguis publicar</string>
   <string name="blogs_publish_blog_post">Publica</string>
   <string name="blogs_blog_post_created">S\'ha creat la publicació al blog</string>
   <string name="blogs_blog_post_received">S\'ha rebut una nova publicació al blog</string>
   <string name="blogs_blog_post_scroll_to">Desplaça</string>
+  <string name="blogs_feed_empty_state">No hi ha publicacions\n\nPublicacions dels teus contactes i blogs als quals et subscriguis apareixeran aquí\n\nPulsa la icona del bolígraf per escriure un post</string>
   <string name="blogs_remove_blog">Elimina el blog</string>
+  <string name="blogs_remove_blog_dialog_message">Estàs segur/a que vols eliminar aquest blog?\n\nLes publicacions seran eliminades del teu dispositiu però no del d\'altres persones.\n\nEls contactes amb els quals hagis compartit aquest blog poden deixar de rebre actualitzacions.</string>
   <string name="blogs_remove_blog_ok">Eliminar</string>
+  <string name="blogs_blog_removed">Blog eliminat</string>
   <string name="blogs_reblog_comment_hint">Afegiu un comentari (opcional)</string>
   <string name="blogs_reblog_button">Rebloga</string>
   <!--Blog Sharing-->
@@ -264,6 +280,8 @@
   <string name="blogs_sharing_invitation_received">%1$s us ha compartit el blog \"%2$s\".</string>
   <string name="blogs_sharing_invitation_sent">Heu compartit el blog \"%1$s\" amb %2$s.</string>
   <string name="blogs_sharing_invitations_title">Invitacions al blog</string>
+  <string name="blogs_sharing_joined_toast">T\'has subscrit al blog</string>
+  <string name="blogs_sharing_declined_toast">Has declinat la invitació</string>
   <string name="sharing_status_blog">Qualsevol subscrit a un blog el pot compartir amb els seus contactes. Esteu compartint aquest blog amb els següents contactes. També hi pot haver altres subscrits que no veieu.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importa canal RSS</string>
@@ -275,8 +293,10 @@
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Darrera actualització:</string>
   <string name="blogs_rss_remove_feed">Elimina el canal</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Estàs segur/a que vols eliminar aquest noticiari?\n\nLes publicacions seran eliminades del teu dispositiu però no del d\'altres persones.\n\nEls contactes amb els que hagis compartit aquest noticiari poden deixar de rebre actualitzacions.</string>
   <string name="blogs_rss_remove_feed_ok">Eliminar</string>
   <string name="blogs_rss_feeds_manage_delete_error">El canal no s\'ha pogut esborrar.</string>
+  <string name="blogs_rss_feeds_manage_empty_state">No hi ha notícies a mostrar\n\nPulsa l\'icona + per importar un noticiari</string>
   <string name="blogs_rss_feeds_manage_error">S\'ha produït un problema en carregar els vostres canals. Torneu-ho a provar més tard.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Xarxes</string>
@@ -313,12 +333,16 @@
   <string name="notification_settings_title">Notificacions</string>
   <string name="notify_private_messages_setting_title">Missatges privats</string>
   <string name="notify_private_messages_setting_summary">Mostra els avisos per als missatges privats</string>
+  <string name="notify_private_messages_setting_summary_26">Configura les alertes per missatges privats</string>
   <string name="notify_group_messages_setting_title">Missatges grupals</string>
   <string name="notify_group_messages_setting_summary">Mostra alertes per als missatges grupals</string>
+  <string name="notify_group_messages_setting_summary_26">Configura les alertes per missatges de grup</string>
   <string name="notify_forum_posts_setting_title">Publicacions del fòrum</string>
   <string name="notify_forum_posts_setting_summary">Mostra alertes per a les publicacions del fòrum</string>
+  <string name="notify_forum_posts_setting_summary_26">Configura les alertes per publicacions als fòrums</string>
   <string name="notify_blog_posts_setting_title">Publicacions al blog</string>
   <string name="notify_blog_posts_setting_summary">Mostra alertes per les publicacions al blog</string>
+  <string name="notify_blog_posts_setting_summary_26">Configura les alertes per publicacions als blogs</string>
   <string name="notify_vibration_setting">Vibra</string>
   <string name="notify_lock_screen_setting_title">Bloca la pantalla</string>
   <string name="notify_lock_screen_setting_summary">Mostra notificacions a la pantalla de bloqueig</string>
@@ -362,4 +386,9 @@
   <string name="permission_camera_request_body">Per escanejar el codi QR, Briar necessita accés a la càmera.</string>
   <string name="permission_camera_denied_body">Heu denegat l\'accés a la càmera, però l\'addició de contactes requereix utilitzar la càmera.\n\nTingueu en compte permetre l\'accés.</string>
   <string name="permission_camera_denied_toast">No s\'ha concedit el permís de la càmera</string>
+  <string name="qr_code">Codi QR</string>
+  <string name="show_qr_code_fullscreen">Mostra el codi QR a pantalla completa</string>
+  <!--Low Memory Notification-->
+  <string name="low_memory_shutdown_notification_title">Has sortit de Briar</string>
+  <string name="low_memory_shutdown_notification_text">Has sortit de Briar a causa de falta de memòria.</string>
 </resources>

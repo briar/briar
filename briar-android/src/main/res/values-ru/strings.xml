@@ -4,14 +4,14 @@
   <string name="setup_title">Добро пожаловать в Briar</string>
   <string name="setup_name_explanation">Ваш ник будет показан рядом с любым контентом, который вы публикуете. Его нельзя изменить после создания аккаунта.</string>
   <string name="setup_next">Вперед</string>
-  <string name="setup_password_intro">Выберите пароль</string>
-  <string name="setup_password_explanation">Ваша учетная запись Briar хранится в зашифрованном виде только на устройстве. Если вы забудете свой пароль или удалите Briar, то не сможете восстановить свою учетную запись.\n\nВыберите длинный пароль, который трудно угадать, например четыре случайных слова или десять случайных букв, цифр и символов.</string>
+  <string name="setup_password_intro">Придумайте пароль</string>
+  <string name="setup_password_explanation">Ваша учетная запись Briar хранится в зашифрованном виде только на устройстве. Если вы забудете свой пароль или удалите Briar, то не сможете восстановить свою учетную запись.\n\nПридумайте длинный пароль, который трудно угадать, например четыре случайных слова или десять случайных букв, цифр и символов.</string>
   <string name="setup_doze_title">Фоновые подключения</string>
   <string name="setup_doze_intro">Для получения сообщений Briar должен работать в фоновом режиме.</string>
   <string name="setup_doze_explanation">Для получения сообщений Briar должен работать в фоновом режиме. Отключите оптимизацию электропитания для Briar.</string>
   <string name="setup_doze_button">Разрешить подключения</string>
-  <string name="choose_nickname">Выберите псевдоним</string>
-  <string name="choose_password">Выберите пароль</string>
+  <string name="choose_nickname">Придумайте псевдоним</string>
+  <string name="choose_password">Придумайте пароль</string>
   <string name="confirm_password">Подтвердите пароль</string>
   <string name="name_too_long">Слишком длинное имя</string>
   <string name="password_too_weak">Пароль слишком слабый</string>
@@ -33,6 +33,8 @@
   <string name="startup_failed_notification_title">Не удалось запустить Briar</string>
   <string name="startup_failed_notification_text">Коснитесь для получения дополнительных сведений.</string>
   <string name="startup_failed_activity_title">Сбой при запуске Briar</string>
+  <string name="startup_failed_db_error">По какой-то причине, база данных Briar повреждена без возможности восстановления. Вместе с учетной записью будут потеряны ваши данные и ваши контакты. К сожалению, вам нужно переустановить Briar и создать новый аккаунт, выбрав \'я забыл свой пароль\'.</string>
+  <string name="startup_failed_data_too_old_error">Ваша учетная запись была создана в старой версии Briar и не может быть открыта в этой версии. Вы должны либо установить старую версию, либо создать новую учетную запись, выбрав \'я забыл свой пароль\'.</string>
   <string name="startup_failed_data_too_new_error">Версия приложения слишком старая. Обновите до последней версии и повторите попытку.</string>
   <string name="startup_failed_service_error">Briar не смог запустить требуемый подключаемый модуль. Переустановка Briar обычно решает эту проблему. Однако обратите внимание, что после этого вы потеряете свою учетную запись и все связанные с ней данные, поскольку Briar не использует центральных серверов для хранения данных.</string>
   <plurals name="expiry_warning">
@@ -43,6 +45,9 @@
   </plurals>
   <string name="expiry_update">Дата окончания тестирования была продлена. Срок действия вашей учетной записи истечет через %d дней.</string>
   <string name="expiry_date_reached">Срок действия этого программного обеспечения истек.\nСпасибо за тестирование!</string>
+  <string name="download_briar">Для продолжения использования Briar, загрузите версию 1.0.</string>
+  <string name="create_new_account">Вам нужно будет создать новую учетную запись, но вы можете использовать один и тот же псевдоним.</string>
+  <string name="download_briar_button">Загрузить Briar 1.0</string>
   <string name="startup_open_database">Расшифровка базы данных...</string>
   <string name="startup_migrate_database">Обновление базы данных...</string>
   <!--Navigation Drawer-->
@@ -109,7 +114,9 @@
   <string name="help">Помощь</string>
   <string name="sorry">Сожалеем</string>
   <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Нет контактов для отображения\n\nКоснитесь значка + для добавления контакта</string>
   <string name="date_no_private_messages">Нет сообщений.</string>
+  <string name="no_private_messages">Нет сообщений для отображения</string>
   <string name="message_hint">Печатает сообщение</string>
   <string name="delete_contact">Удалить контакт</string>
   <string name="dialog_title_delete_contact">Подтвердите удаление контакта</string>
@@ -137,6 +144,7 @@
   <string name="introduction_onboarding_title">Знакомство с контактами</string>
   <string name="introduction_onboarding_text">Вы можете представить свои контакты друг другу, поэтому им не нужно встречаться лично, чтобы подключиться к Briar. </string>
   <string name="introduction_activity_title">Выберите контакт</string>
+  <string name="introduction_not_possible">Вы уже отправили запрос контактам. Пожалуйста, подождите пока они ответят на него. Если вы или ваши контакты редко бываете в сети, это может занять некоторое время.</string>
   <string name="introduction_message_title">Познакомить контакты</string>
   <string name="introduction_message_hint">Добавить сообщение (необязательно)</string>
   <string name="introduction_button">Выполнить знакомство</string>
@@ -148,6 +156,7 @@
   <string name="introduction_request_exists_received">%1$s попросил вас представить %2$s, но %2$s уже находится в вашем списке контактов. Поскольку %1$s может не знать об этом, вы все равно можете ответить:</string>
   <string name="introduction_request_answered_received">%1$s попросил вас представить %2$s.</string>
   <string name="introduction_response_accepted_sent">Вы приняли знакомство с %1$s.</string>
+  <string name="introduction_response_accepted_sent_info">Прежде чем добавить %1$s в свои контакты, необходимо чтобы он принял нововведения. Это может занять некоторое время.</string>
   <string name="introduction_response_declined_sent">Вы отказались от знакомства с %1$s.</string>
   <string name="introduction_response_accepted_received">%1$s принял знакомство с %2$s.</string>
   <string name="introduction_response_declined_received">%1$s отказался от знакомства с %2$s.</string>
@@ -159,6 +168,7 @@
     <item quantity="other">%d новых контактов добавлено.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">Нет групп для отображения\n\nTКоснитесь значка + для создания группы, или попросите ваши контакты поделиться с вами группами</string>
   <string name="groups_created_by">Создано %s</string>
   <plurals name="messages">
     <item quantity="one">%d сообщение</item>
@@ -172,7 +182,7 @@
   <string name="groups_create_group_title">Создать приватную группу</string>
   <string name="groups_create_group_button">Создать группу</string>
   <string name="groups_create_group_invitation_button">Отправить приглашение</string>
-  <string name="groups_create_group_hint">Выберите имя для своей приватной группы</string>
+  <string name="groups_create_group_hint">Придумайте имя для своей приватной группы</string>
   <string name="groups_invitation_sent">Приглашение на вступление в группу было отправлено</string>
   <string name="groups_message_sent">Сообщение отправлено</string>
   <string name="groups_member_list">Список участников</string>
@@ -215,11 +225,12 @@
   <string name="groups_reveal_visible_revealed_by_contact">Связь между контактами видна группе (раскрывается %s)</string>
   <string name="groups_reveal_invisible">Связь между контактами не видна группе</string>
   <!--Forums-->
+  <string name="no_forums">Нет форумов для отображения\n\nTКоснитесь значка + для создания форума, или попросите ваши контакты поделиться с вами форумами</string>
   <string name="create_forum_title">Создать форум</string>
-  <string name="choose_forum_hint">Выберите имя для вашего форума</string>
+  <string name="choose_forum_hint">Придумайте имя для вашего форума</string>
   <string name="create_forum_button">Создать форум</string>
   <string name="forum_created_toast">Форум создан</string>
-  <string name="no_forum_posts">Нет постов для показа</string>
+  <string name="no_forum_posts">Нет постов для отображения</string>
   <string name="no_posts">Нет постов</string>
   <plurals name="posts">
     <item quantity="one">%d пост</item>
@@ -233,17 +244,23 @@
   <string name="btn_reply">Ответ</string>
   <string name="forum_leave">Покинуть форум</string>
   <string name="dialog_title_leave_forum">Подтвердить</string>
+  <string name="dialog_message_leave_forum">Вы уверены, что хотите покинуть этот форум?\n\nВсе контакты, с которыми вы поделились этим форумом, могут перестать получать обновления.</string>
   <string name="dialog_button_leave">Покинуть</string>
+  <string name="forum_left_toast">Покинул форум</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Поделиться форумом</string>
   <string name="contacts_selected">Выбранные контакты</string>
   <string name="activity_share_toolbar_header">Выбор контактов</string>
+  <string name="no_contacts_selector">Нет контактов для отображения\n\nПожалуйста, вернитесь сюда после добавления контакта</string>
   <string name="forum_shared_snackbar">Поделиться форумом совместно с выбранными контактами</string>
   <string name="forum_share_message">Добавить сообщение (необязательно)</string>
   <string name="forum_share_error">Произошла ошибка при при попытке поделиться этим форумом.</string>
   <string name="forum_invitation_received">%1$s поделился форумом \"%2$s\" с вами.</string>
   <string name="forum_invitation_sent">Вы поделились форумом \"%1$s\" с %2$s.</string>
   <string name="forum_invitations_title">Приглашения на форум</string>
+  <string name="forum_invitation_exists">Вы уже приняли приглашение на этот форум.\n\nПринятие большего количества приглашений сделает вашу связь с форумом более быстрой и надежной.</string>
+  <string name="forum_joined_toast">Присоединился к форуму</string>
+  <string name="forum_declined_toast">Приглашение отклонено</string>
   <string name="shared_by_format">Поделился %s</string>
   <string name="forum_invitation_already_sharing">Уже поделился</string>
   <string name="forum_invitation_response_accepted_sent">Вы приняли приглашение на форум от %s.</string>
@@ -261,15 +278,19 @@
   </plurals>
   <string name="nobody">Никого</string>
   <!--Blogs-->
-  <string name="blogs_other_blog_empty_state">Нет постов для показа</string>
+  <string name="blogs_other_blog_empty_state">Нет постов для отображения</string>
   <string name="read_more">подробнее</string>
   <string name="blogs_write_blog_post">Написать в блоге</string>
+  <string name="blogs_write_blog_post_body_hint">Напишите свой пост в блоге</string>
   <string name="blogs_publish_blog_post">Опубликовать</string>
   <string name="blogs_blog_post_created">Запись блога создана</string>
   <string name="blogs_blog_post_received">Появилась новая запись блога</string>
   <string name="blogs_blog_post_scroll_to">Перейти</string>
+  <string name="blogs_feed_empty_state">Нет постов для отображения\n\nПосты ваших контактов и блогов, на которые вы подписаны, появятся здесь\n\nКоснитесь значка пера, чтобы написать сообщение</string>
   <string name="blogs_remove_blog">Удалить блог</string>
+  <string name="blogs_remove_blog_dialog_message">Вы уверены, что хотите удалить этот блог?\n\nПосты будут удалены с вашего устройства, но не с устройств других пользователей.\n\nВсе контакты, с которыми вы поделились этим блогом, могут перестать получать обновления.</string>
   <string name="blogs_remove_blog_ok">Убрать</string>
+  <string name="blogs_blog_removed">Блог удален</string>
   <string name="blogs_reblog_comment_hint">Добавить комментарий (необязательно)</string>
   <string name="blogs_reblog_button">Перепостить</string>
   <!--Blog Sharing-->
@@ -284,6 +305,8 @@
   <string name="blogs_sharing_invitation_received">%1$s поделился блогом \"%2$s\" с вами.</string>
   <string name="blogs_sharing_invitation_sent">Вы поделились блогом \"%1$s\" с %2$s.</string>
   <string name="blogs_sharing_invitations_title">Приглашения в блог</string>
+  <string name="blogs_sharing_joined_toast">Подписка на блог</string>
+  <string name="blogs_sharing_declined_toast">Приглашение отклонено</string>
   <string name="sharing_status_blog">Любой, кто подписывается на блог, может поделиться им со своими контактами. Вы делитесь этим блогом со следующими контактами. Могут быть и другие подписчики, которых вы не видите.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Импорт RSS-канала</string>
@@ -295,8 +318,10 @@
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
   <string name="blogs_rss_feeds_manage_updated">Последнее обновление:</string>
   <string name="blogs_rss_remove_feed">Удалить RSS-канал</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Вы уверены, что хотите удалить эту ленту?\n\nПосты будут удалены с вашего устройства, но не с устройств других пользователей.\n\nВсе контакты, с которыми вы поделились этой лентой, могут перестать получать обновления.</string>
   <string name="blogs_rss_remove_feed_ok">Убрать</string>
   <string name="blogs_rss_feeds_manage_delete_error">Не удалось удалить RSS-канал!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Нет RSS-лент для отображения\n\nКоснитесь значка + для импорта ленты</string>
   <string name="blogs_rss_feeds_manage_error">Ошибка при загрузке каналов. Повторите попытку позже.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Сети</string>
@@ -311,7 +336,7 @@
   <string name="security_settings_title">Безопасность</string>
   <string name="change_password">Изменить пароль</string>
   <string name="current_password">Введите текущий пароль:</string>
-  <string name="choose_new_password">Выберите новый пароль:</string>
+  <string name="choose_new_password">Придумайте новый пароль:</string>
   <string name="confirm_new_password">Подтвердите новый пароль:</string>
   <string name="password_changed">Пароль был изменен.</string>
   <string name="panic_setting">Настройка тревожной кнопки</string>
@@ -333,12 +358,16 @@
   <string name="notification_settings_title">Уведомления</string>
   <string name="notify_private_messages_setting_title">Приватные сообщения</string>
   <string name="notify_private_messages_setting_summary">Показывать оповещения для приватных сообщений</string>
+  <string name="notify_private_messages_setting_summary_26">Настройка оповещений для личных сообщений</string>
   <string name="notify_group_messages_setting_title">Групповые сообщения</string>
   <string name="notify_group_messages_setting_summary">Показывать оповещения для групповых сообщений</string>
+  <string name="notify_group_messages_setting_summary_26">Настройка оповещений для групповых сообщений</string>
   <string name="notify_forum_posts_setting_title">Записи форума</string>
   <string name="notify_forum_posts_setting_summary">Показывать оповещения для записей форума</string>
+  <string name="notify_forum_posts_setting_summary_26">Настройка оповещений для записей форума</string>
   <string name="notify_blog_posts_setting_title">Записи блога</string>
   <string name="notify_blog_posts_setting_summary">Показывать оповещения для записей блога</string>
+  <string name="notify_blog_posts_setting_summary_26">Настройка оповещений для постов блога</string>
   <string name="notify_vibration_setting">Вибрация</string>
   <string name="notify_lock_screen_setting_title">Экран блокировки</string>
   <string name="notify_lock_screen_setting_summary">Показывать уведомления на экране блокировки</string>
@@ -382,4 +411,9 @@
   <string name="permission_camera_request_body">Для сканирования QR-кода Briar необходим доступ к камере.</string>
   <string name="permission_camera_denied_body">Доступ к камере запрещен, но для добавления контактов требуется доступ к камере.\n\nРассмотрите возможность предоставления доступа.</string>
   <string name="permission_camera_denied_toast">Доступ к камере не был предоставлен</string>
+  <string name="qr_code">QR-код</string>
+  <string name="show_qr_code_fullscreen">Показать QR-код во весь экран</string>
+  <!--Low Memory Notification-->
+  <string name="low_memory_shutdown_notification_title">Выход из Briar</string>
+  <string name="low_memory_shutdown_notification_text">Выход из-за недостатка памяти.</string>
 </resources>

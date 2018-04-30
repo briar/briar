@@ -33,6 +33,8 @@
   <string name="startup_failed_notification_title">Briar non è riuscito a partire</string>
   <string name="startup_failed_notification_text">Tocca per maggiori informazioni.</string>
   <string name="startup_failed_activity_title">Fallimento Avvio Briar</string>
+  <string name="startup_failed_db_error">Per qualche motivo, il tuo database di Briar è danneggiato in modo irreparabile. Il tuo account, i tuoi dati e tutti i tuoi contatti sono perduti. Sfortunatamente devi reinstallare Briar o registrare un nuovo account scegliendo \'Ho dimenticato la password\'.</string>
+  <string name="startup_failed_data_too_old_error">Il tuo account è stato creato con una vecchia versione dell\'app e non può essere aperto in questa versione. Devi reinstallare la vecchia versione oppure impostare un nuovo account scegliendo \'Ho dimenticato la password\' alla richiesta di password.</string>
   <string name="startup_failed_data_too_new_error">Questa versione dell\'app è troppo vecchia. Aggiornala alla versione più recente e riprova.</string>
   <string name="startup_failed_service_error">Briar non è stato in grado di caricare un plugin richiesto. Reinstallare Briar di solito sistema questo problema. Però ricorda che perderai il tuo account e tutti i dati ad esso associati poichè Briar non usa server centralizzati per mantenere i tuoi dati.</string>
   <plurals name="expiry_warning">
@@ -41,6 +43,9 @@
   </plurals>
   <string name="expiry_update">La scadenza della versione di prova è stata prorogata. Il tuo account ora scadrà fra %d giorni.</string>
   <string name="expiry_date_reached">Questo software è scaduto.\nGrazie per il test!</string>
+  <string name="download_briar">Per continuare ad usare Briar, scarica la versione 1.0.</string>
+  <string name="create_new_account">Avrai bisogno di creare un nuovo account, ma puoi usare lo stesso nickname.</string>
+  <string name="download_briar_button">Scarica Briar 1.0</string>
   <string name="startup_open_database">Decrittazione database...</string>
   <string name="startup_migrate_database">Aggiornamento database...</string>
   <!--Navigation Drawer-->
@@ -99,7 +104,9 @@
   <string name="help">Aiuto</string>
   <string name="sorry">Scusa</string>
   <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Nessun contatto da mostrare\n\nClicca l\'icona + per aggiungere un contatto</string>
   <string name="date_no_private_messages">Nessun messaggio.</string>
+  <string name="no_private_messages">Nessun messaggio da mostrare</string>
   <string name="message_hint">Scrivi un messaggio</string>
   <string name="delete_contact">Elimina contatto</string>
   <string name="dialog_title_delete_contact">Conferma cancellazione contatto</string>
@@ -127,6 +134,7 @@
   <string name="introduction_onboarding_title">Introduzione tuoi contatti</string>
   <string name="introduction_onboarding_text">Puoi presentare i tuoi contatti fra di loro, così non hanno bisogno di incontrarsi di persona per connettersi a Briar.</string>
   <string name="introduction_activity_title">Seleziona Contatto</string>
+  <string name="introduction_not_possible">Hai già un introduzione in corso con questi contatti. Si prega di consentire che prima questo finisca. Se tu o i tuoi contatti sono raramente online, questo potrebbe richiedere un po\' di tempo.</string>
   <string name="introduction_message_title">Introduzione Contatti</string>
   <string name="introduction_message_hint">Aggiungi un messaggio (facoltativo)</string>
   <string name="introduction_button">Crea l\'introduzione</string>
@@ -138,6 +146,7 @@
   <string name="introduction_request_exists_received">%1$s ha chiesto di introdurti in %2$s, ma %2$s è già nella tua lista contatti. Dato che %1$s può non saperlo, puoi comunque rispondere:</string>
   <string name="introduction_request_answered_received">%1$s ha richiesto di introdurti a %2$s.</string>
   <string name="introduction_response_accepted_sent">Hai accettato l\'introduzione a %1$s.</string>
+  <string name="introduction_response_accepted_sent_info">Prima che %1$s venga aggiunto ai tuoi contatti, dovranno anche loro accettare l\'introduzione. Questo potrebbe richiedere un po\' di tempo.</string>
   <string name="introduction_response_declined_sent">Hai declinato l\'introduzione a %1$s.</string>
   <string name="introduction_response_accepted_received">%1$s ha accettato l\'introduzione a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s ha declinato l\'introduzione a %2$s.</string>
@@ -147,6 +156,7 @@
     <item quantity="other">Aggiunti %d nuovi contatti.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">Nessun gruppo da mostrare\n\nClicca l\'icona + per creare un gruppo, o chiedi ai tuoi contatti di condividere gruppi con te</string>
   <string name="groups_created_by">Creato da %s</string>
   <plurals name="messages">
     <item quantity="one">%d messaggio</item>
@@ -199,6 +209,7 @@
   <string name="groups_reveal_visible_revealed_by_contact">La relazione fra i contatti è visibile al gruppo (rivelata da %s)</string>
   <string name="groups_reveal_invisible">La relazione fra i contatti non è visibile al gruppo</string>
   <!--Forums-->
+  <string name="no_forums">Nessun forum da mostrare\n\nClicca l\'icona + per creare un forum, o chiedi ai tuoi contatti di condividere forum con te</string>
   <string name="create_forum_title">Crea Forum</string>
   <string name="choose_forum_hint">Scegli un nome per il tuo forum</string>
   <string name="create_forum_button">Crea Forum</string>
@@ -215,17 +226,23 @@
   <string name="btn_reply">Rispondi</string>
   <string name="forum_leave">Lascia Forum</string>
   <string name="dialog_title_leave_forum">Conferma l\'abbandono del forum</string>
+  <string name="dialog_message_leave_forum">Sei sicuro che vuoi lasciare questo forum?\n\nTutti i contatti con cui hai condiviso questo forum potrebbero smettere di ricevere aggiornamenti.</string>
   <string name="dialog_button_leave">Lascia</string>
+  <string name="forum_left_toast">Forum lasciato</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Condividi Forum</string>
   <string name="contacts_selected">Contatti selezionati</string>
   <string name="activity_share_toolbar_header">Scegli Contatti</string>
+  <string name="no_contacts_selector">Nessun contatto da mostrare\n\nPer favore torna qui dopo aver aggiunto un contatto</string>
   <string name="forum_shared_snackbar">Forum condiviso con i contatti scelti</string>
   <string name="forum_share_message">Aggiungi un messaggio (facoltativo)</string>
   <string name="forum_share_error">C\'è stato un errore nella condivisione di questo forum.</string>
   <string name="forum_invitation_received">%1$s ha condiviso il forum \"%2$s\" con te.</string>
   <string name="forum_invitation_sent">Hai condiviso il forum \"%1$s\" con %2$s.</string>
   <string name="forum_invitations_title">Inviti Forum</string>
+  <string name="forum_invitation_exists">Hai già accettato un invito a questo forum.\n\nAccettare più inviti renderà la tua connessione a questo forum più veloce e affidabile.</string>
+  <string name="forum_joined_toast">Unito al forum</string>
+  <string name="forum_declined_toast">Invito declinato</string>
   <string name="shared_by_format">Condiviso da %s</string>
   <string name="forum_invitation_already_sharing">Già in condivisione</string>
   <string name="forum_invitation_response_accepted_sent">Hai accettato l\'invito al forum da %s</string>
@@ -244,12 +261,16 @@
   <string name="blogs_other_blog_empty_state">Nessun post da mostrare</string>
   <string name="read_more">leggi ancora</string>
   <string name="blogs_write_blog_post">Scrivere un post sul blog</string>
+  <string name="blogs_write_blog_post_body_hint">Scrivi il tuo post del blog</string>
   <string name="blogs_publish_blog_post">Pubblica</string>
   <string name="blogs_blog_post_created">Post blog creato</string>
   <string name="blogs_blog_post_received">Ricevuto nuovo post del blog</string>
   <string name="blogs_blog_post_scroll_to">Scorri a</string>
+  <string name="blogs_feed_empty_state">Nessun post da mostrare\n\nI post dei tuoi contatti e blog a cui sei iscritto appariranno qui\n\nClicca l\'icona di penna per scrivere un post</string>
   <string name="blogs_remove_blog">Rimuovi Blog</string>
+  <string name="blogs_remove_blog_dialog_message">Sei sicuro di voler rimuovere questo blog?\n\nI post saranno rimossi dal tuo dispositivo ma non dai dispositivi delle altre persone.\n\nTutti i contatti con cui hai condiviso questo blog potrebbero smettere di ricevere aggiornamenti.</string>
   <string name="blogs_remove_blog_ok">Rimuovi</string>
+  <string name="blogs_blog_removed">Blog rimosso</string>
   <string name="blogs_reblog_comment_hint">Aggiungi un commento (facoltativo)</string>
   <string name="blogs_reblog_button">Reblog</string>
   <!--Blog Sharing-->
@@ -264,6 +285,8 @@
   <string name="blogs_sharing_invitation_received">%1$s ha condiviso il blog \"%2$s\" con te.</string>
   <string name="blogs_sharing_invitation_sent">Hai condiviso il blog \"%1$s\" con %2$s.</string>
   <string name="blogs_sharing_invitations_title">Inviti Blog</string>
+  <string name="blogs_sharing_joined_toast">Iscritto al blog</string>
+  <string name="blogs_sharing_declined_toast">Invito declinato</string>
   <string name="sharing_status_blog">Chiunque si iscrive ad un blog può condividerlo con i suoi contatti. Stai condividendo questo blog con i seguenti contatti. Ci potrebbero inoltre essere altri membri che non puoi vedere.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importa RSS Feed</string>
@@ -275,8 +298,10 @@
   <string name="blogs_rss_feeds_manage_author">Autore:</string>
   <string name="blogs_rss_feeds_manage_updated">Ultimo Aggiornamento:</string>
   <string name="blogs_rss_remove_feed">Rimuovi feed</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Sei sicuro di voler rimuovere questo feed?\n\nI post saranno rimossi dal tuo dispositivo ma non dai dispositivi delle altre persone.\n\nTutti i contatti con cui hai condiviso questo feed potrebbero smettere di ricevere aggiornamenti.</string>
   <string name="blogs_rss_remove_feed_ok">Rimuovi</string>
   <string name="blogs_rss_feeds_manage_delete_error">Non è stato possibile cancellare il feed!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Nessun feed RSS da mostrare\n\nClicca l\'icona + per importare un feed</string>
   <string name="blogs_rss_feeds_manage_error">C\'è stato un problema nel caricare i tuoi feeds. Per favore riprova fra poco.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Reti</string>
@@ -313,12 +338,16 @@
   <string name="notification_settings_title">Notifiche</string>
   <string name="notify_private_messages_setting_title">Messaggi privati</string>
   <string name="notify_private_messages_setting_summary">Mostra avvisi per i messaggi privati</string>
+  <string name="notify_private_messages_setting_summary_26">Configurare avvisi per messaggi privati</string>
   <string name="notify_group_messages_setting_title">Messaggi di gruppo</string>
   <string name="notify_group_messages_setting_summary">Mostra avvisi per messaggi di gruppo</string>
+  <string name="notify_group_messages_setting_summary_26">Configurare avvisi per messaggi di gruppo</string>
   <string name="notify_forum_posts_setting_title">Post di forum</string>
   <string name="notify_forum_posts_setting_summary">Mostra avvisi per i post di forum</string>
+  <string name="notify_forum_posts_setting_summary_26">Configurare avvisi per post di forum</string>
   <string name="notify_blog_posts_setting_title">Post di blog</string>
   <string name="notify_blog_posts_setting_summary">Mostra avvisi per post di blog</string>
+  <string name="notify_blog_posts_setting_summary_26">Configurare avvisi per post di blog</string>
   <string name="notify_vibration_setting">Vibrazione</string>
   <string name="notify_lock_screen_setting_title">Blocca schermo</string>
   <string name="notify_lock_screen_setting_summary">Mostra notifiche sul blocca schermo</string>
@@ -362,4 +391,9 @@
   <string name="permission_camera_request_body">Per scansionare il codice QR, Briar deve accedere alla fotocamera.</string>
   <string name="permission_camera_denied_body">Hai negato l\'accesso alla fotocamera, ma questa serve per aggiungere i contatti.\n\nConsidera la possibilità di concedere l\'accesso.</string>
   <string name="permission_camera_denied_toast">Autorizzazione fotocamera non concessa</string>
+  <string name="qr_code">Codice QR</string>
+  <string name="show_qr_code_fullscreen">Mostra codice QR a tutto schermo</string>
+  <!--Low Memory Notification-->
+  <string name="low_memory_shutdown_notification_title">Uscito da Briar</string>
+  <string name="low_memory_shutdown_notification_text">Uscito per mancanza di memoria</string>
 </resources>

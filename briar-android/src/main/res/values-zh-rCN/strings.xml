@@ -352,4 +352,5 @@
   <string name="permission_camera_request_body">Briar 需要获得相机权限以扫描二维码。</string>
   <string name="permission_camera_denied_body">您拒绝了相机权限，而添加联系人需要使用相机\n\n请考虑授予相机权限。</string>
   <string name="permission_camera_denied_toast">未授予相机权限</string>
+  <!--Low Memory Notification-->
 </resources>

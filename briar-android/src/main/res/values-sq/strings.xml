@@ -43,6 +43,9 @@
   </plurals>
   <string name="expiry_update">Data e skadimit të periudhës së testimit është shtyrë më tej. Tani llogaria juaj do të skadojë për %d ditë.</string>
   <string name="expiry_date_reached">Ky software ka skaduar.\nFaleminderit që e provuat!</string>
+  <string name="download_briar">Që të vazhdoni të përdorni Briar-in, ju lutemi, shkarkoni versionin 1.0.</string>
+  <string name="create_new_account">Do t’ju duhet të krijoni një llogari të re, por mund të përdorni të njëjtën nofkë.</string>
+  <string name="download_briar_button">Shkarko Briar 1.0</string>
   <string name="startup_open_database">Po shfshehtëzohet Baza e të dhënave…</string>
   <string name="startup_migrate_database">Po përditësohet Baza e të dhënave…</string>
   <!--Navigation Drawer-->
@@ -131,6 +134,7 @@
   <string name="introduction_onboarding_title">Prezantoni kontaktet tuaja</string>
   <string name="introduction_onboarding_text">Kontaktet tuaja mund t\’ia prezantoni njëri-tjetrit, që kështu të mos u duhet të takohen realisht për të mundur të lidhen në Briar.</string>
   <string name="introduction_activity_title">Përzgjidhni Kontakt</string>
+  <string name="introduction_not_possible">Keni filluar tashmë një prezantim me këto kontakte. Ju lutemi, lëreni të përfundojë së pari. Nëse ju ose kontaktet tuaja rrallë gjenden <em>online</em>, kjo mund të dojë ca kohë.</string>
   <string name="introduction_message_title">Prezantoni Kontakte</string>
   <string name="introduction_message_hint">Shtoni një mesazh (në daçi)</string>
   <string name="introduction_button">Bëje prezantimin</string>
@@ -142,6 +146,7 @@
   <string name="introduction_request_exists_received">%1$s ka kërkuar t\’ju prezantojë te %2$s, por %2$s gjendet tashmë te lista juaj e kontakteve. Meqë %1$s mund të mos ta dijë këtë gjë, mundeni prapëseprapë t\’i përgjigjeni:</string>
   <string name="introduction_request_answered_received">%1$s ka kërkuar t\’ju prezantojë te %2$s.</string>
   <string name="introduction_response_accepted_sent">Pranuat prezantimin te %1$s.</string>
+  <string name="introduction_response_accepted_sent_info">Para se %1$s të shtohet te kontaktet tuaja, duhet të pranojë prezantimin tuaj. Kjo mund të dojë ca kohë.</string>
   <string name="introduction_response_declined_sent">Hodhët poshtë prezantimin te %1$s.</string>
   <string name="introduction_response_accepted_received">%1$s pranoi prezantimin te %2$s.</string>
   <string name="introduction_response_declined_received">%1$s hodhi poshtë prezantimin te %2$s.</string>
@@ -388,4 +393,7 @@
   <string name="permission_camera_denied_toast">S\’u dhanë leje mbi kamerën</string>
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Shfaqe kodin QR sa tërë ekrani</string>
+  <!--Low Memory Notification-->
+  <string name="low_memory_shutdown_notification_title">U dol nga Briar-i</string>
+  <string name="low_memory_shutdown_notification_text">U dol për shkak mungese kujtese.</string>
 </resources>

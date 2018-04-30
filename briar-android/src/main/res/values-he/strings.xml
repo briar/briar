@@ -226,6 +226,7 @@
   <!--Settings Notifications-->
   <string name="notification_settings_title">הודעות מערכת</string>
   <string name="notify_private_messages_setting_title">הודעות פרטיות</string>
+  <string name="notify_lock_screen_setting_title">נעל מסך</string>
   <string name="notify_sound_setting_disabled">כלום</string>
   <!--Settings Feedback-->
   <!--Link Warning-->
@@ -234,4 +235,5 @@
   <!--Sign Out-->
   <!--Screen Filters & Tapjacking-->
   <!--Permission Requests-->
+  <!--Low Memory Notification-->
 </resources>

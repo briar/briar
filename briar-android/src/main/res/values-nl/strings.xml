@@ -20,7 +20,7 @@
   <string name="more_info">Meer informatie</string>
   <string name="don_t_ask_again">Vraag niet nog een keer</string>
   <string name="setup_huawei_text">Tap a.u.b. op de knop hieronder en ga na dat Briar is beschermd op het scherm \"Beveiligde apps\".</string>
-  <string name="setup_huawei_button">Protect Briar</string>
+  <string name="setup_huawei_button">Bescherm Briar</string>
   <string name="setup_huawei_help">Als Briar niet is toegevoegd aan de beschermde apps, is het niet mogelijk om het in de achtergrond te runnen.</string>
   <string name="warning_dozed">%s kon niet in de achtergrond runnen</string>
   <!--Login-->
@@ -33,6 +33,8 @@
   <string name="startup_failed_notification_title">Briar kon niet opstarten</string>
   <string name="startup_failed_notification_text">Tap voor meer informatie.</string>
   <string name="startup_failed_activity_title">Opstarten Briar mislukt</string>
+  <string name="startup_failed_db_error">Om de een of andere reden is je Briar-database corrupt geraakt en niet meer te repareren. Je account, je gegevens en al je contacten zijn verloren. Helaas zul je Briar moeten herinstalleren en een nieuw account aan te maken met \'Ik ben mijn wachtwoord vergeten\' als om je wachtwoord wordt gevraagd.</string>
+  <string name="startup_failed_data_too_old_error">Je account was aangemaakt met een oude versie van deze app en kan met deze versie niet worden geopend. Je moet of de oude versie installeren of een nieuw account aanmaken door te kiezen \'Ik ben mijn wachtwoord vergeten\' als om je wachtwoord wordt gevraagd.</string>
   <string name="startup_failed_data_too_new_error">Deze versie van de is app is te oud. Upgrade a.u.b. naar de laatste versie en probeer het nog een keer.</string>
   <string name="startup_failed_service_error">Briar kon de vereiste plug-in niet starten. Herinstalleren van Briar lost dit probleem meestal op. Let op dat je al je je account en alle gegevens die daaraan vast zitten zal verliezen omdat Briar geen centrale servers gebruikt om gegevens op te slaan.</string>
   <plurals name="expiry_warning">
@@ -99,8 +101,10 @@
   <string name="help">Help</string>
   <string name="sorry">Excuses</string>
   <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Geen contacten om te tonen\n\nTap het +-icoon om contact toe te voegen</string>
   <string name="date_no_private_messages">Geen berichten.</string>
-  <string name="message_hint">Typ een bericht</string>
+  <string name="no_private_messages">Geen berichten om te tonen</string>
+  <string name="message_hint">Schrijf een bericht</string>
   <string name="delete_contact">Verwijder bericht</string>
   <string name="dialog_title_delete_contact">Bevestig verwijderen contact</string>
   <string name="dialog_message_delete_contact">Weet je zeker dat je dit contact en alle berichten die met dit contact zijn uitgewisseld wil verwijderen?</string>
@@ -147,6 +151,7 @@
     <item quantity="other">%d nieuwe contacten zijn toegevoegd.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">Geen groepen om te tonen\n\nTap het +-icoon om een groep aan te maken or vraag je contacten om groepen met je te delen</string>
   <string name="groups_created_by">Is aangemaakt door %s</string>
   <plurals name="messages">
     <item quantity="one">%d bericht</item>
@@ -199,10 +204,12 @@
   <string name="groups_reveal_visible_revealed_by_contact">Contactrelaties zijn zichtbaar voor de groep (geopenbaard door %s)</string>
   <string name="groups_reveal_invisible">Contactrelatie is niet zichtbaar voor de groep</string>
   <!--Forums-->
+  <string name="no_forums">Geen fora om te tonen\n\nTap het +-icoon om een forum aan te maken or vraag je contacten om fora met je te delen</string>
   <string name="create_forum_title">Maak forum aan</string>
   <string name="choose_forum_hint">Voer een naam in voor je forum</string>
   <string name="create_forum_button">Maak forum aan</string>
   <string name="forum_created_toast">Forum aangemaakt</string>
+  <string name="no_forum_posts">Geen posts om te tonen</string>
   <string name="no_posts">Geen posts</string>
   <plurals name="posts">
     <item quantity="one">%d post</item>
@@ -214,17 +221,23 @@
   <string name="btn_reply">Antwoord</string>
   <string name="forum_leave">Verlaat forum</string>
   <string name="dialog_title_leave_forum">Bevestig verlaten forum</string>
+  <string name="dialog_message_leave_forum">Weet je zeker dat dit forum wil verlaten?\n\nHet is mogelijk dat contacten met wie je dit forum hebt gedeeld geen updates meer ontvangen.</string>
   <string name="dialog_button_leave">Verlaat</string>
+  <string name="forum_left_toast">Forum verlaten</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Deel forum</string>
   <string name="contacts_selected">Contacten geselecteerd</string>
   <string name="activity_share_toolbar_header">Kies contacten</string>
+  <string name="no_contacts_selector">Geen contacten om te tonen\n\nKom a.u.b. hier terug na het toevoegen van een contact</string>
   <string name="forum_shared_snackbar">Forum is gedeeld met uitgekozen contacten</string>
   <string name="forum_share_message">Voeg een bericht toe (optioneel)</string>
   <string name="forum_share_error">Er trad een fout op bij het delen van dit forum.</string>
   <string name="forum_invitation_received">%1$s heeft het forum \"%2$s\" met je gedeeld.</string>
   <string name="forum_invitation_sent">Jij hebt het forum \"%1$s\" gedeeld met %2$s.</string>
   <string name="forum_invitations_title">Forumuitnodigingen</string>
+  <string name="forum_invitation_exists">Je hebt de uitnodiging van dit forum al eens geaccepteerd.\n\nHet accepteren van meer uitnodigingen zal je verbinding met het forum snellen er meer betrouwbaarder maken.</string>
+  <string name="forum_joined_toast">Lid geworden van forum</string>
+  <string name="forum_declined_toast">Uitnodiging afgewezen</string>
   <string name="shared_by_format">Is gedeeld door %s</string>
   <string name="forum_invitation_already_sharing">Reeds gedeeld</string>
   <string name="forum_invitation_response_accepted_sent">Je hebt een forumuitnodiging geaccepteerd van %s.</string>
@@ -240,14 +253,19 @@
   </plurals>
   <string name="nobody">Niemand</string>
   <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">Geen posts om te tonen</string>
   <string name="read_more">lees meer</string>
   <string name="blogs_write_blog_post">Schrijf blogpost</string>
+  <string name="blogs_write_blog_post_body_hint">Schrijf je blogpost</string>
   <string name="blogs_publish_blog_post">Publiceer</string>
   <string name="blogs_blog_post_created">Blogpost aangemaakt</string>
   <string name="blogs_blog_post_received">Nieuwe blogpost ontvangen</string>
   <string name="blogs_blog_post_scroll_to">Scroll naar</string>
+  <string name="blogs_feed_empty_state">Geen posts om te tonen\n\nPosts van je contacten en blogs waar je op bent geabonneerd zullen hier verschijnen\n\nTap het penicoon om een post te schrijven</string>
   <string name="blogs_remove_blog">Verwijder bblog</string>
+  <string name="blogs_remove_blog_dialog_message">Weet je zeker dat je deze blog wil verwijderen?\n\nPosts zullen van je apparaat worden verwijderd maar niet van apparaten van andere mensen.\n\nContacten met wie je deze blog hebt gedeeld zullen geen updates meer ontvangen.</string>
   <string name="blogs_remove_blog_ok">Verwijderen</string>
+  <string name="blogs_blog_removed">Blog is verwijderd</string>
   <string name="blogs_reblog_comment_hint">Voeg commentaar toe (optioneel)</string>
   <string name="blogs_reblog_button">Reblog</string>
   <!--Blog Sharing-->
@@ -262,6 +280,8 @@
   <string name="blogs_sharing_invitation_received">%1$s heeft de blog \"%2$s\" met je gedeeld.</string>
   <string name="blogs_sharing_invitation_sent">Je hebt de blog \"%1$s\" gedeeld met %2$s.</string>
   <string name="blogs_sharing_invitations_title">Bloguitnodigingen</string>
+  <string name="blogs_sharing_joined_toast">Geabonneerd op blog</string>
+  <string name="blogs_sharing_declined_toast">Uitnodiging afgewezen</string>
   <string name="sharing_status_blog">Alle leden die lid worden van een blog kunnen deze blog delen met hun contacten. Je deelt deze blog al met de volgende contacten. Er kunnen ook andere leden zijn die je niet kan zien.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importeer RSS-feed</string>
@@ -273,8 +293,10 @@
   <string name="blogs_rss_feeds_manage_author">Auteur:</string>
   <string name="blogs_rss_feeds_manage_updated">Laatst bijgewerkt:</string>
   <string name="blogs_rss_remove_feed">Verwijder feed</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Weet je zeker dat je deze feed wil verwijderen?\n\nPosts zullen van je apparaat worden verwijderd maar niet van apparaten van andere mensen.\n\nContacten met wie je deze feed hebt gedeeld zullen geen updates meer ontvangen.</string>
   <string name="blogs_rss_remove_feed_ok">Verwijderen</string>
   <string name="blogs_rss_feeds_manage_delete_error">De feed kon niet worden verwijderd.</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Geen RSS-feeds om te tonen\n\nTap op het +-icoon om een feed te importeren</string>
   <string name="blogs_rss_feeds_manage_error">Er was een probleem met het laden van je feeds. Probeer het later nog een keer.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Netwerken</string>
@@ -311,12 +333,16 @@
   <string name="notification_settings_title">Meldingen</string>
   <string name="notify_private_messages_setting_title">Privéberichten</string>
   <string name="notify_private_messages_setting_summary">Toon meldingen voor privéberichten</string>
+  <string name="notify_private_messages_setting_summary_26">Configureer alarmen voor privéberichten</string>
   <string name="notify_group_messages_setting_title">Groepsberichten</string>
   <string name="notify_group_messages_setting_summary">Toon meldingen voor groepsberichten</string>
+  <string name="notify_group_messages_setting_summary_26">Configureer alarmen voor groepsberichten</string>
   <string name="notify_forum_posts_setting_title">Forumposts</string>
   <string name="notify_forum_posts_setting_summary">Toon meldingen voor forumposts</string>
+  <string name="notify_forum_posts_setting_summary_26">Configureer alarmen voor forumposts</string>
   <string name="notify_blog_posts_setting_title">Blogposts</string>
   <string name="notify_blog_posts_setting_summary">Toon meldingen voor blogposts</string>
+  <string name="notify_blog_posts_setting_summary_26">Configureer alarmen voor blogposts</string>
   <string name="notify_vibration_setting">Tril</string>
   <string name="notify_lock_screen_setting_title">Schermvergrendeling</string>
   <string name="notify_lock_screen_setting_summary">Toon notificaties over de schermvergrendeling</string>
@@ -352,7 +378,7 @@
   <!--Sign Out-->
   <string name="progress_title_logout">Uitloggen van Briar…</string>
   <!--Screen Filters & Tapjacking-->
-  <string name="screen_filter_title">Schermoverlay detecteerd</string>
+  <string name="screen_filter_title">Schermoverlay is gedetecteerd</string>
   <string name="screen_filter_body">Een andere app ligt zich bovenop Briar. Om je veiligheid te beschermen zal Briar niet reageren op aanrakingen als er een andere app bovenop ligt.\n\nDe volgende apps proberen waarschijnlijk dit te doen:\n\n%1$s</string>
   <string name="screen_filter_allow">Sta toe dat deze apps bovenop te liggen</string>
   <!--Permission Requests-->
@@ -360,4 +386,9 @@
   <string name="permission_camera_request_body">Om de QR-code te scannen moet Briar toegang hebben tot de camera.</string>
   <string name="permission_camera_denied_body">Je hebt toegang tot de camera niet vrijgegeven, terwijl het toevoegen van contacten de camera nodig heeft.\n\nOverweeg a.u.b. toegang vrij te geven.</string>
   <string name="permission_camera_denied_toast">Cameratoegang niet vrijgegeven</string>
+  <string name="qr_code">QR-code</string>
+  <string name="show_qr_code_fullscreen">Toon QR-code op volledig scherm</string>
+  <!--Low Memory Notification-->
+  <string name="low_memory_shutdown_notification_title">Uitgelogd van Briar</string>
+  <string name="low_memory_shutdown_notification_text">Uitgelogd door gebrek aan geheugen.</string>
 </resources>
