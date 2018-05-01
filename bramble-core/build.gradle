@@ -31,7 +31,6 @@ dependencies {
 dependencyVerification {
 	verify = [
 			'cglib:cglib:3.2.0:cglib-3.2.0.jar:adb13bab79712ad6bdf1bd59f2a3918018a8016e722e8a357065afb9e6690861',
-			'com.google.code.findbugs:jsr305:3.0.2:jsr305-3.0.2.jar:766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7',
 			'com.google.dagger:dagger-compiler:2.0.2:dagger-compiler-2.0.2.jar:b74bc9de063dd4c6400b232231f2ef5056145b8fbecbf5382012007dd1c071b3',
 			'com.google.dagger:dagger-producers:2.0-beta:dagger-producers-2.0-beta.jar:99ec15e8a0507ba569e7655bc1165ee5e5ca5aa914b3c8f7e2c2458f724edd6b',
 			'com.google.dagger:dagger:2.0.2:dagger-2.0.2.jar:84c0282ed8be73a29e0475d639da030b55dee72369e58dd35ae7d4fe6243dcf9',
