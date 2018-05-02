@@ -8,7 +8,7 @@ public interface TestDataCreator {
 	/**
 	 * Create fake test data on the DatabaseExecutor
 	 *
-	 * @param numContacts Number of contacts to create.
+	 * @param numContacts Number of contacts to create. Must be >= 1
 	 * @param numPrivateMsgs Number of private messages to create for each
 	 * contact.
 	 * @param numBlogPosts Number of blog posts to create.
