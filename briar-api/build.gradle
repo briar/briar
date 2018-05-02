@@ -2,18 +2,16 @@ apply plugin: 'java-library'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+apply plugin: 'ru.vyarus.animalsniffer'
 apply plugin: 'witness'
 
 dependencies {
 	implementation project(path: ':bramble-api', configuration: 'default')
+
+	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }
 
 dependencyVerification {
 	verify = [
 	]
-}
-
-// If a Java 6 JRE is available, check we're not using any Java 7 or 8 APIs
-tasks.withType(JavaCompile) {
-	useJava6StandardLibrary(it)
 }

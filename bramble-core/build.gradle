@@ -2,6 +2,7 @@ apply plugin: 'java-library'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+apply plugin: 'ru.vyarus.animalsniffer'
 apply plugin: 'net.ltgt.apt'
 apply plugin: 'idea'
 apply plugin: 'witness'
@@ -26,6 +27,8 @@ dependencies {
 	testImplementation "org.hamcrest:hamcrest-core:1.3"
 
 	testApt 'com.google.dagger:dagger-compiler:2.0.2'
+
+	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }
 
 dependencyVerification {
@@ -67,9 +70,4 @@ task jarTest(type: Jar, dependsOn: testClasses) {
 }
 artifacts {
 	testOutput jarTest
-}
-
-// If a Java 6 JRE is available, check we're not using any Java 7 or 8 APIs
-tasks.withType(JavaCompile) {
-	useJava6StandardLibrary(it)
 }
