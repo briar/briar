@@ -8,8 +8,6 @@ cache:
 before_script:
   - set -e
   - export GRADLE_USER_HOME=$PWD/.gradle
-  # Accept the license for the Android build tools
-  - echo y | /opt/android-sdk/tools/bin/sdkmanager "build-tools;26.0.2"
   # Download OpenJDK 6 so we can compile against its standard library
   - JDK_FILE=openjdk-6-jre-headless_6b38-1.13.10-1~deb7u1_amd64.deb
   - if [ ! -d openjdk ]
