@@ -23,8 +23,20 @@ public class TestDataActivity extends BriarActivity {
 	@Inject
 	TestDataCreator testDataCreator;
 
-	private TextView[] textViews = new TextView[5];
-	private SeekBar[] seekBars = new SeekBar[5];
+	private TextView contactsTextView;
+	private SeekBar contactsSeekBar;
+
+	private TextView messagesTextView;
+	private SeekBar messagesSeekBar;
+
+	private TextView blogPostsTextView;
+	private SeekBar blogPostsSeekBar;
+
+	private TextView forumsTextView;
+	private SeekBar forumsSeekBar;
+
+	private TextView forumPostsTextView;
+	private SeekBar forumPostsSeekBar;
 
 	@Override
 	public void onCreate(Bundle bundle) {
@@ -37,45 +49,111 @@ public class TestDataActivity extends BriarActivity {
 		}
 
 		setContentView(R.layout.activity_test_data);
-		textViews[0] = findViewById(R.id.textViewContactsSb);
-		textViews[1] = findViewById(R.id.textViewMessagesSb);
-		textViews[2] = findViewById(R.id.TextViewBlogPostsSb);
-		textViews[3] = findViewById(R.id.TextViewForumsSb);
-		textViews[4] = findViewById(R.id.TextViewForumMessagesSb);
-		seekBars[0] = findViewById(R.id.seekBarContacts);
-		seekBars[1] = findViewById(R.id.seekBarMessages);
-		seekBars[2] = findViewById(R.id.seekBarBlogPosts);
-		seekBars[3] = findViewById(R.id.seekBarForums);
-		seekBars[4] = findViewById(R.id.seekBarForumMessages);
+		contactsTextView = findViewById(R.id.textViewContactsSb);
+		messagesTextView = findViewById(R.id.textViewMessagesSb);
+		blogPostsTextView = findViewById(R.id.TextViewBlogPostsSb);
+		forumsTextView = findViewById(R.id.TextViewForumsSb);
+		forumPostsTextView = findViewById(R.id.TextViewForumMessagesSb);
+		contactsSeekBar = findViewById(R.id.seekBarContacts);
+		messagesSeekBar = findViewById(R.id.seekBarMessages);
+		blogPostsSeekBar = findViewById(R.id.seekBarBlogPosts);
+		forumsSeekBar = findViewById(R.id.seekBarForums);
+		forumPostsSeekBar = findViewById(R.id.seekBarForumMessages);
 
-		for (int i = 0; i < 5; i++) {
-			final TextView textView = textViews[i];
-			seekBars[i].setOnSeekBarChangeListener(
-					new OnSeekBarChangeListener() {
-						@Override
-						public void onProgressChanged(SeekBar seekBar,
-								int progress, boolean fromUser) {
-							textView.setText(String.valueOf(progress));
-						}
+		contactsSeekBar
+				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+					@Override
+					public void onProgressChanged(SeekBar seekBar,
+							int progress, boolean fromUser) {
+						contactsTextView.setText(String.valueOf(progress + 1));
+					}
 
-						@Override
-						public void onStartTrackingTouch(SeekBar seekBar) {
-						}
+					@Override
+					public void onStartTrackingTouch(SeekBar seekBar) {
+					}
 
-						@Override
-						public void onStopTrackingTouch(SeekBar seekBar) {
-						}
-					});
-		}
+					@Override
+					public void onStopTrackingTouch(SeekBar seekBar) {
+					}
+				});
+
+		messagesSeekBar
+				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+					@Override
+					public void onProgressChanged(SeekBar seekBar,
+							int progress, boolean fromUser) {
+						messagesTextView.setText(String.valueOf(progress));
+					}
+
+					@Override
+					public void onStartTrackingTouch(SeekBar seekBar) {
+					}
+
+					@Override
+					public void onStopTrackingTouch(SeekBar seekBar) {
+					}
+				});
+
+		blogPostsSeekBar
+				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+					@Override
+					public void onProgressChanged(SeekBar seekBar,
+							int progress, boolean fromUser) {
+						blogPostsTextView.setText(String.valueOf(progress));
+					}
+
+					@Override
+					public void onStartTrackingTouch(SeekBar seekBar) {
+					}
+
+					@Override
+					public void onStopTrackingTouch(SeekBar seekBar) {
+					}
+				});
+
+		forumsSeekBar
+				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+					@Override
+					public void onProgressChanged(SeekBar seekBar,
+							int progress, boolean fromUser) {
+						forumsTextView.setText(String.valueOf(progress));
+						forumPostsSeekBar.setEnabled(progress > 0);
+					}
+
+					@Override
+					public void onStartTrackingTouch(SeekBar seekBar) {
+					}
+
+					@Override
+					public void onStopTrackingTouch(SeekBar seekBar) {
+					}
+				});
+
+		forumPostsSeekBar
+				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+					@Override
+					public void onProgressChanged(SeekBar seekBar,
+							int progress, boolean fromUser) {
+						forumPostsTextView.setText(String.valueOf(progress));
+					}
+
+					@Override
+					public void onStartTrackingTouch(SeekBar seekBar) {
+					}
+
+					@Override
+					public void onStopTrackingTouch(SeekBar seekBar) {
+					}
+				});
 
 		findViewById(R.id.buttonCreateTestData).setOnClickListener(
 				v -> createTestData());
 	}
 
 	private void createTestData() {
-		testDataCreator.createTestData(seekBars[0].getProgress(),
-				seekBars[1].getProgress(), seekBars[2].getProgress(),
-				seekBars[3].getProgress(), seekBars[4].getProgress());
+		testDataCreator.createTestData(contactsSeekBar.getProgress() + 1,
+				messagesSeekBar.getProgress(), blogPostsSeekBar.getProgress(),
+				forumsSeekBar.getProgress(), forumPostsSeekBar.getProgress());
 		Intent intent = new Intent(this, NavDrawerActivity.class);
 		intent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
