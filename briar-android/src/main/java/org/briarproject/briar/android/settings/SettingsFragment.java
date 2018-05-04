@@ -12,6 +12,7 @@ import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceGroup;
 import android.widget.Toast;
 
 import org.acra.ACRA;
@@ -149,9 +150,17 @@ public class SettingsFragment extends PreferenceFragmentCompat
 					return true;
 				});
 
-		Preference testData = findPreference("pref_key_test_data");
-		if (!IS_DEBUG_BUILD) {
-			testData.setVisible(false);
+		if (IS_DEBUG_BUILD) {
+			findPreference("pref_key_explode").setOnPreferenceClickListener(
+					preference -> {
+						throw new RuntimeException("Boom!");
+					}
+			);
+		} else {
+			PreferenceGroup testing =
+					findPreference("pref_key_explode").getParent();
+			if (testing == null) throw new AssertionError();
+			testing.setVisible(false);
 		}
 
 		loadSettings();
