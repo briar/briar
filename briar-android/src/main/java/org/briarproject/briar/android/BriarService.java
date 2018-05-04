@@ -218,6 +218,14 @@ public class BriarService extends Service {
 	}
 
 	@Override
+	public void onLowMemory() {
+		super.onLowMemory();
+		LOG.warning("Memory is low");
+		// Clear the UI - this is done in onTrimMemory() if SDK_INT >= 16
+		if (SDK_INT < 16) hideUi();
+	}
+
+	@Override
 	public void onTrimMemory(int level) {
 		super.onTrimMemory(level);
 		if (level == TRIM_MEMORY_UI_HIDDEN) {
