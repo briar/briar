@@ -8,8 +8,6 @@ cache:
 before_script:
   - set -e
   - export GRADLE_USER_HOME=$PWD/.gradle
-  # Accept the license for the Android build tools
-  - echo y | /opt/android-sdk/tools/bin/sdkmanager "build-tools;26.0.2"
 
 test:
   script:
