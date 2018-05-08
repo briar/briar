@@ -10,37 +10,37 @@ import java.security.GeneralSecurityException;
 interface Signature {
 
 	/**
-	 * @see {@link java.security.Signature#initSign(java.security.PrivateKey)}
+	 * @see java.security.Signature#initSign(java.security.PrivateKey)
 	 */
 	void initSign(PrivateKey k) throws GeneralSecurityException;
 
 	/**
-	 * @see {@link java.security.Signature#initVerify(java.security.PublicKey)}
+	 * @see java.security.Signature#initVerify(java.security.PublicKey)
 	 */
 	void initVerify(PublicKey k) throws GeneralSecurityException;
 
 	/**
-	 * @see {@link java.security.Signature#update(byte)}
+	 * @see java.security.Signature#update(byte)
 	 */
 	void update(byte b) throws GeneralSecurityException;
 
 	/**
-	 * @see {@link java.security.Signature#update(byte[])}
+	 * @see java.security.Signature#update(byte[])
 	 */
 	void update(byte[] b) throws GeneralSecurityException;
 
 	/**
-	 * @see {@link java.security.Signature#update(byte[], int, int)}
+	 * @see java.security.Signature#update(byte[], int, int)
 	 */
 	void update(byte[] b, int off, int len) throws GeneralSecurityException;
 
 	/**
-	 * @see {@link java.security.Signature#sign()}
+	 * @see java.security.Signature#sign()}
 	 */
 	byte[] sign() throws GeneralSecurityException;
 
 	/**
-	 * @see {@link java.security.Signature#verify(byte[])}
+	 * @see java.security.Signature#verify(byte[])
 	 */
 	boolean verify(byte[] signature) throws GeneralSecurityException;
 }
