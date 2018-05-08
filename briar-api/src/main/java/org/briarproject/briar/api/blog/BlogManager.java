@@ -32,7 +32,7 @@ public interface BlogManager {
 	int MINOR_VERSION = 0;
 
 	/**
-	 * Adds the given {@link Blog).}
+	 * Adds the given {@link Blog}.
 	 */
 	void addBlog(Blog b) throws DbException;
 

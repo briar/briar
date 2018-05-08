@@ -7,12 +7,12 @@ package org.briarproject.bramble.api.system;
 public interface Clock {
 
 	/**
-	 * @see {@link System#currentTimeMillis()}
+	 * @see System#currentTimeMillis()
 	 */
 	long currentTimeMillis();
 
 	/**
-	 * @see {@link Thread#sleep(long)}
+	 * @see Thread#sleep(long)
 	 */
 	void sleep(long milliseconds) throws InterruptedException;
 }

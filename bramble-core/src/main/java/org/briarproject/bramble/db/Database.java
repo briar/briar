@@ -34,8 +34,8 @@ import javax.annotation.Nullable;
  * A low-level interface to the database (DatabaseComponent provides a
  * high-level interface). Most operations take a transaction argument, which is
  * obtained by calling {@link #startTransaction()}. Every transaction must be
- * terminated by calling either {@link #abortTransaction(T)} or
- * {@link #commitTransaction(T)}, even if an exception is thrown.
+ * terminated by calling either {@link #abortTransaction(Object) abortTransaction(T)} or
+ * {@link #commitTransaction(Object) commitTransaction(T)}, even if an exception is thrown.
  */
 @NotNullByDefault
 interface Database<T> {
