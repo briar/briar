@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,6 +53,12 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(BluetoothPlugin.class.getName());
+
+	/**
+	 * How many milliseconds to pause between connection attempts when
+	 * polling, to avoid interfering with other Bluetooth or wifi connections.
+	 */
+	private static final int POLLING_PAUSE_MS = 1000;
 
 	final BluetoothConnectionLimiter connectionLimiter;
 
@@ -254,29 +259,37 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public void poll(Map<ContactId, TransportProperties> contacts) {
 		if (!isRunning() || !shouldAllowContactConnections()) return;
-		// Try to connect to known devices in a random order
-		List<Entry<ContactId, TransportProperties>> entries = new ArrayList<>();
-		for (Entry<ContactId, TransportProperties> e : contacts.entrySet()) {
-			TransportProperties p = e.getValue();
-			if (StringUtils.isNullOrEmpty(p.get(PROP_ADDRESS))) continue;
-			if (StringUtils.isNullOrEmpty(p.get(PROP_UUID))) continue;
-			entries.add(e);
-		}
-		if (entries.isEmpty()) return;
-		Collections.shuffle(entries);
 		backoff.increment();
+		// Try to connect to known devices in a random order
+		List<ContactId> keys = new ArrayList<>(contacts.keySet());
+		Collections.shuffle(keys);
 		ioExecutor.execute(() -> {
-			for (Entry<ContactId, TransportProperties> e : entries) {
+			boolean first = true;
+			for (ContactId c : keys) {
 				if (!isRunning() || !shouldAllowContactConnections()) return;
 				if (!connectionLimiter.canOpenContactConnection()) return;
-				TransportProperties p = e.getValue();
+				TransportProperties p = contacts.get(c);
 				String address = p.get(PROP_ADDRESS);
+				if (StringUtils.isNullOrEmpty(address)) continue;
 				String uuid = p.get(PROP_UUID);
+				if (StringUtils.isNullOrEmpty(uuid)) continue;
+				// Pause between connection attempts
+				if (first) {
+					first = false;
+				} else {
+					try {
+						Thread.sleep(POLLING_PAUSE_MS);
+					} catch (InterruptedException ex) {
+						LOG.info("Interrupted while polling");
+						Thread.currentThread().interrupt();
+						return;
+					}
+				}
 				DuplexTransportConnection conn = connect(address, uuid);
 				if (conn != null) {
 					backoff.reset();
 					if (connectionLimiter.contactConnectionOpened(conn))
-						callback.outgoingConnectionCreated(e.getKey(), conn);
+						callback.outgoingConnectionCreated(c, conn);
 				}
 			}
 		});
