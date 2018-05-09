@@ -20,10 +20,12 @@
 
 	<ImageView
 		android:id="@+id/checkImage"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:src="@drawable/contact_disconnected"
+		android:layout_width="24dp"
+		android:layout_height="24dp"
+		android:layout_margin="8dp"
+		android:src="@drawable/ic_check_white"
 		android:tint="?colorControlNormal"
+		android:visibility="invisible"
 		app:layout_constraintBottom_toBottomOf="@+id/button"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/button"
@@ -34,9 +36,7 @@
 		style="@style/BriarButton.Default"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginEnd="8dp"
-		android:layout_marginStart="8dp"
-		android:layout_marginTop="8dp"
+		android:layout_margin="8dp"
 		app:layout_constraintEnd_toStartOf="@+id/helpButton"
 		app:layout_constraintStart_toEndOf="@+id/checkImage"
 		app:layout_constraintTop_toBottomOf="@+id/textView"
@@ -44,11 +44,13 @@
 
 	<ImageButton
 		android:id="@+id/helpButton"
-		style="@style/BriarButton.Default"
-		android:layout_width="48dp"
-		android:layout_height="wrap_content"
+		style="@style/BriarButtonFlat.Positive"
+		android:layout_width="24dp"
+		android:layout_height="24dp"
+		android:layout_margin="8dp"
 		android:contentDescription="@string/help"
 		android:src="@drawable/ic_help_outline_white"
+		android:tint="@color/briar_button_positive"
 		app:layout_constraintBottom_toBottomOf="@+id/button"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/button"/>
