@@ -89,9 +89,9 @@ abstract class PowerView extends ConstraintLayout {
 	public void setChecked(boolean checked) {
 		this.checked = checked;
 		if (checked) {
-			checkImage.setImageResource(R.drawable.ic_check_white);
+			checkImage.setVisibility(VISIBLE);
 		} else {
-			checkImage.setImageResource(R.drawable.contact_disconnected);
+			checkImage.setVisibility(INVISIBLE);
 		}
 		if (onCheckedChangedListener != null) {
 			onCheckedChangedListener.onCheckedChanged();
