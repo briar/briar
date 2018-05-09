@@ -134,6 +134,7 @@
   <string name="introduction_onboarding_title">Présenter vos contacts</string>
   <string name="introduction_onboarding_text">Vous pouvez présenter vos contacts mutuellement, afin qu’ils n’aient pas à se rencontrer en personne pour se connecter les uns aux autres avec Briar.</string>
   <string name="introduction_activity_title">Sélectionner un contact </string>
+  <string name="introduction_not_possible">Une présentation est déjà en cours avec ces contacts. Veuillez d’abord lui permettre de se terminer. Si vous ou vos contacts êtes rarement en ligne, cela peut prendre du temps.</string>
   <string name="introduction_message_title">Présenter des contacts</string>
   <string name="introduction_message_hint">Ajouter un message (facultatif)</string>
   <string name="introduction_button">Faire les présentations</string>
@@ -145,6 +146,7 @@
   <string name="introduction_request_exists_received">%1$s a demandé de vous présenter à %2$s, mais %2$s est déjà dans votre liste de contacts. Puisque %1$s pourrait ne pas le savoir, vous pouvez tout de même répondre :</string>
   <string name="introduction_request_answered_received">%1$s a demandé de vous présenter à %2$s.</string>
   <string name="introduction_response_accepted_sent">Vous avez accepté d’être présenté à %1$s.</string>
+  <string name="introduction_response_accepted_sent_info">Avant que %1$s ne soit ajouté à vos contacts, ce contact doit aussi accepter la présentation. Cela peut prendre du temps. </string>
   <string name="introduction_response_declined_sent">Vous avez refusé d’être présenté à %1$s.</string>
   <string name="introduction_response_accepted_received">%1$s a accepté d’être présenté à %2$s.</string>
   <string name="introduction_response_declined_received">%1$s a refusé d’être présenté à %2$s.</string>

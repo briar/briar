@@ -31,7 +31,11 @@
   <string name="dialog_title_lost_password">Passwort vergessen</string>
   <string name="dialog_message_lost_password">Dein Briar-Konto ist auf deinem Gerät verschlüsselt und nicht in der Cloud gespeichert, deshalb kannst du dein Passwort nicht zurücksetzen. Willst du dein Konto löschen und neu beginnen?\n\nAchtung: Deine bestehenden Identitäten, Kontakte und Nachrichten gehen dann für immer verloren.</string>
   <string name="startup_failed_notification_title">Briar konnte nicht gestartet werden</string>
+  <string name="startup_failed_notification_text">Für weitere Informationen, hier klicken.</string>
   <string name="startup_failed_activity_title">Fehler beim Starten von Briar</string>
+  <string name="startup_failed_db_error">Aus irgendeinem Grund ist deine Briar-Datenbank irreparabel beschädigt. Dein Konto, deine Daten und alle deinen Kontakte sind verloren. Leider musst du Briar neu installieren oder ein neues Konto einrichten, indem du ,Ich habe mein Passwort vergessen\' auswählst, wenn du zur Eingabe deines Passworts aufgefordert wirst. </string>
+  <string name="startup_failed_data_too_old_error">Dein Konto wurde mit einer alten Version dieser App erstellt und kann mit dieser Version nicht geöffnet werden. Installiere entweder die alte Version oder richte ein neues Konto ein, indem du \"Ich habe mein Passwort vergessen\" auswählst, wenn du zur Eingabe deines Passworts aufgefordert wirst. </string>
+  <string name="startup_failed_data_too_new_error">Diese Version der App ist zu alt. Bitte führe eine Aktualisierung auf die neueste Version der App durch und versuch es dann noch mal.</string>
   <string name="startup_failed_service_error">Briar konnte ein benötigtes Plugin nicht starten. Normalerweise kann das Problem durch eine Neuinstallation von Briar gelöst werden. Eine Neuinstallation führt jedoch zum Verlust deines Kontos und aller dazugehörigen Daten, da Briar deine Daten nicht auf zentralen Servern speichert.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Dies ist eine Testversion von Briar. Dein Konto läuft in %d Tag ab und kann nicht verlängert werden.</item>
@@ -39,6 +43,11 @@
   </plurals>
   <string name="expiry_update">Das Ablaufdatum des Tests wurde verlängert. Dein Konto läuft nun in %d Tagen ab.</string>
   <string name="expiry_date_reached">Diese Software ist abgelaufen.\nDanke dass du Briar getestet hast!</string>
+  <string name="download_briar">Lade bitte Version 1.0 herunter, um Briar weiterhin zu nutzen.</string>
+  <string name="create_new_account">Du wirst ein neues Konto erstellen müssen, wobei du jedoch wieder den selben Benutzernamen verwenden kannst.</string>
+  <string name="download_briar_button">Lade Briar 1.0 herunter</string>
+  <string name="startup_open_database">Datenbank wird entschlüsselt...</string>
+  <string name="startup_migrate_database">Datenbank wird aktualisiert...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Navigationsleiste öffnen</string>
   <string name="nav_drawer_close_description">Navigationsleiste schliessen</string>
@@ -94,6 +103,7 @@
   <string name="fix">Behoben</string>
   <string name="help">Hilfe</string>
   <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Du hast noch keine Kontakte\n\nTippe auf das +-Symbol um einen Kontakt hinzuzufügen</string>
   <string name="date_no_private_messages">Keine Nachrichten.</string>
   <string name="message_hint">Nachricht eingeben</string>
   <string name="delete_contact">Kontakt löschen</string>
@@ -112,6 +122,7 @@
   <string name="contact_already_exists">Kontakt %s existiert bereits</string>
   <string name="contact_exchange_failed">Kontaktaustausch fehlgeschlagen</string>
   <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
+  <string name="qr_code_unsupported">Der QR-Code, den du versuchst zu scannen, gehört zu einer alten Version von %s welche nicht mehr unterstützt wird.\n\nBitte versichert euch, dass bei euch beiden die neueste Version läuft und versucht es dann erneut.</string>
   <string name="camera_error">Kamerafehler</string>
   <string name="connecting_to_device">Verbinde mit Gerät\u2026</string>
   <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
@@ -208,7 +219,9 @@
   <string name="btn_reply">Antworten</string>
   <string name="forum_leave">Forum verlassen</string>
   <string name="dialog_title_leave_forum">Verlassen des Forums bestätigen</string>
+  <string name="dialog_message_leave_forum">Bist du sicher, dass du dieses Forum verlassen willst?\n\nKontakte, mit denen du dieses Forum geteilt hast, werden keine Updates mehr von diesem Forum bekommen.</string>
   <string name="dialog_button_leave">Verlassen</string>
+  <string name="forum_left_toast">Forum wurde verlassen</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Forum teilen</string>
   <string name="contacts_selected">Ausgewählte Kontakte</string>
@@ -219,6 +232,9 @@
   <string name="forum_invitation_received">%1$s hat das Forum \"%2$s\" mit dir geteilt.</string>
   <string name="forum_invitation_sent">Du hast das Forum \"%1$s\" mit %2$s geteilt.</string>
   <string name="forum_invitations_title">Foreneinladungen</string>
+  <string name="forum_invitation_exists">Du hast bereits eine Einladung zu diesem Forum angenommen.\n\nMehrere Einladungen anzunehmen, wird deine Verbindung zu diesem Forum schneller und zuverlässiger machen.</string>
+  <string name="forum_joined_toast">Dem Forum beigetreten</string>
+  <string name="forum_declined_toast">Einladung abgelehnt</string>
   <string name="shared_by_format">Geteilt durch %s</string>
   <string name="forum_invitation_already_sharing">Bereits geteilt.</string>
   <string name="forum_invitation_response_accepted_sent">Du hast die Forumseinladung von %s akzeptiert.</string>
@@ -236,12 +252,14 @@
   <!--Blogs-->
   <string name="read_more">weiterlesen</string>
   <string name="blogs_write_blog_post">Blogbeitrag erstellen</string>
+  <string name="blogs_write_blog_post_body_hint">Gib deinen Blogbeitrag ein</string>
   <string name="blogs_publish_blog_post">Veröffentlichen</string>
   <string name="blogs_blog_post_created">Blogbeitrag erstellt</string>
   <string name="blogs_blog_post_received">Neuen Blogbeitrag empfangen</string>
   <string name="blogs_blog_post_scroll_to">Scrolle zu</string>
   <string name="blogs_remove_blog">Blog entfernen</string>
   <string name="blogs_remove_blog_ok">Aufheben</string>
+  <string name="blogs_blog_removed">Blog wurde entfernt</string>
   <string name="blogs_reblog_comment_hint">Kommentar hinzufügen (optional)</string>
   <string name="blogs_reblog_button">Rebloggen</string>
   <!--Blog Sharing-->
@@ -256,6 +274,8 @@
   <string name="blogs_sharing_invitation_received">%1$shat den Blog \"%2$s\" mit dir geteilt.</string>
   <string name="blogs_sharing_invitation_sent">Du teilst den Blog \"%1$s\" mit %2$s.</string>
   <string name="blogs_sharing_invitations_title">Blogeinladungen</string>
+  <string name="blogs_sharing_joined_toast">Blog abonniert</string>
+  <string name="blogs_sharing_declined_toast">Einladung abgelehnt</string>
   <string name="sharing_status_blog">Jeder Abonnent eines Blogs kann diesen mit seinen Kontakten teilen. Du teilst diesen Blog mit den folgenden Kontakten. Möglicherweise gibt es Abonnenten die nicht sichtbar sind.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">RSS-Feed importieren</string>
@@ -356,4 +376,6 @@
   <string name="permission_camera_denied_toast">Berechtigung für Kamera wurde nicht gewährt</string>
   <string name="qr_code">QR-Code</string>
   <!--Low Memory Notification-->
+  <string name="low_memory_shutdown_notification_title">Von Briar abgemeldet</string>
+  <string name="low_memory_shutdown_notification_text">Mangels Speicherplatz abgemeldet.</string>
 </resources>

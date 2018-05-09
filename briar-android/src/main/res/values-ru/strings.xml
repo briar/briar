@@ -2,7 +2,7 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">Добро пожаловать в Briar</string>
-  <string name="setup_name_explanation">Ваш ник будет показан рядом с любым контентом, который вы публикуете. Его нельзя изменить после создания аккаунта.</string>
+  <string name="setup_name_explanation">Ваш псевдоним будет показан рядом с любым публикуемым контентом. Его нельзя изменить после создания аккаунта.</string>
   <string name="setup_next">Вперед</string>
   <string name="setup_password_intro">Придумайте пароль</string>
   <string name="setup_password_explanation">Ваша учетная запись Briar хранится в зашифрованном виде только на устройстве. Если вы забудете свой пароль или удалите Briar, то не сможете восстановить свою учетную запись.\n\nПридумайте длинный пароль, который трудно угадать, например четыре случайных слова или десять случайных букв, цифр и символов.</string>
@@ -168,11 +168,11 @@
     <item quantity="other">%d новых контактов добавлено.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Нет групп для отображения\n\nTКоснитесь значка + для создания группы, или попросите ваши контакты поделиться с вами группами</string>
+  <string name="groups_list_empty">Нет групп для отображения\n\nКоснитесь значка + для создания группы, или попросите ваши контакты поделиться с вами группами</string>
   <string name="groups_created_by">Создано %s</string>
   <plurals name="messages">
     <item quantity="one">%d сообщение</item>
-    <item quantity="few">%d сообщений</item>
+    <item quantity="few">%d сообщения</item>
     <item quantity="many">%d сообщений</item>
     <item quantity="other">%d сообщений</item>
   </plurals>
@@ -225,7 +225,7 @@
   <string name="groups_reveal_visible_revealed_by_contact">Связь между контактами видна группе (раскрывается %s)</string>
   <string name="groups_reveal_invisible">Связь между контактами не видна группе</string>
   <!--Forums-->
-  <string name="no_forums">Нет форумов для отображения\n\nTКоснитесь значка + для создания форума, или попросите ваши контакты поделиться с вами форумами</string>
+  <string name="no_forums">Нет форумов для отображения\n\nКоснитесь значка + для создания форума, или попросите ваши контакты поделиться с вами форумами</string>
   <string name="create_forum_title">Создать форум</string>
   <string name="choose_forum_hint">Придумайте имя для вашего форума</string>
   <string name="create_forum_button">Создать форум</string>
@@ -283,12 +283,12 @@
   <string name="blogs_write_blog_post">Написать в блоге</string>
   <string name="blogs_write_blog_post_body_hint">Напишите свой пост в блоге</string>
   <string name="blogs_publish_blog_post">Опубликовать</string>
-  <string name="blogs_blog_post_created">Запись блога создана</string>
-  <string name="blogs_blog_post_received">Появилась новая запись блога</string>
+  <string name="blogs_blog_post_created">Пост создан</string>
+  <string name="blogs_blog_post_received">Появился новый пост в блоге</string>
   <string name="blogs_blog_post_scroll_to">Перейти</string>
   <string name="blogs_feed_empty_state">Нет постов для отображения\n\nПосты ваших контактов и блогов, на которые вы подписаны, появятся здесь\n\nКоснитесь значка пера, чтобы написать сообщение</string>
   <string name="blogs_remove_blog">Удалить блог</string>
-  <string name="blogs_remove_blog_dialog_message">Вы уверены, что хотите удалить этот блог?\n\nПосты будут удалены с вашего устройства, но не с устройств других пользователей.\n\nВсе контакты, с которыми вы поделились этим блогом, могут перестать получать обновления.</string>
+  <string name="blogs_remove_blog_dialog_message">Вы уверены, что хотите удалить этот блог?\n\nПосты будут удалены только с вашего устройства.\n\nВсе контакты, с которыми вы поделились этим блогом, могут перестать получать обновления.</string>
   <string name="blogs_remove_blog_ok">Убрать</string>
   <string name="blogs_blog_removed">Блог удален</string>
   <string name="blogs_reblog_comment_hint">Добавить комментарий (необязательно)</string>
@@ -318,7 +318,7 @@
   <string name="blogs_rss_feeds_manage_author">Автор:</string>
   <string name="blogs_rss_feeds_manage_updated">Последнее обновление:</string>
   <string name="blogs_rss_remove_feed">Удалить RSS-канал</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Вы уверены, что хотите удалить эту ленту?\n\nПосты будут удалены с вашего устройства, но не с устройств других пользователей.\n\nВсе контакты, с которыми вы поделились этой лентой, могут перестать получать обновления.</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Вы уверены, что хотите удалить эту ленту?\n\nПосты будут удалены только с вашего устройства.\n\nВсе контакты, с которыми вы поделились этой лентой, могут перестать получать обновления.</string>
   <string name="blogs_rss_remove_feed_ok">Убрать</string>
   <string name="blogs_rss_feeds_manage_delete_error">Не удалось удалить RSS-канал!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Нет RSS-лент для отображения\n\nКоснитесь значка + для импорта ленты</string>
@@ -356,8 +356,8 @@
   <string name="uninstall_setting_summary">Это потребует вашего подтверждения</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Уведомления</string>
-  <string name="notify_private_messages_setting_title">Приватные сообщения</string>
-  <string name="notify_private_messages_setting_summary">Показывать оповещения для приватных сообщений</string>
+  <string name="notify_private_messages_setting_title">Личные сообщения</string>
+  <string name="notify_private_messages_setting_summary">Показывать оповещения для личных сообщений</string>
   <string name="notify_private_messages_setting_summary_26">Настройка оповещений для личных сообщений</string>
   <string name="notify_group_messages_setting_title">Групповые сообщения</string>
   <string name="notify_group_messages_setting_summary">Показывать оповещения для групповых сообщений</string>
