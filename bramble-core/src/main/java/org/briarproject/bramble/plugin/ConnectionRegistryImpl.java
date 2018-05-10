@@ -106,7 +106,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			if (m == null) return Collections.emptyList();
 			List<ContactId> ids = new ArrayList<>(m.keySet());
 			if (LOG.isLoggable(INFO))
-				LOG.info(ids.size() + " contacts connected");
+				LOG.info(ids.size() + " contacts connected: " + t);
 			return ids;
 		} finally {
 			lock.unlock();
