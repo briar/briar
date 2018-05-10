@@ -131,4 +131,13 @@
 			android:targetPackage="@string/app_package"/>
 	</Preference>
 
+	<Preference
+		android:key="pref_key_speed_test"
+		android:title="Test polling impact on bandwith">
+
+		<intent
+			android:targetClass="org.briarproject.briar.android.test.PollingTestActivity"
+			android:targetPackage="@string/app_package"/>
+	</Preference>
+
 </PreferenceScreen>

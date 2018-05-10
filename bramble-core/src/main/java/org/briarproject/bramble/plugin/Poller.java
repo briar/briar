@@ -79,10 +79,12 @@ class Poller implements EventListener {
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactStatusChangedEvent) {
 			ContactStatusChangedEvent c = (ContactStatusChangedEvent) e;
+			/*
 			if (c.isActive()) {
 				// Connect to the newly activated contact
 				connectToContact(c.getContactId());
 			}
+			*/
 		} else if (e instanceof ConnectionClosedEvent) {
 			ConnectionClosedEvent c = (ConnectionClosedEvent) e;
 			// Reschedule polling, the polling interval may have decreased

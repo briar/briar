@@ -33,6 +33,10 @@ dependencies {
 	implementation 'com.jpardogo.materialtabstrip:library:1.1.0'
 	implementation 'com.github.bumptech.glide:glide:3.8.0'
 	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.8.0'
+	implementation'fr.bmartel:jspeedtest:1.32.0'
+	implementation 'com.jjoe64:graphview:4.2.2'
+
+
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
 

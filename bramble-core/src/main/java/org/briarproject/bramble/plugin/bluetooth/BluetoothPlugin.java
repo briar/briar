@@ -59,7 +59,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	 * How many milliseconds to pause between connection attempts when
 	 * polling, to avoid interfering with other Bluetooth or wifi connections.
 	 */
-	private static final int POLLING_PAUSE_MS = 1000;
+	private static final int POLLING_PAUSE_MS = 3000;
 
 	final BluetoothConnectionLimiter connectionLimiter;
 
