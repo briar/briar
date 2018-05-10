@@ -300,8 +300,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 		}
 
 		private void disposeReader(boolean exception, boolean recognised) {
-			if (exception && outgoingSession != null)
-				outgoingSession.interrupt();
+			// Interrupt the outgoing session so it finishes cleanly
+			if (outgoingSession != null) outgoingSession.interrupt();
 			try {
 				reader.dispose(exception, recognised);
 			} catch (IOException e) {
@@ -310,6 +310,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 		}
 
 		private void disposeWriter(boolean exception) {
+			// Interrupt the incoming session if an exception occurred,
+			// otherwise wait for the end of stream marker
 			if (exception && incomingSession != null)
 				incomingSession.interrupt();
 			try {
@@ -407,8 +409,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 		}
 
 		private void disposeReader(boolean exception, boolean recognised) {
-			if (exception && outgoingSession != null)
-				outgoingSession.interrupt();
+			// Interrupt the outgoing session so it finishes cleanly
+			if (outgoingSession != null) outgoingSession.interrupt();
 			try {
 				reader.dispose(exception, recognised);
 			} catch (IOException e) {
@@ -417,6 +419,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 		}
 
 		private void disposeWriter(boolean exception) {
+			// Interrupt the incoming session if an exception occurred,
+			// otherwise wait for the end of stream marker
 			if (exception && incomingSession != null)
 				incomingSession.interrupt();
 			try {
