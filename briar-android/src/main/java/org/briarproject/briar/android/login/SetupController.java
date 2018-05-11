@@ -22,10 +22,9 @@ public interface SetupController {
 
 	/**
 	 * This should be called after the author name and the password have been
-	 * set. It decides whether to show the doze fragment or create the account
-	 * right away.
+	 * set.
 	 */
-	void showDozeFragmentOrCreateAccount();
+	void showDozeFragment();
 
 	/**
 	 * This should be called after the author name and the password have been

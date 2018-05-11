@@ -112,15 +112,17 @@ public class PasswordFragment extends SetupFragment {
 
 	@Override
 	public void onClick(View view) {
-		if (!setupController.needToShowDozeFragment()) {
-			nextButton.setVisibility(INVISIBLE);
-			progressBar.setVisibility(VISIBLE);
-		}
 		IBinder token = passwordEntry.getWindowToken();
 		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
 		setupController.setPassword(passwordEntry.getText().toString());
-		setupController.showDozeFragmentOrCreateAccount();
+		if (setupController.needToShowDozeFragment()) {
+			setupController.showDozeFragment();
+		} else {
+			nextButton.setVisibility(INVISIBLE);
+			progressBar.setVisibility(VISIBLE);
+			setupController.createAccount();
+		}
 	}
 
 }

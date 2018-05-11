@@ -63,10 +63,9 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	}
 
 	@Override
-	public void showDozeFragmentOrCreateAccount() {
+	public void showDozeFragment() {
 		if (setupActivity == null) throw new IllegalStateException();
-		if (needToShowDozeFragment()) setupActivity.showDozeFragment();
-		else createAccount();
+		setupActivity.showDozeFragment();
 	}
 
 	@Override
