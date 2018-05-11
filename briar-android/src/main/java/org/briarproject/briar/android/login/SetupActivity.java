@@ -38,6 +38,8 @@ public class SetupActivity extends BaseActivity
 		setContentView(R.layout.activity_fragment_container);
 
 		if (state == null) {
+			if (setupController.accountExists())
+				throw new AssertionError();
 			showInitialFragment(AuthorNameFragment.newInstance());
 		} else {
 			authorName = state.getString(STATE_KEY_AUTHOR_NAME);
