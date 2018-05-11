@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.login;
 
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
@@ -8,10 +9,13 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
+import org.briarproject.bramble.test.TestUtils;
 import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.After;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -40,6 +44,7 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 	private final String encryptedHex = "010203";
 	private final byte[] encryptedBytes = new byte[] {1, 2, 3};
 	private final SecretKey key = getSecretKey();
+	private final File testDir = TestUtils.getTestDirectory();
 
 	public SetupControllerImplTest() {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
@@ -50,6 +55,11 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 	@SuppressWarnings("ResultOfMethodCallIgnored")
 	public void testCreateAccount() {
 		context.checking(new Expectations() {{
+			// Allow the contents of the data directory to be logged
+			allowing(setupActivity).getApplicationInfo();
+			will(returnValue(new ApplicationInfo() {{
+				dataDir = testDir.getAbsolutePath();
+			}}));
 			// Set the author name and password
 			oneOf(setupActivity).setAuthorName(authorName);
 			oneOf(setupActivity).setPassword(password);
@@ -83,5 +93,10 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 		s.setPassword(password);
 		s.createAccount(result -> called.set(true));
 		assertTrue(called.get());
+	}
+
+	@After
+	public void tearDown() {
+		TestUtils.deleteTestDirectory(testDir);
 	}
 }
