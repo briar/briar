@@ -47,10 +47,17 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	public void testCreateAccount() {
 		context.checking(new Expectations() {{
-			// Setting the author name shows the password fragment
-			oneOf(setupActivity).showPasswordFragment();
+			// Set the author name and password
+			oneOf(setupActivity).setAuthorName(authorName);
+			oneOf(setupActivity).setPassword(password);
+			// Get the author name and password
+			oneOf(setupActivity).getAuthorName();
+			will(returnValue(authorName));
+			oneOf(setupActivity).getPassword();
+			will(returnValue(password));
 			// Generate a database key
 			oneOf(crypto).generateSecretKey();
 			will(returnValue(key));

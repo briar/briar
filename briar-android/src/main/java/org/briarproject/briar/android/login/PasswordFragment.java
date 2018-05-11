@@ -11,15 +11,21 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.util.UiUtils;
+
+import javax.annotation.Nullable;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class PasswordFragment extends SetupFragment {
 
 	private final static String TAG = PasswordFragment.class.getName();
@@ -37,8 +43,9 @@ public class PasswordFragment extends SetupFragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 		getActivity().setTitle(getString(R.string.setup_password_intro));
 		View v = inflater.inflate(R.layout.fragment_setup_password, container,
 						false);
@@ -109,12 +116,11 @@ public class PasswordFragment extends SetupFragment {
 			nextButton.setVisibility(INVISIBLE);
 			progressBar.setVisibility(VISIBLE);
 		}
-		String password = passwordEntry.getText().toString();
 		IBinder token = passwordEntry.getWindowToken();
 		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
-		setupController.setPassword(password);
-		setupController.showDozeOrCreateAccount();
+		setupController.setPassword(passwordEntry.getText().toString());
+		setupController.showDozeFragmentOrCreateAccount();
 	}
 
 }

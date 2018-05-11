@@ -73,7 +73,7 @@ public class PasswordFragmentTest {
 
 		// assert controller has been called properly
 		verify(setupController, times(1)).setPassword(safePass);
-		verify(setupController, times(1)).showDozeOrCreateAccount();
+		verify(setupController, times(1)).showDozeFragmentOrCreateAccount();
 	}
 
 	@Test

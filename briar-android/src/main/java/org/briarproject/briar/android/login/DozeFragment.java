@@ -10,7 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.login.PowerView.OnCheckedChangedListener;
@@ -21,7 +22,8 @@ import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
-@NotNullByDefault
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class DozeFragment extends SetupFragment
 		implements OnCheckedChangedListener {
 

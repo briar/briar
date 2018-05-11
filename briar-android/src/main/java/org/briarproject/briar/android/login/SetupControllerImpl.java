@@ -21,8 +21,6 @@ public class SetupControllerImpl extends PasswordControllerImpl
 		implements SetupController {
 
 	@Nullable
-	private String authorName, password;
-	@Nullable
 	private SetupActivity setupActivity;
 
 	@Inject
@@ -48,28 +46,32 @@ public class SetupControllerImpl extends PasswordControllerImpl
 
 	@Override
 	public void setAuthorName(String authorName) {
-		this.authorName = authorName;
+		if (setupActivity == null) throw new IllegalStateException();
+		setupActivity.setAuthorName(authorName);
+	}
+
+	@Override
+	public void setPassword(String password) {
+		if (setupActivity == null) throw new IllegalStateException();
+		setupActivity.setPassword(password);
+	}
+
+	@Override
+	public void showPasswordFragment() {
 		if (setupActivity == null) throw new IllegalStateException();
 		setupActivity.showPasswordFragment();
 	}
 
 	@Override
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	@Override
-	public void showDozeOrCreateAccount() {
+	public void showDozeFragmentOrCreateAccount() {
 		if (setupActivity == null) throw new IllegalStateException();
-		if (needToShowDozeFragment()) {
-			setupActivity.showDozeFragment();
-		} else {
-			createAccount();
-		}
+		if (needToShowDozeFragment()) setupActivity.showDozeFragment();
+		else createAccount();
 	}
 
 	@Override
 	public void createAccount() {
+		if (setupActivity == null) throw new IllegalStateException();
 		UiResultHandler<Void> resultHandler =
 				new UiResultHandler<Void>(setupActivity) {
 					@Override
@@ -82,10 +84,13 @@ public class SetupControllerImpl extends PasswordControllerImpl
 		createAccount(resultHandler);
 	}
 
-	@Override
-	public void createAccount(ResultHandler<Void> resultHandler) {
-		if (authorName == null || password == null)
-			throw new IllegalStateException();
+	// Package access for testing
+	void createAccount(ResultHandler<Void> resultHandler) {
+		if (setupActivity == null) throw new IllegalStateException();
+		String authorName = setupActivity.getAuthorName();
+		if (authorName == null) throw new IllegalStateException();
+		String password = setupActivity.getPassword();
+		if (password == null) throw new IllegalStateException();
 		cryptoExecutor.execute(() -> {
 			databaseConfig.setLocalAuthorName(authorName);
 			SecretKey key = crypto.generateSecretKey();

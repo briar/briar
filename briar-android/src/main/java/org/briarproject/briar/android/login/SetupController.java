@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.login;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.android.controller.handler.ResultHandler;
 
 @NotNullByDefault
 public interface SetupController {
@@ -17,14 +16,16 @@ public interface SetupController {
 	float estimatePasswordStrength(String password);
 
 	/**
+	 * This should be called after the author name has been set.
+	 */
+	void showPasswordFragment();
+
+	/**
 	 * This should be called after the author name and the password have been
-	 * set. It decides whether to ask for doze exception or create the account
+	 * set. It decides whether to show the doze fragment or create the account
 	 * right away.
 	 */
-	void showDozeOrCreateAccount();
+	void showDozeFragmentOrCreateAccount();
 
 	void createAccount();
-
-	void createAccount(ResultHandler<Void> resultHandler);
-
 }
