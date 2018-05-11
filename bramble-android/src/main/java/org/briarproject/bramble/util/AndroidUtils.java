@@ -1,7 +1,9 @@
 package org.briarproject.bramble.util;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.provider.Settings;
 
@@ -42,6 +44,7 @@ public class AndroidUtils {
 	public static String getBluetoothAddress(Context ctx,
 			BluetoothAdapter adapter) {
 		// Return the adapter's address if it's valid and not fake
+		@SuppressLint("HardwareIds")
 		String address = adapter.getAddress();
 		if (isValidBluetoothAddress(address)) return address;
 		// Return the address from settings if it's valid and not fake
@@ -96,14 +99,25 @@ public class AndroidUtils {
 		}
 	}
 
-	public static void deleteAppData(Context ctx) {
+	@SuppressLint("ApplySharedPref")
+	public static void deleteAppData(Context ctx, SharedPreferences... clear) {
+		// Clear and commit shared preferences
+		for (SharedPreferences prefs : clear) {
+			boolean cleared = prefs.edit().clear().commit();
+			if (LOG.isLoggable(INFO)) {
+				if (cleared) LOG.info("Cleared shared preferences");
+				else LOG.info("Could not clear shared preferences");
+			}
+		}
+		// Delete files, except lib and shared_prefs directories
 		File dataDir = new File(ctx.getApplicationInfo().dataDir);
 		if (LOG.isLoggable(INFO))
 			LOG.info("Deleting app data from " + dataDir.getAbsolutePath());
 		File[] children = dataDir.listFiles();
 		if (children != null) {
 			for (File child : children) {
-				if (!child.getName().equals("lib")) {
+				String name = child.getName();
+				if (!name.equals("lib") && !name.equals("shared_prefs")) {
 					if (LOG.isLoggable(INFO))
 						LOG.info("Deleting " + child.getAbsolutePath());
 					IoUtils.deleteFileOrDir(child);
