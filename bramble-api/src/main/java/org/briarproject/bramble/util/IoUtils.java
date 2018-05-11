@@ -9,20 +9,33 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+
+import static java.util.logging.Level.INFO;
 
 @NotNullByDefault
 public class IoUtils {
 
+	private static final Logger LOG = Logger.getLogger(IoUtils.class.getName());
+
 	public static void deleteFileOrDir(File f) {
 		if (f.isFile()) {
-			f.delete();
+			delete(f);
 		} else if (f.isDirectory()) {
 			File[] children = f.listFiles();
 			if (children != null)
 				for (File child : children) deleteFileOrDir(child);
-			f.delete();
+			delete(f);
+		}
+	}
+
+	private static void delete(File f) {
+		boolean deleted = f.delete();
+		if (LOG.isLoggable(INFO)) {
+			if (deleted) LOG.info("Deleted " + f.getAbsolutePath());
+			else LOG.info("Could not delete " + f.getAbsolutePath());
 		}
 	}
 

@@ -6,14 +6,21 @@ import android.os.Build;
 import android.provider.Settings;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Scanner;
+import java.util.logging.Logger;
 
 import static android.content.Context.MODE_PRIVATE;
+import static java.util.logging.Level.INFO;
 
 public class AndroidUtils {
+
+	private static final Logger LOG =
+			Logger.getLogger(AndroidUtils.class.getName());
 
 	// Fake Bluetooth address returned by BluetoothAdapter on API 23 and later
 	private static final String FAKE_BLUETOOTH_ADDRESS = "02:00:00:00:00:00";
@@ -51,17 +58,66 @@ public class AndroidUtils {
 				&& !address.equals(FAKE_BLUETOOTH_ADDRESS);
 	}
 
+	public static void logDataDirContents(Context ctx) {
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Contents of data directory:");
+			logFileOrDir(new File(ctx.getApplicationInfo().dataDir));
+		}
+	}
+
+	private static void logFileOrDir(File f) {
+		LOG.info(f.getAbsolutePath() + " " + f.length());
+		if (f.isDirectory()) {
+			File[] children = f.listFiles();
+			if (children == null) {
+				LOG.info("Could not list files in " + f.getAbsolutePath());
+			} else {
+				for (File child : children) logFileOrDir(child);
+			}
+		}
+	}
+
+	public static File getSharedPrefsFile(Context ctx, String name) {
+		File dataDir = new File(ctx.getApplicationInfo().dataDir);
+		File prefsDir = new File(dataDir, "shared_prefs");
+		return new File(prefsDir, name + ".xml");
+	}
+
+	public static void logFileContents(File f) {
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Contents of " + f.getAbsolutePath() + ":");
+			try {
+				Scanner s = new Scanner(f);
+				while (s.hasNextLine()) LOG.info(s.nextLine());
+				s.close();
+			} catch (FileNotFoundException e) {
+				LOG.info(f.getAbsolutePath() + " not found");
+			}
+		}
+	}
+
 	public static void deleteAppData(Context ctx) {
 		File dataDir = new File(ctx.getApplicationInfo().dataDir);
+		if (LOG.isLoggable(INFO))
+			LOG.info("Deleting app data from " + dataDir.getAbsolutePath());
 		File[] children = dataDir.listFiles();
 		if (children != null) {
 			for (File child : children) {
-				if (!child.getName().equals("lib"))
+				if (!child.getName().equals("lib")) {
+					if (LOG.isLoggable(INFO))
+						LOG.info("Deleting " + child.getAbsolutePath());
 					IoUtils.deleteFileOrDir(child);
+				}
 			}
+		} else if (LOG.isLoggable(INFO)) {
+			LOG.info("Could not list files in " + dataDir.getAbsolutePath());
 		}
 		// Recreate the cache dir as some OpenGL drivers expect it to exist
-		new File(dataDir, "cache").mkdir();
+		boolean recreated = new File(dataDir, "cache").mkdir();
+		if (LOG.isLoggable(INFO)) {
+			if (recreated) LOG.info("Recreated cache dir");
+			else LOG.info("Could not recreate cache dir");
+		}
 	}
 
 	public static File getReportDir(Context ctx) {
