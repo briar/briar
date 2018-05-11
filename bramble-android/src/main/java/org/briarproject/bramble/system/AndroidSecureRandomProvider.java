@@ -9,6 +9,7 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Parcel;
+import android.os.StrictMode;
 import android.provider.Settings;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -66,9 +67,12 @@ class AndroidSecureRandomProvider extends LinuxSecureRandomProvider {
 
 	@Override
 	protected void writeSeed() {
+		// Silence strict mode
+		StrictMode.ThreadPolicy tp = StrictMode.allowThreadDiskWrites();
 		super.writeSeed();
 		if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT <= 18)
 			applyOpenSslFix();
+		StrictMode.setThreadPolicy(tp);
 	}
 
 	// Based on https://android-developers.googleblog.com/2013/08/some-securerandom-thoughts.html
