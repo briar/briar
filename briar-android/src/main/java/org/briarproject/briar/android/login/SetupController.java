@@ -27,5 +27,9 @@ public interface SetupController {
 	 */
 	void showDozeFragmentOrCreateAccount();
 
+	/**
+	 * This should be called after the author name and the password have been
+	 * set.
+	 */
 	void createAccount();
 }
