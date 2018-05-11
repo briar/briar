@@ -23,6 +23,7 @@ import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.identity.IdentityModule;
@@ -340,9 +341,10 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		LOG.info("TEST: Sending message from " + from + " to " + to);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		StreamWriter streamWriter = new TestStreamWriter(out);
 		// Create an outgoing sync session
-		SyncSession sessionFrom =
-				fromSync.createSimplexOutgoingSession(toId, MAX_LATENCY, out);
+		SyncSession sessionFrom = fromSync.createSimplexOutgoingSession(toId,
+				MAX_LATENCY, streamWriter);
 		// Write whatever needs to be written
 		sessionFrom.run();
 		out.close();

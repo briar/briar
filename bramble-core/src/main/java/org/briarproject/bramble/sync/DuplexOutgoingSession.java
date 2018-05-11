@@ -23,6 +23,7 @@ import org.briarproject.bramble.api.sync.event.MessageSharedEvent;
 import org.briarproject.bramble.api.sync.event.MessageToAckEvent;
 import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.transport.StreamWriter;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -67,6 +68,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	private final Clock clock;
 	private final ContactId contactId;
 	private final int maxLatency, maxIdleTime;
+	private final StreamWriter streamWriter;
 	private final SyncRecordWriter recordWriter;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
 
@@ -81,7 +83,8 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 
 	DuplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, Clock clock, ContactId contactId, int maxLatency,
-			int maxIdleTime, SyncRecordWriter recordWriter) {
+			int maxIdleTime, StreamWriter streamWriter,
+			SyncRecordWriter recordWriter) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
@@ -89,6 +92,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		this.contactId = contactId;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
+		this.streamWriter = streamWriter;
 		this.recordWriter = recordWriter;
 		writerTasks = new LinkedBlockingQueue<>();
 	}
@@ -149,7 +153,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 						dataToFlush = true;
 					}
 				}
-				if (dataToFlush) recordWriter.flush();
+				streamWriter.sendEndOfStream();
 			} catch (InterruptedException e) {
 				LOG.info("Interrupted while waiting for a record to write");
 				Thread.currentThread().interrupt();

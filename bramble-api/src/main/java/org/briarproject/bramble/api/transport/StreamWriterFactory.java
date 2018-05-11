@@ -12,12 +12,12 @@ public interface StreamWriterFactory {
 	 * Creates an {@link OutputStream OutputStream} for writing to a
 	 * transport stream
 	 */
-	OutputStream createStreamWriter(OutputStream out, StreamContext ctx);
+	StreamWriter createStreamWriter(OutputStream out, StreamContext ctx);
 
 	/**
 	 * Creates an {@link OutputStream OutputStream} for writing to a contact
 	 * exchange stream.
 	 */
-	OutputStream createContactExchangeStreamWriter(OutputStream out,
+	StreamWriter createContactExchangeStreamWriter(OutputStream out,
 			SecretKey headerKey);
 }

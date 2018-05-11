@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
+import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.identity.IdentityModule;
@@ -39,7 +40,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
@@ -69,7 +69,6 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		alice = DaggerSimplexMessagingIntegrationTestComponent.builder()
 				.testDatabaseModule(new TestDatabaseModule(aliceDir)).build();
 		injectEagerSingletons(alice);
-		alice.inject(new SystemModule.EagerSingletons());
 		bob = DaggerSimplexMessagingIntegrationTestComponent.builder()
 				.testDatabaseModule(new TestDatabaseModule(bobDir)).build();
 		injectEagerSingletons(bob);
@@ -159,7 +158,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Create a stream writer
 		StreamWriterFactory streamWriterFactory =
 				device.getStreamWriterFactory();
-		OutputStream streamWriter =
+		StreamWriter streamWriter =
 				streamWriterFactory.createStreamWriter(out, ctx);
 		// Create an outgoing sync session
 		SyncSessionFactory syncSessionFactory = device.getSyncSessionFactory();
@@ -167,7 +166,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 				contactId, MAX_LATENCY, streamWriter);
 		// Write whatever needs to be written
 		session.run();
-		streamWriter.close();
+		streamWriter.sendEndOfStream();
 		// Return the contents of the stream
 		return out.toByteArray();
 	}

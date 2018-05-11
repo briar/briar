@@ -63,7 +63,11 @@ class IncomingSession implements SyncSession, EventListener {
 		eventBus.addListener(this);
 		try {
 			// Read records until interrupted or EOF
-			while (!interrupted && !recordReader.eof()) {
+			while (!interrupted) {
+				if (recordReader.eof()) {
+					LOG.info("End of stream");
+					return;
+				}
 				if (recordReader.hasAck()) {
 					Ack a = recordReader.readAck();
 					dbExecutor.execute(new ReceiveAck(a));

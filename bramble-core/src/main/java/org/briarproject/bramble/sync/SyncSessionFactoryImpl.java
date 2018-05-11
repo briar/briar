@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.sync.SyncRecordWriterFactory;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.transport.StreamWriter;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -53,19 +54,21 @@ class SyncSessionFactoryImpl implements SyncSessionFactory {
 
 	@Override
 	public SyncSession createSimplexOutgoingSession(ContactId c,
-			int maxLatency, OutputStream out) {
+			int maxLatency, StreamWriter streamWriter) {
+		OutputStream out = streamWriter.getOutputStream();
 		SyncRecordWriter recordWriter =
 				recordWriterFactory.createRecordWriter(out);
 		return new SimplexOutgoingSession(db, dbExecutor, eventBus, c,
-				maxLatency, recordWriter);
+				maxLatency, streamWriter, recordWriter);
 	}
 
 	@Override
 	public SyncSession createDuplexOutgoingSession(ContactId c, int maxLatency,
-			int maxIdleTime, OutputStream out) {
+			int maxIdleTime, StreamWriter streamWriter) {
+		OutputStream out = streamWriter.getOutputStream();
 		SyncRecordWriter recordWriter =
 				recordWriterFactory.createRecordWriter(out);
 		return new DuplexOutgoingSession(db, dbExecutor, eventBus, clock, c,
-				maxLatency, maxIdleTime, recordWriter);
+				maxLatency, maxIdleTime, streamWriter, recordWriter);
 	}
 }

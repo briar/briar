@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.SyncRecordWriterFactory;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
+import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestUtils;
@@ -27,7 +28,6 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -102,18 +102,18 @@ public class SyncIntegrationTest extends BrambleTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		StreamContext ctx = new StreamContext(contactId, transportId, tagKey,
 				headerKey, streamNumber);
-		OutputStream streamWriter = streamWriterFactory.createStreamWriter(out,
+		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(out,
 				ctx);
 		SyncRecordWriter recordWriter = recordWriterFactory.createRecordWriter(
-				streamWriter);
+				streamWriter.getOutputStream());
 
 		recordWriter.writeAck(new Ack(messageIds));
 		recordWriter.writeMessage(message.getRaw());
 		recordWriter.writeMessage(message1.getRaw());
 		recordWriter.writeOffer(new Offer(messageIds));
 		recordWriter.writeRequest(new Request(messageIds));
-		recordWriter.flush();
 
+		streamWriter.sendEndOfStream();
 		return out.toByteArray();
 	}
 

@@ -2,6 +2,7 @@ package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.crypto.StreamEncrypter;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.transport.StreamWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -17,7 +18,7 @@ import static org.briarproject.bramble.api.transport.TransportConstants.MAX_PAYL
  */
 @NotThreadSafe
 @NotNullByDefault
-class StreamWriterImpl extends OutputStream {
+class StreamWriterImpl extends OutputStream implements StreamWriter {
 
 	private final StreamEncrypter encrypter;
 	private final byte[] payload;
@@ -27,6 +28,17 @@ class StreamWriterImpl extends OutputStream {
 	StreamWriterImpl(StreamEncrypter encrypter) {
 		this.encrypter = encrypter;
 		payload = new byte[MAX_PAYLOAD_LENGTH];
+	}
+
+	@Override
+	public OutputStream getOutputStream() {
+		return this;
+	}
+
+	@Override
+	public void sendEndOfStream() throws IOException {
+		writeFrame(true);
+		encrypter.flush();
 	}
 
 	@Override
