@@ -39,8 +39,7 @@ public class IoUtils {
 		}
 	}
 
-	public static void copyAndClose(InputStream in, OutputStream out)
-			throws IOException {
+	public static void copyAndClose(InputStream in, OutputStream out) {
 		byte[] buf = new byte[4096];
 		try {
 			while (true) {

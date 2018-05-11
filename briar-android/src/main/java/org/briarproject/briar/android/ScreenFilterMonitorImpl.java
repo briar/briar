@@ -14,7 +14,6 @@ import android.content.pm.Signature;
 import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.lifecycle.Service;
-import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.util.StringUtils;
@@ -196,7 +195,7 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 	}
 
 	@Override
-	public void startService() throws ServiceException {
+	public void startService() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		androidExecutor.runOnUiThread(() -> {
 			IntentFilter filter = new IntentFilter();
@@ -212,7 +211,7 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 	}
 
 	@Override
-	public void stopService() throws ServiceException {
+	public void stopService() {
 		androidExecutor.runOnUiThread(() -> {
 			if (receiver != null) app.unregisterReceiver(receiver);
 		});
