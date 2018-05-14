@@ -15,22 +15,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import static junit.framework.Assert.assertEquals;
-import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.NONE;
-import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_STRONG;
-import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
-import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.STRONG;
-import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.WEAK;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 21, application = TestBriarApplication.class,
