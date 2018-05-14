@@ -20,6 +20,8 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static org.briarproject.briar.android.BriarApplication.EXPIRY_DATE;
+import static org.briarproject.briar.android.TestingConstants.IS_BETA_BUILD;
+import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 
 public class SplashScreenActivity extends BaseActivity {
 
@@ -60,7 +62,8 @@ public class SplashScreenActivity extends BaseActivity {
 	}
 
 	protected void startNextActivity() {
-		if (System.currentTimeMillis() >= EXPIRY_DATE) {
+		if ((IS_DEBUG_BUILD || IS_BETA_BUILD)
+				&& System.currentTimeMillis() >= EXPIRY_DATE) {
 			LOG.info("Expired");
 			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
