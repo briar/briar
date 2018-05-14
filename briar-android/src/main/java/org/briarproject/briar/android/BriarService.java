@@ -22,7 +22,6 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
-import org.briarproject.briar.android.splash.SplashScreenActivity;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,6 +43,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SERVICE;
 import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
@@ -221,18 +221,52 @@ public class BriarService extends Service {
 	public void onLowMemory() {
 		super.onLowMemory();
 		LOG.warning("Memory is low");
+		// Clear the UI - this is done in onTrimMemory() if SDK_INT >= 16
+		if (SDK_INT < 16) hideUi();
 	}
 
-	private void shutdownFromBackground() {
-		// Stop the service
-		stopSelf();
-		// Hide the UI
+	@Override
+	public void onTrimMemory(int level) {
+		super.onTrimMemory(level);
+		if (level == TRIM_MEMORY_UI_HIDDEN) {
+			LOG.info("Trim memory: UI hidden");
+		} else if (level == TRIM_MEMORY_BACKGROUND) {
+			LOG.info("Trim memory: added to LRU list");
+		} else if (level == TRIM_MEMORY_MODERATE) {
+			LOG.info("Trim memory: near middle of LRU list");
+		} else if (level == TRIM_MEMORY_COMPLETE) {
+			LOG.info("Trim memory: near end of LRU list");
+		} else if (SDK_INT >= 16) {
+			if (level == TRIM_MEMORY_RUNNING_MODERATE) {
+				LOG.info("Trim memory: running moderately low");
+			} else if (level == TRIM_MEMORY_RUNNING_LOW) {
+				LOG.info("Trim memory: running low");
+			} else if (level == TRIM_MEMORY_RUNNING_CRITICAL) {
+				LOG.info("Trim memory: running critically low");
+				// Clear the UI to save some memory
+				hideUi();
+			} else if (LOG.isLoggable(INFO)) {
+				LOG.info("Trim memory: unknown level " + level);
+			}
+		} else if (LOG.isLoggable(INFO)) {
+			LOG.info("Trim memory: unknown level " + level);
+		}
+	}
+
+	private void hideUi() {
 		Intent i = new Intent(this, HideUiActivity.class);
 		i.addFlags(FLAG_ACTIVITY_NEW_TASK
 				| FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
 				| FLAG_ACTIVITY_NO_ANIMATION
 				| FLAG_ACTIVITY_CLEAR_TASK);
 		startActivity(i);
+	}
+
+	private void shutdownFromBackground() {
+		// Stop the service
+		stopSelf();
+		// Hide the UI
+		hideUi();
 		// Wait for shutdown to complete, then exit
 		new Thread(() -> {
 			try {
@@ -243,25 +277,6 @@ public class BriarService extends Service {
 			LOG.info("Exiting");
 			System.exit(0);
 		}).start();
-	}
-
-	// TODO: Remove if low memory shutdowns are not appropriate
-	private void showLowMemoryShutdownNotification() {
-		androidExecutor.runOnUiThread(() -> {
-			NotificationCompat.Builder b = new NotificationCompat.Builder(
-					BriarService.this, FAILURE_CHANNEL_ID);
-			b.setSmallIcon(android.R.drawable.stat_notify_error);
-			b.setContentTitle(getText(
-					R.string.low_memory_shutdown_notification_title));
-			b.setContentText(getText(
-					R.string.low_memory_shutdown_notification_text));
-			Intent i = new Intent(this, SplashScreenActivity.class);
-			b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
-			b.setAutoCancel(true);
-			Object o = getSystemService(NOTIFICATION_SERVICE);
-			NotificationManager nm = (NotificationManager) o;
-			nm.notify(FAILURE_NOTIFICATION_ID, b.build());
-		});
 	}
 
 	/**
