@@ -1,7 +1,9 @@
 package org.briarproject.briar.android.controller;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.v7.preference.PreferenceManager;
 
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -42,20 +44,18 @@ public class ConfigControllerImpl implements ConfigController {
 	}
 
 	@Override
+	@SuppressLint("ApplySharedPref")
 	public void storeEncryptedDatabaseKey(String hex) {
 		LOG.info("Storing database key in preferences");
-		SharedPreferences.Editor editor = briarPrefs.edit();
-		editor.putString(PREF_DB_KEY, hex);
-		editor.apply();
+		briarPrefs.edit().putString(PREF_DB_KEY, hex).commit();
 	}
 
 	@Override
 	public void deleteAccount(Context ctx) {
 		LOG.info("Deleting account");
-		SharedPreferences.Editor editor = briarPrefs.edit();
-		editor.clear();
-		editor.apply();
-		AndroidUtils.deleteAppData(ctx);
+		SharedPreferences defaultPrefs =
+				PreferenceManager.getDefaultSharedPreferences(ctx);
+		AndroidUtils.deleteAppData(ctx, briarPrefs, defaultPrefs);
 		AndroidUtils.logDataDirContents(ctx);
 	}
 

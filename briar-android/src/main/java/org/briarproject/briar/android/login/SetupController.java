@@ -3,7 +3,7 @@ package org.briarproject.briar.android.login;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
-public interface SetupController {
+public interface SetupController extends PasswordController {
 
 	void setSetupActivity(SetupActivity setupActivity);
 
@@ -12,8 +12,6 @@ public interface SetupController {
 	void setAuthorName(String authorName);
 
 	void setPassword(String password);
-
-	float estimatePasswordStrength(String password);
 
 	/**
 	 * This should be called after the author name has been set.

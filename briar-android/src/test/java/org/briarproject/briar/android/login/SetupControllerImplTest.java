@@ -81,7 +81,8 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 			oneOf(briarPrefs).edit();
 			will(returnValue(editor));
 			oneOf(editor).putString("key", encryptedHex);
-			oneOf(editor).apply();
+			will(returnValue(editor));
+			oneOf(editor).commit();
 		}});
 
 		SetupControllerImpl s = new SetupControllerImpl(briarPrefs,

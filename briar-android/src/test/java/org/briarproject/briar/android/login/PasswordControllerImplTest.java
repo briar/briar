@@ -54,7 +54,8 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 			oneOf(briarPrefs).edit();
 			will(returnValue(editor));
 			oneOf(editor).putString("key", newEncryptedHex);
-			oneOf(editor).apply();
+			will(returnValue(editor));
+			oneOf(editor).commit();
 		}});
 
 		PasswordControllerImpl p = new PasswordControllerImpl(briarPrefs,
