@@ -46,7 +46,7 @@ import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
-import static org.briarproject.briar.android.BriarApplication.EXPIRY_DATE;
+import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

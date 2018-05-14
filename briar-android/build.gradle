@@ -244,6 +244,7 @@ android {
 		resValue "string", "app_package", "org.briarproject.briar.android"
 		resValue "string", "app_name", "Briar"
 		buildConfigField "String", "GitHash", "\"${getGitHash()}\""
+		buildConfigField "Long", "BuildTimestamp", "${System.currentTimeMillis()}L"
 	}
 
 	buildTypes {

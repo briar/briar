@@ -33,4 +33,12 @@ public interface TestingConstants {
 	 * intentionally.
 	 */
 	boolean PREVENT_SCREENSHOTS = !IS_DEBUG_BUILD;
+
+	/**
+	 * Debug and beta builds expire after 90 days. Final release builds expire
+	 * after 292 million years.
+	 */
+	long EXPIRY_DATE = IS_DEBUG_BUILD || IS_BETA_BUILD ?
+			BuildConfig.BuildTimestamp + 90 * 24 * 60 * 60 * 1000L :
+			Long.MAX_VALUE;
 }

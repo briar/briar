@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static org.briarproject.briar.android.BriarApplication.EXPIRY_DATE;
+import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 
 public class SplashScreenActivity extends BaseActivity {
 
