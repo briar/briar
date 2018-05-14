@@ -7,6 +7,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 
 public class RenewableWakeLock {
@@ -14,12 +15,17 @@ public class RenewableWakeLock {
 	private static final Logger LOG =
 			Logger.getLogger(RenewableWakeLock.class.getName());
 
+	/**
+	 * Automatically release the lock this many milliseconds after it's due
+	 * to have been replaced and released.
+	 */
+	private static final int SAFETY_MARGIN_MS = 10_000;
+
 	private final PowerManager powerManager;
 	private final ScheduledExecutorService scheduler;
 	private final int levelAndFlags;
 	private final String tag;
-	private final long duration;
-	private final TimeUnit timeUnit;
+	private final long durationMs;
 	private final Runnable renewTask;
 
 	private final Object lock = new Object();
@@ -33,8 +39,7 @@ public class RenewableWakeLock {
 		this.scheduler = scheduler;
 		this.levelAndFlags = levelAndFlags;
 		this.tag = tag;
-		this.duration = duration;
-		this.timeUnit = timeUnit;
+		durationMs = MILLISECONDS.convert(duration, timeUnit);
 		renewTask = this::renew;
 	}
 
@@ -47,8 +52,8 @@ public class RenewableWakeLock {
 			}
 			wakeLock = powerManager.newWakeLock(levelAndFlags, tag);
 			wakeLock.setReferenceCounted(false);
-			wakeLock.acquire();
-			future = scheduler.schedule(renewTask, duration, timeUnit);
+			wakeLock.acquire(durationMs + SAFETY_MARGIN_MS);
+			future = scheduler.schedule(renewTask, durationMs, MILLISECONDS);
 		}
 	}
 
@@ -62,9 +67,9 @@ public class RenewableWakeLock {
 			PowerManager.WakeLock oldWakeLock = wakeLock;
 			wakeLock = powerManager.newWakeLock(levelAndFlags, tag);
 			wakeLock.setReferenceCounted(false);
-			wakeLock.acquire();
+			wakeLock.acquire(durationMs + SAFETY_MARGIN_MS);
 			oldWakeLock.release();
-			future = scheduler.schedule(renewTask, duration, timeUnit);
+			future = scheduler.schedule(renewTask, durationMs, MILLISECONDS);
 		}
 	}
 
