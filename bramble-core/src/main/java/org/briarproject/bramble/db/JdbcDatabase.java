@@ -53,6 +53,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import static java.sql.Types.INTEGER;
+import static java.util.Collections.singletonList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
@@ -74,7 +75,7 @@ import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 38;
+	static final int CODE_SCHEMA_VERSION = 39;
 
 	// Rotation period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
@@ -389,7 +390,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
 	List<Migration<Connection>> getMigrations() {
-		return Collections.emptyList();
+		return singletonList(new Migration38_39());
 	}
 
 	private void storeSchemaVersion(Connection txn, int version)
