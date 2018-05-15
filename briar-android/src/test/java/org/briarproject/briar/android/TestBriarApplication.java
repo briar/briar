@@ -5,7 +5,11 @@ import android.app.Application;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.briar.BriarCoreModule;
 
+import java.util.Collection;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+
+import static java.util.Collections.emptyList;
 
 /**
  * This class only exists to avoid static initialisation of ACRA
@@ -32,6 +36,11 @@ public class TestBriarApplication extends Application
 		BrambleCoreModule.initEagerSingletons(applicationComponent);
 		BriarCoreModule.initEagerSingletons(applicationComponent);
 		AndroidEagerSingletons.initEagerSingletons(applicationComponent);
+	}
+
+	@Override
+	public Collection<LogRecord> getRecentLogRecords() {
+		return emptyList();
 	}
 
 	@Override

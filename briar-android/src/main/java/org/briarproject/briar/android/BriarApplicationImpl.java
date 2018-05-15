@@ -12,12 +12,17 @@ import org.acra.annotation.ReportsCrashes;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.reporting.BriarReportPrimer;
 import org.briarproject.briar.android.reporting.BriarReportSenderFactory;
 import org.briarproject.briar.android.reporting.DevReportActivity;
 
+import java.util.Collection;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import static java.util.logging.Level.INFO;
 import static org.acra.ReportField.ANDROID_VERSION;
 import static org.acra.ReportField.APP_VERSION_CODE;
 import static org.acra.ReportField.APP_VERSION_NAME;
@@ -36,7 +41,7 @@ import static org.acra.ReportField.REPORT_ID;
 import static org.acra.ReportField.STACK_TRACE;
 import static org.acra.ReportField.USER_APP_START_DATE;
 import static org.acra.ReportField.USER_CRASH_DATE;
-import static org.briarproject.briar.android.TestingConstants.DEFAULT_LOG_LEVEL;
+import static org.briarproject.briar.android.TestingConstants.IS_BETA_BUILD;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 
 @ReportsCrashes(
@@ -66,6 +71,8 @@ public class BriarApplicationImpl extends Application
 	private static final Logger LOG =
 			Logger.getLogger(BriarApplicationImpl.class.getName());
 
+	private final CachingLogHandler logHandler = new CachingLogHandler();
+
 	private AndroidComponent applicationComponent;
 
 	@Override
@@ -79,7 +86,17 @@ public class BriarApplicationImpl extends Application
 		super.onCreate();
 
 		if (IS_DEBUG_BUILD) enableStrictMode();
-		Logger.getLogger("").setLevel(DEFAULT_LOG_LEVEL);
+
+		Logger rootLogger = Logger.getLogger("");
+		if (!IS_DEBUG_BUILD && !IS_BETA_BUILD) {
+			// Remove default log handlers so system log is not used
+			for (Handler handler : rootLogger.getHandlers()) {
+				rootLogger.removeHandler(handler);
+			}
+		}
+		rootLogger.addHandler(logHandler);
+		rootLogger.setLevel(INFO);
+
 		LOG.info("Created");
 
 		applicationComponent = DaggerAndroidComponent.builder()
@@ -102,6 +119,11 @@ public class BriarApplicationImpl extends Application
 		vmPolicy.detectAll();
 		vmPolicy.penaltyLog();
 		StrictMode.setVmPolicy(vmPolicy.build());
+	}
+
+	@Override
+	public Collection<LogRecord> getRecentLogRecords() {
+		return logHandler.getRecentLogRecords();
 	}
 
 	@Override

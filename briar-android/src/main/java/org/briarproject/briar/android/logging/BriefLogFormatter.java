@@ -1,0 +1,47 @@
+package org.briarproject.briar.android.logging;
+
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
+
+import javax.annotation.concurrent.ThreadSafe;
+
+import static java.util.Locale.US;
+
+@ThreadSafe
+@NotNullByDefault
+public class BriefLogFormatter extends Formatter {
+
+	private final Object lock = new Object();
+	private final DateFormat dateFormat; // Locking: lock
+	private final Date date; // Locking: lock
+
+	public BriefLogFormatter() {
+		synchronized (lock) {
+			dateFormat = new SimpleDateFormat("MM-dd HH:mm:ss.SSS ", US);
+			dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+			date = new Date();
+		}
+	}
+
+	@Override
+	public String format(LogRecord record) {
+		String dateString;
+		synchronized (lock) {
+			date.setTime(record.getMillis());
+			dateString = dateFormat.format(date);
+		}
+		StringBuilder sb = new StringBuilder(dateString);
+		sb.append(record.getLevel().getName().charAt(0)).append('/');
+		String tag = record.getLoggerName();
+		tag = tag.substring(tag.lastIndexOf('.') + 1);
+		sb.append(tag).append(": ");
+		sb.append(record.getMessage());
+		return sb.toString();
+	}
+}
