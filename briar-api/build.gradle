@@ -2,18 +2,20 @@ apply plugin: 'java-library'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+apply plugin: 'ru.vyarus.animalsniffer'
 apply plugin: 'witness'
 
 dependencies {
 	implementation project(path: ':bramble-api', configuration: 'default')
+
+	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }
 
 dependencyVerification {
 	verify = [
+			'org.codehaus.mojo.signature:java16:1.1:java16-1.1.signature:53799223a2c98dba2d0add810bed76315460df285c69e4f397ae6098f87dd619',
+			'org.codehaus.mojo:animal-sniffer-ant-tasks:1.16:animal-sniffer-ant-tasks-1.16.jar:890040976fbe2d584619a6a61b1fd2e925b3b5eb342a85eb2762c467c0d64e90',
+			'org.codehaus.mojo:animal-sniffer:1.16:animal-sniffer-1.16.jar:72be8bcc226ba43b937c722a08a07852bfa1b11400089265d5df0ee7b38b1d52',
+			'org.ow2.asm:asm-all:5.2:asm-all-5.2.jar:7fbffbc1db3422e2101689fd88df8384b15817b52b9b2b267b9f6d2511dc198d',
 	]
-}
-
-// If a Java 6 JRE is available, check we're not using any Java 7 or 8 APIs
-tasks.withType(JavaCompile) {
-	useJava6StandardLibrary(it)
 }
