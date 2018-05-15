@@ -18,4 +18,36 @@
 		<item>1</item>
 		<item>2</item>
 	</string-array>
+	<string-array name="pref_language_values">
+		<item>default</item>
+		<item>en-US</item>
+		<item>ast</item>
+		<item>bg</item>
+		<item>br</item>
+		<item>ca</item>
+		<item>cs</item>
+		<item>de</item>
+		<item>es</item>
+		<item>eu</item>
+		<item>fa</item>
+		<item>fi</item>
+		<item>fr</item>
+		<item>gl</item>
+		<item>he</item>
+		<item>hi</item>
+		<item>it</item>
+		<item>ja</item>
+		<item>ms</item>
+		<item>nb</item>
+		<item>nl</item>
+		<item>oc</item>
+		<item>pt-BR</item>
+		<item>ro</item>
+		<item>ru</item>
+		<item>sq</item>
+		<item>sr</item>
+		<item>sv</item>
+		<item>tr</item>
+		<item>zh-CN</item>
+	</string-array>
 </resources>

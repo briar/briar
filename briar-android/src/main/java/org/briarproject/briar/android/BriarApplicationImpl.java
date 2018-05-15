@@ -2,6 +2,7 @@ package org.briarproject.briar.android;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
@@ -75,7 +76,10 @@ public class BriarApplicationImpl extends Application
 
 	@Override
 	protected void attachBaseContext(Context base) {
-		super.attachBaseContext(base);
+		// Loading the language needs to be done here.
+		Localizer.initialize(base);
+		super.attachBaseContext(
+				Localizer.getInstance().setLocale(base));
 		ACRA.init(this);
 	}
 
@@ -106,6 +110,12 @@ public class BriarApplicationImpl extends Application
 		BrambleCoreModule.initEagerSingletons(applicationComponent);
 		BriarCoreModule.initEagerSingletons(applicationComponent);
 		AndroidEagerSingletons.initEagerSingletons(applicationComponent);
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		Localizer.getInstance().setLocale(this);
 	}
 
 	private void enableStrictMode() {

@@ -168,6 +168,11 @@ public class BriarService extends Service {
 		registerReceiver(receiver, filter);
 	}
 
+	@Override
+	protected void attachBaseContext(Context base) {
+		super.attachBaseContext(Localizer.getInstance().setLocale(base));
+	}
+
 	private void showStartupFailureNotification(StartResult result) {
 		androidExecutor.runOnUiThread(() -> {
 			NotificationCompat.Builder b = new NotificationCompat.Builder(

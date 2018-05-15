@@ -1,8 +1,10 @@
 package org.briarproject.briar.android.settings;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -30,8 +32,11 @@ import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.Localizer;
+import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.util.UserFeedback;
 
+import java.util.Locale;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -58,6 +63,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_ALWAYS;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_SIGN_OUT;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.BLOG_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.CONTACT_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FORUM_CHANNEL_ID;
@@ -80,11 +86,13 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public static final String SETTINGS_NAMESPACE = "android-ui";
 	public static final String BT_NAMESPACE = BluetoothConstants.ID.getString();
 	public static final String TOR_NAMESPACE = TorConstants.ID.getString();
+	public static final String LANGUAGE = "pref_key_language";
 
 	private static final Logger LOG =
 			Logger.getLogger(SettingsFragment.class.getName());
 
 	private SettingsActivity listener;
+	private ListPreference language;
 	private ListPreference enableBluetooth;
 	private ListPreference torNetwork;
 	private CheckBoxPreference notifyPrivateMessages;
@@ -119,6 +127,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void onCreatePreferences(Bundle bundle, String s) {
 		addPreferencesFromResource(R.xml.settings);
 
+		language = (ListPreference) findPreference(LANGUAGE);
+		setLanguageEntries();
 		enableBluetooth = (ListPreference) findPreference("pref_key_bluetooth");
 		torNetwork = (ListPreference) findPreference("pref_key_tor_network");
 		notifyPrivateMessages = (CheckBoxPreference) findPreference(
@@ -137,6 +147,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 		setSettingsEnabled(false);
 
+		language.setOnPreferenceChangeListener(this);
 		enableBluetooth.setOnPreferenceChangeListener(this);
 		torNetwork.setOnPreferenceChangeListener(this);
 		if (SDK_INT >= 21) {
@@ -178,6 +189,33 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void onStop() {
 		super.onStop();
 		eventBus.removeListener(this);
+	}
+
+	private void setLanguageEntries() {
+		CharSequence[] tags = language.getEntryValues();
+		CharSequence[] nativeNames = new CharSequence[tags.length];
+		for (int i = 0; i < tags.length; i++) {
+			String tag = tags[i].toString();
+			if (tag.equals("default")) {
+				nativeNames[i] = getString(R.string.pref_language_default);
+				continue;
+			}
+			Locale locale = Localizer.getLocaleFromTag(tag);
+			if (locale == null)
+				throw new IllegalStateException();
+			String nativeName = locale.getDisplayLanguage(locale);
+			// Fallback to English if the name is unknown in both native and
+			// current locale.
+			if (nativeName.equals(tag)) {
+				String tmp = locale.getDisplayLanguage(Locale.ENGLISH);
+				if (!tmp.isEmpty() && !tmp.equals(nativeName))
+					nativeName = tmp;
+			}
+			nativeNames[i] =
+					nativeName.substring(0, 1).toUpperCase() +
+							nativeName.substring(1);
+		}
+		language.setEntries(nativeNames);
 	}
 
 	private void loadSettings() {
@@ -312,39 +350,67 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	@Override
-	public boolean onPreferenceChange(Preference preference, Object o) {
-		if (preference == enableBluetooth) {
-			boolean btSetting = Boolean.valueOf((String) o);
+	public boolean onPreferenceChange(Preference preference, Object newValue) {
+		if (preference == language) {
+			if (!language.getValue().equals(newValue))
+				languageChanged((String) newValue);
+			return false;
+		} else if (preference == enableBluetooth) {
+			boolean btSetting = Boolean.valueOf((String) newValue);
 			storeBluetoothSettings(btSetting);
 		} else if (preference == torNetwork) {
-			int torSetting = Integer.valueOf((String) o);
+			int torSetting = Integer.valueOf((String) newValue);
 			storeTorSettings(torSetting);
 		} else if (preference == notifyPrivateMessages) {
 			Settings s = new Settings();
-			s.putBoolean(PREF_NOTIFY_PRIVATE, (Boolean) o);
+			s.putBoolean(PREF_NOTIFY_PRIVATE, (Boolean) newValue);
 			storeSettings(s);
 		} else if (preference == notifyGroupMessages) {
 			Settings s = new Settings();
-			s.putBoolean(PREF_NOTIFY_GROUP, (Boolean) o);
+			s.putBoolean(PREF_NOTIFY_GROUP, (Boolean) newValue);
 			storeSettings(s);
 		} else if (preference == notifyForumPosts) {
 			Settings s = new Settings();
-			s.putBoolean(PREF_NOTIFY_FORUM, (Boolean) o);
+			s.putBoolean(PREF_NOTIFY_FORUM, (Boolean) newValue);
 			storeSettings(s);
 		} else if (preference == notifyBlogPosts) {
 			Settings s = new Settings();
-			s.putBoolean(PREF_NOTIFY_BLOG, (Boolean) o);
+			s.putBoolean(PREF_NOTIFY_BLOG, (Boolean) newValue);
 			storeSettings(s);
 		} else if (preference == notifyVibration) {
 			Settings s = new Settings();
-			s.putBoolean(PREF_NOTIFY_VIBRATION, (Boolean) o);
+			s.putBoolean(PREF_NOTIFY_VIBRATION, (Boolean) newValue);
 			storeSettings(s);
 		} else if (preference == notifyLockscreen) {
 			Settings s = new Settings();
-			s.putBoolean(PREF_NOTIFY_LOCK_SCREEN, (Boolean) o);
+			s.putBoolean(PREF_NOTIFY_LOCK_SCREEN, (Boolean) newValue);
 			storeSettings(s);
 		}
 		return true;
+	}
+
+	private void languageChanged(String newValue) {
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(getActivity());
+		builder.setTitle(R.string.pref_language_title);
+		builder.setMessage(R.string.pref_language_changed);
+		builder.setPositiveButton(R.string.sign_out_button,
+				(dialogInterface, i) -> {
+					language.setValue(newValue);
+					SharedPreferences prefs =
+							Localizer.getInstance().getSharedPreferences();
+					prefs.edit().putString(LANGUAGE, newValue)
+							.commit();
+					Intent intent = new Intent(getContext(),
+							NavDrawerActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					intent.putExtra(INTENT_SIGN_OUT, true);
+					getActivity().startActivity(intent);
+					getActivity().finish();
+				});
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.setCancelable(false);
+		builder.show();
 	}
 
 	private void storeTorSettings(int torSetting) {

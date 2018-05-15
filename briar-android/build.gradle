@@ -284,3 +284,34 @@ android {
 		warning 'ExtraTranslation'
 	}
 }
+
+task verifyTranslations {
+	doLast {
+		def file = "briar-android/src/main/res/values/arrays.xml"
+		def arrays = new XmlParser().parse(file)
+		def lc = arrays.children().find { it.@name == "pref_language_values" }
+		def translations = []
+		lc.children().each { value -> translations.add(value.text()) }
+
+		def folders = ["default", "en-US"]
+		new File("briar-android/src/main/res").eachDir { dir ->
+			if (dir.name.startsWith("values-")) {
+				folders.add(dir.name.substring(7).replace("-r", "-"))
+			}
+		}
+		folders.each { n ->
+			if (!translations.remove(n)) {
+				throw new GradleException("Translation " + n + " is missing in $file")
+			}
+		}
+		if (translations.size() != 0)
+			throw new GradleException("Translations\n" + translations.join("\n")
+					+ "\nhave no matching value folder")
+	}
+}
+
+project.afterEvaluate {
+	preBuild.dependsOn.add(verifyTranslations)
+}
+
+

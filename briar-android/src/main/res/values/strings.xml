@@ -421,4 +421,10 @@
 	<string name="permission_camera_denied_toast">Camera permission was not granted</string>
 	<string name="qr_code">QR code</string>
 	<string name="show_qr_code_fullscreen">Show QR code fullscreen</string>
+
+	<!-- Languages -->
+	<string name="pref_language_title">Language</string>
+	<string name="pref_language_changed">This setting will take effect when you restart Briar. Please sign out and restart Briar.</string>
+	<string name="pref_language_default">System default</string>
+	<string name="display_settings_title">Display</string>
 </resources>

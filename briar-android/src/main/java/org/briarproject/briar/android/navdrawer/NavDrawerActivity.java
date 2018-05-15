@@ -68,6 +68,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	public static final String INTENT_GROUPS = "intent_groups";
 	public static final String INTENT_FORUMS = "intent_forums";
 	public static final String INTENT_BLOGS = "intent_blogs";
+	public static final String INTENT_SIGN_OUT = "intent_sign_out";
 
 	private static final Logger LOG =
 			Logger.getLogger(NavDrawerActivity.class.getName());
@@ -99,6 +100,8 @@ public class NavDrawerActivity extends BriarActivity implements
 					R.id.nav_btn_contacts);
 		} else if (intent.getBooleanExtra(INTENT_BLOGS, false)) {
 			startFragment(FeedFragment.newInstance(), R.id.nav_btn_blogs);
+		} else if (intent.getBooleanExtra(INTENT_SIGN_OUT, false)) {
+			signOut(false);
 		}
 		setIntent(null);
 	}
@@ -225,12 +228,12 @@ public class NavDrawerActivity extends BriarActivity implements
 				finish();
 			} else if (fm.getBackStackEntryCount() == 0
 					&& fm.findFragmentByTag(ContactListFragment.TAG) == null) {
-			/*
-			 * This makes sure that the first fragment (ContactListFragment) the
-			 * user sees is the same as the last fragment the user sees before
-			 * exiting. This models the typical Google navigation behaviour such
-			 * as in Gmail/Inbox.
-			 */
+				/*
+				 * This makes sure that the first fragment (ContactListFragment) the
+				 * user sees is the same as the last fragment the user sees before
+				 * exiting. This models the typical Google navigation behaviour such
+				 * as in Gmail/Inbox.
+				 */
 				startFragment(ContactListFragment.newInstance(),
 						R.id.nav_btn_contacts);
 			} else {

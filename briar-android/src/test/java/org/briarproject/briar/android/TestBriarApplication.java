@@ -27,6 +27,7 @@ public class TestBriarApplication extends Application
 		super.onCreate();
 		LOG.info("Created");
 
+		Localizer.initialize(this);
 		applicationComponent = DaggerAndroidComponent.builder()
 				.appModule(new AppModule(this))
 				.build();
