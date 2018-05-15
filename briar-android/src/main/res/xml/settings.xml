@@ -3,6 +3,7 @@
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<PreferenceCategory
+		android:layout="@layout/preferences_category"
 		android:title="@string/network_settings_title">
 
 		<ListPreference
@@ -25,9 +26,8 @@
 
 	</PreferenceCategory>
 
-	<PreferenceCategory android:layout="@layout/divider_preference"/>
-
 	<PreferenceCategory
+		android:layout="@layout/preferences_category"
 		android:title="@string/security_settings_title">
 
 		<Preference
@@ -41,9 +41,8 @@
 
 	</PreferenceCategory>
 
-	<PreferenceCategory android:layout="@layout/divider_preference"/>
-
 	<PreferenceCategory
+		android:layout="@layout/preferences_category"
 		android:title="@string/panic_setting_title">
 
 		<Preference
@@ -58,9 +57,8 @@
 
 	</PreferenceCategory>
 
-	<PreferenceCategory android:layout="@layout/divider_preference"/>
-
 	<PreferenceCategory
+		android:layout="@layout/preferences_category"
 		android:title="@string/notification_settings_title">
 
 		<CheckBoxPreference
@@ -111,9 +109,8 @@
 
 	</PreferenceCategory>
 
-	<PreferenceCategory android:layout="@layout/divider_preference"/>
-
 	<PreferenceCategory
+		android:layout="@layout/preferences_category"
 		android:title="@string/feedback_settings_title">
 
 		<Preference

@@ -9,10 +9,7 @@
 		<item name="android:textColorLink">@color/briar_text_link</item>
 		<item name="android:windowBackground">@color/window_background</item>
 		<item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
-
-		<!-- These fix a long-standing UI bug in the support preference library -->
 		<item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
-		<item name="android:listSeparatorTextViewStyle">@style/BriarTheme.ListSeparatorTextView</item>
 	</style>
 
 	<style name="BriarTheme.NoActionBar" parent="BriarTheme">
@@ -54,15 +51,6 @@
 		<item name="android:textColorPrimary">@color/briar_text_primary_inverse</item>
 		<item name="android:textColorSecondary">@color/briar_text_secondary_inverse</item>
 		<item name="buttonBarNeutralButtonStyle">@style/Widget.AppCompat.Button.Borderless</item>
-	</style>
-
-	<!-- This fixes a UI bug in the support preference library -->
-	<style name="BriarTheme.ListSeparatorTextView">
-		<item name="android:textSize">14sp</item>
-		<item name="android:textStyle">bold</item>
-		<item name="android:textColor">@color/briar_accent</item>
-		<item name="android:paddingTop">16dp</item>
-		<item name="android:layout_marginBottom">16dp</item>
 	</style>
 
 </resources>
