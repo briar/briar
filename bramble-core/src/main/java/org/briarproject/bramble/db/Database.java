@@ -125,16 +125,10 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Stores the given transport keys, optionally binding them to the given
-	 * contact, and returns a key set ID.
+	 * Stores the given transport keys for the given contact and returns a
+	 * key set ID.
 	 */
-	KeySetId addTransportKeys(T txn, @Nullable ContactId c, TransportKeys k)
-			throws DbException;
-
-	/**
-	 * Binds the given keys for the given transport to the given contact.
-	 */
-	void bindTransportKeys(T txn, ContactId c, TransportId t, KeySetId k)
+	KeySetId addTransportKeys(T txn, ContactId c, TransportKeys k)
 			throws DbException;
 
 	/**

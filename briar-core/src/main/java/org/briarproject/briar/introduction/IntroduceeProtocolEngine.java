@@ -453,12 +453,11 @@ class IntroduceeProtocolEngine
 					.getContact(txn, s.getRemote().author.getId(),
 							localAuthor.getId());
 
-			// bind the keys to the new contact
+			// add the keys to the new contact
 			//noinspection ConstantConditions
 			keys = keyManager
-					.addUnboundKeys(txn, new SecretKey(s.getMasterKey()),
-							timestamp, s.getLocal().alice);
-			keyManager.bindKeys(txn, c.getId(), keys);
+					.addContact(txn, c.getId(), new SecretKey(s.getMasterKey()),
+							timestamp, s.getLocal().alice, false);
 
 			// add signed transport properties for the contact
 			//noinspection ConstantConditions

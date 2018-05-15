@@ -45,9 +45,9 @@ public interface ContactManager {
 	 *
 	 * @param alice true if the local party is Alice
 	 */
-	ContactId addContact(Author remote, AuthorId local,
-			SecretKey master, long timestamp, boolean alice, boolean verified,
-			boolean active) throws DbException;
+	ContactId addContact(Author remote, AuthorId local, SecretKey master,
+			long timestamp, boolean alice, boolean verified, boolean active)
+			throws DbException;
 
 	/**
 	 * Returns the contact with the given ID.

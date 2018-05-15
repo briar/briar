@@ -28,7 +28,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -119,16 +118,14 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	// Locking: lock
-	private void addKeys(KeySetId keySetId, @Nullable ContactId contactId,
+	private void addKeys(KeySetId keySetId, ContactId contactId,
 			MutableTransportKeys m) {
 		MutableKeySet ks = new MutableKeySet(keySetId, contactId, m);
 		keys.put(keySetId, ks);
-		if (contactId != null) {
-			encodeTags(keySetId, contactId, m.getPreviousIncomingKeys());
-			encodeTags(keySetId, contactId, m.getCurrentIncomingKeys());
-			encodeTags(keySetId, contactId, m.getNextIncomingKeys());
-			considerReplacingOutgoingKeys(ks);
-		}
+		encodeTags(keySetId, contactId, m.getPreviousIncomingKeys());
+		encodeTags(keySetId, contactId, m.getCurrentIncomingKeys());
+		encodeTags(keySetId, contactId, m.getNextIncomingKeys());
+		considerReplacingOutgoingKeys(ks);
 	}
 
 	// Locking: lock
@@ -150,8 +147,9 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		if (ks.getTransportKeys().getCurrentOutgoingKeys().isActive()) {
 			MutableKeySet old = outContexts.get(ks.getContactId());
 			if (old == null ||
-					old.getKeySetId().getInt() < ks.getKeySetId().getInt())
+					old.getKeySetId().getInt() < ks.getKeySetId().getInt()) {
 				outContexts.put(ks.getContactId(), ks);
+			}
 		}
 	}
 
@@ -177,20 +175,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
-	public void addContact(Transaction txn, ContactId c, SecretKey master,
-			long timestamp, boolean alice) throws DbException {
-		deriveAndAddKeys(txn, c, master, timestamp, alice, true);
-	}
-
-	@Override
-	public KeySetId addUnboundKeys(Transaction txn, SecretKey master,
-			long timestamp, boolean alice) throws DbException {
-		return deriveAndAddKeys(txn, null, master, timestamp, alice, false);
-	}
-
-	private KeySetId deriveAndAddKeys(Transaction txn, @Nullable ContactId c,
-			SecretKey master, long timestamp, boolean alice, boolean active)
-			throws DbException {
+	public KeySetId addContact(Transaction txn, ContactId c, SecretKey master,
+			long timestamp, boolean alice, boolean active) throws DbException {
 		lock.lock();
 		try {
 			// Work out what rotation period the timestamp belongs to
@@ -212,49 +198,15 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
-	public void bindKeys(Transaction txn, ContactId c, KeySetId k)
-			throws DbException {
-		lock.lock();
-		try {
-			MutableKeySet ks = keys.get(k);
-			if (ks == null) throw new IllegalArgumentException();
-			// Check that the keys haven't already been bound
-			if (ks.getContactId() != null) throw new IllegalArgumentException();
-			MutableTransportKeys m = ks.getTransportKeys();
-			addKeys(k, c, m);
-			db.bindTransportKeys(txn, c, m.getTransportId(), k);
-		} finally {
-			lock.unlock();
-		}
-	}
-
-	@Override
 	public void activateKeys(Transaction txn, KeySetId k) throws DbException {
 		lock.lock();
 		try {
 			MutableKeySet ks = keys.get(k);
 			if (ks == null) throw new IllegalArgumentException();
-			// Check that the keys have been bound
-			if (ks.getContactId() == null) throw new IllegalArgumentException();
 			MutableTransportKeys m = ks.getTransportKeys();
 			m.getCurrentOutgoingKeys().activate();
 			considerReplacingOutgoingKeys(ks);
 			db.setTransportKeysActive(txn, m.getTransportId(), k);
-		} finally {
-			lock.unlock();
-		}
-	}
-
-	@Override
-	public void removeKeys(Transaction txn, KeySetId k) throws DbException {
-		lock.lock();
-		try {
-			MutableKeySet ks = keys.remove(k);
-			if (ks == null) throw new IllegalArgumentException();
-			// Check that the keys haven't been bound
-			if (ks.getContactId() != null) throw new IllegalArgumentException();
-			TransportId t = ks.getTransportKeys().getTransportId();
-			db.removeTransportKeys(txn, t, k);
 		} finally {
 			lock.unlock();
 		}

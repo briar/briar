@@ -53,6 +53,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import static java.sql.Types.INTEGER;
+import static java.util.Collections.singletonList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
@@ -74,7 +75,7 @@ import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 38;
+	static final int CODE_SCHEMA_VERSION = 39;
 
 	// Rotation period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
@@ -236,7 +237,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (transportId _STRING NOT NULL,"
 					+ " keySetId _COUNTER,"
 					+ " rotationPeriod BIGINT NOT NULL,"
-					+ " contactId INT," // Null if keys are not bound
+					+ " contactId INT NOT NULL,"
 					+ " tagKey _SECRET NOT NULL,"
 					+ " headerKey _SECRET NOT NULL,"
 					+ " stream BIGINT NOT NULL,"
@@ -255,7 +256,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (transportId _STRING NOT NULL,"
 					+ " keySetId INT NOT NULL,"
 					+ " rotationPeriod BIGINT NOT NULL,"
-					+ " contactId INT," // Null if keys are not bound
+					+ " contactId INT NOT NULL,"
 					+ " tagKey _SECRET NOT NULL,"
 					+ " headerKey _SECRET NOT NULL,"
 					+ " base BIGINT NOT NULL,"
@@ -389,7 +390,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
 	List<Migration<Connection>> getMigrations() {
-		return Collections.emptyList();
+		return singletonList(new Migration38_39());
 	}
 
 	private void storeSchemaVersion(Connection txn, int version)
@@ -883,7 +884,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public KeySetId addTransportKeys(Connection txn, @Nullable ContactId c,
+	public KeySetId addTransportKeys(Connection txn, ContactId c,
 			TransportKeys k) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -893,8 +894,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " rotationPeriod, tagKey, headerKey, stream, active)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
-			if (c == null) ps.setNull(1, INTEGER);
-			else ps.setInt(1, c.getInt());
+			ps.setInt(1, c.getInt());
 			ps.setString(2, k.getTransportId().getString());
 			OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
 			ps.setLong(3, outCurr.getRotationPeriod());
@@ -922,8 +922,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, keySetId.getInt());
-			if (c == null) ps.setNull(2, INTEGER);
-			else ps.setInt(2, c.getInt());
+			ps.setInt(2, c.getInt());
 			ps.setString(3, k.getTransportId().getString());
 			// Previous rotation period
 			IncomingKeys inPrev = k.getPreviousIncomingKeys();
@@ -960,33 +959,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			return keySetId;
 		} catch (SQLException e) {
 			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public void bindTransportKeys(Connection txn, ContactId c, TransportId t,
-			KeySetId k) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE outgoingKeys SET contactId = ?"
-					+ " WHERE keySetId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setInt(2, k.getInt());
-			int affected = ps.executeUpdate();
-			if (affected < 0) throw new DbStateException();
-			ps.close();
-			sql = "UPDATE incomingKeys SET contactId = ?"
-					+ " WHERE keySetId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setInt(2, k.getInt());
-			affected = ps.executeUpdate();
-			if (affected < 0) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -2172,7 +2144,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (inKeys.size() < (i + 1) * 3) throw new DbStateException();
 				KeySetId keySetId = new KeySetId(rs.getInt(1));
 				ContactId contactId = new ContactId(rs.getInt(2));
-				if (rs.wasNull()) contactId = null;
 				long rotationPeriod = rs.getLong(3);
 				SecretKey tagKey = new SecretKey(rs.getBytes(4));
 				SecretKey headerKey = new SecretKey(rs.getBytes(5));

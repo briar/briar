@@ -234,27 +234,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public KeySetId addTransportKeys(Transaction transaction,
-			@Nullable ContactId c, TransportKeys k) throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
-		T txn = unbox(transaction);
-		if (c != null && !db.containsContact(txn, c))
-			throw new NoSuchContactException();
-		if (!db.containsTransport(txn, k.getTransportId()))
-			throw new NoSuchTransportException();
-		return db.addTransportKeys(txn, c, k);
-	}
-
-	@Override
-	public void bindTransportKeys(Transaction transaction, ContactId c,
-			TransportId t, KeySetId k) throws DbException {
+	public KeySetId addTransportKeys(Transaction transaction, ContactId c,
+			TransportKeys k) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		if (!db.containsTransport(txn, t))
+		if (!db.containsTransport(txn, k.getTransportId()))
 			throw new NoSuchTransportException();
-		db.bindTransportKeys(txn, c, t, k);
+		return db.addTransportKeys(txn, c, k);
 	}
 
 	@Override

@@ -15,17 +15,10 @@ interface TransportKeyManager {
 
 	void start(Transaction txn) throws DbException;
 
-	void addContact(Transaction txn, ContactId c, SecretKey master,
-			long timestamp, boolean alice) throws DbException;
-
-	KeySetId addUnboundKeys(Transaction txn, SecretKey master, long timestamp,
-			boolean alice) throws DbException;
-
-	void bindKeys(Transaction txn, ContactId c, KeySetId k) throws DbException;
+	KeySetId addContact(Transaction txn, ContactId c, SecretKey master,
+			long timestamp, boolean alice, boolean active) throws DbException;
 
 	void activateKeys(Transaction txn, KeySetId k) throws DbException;
-
-	void removeKeys(Transaction txn, KeySetId k) throws DbException;
 
 	void removeContact(ContactId c);
 

@@ -289,11 +289,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(17).of(database).startTransaction();
+			exactly(16).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(17).of(database).containsContact(txn, contactId);
+			exactly(16).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(17).of(database).abortTransaction(txn);
+			exactly(16).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -301,16 +301,6 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			db.addTransportKeys(transaction, contactId, createTransportKeys());
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		} finally {
-			db.endTransaction(transaction);
-		}
-
-		transaction = db.startTransaction(false);
-		try {
-			db.bindTransportKeys(transaction, contactId, transportId, keySetId);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -773,13 +763,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			// endTransaction()
 			oneOf(database).commitTransaction(txn);
 			// Check whether the transport is in the DB (which it's not)
-			exactly(6).of(database).startTransaction();
+			exactly(5).of(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			exactly(6).of(database).containsTransport(txn, transportId);
+			exactly(5).of(database).containsTransport(txn, transportId);
 			will(returnValue(false));
-			exactly(6).of(database).abortTransaction(txn);
+			exactly(5).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -790,16 +778,6 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			assertEquals(contactId, db.addContact(transaction, author,
 					localAuthor.getId(), true, true));
 			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
-
-		transaction = db.startTransaction(false);
-		try {
-			db.bindTransportKeys(transaction, contactId, transportId, keySetId);
-			fail();
-		} catch (NoSuchTransportException expected) {
-			// Expected
 		} finally {
 			db.endTransaction(transaction);
 		}

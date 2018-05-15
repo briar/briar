@@ -94,6 +94,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private final TransportId transportId;
 	private final ContactId contactId;
 	private final KeySetId keySetId, keySetId1;
+	private final Random random = new Random();
 
 	JdbcDatabaseTest() throws Exception {
 		clientId = getClientId();
@@ -670,8 +671,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testTransportKeys() throws Exception {
 		long rotationPeriod = 123, rotationPeriod1 = 234;
-		TransportKeys keys = createTransportKeys(rotationPeriod);
-		TransportKeys keys1 = createTransportKeys(rotationPeriod1);
+		boolean active = random.nextBoolean();
+		TransportKeys keys = createTransportKeys(rotationPeriod, active);
+		TransportKeys keys1 = createTransportKeys(rotationPeriod1, active);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -682,7 +684,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Add the contact, the transport and the transport keys
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
-				true, true));
+				true, active));
 		db.addTransport(txn, transportId, 123);
 		assertEquals(keySetId, db.addTransportKeys(txn, contactId, keys));
 		assertEquals(keySetId1, db.addTransportKeys(txn, contactId, keys1));
@@ -701,8 +703,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		}
 
 		// Rotate the transport keys
-		TransportKeys rotated = createTransportKeys(rotationPeriod + 1);
-		TransportKeys rotated1 = createTransportKeys(rotationPeriod1 + 1);
+		TransportKeys rotated = createTransportKeys(rotationPeriod + 1, active);
+		TransportKeys rotated1 =
+				createTransportKeys(rotationPeriod1 + 1, active);
 		db.updateTransportKeys(txn, new KeySet(keySetId, contactId, rotated));
 		db.updateTransportKeys(txn, new KeySet(keySetId1, contactId, rotated1));
 
@@ -721,95 +724,6 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Removing the contact should remove the transport keys
 		db.removeContact(txn, contactId);
-		assertEquals(emptyList(), db.getTransportKeys(txn, transportId));
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testUnboundTransportKeys() throws Exception {
-		long rotationPeriod = 123, rotationPeriod1 = 234;
-		TransportKeys keys = createTransportKeys(rotationPeriod);
-		TransportKeys keys1 = createTransportKeys(rotationPeriod1);
-
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Initially there should be no transport keys in the database
-		assertEquals(emptyList(), db.getTransportKeys(txn, transportId));
-
-		// Add the contact, the transport and the unbound transport keys
-		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
-				true, true));
-		db.addTransport(txn, transportId, 123);
-		assertEquals(keySetId, db.addTransportKeys(txn, null, keys));
-		assertEquals(keySetId1, db.addTransportKeys(txn, null, keys1));
-
-		// Retrieve the transport keys
-		Collection<KeySet> allKeys = db.getTransportKeys(txn, transportId);
-		assertEquals(2, allKeys.size());
-		for (KeySet ks : allKeys) {
-			assertNull(ks.getContactId());
-			if (ks.getKeySetId().equals(keySetId)) {
-				assertKeysEquals(keys, ks.getTransportKeys());
-			} else {
-				assertEquals(keySetId1, ks.getKeySetId());
-				assertKeysEquals(keys1, ks.getTransportKeys());
-			}
-		}
-
-		// Bind the first set of transport keys
-		db.bindTransportKeys(txn, contactId, transportId, keySetId);
-
-		// Retrieve the keys again - the first set should be bound
-		allKeys = db.getTransportKeys(txn, transportId);
-		assertEquals(2, allKeys.size());
-		for (KeySet ks : allKeys) {
-			if (ks.getKeySetId().equals(keySetId)) {
-				assertEquals(contactId, ks.getContactId());
-				assertKeysEquals(keys, ks.getTransportKeys());
-			} else {
-				assertEquals(keySetId1, ks.getKeySetId());
-				assertNull(ks.getContactId());
-				assertKeysEquals(keys1, ks.getTransportKeys());
-			}
-		}
-
-		// Rotate the transport keys
-		TransportKeys rotated = createTransportKeys(rotationPeriod + 1);
-		TransportKeys rotated1 = createTransportKeys(rotationPeriod1 + 1);
-		db.updateTransportKeys(txn, new KeySet(keySetId, contactId, rotated));
-		db.updateTransportKeys(txn, new KeySet(keySetId1, null, rotated1));
-
-		// Retrieve the transport keys again
-		allKeys = db.getTransportKeys(txn, transportId);
-		assertEquals(2, allKeys.size());
-		for (KeySet ks : allKeys) {
-			if (ks.getKeySetId().equals(keySetId)) {
-				assertEquals(contactId, ks.getContactId());
-				assertKeysEquals(rotated, ks.getTransportKeys());
-			} else {
-				assertEquals(keySetId1, ks.getKeySetId());
-				assertNull(ks.getContactId());
-				assertKeysEquals(rotated1, ks.getTransportKeys());
-			}
-		}
-
-		// Remove the unbound transport keys
-		db.removeTransportKeys(txn, transportId, keySetId1);
-
-		// Retrieve the keys again - the second set should be gone
-		allKeys = db.getTransportKeys(txn, transportId);
-		assertEquals(1, allKeys.size());
-		KeySet ks = allKeys.iterator().next();
-		assertEquals(keySetId, ks.getKeySetId());
-		assertEquals(contactId, ks.getContactId());
-		assertKeysEquals(rotated, ks.getTransportKeys());
-
-		// Removing the transport should remove the remaining transport keys
-		db.removeTransport(txn, transportId);
 		assertEquals(emptyList(), db.getTransportKeys(txn, transportId));
 
 		db.commitTransaction(txn);
@@ -853,7 +767,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testIncrementStreamCounter() throws Exception {
 		long rotationPeriod = 123;
-		TransportKeys keys = createTransportKeys(rotationPeriod);
+		TransportKeys keys = createTransportKeys(rotationPeriod, true);
 		long streamCounter = keys.getCurrentOutgoingKeys().getStreamCounter();
 
 		Database<Connection> db = open(false);
@@ -893,8 +807,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testSetReorderingWindow() throws Exception {
+		boolean active = random.nextBoolean();
 		long rotationPeriod = 123;
-		TransportKeys keys = createTransportKeys(rotationPeriod);
+		TransportKeys keys = createTransportKeys(rotationPeriod, active);
 		long base = keys.getCurrentIncomingKeys().getWindowBase();
 		byte[] bitmap = keys.getCurrentIncomingKeys().getWindowBitmap();
 
@@ -904,12 +819,12 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Add the contact, transport and transport keys
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
-				true, true));
+				true, active));
 		db.addTransport(txn, transportId, 123);
 		assertEquals(keySetId, db.addTransportKeys(txn, contactId, keys));
 
 		// Update the reordering window and retrieve the transport keys
-		new Random().nextBytes(bitmap);
+		random.nextBytes(bitmap);
 		db.setReorderingWindow(txn, keySetId, transportId, rotationPeriod,
 				base + 1, bitmap);
 		Collection<KeySet> newKeys = db.getTransportKeys(txn, transportId);
@@ -1908,7 +1823,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		return db;
 	}
 
-	private TransportKeys createTransportKeys(long rotationPeriod) {
+	private TransportKeys createTransportKeys(long rotationPeriod,
+			boolean active) {
 		SecretKey inPrevTagKey = getSecretKey();
 		SecretKey inPrevHeaderKey = getSecretKey();
 		IncomingKeys inPrev = new IncomingKeys(inPrevTagKey, inPrevHeaderKey,
@@ -1924,7 +1840,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		SecretKey outCurrTagKey = getSecretKey();
 		SecretKey outCurrHeaderKey = getSecretKey();
 		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
-				rotationPeriod, 456, true);
+				rotationPeriod, 456, active);
 		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);
 	}
 
