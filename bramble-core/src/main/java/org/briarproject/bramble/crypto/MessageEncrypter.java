@@ -152,59 +152,47 @@ public class MessageEncrypter {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		if (args.length < 1) {
 			printUsage();
-			return;
+			System.exit(1);
 		}
-		SecureRandom random = new SecureRandom();
-		MessageEncrypter encrypter = new MessageEncrypter(random);
 		if (args[0].equals("generate")) {
 			if (args.length != 3) {
 				printUsage();
-				return;
+				System.exit(1);
 			}
-			// Generate a key pair
-			KeyPair keyPair = encrypter.generateKeyPair();
-			PrintStream out = new PrintStream(new FileOutputStream(args[1]));
-			out.print(
-					StringUtils.toHexString(keyPair.getPublic().getEncoded()));
-			out.flush();
-			out.close();
-			out = new PrintStream(new FileOutputStream(args[2]));
-			out.print(
-					StringUtils.toHexString(keyPair.getPrivate().getEncoded()));
-			out.flush();
-			out.close();
+			try {
+				generateKeyPair(args[1], args[2]);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.exit(2);
+			}
 		} else if (args[0].equals("encrypt")) {
 			if (args.length != 2) {
 				printUsage();
-				return;
+				System.exit(1);
 			}
-			// Encrypt a decrypted message
-			InputStream in = new FileInputStream(args[1]);
-			byte[] keyBytes = StringUtils.fromHexString(readFully(in).trim());
-			PublicKey publicKey =
-					encrypter.getKeyParser().parsePublicKey(keyBytes);
-			String message = readFully(System.in);
-			byte[] plaintext = message.getBytes(Charset.forName("UTF-8"));
-			byte[] ciphertext = encrypter.encrypt(publicKey, plaintext);
-			System.out.println(AsciiArmour.wrap(ciphertext, LINE_LENGTH));
+			try {
+				encryptMessage(args[1]);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.exit(2);
+			}
 		} else if (args[0].equals("decrypt")) {
 			if (args.length != 2) {
 				printUsage();
-				return;
+				System.exit(1);
 			}
-			// Decrypt an encrypted message
-			InputStream in = new FileInputStream(args[1]);
-			byte[] keyBytes = StringUtils.fromHexString(readFully(in).trim());
-			PrivateKey privateKey =
-					encrypter.getKeyParser().parsePrivateKey(keyBytes);
-			byte[] ciphertext = AsciiArmour.unwrap(readFully(System.in));
-			byte[] plaintext = encrypter.decrypt(privateKey, ciphertext);
-			System.out.println(new String(plaintext, Charset.forName("UTF-8")));
+			try {
+				decryptMessage(args[1]);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.exit(2);
+			}
 		} else {
 			printUsage();
+			System.exit(1);
 		}
 	}
 
@@ -214,6 +202,46 @@ public class MessageEncrypter {
 				"MessageEncrypter generate <public_key_file> <private_key_file>");
 		System.err.println("MessageEncrypter encrypt <public_key_file>");
 		System.err.println("MessageEncrypter decrypt <private_key_file>");
+	}
+
+	private static void generateKeyPair(String publicKeyFile,
+			String privateKeyFile) throws Exception {
+		SecureRandom random = new SecureRandom();
+		MessageEncrypter encrypter = new MessageEncrypter(random);
+		KeyPair keyPair = encrypter.generateKeyPair();
+		PrintStream out = new PrintStream(new FileOutputStream(publicKeyFile));
+		out.print(StringUtils.toHexString(keyPair.getPublic().getEncoded()));
+		out.flush();
+		out.close();
+		out = new PrintStream(new FileOutputStream(privateKeyFile));
+		out.print(StringUtils.toHexString(keyPair.getPrivate().getEncoded()));
+		out.flush();
+		out.close();
+	}
+
+	private static void encryptMessage(String publicKeyFile) throws Exception {
+		SecureRandom random = new SecureRandom();
+		MessageEncrypter encrypter = new MessageEncrypter(random);
+		InputStream in = new FileInputStream(publicKeyFile);
+		byte[] keyBytes = StringUtils.fromHexString(readFully(in).trim());
+		PublicKey publicKey =
+				encrypter.getKeyParser().parsePublicKey(keyBytes);
+		String message = readFully(System.in);
+		byte[] plaintext = message.getBytes(Charset.forName("UTF-8"));
+		byte[] ciphertext = encrypter.encrypt(publicKey, plaintext);
+		System.out.println(AsciiArmour.wrap(ciphertext, LINE_LENGTH));
+	}
+
+	private static void decryptMessage(String privateKeyFile) throws Exception {
+		SecureRandom random = new SecureRandom();
+		MessageEncrypter encrypter = new MessageEncrypter(random);
+		InputStream in = new FileInputStream(privateKeyFile);
+		byte[] keyBytes = StringUtils.fromHexString(readFully(in).trim());
+		PrivateKey privateKey =
+				encrypter.getKeyParser().parsePrivateKey(keyBytes);
+		byte[] ciphertext = AsciiArmour.unwrap(readFully(System.in));
+		byte[] plaintext = encrypter.decrypt(privateKey, ciphertext);
+		System.out.println(new String(plaintext, Charset.forName("UTF-8")));
 	}
 
 	private static String readFully(InputStream in) throws IOException {
