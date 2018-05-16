@@ -33,7 +33,6 @@ import static org.acra.ReportField.CUSTOM_DATA;
 import static org.acra.ReportField.DEVICE_FEATURES;
 import static org.acra.ReportField.DISPLAY;
 import static org.acra.ReportField.INITIAL_CONFIGURATION;
-import static org.acra.ReportField.LOGCAT;
 import static org.acra.ReportField.PACKAGE_NAME;
 import static org.acra.ReportField.PHONE_MODEL;
 import static org.acra.ReportField.PRODUCT;
@@ -61,8 +60,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 				STACK_TRACE,
 				INITIAL_CONFIGURATION, CRASH_CONFIGURATION,
 				DISPLAY, DEVICE_FEATURES,
-				USER_APP_START_DATE, USER_CRASH_DATE,
-				LOGCAT
+				USER_APP_START_DATE, USER_CRASH_DATE
 		}
 )
 public class BriarApplicationImpl extends Application
