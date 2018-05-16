@@ -32,11 +32,9 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
-import org.briarproject.bramble.api.reporting.DevReporter;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.LocationUtils;
-import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.IoUtils;
 import org.briarproject.bramble.util.StringUtils;
 
@@ -114,7 +112,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final ScheduledExecutorService scheduler;
 	private final Context appContext;
 	private final LocationUtils locationUtils;
-	private final DevReporter reporter;
 	private final SocketFactory torSocketFactory;
 	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
@@ -136,14 +133,13 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	TorPlugin(Executor ioExecutor, ScheduledExecutorService scheduler,
 			Context appContext, LocationUtils locationUtils,
-			DevReporter reporter, SocketFactory torSocketFactory,
-			Backoff backoff, DuplexPluginCallback callback,
-			String architecture, int maxLatency, int maxIdleTime) {
+			SocketFactory torSocketFactory, Backoff backoff,
+			DuplexPluginCallback callback, String architecture,
+			int maxLatency, int maxIdleTime) {
 		this.ioExecutor = ioExecutor;
 		this.scheduler = scheduler;
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
-		this.reporter = reporter;
 		this.torSocketFactory = torSocketFactory;
 		this.backoff = backoff;
 		this.callback = callback;
@@ -389,14 +385,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
-	private void sendDevReports() {
-		ioExecutor.execute(() -> {
-			// TODO: Trigger this with a TransportEnabledEvent
-			File reportDir = AndroidUtils.getReportDir(appContext);
-			reporter.sendReports(reportDir);
-		});
-	}
-
 	private void bind() {
 		ioExecutor.execute(() -> {
 			// If there's already a port number stored in config, reuse it
@@ -624,10 +612,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				connectionStatus.getAndSetCircuitBuilt()) {
 			LOG.info("First circuit built");
 			backoff.reset();
-			if (isRunning()) {
-				sendDevReports();
-				callback.transportEnabled();
-			}
+			if (isRunning()) callback.transportEnabled();
 		}
 	}
 
@@ -656,10 +641,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
 			connectionStatus.setBootstrapped();
 			backoff.reset();
-			if (isRunning()) {
-				sendDevReports();
-				callback.transportEnabled();
-			}
+			if (isRunning()) callback.transportEnabled();
 		}
 	}
 
