@@ -111,21 +111,29 @@
 
 	<PreferenceCategory
 		android:layout="@layout/preferences_category"
-		android:title="@string/feedback_settings_title">
-
-		<Preference
-			android:key="pref_key_send_feedback"
-			android:title="@string/send_feedback"/>
-
-	</PreferenceCategory>
+		android:title="@string/feedback_settings_title"/>
 
 	<Preference
-		android:key="pref_key_test_data"
-		android:title="Create Test Data">
+		android:key="pref_key_send_feedback"
+		android:title="@string/send_feedback"/>
 
-		<intent
-			android:targetClass="org.briarproject.briar.android.test.TestDataActivity"
-			android:targetPackage="@string/app_package"/>
-	</Preference>
+	<PreferenceCategory
+		android:layout="@layout/preferences_category"
+		android:title="Testing">
+
+		<Preference
+			android:key="pref_key_test_data"
+			android:title="Create Test Data">
+
+			<intent
+				android:targetClass="org.briarproject.briar.android.test.TestDataActivity"
+				android:targetPackage="@string/app_package"/>
+		</Preference>
+
+		<Preference
+			android:key="pref_key_explode"
+			android:title="Crash"/>
+
+	</PreferenceCategory>
 
 </PreferenceScreen>
