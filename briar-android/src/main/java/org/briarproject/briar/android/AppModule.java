@@ -2,6 +2,7 @@ package org.briarproject.briar.android;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.StrictMode;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -82,7 +83,11 @@ public class AppModule {
 	@Provides
 	@Singleton
 	DatabaseConfig provideDatabaseConfig(Application app) {
+		//FIXME: StrictMode
+		StrictMode.ThreadPolicy tp = StrictMode.allowThreadDiskReads();
+		StrictMode.allowThreadDiskWrites();
 		File dir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
+		StrictMode.setThreadPolicy(tp);
 		@MethodsNotNullByDefault
 		@ParametersNotNullByDefault
 		DatabaseConfig databaseConfig = new AndroidDatabaseConfig(dir);
