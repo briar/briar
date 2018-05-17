@@ -11,10 +11,20 @@ before_script:
 
 test:
   script:
-    - ./gradlew animalSnifferMain animalSnifferTest
-    - ./gradlew test
+    - ./gradlew --no-daemon animalSnifferMain animalSnifferTest
+    - ./gradlew --no-daemon test
 
-after_script:
-    # this file changes every time but should not be cached
+  after_script:
+    # these file change every time but should not be cached
     - rm -f $GRADLE_USER_HOME/caches/modules-2/modules-2.lock
     - rm -fr $GRADLE_USER_HOME/caches/*/plugin-resolution/
+
+test_reproducible:
+  image: briar/reproducer:latest
+  script:
+    - cd .. && mv briar /opt/briar-reproducer/
+    - cd /opt/briar-reproducer
+    - ./reproduce.py ${CI_COMMIT_REF_NAME}
+  only:
+    - tags
+
