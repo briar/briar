@@ -157,6 +157,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 					}
 			);
 		} else {
+			findPreference("pref_key_explode").setVisible(false);
+			findPreference("pref_key_test_data").setVisible(false);
 			PreferenceGroup testing =
 					findPreference("pref_key_explode").getParent();
 			if (testing == null) throw new AssertionError();
