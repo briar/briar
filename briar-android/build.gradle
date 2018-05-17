@@ -256,11 +256,13 @@ android {
 			resValue "string", "app_name", "Briar Debug"
 			shrinkResources false
 			minifyEnabled true
+			crunchPngs false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 		}
 		release {
 			shrinkResources true
 			minifyEnabled true
+			crunchPngs false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 		}
 	}
@@ -274,10 +276,6 @@ android {
 		unitTests {
 			includeAndroidResources = true
 		}
-	}
-
-	aaptOptions {
-		cruncherEnabled = false
 	}
 
 	lintOptions {

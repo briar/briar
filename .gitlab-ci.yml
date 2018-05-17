@@ -1,15 +1,15 @@
-image: registry.gitlab.com/fdroid/ci-images-base:latest
-
-cache:
-  paths:
-    - .gradle/wrapper
-    - .gradle/caches
-
-before_script:
-  - set -e
-  - export GRADLE_USER_HOME=$PWD/.gradle
+image: briar/ci-image-android:latest
 
 test:
+  before_script:
+    - set -e
+    - export GRADLE_USER_HOME=$PWD/.gradle
+
+  cache:
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+
   script:
     - ./gradlew --no-daemon animalSnifferMain animalSnifferTest
     - ./gradlew --no-daemon test
@@ -19,12 +19,13 @@ test:
     - rm -f $GRADLE_USER_HOME/caches/modules-2/modules-2.lock
     - rm -fr $GRADLE_USER_HOME/caches/*/plugin-resolution/
 
+
 test_reproducible:
   image: briar/reproducer:latest
+
   script:
-    - cd .. && mv briar /opt/briar-reproducer/
     - cd /opt/briar-reproducer
     - ./reproduce.py ${CI_COMMIT_REF_NAME}
+
   only:
     - tags
-
