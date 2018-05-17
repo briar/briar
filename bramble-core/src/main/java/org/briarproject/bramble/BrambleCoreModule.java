@@ -59,6 +59,7 @@ public class BrambleCoreModule {
 		c.inject(new LifecycleModule.EagerSingletons());
 		c.inject(new PluginModule.EagerSingletons());
 		c.inject(new PropertiesModule.EagerSingletons());
+		c.inject(new ReportingModule.EagerSingletons());
 		c.inject(new SyncModule.EagerSingletons());
 		c.inject(new SystemModule.EagerSingletons());
 		c.inject(new TransportModule.EagerSingletons());

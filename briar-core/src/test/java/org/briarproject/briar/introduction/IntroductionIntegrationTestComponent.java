@@ -66,12 +66,17 @@ interface IntroductionIntegrationTestComponent
 	void inject(IntroductionIntegrationTest init);
 
 	void inject(MessageEncoderParserIntegrationTest init);
+
 	void inject(SessionEncoderParserIntegrationTest init);
+
 	void inject(IntroductionCryptoIntegrationTest init);
 
 	MessageEncoder getMessageEncoder();
+
 	MessageParser getMessageParser();
+
 	SessionParser getSessionParser();
+
 	IntroductionCrypto getIntroductionCrypto();
 
 }

@@ -1,7 +1,12 @@
 package org.briarproject.bramble.reporting;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventListener;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.TorConstants;
+import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
 import org.briarproject.bramble.api.reporting.DevConfig;
 import org.briarproject.bramble.api.reporting.DevReporter;
 import org.briarproject.bramble.util.IoUtils;
@@ -18,17 +23,19 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import javax.inject.Inject;
 import javax.net.SocketFactory;
 
 import static java.util.logging.Level.WARNING;
 
 @Immutable
 @NotNullByDefault
-class DevReporterImpl implements DevReporter {
+class DevReporterImpl implements DevReporter, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(DevReporterImpl.class.getName());
@@ -36,12 +43,15 @@ class DevReporterImpl implements DevReporter {
 	private static final int SOCKET_TIMEOUT = 30 * 1000; // 30 seconds
 	private static final int LINE_LENGTH = 70;
 
+	private final Executor ioExecutor;
 	private final CryptoComponent crypto;
 	private final DevConfig devConfig;
 	private final SocketFactory torSocketFactory;
 
-	DevReporterImpl(CryptoComponent crypto, DevConfig devConfig,
-			SocketFactory torSocketFactory) {
+	@Inject
+	DevReporterImpl(@IoExecutor Executor ioExecutor, CryptoComponent crypto,
+			DevConfig devConfig, SocketFactory torSocketFactory) {
+		this.ioExecutor = ioExecutor;
 		this.crypto = crypto;
 		this.devConfig = devConfig;
 		this.torSocketFactory = torSocketFactory;
@@ -63,6 +73,7 @@ class DevReporterImpl implements DevReporter {
 	@Override
 	public void encryptReportToFile(File reportDir, String filename,
 			String report) throws FileNotFoundException {
+		LOG.info("Encrypting report to file");
 		byte[] plaintext = StringUtils.toUtf8(report);
 		byte[] ciphertext = crypto.encryptToKey(devConfig.getDevPublicKey(),
 				plaintext);
@@ -82,7 +93,17 @@ class DevReporterImpl implements DevReporter {
 	}
 
 	@Override
-	public void sendReports(File reportDir) {
+	public void eventOccurred(Event e) {
+		if (e instanceof TransportEnabledEvent) {
+			TransportEnabledEvent t = (TransportEnabledEvent) e;
+			if (t.getTransportId().equals(TorConstants.ID))
+				ioExecutor.execute(this::sendReports);
+		}
+	}
+
+	@Override
+	public void sendReports() {
+		File reportDir = devConfig.getReportDir();
 		File[] reports = reportDir.listFiles();
 		if (reports == null || reports.length == 0)
 			return; // No reports to send

@@ -39,10 +39,7 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
-import org.briarproject.briar.introduction.IntroductionCryptoIntegrationTest;
 import org.briarproject.briar.introduction.IntroductionModule;
-import org.briarproject.briar.introduction.MessageEncoderParserIntegrationTest;
-import org.briarproject.briar.introduction.SessionEncoderParserIntegrationTest;
 import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
 import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;

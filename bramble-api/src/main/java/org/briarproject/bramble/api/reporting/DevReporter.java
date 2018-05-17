@@ -23,8 +23,6 @@ public interface DevReporter {
 
 	/**
 	 * Sends any reports previously stored on disk.
-	 *
-	 * @param reportDir the directory where reports are stored.
 	 */
-	void sendReports(File reportDir);
+	void sendReports();
 }

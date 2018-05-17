@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.reporting.DevConfig;
 import org.briarproject.bramble.api.ui.UiCallback;
+import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
@@ -96,7 +97,7 @@ public class AppModule {
 
 	@Provides
 	@Singleton
-	DevConfig provideDevConfig(CryptoComponent crypto) {
+	DevConfig provideDevConfig(Application app, CryptoComponent crypto) {
 		@NotNullByDefault
 		DevConfig devConfig = new DevConfig() {
 
@@ -113,6 +114,11 @@ public class AppModule {
 			@Override
 			public String getDevOnionAddress() {
 				return DEV_ONION_ADDRESS;
+			}
+
+			@Override
+			public File getReportDir() {
+				return AndroidUtils.getReportDir(app.getApplicationContext());
 			}
 		};
 		return devConfig;
