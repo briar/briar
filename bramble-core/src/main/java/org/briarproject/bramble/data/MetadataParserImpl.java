@@ -59,8 +59,8 @@ class MetadataParserImpl implements MetadataParser {
 		if (reader.hasBoolean()) return reader.readBoolean();
 		if (reader.hasLong()) return reader.readLong();
 		if (reader.hasDouble()) return reader.readDouble();
-		if (reader.hasString()) return reader.readString(Integer.MAX_VALUE);
-		if (reader.hasRaw()) return reader.readRaw(Integer.MAX_VALUE);
+		if (reader.hasString()) return reader.readString();
+		if (reader.hasRaw()) return reader.readRaw();
 		if (reader.hasList()) return reader.readList();
 		if (reader.hasDictionary()) return reader.readDictionary();
 		throw new FormatException();

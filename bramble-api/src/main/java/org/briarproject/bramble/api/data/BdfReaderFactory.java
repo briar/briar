@@ -9,5 +9,6 @@ public interface BdfReaderFactory {
 
 	BdfReader createReader(InputStream in);
 
-	BdfReader createReader(InputStream in, int nestedLimit);
+	BdfReader createReader(InputStream in, int nestedLimit,
+			int maxBufferSize);
 }

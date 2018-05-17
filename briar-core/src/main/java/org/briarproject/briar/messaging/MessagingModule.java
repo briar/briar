@@ -35,8 +35,8 @@ public class MessagingModule {
 
 	@Provides
 	PrivateMessageFactory providePrivateMessageFactory(
-			ClientHelper clientHelper) {
-		return new PrivateMessageFactoryImpl(clientHelper);
+			PrivateMessageFactoryImpl privateMessageFactory) {
+		return privateMessageFactory;
 	}
 
 	@Provides
