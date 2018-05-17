@@ -393,7 +393,4 @@
   <string name="permission_camera_denied_toast">No s\'ha concedit el permís de la càmera</string>
   <string name="qr_code">Codi QR</string>
   <string name="show_qr_code_fullscreen">Mostra el codi QR a pantalla completa</string>
-  <!--Low Memory Notification-->
-  <string name="low_memory_shutdown_notification_title">Has sortit de Briar</string>
-  <string name="low_memory_shutdown_notification_text">Has sortit de Briar a causa de falta de memòria.</string>
 </resources>

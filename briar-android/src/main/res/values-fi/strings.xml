@@ -27,12 +27,15 @@
   <string name="enter_password">Syötä salasana:</string>
   <string name="try_again">Väärä salasana, yritä uudelleen</string>
   <string name="sign_in_button">Kirjaudu sisään</string>
-  <string name="forgotten_password">Olen unohtanut salasanan</string>
+  <string name="forgotten_password">Olen unohtanut salasanani</string>
   <string name="dialog_title_lost_password">Unohtunut salasana</string>
   <string name="dialog_message_lost_password">Sinun Briar tili on tallennettu salattuna sinun laitteelle, ei pilvipalvelimelle, joten emme voi palauttaa salasanaasi. Haluatko poistaa tilisi ja aloittaa alusta?\n\nVaroitus: Tulet menettämään tunnuksesi, yhteystietosi ja viestisi lopullisesti.</string>
   <string name="startup_failed_notification_title">Briarin käynnistys epäonnistui</string>
   <string name="startup_failed_notification_text">Napauta nähdäksesi lisätietoja.</string>
   <string name="startup_failed_activity_title">Briarin käynnistys epäonnistui</string>
+  <string name="startup_failed_db_error">Jostain syystä sinun Briar tietokanta on korruptoitunut korjauskelvottomaksi. Tilisi, tietosi ja kaikki yhteystietosi on menetetty. Valitettavasti, sinun täytyy asentaa Briar uudelleen ja luoda uusi tili valitsemalla \'Olen unohtanut salasanani\' kun sinulta kysytään salasanaa.</string>
+  <string name="startup_failed_data_too_old_error">Sinun tili luotiin vanhalla versiolla eikä sitä voida avata tällä versiolla. Sinun täytyy joko asentaa vanha versio uudelleen tai luoda uusi tili valitsemalla \'Olen unohtanut salasanani\' kun sinulta kysytään salasanaa.</string>
+  <string name="startup_failed_data_too_new_error">Tämän sovelluksen versio on liian vanha. Päivitä viimeisimpään versioon ja yritä uudelleen.</string>
   <string name="startup_failed_service_error">Briar ei kyennyt käynnistämään vaadittua liitännäistä. Briarin uudelleenasennus yleensä korjaa ongelman. Huomaa kuitenkin, että tulet menettämään tilisi ja kaikki siihen liittyvä data koska Briar ei käytä palvelimia sinun tietojesi säilyttämiseen.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Tämä on Briarin testiversio. Sinun tilisi tulee vanhentumaan %d päivän päästä eikä sitä voi uusia.</item>
@@ -40,6 +43,9 @@
   </plurals>
   <string name="expiry_update">Testiaikaa on pidennetty. Tilisi tulee nyt vanhentumaan %d päivän kuluttua.</string>
   <string name="expiry_date_reached">Tämä sovellus on vanhentunut.\nKiitos testaamisesta!</string>
+  <string name="download_briar">Jatkaaksesi Briarin käyttöä, lataa versio 1.0.</string>
+  <string name="create_new_account">Sinun täytyy luoda uusi tili, mutta voit käyttää samaa tunnusta.</string>
+  <string name="download_briar_button">Lataa Briar 1.0</string>
   <string name="startup_open_database">Puretaan tietokannan salaus...</string>
   <string name="startup_migrate_database">Päivitetään tietokanta...</string>
   <!--Navigation Drawer-->
@@ -98,6 +104,7 @@
   <string name="help">Ohje</string>
   <string name="sorry">Pahoittelemme</string>
   <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Ei yhteystietoja\n\nNapauta + nappia lisätäksesi yhteystiedon</string>
   <string name="date_no_private_messages">Ei viestejä.</string>
   <string name="no_private_messages">Ei viestejä</string>
   <string name="message_hint">Kirjoita viesti</string>
@@ -146,6 +153,7 @@
     <item quantity="other">%d uutta yhteystietoa lisätty.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">Ei ryhmiä\n\nNapauta + nappia luodaksesi ryhmän tai pyydä yhteyshenkilöltä kutsua päästäksesi yhteen heidän ryhmistä.</string>
   <string name="groups_created_by">Luonut %s</string>
   <plurals name="messages">
     <item quantity="one">%d viesti</item>
@@ -198,6 +206,7 @@
   <string name="groups_reveal_visible_revealed_by_contact">Yhteys käyttäjään on näkyvissä ryhmän jäsenille (käyttäjän %s paljastamana)</string>
   <string name="groups_reveal_invisible">Yhteys käyttäjään ei ole näkyvissä ryhmän jäsenille</string>
   <!--Forums-->
+  <string name="no_forums">Ei foorumeita\n\nNapauta + nappia luodaksesi foorumin tai pyydä yhteyshenkilöltä kutsua päästäksesi yhteen heidän foorumeista</string>
   <string name="create_forum_title">Luo foorumi</string>
   <string name="choose_forum_hint">Valitse nimi foorumillesi</string>
   <string name="create_forum_button">Luo foorumi</string>
@@ -214,18 +223,21 @@
   <string name="btn_reply">Vastaa</string>
   <string name="forum_leave">Lähde foorumista</string>
   <string name="dialog_title_leave_forum">Vahvista foorumista lähteminen</string>
+  <string name="dialog_message_leave_forum">Oletko varma, että haluat lähteä tästä foorumista?\n\nKäyttäjät, jotka olet kutsunut tähän foorumiin, eivät välttämättä tule enää saamaan päivityksiä.</string>
   <string name="dialog_button_leave">Lähde</string>
   <string name="forum_left_toast">Lähti foorumista</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Jaa foorumi</string>
   <string name="contacts_selected">Yhteystiedot valittu</string>
   <string name="activity_share_toolbar_header">Valitse yhteystiedot</string>
+  <string name="no_contacts_selector">Ei yhteystietoja\n\nPalaa tänne, kun olet lisännyt yhteystiedon</string>
   <string name="forum_shared_snackbar">Foorumi jaettu valittujen käyttäjien kanssa</string>
   <string name="forum_share_message">Lisää viesti (valinnainen)</string>
   <string name="forum_share_error">Tämän foorumin jakamisessa tapahtui virhe.</string>
   <string name="forum_invitation_received">%1$s on jakanut \"%2$s\" -nimisen foorumin kanssasi.</string>
   <string name="forum_invitation_sent">Olet jakanut \"%1$s\" -nimisen foorumin käyttäjälle %2$s.</string>
   <string name="forum_invitations_title">Kutsut liittyä foorumeihin</string>
+  <string name="forum_invitation_exists">Olet jo hyväksynyt kutsun liittyä tähän foorumiin.\n\nUseamman kutsun hyväksyminen tekee foorumista nopeamman ja luotettavamman.</string>
   <string name="forum_joined_toast">Liittyi foorumiin</string>
   <string name="forum_declined_toast">Kutsu hylätty</string>
   <string name="shared_by_format">Jakanut %s</string>
@@ -252,6 +264,7 @@
   <string name="blogs_blog_post_received">Uusi blogikirjoitus vastaanotettu</string>
   <string name="blogs_blog_post_scroll_to">Vieritä kohtaan</string>
   <string name="blogs_remove_blog">Poista blogi</string>
+  <string name="blogs_remove_blog_dialog_message">Oletko varma, että haluat poistaa tämän blogin?\n\nKirjoitukset poistuvat sinun laitteelta, mutta ei muiden laitteilta.\n\nKäyttäjät joiden kanssa olet jakanut tämän blogin eivät välttämättä saa uusia päivityksiä.</string>
   <string name="blogs_remove_blog_ok">Poista</string>
   <string name="blogs_blog_removed">Blogi poistettu</string>
   <string name="blogs_reblog_comment_hint">Lisää kommentti (valinnainen)</string>
@@ -281,8 +294,10 @@
   <string name="blogs_rss_feeds_manage_author">Tekijä:</string>
   <string name="blogs_rss_feeds_manage_updated">Viimeksi päivitetty:</string>
   <string name="blogs_rss_remove_feed">Poista syöte</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Oletko varma, että haluat poistaa tämän syötteen?\n\nKirjoitukset poistuvat sinun laitteelta, mutta ei muiden laitteilta.\n\nKäyttäjät joiden kanssa olet jakanut tämän syötteen eivät välttämättä saa uusia päivityksiä.</string>
   <string name="blogs_rss_remove_feed_ok">Poista</string>
   <string name="blogs_rss_feeds_manage_delete_error">Syötteen poistaminen epäonnistui!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Ei RSS syötteitä\n\nNapauta + nappia lisätäksesi syötteen</string>
   <string name="blogs_rss_feeds_manage_error">Syötteiden lataamisessa tapahtui virhe. Yritä myöhemmin uudelleen.</string>
   <!--Settings Network-->
   <string name="network_settings_title">Verkot</string>
@@ -370,5 +385,4 @@
   <string name="permission_camera_denied_toast">Kameralupaa ei myönnetty</string>
   <string name="qr_code">QR-koodi</string>
   <string name="show_qr_code_fullscreen">Näytä QR-koodi koko näytöllä</string>
-  <!--Low Memory Notification-->
 </resources>

@@ -1,0 +1,312 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_title">به برایر خوش آمدید</string>
+  <string name="setup_name_explanation">نام مستعارتان کنار هر مطلب شما قرار خواهد گرفت و بعد از ایجاد حساب کاربری امکان تغییر آن وجود ندارد.</string>
+  <string name="setup_next">بعدی</string>
+  <string name="setup_password_intro">یک رمز عبور انتخاب کنید</string>
+  <string name="setup_doze_title">اتصال های پس زمینه</string>
+  <string name="setup_doze_intro">برای دریافت پیام ها، برایر نیاز دارد تا در پس زمینه اتصال داشته باشد.</string>
+  <string name="setup_doze_button">اجازه دادن به اتصالات</string>
+  <string name="choose_nickname">نام مستعار خود را انتخاب کنید</string>
+  <string name="choose_password">رمز عبور خود را انتخاب کنید</string>
+  <string name="confirm_password">رمز عبور خود را تایید کنید</string>
+  <string name="name_too_long">نام بیش از حد طولانی می باشد</string>
+  <string name="password_too_weak">رمز عبور ضعیف می باشد</string>
+  <string name="passwords_do_not_match">رمز های عبور مطابقت ندارند </string>
+  <string name="create_account_button">ایجاد حساب کاربری</string>
+  <string name="more_info">اطلاعات بیشتر</string>
+  <string name="don_t_ask_again">دیگر نپرس</string>
+  <string name="setup_huawei_text">لطفا روی دکمه زیر کلیک کنید و مطمئن شوید که از برایر در صفحه \"برنامه های محافظت شده\" محافظت می شود.</string>
+  <string name="setup_huawei_button">حفاظت از برایر</string>
+  <string name="setup_huawei_help">اگر برایر به فهرست برنامه های محافظت شده اضافه نشده، نمی تواند در پس زمینه مشغول به کار باشد.</string>
+  <!--Login-->
+  <string name="enter_password">رمز عبور خود را وارد کنید:</string>
+  <string name="try_again">رمز عبور اشتباه است، لطفا دوباره سعی کنید</string>
+  <string name="sign_in_button">ورود</string>
+  <string name="forgotten_password">رمز عبور را فراموش کرده ام</string>
+  <string name="startup_failed_notification_text">برای اطلاعات بیشتر کلیک کنید</string>
+  <string name="startup_failed_data_too_old_error">حساب کاربری شما با یک نسخه قدیمی از این برنامه ایجاد شده است و به همین خاطربا این نسخه نمی تواند باز شود. شما باید نسخه قدیمی را دوباره نصب کنید یا یک حساب کاربری جدید با \"رمز عبور ام را فراموش کرده ام\" در پرامپت رمز عبور ایجاد کنید.</string>
+  <string name="startup_failed_data_too_new_error">این نسخه از برنامه قدیمی می باشد. لطفا به آخرین نسخه از برنامه ارتقاء داده و دوباره سعی کنید.</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">این یک نسخه آزمایشی از برایر می باشد. حساب کاربری شما در %d روز آینده به پایان می رسد و امکان تمدید آن وجود نخواهد داشت.</item>
+    <item quantity="other">این یک نسخه آزمایشی از برایر می باشد. حساب کاربری شما در %d روز آینده به پایان می رسد و امکان تمدید آن وجود نخواهد داشت.</item>
+  </plurals>
+  <string name="expiry_update">تاریخ اتمام آزمایش افزایش یافته است. حساب کاربری شما در %d روز آینده به پایان می رسد.</string>
+  <string name="download_briar">برای اینکه به استفاده خود از برایر ادامه دهید، لطفا نسخه ۱.۰ را دانلود کنید.</string>
+  <string name="create_new_account">لازم است تا یک حساب کاربری جدید ایجاد کنید، می توانید از نام مستعار یکسان برای حساب های کاربری استفاده کنید.</string>
+  <string name="download_briar_button">دانلود برایر 1.0</string>
+  <string name="startup_open_database">رمزگشایی سیستم ...</string>
+  <string name="startup_migrate_database">به روز رسانی سیستم ...</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">باز کردن منوی برنامه</string>
+  <string name="nav_drawer_close_description">بستن منوی برنامه</string>
+  <string name="contact_list_button">مخاطبین</string>
+  <string name="groups_button">گروه های خصوصی</string>
+  <string name="forums_button">تالار های گفتمان</string>
+  <string name="blogs_button">بلاگ ها</string>
+  <string name="settings_button">تنظیمات</string>
+  <string name="sign_out_button">خروج</string>
+  <!--Transports-->
+  <string name="transport_tor">اینترنت</string>
+  <string name="transport_bt">بلوتوث</string>
+  <string name="transport_lan">وای فای</string>
+  <!--Notifications-->
+  <string name="ongoing_notification_text">برای باز کردن برایر کلیک کنید.</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="one">%dپیام خصوصی جدید</item>
+    <item quantity="other">%dپیام خصوصی جدید</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="one">پیام گروه جدید</item>
+    <item quantity="other">%d پیام گروه جدید</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="one">پست فروم جدید</item>
+    <item quantity="other">%d پست فروم جدید</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="one">پست پلاگ جدید</item>
+    <item quantity="other">%d پست بلاگ جدید</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">هم اکنون</string>
+  <string name="show">نمایش</string>
+  <string name="hide">پنهان کردن</string>
+  <string name="ok">تأیید</string>
+  <string name="cancel">لغو</string>
+  <string name="got_it">متوجه شدم</string>
+  <string name="delete">حذف</string>
+  <string name="accept">پذیرفتن</string>
+  <string name="decline">رد کردن</string>
+  <string name="options">گزینه ها</string>
+  <string name="online">آنلاین</string>
+  <string name="offline">آفلاین</string>
+  <string name="send">ارسال</string>
+  <string name="allow">اجازه دادن</string>
+  <string name="open">باز کردن</string>
+  <string name="no_data">داده ای موجود نمی باشد</string>
+  <string name="ellipsis">…</string>
+  <string name="text_too_long">متن وارد شده بیش از حد طولانی می باشد</string>
+  <string name="fix">اصلاح</string>
+  <string name="help">راهنما</string>
+  <string name="sorry">ببخشید</string>
+  <!--Contacts and Private Conversations-->
+  <string name="date_no_private_messages">هیچ پیامی موجود نیست</string>
+  <string name="no_private_messages">هیچ پیامی برای نشان دادن وجود ندارد</string>
+  <string name="message_hint">نوشتن پیام</string>
+  <string name="delete_contact">حذف مخاطب</string>
+  <string name="dialog_title_delete_contact">تایید حذف مخاطب</string>
+  <string name="dialog_message_delete_contact">آیا مطمئن هستید که میخواهید این مخاطب و تمام پیام های تبادل شده با آن را حذف کنید؟</string>
+  <string name="contact_deleted_toast">مخاطب حذف شد</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">افزودن مخاطب</string>
+  <string name="face_to_face">برای اضافه کردن فرد به عنوان مخاطب باید با او به صورت حضوری ملاقات کنید.
+این از جعل هویت شما و یا از خوانده شدن پیام هایتان در آینده جلوگیری خواهد کرد.</string>
+  <string name="continue_button">ادامه</string>
+  <string name="connection_failed">اتصال ناموفق بود</string>
+  <string name="try_again_button">دوباره سعی کنید</string>
+  <string name="contact_exchange_failed">تبادل مخاطب با خطا مواجه شد</string>
+  <string name="qr_code_invalid">کد QR نامعتبر می باشد</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_text">شما می توانید مخاطبان خود را به یکدیگر معرفی کنید، در این صورت دیگر نیازی به دیدار حضوری برای اتصال روی برایر نمی باشد.</string>
+  <string name="introduction_activity_title">انتخاب مخاطب</string>
+  <string name="introduction_not_possible">شما همین الان یک معرفی در مرحله انجام با این مخاطبان دارید. لطفا اجازه دهید تا این معرفی به پایان برسد. اگر شما و یا مخاطبانتان به ندرت آنلاین هستید، ممکن است کمی زمان ببرد.</string>
+  <string name="introduction_message_title">معرفی مخاطبین</string>
+  <string name="introduction_message_hint">افزودن یک پیام (اختیاری)</string>
+  <string name="introduction_button">معرفی کردن</string>
+  <string name="introduction_sent">معرفی شما فرستاده شد.</string>
+  <string name="introduction_error">خطایی در معرفی کردن رخ داده است.</string>
+  <string name="introduction_response_error">خطا در هنگام پاسخ به معرفی</string>
+  <string name="introduction_request_answered_received">%1$s میخواهد شما را به %2$s معرفی کند.</string>
+  <string name="introduction_response_accepted_sent">شما معرفی به %1$sرا پذیرفتید.</string>
+  <string name="introduction_response_accepted_sent_info">قبل از اضافه شدن %1$s به مخاطبان شما، آن ها باید معرفی را بپذیرند. این شاید کمی زمان ببرد.</string>
+  <string name="introduction_response_declined_sent">شما معرفی به %1$sرا رد کردید.</string>
+  <string name="introduction_response_accepted_received">%1$s معرفی به %2$s را پذیرفت.</string>
+  <string name="introduction_response_declined_received">%1$s معرفی به %2$s را رد کرد.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s می گوید که %2$s دعوت نامه  را رد کرد.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="one">مخاطب جدید افزوده شد.</item>
+    <item quantity="other">%d مخاطب جدید افزوده شد.</item>
+  </plurals>
+  <!--Private Groups-->
+  <string name="groups_created_by">ایجاد شده توسط %s</string>
+  <plurals name="messages">
+    <item quantity="one">%d پیام</item>
+    <item quantity="other">%d پیام</item>
+  </plurals>
+  <string name="groups_group_is_empty">این گروه خالی می باشد</string>
+  <string name="groups_group_is_dissolved">این گروه منحل شده است</string>
+  <string name="groups_remove">حذف</string>
+  <string name="groups_create_group_title">ایجاد گروه خصوصی</string>
+  <string name="groups_create_group_button">ایجاد گروه</string>
+  <string name="groups_create_group_invitation_button">ارسال دعوت نامه</string>
+  <string name="groups_create_group_hint">یک نام برای گروه شخصی خود انتخاب کنید</string>
+  <string name="groups_invitation_sent">دعوت نامه گروه فرستاده شد</string>
+  <string name="groups_message_sent">پیام فرستاده شد</string>
+  <string name="groups_member_list">لیست اعضا</string>
+  <string name="groups_invite_members">دعوت اعضا</string>
+  <string name="groups_member_created_you">شما گروه را ایجاد کردید</string>
+  <string name="groups_member_created">%s گروه را ایجاد کرد</string>
+  <string name="groups_member_joined_you">شما به عضویت گروه درآمدید</string>
+  <string name="groups_member_joined">%sعضو گروه شد</string>
+  <string name="groups_leave">ترک گروه</string>
+  <string name="groups_leave_dialog_title">تایید ترک گروه</string>
+  <string name="groups_leave_dialog_message">مطمئن هستید که میخواهید این گروه را ترک کنید؟</string>
+  <string name="groups_dissolve">انحلال گروه</string>
+  <string name="groups_dissolve_dialog_title">تایید انحلال گروه</string>
+  <string name="groups_dissolve_button">انحلال</string>
+  <string name="groups_dissolved_dialog_title">گروه انحلال یافت</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">دعوت نامه های گروه</string>
+  <string name="groups_invitations_invitation_sent">شما %1$s را برای عضویت به گروه \"%2$s\" دعوت کردید.</string>
+  <string name="groups_invitations_invitation_received">%1$s شما را دعوت کرده تا عضو گروه \"%2$s\" شوید.</string>
+  <string name="groups_invitations_declined">دعوت نامه گروه رد شد</string>
+  <string name="groups_invitations_response_accepted_sent">شما دعوت نامه گروه از %s را پذیرفتید.</string>
+  <string name="groups_invitations_response_declined_sent">شما دعوت نامه گروه از %s را رد کردید.</string>
+  <string name="groups_invitations_response_accepted_received">%sدعوت نامه گروه را پذیرفت.</string>
+  <string name="groups_invitations_response_declined_received">%s دعوت نامه گروه را رد کرد.</string>
+  <string name="sharing_status_groups">فقط سازنده گروه می تواند اعضای جدید را به گروه دعوت کند. در پایین تمام اعضای فعلی گروه آمده است.</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">نشان دادن مخاطبان</string>
+  <!--Forums-->
+  <string name="create_forum_title">ایجاد فروم</string>
+  <string name="choose_forum_hint">انتخاب یک نام برای فروم</string>
+  <string name="create_forum_button">ایجاد فروم</string>
+  <string name="forum_created_toast">فروم ایجاد شد</string>
+  <string name="no_forum_posts">هیچ پستی برای نشان دادن وجود ندارد</string>
+  <string name="no_posts">هیچ پستی وجود ندارد</string>
+  <plurals name="posts">
+    <item quantity="one">%d پست</item>
+    <item quantity="other">%d پست</item>
+  </plurals>
+  <string name="forum_message_reply_hint">پاسخ جدید</string>
+  <string name="btn_reply">پاسخ</string>
+  <string name="forum_leave">ترک فروم</string>
+  <string name="dialog_title_leave_forum">تأیید ترک فروم</string>
+  <string name="dialog_button_leave">ترک</string>
+  <string name="forum_left_toast">ترک فروم</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">اشتراک گذاری فروم</string>
+  <string name="contacts_selected">مخاطبان انتخاب شدند</string>
+  <string name="activity_share_toolbar_header">انتخاب مخاطبان</string>
+  <string name="forum_shared_snackbar">فروم با مخاطبان انتخاب شده به اشتراک گذاشته شد</string>
+  <string name="forum_share_message">افزودن یک پیام (اختیاری)</string>
+  <string name="forum_share_error">خطایی با اشتراک گذاری این فروم رخ داد</string>
+  <string name="forum_invitation_received">%1$s فروم \"%2$s\" را با شما به اشتراک گذاشته است.</string>
+  <string name="forum_invitation_sent">شما فروم \"%1$s\" را با %2$s به اشتراک گذاشتید.</string>
+  <string name="forum_invitations_title">دعوت نامه های فروم</string>
+  <string name="forum_declined_toast">دعوت نامه رد شد</string>
+  <string name="shared_by_format">به اشتراک گذاشته شده توسط %s</string>
+  <string name="forum_invitation_response_accepted_received">%s دعوت نامه فروم را پذیرفت.</string>
+  <string name="forum_invitation_response_declined_received">%s دعوت نامه فروم را رد کرد.</string>
+  <string name="sharing_status">به اشتراک گذاری وضعیت</string>
+  <string name="sharing_status_forum">هر عضو فروم می تواند آن را با دیگر مخاطبان خود به اشتراک بگذارد. شما این فروم را با مخاطبان زیر به اشتراک می گذارید. ممکن است اعضای دیگری هم باشند که شما نمی توانید آن ها را ببینید.</string>
+  <string name="nobody">هیچکس</string>
+  <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">هیچ پستی برای نشان دادن وجود ندارد</string>
+  <string name="read_more">بیشتر بخوانید</string>
+  <string name="blogs_write_blog_post">نوشتن پست بلاگ</string>
+  <string name="blogs_write_blog_post_body_hint">پست بلاگ خود را بنویسید</string>
+  <string name="blogs_publish_blog_post">انتشار</string>
+  <string name="blogs_blog_post_created">پست بلاگ ایجاد شد</string>
+  <string name="blogs_blog_post_received">پست جدید بلاگ دریافت شد</string>
+  <string name="blogs_remove_blog">حذف بلاگ</string>
+  <string name="blogs_remove_blog_ok">حذف</string>
+  <string name="blogs_blog_removed">بلاگ حذف شد</string>
+  <string name="blogs_reblog_comment_hint">افزودن یک کامنت (اختیاری)</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">به اشتراک گذاری بلاگ</string>
+  <string name="blogs_sharing_button">به اشتراک گذاری بلاگ</string>
+  <string name="blogs_sharing_snackbar">بلاگ با مخاطبان انتخاب شده به اشتراک گذاشته شد</string>
+  <string name="blogs_sharing_response_accepted_sent">شما دعوت نامه بلاگ از طرف %s را پذیرفتید.</string>
+  <string name="blogs_sharing_response_declined_sent">شما دعوت نامه بلاگ از %s را رد کردید.</string>
+  <string name="blogs_sharing_response_accepted_received">%sدعوت نامه بلاگ را پذیرفت.</string>
+  <string name="blogs_sharing_response_declined_received">%s دعوت نامه بلاگ را رد کرد.</string>
+  <string name="blogs_sharing_invitation_received">%1$s بلاگ \"%2$s\" را با شما به اشتراک گذاشت.</string>
+  <string name="blogs_sharing_invitation_sent">شما بلاگ \"%1$s\" را با %2$s به اشتراک گذاشته اید.</string>
+  <string name="blogs_sharing_invitations_title">دعوت نامه های بلاگ</string>
+  <string name="blogs_sharing_declined_toast">دعوت نامه رد شد</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import_hint">آدرس خوراک RSS را وارد کنید</string>
+  <string name="blogs_rss_feeds_import_error">متاسفیم!  وارد کردن خوراک شما با خطا مواجه شده است.</string>
+  <string name="blogs_rss_feeds_manage">مدیریت خوراک های RSS</string>
+  <string name="blogs_rss_feeds_manage_imported">وارد شده:</string>
+  <string name="blogs_rss_feeds_manage_author">نویسنده:</string>
+  <string name="blogs_rss_feeds_manage_updated">آخرین به روز رسانی:</string>
+  <string name="blogs_rss_remove_feed">حذف فید</string>
+  <string name="blogs_rss_remove_feed_ok">حذف</string>
+  <string name="blogs_rss_feeds_manage_delete_error">خوراک نمی تواند پاک شود!</string>
+  <string name="blogs_rss_feeds_manage_error">مشکلی با بارگذاری فیدهای شما وجود داشت. لطفا بعدا امتحان کنید.</string>
+  <!--Settings Network-->
+  <string name="network_settings_title">شبکه ها</string>
+  <string name="bluetooth_setting">اتصال از طریق بلوتوث</string>
+  <string name="bluetooth_setting_enabled">هر زمانی که مخاطبان نزدیک هستند</string>
+  <string name="bluetooth_setting_disabled">فقط در هنگام افزودن مخاطبان</string>
+  <string name="tor_network_setting">اتصال از طریق تور</string>
+  <string name="tor_network_setting_never">هرگز</string>
+  <string name="tor_network_setting_wifi">فقط در هنگام استفاده از وای فای</string>
+  <string name="tor_network_setting_always">هنگام استفاده از وای فای یا موبایل دیتا</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">امنیت</string>
+  <string name="change_password">تغییر رمز عبور</string>
+  <string name="current_password">رمز عبور فعلی خود را وارد کنید:</string>
+  <string name="choose_new_password">رمز عبور جدید خود را انتخاب کنید:</string>
+  <string name="confirm_new_password">رمز عبور جدید خود را تأیید کنید:</string>
+  <string name="password_changed">رمز عبور تغییر کرده است</string>
+  <string name="panic_setting_title">دکمه هراس</string>
+  <string name="panic_app_setting_title">برنامه دکمه هراس</string>
+  <string name="unknown_app">یک برنامه ناشناخته</string>
+  <string name="panic_app_setting_summary">هیچ برنامه تنظیم نشده است</string>
+  <string name="panic_app_setting_none">هیچکدام</string>
+  <string name="lock_setting_title">خروج</string>
+  <string name="lock_setting_summary">در صورت کلیک بر روی کلید هراس از برایر خارج شو</string>
+  <string name="purge_setting_title">حذف حساب کاربری</string>
+  <string name="uninstall_setting_title">پاک کردن برایر</string>
+  <!--Settings Notifications-->
+  <string name="notify_private_messages_setting_title">پیام های خصوصی</string>
+  <string name="notify_private_messages_setting_summary">نمایش هشدار برای پیام های خصوصی</string>
+  <string name="notify_group_messages_setting_title">پیام های گروه</string>
+  <string name="notify_group_messages_setting_summary">نمایش هشدار برای پیام های گروه</string>
+  <string name="notify_forum_posts_setting_title">پست های فروم</string>
+  <string name="notify_forum_posts_setting_summary">نمایش هشدار برای پست های فروم</string>
+  <string name="notify_blog_posts_setting_title">پست های بلاگ</string>
+  <string name="notify_blog_posts_setting_summary">نمایش هشدار برای پست های بلاگ</string>
+  <string name="notify_lock_screen_setting_title">قفل صفحه</string>
+  <string name="notify_lock_screen_setting_summary">نمایش نوتیفیکشن روی صفحه قفل</string>
+  <string name="notify_sound_setting">صدا</string>
+  <string name="notify_sound_setting_default">رینگتون پیش فرض</string>
+  <string name="notify_sound_setting_disabled">هیچکدام</string>
+  <string name="choose_ringtone_title">انتخاب رینگتون</string>
+  <string name="cannot_load_ringtone">ناتوانی در بارگذاری رینگتون</string>
+  <!--Settings Feedback-->
+  <string name="feedback_settings_title">بازخورد</string>
+  <string name="send_feedback">ارسال بازخورد</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">هشدار لینک</string>
+  <string name="link_warning_intro">با باز کردن لینک زیر شما یک برنامه بیرونی را باز خواهید کرد.</string>
+  <string name="link_warning_text">این می تواند برای شناسایی شما مورد استفاده قرار بگیرد. قبل از باز کردن آن به قابل اطمینان بودن شخصی که آن را برای شما ارسال کرده فکر کنید و بعد برای احتیاط آن را با ارفاکس باز کنید.</string>
+  <string name="link_warning_open_link">باز کردن لینک</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">گزارش خطای برایر</string>
+  <string name="briar_crashed">ببخشید، برایر از کار افتاده است.</string>
+  <string name="not_your_fault">این تقصیر شما نیست.</string>
+  <string name="please_send_report">لطفا با فرستادن گزارش خطا به ما کمک کنید تا برایر را بهتر کنیم.</string>
+  <string name="report_is_encrypted">به شما اطمینان می دهیم که گزارش شما رمزنگاری شده و به صورت امن فرستاده می شود.</string>
+  <string name="feedback_title">بازخورد</string>
+  <string name="describe_crash">توضیح دهید چه اتفاقی افتاد (اختیاری)</string>
+  <string name="enter_feedback">بازخورد خود را وارد کنید</string>
+  <string name="optional_contact_email">آدرس ایمیل شما (اختیاری)</string>
+  <string name="could_not_load_report_data">امکان بارگذاری داده های گزارش وجود ندارد.</string>
+  <string name="send_report">ارسال گزارش</string>
+  <string name="close">بستن</string>
+  <string name="dev_report_saved">گزارش ذخیره شد. دفعه بعدی که وارد برایر شدید فرستاده خواهد شد.</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">خروج از برایر...</string>
+  <!--Screen Filters & Tapjacking-->
+  <!--Permission Requests-->
+  <string name="permission_camera_title">دسترسی به دوربین</string>
+  <string name="permission_camera_request_body">برای اسکن کردن کد QR دسترسی به دوربین لازم است.</string>
+  <string name="permission_camera_denied_toast">اجازه دسترسی به دوربین پذیرفته نشد</string>
+  <string name="qr_code">کد QR</string>
+</resources>

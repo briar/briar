@@ -134,6 +134,7 @@
   <string name="introduction_onboarding_title">Aurkeztu zure kontaktuak</string>
   <string name="introduction_onboarding_text">Zure kontaktuak bata besteari aurkeztu ditzakezu, horrela ez dute aurrez aurre elkartzeko beharra Briar erabiltzeko.</string>
   <string name="introduction_activity_title">Hautatu kontaktua</string>
+  <string name="introduction_not_possible">Baduzu aurkezpen bat abian kontaktu hauekin. Baimendu hura bukatzea aurretik. Zure kontaktuak gutxitan konektatzen badira honek denbora bat behar lezake.</string>
   <string name="introduction_message_title">Aurkeztu kontaktuak</string>
   <string name="introduction_message_hint">Gehitu mezu bat (aukerazkoa)</string>
   <string name="introduction_button">Egin aurkezpena</string>
@@ -145,6 +146,7 @@
   <string name="introduction_request_exists_received">%1$s erabiltzaileak %2$s zuri aurkeztea eskatu dizu, baina %2$s badago zure kontaktuen zerrendan. Agian %1$s erabiltzaileak ez daki, erantzun dezakezu:</string>
   <string name="introduction_request_answered_received">%1$s erabiltzaileak %2$s zuri aurkeztea eskatu du.</string>
   <string name="introduction_response_accepted_sent">%1$s erabiltzailearen aurkezpena onartu duzu.</string>
+  <string name="introduction_response_accepted_sent_info">%1$s zure kontaktuetara gehitu aurretik, aurkezpena onartu behar dute ere. Honek denbora bat behar lezake.</string>
   <string name="introduction_response_declined_sent">%1$s erabiltzailearen aurkezpena ukatu duzu.</string>
   <string name="introduction_response_accepted_received">%1$s erabiltzaileak %2$s erabiltzailearen aurkezpena onartu du.</string>
   <string name="introduction_response_declined_received">%1$s erabiltzaileak %2$s erabiltzailearen aurkezpena ukatu du.</string>
@@ -154,6 +156,7 @@
     <item quantity="other">%d kontaktu berri gehituta.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">Ez dago talderik erakusteko\n\nSakatu + ikonoa talde bat sortzeko, edo eskatu zure kontaktuei taldeak zurekin partekatzea</string>
   <string name="groups_created_by">%s erabiltzaileak sortuta</string>
   <plurals name="messages">
     <item quantity="one">mezu %d</item>
@@ -206,6 +209,7 @@
   <string name="groups_reveal_visible_revealed_by_contact">Kontaktuen erlazioa taldean ikusgai dago (%s erabiltzaileak argitara emana)</string>
   <string name="groups_reveal_invisible">Kontaktuen erlazioa ez dago taldean ikusgai</string>
   <!--Forums-->
+  <string name="no_forums">Ez dago fororik erakusteko\n\nSakatu + ikonoa talde bat sortzeko, edo eskatu zure kontaktuei foroak zurekin partekatzea</string>
   <string name="create_forum_title">Sortu foroa</string>
   <string name="choose_forum_hint">Hautatu zure foroaren izena</string>
   <string name="create_forum_button">Sortu foroa</string>
@@ -222,17 +226,21 @@
   <string name="btn_reply">Erantzun</string>
   <string name="forum_leave">Utzi foroa</string>
   <string name="dialog_title_leave_forum">Berretsi foroa uztea</string>
+  <string name="dialog_message_leave_forum">Ziur foro hau utzi nahi duzula?\n\nForo hau beste norbaitekin partekatu baduzu agian ez dituzte eguneraketak jasoko.</string>
   <string name="dialog_button_leave">Utzi</string>
+  <string name="forum_left_toast">Foroa utzi du</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Partekatu foroa</string>
   <string name="contacts_selected">Kontaktuak hautatuta</string>
   <string name="activity_share_toolbar_header">Hautatu kontaktuak</string>
+  <string name="no_contacts_selector">Ez dago kontakturik erakusteko\n\nItzuli hona kontakturen bat gehitu eta gero</string>
   <string name="forum_shared_snackbar">Foroa partekatuta hautatutako kontaktuekin</string>
   <string name="forum_share_message">Gehitu mezua (aukerazkoa)</string>
   <string name="forum_share_error">Errore bat egon da foro hau partekatzean.</string>
   <string name="forum_invitation_received">%1$s erabiltzaileak \"%2$s\" foroa partekatu du zurekin.</string>
   <string name="forum_invitation_sent">\"%1$s\" foroa partekatu duzu %2$s erabiltzailearekin.</string>
   <string name="forum_invitations_title">Forora gonbidapenak</string>
+  <string name="forum_invitation_exists">Foro honetarako gonbidapen bat onartu duzu jada. Gonbidapen gehiago onartzeak foroarekin konexioa azkarrago eta egonkorragoa egingo du.</string>
   <string name="forum_joined_toast">Forora elkartuta</string>
   <string name="forum_declined_toast">Gonbidapena ukatuta</string>
   <string name="shared_by_format">%s erabiltzaileak partekatuta</string>
@@ -258,7 +266,9 @@
   <string name="blogs_blog_post_created">Blog sarrera sortuta</string>
   <string name="blogs_blog_post_received">Blog sarrera berria jasota</string>
   <string name="blogs_blog_post_scroll_to">Korritu hona</string>
+  <string name="blogs_feed_empty_state">Ez dago sarrerarik erakusteko\n\nZure kontaktuen eta harpidetutako sarrerak bidalketak hemen agertuko dira\n\nSakatu arkatzaren ikonoa sarrera bat idazteko</string>
   <string name="blogs_remove_blog">Kendu bloga</string>
+  <string name="blogs_remove_blog_dialog_message">Ziur blog hau kendu nahi duzula?\n\nSarrerak zure gailutik kenduko dira baina ez besteen gailuetatik.\n\nBlog hau beste inorekin partekatu baduzu agian eguneraketak jasotzeari utziko diote.</string>
   <string name="blogs_remove_blog_ok">Kendu</string>
   <string name="blogs_blog_removed">Blog-a kenduta</string>
   <string name="blogs_reblog_comment_hint">Gehitu iruzkina (aukerazkoa)</string>
@@ -288,6 +298,7 @@
   <string name="blogs_rss_feeds_manage_author">Egilea:</string>
   <string name="blogs_rss_feeds_manage_updated">Azken eguneraketa:</string>
   <string name="blogs_rss_remove_feed">Kendu jarioa:</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Ziur jario hau kendu nahi duzula?\n\nSarrerak zure gailutik kenduko dira baina ez besteen gailuetatik.\n\nJario hau beste inorekin partekatu baduzu agian eguneraketak jasotzeari utziko diote.</string>
   <string name="blogs_rss_remove_feed_ok">Kendu</string>
   <string name="blogs_rss_feeds_manage_delete_error">Ezin izan da jarioa ezabatu!</string>
   <string name="blogs_rss_feeds_manage_empty_state">RSS jariorik ez erakusteko\n\nSakatu + ikonoa jario bat inportatzeko</string>
@@ -382,7 +393,4 @@
   <string name="permission_camera_denied_toast">Eza kameraren baimenik eman</string>
   <string name="qr_code">QR kodea</string>
   <string name="show_qr_code_fullscreen">Erakutsi QR kodea pantaila osoan</string>
-  <!--Low Memory Notification-->
-  <string name="low_memory_shutdown_notification_title">Briar saioa amaituta</string>
-  <string name="low_memory_shutdown_notification_text">Saioa amaituta memoria faltagatik</string>
 </resources>

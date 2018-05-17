@@ -137,7 +137,7 @@
   <string name="introduction_message_title">Apresentar contatos</string>
   <string name="introduction_message_hint">Adicione uma mensagem (opcional)</string>
   <string name="introduction_button">Fazer apresentação</string>
-  <string name="introduction_sent">Sua Introdução foi enviada.</string>
+  <string name="introduction_sent">Sua apresentação foi enviada.</string>
   <string name="introduction_error">Houve um erro ao fazer a apresentação</string>
   <string name="introduction_response_error">Erro ao responder à apresentação</string>
   <string name="introduction_request_sent">Você recebeu um pedido para apresentar %1$s a %2$s.</string>
@@ -391,7 +391,4 @@
   <string name="permission_camera_denied_toast">A permissão da câmera não foi concedida</string>
   <string name="qr_code">Código QR</string>
   <string name="show_qr_code_fullscreen">Mostrar o código QR na tela cheia</string>
-  <!--Low Memory Notification-->
-  <string name="low_memory_shutdown_notification_title">Saiu do Briar</string>
-  <string name="low_memory_shutdown_notification_text">Saiu do Briar devido a falta de memória</string>
 </resources>

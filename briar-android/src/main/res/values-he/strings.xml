@@ -41,18 +41,26 @@
   <string name="ongoing_notification_text">לחצו על מנת לפתוח את בריאר</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">הודעה פרטית חדשה.</item>
+    <item quantity="two">%d הודעות פריטות חדשות.</item>
+    <item quantity="many"></item>
     <item quantity="other">%d הודעות פריטות חדשות.</item>
   </plurals>
   <plurals name="group_message_notification_text">
     <item quantity="one">הודעה קבוצתית חדשה.</item>
+    <item quantity="two">%d הודעות קבוצתיות חדשות.</item>
+    <item quantity="many"></item>
     <item quantity="other">%d הודעות קבוצתיות חדשות.</item>
   </plurals>
   <plurals name="forum_post_notification_text">
     <item quantity="one">פוסט חדש בפורומים.</item>
+    <item quantity="two">%d פוסטים חדשים בפורומים.</item>
+    <item quantity="many"></item>
     <item quantity="other">%d פוסטים חדשים בפורומים.</item>
   </plurals>
   <plurals name="blog_post_notification_text">
     <item quantity="one">פוסט חדש בבלוגים.</item>
+    <item quantity="two">%d פוסטים חדשים בבלוגים.</item>
+    <item quantity="many"></item>
     <item quantity="other">%d פוסטים חדשים בבלוגים.</item>
   </plurals>
   <!--Misc-->
@@ -121,12 +129,16 @@
   <string name="introduction_response_declined_received_by_introducee">%1$s אומרים ש- %2$s סירבו להיות מוצגים בפניהם.</string>
   <plurals name="introduction_notification_text">
     <item quantity="one">נוסף איש קשר חדש.</item>
+    <item quantity="two">נוספו %d אנשי קשר חדשים.</item>
+    <item quantity="many"></item>
     <item quantity="other">נוספו %d אנשי קשר חדשים.</item>
   </plurals>
   <!--Private Groups-->
   <string name="groups_created_by">נוצר על ידי %s</string>
   <plurals name="messages">
     <item quantity="one">הודעה %d</item>
+    <item quantity="two">%d הודעות</item>
+    <item quantity="many"></item>
     <item quantity="other">%d הודעות</item>
   </plurals>
   <string name="groups_group_is_empty">קבוצה זו הינה ריקה</string>
@@ -165,6 +177,8 @@
   <string name="groups_invitations_declined">הזמנה קבוצתית נדחתה</string>
   <plurals name="groups_invitations_open">
     <item quantity="one">הזמנה קבוצתית פתוחה %d</item>
+    <item quantity="two">%dהזמנות קבוצתית פתוחות </item>
+    <item quantity="many"></item>
     <item quantity="other">%dהזמנות קבוצתית פתוחות </item>
   </plurals>
   <string name="groups_invitations_response_accepted_sent">הסכמתם להזמנה הקבוצתית מ- %s.</string>
@@ -189,6 +203,8 @@
   <string name="no_posts">אין פוסטים</string>
   <plurals name="posts">
     <item quantity="one">פוסט %d</item>
+    <item quantity="two">%d פוסטים</item>
+    <item quantity="many"></item>
     <item quantity="other">%d פוסטים</item>
   </plurals>
   <string name="forum_new_entry_posted">הפוסט נוצר</string>
@@ -235,5 +251,4 @@
   <!--Sign Out-->
   <!--Screen Filters & Tapjacking-->
   <!--Permission Requests-->
-  <!--Low Memory Notification-->
 </resources>

@@ -36,6 +36,7 @@
   <plurals name="expiry_warning">
     <item quantity="one">Toto je testovací verze Briar. Váš účet a jeho platnost vyprší po %d dnech a není možné ho obnovit.</item>
     <item quantity="few">Toto je testovací verze Briar. Váš účet a jeho platnost vyprší po %d dnech a není možné ho obnovit.</item>
+    <item quantity="many">Toto je testovací verze Briar. Váš účet a jeho platnost vyprší po %d dnech a není možné ho obnovit.</item>
     <item quantity="other">Toto je testovací verze Briar. Váš účet a jeho platnost vyprší po %d dnech a není možné ho obnovit.</item>
   </plurals>
   <string name="expiry_update">Datum expirace pro testování bylo prodlouženo. Váš účet nyní bude expirovat po %d dnech.</string>
@@ -59,21 +60,25 @@
   <plurals name="private_message_notification_text">
     <item quantity="one">Nová soukromá zpráva</item>
     <item quantity="few">%d nových soukromých zpráv.</item>
+    <item quantity="many">%d nových soukromých zpráv.</item>
     <item quantity="other">%d nových soukromých zpráv.</item>
   </plurals>
   <plurals name="group_message_notification_text">
     <item quantity="one">Nová zpráva ve skupině.</item>
     <item quantity="few">%d nových zpráv ve skupině. </item>
+    <item quantity="many">%d nových zpráv ve skupině.</item>
     <item quantity="other">%d nových zpráv ve skupině.</item>
   </plurals>
   <plurals name="forum_post_notification_text">
     <item quantity="one">Nový příspěvek ve fóru.</item>
     <item quantity="few">%dnových příspěvků ve fóru. </item>
+    <item quantity="many">%d nových příspěvků ve fóru.</item>
     <item quantity="other">%d nových příspěvků ve fóru.</item>
   </plurals>
   <plurals name="blog_post_notification_text">
     <item quantity="one">Nový příspěvek v blogu.</item>
     <item quantity="few">%dnových příspěvků v blogu. </item>
+    <item quantity="many">%d nových příspěvků v blogu.</item>
     <item quantity="other">%d nových příspěvků v blogu.</item>
   </plurals>
   <!--Misc-->
@@ -144,6 +149,7 @@
   <plurals name="introduction_notification_text">
     <item quantity="one">Nový kontakt byl přidán.</item>
     <item quantity="few">Bylo přidáno %d nových kontaktů.</item>
+    <item quantity="many">%d nových kontaktů bylo přidáno.</item>
     <item quantity="other">%d nových kontaktů bylo přidáno.</item>
   </plurals>
   <!--Private Groups-->
@@ -151,6 +157,7 @@
   <plurals name="messages">
     <item quantity="one">%d zpráva</item>
     <item quantity="few">%d zpráv</item>
+    <item quantity="many">%d zpráv</item>
     <item quantity="other">%d zpráv</item>
   </plurals>
   <string name="groups_group_is_empty">Tato skupina je prázdná</string>
@@ -186,6 +193,7 @@
   <plurals name="groups_invitations_open">
     <item quantity="one">%d otevřená skupinová pozvánka</item>
     <item quantity="few">%d otevřených skupinových pozvánek</item>
+    <item quantity="many">%d otevřených skupinových pozvánek</item>
     <item quantity="other">%d otevřených skupinových pozvánek</item>
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Přijali jste pozvání do skupiny od %s.</string>
@@ -209,6 +217,7 @@
   <plurals name="posts">
     <item quantity="one">%d příspěvek</item>
     <item quantity="few">%d příspěvků</item>
+    <item quantity="many">%d příspěvků</item>
     <item quantity="other">%d příspěvků</item>
   </plurals>
   <string name="forum_new_entry_posted">Záznam byl na fóru zveřejněn</string>
@@ -240,6 +249,7 @@
   <plurals name="forums_shared">
     <item quantity="one">%d fórum sdíleno kontakty</item>
     <item quantity="few">%d fór sdíleno kontakty </item>
+    <item quantity="many">%d fór sdíleno kontakty</item>
     <item quantity="other">%d fór sdíleno kontakty</item>
   </plurals>
   <string name="nobody">Nikdo</string>
@@ -362,5 +372,4 @@
   <string name="permission_camera_request_body">Pro scan QR kódu, Briar vyžaduje přístup k fotoaparátu.</string>
   <string name="permission_camera_denied_body">Odmítli jste udělit oprávnění přístupu k fotoaparátu, avšak pro přidání kontaktů je nutné použití fotoaparátu.\n\nZvažte prosím, opětovné udělení přístupu.</string>
   <string name="permission_camera_denied_toast">Oprávnění pro přístup k fotoaparátu nebylo uděleno</string>
-  <!--Low Memory Notification-->
 </resources>

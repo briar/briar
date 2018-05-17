@@ -393,7 +393,4 @@
   <string name="permission_camera_denied_toast">S\’u dhanë leje mbi kamerën</string>
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Shfaqe kodin QR sa tërë ekrani</string>
-  <!--Low Memory Notification-->
-  <string name="low_memory_shutdown_notification_title">U dol nga Briar-i</string>
-  <string name="low_memory_shutdown_notification_text">U dol për shkak mungese kujtese.</string>
 </resources>

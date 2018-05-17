@@ -5,7 +5,7 @@
   <string name="setup_name_explanation">Je bijnaam wordt getoond bij alle content die je post. Nadat je account is aangemaakt is het niet mogelijk je bijnaam te wijzigen.</string>
   <string name="setup_next">Volgende</string>
   <string name="setup_password_intro">Voer een wachtwoord in</string>
-  <string name="setup_password_explanation">Je Briar-account is versleuteld opgeslagen op je apparaat, niet in de cloud. Als je je wachtwoord vergeet of Briar deïnstalleert is er geen manier om je account te herstellen.\n\nKies een lang wachtwoord dat moeilijk is om te raden , bijvoorbeeld vier willekeurige woorden of tien willekeurige letters, cijfers en symbolen.</string>
+  <string name="setup_password_explanation">Je Briar-account is versleuteld opgeslagen op je apparaat, niet in de cloud. Als je je wachtzin vergeet of Briar deïnstalleert is er geen manier om je account te herstellen.\n\nKies een lange wachtzin dat moeilijk is om te raden, bijvoorbeeld vier willekeurige woorden of tien willekeurige letters, cijfers en symbolen.</string>
   <string name="setup_doze_title">Achtergrondverbindingen</string>
   <string name="setup_doze_intro">Om berichten te ontvangen dient Briar in de achtergrond verbonden te blijven.</string>
   <string name="setup_doze_explanation">Briar moet in de achtergrond verbonden blijven om berichten te ontvangen. Schakel batterij-optimalisaties a.u.b. uit zodat Briar verbonden kan blijven.</string>
@@ -43,6 +43,9 @@
   </plurals>
   <string name="expiry_update">De verloopdatum voor de test is vooruitgeschoven. Je account verloopt nu binnen %d dagen.</string>
   <string name="expiry_date_reached">Deze software is verlopen.\nBedankt vor het testen!</string>
+  <string name="download_briar">Om Briar te blijven gebruiken, download a.u.b. versie 1.0.</string>
+  <string name="create_new_account">Je moet een nieuw account aanmaken. Je kan dezelfde bijnaam gebruiken.</string>
+  <string name="download_briar_button">Download Briar 1.0</string>
   <string name="startup_open_database">Database aan het ontsleutelen…</string>
   <string name="startup_migrate_database">Database aan het upgraden…</string>
   <!--Navigation Drawer-->
@@ -125,12 +128,13 @@
   <string name="camera_error">Camerafout</string>
   <string name="connecting_to_device">Aan het verbinden met apparaat\u2026</string>
   <string name="authenticating_with_device">Aan het authentificeren met apparaat\u2026</string>
-  <string name="connection_aborted_local">Verbinding is verbroken! Dit kan betekenen dat iemand probeert te met je verbinding probeert te bemoeien</string>
+  <string name="connection_aborted_local">Verbinding is verbroken! Dit kan betekenen dat iemand probeert zich met je verbinding probeert te bemoeien.</string>
   <string name="connection_aborted_remote">Verbinding is door je contact verbroken! Dit kan betekenen dat iemand met je verbinding probeert te bemoeien</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introduceer je contacten</string>
   <string name="introduction_onboarding_text">Je kan je contacten aan elkaar introduceren zodat ze niet in levenden lijve elkaar te hoeven ontmoeten om op Briar in contact te komen.</string>
   <string name="introduction_activity_title">Selecteer contact</string>
+  <string name="introduction_not_possible">Je bent al met een introductie bezig met deze contacten. Laat dit a.u.b. eerst voltooien. Als jij of je contact weinig online zijn, kan dit even duren.</string>
   <string name="introduction_message_title">Intoduceer contacten</string>
   <string name="introduction_message_hint">Voeg een bericht toe (optioneel)</string>
   <string name="introduction_button">Introduceer</string>
@@ -142,6 +146,7 @@
   <string name="introduction_request_exists_received">%1$s heeft gevraagd om je te introduceren aan %2$s, maar %2$s staat al in je contactenlijst. Omdat %1$s dit niet mag weten kun je nog steeds antwoorden:</string>
   <string name="introduction_request_answered_received">%1$s heeft gevraagd om je te introduceren aan %2$s.</string>
   <string name="introduction_response_accepted_sent">Je hebt de introductie aan %1$s geaccepteerd.</string>
+  <string name="introduction_response_accepted_sent_info">Voordat %1$s toegevoegd wordt aan je contacten, moeten ze de introductie accepteren. Dit kan even duren.</string>
   <string name="introduction_response_declined_sent">Je hebt de introductie aan %1$s afgewezen.</string>
   <string name="introduction_response_accepted_received">%1$s heeft de introductie aan %2$sgeaccepteerd.</string>
   <string name="introduction_response_declined_received">%1$s heeft de introductie aan %2$s afgewezen.</string>
@@ -352,8 +357,8 @@
   <string name="choose_ringtone_title">Kies ringtoon</string>
   <string name="cannot_load_ringtone">Kan ringtoon niet laden</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Terugkoppeling</string>
-  <string name="send_feedback">Verstuur terugkoppeling</string>
+  <string name="feedback_settings_title">Feedback</string>
+  <string name="send_feedback">Verstuur feedback</string>
   <!--Link Warning-->
   <string name="link_warning_title">Linkwaarschuwing</string>
   <string name="link_warning_intro">Je staat op het punt om de volgende link te open met een externe app.</string>
@@ -365,9 +370,9 @@
   <string name="not_your_fault">Dit is niet je schuld</string>
   <string name="please_send_report">Help ons a.u.b. om Briar te verbeteren door crashrapporten naar ons te sturen.</string>
   <string name="report_is_encrypted">We beloven dat het rapport is versleuteld en veilig wordt verzonden.</string>
-  <string name="feedback_title">Terugkoppeling</string>
+  <string name="feedback_title">Feedback</string>
   <string name="describe_crash">Beschrijf wat er is gebeurd (optioneel)</string>
-  <string name="enter_feedback">Voer je terugkoppeling in</string>
+  <string name="enter_feedback">Voer je feedback in</string>
   <string name="optional_contact_email">Je e-mailadres (optioneel)</string>
   <string name="include_debug_report_crash">Voeg geanonimiseerde gegevens toe over de crash.</string>
   <string name="include_debug_report_feedback">Voeg geanonimiseerde gegevens over dit apparaat toe.</string>
@@ -388,7 +393,4 @@
   <string name="permission_camera_denied_toast">Cameratoegang niet vrijgegeven</string>
   <string name="qr_code">QR-code</string>
   <string name="show_qr_code_fullscreen">Toon QR-code op volledig scherm</string>
-  <!--Low Memory Notification-->
-  <string name="low_memory_shutdown_notification_title">Uitgelogd van Briar</string>
-  <string name="low_memory_shutdown_notification_text">Uitgelogd door gebrek aan geheugen.</string>
 </resources>

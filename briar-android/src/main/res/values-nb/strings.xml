@@ -352,5 +352,4 @@
   <string name="permission_camera_request_body">For å skanne QR-koden, trenger Briar tilgang til kameraet.</string>
   <string name="permission_camera_denied_body">Du har nektet tilgang til kameraet, men tillegg av kontakter krever bruk av kameraet.\n\nOvervei å innvilge tilgang.</string>
   <string name="permission_camera_denied_toast">Kameratilgang ble ikke innvilget</string>
-  <!--Low Memory Notification-->
 </resources>

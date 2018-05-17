@@ -413,7 +413,4 @@
   <string name="permission_camera_denied_toast">Доступ к камере не был предоставлен</string>
   <string name="qr_code">QR-код</string>
   <string name="show_qr_code_fullscreen">Показать QR-код во весь экран</string>
-  <!--Low Memory Notification-->
-  <string name="low_memory_shutdown_notification_title">Выход из Briar</string>
-  <string name="low_memory_shutdown_notification_text">Выход из-за недостатка памяти.</string>
 </resources>

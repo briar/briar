@@ -114,6 +114,7 @@
   <string name="contact_deleted_toast">Contact șters</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Adaugă un contact</string>
+  <string name="face_to_face">Trebuie să vă întâlniți cu persoana pe care doriți să o adăugați la contacte.\n\nAcest pas împiedică alte persoane să vă fure identitatea sau să vă citească mesajele în viitor.</string>
   <string name="continue_button">Continuă</string>
   <string name="connection_failed">Conexiune eșuată</string>
   <string name="try_again_button">Încearcă din nou</string>
@@ -383,7 +384,4 @@
   <string name="permission_camera_denied_toast">Permisiunea de acces la camera foto nu a fost acordată</string>
   <string name="qr_code">Cod QR</string>
   <string name="show_qr_code_fullscreen">Arată codul QR pe tot ecranul</string>
-  <!--Low Memory Notification-->
-  <string name="low_memory_shutdown_notification_title">Ieșire din Briar</string>
-  <string name="low_memory_shutdown_notification_text">Ați ieșit din Briar din cauza lipsei memoriei</string>
 </resources>

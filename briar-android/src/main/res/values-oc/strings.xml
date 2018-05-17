@@ -344,6 +344,4 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="permission_camera_request_body">Per numerizar lo còdi QR cal que Briar aja l’accès a la camèra.</string>
   <string name="permission_camera_denied_toast">La permission a la camèra es pas estada donada</string>
   <string name="qr_code">Còdi QR</string>
-  <!--Low Memory Notification-->
-  <string name="low_memory_shutdown_notification_title">Desconnectat de Briar</string>
 </resources>

@@ -393,7 +393,4 @@
   <string name="permission_camera_denied_toast">Autorizzazione fotocamera non concessa</string>
   <string name="qr_code">Codice QR</string>
   <string name="show_qr_code_fullscreen">Mostra codice QR a tutto schermo</string>
-  <!--Low Memory Notification-->
-  <string name="low_memory_shutdown_notification_title">Uscito da Briar</string>
-  <string name="low_memory_shutdown_notification_text">Uscito per mancanza di memoria</string>
 </resources>

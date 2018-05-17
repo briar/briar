@@ -375,7 +375,4 @@
   <string name="permission_camera_denied_body">Du hast den Zugriff auf die Kamera verweigert, aber das Hinzufügen von Kontakten erfordert die Verwendung der Kamera.\n\nBitte gewähre den Zugriff.</string>
   <string name="permission_camera_denied_toast">Berechtigung für Kamera wurde nicht gewährt</string>
   <string name="qr_code">QR-Code</string>
-  <!--Low Memory Notification-->
-  <string name="low_memory_shutdown_notification_title">Von Briar abgemeldet</string>
-  <string name="low_memory_shutdown_notification_text">Mangels Speicherplatz abgemeldet.</string>
 </resources>
