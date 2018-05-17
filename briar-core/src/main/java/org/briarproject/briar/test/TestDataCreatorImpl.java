@@ -113,6 +113,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		this.ioExecutor = ioExecutor;
 	}
 
+	@Override
 	public void createTestData(int numContacts, int numPrivateMsgs,
 			int numBlogPosts, int numForums, int numForumPosts) {
 		if (numContacts == 0)
@@ -216,8 +217,12 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 		// LAN
 		TransportProperties lan = new TransportProperties();
-		String lanAddress = getRandomLanAddress();
-		lan.put(LanTcpConstants.PROP_IP_PORTS, lanAddress);
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < 4; i++) {
+			if (sb.length() > 0) sb.append(',');
+			sb.append(getRandomLanAddress());
+		}
+		lan.put(LanTcpConstants.PROP_IP_PORTS, sb.toString());
 		props.put(LanTcpConstants.ID, lan);
 
 		// Tor
@@ -250,8 +255,14 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private String getRandomLanAddress() {
 		StringBuilder sb = new StringBuilder();
 		// address
-		for (int i = 0; i < 4; i++) {
-			if (sb.length() > 0) sb.append(".");
+		if (random.nextInt(5) == 0) {
+			sb.append("10.");
+			sb.append(random.nextInt(2)).append('.');
+			sb.append(random.nextInt(2)).append('.');
+			sb.append(random.nextInt(256));
+		} else {
+			sb.append("192.168.");
+			sb.append(random.nextInt(2)).append('.');
 			sb.append(random.nextInt(256));
 		}
 		// port
@@ -264,7 +275,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		StringBuilder sb = new StringBuilder();
 		// address
 		for (int i = 0; i < 16; i++) {
-			if (random.nextBoolean()) sb.append(2 + random.nextInt(5));
+			if (random.nextBoolean()) sb.append(2 + random.nextInt(6));
 			else sb.append((char) (random.nextInt(26) + 'a'));
 		}
 		return sb.toString();
