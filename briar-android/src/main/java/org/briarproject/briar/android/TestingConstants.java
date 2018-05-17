@@ -2,11 +2,6 @@ package org.briarproject.briar.android;
 
 import org.briarproject.briar.BuildConfig;
 
-import java.util.logging.Level;
-
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.OFF;
-
 public interface TestingConstants {
 
 	/**
@@ -19,12 +14,6 @@ public interface TestingConstants {
 	 * release builds.
 	 */
 	boolean IS_BETA_BUILD = false;
-
-	/**
-	 * Default log level. Disable logging for final release builds.
-	 */
-	@SuppressWarnings("ConstantConditions")
-	Level DEFAULT_LOG_LEVEL = IS_DEBUG_BUILD || IS_BETA_BUILD ? INFO : OFF;
 
 	/**
 	 * Whether to prevent screenshots from being taken. Setting this to true

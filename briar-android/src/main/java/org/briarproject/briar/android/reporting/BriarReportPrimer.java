@@ -18,6 +18,8 @@ import org.acra.builder.ReportBuilder;
 import org.acra.builder.ReportPrimer;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.BuildConfig;
+import org.briarproject.briar.android.BriarApplication;
+import org.briarproject.briar.android.logging.BriefLogFormatter;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +30,8 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
 
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
@@ -68,6 +72,16 @@ public class BriarReportPrimer implements ReportPrimer {
 		@Override
 		public Map<String, String> call() {
 			Map<String, String> customData = new LinkedHashMap<>();
+
+			// Log
+			BriarApplication app =
+					(BriarApplication) ctx.getApplicationContext();
+			StringBuilder sb = new StringBuilder();
+			Formatter formatter = new BriefLogFormatter();
+			for (LogRecord record : app.getRecentLogRecords()) {
+				sb.append(formatter.format(record)).append('\n');
+			}
+			customData.put("Log", sb.toString());
 
 			// System memory
 			Object o = ctx.getSystemService(ACTIVITY_SERVICE);
@@ -223,9 +237,10 @@ public class BriarReportPrimer implements ReportPrimer {
 				customData.put("Bluetooth LE status", btLeStatus);
 			}
 
-			if (bt != null)
+			if (bt != null) {
 				customData.put("Bluetooth address",
 						scrubMacAddress(bt.getAddress()));
+			}
 			String btSettingsAddr;
 			try {
 				btSettingsAddr = Settings.Secure.getString(
