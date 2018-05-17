@@ -37,15 +37,16 @@ class BdfReaderImpl implements BdfReader {
 	private static final byte[] EMPTY_BUFFER = new byte[0];
 
 	private final InputStream in;
-	private final int nestedLimit;
+	private final int nestedLimit, maxBufferSize;
 
 	private boolean hasLookahead = false, eof = false;
 	private byte next;
 	private byte[] buf = new byte[8];
 
-	BdfReaderImpl(InputStream in, int nestedLimit) {
+	BdfReaderImpl(InputStream in, int nestedLimit, int maxBufferSize) {
 		this.in = in;
 		this.nestedLimit = nestedLimit;
+		this.maxBufferSize = maxBufferSize;
 	}
 
 	private void readLookahead() throws IOException {
@@ -91,8 +92,8 @@ class BdfReaderImpl implements BdfReader {
 		if (hasBoolean()) return readBoolean();
 		if (hasLong()) return readLong();
 		if (hasDouble()) return readDouble();
-		if (hasString()) return readString(Integer.MAX_VALUE);
-		if (hasRaw()) return readRaw(Integer.MAX_VALUE);
+		if (hasString()) return readString();
+		if (hasRaw()) return readRaw();
 		if (hasList()) return readList(level);
 		if (hasDictionary()) return readDictionary(level);
 		throw new FormatException();
@@ -245,11 +246,11 @@ class BdfReaderImpl implements BdfReader {
 	}
 
 	@Override
-	public String readString(int maxLength) throws IOException {
+	public String readString() throws IOException {
 		if (!hasString()) throw new FormatException();
 		hasLookahead = false;
 		int length = readStringLength();
-		if (length < 0 || length > maxLength) throw new FormatException();
+		if (length < 0 || length > maxBufferSize) throw new FormatException();
 		if (length == 0) return "";
 		readIntoBuffer(length);
 		return new String(buf, 0, length, "UTF-8");
@@ -279,11 +280,11 @@ class BdfReaderImpl implements BdfReader {
 	}
 
 	@Override
-	public byte[] readRaw(int maxLength) throws IOException {
+	public byte[] readRaw() throws IOException {
 		if (!hasRaw()) throw new FormatException();
 		hasLookahead = false;
 		int length = readRawLength();
-		if (length < 0 || length > maxLength) throw new FormatException();
+		if (length < 0 || length > maxBufferSize) throw new FormatException();
 		if (length == 0) return EMPTY_BUFFER;
 		byte[] b = new byte[length];
 		readIntoBuffer(b, length);
@@ -381,7 +382,7 @@ class BdfReaderImpl implements BdfReader {
 		BdfDictionary dictionary = new BdfDictionary();
 		readDictionaryStart();
 		while (!hasDictionaryEnd())
-			dictionary.put(readString(Integer.MAX_VALUE), readObject(level + 1));
+			dictionary.put(readString(), readObject(level + 1));
 		readDictionaryEnd();
 		return dictionary;
 	}

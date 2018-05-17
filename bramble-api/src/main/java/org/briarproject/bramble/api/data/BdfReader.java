@@ -8,6 +8,7 @@ import java.io.IOException;
 public interface BdfReader {
 
 	int DEFAULT_NESTED_LIMIT = 5;
+	int DEFAULT_MAX_BUFFER_SIZE = 64 * 1024;
 
 	boolean eof() throws IOException;
 
@@ -39,13 +40,13 @@ public interface BdfReader {
 
 	boolean hasString() throws IOException;
 
-	String readString(int maxLength) throws IOException;
+	String readString() throws IOException;
 
 	void skipString() throws IOException;
 
 	boolean hasRaw() throws IOException;
 
-	byte[] readRaw(int maxLength) throws IOException;
+	byte[] readRaw() throws IOException;
 
 	void skipRaw() throws IOException;
 
