@@ -116,22 +116,27 @@ public class ConfigControllerImpl implements ConfigController {
 		LOG.info("Storing database key in file");
 		File dbKey = getDbKeyFile();
 		File dbKeyBackup = getDbKeyBackupFile();
+		// Create the directory if necessary
+		if (databaseConfig.getDatabaseKeyDirectory().mkdirs())
+			LOG.info("Created database key directory");
+		// If only the backup file exists, rename it so we don't overwrite it
+		if (dbKeyBackup.exists() && !dbKey.exists()) {
+			if (dbKeyBackup.renameTo(dbKey)) LOG.info("Renamed old backup");
+			else LOG.warning("Failed to rename old backup");
+		}
 		try {
-			// Create the directory if necessary
-			if (databaseConfig.getDatabaseKeyDirectory().mkdirs())
-				LOG.info("Created database key directory");
 			// Write to the backup file
 			FileOutputStream out = new FileOutputStream(dbKeyBackup);
 			out.write(hex.getBytes("UTF-8"));
 			out.flush();
 			out.close();
 			LOG.info("Stored database key in backup file");
-			// Delete the old key file, if it exists
+			// Delete the old primary file, if it exists
 			if (dbKey.exists()) {
 				if (dbKey.delete()) LOG.info("Deleted primary file");
 				else LOG.warning("Failed to delete primary file");
 			}
-			// The backup file becomes the new key file
+			// The backup file becomes the new primary
 			boolean renamed = dbKeyBackup.renameTo(dbKey);
 			if (renamed) LOG.info("Renamed backup file to primary");
 			else LOG.warning("Failed to rename backup file to primary");
