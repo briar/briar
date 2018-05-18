@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
-import org.briarproject.bramble.test.TestUtils;
 import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.After;
@@ -19,10 +18,17 @@ import java.io.File;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
+import static org.briarproject.briar.android.TestDatabaseKeyUtils.loadDatabaseKey;
 
 public class SetupControllerImplTest extends BrambleMockTestCase {
 
@@ -33,18 +39,18 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
 	private final PasswordStrengthEstimator estimator =
 			context.mock(PasswordStrengthEstimator.class);
-	private final SharedPreferences.Editor editor =
-			context.mock(SharedPreferences.Editor.class);
 	private final SetupActivity setupActivity;
 
 	private final Executor cryptoExecutor = new ImmediateExecutor();
 
 	private final String authorName = getRandomString(MAX_AUTHOR_NAME_LENGTH);
 	private final String password = "some.strong.pass";
-	private final String encryptedHex = "010203";
-	private final byte[] encryptedBytes = new byte[] {1, 2, 3};
+	private final byte[] encryptedKey = getRandomBytes(123);
 	private final SecretKey key = getSecretKey();
-	private final File testDir = TestUtils.getTestDirectory();
+	private final File testDir = getTestDirectory();
+	private final File keyDir = new File(testDir, "key");
+	private final File keyFile = new File(keyDir, "db.key");
+	private final File keyBackupFile = new File(keyDir, "db.key.bak");
 
 	public SetupControllerImplTest() {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
@@ -53,7 +59,7 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 
 	@Test
 	@SuppressWarnings("ResultOfMethodCallIgnored")
-	public void testCreateAccount() {
+	public void testCreateAccount() throws Exception {
 		context.checking(new Expectations() {{
 			// Allow the contents of the data directory to be logged
 			allowing(setupActivity).getApplicationInfo();
@@ -76,14 +82,14 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 			oneOf(databaseConfig).setEncryptionKey(key);
 			// Encrypt the key with the password
 			oneOf(crypto).encryptWithPassword(key.getBytes(), password);
-			will(returnValue(encryptedBytes));
+			will(returnValue(encryptedKey));
 			// Store the encrypted key
-			oneOf(briarPrefs).edit();
-			will(returnValue(editor));
-			oneOf(editor).putString("key", encryptedHex);
-			will(returnValue(editor));
-			oneOf(editor).commit();
+			allowing(databaseConfig).getDatabaseKeyDirectory();
+			will(returnValue(keyDir));
 		}});
+
+		assertFalse(keyFile.exists());
+		assertFalse(keyBackupFile.exists());
 
 		SetupControllerImpl s = new SetupControllerImpl(briarPrefs,
 				databaseConfig, cryptoExecutor, crypto, estimator);
@@ -94,10 +100,14 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 		s.setPassword(password);
 		s.createAccount(result -> called.set(true));
 		assertTrue(called.get());
+
+		assertTrue(keyFile.exists());
+		assertFalse(keyBackupFile.exists());
+		assertEquals(toHexString(encryptedKey), loadDatabaseKey(keyFile));
 	}
 
 	@After
 	public void tearDown() {
-		TestUtils.deleteTestDirectory(testDir);
+		deleteTestDirectory(testDir);
 	}
 }
