@@ -44,6 +44,7 @@ import java.util.concurrent.TimeoutException;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportProperties;
 import static org.briarproject.bramble.test.TestUtils.getTransportPropertiesMap;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
@@ -918,6 +919,51 @@ public class IntroductionIntegrationTest
 				.getMessageMetadataAsDictionary(group0.getId()).size());
 	}
 
+	@Test
+	public void testIntroductionAfterReAddingContacts() throws Exception {
+		// make introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// 0 and 1 remove and re-add each other
+		contactManager0.removeContact(contactId1From0);
+		contactManager1.removeContact(contactId0From1);
+		contactId1From0 = contactManager0
+				.addContact(author1, author0.getId(), getSecretKey(),
+						clock.currentTimeMillis(), true, true, true);
+		contact1From0 = contactManager0.getContact(contactId1From0);
+		contactId0From1 = contactManager1
+				.addContact(author0, author1.getId(), getSecretKey(),
+						clock.currentTimeMillis(), true, true, true);
+		contact0From1 = contactManager1.getContact(contactId0From1);
+
+		// Sync initial client versioning updates and transport properties
+		sync0To1(1, true);
+		sync1To0(1, true);
+		sync0To1(2, true);
+		sync1To0(1, true);
+
+		// a new introduction should be possible
+		assertTrue(introductionManager0
+				.canIntroduce(contact1From0, contact2From0));
+
+		// listen to events, so we don't miss new request
+		addListeners(true, true);
+
+		// make new introduction
+		time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// introduction should sync and not be INVALID or PENDING
+		sync0To1(1, true);
+
+		// assert that new request was received
+		eventWaiter.await(TIMEOUT, 1);
+		assertTrue(listener1.requestReceived);
+	}
+
 	private void testModifiedResponse(StateVisitor visitor)
 			throws Exception {
 		addListeners(true, true);
@@ -1099,6 +1145,7 @@ public class IntroductionIntegrationTest
 		protected volatile boolean aborted = false;
 		protected volatile Event latestEvent;
 
+		@SuppressWarnings("WeakerAccess")
 		IntroductionResponse getResponse() {
 			assertTrue(
 					latestEvent instanceof IntroductionResponseReceivedEvent);

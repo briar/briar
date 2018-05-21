@@ -79,7 +79,7 @@ class IntroducerSession extends Session<IntroducerState> {
 					i.lastLocalMessageId, remoteMessageId);
 		}
 
-		private Introducee(SessionId sessionId, GroupId groupId,
+		Introducee(SessionId sessionId, GroupId groupId,
 				Author author) {
 			this(sessionId, groupId, author, -1, null, null);
 		}
