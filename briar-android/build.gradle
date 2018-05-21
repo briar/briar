@@ -246,7 +246,7 @@ android {
 		buildConfigField "String", "GitHash",
 				"\"${getStdout(['git', 'rev-parse', '--short=7', 'HEAD'], 'No commit hash')}\""
 		buildConfigField "Long", "BuildTimestamp",
-				"${getStdout(['git', 'log', '-n', '1', '--date=unix', '--format=%cd'], 0)}000L"
+				"${getStdout(['git', 'log', '-n', '1', '--format=%ct'], 0)}000L"
 	}
 
 	buildTypes {
