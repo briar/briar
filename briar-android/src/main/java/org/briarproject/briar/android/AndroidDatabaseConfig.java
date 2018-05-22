@@ -17,31 +17,32 @@ class AndroidDatabaseConfig implements DatabaseConfig {
 	private static final Logger LOG =
 			Logger.getLogger(AndroidDatabaseConfig.class.getName());
 
-	private final File dir;
+	private final File dbDir, keyDir;
 
 	@Nullable
 	private volatile SecretKey key = null;
 	@Nullable
 	private volatile String nickname = null;
 
-	AndroidDatabaseConfig(File dir) {
-		this.dir = dir;
+	AndroidDatabaseConfig(File dbDir, File keyDir) {
+		this.dbDir = dbDir;
+		this.keyDir = keyDir;
 	}
 
 	@Override
 	public boolean databaseExists() {
 		// FIXME should not run on UiThread #620
-		if (!dir.isDirectory()) {
+		if (!dbDir.isDirectory()) {
 			if (LOG.isLoggable(INFO))
-				LOG.info(dir.getAbsolutePath() + " is not a directory");
+				LOG.info(dbDir.getAbsolutePath() + " is not a directory");
 			return false;
 		}
-		File[] files = dir.listFiles();
+		File[] files = dbDir.listFiles();
 		if (LOG.isLoggable(INFO)) {
 			if (files == null) {
-				LOG.info("Could not list files in " + dir.getAbsolutePath());
+				LOG.info("Could not list files in " + dbDir.getAbsolutePath());
 			} else {
-				LOG.info("Files in " + dir.getAbsolutePath() + ":");
+				LOG.info("Files in " + dbDir.getAbsolutePath() + ":");
 				for (File f : files) LOG.info(f.getName());
 			}
 			LOG.info("Database exists: " + (files != null && files.length > 0));
@@ -51,10 +52,16 @@ class AndroidDatabaseConfig implements DatabaseConfig {
 
 	@Override
 	public File getDatabaseDirectory() {
-		File dir = this.dir;
 		if (LOG.isLoggable(INFO))
-			LOG.info("Database directory: " + dir.getAbsolutePath());
-		return dir;
+			LOG.info("Database directory: " + dbDir.getAbsolutePath());
+		return dbDir;
+	}
+
+	@Override
+	public File getDatabaseKeyDirectory() {
+		if (LOG.isLoggable(INFO))
+			LOG.info("Database key directory: " + keyDir.getAbsolutePath());
+		return keyDir;
 	}
 
 	@Override

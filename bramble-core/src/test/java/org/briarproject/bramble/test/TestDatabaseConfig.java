@@ -9,25 +9,31 @@ import java.io.File;
 @NotNullByDefault
 public class TestDatabaseConfig implements DatabaseConfig {
 
-	private final File dir;
+	private final File dbDir, keyDir;
 	private final long maxSize;
 	private volatile SecretKey key = new SecretKey(new byte[SecretKey.LENGTH]);
 
-	public TestDatabaseConfig(File dir, long maxSize) {
-		this.dir = dir;
+	public TestDatabaseConfig(File testDir, long maxSize) {
+		dbDir = new File(testDir, "db");
+		keyDir = new File(testDir, "key");
 		this.maxSize = maxSize;
 	}
 
 	@Override
 	public boolean databaseExists() {
-		if (!dir.isDirectory()) return false;
-		File[] files = dir.listFiles();
+		if (!dbDir.isDirectory()) return false;
+		File[] files = dbDir.listFiles();
 		return files != null && files.length > 0;
 	}
 
 	@Override
 	public File getDatabaseDirectory() {
-		return dir;
+		return dbDir;
+	}
+
+	@Override
+	public File getDatabaseKeyDirectory() {
+		return keyDir;
 	}
 
 	@Override

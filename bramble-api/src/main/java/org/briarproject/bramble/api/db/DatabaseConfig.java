@@ -14,6 +14,8 @@ public interface DatabaseConfig {
 
 	File getDatabaseDirectory();
 
+	File getDatabaseKeyDirectory();
+
 	void setEncryptionKey(SecretKey key);
 
 	@Nullable

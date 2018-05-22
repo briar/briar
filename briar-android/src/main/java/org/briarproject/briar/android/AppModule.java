@@ -87,11 +87,13 @@ public class AppModule {
 		//FIXME: StrictMode
 		StrictMode.ThreadPolicy tp = StrictMode.allowThreadDiskReads();
 		StrictMode.allowThreadDiskWrites();
-		File dir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
+		File dbDir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
+		File keyDir = app.getApplicationContext().getDir("key", MODE_PRIVATE);
 		StrictMode.setThreadPolicy(tp);
 		@MethodsNotNullByDefault
 		@ParametersNotNullByDefault
-		DatabaseConfig databaseConfig = new AndroidDatabaseConfig(dir);
+		DatabaseConfig databaseConfig =
+				new AndroidDatabaseConfig(dbDir, keyDir);
 		return databaseConfig;
 	}
 

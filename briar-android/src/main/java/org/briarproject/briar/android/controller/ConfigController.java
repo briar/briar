@@ -12,7 +12,7 @@ public interface ConfigController {
 	@Nullable
 	String getEncryptedDatabaseKey();
 
-	void storeEncryptedDatabaseKey(String hex);
+	boolean storeEncryptedDatabaseKey(String hex);
 
 	void deleteAccount(Context ctx);
 

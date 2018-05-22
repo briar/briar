@@ -8,12 +8,10 @@ import android.os.Build;
 import android.provider.Settings;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Scanner;
 import java.util.logging.Logger;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -80,26 +78,6 @@ public class AndroidUtils {
 		}
 	}
 
-	public static File getSharedPrefsFile(Context ctx, String name) {
-		File dataDir = new File(ctx.getApplicationInfo().dataDir);
-		File prefsDir = new File(dataDir, "shared_prefs");
-		return new File(prefsDir, name + ".xml");
-	}
-
-	public static void logFileContents(File f) {
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("Contents of " + f.getAbsolutePath() + ":");
-			try {
-				Scanner s = new Scanner(f);
-				while (s.hasNextLine()) LOG.info(s.nextLine());
-				s.close();
-			} catch (FileNotFoundException e) {
-				LOG.info(f.getAbsolutePath() + " not found");
-			}
-		}
-	}
-
-	@SuppressLint("ApplySharedPref")
 	public static void deleteAppData(Context ctx, SharedPreferences... clear) {
 		// Clear and commit shared preferences
 		for (SharedPreferences prefs : clear) {
