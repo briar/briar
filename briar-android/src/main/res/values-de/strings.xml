@@ -102,9 +102,11 @@
   <string name="show_onboarding">Hilfe anzeigen</string>
   <string name="fix">Behoben</string>
   <string name="help">Hilfe</string>
+  <string name="sorry">Entschuldigung</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Du hast noch keine Kontakte\n\nTippe auf das +-Symbol um einen Kontakt hinzuzufügen</string>
   <string name="date_no_private_messages">Keine Nachrichten.</string>
+  <string name="no_private_messages">Keine Nachrichten zum Anzeigen</string>
   <string name="message_hint">Nachricht eingeben</string>
   <string name="delete_contact">Kontakt löschen</string>
   <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
@@ -208,6 +210,7 @@
   <string name="choose_forum_hint">Wähle einen Namen für dein Forum</string>
   <string name="create_forum_button">Forum erstellen</string>
   <string name="forum_created_toast">Forum wurde erstellt</string>
+  <string name="no_forum_posts">Keine Beiträge zum Anzeigen</string>
   <string name="no_posts">Keine Beiträge</string>
   <plurals name="posts">
     <item quantity="one">%d Beitrag</item>
@@ -250,6 +253,7 @@
   </plurals>
   <string name="nobody">Niemand</string>
   <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">Keine Blogbeiträge zum Anzeigen</string>
   <string name="read_more">weiterlesen</string>
   <string name="blogs_write_blog_post">Blogbeitrag erstellen</string>
   <string name="blogs_write_blog_post_body_hint">Gib deinen Blogbeitrag ein</string>
@@ -325,12 +329,16 @@
   <string name="notification_settings_title">Benachrichtigungen</string>
   <string name="notify_private_messages_setting_title">Private Nachrichten</string>
   <string name="notify_private_messages_setting_summary">Zeige Benachrichtigungen für private Nachrichten</string>
+  <string name="notify_private_messages_setting_summary_26">Benachrichtigungen für private Nachrichten konfigurieren</string>
   <string name="notify_group_messages_setting_title">Gruppennachrichten</string>
   <string name="notify_group_messages_setting_summary">Benachrichtigungen für Gruppennachrichten anzeigen</string>
+  <string name="notify_group_messages_setting_summary_26">Benachrichtigungen für Gruppennachrichten konfigurieren</string>
   <string name="notify_forum_posts_setting_title">Forenbeiträge</string>
   <string name="notify_forum_posts_setting_summary">Benachrichtigungen für Forenbeiträge anzeigen</string>
+  <string name="notify_forum_posts_setting_summary_26">Benachrichtigungen für Forenbeiträge konfigurieren</string>
   <string name="notify_blog_posts_setting_title">Blogbeiträge</string>
   <string name="notify_blog_posts_setting_summary">Benachrichtigungen für Blogbeiträge anzeigen</string>
+  <string name="notify_blog_posts_setting_summary_26">Benachrichtigungen für Blogbeiträge konfigurieren</string>
   <string name="notify_vibration_setting">Vibration</string>
   <string name="notify_lock_screen_setting_title">Sperrbildschirm</string>
   <string name="notify_lock_screen_setting_summary">Zeigt Benachrichtigungen auf dem Sperrbildschirm an</string>
@@ -375,4 +383,5 @@
   <string name="permission_camera_denied_body">Du hast den Zugriff auf die Kamera verweigert, aber das Hinzufügen von Kontakten erfordert die Verwendung der Kamera.\n\nBitte gewähre den Zugriff.</string>
   <string name="permission_camera_denied_toast">Berechtigung für Kamera wurde nicht gewährt</string>
   <string name="qr_code">QR-Code</string>
+  <string name="show_qr_code_fullscreen">QR-Code im Vollbildmodus anzeigen</string>
 </resources>

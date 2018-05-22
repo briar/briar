@@ -141,6 +141,7 @@
   <string name="introduction_request_exists_received">%1$s 想要将您介绍给 %2$s，但是 %2$s 已经在您的联系人列表。%1$s 可能并不知情，但您仍可以做出回复：</string>
   <string name="introduction_request_answered_received">%1$s 想要将您介绍给 %2$s。</string>
   <string name="introduction_response_accepted_sent">您已接受与 %1$s 建立联系</string>
+  <string name="introduction_response_accepted_sent_info">在 %1$s添加到您通讯录之前，他们需要接受您的名片。这可能要花点时间。</string>
   <string name="introduction_response_declined_sent">您已谢绝与 %1$s 建立联系</string>
   <string name="introduction_response_accepted_received">%1$s 接受与 %2$s 建立联系</string>
   <string name="introduction_response_declined_received">%1$s 谢绝与 %2$s 建立联系</string>
@@ -149,6 +150,7 @@
     <item quantity="other">已添加 %d 位新联系人。</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">没有群组\n\n点击 + 号创建群聊，或者让您的联系人分享群组给您</string>
   <string name="groups_created_by">由 %s 创建</string>
   <plurals name="messages">
     <item quantity="other">%d 条消息。</item>
@@ -199,6 +201,7 @@
   <string name="groups_reveal_visible_revealed_by_contact">联系人关系对群聊可见 (由 %s 设定)</string>
   <string name="groups_reveal_invisible">联系人关系对群聊不可见</string>
   <!--Forums-->
+  <string name="no_forums">没有论坛\n\n点击 + 号来创建一个，或者让您的联系人分享一个论坛给您</string>
   <string name="create_forum_title">创建论坛</string>
   <string name="choose_forum_hint">为论坛命名</string>
   <string name="create_forum_button">创建论坛</string>
@@ -214,17 +217,23 @@
   <string name="btn_reply">回复</string>
   <string name="forum_leave">退出论坛</string>
   <string name="dialog_title_leave_forum">确认退出论坛</string>
+  <string name="dialog_message_leave_forum">确定要退出论坛？\n\n那些您分享过论坛的联系人将不会再收到更新。</string>
   <string name="dialog_button_leave">退出</string>
+  <string name="forum_left_toast">已退出论坛</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">分享论坛</string>
   <string name="contacts_selected">已选择联系人</string>
   <string name="activity_share_toolbar_header">选择联系人</string>
+  <string name="no_contacts_selector">没有联系人\n\n请添加联系人后再来</string>
   <string name="forum_shared_snackbar">论坛已分享给选中的联系人</string>
   <string name="forum_share_message">添加一句话 (选填)</string>
   <string name="forum_share_error">分享此论坛时发生错误。</string>
   <string name="forum_invitation_received">%1$s 已将论坛 “%2$s” 分享给你。</string>
   <string name="forum_invitation_sent">您已将论坛 “%1$s” 分享给 %2$s。</string>
   <string name="forum_invitations_title">论坛邀请</string>
+  <string name="forum_invitation_exists">您已接受论坛邀请。\n\n接受更多的邀请，会使论坛访问速度更快更可靠。</string>
+  <string name="forum_joined_toast">已加入论坛</string>
+  <string name="forum_declined_toast">邀请已拒绝</string>
   <string name="shared_by_format">由 %s 分享</string>
   <string name="forum_invitation_already_sharing">已在分享</string>
   <string name="forum_invitation_response_accepted_sent">您接受了来自 %s的论坛邀请</string>
@@ -242,12 +251,16 @@
   <string name="blogs_other_blog_empty_state">尚无帖子可供展示</string>
   <string name="read_more">阅读更多</string>
   <string name="blogs_write_blog_post">写博文</string>
+  <string name="blogs_write_blog_post_body_hint">输入博文内容</string>
   <string name="blogs_publish_blog_post">发布</string>
   <string name="blogs_blog_post_created">博文已创建</string>
   <string name="blogs_blog_post_received">收到新博文</string>
   <string name="blogs_blog_post_scroll_to">滑动至</string>
+  <string name="blogs_feed_empty_state">没有文章\n\n此处显示您好友的博文或您订阅的文章\n\n点击钢笔图标来写一篇文章</string>
   <string name="blogs_remove_blog">删除博客</string>
+  <string name="blogs_remove_blog_dialog_message">确定要删除博文吗？\n\n文章将会从您的设备删除，但仍存在于别人的设备上。\n\n您分享过博文的用户将不再收到更新。</string>
   <string name="blogs_remove_blog_ok">删除</string>
+  <string name="blogs_blog_removed">博客已删除</string>
   <string name="blogs_reblog_comment_hint">添加评论 (选填)</string>
   <string name="blogs_reblog_button">转载</string>
   <!--Blog Sharing-->
@@ -262,6 +275,8 @@
   <string name="blogs_sharing_invitation_received">%1$s 向您分享博客 “%2$s”。</string>
   <string name="blogs_sharing_invitation_sent">您已将博客 “%1$s” 分享给 %2$s。</string>
   <string name="blogs_sharing_invitations_title">博客邀请</string>
+  <string name="blogs_sharing_joined_toast">订阅博客</string>
+  <string name="blogs_sharing_declined_toast">邀请已拒绝</string>
   <string name="sharing_status_blog">任何订阅博客的人都可以将它分享给他的联系人。您正在将该博客分享给下列联系人。可能有其他您所不可见的订阅者存在。</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">导入 RSS 订阅</string>
@@ -273,8 +288,10 @@
   <string name="blogs_rss_feeds_manage_author">作者：</string>
   <string name="blogs_rss_feeds_manage_updated">最后更新于：</string>
   <string name="blogs_rss_remove_feed">删除订阅</string>
+  <string name="blogs_rss_remove_feed_dialog_message">确定要删除信息流？\n\n文章将从您的设备上移除，但仍存于别人的设备。\n\n您分享过信息流的人将不再收到更新。</string>
   <string name="blogs_rss_remove_feed_ok">删除</string>
   <string name="blogs_rss_feeds_manage_delete_error">该订阅无法被删除！</string>
+  <string name="blogs_rss_feeds_manage_empty_state">没有订阅内容\n\n点击 + 号导入一个 RSS 信息流</string>
   <string name="blogs_rss_feeds_manage_error">加载订阅时出错。请稍候再试。</string>
   <!--Settings Network-->
   <string name="network_settings_title">网络</string>
@@ -311,12 +328,16 @@
   <string name="notification_settings_title">消息提醒</string>
   <string name="notify_private_messages_setting_title">私信</string>
   <string name="notify_private_messages_setting_summary">显示私信通知</string>
+  <string name="notify_private_messages_setting_summary_26">配置私聊消息通知</string>
   <string name="notify_group_messages_setting_title">群消息</string>
   <string name="notify_group_messages_setting_summary">显示群聊消息通知</string>
+  <string name="notify_group_messages_setting_summary_26">配置群聊消息通知</string>
   <string name="notify_forum_posts_setting_title">论坛帖子</string>
   <string name="notify_forum_posts_setting_summary">显示论坛帖子通知</string>
+  <string name="notify_forum_posts_setting_summary_26">配置论坛文章通知</string>
   <string name="notify_blog_posts_setting_title">博文</string>
   <string name="notify_blog_posts_setting_summary">显示博文通知</string>
+  <string name="notify_blog_posts_setting_summary_26">配置博客文章通知</string>
   <string name="notify_vibration_setting">震动</string>
   <string name="notify_lock_screen_setting_title">锁定屏幕</string>
   <string name="notify_lock_screen_setting_summary">在锁定屏幕上显示通知</string>
@@ -360,4 +381,6 @@
   <string name="permission_camera_request_body">Briar 需要获得相机权限以扫描二维码。</string>
   <string name="permission_camera_denied_body">您拒绝了相机权限，而添加联系人需要使用相机\n\n请考虑授予相机权限。</string>
   <string name="permission_camera_denied_toast">未授予相机权限</string>
+  <string name="qr_code">二维码</string>
+  <string name="show_qr_code_fullscreen">全屏显示二维码</string>
 </resources>
