@@ -33,6 +33,7 @@ public class ConfigControllerImpl implements ConfigController {
 	private static final String DB_KEY_BACKUP_FILENAME = "db.key.bak";
 
 	private final SharedPreferences briarPrefs;
+	private final File dbKeyFile, dbKeyBackupFile;
 	protected final DatabaseConfig databaseConfig;
 
 	@Inject
@@ -40,6 +41,9 @@ public class ConfigControllerImpl implements ConfigController {
 			DatabaseConfig databaseConfig) {
 		this.briarPrefs = briarPrefs;
 		this.databaseConfig = databaseConfig;
+		File keyDir = databaseConfig.getDatabaseKeyDirectory();
+		dbKeyFile = new File(keyDir, DB_KEY_FILENAME);
+		dbKeyBackupFile = new File(keyDir, DB_KEY_BACKUP_FILENAME);
 	}
 
 	@Override
@@ -61,10 +65,10 @@ public class ConfigControllerImpl implements ConfigController {
 
 	@Nullable
 	private String getDatabaseKeyFromFile() {
-		String key = readDbKeyFromFile(getDbKeyFile());
+		String key = readDbKeyFromFile(dbKeyFile);
 		if (key == null) {
 			LOG.info("No database key in primary file");
-			key = readDbKeyFromFile(getDbKeyBackupFile());
+			key = readDbKeyFromFile(dbKeyBackupFile);
 			if (key == null) LOG.info("No database key in backup file");
 			else LOG.warning("Found database key in backup file");
 		} else {
@@ -91,16 +95,6 @@ public class ConfigControllerImpl implements ConfigController {
 		}
 	}
 
-	private File getDbKeyFile() {
-		return new File(databaseConfig.getDatabaseKeyDirectory(),
-				DB_KEY_FILENAME);
-	}
-
-	private File getDbKeyBackupFile() {
-		return new File(databaseConfig.getDatabaseKeyDirectory(),
-				DB_KEY_BACKUP_FILENAME);
-	}
-
 	private void migrateDatabaseKeyToFile(String key) {
 		if (storeEncryptedDatabaseKey(key)) {
 			if (briarPrefs.edit().remove(PREF_DB_KEY).commit())
@@ -114,37 +108,46 @@ public class ConfigControllerImpl implements ConfigController {
 	@Override
 	public boolean storeEncryptedDatabaseKey(String hex) {
 		LOG.info("Storing database key in file");
-		File dbKey = getDbKeyFile();
-		File dbKeyBackup = getDbKeyBackupFile();
 		// Create the directory if necessary
 		if (databaseConfig.getDatabaseKeyDirectory().mkdirs())
 			LOG.info("Created database key directory");
 		// If only the backup file exists, rename it so we don't overwrite it
-		if (dbKeyBackup.exists() && !dbKey.exists()) {
-			if (dbKeyBackup.renameTo(dbKey)) LOG.info("Renamed old backup");
+		if (dbKeyBackupFile.exists() && !dbKeyFile.exists()) {
+			if (dbKeyBackupFile.renameTo(dbKeyFile))
+				LOG.info("Renamed old backup");
 			else LOG.warning("Failed to rename old backup");
 		}
 		try {
 			// Write to the backup file
-			FileOutputStream out = new FileOutputStream(dbKeyBackup);
-			out.write(hex.getBytes("UTF-8"));
-			out.flush();
-			out.close();
+			writeDbKeyToFile(hex, dbKeyBackupFile);
 			LOG.info("Stored database key in backup file");
 			// Delete the old primary file, if it exists
-			if (dbKey.exists()) {
-				if (dbKey.delete()) LOG.info("Deleted primary file");
+			if (dbKeyFile.exists()) {
+				if (dbKeyFile.delete()) LOG.info("Deleted primary file");
 				else LOG.warning("Failed to delete primary file");
 			}
 			// The backup file becomes the new primary
-			boolean renamed = dbKeyBackup.renameTo(dbKey);
-			if (renamed) LOG.info("Renamed backup file to primary");
-			else LOG.warning("Failed to rename backup file to primary");
-			return renamed;
+			if (dbKeyBackupFile.renameTo(dbKeyFile)) {
+				LOG.info("Renamed backup file to primary");
+			} else {
+				LOG.warning("Failed to rename backup file to primary");
+				return false; // Don't overwrite our only copy
+			}
+			// Write a second copy to the backup file
+			writeDbKeyToFile(hex, dbKeyBackupFile);
+			LOG.info("Stored second copy of database key in backup file");
+			return true;
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return false;
 		}
+	}
+
+	private void writeDbKeyToFile(String key, File f) throws IOException {
+		FileOutputStream out = new FileOutputStream(f);
+		out.write(key.getBytes("UTF-8"));
+		out.flush();
+		out.close();
 	}
 
 	@Override

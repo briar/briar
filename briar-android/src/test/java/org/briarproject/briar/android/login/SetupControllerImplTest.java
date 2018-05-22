@@ -102,8 +102,9 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 		assertTrue(called.get());
 
 		assertTrue(keyFile.exists());
-		assertFalse(keyBackupFile.exists());
+		assertTrue(keyBackupFile.exists());
 		assertEquals(toHexString(encryptedKey), loadDatabaseKey(keyFile));
+		assertEquals(toHexString(encryptedKey), loadDatabaseKey(keyBackupFile));
 	}
 
 	@After

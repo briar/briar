@@ -62,8 +62,9 @@ public class ConfigControllerImplTest extends BrambleMockTestCase {
 		assertEquals(encryptedKeyHex, c.getEncryptedDatabaseKey());
 
 		assertTrue(keyFile.exists());
-		assertFalse(keyBackupFile.exists());
+		assertTrue(keyBackupFile.exists());
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
+		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
 	}
 
 	@Test
@@ -165,8 +166,9 @@ public class ConfigControllerImplTest extends BrambleMockTestCase {
 		assertTrue(c.storeEncryptedDatabaseKey(encryptedKeyHex));
 
 		assertTrue(keyFile.exists());
-		assertFalse(keyBackupFile.exists());
+		assertTrue(keyBackupFile.exists());
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
+		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
 	}
 
 	@Test
@@ -191,8 +193,9 @@ public class ConfigControllerImplTest extends BrambleMockTestCase {
 		assertTrue(c.storeEncryptedDatabaseKey(encryptedKeyHex));
 
 		assertTrue(keyFile.exists());
-		assertFalse(keyBackupFile.exists());
+		assertTrue(keyBackupFile.exists());
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
+		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
 	}
 
 	@After

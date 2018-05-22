@@ -17,7 +17,7 @@ import static junit.framework.Assert.assertTrue;
 public class TestDatabaseKeyUtils {
 
 	public static void storeDatabaseKey(File f, String hex) throws IOException {
-		assertTrue(f.getParentFile().mkdirs());
+		f.getParentFile().mkdirs();
 		FileOutputStream out = new FileOutputStream(f);
 		out.write(hex.getBytes("UTF-8"));
 		out.flush();

@@ -72,8 +72,7 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 			} else {
 				String hex =
 						encryptDatabaseKey(new SecretKey(key), newPassword);
-				boolean stored = storeEncryptedDatabaseKey(hex);
-				resultHandler.onResult(stored);
+				resultHandler.onResult(storeEncryptedDatabaseKey(hex));
 			}
 		});
 	}

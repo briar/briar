@@ -67,6 +67,7 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 		assertFalse(keyBackupFile.exists());
 
 		storeDatabaseKey(keyFile, toHexString(oldEncryptedKey));
+		storeDatabaseKey(keyBackupFile, toHexString(oldEncryptedKey));
 
 		PasswordControllerImpl p = new PasswordControllerImpl(briarPrefs,
 				databaseConfig, cryptoExecutor, crypto, estimator);
@@ -76,8 +77,10 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 		assertTrue(capturedResult.get());
 
 		assertTrue(keyFile.exists());
-		assertFalse(keyBackupFile.exists());
+		assertTrue(keyBackupFile.exists());
 		assertEquals(toHexString(newEncryptedKey), loadDatabaseKey(keyFile));
+		assertEquals(toHexString(newEncryptedKey),
+				loadDatabaseKey(keyBackupFile));
 	}
 
 	@Test
@@ -98,6 +101,7 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 		assertFalse(keyBackupFile.exists());
 
 		storeDatabaseKey(keyFile, toHexString(oldEncryptedKey));
+		storeDatabaseKey(keyBackupFile, toHexString(oldEncryptedKey));
 
 		PasswordControllerImpl p = new PasswordControllerImpl(briarPrefs,
 				databaseConfig, cryptoExecutor, crypto, estimator);
@@ -107,8 +111,10 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 		assertFalse(capturedResult.get());
 
 		assertTrue(keyFile.exists());
-		assertFalse(keyBackupFile.exists());
+		assertTrue(keyBackupFile.exists());
 		assertEquals(toHexString(oldEncryptedKey), loadDatabaseKey(keyFile));
+		assertEquals(toHexString(oldEncryptedKey),
+				loadDatabaseKey(keyBackupFile));
 	}
 
 	@After
