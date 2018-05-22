@@ -555,7 +555,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			IntroducerSession s, MessageId storageId, Introducee i,
 			LocalAuthor localAuthor) throws DbException {
 		if (db.containsContact(txn, i.author.getId(), localAuthor.getId())) {
-			IntroducerSession session = introducerEngine.onAbortAction(txn, s);
+			IntroducerSession session =
+					introducerEngine.onIntroduceeRemoved(txn, i, s);
 			storeSession(txn, storageId, session);
 		} else {
 			db.removeMessage(txn, storageId);

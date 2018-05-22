@@ -92,9 +92,27 @@ class IntroducerProtocolEngine
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 
-	IntroducerSession onAbortAction(Transaction txn, IntroducerSession s)
+	IntroducerSession onIntroduceeRemoved(Transaction txn,
+			Introducee remainingIntroducee, IntroducerSession session)
 			throws DbException {
-		return abort(txn, s);
+		// abort session
+		IntroducerSession s = abort(txn, session);
+		// reset information for introducee that was removed
+		Introducee introduceeA, introduceeB;
+		if (remainingIntroducee.author.equals(s.getIntroduceeA().author)) {
+			introduceeA = s.getIntroduceeA();
+			introduceeB =
+					new Introducee(s.getSessionId(), s.getIntroduceeB().groupId,
+							s.getIntroduceeB().author);
+		} else if (remainingIntroducee.author
+				.equals(s.getIntroduceeB().author)) {
+			introduceeA =
+					new Introducee(s.getSessionId(), s.getIntroduceeA().groupId,
+							s.getIntroduceeA().author);
+			introduceeB = s.getIntroduceeB();
+		} else throw new DbException();
+		return new IntroducerSession(s.getSessionId(), s.getState(),
+				s.getRequestTimestamp(), introduceeA, introduceeB);
 	}
 
 	@Override
