@@ -27,7 +27,7 @@ android {
 
 dependencies {
 	implementation project(path: ':bramble-core', configuration: 'default')
-	implementation fileTree(dir: 'libs', include: '*.jar')
+	implementation 'org.briarproject:jtorctl:0.3'
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
 
@@ -92,6 +92,7 @@ dependencyVerification {
 			'org.apache.httpcomponents:httpmime:4.1:httpmime-4.1.jar:31629566148e8a47688ae43b420abc3ecd783ed15b33bebc00824bf24c9b15aa',
 			'org.bouncycastle:bcpkix-jdk15on:1.56:bcpkix-jdk15on-1.56.jar:7043dee4e9e7175e93e0b36f45b1ec1ecb893c5f755667e8b916eb8dd201c6ca',
 			'org.bouncycastle:bcprov-jdk15on:1.56:bcprov-jdk15on-1.56.jar:963e1ee14f808ffb99897d848ddcdb28fa91ddda867eb18d303e82728f878349',
+			'org.briarproject:jtorctl:0.3:jtorctl-0.3.jar:f2939238a097898998432effe93b0334d97a787972ab3a91a8973a1d309fc864',
 			'org.codehaus.groovy:groovy-all:2.4.12:groovy-all-2.4.12.jar:6a56af4bd48903d56bec62821876cadefafd007360cc6bd0d8f7aa8d72b38be4',
 			'org.codehaus.mojo:animal-sniffer-annotations:1.14:animal-sniffer-annotations-1.14.jar:2068320bd6bad744c3673ab048f67e30bef8f518996fa380033556600669905d',
 			'org.glassfish.jaxb:jaxb-core:2.2.11:jaxb-core-2.2.11.jar:37bcaee8ebb04362c8352a5bf6221b86967ecdab5164c696b10b9a2bb587b2aa',
