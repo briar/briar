@@ -54,7 +54,6 @@ class Poller implements EventListener {
 	private final Lock lock;
 	private final Map<TransportId, ScheduledPollTask> tasks; // Locking: lock
 
-	@Inject
 	Poller(@IoExecutor Executor ioExecutor,
 			@Scheduler ScheduledExecutorService scheduler,
 			ConnectionManager connectionManager,

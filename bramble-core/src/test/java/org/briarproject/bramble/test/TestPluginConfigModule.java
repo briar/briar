@@ -58,6 +58,11 @@ public class TestPluginConfigModule {
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
 				return Collections.singletonList(simplex);
 			}
+
+			@Override
+			public boolean shouldPoll() {
+				return false;
+			}
 		};
 		return pluginConfig;
 	}

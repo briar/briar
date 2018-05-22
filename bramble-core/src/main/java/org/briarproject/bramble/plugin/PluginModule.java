@@ -26,26 +26,11 @@ public class PluginModule {
 	public static class EagerSingletons {
 		@Inject
 		PluginManager pluginManager;
-		@Inject
-		Poller poller;
 	}
 
 	@Provides
 	BackoffFactory provideBackoffFactory() {
 		return new BackoffFactoryImpl();
-	}
-
-	@Provides
-	@Singleton
-	Poller providePoller(@IoExecutor Executor ioExecutor,
-			@Scheduler ScheduledExecutorService scheduler,
-			ConnectionManager connectionManager,
-			ConnectionRegistry connectionRegistry, PluginManager pluginManager,
-			SecureRandom random, Clock clock, EventBus eventBus) {
-		Poller poller = new Poller(ioExecutor, scheduler, connectionManager,
-				connectionRegistry, pluginManager, random, clock);
-		eventBus.addListener(poller);
-		return poller;
 	}
 
 	@Provides
