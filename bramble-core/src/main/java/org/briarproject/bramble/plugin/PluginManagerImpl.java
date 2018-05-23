@@ -108,6 +108,13 @@ class PluginManagerImpl implements PluginManager, Service {
 	@Override
 	public void startService() throws ServiceException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
+		// Instantiate the poller
+		if (pluginConfig.shouldPoll()) {
+			LOG.info("Starting poller");
+			Poller poller = new Poller(ioExecutor, scheduler, connectionManager,
+					connectionRegistry, this, random, clock);
+			eventBus.addListener(poller);
+		}
 		// Instantiate the simplex plugins and start them asynchronously
 		LOG.info("Starting simplex plugins");
 		for (SimplexPluginFactory f : pluginConfig.getSimplexFactories()) {
@@ -139,13 +146,6 @@ class PluginManagerImpl implements PluginManager, Service {
 				startLatches.put(t, startLatch);
 				ioExecutor.execute(new PluginStarter(d, startLatch));
 			}
-		}
-		// Instantiate the poller
-		if (pluginConfig.shouldPoll()) {
-			LOG.info("Starting poller");
-			Poller poller = new Poller(ioExecutor, scheduler, connectionManager,
-					connectionRegistry, this, random, clock);
-			eventBus.addListener(poller);
 		}
 	}
 

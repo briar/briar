@@ -40,9 +40,7 @@ public class PluginManagerImplTest extends BrambleTestCase {
 			setThreadingPolicy(new Synchroniser());
 		}};
 		Executor ioExecutor = Executors.newSingleThreadExecutor();
-		RejectedExecutionHandler policy =
-				new ScheduledThreadPoolExecutor.DiscardPolicy();
-		ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(1, policy);
+		ScheduledExecutorService scheduler = context.mock(ScheduledExecutorService.class);
 		SecureRandom random = new SecureRandom();
 		Clock clock = context.mock(Clock.class);
 		EventBus eventBus = context.mock(EventBus.class);
