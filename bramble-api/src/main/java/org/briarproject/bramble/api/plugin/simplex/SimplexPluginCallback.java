@@ -7,8 +7,8 @@ import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 
 /**
- * An interface for handling readers and writers created by a simplex transport
- * plugin.
+ * An interface through which a simplex plugin interacts with the rest of the
+ * application.
  */
 @NotNullByDefault
 public interface SimplexPluginCallback extends PluginCallback {

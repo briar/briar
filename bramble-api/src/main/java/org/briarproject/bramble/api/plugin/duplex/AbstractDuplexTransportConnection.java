@@ -72,11 +72,6 @@ public abstract class AbstractDuplexTransportConnection
 		}
 
 		@Override
-		public long getCapacity() {
-			return Long.MAX_VALUE;
-		}
-
-		@Override
 		public OutputStream getOutputStream() throws IOException {
 			return AbstractDuplexTransportConnection.this.getOutputStream();
 		}

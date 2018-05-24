@@ -23,8 +23,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Hashtable;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -40,7 +38,6 @@ import static org.junit.Assert.assertTrue;
 
 public class LanTcpPluginTest extends BrambleTestCase {
 
-	private final ContactId contactId = new ContactId(234);
 	private final Backoff backoff = new TestBackoff();
 
 	@Test
@@ -160,12 +157,10 @@ public class LanTcpPluginTest extends BrambleTestCase {
 				error.set(true);
 			}
 		}).start();
-		// Tell the plugin about the port
+		// Connect to the port
 		TransportProperties p = new TransportProperties();
 		p.put("ipPorts", addrString + ":" + port);
-		callback.remote.put(contactId, p);
-		// Connect to the port
-		DuplexTransportConnection d = plugin.createConnection(contactId);
+		DuplexTransportConnection d = plugin.createConnection(p);
 		assertNotNull(d);
 		// Check that the connection was accepted
 		assertTrue(latch.await(5, SECONDS));
@@ -281,7 +276,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testComparatorPrefersNonZeroPorts() throws Exception {
+	public void testComparatorPrefersNonZeroPorts() {
 		Comparator<InetSocketAddress> comparator = new LanAddressComparator();
 		InetSocketAddress nonZero = new InetSocketAddress("1.2.3.4", 1234);
 		InetSocketAddress zero = new InetSocketAddress("1.2.3.4", 0);
@@ -294,7 +289,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testComparatorPrefersLongerPrefixes() throws Exception {
+	public void testComparatorPrefersLongerPrefixes() {
 		Comparator<InetSocketAddress> comparator = new LanAddressComparator();
 		InetSocketAddress prefix192 = new InetSocketAddress("192.168.0.1", 0);
 		InetSocketAddress prefix172 = new InetSocketAddress("172.16.0.1", 0);
@@ -314,7 +309,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testComparatorPrefersSiteLocalToLinkLocal() throws Exception {
+	public void testComparatorPrefersSiteLocalToLinkLocal() {
 		Comparator<InetSocketAddress> comparator = new LanAddressComparator();
 		InetSocketAddress prefix192 = new InetSocketAddress("192.168.0.1", 0);
 		InetSocketAddress prefix172 = new InetSocketAddress("172.16.0.1", 0);
@@ -345,8 +340,6 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	@NotNullByDefault
 	private static class Callback implements DuplexPluginCallback {
 
-		private final Map<ContactId, TransportProperties> remote =
-				new Hashtable<>();
 		private final CountDownLatch propertiesLatch = new CountDownLatch(1);
 		private final CountDownLatch connectionsLatch = new CountDownLatch(1);
 		private final TransportProperties local = new TransportProperties();
@@ -362,16 +355,6 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		}
 
 		@Override
-		public Map<ContactId, TransportProperties> getRemoteProperties() {
-			return remote;
-		}
-
-		@Override
-		public TransportProperties getRemoteProperties(ContactId c) {
-			return remote.get(c);
-		}
-
-		@Override
 		public void mergeSettings(Settings s) {
 		}
 
@@ -379,20 +362,6 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		public void mergeLocalProperties(TransportProperties p) {
 			local.putAll(p);
 			propertiesLatch.countDown();
-		}
-
-		@Override
-		public int showChoice(String[] options, String... message) {
-			return -1;
-		}
-
-		@Override
-		public boolean showConfirmationMessage(String... message) {
-			return false;
-		}
-
-		@Override
-		public void showMessage(String... message) {
 		}
 
 		@Override

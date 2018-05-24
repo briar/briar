@@ -1,10 +1,10 @@
 package org.briarproject.bramble.api.plugin.duplex;
 
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
+import org.briarproject.bramble.api.properties.TransportProperties;
 
 import javax.annotation.Nullable;
 
@@ -15,12 +15,11 @@ import javax.annotation.Nullable;
 public interface DuplexPlugin extends Plugin {
 
 	/**
-	 * Attempts to create and return a connection to the given contact using
-	 * the current transport and configuration properties. Returns null if a
-	 * connection cannot be created.
+	 * Attempts to create and return a connection using the given transport
+	 * properties. Returns null if a connection cannot be created.
 	 */
 	@Nullable
-	DuplexTransportConnection createConnection(ContactId c);
+	DuplexTransportConnection createConnection(TransportProperties p);
 
 	/**
 	 * Returns true if the plugin supports short-range key agreement.

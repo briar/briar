@@ -18,14 +18,11 @@ class FileTransportWriter implements TransportConnectionWriter {
 
 	private final File file;
 	private final OutputStream out;
-	private final long capacity;
 	private final FilePlugin plugin;
 
-	FileTransportWriter(File file, OutputStream out, long capacity,
-			FilePlugin plugin) {
+	FileTransportWriter(File file, OutputStream out, FilePlugin plugin) {
 		this.file = file;
 		this.out = out;
-		this.capacity = capacity;
 		this.plugin = plugin;
 	}
 
@@ -40,11 +37,6 @@ class FileTransportWriter implements TransportConnectionWriter {
 	}
 
 	@Override
-	public long getCapacity() {
-		return capacity;
-	}
-
-	@Override
 	public OutputStream getOutputStream() {
 		return out;
 	}
@@ -56,7 +48,6 @@ class FileTransportWriter implements TransportConnectionWriter {
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
-		if (exception) file.delete();
-		else plugin.writerFinished(file);
+		plugin.writerFinished(file, exception);
 	}
 }

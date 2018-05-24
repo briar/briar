@@ -15,7 +15,6 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.ui.UiCallback;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -26,9 +25,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
@@ -40,19 +37,20 @@ public class PluginManagerImplTest extends BrambleTestCase {
 			setThreadingPolicy(new Synchroniser());
 		}};
 		Executor ioExecutor = Executors.newSingleThreadExecutor();
-		ScheduledExecutorService scheduler = context.mock(ScheduledExecutorService.class);
+		ScheduledExecutorService scheduler =
+				context.mock(ScheduledExecutorService.class);
 		SecureRandom random = new SecureRandom();
 		Clock clock = context.mock(Clock.class);
 		EventBus eventBus = context.mock(EventBus.class);
 		PluginConfig pluginConfig = context.mock(PluginConfig.class);
 		ConnectionManager connectionManager =
 				context.mock(ConnectionManager.class);
-		ConnectionRegistry connectionRegistry = context.mock(ConnectionRegistry.class);
+		ConnectionRegistry connectionRegistry =
+				context.mock(ConnectionRegistry.class);
 		SettingsManager settingsManager =
 				context.mock(SettingsManager.class);
 		TransportPropertyManager transportPropertyManager =
 				context.mock(TransportPropertyManager.class);
-		UiCallback uiCallback = context.mock(UiCallback.class);
 
 		// Two simplex plugin factories: both create plugins, one fails to start
 		SimplexPluginFactory simplexFactory =
@@ -124,9 +122,9 @@ public class PluginManagerImplTest extends BrambleTestCase {
 			oneOf(duplexPlugin).stop();
 		}});
 
-		PluginManagerImpl p = new PluginManagerImpl(ioExecutor, scheduler, eventBus,
-				pluginConfig, connectionManager, connectionRegistry, settingsManager,
-				transportPropertyManager, random, clock, uiCallback);
+		PluginManagerImpl p = new PluginManagerImpl(ioExecutor, scheduler,
+				eventBus, pluginConfig, connectionManager, connectionRegistry,
+				settingsManager, transportPropertyManager, random, clock);
 
 		// Two plugins should be started and stopped
 		p.startService();

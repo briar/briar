@@ -2,8 +2,9 @@ package org.briarproject.bramble.api.plugin;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.properties.TransportProperties;
 
-import java.util.Collection;
+import java.util.Map;
 
 @NotNullByDefault
 public interface Plugin {
@@ -39,21 +40,19 @@ public interface Plugin {
 	boolean isRunning();
 
 	/**
-	 * Returns true if the plugin's {@link #poll(Collection)} method should be
-	 * called periodically to attempt to establish connections.
+	 * Returns true if the plugin should be polled periodically to attempt to
+	 * establish connections.
 	 */
 	boolean shouldPoll();
 
 	/**
-	 * Returns the desired interval in milliseconds between calls to the
-	 * plugin's {@link #poll(Collection)} method.
+	 * Returns the desired interval in milliseconds between polling attempts.
 	 */
 	int getPollingInterval();
 
 	/**
-	 * Attempts to establish connections to contacts, passing any created
-	 * connections to the callback. To avoid creating redundant connections,
-	 * the plugin may exclude the given contacts from polling.
+	 * Attempts to establish connections to the given contacts, passing any
+	 * created connections to the callback.
 	 */
-	void poll(Collection<ContactId> connected);
+	void poll(Map<ContactId, TransportProperties> contacts);
 }

@@ -207,20 +207,16 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	@Override
-	public void poll(Collection<ContactId> connected) {
+	public void poll(Map<ContactId, TransportProperties> contacts) {
 		if (!isRunning()) return;
 		backoff.increment();
-		Map<ContactId, TransportProperties> remote =
-				callback.getRemoteProperties();
-		for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
-			ContactId c = e.getKey();
-			if (!connected.contains(c)) connectAndCallBack(c, e.getValue());
+		for (Entry<ContactId, TransportProperties> e : contacts.entrySet()) {
+			connectAndCallBack(e.getKey(), e.getValue());
 		}
 	}
 
 	private void connectAndCallBack(ContactId c, TransportProperties p) {
 		ioExecutor.execute(() -> {
-			if (!isRunning()) return;
 			DuplexTransportConnection d = createConnection(p);
 			if (d != null) {
 				backoff.reset();
@@ -230,13 +226,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	@Override
-	public DuplexTransportConnection createConnection(ContactId c) {
+	public DuplexTransportConnection createConnection(TransportProperties p) {
 		if (!isRunning()) return null;
-		return createConnection(callback.getRemoteProperties(c));
-	}
-
-	@Nullable
-	private DuplexTransportConnection createConnection(TransportProperties p) {
 		for (InetSocketAddress remote : getRemoteSocketAddresses(p)) {
 			if (!isConnectable(remote)) {
 				if (LOG.isLoggable(INFO)) {
