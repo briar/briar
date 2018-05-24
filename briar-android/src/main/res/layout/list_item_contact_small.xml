@@ -27,7 +27,7 @@
 		android:layout_marginStart="@dimen/margin_medium"
 		android:layout_weight="1"
 		android:maxLines="2"
-		android:textColor="@color/briar_text_primary"
+		android:textColor="?android:attr/textColorPrimary"
 		android:textSize="@dimen/text_size_medium"
 		tools:text="This is a name of a contact"/>
 

@@ -15,7 +15,7 @@
 		android:layout_height="wrap_content"
 		android:layout_alignParentTop="true"
 		android:maxLines="2"
-		android:textColor="@color/briar_text_primary"
+		android:textColor="?android:attr/textColorPrimary"
 		android:textSize="@dimen/text_size_medium"
 		tools:text="This is a name of a RSS Feed"/>
 
@@ -38,7 +38,7 @@
 		android:layout_marginRight="@dimen/margin_small"
 		android:paddingTop="@dimen/margin_tiny"
 		android:text="@string/blogs_rss_feeds_manage_author"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"/>
 
 	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
@@ -49,7 +49,7 @@
 		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
 		android:layout_marginRight="@dimen/listitem_horizontal_margin"
 		android:layout_toRightOf="@+id/author"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"
 		tools:text="Bruce Schneier"/>
 
@@ -61,7 +61,7 @@
 		android:layout_marginRight="@dimen/margin_small"
 		android:paddingTop="@dimen/margin_tiny"
 		android:text="@string/blogs_rss_feeds_manage_imported"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"/>
 
 	<TextView
@@ -72,7 +72,7 @@
 		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
 		android:layout_marginRight="@dimen/listitem_horizontal_margin"
 		android:layout_toRightOf="@+id/imported"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"
 		tools:text="July 4"/>
 
@@ -85,7 +85,7 @@
 		android:layout_marginRight="@dimen/margin_small"
 		android:paddingTop="@dimen/margin_tiny"
 		android:text="@string/blogs_rss_feeds_manage_updated"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"/>
 
 	<TextView
@@ -96,7 +96,7 @@
 		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
 		android:layout_marginRight="@dimen/listitem_horizontal_margin"
 		android:layout_toRightOf="@+id/updated"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"
 		tools:text="5 min. ago"/>
 
@@ -108,7 +108,7 @@
 		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
 		android:layout_marginRight="@dimen/listitem_horizontal_margin"
 		android:paddingTop="@dimen/margin_medium"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"
 		tools:text="This is a description of the RSS feed. It can be several lines long, but it can also not exist at all if it is not present in the feed itself."/>
 

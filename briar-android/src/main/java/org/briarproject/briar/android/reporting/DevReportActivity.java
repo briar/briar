@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_YES;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -84,6 +85,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 
 	@Override
 	public void onCreate(Bundle state) {
+		getDelegate().setLocalNightMode(MODE_NIGHT_YES);
 		getDelegate().installViewFactory();
 		getDelegate().onCreate(state);
 		super.onCreate(state);
@@ -94,6 +96,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 		getDelegate().setSupportActionBar(tb);
 
 		View requestReport = findViewById(R.id.request_report);
+		View reportForm = findViewById(R.id.report_form);
 		userCommentView = findViewById(R.id.user_comment);
 		userEmailView = findViewById(R.id.user_email);
 		includeDebugReport = findViewById(R.id.include_debug_report);
@@ -111,13 +114,18 @@ public class DevReportActivity extends BaseCrashReportDialog
 		if (isFeedback()) {
 			includeDebugReport
 					.setText(getString(R.string.include_debug_report_feedback));
+			reportForm.setVisibility(VISIBLE);
+			requestReport.setVisibility(INVISIBLE);
 		} else {
 			includeDebugReport.setChecked(true);
+			reportForm.setVisibility(INVISIBLE);
+			requestReport.setVisibility(VISIBLE);
 		}
 
 		findViewById(R.id.acceptButton).setOnClickListener(v -> {
 			reviewing = true;
-			requestReport.setVisibility(GONE);
+			reportForm.setVisibility(VISIBLE);
+			requestReport.setVisibility(INVISIBLE);
 			((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
 					.showSoftInput(userCommentView, SHOW_FORCED);
 		});

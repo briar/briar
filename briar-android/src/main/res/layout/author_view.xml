@@ -32,7 +32,7 @@
 		android:layout_height="wrap_content"
 		android:layout_toEndOf="@+id/avatar"
 		android:layout_toRightOf="@+id/avatar"
-		android:textColor="@color/briar_text_primary"
+		android:textColor="?android:attr/textColorPrimary"
 		android:textSize="@dimen/text_size_small"
 		tools:text="Author Name"/>
 
@@ -55,7 +55,7 @@
 		android:layout_toEndOf="@+id/avatar"
 		android:layout_toRightOf="@+id/avatar"
 		android:gravity="bottom"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_tiny"
 		tools:text="yesterday"/>
 

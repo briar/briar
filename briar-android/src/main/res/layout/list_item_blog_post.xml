@@ -7,7 +7,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:foreground="?android:attr/selectableItemBackground">
+	android:foreground="?attr/selectableItemBackground">
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -38,24 +38,24 @@
 				android:layout_marginBottom="@dimen/listitem_vertical_margin"
 				android:layout_toLeftOf="@+id/commentView"/>
 
-			<ImageView
+			<android.support.v7.widget.AppCompatImageButton
 				android:id="@+id/commentView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentRight="true"
 				android:layout_alignParentTop="true"
 				android:background="?attr/selectableItemBackground"
-				android:clickable="true"
 				android:contentDescription="@string/blogs_reblog_comment_hint"
 				android:padding="@dimen/margin_small"
-				android:src="@drawable/ic_repeat"/>
+				android:src="@drawable/ic_repeat"
+				app:tint="?attr/colorControlNormal"/>
 
 			<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 				android:id="@+id/bodyView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_below="@+id/authorView"
-				android:textColor="@color/briar_text_secondary"
+				android:textColor="?android:attr/textColorSecondary"
 				android:textSize="@dimen/text_size_medium"
 				tools:text="This is a body text that shows the content of a blog post.\n\nThis one is not short, but it is also not too long."/>
 

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
-
 
 	<RelativeLayout
 		xmlns:android="http://schemas.android.com/apk/res/android"
@@ -32,11 +32,11 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_toRightOf="@+id/avatarView"
-			android:textColor="@color/briar_text_primary"
+			android:textColor="?android:attr/textColorPrimary"
 			android:textSize="@dimen/text_size_large"
 			tools:text="Revealable Contact"/>
 
-		<ImageView
+		<android.support.v7.widget.AppCompatImageView
 			android:id="@+id/visibilityView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -44,6 +44,7 @@
 			android:layout_marginRight="@dimen/margin_small"
 			android:layout_toRightOf="@+id/avatarView"
 			android:src="@drawable/ic_visibility"
+			app:tint="?attr/colorControlNormal"
 			tools:ignore="ContentDescription"/>
 
 		<TextView
@@ -55,7 +56,7 @@
 			android:layout_toRightOf="@+id/visibilityView"
 			android:gravity="center_vertical"
 			android:text="@string/groups_reveal_visible"
-			android:textColor="@color/briar_text_tertiary"
+			android:textColor="?android:attr/textColorSecondary"
 			android:textSize="@dimen/text_size_small"
 			tools:visibility="visible"/>
 

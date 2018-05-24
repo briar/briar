@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<color name="briar_accent">#476380</color>
+
+	<color name="color_primary">#ffffff</color>
+	<color name="color_primary_inverse">#dd000000</color>
+	<color name="color_secondary">#b2ffffff</color>
+
+	<color name="window_background">#ff303030</color>
+	<color name="thread_item_highlight">#2D3E50</color>
+
+</resources>

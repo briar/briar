@@ -51,4 +51,20 @@
 		<item>tr</item>
 		<item>zh-CN</item>
 	</string-array>
+	<string-array name="pref_theme_entries">
+		<item>@string/pref_theme_light</item>
+		<item>@string/pref_theme_dark</item>
+		<item>@string/pref_theme_auto</item>
+		<item>@string/pref_theme_system</item>
+	</string-array>
+	<string name="pref_theme_light_value">light</string>
+	<string name="pref_theme_dark_value">dark</string>
+	<string name="pref_theme_auto_value">auto</string>
+	<string name="pref_theme_system_value">system</string>
+	<string-array name="pref_theme_values">
+		<item>@string/pref_theme_light_value</item>
+		<item>@string/pref_theme_dark_value</item>
+		<item>@string/pref_theme_auto_value</item>
+		<item>@string/pref_theme_system_value</item>
+	</string-array>
 </resources>

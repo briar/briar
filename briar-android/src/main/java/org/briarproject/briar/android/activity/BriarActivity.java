@@ -92,7 +92,6 @@ public abstract class BriarActivity extends BaseActivity {
 		window.setEnterTransition(slide);
 		window.setTransitionBackgroundFadeDuration(getResources()
 				.getInteger(android.R.integer.config_longAnimTime));
-		window.setBackgroundDrawableResource(android.R.color.transparent);
 	}
 
 	/**

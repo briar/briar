@@ -6,8 +6,8 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:background="@drawable/list_item_thread_background"
 	android:baselineAligned="false"
+	android:background="@drawable/list_item_thread_background"
 	android:orientation="horizontal">
 
 	<RelativeLayout
@@ -76,7 +76,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:padding="@dimen/margin_medium"
-			android:textColor="@color/briar_text_primary"
+			android:textColor="?android:attr/textColorPrimary"
 			android:textIsSelectable="true"
 			android:textSize="@dimen/text_size_medium"
 			tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."/>

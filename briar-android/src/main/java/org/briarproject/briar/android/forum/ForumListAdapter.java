@@ -2,7 +2,6 @@ package org.briarproject.briar.android.forum;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,12 +54,8 @@ class ForumListAdapter
 			ui.postCount.setText(ctx.getResources()
 					.getQuantityString(R.plurals.posts, postCount,
 							postCount));
-			ui.postCount.setTextColor(
-					ContextCompat.getColor(ctx, R.color.briar_text_secondary));
 		} else {
 			ui.postCount.setText(ctx.getString(R.string.no_posts));
-			ui.postCount.setTextColor(
-					ContextCompat.getColor(ctx, R.color.briar_text_tertiary));
 		}
 
 		// Date

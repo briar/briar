@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<style name="BriarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+	<style name="BriarTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
 		<item name="colorPrimary">@color/briar_primary</item>
 		<item name="colorPrimaryDark">@color/briar_primary_dark</item>
 		<item name="colorAccent">@color/briar_accent</item>
-		<item name="colorControlNormal">@color/control_normal_light</item>
 		<item name="android:textColorLink">@color/briar_text_link</item>
-		<item name="android:windowBackground">@color/window_background</item>
 		<item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
 		<item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
 	</style>
@@ -25,7 +23,7 @@
 		<item name="android:activityCloseExitAnimation">@anim/screen_new_out</item>
 	</style>
 
-	<style name="BriarDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+	<style name="BriarDialogTheme" parent="Theme.AppCompat.DayNight.Dialog">
 		<item name="colorPrimary">@color/briar_primary</item>
 		<item name="colorPrimaryDark">@color/briar_primary_dark</item>
 		<item name="colorAccent">@color/briar_accent</item>

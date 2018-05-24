@@ -7,7 +7,7 @@
 	<color name="briar_green_light">#95D220</color>
 	<color name="briar_link">#06B9FF</color>
 
-	<color name="window_background">#eceff1</color>
+	<color name="window_background">#fffafafa</color>
 	<color name="action_bar_text">#FFFFFF</color>
 	<color name="button_bar_background">#FFFFFF</color>
 	<color name="private_message_date">#AAAAAA</color>
@@ -19,6 +19,10 @@
 
 	<color name="briar_accent">@color/briar_blue</color>
 	<color name="control_normal_light">#757575</color>
+
+	<color name="color_primary">#dd000000</color>
+	<color name="color_primary_inverse">#ffffff</color>
+	<color name="color_secondary">#89000000</color>
 
 	<!-- text colors -->
 	<color name="briar_text_link">@color/briar_link</color>
@@ -40,5 +44,5 @@
 	<color name="menu_background">#FFFFFF</color>
 
 	<color name="spinner_border">#61000000</color> <!-- 38% Black -->
-	<color name="forum_cell_highlight">#ffffff</color>
+	<color name="thread_item_highlight">#729ecc</color>
 </resources>

@@ -34,6 +34,7 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
+import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.util.UserFeedback;
 
 import java.util.ArrayList;
@@ -44,6 +45,8 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.media.RingtoneManager.ACTION_RINGTONE_PICKER;
 import static android.media.RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI;
 import static android.media.RingtoneManager.EXTRA_RINGTONE_EXISTING_URI;
@@ -99,6 +102,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private SettingsActivity listener;
 	private ListPreference language;
+	private ListPreference theme;
 	private ListPreference enableBluetooth;
 	private ListPreference torNetwork;
 	private CheckBoxPreference notifyPrivateMessages;
@@ -135,6 +139,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 		language = (ListPreference) findPreference(LANGUAGE);
 		setLanguageEntries();
+		theme = (ListPreference) findPreference("pref_key_theme");
 		enableBluetooth = (ListPreference) findPreference("pref_key_bluetooth");
 		torNetwork = (ListPreference) findPreference("pref_key_tor_network");
 		notifyPrivateMessages = (CheckBoxPreference) findPreference(
@@ -154,6 +159,23 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		setSettingsEnabled(false);
 
 		language.setOnPreferenceChangeListener(this);
+		theme.setOnPreferenceChangeListener((preference, newValue) -> {
+			if (getActivity() != null) {
+				// activate new theme
+				UiUtils.setTheme(getActivity(), (String) newValue);
+				// bring up parent activity, so it can change its theme as well
+				Intent intent =
+						new Intent(getActivity(), NavDrawerActivity.class);
+				intent.setFlags(
+						FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
+				// bring this activity back to the foreground
+				intent = new Intent(getActivity(), getActivity().getClass());
+				startActivity(intent);
+				getActivity().finish();
+			}
+			return true;
+		});
 		enableBluetooth.setOnPreferenceChangeListener(this);
 		torNetwork.setOnPreferenceChangeListener(this);
 		if (SDK_INT >= 21) {
@@ -320,6 +342,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	private void setSettingsEnabled(boolean enabled) {
+		// theme not needed here, because handled by SharedPreferences
 		enableBluetooth.setEnabled(enabled);
 		torNetwork.setEnabled(enabled);
 		notifyPrivateMessages.setEnabled(enabled);

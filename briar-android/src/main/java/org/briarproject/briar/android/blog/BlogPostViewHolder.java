@@ -11,7 +11,7 @@ import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.identity.Author;
@@ -40,7 +40,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 	private final ViewGroup layout;
 	private final AuthorView reblogger;
 	private final AuthorView author;
-	private final ImageView reblogButton;
+	private final ImageButton reblogButton;
 	private final TextView body;
 	private final ViewGroup commentContainer;
 	private final boolean fullText;

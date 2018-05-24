@@ -7,7 +7,6 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
 import org.briarproject.briar.R;
 
@@ -58,7 +57,7 @@ public class LargeTextInputView extends TextInputView {
 		if (buttonText != null) setButtonText(buttonText);
 		if (maxLines > 0) ui.editText.setMaxLines(maxLines);
 		if (fillHeight) {
-			LinearLayout layout = findViewById(R.id.input_layout);
+			ViewGroup layout = findViewById(R.id.input_layout);
 			LayoutParams params = (LayoutParams) layout.getLayoutParams();
 			params.height = 0;
 			params.weight = 1;

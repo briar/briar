@@ -28,7 +28,7 @@
 		android:paddingBottom="@dimen/listitem_vertical_margin"
 		android:paddingLeft="@dimen/listitem_vertical_margin"
 		android:paddingRight="@dimen/listitem_vertical_margin"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"
 		tools:text="This is a comment that appears below a blog post. Usually, it is expected to be rather short. Not much longer than this one."/>
 

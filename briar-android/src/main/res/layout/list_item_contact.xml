@@ -4,12 +4,14 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:background="?attr/selectableItemBackground"
+	android:clickable="true"
+	android:focusable="true"
 	android:orientation="vertical">
 
 	<RelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="?attr/selectableItemBackground"
 		android:paddingBottom="@dimen/listitem_horizontal_margin"
 		android:paddingTop="@dimen/listitem_horizontal_margin">
 
@@ -62,7 +64,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:maxLines="2"
-				android:textColor="@color/briar_text_primary"
+				android:textColor="?android:attr/textColorPrimary"
 				android:textSize="@dimen/text_size_medium"
 				tools:text="This is a name of a contact"/>
 
@@ -70,7 +72,7 @@
 				android:id="@+id/dateView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:textColor="@color/briar_text_secondary"
+				android:textColor="?android:attr/textColorSecondary"
 				android:textSize="@dimen/text_size_small"
 				tools:text="Dec 24"/>
 

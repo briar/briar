@@ -12,7 +12,7 @@
 		android:layout_height="128dp"
 		android:scaleType="center"
 		android:src="@drawable/startup_lock"
-		android:tint="@color/briar_primary"
+		android:tint="@color/briar_accent"
 		app:layout_constraintBottom_toTopOf="@+id/textView"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"

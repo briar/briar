@@ -9,7 +9,6 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="40dp"
-		android:background="@color/emoji_pager_background"
 		android:orientation="horizontal">
 
 		<com.astuetz.PagerSlidingTabStrip
@@ -17,7 +16,7 @@
 			android:layout_width="0dp"
 			android:layout_height="match_parent"
 			android:layout_weight="1"
-			app:pstsIndicatorColor="@color/briar_accent"
+			app:pstsIndicatorColor="@color/color_primary"
 			app:pstsIndicatorHeight="@dimen/emoji_drawer_indicator_height"
 			app:pstsShouldExpand="true"
 			app:pstsTabPaddingLeftRight="@dimen/emoji_drawer_left_right_padding"/>
@@ -33,10 +32,11 @@
 			android:id="@+id/backspace"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:background="@color/emoji_pager_background"
+			android:background="?attr/selectableItemBackground"
 			android:paddingLeft="@dimen/margin_medium"
 			android:paddingRight="@dimen/margin_medium"
-			android:src="@drawable/ic_backspace_black"/>
+			android:src="@drawable/ic_backspace"
+			app:tint="?attr/colorControlNormal"/>
 
 	</LinearLayout>
 
@@ -47,7 +47,6 @@
 		android:id="@+id/emoji_pager"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:background="@color/window_background"
 		android:visibility="visible"/>
 
 </merge>

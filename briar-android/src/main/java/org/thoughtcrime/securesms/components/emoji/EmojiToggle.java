@@ -4,8 +4,8 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatImageButton;
 import android.util.AttributeSet;
-import android.widget.ImageButton;
 
 import org.briarproject.briar.R;
 import org.thoughtcrime.securesms.components.emoji.EmojiDrawer.EmojiDrawerListener;
@@ -13,7 +13,8 @@ import org.thoughtcrime.securesms.components.emoji.EmojiDrawer.EmojiDrawerListen
 import javax.annotation.Nullable;
 
 @UiThread
-public class EmojiToggle extends ImageButton implements EmojiDrawerListener {
+public class EmojiToggle extends AppCompatImageButton
+		implements EmojiDrawerListener {
 
 	private final Drawable emojiToggle;
 	private final Drawable imeToggle;
@@ -33,7 +34,7 @@ public class EmojiToggle extends ImageButton implements EmojiDrawerListener {
 		emojiToggle = ContextCompat
 				.getDrawable(getContext(), R.drawable.ic_emoji_toggle);
 		imeToggle = ContextCompat
-				.getDrawable(getContext(), R.drawable.ic_keyboard_black);
+				.getDrawable(getContext(), R.drawable.ic_keyboard);
 		setToEmoji();
 	}
 

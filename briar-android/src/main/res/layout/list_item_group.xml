@@ -4,9 +4,10 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:layout_marginLeft="@dimen/listitem_horizontal_margin"
-	android:layout_marginStart="@dimen/listitem_horizontal_margin"
-	android:background="?attr/selectableItemBackground">
+	android:background="?attr/selectableItemBackground"
+	android:paddingLeft="@dimen/listitem_horizontal_margin"
+	android:paddingStart="@dimen/listitem_horizontal_margin"
+	tools:ignore="RtlSymmetry">
 
 	<org.briarproject.briar.android.view.TextAvatarView
 		android:id="@+id/avatarView"
@@ -27,7 +28,7 @@
 		android:layout_toEndOf="@+id/avatarView"
 		android:layout_toRightOf="@+id/avatarView"
 		android:maxLines="2"
-		android:textColor="@color/briar_text_primary"
+		android:textColor="?android:attr/textColorPrimary"
 		android:textSize="@dimen/text_size_medium"
 		tools:text="This is a name of a Private Group"/>
 
@@ -40,7 +41,7 @@
 		android:layout_toEndOf="@+id/avatarView"
 		android:layout_toRightOf="@+id/avatarView"
 		android:paddingTop="@dimen/margin_small"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"
 		tools:text="Created by Santa Claus"/>
 
@@ -53,7 +54,7 @@
 		android:layout_toEndOf="@+id/avatarView"
 		android:layout_toRightOf="@+id/avatarView"
 		android:paddingTop="@dimen/margin_small"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"
 		tools:text="1337 messages"
 		tools:visibility="visible"/>
@@ -68,7 +69,7 @@
 		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
 		android:layout_marginRight="@dimen/listitem_horizontal_margin"
 		android:paddingTop="@dimen/margin_small"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"
 		tools:text="3 weeks ago, 12:00"
 		tools:visibility="visible"/>
@@ -79,10 +80,10 @@
 		android:layout_height="wrap_content"
 		android:layout_below="@+id/messageCountView"
 		android:layout_toEndOf="@+id/avatarView"
-		android:layout_toRightOf="@+id/avatarView"
 		android:layout_toLeftOf="@+id/removeButton"
+		android:layout_toRightOf="@+id/avatarView"
 		android:paddingTop="@dimen/margin_small"
-		android:textColor="@color/briar_text_tertiary"
+		android:textColor="?android:attr/textColorTertiary"
 		tools:text="@string/groups_group_is_empty"/>
 
 	<Button

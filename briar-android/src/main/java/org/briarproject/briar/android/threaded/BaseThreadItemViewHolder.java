@@ -4,10 +4,8 @@ import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.UiThread;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +17,8 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 import org.briarproject.briar.android.view.AuthorView;
+
+import static android.support.v4.content.ContextCompat.getColor;
 
 @UiThread
 @NotNullByDefault
@@ -61,10 +61,9 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 	private void animateFadeOut() {
 		setIsRecyclable(false);
 		ValueAnimator anim = new ValueAnimator();
-		ColorDrawable viewColor = new ColorDrawable(ContextCompat
-				.getColor(getContext(), R.color.forum_cell_highlight));
-		anim.setIntValues(viewColor.getColor(), ContextCompat
-				.getColor(getContext(), R.color.window_background));
+		int viewColor = getColor(getContext(), R.color.thread_item_highlight);
+		anim.setIntValues(viewColor,
+				getColor(getContext(), R.color.window_background));
 		anim.setEvaluator(new ArgbEvaluator());
 		anim.setInterpolator(new AccelerateInterpolator());
 		anim.addListener(new Animator.AnimatorListener() {

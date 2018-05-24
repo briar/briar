@@ -14,7 +14,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/margin_medium"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_medium"
 		android:textStyle="italic"
 		tools:text="@string/groups_member_joined"/>

@@ -42,17 +42,18 @@
 					android:layout_height="wrap_content"
 					android:layout_marginTop="@dimen/margin_small"
 					android:gravity="center"
-					android:textColor="@color/briar_text_primary"
+					android:textColor="?android:attr/textColorPrimary"
 					android:textSize="@dimen/text_size_small"
 					tools:text="Contact 1"/>
 
 			</LinearLayout>
 
-			<ImageView
+			<android.support.v7.widget.AppCompatImageView
 				android:id="@+id/introductionIcon"
 				android:layout_width="@dimen/listitem_picture_size"
 				android:layout_height="@dimen/listitem_picture_size"
 				android:src="@drawable/ic_contact_introduction"
+				app:tint="?attr/colorControlNormal"
 				tools:ignore="ContentDescription"/>
 
 			<LinearLayout
@@ -78,7 +79,7 @@
 					android:layout_height="wrap_content"
 					android:layout_marginTop="@dimen/margin_small"
 					android:gravity="center"
-					android:textColor="@color/briar_text_primary"
+					android:textColor="?android:attr/textColorPrimary"
 					android:textSize="@dimen/text_size_small"
 					tools:text="Contact 2"/>
 

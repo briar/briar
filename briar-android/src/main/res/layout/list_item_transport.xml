@@ -20,7 +20,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="match_parent"
 		android:padding="@dimen/margin_small"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		tools:text="@string/transport_tor"/>
 
 </LinearLayout>

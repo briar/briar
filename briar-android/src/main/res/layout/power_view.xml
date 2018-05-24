@@ -24,7 +24,7 @@
 		android:layout_height="24dp"
 		android:layout_margin="8dp"
 		android:src="@drawable/ic_check_white"
-		android:tint="?colorControlNormal"
+		android:tint="?attr/colorControlNormal"
 		android:visibility="invisible"
 		app:layout_constraintBottom_toBottomOf="@+id/button"
 		app:layout_constraintStart_toStartOf="parent"
