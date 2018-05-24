@@ -1,6 +1,7 @@
 package org.briarproject.briar.android;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 
@@ -8,13 +9,25 @@ import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.plugin.BackoffFactory;
+import org.briarproject.bramble.api.plugin.PluginConfig;
+import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
+import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevConfig;
+import org.briarproject.bramble.api.reporting.DevReporter;
+import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.api.system.Scheduler;
 import org.briarproject.bramble.api.ui.UiCallback;
 import org.briarproject.bramble.util.AndroidUtils;
+import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
+import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
+import org.briarproject.bramble.plugin.tor.TorPluginFactory;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
@@ -23,9 +36,16 @@ import org.briarproject.briar.api.android.ScreenFilterMonitor;
 
 import java.io.File;
 import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.net.SocketFactory;
 
 import dagger.Module;
 import dagger.Provides;
@@ -95,6 +115,46 @@ public class AppModule {
 		DatabaseConfig databaseConfig =
 				new AndroidDatabaseConfig(dbDir, keyDir);
 		return databaseConfig;
+	}
+
+	@Provides
+	PluginConfig providePluginConfig(@IoExecutor Executor ioExecutor,
+			@Scheduler ScheduledExecutorService scheduler,
+			AndroidExecutor androidExecutor, SecureRandom random,
+			SocketFactory torSocketFactory, BackoffFactory backoffFactory,
+			Application app, LocationUtils locationUtils, DevReporter reporter,
+			EventBus eventBus) {
+		Context appContext = app.getApplicationContext();
+		DuplexPluginFactory bluetooth =
+				new AndroidBluetoothPluginFactory(ioExecutor, androidExecutor,
+						appContext, random, eventBus, backoffFactory);
+		DuplexPluginFactory tor = new TorPluginFactory(ioExecutor, scheduler,
+				appContext, locationUtils, eventBus,
+				torSocketFactory, backoffFactory);
+		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
+				scheduler, backoffFactory, appContext);
+		Collection<DuplexPluginFactory> duplex =
+				Arrays.asList(bluetooth, tor, lan);
+		@NotNullByDefault
+		PluginConfig pluginConfig = new PluginConfig() {
+
+			@Override
+			public Collection<DuplexPluginFactory> getDuplexFactories() {
+				return duplex;
+			}
+
+			@Override
+			public Collection<SimplexPluginFactory> getSimplexFactories() {
+				return Collections.emptyList();
+			}
+
+			@Override
+			public boolean shouldPoll() {
+				return true;
+			}
+
+		};
+		return pluginConfig;
 	}
 
 	@Provides

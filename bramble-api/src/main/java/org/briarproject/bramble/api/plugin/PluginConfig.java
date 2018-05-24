@@ -12,4 +12,6 @@ public interface PluginConfig {
 	Collection<DuplexPluginFactory> getDuplexFactories();
 
 	Collection<SimplexPluginFactory> getSimplexFactories();
+
+	boolean shouldPoll();
 }

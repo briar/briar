@@ -59,6 +59,11 @@ public class DesktopPluginModule extends PluginModule {
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
 				return simplex;
 			}
+
+			@Override
+			public boolean shouldPoll() {
+				return true;
+			}
 		};
 		return pluginConfig;
 	}
