@@ -1,11 +1,5 @@
-import de.undercouch.gradle.tasks.download.Download
-import de.undercouch.gradle.tasks.download.Verify
-
-import java.security.NoSuchAlgorithmException
-
 apply plugin: 'com.android.library'
 apply plugin: 'witness'
-apply plugin: 'de.undercouch.download'
 
 android {
 	compileSdkVersion 27
@@ -25,9 +19,14 @@ android {
 	}
 }
 
+configurations {
+	tor
+}
+
 dependencies {
 	implementation project(path: ':bramble-core', configuration: 'default')
 	implementation 'org.briarproject:jtorctl:0.3'
+	tor 'org.briarproject:tor-android:0.2.9.15@zip'
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
 
@@ -93,6 +92,7 @@ dependencyVerification {
 			'org.bouncycastle:bcpkix-jdk15on:1.56:bcpkix-jdk15on-1.56.jar:7043dee4e9e7175e93e0b36f45b1ec1ecb893c5f755667e8b916eb8dd201c6ca',
 			'org.bouncycastle:bcprov-jdk15on:1.56:bcprov-jdk15on-1.56.jar:963e1ee14f808ffb99897d848ddcdb28fa91ddda867eb18d303e82728f878349',
 			'org.briarproject:jtorctl:0.3:jtorctl-0.3.jar:f2939238a097898998432effe93b0334d97a787972ab3a91a8973a1d309fc864',
+			'org.briarproject:tor-android:0.2.9.15:tor-android-0.2.9.15.zip:34a6474ee219ffa52e0f3393e917dda6ed03d320b02247d4fa5075aa4094ee6d',
 			'org.codehaus.groovy:groovy-all:2.4.12:groovy-all-2.4.12.jar:6a56af4bd48903d56bec62821876cadefafd007360cc6bd0d8f7aa8d72b38be4',
 			'org.codehaus.mojo:animal-sniffer-annotations:1.14:animal-sniffer-annotations-1.14.jar:2068320bd6bad744c3673ab048f67e30bef8f518996fa380033556600669905d',
 			'org.glassfish.jaxb:jaxb-core:2.2.11:jaxb-core-2.2.11.jar:37bcaee8ebb04362c8352a5bf6221b86967ecdab5164c696b10b9a2bb587b2aa',
@@ -113,81 +113,9 @@ dependencyVerification {
 	]
 }
 
-ext.torBinaryDir = 'src/main/res/raw'
-ext.torVersion = '0.2.9.14'
-ext.geoipVersion = '2017-11-06'
-ext.torDownloadUrl = 'https://briarproject.org/build/'
-
-def torBinaries = [
-		"tor_arm"    : '1710ea6c47b7f4c1a88bdf4858c7893837635db10e8866854eed8d61629f50e8',
-		"tor_arm_pie": '974e6949507db8fa2ea45231817c2c3677ed4ccf5488a2252317d744b0be1917',
-		"tor_x86"    : '3a5e45b3f051fcda9353b098b7086e762ffe7ba9242f7d7c8bf6523faaa8b1e9',
-		"tor_x86_pie": 'd1d96d8ce1a4b68accf04850185780d10cd5563d3552f7e1f040f8ca32cb4e51',
-		"geoip"      : '8239b98374493529a29096e45fc5877d4d6fdad0146ad8380b291f90d61484ea'
-]
-
-def verifyOrDeleteBinary(name, chksum, alreadyVerified) {
-	return tasks.create("verifyOrDeleteBinary${name}", VerifyOrDelete) {
-		src "${torBinaryDir}/${name}.zip"
-		algorithm 'SHA-256'
-		checksum chksum
-		result alreadyVerified
-		onlyIf {
-			src.exists()
-		}
-	}
-}
-
-def downloadBinary(name, chksum, alreadyVerified) {
-	return tasks.create([
-			name: "downloadBinary${name}",
-			type: Download,
-			dependsOn: verifyOrDeleteBinary(name, chksum, alreadyVerified)]) {
-		src "${torDownloadUrl}${name}.zip"
-				.replace('tor_', "tor-${torVersion}-")
-				.replace('geoip', "geoip-${geoipVersion}")
-				.replaceAll('_', '-')
-		dest "${torBinaryDir}/${name}.zip"
-		onlyIf {
-			!dest.exists()
-		}
-	}
-}
-
-def verifyBinary(name, chksum) {
-	boolean[] alreadyVerified = [false]
-	return tasks.create([
-			name     : "verifyBinary${name}",
-			type     : Verify,
-			dependsOn: downloadBinary(name, chksum, alreadyVerified)]) {
-		src "${torBinaryDir}/${name}.zip"
-		algorithm 'SHA-256'
-		checksum chksum
-		onlyIf {
-			!alreadyVerified[0]
-		}
-	}
-}
-
 project.afterEvaluate {
-	torBinaries.every { name, checksum ->
-		preBuild.dependsOn.add(verifyBinary(name, checksum))
-	}
-}
-
-class VerifyOrDelete extends Verify {
-
-	boolean[] result
-
-	@TaskAction
-	@Override
-	void verify() throws IOException, NoSuchAlgorithmException {
-		try {
-			super.verify()
-			result[0] = true
-		} catch (Exception e) {
-			println "${src} failed verification - deleting"
-			src.delete()
-		}
+	copy {
+		from configurations.tor.collect { zipTree(it) }
+		into 'src/main/res/raw'
 	}
 }
