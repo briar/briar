@@ -1,13 +1,9 @@
 package org.briarproject.briar.android.blog;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
@@ -27,7 +23,6 @@ import org.briarproject.briar.api.blog.BlogPostHeader;
 
 import javax.annotation.Nullable;
 
-import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
@@ -35,7 +30,6 @@ import static org.briarproject.briar.android.blog.BasePostFragment.POST_ID;
 import static org.briarproject.briar.android.util.UiUtils.TEASER_LENGTH;
 import static org.briarproject.briar.android.util.UiUtils.getSpanned;
 import static org.briarproject.briar.android.util.UiUtils.getTeaser;
-import static org.briarproject.briar.android.util.UiUtils.isSamsung7;
 import static org.briarproject.briar.android.util.UiUtils.makeLinksClickable;
 import static org.briarproject.briar.api.blog.MessageType.POST;
 
@@ -135,18 +129,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			Intent i = new Intent(ctx, ReblogActivity.class);
 			i.putExtra(GROUP_ID, item.getGroupId().getBytes());
 			i.putExtra(POST_ID, item.getId().getBytes());
-
-			if (Build.VERSION.SDK_INT >= 23 && !isSamsung7()) {
-				ActivityOptionsCompat options =
-						makeSceneTransitionAnimation((Activity) ctx, layout,
-								getTransitionName(item.getId()));
-				ActivityCompat.startActivity(ctx, i,
-						options.toBundle());
-			} else {
-				// work-around for android bug #224270
-				// work-around for Samsung Android 7 bug #1007
-				ctx.startActivity(i);
-			}
+			ctx.startActivity(i);
 		});
 
 		// comments
