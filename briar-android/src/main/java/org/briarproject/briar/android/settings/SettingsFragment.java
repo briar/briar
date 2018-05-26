@@ -164,6 +164,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				// activate new theme
 				UiUtils.setTheme(getActivity(), (String) newValue);
 				// bring up parent activity, so it can change its theme as well
+				// upstream bug: https://issuetracker.google.com/issues/38352704
 				Intent intent =
 						new Intent(getActivity(), NavDrawerActivity.class);
 				intent.setFlags(
