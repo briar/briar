@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import static android.content.Context.MODE_PRIVATE;
-import static java.util.logging.Level.INFO;
 
 public class AndroidUtils {
 
@@ -59,57 +58,28 @@ public class AndroidUtils {
 				&& !address.equals(FAKE_BLUETOOTH_ADDRESS);
 	}
 
-	public static void logDataDirContents(Context ctx) {
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("Contents of data directory:");
-			logFileOrDir(new File(ctx.getApplicationInfo().dataDir));
-		}
-	}
-
-	private static void logFileOrDir(File f) {
-		LOG.info(f.getAbsolutePath() + " " + f.length());
-		if (f.isDirectory()) {
-			File[] children = f.listFiles();
-			if (children == null) {
-				LOG.info("Could not list files in " + f.getAbsolutePath());
-			} else {
-				for (File child : children) logFileOrDir(child);
-			}
-		}
-	}
-
 	public static void deleteAppData(Context ctx, SharedPreferences... clear) {
 		// Clear and commit shared preferences
 		for (SharedPreferences prefs : clear) {
-			boolean cleared = prefs.edit().clear().commit();
-			if (LOG.isLoggable(INFO)) {
-				if (cleared) LOG.info("Cleared shared preferences");
-				else LOG.info("Could not clear shared preferences");
-			}
+			if (!prefs.edit().clear().commit())
+				LOG.warning("Could not clear shared preferences");
 		}
 		// Delete files, except lib and shared_prefs directories
 		File dataDir = new File(ctx.getApplicationInfo().dataDir);
-		if (LOG.isLoggable(INFO))
-			LOG.info("Deleting app data from " + dataDir.getAbsolutePath());
 		File[] children = dataDir.listFiles();
-		if (children != null) {
+		if (children == null) {
+			LOG.warning("Could not list files in app data dir");
+		} else {
 			for (File child : children) {
 				String name = child.getName();
 				if (!name.equals("lib") && !name.equals("shared_prefs")) {
-					if (LOG.isLoggable(INFO))
-						LOG.info("Deleting " + child.getAbsolutePath());
 					IoUtils.deleteFileOrDir(child);
 				}
 			}
-		} else if (LOG.isLoggable(INFO)) {
-			LOG.info("Could not list files in " + dataDir.getAbsolutePath());
 		}
 		// Recreate the cache dir as some OpenGL drivers expect it to exist
-		boolean recreated = new File(dataDir, "cache").mkdir();
-		if (LOG.isLoggable(INFO)) {
-			if (recreated) LOG.info("Recreated cache dir");
-			else LOG.info("Could not recreate cache dir");
-		}
+		if (!new File(dataDir, "cache").mkdir())
+			LOG.warning("Could not recreate cache dir");
 	}
 
 	public static File getReportDir(Context ctx) {

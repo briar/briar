@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 @NotNullByDefault
@@ -156,21 +155,16 @@ public class ConfigControllerImpl implements ConfigController {
 		SharedPreferences defaultPrefs =
 				PreferenceManager.getDefaultSharedPreferences(ctx);
 		AndroidUtils.deleteAppData(ctx, briarPrefs, defaultPrefs);
-		AndroidUtils.logDataDirContents(ctx);
 	}
 
 	@Override
 	public boolean accountExists() {
 		String hex = getEncryptedDatabaseKey();
-		boolean exists = hex != null && databaseConfig.databaseExists();
-		if (LOG.isLoggable(INFO)) LOG.info("Account exists: " + exists);
-		return exists;
+		return hex != null && databaseConfig.databaseExists();
 	}
 
 	@Override
 	public boolean accountSignedIn() {
-		boolean signedIn = databaseConfig.getEncryptionKey() != null;
-		if (LOG.isLoggable(INFO)) LOG.info("Signed in: " + signedIn);
-		return signedIn;
+		return databaseConfig.getEncryptionKey() != null;
 	}
 }
