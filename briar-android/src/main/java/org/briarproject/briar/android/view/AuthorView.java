@@ -6,7 +6,6 @@ import android.graphics.Typeface;
 import android.support.annotation.DimenRes;
 import android.support.annotation.UiThread;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -28,6 +27,7 @@ import static android.graphics.Typeface.BOLD;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
 import static org.briarproject.bramble.api.identity.Author.Status.NONE;
 import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
+import static org.briarproject.briar.android.util.UiUtils.resolveAttribute;
 
 @UiThread
 public class AuthorView extends RelativeLayout {
@@ -107,16 +107,15 @@ public class AuthorView extends RelativeLayout {
 
 	public void setAuthorClickable(OnClickListener listener) {
 		setClickable(true);
-		TypedValue outValue = new TypedValue();
-		getContext().getTheme().resolveAttribute(
-				android.R.attr.selectableItemBackground, outValue, true);
-		setBackgroundResource(outValue.resourceId);
+		int res =
+				resolveAttribute(getContext(), R.attr.selectableItemBackground);
+		setBackgroundResource(res);
 		setOnClickListener(listener);
 	}
 
 	public void setAuthorNotClickable() {
 		setClickable(false);
-		setBackgroundResource(android.R.color.transparent);
+		setBackgroundResource(0);
 		setOnClickListener(null);
 	}
 

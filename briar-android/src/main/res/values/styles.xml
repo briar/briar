@@ -32,7 +32,7 @@
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
 		<item name="android:padding">@dimen/margin_large</item>
-		<item name="android:textColor">@color/briar_text_primary_inverse</item>
+		<item name="android:textColor">@color/button_text</item>
 	</style>
 
 	<style name="BriarButtonFlat.Negative" parent="Widget.AppCompat.Button.Borderless">
@@ -73,7 +73,7 @@
 
 	<style name="BriarAvatar">
 		<item name="civ_border_width">@dimen/avatar_border_width</item>
-		<item name="civ_border_color">?android:attr/textColorPrimary</item>
+		<item name="civ_border_color">?android:attr/textColorSecondary</item>
 	</style>
 
 	<style name="NavMenuButton" parent="Widget.AppCompat.Button.Borderless.Colored">

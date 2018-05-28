@@ -7,6 +7,9 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.PowerManager;
+import android.support.annotation.AttrRes;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -20,6 +23,7 @@ import android.text.format.DateUtils;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.URLSpan;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
@@ -210,6 +214,19 @@ public class UiUtils {
 				.equals(ctx.getString(R.string.pref_theme_system_value))) {
 			setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM);
 		}
+	}
+
+	public static int resolveAttribute(Context ctx, @AttrRes int attr) {
+		TypedValue outValue = new TypedValue();
+		ctx.getTheme().resolveAttribute(attr, outValue, true);
+		return outValue.resourceId;
+	}
+
+	@ColorInt
+	public static int resolveColorAttribute(Context ctx, @AttrRes int res) {
+		@ColorRes
+		int color = resolveAttribute(ctx, res);
+		return ContextCompat.getColor(ctx, color);
 	}
 
 }

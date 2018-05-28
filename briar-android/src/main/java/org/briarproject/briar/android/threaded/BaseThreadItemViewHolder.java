@@ -63,7 +63,7 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 		ValueAnimator anim = new ValueAnimator();
 		int viewColor = getColor(getContext(), R.color.thread_item_highlight);
 		anim.setIntValues(viewColor,
-				getColor(getContext(), R.color.window_background));
+				getColor(getContext(), R.color.thread_item_background));
 		anim.setEvaluator(new ArgbEvaluator());
 		anim.setInterpolator(new AccelerateInterpolator());
 		anim.addListener(new Animator.AnimatorListener() {

@@ -86,9 +86,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	private CameraView cameraView;
 	private View statusView;
 	private TextView status;
+	private View qrCodeContainer;
 	private ImageView qrCode;
-	private TextView mainProgressTitle;
-	private ViewGroup mainProgressContainer;
 	private boolean fullscreen = false;
 
 	private boolean gotRemotePayload;
@@ -131,12 +130,10 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		cameraView = view.findViewById(R.id.camera_view);
 		statusView = view.findViewById(R.id.status_container);
 		status = view.findViewById(R.id.connect_status);
+		qrCodeContainer = view.findViewById(R.id.qr_code_container);
 		qrCode = view.findViewById(R.id.qr_code);
-		mainProgressTitle = view.findViewById(R.id.title_progress_bar);
-		mainProgressContainer = view.findViewById(R.id.container_progress);
 		ImageView fullscreenButton = view.findViewById(R.id.fullscreen_button);
 		fullscreenButton.setOnClickListener(v -> {
-			View qrCodeContainer = view.findViewById(R.id.qr_code_container);
 			LinearLayout cameraOverlay = view.findViewById(R.id.camera_overlay);
 			LayoutParams statusParams, qrCodeParams;
 			if (fullscreen) {
@@ -303,8 +300,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			keyAgreementAborted(event.didRemoteAbort());
 		} else if (e instanceof KeyAgreementFinishedEvent) {
 			runOnUiThreadUnlessDestroyed(() -> {
-				mainProgressContainer.setVisibility(VISIBLE);
-				mainProgressTitle.setText(R.string.exchanging_contact_details);
+				statusView.setVisibility(VISIBLE);
+				status.setText(R.string.exchanging_contact_details);
 			});
 		}
 	}
@@ -363,16 +360,18 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	private void keyAgreementStarted() {
 		runOnUiThreadUnlessDestroyed(() -> {
-			mainProgressContainer.setVisibility(VISIBLE);
-			mainProgressTitle.setText(R.string.authenticating_with_device);
+			qrCodeContainer.setVisibility(INVISIBLE);
+			statusView.setVisibility(VISIBLE);
+			status.setText(R.string.authenticating_with_device);
 		});
 	}
 
 	private void keyAgreementAborted(boolean remoteAborted) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			reset();
-			mainProgressContainer.setVisibility(INVISIBLE);
-			mainProgressTitle.setText("");
+			qrCodeContainer.setVisibility(VISIBLE);
+			statusView.setVisibility(INVISIBLE);
+			status.setText(null);
 			// TODO show abort somewhere persistent?
 			Toast.makeText(getActivity(),
 					remoteAborted ? R.string.connection_aborted_remote :

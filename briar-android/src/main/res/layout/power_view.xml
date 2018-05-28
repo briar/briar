@@ -18,17 +18,17 @@
 		app:layout_constraintTop_toTopOf="parent"
 		tools:text="@string/setup_huawei_text"/>
 
-	<ImageView
+	<android.support.v7.widget.AppCompatImageView
 		android:id="@+id/checkImage"
 		android:layout_width="24dp"
 		android:layout_height="24dp"
 		android:layout_margin="8dp"
 		android:src="@drawable/ic_check_white"
-		android:tint="?attr/colorControlNormal"
 		android:visibility="invisible"
 		app:layout_constraintBottom_toBottomOf="@+id/button"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/button"
+		app:tint="?attr/colorControlNormal"
 		tools:ignore="ContentDescription"/>
 
 	<Button

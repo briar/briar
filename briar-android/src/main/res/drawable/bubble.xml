@@ -12,7 +12,7 @@
 		android:bottom="1px"/>
 
 	<solid
-		android:color="@color/briar_primary"/>
+		android:color="@color/briar_accent"/>
 
 	<stroke
 		android:color="@color/briar_text_primary_inverse"
