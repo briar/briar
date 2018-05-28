@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 @NotNullByDefault
 public class IoUtils {
@@ -25,18 +25,21 @@ public class IoUtils {
 			delete(f);
 		} else if (f.isDirectory()) {
 			File[] children = f.listFiles();
-			if (children != null)
+			if (children == null) {
+				if (LOG.isLoggable(WARNING)) {
+					LOG.warning("Could not list files in "
+							+ f.getAbsolutePath());
+				}
+			} else {
 				for (File child : children) deleteFileOrDir(child);
+			}
 			delete(f);
 		}
 	}
 
 	private static void delete(File f) {
-		boolean deleted = f.delete();
-		if (LOG.isLoggable(INFO)) {
-			if (deleted) LOG.info("Deleted " + f.getAbsolutePath());
-			else LOG.info("Could not delete " + f.getAbsolutePath());
-		}
+		if (!f.delete() && LOG.isLoggable(WARNING))
+			LOG.warning("Could not delete " + f.getAbsolutePath());
 	}
 
 	public static void copyAndClose(InputStream in, OutputStream out) {

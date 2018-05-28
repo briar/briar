@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
 
@@ -103,14 +102,11 @@ public class SetupControllerImpl extends PasswordControllerImpl
 		if (password == null) throw new IllegalStateException();
 		cryptoExecutor.execute(() -> {
 			LOG.info("Creating account");
-			AndroidUtils.logDataDirContents(setupActivity);
 			databaseConfig.setLocalAuthorName(authorName);
 			SecretKey key = crypto.generateSecretKey();
 			databaseConfig.setEncryptionKey(key);
 			String hex = encryptDatabaseKey(key, password);
 			storeEncryptedDatabaseKey(hex);
-			LOG.info("Created account");
-			AndroidUtils.logDataDirContents(setupActivity);
 			resultHandler.onResult(null);
 		});
 	}

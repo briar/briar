@@ -8,7 +8,6 @@ import android.support.v7.preference.PreferenceManager;
 import android.transition.Fade;
 
 import org.briarproject.bramble.api.system.AndroidExecutor;
-import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
@@ -45,11 +44,9 @@ public class SplashScreenActivity extends BaseActivity {
 		setContentView(R.layout.splash);
 
 		if (configController.accountSignedIn()) {
-			LOG.info("Already signed in, not showing splash screen");
 			startActivity(new Intent(this, OpenDatabaseActivity.class));
 			finish();
 		} else {
-			LOG.info("Showing splash screen");
 			new Handler().postDelayed(() -> {
 				startNextActivity();
 				supportFinishAfterTransition();
@@ -67,7 +64,6 @@ public class SplashScreenActivity extends BaseActivity {
 			LOG.info("Expired");
 			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
-			AndroidUtils.logDataDirContents(this);
 			if (configController.accountExists()) {
 				LOG.info("Account exists");
 				startActivity(new Intent(this, OpenDatabaseActivity.class));
@@ -80,10 +76,8 @@ public class SplashScreenActivity extends BaseActivity {
 	}
 
 	private void setPreferencesDefaults() {
-		androidExecutor.runOnBackgroundThread(() -> {
- 			PreferenceManager.setDefaultValues(SplashScreenActivity.this,
-					R.xml.panic_preferences, false);
-			LOG.info("Finished setting panic preference defaults");
-		});
+		androidExecutor.runOnBackgroundThread(() ->
+				PreferenceManager.setDefaultValues(SplashScreenActivity.this,
+						R.xml.panic_preferences, false));
 	}
 }
