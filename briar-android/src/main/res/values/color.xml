@@ -10,8 +10,6 @@
 	<color name="window_background">#fffafafa</color>
 	<color name="card_background">@color/cardview_light_background</color>
 	<color name="action_bar_text">#FFFFFF</color>
-	<color name="button_bar_background">#FFFFFF</color>
-	<color name="private_message_date">#AAAAAA</color>
 	<color name="private_message_date_inverse">#e0e0e0</color>
 	<color name="forum_avatar_shadow">#99000000</color>
 
@@ -19,19 +17,14 @@
 	<color name="briar_primary_dark">@color/briar_blue_dark</color>
 
 	<color name="briar_accent">@color/briar_blue</color>
-	<color name="control_normal_light">#757575</color>
 
 	<color name="color_primary">#dd000000</color>
-	<color name="color_primary_inverse">#ffffff</color>
-	<color name="color_secondary">#89000000</color>
 
 	<!-- text colors -->
 	<color name="briar_text_link">@color/briar_link</color>
 	<color name="briar_text_primary">#df000000</color>
 	<color name="briar_text_primary_inverse">#ffffff</color>
-	<color name="briar_text_secondary">#8a000000</color>
 	<color name="briar_text_secondary_inverse">#b4ffffff</color>
-	<color name="briar_text_tertiary">#61000000</color>
 	<color name="briar_text_tertiary_inverse">#80ffffff</color>
 	<color name="preference_category">@color/briar_blue_light</color>
 
@@ -39,13 +32,10 @@
 	<color name="briar_button_negative">#ff0000</color>
 	<color name="briar_warning_background">#ff0000</color>
 
-	<color name="emoji_pager_background">@color/window_background</color>
-
 	<color name="thread_indicator">#9e9e9e</color>
 	<color name="thread_item_background">#eceff1</color>
 	<color name="thread_item_highlight">#ffffff</color>
 	<color name="divider">#c1c1c1</color>
-	<color name="menu_background">#FFFFFF</color>
 
 	<color name="spinner_border">#61000000</color> <!-- 38% Black -->
 </resources>
