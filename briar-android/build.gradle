@@ -295,7 +295,7 @@ task verifyTranslations {
 
 		def folders = ["default", "en-US"]
 		new File("briar-android/src/main/res").eachDir { dir ->
-			if (dir.name.startsWith("values-")) {
+			if (dir.name.startsWith("values-") && !dir.name.endsWith("night")) {
 				folders.add(dir.name.substring(7).replace("-r", "-"))
 			}
 		}

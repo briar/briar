@@ -2,10 +2,12 @@ package org.briarproject.briar.android;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
+import android.preference.PreferenceManager;
 
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
@@ -76,8 +78,10 @@ public class BriarApplicationImpl extends Application
 
 	@Override
 	protected void attachBaseContext(Context base) {
+		SharedPreferences prefs =
+				PreferenceManager.getDefaultSharedPreferences(base);
 		// Loading the language needs to be done here.
-		Localizer.initialize(base);
+		Localizer.initialize(prefs);
 		super.attachBaseContext(
 				Localizer.getInstance().setLocale(base));
 		ACRA.init(this);

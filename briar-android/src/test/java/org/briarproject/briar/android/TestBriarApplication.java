@@ -1,6 +1,8 @@
 package org.briarproject.briar.android;
 
 import android.app.Application;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.briar.BriarCoreModule;
@@ -27,7 +29,8 @@ public class TestBriarApplication extends Application
 		super.onCreate();
 		LOG.info("Created");
 
-		Localizer.initialize(this);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		Localizer.initialize(prefs);
 		applicationComponent = DaggerAndroidComponent.builder()
 				.appModule(new AppModule(this))
 				.build();

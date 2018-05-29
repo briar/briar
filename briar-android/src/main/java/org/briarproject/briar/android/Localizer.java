@@ -4,14 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.preference.PreferenceManager;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.Locale;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static org.briarproject.briar.android.settings.SettingsFragment.LANGUAGE;
@@ -19,20 +17,22 @@ import static org.briarproject.briar.android.settings.SettingsFragment.LANGUAGE;
 @NotNullByDefault
 public class Localizer {
 
+	// Locking: class
+	@Nullable
 	private static Localizer INSTANCE;
 	@Nullable
 	private final Locale locale;
 	private final SharedPreferences sharedPreferences;
 
-	private Localizer(Context context) {
-		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+	private Localizer(SharedPreferences prefs) {
+		this.sharedPreferences = prefs;
 		locale = getLocaleFromTag(
 				sharedPreferences.getString(LANGUAGE, "default"));
 	}
 
-	public static synchronized void initialize(Context context) {
+	public static synchronized void initialize(SharedPreferences prefs) {
 		if (INSTANCE == null)
-			INSTANCE = new Localizer(context);
+			INSTANCE = new Localizer(prefs);
 	}
 
 	public static synchronized Localizer getInstance() {
