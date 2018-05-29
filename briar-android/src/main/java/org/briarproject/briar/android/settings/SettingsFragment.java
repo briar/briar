@@ -102,7 +102,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private SettingsActivity listener;
 	private ListPreference language;
-	private ListPreference theme;
 	private ListPreference enableBluetooth;
 	private ListPreference torNetwork;
 	private CheckBoxPreference notifyPrivateMessages;
@@ -139,7 +138,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 		language = (ListPreference) findPreference(LANGUAGE);
 		setLanguageEntries();
-		theme = (ListPreference) findPreference("pref_key_theme");
+		ListPreference theme =
+				(ListPreference) findPreference("pref_key_theme");
 		enableBluetooth = (ListPreference) findPreference("pref_key_bluetooth");
 		torNetwork = (ListPreference) findPreference("pref_key_tor_network");
 		notifyPrivateMessages = (CheckBoxPreference) findPreference(
@@ -196,6 +196,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 					}
 			);
 		} else {
+			// TODO remove before releasing theme to public
+			theme.setVisible(false);
+
 			findPreference("pref_key_explode").setVisible(false);
 			findPreference("pref_key_test_data").setVisible(false);
 			PreferenceGroup testing =
