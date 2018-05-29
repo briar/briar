@@ -89,6 +89,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 		textInput.setListener(this);
 		list = findViewById(R.id.list);
 		layoutManager = new LinearLayoutManager(this);
+		// FIXME pre-fetching messes with read state, find better solution #1289
+		layoutManager.setItemPrefetchEnabled(false);
 		list.setLayoutManager(layoutManager);
 		adapter = createAdapter(layoutManager);
 		list.setAdapter(adapter);
