@@ -300,13 +300,25 @@ task verifyTranslations {
 			}
 		}
 		folders.each { n ->
-			if (!translations.remove(n)) {
+			if (!translations.remove(n) && n != 'iw') {
 				throw new GradleException("Translation " + n + " is missing in $file")
 			}
 		}
 		if (translations.size() != 0)
 			throw new GradleException("Translations\n" + translations.join("\n")
 					+ "\nhave no matching value folder")
+
+		// Some devices use iw instead of he for hebrew
+		def hebrew_legacy = new File("briar-android/src/main/res/values-iw")
+		def hebrew = new File("briar-android/src/main/res/values-he")
+		// Copy values-he to values-iw
+		if (hebrew.exists()) {
+			hebrew_legacy.mkdir()
+			copy {
+				from 'src/main/res/values-he'
+				into 'src/main/res/values-iw'
+			}
+		}
 	}
 }
 
