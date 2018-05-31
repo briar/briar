@@ -16,15 +16,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import org.briarproject.bramble.api.contact.ContactExchangeListener;
-import org.briarproject.bramble.api.contact.ContactExchangeTask;
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementResult;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementFinishedEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -60,9 +54,8 @@ import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMI
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class KeyAgreementActivity extends BriarActivity implements
-		BaseFragmentListener, IntroScreenSeenListener, EventListener,
-		ContactExchangeListener {
+public abstract class KeyAgreementActivity extends BriarActivity implements
+		BaseFragmentListener, IntroScreenSeenListener, EventListener {
 
 	private enum BluetoothState {
 		UNKNOWN, NO_ADAPTER, WAITING, REFUSED, ENABLED
@@ -73,12 +66,6 @@ public class KeyAgreementActivity extends BriarActivity implements
 
 	@Inject
 	EventBus eventBus;
-
-	// Fields that are accessed from background threads must be volatile
-	@Inject
-	volatile ContactExchangeTask contactExchangeTask;
-	@Inject
-	volatile IdentityManager identityManager;
 
 	private boolean isResumed = false, enableWasRequested = false;
 	private boolean continueClicked, gotCameraPermission;
@@ -95,13 +82,9 @@ public class KeyAgreementActivity extends BriarActivity implements
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_fragment_container_toolbar);
-
 		Toolbar toolbar = findViewById(R.id.toolbar);
-
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-		getSupportActionBar().setTitle(R.string.add_contact_title);
 		if (state == null) {
 			showInitialFragment(IntroFragment.newInstance());
 		}
@@ -148,7 +131,7 @@ public class KeyAgreementActivity extends BriarActivity implements
 		if (canShowQrCodeFragment()) showQrCodeFragment();
 	}
 
-	boolean canShowQrCodeFragment() {
+	private boolean canShowQrCodeFragment() {
 		return isResumed && continueClicked
 				&& (SDK_INT < 23 || gotCameraPermission)
 				&& bluetoothState != BluetoothState.UNKNOWN
@@ -207,6 +190,7 @@ public class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	private void showQrCodeFragment() {
+		continueClicked = false;
 		// FIXME #824
 		FragmentManager fm = getSupportFragmentManager();
 		if (fm.findFragmentByTag(ShowQrCodeFragment.TAG) == null) {
@@ -288,6 +272,8 @@ public class KeyAgreementActivity extends BriarActivity implements
 		}
 	}
 
+<<<<<<<HEAD
+
 	private void keyAgreementFinished(KeyAgreementResult result) {
 		runOnUiThreadUnlessDestroyed(() -> startContactExchange(result));
 	}
@@ -342,6 +328,14 @@ public class KeyAgreementActivity extends BriarActivity implements
 			finish();
 		});
 	}
+=======
+
+	abstract void keyAgreementFinished(KeyAgreementResult result);
+>>>>>>>927ab9571...
+	Add some
+	abstraction to
+	the keyagreement
+	ui
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
 

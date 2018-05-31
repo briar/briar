@@ -33,7 +33,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
 import org.briarproject.briar.android.fragment.BaseFragment;
-import org.briarproject.briar.android.keyagreement.KeyAgreementActivity;
+import org.briarproject.briar.android.keyagreement.ContactExchangeActivity;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.BaseMessageHeader;
@@ -165,7 +165,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		switch (item.getItemId()) {
 			case R.id.action_add_contact:
 				Intent intent =
-						new Intent(getContext(), KeyAgreementActivity.class);
+						new Intent(getContext(), ContactExchangeActivity.class);
 				startActivity(intent);
 				return true;
 			default:
