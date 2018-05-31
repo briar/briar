@@ -16,6 +16,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 @UiThread
 @NotNullByDefault
 class HuaweiView extends PowerView {
@@ -45,6 +47,8 @@ class HuaweiView extends PowerView {
 	}
 
 	public static boolean needsToBeShown(Context context) {
+		// "Protected apps" no longer exists on Huawei EMUI 5.0 (Android 7.0)
+		if (SDK_INT >= 24) return false;
 		PackageManager pm = context.getPackageManager();
 		List<ResolveInfo> resolveInfos = pm.queryIntentActivities(getIntent(),
 				PackageManager.MATCH_DEFAULT_ONLY);
