@@ -193,8 +193,8 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		continueClicked = false;
 		// FIXME #824
 		FragmentManager fm = getSupportFragmentManager();
-		if (fm.findFragmentByTag(ShowQrCodeFragment.TAG) == null) {
-			BaseFragment f = ShowQrCodeFragment.newInstance();
+		if (fm.findFragmentByTag(KeyAgreementFragment.TAG) == null) {
+			BaseFragment f = KeyAgreementFragment.newInstance();
 			fm.beginTransaction()
 					.replace(R.id.fragmentContainer, f, f.getUniqueTag())
 					.addToBackStack(f.getUniqueTag())

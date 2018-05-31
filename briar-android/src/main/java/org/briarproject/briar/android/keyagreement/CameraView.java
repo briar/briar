@@ -9,10 +9,12 @@ import android.hardware.Camera.Size;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.WindowManager;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static android.content.Context.WINDOW_SERVICE;
 import static android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK;
 import static android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT;
 import static android.hardware.Camera.Parameters.FLASH_MODE_OFF;
@@ -97,7 +100,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	@UiThread
-	public void start(int rotationDegrees) throws CameraException {
+	public void start() throws CameraException {
 		LOG.info("Opening camera");
 		try {
 			int cameras = Camera.getNumberOfCameras();
@@ -122,7 +125,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		} catch (RuntimeException e) {
 			throw new CameraException(e);
 		}
-		setDisplayOrientation(rotationDegrees);
+		setDisplayOrientation(getScreenRotationDegrees());
 		// Use barcode scene mode if it's available
 		Parameters params = camera.getParameters();
 		params = setSceneMode(camera, params);
@@ -155,6 +158,27 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			throw new CameraException(e);
 		}
 		camera = null;
+	}
+
+	/**
+	 * See {@link Camera#setDisplayOrientation(int)}.
+	 */
+	private int getScreenRotationDegrees() {
+		WindowManager wm =
+				(WindowManager) getContext().getSystemService(WINDOW_SERVICE);
+		Display d = wm.getDefaultDisplay();
+		switch (d.getRotation()) {
+			case Surface.ROTATION_0:
+				return 0;
+			case Surface.ROTATION_90:
+				return 90;
+			case Surface.ROTATION_180:
+				return 180;
+			case Surface.ROTATION_270:
+				return 270;
+			default:
+				throw new AssertionError();
+		}
 	}
 
 	@UiThread

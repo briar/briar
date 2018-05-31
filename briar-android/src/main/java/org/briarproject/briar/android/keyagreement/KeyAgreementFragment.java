@@ -2,18 +2,12 @@ package org.briarproject.briar.android.keyagreement;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.hardware.Camera;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
@@ -41,6 +35,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseEventFragment;
 import org.briarproject.briar.android.fragment.ErrorFragment;
+import org.briarproject.briar.android.view.QrCodeView;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -63,10 +58,10 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class ShowQrCodeFragment extends BaseEventFragment
-		implements QrCodeDecoder.ResultCallback {
+public class KeyAgreementFragment extends BaseEventFragment
+		implements QrCodeDecoder.ResultCallback, QrCodeView.FullscreenListener {
 
-	static final String TAG = ShowQrCodeFragment.class.getName();
+	static final String TAG = KeyAgreementFragment.class.getName();
 
 	private static final Logger LOG = Logger.getLogger(TAG);
 	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
@@ -84,21 +79,18 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	EventBus eventBus;
 
 	private CameraView cameraView;
+	private LinearLayout cameraOverlay;
 	private View statusView;
+	private QrCodeView qrCodeView;
 	private TextView status;
-	private View qrCodeContainer;
-	private ImageView qrCode;
-	private boolean fullscreen = false;
 
 	private boolean gotRemotePayload;
 	private volatile boolean gotLocalPayload;
 	private KeyAgreementTask task;
 
-	public static ShowQrCodeFragment newInstance() {
-
+	public static KeyAgreementFragment newInstance() {
 		Bundle args = new Bundle();
-
-		ShowQrCodeFragment fragment = new ShowQrCodeFragment();
+		KeyAgreementFragment fragment = new KeyAgreementFragment();
 		fragment.setArguments(args);
 		return fragment;
 	}
@@ -118,7 +110,6 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
 		return inflater.inflate(R.layout.fragment_keyagreement_qr, container,
 				false);
 	}
@@ -126,45 +117,17 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	@Override
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-
 		cameraView = view.findViewById(R.id.camera_view);
+		cameraOverlay = view.findViewById(R.id.camera_overlay);
 		statusView = view.findViewById(R.id.status_container);
 		status = view.findViewById(R.id.connect_status);
-		qrCodeContainer = view.findViewById(R.id.qr_code_container);
-		qrCode = view.findViewById(R.id.qr_code);
-		ImageView fullscreenButton = view.findViewById(R.id.fullscreen_button);
-		fullscreenButton.setOnClickListener(v -> {
-			LinearLayout cameraOverlay = view.findViewById(R.id.camera_overlay);
-			LayoutParams statusParams, qrCodeParams;
-			if (fullscreen) {
-				// Shrink the QR code container to fill half its parent
-				if (cameraOverlay.getOrientation() == HORIZONTAL) {
-					statusParams = new LayoutParams(0, MATCH_PARENT, 1f);
-					qrCodeParams = new LayoutParams(0, MATCH_PARENT, 1f);
-				} else {
-					statusParams = new LayoutParams(MATCH_PARENT, 0, 1f);
-					qrCodeParams = new LayoutParams(MATCH_PARENT, 0, 1f);
-				}
-				fullscreenButton.setImageResource(
-						R.drawable.ic_fullscreen_black_48dp);
-			} else {
-				// Grow the QR code container to fill its parent
-				statusParams = new LayoutParams(0, 0, 0f);
-				qrCodeParams = new LayoutParams(MATCH_PARENT, MATCH_PARENT, 1f);
-				fullscreenButton.setImageResource(
-						R.drawable.ic_fullscreen_exit_black_48dp);
-			}
-			statusView.setLayoutParams(statusParams);
-			qrCodeContainer.setLayoutParams(qrCodeParams);
-			cameraOverlay.invalidate();
-			fullscreen = !fullscreen;
-		});
+		qrCodeView = view.findViewById(R.id.qr_code_view);
+		qrCodeView.setFullscreenListener(this);
 	}
 
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
 		getActivity().setRequestedOrientation(SCREEN_ORIENTATION_NOSENSOR);
 		cameraView.setPreviewConsumer(new QrCodeDecoder(this));
 	}
@@ -173,30 +136,33 @@ public class ShowQrCodeFragment extends BaseEventFragment
 	public void onStart() {
 		super.onStart();
 		try {
-			cameraView.start(getScreenRotationDegrees());
+			cameraView.start();
 		} catch (CameraException e) {
 			logCameraExceptionAndFinish(e);
 		}
 		startListening();
 	}
 
-	/**
-	 * See {@link Camera#setDisplayOrientation(int)}.
-	 */
-	private int getScreenRotationDegrees() {
-		Display d = getActivity().getWindowManager().getDefaultDisplay();
-		switch (d.getRotation()) {
-			case Surface.ROTATION_0:
-				return 0;
-			case Surface.ROTATION_90:
-				return 90;
-			case Surface.ROTATION_180:
-				return 180;
-			case Surface.ROTATION_270:
-				return 270;
-			default:
-				throw new AssertionError();
+	@Override
+	public void toggleFullscreen(boolean fullscreen) {
+		LinearLayout.LayoutParams statusParams, qrCodeParams;
+		if (fullscreen) {
+			// Grow the QR code view to fill its parent
+			statusParams = new LayoutParams(0, 0, 0f);
+			qrCodeParams = new LayoutParams(MATCH_PARENT, MATCH_PARENT, 1f);
+		} else {
+			// Shrink the QR code view to fill half its parent
+			if (cameraOverlay.getOrientation() == HORIZONTAL) {
+				statusParams = new LayoutParams(0, MATCH_PARENT, 1f);
+				qrCodeParams = new LayoutParams(0, MATCH_PARENT, 1f);
+			} else {
+				statusParams = new LayoutParams(MATCH_PARENT, 0, 1f);
+				qrCodeParams = new LayoutParams(MATCH_PARENT, 0, 1f);
+			}
 		}
+		statusView.setLayoutParams(statusParams);
+		qrCodeView.setLayoutParams(qrCodeParams);
+		cameraOverlay.invalidate();
 	}
 
 	@Override
@@ -242,7 +208,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		// If we've stopped the camera view, restart it
 		if (gotRemotePayload) {
 			try {
-				cameraView.start(getScreenRotationDegrees());
+				cameraView.start();
 			} catch (CameraException e) {
 				logCameraExceptionAndFinish(e);
 				return;
@@ -299,49 +265,8 @@ public class ShowQrCodeFragment extends BaseEventFragment
 			KeyAgreementAbortedEvent event = (KeyAgreementAbortedEvent) e;
 			keyAgreementAborted(event.didRemoteAbort());
 		} else if (e instanceof KeyAgreementFinishedEvent) {
-			runOnUiThreadUnlessDestroyed(() -> {
-				statusView.setVisibility(VISIBLE);
-				status.setText(R.string.exchanging_contact_details);
-			});
+			keyAgreementFinished();
 		}
-	}
-
-	@UiThread
-	private void generateBitmapQR(Payload payload) {
-		// Get narrowest screen dimension
-		Context context = getContext();
-		if (context == null) return;
-		DisplayMetrics dm = context.getResources().getDisplayMetrics();
-		new AsyncTask<Void, Void, Bitmap>() {
-
-			@Override
-			@Nullable
-			protected Bitmap doInBackground(Void... params) {
-				byte[] payloadBytes = payloadEncoder.encode(payload);
-				if (LOG.isLoggable(INFO)) {
-					LOG.info("Local payload is " + payloadBytes.length
-							+ " bytes");
-				}
-				// Use ISO 8859-1 to encode bytes directly as a string
-				String content = new String(payloadBytes, ISO_8859_1);
-				return QrCodeUtils.createQrCode(dm, content);
-			}
-
-			@Override
-			protected void onPostExecute(@Nullable Bitmap bitmap) {
-				if (bitmap != null && !isDetached()) {
-					qrCode.setImageBitmap(bitmap);
-					// Simple fade-in animation
-					AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
-					anim.setDuration(200);
-					qrCode.startAnimation(anim);
-				}
-			}
-		}.execute();
-	}
-
-	private void setQrCode(Payload localPayload) {
-		runOnUiThreadUnlessDestroyed(() -> generateBitmapQR(localPayload));
 	}
 
 	private void keyAgreementFailed() {
@@ -353,30 +278,54 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		});
 	}
 
-	private void keyAgreementWaiting() {
-		runOnUiThreadUnlessDestroyed(
-				() -> status.setText(R.string.waiting_for_contact_to_scan));
-	}
-
 	private void keyAgreementStarted() {
 		runOnUiThreadUnlessDestroyed(() -> {
-			qrCodeContainer.setVisibility(INVISIBLE);
+			qrCodeView.setVisibility(INVISIBLE);
 			statusView.setVisibility(VISIBLE);
 			status.setText(R.string.authenticating_with_device);
 		});
 	}
 
+	private void keyAgreementWaiting() {
+		runOnUiThreadUnlessDestroyed(
+				() -> status.setText(R.string.waiting_for_contact_to_scan));
+	}
+
 	private void keyAgreementAborted(boolean remoteAborted) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			reset();
-			qrCodeContainer.setVisibility(VISIBLE);
+			qrCodeView.setVisibility(VISIBLE);
 			statusView.setVisibility(INVISIBLE);
-			status.setText(null);
+			status.setText("");
 			// TODO show abort somewhere persistent?
 			Toast.makeText(getActivity(),
 					remoteAborted ? R.string.connection_aborted_remote :
 							R.string.connection_aborted_local, LENGTH_LONG)
 					.show();
+		});
+	}
+
+	private void keyAgreementFinished() {
+		runOnUiThreadUnlessDestroyed(() -> {
+			statusView.setVisibility(VISIBLE);
+			status.setText(R.string.exchanging_contact_details);
+		});
+	}
+
+	private void setQrCode(Payload localPayload) {
+		Context context = getContext();
+		if (context == null) return;
+		DisplayMetrics dm = context.getResources().getDisplayMetrics();
+		ioExecutor.execute(() -> {
+			byte[] payloadBytes = payloadEncoder.encode(localPayload);
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Local payload is " + payloadBytes.length
+						+ " bytes");
+			}
+			// Use ISO 8859-1 to encode bytes directly as a string
+			String content = new String(payloadBytes, ISO_8859_1);
+			Bitmap qrCode = QrCodeUtils.createQrCode(dm, content);
+			runOnUiThreadUnlessDestroyed(() -> qrCodeView.setQrCode(qrCode));
 		});
 	}
 
