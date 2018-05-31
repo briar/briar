@@ -5,7 +5,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 
 /**
- * An interface for handling connections created by a duplex transport plugin.
+ * An interface through which a duplex plugin interacts with the rest of the
+ * application.
  */
 @NotNullByDefault
 public interface DuplexPluginCallback extends PluginCallback {

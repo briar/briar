@@ -19,15 +19,13 @@ import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevConfig;
-import org.briarproject.bramble.api.reporting.DevReporter;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.Scheduler;
-import org.briarproject.bramble.api.ui.UiCallback;
-import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.TorPluginFactory;
+import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
@@ -37,9 +35,7 @@ import org.briarproject.briar.api.android.ScreenFilterMonitor;
 import java.io.File;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -51,6 +47,8 @@ import dagger.Module;
 import dagger.Provides;
 
 import static android.content.Context.MODE_PRIVATE;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
 
@@ -67,38 +65,15 @@ public class AppModule {
 	}
 
 	private final Application application;
-	private final UiCallback uiCallback;
 
 	public AppModule(Application application) {
 		this.application = application;
-		uiCallback = new UiCallback() {
-
-			@Override
-			public int showChoice(String[] options, String... message) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public boolean showConfirmationMessage(String... message) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public void showMessage(String... message) {
-				throw new UnsupportedOperationException();
-			}
-		};
 	}
 
 	@Provides
 	@Singleton
 	Application providesApplication() {
 		return application;
-	}
-
-	@Provides
-	UiCallback provideUICallback() {
-		return uiCallback;
 	}
 
 	@Provides
@@ -122,8 +97,7 @@ public class AppModule {
 			@Scheduler ScheduledExecutorService scheduler,
 			AndroidExecutor androidExecutor, SecureRandom random,
 			SocketFactory torSocketFactory, BackoffFactory backoffFactory,
-			Application app, LocationUtils locationUtils, DevReporter reporter,
-			EventBus eventBus) {
+			Application app, LocationUtils locationUtils, EventBus eventBus) {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth =
 				new AndroidBluetoothPluginFactory(ioExecutor, androidExecutor,
@@ -133,8 +107,7 @@ public class AppModule {
 				torSocketFactory, backoffFactory);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
 				scheduler, backoffFactory, appContext);
-		Collection<DuplexPluginFactory> duplex =
-				Arrays.asList(bluetooth, tor, lan);
+		Collection<DuplexPluginFactory> duplex = asList(bluetooth, tor, lan);
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {
 
@@ -145,14 +118,13 @@ public class AppModule {
 
 			@Override
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
-				return Collections.emptyList();
+				return emptyList();
 			}
 
 			@Override
 			public boolean shouldPoll() {
 				return true;
 			}
-
 		};
 		return pluginConfig;
 	}

@@ -38,9 +38,6 @@ class FileTransportReader implements TransportConnectionReader {
 		} catch (IOException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
-		if (recognised) {
-			file.delete();
-			plugin.readerFinished(file);
-		}
+		plugin.readerFinished(file, exception, recognised);
 	}
 }

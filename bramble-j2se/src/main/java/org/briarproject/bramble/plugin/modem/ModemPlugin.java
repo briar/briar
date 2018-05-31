@@ -17,7 +17,7 @@ import org.briarproject.bramble.util.StringUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -115,7 +115,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	@Override
-	public void poll(Collection<ContactId> connected) {
+	public void poll(Map<ContactId, TransportProperties> contacts) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -139,17 +139,16 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	@Override
-	public DuplexTransportConnection createConnection(ContactId c) {
+	public DuplexTransportConnection createConnection(TransportProperties p) {
 		if (!running) return null;
 		// Get the ISO 3166 code for the caller's country
 		String fromIso = callback.getLocalProperties().get("iso3166");
 		if (StringUtils.isNullOrEmpty(fromIso)) return null;
 		// Get the ISO 3166 code for the callee's country
-		TransportProperties properties = callback.getRemoteProperties(c);
-		String toIso = properties.get("iso3166");
+		String toIso = p.get("iso3166");
 		if (StringUtils.isNullOrEmpty(toIso)) return null;
 		// Get the callee's phone number
-		String number = properties.get("number");
+		String number = p.get("number");
 		if (StringUtils.isNullOrEmpty(number)) return null;
 		// Convert the number into direct dialling form
 		number = CountryCodes.translate(number, fromIso, toIso);

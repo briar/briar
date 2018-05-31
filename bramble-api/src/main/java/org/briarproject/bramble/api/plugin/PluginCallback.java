@@ -1,11 +1,8 @@
 package org.briarproject.bramble.api.plugin;
 
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
-
-import java.util.Map;
 
 /**
  * An interface through which a transport plugin interacts with the rest of
@@ -25,17 +22,7 @@ public interface PluginCallback {
 	TransportProperties getLocalProperties();
 
 	/**
-	 * Returns the plugin's remote transport properties.
-	 */
-	Map<ContactId, TransportProperties> getRemoteProperties();
-
-	/**
-	 * Returns the plugin's remote transport properties for the given contact.
-	 */
-	TransportProperties getRemoteProperties(ContactId c);
-
-	/**
-	 * Merges the given settings with the namespaced settings
+	 * Merges the given settings with the plugin's settings
 	 */
 	void mergeSettings(Settings s);
 
@@ -45,34 +32,12 @@ public interface PluginCallback {
 	void mergeLocalProperties(TransportProperties p);
 
 	/**
-	 * Presents the user with a choice among two or more named options and
-	 * returns the user's response. The message may consist of a translatable
-	 * format string and arguments.
-	 *
-	 * @return an index into the array of options indicating the user's choice,
-	 * or -1 if the user cancelled the choice.
-	 */
-	int showChoice(String[] options, String... message);
-
-	/**
-	 * Asks the user to confirm an action and returns the user's response. The
-	 * message may consist of a translatable format string and arguments.
-	 */
-	boolean showConfirmationMessage(String... message);
-
-	/**
-	 * Shows a message to the user. The message may consist of a translatable
-	 * format string and arguments.
-	 */
-	void showMessage(String... message);
-
-	/**
-	 * Signal that the transport got enabled.
+	 * Signals that the transport is enabled.
 	 */
 	void transportEnabled();
 
 	/**
-	 * Signal that the transport got disabled.
+	 * Signals that the transport is disabled.
 	 */
 	void transportDisabled();
 }

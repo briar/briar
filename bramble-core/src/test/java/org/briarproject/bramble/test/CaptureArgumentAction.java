@@ -20,7 +20,7 @@ public class CaptureArgumentAction<T> implements Action {
 	}
 
 	@Override
-	public Object invoke(Invocation invocation) throws Throwable {
+	public Object invoke(Invocation invocation) {
 		captured.set(capturedClass.cast(invocation.getParameter(index)));
 		return null;
 	}

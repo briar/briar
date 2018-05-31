@@ -9,13 +9,14 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPluginCallback;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import javax.annotation.Nullable;
 
 import dagger.Module;
 import dagger.Provides;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
 @Module
@@ -51,12 +52,12 @@ public class TestPluginConfigModule {
 
 			@Override
 			public Collection<DuplexPluginFactory> getDuplexFactories() {
-				return Collections.emptyList();
+				return emptyList();
 			}
 
 			@Override
 			public Collection<SimplexPluginFactory> getSimplexFactories() {
-				return Collections.singletonList(simplex);
+				return singletonList(simplex);
 			}
 
 			@Override

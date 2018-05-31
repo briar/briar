@@ -2,6 +2,7 @@ package org.briarproject.bramble.plugin;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactStatusChangedEvent;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -19,10 +20,13 @@ import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
 import org.briarproject.bramble.api.plugin.event.TransportDisabledEvent;
 import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
+import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.Scheduler;
 
 import java.security.SecureRandom;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -33,10 +37,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Inject;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 @ThreadSafe
 @NotNullByDefault
@@ -49,6 +53,7 @@ class Poller implements EventListener {
 	private final ConnectionManager connectionManager;
 	private final ConnectionRegistry connectionRegistry;
 	private final PluginManager pluginManager;
+	private final TransportPropertyManager transportPropertyManager;
 	private final SecureRandom random;
 	private final Clock clock;
 	private final Lock lock;
@@ -58,12 +63,14 @@ class Poller implements EventListener {
 			@Scheduler ScheduledExecutorService scheduler,
 			ConnectionManager connectionManager,
 			ConnectionRegistry connectionRegistry, PluginManager pluginManager,
+			TransportPropertyManager transportPropertyManager,
 			SecureRandom random, Clock clock) {
 		this.ioExecutor = ioExecutor;
 		this.scheduler = scheduler;
 		this.connectionManager = connectionManager;
 		this.connectionRegistry = connectionRegistry;
 		this.pluginManager = pluginManager;
+		this.transportPropertyManager = transportPropertyManager;
 		this.random = random;
 		this.clock = clock;
 		lock = new ReentrantLock();
@@ -119,10 +126,15 @@ class Poller implements EventListener {
 	private void connectToContact(ContactId c, SimplexPlugin p) {
 		ioExecutor.execute(() -> {
 			TransportId t = p.getId();
-			if (!connectionRegistry.isConnected(c, t)) {
-				TransportConnectionWriter w = p.createWriter(c);
+			if (connectionRegistry.isConnected(c, t)) return;
+			try {
+				TransportProperties props =
+						transportPropertyManager.getRemoteProperties(c, t);
+				TransportConnectionWriter w = p.createWriter(props);
 				if (w != null)
 					connectionManager.manageOutgoingConnection(c, t, w);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
@@ -130,10 +142,15 @@ class Poller implements EventListener {
 	private void connectToContact(ContactId c, DuplexPlugin p) {
 		ioExecutor.execute(() -> {
 			TransportId t = p.getId();
-			if (!connectionRegistry.isConnected(c, t)) {
-				DuplexTransportConnection d = p.createConnection(c);
+			if (connectionRegistry.isConnected(c, t)) return;
+			try {
+				TransportProperties props =
+						transportPropertyManager.getRemoteProperties(c, t);
+				DuplexTransportConnection d = p.createConnection(props);
 				if (d != null)
 					connectionManager.manageOutgoingConnection(c, t, d);
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
 	}
@@ -185,7 +202,17 @@ class Poller implements EventListener {
 	private void poll(Plugin p) {
 		TransportId t = p.getId();
 		if (LOG.isLoggable(INFO)) LOG.info("Polling plugin " + t);
-		p.poll(connectionRegistry.getConnectedContacts(t));
+		try {
+			Map<ContactId, TransportProperties> remote =
+					transportPropertyManager.getRemoteProperties(t);
+			Collection<ContactId> connected =
+					connectionRegistry.getConnectedContacts(t);
+			remote = new HashMap<>(remote);
+			remote.keySet().removeAll(connected);
+			if (!remote.isEmpty()) p.poll(remote);
+		} catch (DbException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
 	}
 
 	private class ScheduledPollTask {

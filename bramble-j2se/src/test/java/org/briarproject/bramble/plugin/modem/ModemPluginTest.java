@@ -1,6 +1,5 @@
 package org.briarproject.bramble.plugin.modem;
 
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.test.BrambleTestCase;
@@ -66,7 +65,6 @@ public class ModemPluginTest extends BrambleTestCase {
 		TransportProperties remote = new TransportProperties();
 		remote.put("iso3166", ISO_1336);
 		remote.put("number", NUMBER);
-		ContactId contactId = new ContactId(234);
 		context.checking(new Expectations() {{
 			// start()
 			oneOf(serialPortList).getPortNames();
@@ -78,14 +76,12 @@ public class ModemPluginTest extends BrambleTestCase {
 			// createConnection()
 			oneOf(callback).getLocalProperties();
 			will(returnValue(local));
-			oneOf(callback).getRemoteProperties(contactId);
-			will(returnValue(remote));
 			oneOf(modem).dial(NUMBER);
 			will(returnValue(true));
 		}});
 		plugin.start();
 		// A connection should be returned
-		assertNotNull(plugin.createConnection(contactId));
+		assertNotNull(plugin.createConnection(remote));
 		context.assertIsSatisfied();
 	}
 
@@ -105,7 +101,6 @@ public class ModemPluginTest extends BrambleTestCase {
 		TransportProperties remote = new TransportProperties();
 		remote.put("iso3166", ISO_1336);
 		remote.put("number", NUMBER);
-		ContactId contactId = new ContactId(234);
 		context.checking(new Expectations() {{
 			// start()
 			oneOf(serialPortList).getPortNames();
@@ -117,14 +112,12 @@ public class ModemPluginTest extends BrambleTestCase {
 			// createConnection()
 			oneOf(callback).getLocalProperties();
 			will(returnValue(local));
-			oneOf(callback).getRemoteProperties(contactId);
-			will(returnValue(remote));
 			oneOf(modem).dial(NUMBER);
 			will(returnValue(false));
 		}});
 		plugin.start();
 		// No connection should be returned
-		assertNull(plugin.createConnection(contactId));
+		assertNull(plugin.createConnection(remote));
 		context.assertIsSatisfied();
 	}
 
@@ -144,7 +137,6 @@ public class ModemPluginTest extends BrambleTestCase {
 		TransportProperties remote = new TransportProperties();
 		remote.put("iso3166", ISO_1336);
 		remote.put("number", NUMBER);
-		ContactId contactId = new ContactId(234);
 		context.checking(new Expectations() {{
 			// start()
 			oneOf(serialPortList).getPortNames();
@@ -156,8 +148,6 @@ public class ModemPluginTest extends BrambleTestCase {
 			// createConnection()
 			oneOf(callback).getLocalProperties();
 			will(returnValue(local));
-			oneOf(callback).getRemoteProperties(contactId);
-			will(returnValue(remote));
 			oneOf(modem).dial(NUMBER);
 			will(throwException(new IOException()));
 			// resetModem()
@@ -170,7 +160,7 @@ public class ModemPluginTest extends BrambleTestCase {
 		}});
 		plugin.start();
 		// No connection should be returned
-		assertNull(plugin.createConnection(contactId));
+		assertNull(plugin.createConnection(remote));
 		context.assertIsSatisfied();
 	}
 }

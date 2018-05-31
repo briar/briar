@@ -23,11 +23,6 @@ public interface TransportConnectionWriter {
 	int getMaxIdleTime();
 
 	/**
-	 * Returns the capacity of the transport connection in bytes.
-	 */
-	long getCapacity();
-
-	/**
 	 * Returns an output stream for writing to the transport connection.
 	 */
 	OutputStream getOutputStream() throws IOException;

@@ -32,12 +32,10 @@ import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.Scheduler;
-import org.briarproject.bramble.api.ui.UiCallback;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,7 +69,6 @@ class PluginManagerImpl implements PluginManager, Service {
 	private final TransportPropertyManager transportPropertyManager;
 	private final SecureRandom random;
 	private final Clock clock;
-	private final UiCallback uiCallback;
 	private final Map<TransportId, Plugin> plugins;
 	private final List<SimplexPlugin> simplexPlugins;
 	private final List<DuplexPlugin> duplexPlugins;
@@ -85,8 +82,7 @@ class PluginManagerImpl implements PluginManager, Service {
 			ConnectionRegistry connectionRegistry,
 			SettingsManager settingsManager,
 			TransportPropertyManager transportPropertyManager,
-			SecureRandom random, Clock clock,
-			UiCallback uiCallback) {
+			SecureRandom random, Clock clock) {
 		this.ioExecutor = ioExecutor;
 		this.scheduler = scheduler;
 		this.eventBus = eventBus;
@@ -97,7 +93,6 @@ class PluginManagerImpl implements PluginManager, Service {
 		this.transportPropertyManager = transportPropertyManager;
 		this.random = random;
 		this.clock = clock;
-		this.uiCallback = uiCallback;
 		plugins = new ConcurrentHashMap<>();
 		simplexPlugins = new CopyOnWriteArrayList<>();
 		duplexPlugins = new CopyOnWriteArrayList<>();
@@ -106,13 +101,14 @@ class PluginManagerImpl implements PluginManager, Service {
 	}
 
 	@Override
-	public void startService() throws ServiceException {
+	public void startService() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		// Instantiate the poller
 		if (pluginConfig.shouldPoll()) {
 			LOG.info("Starting poller");
 			Poller poller = new Poller(ioExecutor, scheduler, connectionManager,
-					connectionRegistry, this, random, clock);
+					connectionRegistry, this, transportPropertyManager, random,
+					clock);
 			eventBus.addListener(poller);
 		}
 		// Instantiate the simplex plugins and start them asynchronously
@@ -298,26 +294,6 @@ class PluginManagerImpl implements PluginManager, Service {
 		}
 
 		@Override
-		public Map<ContactId, TransportProperties> getRemoteProperties() {
-			try {
-				return transportPropertyManager.getRemoteProperties(id);
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				return Collections.emptyMap();
-			}
-		}
-
-		@Override
-		public TransportProperties getRemoteProperties(ContactId c) {
-			try {
-				return transportPropertyManager.getRemoteProperties(c, id);
-			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				return new TransportProperties();
-			}
-		}
-
-		@Override
 		public void mergeSettings(Settings s) {
 			try {
 				settingsManager.mergeSettings(s, id.getString());
@@ -333,21 +309,6 @@ class PluginManagerImpl implements PluginManager, Service {
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
-		}
-
-		@Override
-		public int showChoice(String[] options, String... message) {
-			return uiCallback.showChoice(options, message);
-		}
-
-		@Override
-		public boolean showConfirmationMessage(String... message) {
-			return uiCallback.showConfirmationMessage(message);
-		}
-
-		@Override
-		public void showMessage(String... message) {
-			uiCallback.showMessage(message);
 		}
 
 		@Override

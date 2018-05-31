@@ -50,7 +50,6 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -334,7 +333,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		return zin;
 	}
 
-	private InputStream getConfigInputStream() throws IOException {
+	private InputStream getConfigInputStream() {
 		int resId = getResourceId("torrc");
 		return appContext.getResources().openRawResource(resId);
 	}
@@ -499,7 +498,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	@Override
-	public void stop() throws PluginException {
+	public void stop() {
 		running = false;
 		tryToClose(socket);
 		if (networkStateReceiver != null)
@@ -533,20 +532,16 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	@Override
-	public void poll(Collection<ContactId> connected) {
+	public void poll(Map<ContactId, TransportProperties> contacts) {
 		if (!isRunning()) return;
 		backoff.increment();
-		Map<ContactId, TransportProperties> remote =
-				callback.getRemoteProperties();
-		for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
-			ContactId c = e.getKey();
-			if (!connected.contains(c)) connectAndCallBack(c, e.getValue());
+		for (Entry<ContactId, TransportProperties> e : contacts.entrySet()) {
+			connectAndCallBack(e.getKey(), e.getValue());
 		}
 	}
 
 	private void connectAndCallBack(ContactId c, TransportProperties p) {
 		ioExecutor.execute(() -> {
-			if (!isRunning()) return;
 			DuplexTransportConnection d = createConnection(p);
 			if (d != null) {
 				backoff.reset();
@@ -556,13 +551,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	@Override
-	public DuplexTransportConnection createConnection(ContactId c) {
+	public DuplexTransportConnection createConnection(TransportProperties p) {
 		if (!isRunning()) return null;
-		return createConnection(callback.getRemoteProperties(c));
-	}
-
-	@Nullable
-	private DuplexTransportConnection createConnection(TransportProperties p) {
 		String onion = p.get(PROP_ONION);
 		if (StringUtils.isNullOrEmpty(onion)) return null;
 		if (!ONION.matcher(onion).matches()) {
