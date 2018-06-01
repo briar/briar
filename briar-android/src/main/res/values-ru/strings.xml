@@ -238,8 +238,8 @@
     <item quantity="many">%d постов</item>
     <item quantity="other">%d постов</item>
   </plurals>
-  <string name="forum_new_entry_posted">Опубликована запись форума</string>
-  <string name="forum_new_message_hint">Новая запись</string>
+  <string name="forum_new_entry_posted">Пост в форуме опубликован</string>
+  <string name="forum_new_message_hint">Новый пост</string>
   <string name="forum_message_reply_hint">Новый ответ</string>
   <string name="btn_reply">Ответ</string>
   <string name="forum_leave">Покинуть форум</string>
@@ -268,7 +268,7 @@
   <string name="forum_invitation_response_accepted_received">%sпринял приглашение на форум.</string>
   <string name="forum_invitation_response_declined_received">%s отклонил приглашение на форум.</string>
   <string name="sharing_status">Статус общего доступа</string>
-  <string name="sharing_status_forum">Любой участник форума может поделиться своими контактами. Вы делитесь этим форумом со следующими контактами. Могут быть и другие участники, которых вы не видите.</string>
+  <string name="sharing_status_forum">Любой участник форума может поделиться им со своими контактами. Вы делитесь этим форумом со следующими контактами. Могут быть и другие участники, которых вы не видите.</string>
   <string name="shared_with">Совместно с %1$d (%2$d в сети)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d форум, общий с контактами</item>

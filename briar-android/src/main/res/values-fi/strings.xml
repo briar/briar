@@ -124,6 +124,7 @@
   <string name="contact_already_exists">Yhteystieto %s on jo olemassa</string>
   <string name="contact_exchange_failed">Yhteystietojen vaihto epäonnistui</string>
   <string name="qr_code_invalid">QR koodi on virheellinen</string>
+  <string name="qr_code_unsupported">Skannaamasi QR-koodi kuuluu %s:in vanhaan versioon, jonka tuki on loppunut.\n\nVarmista että kumpikin teistä käyttää uusinta versiota ja yritä uudelleen.</string>
   <string name="camera_error">Kameravirhe</string>
   <string name="connecting_to_device">Yhdistetään laitteeseen\u2026</string>
   <string name="authenticating_with_device">Tunnistaudutaan laitteen kanssa\u2026</string>
@@ -144,6 +145,7 @@
   <string name="introduction_request_exists_received">%1$s on pyytänyt, että sinut esitellään käyttäjälle %2$s, mutta %2$s on jo yhteystiedoissasi. %1$s ei välttämättä tiedä tätä, joten voit silti vastata:</string>
   <string name="introduction_request_answered_received">%1$s on pyytänyt, että sinut esitellään käyttäjälle %2$s.</string>
   <string name="introduction_response_accepted_sent">Olet hyväksynyt esittelyn käyttäjälle %1$s.</string>
+  <string name="introduction_response_accepted_sent_info">Ennen kuin %1$s voidaan lisätä sinun yhteystietoihin, hänen täytyy myös hyväksyä esittely. Tämä voi viedä vähän aikaa.</string>
   <string name="introduction_response_declined_sent">Olet kieltäytynyt esittelystä käyttäjälle %1$s.</string>
   <string name="introduction_response_accepted_received">%1$s hyväksyi esittelyn käyttäjälle %2$s.</string>
   <string name="introduction_response_declined_received">%1$s kieltäytyi esittelystä käyttäjälle %2$s.</string>
@@ -263,6 +265,7 @@
   <string name="blogs_blog_post_created">Blogikirjoitus julkaistu</string>
   <string name="blogs_blog_post_received">Uusi blogikirjoitus vastaanotettu</string>
   <string name="blogs_blog_post_scroll_to">Vieritä kohtaan</string>
+  <string name="blogs_feed_empty_state">Ei kirjoituksia\n\nYhteyshenkilöitesi ja seuraamiesi blogien kirjoitukset tulevat näkymään tässä\n\nNapauta kynää kirjoittaaksesi jotain</string>
   <string name="blogs_remove_blog">Poista blogi</string>
   <string name="blogs_remove_blog_dialog_message">Oletko varma, että haluat poistaa tämän blogin?\n\nKirjoitukset poistuvat sinun laitteelta, mutta ei muiden laitteilta.\n\nKäyttäjät joiden kanssa olet jakanut tämän blogin eivät välttämättä saa uusia päivityksiä.</string>
   <string name="blogs_remove_blog_ok">Poista</string>

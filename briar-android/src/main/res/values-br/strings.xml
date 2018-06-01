@@ -158,6 +158,8 @@
   <string name="blogs_rss_remove_feed_ok">Dilemel</string>
   <!--Settings Network-->
   <!--Settings Security and Panic-->
+  <string name="security_settings_title">Surentezh</string>
+  <string name="change_password">Cheñch ar ger-tremen</string>
   <string name="lock_setting_title">Digevreañ</string>
   <!--Settings Notifications-->
   <!--Settings Feedback-->
