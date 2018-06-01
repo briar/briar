@@ -42,6 +42,22 @@ public class BriefLogFormatter extends Formatter {
 		tag = tag.substring(tag.lastIndexOf('.') + 1);
 		sb.append(tag).append(": ");
 		sb.append(record.getMessage());
+		Throwable t = record.getThrown();
+		if (t != null) {
+			sb.append('\n');
+			appendThrowable(sb, t);
+		}
 		return sb.toString();
+	}
+
+	private void appendThrowable(StringBuilder sb, Throwable t) {
+		sb.append(t);
+		for (StackTraceElement e : t.getStackTrace())
+			sb.append("\n        at ").append(e);
+		Throwable cause = t.getCause();
+		if (cause != null) {
+			sb.append("\n     Caused by: ");
+			appendThrowable(sb, cause);
+		}
 	}
 }
