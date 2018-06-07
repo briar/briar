@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -211,8 +210,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				if (!tmp.isEmpty() && !tmp.equals(nativeName))
 					nativeName = tmp;
 			}
+			// Prefix with LRM marker to prevent any RTL direction
 			nativeNames[i] =
-					nativeName.substring(0, 1).toUpperCase() +
+					"\u200E" + nativeName.substring(0, 1).toUpperCase() +
 							nativeName.substring(1);
 		}
 		language.setEntries(nativeNames);
@@ -397,10 +397,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		builder.setPositiveButton(R.string.sign_out_button,
 				(dialogInterface, i) -> {
 					language.setValue(newValue);
-					SharedPreferences prefs =
-							Localizer.getInstance().getSharedPreferences();
-					prefs.edit().putString(LANGUAGE, newValue)
-							.commit();
 					Intent intent = new Intent(getContext(),
 							NavDrawerActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

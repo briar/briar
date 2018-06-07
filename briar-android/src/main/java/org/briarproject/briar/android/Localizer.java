@@ -22,10 +22,8 @@ public class Localizer {
 	private static Localizer INSTANCE;
 	@Nullable
 	private final Locale locale;
-	private final SharedPreferences sharedPreferences;
 
-	private Localizer(SharedPreferences prefs) {
-		this.sharedPreferences = prefs;
+	private Localizer(SharedPreferences sharedPreferences) {
 		locale = getLocaleFromTag(
 				sharedPreferences.getString(LANGUAGE, "default"));
 	}
@@ -39,10 +37,6 @@ public class Localizer {
 		if (INSTANCE == null)
 			throw new IllegalStateException("Localizer not initialized");
 		return INSTANCE;
-	}
-
-	public SharedPreferences getSharedPreferences() {
-		return sharedPreferences;
 	}
 
 	// Get Locale from BCP-47 tag
