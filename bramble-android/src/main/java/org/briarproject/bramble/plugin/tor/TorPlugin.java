@@ -185,18 +185,15 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		// Install or update the assets if necessary
 		if (!assetsAreUpToDate()) installAssets();
-		LOG.info("Starting Tor");
-		// Watch for the auth cookie file being updated
-		try {
-			cookieFile.getParentFile().mkdirs();
-			cookieFile.createNewFile();
-		} catch (IOException e) {
-			throw new PluginException(e);
-		}
+		// Watch for the auth cookie file being created
+		if (cookieFile.getParentFile().mkdirs())
+			LOG.info("Created directory for cookie file");
+		if (cookieFile.delete()) LOG.info("Deleted old cookie file");
 		CountDownLatch latch = new CountDownLatch(1);
-		FileObserver obs = new WriteObserver(cookieFile, latch);
+		FileObserver obs = new CreateObserver(cookieFile, latch);
 		obs.startWatching();
 		// Start a new Tor process
+		LOG.info("Starting Tor");
 		String torPath = torFile.getAbsolutePath();
 		String configPath = configFile.getAbsolutePath();
 		String pid = String.valueOf(android.os.Process.myPid());
@@ -364,7 +361,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			File[] children = f.listFiles();
 			if (children != null) for (File child : children) listFiles(child);
 		} else {
-			LOG.info(f.getAbsolutePath());
+			LOG.info(f.getAbsolutePath() + " " + f.length());
 		}
 	}
 
@@ -641,22 +638,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			LOG.info("Descriptor uploaded");
 	}
 
-	private static class WriteObserver extends FileObserver {
-
-		private final CountDownLatch latch;
-
-		private WriteObserver(File file, CountDownLatch latch) {
-			super(file.getAbsolutePath(), CLOSE_WRITE);
-			this.latch = latch;
-		}
-
-		@Override
-		public void onEvent(int event, @Nullable String path) {
-			stopWatching();
-			latch.countDown();
-		}
-	}
-
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof SettingsUpdatedEvent) {
@@ -715,6 +696,26 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		Future<?> oldConnectivityCheck =
 				connectivityCheck.getAndSet(newConnectivityCheck);
 		if (oldConnectivityCheck != null) oldConnectivityCheck.cancel(false);
+	}
+
+	private static class CreateObserver extends FileObserver {
+
+		private final File file;
+		private final CountDownLatch latch;
+
+		private CreateObserver(File file, CountDownLatch latch) {
+			super(file.getParentFile().getAbsolutePath(), CREATE | MOVED_TO);
+			this.file = file;
+			this.latch = latch;
+		}
+
+		@Override
+		public void onEvent(int event, @Nullable String path) {
+			if (file.exists()) {
+				stopWatching();
+				latch.countDown();
+			}
+		}
 	}
 
 	private class NetworkStateReceiver extends BroadcastReceiver {
