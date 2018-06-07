@@ -202,7 +202,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			Locale locale = Localizer.getLocaleFromTag(tag);
 			if (locale == null)
 				throw new IllegalStateException();
-			String nativeName = locale.getDisplayLanguage(locale);
+			String nativeName = locale.getDisplayName(locale);
 			// Fallback to English if the name is unknown in both native and
 			// current locale.
 			if (nativeName.equals(tag)) {
