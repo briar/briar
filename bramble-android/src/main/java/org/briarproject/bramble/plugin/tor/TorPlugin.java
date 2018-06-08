@@ -10,7 +10,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.FileObserver;
 import android.os.PowerManager;
 
 import net.freehaven.tor.control.EventHandler;
@@ -34,6 +33,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.util.IoUtils;
 import org.briarproject.bramble.util.StringUtils;
@@ -55,7 +55,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -78,7 +77,6 @@ import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
 import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -102,7 +100,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
 	};
 	private static final String OWNER = "__OwningControllerProcess";
-	private static final int COOKIE_TIMEOUT = 3000; // Milliseconds
+	private static final int COOKIE_TIMEOUT_MS = 3000;
+	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
 	private static final Pattern ONION = Pattern.compile("[a-z2-7]{16}");
 	private static final Logger LOG =
 			Logger.getLogger(TorPlugin.class.getName());
@@ -112,6 +111,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final Context appContext;
 	private final LocationUtils locationUtils;
 	private final SocketFactory torSocketFactory;
+	private final Clock clock;
 	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
 	private final String architecture;
@@ -132,7 +132,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	TorPlugin(Executor ioExecutor, ScheduledExecutorService scheduler,
 			Context appContext, LocationUtils locationUtils,
-			SocketFactory torSocketFactory, Backoff backoff,
+			SocketFactory torSocketFactory, Clock clock, Backoff backoff,
 			DuplexPluginCallback callback, String architecture,
 			int maxLatency, int maxIdleTime) {
 		this.ioExecutor = ioExecutor;
@@ -140,6 +140,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		this.appContext = appContext;
 		this.locationUtils = locationUtils;
 		this.torSocketFactory = torSocketFactory;
+		this.clock = clock;
 		this.backoff = backoff;
 		this.callback = callback;
 		this.architecture = architecture;
@@ -185,13 +186,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		// Install or update the assets if necessary
 		if (!assetsAreUpToDate()) installAssets();
-		// Watch for the auth cookie file being created
-		if (cookieFile.getParentFile().mkdirs())
-			LOG.info("Created directory for cookie file");
-		if (cookieFile.delete()) LOG.info("Deleted old cookie file");
-		CountDownLatch latch = new CountDownLatch(1);
-		FileObserver obs = new CreateObserver(cookieFile, latch);
-		obs.startWatching();
 		// Start a new Tor process
 		LOG.info("Starting Tor");
 		String torPath = torFile.getAbsolutePath();
@@ -232,11 +226,16 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				throw new PluginException();
 			}
 			// Wait for the auth cookie file to be created/updated
-			if (!latch.await(COOKIE_TIMEOUT, MILLISECONDS)) {
-				LOG.warning("Auth cookie not created");
-				if (LOG.isLoggable(INFO)) listFiles(torDirectory);
-				throw new PluginException();
+			long start = clock.currentTimeMillis();
+			while (cookieFile.length() < 32) {
+				if (clock.currentTimeMillis() - start > COOKIE_TIMEOUT_MS) {
+					LOG.warning("Auth cookie not created");
+					if (LOG.isLoggable(INFO)) listFiles(torDirectory);
+					throw new PluginException();
+				}
+				Thread.sleep(COOKIE_POLLING_INTERVAL_MS);
 			}
+			LOG.info("Auth cookie created");
 		} catch (InterruptedException e) {
 			LOG.warning("Interrupted while starting Tor");
 			Thread.currentThread().interrupt();
@@ -696,26 +695,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		Future<?> oldConnectivityCheck =
 				connectivityCheck.getAndSet(newConnectivityCheck);
 		if (oldConnectivityCheck != null) oldConnectivityCheck.cancel(false);
-	}
-
-	private static class CreateObserver extends FileObserver {
-
-		private final File file;
-		private final CountDownLatch latch;
-
-		private CreateObserver(File file, CountDownLatch latch) {
-			super(file.getParentFile().getAbsolutePath(), CREATE | MOVED_TO);
-			this.file = file;
-			this.latch = latch;
-		}
-
-		@Override
-		public void onEvent(int event, @Nullable String path) {
-			if (file.exists()) {
-				stopWatching();
-				latch.countDown();
-			}
-		}
 	}
 
 	private class NetworkStateReceiver extends BroadcastReceiver {
