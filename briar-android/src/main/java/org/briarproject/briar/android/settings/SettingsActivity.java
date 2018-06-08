@@ -36,5 +36,4 @@ public class SettingsActivity extends BriarActivity {
 		}
 		return false;
 	}
-
 }

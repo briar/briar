@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.activity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.LayoutRes;
@@ -18,6 +19,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.DestroyableContext;
+import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.controller.ActivityLifecycleController;
 import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.fragment.BaseFragment;
@@ -82,6 +84,12 @@ public abstract class BaseActivity extends AppCompatActivity
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityCreate(this);
 		}
+	}
+
+	@Override
+	protected void attachBaseContext(Context base) {
+		super.attachBaseContext(
+				Localizer.getInstance().setLocale(base));
 	}
 
 	public ActivityComponent getActivityComponent() {

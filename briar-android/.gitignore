@@ -4,3 +4,4 @@ build
 local.properties
 .settings
 src/main/assets/*.zip
+src/main/res/values-iw

@@ -323,6 +323,12 @@
 	<string name="blogs_rss_feeds_manage_empty_state">No RSS feeds to show\n\nTap the + icon to import a feed</string>
 	<string name="blogs_rss_feeds_manage_error">There was a problem loading your feeds. Please try again later.</string>
 
+	<!-- Settings Display -->
+	<string name="pref_language_title">Language &amp; region</string>
+	<string name="pref_language_changed">This setting will take effect when you restart Briar. Please sign out and restart Briar.</string>
+	<string name="pref_language_default">System default</string>
+	<string name="display_settings_title">Display</string>
+
 	<!-- Settings Network -->
 	<string name="network_settings_title">Networks</string>
 	<string name="bluetooth_setting">Connect via Bluetooth</string>
