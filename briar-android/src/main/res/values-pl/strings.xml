@@ -29,9 +29,21 @@
   <string name="sign_in_button">Zaloguj Się</string>
   <string name="forgotten_password">Przypomnij hasło</string>
   <string name="dialog_title_lost_password">Nie pamiętam hasła</string>
+  <string name="dialog_message_lost_password">Twoje konto Briar jest zaszyfrowane na Twoim urządzeniu nie w chmurze, więc nie będzie można zresetować Twojego hasła. Czy chcesz usunąć swoje konto i stworzyć nowe?\n\nUwaga: Twoje hasła, kontakty i wiadomości będą utracone.</string>
   <string name="startup_failed_notification_title">Briar nie mógł się uruchomić</string>
   <string name="startup_failed_notification_text">Więcej informacji</string>
   <string name="startup_failed_activity_title">Briar nie mógł się uruchomić</string>
+  <string name="startup_failed_db_error">Niestety baza danych Briar została uszkodzona i nie można jej naprawić. Twoje konto, dane i kontakty zostały utracone. Niestety musisz przeinstalować Briar lub utworzyć nowe konto wybierając opcje \"Zapomniałem hasła\".</string>
+  <string name="startup_failed_data_too_old_error">Twoje konto zostało stworzone przez starszą wersję aplikacji i nie może zostać otwarte w tej wersji. Musisz zainstalować starszą wersję aplikacji lub utworzyć nowe konto klikając \"Zapomniałem hasła\".</string>
+  <string name="startup_failed_data_too_new_error">Ta wersja aplikacji jest zbyt stara. Proszę zaktualizować program do najnowszej wersji i spróbować ponownie.</string>
+  <string name="startup_failed_service_error">Briar nie był w stanie uruchomić wybranego rozszerzenia. Przeinstalowanie Briar zwykle rozwiązuje ten problem. Pamiętaj jednak, że stracisz wtedy swoje konto i wszystkie powiązanie z nim dane, gdyż Briar nie używa centralnych serwerów by przechowywać dane.</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">To jest testowa wersja Briar. Twoje konto wygaśnie za %d dzień i nie będzie odnowione.</item>
+    <item quantity="few">To jest testowa wersja Briar. Twoje konto wygaśnie za %d dni i nie będzie odnowione.</item>
+    <item quantity="many">To jest testowa wersja Briar. Twoje konto wygaśnie za %d dni i nie będzie odnowione.</item>
+    <item quantity="other">To jest testowa wersja Briar. Twoje konto wygaśnie za %d dni i nie będzie odnowione.</item>
+  </plurals>
+  <string name="expiry_update">Okres testowania został wydłużony. Twoje konto wygaśnie za %d dni.</string>
   <string name="expiry_date_reached">Ten program wygasł.\nDziękujemy za testy!</string>
   <string name="download_briar">Aby dalej korzystać z Briar, proszę pobrać wersję 1.0.</string>
   <string name="create_new_account">Będzie potrzeba stworzenia nowego konta, ale możesz użyć takiej samej nazwy użytkownika.</string>
@@ -122,9 +134,12 @@
   <string name="contact_already_exists">Kontakt %s już istnieje</string>
   <string name="contact_exchange_failed">Wymiana kontaktów nie powiodła się</string>
   <string name="qr_code_invalid">Kod QR jest nie prawidłowy</string>
+  <string name="qr_code_unsupported">Kod QR który chcecsz zeskanować jest z wersji %s która nie jest już wspierana.\n\nProszę upewnić się czy oboje używacie najnowszej wersji i spróbować ponownie.</string>
   <string name="camera_error">Błąd aparatu</string>
   <string name="connecting_to_device">Łączenie z urządzeniem\u2026</string>
   <string name="authenticating_with_device">Autoryzowanie z urządzeniem\u2026</string>
+  <string name="connection_aborted_local">Połączenie przerwane! To może oznaczać że ktoś próbuje podszyć się pod Ciebie</string>
+  <string name="connection_aborted_remote">Połączenie przerwane przez kontakt! To może oznaczać, że ktoś próbuje zagłuszyć wasze połączenie</string>
   <!--Introductions-->
   <string name="introduction_activity_title">Wybierz kontakt</string>
   <string name="introduction_message_hint">Dodaj wiadomość (opcjonalne)</string>
@@ -135,6 +150,7 @@
     <item quantity="other">%d nowych kontaktów zostało dodanych.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">Brak grup do wyświetlenia\n\nDotknij ikonki + aby stworzyć grupę bądź poprosić kontakty o udostępnienie grup</string>
   <string name="groups_created_by">Stworzone przez %s</string>
   <plurals name="messages">
     <item quantity="one">%d wiadomość</item>
@@ -162,8 +178,10 @@
   <string name="groups_leave_dialog_message">Jesteś pewny, że chcesz opuścić tą grupę?</string>
   <string name="groups_dissolve">Rozwiąż Grupę</string>
   <string name="groups_dissolve_dialog_title">Potwierdź Rozwiązanie Grupy</string>
+  <string name="groups_dissolve_dialog_message">Czy chcesz rozwiązać tą grupę?\n\nWszyscy członkowie nie będą mogli kontynuować swoich konwersacji ani otrzymywać wiadomości.</string>
   <string name="groups_dissolve_button">Rozwiąż</string>
   <string name="groups_dissolved_dialog_title">Grupa Została Rozwiązana</string>
+  <string name="groups_dissolved_dialog_message">Twórca tej grupy rozwiązał ją.\n\nNie możesz już więcej pisać z członkami grupy ani czytać postów które zostały już napisane.</string>
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">Zaproszenia do Grup</string>
   <string name="groups_invitations_invitation_sent">Zaprosiłeś %1$s aby dołączył do grupy \"%2$s\".</string>

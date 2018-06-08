@@ -160,8 +160,10 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Surentezh</string>
   <string name="change_password">Cheñch ar ger-tremen</string>
+  <string name="panic_app_setting_none">Hini ebet</string>
   <string name="lock_setting_title">Digevreañ</string>
   <!--Settings Notifications-->
+  <string name="notify_sound_setting_disabled">Hini ebet</string>
   <!--Settings Feedback-->
   <!--Link Warning-->
   <!--Crash Reporter-->
