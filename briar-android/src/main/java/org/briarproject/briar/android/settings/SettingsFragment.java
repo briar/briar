@@ -9,6 +9,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.support.v4.text.TextUtilsCompat;
 import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
@@ -35,6 +36,8 @@ import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.util.UserFeedback;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
 
@@ -54,6 +57,7 @@ import static android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS;
 import static android.provider.Settings.EXTRA_APP_PACKAGE;
 import static android.provider.Settings.EXTRA_CHANNEL_ID;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
+import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -192,16 +196,24 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private void setLanguageEntries() {
 		CharSequence[] tags = language.getEntryValues();
-		CharSequence[] nativeNames = new CharSequence[tags.length];
-		for (int i = 0; i < tags.length; i++) {
-			String tag = tags[i].toString();
+		List<CharSequence> entries = new ArrayList<>(tags.length);
+		List<CharSequence> entryValues = new ArrayList<>(tags.length);
+		for (CharSequence cs : tags) {
+			String tag = cs.toString();
 			if (tag.equals("default")) {
-				nativeNames[i] = getString(R.string.pref_language_default);
+				entries.add(getString(R.string.pref_language_default));
+				entryValues.add(tag);
 				continue;
 			}
 			Locale locale = Localizer.getLocaleFromTag(tag);
 			if (locale == null)
 				throw new IllegalStateException();
+			// Exclude RTL locales on API < 17, they won't be laid out correctly
+			if (SDK_INT < 17 && !isLeftToRight(locale)) {
+				if (LOG.isLoggable(INFO))
+					LOG.info("Skipping RTL locale " + tag);
+				continue;
+			}
 			String nativeName = locale.getDisplayName(locale);
 			// Fallback to English if the name is unknown in both native and
 			// current locale.
@@ -211,11 +223,20 @@ public class SettingsFragment extends PreferenceFragmentCompat
 					nativeName = tmp;
 			}
 			// Prefix with LRM marker to prevent any RTL direction
-			nativeNames[i] =
-					"\u200E" + nativeName.substring(0, 1).toUpperCase() +
-							nativeName.substring(1);
+			entries.add("\u200E" + nativeName.substring(0, 1).toUpperCase()
+					+ nativeName.substring(1));
+			entryValues.add(tag);
 		}
-		language.setEntries(nativeNames);
+		language.setEntries(entries.toArray(new CharSequence[0]));
+		language.setEntryValues(entryValues.toArray(new CharSequence[0]));
+	}
+
+	private boolean isLeftToRight(Locale locale) {
+		// TextUtilsCompat returns the wrong direction for Hebrew on some phones
+		String language = locale.getLanguage();
+		if (language.equals("iw") || language.equals("he")) return false;
+		int direction = TextUtilsCompat.getLayoutDirectionFromLocale(locale);
+		return direction == LAYOUT_DIRECTION_LTR;
 	}
 
 	private void loadSettings() {
