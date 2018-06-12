@@ -21,8 +21,9 @@ public class Localizer {
 	@Nullable
 	private static Localizer INSTANCE;
 	private final Locale systemLocale;
+	// Locking: this
 	@Nullable
-	private volatile Locale locale;
+	private Locale locale;
 
 	private Localizer(SharedPreferences sharedPreferences) {
 		systemLocale = Locale.getDefault();
@@ -61,9 +62,8 @@ public class Localizer {
 			return new Locale(tag);
 	}
 
+	// Returns the localized version of context
 	public Context setLocale(Context context) {
-		if (locale == null)
-			return context;
 		Resources res = context.getResources();
 		Configuration conf = res.getConfiguration();
 		Locale currentLocale;
@@ -71,6 +71,14 @@ public class Localizer {
 			currentLocale = conf.getLocales().get(0);
 		} else
 			currentLocale = conf.locale;
+		synchronized (this) {
+			if (locale == null) {
+				// Detect if the user changed the system language
+				if (systemLocale.equals(currentLocale))
+					return context;
+				locale = systemLocale;
+			}
+		}
 		if (locale.equals(currentLocale))
 			return context;
 		Locale.setDefault(locale);
