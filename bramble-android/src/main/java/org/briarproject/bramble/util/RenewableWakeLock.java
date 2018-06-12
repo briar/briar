@@ -2,14 +2,21 @@ package org.briarproject.bramble.util;
 
 import android.os.PowerManager;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 
+@ThreadSafe
+@NotNullByDefault
 public class RenewableWakeLock {
 
 	private static final Logger LOG =
@@ -29,7 +36,9 @@ public class RenewableWakeLock {
 	private final Runnable renewTask;
 
 	private final Object lock = new Object();
+	@Nullable
 	private PowerManager.WakeLock wakeLock; // Locking: lock
+	@Nullable
 	private ScheduledFuture future; // Locking: lock
 
 	public RenewableWakeLock(PowerManager powerManager,
@@ -80,6 +89,7 @@ public class RenewableWakeLock {
 				LOG.info("Already released");
 				return;
 			}
+			if (future == null) throw new AssertionError();
 			future.cancel(false);
 			future = null;
 			wakeLock.release();
