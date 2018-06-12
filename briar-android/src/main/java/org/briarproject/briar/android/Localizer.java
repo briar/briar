@@ -20,10 +20,12 @@ public class Localizer {
 	// Locking: class
 	@Nullable
 	private static Localizer INSTANCE;
+	private final Locale systemLocale;
 	@Nullable
-	private final Locale locale;
+	private volatile Locale locale;
 
 	private Localizer(SharedPreferences sharedPreferences) {
+		systemLocale = Locale.getDefault();
 		locale = getLocaleFromTag(
 				sharedPreferences.getString(LANGUAGE, "default"));
 	}
@@ -37,6 +39,11 @@ public class Localizer {
 		if (INSTANCE == null)
 			throw new IllegalStateException("Localizer not initialized");
 		return INSTANCE;
+	}
+
+	// Reset to the system locale
+	public synchronized void reset() {
+		locale = systemLocale;
 	}
 
 	// Get Locale from BCP-47 tag

@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.controller.BriarController;
@@ -105,6 +106,7 @@ public class PasswordActivity extends BaseActivity {
 
 	private void deleteAccount() {
 		passwordController.deleteAccount(this);
+		Localizer.getInstance().reset();
 		setResult(RESULT_CANCELED);
 		Intent i = new Intent(this, SetupActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);
