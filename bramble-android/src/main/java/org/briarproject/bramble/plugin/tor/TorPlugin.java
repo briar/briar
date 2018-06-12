@@ -36,6 +36,7 @@ import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.util.IoUtils;
+import org.briarproject.bramble.util.RenewableWakeLock;
 import org.briarproject.bramble.util.StringUtils;
 
 import java.io.Closeable;
@@ -103,6 +104,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private static final int COOKIE_TIMEOUT_MS = 3000;
 	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
 	private static final Pattern ONION = Pattern.compile("[a-z2-7]{16}");
+	// This tag may prevent Huawei's power manager from killing us
+	private static final String WAKE_LOCK_TAG = "LocationManagerService";
 	private static final Logger LOG =
 			Logger.getLogger(TorPlugin.class.getName());
 
@@ -119,7 +122,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final ConnectionStatus connectionStatus;
 	private final File torDirectory, torFile, geoIpFile, configFile;
 	private final File doneFile, cookieFile;
-	private final PowerManager.WakeLock wakeLock;
+	private final RenewableWakeLock wakeLock;
 	private final AtomicReference<Future<?>> connectivityCheck =
 			new AtomicReference<>();
 	private final AtomicBoolean used = new AtomicBoolean(false);
@@ -156,14 +159,13 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
-		Object o = appContext.getSystemService(POWER_SERVICE);
-		PowerManager pm = (PowerManager) o;
-		// This tag will prevent Huawei's powermanager from killing us.
-		wakeLock = pm.newWakeLock(PARTIAL_WAKE_LOCK, "LocationManagerService");
-		wakeLock.setReferenceCounted(false);
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor = new PoliteExecutor("TorPlugin",
 				ioExecutor, 1);
+		PowerManager pm = (PowerManager)
+				appContext.getSystemService(POWER_SERVICE);
+		wakeLock = new RenewableWakeLock(pm, scheduler, PARTIAL_WAKE_LOCK,
+				WAKE_LOCK_TAG, 1, MINUTES);
 	}
 
 	@Override
