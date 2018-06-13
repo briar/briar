@@ -21,21 +21,32 @@ public class Localizer {
 	@Nullable
 	private static Localizer INSTANCE;
 	private final Locale systemLocale;
-	// Locking: this
 	@Nullable
-	private Locale locale;
+	private final Locale userLocale;
 
 	private Localizer(SharedPreferences sharedPreferences) {
 		systemLocale = Locale.getDefault();
-		locale = getLocaleFromTag(
+		userLocale = getLocaleFromTag(
 				sharedPreferences.getString(LANGUAGE, "default"));
 	}
 
+	private Localizer(Locale systemLocale, @Nullable Locale userLocale) {
+		this.systemLocale = systemLocale;
+		this.userLocale = userLocale;
+	}
+
+	// Instantiate the Localizer.
 	public static synchronized void initialize(SharedPreferences prefs) {
 		if (INSTANCE == null)
 			INSTANCE = new Localizer(prefs);
 	}
 
+	// Reinstantiate the Localizer with the system locale
+	private static synchronized void reinitialize(Locale systemLocale) {
+		INSTANCE = new Localizer(systemLocale, null);
+	}
+
+	// Get the current instance.
 	public static synchronized Localizer getInstance() {
 		if (INSTANCE == null)
 			throw new IllegalStateException("Localizer not initialized");
@@ -44,7 +55,7 @@ public class Localizer {
 
 	// Reset to the system locale
 	public synchronized void reset() {
-		locale = systemLocale;
+		reinitialize(systemLocale);
 	}
 
 	// Get Locale from BCP-47 tag
@@ -66,19 +77,18 @@ public class Localizer {
 	public Context setLocale(Context context) {
 		Resources res = context.getResources();
 		Configuration conf = res.getConfiguration();
-		Locale currentLocale;
+		Locale locale, currentLocale;
 		if (SDK_INT >= 24) {
 			currentLocale = conf.getLocales().get(0);
 		} else
 			currentLocale = conf.locale;
-		synchronized (this) {
-			if (locale == null) {
-				// Detect if the user changed the system language
-				if (systemLocale.equals(currentLocale))
-					return context;
-				locale = systemLocale;
-			}
-		}
+		if (userLocale == null) {
+			// Detect if the user changed the system language
+			if (systemLocale.equals(currentLocale))
+				return context;
+			locale = systemLocale;
+		} else
+			locale = userLocale;
 		if (locale.equals(currentLocale))
 			return context;
 		Locale.setDefault(locale);
