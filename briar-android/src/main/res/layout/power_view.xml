@@ -12,6 +12,8 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="8dp"
+		android:paddingLeft="@dimen/margin_large"
+		android:paddingRight="@dimen/margin_large"
 		android:textSize="@dimen/text_size_medium"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
