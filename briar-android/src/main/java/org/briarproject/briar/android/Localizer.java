@@ -54,7 +54,7 @@ public class Localizer {
 	}
 
 	// Reset to the system locale
-	public synchronized void reset() {
+	public void reset() {
 		reinitialize(systemLocale);
 	}
 
