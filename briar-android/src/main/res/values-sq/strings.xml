@@ -303,6 +303,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">S\’u fshi dot prurja!</string>
   <string name="blogs_rss_feeds_manage_empty_state">S’ka prurje RSS për shfaqje\n\nPrekni ikonën + që të importohet një prurje</string>
   <string name="blogs_rss_feeds_manage_error">Pati një problem me ngarkimin e prurjeve tuaja. Ju lutemi, riprovoni më vonë.</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">Gjuhë &amp; rajon</string>
+  <string name="pref_language_changed">Ky rregullim do të hyjë në fuqi kur të rinisni Briar-in. Ju lutemi, bëni daljen nga llogaria dhe rinisni Briar-in.</string>
+  <string name="pref_language_default">Parazgjedhje sistemi</string>
+  <string name="display_settings_title">Shfaqje</string>
   <!--Settings Network-->
   <string name="network_settings_title">Rrjete</string>
   <string name="bluetooth_setting">Lidhu përmes Bluetooth-i</string>

@@ -240,6 +240,8 @@
   <string name="blogs_rss_remove_feed_ok">Tuşu Sil</string>
   <string name="blogs_rss_feeds_manage_delete_error">Besleme silinemedi!</string>
   <string name="blogs_rss_feeds_manage_error">Beslemeleriniz yüklenirken bir hata meydana geldi. Lütfen daha sonra tekrar deneyin.</string>
+  <!--Settings Display-->
+  <string name="display_settings_title">Görüntüle</string>
   <!--Settings Network-->
   <string name="network_settings_title">Ağlar</string>
   <string name="bluetooth_setting">Bluetooth ile Bağlan</string>

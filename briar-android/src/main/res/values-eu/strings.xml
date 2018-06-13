@@ -303,6 +303,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">Ezin izan da jarioa ezabatu!</string>
   <string name="blogs_rss_feeds_manage_empty_state">RSS jariorik ez erakusteko\n\nSakatu + ikonoa jario bat inportatzeko</string>
   <string name="blogs_rss_feeds_manage_error">Arazo bat egon da zure jarioak kargatzean. Saiatu berriro geroago.</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">Hizkuntza eta eskualdea</string>
+  <string name="pref_language_changed">Ezarpen hauek Brfiar berrabiaraztean jarriko dira indarrean. Amaitu saioa eta berrabiarazi Briar.</string>
+  <string name="pref_language_default">Sisteman lehenetsia</string>
+  <string name="display_settings_title">Erakutsi</string>
   <!--Settings Network-->
   <string name="network_settings_title">Sareak</string>
   <string name="bluetooth_setting">Konektatu Bluetooth bidez</string>

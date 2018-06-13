@@ -124,6 +124,7 @@
   <string name="blogs_rss_feeds_import_button">Importar</string>
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_remove_feed_ok">Desaniciar</string>
+  <!--Settings Display-->
   <!--Settings Network-->
   <string name="network_settings_title">Redes</string>
   <string name="tor_network_setting">Coneutar vía Tor</string>

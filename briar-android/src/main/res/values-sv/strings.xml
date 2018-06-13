@@ -113,6 +113,8 @@
   <string name="blogs_rss_feeds_manage_author">Författare:</string>
   <string name="blogs_rss_feeds_manage_updated">Senast uppdaterad:</string>
   <string name="blogs_rss_remove_feed_ok">&amp;Ta bort</string>
+  <!--Settings Display-->
+  <string name="display_settings_title">Visa</string>
   <!--Settings Network-->
   <string name="network_settings_title">Nätverk</string>
   <string name="bluetooth_setting">Anslut via Bluetooth</string>

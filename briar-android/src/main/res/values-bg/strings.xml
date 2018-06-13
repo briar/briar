@@ -249,6 +249,7 @@
   <string name="blogs_rss_remove_feed_ok">Премахване</string>
   <string name="blogs_rss_feeds_manage_delete_error">Емисията не можа да бъде изтрита!</string>
   <string name="blogs_rss_feeds_manage_error">Възникна проблем при зареждането на емисиите ви. Моля, опитайте пак по-късно.</string>
+  <!--Settings Display-->
   <!--Settings Network-->
   <string name="network_settings_title">Мрежа</string>
   <string name="bluetooth_setting">Свързване чрез Bluetooth</string>

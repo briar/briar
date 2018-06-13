@@ -344,6 +344,7 @@
 
 برای وارد کردن خوراک روی آیکون + کلیک کنید</string>
   <string name="blogs_rss_feeds_manage_error">مشکلی با بارگذاری فیدهای شما وجود داشت. لطفا بعدا امتحان کنید.</string>
+  <!--Settings Display-->
   <!--Settings Network-->
   <string name="network_settings_title">شبکه ها</string>
   <string name="bluetooth_setting">اتصال از طریق بلوتوث</string>

@@ -314,6 +314,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">Fluxul nu a putut fi șters!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nici un flux RSS de arătat\n\nAtingeți iconița + pentru a adăuga un flux</string>
   <string name="blogs_rss_feeds_manage_error">A apărut o eroare la încărcarea fluxurilor dumneavoastră. Vă rugăm să încercați din nou mai târziu.</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">Limbă &amp; Regiune</string>
+  <string name="pref_language_changed">Această setare va avea efect după repornirea Briar. Vă rugăm să ieșiți din Briar și să reporniți aplicația.</string>
+  <string name="pref_language_default">Implicit sistem</string>
+  <string name="display_settings_title">Ecran</string>
   <!--Settings Network-->
   <string name="network_settings_title">Rețele</string>
   <string name="bluetooth_setting">Conectare prin Bluetooth</string>

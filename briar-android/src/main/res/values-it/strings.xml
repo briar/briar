@@ -303,6 +303,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">Non è stato possibile cancellare il feed!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nessun feed RSS da mostrare\n\nClicca l\'icona + per importare un feed</string>
   <string name="blogs_rss_feeds_manage_error">C\'è stato un problema nel caricare i tuoi feeds. Per favore riprova fra poco.</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">Lingua &amp; regione</string>
+  <string name="pref_language_changed">Questa impostazione avrà effetto quando riavvierai Briar. Per favore, esci e riavvia Briar.</string>
+  <string name="pref_language_default">Default del sistema</string>
+  <string name="display_settings_title">Visualizza</string>
   <!--Settings Network-->
   <string name="network_settings_title">Reti</string>
   <string name="bluetooth_setting">Connessione attraverso Bluetooth</string>

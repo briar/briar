@@ -134,6 +134,7 @@
   <string name="introduction_onboarding_title">Esittele yhteyshenkilösi</string>
   <string name="introduction_onboarding_text">Voit esitellä muita käyttäjiä toisilleen, niin että heidän ei tarvitse tavata kasvokkain ollakseen yhteydessä Briarin kautta.</string>
   <string name="introduction_activity_title">Valitse yhteystieto</string>
+  <string name="introduction_not_possible">Sinulla on jo yksi esittely käynnissä näillä yhteystiedoilla. Odota kunnes se tulee valmiiksi. Tämä voi kestää jonkin aikaa jos sinä tai yhteyshenkilösi ovat harvoin netissä.</string>
   <string name="introduction_message_title">Esittele yhteyshenkilö</string>
   <string name="introduction_message_hint">Lisää viesti (valinnainen)</string>
   <string name="introduction_button">Tee esittely</string>
@@ -302,6 +303,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">Syötteen poistaminen epäonnistui!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Ei RSS syötteitä\n\nNapauta + nappia lisätäksesi syötteen</string>
   <string name="blogs_rss_feeds_manage_error">Syötteiden lataamisessa tapahtui virhe. Yritä myöhemmin uudelleen.</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">Kieli &amp; alue</string>
+  <string name="pref_language_changed">Tämä asetus otetaan käyttöön kun uudelleenkäynnistät Briarin. Kirjaudu ulos ja käynnistä Briar uudelleen.</string>
+  <string name="pref_language_default">Järjestelmäoletus</string>
+  <string name="display_settings_title">Näytä</string>
   <!--Settings Network-->
   <string name="network_settings_title">Verkot</string>
   <string name="bluetooth_setting">Yhdistä Bluetoothin kautta</string>
@@ -337,12 +343,16 @@
   <string name="notification_settings_title">Ilmoitukset</string>
   <string name="notify_private_messages_setting_title">Yksityisviestit</string>
   <string name="notify_private_messages_setting_summary">Näytä ilmoitukset yksityisviesteistä</string>
+  <string name="notify_private_messages_setting_summary_26">Aseta ilmoitukset yksityisviesteille</string>
   <string name="notify_group_messages_setting_title">Ryhmäviestit</string>
   <string name="notify_group_messages_setting_summary">Näytä ilmoitukset ryhmäviesteistä</string>
+  <string name="notify_group_messages_setting_summary_26">Aseta ilmoitukset ryhmäviesteille</string>
   <string name="notify_forum_posts_setting_title">Foorumikirjoitukset</string>
   <string name="notify_forum_posts_setting_summary">Näytä ilmoitukset foorumikirjoituksista</string>
+  <string name="notify_forum_posts_setting_summary_26">Aseta ilmoitukset foorumikirjoituksille</string>
   <string name="notify_blog_posts_setting_title">Blogikirjoitukset</string>
   <string name="notify_blog_posts_setting_summary">Näytä ilmoitukset blogikirjoituksista</string>
+  <string name="notify_blog_posts_setting_summary_26">Aseta ilmoitukset blogikirjoituksille</string>
   <string name="notify_vibration_setting">Värinä</string>
   <string name="notify_lock_screen_setting_title">Lukitusnäyttö</string>
   <string name="notify_lock_screen_setting_summary">Näytä ilmoitukset lukitusnäytöllä</string>

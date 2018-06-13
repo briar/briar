@@ -303,6 +303,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">Impossible de supprimer le fil !</string>
   <string name="blogs_rss_feeds_manage_empty_state">Aucun fil RSS à afficher\n\nTouchez l’icône + pour importer un fil</string>
   <string name="blogs_rss_feeds_manage_error">Un problème est survenu lors du chargement de vos fils. Veuillez ressayer ultérieurement.</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">Langue et région</string>
+  <string name="pref_language_changed">Ce paramètre prendra effet une fois que vous aurez redémarré Briar. Veuillez vous déconnecter et redémarrer Briar.</string>
+  <string name="pref_language_default">Valeur par défaut du système</string>
+  <string name="display_settings_title">Affichage</string>
   <!--Settings Network-->
   <string name="network_settings_title">Réseaux</string>
   <string name="bluetooth_setting">Se connecter par Bluetooth</string>

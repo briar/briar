@@ -270,6 +270,8 @@
   <string name="blogs_rss_remove_feed_ok">Fjern</string>
   <string name="blogs_rss_feeds_manage_delete_error">Strømmen kunne ikke fjernes!</string>
   <string name="blogs_rss_feeds_manage_error">Feil ved lasting av dine strømmer. Prøv igjen senere.</string>
+  <!--Settings Display-->
+  <string name="display_settings_title">Vis</string>
   <!--Settings Network-->
   <string name="network_settings_title">Nettverk</string>
   <string name="bluetooth_setting">Koble til via Blåtann</string>

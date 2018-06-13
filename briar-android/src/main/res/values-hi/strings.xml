@@ -303,6 +303,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">फीड हटाया नहीं जा सका!</string>
   <string name="blogs_rss_feeds_manage_empty_state">कोई आरएसएस फ़ीड दिखाने के लिए फ़ीड नहीं करता \ n \ n फ़ीड आयात करने के लिए + आइकन टैप करें</string>
   <string name="blogs_rss_feeds_manage_error">आपकी फ़ीड लोड करने में एक समस्या थी बाद में पुन: प्रयास करें।</string>
+  <!--Settings Display-->
   <!--Settings Network-->
   <string name="network_settings_title">नेटवर्क</string>
   <string name="bluetooth_setting">ब्लूटूथ के माध्यम से कनेक्ट करें</string>

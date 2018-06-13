@@ -31,7 +31,11 @@
   <string name="dialog_title_lost_password">Ztracené heslo</string>
   <string name="dialog_message_lost_password">Váš Briar účet je šifrován a uložen ve vašem zařízení, nikoli v cloudu, z tohoto důvodu není možné obnovit Vaše heslo. Chcete odstranit svůj účet a začít znovu?\n\nUpozornění: Vaše identita, kontakty a zprávy budou permanentně ztraceny.</string>
   <string name="startup_failed_notification_title">Briar nemohl být spuštěn</string>
+  <string name="startup_failed_notification_text">Klikněte pro více informací</string>
   <string name="startup_failed_activity_title">Spuštění Briar selhalo.</string>
+  <string name="startup_failed_db_error">Z nějakého důvodu je vaše databáze Briar poškozena. Váš účet, vaše data a všechny vaše kontakty budou ztraceny. Bohužel musíte přeinstalovat Briar nebo nastavit nový účet výběrem položky \'Zapomněl jsem heslo\' v řádku zadat heslo.</string>
+  <string name="startup_failed_data_too_old_error">Váš účet byl vytvořen se starou verzí aplikace a nemůže být otevřen v této verzi. Musíte přeinstalovat starou verzi nebo nastavit nový účet vybráním \'Zapomněl jsem své heslo v nabídce hesla.</string>
+  <string name="startup_failed_data_too_new_error">Tato verze aplikace je zastaralá. Prosím aktualizujte na nejvyšší verzi a zkuste to znovu.</string>
   <string name="startup_failed_service_error">Briar nemohl spustit vyžadovaný plugin. Tento problém vyřeší přeinstalování Briar. Mějte prosím na vědomí, že přeinstalováním ztratíte veškerá data pro váš účet, protože Briar nepoužívá centralizované ukládání vašich dat na serverech.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Toto je testovací verze Briar. Váš účet a jeho platnost vyprší po %d dnech a není možné ho obnovit.</item>
@@ -41,6 +45,11 @@
   </plurals>
   <string name="expiry_update">Datum expirace pro testování bylo prodlouženo. Váš účet nyní bude expirovat po %d dnech.</string>
   <string name="expiry_date_reached">Platnost tohoto software vypršela.\nDěkujeme za jeho otestování!</string>
+  <string name="download_briar">Pro pokračování používání Briar, stáhněte si prosím verzi 1.0.</string>
+  <string name="create_new_account">Budete potřebovat vytvořit nový účet, ale můžete použít stejné uživatelské jméno.</string>
+  <string name="download_briar_button">Stáhnout Briar 1.0</string>
+  <string name="startup_open_database">Dešifrování databáze...</string>
+  <string name="startup_migrate_database">Aktualizování databáze...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Otevřít navigační lištu</string>
   <string name="nav_drawer_close_description">Zavřít navigační lištu</string>
@@ -103,8 +112,11 @@
   <string name="show_onboarding">Zobrazit dialog pro pomoc</string>
   <string name="fix">Opravit</string>
   <string name="help">Pomoc</string>
+  <string name="sorry">Promiňte</string>
   <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Žádné kontakty k zobrazení\n\nKlikněte na ikonu + kde můžete přidat kontakt</string>
   <string name="date_no_private_messages">Žádné zprávy</string>
+  <string name="no_private_messages">Žádné zprávy k zobrazení</string>
   <string name="message_hint">Psát zprávu</string>
   <string name="delete_contact">Odstranit kontakt</string>
   <string name="dialog_title_delete_contact">Potvrdit odstranění kontaktu</string>
@@ -122,6 +134,7 @@
   <string name="contact_already_exists">Kontakt %s již existuje</string>
   <string name="contact_exchange_failed">Chyba výměny kontaktu</string>
   <string name="qr_code_invalid">QR kód je neplatný</string>
+  <string name="qr_code_unsupported">QR kód, který se pokoušíte skenovat, patří k starší verzi %s, která již není podporována.\n\nJe potřebné, aby oba kontakty používali nejnovější verzi a následně to zkuste znovu.</string>
   <string name="camera_error">Vyskytla se chyba fotoaparátu</string>
   <string name="connecting_to_device">Připojování k zařízení\u2026</string>
   <string name="authenticating_with_device">Ověřování se zařízením\u2026</string>
@@ -153,6 +166,7 @@
     <item quantity="other">%d nových kontaktů bylo přidáno.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">Žádné skupiny k zobrazení\n\nKlikněte na ikonu + kde můžete vytvořit skupinu, nebo požádejte své kontakty o sdílení skupin s vámi</string>
   <string name="groups_created_by">Vytvořeno %s</string>
   <plurals name="messages">
     <item quantity="one">%d zpráva</item>
@@ -209,10 +223,12 @@
   <string name="groups_reveal_visible_revealed_by_contact">Vztah s kontaktem je viditelný ve skupině (byl odkrytý %s)</string>
   <string name="groups_reveal_invisible">Vztah s kontaktem není viditelný ve skupině</string>
   <!--Forums-->
+  <string name="no_forums">Žádná fóra k zobrazení\n\nKlikněte na ikonu + pro vytvoření fóra, nebo požádejte své kontakty pro sdílení fóra s vámi</string>
   <string name="create_forum_title">Vytvořit fórum</string>
   <string name="choose_forum_hint">Vybrat jméno pro vaše fórum</string>
   <string name="create_forum_button">Vytvořit fórum</string>
   <string name="forum_created_toast">Fórum vytvořeno</string>
+  <string name="no_forum_posts">Žádné příspěvky k zobrazení</string>
   <string name="no_posts">Žádné příspěvky</string>
   <plurals name="posts">
     <item quantity="one">%d příspěvek</item>
@@ -226,17 +242,22 @@
   <string name="btn_reply">Odpověď</string>
   <string name="forum_leave">Opustit fórum</string>
   <string name="dialog_title_leave_forum">Potvrdit opuštění fóra</string>
+  <string name="dialog_message_leave_forum">Opravdu chcete opustit toto fórum?\n\nKaždý kontakt, se kterým jste sdíleli toto fórum, může přestat přijímat aktualizace.</string>
   <string name="dialog_button_leave">Opustit</string>
+  <string name="forum_left_toast">Opustit fórum</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Sdílet fórum</string>
   <string name="contacts_selected">Zvolené kontakty</string>
   <string name="activity_share_toolbar_header">Zvolit kontakty</string>
+  <string name="no_contacts_selector">Žádné kontakty k zobrazení \n\nProsím, vraťte se zpět po přidání kontaktu</string>
   <string name="forum_shared_snackbar">Fórum sdíleno s vybranými kontakty</string>
   <string name="forum_share_message">Přidat zprávu (volitelné)</string>
   <string name="forum_share_error">Při sdílení tohoto fóra nastala chyba.</string>
   <string name="forum_invitation_received">%1$s sdílel fórum \"%2$s\" s vámi.</string>
   <string name="forum_invitation_sent">Sdíleli jste fórum \"%1$s\" s %2$s.</string>
   <string name="forum_invitations_title">Pozvání do fóra</string>
+  <string name="forum_joined_toast">Vstup do fóra</string>
+  <string name="forum_declined_toast">Pozvání zamítnuto</string>
   <string name="shared_by_format">Sdíleno %s</string>
   <string name="forum_invitation_already_sharing">Již sdílené</string>
   <string name="forum_invitation_response_accepted_sent">Přijali jste pozvání do fóra od %s.</string>
@@ -254,14 +275,17 @@
   </plurals>
   <string name="nobody">Nikdo</string>
   <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">Žádné příspěvky k zobrazení</string>
   <string name="read_more">Číst dál</string>
   <string name="blogs_write_blog_post">Napsat příspěvek do Blogu</string>
+  <string name="blogs_write_blog_post_body_hint">Napište svůj blog příspěvek</string>
   <string name="blogs_publish_blog_post">Publikovat</string>
   <string name="blogs_blog_post_created">Příspěvek do blogu byl vytvořen</string>
   <string name="blogs_blog_post_received">Přijatý nový příspěvek v blogu.</string>
   <string name="blogs_blog_post_scroll_to">Přejít na</string>
   <string name="blogs_remove_blog">Odstranit blog</string>
   <string name="blogs_remove_blog_ok">Odstranit</string>
+  <string name="blogs_blog_removed">Blog odstraněn</string>
   <string name="blogs_reblog_comment_hint">Přidat komentář (volitelné)</string>
   <string name="blogs_reblog_button">Reblog</string>
   <!--Blog Sharing-->
@@ -276,6 +300,8 @@
   <string name="blogs_sharing_invitation_received">%1$s sdílel blog \"%2$s\" s vámi.</string>
   <string name="blogs_sharing_invitation_sent">Sdíleli jste blog \"%1$s\" s %2$s.</string>
   <string name="blogs_sharing_invitations_title">Pozvánky do blogu</string>
+  <string name="blogs_sharing_joined_toast">Přihlásit se k blogu</string>
+  <string name="blogs_sharing_declined_toast">Pozvání zamítnuto</string>
   <string name="sharing_status_blog">Kdokoli, kdo odebírá blog ho může sdílet se svými kontakty. Sdílíte tento blog s následujícími kontakty. Mohou existovat i jiní účastníci, které nevidíte.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Import RSS kanálu</string>
@@ -289,7 +315,13 @@
   <string name="blogs_rss_remove_feed">Odstranit kanál</string>
   <string name="blogs_rss_remove_feed_ok">Odstranit</string>
   <string name="blogs_rss_feeds_manage_delete_error">Kanál nemohl být odstraněn !</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Žádné RSS kanály k zobrazení\n\nKlikněte na ikonu + pro nahrání příspěvků</string>
   <string name="blogs_rss_feeds_manage_error">Vyskytl se problém s načtením vašeho kanálu příspěvků. Zkuste to prosím později.</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">Jazyk &amp; region</string>
+  <string name="pref_language_changed">Toto nastavení bude mít efekt když vykonáre restart svého Briar. Prosím odhlaste se a restartujte Briar.</string>
+  <string name="pref_language_default">Výchozí systému</string>
+  <string name="display_settings_title">Zobrazit</string>
   <!--Settings Network-->
   <string name="network_settings_title">Sítě</string>
   <string name="bluetooth_setting">Spojení přes Bluetooth</string>
@@ -325,12 +357,16 @@
   <string name="notification_settings_title">Oznámení</string>
   <string name="notify_private_messages_setting_title">Soukromé zprávy</string>
   <string name="notify_private_messages_setting_summary">Zobrazit upozornění pro soukromé zprávy</string>
+  <string name="notify_private_messages_setting_summary_26">Nastavení upozornění pro soukromé zprávy</string>
   <string name="notify_group_messages_setting_title">Skupinové zprávy</string>
   <string name="notify_group_messages_setting_summary">Zobrazit upozornění pro skupinové zprávy</string>
+  <string name="notify_group_messages_setting_summary_26">Nastavení upozornění pro skupinové zprávy</string>
   <string name="notify_forum_posts_setting_title">Příspěvky fóra</string>
   <string name="notify_forum_posts_setting_summary">Zobrazit upozornění pro příspěvky fóra</string>
+  <string name="notify_forum_posts_setting_summary_26">Nastavení upozornění pro příspěvky fóra</string>
   <string name="notify_blog_posts_setting_title">Příspěvky v blogu</string>
   <string name="notify_blog_posts_setting_summary">Zobrazit upozornění pro příspěvky v blogu</string>
+  <string name="notify_blog_posts_setting_summary_26">Nastavení upozornění pro příspěvky blogu</string>
   <string name="notify_vibration_setting">Vibrovat</string>
   <string name="notify_lock_screen_setting_title">Zamčená obrazovka</string>
   <string name="notify_lock_screen_setting_summary">Zobrazit oznámení na zamčené obrazovce</string>
@@ -367,9 +403,12 @@
   <string name="progress_title_logout">Odhlásit se z Briar...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Bylo zjištěno překrytí obrazovky</string>
+  <string name="screen_filter_allow">Povolit těmto aplikacím zůstat navrchu</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Oprávnění pro přístup k fotoaparátu</string>
   <string name="permission_camera_request_body">Pro scan QR kódu, Briar vyžaduje přístup k fotoaparátu.</string>
   <string name="permission_camera_denied_body">Odmítli jste udělit oprávnění přístupu k fotoaparátu, avšak pro přidání kontaktů je nutné použití fotoaparátu.\n\nZvažte prosím, opětovné udělení přístupu.</string>
   <string name="permission_camera_denied_toast">Oprávnění pro přístup k fotoaparátu nebylo uděleno</string>
+  <string name="qr_code">QR kód</string>
+  <string name="show_qr_code_fullscreen">Zobrazit QR kód na celou obrazovku</string>
 </resources>

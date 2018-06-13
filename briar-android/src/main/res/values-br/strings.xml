@@ -156,6 +156,7 @@
   <!--Blog Sharing-->
   <!--RSS Feeds-->
   <string name="blogs_rss_remove_feed_ok">Dilemel</string>
+  <!--Settings Display-->
   <!--Settings Network-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Surentezh</string>

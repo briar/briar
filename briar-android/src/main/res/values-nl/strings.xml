@@ -303,6 +303,8 @@
   <string name="blogs_rss_feeds_manage_delete_error">De feed kon niet worden verwijderd.</string>
   <string name="blogs_rss_feeds_manage_empty_state">Geen RSS-feeds om te tonen\n\nTap op het +-icoon om een feed te importeren</string>
   <string name="blogs_rss_feeds_manage_error">Er was een probleem met het laden van je feeds. Probeer het later nog een keer.</string>
+  <!--Settings Display-->
+  <string name="display_settings_title">Weergeven</string>
   <!--Settings Network-->
   <string name="network_settings_title">Netwerken</string>
   <string name="bluetooth_setting">Verbind via Bluetooth</string>

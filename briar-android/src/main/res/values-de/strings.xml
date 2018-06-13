@@ -134,6 +134,7 @@
   <string name="introduction_onboarding_title">Mache deine Kontakte untereinander bekannt</string>
   <string name="introduction_onboarding_text">Du kannst deine Kontakte untereinander bekannt machen. So können sie sich über Briar verbinden, ohne sich persönlich treffen zu müssen.</string>
   <string name="introduction_activity_title">Kontakt auswählen</string>
+  <string name="introduction_not_possible">Es wird bereits eine Kontaktempfehlung mit diesen Kontakten verarbeitet. Bitte warte, bis die Verarbeitung abgeschlossen ist. Falls du oder deine Kontakte selten online sind, kann es etwas dauern.</string>
   <string name="introduction_message_title">Kontakte untereinander bekannt machen</string>
   <string name="introduction_message_hint">Nachricht hinzufügen (optional)</string>
   <string name="introduction_button">Kontaktempfehlung abgeben</string>
@@ -145,6 +146,7 @@
   <string name="introduction_request_exists_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. %2$s ist allerdings bereits in deiner Kontaktliste. Da %1$s das vielleicht nicht weiss, kannst du trotzdem antworten:</string>
   <string name="introduction_request_answered_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. </string>
   <string name="introduction_response_accepted_sent">Du hast die Kontaktempfehlung für %1$s angenommen.</string>
+  <string name="introduction_response_accepted_sent_info">Bevor %1$s zu deinen Kontakten hinzugefügt werden, müssen sie die Kontaktempfehlung ebenfalls akzeptieren. Dies kann eine Weile dauern.</string>
   <string name="introduction_response_declined_sent">Du hast die Kontaktempfehlung von %1$s abgelehnt.</string>
   <string name="introduction_response_accepted_received">%1$s hat die Kontaktempfehlung für %2$s angenommen.</string>
   <string name="introduction_response_declined_received">%1$s hat deine Kontaktempfehlung von %2$s abgelehnt.</string>
@@ -154,6 +156,7 @@
     <item quantity="other">%d neue Kontakte hinzugefügt.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">No groups to show\n\nTap the + icon to create a group, or ask your contacts to share groups with you</string>
   <string name="groups_created_by">Erstellt durch %s</string>
   <plurals name="messages">
     <item quantity="one">%d Nachrichten</item>
@@ -206,6 +209,7 @@
   <string name="groups_reveal_visible_revealed_by_contact">Verbindung zum Kontakt ist für diese Gruppe sichtbar (offengelegt durch %s)</string>
   <string name="groups_reveal_invisible">Verbindung zum Kontakt ist für diese Gruppe nicht sichtbar</string>
   <!--Forums-->
+  <string name="no_forums">Du bist in keinem Forum Mitglied.\n\nVerwende das + Symbol am oberen Rand um ein Forum zu erstellen oder frage bitte Deine Kontakte danach, Foren mit dir zu teilen</string>
   <string name="create_forum_title">Forum erstellen</string>
   <string name="choose_forum_hint">Wähle einen Namen für dein Forum</string>
   <string name="create_forum_button">Forum erstellen</string>
@@ -291,9 +295,14 @@
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Letzte Aktualisierung:</string>
   <string name="blogs_rss_remove_feed">Feed entfernen</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Bist du sicher, dass Du diesen Feed löschen willst?\n\nDie Beiträge werden von Deinem Gerät gelöscht, jedoch nicht von Geräten anderer Leute.\n\nKontakte, mit denen Du diesen Feed geteilt hast, werden keine Updates mehr davon bekommen.</string>
   <string name="blogs_rss_remove_feed_ok">Aufheben</string>
   <string name="blogs_rss_feeds_manage_delete_error">Der Feed konnte nicht gelöscht werden!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Du hast noch keine RSS-Feeds\n\nTippe auf das +-Symbol um einen Feed zu importieren</string>
   <string name="blogs_rss_feeds_manage_error">Es gab ein Problem beim Laden deiner Feeds. Bitte versuche es später erneut.</string>
+  <!--Settings Display-->
+  <string name="pref_language_changed">Diese Einstellung wird aktiv sobald Du Briar neu startest. Bitte melde dich ab und starte Briar neu.</string>
+  <string name="display_settings_title">Anzeigen</string>
   <!--Settings Network-->
   <string name="network_settings_title">Netzwerke</string>
   <string name="bluetooth_setting">Über Bluetooth verbinden</string>

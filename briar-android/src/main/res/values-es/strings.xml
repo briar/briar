@@ -296,6 +296,8 @@
   <string name="blogs_rss_feeds_manage_delete_error">¡El canal no pudo ser eliminado!</string>
   <string name="blogs_rss_feeds_manage_empty_state">No hay canales RSS que mostrar\n\nToque el icono + para importar un feed</string>
   <string name="blogs_rss_feeds_manage_error">Hubo un problema cargando tus canales RSS. Por favor, prueba más tarde.</string>
+  <!--Settings Display-->
+  <string name="display_settings_title">Mostrar</string>
   <!--Settings Network-->
   <string name="network_settings_title">Redes</string>
   <string name="bluetooth_setting">Conectar mediante Bluetooth</string>

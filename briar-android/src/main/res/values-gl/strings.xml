@@ -303,6 +303,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">Non se puido eliminar a fonte!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Sen fontes RSS que mostrar\n\nToque na icona + para importar unha fonte</string>
   <string name="blogs_rss_feeds_manage_error">Aconteceu un problema ao cargar as súas fontes. Por favor, inténteo máis tarde.</string>
+  <!--Settings Display-->
   <!--Settings Network-->
   <string name="network_settings_title">Redes</string>
   <string name="bluetooth_setting">Conectar vía Bluetooth</string>

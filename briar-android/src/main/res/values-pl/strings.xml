@@ -141,8 +141,26 @@
   <string name="connection_aborted_local">Połączenie przerwane! To może oznaczać że ktoś próbuje podszyć się pod Ciebie</string>
   <string name="connection_aborted_remote">Połączenie przerwane przez kontakt! To może oznaczać, że ktoś próbuje zagłuszyć wasze połączenie</string>
   <!--Introductions-->
+  <string name="introduction_onboarding_title">Udostępnij swoje kontakty.</string>
+  <string name="introduction_onboarding_text">Możesz udostępniać kontakty, tak aby osoby nie musiały spotykać się osobiście.</string>
   <string name="introduction_activity_title">Wybierz kontakt</string>
+  <string name="introduction_not_possible">Masz już jedno udostępnianie w toku. Proszę pozwolić aby proces zakończył się. Jeśli kontakty są rzadko online, może to zabrać trochę czasu.</string>
+  <string name="introduction_message_title">Udostępnij kontakty</string>
   <string name="introduction_message_hint">Dodaj wiadomość (opcjonalne)</string>
+  <string name="introduction_button">Udostępnij</string>
+  <string name="introduction_sent">Udostępnianie zostało wysłane.</string>
+  <string name="introduction_error">Wystąpił błąd podczas udostępniania.</string>
+  <string name="introduction_response_error">Wystąpił błąd podczas odpowiedzi na udostępnienie</string>
+  <string name="introduction_request_sent">Udostępniłeś %1$s kontaktowi %2$s.</string>
+  <string name="introduction_request_received">%1$s poprosił o udostępnienie Twojego kontaktu dla %2$s. Czy chcesz dodać %2$s do listy kontaktów?</string>
+  <string name="introduction_request_exists_received">%1$s poprosił o udostępnienie Twojego kontaktu dla %2$s, ale %2$s jest już na liście Twoich kontaktów. Jednak %1$s o tym nie wie i możesz odpowiedzieć:</string>
+  <string name="introduction_request_answered_received">%1$s poprosił aby udostępnić Twój kontakt dla %2$s.</string>
+  <string name="introduction_response_accepted_sent">Zaakceptowałeś kontakt %1$s.</string>
+  <string name="introduction_response_accepted_sent_info">Zanim %1$s zostanie dodany jako Twój kontakt, musi także zaakceptować udostępnienie. To może trochę potrwać.</string>
+  <string name="introduction_response_declined_sent">Odrzuciłeś udostępnienie kontaktu do %1$s.</string>
+  <string name="introduction_response_accepted_received">%1$s zaakceptował udostępnienie kontaktu %2$s</string>
+  <string name="introduction_response_declined_received">%1$s odrzucił udostępnienie kontaktu %2$s</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s mówi, że %2$s odrzucił udostępnienie kontaktu.</string>
   <plurals name="introduction_notification_text">
     <item quantity="one">Nowy kontakt został dodany.</item>
     <item quantity="few">%d nowych kontaktów zostało dodanych.</item>
@@ -200,7 +218,14 @@
   <string name="groups_invitations_response_declined_received">%s odrzucił zaproszenie do grupy.</string>
   <string name="sharing_status_groups">Tylko osoba która utworzyła grupę może zapraszać nowych użytkowników do grupy. Poniżej są osoby, które dołączyły do grupy.</string>
   <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">Ujawnij kontakty</string>
+  <string name="groups_reveal_dialog_message">Możesz wybrać czy chcesz ujawnić kontakty dla wszystkich aktualnych i przyszłych członków tej grupy.\n\nUjawnienie kontaktów sprawia że połączenie do grupy jest szybsze i bardziej stabilne, ponieważ możesz komunikować się z ujawnionymi kontaktami nawet wtedy kiedy twórca grupy jest offline.</string>
+  <string name="groups_reveal_visible">Powiązanie kontaktów jest widoczne dla grupy</string>
+  <string name="groups_reveal_visible_revealed_by_us">Relacje kontaktów są widoczne dla grupy (ujawnione przez Ciebie)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">Relacje kontaktów są widoczne dla grupy (ujawnione przez %s)</string>
+  <string name="groups_reveal_invisible">Relacje kontaktów są nie widoczne dla grupy</string>
   <!--Forums-->
+  <string name="no_forums">Brak for do wyświetlenia\n\nDotknij ikonę + aby stworzyć forum, lub poproś swoje kontakty o udostępnienie Ci for.</string>
   <string name="create_forum_title">Stwórz Forum</string>
   <string name="choose_forum_hint">Wybierz nazwę dla swojego forum</string>
   <string name="create_forum_button">Stwórz Forum</string>
@@ -213,19 +238,27 @@
     <item quantity="many">%d postów</item>
     <item quantity="other">%d postów</item>
   </plurals>
+  <string name="forum_new_entry_posted">Wejście na forum zapisane</string>
   <string name="forum_new_message_hint">Nowy Wpis</string>
   <string name="forum_message_reply_hint">Nowa Odpowiedź</string>
   <string name="btn_reply">Odpowiedz</string>
   <string name="forum_leave">Opuść Forum</string>
   <string name="dialog_title_leave_forum">Potwierdź Opuszczenie Forum</string>
+  <string name="dialog_message_leave_forum">Jesteś pewny, że chcesz opuścić to forum?\n\nWszystkie kontakty którym udostępniłeś to forum mogą przestać otrzymywać powiadomienia.</string>
   <string name="dialog_button_leave">Opuść</string>
   <string name="forum_left_toast">Opuścił/a Forum</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Udostępnij Forum</string>
   <string name="contacts_selected">Zaznaczone kontakty</string>
   <string name="activity_share_toolbar_header">Wybierz Kontakty</string>
+  <string name="no_contacts_selector">Brak kontaktów do wyświetlenia\n\nWróć tu kiedy dodasz kontakt</string>
+  <string name="forum_shared_snackbar">Forum udostępnione wybranym kontaktom</string>
   <string name="forum_share_message">Dodaj wiadomość (opcjonalne)</string>
+  <string name="forum_share_error">Wystąpił problem podczas udostępniania tego forum.</string>
+  <string name="forum_invitation_received">%1$s udostępnił Ci forum \"%2$s\"</string>
+  <string name="forum_invitation_sent">Udostępniłeś forum \"%1$s\" użytkownikowi %2$s.</string>
   <string name="forum_invitations_title">Zaproszenia do for</string>
+  <string name="forum_invitation_exists">Już zaakceptowałeś zaproszenie do tego forum.\n\nAkceptowanie większej ilości zaproszeń sprawi, że Twoje połączenie będzie szybsze i bardziej stabilne.</string>
   <string name="forum_joined_toast">Dołączył do forum</string>
   <string name="forum_declined_toast">Zaproszenie odrzucone</string>
   <string name="shared_by_format">Udostępnione przez %s</string>
@@ -235,6 +268,8 @@
   <string name="forum_invitation_response_accepted_received">%s przyjął zaproszenie do forum.</string>
   <string name="forum_invitation_response_declined_received">%s odrzucił zaproszenie do forum.</string>
   <string name="sharing_status">Status Udostępniania</string>
+  <string name="sharing_status_forum">Każdy członek tego forum może udostępnić je swoim kontaktom. Udostępniasz to forum następującym kontaktom. Mogą tu także być członkowie których nie możesz zobaczyć.</string>
+  <string name="shared_with">Udostępniono %1$d (%2$d online)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d forum udostępnione przez kontakty </item>
     <item quantity="few">%d for udostępnionych przez kontakty </item>
@@ -251,7 +286,9 @@
   <string name="blogs_blog_post_created">Wpis na Bloga Utworzony</string>
   <string name="blogs_blog_post_received">Otrzymano Nowy Wpis z Bloga</string>
   <string name="blogs_blog_post_scroll_to">Przewiń Do</string>
+  <string name="blogs_feed_empty_state">Brak postów do wyświetlenia\n\nPosty od Twoich kontaktów i blogów które subskrybujesz pojawią się tutaj\n\nDotknij ikonki długopisu aby napisać post</string>
   <string name="blogs_remove_blog">Usuń Blog</string>
+  <string name="blogs_remove_blog_dialog_message">Jesteś pewny, że chcesz usunąć ten blog?\n\nPosty będą usunięte z Twojego urządzenia ale nie z urządzeń innych osób.\n\nWszystkie kontakty którym udostępniłeś ten blog mogą przestać otrzymywać powiadomienia.</string>
   <string name="blogs_remove_blog_ok">Usuń</string>
   <string name="blogs_blog_removed">Blog usunięty</string>
   <string name="blogs_reblog_comment_hint">Dodaj komentarz (opcjonalne)</string>
@@ -270,6 +307,7 @@
   <string name="blogs_sharing_invitations_title">Zaproszenia do Blogów</string>
   <string name="blogs_sharing_joined_toast">Zasubskrybowano blog</string>
   <string name="blogs_sharing_declined_toast">Zaproszenie odrzucone</string>
+  <string name="sharing_status_blog">Każdy kto subskrybuje blog może go udostępnić swoim kontaktom. Udostępniasz ten blog następującym kontaktom. Mogą być tu także subskrybenci których nie możesz zobaczyć.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Zaimportuj RSS</string>
   <string name="blogs_rss_feeds_import_button">Zaimportuj</string>
@@ -280,8 +318,16 @@
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Ostatnio Zaktualizowane:</string>
   <string name="blogs_rss_remove_feed">Usuń RSS</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Jesteś pewny, że chcesz usunąć tą tablicę?\n\nPosty będą usunięte z Twojego urządzenia ale nie z urządzeń innych ludzi.\n\nWszystkie kontakty którym udostępniłeś ten blog mogą przestać otrzymywać powiadomienia.</string>
   <string name="blogs_rss_remove_feed_ok">Usuń</string>
   <string name="blogs_rss_feeds_manage_delete_error">Kanał nie mógł zostać usunięty!</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Brak RSS do wyświetlenia\n\nDotknij ikonki + aby zaimportować</string>
+  <string name="blogs_rss_feeds_manage_error">Wystąpił problem podczas ładowania twoich RSS. Proszę spróbować ponownie.</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">Język &amp; region</string>
+  <string name="pref_language_changed">Aby zastosować ustawienia musisz zrestartować Briar. Proszę się wylogować i zrestartować Briar.</string>
+  <string name="pref_language_default">Domyślny systemu</string>
+  <string name="display_settings_title">Wyświetl</string>
   <!--Settings Network-->
   <string name="network_settings_title">Sieci</string>
   <string name="bluetooth_setting">Połącz przez Bluetooth</string>
@@ -337,7 +383,11 @@
   <string name="cannot_load_ringtone">Nie mogę załadować dzwonka</string>
   <!--Settings Feedback-->
   <string name="feedback_settings_title">Wsparcie</string>
+  <string name="send_feedback">Wyślij wsparcie</string>
   <!--Link Warning-->
+  <string name="link_warning_title">Uważaj na link</string>
+  <string name="link_warning_intro">Otwierasz link w zewnętrznej aplikacji.</string>
+  <string name="link_warning_text">Może to posłużyć aby Cię zidentyfikować. Zastanów się czy ufasz osobie która wysłała Ci ten link i rozważ otwarcie go za pomocą przeglądarki Orfox.</string>
   <string name="link_warning_open_link">Otwórz Link</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Zgłoś błąd w Briar</string>
@@ -359,10 +409,12 @@
   <string name="progress_title_logout">Wylogowywanie z Briar...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Wykryto nakładkę na ekran</string>
+  <string name="screen_filter_body">Inna aplikacja jest rysowana nad Briar. Aby bronić Twoje bezpieczeństwo, Briar nie będzie odpowiadał na dotyk gdy inna aplikacja jest rysowana nad nim.\n\nNastępujące aplikacje mogą być przyczyną:\n\n%1$s</string>
   <string name="screen_filter_allow">Pozwól tym aplikacjom na pozostanie na pierwszym planie</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Dostęp do aparatu</string>
   <string name="permission_camera_request_body">Aby zeskanować kod QR, Briar potrzebuje mieć dostęp do aparatu.</string>
+  <string name="permission_camera_denied_body">Odmówiłeś dostępu do kamery, lecz dodawanie kontaktów tego wymaga.\n\nProszę udzielić dostępu.</string>
   <string name="permission_camera_denied_toast">Dostęp do aparatu nie został przyznany</string>
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Pokaż QR na pełnym ekranie</string>

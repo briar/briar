@@ -293,6 +293,7 @@
   <string name="blogs_rss_feeds_manage_delete_error">该订阅无法被删除！</string>
   <string name="blogs_rss_feeds_manage_empty_state">没有订阅内容\n\n点击 + 号导入一个 RSS 信息流</string>
   <string name="blogs_rss_feeds_manage_error">加载订阅时出错。请稍候再试。</string>
+  <!--Settings Display-->
   <!--Settings Network-->
   <string name="network_settings_title">网络</string>
   <string name="bluetooth_setting">通过蓝牙连接</string>

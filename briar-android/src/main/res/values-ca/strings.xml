@@ -108,7 +108,7 @@
   <string name="date_no_private_messages">Sense missatges.</string>
   <string name="no_private_messages">No hi ha cap missatge</string>
   <string name="message_hint">Escriviu un missatge</string>
-  <string name="delete_contact">Suprimeix el contacte</string>
+  <string name="delete_contact">Suprimeix aquest contacte</string>
   <string name="dialog_title_delete_contact">Confirmeu la supressió del contacte</string>
   <string name="dialog_message_delete_contact">Segur que voleu suprimir aquest contacte i tots els missatges que us heu intercanviat?</string>
   <string name="contact_deleted_toast">S\'ha suprimit el contacte</string>
@@ -135,7 +135,7 @@
   <string name="introduction_onboarding_text">Podeu presentar als vostres contactes entre si, de manera que no necessitin trobar-se en persona per a relacionar-se a través de Briar.</string>
   <string name="introduction_activity_title">Trieu un contacte</string>
   <string name="introduction_not_possible">Ja teniu una presentació en marxa entre aquests contactes. Si us plau, primer deixeu que aquesta presentació acabi. Si vós o els contactes presentats sovint esteu desconnectats, la presentació pot trigar temps.</string>
-  <string name="introduction_message_title">Presenteu contactes entre si</string>
+  <string name="introduction_message_title">Presentació de contactes</string>
   <string name="introduction_message_hint">Afegiu una nota (opcional)</string>
   <string name="introduction_button">Presenta els contactes</string>
   <string name="introduction_sent">S\'ha enviat la vostra presentació.</string>
@@ -303,6 +303,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">La subscripció al canal de notícies no s\'ha pogut suprimir.</string>
   <string name="blogs_rss_feeds_manage_empty_state">No hi ha cap notícia per mostrar\n\nFeu un toc sobre la icona + per subscriure-us a un canal de notícies</string>
   <string name="blogs_rss_feeds_manage_error">S\'ha produït un problema en actualitzar els vostres canals de notícies. Torneu-ho a provar més endavant.</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">Llengua i regió</string>
+  <string name="pref_language_changed">L\'efecte d\'aquest canvi només l\'apreciareu després de reiniciar Briar. Si us plau, tanqueu la sessió i reinicieu Briar.</string>
+  <string name="pref_language_default">Valor per defecte del sistema</string>
+  <string name="display_settings_title">Visualització</string>
   <!--Settings Network-->
   <string name="network_settings_title">Xarxes</string>
   <string name="bluetooth_setting">Connecta via bluetooth</string>

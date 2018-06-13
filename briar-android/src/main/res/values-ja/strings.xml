@@ -101,6 +101,8 @@
   <string name="blogs_rss_feeds_manage_author">著者:</string>
   <string name="blogs_rss_feeds_manage_updated">最終更新:</string>
   <string name="blogs_rss_remove_feed_ok">解除</string>
+  <!--Settings Display-->
+  <string name="display_settings_title">表示</string>
   <!--Settings Network-->
   <string name="tor_network_setting_never">二度としない</string>
   <!--Settings Security and Panic-->

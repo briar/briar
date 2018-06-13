@@ -301,6 +301,8 @@
   <string name="blogs_rss_feeds_manage_delete_error">O Feed não pode ser deletado!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nenhum feed RSS para ser exibido\n\nPressione o ícone + para importar um feed</string>
   <string name="blogs_rss_feeds_manage_error">Houve um problema ao carregar seus Feeds. Por favor tente novamente.</string>
+  <!--Settings Display-->
+  <string name="display_settings_title">Visualização</string>
   <!--Settings Network-->
   <string name="network_settings_title">Redes</string>
   <string name="bluetooth_setting">Conectar via Bluetooth</string>

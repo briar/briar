@@ -233,6 +233,8 @@
   <string name="blogs_rss_feeds_manage_author">מחבר:</string>
   <string name="blogs_rss_feeds_manage_updated">עודכן לאחרונה:</string>
   <string name="blogs_rss_remove_feed_ok">להסיר</string>
+  <!--Settings Display-->
+  <string name="display_settings_title">מציג</string>
   <!--Settings Network-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">אבטחה</string>
