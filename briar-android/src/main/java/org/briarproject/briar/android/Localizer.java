@@ -21,18 +21,17 @@ public class Localizer {
 	@Nullable
 	private static Localizer INSTANCE;
 	private final Locale systemLocale;
-	@Nullable
-	private final Locale userLocale;
+	private final Locale locale;
 
 	private Localizer(SharedPreferences sharedPreferences) {
-		systemLocale = Locale.getDefault();
-		userLocale = getLocaleFromTag(
-				sharedPreferences.getString(LANGUAGE, "default"));
+		this(Locale.getDefault(), getLocaleFromTag(
+				sharedPreferences.getString(LANGUAGE, "default")));
 	}
 
 	private Localizer(Locale systemLocale, @Nullable Locale userLocale) {
 		this.systemLocale = systemLocale;
-		this.userLocale = userLocale;
+		if (userLocale == null) locale = systemLocale;
+		else locale = userLocale;
 	}
 
 	// Instantiate the Localizer.
@@ -42,8 +41,9 @@ public class Localizer {
 	}
 
 	// Reinstantiate the Localizer with the system locale
-	private static synchronized void reinitialize(Locale systemLocale) {
-		INSTANCE = new Localizer(systemLocale, null);
+	public static synchronized void reinitialize() {
+		if (INSTANCE != null)
+			INSTANCE = new Localizer(INSTANCE.systemLocale, null);
 	}
 
 	// Get the current instance.
@@ -51,11 +51,6 @@ public class Localizer {
 		if (INSTANCE == null)
 			throw new IllegalStateException("Localizer not initialized");
 		return INSTANCE;
-	}
-
-	// Reset to the system locale
-	public void reset() {
-		reinitialize(systemLocale);
 	}
 
 	// Get Locale from BCP-47 tag
@@ -77,18 +72,11 @@ public class Localizer {
 	public Context setLocale(Context context) {
 		Resources res = context.getResources();
 		Configuration conf = res.getConfiguration();
-		Locale locale, currentLocale;
+		Locale currentLocale;
 		if (SDK_INT >= 24) {
 			currentLocale = conf.getLocales().get(0);
 		} else
 			currentLocale = conf.locale;
-		if (userLocale == null) {
-			// Detect if the user changed the system language
-			if (systemLocale.equals(currentLocale))
-				return context;
-			locale = systemLocale;
-		} else
-			locale = userLocale;
 		if (locale.equals(currentLocale))
 			return context;
 		Locale.setDefault(locale);
