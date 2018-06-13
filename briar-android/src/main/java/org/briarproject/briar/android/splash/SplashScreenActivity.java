@@ -80,4 +80,10 @@ public class SplashScreenActivity extends BaseActivity {
 				PreferenceManager.setDefaultValues(SplashScreenActivity.this,
 						R.xml.panic_preferences, false));
 	}
+
+	// Don't show any warnings here
+	@Override
+	public boolean shouldAllowTap() {
+		return true;
+	}
 }
