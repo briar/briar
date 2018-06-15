@@ -75,6 +75,7 @@ import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
+import static org.briarproject.bramble.util.TimeUtils.now;
 
 @ThreadSafe
 @NotNullByDefault
@@ -125,11 +126,11 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		// Don't allow reentrant locking
 		if (lock.getReadHoldCount() > 0) throw new IllegalStateException();
 		if (lock.getWriteHoldCount() > 0) throw new IllegalStateException();
-		long start = System.currentTimeMillis();
+		long start = now();
 		if (readOnly) lock.readLock().lock();
 		else lock.writeLock().lock();
 		if (LOG.isLoggable(FINE)) {
-			long duration = System.currentTimeMillis() - start;
+			long duration = now() - start;
 			if (readOnly) LOG.fine("Waited " + duration + " ms for read lock");
 			else LOG.fine("Waited " + duration + " ms for write lock");
 		}

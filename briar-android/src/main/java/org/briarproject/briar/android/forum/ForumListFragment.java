@@ -44,8 +44,9 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.api.forum.ForumManager.CLIENT_ID;
 
 @MethodsNotNullByDefault
@@ -157,7 +158,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		int revision = adapter.getRevision();
 		listener.runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				Collection<ForumListItem> forums = new ArrayList<>();
 				for (Forum f : forumManager.getForums()) {
 					try {
@@ -168,9 +169,8 @@ public class ForumListFragment extends BaseEventFragment implements
 						// Continue
 					}
 				}
-				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Full load took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Full load took " + (now() - start) + " ms");
 				displayForums(revision, forums);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -194,11 +194,12 @@ public class ForumListFragment extends BaseEventFragment implements
 	private void loadAvailableForums() {
 		listener.runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				int available = forumSharingManager.getInvitations().size();
-				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading available took " + duration + " ms");
+				if (LOG.isLoggable(FINE)) {
+					long duration = now() - start;
+					LOG.fine("Loading available took " + duration + " ms");
+				}
 				displayAvailableForums(available);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

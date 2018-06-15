@@ -35,8 +35,9 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.now;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -154,15 +155,14 @@ class BlogControllerImpl extends BaseControllerImpl
 		if (groupId == null) throw new IllegalStateException();
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				LocalAuthor a = identityManager.getLocalAuthor();
 				Blog b = blogManager.getBlog(groupId);
 				boolean ours = a.getId().equals(b.getAuthor().getId());
 				boolean removable = blogManager.canBeRemoved(b);
 				BlogItem blog = new BlogItem(b, ours, removable);
-				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading blog took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Loading blog took " + (now() - start) + " ms");
 				handler.onResult(blog);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
@@ -177,12 +177,11 @@ class BlogControllerImpl extends BaseControllerImpl
 		if (groupId == null) throw new IllegalStateException();
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				Blog b = blogManager.getBlog(groupId);
 				blogManager.removeBlog(b);
-				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Removing blog took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Removing blog took " + (now() - start) + " ms");
 				handler.onResult(null);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))

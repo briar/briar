@@ -9,7 +9,9 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
+import static org.briarproject.bramble.util.TimeUtils.now;
 
 class ScryptKdf implements PasswordBasedKdf {
 
@@ -50,13 +52,14 @@ class ScryptKdf implements PasswordBasedKdf {
 
 	@Override
 	public SecretKey deriveKey(String password, byte[] salt, int cost) {
-		long start = System.currentTimeMillis();
+		long start = now();
 		byte[] passwordBytes = StringUtils.toUtf8(password);
 		SecretKey k = new SecretKey(SCrypt.generate(passwordBytes, salt, cost,
 				BLOCK_SIZE, PARALLELIZATION, SecretKey.LENGTH));
-		long duration = System.currentTimeMillis() - start;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Deriving key from password took " + duration + " ms");
+		if (LOG.isLoggable(FINE)) {
+			long duration = now() - start;
+			LOG.fine("Deriving key from password took " + duration + " ms");
+		}
 		return k;
 	}
 }

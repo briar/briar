@@ -24,8 +24,9 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.now;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -94,13 +95,13 @@ public abstract class InvitationControllerImpl<I extends InvitationItem>
 	public void loadInvitations(boolean clear,
 			ResultExceptionHandler<Collection<I>, DbException> handler) {
 		runOnDbThread(() -> {
-			Collection<I> invitations = new ArrayList<>();
 			try {
-				long now = System.currentTimeMillis();
-				invitations.addAll(getInvitations());
-				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading invitations took " + duration + " ms");
+				long start = now();
+				Collection<I> invitations = new ArrayList<>(getInvitations());
+				if (LOG.isLoggable(FINE)) {
+					long duration = now() - start;
+					LOG.fine("Loading invitations took " + duration + " ms");
+				}
 				handler.onResult(invitations);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

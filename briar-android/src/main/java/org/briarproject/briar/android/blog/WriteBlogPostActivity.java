@@ -142,11 +142,11 @@ public class WriteBlogPostActivity extends BriarActivity
 
 	private void storePost(String body) {
 		runOnDbThread(() -> {
-			long now = System.currentTimeMillis();
+			long timestamp = System.currentTimeMillis();
 			try {
 				LocalAuthor author = identityManager.getLocalAuthor();
 				BlogPost p = blogPostFactory
-						.createBlogPost(groupId, now, null, author, body);
+						.createBlogPost(groupId, timestamp, null, author, body);
 				blogManager.addLocalPost(p);
 				postPublished();
 			} catch (DbException | GeneralSecurityException

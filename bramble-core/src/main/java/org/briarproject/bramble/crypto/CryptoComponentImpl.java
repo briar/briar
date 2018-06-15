@@ -30,8 +30,10 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
+import static org.briarproject.bramble.util.TimeUtils.now;
 
 @NotNullByDefault
 class CryptoComponentImpl implements CryptoComponent {
@@ -127,16 +129,15 @@ class CryptoComponentImpl implements CryptoComponent {
 			throw new IllegalArgumentException();
 		if (!(pub instanceof Curve25519PublicKey))
 			throw new IllegalArgumentException();
-		long now = System.currentTimeMillis();
+		long start = now();
 		byte[] secret = curve25519.calculateAgreement(pub.getEncoded(),
 				priv.getEncoded());
 		// If the shared secret is all zeroes, the public key is invalid
 		byte allZero = 0;
 		for (byte b : secret) allZero |= b;
 		if (allZero == 0) throw new GeneralSecurityException();
-		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Deriving shared secret took " + duration + " ms");
+		if (LOG.isLoggable(FINE))
+			LOG.fine("Deriving shared secret took " + (now() - start) + " ms");
 		return secret;
 	}
 

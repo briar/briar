@@ -36,8 +36,9 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
 
 @MethodsNotNullByDefault
@@ -147,7 +148,7 @@ class GroupListControllerImpl extends DbControllerImpl
 			ResultExceptionHandler<Collection<GroupItem>, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				Collection<PrivateGroup> groups =
 						groupManager.getPrivateGroups();
 				List<GroupItem> items = new ArrayList<>(groups.size());
@@ -161,9 +162,8 @@ class GroupListControllerImpl extends DbControllerImpl
 						// Continue
 					}
 				}
-				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading groups took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Loading groups took " + (now() - start) + " ms");
 				handler.onResult(items);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -176,11 +176,10 @@ class GroupListControllerImpl extends DbControllerImpl
 	public void removeGroup(GroupId g, ExceptionHandler<DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				groupManager.removePrivateGroup(g);
-				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Removing group took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Removing group took " + (now() - start) + " ms");
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				handler.onException(e);
