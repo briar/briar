@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.FINE;
 
 @NotNullByDefault
 public class PasswordControllerImpl extends ConfigControllerImpl
@@ -89,8 +89,8 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 		long now = System.currentTimeMillis();
 		byte[] encrypted = crypto.encryptWithPassword(key.getBytes(), password);
 		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Key derivation took " + duration + " ms");
+		if (LOG.isLoggable(FINE))
+			LOG.fine("Key derivation took " + duration + " ms");
 		return StringUtils.toHexString(encrypted);
 	}
 }

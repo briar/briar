@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
 
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.FINE;
 
 /**
  * A key parser that uses the encoding defined in "SEC 1: Elliptic Curve
@@ -81,8 +81,8 @@ class Sec1KeyParser implements KeyParser {
 		ECPublicKeyParameters k = new ECPublicKeyParameters(pub, params);
 		PublicKey p = new Sec1PublicKey(k);
 		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Parsing public key took " + duration + " ms");
+		if (LOG.isLoggable(FINE))
+			LOG.fine("Parsing public key took " + duration + " ms");
 		return p;
 	}
 
@@ -100,8 +100,8 @@ class Sec1KeyParser implements KeyParser {
 		ECPrivateKeyParameters k = new ECPrivateKeyParameters(d, params);
 		PrivateKey p = new Sec1PrivateKey(k, keyBits);
 		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Parsing private key took " + duration + " ms");
+		if (LOG.isLoggable(FINE))
+			LOG.fine("Parsing private key took " + duration + " ms");
 		return p;
 	}
 }

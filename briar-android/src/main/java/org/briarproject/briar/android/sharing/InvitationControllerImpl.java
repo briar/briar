@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
 
 @MethodsNotNullByDefault
@@ -94,13 +94,12 @@ public abstract class InvitationControllerImpl<I extends InvitationItem>
 	public void loadInvitations(boolean clear,
 			ResultExceptionHandler<Collection<I>, DbException> handler) {
 		runOnDbThread(() -> {
-			Collection<I> invitations = new ArrayList<>();
 			try {
 				long now = System.currentTimeMillis();
-				invitations.addAll(getInvitations());
+				Collection<I> invitations = new ArrayList<>(getInvitations());
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading invitations took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Loading invitations took " + duration + " ms");
 				handler.onResult(invitations);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

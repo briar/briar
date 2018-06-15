@@ -59,7 +59,7 @@ import javax.inject.Inject;
 
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.support.v4.view.ViewCompat.getTransitionName;
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
 
@@ -209,8 +209,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 					}
 				}
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Full load took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Full load took " + duration + " ms");
 				displayContacts(revision, contacts);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

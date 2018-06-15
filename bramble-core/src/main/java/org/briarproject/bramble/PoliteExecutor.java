@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -19,8 +18,6 @@ import static java.util.logging.Level.FINE;
  */
 @NotNullByDefault
 public class PoliteExecutor implements Executor {
-
-	private static final Level LOG_LEVEL = FINE;
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
@@ -51,9 +48,9 @@ public class PoliteExecutor implements Executor {
 	public void execute(Runnable r) {
 		long submitted = System.currentTimeMillis();
 		Runnable wrapped = () -> {
-			if (log.isLoggable(LOG_LEVEL)) {
+			if (log.isLoggable(FINE)) {
 				long queued = System.currentTimeMillis() - submitted;
-				log.log(LOG_LEVEL, "Queue time " + queued + " ms");
+				log.fine("Queue time " + queued + " ms");
 			}
 			try {
 				r.run();

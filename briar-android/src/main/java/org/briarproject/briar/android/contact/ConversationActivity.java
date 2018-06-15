@@ -104,6 +104,7 @@ import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptSt
 import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.widget.Toast.LENGTH_SHORT;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
@@ -297,8 +298,8 @@ public class ConversationActivity extends BriarActivity
 					contactAuthorId = contact.getAuthor().getId();
 				}
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading contact took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Loading contact took " + duration + " ms");
 				loadMessages();
 				displayContactDetails();
 			} catch (NoSuchContactException e) {
@@ -358,8 +359,8 @@ public class ConversationActivity extends BriarActivity
 				invitations.addAll(blogInvitations);
 				invitations.addAll(groupInvitations);
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading messages took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Loading messages took " + duration + " ms");
 				displayMessages(revision, headers, introductions, invitations);
 			} catch (NoSuchContactException e) {
 				finishOnUiThread();
@@ -441,8 +442,8 @@ public class ConversationActivity extends BriarActivity
 				long now = System.currentTimeMillis();
 				String body = messagingManager.getMessageBody(m);
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading body took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Loading body took " + duration + " ms");
 				displayMessageBody(m, body);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -692,8 +693,8 @@ public class ConversationActivity extends BriarActivity
 				long now = System.currentTimeMillis();
 				messagingManager.addLocalMessage(m);
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Storing message took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Storing message took " + duration + " ms");
 				Message message = m.getMessage();
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
@@ -819,8 +820,8 @@ public class ConversationActivity extends BriarActivity
 				long now = System.currentTimeMillis();
 				messagingManager.setReadFlag(g, m, true);
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Marking read took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Marking read took " + duration + " ms");
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}

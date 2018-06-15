@@ -49,6 +49,7 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -208,8 +209,8 @@ class PluginManagerImpl implements PluginManager, Service {
 				long start = System.currentTimeMillis();
 				plugin.start();
 				long duration = System.currentTimeMillis() - start;
-				if (LOG.isLoggable(INFO)) {
-					LOG.info("Starting plugin " + plugin.getId() + " took " +
+				if (LOG.isLoggable(FINE)) {
+					LOG.fine("Starting plugin " + plugin.getId() + " took " +
 							duration + " ms");
 				}
 			} catch (PluginException e) {
@@ -246,8 +247,8 @@ class PluginManagerImpl implements PluginManager, Service {
 				long start = System.currentTimeMillis();
 				plugin.stop();
 				long duration = System.currentTimeMillis() - start;
-				if (LOG.isLoggable(INFO)) {
-					LOG.info("Stopping plugin " + plugin.getId()
+				if (LOG.isLoggable(FINE)) {
+					LOG.fine("Stopping plugin " + plugin.getId()
 							+ " took " + duration + " ms");
 				}
 			} catch (InterruptedException e) {

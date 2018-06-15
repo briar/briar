@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
 
@@ -135,8 +136,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		for (byte b : secret) allZero |= b;
 		if (allZero == 0) throw new GeneralSecurityException();
 		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Deriving shared secret took " + duration + " ms");
+		if (LOG.isLoggable(FINE))
+			LOG.fine("Deriving shared secret took " + duration + " ms");
 		return secret;
 	}
 

@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 
 class ScryptKdf implements PasswordBasedKdf {
@@ -55,8 +56,8 @@ class ScryptKdf implements PasswordBasedKdf {
 		SecretKey k = new SecretKey(SCrypt.generate(passwordBytes, salt, cost,
 				BLOCK_SIZE, PARALLELIZATION, SecretKey.LENGTH));
 		long duration = System.currentTimeMillis() - start;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Deriving key from password took " + duration + " ms");
+		if (LOG.isLoggable(FINE))
+			LOG.fine("Deriving key from password took " + duration + " ms");
 		return k;
 	}
 }

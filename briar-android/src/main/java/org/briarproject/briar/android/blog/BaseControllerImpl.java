@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.util.HtmlUtils.ARTICLE;
 
@@ -113,8 +113,8 @@ abstract class BaseControllerImpl extends DbControllerImpl
 		Collection<BlogPostHeader> headers =
 				blogManager.getPostHeaders(groupId);
 		long duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loading headers took " + duration + " ms");
+		if (LOG.isLoggable(FINE))
+			LOG.fine("Loading headers took " + duration + " ms");
 		Collection<BlogPostItem> items = new ArrayList<>(headers.size());
 		now = System.currentTimeMillis();
 		for (BlogPostHeader h : headers) {
@@ -123,8 +123,8 @@ abstract class BaseControllerImpl extends DbControllerImpl
 			items.add(item);
 		}
 		duration = System.currentTimeMillis() - now;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loading bodies took " + duration + " ms");
+		if (LOG.isLoggable(FINE))
+			LOG.fine("Loading bodies took " + duration + " ms");
 		return items;
 	}
 
@@ -143,8 +143,8 @@ abstract class BaseControllerImpl extends DbControllerImpl
 				long now = System.currentTimeMillis();
 				BlogPostItem item = getItem(header);
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading body took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Loading body took " + duration + " ms");
 				handler.onResult(item);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
@@ -170,8 +170,8 @@ abstract class BaseControllerImpl extends DbControllerImpl
 				BlogPostHeader header1 = getPostHeader(g, m);
 				BlogPostItem item = getItem(header1);
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading post took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Loading post took " + duration + " ms");
 				handler.onResult(item);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))

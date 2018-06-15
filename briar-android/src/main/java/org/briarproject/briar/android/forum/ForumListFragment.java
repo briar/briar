@@ -44,7 +44,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.api.forum.ForumManager.CLIENT_ID;
 
@@ -169,8 +169,8 @@ public class ForumListFragment extends BaseEventFragment implements
 					}
 				}
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Full load took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Full load took " + duration + " ms");
 				displayForums(revision, forums);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -197,8 +197,8 @@ public class ForumListFragment extends BaseEventFragment implements
 				long now = System.currentTimeMillis();
 				int available = forumSharingManager.getInvitations().size();
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading available took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Loading available took " + duration + " ms");
 				displayAvailableForums(available);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

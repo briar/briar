@@ -28,7 +28,7 @@ import javax.inject.Inject;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
-import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 
@@ -125,8 +125,8 @@ public class CreateForumActivity extends BriarActivity {
 				long now = System.currentTimeMillis();
 				Forum f = forumManager.addForum(name);
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Storing forum took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Storing forum took " + duration + " ms");
 				displayForum(f);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

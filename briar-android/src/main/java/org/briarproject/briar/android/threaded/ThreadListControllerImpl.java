@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -134,8 +135,8 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				long now = System.currentTimeMillis();
 				G groupItem = loadNamedGroup();
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading group took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Loading group took " + duration + " ms");
 				handler.onResult(groupItem);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
@@ -158,8 +159,8 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				long now = System.currentTimeMillis();
 				Collection<H> headers = loadHeaders();
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading headers took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Loading headers took " + duration + " ms");
 
 				// Load bodies into cache
 				now = System.currentTimeMillis();
@@ -170,8 +171,8 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 					}
 				}
 				duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Loading bodies took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Loading bodies took " + duration + " ms");
 
 				// Build and hand over items
 				handler.onResult(buildItems(headers));
@@ -202,8 +203,8 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 					markRead(i.getId());
 				}
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Marking read took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Marking read took " + duration + " ms");
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -221,8 +222,8 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				H header = addLocalMessage(msg);
 				bodyCache.put(msg.getMessage().getId(), body);
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Storing message took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Storing message took " + duration + " ms");
 				resultHandler.onResult(buildItem(header, body));
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -242,8 +243,8 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				G groupItem = loadNamedGroup();
 				deleteNamedGroup(groupItem);
 				long duration = System.currentTimeMillis() - now;
-				if (LOG.isLoggable(INFO))
-					LOG.info("Removing group took " + duration + " ms");
+				if (LOG.isLoggable(FINE))
+					LOG.fine("Removing group took " + duration + " ms");
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				handler.onException(e);

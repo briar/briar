@@ -25,6 +25,7 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static org.acra.ReportField.ANDROID_VERSION;
 import static org.acra.ReportField.APP_VERSION_CODE;
@@ -101,7 +102,7 @@ public class BriarApplicationImpl extends Application
 			}
 		}
 		rootLogger.addHandler(logHandler);
-		rootLogger.setLevel(INFO);
+		rootLogger.setLevel(IS_DEBUG_BUILD || IS_BETA_BUILD ? FINE : INFO);
 
 		LOG.info("Created");
 
