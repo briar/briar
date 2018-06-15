@@ -44,6 +44,7 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResul
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.DB_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
+import static org.briarproject.bramble.util.TimeUtils.logDuration;
 import static org.briarproject.bramble.util.TimeUtils.now;
 
 @ThreadSafe
@@ -109,18 +110,14 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 		byte[] privateKey = keyPair.getPrivate().getEncoded();
 		LocalAuthor localAuthor = authorFactory
 				.createLocalAuthor(nickname, publicKey, privateKey);
-		if (LOG.isLoggable(FINE))
-			LOG.fine("Creating local author took " + (now() - start) + " ms");
+		logDuration(LOG, "Creating local author", start);
 		return localAuthor;
 	}
 
 	private void registerLocalAuthor(LocalAuthor author) throws DbException {
 		long start = now();
 		identityManager.registerLocalAuthor(author);
-		if (LOG.isLoggable(FINE)) {
-			LOG.fine("Registering local author took " + (now() - start)
-					+ " ms");
-		}
+		logDuration(LOG, "Registering local author", start);
 	}
 
 	@Override
@@ -134,12 +131,8 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			long start = now();
 
 			boolean reopened = db.open(this);
-			if (LOG.isLoggable(FINE)) {
-				long duration = now() - start;
-				if (reopened)
-					LOG.fine("Reopening database took " + duration + " ms");
-				else LOG.fine("Creating database took " + duration + " ms");
-			}
+			if (reopened) logDuration(LOG, "Reopening database", start);
+			else logDuration(LOG, "Creating database", start);
 
 			if (nickname != null) {
 				registerLocalAuthor(createLocalAuthor(nickname));
@@ -155,9 +148,8 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 					start = now();
 					c.createLocalState(txn);
 					if (LOG.isLoggable(FINE)) {
-						LOG.fine("Starting client "
-								+ c.getClass().getSimpleName()
-								+ " took " + (now() - start) + " ms");
+						logDuration(LOG, "Starting client "
+								+ c.getClass().getSimpleName(), start);
 					}
 				}
 				db.commitTransaction(txn);
@@ -168,8 +160,8 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 				start = now();
 				s.startService();
 				if (LOG.isLoggable(FINE)) {
-					LOG.fine("Starting service " + s.getClass().getSimpleName()
-							+ " took " + (now() - start) + " ms");
+					logDuration(LOG, "Starting service "
+							+ s.getClass().getSimpleName(), start);
 				}
 			}
 
@@ -216,8 +208,8 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 				long start = now();
 				s.stopService();
 				if (LOG.isLoggable(FINE)) {
-					LOG.fine("Stopping service " + s.getClass().getSimpleName()
-							+ " took " + (now() - start) + " ms");
+					logDuration(LOG, "Stopping service "
+							+ s.getClass().getSimpleName(), start);
 				}
 			}
 			for (ExecutorService e : executors) {
@@ -229,8 +221,7 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			}
 			long start = now();
 			db.close();
-			if (LOG.isLoggable(FINE))
-				LOG.fine("Closing database took " + (now() - start) + " ms");
+			logDuration(LOG, "Closing database", start);
 			shutdownLatch.countDown();
 		} catch (DbException | ServiceException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

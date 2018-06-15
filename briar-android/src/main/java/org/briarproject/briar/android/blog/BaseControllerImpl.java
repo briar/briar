@@ -32,8 +32,8 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.logDuration;
 import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.util.HtmlUtils.ARTICLE;
 
@@ -113,8 +113,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 		long start = now();
 		Collection<BlogPostHeader> headers =
 				blogManager.getPostHeaders(groupId);
-		if (LOG.isLoggable(FINE))
-			LOG.fine("Loading headers took " + (now() - start) + " ms");
+		logDuration(LOG, "Loading headers", start);
 		Collection<BlogPostItem> items = new ArrayList<>(headers.size());
 		start = now();
 		for (BlogPostHeader h : headers) {
@@ -122,8 +121,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 			BlogPostItem item = getItem(h);
 			items.add(item);
 		}
-		if (LOG.isLoggable(FINE))
-			LOG.fine("Loading bodies took " + (now() - start) + " ms");
+		logDuration(LOG, "Loading bodies", start);
 		return items;
 	}
 
@@ -141,8 +139,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 			try {
 				long start = now();
 				BlogPostItem item = getItem(header);
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading body took " + (now() - start) + " ms");
+				logDuration(LOG, "Loading body", start);
 				handler.onResult(item);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
@@ -167,8 +164,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 				long start = now();
 				BlogPostHeader header1 = getPostHeader(g, m);
 				BlogPostItem item = getItem(header1);
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading post took " + (now() - start) + " ms");
+				logDuration(LOG, "Loading post", start);
 				handler.onResult(item);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))

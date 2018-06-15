@@ -104,9 +104,9 @@ import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptSt
 import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.widget.Toast.LENGTH_SHORT;
-import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.logDuration;
 import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
@@ -298,8 +298,7 @@ public class ConversationActivity extends BriarActivity
 					contactName = contact.getAuthor().getName();
 					contactAuthorId = contact.getAuthor().getId();
 				}
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading contact took " + (now() - start) + " ms");
+				logDuration(LOG, "Loading contact", start);
 				loadMessages();
 				displayContactDetails();
 			} catch (NoSuchContactException e) {
@@ -358,10 +357,7 @@ public class ConversationActivity extends BriarActivity
 				invitations.addAll(forumInvitations);
 				invitations.addAll(blogInvitations);
 				invitations.addAll(groupInvitations);
-				if (LOG.isLoggable(FINE)) {
-					long duration = now() - start;
-					LOG.fine("Loading messages took " + duration + " ms");
-				}
+				logDuration(LOG, "Loading messages", start);
 				displayMessages(revision, headers, introductions, invitations);
 			} catch (NoSuchContactException e) {
 				finishOnUiThread();
@@ -442,8 +438,7 @@ public class ConversationActivity extends BriarActivity
 			try {
 				long start = now();
 				String body = messagingManager.getMessageBody(m);
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading body took " + (now() - start) + " ms");
+				logDuration(LOG, "Loading body", start);
 				displayMessageBody(m, body);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -692,8 +687,7 @@ public class ConversationActivity extends BriarActivity
 			try {
 				long start = now();
 				messagingManager.addLocalMessage(m);
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Storing message took " + (now() - start) + " ms");
+				logDuration(LOG, "Storing message", start);
 				Message message = m.getMessage();
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
@@ -818,8 +812,7 @@ public class ConversationActivity extends BriarActivity
 			try {
 				long start = now();
 				messagingManager.setReadFlag(g, m, true);
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Marking read took " + (now() - start) + " ms");
+				logDuration(LOG, "Marking read", start);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}

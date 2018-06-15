@@ -35,8 +35,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.logDuration;
 import static org.briarproject.bramble.util.TimeUtils.now;
 
 @MethodsNotNullByDefault
@@ -161,8 +161,7 @@ class BlogControllerImpl extends BaseControllerImpl
 				boolean ours = a.getId().equals(b.getAuthor().getId());
 				boolean removable = blogManager.canBeRemoved(b);
 				BlogItem blog = new BlogItem(b, ours, removable);
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading blog took " + (now() - start) + " ms");
+				logDuration(LOG, "Loading blog", start);
 				handler.onResult(blog);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
@@ -180,8 +179,7 @@ class BlogControllerImpl extends BaseControllerImpl
 				long start = now();
 				Blog b = blogManager.getBlog(groupId);
 				blogManager.removeBlog(b);
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Removing blog took " + (now() - start) + " ms");
+				logDuration(LOG, "Removing blog", start);
 				handler.onResult(null);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
