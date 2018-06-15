@@ -27,7 +27,7 @@
 	<string name="warning_dozed">%s was unable to run in the background</string>
 
 	<!-- Login -->
-	<string name="enter_password">Enter your password:</string>
+	<string name="enter_password">Password</string>
 	<string name="try_again">Wrong password, try again</string>
 	<string name="sign_in_button">Sign In</string>
 	<string name="forgotten_password">I have forgotten my password</string>
@@ -343,9 +343,9 @@
 	<!-- Settings Security and Panic -->
 	<string name="security_settings_title">Security</string>
 	<string name="change_password">Change password</string>
-	<string name="current_password">Enter your current password:</string>
-	<string name="choose_new_password">Choose your new password:</string>
-	<string name="confirm_new_password">Confirm your new password:</string>
+	<string name="current_password">Current password</string>
+	<string name="choose_new_password">New password</string>
+	<string name="confirm_new_password">Confirm new password</string>
 	<string name="password_changed">Password has been changed.</string>
 	<string name="panic_setting">Panic button setup</string>
 	<string name="panic_setting_title">Panic button</string>

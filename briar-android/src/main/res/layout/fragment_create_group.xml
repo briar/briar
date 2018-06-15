@@ -12,7 +12,8 @@
 		android:id="@+id/nameLayout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		app:errorEnabled="true">
+		app:errorEnabled="true"
+		app:hintEnabled="false">
 
 		<EditText
 			android:id="@+id/name"
@@ -28,7 +29,8 @@
 		android:id="@+id/button"
 		style="@style/BriarButton"
 		android:enabled="false"
-		android:text="@string/groups_create_group_button"/>
+		android:text="@string/groups_create_group_button"
+		tools:enabled="true"/>
 
 	<ProgressBar
 		android:id="@+id/progressBar"
