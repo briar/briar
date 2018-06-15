@@ -4,11 +4,11 @@ import android.net.TrafficStats;
 import android.os.Process;
 
 import org.briarproject.bramble.api.lifecycle.Service;
-import org.briarproject.bramble.api.lifecycle.ServiceException;
 
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
+import static org.briarproject.bramble.util.TimeUtils.now;
 
 class NetworkUsageLogger implements Service {
 
@@ -18,17 +18,17 @@ class NetworkUsageLogger implements Service {
 	private volatile long startTime, rxBytes, txBytes;
 
 	@Override
-	public void startService() throws ServiceException {
-		startTime = System.currentTimeMillis();
+	public void startService() {
+		startTime = now();
 		int uid = Process.myUid();
 		rxBytes = TrafficStats.getUidRxBytes(uid);
 		txBytes = TrafficStats.getUidTxBytes(uid);
 	}
 
 	@Override
-	public void stopService() throws ServiceException {
+	public void stopService() {
 		if (LOG.isLoggable(INFO)) {
-			long sessionDuration = System.currentTimeMillis() - startTime;
+			long sessionDuration = now() - startTime;
 			int uid = Process.myUid();
 			long rx = TrafficStats.getUidRxBytes(uid) - rxBytes;
 			long tx = TrafficStats.getUidTxBytes(uid) - txBytes;

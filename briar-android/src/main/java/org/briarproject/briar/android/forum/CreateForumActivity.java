@@ -30,6 +30,7 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 
 @MethodsNotNullByDefault
@@ -122,9 +123,9 @@ public class CreateForumActivity extends BriarActivity {
 	private void storeForum(String name) {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				Forum f = forumManager.addForum(name);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Storing forum took " + duration + " ms");
 				displayForum(f);

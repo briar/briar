@@ -44,6 +44,7 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResul
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.DB_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
+import static org.briarproject.bramble.util.TimeUtils.now;
 
 @ThreadSafe
 @NotNullByDefault
@@ -102,22 +103,22 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 	}
 
 	private LocalAuthor createLocalAuthor(String nickname) {
-		long now = System.currentTimeMillis();
+		long start = now();
 		KeyPair keyPair = crypto.generateSignatureKeyPair();
 		byte[] publicKey = keyPair.getPublic().getEncoded();
 		byte[] privateKey = keyPair.getPrivate().getEncoded();
 		LocalAuthor localAuthor = authorFactory
 				.createLocalAuthor(nickname, publicKey, privateKey);
-		long duration = System.currentTimeMillis() - now;
+		long duration = now() - start;
 		if (LOG.isLoggable(FINE))
 			LOG.fine("Creating local author took " + duration + " ms");
 		return localAuthor;
 	}
 
 	private void registerLocalAuthor(LocalAuthor author) throws DbException {
-		long now = System.currentTimeMillis();
+		long start = now();
 		identityManager.registerLocalAuthor(author);
-		long duration = System.currentTimeMillis() - now;
+		long duration = now() - start;
 		if (LOG.isLoggable(FINE))
 			LOG.fine("Registering local author took " + duration + " ms");
 	}
@@ -130,10 +131,10 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 		}
 		try {
 			LOG.info("Starting services");
-			long start = System.currentTimeMillis();
+			long start = now();
 
 			boolean reopened = db.open(this);
-			long duration = System.currentTimeMillis() - start;
+			long duration = now() - start;
 			if (LOG.isLoggable(FINE)) {
 				if (reopened)
 					LOG.fine("Reopening database took " + duration + " ms");
@@ -151,9 +152,9 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			Transaction txn = db.startTransaction(false);
 			try {
 				for (Client c : clients) {
-					start = System.currentTimeMillis();
+					start = now();
 					c.createLocalState(txn);
-					duration = System.currentTimeMillis() - start;
+					duration = now() - start;
 					if (LOG.isLoggable(FINE)) {
 						LOG.fine("Starting client "
 								+ c.getClass().getSimpleName()
@@ -165,9 +166,9 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 				db.endTransaction(txn);
 			}
 			for (Service s : services) {
-				start = System.currentTimeMillis();
+				start = now();
 				s.startService();
-				duration = System.currentTimeMillis() - start;
+				duration = now() - start;
 				if (LOG.isLoggable(FINE)) {
 					LOG.fine("Starting service " + s.getClass().getSimpleName()
 							+ " took " + duration + " ms");
@@ -214,9 +215,9 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			state = STOPPING;
 			eventBus.broadcast(new LifecycleEvent(STOPPING));
 			for (Service s : services) {
-				long start = System.currentTimeMillis();
+				long start = now();
 				s.stopService();
-				long duration = System.currentTimeMillis() - start;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE)) {
 					LOG.fine("Stopping service " + s.getClass().getSimpleName()
 							+ " took " + duration + " ms");
@@ -229,9 +230,9 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 				}
 				e.shutdownNow();
 			}
-			long start = System.currentTimeMillis();
+			long start = now();
 			db.close();
-			long duration = System.currentTimeMillis() - start;
+			long duration = now() - start;
 			if (LOG.isLoggable(FINE))
 				LOG.fine("Closing database took " + duration + " ms");
 			shutdownLatch.countDown();

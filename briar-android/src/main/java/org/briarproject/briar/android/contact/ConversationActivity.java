@@ -107,6 +107,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
@@ -291,13 +292,13 @@ public class ConversationActivity extends BriarActivity
 	private void loadContactDetailsAndMessages() {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				if (contactName == null || contactAuthorId == null) {
 					Contact contact = contactManager.getContact(contactId);
 					contactName = contact.getAuthor().getName();
 					contactAuthorId = contact.getAuthor().getId();
 				}
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading contact took " + duration + " ms");
 				loadMessages();
@@ -341,7 +342,7 @@ public class ConversationActivity extends BriarActivity
 		int revision = adapter.getRevision();
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				Collection<PrivateMessageHeader> headers =
 						messagingManager.getMessageHeaders(contactId);
 				Collection<IntroductionMessage> introductions =
@@ -358,7 +359,7 @@ public class ConversationActivity extends BriarActivity
 				invitations.addAll(forumInvitations);
 				invitations.addAll(blogInvitations);
 				invitations.addAll(groupInvitations);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading messages took " + duration + " ms");
 				displayMessages(revision, headers, introductions, invitations);
@@ -439,9 +440,9 @@ public class ConversationActivity extends BriarActivity
 	private void loadMessageBody(MessageId m) {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				String body = messagingManager.getMessageBody(m);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading body took " + duration + " ms");
 				displayMessageBody(m, body);
@@ -690,9 +691,9 @@ public class ConversationActivity extends BriarActivity
 	private void storeMessage(PrivateMessage m, String body) {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				messagingManager.addLocalMessage(m);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Storing message took " + duration + " ms");
 				Message message = m.getMessage();
@@ -817,9 +818,9 @@ public class ConversationActivity extends BriarActivity
 	private void markMessageRead(GroupId g, MessageId m) {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				messagingManager.setReadFlag(g, m, true);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Marking read took " + duration + " ms");
 			} catch (DbException e) {

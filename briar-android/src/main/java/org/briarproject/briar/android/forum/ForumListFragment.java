@@ -46,6 +46,7 @@ import javax.inject.Inject;
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.api.forum.ForumManager.CLIENT_ID;
 
 @MethodsNotNullByDefault
@@ -157,7 +158,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		int revision = adapter.getRevision();
 		listener.runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				Collection<ForumListItem> forums = new ArrayList<>();
 				for (Forum f : forumManager.getForums()) {
 					try {
@@ -168,7 +169,7 @@ public class ForumListFragment extends BaseEventFragment implements
 						// Continue
 					}
 				}
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Full load took " + duration + " ms");
 				displayForums(revision, forums);
@@ -194,9 +195,9 @@ public class ForumListFragment extends BaseEventFragment implements
 	private void loadAvailableForums() {
 		listener.runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				int available = forumSharingManager.getInvitations().size();
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading available took " + duration + " ms");
 				displayAvailableForums(available);

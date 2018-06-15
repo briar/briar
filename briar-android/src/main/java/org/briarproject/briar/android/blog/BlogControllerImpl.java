@@ -37,6 +37,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.now;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -154,13 +155,13 @@ class BlogControllerImpl extends BaseControllerImpl
 		if (groupId == null) throw new IllegalStateException();
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				LocalAuthor a = identityManager.getLocalAuthor();
 				Blog b = blogManager.getBlog(groupId);
 				boolean ours = a.getId().equals(b.getAuthor().getId());
 				boolean removable = blogManager.canBeRemoved(b);
 				BlogItem blog = new BlogItem(b, ours, removable);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading blog took " + duration + " ms");
 				handler.onResult(blog);
@@ -177,10 +178,10 @@ class BlogControllerImpl extends BaseControllerImpl
 		if (groupId == null) throw new IllegalStateException();
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				Blog b = blogManager.getBlog(groupId);
 				blogManager.removeBlog(b);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Removing blog took " + duration + " ms");
 				handler.onResult(null);

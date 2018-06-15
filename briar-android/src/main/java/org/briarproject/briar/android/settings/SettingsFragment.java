@@ -65,6 +65,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_ALWAYS;
+import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_SIGN_OUT;
@@ -243,12 +244,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private void loadSettings() {
 		listener.runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
 				Settings btSettings = settingsManager.getSettings(BT_NAMESPACE);
 				Settings torSettings =
 						settingsManager.getSettings(TOR_NAMESPACE);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading settings took " + duration + " ms");
 				boolean btSetting =
@@ -436,9 +437,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			try {
 				Settings s = new Settings();
 				s.putInt(PREF_TOR_NETWORK, torSetting);
-				long now = System.currentTimeMillis();
+				long start = now();
 				settingsManager.mergeSettings(s, TOR_NAMESPACE);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Merging settings took " + duration + " ms");
 			} catch (DbException e) {
@@ -452,9 +453,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			try {
 				Settings s = new Settings();
 				s.putBoolean(PREF_BT_ENABLE, btSetting);
-				long now = System.currentTimeMillis();
+				long start = now();
 				settingsManager.mergeSettings(s, BT_NAMESPACE);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Merging settings took " + duration + " ms");
 			} catch (DbException e) {
@@ -466,9 +467,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private void storeSettings(Settings settings) {
 		listener.runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Merging settings took " + duration + " ms");
 			} catch (DbException e) {

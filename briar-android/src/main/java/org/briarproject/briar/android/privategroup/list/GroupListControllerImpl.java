@@ -38,6 +38,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
 
 @MethodsNotNullByDefault
@@ -147,7 +148,7 @@ class GroupListControllerImpl extends DbControllerImpl
 			ResultExceptionHandler<Collection<GroupItem>, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				Collection<PrivateGroup> groups =
 						groupManager.getPrivateGroups();
 				List<GroupItem> items = new ArrayList<>(groups.size());
@@ -161,7 +162,7 @@ class GroupListControllerImpl extends DbControllerImpl
 						// Continue
 					}
 				}
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading groups took " + duration + " ms");
 				handler.onResult(items);
@@ -176,9 +177,9 @@ class GroupListControllerImpl extends DbControllerImpl
 	public void removeGroup(GroupId g, ExceptionHandler<DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				groupManager.removePrivateGroup(g);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Removing group took " + duration + " ms");
 			} catch (DbException e) {

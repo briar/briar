@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.FINE;
+import static org.briarproject.bramble.util.TimeUtils.now;
 
 @NotNullByDefault
 public class TimeLoggingExecutor extends ThreadPoolExecutor {
@@ -27,13 +28,13 @@ public class TimeLoggingExecutor extends ThreadPoolExecutor {
 	@Override
 	public void execute(Runnable r) {
 		if (log.isLoggable(FINE)) {
-			long submitted = System.currentTimeMillis();
+			long submitted = now();
 			super.execute(() -> {
-				long started = System.currentTimeMillis();
+				long started = now();
 				long queued = started - submitted;
 				log.fine("Queue time " + queued + " ms");
 				r.run();
-				long executing = System.currentTimeMillis() - started;
+				long executing = now() - started;
 				log.fine("Execution time " + executing + " ms");
 			});
 		} else {

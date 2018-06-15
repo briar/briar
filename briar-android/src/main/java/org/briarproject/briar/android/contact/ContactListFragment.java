@@ -61,6 +61,7 @@ import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAn
 import static android.support.v4.view.ViewCompat.getTransitionName;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
 
 @MethodsNotNullByDefault
@@ -194,7 +195,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		int revision = adapter.getRevision();
 		listener.runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				List<ContactListItem> contacts = new ArrayList<>();
 				for (Contact c : contactManager.getActiveContacts()) {
 					try {
@@ -208,7 +209,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 						// Continue
 					}
 				}
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Full load took " + duration + " ms");
 				displayContacts(revision, contacts);

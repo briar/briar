@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
 
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.util.HtmlUtils.ARTICLE;
 
 @MethodsNotNullByDefault
@@ -109,20 +110,20 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	}
 
 	Collection<BlogPostItem> loadItems(GroupId groupId) throws DbException {
-		long now = System.currentTimeMillis();
+		long start = now();
 		Collection<BlogPostHeader> headers =
 				blogManager.getPostHeaders(groupId);
-		long duration = System.currentTimeMillis() - now;
+		long duration = now() - start;
 		if (LOG.isLoggable(FINE))
 			LOG.fine("Loading headers took " + duration + " ms");
 		Collection<BlogPostItem> items = new ArrayList<>(headers.size());
-		now = System.currentTimeMillis();
+		start = now();
 		for (BlogPostHeader h : headers) {
 			headerCache.put(h.getId(), h);
 			BlogPostItem item = getItem(h);
 			items.add(item);
 		}
-		duration = System.currentTimeMillis() - now;
+		duration = now() - start;
 		if (LOG.isLoggable(FINE))
 			LOG.fine("Loading bodies took " + duration + " ms");
 		return items;
@@ -140,9 +141,9 @@ abstract class BaseControllerImpl extends DbControllerImpl
 		}
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				BlogPostItem item = getItem(header);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading body took " + duration + " ms");
 				handler.onResult(item);
@@ -166,10 +167,10 @@ abstract class BaseControllerImpl extends DbControllerImpl
 		}
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				BlogPostHeader header1 = getPostHeader(g, m);
 				BlogPostItem item = getItem(header1);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading post took " + duration + " ms");
 				handler.onResult(item);

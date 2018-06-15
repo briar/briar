@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.GuardedBy;
 
 import static java.util.logging.Level.FINE;
+import static org.briarproject.bramble.util.TimeUtils.now;
 
 /**
  * An {@link Executor} that delegates its tasks to another {@link Executor}
@@ -46,10 +47,10 @@ public class PoliteExecutor implements Executor {
 
 	@Override
 	public void execute(Runnable r) {
-		long submitted = System.currentTimeMillis();
+		long submitted = now();
 		Runnable wrapped = () -> {
 			if (log.isLoggable(FINE)) {
-				long queued = System.currentTimeMillis() - submitted;
+				long queued = now() - submitted;
 				log.fine("Queue time " + queued + " ms");
 			}
 			try {

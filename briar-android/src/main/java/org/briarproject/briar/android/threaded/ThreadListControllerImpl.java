@@ -37,6 +37,7 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.now;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -132,9 +133,9 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 		checkGroupId();
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				G groupItem = loadNamedGroup();
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading group took " + duration + " ms");
 				handler.onResult(groupItem);
@@ -156,21 +157,21 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 		runOnDbThread(() -> {
 			try {
 				// Load headers
-				long now = System.currentTimeMillis();
+				long start = now();
 				Collection<H> headers = loadHeaders();
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading headers took " + duration + " ms");
 
 				// Load bodies into cache
-				now = System.currentTimeMillis();
+				start = now();
 				for (H header : headers) {
 					if (!bodyCache.containsKey(header.getId())) {
 						bodyCache.put(header.getId(),
 								loadMessageBody(header));
 					}
 				}
-				duration = System.currentTimeMillis() - now;
+				duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading bodies took " + duration + " ms");
 
@@ -198,11 +199,11 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	public void markItemsRead(Collection<I> items) {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				for (I i : items) {
 					markRead(i.getId());
 				}
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Marking read took " + duration + " ms");
 			} catch (DbException e) {
@@ -218,10 +219,10 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 			ResultExceptionHandler<I, DbException> resultHandler) {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				H header = addLocalMessage(msg);
 				bodyCache.put(msg.getMessage().getId(), body);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Storing message took " + duration + " ms");
 				resultHandler.onResult(buildItem(header, body));
@@ -239,10 +240,10 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	public void deleteNamedGroup(ExceptionHandler<DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				G groupItem = loadNamedGroup();
 				deleteNamedGroup(groupItem);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Removing group took " + duration + " ms");
 			} catch (DbException e) {

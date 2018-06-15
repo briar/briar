@@ -28,6 +28,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
 
 @MethodsNotNullByDefault
@@ -99,7 +100,7 @@ class FeedControllerImpl extends BaseControllerImpl
 			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				Collection<BlogPostItem> posts = new ArrayList<>();
 				for (Blog b : blogManager.getBlogs()) {
 					try {
@@ -109,7 +110,7 @@ class FeedControllerImpl extends BaseControllerImpl
 							LOG.log(WARNING, e.toString(), e);
 					}
 				}
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading all posts took " + duration + " ms");
 				handler.onResult(posts);
@@ -125,10 +126,10 @@ class FeedControllerImpl extends BaseControllerImpl
 			ResultExceptionHandler<Blog, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				long now = System.currentTimeMillis();
+				long start = now();
 				Author a = identityManager.getLocalAuthor();
 				Blog b = blogManager.getPersonalBlog(a);
-				long duration = System.currentTimeMillis() - now;
+				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
 					LOG.fine("Loading blog took " + duration + " ms");
 				handler.onResult(b);

@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.logging.Level.FINE;
+import static org.briarproject.bramble.util.TimeUtils.now;
 
 /**
  * A key parser that uses the encoding defined in "SEC 1: Elliptic Curve
@@ -48,7 +49,7 @@ class Sec1KeyParser implements KeyParser {
 			throws GeneralSecurityException {
 		// The validation procedure comes from SEC 1, section 3.2.2.1. Note
 		// that SEC 1 parameter names are used below, not RFC 5639 names
-		long now = System.currentTimeMillis();
+		long start = now();
 		if (encodedKey.length != publicKeyBytes)
 			throw new GeneralSecurityException();
 		// The first byte must be 0x04
@@ -80,7 +81,7 @@ class Sec1KeyParser implements KeyParser {
 		// Construct a public key from the point (x, y) and the params
 		ECPublicKeyParameters k = new ECPublicKeyParameters(pub, params);
 		PublicKey p = new Sec1PublicKey(k);
-		long duration = System.currentTimeMillis() - now;
+		long duration = now() - start;
 		if (LOG.isLoggable(FINE))
 			LOG.fine("Parsing public key took " + duration + " ms");
 		return p;
@@ -89,7 +90,7 @@ class Sec1KeyParser implements KeyParser {
 	@Override
 	public PrivateKey parsePrivateKey(byte[] encodedKey)
 			throws GeneralSecurityException {
-		long now = System.currentTimeMillis();
+		long start = now();
 		if (encodedKey.length != privateKeyBytes)
 			throw new GeneralSecurityException();
 		BigInteger d = new BigInteger(1, encodedKey); // Positive signum
@@ -99,7 +100,7 @@ class Sec1KeyParser implements KeyParser {
 		// Construct a private key from the private value and the params
 		ECPrivateKeyParameters k = new ECPrivateKeyParameters(d, params);
 		PrivateKey p = new Sec1PrivateKey(k, keyBits);
-		long duration = System.currentTimeMillis() - now;
+		long duration = now() - start;
 		if (LOG.isLoggable(FINE))
 			LOG.fine("Parsing private key took " + duration + " ms");
 		return p;
