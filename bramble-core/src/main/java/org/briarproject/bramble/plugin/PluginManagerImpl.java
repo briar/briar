@@ -52,8 +52,9 @@ import javax.inject.Inject;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.TimeUtils.logDuration;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
 
 @ThreadSafe
 @NotNullByDefault
@@ -217,7 +218,7 @@ class PluginManagerImpl implements PluginManager, Service {
 			} catch (PluginException e) {
 				if (LOG.isLoggable(WARNING)) {
 					LOG.warning("Plugin " + plugin.getId() + " did not start");
-					LOG.log(WARNING, e.toString(), e);
+					logException(LOG, WARNING, e);
 				}
 			} finally {
 				startLatch.countDown();
@@ -257,7 +258,7 @@ class PluginManagerImpl implements PluginManager, Service {
 			} catch (PluginException e) {
 				if (LOG.isLoggable(WARNING)) {
 					LOG.warning("Plugin " + plugin.getId() + " did not stop");
-					LOG.log(WARNING, e.toString(), e);
+					logException(LOG, WARNING, e);
 				}
 			} finally {
 				stopLatch.countDown();
@@ -279,7 +280,7 @@ class PluginManagerImpl implements PluginManager, Service {
 			try {
 				return settingsManager.getSettings(id.getString());
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				return new Settings();
 			}
 		}
@@ -289,7 +290,7 @@ class PluginManagerImpl implements PluginManager, Service {
 			try {
 				return transportPropertyManager.getLocalProperties(id);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				return new TransportProperties();
 			}
 		}
@@ -299,7 +300,7 @@ class PluginManagerImpl implements PluginManager, Service {
 			try {
 				settingsManager.mergeSettings(s, id.getString());
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 
@@ -308,7 +309,7 @@ class PluginManagerImpl implements PluginManager, Service {
 			try {
 				transportPropertyManager.mergeLocalProperties(id, p);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 

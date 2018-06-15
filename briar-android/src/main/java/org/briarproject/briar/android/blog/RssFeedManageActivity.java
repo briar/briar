@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 public class RssFeedManageActivity extends BriarActivity
 		implements RssFeedListener {
@@ -123,7 +124,7 @@ public class RssFeedManageActivity extends BriarActivity
 			try {
 				displayFeeds(revision, feedManager.getFeeds());
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				onLoadError();
 			}
 		});
@@ -148,7 +149,7 @@ public class RssFeedManageActivity extends BriarActivity
 				feedManager.removeFeed(feed);
 				onFeedDeleted(feed);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				onDeleteError();
 			}
 		});

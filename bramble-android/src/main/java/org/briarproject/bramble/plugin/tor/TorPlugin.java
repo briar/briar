@@ -91,6 +91,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_WIFI;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
 
 @MethodsNotNullByDefault
@@ -345,7 +346,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		try {
 			if (c != null) c.close();
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -353,7 +354,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		try {
 			if (s != null) s.close();
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -395,7 +396,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				ss = new ServerSocket();
 				ss.bind(new InetSocketAddress("127.0.0.1", port));
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				tryToClose(ss);
 				return;
 			}
@@ -421,7 +422,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		try {
 			if (ss != null) ss.close();
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		} finally {
 			callback.transportDisabled();
 		}
@@ -440,7 +441,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				response = controlConnection.addOnion(portLines);
 			else response = controlConnection.addOnion(privKey, portLines);
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return;
 		}
 		if (!response.containsKey(HS_ADDRESS)) {
@@ -508,7 +509,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				controlConnection.shutdownTor("TERM");
 				controlSocket.close();
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 		wakeLock.release();
@@ -686,7 +687,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 					enableNetwork(true);
 				}
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}

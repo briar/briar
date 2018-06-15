@@ -27,6 +27,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 class ConnectionManagerImpl implements ConnectionManager {
 
@@ -135,7 +136,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				byte[] tag = readTag(reader);
 				ctx = keyManager.getStreamContext(transportId, tag);
 			} catch (IOException | DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				disposeReader(true, false);
 				return;
 			}
@@ -151,7 +152,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				createIncomingSession(ctx, reader).run();
 				disposeReader(false, true);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				disposeReader(true, true);
 			} finally {
 				connectionRegistry.unregisterConnection(contactId, transportId,
@@ -163,7 +164,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				reader.dispose(exception, recognised);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 	}
@@ -188,7 +189,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				ctx = keyManager.getStreamContext(contactId, transportId);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				disposeWriter(true);
 				return;
 			}
@@ -204,7 +205,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				createSimplexOutgoingSession(ctx, writer).run();
 				disposeWriter(false);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				disposeWriter(true);
 			} finally {
 				connectionRegistry.unregisterConnection(contactId, transportId,
@@ -216,7 +217,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				writer.dispose(exception);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 	}
@@ -246,7 +247,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				byte[] tag = readTag(reader);
 				ctx = keyManager.getStreamContext(transportId, tag);
 			} catch (IOException | DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				disposeReader(true, false);
 				return;
 			}
@@ -265,7 +266,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				incomingSession.run();
 				disposeReader(false, true);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				disposeReader(true, true);
 			} finally {
 				connectionRegistry.unregisterConnection(contactId, transportId,
@@ -279,7 +280,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				ctx = keyManager.getStreamContext(contactId, transportId);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				disposeWriter(true);
 				return;
 			}
@@ -294,7 +295,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				outgoingSession.run();
 				disposeWriter(false);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				disposeWriter(true);
 			}
 		}
@@ -305,7 +306,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				reader.dispose(exception, recognised);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 
@@ -317,7 +318,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				writer.dispose(exception);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 	}
@@ -347,7 +348,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				ctx = keyManager.getStreamContext(contactId, transportId);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				disposeWriter(true);
 				return;
 			}
@@ -364,7 +365,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				outgoingSession.run();
 				disposeWriter(false);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				disposeWriter(true);
 			}
 		}
@@ -376,7 +377,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				byte[] tag = readTag(reader);
 				ctx = keyManager.getStreamContext(transportId, tag);
 			} catch (IOException | DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				disposeReader(true, false);
 				return;
 			}
@@ -400,7 +401,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				incomingSession.run();
 				disposeReader(false, true);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				disposeReader(true, true);
 			} finally {
 				connectionRegistry.unregisterConnection(contactId, transportId,
@@ -414,7 +415,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				reader.dispose(exception, recognised);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 
@@ -426,7 +427,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			try {
 				writer.dispose(exception);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 	}

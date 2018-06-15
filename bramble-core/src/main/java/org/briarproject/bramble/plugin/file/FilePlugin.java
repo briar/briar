@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.plugin.FileConstants.PROP_PATH;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @NotNullByDefault
@@ -51,7 +52,7 @@ abstract class FilePlugin implements SimplexPlugin {
 			FileInputStream in = new FileInputStream(file);
 			return new FileTransportReader(file, in, this);
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return null;
 		}
 	}
@@ -70,7 +71,7 @@ abstract class FilePlugin implements SimplexPlugin {
 			FileOutputStream out = new FileOutputStream(file);
 			return new FileTransportWriter(file, out, this);
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return null;
 		}
 	}

@@ -32,8 +32,8 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
-import static org.briarproject.bramble.util.TimeUtils.logDuration;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.now;
 
 @NotNullByDefault
 class CryptoComponentImpl implements CryptoComponent {

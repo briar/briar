@@ -20,6 +20,7 @@ import java.util.concurrent.Executor;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.api.forum.ForumManager.CLIENT_ID;
 
 @NotNullByDefault
@@ -69,7 +70,7 @@ class ForumInvitationControllerImpl
 					forumSharingManager.respondToInvitation(f, c, accept);
 				}
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});

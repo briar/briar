@@ -43,6 +43,7 @@ import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENA
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_ADDRESS;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_UUID;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
@@ -169,7 +170,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			try {
 				ss = openServerSocket(contactConnectionsUuid);
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				return;
 			}
 			if (!isRunning() || !shouldAllowContactConnections()) {
@@ -336,7 +337,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		try {
 			ss = openServerSocket(uuid);
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return null;
 		}
 		if (!isRunning()) {

@@ -25,8 +25,9 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.TimeUtils.logDuration;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -101,7 +102,7 @@ public abstract class InvitationControllerImpl<I extends InvitationItem>
 				logDuration(LOG, "Loading invitations", start);
 				handler.onResult(invitations);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});

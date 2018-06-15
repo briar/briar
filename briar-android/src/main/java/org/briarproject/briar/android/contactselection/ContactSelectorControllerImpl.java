@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @Immutable
 @NotNullByDefault
@@ -53,7 +54,7 @@ public abstract class ContactSelectorControllerImpl
 				}
 				handler.onResult(contacts);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});

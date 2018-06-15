@@ -19,6 +19,7 @@ import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isValidMac;
 
 @MethodsNotNullByDefault
@@ -85,7 +86,7 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 		try {
 			if (ss != null) ss.close();
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 

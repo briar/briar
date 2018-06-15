@@ -41,6 +41,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @ThreadSafe
 @NotNullByDefault
@@ -134,7 +135,7 @@ class Poller implements EventListener {
 				if (w != null)
 					connectionManager.manageOutgoingConnection(c, t, w);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -150,7 +151,7 @@ class Poller implements EventListener {
 				if (d != null)
 					connectionManager.manageOutgoingConnection(c, t, d);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -211,7 +212,7 @@ class Poller implements EventListener {
 			remote.keySet().removeAll(connected);
 			if (!remote.isEmpty()) p.poll(remote);
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 

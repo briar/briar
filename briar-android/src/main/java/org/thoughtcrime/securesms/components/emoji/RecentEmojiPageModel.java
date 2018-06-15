@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 
 @MethodsNotNullByDefault
@@ -58,7 +59,7 @@ public class RecentEmojiPageModel implements EmojiPageModel {
 			Settings settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
 			serialized = settings.get(EMOJI_LRU_PREFERENCE);
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			serialized = null;
 		}
 		return deserialize(serialized);
@@ -116,7 +117,7 @@ public class RecentEmojiPageModel implements EmojiPageModel {
 			try {
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}

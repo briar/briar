@@ -70,6 +70,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.CATEGORY_MESSAGE;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SOCIAL;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_BLOGS;
@@ -265,8 +266,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			try {
 				settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}

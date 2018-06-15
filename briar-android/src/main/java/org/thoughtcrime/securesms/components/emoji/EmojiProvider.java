@@ -41,6 +41,7 @@ import static android.graphics.PixelFormat.TRANSLUCENT;
 import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -144,8 +145,7 @@ public class EmojiProvider {
 
 			@Override
 			public void onFailure(Throwable error) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, error.toString(), error);
+				logException(LOG, WARNING, error);
 			}
 		});
 		return drawable;
@@ -291,7 +291,7 @@ public class EmojiProvider {
 					LOG.info("Loaded page " + model.getSprite());
 				return bitmap;
 			} catch (BitmapDecodingException e) {
-				LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				throw new IOException(e);
 			}
 		}

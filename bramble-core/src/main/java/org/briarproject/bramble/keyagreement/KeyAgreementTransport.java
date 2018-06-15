@@ -20,6 +20,7 @@ import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.PR
 import static org.briarproject.bramble.api.keyagreement.RecordTypes.ABORT;
 import static org.briarproject.bramble.api.keyagreement.RecordTypes.CONFIRM;
 import static org.briarproject.bramble.api.keyagreement.RecordTypes.KEY;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 /**
  * Handles the sending and receiving of BQP records.
@@ -72,7 +73,7 @@ class KeyAgreementTransport {
 		try {
 			writeRecord(ABORT, new byte[0]);
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			exception = true;
 		}
 		tryToClose(exception);
@@ -83,7 +84,7 @@ class KeyAgreementTransport {
 			kac.getConnection().getReader().dispose(exception, true);
 			kac.getConnection().getWriter().dispose(exception);
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 

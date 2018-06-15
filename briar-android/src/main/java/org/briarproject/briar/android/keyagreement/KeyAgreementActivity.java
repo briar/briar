@@ -54,6 +54,7 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ENABLE_BLUETOOTH;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA;
 
@@ -298,7 +299,7 @@ public class KeyAgreementActivity extends BriarActivity implements
 			try {
 				localAuthor = identityManager.getLocalAuthor();
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				contactExchangeFailed();
 				return;
 			}

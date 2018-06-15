@@ -35,6 +35,7 @@ import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PREF_LAN_IP_PORTS;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_IP_PORTS;
 import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
 
 @NotNullByDefault
@@ -295,7 +296,7 @@ class LanTcpPlugin extends TcpPlugin {
 			try {
 				ss.close();
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 	}

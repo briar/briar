@@ -40,6 +40,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_AUTH;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_RESPONSES;
@@ -412,8 +413,7 @@ class IntroduceeProtocolEngine
 			mac = crypto.authMac(ourMacKey, s, localAuthor.getId());
 			signature = crypto.sign(ourMacKey, localAuthor.getPrivateKey());
 		} catch (GeneralSecurityException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return abort(txn, s);
 		}
 		if (s.getState() != AWAIT_AUTH) throw new AssertionError();

@@ -36,8 +36,9 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.TimeUtils.logDuration;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -164,8 +165,7 @@ class BlogControllerImpl extends BaseControllerImpl
 				logDuration(LOG, "Loading blog", start);
 				handler.onResult(blog);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -182,8 +182,7 @@ class BlogControllerImpl extends BaseControllerImpl
 				logDuration(LOG, "Removing blog", start);
 				handler.onResult(null);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -202,8 +201,7 @@ class BlogControllerImpl extends BaseControllerImpl
 				for (Contact c : contacts) contactIds.add(c.getId());
 				handler.onResult(contactIds);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});

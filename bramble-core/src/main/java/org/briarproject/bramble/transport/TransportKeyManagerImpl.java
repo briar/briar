@@ -36,6 +36,7 @@ import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOC
 import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.util.ByteUtils.MAX_32_BIT_UNSIGNED;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @ThreadSafe
 @NotNullByDefault
@@ -169,7 +170,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 					db.endTransaction(txn);
 				}
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}

@@ -27,6 +27,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static jssc.SerialPort.PURGE_RXCLEAR;
 import static jssc.SerialPort.PURGE_TXCLEAR;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -136,7 +137,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		try {
 			if (port != null) port.closePort();
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -327,7 +328,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				}
 			}
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -394,8 +395,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 						try {
 							answer();
 						} catch (IOException e) {
-							if (LOG.isLoggable(WARNING))
-								LOG.log(WARNING, e.toString(), e);
+							logException(LOG, WARNING, e);
 						}
 					});
 				}

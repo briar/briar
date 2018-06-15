@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.CONNECTION_TIMEOUT;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 class KeyAgreementConnector {
@@ -134,7 +135,7 @@ class KeyAgreementConnector {
 			Thread.currentThread().interrupt();
 			return null;
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return null;
 		} finally {
 			stopListening();

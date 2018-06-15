@@ -16,8 +16,8 @@ import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.util.TimeUtils.logDuration;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.now;
 
 /**
  * A key parser that uses the encoding defined in "SEC 1: Elliptic Curve

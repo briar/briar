@@ -40,6 +40,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @ThreadSafe
 @NotNullByDefault
@@ -110,7 +111,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			}
 			validateNextMessageAsync(unvalidated);
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -144,7 +145,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			LOG.info("Group removed before validation");
 			validateNextMessageAsync(unvalidated);
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -165,7 +166,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			}
 			deliverNextPendingMessageAsync(pending);
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -231,7 +232,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			LOG.info("Group removed before delivery");
 			deliverNextPendingMessageAsync(pending);
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -252,8 +253,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				storeMessageContextAsync(m, g.getClientId(),
 						g.getMajorVersion(), context);
 			} catch (InvalidMessageException e) {
-				if (LOG.isLoggable(INFO))
-					LOG.log(INFO, e.toString(), e);
+				logException(LOG, INFO, e);
 				Queue<MessageId> invalidate = new LinkedList<>();
 				invalidate.add(m.getId());
 				invalidateNextMessageAsync(invalidate);
@@ -326,7 +326,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		} catch (NoSuchGroupException e) {
 			LOG.info("Group removed during validation");
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -377,7 +377,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			}
 			shareNextMessageAsync(toShare);
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -412,7 +412,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			LOG.info("Group removed before sharing");
 			shareNextMessageAsync(toShare);
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -440,7 +440,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			LOG.info("Message removed before invalidation");
 			invalidateNextMessageAsync(invalidate);
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -492,7 +492,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		} catch (NoSuchGroupException e) {
 			LOG.info("Group removed before validation");
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 

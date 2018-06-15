@@ -124,8 +124,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 				createTestDataOnIoExecutor(numContacts, numPrivateMsgs,
 						numBlogPosts, numForums, numForumPosts);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, "Creating test data failed", e);
+				LOG.log(WARNING, "Creating test data failed", e);
 			}
 		});
 	}

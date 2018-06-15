@@ -10,6 +10,7 @@ import java.security.SecureRandomSpi;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 public class LinuxSecureRandomSpi extends SecureRandomSpi {
 
@@ -39,7 +40,7 @@ public class LinuxSecureRandomSpi extends SecureRandomSpi {
 			out.close();
 		} catch (IOException e) {
 			// On some devices /dev/urandom isn't writable - this isn't fatal
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 

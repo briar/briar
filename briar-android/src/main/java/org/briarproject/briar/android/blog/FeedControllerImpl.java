@@ -27,8 +27,9 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.TimeUtils.logDuration;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
 
 @MethodsNotNullByDefault
@@ -106,14 +107,13 @@ class FeedControllerImpl extends BaseControllerImpl
 					try {
 						posts.addAll(loadItems(b.getId()));
 					} catch (NoSuchGroupException | NoSuchMessageException e) {
-						if (LOG.isLoggable(WARNING))
-							LOG.log(WARNING, e.toString(), e);
+						logException(LOG, WARNING, e);
 					}
 				}
 				logDuration(LOG, "Loading all posts", start);
 				handler.onResult(posts);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -130,7 +130,7 @@ class FeedControllerImpl extends BaseControllerImpl
 				logDuration(LOG, "Loading personal blog", start);
 				handler.onResult(b);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});

@@ -46,6 +46,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.contact.RecordTypes.CONTACT_INFO;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
@@ -122,7 +123,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			in = conn.getReader().getInputStream();
 			out = conn.getWriter().getOutputStream();
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			listener.contactExchangeFailed();
 			tryToClose(conn);
 			return;
@@ -133,7 +134,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		try {
 			localProperties = transportPropertyManager.getLocalProperties();
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			listener.contactExchangeFailed();
 			tryToClose(conn);
 			return;
@@ -194,7 +195,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 				LOG.info("End of stream");
 			}
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			listener.contactExchangeFailed();
 			tryToClose(conn);
 			return;
@@ -222,11 +223,11 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			LOG.info("Pseudonym exchange succeeded");
 			listener.contactExchangeSucceeded(remoteInfo.author);
 		} catch (ContactExistsException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			tryToClose(conn);
 			listener.duplicateContact(remoteInfo.author);
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			tryToClose(conn);
 			listener.contactExchangeFailed();
 		}
@@ -307,7 +308,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			conn.getReader().dispose(true, true);
 			conn.getWriter().dispose(true);
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 

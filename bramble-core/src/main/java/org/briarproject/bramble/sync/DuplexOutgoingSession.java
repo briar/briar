@@ -42,6 +42,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 /**
  * An outgoing {@link SyncSession} suitable for duplex transports. The session
@@ -240,7 +241,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 					LOG.info("Generated ack: " + (a != null));
 				if (a != null) writerTasks.add(new WriteAck(a));
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				interrupt();
 			}
 		}
@@ -287,7 +288,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 					LOG.info("Generated batch: " + (b != null));
 				if (b != null) writerTasks.add(new WriteBatch(b));
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				interrupt();
 			}
 		}
@@ -334,7 +335,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 					LOG.info("Generated offer: " + (o != null));
 				if (o != null) writerTasks.add(new WriteOffer(o));
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				interrupt();
 			}
 		}
@@ -379,7 +380,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 					LOG.info("Generated request: " + (r != null));
 				if (r != null) writerTasks.add(new WriteRequest(r));
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				interrupt();
 			}
 		}
