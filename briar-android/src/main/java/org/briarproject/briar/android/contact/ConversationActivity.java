@@ -298,9 +298,8 @@ public class ConversationActivity extends BriarActivity
 					contactName = contact.getAuthor().getName();
 					contactAuthorId = contact.getAuthor().getId();
 				}
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading contact took " + duration + " ms");
+					LOG.fine("Loading contact took " + (now() - start) + " ms");
 				loadMessages();
 				displayContactDetails();
 			} catch (NoSuchContactException e) {
@@ -359,9 +358,10 @@ public class ConversationActivity extends BriarActivity
 				invitations.addAll(forumInvitations);
 				invitations.addAll(blogInvitations);
 				invitations.addAll(groupInvitations);
-				long duration = now() - start;
-				if (LOG.isLoggable(FINE))
+				if (LOG.isLoggable(FINE)) {
+					long duration = now() - start;
 					LOG.fine("Loading messages took " + duration + " ms");
+				}
 				displayMessages(revision, headers, introductions, invitations);
 			} catch (NoSuchContactException e) {
 				finishOnUiThread();
@@ -442,9 +442,8 @@ public class ConversationActivity extends BriarActivity
 			try {
 				long start = now();
 				String body = messagingManager.getMessageBody(m);
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading body took " + duration + " ms");
+					LOG.fine("Loading body took " + (now() - start) + " ms");
 				displayMessageBody(m, body);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -693,9 +692,8 @@ public class ConversationActivity extends BriarActivity
 			try {
 				long start = now();
 				messagingManager.addLocalMessage(m);
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
-					LOG.fine("Storing message took " + duration + " ms");
+					LOG.fine("Storing message took " + (now() - start) + " ms");
 				Message message = m.getMessage();
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
@@ -820,9 +818,8 @@ public class ConversationActivity extends BriarActivity
 			try {
 				long start = now();
 				messagingManager.setReadFlag(g, m, true);
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
-					LOG.fine("Marking read took " + duration + " ms");
+					LOG.fine("Marking read took " + (now() - start) + " ms");
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}

@@ -125,9 +125,8 @@ public class CreateForumActivity extends BriarActivity {
 			try {
 				long start = now();
 				Forum f = forumManager.addForum(name);
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
-					LOG.fine("Storing forum took " + duration + " ms");
+					LOG.fine("Storing forum took " + (now() - start) + " ms");
 				displayForum(f);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

@@ -169,9 +169,8 @@ public class ForumListFragment extends BaseEventFragment implements
 						// Continue
 					}
 				}
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
-					LOG.fine("Full load took " + duration + " ms");
+					LOG.fine("Full load took " + (now() - start) + " ms");
 				displayForums(revision, forums);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -197,9 +196,10 @@ public class ForumListFragment extends BaseEventFragment implements
 			try {
 				long start = now();
 				int available = forumSharingManager.getInvitations().size();
-				long duration = now() - start;
-				if (LOG.isLoggable(FINE))
+				if (LOG.isLoggable(FINE)) {
+					long duration = now() - start;
 					LOG.fine("Loading available took " + duration + " ms");
+				}
 				displayAvailableForums(available);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

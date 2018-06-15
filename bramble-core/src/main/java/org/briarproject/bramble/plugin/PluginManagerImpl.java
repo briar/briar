@@ -209,10 +209,9 @@ class PluginManagerImpl implements PluginManager, Service {
 			try {
 				long start = now();
 				plugin.start();
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE)) {
-					LOG.fine("Starting plugin " + plugin.getId() + " took " +
-							duration + " ms");
+					LOG.fine("Starting plugin " + plugin.getId()
+							+ " took " + (now() - start) + " ms");
 				}
 			} catch (PluginException e) {
 				if (LOG.isLoggable(WARNING)) {
@@ -247,10 +246,9 @@ class PluginManagerImpl implements PluginManager, Service {
 				// Stop the plugin
 				long start = now();
 				plugin.stop();
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE)) {
 					LOG.fine("Stopping plugin " + plugin.getId()
-							+ " took " + duration + " ms");
+							+ " took " + (now() - start) + " ms");
 				}
 			} catch (InterruptedException e) {
 				LOG.warning("Interrupted while waiting for plugin to stop");

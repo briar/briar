@@ -249,9 +249,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				Settings btSettings = settingsManager.getSettings(BT_NAMESPACE);
 				Settings torSettings =
 						settingsManager.getSettings(TOR_NAMESPACE);
-				long duration = now() - start;
-				if (LOG.isLoggable(FINE))
+				if (LOG.isLoggable(FINE)) {
+					long duration = now() - start;
 					LOG.fine("Loading settings took " + duration + " ms");
+				}
 				boolean btSetting =
 						btSettings.getBoolean(PREF_BT_ENABLE, false);
 				int torSetting = torSettings.getInt(PREF_TOR_NETWORK,
@@ -439,9 +440,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				s.putInt(PREF_TOR_NETWORK, torSetting);
 				long start = now();
 				settingsManager.mergeSettings(s, TOR_NAMESPACE);
-				long duration = now() - start;
-				if (LOG.isLoggable(FINE))
+				if (LOG.isLoggable(FINE)) {
+					long duration = now() - start;
 					LOG.fine("Merging settings took " + duration + " ms");
+				}
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -455,9 +457,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				s.putBoolean(PREF_BT_ENABLE, btSetting);
 				long start = now();
 				settingsManager.mergeSettings(s, BT_NAMESPACE);
-				long duration = now() - start;
-				if (LOG.isLoggable(FINE))
+				if (LOG.isLoggable(FINE)) {
+					long duration = now() - start;
 					LOG.fine("Merging settings took " + duration + " ms");
+				}
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -469,9 +472,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			try {
 				long start = now();
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-				long duration = now() - start;
-				if (LOG.isLoggable(FINE))
+				if (LOG.isLoggable(FINE)) {
+					long duration = now() - start;
 					LOG.fine("Merging settings took " + duration + " ms");
+				}
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}

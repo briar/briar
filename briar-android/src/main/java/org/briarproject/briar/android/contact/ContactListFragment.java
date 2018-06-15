@@ -209,9 +209,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 						// Continue
 					}
 				}
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
-					LOG.fine("Full load took " + duration + " ms");
+					LOG.fine("Full load took " + (now() - start) + " ms");
 				displayContacts(revision, contacts);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

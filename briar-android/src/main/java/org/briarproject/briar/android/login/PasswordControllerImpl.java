@@ -89,9 +89,8 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 	String encryptDatabaseKey(SecretKey key, String password) {
 		long start = now();
 		byte[] encrypted = crypto.encryptWithPassword(key.getBytes(), password);
-		long duration = now() - start;
 		if (LOG.isLoggable(FINE))
-			LOG.fine("Key derivation took " + duration + " ms");
+			LOG.fine("Key derivation took " + (now() - start) + " ms");
 		return StringUtils.toHexString(encrypted);
 	}
 }

@@ -110,9 +110,10 @@ class FeedControllerImpl extends BaseControllerImpl
 							LOG.log(WARNING, e.toString(), e);
 					}
 				}
-				long duration = now() - start;
-				if (LOG.isLoggable(FINE))
+				if (LOG.isLoggable(FINE)) {
+					long duration = now() - start;
 					LOG.fine("Loading all posts took " + duration + " ms");
+				}
 				handler.onResult(posts);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

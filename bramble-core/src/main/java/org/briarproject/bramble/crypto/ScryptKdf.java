@@ -56,9 +56,10 @@ class ScryptKdf implements PasswordBasedKdf {
 		byte[] passwordBytes = StringUtils.toUtf8(password);
 		SecretKey k = new SecretKey(SCrypt.generate(passwordBytes, salt, cost,
 				BLOCK_SIZE, PARALLELIZATION, SecretKey.LENGTH));
-		long duration = now() - start;
-		if (LOG.isLoggable(FINE))
+		if (LOG.isLoggable(FINE)) {
+			long duration = now() - start;
 			LOG.fine("Deriving key from password took " + duration + " ms");
+		}
 		return k;
 	}
 }

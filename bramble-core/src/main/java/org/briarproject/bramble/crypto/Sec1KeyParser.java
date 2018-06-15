@@ -81,9 +81,8 @@ class Sec1KeyParser implements KeyParser {
 		// Construct a public key from the point (x, y) and the params
 		ECPublicKeyParameters k = new ECPublicKeyParameters(pub, params);
 		PublicKey p = new Sec1PublicKey(k);
-		long duration = now() - start;
 		if (LOG.isLoggable(FINE))
-			LOG.fine("Parsing public key took " + duration + " ms");
+			LOG.fine("Parsing public key took " + (now() - start) + " ms");
 		return p;
 	}
 
@@ -100,9 +99,8 @@ class Sec1KeyParser implements KeyParser {
 		// Construct a private key from the private value and the params
 		ECPrivateKeyParameters k = new ECPrivateKeyParameters(d, params);
 		PrivateKey p = new Sec1PrivateKey(k, keyBits);
-		long duration = now() - start;
 		if (LOG.isLoggable(FINE))
-			LOG.fine("Parsing private key took " + duration + " ms");
+			LOG.fine("Parsing private key took " + (now() - start) + " ms");
 		return p;
 	}
 }

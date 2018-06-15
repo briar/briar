@@ -162,9 +162,8 @@ class GroupListControllerImpl extends DbControllerImpl
 						// Continue
 					}
 				}
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading groups took " + duration + " ms");
+					LOG.fine("Loading groups took " + (now() - start) + " ms");
 				handler.onResult(items);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -179,9 +178,8 @@ class GroupListControllerImpl extends DbControllerImpl
 			try {
 				long start = now();
 				groupManager.removePrivateGroup(g);
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
-					LOG.fine("Removing group took " + duration + " ms");
+					LOG.fine("Removing group took " + (now() - start) + " ms");
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				handler.onException(e);

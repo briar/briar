@@ -136,9 +136,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte allZero = 0;
 		for (byte b : secret) allZero |= b;
 		if (allZero == 0) throw new GeneralSecurityException();
-		long duration = now() - start;
 		if (LOG.isLoggable(FINE))
-			LOG.fine("Deriving shared secret took " + duration + " ms");
+			LOG.fine("Deriving shared secret took " + (now() - start) + " ms");
 		return secret;
 	}
 

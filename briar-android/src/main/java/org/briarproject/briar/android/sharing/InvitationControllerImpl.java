@@ -98,9 +98,10 @@ public abstract class InvitationControllerImpl<I extends InvitationItem>
 			try {
 				long start = now();
 				Collection<I> invitations = new ArrayList<>(getInvitations());
-				long duration = now() - start;
-				if (LOG.isLoggable(FINE))
+				if (LOG.isLoggable(FINE)) {
+					long duration = now() - start;
 					LOG.fine("Loading invitations took " + duration + " ms");
+				}
 				handler.onResult(invitations);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

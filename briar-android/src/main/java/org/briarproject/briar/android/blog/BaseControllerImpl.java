@@ -113,9 +113,8 @@ abstract class BaseControllerImpl extends DbControllerImpl
 		long start = now();
 		Collection<BlogPostHeader> headers =
 				blogManager.getPostHeaders(groupId);
-		long duration = now() - start;
 		if (LOG.isLoggable(FINE))
-			LOG.fine("Loading headers took " + duration + " ms");
+			LOG.fine("Loading headers took " + (now() - start) + " ms");
 		Collection<BlogPostItem> items = new ArrayList<>(headers.size());
 		start = now();
 		for (BlogPostHeader h : headers) {
@@ -123,9 +122,8 @@ abstract class BaseControllerImpl extends DbControllerImpl
 			BlogPostItem item = getItem(h);
 			items.add(item);
 		}
-		duration = now() - start;
 		if (LOG.isLoggable(FINE))
-			LOG.fine("Loading bodies took " + duration + " ms");
+			LOG.fine("Loading bodies took " + (now() - start) + " ms");
 		return items;
 	}
 
@@ -143,9 +141,8 @@ abstract class BaseControllerImpl extends DbControllerImpl
 			try {
 				long start = now();
 				BlogPostItem item = getItem(header);
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading body took " + duration + " ms");
+					LOG.fine("Loading body took " + (now() - start) + " ms");
 				handler.onResult(item);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
@@ -170,9 +167,8 @@ abstract class BaseControllerImpl extends DbControllerImpl
 				long start = now();
 				BlogPostHeader header1 = getPostHeader(g, m);
 				BlogPostItem item = getItem(header1);
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading post took " + duration + " ms");
+					LOG.fine("Loading post took " + (now() - start) + " ms");
 				handler.onResult(item);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))

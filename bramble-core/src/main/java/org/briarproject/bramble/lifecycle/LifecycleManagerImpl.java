@@ -109,18 +109,18 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 		byte[] privateKey = keyPair.getPrivate().getEncoded();
 		LocalAuthor localAuthor = authorFactory
 				.createLocalAuthor(nickname, publicKey, privateKey);
-		long duration = now() - start;
 		if (LOG.isLoggable(FINE))
-			LOG.fine("Creating local author took " + duration + " ms");
+			LOG.fine("Creating local author took " + (now() - start) + " ms");
 		return localAuthor;
 	}
 
 	private void registerLocalAuthor(LocalAuthor author) throws DbException {
 		long start = now();
 		identityManager.registerLocalAuthor(author);
-		long duration = now() - start;
-		if (LOG.isLoggable(FINE))
-			LOG.fine("Registering local author took " + duration + " ms");
+		if (LOG.isLoggable(FINE)) {
+			LOG.fine("Registering local author took " + (now() - start)
+					+ " ms");
+		}
 	}
 
 	@Override
@@ -134,8 +134,8 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			long start = now();
 
 			boolean reopened = db.open(this);
-			long duration = now() - start;
 			if (LOG.isLoggable(FINE)) {
+				long duration = now() - start;
 				if (reopened)
 					LOG.fine("Reopening database took " + duration + " ms");
 				else LOG.fine("Creating database took " + duration + " ms");
@@ -154,11 +154,10 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 				for (Client c : clients) {
 					start = now();
 					c.createLocalState(txn);
-					duration = now() - start;
 					if (LOG.isLoggable(FINE)) {
 						LOG.fine("Starting client "
 								+ c.getClass().getSimpleName()
-								+ " took " + duration + " ms");
+								+ " took " + (now() - start) + " ms");
 					}
 				}
 				db.commitTransaction(txn);
@@ -168,10 +167,9 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			for (Service s : services) {
 				start = now();
 				s.startService();
-				duration = now() - start;
 				if (LOG.isLoggable(FINE)) {
 					LOG.fine("Starting service " + s.getClass().getSimpleName()
-							+ " took " + duration + " ms");
+							+ " took " + (now() - start) + " ms");
 				}
 			}
 
@@ -217,10 +215,9 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			for (Service s : services) {
 				long start = now();
 				s.stopService();
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE)) {
 					LOG.fine("Stopping service " + s.getClass().getSimpleName()
-							+ " took " + duration + " ms");
+							+ " took " + (now() - start) + " ms");
 				}
 			}
 			for (ExecutorService e : executors) {
@@ -232,9 +229,8 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			}
 			long start = now();
 			db.close();
-			long duration = now() - start;
 			if (LOG.isLoggable(FINE))
-				LOG.fine("Closing database took " + duration + " ms");
+				LOG.fine("Closing database took " + (now() - start) + " ms");
 			shutdownLatch.countDown();
 		} catch (DbException | ServiceException e) {
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

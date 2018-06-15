@@ -161,9 +161,8 @@ class BlogControllerImpl extends BaseControllerImpl
 				boolean ours = a.getId().equals(b.getAuthor().getId());
 				boolean removable = blogManager.canBeRemoved(b);
 				BlogItem blog = new BlogItem(b, ours, removable);
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading blog took " + duration + " ms");
+					LOG.fine("Loading blog took " + (now() - start) + " ms");
 				handler.onResult(blog);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
@@ -181,9 +180,8 @@ class BlogControllerImpl extends BaseControllerImpl
 				long start = now();
 				Blog b = blogManager.getBlog(groupId);
 				blogManager.removeBlog(b);
-				long duration = now() - start;
 				if (LOG.isLoggable(FINE))
-					LOG.fine("Removing blog took " + duration + " ms");
+					LOG.fine("Removing blog took " + (now() - start) + " ms");
 				handler.onResult(null);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
