@@ -36,8 +36,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.logDuration;
 import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
 
@@ -162,8 +162,7 @@ class GroupListControllerImpl extends DbControllerImpl
 						// Continue
 					}
 				}
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading groups took " + (now() - start) + " ms");
+				logDuration(LOG, "Loading groups", start);
 				handler.onResult(items);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -178,8 +177,7 @@ class GroupListControllerImpl extends DbControllerImpl
 			try {
 				long start = now();
 				groupManager.removePrivateGroup(g);
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Removing group took " + (now() - start) + " ms");
+				logDuration(LOG, "Removing group", start);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				handler.onException(e);

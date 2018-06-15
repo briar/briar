@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
 
-import static java.util.logging.Level.FINE;
+import static org.briarproject.bramble.util.TimeUtils.logDuration;
 import static org.briarproject.bramble.util.TimeUtils.now;
 
 /**
@@ -81,8 +81,7 @@ class Sec1KeyParser implements KeyParser {
 		// Construct a public key from the point (x, y) and the params
 		ECPublicKeyParameters k = new ECPublicKeyParameters(pub, params);
 		PublicKey p = new Sec1PublicKey(k);
-		if (LOG.isLoggable(FINE))
-			LOG.fine("Parsing public key took " + (now() - start) + " ms");
+		logDuration(LOG, "Parsing public key", start);
 		return p;
 	}
 
@@ -99,8 +98,7 @@ class Sec1KeyParser implements KeyParser {
 		// Construct a private key from the private value and the params
 		ECPrivateKeyParameters k = new ECPrivateKeyParameters(d, params);
 		PrivateKey p = new Sec1PrivateKey(k, keyBits);
-		if (LOG.isLoggable(FINE))
-			LOG.fine("Parsing private key took " + (now() - start) + " ms");
+		logDuration(LOG, "Parsing private key", start);
 		return p;
 	}
 }

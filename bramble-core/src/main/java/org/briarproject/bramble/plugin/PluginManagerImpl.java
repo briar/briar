@@ -52,6 +52,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.logDuration;
 import static org.briarproject.bramble.util.TimeUtils.now;
 
 @ThreadSafe
@@ -210,8 +211,8 @@ class PluginManagerImpl implements PluginManager, Service {
 				long start = now();
 				plugin.start();
 				if (LOG.isLoggable(FINE)) {
-					LOG.fine("Starting plugin " + plugin.getId()
-							+ " took " + (now() - start) + " ms");
+					logDuration(LOG, "Starting plugin " + plugin.getId(),
+							start);
 				}
 			} catch (PluginException e) {
 				if (LOG.isLoggable(WARNING)) {
@@ -247,8 +248,8 @@ class PluginManagerImpl implements PluginManager, Service {
 				long start = now();
 				plugin.stop();
 				if (LOG.isLoggable(FINE)) {
-					LOG.fine("Stopping plugin " + plugin.getId()
-							+ " took " + (now() - start) + " ms");
+					logDuration(LOG, "Stopping plugin " + plugin.getId(),
+							start);
 				}
 			} catch (InterruptedException e) {
 				LOG.warning("Interrupted while waiting for plugin to stop");

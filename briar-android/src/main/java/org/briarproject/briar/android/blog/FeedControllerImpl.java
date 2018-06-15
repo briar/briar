@@ -26,8 +26,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.logDuration;
 import static org.briarproject.bramble.util.TimeUtils.now;
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
 
@@ -110,10 +110,7 @@ class FeedControllerImpl extends BaseControllerImpl
 							LOG.log(WARNING, e.toString(), e);
 					}
 				}
-				if (LOG.isLoggable(FINE)) {
-					long duration = now() - start;
-					LOG.fine("Loading all posts took " + duration + " ms");
-				}
+				logDuration(LOG, "Loading all posts", start);
 				handler.onResult(posts);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -130,9 +127,7 @@ class FeedControllerImpl extends BaseControllerImpl
 				long start = now();
 				Author a = identityManager.getLocalAuthor();
 				Blog b = blogManager.getPersonalBlog(a);
-				long duration = now() - start;
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading blog took " + duration + " ms");
+				logDuration(LOG, "Loading personal blog", start);
 				handler.onResult(b);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

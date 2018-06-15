@@ -34,9 +34,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.TimeUtils.logDuration;
 import static org.briarproject.bramble.util.TimeUtils.now;
 
 @MethodsNotNullByDefault
@@ -135,8 +135,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 			try {
 				long start = now();
 				G groupItem = loadNamedGroup();
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading group took " + (now() - start) + " ms");
+				logDuration(LOG, "Loading group", start);
 				handler.onResult(groupItem);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING))
@@ -158,8 +157,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				// Load headers
 				long start = now();
 				Collection<H> headers = loadHeaders();
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading headers took " + (now() - start) + " ms");
+				logDuration(LOG, "Loading headers", start);
 
 				// Load bodies into cache
 				start = now();
@@ -169,8 +167,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 								loadMessageBody(header));
 					}
 				}
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Loading bodies took " + (now() - start) + " ms");
+				logDuration(LOG, "Loading bodies", start);
 
 				// Build and hand over items
 				handler.onResult(buildItems(headers));
@@ -200,8 +197,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				for (I i : items) {
 					markRead(i.getId());
 				}
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Marking read took " + (now() - start) + " ms");
+				logDuration(LOG, "Marking read", start);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -218,8 +214,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				long start = now();
 				H header = addLocalMessage(msg);
 				bodyCache.put(msg.getMessage().getId(), body);
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Storing message took " + (now() - start) + " ms");
+				logDuration(LOG, "Storing message", start);
 				resultHandler.onResult(buildItem(header, body));
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -238,8 +233,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				long start = now();
 				G groupItem = loadNamedGroup();
 				deleteNamedGroup(groupItem);
-				if (LOG.isLoggable(FINE))
-					LOG.fine("Removing group took " + (now() - start) + " ms");
+				logDuration(LOG, "Removing group", start);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				handler.onException(e);

@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.FINE;
+import static org.briarproject.bramble.util.TimeUtils.logDuration;
 import static org.briarproject.bramble.util.TimeUtils.now;
 
 @NotNullByDefault
@@ -89,8 +89,7 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 	String encryptDatabaseKey(SecretKey key, String password) {
 		long start = now();
 		byte[] encrypted = crypto.encryptWithPassword(key.getBytes(), password);
-		if (LOG.isLoggable(FINE))
-			LOG.fine("Key derivation took " + (now() - start) + " ms");
+		logDuration(LOG, "Key derivation", start);
 		return StringUtils.toHexString(encrypted);
 	}
 }
