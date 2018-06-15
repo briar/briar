@@ -1,5 +1,7 @@
 package org.briarproject.briar.android;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -30,6 +32,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.app.NotificationManager.IMPORTANCE_NONE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
@@ -248,8 +251,10 @@ public class BriarService extends Service {
 				LOG.info("Trim memory: running low");
 			} else if (level == TRIM_MEMORY_RUNNING_CRITICAL) {
 				LOG.info("Trim memory: running critically low");
-				// Clear the UI to save some memory
-				hideUi();
+				// If we're not in the foreground, clear the UI to save memory
+				RunningAppProcessInfo info = new RunningAppProcessInfo();
+				ActivityManager.getMyMemoryState(info);
+				if (info.importance != IMPORTANCE_FOREGROUND) hideUi();
 			} else if (LOG.isLoggable(INFO)) {
 				LOG.info("Trim memory: unknown level " + level);
 			}
