@@ -60,8 +60,9 @@ import javax.inject.Inject;
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.support.v4.view.ViewCompat.getTransitionName;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.TimeUtils.logDuration;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
 
 @MethodsNotNullByDefault
@@ -212,7 +213,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 				logDuration(LOG, "Full load", start);
 				displayContacts(revision, contacts);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}

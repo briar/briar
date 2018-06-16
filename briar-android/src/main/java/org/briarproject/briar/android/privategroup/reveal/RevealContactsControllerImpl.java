@@ -28,6 +28,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.api.privategroup.Visibility.INVISIBLE;
 
@@ -65,7 +66,7 @@ class RevealContactsControllerImpl extends DbControllerImpl
 			try {
 				handler.onResult(getItems(g, selection));
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -106,7 +107,7 @@ class RevealContactsControllerImpl extends DbControllerImpl
 						settings.getBoolean(SHOW_ONBOARDING_REVEAL_CONTACTS,
 								true));
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 
@@ -121,8 +122,7 @@ class RevealContactsControllerImpl extends DbControllerImpl
 				settings.putBoolean(SHOW_ONBOARDING_REVEAL_CONTACTS, false);
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -136,11 +136,9 @@ class RevealContactsControllerImpl extends DbControllerImpl
 					groupInvitationManager.revealRelationship(c, g);
 				} catch (ProtocolStateException e) {
 					// action is outdated, move to next contact
-					if (LOG.isLoggable(INFO))
-						LOG.log(INFO, e.toString(), e);
+					logException(LOG, INFO, e);
 				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
+					logException(LOG, WARNING, e);
 					handler.onException(e);
 					break;
 				}

@@ -32,6 +32,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 /**
  * An outgoing {@link SyncSession} suitable for simplex transports. The session
@@ -139,7 +140,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 				if (a == null) decrementOutstandingQueries();
 				else writerTasks.add(new WriteAck(a));
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				interrupt();
 			}
 		}
@@ -184,7 +185,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 				if (b == null) decrementOutstandingQueries();
 				else writerTasks.add(new WriteBatch(b));
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				interrupt();
 			}
 		}

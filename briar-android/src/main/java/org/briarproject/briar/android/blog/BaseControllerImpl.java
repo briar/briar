@@ -33,8 +33,9 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.TimeUtils.logDuration;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.util.HtmlUtils.ARTICLE;
 
 @MethodsNotNullByDefault
@@ -102,8 +103,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 				Collection<BlogPostItem> items = loadItems(groupId);
 				handler.onResult(items);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -142,8 +142,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 				logDuration(LOG, "Loading body", start);
 				handler.onResult(item);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -167,8 +166,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 				logDuration(LOG, "Loading post", start);
 				handler.onResult(item);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -184,8 +182,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 				BlogPostHeader h = item.getHeader();
 				blogManager.addLocalComment(a, b.getId(), comment, h);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});

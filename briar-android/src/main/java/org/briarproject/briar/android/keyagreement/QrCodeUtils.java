@@ -18,6 +18,7 @@ import static android.graphics.Color.BLACK;
 import static android.graphics.Color.WHITE;
 import static com.google.zxing.BarcodeFormat.QR_CODE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 class QrCodeUtils {
@@ -34,7 +35,7 @@ class QrCodeUtils {
 					smallestDimen, smallestDimen);
 			return renderQrCode(encoded);
 		} catch (WriterException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return null;
 		}
 	}

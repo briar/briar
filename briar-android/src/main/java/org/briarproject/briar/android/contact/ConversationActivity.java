@@ -106,8 +106,9 @@ import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.TimeUtils.logDuration;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
@@ -304,7 +305,7 @@ public class ConversationActivity extends BriarActivity
 			} catch (NoSuchContactException e) {
 				finishOnUiThread();
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -362,7 +363,7 @@ public class ConversationActivity extends BriarActivity
 			} catch (NoSuchContactException e) {
 				finishOnUiThread();
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -441,7 +442,7 @@ public class ConversationActivity extends BriarActivity
 				logDuration(LOG, "Loading body", start);
 				displayMessageBody(m, body);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -665,7 +666,7 @@ public class ConversationActivity extends BriarActivity
 						messagingManager.getConversationId(contactId);
 				createMessage(body, timestamp);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 
 		});
@@ -697,7 +698,7 @@ public class ConversationActivity extends BriarActivity
 				bodyCache.put(message.getId(), body);
 				addConversationItem(item);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -720,7 +721,7 @@ public class ConversationActivity extends BriarActivity
 			try {
 				contactManager.removeContact(contactId);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			} finally {
 				finishAfterContactRemoved();
 			}
@@ -749,7 +750,7 @@ public class ConversationActivity extends BriarActivity
 					}
 				}
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -797,7 +798,7 @@ public class ConversationActivity extends BriarActivity
 				settings.putBoolean(SHOW_ONBOARDING_INTRODUCTION, false);
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -814,7 +815,7 @@ public class ConversationActivity extends BriarActivity
 				messagingManager.setReadFlag(g, m, true);
 				logDuration(LOG, "Marking read", start);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -852,10 +853,10 @@ public class ConversationActivity extends BriarActivity
 				loadMessages();
 			} catch (ProtocolStateException e) {
 				// Action is no longer valid - reloading should solve the issue
-				if (LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
+				logException(LOG, INFO, e);
 			} catch (DbException e) {
 				// TODO show an error message
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}

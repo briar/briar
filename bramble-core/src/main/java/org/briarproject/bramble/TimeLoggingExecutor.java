@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.FINE;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.now;
 
 @NotNullByDefault
 public class TimeLoggingExecutor extends ThreadPoolExecutor {

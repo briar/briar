@@ -38,6 +38,7 @@ import static android.bluetooth.BluetoothAdapter.SCAN_MODE_NONE;
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -145,7 +146,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		try {
 			if (ss != null) ss.close();
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -185,7 +186,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		try {
 			if (c != null) c.close();
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 

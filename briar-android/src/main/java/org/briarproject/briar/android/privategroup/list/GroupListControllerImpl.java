@@ -37,8 +37,9 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.TimeUtils.logDuration;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
 
 @MethodsNotNullByDefault
@@ -165,7 +166,7 @@ class GroupListControllerImpl extends DbControllerImpl
 				logDuration(LOG, "Loading groups", start);
 				handler.onResult(items);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -179,7 +180,7 @@ class GroupListControllerImpl extends DbControllerImpl
 				groupManager.removePrivateGroup(g);
 				logDuration(LOG, "Removing group", start);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -193,7 +194,7 @@ class GroupListControllerImpl extends DbControllerImpl
 				handler.onResult(
 						groupInvitationManager.getInvitations().size());
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});

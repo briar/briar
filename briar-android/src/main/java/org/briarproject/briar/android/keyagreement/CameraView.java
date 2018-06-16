@@ -35,6 +35,7 @@ import static android.hardware.Camera.Parameters.SCENE_MODE_BARCODE;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @SuppressWarnings("deprecation")
 @MethodsNotNullByDefault
@@ -408,7 +409,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			try {
 				surfaceCreatedUi(holder);
 			} catch (CameraException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -430,7 +431,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			try {
 				surfaceChangedUi(holder, w, h);
 			} catch (CameraException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -488,7 +489,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		try {
 			startAutoFocus();
 		} catch (CameraException e) {
-			LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 

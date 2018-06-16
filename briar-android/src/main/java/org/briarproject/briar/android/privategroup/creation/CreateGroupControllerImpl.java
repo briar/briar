@@ -33,6 +33,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @Immutable
 @NotNullByDefault
@@ -81,7 +82,7 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 				LocalAuthor author = identityManager.getLocalAuthor();
 				createGroupAndMessages(author, name, handler);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -109,7 +110,7 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 				groupManager.addPrivateGroup(group, joinMsg, true);
 				handler.onResult(group.getId());
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -136,7 +137,7 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 				}
 				signInvitations(g, localAuthor, contacts, message, handler);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -176,7 +177,7 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 				//noinspection ConstantConditions
 				handler.onResult(null);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});

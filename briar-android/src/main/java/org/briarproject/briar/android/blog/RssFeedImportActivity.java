@@ -30,6 +30,7 @@ import javax.inject.Inject;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 public class RssFeedImportActivity extends BriarActivity {
 
@@ -124,7 +125,7 @@ public class RssFeedImportActivity extends BriarActivity {
 				feedManager.addFeed(url);
 				feedImported();
 			} catch (DbException | IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				importFailed();
 			}
 		});

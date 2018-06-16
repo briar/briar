@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 class Migration38_39 implements Migration<Connection> {
 
@@ -48,7 +49,7 @@ class Migration38_39 implements Migration<Connection> {
 		try {
 			if (s != null) s.close();
 		} catch (SQLException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 }

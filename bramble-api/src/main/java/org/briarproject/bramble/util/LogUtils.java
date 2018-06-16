@@ -1,10 +1,11 @@
 package org.briarproject.bramble.util;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.FINE;
 
-public class TimeUtils {
+public class LogUtils {
 
 	private static final int NANOS_PER_MILLI = 1000 * 1000;
 
@@ -27,5 +28,9 @@ public class TimeUtils {
 			long duration = now() - start;
 			logger.fine(task + " took " + duration + " ms");
 		}
+	}
+
+	public static void logException(Logger logger, Level level, Throwable t) {
+		if (logger.isLoggable(level)) logger.log(level, t.toString(), t);
 	}
 }

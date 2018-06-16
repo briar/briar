@@ -44,8 +44,9 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResul
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.DB_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SERVICE_ERROR;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
-import static org.briarproject.bramble.util.TimeUtils.logDuration;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
 
 @ThreadSafe
 @NotNullByDefault
@@ -170,16 +171,16 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			eventBus.broadcast(new LifecycleEvent(RUNNING));
 			return SUCCESS;
 		} catch (DataTooOldException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return DATA_TOO_OLD_ERROR;
 		} catch (DataTooNewException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return DATA_TOO_NEW_ERROR;
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return DB_ERROR;
 		} catch (ServiceException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return SERVICE_ERROR;
 		} finally {
 			startStopSemaphore.release();
@@ -224,7 +225,7 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			logDuration(LOG, "Closing database", start);
 			shutdownLatch.countDown();
 		} catch (DbException | ServiceException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		} finally {
 			startStopSemaphore.release();
 		}

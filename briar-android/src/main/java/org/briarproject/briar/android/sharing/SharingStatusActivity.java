@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -110,7 +111,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 				}
 				displaySharedWith(contactItems);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}

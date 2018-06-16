@@ -8,7 +8,7 @@ import org.briarproject.bramble.api.lifecycle.Service;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.now;
 
 class NetworkUsageLogger implements Service {
 

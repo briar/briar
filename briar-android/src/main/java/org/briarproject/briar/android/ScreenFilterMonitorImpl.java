@@ -48,6 +48,7 @@ import static android.content.pm.PackageManager.GET_PERMISSIONS;
 import static android.content.pm.PackageManager.GET_SIGNATURES;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
@@ -189,7 +190,7 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 			String publicKey = StringUtils.toHexString(publicKeyBytes);
 			return PLAY_SERVICES_PUBLIC_KEY.equals(publicKey);
 		} catch (NameNotFoundException | CertificateException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return false;
 		}
 	}

@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 class GroupMemberListControllerImpl extends DbControllerImpl
 		implements GroupMemberListController {
@@ -56,7 +57,7 @@ class GroupMemberListControllerImpl extends DbControllerImpl
 				}
 				handler.onResult(items);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});

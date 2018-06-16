@@ -24,6 +24,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @Immutable
@@ -67,12 +68,11 @@ class ShareBlogControllerImpl extends ContactSelectorControllerImpl
 										.getLatestMsgTime() + 1);
 						blogSharingManager.sendInvitation(g, c, msg, time);
 					} catch (NoSuchContactException | NoSuchGroupException e) {
-						if (LOG.isLoggable(WARNING))
-							LOG.log(WARNING, e.toString(), e);
+						logException(LOG, WARNING, e);
 					}
 				}
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});

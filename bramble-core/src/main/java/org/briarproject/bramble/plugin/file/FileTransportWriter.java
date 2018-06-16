@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 class FileTransportWriter implements TransportConnectionWriter {
@@ -46,7 +47,7 @@ class FileTransportWriter implements TransportConnectionWriter {
 		try {
 			out.close();
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 		plugin.writerFinished(file, exception);
 	}

@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -120,13 +121,11 @@ class KeyAgreementTaskImpl extends Thread implements KeyAgreementTask,
 			// Broadcast result to caller
 			eventBus.broadcast(new KeyAgreementFinishedEvent(result));
 		} catch (AbortException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			// Notify caller that the protocol was aborted
 			eventBus.broadcast(new KeyAgreementAbortedEvent(e.receivedAbort));
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			// Notify caller that the connection failed
 			eventBus.broadcast(new KeyAgreementFailedEvent());
 		}

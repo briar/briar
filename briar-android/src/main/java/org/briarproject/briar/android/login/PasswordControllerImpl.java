@@ -17,8 +17,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.util.TimeUtils.logDuration;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.now;
 
 @NotNullByDefault
 public class PasswordControllerImpl extends ConfigControllerImpl

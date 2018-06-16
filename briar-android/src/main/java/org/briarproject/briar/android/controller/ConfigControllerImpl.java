@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 public class ConfigControllerImpl implements ConfigController {
@@ -89,7 +90,7 @@ public class ConfigControllerImpl implements ConfigController {
 			reader.close();
 			return key;
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return null;
 		}
 	}
@@ -137,7 +138,7 @@ public class ConfigControllerImpl implements ConfigController {
 			LOG.info("Stored second copy of database key in backup file");
 			return true;
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return false;
 		}
 	}

@@ -36,8 +36,9 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.TimeUtils.logDuration;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -107,8 +108,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				try {
 					messageTracker.storeMessageId(groupId, messageId);
 				} catch (DbException e) {
-					if (LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
+					logException(LOG, WARNING, e);
 				}
 			});
 		}
@@ -138,8 +138,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				logDuration(LOG, "Loading group", start);
 				handler.onResult(groupItem);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -172,7 +171,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				// Build and hand over items
 				handler.onResult(buildItems(headers));
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -199,7 +198,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				}
 				logDuration(LOG, "Marking read", start);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -217,7 +216,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				logDuration(LOG, "Storing message", start);
 				resultHandler.onResult(buildItem(header, body));
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				resultHandler.onException(e);
 			}
 		});
@@ -235,7 +234,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				deleteNamedGroup(groupItem);
 				logDuration(LOG, "Removing group", start);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});

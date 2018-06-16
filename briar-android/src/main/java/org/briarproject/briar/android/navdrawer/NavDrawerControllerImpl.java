@@ -28,6 +28,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.TestingConstants.IS_BETA_BUILD;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
@@ -143,7 +144,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 					}
 				}
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -158,7 +159,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 				settings.putBoolean(EXPIRY_SHOW_UPDATE, false);
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -178,8 +179,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 				boolean ask = settings.getBoolean(DOZE_ASK_AGAIN, true);
 				handler.onResult(ask);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onResult(true);
 			}
 		});

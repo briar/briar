@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -81,7 +82,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				running = true;
 				return;
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 		throw new PluginException();
@@ -94,7 +95,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			try {
 				modem.stop();
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 	}
@@ -131,7 +132,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 					LOG.info("Initialised modem on " + portName);
 				return true;
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 		running = false;
@@ -157,7 +158,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		try {
 			if (!modem.dial(number)) return null;
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			resetModem();
 			return null;
 		}
@@ -209,7 +210,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			try {
 				modem.hangUp();
 			} catch (IOException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				exception = true;
 			}
 			if (exception) resetModem();

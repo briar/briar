@@ -17,6 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubInetAddress;
 
 @ThreadSafe
@@ -59,7 +60,7 @@ class PortMapperImpl implements PortMapper {
 			if (externalString != null)
 				external = InetAddress.getByName(externalString);
 		} catch (IOException | SAXException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 		return new MappingResult(internal, external, port, succeeded);
 	}
@@ -76,7 +77,7 @@ class PortMapperImpl implements PortMapper {
 		try {
 			d.discover();
 		} catch (IOException | SAXException | ParserConfigurationException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 		gateway = d.getValidGateway();
 	}
@@ -87,7 +88,7 @@ class PortMapperImpl implements PortMapper {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Deleted mapping for port " + port);
 		} catch (IOException | SAXException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 }

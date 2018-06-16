@@ -59,6 +59,7 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -214,7 +215,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 
 	@UiThread
 	private void logCameraExceptionAndFinish(CameraException e) {
-		if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		logException(LOG, WARNING, e);
 		Toast.makeText(getActivity(), R.string.camera_error,
 				LENGTH_LONG).show();
 		finish();
@@ -278,7 +279,7 @@ public class ShowQrCodeFragment extends BaseEventFragment
 		} catch (CameraException e) {
 			logCameraExceptionAndFinish(e);
 		} catch (IOException | IllegalArgumentException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, "QR Code Invalid", e);
+			LOG.log(WARNING, "QR Code Invalid", e);
 			reset();
 			Toast.makeText(getActivity(), R.string.qr_code_invalid,
 					LENGTH_LONG).show();

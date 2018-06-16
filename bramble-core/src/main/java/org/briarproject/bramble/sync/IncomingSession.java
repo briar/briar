@@ -28,6 +28,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 /**
  * An incoming {@link SyncSession}.
@@ -127,7 +128,7 @@ class IncomingSession implements SyncSession, EventListener {
 					db.endTransaction(txn);
 				}
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				interrupt();
 			}
 		}
@@ -153,7 +154,7 @@ class IncomingSession implements SyncSession, EventListener {
 					db.endTransaction(txn);
 				}
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				interrupt();
 			}
 		}
@@ -179,7 +180,7 @@ class IncomingSession implements SyncSession, EventListener {
 					db.endTransaction(txn);
 				}
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				interrupt();
 			}
 		}
@@ -205,7 +206,7 @@ class IncomingSession implements SyncSession, EventListener {
 					db.endTransaction(txn);
 				}
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				interrupt();
 			}
 		}

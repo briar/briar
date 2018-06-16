@@ -66,6 +66,7 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
 import static org.briarproject.bramble.db.DatabaseConstants.SCHEMA_VERSION_KEY;
 import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 /**
  * A generic database implementation that can be used with any JDBC-compatible
@@ -404,7 +405,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			if (rs != null) rs.close();
 		} catch (SQLException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -412,7 +413,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			if (s != null) s.close();
 		} catch (SQLException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -509,12 +510,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 		} catch (SQLException e) {
 			// Try to close the connection
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			try {
 				txn.close();
 			} catch (SQLException e1) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e1.toString(), e1);
+				logException(LOG, WARNING, e1);
 			}
 			// Whatever happens, allow the database to close
 			connectionsLock.lock();

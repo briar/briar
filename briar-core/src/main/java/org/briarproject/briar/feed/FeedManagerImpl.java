@@ -63,6 +63,7 @@ import okhttp3.ResponseBody;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
 import static org.briarproject.briar.api.feed.FeedConstants.FETCH_DELAY_INITIAL;
 import static org.briarproject.briar.api.feed.FeedConstants.FETCH_INTERVAL;
@@ -284,8 +285,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		try {
 			feeds = getFeeds();
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 			return;
 		}
 
@@ -295,8 +295,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 			try {
 				newFeeds.add(fetchFeed(feed));
 			} catch (IOException | DbException e) {
-				if (LOG.isLoggable(WARNING))
-					LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				newFeeds.add(feed);
 			}
 		}
@@ -305,8 +304,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		try {
 			storeFeeds(newFeeds);
 		} catch (DbException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 		LOG.info("Done updating RSS feeds");
 	}
@@ -464,13 +462,11 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 					.createBlogPost(groupId, time, null, localAuthor, body);
 			blogManager.addLocalPost(txn, post);
 		} catch (DbException | GeneralSecurityException | FormatException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		} catch (IllegalArgumentException e) {
 			// yes even catch this, so we at least get a stacktrace
 			// and the executor doesn't just die a silent death
-			if (LOG.isLoggable(WARNING))
-				LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 

@@ -34,6 +34,7 @@ import javax.inject.Inject;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
 
 public class WriteBlogPostActivity extends BriarActivity
@@ -151,7 +152,7 @@ public class WriteBlogPostActivity extends BriarActivity
 				postPublished();
 			} catch (DbException | GeneralSecurityException
 					| FormatException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				postFailedToPublish();
 			}
 		});

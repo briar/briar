@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.GuardedBy;
 
 import static java.util.logging.Level.FINE;
-import static org.briarproject.bramble.util.TimeUtils.now;
+import static org.briarproject.bramble.util.LogUtils.now;
 
 /**
  * An {@link Executor} that delegates its tasks to another {@link Executor}

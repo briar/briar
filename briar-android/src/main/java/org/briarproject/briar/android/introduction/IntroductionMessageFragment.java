@@ -36,6 +36,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
 
 public class IntroductionMessageFragment extends BaseFragment
@@ -129,7 +130,7 @@ public class IntroductionMessageFragment extends BaseFragment
 				boolean possible = introductionManager.canIntroduce(c1, c2);
 				setUpViews(c1, c2, possible);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -204,7 +205,7 @@ public class IntroductionMessageFragment extends BaseFragment
 				long timestamp = System.currentTimeMillis();
 				introductionManager.makeIntroduction(c1, c2, msg, timestamp);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				introductionError();
 			}
 		});

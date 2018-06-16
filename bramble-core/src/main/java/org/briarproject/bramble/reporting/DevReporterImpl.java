@@ -32,6 +32,7 @@ import javax.inject.Inject;
 import javax.net.SocketFactory;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @Immutable
 @NotNullByDefault
@@ -132,7 +133,7 @@ class DevReporterImpl implements DevReporter, EventListener {
 		try {
 			if (c != null) c.close();
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -140,7 +141,7 @@ class DevReporterImpl implements DevReporter, EventListener {
 		try {
 			if (s != null) s.close();
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 	}
 }

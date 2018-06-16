@@ -39,6 +39,7 @@ import javax.inject.Inject;
 
 import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 class ForumControllerImpl extends
@@ -130,7 +131,7 @@ class ForumControllerImpl extends
 				for (Contact c : contacts) contactIds.add(c.getId());
 				handler.onResult(contactIds);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -150,7 +151,7 @@ class ForumControllerImpl extends
 						parentItem.getId() : null;
 				createMessage(body, timestamp, parentId, author, handler);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});

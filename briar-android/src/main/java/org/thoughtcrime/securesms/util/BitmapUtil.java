@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 public class BitmapUtil {
 
@@ -74,7 +75,7 @@ public class BitmapUtil {
 		try {
 			fis.close();
 		} catch (IOException e) {
-			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			logException(LOG, WARNING, e);
 		}
 
 		if (options.outWidth == -1 || options.outHeight == -1) {

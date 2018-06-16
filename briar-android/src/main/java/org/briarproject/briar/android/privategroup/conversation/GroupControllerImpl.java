@@ -42,6 +42,7 @@ import javax.inject.Inject;
 
 import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -152,7 +153,7 @@ class GroupControllerImpl extends
 				}
 				handler.onResult(contactIds);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -176,7 +177,7 @@ class GroupControllerImpl extends
 				createMessage(body, timestamp, parentId, author, previousMsgId,
 						handler);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -223,7 +224,7 @@ class GroupControllerImpl extends
 				LocalAuthor author = identityManager.getLocalAuthor();
 				handler.onResult(author);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
@@ -238,7 +239,7 @@ class GroupControllerImpl extends
 						privateGroupManager.isDissolved(getGroupId());
 				handler.onResult(isDissolved);
 			} catch (DbException e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});

@@ -28,6 +28,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import static com.sun.jna.Library.OPTION_FUNCTION_MAPPER;
 import static com.sun.jna.Library.OPTION_TYPE_MAPPER;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @ThreadSafe
 @NotNullByDefault
@@ -141,7 +142,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 					user32.DispatchMessage(msg);
 				}
 			} catch (UnsatisfiedLinkError e) {
-				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				logException(LOG, WARNING, e);
 			}
 		}
 	}
