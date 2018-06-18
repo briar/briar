@@ -288,14 +288,14 @@ android {
 
 task verifyTranslations {
 	doLast {
-		def file = "briar-android/src/main/res/values/arrays.xml"
+		def file = project.file("src/main/res/values/arrays.xml")
 		def arrays = new XmlParser().parse(file)
 		def lc = arrays.children().find { it.@name == "pref_language_values" }
 		def translations = []
 		lc.children().each { value -> translations.add(value.text()) }
 
 		def folders = ["default", "en-US"]
-		new File("briar-android/src/main/res").eachDir { dir ->
+		project.file("src/main/res").eachDir { dir ->
 			if (dir.name.startsWith("values-") && !dir.name.endsWith("night")) {
 				folders.add(dir.name.substring(7).replace("-r", "-"))
 			}
@@ -310,14 +310,14 @@ task verifyTranslations {
 					+ "\nhave no matching value folder")
 
 		// Some devices use iw instead of he for hebrew
-		def hebrew_legacy = new File("briar-android/src/main/res/values-iw")
-		def hebrew = new File("briar-android/src/main/res/values-he")
+		def hebrew_legacy = project.file("src/main/res/values-iw")
+		def hebrew = project.file("src/main/res/values-he")
 		// Copy values-he to values-iw
 		if (hebrew.exists()) {
 			hebrew_legacy.mkdir()
 			copy {
-				from 'src/main/res/values-he'
-				into 'src/main/res/values-iw'
+				from hebrew.getAbsolutePath()
+				into hebrew_legacy.getAbsolutePath()
 			}
 		}
 	}
