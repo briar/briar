@@ -50,6 +50,11 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_NOTIFICATION_ID;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_ID;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_NOTIFICATION_ID;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.REMINDER_NOTIFICATION_ID;
 
 public class BriarService extends Service {
 
@@ -59,14 +64,6 @@ public class BriarService extends Service {
 			"org.briarproject.briar.FAILURE_NOTIFICATION_ID";
 	public static String EXTRA_STARTUP_FAILED =
 			"org.briarproject.briar.STARTUP_FAILED";
-
-	private static final int ONGOING_NOTIFICATION_ID = 1;
-	private static final int FAILURE_NOTIFICATION_ID = 2;
-
-	// Channels are sorted by channel ID in the Settings app, so use IDs
-	// that will sort below the main channels such as contacts
-	private static final String ONGOING_CHANNEL_ID = "zForegroundService";
-	private static final String FAILURE_CHANNEL_ID = "zStartupFailure";
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
@@ -106,9 +103,9 @@ public class BriarService extends Service {
 		}
 
 		// Create notification channels
+		NotificationManager nm = (NotificationManager)
+				getSystemService(NOTIFICATION_SERVICE);
 		if (SDK_INT >= 26) {
-			NotificationManager nm = (NotificationManager)
-					getSystemService(NOTIFICATION_SERVICE);
 			NotificationChannel ongoingChannel = new NotificationChannel(
 					ONGOING_CHANNEL_ID,
 					getString(R.string.ongoing_notification_title),
@@ -140,6 +137,8 @@ public class BriarService extends Service {
 		}
 		b.setPriority(PRIORITY_MIN);
 		startForeground(ONGOING_NOTIFICATION_ID, b.build());
+		// Remove sign-in reminder notification
+		nm.cancel(REMINDER_NOTIFICATION_ID);
 		// Start the services in a background thread
 		new Thread(() -> {
 			String nickname = databaseConfig.getLocalAuthorName();

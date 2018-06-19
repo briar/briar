@@ -85,13 +85,6 @@ import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_
 class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		Service, EventListener {
 
-	// Notification IDs
-	private static final int PRIVATE_MESSAGE_NOTIFICATION_ID = 3;
-	private static final int GROUP_MESSAGE_NOTIFICATION_ID = 4;
-	private static final int FORUM_POST_NOTIFICATION_ID = 5;
-	private static final int BLOG_POST_NOTIFICATION_ID = 6;
-	private static final int INTRODUCTION_SUCCESS_NOTIFICATION_ID = 7;
-
 	private static final long SOUND_DELAY = TimeUnit.SECONDS.toMillis(2);
 
 	private static final Logger LOG =
