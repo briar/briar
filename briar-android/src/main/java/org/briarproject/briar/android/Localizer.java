@@ -20,19 +20,33 @@ public class Localizer {
 	// Locking: class
 	@Nullable
 	private static Localizer INSTANCE;
-	@Nullable
+	private final Locale systemLocale;
 	private final Locale locale;
 
 	private Localizer(SharedPreferences sharedPreferences) {
-		locale = getLocaleFromTag(
-				sharedPreferences.getString(LANGUAGE, "default"));
+		this(Locale.getDefault(), getLocaleFromTag(
+				sharedPreferences.getString(LANGUAGE, "default")));
 	}
 
+	private Localizer(Locale systemLocale, @Nullable Locale userLocale) {
+		this.systemLocale = systemLocale;
+		if (userLocale == null) locale = systemLocale;
+		else locale = userLocale;
+	}
+
+	// Instantiate the Localizer.
 	public static synchronized void initialize(SharedPreferences prefs) {
 		if (INSTANCE == null)
 			INSTANCE = new Localizer(prefs);
 	}
 
+	// Reinstantiate the Localizer with the system locale
+	public static synchronized void reinitialize() {
+		if (INSTANCE != null)
+			INSTANCE = new Localizer(INSTANCE.systemLocale, null);
+	}
+
+	// Get the current instance.
 	public static synchronized Localizer getInstance() {
 		if (INSTANCE == null)
 			throw new IllegalStateException("Localizer not initialized");
@@ -54,9 +68,8 @@ public class Localizer {
 			return new Locale(tag);
 	}
 
+	// Returns the localized version of context
 	public Context setLocale(Context context) {
-		if (locale == null)
-			return context;
 		Resources res = context.getResources();
 		Configuration conf = res.getConfiguration();
 		Locale currentLocale;
