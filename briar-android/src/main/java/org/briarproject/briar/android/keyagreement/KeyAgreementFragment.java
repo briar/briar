@@ -144,7 +144,7 @@ public class KeyAgreementFragment extends BaseEventFragment
 	}
 
 	@Override
-	public void toggleFullscreen(boolean fullscreen) {
+	public void setFullscreen(boolean fullscreen) {
 		LinearLayout.LayoutParams statusParams, qrCodeParams;
 		if (fullscreen) {
 			// Grow the QR code view to fill its parent
@@ -278,17 +278,17 @@ public class KeyAgreementFragment extends BaseEventFragment
 		});
 	}
 
+	private void keyAgreementWaiting() {
+		runOnUiThreadUnlessDestroyed(
+				() -> status.setText(R.string.waiting_for_contact_to_scan));
+	}
+
 	private void keyAgreementStarted() {
 		runOnUiThreadUnlessDestroyed(() -> {
 			qrCodeView.setVisibility(INVISIBLE);
 			statusView.setVisibility(VISIBLE);
 			status.setText(R.string.authenticating_with_device);
 		});
-	}
-
-	private void keyAgreementWaiting() {
-		runOnUiThreadUnlessDestroyed(
-				() -> status.setText(R.string.waiting_for_contact_to_scan));
 	}
 
 	private void keyAgreementAborted(boolean remoteAborted) {
