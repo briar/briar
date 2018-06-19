@@ -18,6 +18,7 @@ import com.google.zxing.Result;
 import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.keyagreement.KeyAgreementResult;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementTask;
 import org.briarproject.bramble.api.keyagreement.Payload;
 import org.briarproject.bramble.api.keyagreement.PayloadEncoder;
@@ -87,10 +88,12 @@ public class KeyAgreementFragment extends BaseEventFragment
 	private boolean gotRemotePayload;
 	private volatile boolean gotLocalPayload;
 	private KeyAgreementTask task;
+	private KeyAgreementEventListener listener;
 
-	public static KeyAgreementFragment newInstance() {
+	public static KeyAgreementFragment newInstance(KeyAgreementEventListener listener) {
 		Bundle args = new Bundle();
 		KeyAgreementFragment fragment = new KeyAgreementFragment();
+		fragment.listener = listener;
 		fragment.setArguments(args);
 		return fragment;
 	}
@@ -265,29 +268,27 @@ public class KeyAgreementFragment extends BaseEventFragment
 			KeyAgreementAbortedEvent event = (KeyAgreementAbortedEvent) e;
 			keyAgreementAborted(event.didRemoteAbort());
 		} else if (e instanceof KeyAgreementFinishedEvent) {
-			keyAgreementFinished();
+			keyAgreementFinished(((KeyAgreementFinishedEvent) e).getResult());
 		}
 	}
 
 	private void keyAgreementFailed() {
 		runOnUiThreadUnlessDestroyed(() -> {
 			reset();
-			// TODO show failure somewhere persistent?
-			Toast.makeText(getActivity(), R.string.connection_failed,
-					LENGTH_LONG).show();
+			listener.keyAgreementFailed();
 		});
 	}
 
 	private void keyAgreementWaiting() {
 		runOnUiThreadUnlessDestroyed(
-				() -> status.setText(R.string.waiting_for_contact_to_scan));
+				() -> listener.keyAgreementWaiting(status));
 	}
 
 	private void keyAgreementStarted() {
 		runOnUiThreadUnlessDestroyed(() -> {
 			qrCodeView.setVisibility(INVISIBLE);
 			statusView.setVisibility(VISIBLE);
-			status.setText(R.string.authenticating_with_device);
+			listener.keyAgreementStarted(status);
 		});
 	}
 
@@ -297,18 +298,14 @@ public class KeyAgreementFragment extends BaseEventFragment
 			qrCodeView.setVisibility(VISIBLE);
 			statusView.setVisibility(INVISIBLE);
 			status.setText("");
-			// TODO show abort somewhere persistent?
-			Toast.makeText(getActivity(),
-					remoteAborted ? R.string.connection_aborted_remote :
-							R.string.connection_aborted_local, LENGTH_LONG)
-					.show();
+			listener.keyAgreementAborted(remoteAborted);
 		});
 	}
 
-	private void keyAgreementFinished() {
+	private void keyAgreementFinished(KeyAgreementResult result) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			statusView.setVisibility(VISIBLE);
-			status.setText(R.string.exchanging_contact_details);
+			listener.keyAgreementFinished(status, result);
 		});
 	}
 
@@ -342,5 +339,23 @@ public class KeyAgreementFragment extends BaseEventFragment
 	@Override
 	protected void finish() {
 		getActivity().getSupportFragmentManager().popBackStack();
+	}
+
+	interface KeyAgreementEventListener {
+
+		@UiThread
+		void keyAgreementFailed();
+
+		@UiThread
+		void keyAgreementWaiting(TextView status);
+
+		@UiThread
+		void keyAgreementStarted(TextView status);
+
+		@UiThread
+		void keyAgreementAborted(boolean remoteAborted);
+
+		@UiThread
+		void keyAgreementFinished(TextView status, KeyAgreementResult result);
 	}
 }

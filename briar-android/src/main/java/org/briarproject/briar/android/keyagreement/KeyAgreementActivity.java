@@ -16,11 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.keyagreement.KeyAgreementResult;
-import org.briarproject.bramble.api.keyagreement.event.KeyAgreementFinishedEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.event.BluetoothEnabledEvent;
@@ -47,15 +43,14 @@ import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.widget.Toast.LENGTH_LONG;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ENABLE_BLUETOOTH;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public abstract class KeyAgreementActivity extends BriarActivity implements
-		BaseFragmentListener, IntroScreenSeenListener, EventListener {
+		BaseFragmentListener, IntroScreenSeenListener,
+		KeyAgreementFragment.KeyAgreementEventListener {
 
 	private enum BluetoothState {
 		UNKNOWN, NO_ADAPTER, WAITING, REFUSED, ENABLED
@@ -97,18 +92,6 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	public void onDestroy() {
 		super.onDestroy();
 		if (bluetoothReceiver != null) unregisterReceiver(bluetoothReceiver);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-		eventBus.addListener(this);
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-		eventBus.removeListener(this);
 	}
 
 	@Override
@@ -194,7 +177,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		// FIXME #824
 		FragmentManager fm = getSupportFragmentManager();
 		if (fm.findFragmentByTag(KeyAgreementFragment.TAG) == null) {
-			BaseFragment f = KeyAgreementFragment.newInstance();
+			BaseFragment f = KeyAgreementFragment.newInstance(this);
 			fm.beginTransaction()
 					.replace(R.id.fragmentContainer, f, f.getUniqueTag())
 					.addToBackStack(f.getUniqueTag())
@@ -263,79 +246,6 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 			}
 		}
 	}
-
-	@Override
-	public void eventOccurred(Event e) {
-		if (e instanceof KeyAgreementFinishedEvent) {
-			KeyAgreementFinishedEvent event = (KeyAgreementFinishedEvent) e;
-			keyAgreementFinished(event.getResult());
-		}
-	}
-
-<<<<<<<HEAD
-
-	private void keyAgreementFinished(KeyAgreementResult result) {
-		runOnUiThreadUnlessDestroyed(() -> startContactExchange(result));
-	}
-
-	private void startContactExchange(KeyAgreementResult result) {
-		runOnDbThread(() -> {
-			LocalAuthor localAuthor;
-			// Load the local pseudonym
-			try {
-				localAuthor = identityManager.getLocalAuthor();
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				contactExchangeFailed();
-				return;
-			}
-
-			// Exchange contact details
-			contactExchangeTask.startExchange(KeyAgreementActivity.this,
-					localAuthor, result.getMasterKey(),
-					result.getConnection(), result.getTransportId(),
-					result.wasAlice());
-		});
-	}
-
-	@Override
-	public void contactExchangeSucceeded(Author remoteAuthor) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			String contactName = remoteAuthor.getName();
-			String format = getString(string.contact_added_toast);
-			String text = String.format(format, contactName);
-			Toast.makeText(KeyAgreementActivity.this, text, LENGTH_LONG).show();
-			supportFinishAfterTransition();
-		});
-	}
-
-	@Override
-	public void duplicateContact(Author remoteAuthor) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			String contactName = remoteAuthor.getName();
-			String format = getString(string.contact_already_exists);
-			String text = String.format(format, contactName);
-			Toast.makeText(KeyAgreementActivity.this, text, LENGTH_LONG).show();
-			finish();
-		});
-	}
-
-	@Override
-	public void contactExchangeFailed() {
-		runOnUiThreadUnlessDestroyed(() -> {
-			Toast.makeText(KeyAgreementActivity.this,
-					string.contact_exchange_failed, LENGTH_LONG).show();
-			finish();
-		});
-	}
-=======
-
-	abstract void keyAgreementFinished(KeyAgreementResult result);
->>>>>>>927ab9571...
-	Add some
-	abstraction to
-	the keyagreement
-	ui
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
 
