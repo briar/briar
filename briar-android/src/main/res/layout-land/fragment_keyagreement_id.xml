@@ -22,10 +22,11 @@
 			android:padding="@dimen/margin_medium"
 			android:scaleType="fitCenter"
 			android:src="@drawable/qr_code_intro"
-			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
+			android:tint="@color/color_primary"
+			app:layout_constraintBottom_toBottomOf="@id/explanationText"
 			app:layout_constraintEnd_toStartOf="@id/explanationText"
-			app:layout_constraintBottom_toBottomOf="@id/explanationText"/>
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
 
 		<ImageView
 			android:id="@+id/explanationImage"
@@ -33,16 +34,16 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:adjustViewBounds="true"
-			android:paddingTop="@dimen/margin_large"
 			android:paddingLeft="@dimen/margin_large"
 			android:paddingRight="@dimen/margin_large"
+			android:paddingTop="@dimen/margin_large"
 			android:scaleType="fitCenter"
 			android:src="@drawable/qr_code_explanation"
-			tools:ignore="ContentDescription"
-			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintStart_toEndOf="@id/diagram"
+			app:layout_constraintBottom_toTopOf="@id/explanationText"
 			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintBottom_toTopOf="@id/explanationText"/>
+			app:layout_constraintStart_toEndOf="@id/diagram"
+			app:layout_constraintTop_toTopOf="parent"
+			tools:ignore="ContentDescription"/>
 
 		<TextView
 			android:id="@+id/explanationText"
@@ -51,19 +52,19 @@
 			android:layout_weight="1"
 			android:padding="@dimen/margin_large"
 			android:text="@string/face_to_face"
-			app:layout_constraintTop_toBottomOf="@id/explanationImage"
+			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toEndOf="@id/diagram"
-			app:layout_constraintEnd_toEndOf="parent"/>
+			app:layout_constraintTop_toBottomOf="@id/explanationImage"/>
 
 		<View
 			android:id="@+id/explanationBorder"
 			android:layout_width="0dp"
 			android:layout_height="0dp"
 			android:background="@drawable/border_explanation"
-			app:layout_constraintTop_toTopOf="@id/explanationImage"
-			app:layout_constraintStart_toStartOf="@id/explanationImage"
+			app:layout_constraintBottom_toBottomOf="@id/explanationText"
 			app:layout_constraintEnd_toEndOf="@id/explanationImage"
-			app:layout_constraintBottom_toBottomOf="@id/explanationText"/>
+			app:layout_constraintStart_toStartOf="@id/explanationImage"
+			app:layout_constraintTop_toTopOf="@id/explanationImage"/>
 
 		<android.support.constraint.Barrier
 			android:id="@+id/barrier"
@@ -80,8 +81,8 @@
 			android:layout_gravity="center_horizontal"
 			android:layout_marginTop="@dimen/margin_medium"
 			android:text="@string/continue_button"
-			app:layout_constraintTop_toBottomOf="@id/barrier"
-			app:layout_constraintBottom_toBottomOf="parent"/>
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/barrier"/>
 
 	</android.support.constraint.ConstraintLayout>
 

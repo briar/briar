@@ -10,6 +10,8 @@
 	<color name="card_background">@color/cardview_dark_background</color>
 	<color name="divider">#666666</color>
 
+	<color name="briar_button_text_disabled">#23cccccc</color>
+
 	<color name="thread_item_background">@color/window_background</color>
 	<color name="thread_item_highlight">#000000</color>
 
