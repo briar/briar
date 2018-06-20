@@ -2,7 +2,6 @@ package org.briarproject.briar.android.keyagreement;
 
 import android.os.Bundle;
 import android.support.annotation.UiThread;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.contact.ContactExchangeListener;
@@ -115,31 +114,31 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 
 	@UiThread
 	@Override
-	public void keyAgreementWaiting(TextView status) {
-		status.setText(R.string.waiting_for_contact_to_scan);
+	public String keyAgreementWaiting() {
+		return getString(R.string.waiting_for_contact_to_scan);
 	}
 
 	@UiThread
 	@Override
-	public void keyAgreementStarted(TextView status) {
-		status.setText(R.string.authenticating_with_device);
+	public String keyAgreementStarted() {
+		return getString(R.string.authenticating_with_device);
 	}
 
 	@UiThread
 	@Override
-	public void keyAgreementAborted(boolean remoteAborted) {
+	public String keyAgreementAborted(boolean remoteAborted) {
 		// TODO show abort somewhere persistent?
 		Toast.makeText(this,
 				remoteAborted ? R.string.connection_aborted_remote :
 						R.string.connection_aborted_local, LENGTH_LONG)
 				.show();
+		return null;
 	}
 
 	@UiThread
 	@Override
-	public void keyAgreementFinished(TextView status,
-			KeyAgreementResult result) {
-		status.setText(R.string.exchanging_contact_details);
+	public String keyAgreementFinished(KeyAgreementResult result) {
 		startContactExchange(result);
+		return getString(string.exchanging_contact_details);
 	}
 }

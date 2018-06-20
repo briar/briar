@@ -31,6 +31,7 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementStartedEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementWaitingEvent;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -90,7 +91,8 @@ public class KeyAgreementFragment extends BaseEventFragment
 	private KeyAgreementTask task;
 	private KeyAgreementEventListener listener;
 
-	public static KeyAgreementFragment newInstance(KeyAgreementEventListener listener) {
+	public static KeyAgreementFragment newInstance(
+			KeyAgreementEventListener listener) {
 		Bundle args = new Bundle();
 		KeyAgreementFragment fragment = new KeyAgreementFragment();
 		fragment.listener = listener;
@@ -281,14 +283,14 @@ public class KeyAgreementFragment extends BaseEventFragment
 
 	private void keyAgreementWaiting() {
 		runOnUiThreadUnlessDestroyed(
-				() -> listener.keyAgreementWaiting(status));
+				() -> status.setText(listener.keyAgreementWaiting()));
 	}
 
 	private void keyAgreementStarted() {
 		runOnUiThreadUnlessDestroyed(() -> {
 			qrCodeView.setVisibility(INVISIBLE);
 			statusView.setVisibility(VISIBLE);
-			listener.keyAgreementStarted(status);
+			status.setText(listener.keyAgreementStarted());
 		});
 	}
 
@@ -297,15 +299,14 @@ public class KeyAgreementFragment extends BaseEventFragment
 			reset();
 			qrCodeView.setVisibility(VISIBLE);
 			statusView.setVisibility(INVISIBLE);
-			status.setText("");
-			listener.keyAgreementAborted(remoteAborted);
+			status.setText(listener.keyAgreementAborted(remoteAborted));
 		});
 	}
 
 	private void keyAgreementFinished(KeyAgreementResult result) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			statusView.setVisibility(VISIBLE);
-			listener.keyAgreementFinished(status, result);
+			status.setText(listener.keyAgreementFinished(result));
 		});
 	}
 
@@ -341,21 +342,30 @@ public class KeyAgreementFragment extends BaseEventFragment
 		getActivity().getSupportFragmentManager().popBackStack();
 	}
 
+	@NotNullByDefault
 	interface KeyAgreementEventListener {
 
 		@UiThread
 		void keyAgreementFailed();
 
+		// Should return a string to be displayed as status.
 		@UiThread
-		void keyAgreementWaiting(TextView status);
+		@Nullable
+		String keyAgreementWaiting();
 
+		// Should return a string to be displayed as status.
 		@UiThread
-		void keyAgreementStarted(TextView status);
+		@Nullable
+		String keyAgreementStarted();
 
+		// Should return a string to be displayed as status.
 		@UiThread
-		void keyAgreementAborted(boolean remoteAborted);
+		@Nullable
+		String keyAgreementAborted(boolean remoteAborted);
 
+		// Should return a string to be displayed as status.
 		@UiThread
-		void keyAgreementFinished(TextView status, KeyAgreementResult result);
+		@Nullable
+		String keyAgreementFinished(KeyAgreementResult result);
 	}
 }
