@@ -9,8 +9,11 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
+import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
+
+import javax.inject.Inject;
 
 import static android.app.NotificationManager.IMPORTANCE_LOW;
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -25,11 +28,21 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.REMI
 
 public class BootReceiver extends BroadcastReceiver {
 
+	@Inject
+	DatabaseConfig databaseConfig;
+
 	@Override
 	public void onReceive(Context ctx, Intent intent) {
+		AndroidComponent applicationComponent =
+				((BriarApplication) ctx.getApplicationContext())
+						.getApplicationComponent();
+		applicationComponent.inject(this);
+
 		String action = intent.getAction();
 		if (action != null && action.equals(ACTION_BOOT_COMPLETED)) {
-			showSignInNotification(ctx);
+			if (databaseConfig.databaseExists()) {
+				showSignInNotification(ctx);
+			}
 		}
 	}
 
