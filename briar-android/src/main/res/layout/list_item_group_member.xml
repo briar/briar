@@ -44,7 +44,7 @@
 		android:layout_marginLeft="@dimen/listitem_group_member_indentation"
 		android:layout_marginStart="@dimen/listitem_group_member_indentation"
 		android:text="@string/groups_member_created_you"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		tools:visibility="visible"/>
 
 	<View

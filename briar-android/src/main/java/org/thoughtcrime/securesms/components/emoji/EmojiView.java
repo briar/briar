@@ -6,17 +6,15 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.View;
-
-import org.briarproject.briar.R;
 
 import javax.annotation.Nullable;
 
 import static android.graphics.Paint.ANTI_ALIAS_FLAG;
 import static android.graphics.Paint.Align.CENTER;
 import static android.graphics.Paint.FILTER_BITMAP_FLAG;
+import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 
 @UiThread
 public class EmojiView extends View implements Drawable.Callback {
@@ -63,8 +61,9 @@ public class EmojiView extends View implements Drawable.Callback {
 			float targetFontSize =
 					0.75f * getHeight() - getPaddingTop() - getPaddingBottom();
 			paint.setTextSize(targetFontSize);
-			paint.setColor(ContextCompat
-					.getColor(getContext(), R.color.emoji_text_color));
+			int color = resolveColorAttribute(getContext(),
+					android.R.attr.textColorPrimary);
+			paint.setColor(color);
 			paint.setTextAlign(CENTER);
 			int xPos = (canvas.getWidth() / 2);
 			int yPos = (int) ((canvas.getHeight() / 2) -

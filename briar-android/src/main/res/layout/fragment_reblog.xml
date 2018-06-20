@@ -4,15 +4,13 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@color/window_background"
 	android:orientation="vertical">
 
 	<ScrollView
 		android:id="@+id/scrollView"
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
-		android:layout_weight="1"
-		android:background="@color/window_background">
+		android:layout_weight="1">
 
 		<RelativeLayout
 			android:layout_width="match_parent"

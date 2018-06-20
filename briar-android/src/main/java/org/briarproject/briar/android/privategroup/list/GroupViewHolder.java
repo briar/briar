@@ -16,7 +16,6 @@ import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.view.TextAvatarView;
 
-import static android.support.v4.content.ContextCompat.getColor;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
@@ -83,8 +82,6 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 				postCount.setText(ctx.getResources()
 						.getQuantityString(R.plurals.messages, messageCount,
 								messageCount));
-				postCount.setTextColor(
-						getColor(ctx, R.color.briar_text_secondary));
 
 				long lastUpdate = group.getTimestamp();
 				date.setText(UiUtils.formatDate(ctx, lastUpdate));

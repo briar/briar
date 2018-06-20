@@ -3,6 +3,7 @@ package org.briarproject.briar.android.reporting;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -33,6 +34,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -83,10 +85,27 @@ public class DevReportActivity extends BaseCrashReportDialog
 	}
 
 	@Override
-	public void onCreate(Bundle state) {
+	protected void preInit(@Nullable Bundle savedInstanceState) {
+		super.preInit(savedInstanceState);
 		getDelegate().installViewFactory();
-		getDelegate().onCreate(state);
-		super.onCreate(state);
+		getDelegate().onCreate(savedInstanceState);
+		if (getDelegate().applyDayNight()) {
+			// If DayNight has been applied, we need to re-apply the theme for
+			// the changes to take effect. On API 23+, we should bypass
+			// setTheme(), which will no-op if the theme ID is identical to the
+			// current theme ID.
+			int theme = R.style.BriarTheme_NoActionBar;
+			if (SDK_INT >= 23) {
+				onApplyThemeResource(getTheme(), theme, false);
+			} else {
+				setTheme(theme);
+			}
+		}
+	}
+
+	@Override
+	public void init(Bundle state) {
+		super.init(state);
 
 		getDelegate().setContentView(R.layout.activity_dev_report);
 
@@ -94,6 +113,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 		getDelegate().setSupportActionBar(tb);
 
 		View requestReport = findViewById(R.id.request_report);
+		View reportForm = findViewById(R.id.report_form);
 		userCommentView = findViewById(R.id.user_comment);
 		userEmailView = findViewById(R.id.user_email);
 		includeDebugReport = findViewById(R.id.include_debug_report);
@@ -111,13 +131,18 @@ public class DevReportActivity extends BaseCrashReportDialog
 		if (isFeedback()) {
 			includeDebugReport
 					.setText(getString(R.string.include_debug_report_feedback));
+			reportForm.setVisibility(VISIBLE);
+			requestReport.setVisibility(INVISIBLE);
 		} else {
 			includeDebugReport.setChecked(true);
+			reportForm.setVisibility(INVISIBLE);
+			requestReport.setVisibility(VISIBLE);
 		}
 
 		findViewById(R.id.acceptButton).setOnClickListener(v -> {
 			reviewing = true;
-			requestReport.setVisibility(GONE);
+			reportForm.setVisibility(VISIBLE);
+			requestReport.setVisibility(INVISIBLE);
 			((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
 					.showSoftInput(userCommentView, SHOW_FORCED);
 		});

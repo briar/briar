@@ -5,12 +5,21 @@
 		android:layout="@layout/preferences_category"
 		android:title="@string/display_settings_title">
 
-	<ListPreference
-		android:defaultValue="default"
-		android:entryValues="@array/pref_language_values"
-		android:key="pref_key_language"
-		android:summary="%s"
-		android:title="@string/pref_language_title"/>
+		<ListPreference
+			android:defaultValue="default"
+			android:entryValues="@array/pref_language_values"
+			android:key="pref_key_language"
+			android:summary="%s"
+			android:title="@string/pref_language_title"/>
+
+		<ListPreference
+			android:defaultValue="@string/pref_theme_light_value"
+			android:entries="@array/pref_theme_entries"
+			android:entryValues="@array/pref_theme_values"
+			android:key="pref_key_theme"
+			android:summary="%s"
+			android:title="@string/pref_theme_title"/>
+		
 	</PreferenceCategory>
 
 	<PreferenceCategory

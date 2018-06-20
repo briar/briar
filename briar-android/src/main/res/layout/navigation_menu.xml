@@ -4,7 +4,7 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="wrap_content"
 	android:layout_height="match_parent"
-	android:background="@color/menu_background"
+	android:background="?android:attr/windowBackground"
 	android:fillViewport="true"
 	android:orientation="vertical">
 
@@ -17,11 +17,10 @@
 			android:id="@+id/navigation"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:background="@color/menu_background"
 			app:elevation="0dp"
 			app:headerLayout="@layout/navigation_header"
-			app:itemIconTint="@color/briar_text_primary"
-			app:itemTextColor="@color/briar_text_primary"
+			app:itemIconTint="?attr/colorControlNormal"
+			app:itemTextColor="?android:textColorPrimary"
 			app:menu="@menu/navigation_drawer"/>
 
 		<View

@@ -19,6 +19,7 @@ import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.reporting.BriarReportPrimer;
 import org.briarproject.briar.android.reporting.BriarReportSenderFactory;
 import org.briarproject.briar.android.reporting.DevReportActivity;
+import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.Collection;
 import java.util.logging.Handler;
@@ -85,6 +86,7 @@ public class BriarApplicationImpl extends Application
 		Localizer.initialize(prefs);
 		super.attachBaseContext(
 				Localizer.getInstance().setLocale(base));
+		setTheme(base, prefs);
 		ACRA.init(this);
 	}
 
@@ -121,6 +123,17 @@ public class BriarApplicationImpl extends Application
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		Localizer.getInstance().setLocale(this);
+	}
+
+	private void setTheme(Context ctx, SharedPreferences prefs) {
+		String theme = prefs.getString("pref_key_theme", null);
+		if (theme == null) {
+			// set default value
+			theme = getString(R.string.pref_theme_light_value);
+			prefs.edit().putString("pref_key_theme", theme).apply();
+		}
+		// set theme
+		UiUtils.setTheme(ctx, theme);
 	}
 
 	private void enableStrictMode() {

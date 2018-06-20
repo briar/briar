@@ -32,6 +32,7 @@
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
 		<item name="android:padding">@dimen/margin_large</item>
+		<item name="android:textColor">@color/button_text</item>
 	</style>
 
 	<style name="BriarButtonFlat.Negative" parent="Widget.AppCompat.Button.Borderless">
@@ -48,20 +49,6 @@
 		<item name="android:textSize">@dimen/text_size_tiny</item>
 		<item name="android:padding">@dimen/margin_medium</item>
 		<item name="android:minWidth">@dimen/button_size</item>
-	</style>
-
-	<style name="BriarTextTitle">
-		<item name="android:textSize">@dimen/text_size_medium</item>
-		<item name="android:textColor">@android:color/primary_text_light</item>
-	</style>
-
-	<style name="BriarTextTitleInverted" parent="BriarTextTitle">
-		<item name="android:textColor">@android:color/primary_text_dark</item>
-	</style>
-
-	<style name="BriarTextBody">
-		<item name="android:textSize">@dimen/text_size_small</item>
-		<item name="android:textColor">@android:color/primary_text_light</item>
 	</style>
 
 	<style name="Divider">
@@ -86,18 +73,7 @@
 
 	<style name="BriarAvatar">
 		<item name="civ_border_width">@dimen/avatar_border_width</item>
-		<item name="civ_border_color">@color/briar_primary</item>
-	</style>
-
-	<style name="NavMenuButton" parent="Widget.AppCompat.Button.Borderless.Colored">
-		<item name="android:textSize">@dimen/text_size_medium</item>
-		<item name="android:textColor">@android:color/tertiary_text_light</item>
-		<item name="android:paddingTop">@dimen/margin_large</item>
-		<item name="android:paddingBottom">@dimen/margin_large</item>
-		<item name="android:drawablePadding">@dimen/margin_xlarge</item>
-		<item name="android:gravity">left|center_vertical</item>
-		<item name="android:layout_margin">0dp</item>
-		<item name="android:paddingLeft">@dimen/margin_large</item>
+		<item name="civ_border_color">?android:attr/textColorSecondary</item>
 	</style>
 
 	<style name="DiscussionLevelIndicator">
@@ -105,24 +81,9 @@
 		<item name="android:background">@color/thread_indicator</item>
 	</style>
 
-	<style name="BriarTabLayout" parent="Widget.Design.TabLayout">
-		<item name="android:background">@color/briar_primary</item>
-		<item name="tabMode">scrollable</item>
-		<item name="tabMaxWidth">100dp</item>
-		<item name="tabIndicatorColor">@color/briar_text_primary_inverse</item>
-		<item name="tabIndicatorHeight">3dp</item>
-		<item name="tabSelectedTextColor">@color/briar_text_primary_inverse</item>
-		<item name="tabTextColor">@color/briar_text_primary_inverse</item>
-	</style>
-
 	<style name="BriarCard" parent="CardView">
 		<item name="cardUseCompatPadding">true</item>
 		<item name="android:layout_margin">@dimen/margin_small</item>
-	</style>
-
-	<!-- This fixes the missing TextAppearance.Design.Counter.Overflow style -->
-	<style name="BriarTextCounter.Overflow" parent="TextAppearance.Design.Counter">
-		<item name="android:textColor">@color/briar_button_negative</item>
 	</style>
 
 </resources>

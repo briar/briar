@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
@@ -12,7 +13,8 @@
 
 	<LinearLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:background="@color/card_background">
 
 		<org.thoughtcrime.securesms.components.emoji.EmojiToggle
 			android:id="@+id/emoji_toggle"
@@ -20,7 +22,8 @@
 			android:layout_height="@dimen/text_input_height"
 			android:background="?attr/selectableItemBackground"
 			android:padding="@dimen/margin_small"
-			android:scaleType="center"/>
+			android:scaleType="center"
+			app:tint="?attr/colorControlNormal"/>
 
 		<org.thoughtcrime.securesms.components.emoji.EmojiEditText
 			android:id="@+id/input_text"
@@ -31,10 +34,10 @@
 			android:inputType="textMultiLine|textCapSentences"
 			android:maxLines="3"
 			android:minHeight="@dimen/text_input_height"
-			android:textColor="@color/briar_text_primary"
-			android:textColorHint="@color/briar_text_tertiary"/>
+			android:textColor="?android:attr/textColorPrimary"
+			android:textColorHint="?android:attr/textColorTertiary"/>
 
-		<ImageButton
+		<android.support.v7.widget.AppCompatImageButton
 			android:id="@+id/btn_send"
 			android:layout_width="@dimen/text_input_height"
 			android:layout_height="@dimen/text_input_height"
@@ -42,9 +45,10 @@
 			android:clickable="true"
 			android:contentDescription="@string/send"
 			android:enabled="false"
+			android:focusable="true"
 			android:padding="@dimen/margin_small"
 			android:src="@drawable/social_send_now_white"
-			android:tint="@color/briar_primary"/>
+			app:tint="@color/briar_accent"/>
 
 	</LinearLayout>
 

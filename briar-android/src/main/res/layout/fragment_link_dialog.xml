@@ -16,7 +16,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/link_warning_title"
-			android:textColor="@color/briar_primary"
+			android:textColor="?android:attr/textColorPrimary"
 			android:textSize="@dimen/text_size_large"
 			android:textStyle="bold"/>
 
@@ -25,7 +25,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginTop="@dimen/margin_large"
 			android:text="@string/link_warning_intro"
-			android:textColor="@color/briar_primary"
+			android:textColor="?android:attr/textColorPrimary"
 			android:textSize="@dimen/text_size_medium"/>
 
 		<TextView
@@ -42,7 +42,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginTop="@dimen/margin_large"
 			android:text="@string/link_warning_text"
-			android:textColor="@color/briar_primary"
+			android:textColor="?android:attr/textColorPrimary"
 			android:textSize="@dimen/text_size_medium"/>
 
 	</LinearLayout>

@@ -286,6 +286,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	public void onReplyClick(I item) {
 		replyId = item.getId();
 		updateTextInput();
+		// FIXME This does not work for a hardware keyboard
 		if (textInput.isKeyboardOpen()) {
 			scrollToItemAtTop(item);
 		} else {

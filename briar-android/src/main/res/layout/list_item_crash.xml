@@ -23,7 +23,7 @@
 			android:layout_marginBottom="@dimen/margin_small"
 			android:gravity="bottom"
 			android:textSize="@dimen/text_size_large"
-			android:textColor="@color/briar_text_primary"
+			android:textColor="?android:attr/textColorPrimary"
 			tools:text="Crash log entry title"/>
 	</LinearLayout>
 
@@ -32,7 +32,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginBottom="@dimen/margin_medium"
-		android:textColor="@color/briar_text_secondary"
+		android:textColor="?android:attr/textColorSecondary"
 		tools:text="Crash log entry value"/>
 
 </LinearLayout>

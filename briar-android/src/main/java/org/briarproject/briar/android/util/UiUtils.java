@@ -7,6 +7,9 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.PowerManager;
+import android.support.annotation.AttrRes;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -20,6 +23,7 @@ import android.text.format.DateUtils;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.URLSpan;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
@@ -38,6 +42,11 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.MANUFACTURER;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
+import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_AUTO;
+import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_NO;
+import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_YES;
+import static android.support.v7.app.AppCompatDelegate.setDefaultNightMode;
 import static android.text.format.DateUtils.DAY_IN_MILLIS;
 import static android.text.format.DateUtils.FORMAT_ABBREV_MONTH;
 import static android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE;
@@ -191,4 +200,33 @@ public class UiUtils {
 		if (v.getFilterTouchesWhenObscured() != filter)
 			v.setFilterTouchesWhenObscured(!filter);
 	}
+
+	public static void setTheme(Context ctx, String theme) {
+		if (theme.equals(ctx.getString(R.string.pref_theme_light_value))) {
+			setDefaultNightMode(MODE_NIGHT_NO);
+		} else if (theme
+				.equals(ctx.getString(R.string.pref_theme_dark_value))) {
+			setDefaultNightMode(MODE_NIGHT_YES);
+		} else if (theme
+				.equals(ctx.getString(R.string.pref_theme_auto_value))) {
+			setDefaultNightMode(MODE_NIGHT_AUTO);
+		} else if (theme
+				.equals(ctx.getString(R.string.pref_theme_system_value))) {
+			setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM);
+		}
+	}
+
+	public static int resolveAttribute(Context ctx, @AttrRes int attr) {
+		TypedValue outValue = new TypedValue();
+		ctx.getTheme().resolveAttribute(attr, outValue, true);
+		return outValue.resourceId;
+	}
+
+	@ColorInt
+	public static int resolveColorAttribute(Context ctx, @AttrRes int res) {
+		@ColorRes
+		int color = resolveAttribute(ctx, res);
+		return ContextCompat.getColor(ctx, color);
+	}
+
 }

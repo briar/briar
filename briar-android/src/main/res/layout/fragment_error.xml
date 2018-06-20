@@ -6,7 +6,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<ImageView
+	<android.support.v7.widget.AppCompatImageView
 		android:id="@+id/errorIcon"
 		android:layout_width="128dp"
 		android:layout_height="128dp"
@@ -14,10 +14,10 @@
 		android:layout_marginStart="8dp"
 		android:layout_marginTop="8dp"
 		android:src="@drawable/alerts_and_states_error"
-		android:tint="?colorControlNormal"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
+		app:tint="?attr/colorControlNormal"
 		tools:ignore="ContentDescription"/>
 
 	<TextView

@@ -6,9 +6,11 @@
 	android:layout_height="match_parent">
 
 	<LinearLayout
+		android:id="@+id/report_form"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical"
+		android:visibility="visible"
 		tools:context=".android.reporting.DevReportActivity">
 
 		<include layout="@layout/toolbar"/>
@@ -112,11 +114,10 @@
 		android:id="@+id/request_report"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:background="@color/window_background"
 		android:clickable="true"
 		android:gravity="center"
 		android:padding="@dimen/margin_large"
-		android:visibility="gone">
+		android:visibility="invisible">
 
 		<TextView
 			android:id="@+id/crashed"
@@ -125,7 +126,7 @@
 			android:layout_marginTop="@dimen/margin_large"
 			android:gravity="center"
 			android:text="@string/briar_crashed"
-			android:textColor="@color/briar_text_secondary"
+			android:textColor="?android:attr/textColorSecondary"
 			android:textSize="@dimen/text_size_large"/>
 
 		<TextView
@@ -136,7 +137,7 @@
 			android:layout_marginTop="@dimen/margin_large"
 			android:gravity="center"
 			android:text="@string/not_your_fault"
-			android:textColor="@color/briar_text_secondary"
+			android:textColor="?android:attr/textColorSecondary"
 			android:textSize="@dimen/text_size_large"/>
 
 		<TextView
@@ -147,7 +148,7 @@
 			android:layout_marginTop="@dimen/margin_large"
 			android:gravity="center"
 			android:text="@string/please_send_report"
-			android:textColor="@color/briar_text_secondary"
+			android:textColor="?android:attr/textColorSecondary"
 			android:textSize="@dimen/text_size_large"/>
 
 		<TextView
@@ -159,7 +160,7 @@
 			android:layout_marginTop="@dimen/margin_large"
 			android:gravity="center"
 			android:text="@string/report_is_encrypted"
-			android:textColor="@color/briar_text_secondary"
+			android:textColor="?android:attr/textColorSecondary"
 			android:textSize="@dimen/text_size_large"/>
 
 		<Button

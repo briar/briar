@@ -37,10 +37,9 @@
 				android:id="@+id/nameView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:maxLines="2"
-				android:textColor="@color/briar_text_primary"
+				android:textColor="?android:attr/textColorPrimary"
 				android:textSize="@dimen/text_size_large"
-				tools:text="This is a name of a contact"/>
+				tools:text="This is a name of a contact with a long name"/>
 
 			<TextView
 				android:id="@+id/infoView"
@@ -48,7 +47,7 @@
 				android:layout_height="wrap_content"
 				android:maxLines="2"
 				android:text="@string/forum_invitation_already_sharing"
-				android:textColor="@color/briar_text_tertiary"
+				android:textColor="?android:attr/textColorTertiary"
 				android:textSize="@dimen/text_size_small"
 				tools:visibility="visible"/>
 

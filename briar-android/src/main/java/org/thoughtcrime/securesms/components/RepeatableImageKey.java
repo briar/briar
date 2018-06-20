@@ -2,11 +2,11 @@ package org.thoughtcrime.securesms.components;
 
 import android.content.Context;
 import android.support.annotation.UiThread;
+import android.support.v7.widget.AppCompatImageButton;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.widget.ImageButton;
 
 import static android.view.HapticFeedbackConstants.KEYBOARD_TAP;
 import static android.view.MotionEvent.ACTION_CANCEL;
@@ -14,7 +14,7 @@ import static android.view.MotionEvent.ACTION_DOWN;
 import static android.view.MotionEvent.ACTION_UP;
 
 @UiThread
-public class RepeatableImageKey extends ImageButton {
+public class RepeatableImageKey extends AppCompatImageButton {
 
 	private KeyEventListener listener;
 

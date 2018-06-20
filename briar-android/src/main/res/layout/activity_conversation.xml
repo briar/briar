@@ -27,6 +27,7 @@
 				<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 					android:id="@+id/contactName"
 					style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
+					android:textColor="@color/action_bar_text"
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
 					android:layout_marginLeft="@dimen/margin_medium"
@@ -44,15 +45,12 @@
 		android:id="@+id/conversationView"
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
-		android:layout_weight="1"
-		android:background="@color/window_background"/>
+		android:layout_weight="1"/>
 
 	<org.briarproject.briar.android.view.TextInputView
 		android:id="@+id/text_input_container"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="@color/button_bar_background"
-		android:elevation="@dimen/margin_tiny"
 		app:hint="@string/message_hint"/>
 
 </LinearLayout>

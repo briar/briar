@@ -1,10 +1,13 @@
 package org.thoughtcrime.securesms.components.emoji;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -26,6 +29,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import static android.support.v4.widget.ImageViewCompat.setImageTintList;
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_DEL;
 import static android.widget.ImageView.ScaleType.CENTER_INSIDE;
@@ -142,8 +146,10 @@ public class EmojiDrawer extends LinearLayout {
 			return pages.size();
 		}
 
+		@NonNull
 		@Override
-		public Object instantiateItem(ViewGroup container, int position) {
+		public Object instantiateItem(@NonNull ViewGroup container,
+				int position) {
 			EmojiPageView page = new EmojiPageView(context);
 			page.setModel(pages.get(position));
 			page.setEmojiSelectedListener(listener);
@@ -152,21 +158,24 @@ public class EmojiDrawer extends LinearLayout {
 		}
 
 		@Override
-		public void destroyItem(ViewGroup container, int position,
-				Object object) {
+		public void destroyItem(@NonNull ViewGroup container, int position,
+				@NonNull Object object) {
 			container.removeView((View) object);
 		}
 
 		@Override
-		public boolean isViewFromObject(View view, Object object) {
+		public boolean isViewFromObject(@NonNull View view,
+				@NonNull Object object) {
 			return view == object;
 		}
 
 		@Override
 		public View getCustomTabView(ViewGroup viewGroup, int i) {
-			ImageView image = new ImageView(context);
+			ImageView image = new AppCompatImageView(context);
 			image.setScaleType(CENTER_INSIDE);
 			image.setImageResource(pages.get(i).getIcon());
+			setImageTintList(image, ColorStateList.valueOf(
+					ContextCompat.getColor(context, R.color.color_primary)));
 			return image;
 		}
 

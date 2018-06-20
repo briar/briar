@@ -42,8 +42,6 @@
 		android:id="@+id/text_input_container"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="@color/button_bar_background"
-		android:elevation="@dimen/margin_tiny"
 		app:hint="@string/forum_new_message_hint"/>
 
 </LinearLayout>

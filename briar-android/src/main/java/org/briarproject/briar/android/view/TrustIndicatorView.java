@@ -38,7 +38,7 @@ public class TrustIndicatorView extends ImageView {
 				res = R.drawable.trust_indicator_verified;
 				break;
 			case OURSELVES:
-				res = R.drawable.ic_our_identity_black;
+				res = R.drawable.ic_our_identity;
 				break;
 			default:
 				res = R.drawable.trust_indicator_unknown;
