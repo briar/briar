@@ -70,6 +70,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_DARK_THEME;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_SIGN_OUT;
@@ -197,8 +198,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 					}
 			);
 		} else {
-			// TODO remove before releasing theme to public
-			theme.setVisible(false);
+			theme.setVisible(FEATURE_FLAG_DARK_THEME);
 
 			findPreference("pref_key_explode").setVisible(false);
 			findPreference("pref_key_test_data").setVisible(false);

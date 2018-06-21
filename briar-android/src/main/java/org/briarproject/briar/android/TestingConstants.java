@@ -30,4 +30,9 @@ public interface TestingConstants {
 	long EXPIRY_DATE = IS_DEBUG_BUILD || IS_BETA_BUILD ?
 			BuildConfig.BuildTimestamp + 90 * 24 * 60 * 60 * 1000L :
 			Long.MAX_VALUE;
+
+	/**
+	 * Feature flag for enabling the dark UI theme in release builds.
+	 */
+	boolean FEATURE_FLAG_DARK_THEME = false;
 }
