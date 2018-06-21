@@ -16,17 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import org.briarproject.bramble.api.contact.ContactExchangeListener;
-import org.briarproject.bramble.api.contact.ContactExchangeTask;
-import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.keyagreement.KeyAgreementResult;
-import org.briarproject.bramble.api.keyagreement.event.KeyAgreementFinishedEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.event.BluetoothEnabledEvent;
@@ -53,16 +43,14 @@ import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.widget.Toast.LENGTH_LONG;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ENABLE_BLUETOOTH;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class KeyAgreementActivity extends BriarActivity implements
-		BaseFragmentListener, IntroScreenSeenListener, EventListener,
-		ContactExchangeListener {
+public abstract class KeyAgreementActivity extends BriarActivity implements
+		BaseFragmentListener, IntroScreenSeenListener,
+		KeyAgreementFragment.KeyAgreementEventListener {
 
 	private enum BluetoothState {
 		UNKNOWN, NO_ADAPTER, WAITING, REFUSED, ENABLED
@@ -73,12 +61,6 @@ public class KeyAgreementActivity extends BriarActivity implements
 
 	@Inject
 	EventBus eventBus;
-
-	// Fields that are accessed from background threads must be volatile
-	@Inject
-	volatile ContactExchangeTask contactExchangeTask;
-	@Inject
-	volatile IdentityManager identityManager;
 
 	private boolean isResumed = false, enableWasRequested = false;
 	private boolean continueClicked, gotCameraPermission;
@@ -95,13 +77,9 @@ public class KeyAgreementActivity extends BriarActivity implements
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_fragment_container_toolbar);
-
 		Toolbar toolbar = findViewById(R.id.toolbar);
-
 		setSupportActionBar(toolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-		getSupportActionBar().setTitle(R.string.add_contact_title);
 		if (state == null) {
 			showInitialFragment(IntroFragment.newInstance());
 		}
@@ -114,18 +92,6 @@ public class KeyAgreementActivity extends BriarActivity implements
 	public void onDestroy() {
 		super.onDestroy();
 		if (bluetoothReceiver != null) unregisterReceiver(bluetoothReceiver);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-		eventBus.addListener(this);
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-		eventBus.removeListener(this);
 	}
 
 	@Override
@@ -148,7 +114,7 @@ public class KeyAgreementActivity extends BriarActivity implements
 		if (canShowQrCodeFragment()) showQrCodeFragment();
 	}
 
-	boolean canShowQrCodeFragment() {
+	private boolean canShowQrCodeFragment() {
 		return isResumed && continueClicked
 				&& (SDK_INT < 23 || gotCameraPermission)
 				&& bluetoothState != BluetoothState.UNKNOWN
@@ -207,10 +173,11 @@ public class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	private void showQrCodeFragment() {
+		continueClicked = false;
 		// FIXME #824
 		FragmentManager fm = getSupportFragmentManager();
-		if (fm.findFragmentByTag(ShowQrCodeFragment.TAG) == null) {
-			BaseFragment f = ShowQrCodeFragment.newInstance();
+		if (fm.findFragmentByTag(KeyAgreementFragment.TAG) == null) {
+			BaseFragment f = KeyAgreementFragment.newInstance(this);
 			fm.beginTransaction()
 					.replace(R.id.fragmentContainer, f, f.getUniqueTag())
 					.addToBackStack(f.getUniqueTag())
@@ -278,69 +245,6 @@ public class KeyAgreementActivity extends BriarActivity implements
 				}
 			}
 		}
-	}
-
-	@Override
-	public void eventOccurred(Event e) {
-		if (e instanceof KeyAgreementFinishedEvent) {
-			KeyAgreementFinishedEvent event = (KeyAgreementFinishedEvent) e;
-			keyAgreementFinished(event.getResult());
-		}
-	}
-
-	private void keyAgreementFinished(KeyAgreementResult result) {
-		runOnUiThreadUnlessDestroyed(() -> startContactExchange(result));
-	}
-
-	private void startContactExchange(KeyAgreementResult result) {
-		runOnDbThread(() -> {
-			LocalAuthor localAuthor;
-			// Load the local pseudonym
-			try {
-				localAuthor = identityManager.getLocalAuthor();
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				contactExchangeFailed();
-				return;
-			}
-
-			// Exchange contact details
-			contactExchangeTask.startExchange(KeyAgreementActivity.this,
-					localAuthor, result.getMasterKey(),
-					result.getConnection(), result.getTransportId(),
-					result.wasAlice());
-		});
-	}
-
-	@Override
-	public void contactExchangeSucceeded(Author remoteAuthor) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			String contactName = remoteAuthor.getName();
-			String format = getString(string.contact_added_toast);
-			String text = String.format(format, contactName);
-			Toast.makeText(KeyAgreementActivity.this, text, LENGTH_LONG).show();
-			supportFinishAfterTransition();
-		});
-	}
-
-	@Override
-	public void duplicateContact(Author remoteAuthor) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			String contactName = remoteAuthor.getName();
-			String format = getString(string.contact_already_exists);
-			String text = String.format(format, contactName);
-			Toast.makeText(KeyAgreementActivity.this, text, LENGTH_LONG).show();
-			finish();
-		});
-	}
-
-	@Override
-	public void contactExchangeFailed() {
-		runOnUiThreadUnlessDestroyed(() -> {
-			Toast.makeText(KeyAgreementActivity.this,
-					string.contact_exchange_failed, LENGTH_LONG).show();
-			finish();
-		});
 	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {

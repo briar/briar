@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:showIn="@layout/fragment_keyagreement_qr">
+
+	<ProgressBar
+		style="?android:attr/progressBarStyleLarge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"/>
+
+	<android.support.constraint.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<ImageView
+			android:id="@+id/qr_code"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:contentDescription="@string/qr_code"
+			android:scaleType="fitCenter"/>
+
+		<ImageView
+			android:id="@+id/fullscreen_button"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_small"
+			android:alpha="0.54"
+			android:background="?selectableItemBackground"
+			android:contentDescription="@string/show_qr_code_fullscreen"
+			android:src="@drawable/ic_fullscreen_black_48dp"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintRight_toRightOf="parent"/>
+
+	</android.support.constraint.ConstraintLayout>
+</merge>

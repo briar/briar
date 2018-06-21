@@ -26,9 +26,10 @@ import org.briarproject.briar.android.fragment.ScreenFilterDialogFragment;
 import org.briarproject.briar.android.introduction.ContactChooserFragment;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.introduction.IntroductionMessageFragment;
+import org.briarproject.briar.android.keyagreement.ContactExchangeActivity;
 import org.briarproject.briar.android.keyagreement.IntroFragment;
 import org.briarproject.briar.android.keyagreement.KeyAgreementActivity;
-import org.briarproject.briar.android.keyagreement.ShowQrCodeFragment;
+import org.briarproject.briar.android.keyagreement.KeyAgreementFragment;
 import org.briarproject.briar.android.login.AuthorNameFragment;
 import org.briarproject.briar.android.login.ChangePasswordActivity;
 import org.briarproject.briar.android.login.DozeFragment;
@@ -99,6 +100,8 @@ public interface ActivityComponent {
 	void inject(PanicResponderActivity activity);
 
 	void inject(PanicPreferencesActivity activity);
+
+	void inject(ContactExchangeActivity activity);
 
 	void inject(KeyAgreementActivity activity);
 
@@ -185,7 +188,7 @@ public interface ActivityComponent {
 
 	void inject(IntroFragment fragment);
 
-	void inject(ShowQrCodeFragment fragment);
+	void inject(KeyAgreementFragment fragment);
 
 	void inject(ContactChooserFragment fragment);
 

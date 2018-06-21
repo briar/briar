@@ -300,7 +300,7 @@
 		</activity>
 
 		<activity
-			android:name="org.briarproject.briar.android.keyagreement.KeyAgreementActivity"
+			android:name="org.briarproject.briar.android.keyagreement.ContactExchangeActivity"
 			android:label="@string/add_contact_title"
 			android:theme="@style/BriarTheme.NoActionBar"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity">
