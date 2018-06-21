@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
@@ -19,16 +20,16 @@
 		android:textSize="@dimen/text_size_medium"
 		tools:text="This is a name of a RSS Feed"/>
 
-	<ImageButton
+	<android.support.v7.widget.AppCompatImageButton
 		android:id="@+id/deleteButton"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
+		android:layout_width="@dimen/button_size"
+		android:layout_height="@dimen/button_size"
 		android:layout_alignParentRight="true"
 		android:layout_alignParentTop="true"
-		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
-		android:layout_marginRight="@dimen/listitem_horizontal_margin"
+		android:background="?attr/selectableItemBackground"
 		android:contentDescription="@string/delete"
-		android:src="@drawable/action_delete_black"/>
+		android:src="@drawable/action_delete_black"
+		app:tint="?attr/colorControlNormal"/>
 
 	<TextView
 		android:id="@+id/author"
