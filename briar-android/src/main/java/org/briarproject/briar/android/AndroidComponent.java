@@ -150,6 +150,8 @@ public interface AndroidComponent
 	@IoExecutor
 	Executor ioExecutor();
 
+	void inject(BootReceiver briarService);
+
 	void inject(BriarService briarService);
 
 	void inject(BriarReportSender briarReportSender);

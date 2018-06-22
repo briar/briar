@@ -21,11 +21,26 @@ public interface AndroidNotificationManager {
 	String PREF_NOTIFY_VIBRATION = "notifyVibration";
 	String PREF_NOTIFY_LOCK_SCREEN = "notifyLockScreen";
 
+	// Notification IDs
+	int ONGOING_NOTIFICATION_ID = 1;
+	int FAILURE_NOTIFICATION_ID = 2;
+	int REMINDER_NOTIFICATION_ID = 3;
+	int PRIVATE_MESSAGE_NOTIFICATION_ID = 4;
+	int GROUP_MESSAGE_NOTIFICATION_ID = 5;
+	int FORUM_POST_NOTIFICATION_ID = 6;
+	int BLOG_POST_NOTIFICATION_ID = 7;
+	int INTRODUCTION_SUCCESS_NOTIFICATION_ID = 8;
+
 	// Channel IDs
 	String CONTACT_CHANNEL_ID = "contacts";
 	String GROUP_CHANNEL_ID = "groups";
 	String FORUM_CHANNEL_ID = "forums";
 	String BLOG_CHANNEL_ID = "blogs";
+	// Channels are sorted by channel ID in the Settings app, so use IDs
+	// that will sort below the main channels such as contacts
+	String ONGOING_CHANNEL_ID = "zForegroundService";
+	String FAILURE_CHANNEL_ID = "zStartupFailure";
+	String REMINDER_CHANNEL_ID = "zSignInReminder";
 
 	// Content URIs for pending intents
 	String CONTACT_URI = "content://org.briarproject.briar/contact";
