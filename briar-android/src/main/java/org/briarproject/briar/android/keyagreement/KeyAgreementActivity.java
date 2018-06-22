@@ -177,9 +177,16 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	@Override
 	public void onActivityResult(int request, int result, Intent data) {
 		if (request == REQUEST_BLUETOOTH_DISCOVERABLE) {
-			// If the request was granted we'll catch the state change event
-			if (result == RESULT_CANCELED)
+			if (result == RESULT_CANCELED) {
 				setBluetoothState(BluetoothState.REFUSED);
+			} else {
+				// If Bluetooth is already discoverable, show the QR code -
+				// otherwise wait for the state or scan mode to change
+				BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
+				if (bt == null) throw new AssertionError();
+				if (bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE)
+					setBluetoothState(BluetoothState.DISCOVERABLE);
+			}
 		}
 	}
 
