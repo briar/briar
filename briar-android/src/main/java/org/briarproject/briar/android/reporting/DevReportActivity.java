@@ -190,7 +190,6 @@ public class DevReportActivity extends BaseCrashReportDialog
 		MenuInflater inflater = getDelegate().getMenuInflater();
 		inflater.inflate(R.menu.dev_report_actions, menu);
 		sendReport = menu.findItem(R.id.action_send_report);
-
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -283,27 +282,27 @@ public class DevReportActivity extends BaseCrashReportDialog
 				if (crashData != null) {
 					for (Entry<ReportField, String> e : crashData.entrySet()) {
 						ReportField field = e.getKey();
+						String value = e.getValue().replaceAll("\\\\n", "\n");
 						boolean required = requiredFields.contains(field);
 						boolean excluded = excludedFields.contains(field);
 						View v = inflater.inflate(R.layout.list_item_crash,
 								report, false);
-						CheckBox cb = v
-								.findViewById(R.id.include_in_report);
+						CheckBox cb = v.findViewById(R.id.include_in_report);
 						cb.setTag(field);
 						cb.setChecked(required || !excluded);
 						cb.setEnabled(!required);
 						cb.setOnCheckedChangeListener(DevReportActivity.this);
-						((TextView) v.findViewById(R.id.title))
-								.setText(e.getKey().toString());
-						((TextView) v.findViewById(R.id.content))
-								.setText(e.getValue());
+						TextView title = v.findViewById(R.id.title);
+						title.setText(field.toString());
+						TextView content = v.findViewById(R.id.content);
+						content.setText(value);
 						report.addView(v);
 					}
 				} else {
 					View v = inflater.inflate(
 							android.R.layout.simple_list_item_1, report, false);
-					((TextView) v.findViewById(android.R.id.text1))
-							.setText(R.string.could_not_load_report_data);
+					TextView error = v.findViewById(android.R.id.text1);
+					error.setText(R.string.could_not_load_report_data);
 					report.addView(v);
 				}
 				report.setVisibility(VISIBLE);
