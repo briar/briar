@@ -96,6 +96,9 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	abstract DuplexTransportConnection connectTo(String address, String uuid)
 			throws IOException;
 
+	@Nullable
+	abstract DuplexTransportConnection discoverAndConnect(String uuid);
+
 	BluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			Executor ioExecutor, SecureRandom secureRandom,
 			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
@@ -326,9 +329,6 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
 		if (!isRunning()) return null;
-		// There's no point listening if we can't discover our own address
-		String address = getBluetoothAddress();
-		if (address == null) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		if (LOG.isLoggable(INFO)) LOG.info("Key agreement UUID " + uuid);
@@ -346,7 +346,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		}
 		BdfList descriptor = new BdfList();
 		descriptor.add(TRANSPORT_ID_BLUETOOTH);
-		descriptor.add(StringUtils.macToBytes(address));
+		String address = getBluetoothAddress();
+		if (address != null) descriptor.add(StringUtils.macToBytes(address));
 		return new BluetoothKeyAgreementListener(descriptor, ss);
 	}
 
@@ -354,18 +355,25 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	public DuplexTransportConnection createKeyAgreementConnection(
 			byte[] commitment, BdfList descriptor) {
 		if (!isRunning()) return null;
-		String address;
-		try {
-			address = parseAddress(descriptor);
-		} catch (FormatException e) {
-			LOG.info("Invalid address in key agreement descriptor");
-			return null;
-		}
 		// No truncation necessary because COMMIT_LENGTH = 16
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
-		if (LOG.isLoggable(INFO))
-			LOG.info("Connecting to key agreement UUID " + uuid);
-		DuplexTransportConnection conn = connect(address, uuid);
+		DuplexTransportConnection conn;
+		if (descriptor.size() == 1) {
+			if (LOG.isLoggable(INFO))
+				LOG.info("Discovering address for key agreement UUID " + uuid);
+			conn = discoverAndConnect(uuid);
+		} else {
+			String address;
+			try {
+				address = parseAddress(descriptor);
+			} catch (FormatException e) {
+				LOG.info("Invalid address in key agreement descriptor");
+				return null;
+			}
+			if (LOG.isLoggable(INFO))
+				LOG.info("Connecting to key agreement UUID " + uuid);
+			conn = connect(address, uuid);
+		}
 		if (conn != null) connectionLimiter.keyAgreementConnectionOpened(conn);
 		return conn;
 	}
