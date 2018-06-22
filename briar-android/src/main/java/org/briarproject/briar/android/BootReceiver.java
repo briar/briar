@@ -23,6 +23,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.PRIORITY_LOW;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
+import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_SIGN_IN_REMINDER;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.REMINDER_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.REMINDER_NOTIFICATION_ID;
 
@@ -33,6 +34,8 @@ public class BootReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context ctx, Intent intent) {
+		if (!FEATURE_FLAG_SIGN_IN_REMINDER) return;
+
 		AndroidComponent applicationComponent =
 				((BriarApplication) ctx.getApplicationContext())
 						.getApplicationComponent();
