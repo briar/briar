@@ -50,7 +50,9 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -120,6 +122,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
 	private final String architecture;
+	private final BridgeProvider bridgeProvider;
 	private final int maxLatency, maxIdleTime, socketTimeout;
 	private final ConnectionStatus connectionStatus;
 	private final File torDirectory, torFile, geoIpFile, configFile;
@@ -139,7 +142,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			Context appContext, LocationUtils locationUtils,
 			SocketFactory torSocketFactory, Clock clock, Backoff backoff,
 			DuplexPluginCallback callback, String architecture,
-			int maxLatency, int maxIdleTime) {
+			BridgeProvider bridgeProvider, int maxLatency, int maxIdleTime) {
 		this.ioExecutor = ioExecutor;
 		this.scheduler = scheduler;
 		this.appContext = appContext;
@@ -149,6 +152,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		this.backoff = backoff;
 		this.callback = callback;
 		this.architecture = architecture;
+		this.bridgeProvider = bridgeProvider;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
 		if (maxIdleTime > Integer.MAX_VALUE / 2)
@@ -499,6 +503,17 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
+	private void enableBridges(boolean enable) throws IOException {
+		if (enable) {
+			Collection<String> conf = new ArrayList<>();
+			conf.add("UseBridges 1");
+			conf.addAll(bridgeProvider.getBridges());
+			controlConnection.setConf(conf);
+		} else {
+			controlConnection.setConf("UseBridges", "0");
+		}
+	}
+
 	@Override
 	public void stop() {
 		running = false;
@@ -681,7 +696,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				} else if (blocked) {
 					if (doBridgesWork(country)) {
 						LOG.info("Enabling network, using bridges");
-						controlConnection.setConf("UseBridges", "1");
+						enableBridges(true);
 						enableNetwork(true);
 					} else {
 						LOG.info("Disabling network, country is blocked");
@@ -693,6 +708,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 					enableNetwork(false);
 				} else {
 					LOG.info("Enabling network");
+					enableBridges(false);
 					enableNetwork(true);
 				}
 			} catch (IOException e) {

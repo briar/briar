@@ -11,6 +11,8 @@ android {
 		versionCode 10011
 		versionName "1.0.11"
 		consumerProguardFiles 'proguard-rules.txt'
+
+		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 	}
 
 	compileOptions {
@@ -31,6 +33,12 @@ dependencies {
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
 
 	compileOnly 'javax.annotation:jsr250-api:1.0'
+
+	androidTestImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	androidTestImplementation project(path: ':bramble-core', configuration: 'testOutput')
+	androidTestImplementation 'com.android.support.test:runner:1.0.2'
+	androidTestAnnotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
+	androidTestCompileOnly 'javax.annotation:jsr250-api:1.0'
 }
 
 dependencyVerification {
