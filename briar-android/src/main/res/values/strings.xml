@@ -238,8 +238,8 @@
 		<item quantity="one">%d post</item>
 		<item quantity="other">%d posts</item>
 	</plurals>
-	<string name="forum_new_entry_posted">Forum entry posted</string>
-	<string name="forum_new_message_hint">New Entry</string>
+	<string name="forum_new_entry_posted">Forum post published</string>
+	<string name="forum_new_message_hint">New Post</string>
 	<string name="forum_message_reply_hint">New Reply</string>
 	<string name="btn_reply">Reply</string>
 	<string name="forum_leave">Leave Forum</string>
