@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_TASK_ON_HOME;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -94,7 +95,7 @@ public class SetupActivity extends BaseActivity
 
 	void showApp() {
 		Intent i = new Intent(this, OpenDatabaseActivity.class);
-		i.setFlags(FLAG_ACTIVITY_NEW_TASK);
+		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_TASK_ON_HOME);
 		startActivity(i);
 		supportFinishAfterTransition();
 		overridePendingTransition(R.anim.screen_new_in, R.anim.screen_old_out);
