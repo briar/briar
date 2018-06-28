@@ -163,6 +163,7 @@ public class AppModule {
 
 	@Provides
 	SharedPreferences provideSharedPreferences(Application app) {
+		// FIXME unify this with getDefaultSharedPreferences()
 		return app.getSharedPreferences("db", MODE_PRIVATE);
 	}
 

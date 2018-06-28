@@ -6,12 +6,14 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
+import org.briarproject.briar.android.settings.SettingsActivity;
 
 import javax.inject.Inject;
 
@@ -24,6 +26,8 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.PRIORITY_LOW;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_SIGN_IN_REMINDER;
+import static org.briarproject.briar.android.settings.SettingsActivity.NO_NOTIFY_SIGN_IN;
+import static org.briarproject.briar.android.settings.SettingsFragment.NOTIFY_SIGN_IN;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.REMINDER_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.REMINDER_NOTIFICATION_ID;
 
@@ -36,15 +40,17 @@ public class BootReceiver extends BroadcastReceiver {
 	public void onReceive(Context ctx, Intent intent) {
 		if (!FEATURE_FLAG_SIGN_IN_REMINDER) return;
 
-		AndroidComponent applicationComponent =
-				((BriarApplication) ctx.getApplicationContext())
-						.getApplicationComponent();
+		BriarApplication app = (BriarApplication) ctx.getApplicationContext();
+		AndroidComponent applicationComponent = app.getApplicationComponent();
 		applicationComponent.inject(this);
 
 		String action = intent.getAction();
 		if (action != null && action.equals(ACTION_BOOT_COMPLETED)) {
 			if (databaseConfig.databaseExists()) {
-				showSignInNotification(ctx);
+				SharedPreferences prefs = app.getDefaultSharedPreferences();
+				if (prefs.getBoolean(NOTIFY_SIGN_IN, true)) {
+					showSignInNotification(ctx);
+				}
 			}
 		}
 	}
@@ -72,6 +78,14 @@ public class BootReceiver extends BroadcastReceiver {
 		b.setAutoCancel(true);
 		b.setWhen(0); // Don't show the time
 		b.setPriority(PRIORITY_LOW);
+
+		// Add a 'Do not show sign-in reminder' action
+		String actionTitle =
+				ctx.getString(R.string.reminder_notification_do_not_show_again);
+		Intent i1 = new Intent(ctx, SettingsActivity.class);
+		i1.setAction(NO_NOTIFY_SIGN_IN);
+		PendingIntent actionIntent = PendingIntent.getActivity(ctx, 0, i1, 0);
+		b.addAction(0, actionTitle, actionIntent);
 
 		Intent i = new Intent(ctx, NavDrawerActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
