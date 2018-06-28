@@ -23,13 +23,14 @@ public class TestBriarApplication extends Application
 			Logger.getLogger(TestBriarApplication.class.getName());
 
 	private AndroidComponent applicationComponent;
+	private SharedPreferences prefs;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		LOG.info("Created");
 
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		Localizer.initialize(prefs);
 		applicationComponent = DaggerAndroidComponent.builder()
 				.appModule(new AppModule(this))
@@ -50,5 +51,10 @@ public class TestBriarApplication extends Application
 	@Override
 	public AndroidComponent getApplicationComponent() {
 		return applicationComponent;
+	}
+
+	@Override
+	public SharedPreferences getDefaultSharedPreferences() {
+		return prefs;
 	}
 }

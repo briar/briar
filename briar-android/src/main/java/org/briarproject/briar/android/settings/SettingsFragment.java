@@ -71,6 +71,7 @@ import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_DARK_THEME;
+import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_SIGN_IN_REMINDER;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_SIGN_OUT;
@@ -97,6 +98,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public static final String BT_NAMESPACE = BluetoothConstants.ID.getString();
 	public static final String TOR_NAMESPACE = TorConstants.ID.getString();
 	public static final String LANGUAGE = "pref_key_language";
+	public static final String NOTIFY_SIGN_IN = "pref_key_notify_sign_in";
 
 	private static final Logger LOG =
 			Logger.getLogger(SettingsFragment.class.getName());
@@ -143,6 +145,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				(ListPreference) findPreference("pref_key_theme");
 		enableBluetooth = (ListPreference) findPreference("pref_key_bluetooth");
 		torNetwork = (ListPreference) findPreference("pref_key_tor_network");
+		CheckBoxPreference notifySignIn =
+				(CheckBoxPreference) findPreference(NOTIFY_SIGN_IN);
 		notifyPrivateMessages = (CheckBoxPreference) findPreference(
 				"pref_key_notify_private_messages");
 		notifyGroupMessages = (CheckBoxPreference) findPreference(
@@ -199,6 +203,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			);
 		} else {
 			theme.setVisible(FEATURE_FLAG_DARK_THEME);
+			notifySignIn.setVisible(FEATURE_FLAG_SIGN_IN_REMINDER);
 
 			findPreference("pref_key_explode").setVisible(false);
 			findPreference("pref_key_test_data").setVisible(false);
@@ -346,7 +351,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	private void setSettingsEnabled(boolean enabled) {
-		// theme not needed here, because handled by SharedPreferences
+		// preferences not needed here, because handled by SharedPreferences:
+		// - pref_key_theme
+		// - pref_key_notify_sign_in
 		enableBluetooth.setEnabled(enabled);
 		torNetwork.setEnabled(enabled);
 		notifyPrivateMessages.setEnabled(enabled);
