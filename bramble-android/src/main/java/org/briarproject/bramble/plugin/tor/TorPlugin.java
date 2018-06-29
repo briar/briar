@@ -189,6 +189,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		// Install or update the assets if necessary
 		if (!assetsAreUpToDate()) installAssets();
+		if (cookieFile.exists() && !cookieFile.delete())
+			LOG.warning("Old auth cookie not deleted");
 		// Start a new Tor process
 		LOG.info("Starting Tor");
 		String torPath = torFile.getAbsolutePath();
