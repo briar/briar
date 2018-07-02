@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Se Briar non viene aggiunto nell\'elenco di app protette, non potrà funzionare in background.</string>
   <string name="warning_dozed">%s non ha potuto funzionare in background</string>
   <!--Login-->
-  <string name="enter_password">Inserisci la tua password:</string>
+  <string name="enter_password">Password</string>
   <string name="try_again">Password sbagliata, riprova</string>
   <string name="sign_in_button">Entra</string>
   <string name="forgotten_password">Ho dimenticato la password</string>
@@ -62,6 +62,9 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">Uscito da Briar</string>
+  <string name="reminder_notification_text">Tocca per riaccedere o scorri per annullare.</string>
+  <string name="reminder_notification_channel_title">Promemoria accesso a Briar</string>
   <string name="ongoing_notification_title">Entrato in Briar</string>
   <string name="ongoing_notification_text">Tocca per aprire Briar.</string>
   <plurals name="private_message_notification_text">
@@ -133,6 +136,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introduzione tuoi contatti</string>
   <string name="introduction_onboarding_text">Puoi presentare i tuoi contatti fra di loro, così non hanno bisogno di incontrarsi di persona per connettersi a Briar.</string>
+  <string name="introduction_menu_item">Crea l\'introduzione</string>
   <string name="introduction_activity_title">Seleziona Contatto</string>
   <string name="introduction_not_possible">Hai già un introduzione in corso con questi contatti. Si prega di consentire che prima questo finisca. Se tu o i tuoi contatti sono raramente online, questo potrebbe richiedere un po\' di tempo.</string>
   <string name="introduction_message_title">Introduzione Contatti</string>
@@ -220,8 +224,8 @@
     <item quantity="one">%d post</item>
     <item quantity="other">%d post</item>
   </plurals>
-  <string name="forum_new_entry_posted">Nuova inserzione sul forum</string>
-  <string name="forum_new_message_hint">Nuova inserzione</string>
+  <string name="forum_new_entry_posted">Post pubblicato sul forum</string>
+  <string name="forum_new_message_hint">Nuovo post</string>
   <string name="forum_message_reply_hint">Nuova Risposta</string>
   <string name="btn_reply">Rispondi</string>
   <string name="forum_leave">Lascia Forum</string>
@@ -308,6 +312,11 @@
   <string name="pref_language_changed">Questa impostazione avrà effetto quando riavvierai Briar. Per favore, esci e riavvia Briar.</string>
   <string name="pref_language_default">Default del sistema</string>
   <string name="display_settings_title">Visualizza</string>
+  <string name="pref_theme_title">Tema</string>
+  <string name="pref_theme_light">Chiaro</string>
+  <string name="pref_theme_dark">Scuro</string>
+  <string name="pref_theme_auto">Automatico ( Dì )</string>
+  <string name="pref_theme_system">Predefinito di sistema</string>
   <!--Settings Network-->
   <string name="network_settings_title">Reti</string>
   <string name="bluetooth_setting">Connessione attraverso Bluetooth</string>
@@ -320,9 +329,9 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicurezza</string>
   <string name="change_password">Cambia password</string>
-  <string name="current_password">Inserisci la tua password corrente:</string>
-  <string name="choose_new_password">Scegli la tua password:</string>
-  <string name="confirm_new_password">Conferma la tua nuova password:</string>
+  <string name="current_password">Password attuale</string>
+  <string name="choose_new_password">Nuova password</string>
+  <string name="confirm_new_password">Confermare nuova password</string>
   <string name="password_changed">La password è stata cambiata.</string>
   <string name="panic_setting">Impostazione pulsante panico</string>
   <string name="panic_setting_title">Pulsante panico</string>

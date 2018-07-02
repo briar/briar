@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Si no afegiu Briar a la llista d\'aplicacions protegides, s\'evitarà que Briar s\'executi en segon pla.</string>
   <string name="warning_dozed">%s no s\'ha pogut executar en segon pla</string>
   <!--Login-->
-  <string name="enter_password">Escriviu la vostra contrasenya:</string>
+  <string name="enter_password">Contrasenya</string>
   <string name="try_again">La contrasenya és incorrecta, torneu a escriure-la</string>
   <string name="sign_in_button">Inicia la sessió</string>
   <string name="forgotten_password">No recordo la contrasenya</string>
@@ -62,6 +62,9 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">Has sortit de Briar</string>
+  <string name="reminder_notification_text">Toqueu per tornar a iniciar sessió o feu lliscar el dit per descartar.</string>
+  <string name="reminder_notification_channel_title">Recordatori d\'inici de sessió de Briar</string>
   <string name="ongoing_notification_title">Sessió iniciada</string>
   <string name="ongoing_notification_text">Toca per a obrir Briar.</string>
   <plurals name="private_message_notification_text">
@@ -133,11 +136,12 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenteu als vostres contactes</string>
   <string name="introduction_onboarding_text">Podeu presentar als vostres contactes entre si, de manera que no necessitin trobar-se en persona per a relacionar-se a través de Briar.</string>
+  <string name="introduction_menu_item">Presenta-li un altre contacte</string>
   <string name="introduction_activity_title">Trieu un contacte</string>
   <string name="introduction_not_possible">Ja teniu una presentació en marxa entre aquests contactes. Si us plau, primer deixeu que aquesta presentació acabi. Si vós o els contactes presentats sovint esteu desconnectats, la presentació pot trigar temps.</string>
   <string name="introduction_message_title">Presentació de contactes</string>
   <string name="introduction_message_hint">Afegiu una nota (opcional)</string>
-  <string name="introduction_button">Presenta els contactes</string>
+  <string name="introduction_button">Presenta\'ls</string>
   <string name="introduction_sent">S\'ha enviat la vostra presentació.</string>
   <string name="introduction_error">Hi ha hagut un error en presentar els contactes.</string>
   <string name="introduction_response_error">Error en respondre a la presentació</string>
@@ -198,7 +202,7 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Heu acceptat afegir-vos al grup per invitació de %s.</string>
   <string name="groups_invitations_response_declined_sent">Heu refusat afegir-vos al grup per invitació de %s.</string>
-  <string name="groups_invitations_response_accepted_received">%s ha acceptat afegir-se al grup.</string>
+  <string name="groups_invitations_response_accepted_received">%s ha decidit afegir-se al grup.</string>
   <string name="groups_invitations_response_declined_received">%s ha refusat afegir-se al grup.</string>
   <string name="sharing_status_groups">Només el creador del grup pot convidar a nous membres. Tot seguit hi ha la llista dels membres del grup.</string>
   <!--Private Groups Revealing Contacts-->
@@ -220,8 +224,8 @@
     <item quantity="one">%d publicacio</item>
     <item quantity="other">%d apunts</item>
   </plurals>
-  <string name="forum_new_entry_posted">S\'ha publicat un nou apunt al fòrum</string>
-  <string name="forum_new_message_hint">Apunt nou</string>
+  <string name="forum_new_entry_posted">Publicació del fòrum publicada</string>
+  <string name="forum_new_message_hint">Nova publicació</string>
   <string name="forum_message_reply_hint">Resposta nova</string>
   <string name="btn_reply">Respon</string>
   <string name="forum_leave">Abandona el fòrum</string>
@@ -308,6 +312,11 @@
   <string name="pref_language_changed">L\'efecte d\'aquest canvi només l\'apreciareu després de reiniciar Briar. Si us plau, tanqueu la sessió i reinicieu Briar.</string>
   <string name="pref_language_default">Valor per defecte del sistema</string>
   <string name="display_settings_title">Visualització</string>
+  <string name="pref_theme_title">Tema</string>
+  <string name="pref_theme_light">Clar</string>
+  <string name="pref_theme_dark">Fosc</string>
+  <string name="pref_theme_auto">Automàtic (segons l\'hora)</string>
+  <string name="pref_theme_system">Valor per defecte del sistema</string>
   <!--Settings Network-->
   <string name="network_settings_title">Xarxes</string>
   <string name="bluetooth_setting">Connecta via bluetooth</string>
@@ -320,9 +329,9 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
   <string name="change_password">Canvia la contrasenya</string>
-  <string name="current_password">Escriviu la contrasenya actual:</string>
-  <string name="choose_new_password">Escriviu la contrasenya nova:</string>
-  <string name="confirm_new_password">Confirmeu la contrasenya nova:</string>
+  <string name="current_password">Contrassenya actual</string>
+  <string name="choose_new_password">Contrassenya nova</string>
+  <string name="confirm_new_password">Confirmació de la contrassenya nova</string>
   <string name="password_changed">Heu canviat la contrasenya.</string>
   <string name="panic_setting">Configuració del botó del pànic</string>
   <string name="panic_setting_title">Botó de pànic</string>

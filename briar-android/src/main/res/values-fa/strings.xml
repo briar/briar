@@ -26,7 +26,7 @@
   <string name="setup_huawei_help">اگر برایر به فهرست برنامه های محافظت شده اضافه نشده، نمی تواند در پس زمینه مشغول به کار باشد.</string>
   <string name="warning_dozed">ناتوانی %s برای اجراء در پس زمینه</string>
   <!--Login-->
-  <string name="enter_password">رمز عبور خود را وارد کنید:</string>
+  <string name="enter_password">رمز عبور</string>
   <string name="try_again">رمز عبور اشتباه است، لطفا دوباره سعی کنید</string>
   <string name="sign_in_button">ورود</string>
   <string name="forgotten_password">رمز عبور را فراموش کرده ام</string>
@@ -68,6 +68,9 @@
   <string name="transport_bt">بلوتوث</string>
   <string name="transport_lan">وای فای</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">از برایر خارج شد</string>
+  <string name="reminder_notification_text">برای اینکه دوباره وارد شوید کلیک کنید و برای رد کردن آن را بکشید</string>
+  <string name="reminder_notification_channel_title">یادآور ورود برایر</string>
   <string name="ongoing_notification_title">وارد برایر شد</string>
   <string name="ongoing_notification_text">برای باز کردن برایر کلیک کنید.</string>
   <plurals name="private_message_notification_text">
@@ -144,6 +147,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">معرفی مخاطبان</string>
   <string name="introduction_onboarding_text">شما می توانید مخاطبان خود را به یکدیگر معرفی کنید، در این صورت دیگر نیازی به دیدار حضوری برای اتصال روی برایر نمی باشد.</string>
+  <string name="introduction_menu_item">معرفی کردن</string>
   <string name="introduction_activity_title">انتخاب مخاطب</string>
   <string name="introduction_not_possible">شما همین الان یک معرفی در مرحله انجام با این مخاطبان دارید. لطفا اجازه دهید تا این معرفی به پایان برسد. اگر شما و یا مخاطبانتان به ندرت آنلاین هستید، ممکن است کمی زمان ببرد.</string>
   <string name="introduction_message_title">معرفی مخاطبین</string>
@@ -241,8 +245,8 @@
     <item quantity="one">%d پست</item>
     <item quantity="other">%d پست</item>
   </plurals>
-  <string name="forum_new_entry_posted">ثبت فروم پست شد</string>
-  <string name="forum_new_message_hint">ثبت جدید</string>
+  <string name="forum_new_entry_posted">پست فروم انتشار یافت</string>
+  <string name="forum_new_message_hint">پست جدید</string>
   <string name="forum_message_reply_hint">پاسخ جدید</string>
   <string name="btn_reply">پاسخ</string>
   <string name="forum_leave">ترک فروم</string>
@@ -345,6 +349,15 @@
 برای وارد کردن خوراک روی آیکون + کلیک کنید</string>
   <string name="blogs_rss_feeds_manage_error">مشکلی با بارگذاری فیدهای شما وجود داشت. لطفا بعدا امتحان کنید.</string>
   <!--Settings Display-->
+  <string name="pref_language_title">زبان و منطقه</string>
+  <string name="pref_language_changed">این تنظیمات زمانی که برایر را ری استارت کنید تاثیر خود را می گذارند. لطفا خارج شوید و برایر را ری استارت کنید.</string>
+  <string name="pref_language_default">پیش فرض سیستم</string>
+  <string name="display_settings_title">نمایش</string>
+  <string name="pref_theme_title">قالب</string>
+  <string name="pref_theme_light">روشن</string>
+  <string name="pref_theme_dark">تاریک</string>
+  <string name="pref_theme_auto">خودکار ( روز)</string>
+  <string name="pref_theme_system">پیش فرض سیستم</string>
   <!--Settings Network-->
   <string name="network_settings_title">شبکه ها</string>
   <string name="bluetooth_setting">اتصال از طریق بلوتوث</string>
@@ -357,9 +370,9 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">امنیت</string>
   <string name="change_password">تغییر رمز عبور</string>
-  <string name="current_password">رمز عبور فعلی خود را وارد کنید:</string>
-  <string name="choose_new_password">رمز عبور جدید خود را انتخاب کنید:</string>
-  <string name="confirm_new_password">رمز عبور جدید خود را تأیید کنید:</string>
+  <string name="current_password">رمز عبور فعلی</string>
+  <string name="choose_new_password">رمز عبور جدید</string>
+  <string name="confirm_new_password">تائید رمز جدید</string>
   <string name="password_changed">رمز عبور تغییر کرده است</string>
   <string name="panic_setting">برپایی دکمه هراس</string>
   <string name="panic_setting_title">دکمه هراس</string>

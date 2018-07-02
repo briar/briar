@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Om Briar inte läggs till listan över skyddade appar kan det inte köras i bakgrunden.</string>
   <string name="warning_dozed">%s kunde inte köras i bakgrunden</string>
   <!--Login-->
-  <string name="enter_password">Ange ditt lösenord:</string>
+  <string name="enter_password">Lösenord</string>
   <string name="try_again">Felaktigt lösenord, försök igen </string>
   <string name="sign_in_button">Logga in</string>
   <string name="forgotten_password">Jag har glömt mitt lösenord </string>
@@ -115,6 +115,9 @@
   <string name="blogs_rss_remove_feed_ok">&amp;Ta bort</string>
   <!--Settings Display-->
   <string name="display_settings_title">Visa</string>
+  <string name="pref_theme_title">Tema</string>
+  <string name="pref_theme_light">Ljus</string>
+  <string name="pref_theme_dark">Mörk</string>
   <!--Settings Network-->
   <string name="network_settings_title">Nätverk</string>
   <string name="bluetooth_setting">Anslut via Bluetooth</string>
@@ -123,6 +126,8 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Säkerhet</string>
   <string name="change_password">Ändra lösenord</string>
+  <string name="choose_new_password">Nytt lösenord</string>
+  <string name="confirm_new_password">Bekräfta nytt lösenord</string>
   <string name="panic_app_setting_none">Ingen</string>
   <string name="lock_setting_title">Logga ut</string>
   <string name="lock_setting_summary">Logga ut från Briar om panikknappen tryckts</string>

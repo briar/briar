@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Se o Briar não for adicionado à lista de aplicativos protegidos ele não poderá ser executado em segundo plano.</string>
   <string name="warning_dozed">%s não pôde ser executado em segundo plano</string>
   <!--Login-->
-  <string name="enter_password">Insira sua senha:</string>
+  <string name="enter_password">Senha</string>
   <string name="try_again">Senha Incorreta, tente novamente</string>
   <string name="sign_in_button">Entrar</string>
   <string name="forgotten_password">Esqueci minha senha</string>
@@ -62,6 +62,7 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wi-fi</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">Saiu do Briar</string>
   <string name="ongoing_notification_title">Conectado ao Briar</string>
   <string name="ongoing_notification_text">Toque para abrir o Briar</string>
   <plurals name="private_message_notification_text">
@@ -133,6 +134,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Apresente seus contatos</string>
   <string name="introduction_onboarding_text">Você pode apresentar seus contatos entre si, assim eles não precisam se encontrar pessoalmente para se comunicar no Briar.</string>
+  <string name="introduction_menu_item">Fazer apresentação</string>
   <string name="introduction_activity_title">Selecionar contato</string>
   <string name="introduction_message_title">Apresentar contatos</string>
   <string name="introduction_message_hint">Adicione uma mensagem (opcional)</string>
@@ -218,8 +220,7 @@
     <item quantity="one">%d Post</item>
     <item quantity="other">%d Posts</item>
   </plurals>
-  <string name="forum_new_entry_posted">postada com sucesso</string>
-  <string name="forum_new_message_hint">Novo tópico</string>
+  <string name="forum_new_message_hint">Nova postagem</string>
   <string name="forum_message_reply_hint">Nova resposta</string>
   <string name="btn_reply">Responder</string>
   <string name="forum_leave">Sair do fórum</string>
@@ -303,6 +304,10 @@
   <string name="blogs_rss_feeds_manage_error">Houve um problema ao carregar seus Feeds. Por favor tente novamente.</string>
   <!--Settings Display-->
   <string name="display_settings_title">Visualização</string>
+  <string name="pref_theme_title">Tema</string>
+  <string name="pref_theme_light">Claro</string>
+  <string name="pref_theme_dark">Escuro</string>
+  <string name="pref_theme_system">Padrão do Sistema</string>
   <!--Settings Network-->
   <string name="network_settings_title">Redes</string>
   <string name="bluetooth_setting">Conectar via Bluetooth</string>
@@ -315,9 +320,8 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Segurança</string>
   <string name="change_password">Mudar Senha</string>
-  <string name="current_password">Digite a senha atual:</string>
-  <string name="choose_new_password">Escolha sua nova senha:</string>
-  <string name="confirm_new_password">Confirme a nova senha:</string>
+  <string name="choose_new_password">Nova senha</string>
+  <string name="confirm_new_password">Confirmar nova senha</string>
   <string name="password_changed">Senha alterada com sucesso.</string>
   <string name="panic_setting">Configurações do botão de pânico</string>
   <string name="panic_setting_title">Botão de pânico</string>

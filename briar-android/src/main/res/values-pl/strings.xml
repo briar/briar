@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Jeśli Briar nie będzie na liście chronionych aplikacji nie będzie miał możliwości aby działać w tle.</string>
   <string name="warning_dozed">%s nie był wstanie działać w tle</string>
   <!--Login-->
-  <string name="enter_password">Wpisz swoje hasło:</string>
+  <string name="enter_password">Hasło</string>
   <string name="try_again">Złe hasło, spróbuj ponownie</string>
   <string name="sign_in_button">Zaloguj Się</string>
   <string name="forgotten_password">Przypomnij hasło</string>
@@ -64,6 +64,9 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">Wylogowano z Briar</string>
+  <string name="reminder_notification_text">Dotknij aby zalogować się z powrotem lub przesuń aby pominąć.</string>
+  <string name="reminder_notification_channel_title">Przypomnienie o zalogowaniu</string>
   <string name="ongoing_notification_title">Zalogowany w Briar</string>
   <string name="ongoing_notification_text">Dotknij aby otworzyć Briar</string>
   <plurals name="private_message_notification_text">
@@ -143,6 +146,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Udostępnij swoje kontakty.</string>
   <string name="introduction_onboarding_text">Możesz udostępniać kontakty, tak aby osoby nie musiały spotykać się osobiście.</string>
+  <string name="introduction_menu_item">Udostępnij</string>
   <string name="introduction_activity_title">Wybierz kontakt</string>
   <string name="introduction_not_possible">Masz już jedno udostępnianie w toku. Proszę pozwolić aby proces zakończył się. Jeśli kontakty są rzadko online, może to zabrać trochę czasu.</string>
   <string name="introduction_message_title">Udostępnij kontakty</string>
@@ -238,8 +242,8 @@
     <item quantity="many">%d postów</item>
     <item quantity="other">%d postów</item>
   </plurals>
-  <string name="forum_new_entry_posted">Wejście na forum zapisane</string>
-  <string name="forum_new_message_hint">Nowy Wpis</string>
+  <string name="forum_new_entry_posted">Post na forum opublikowany</string>
+  <string name="forum_new_message_hint">Nowy Post</string>
   <string name="forum_message_reply_hint">Nowa Odpowiedź</string>
   <string name="btn_reply">Odpowiedz</string>
   <string name="forum_leave">Opuść Forum</string>
@@ -328,6 +332,11 @@
   <string name="pref_language_changed">Aby zastosować ustawienia musisz zrestartować Briar. Proszę się wylogować i zrestartować Briar.</string>
   <string name="pref_language_default">Domyślny systemu</string>
   <string name="display_settings_title">Wyświetl</string>
+  <string name="pref_theme_title">Motyw</string>
+  <string name="pref_theme_light">Jasny</string>
+  <string name="pref_theme_dark">Ciemny</string>
+  <string name="pref_theme_auto">Automatycznie (w czasie dnia)</string>
+  <string name="pref_theme_system">Domyślny Systemu</string>
   <!--Settings Network-->
   <string name="network_settings_title">Sieci</string>
   <string name="bluetooth_setting">Połącz przez Bluetooth</string>
@@ -340,9 +349,9 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Bezpieczeństwo</string>
   <string name="change_password">Zmień hasło</string>
-  <string name="current_password">Wprowadź swoje aktualne hasło:</string>
-  <string name="choose_new_password">Wpisz swoje nowe hasło:</string>
-  <string name="confirm_new_password">Potwierdź swoje nowe hasło:</string>
+  <string name="current_password">Obecne hasło</string>
+  <string name="choose_new_password">Nowe hasło</string>
+  <string name="confirm_new_password">Potwierdź nowe hasło</string>
   <string name="password_changed">Hasło zostało zmienione.</string>
   <string name="panic_setting">Konfiguracja przycisku wyjścia awaryjnego</string>
   <string name="panic_setting_title">Przycisk wyjścia awaryjnego</string>

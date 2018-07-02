@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Si Briar n’est pas ajoutée à la liste des applis protégées, elle ne pourra pas fonctionner en arrière-plan.</string>
   <string name="warning_dozed">%s n’a pas pu fonctionner en arrière-plan</string>
   <!--Login-->
-  <string name="enter_password">Saisir votre mot de passe :</string>
+  <string name="enter_password">Mot de passe</string>
   <string name="try_again">Le mot de passe est erroné, ressayez</string>
   <string name="sign_in_button">Connexion</string>
   <string name="forgotten_password">J’ai oublié mon mot de passe</string>
@@ -62,6 +62,9 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">Déconnecté de Briar</string>
+  <string name="reminder_notification_text">Toucher pour se reconnecter au balayer pour annuler</string>
+  <string name="reminder_notification_channel_title">Rappel de connexion à Briar</string>
   <string name="ongoing_notification_title">Connecté à Briar</string>
   <string name="ongoing_notification_text">Toucher pour ouvrir Briar.</string>
   <plurals name="private_message_notification_text">
@@ -133,6 +136,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Présenter vos contacts</string>
   <string name="introduction_onboarding_text">Vous pouvez présenter vos contacts mutuellement, afin qu’ils n’aient pas à se rencontrer en personne pour se connecter les uns aux autres avec Briar.</string>
+  <string name="introduction_menu_item">Faire les présentations</string>
   <string name="introduction_activity_title">Sélectionner un contact </string>
   <string name="introduction_not_possible">Une présentation est déjà en cours avec ces contacts. Veuillez d’abord lui permettre de se terminer. Si vous ou vos contacts êtes rarement en ligne, cela peut prendre du temps.</string>
   <string name="introduction_message_title">Présenter des contacts</string>
@@ -220,8 +224,8 @@
     <item quantity="one">%d article</item>
     <item quantity="other">%d articles</item>
   </plurals>
-  <string name="forum_new_entry_posted">L’entrée de forum a été publiée</string>
-  <string name="forum_new_message_hint">Nouvelle entrée</string>
+  <string name="forum_new_entry_posted">Un article de forum a été publié</string>
+  <string name="forum_new_message_hint">Nouvelle article</string>
   <string name="forum_message_reply_hint">Nouvelle réponse</string>
   <string name="btn_reply">Répondre</string>
   <string name="forum_leave">Quitter le forum</string>
@@ -308,6 +312,11 @@
   <string name="pref_language_changed">Ce paramètre prendra effet une fois que vous aurez redémarré Briar. Veuillez vous déconnecter et redémarrer Briar.</string>
   <string name="pref_language_default">Valeur par défaut du système</string>
   <string name="display_settings_title">Affichage</string>
+  <string name="pref_theme_title">Thème</string>
+  <string name="pref_theme_light">Clair</string>
+  <string name="pref_theme_dark">Sombre</string>
+  <string name="pref_theme_auto">Automatique (journée)</string>
+  <string name="pref_theme_system">Valeur par défaut du système</string>
   <!--Settings Network-->
   <string name="network_settings_title">Réseaux</string>
   <string name="bluetooth_setting">Se connecter par Bluetooth</string>
@@ -320,9 +329,9 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sécurité</string>
   <string name="change_password">Changer le mot de passe</string>
-  <string name="current_password">Saisir votre mot de passe actuel :</string>
-  <string name="choose_new_password">Choisir votre nouveau mot de passe :</string>
-  <string name="confirm_new_password">Confirmer votre nouveau mot de passe :</string>
+  <string name="current_password">Mot de passe actuel</string>
+  <string name="choose_new_password">Nouveau mot de passe</string>
+  <string name="confirm_new_password">Confirmer le nouveau mot de passe</string>
   <string name="password_changed">Le mot de passe a été changé.</string>
   <string name="panic_setting">Paramètres du bouton d’urgence</string>
   <string name="panic_setting_title">Bouton d’urgence</string>

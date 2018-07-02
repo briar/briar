@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Wenn Briar nicht zur Liste der geschützten Apps hinzugefügt wird, kann es nicht im Hintergrund ausgeführt werden.</string>
   <string name="warning_dozed">%s konnte nicht im Hintergrund ausgeführt werden</string>
   <!--Login-->
-  <string name="enter_password">Passwort eingeben:</string>
+  <string name="enter_password">Passwort</string>
   <string name="try_again">Passwort falsch, bitte erneut versuchen</string>
   <string name="sign_in_button">Anmelden</string>
   <string name="forgotten_password">Ich habe mein Passwort vergessen</string>
@@ -62,6 +62,7 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">WLAN</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">Von Briar abgemeldet</string>
   <string name="ongoing_notification_title">In Briar angemeldet</string>
   <string name="ongoing_notification_text">Berühren, um Briar zu öffnen.</string>
   <plurals name="private_message_notification_text">
@@ -133,6 +134,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Mache deine Kontakte untereinander bekannt</string>
   <string name="introduction_onboarding_text">Du kannst deine Kontakte untereinander bekannt machen. So können sie sich über Briar verbinden, ohne sich persönlich treffen zu müssen.</string>
+  <string name="introduction_menu_item">Kontaktempfehlung abgeben</string>
   <string name="introduction_activity_title">Kontakt auswählen</string>
   <string name="introduction_not_possible">Es wird bereits eine Kontaktempfehlung mit diesen Kontakten verarbeitet. Bitte warte, bis die Verarbeitung abgeschlossen ist. Falls du oder deine Kontakte selten online sind, kann es etwas dauern.</string>
   <string name="introduction_message_title">Kontakte untereinander bekannt machen</string>
@@ -220,8 +222,6 @@
     <item quantity="one">%d Beitrag</item>
     <item quantity="other">%d Beiträge</item>
   </plurals>
-  <string name="forum_new_entry_posted">Forenbeitrag wurde veröffentlicht.</string>
-  <string name="forum_new_message_hint">Neuer Eintrag</string>
   <string name="forum_message_reply_hint">Neue Antwort</string>
   <string name="btn_reply">Antworten</string>
   <string name="forum_leave">Forum verlassen</string>
@@ -303,6 +303,9 @@
   <!--Settings Display-->
   <string name="pref_language_changed">Diese Einstellung wird aktiv sobald Du Briar neu startest. Bitte melde dich ab und starte Briar neu.</string>
   <string name="display_settings_title">Anzeigen</string>
+  <string name="pref_theme_title">Design</string>
+  <string name="pref_theme_light">Hell</string>
+  <string name="pref_theme_dark">Dunkel</string>
   <!--Settings Network-->
   <string name="network_settings_title">Netzwerke</string>
   <string name="bluetooth_setting">Über Bluetooth verbinden</string>
@@ -315,9 +318,8 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicherheit</string>
   <string name="change_password">Passwort ändern</string>
-  <string name="current_password">Aktuelles Passwort eingeben:</string>
-  <string name="choose_new_password">Neues Passwort eingeben:</string>
-  <string name="confirm_new_password">Neues Passwort bestätigen:</string>
+  <string name="choose_new_password">Neues Passwort</string>
+  <string name="confirm_new_password">Neues Passwort bestätigen</string>
   <string name="password_changed">Passwort wurde geändert.</string>
   <string name="panic_setting">Panik-Button einrichten</string>
   <string name="panic_setting_title">Panik-Button</string>

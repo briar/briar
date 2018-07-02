@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Briar ez bada babestutako aplikazioen zerrendara gehitu, ezin izango du bigarren planoan ibili.</string>
   <string name="warning_dozed">%s ezin izan da bigarren planoan abiatu</string>
   <!--Login-->
-  <string name="enter_password">Sartu zure pasahitza:</string>
+  <string name="enter_password">Pasahitza</string>
   <string name="try_again">Pasahitz okerra, saiatu berriro</string>
   <string name="sign_in_button">Hasi saioa</string>
   <string name="forgotten_password">Nire pasahitza ahaztu dut</string>
@@ -62,6 +62,9 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">Briar saioa amaituta</string>
+  <string name="reminder_notification_text">Sakatu saioa berriro hasteko edo pasatu hatza baztertzeko</string>
+  <string name="reminder_notification_channel_title">Briar saioaren oroigarria</string>
   <string name="ongoing_notification_title">Briar saioa hasita</string>
   <string name="ongoing_notification_text">Ukitu Briar irekitzeko</string>
   <plurals name="private_message_notification_text">
@@ -133,6 +136,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Aurkeztu zure kontaktuak</string>
   <string name="introduction_onboarding_text">Zure kontaktuak bata besteari aurkeztu ditzakezu, horrela ez dute aurrez aurre elkartzeko beharra Briar erabiltzeko.</string>
+  <string name="introduction_menu_item">Egin aurkezpena</string>
   <string name="introduction_activity_title">Hautatu kontaktua</string>
   <string name="introduction_not_possible">Baduzu aurkezpen bat abian kontaktu hauekin. Baimendu hura bukatzea aurretik. Zure kontaktuak gutxitan konektatzen badira honek denbora bat behar lezake.</string>
   <string name="introduction_message_title">Aurkeztu kontaktuak</string>
@@ -220,7 +224,7 @@
     <item quantity="one">Bidalketa %d</item>
     <item quantity="other">%d sarrera</item>
   </plurals>
-  <string name="forum_new_entry_posted">Foroko sarrera bidali da</string>
+  <string name="forum_new_entry_posted">Foroko sarrera argitaratuta</string>
   <string name="forum_new_message_hint">Sarrera berria</string>
   <string name="forum_message_reply_hint">Erantzun berria</string>
   <string name="btn_reply">Erantzun</string>
@@ -308,6 +312,11 @@
   <string name="pref_language_changed">Ezarpen hauek Brfiar berrabiaraztean jarriko dira indarrean. Amaitu saioa eta berrabiarazi Briar.</string>
   <string name="pref_language_default">Sisteman lehenetsia</string>
   <string name="display_settings_title">Erakutsi</string>
+  <string name="pref_theme_title">Azalgaia</string>
+  <string name="pref_theme_light">Argia</string>
+  <string name="pref_theme_dark">Iluna</string>
+  <string name="pref_theme_auto">Automatikoa (Egunez)</string>
+  <string name="pref_theme_system">Sistemak lehenetsia</string>
   <!--Settings Network-->
   <string name="network_settings_title">Sareak</string>
   <string name="bluetooth_setting">Konektatu Bluetooth bidez</string>
@@ -320,9 +329,9 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Segurtasuna</string>
   <string name="change_password">Aldatu pasahitza</string>
-  <string name="current_password">Sartu oraingo pasahitza:</string>
-  <string name="choose_new_password">Hautatu pasahitz berria:</string>
-  <string name="confirm_new_password">Berretsi pasahitz berria:</string>
+  <string name="current_password">Oraingo pasahitza</string>
+  <string name="choose_new_password">Pasahitz berria</string>
+  <string name="confirm_new_password">Berretsi pasahitz berria</string>
   <string name="password_changed">Pasahitza aldatu da.</string>
   <string name="panic_setting">Larrialdi botoiaren ezarpena</string>
   <string name="panic_setting_title">Larrialdi botoia</string>

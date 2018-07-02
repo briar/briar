@@ -10,7 +10,7 @@
   <string name="passwords_do_not_match">הסיסמאות לא תואמות</string>
   <string name="create_account_button">יצירת חשבון</string>
   <!--Login-->
-  <string name="enter_password">הזינו סיסמה:</string>
+  <string name="enter_password">סיסמה</string>
   <string name="try_again">הסיסמה שגוייה, נסו שוב</string>
   <string name="sign_in_button">הכנסו</string>
   <string name="forgotten_password">שכחתי את הסיסמה שלי</string>
@@ -111,6 +111,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">הציגו את אנשי קשר שלכם</string>
   <string name="introduction_onboarding_text">אתם יכולים להציג את אנשי הקשר שלכם אחד לשני, כך שהם לא צריכים להפגש פנים-מול-פנים על מנת להתחבר בבריאר.</string>
+  <string name="introduction_menu_item">הציגו איש קשר</string>
   <string name="introduction_activity_title">בחרו איש קשר</string>
   <string name="introduction_message_title">הציגו אנשי קשר</string>
   <string name="introduction_message_hint">הוסיפו הודעה (לא חובה)</string>
@@ -207,8 +208,6 @@
     <item quantity="many">%d פוסטים</item>
     <item quantity="other">%d פוסטים</item>
   </plurals>
-  <string name="forum_new_entry_posted">הפוסט נוצר</string>
-  <string name="forum_new_message_hint">פוסט חדש</string>
   <string name="forum_message_reply_hint">תגובה חדשה</string>
   <string name="btn_reply">להשיב</string>
   <string name="forum_leave">עזיבת הפורום</string>
@@ -238,6 +237,7 @@
   <!--Settings Network-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">אבטחה</string>
+  <string name="choose_new_password">סיסמא חדשה</string>
   <string name="panic_app_setting_none">כלום</string>
   <string name="lock_setting_title">יציאה</string>
   <string name="purge_setting_title">מחק חשבון</string>

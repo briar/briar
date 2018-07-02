@@ -10,7 +10,7 @@
   <string name="passwords_do_not_match">パスワードが一致しません。</string>
   <string name="create_account_button">アカウントを作成</string>
   <!--Login-->
-  <string name="enter_password">パスワード入力</string>
+  <string name="enter_password">パスワード</string>
   <string name="try_again">パスワードが間違っています。もう一度入力してください。</string>
   <string name="sign_in_button">Sign In</string>
   <string name="forgotten_password">パスワードを忘れました。</string>
@@ -103,11 +103,16 @@
   <string name="blogs_rss_remove_feed_ok">解除</string>
   <!--Settings Display-->
   <string name="display_settings_title">表示</string>
+  <string name="pref_theme_title">テーマ</string>
+  <string name="pref_theme_light">ライト</string>
+  <string name="pref_theme_dark">ダーク</string>
+  <string name="pref_theme_system">システムデフォルト</string>
   <!--Settings Network-->
   <string name="tor_network_setting_never">二度としない</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">セキュリティ</string>
   <string name="change_password">パスワードの変更</string>
+  <string name="confirm_new_password">新しいパスワードの確認</string>
   <string name="panic_app_setting_none">なし</string>
   <string name="lock_setting_title">サインアウト</string>
   <string name="purge_setting_title">アカウントを削除</string>

@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Pokud nebyl Briar přidán mezi chráněné aplikace, nebude ho možné spustit na pozadí.</string>
   <string name="warning_dozed">%s nebylo možné spustit na pozadí</string>
   <!--Login-->
-  <string name="enter_password">Zadejte své heslo:</string>
+  <string name="enter_password">Heslo</string>
   <string name="try_again">Zadali jste špatné heslo, zkuste to znovu</string>
   <string name="sign_in_button">Přihlásit se</string>
   <string name="forgotten_password">Nepamatuji si své heslo</string>
@@ -143,6 +143,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Uvést vaše kontakty</string>
   <string name="introduction_onboarding_text">Můžete si navzájem představit své kontakty, takže se následně nemusejí setkat osobně, aby se připojili k Briar.</string>
+  <string name="introduction_menu_item">Vytvořit pozvání</string>
   <string name="introduction_activity_title">Vybrat kontakt</string>
   <string name="introduction_message_title">Pozvat kontakty</string>
   <string name="introduction_message_hint">Přidat zprávu (volitelné)</string>
@@ -236,8 +237,6 @@
     <item quantity="many">%d příspěvků</item>
     <item quantity="other">%d příspěvků</item>
   </plurals>
-  <string name="forum_new_entry_posted">Záznam byl na fóru zveřejněn</string>
-  <string name="forum_new_message_hint">Nový záznam</string>
   <string name="forum_message_reply_hint">Nová odpověď</string>
   <string name="btn_reply">Odpověď</string>
   <string name="forum_leave">Opustit fórum</string>
@@ -322,6 +321,9 @@
   <string name="pref_language_changed">Toto nastavení bude mít efekt když vykonáre restart svého Briar. Prosím odhlaste se a restartujte Briar.</string>
   <string name="pref_language_default">Výchozí systému</string>
   <string name="display_settings_title">Zobrazit</string>
+  <string name="pref_theme_title">Vzhled</string>
+  <string name="pref_theme_light">Světlý</string>
+  <string name="pref_theme_dark">Temný</string>
   <!--Settings Network-->
   <string name="network_settings_title">Sítě</string>
   <string name="bluetooth_setting">Spojení přes Bluetooth</string>
@@ -334,9 +336,6 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Zabezpečení</string>
   <string name="change_password">Změnit heslo</string>
-  <string name="current_password">Zadejte vaše současné heslo:</string>
-  <string name="choose_new_password">Zvolte si nové heslo:</string>
-  <string name="confirm_new_password">Potvrďte nové heslo:</string>
   <string name="password_changed">Heslo bylo změněno.</string>
   <string name="panic_setting">Nastavení tlačítka Paniky</string>
   <string name="panic_setting_title">Tlačítko Paniky</string>

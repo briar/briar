@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Dacă Briar nu este adăugat în lista de aplicații protejate, nu v-a fi capabil să ruleze în fundal.</string>
   <string name="warning_dozed">%s nu poate rula în fundal</string>
   <!--Login-->
-  <string name="enter_password">Introduceți parola:</string>
+  <string name="enter_password">Parola</string>
   <string name="try_again">Parolă greșită, reîncercați</string>
   <string name="sign_in_button">Autentificare</string>
   <string name="forgotten_password">Am uitat parola</string>
@@ -63,6 +63,9 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">Ieșire din Briar</string>
+  <string name="reminder_notification_text">Atingeți pentru autentificare sau glisați pentru anulare.</string>
+  <string name="reminder_notification_channel_title">Reamintire autentificare Briar</string>
   <string name="ongoing_notification_title">Autentificat în Briar</string>
   <string name="ongoing_notification_text">Atingeți pentru a deschide Briar</string>
   <plurals name="private_message_notification_text">
@@ -138,6 +141,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Recomandați-vă contactele</string>
   <string name="introduction_onboarding_text">Puteți să vă recomandați contactele unele altora, încât sa nu fie nevoie ca să se vadă față în față pentru a se putea conecta la Briar.</string>
+  <string name="introduction_menu_item">Fă o recomandare</string>
   <string name="introduction_activity_title">Alege un contact</string>
   <string name="introduction_not_possible">Ați trimis deja o solicitare la contacte. Așteptați să răspundă. Dacă dvs. sau persoanele persoanele de contact sunteți rareori online, este posibil să dureze ceva timp.</string>
   <string name="introduction_message_title">Recomandă contacte</string>
@@ -230,7 +234,7 @@
     <item quantity="few">%d mesaje</item>
     <item quantity="other">%d de mesaje</item>
   </plurals>
-  <string name="forum_new_entry_posted">Mesajul a fost introdus pe forum</string>
+  <string name="forum_new_entry_posted">Mesajul a fost scris pe forum</string>
   <string name="forum_new_message_hint">Mesaj nou</string>
   <string name="forum_message_reply_hint">Răspuns nou</string>
   <string name="btn_reply">Răspunde</string>
@@ -319,6 +323,11 @@
   <string name="pref_language_changed">Această setare va avea efect după repornirea Briar. Vă rugăm să ieșiți din Briar și să reporniți aplicația.</string>
   <string name="pref_language_default">Implicit sistem</string>
   <string name="display_settings_title">Ecran</string>
+  <string name="pref_theme_title">Temă</string>
+  <string name="pref_theme_light">Deschisă</string>
+  <string name="pref_theme_dark">Închisă</string>
+  <string name="pref_theme_auto">Automat (Zi lumina)</string>
+  <string name="pref_theme_system">Implicit sistem</string>
   <!--Settings Network-->
   <string name="network_settings_title">Rețele</string>
   <string name="bluetooth_setting">Conectare prin Bluetooth</string>
@@ -331,9 +340,9 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Securitate</string>
   <string name="change_password">Schimbă parola</string>
-  <string name="current_password">Introduceți parola curentă:</string>
-  <string name="choose_new_password">Alegeți-vă parola nouă:</string>
-  <string name="confirm_new_password">Confirmați parola nouă:</string>
+  <string name="current_password">Parolă curentă</string>
+  <string name="choose_new_password">Parola nouă</string>
+  <string name="confirm_new_password">Confirmați parola nouă</string>
   <string name="password_changed">Parola a fost schimbată.</string>
   <string name="panic_setting">Setare buton de panică</string>
   <string name="panic_setting_title">Buton de panică</string>

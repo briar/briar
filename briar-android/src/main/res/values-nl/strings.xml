@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Als Briar niet is toegevoegd aan de beschermde apps, is het niet mogelijk om het in de achtergrond te runnen.</string>
   <string name="warning_dozed">%s kon niet in de achtergrond runnen</string>
   <!--Login-->
-  <string name="enter_password">Voer je wachtwoord in:</string>
+  <string name="enter_password">Wachtwoord</string>
   <string name="try_again">Verkeerd wachtwoord, probeer het nog een keer</string>
   <string name="sign_in_button">Log in</string>
   <string name="forgotten_password">Ik ben mijn wachtwoord vergeten</string>
@@ -62,6 +62,7 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wifi</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">Uitgelogd van Briar</string>
   <string name="ongoing_notification_title">Ingelogd op Briar</string>
   <string name="ongoing_notification_text">Raak aan om Briar te openen.</string>
   <plurals name="private_message_notification_text">
@@ -133,6 +134,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introduceer je contacten</string>
   <string name="introduction_onboarding_text">Je kan je contacten aan elkaar introduceren zodat ze niet in levenden lijve elkaar te hoeven ontmoeten om op Briar in contact te komen.</string>
+  <string name="introduction_menu_item">Introduceer</string>
   <string name="introduction_activity_title">Selecteer contact</string>
   <string name="introduction_not_possible">Je bent al met een introductie bezig met deze contacten. Laat dit a.u.b. eerst voltooien. Als jij of je contact weinig online zijn, kan dit even duren.</string>
   <string name="introduction_message_title">Intoduceer contacten</string>
@@ -220,8 +222,6 @@
     <item quantity="one">%d post</item>
     <item quantity="other">%d posts</item>
   </plurals>
-  <string name="forum_new_entry_posted">Forumonderwerp is gepost</string>
-  <string name="forum_new_message_hint">Nieuw onderwerp</string>
   <string name="forum_message_reply_hint">Nieuwe reactie</string>
   <string name="btn_reply">Antwoord</string>
   <string name="forum_leave">Verlaat forum</string>
@@ -305,6 +305,9 @@
   <string name="blogs_rss_feeds_manage_error">Er was een probleem met het laden van je feeds. Probeer het later nog een keer.</string>
   <!--Settings Display-->
   <string name="display_settings_title">Weergeven</string>
+  <string name="pref_theme_title">Thema</string>
+  <string name="pref_theme_light">Licht</string>
+  <string name="pref_theme_dark">Donker</string>
   <!--Settings Network-->
   <string name="network_settings_title">Netwerken</string>
   <string name="bluetooth_setting">Verbind via Bluetooth</string>
@@ -317,9 +320,8 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Beveiliging</string>
   <string name="change_password">Wijzig wachtwoord</string>
-  <string name="current_password">Voer je huidige wachtwoord in:</string>
-  <string name="choose_new_password">Voer je nieuwe wachtwoord in:</string>
-  <string name="confirm_new_password">Bevestig je nieuwe wachtwoord:</string>
+  <string name="choose_new_password">Nieuw wachtwoord</string>
+  <string name="confirm_new_password">Nieuw wachtwoord bevestigen</string>
   <string name="password_changed">Wachtwoord is gewijzigd</string>
   <string name="panic_setting">Paniekknopinstellingen</string>
   <string name="panic_setting_title">Paniekknop</string>

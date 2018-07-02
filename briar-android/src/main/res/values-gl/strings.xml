@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Si Briar non se engade ao listado de apps protexidas, non poderá funcionar en segundo plano.</string>
   <string name="warning_dozed">%s non foi quen de funcionar en segundo plano</string>
   <!--Login-->
-  <string name="enter_password">Introduce a túa clave:</string>
+  <string name="enter_password">Contrasinal</string>
   <string name="try_again">Clave incorrecta, tenteo de novo</string>
   <string name="sign_in_button">Iniciar sesión</string>
   <string name="forgotten_password">Esquecín a miña clave</string>
@@ -62,6 +62,9 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">Desconectou de Briar</string>
+  <string name="reminder_notification_text">Toque para voltar a conectar ou desplace para desbotar.</string>
+  <string name="reminder_notification_channel_title">Recordatorio para conectar a Briar</string>
   <string name="ongoing_notification_title">Conectado a Briar</string>
   <string name="ongoing_notification_text">Toque para abrir Briar</string>
   <plurals name="private_message_notification_text">
@@ -133,6 +136,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presente os seus contactos</string>
   <string name="introduction_onboarding_text">Pode presentar aos seus contactos, así non precisan encontrarse en persoa para conectar a través de Briar.</string>
+  <string name="introduction_menu_item">Preséntese</string>
   <string name="introduction_activity_title">Escoller contacto</string>
   <string name="introduction_not_possible">Xa ten unha presentación en progreso con estes contactos. Por favor, deixe que remate o proceso. Si vostede ou os contactos se conectan con pouca asiduidade esto podería levar algún tempo.</string>
   <string name="introduction_message_title">Introducir Contactos</string>
@@ -220,8 +224,6 @@
     <item quantity="one">%d publicación</item>
     <item quantity="other">%d publicacións</item>
   </plurals>
-  <string name="forum_new_entry_posted">Entrada ao foro enviada</string>
-  <string name="forum_new_message_hint">Nova Entrada</string>
   <string name="forum_message_reply_hint">Nova Resposta</string>
   <string name="btn_reply">Respostar</string>
   <string name="forum_leave">Deixar foro</string>
@@ -304,6 +306,15 @@
   <string name="blogs_rss_feeds_manage_empty_state">Sen fontes RSS que mostrar\n\nToque na icona + para importar unha fonte</string>
   <string name="blogs_rss_feeds_manage_error">Aconteceu un problema ao cargar as súas fontes. Por favor, inténteo máis tarde.</string>
   <!--Settings Display-->
+  <string name="pref_language_title">Idioma  &amp; rexión</string>
+  <string name="pref_language_changed">Este axuste terá efecto cando reinicie Briar. Por favor desconecte e volte a iniciar Briar.</string>
+  <string name="pref_language_default">Por omisión do sistema</string>
+  <string name="display_settings_title">Pantalla</string>
+  <string name="pref_theme_title">Decorado</string>
+  <string name="pref_theme_light">Claro</string>
+  <string name="pref_theme_dark">Oscuro</string>
+  <string name="pref_theme_auto">Automático (no día)</string>
+  <string name="pref_theme_system">Por omisión do sistema</string>
   <!--Settings Network-->
   <string name="network_settings_title">Redes</string>
   <string name="bluetooth_setting">Conectar vía Bluetooth</string>
@@ -316,9 +327,9 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguridade</string>
   <string name="change_password">Cambiar contrasinal</string>
-  <string name="current_password">Introduza o contrasinal actual:</string>
-  <string name="choose_new_password">Novo contrasinal:</string>
-  <string name="confirm_new_password">Confirme o contrasinal:</string>
+  <string name="current_password">Contrasinal actual</string>
+  <string name="choose_new_password">Novo contrasinal</string>
+  <string name="confirm_new_password">Confirme o novo contrasinal</string>
   <string name="password_changed">Cambiou o contrasinal</string>
   <string name="panic_setting">Axustes do botón do pánico</string>
   <string name="panic_setting_title">Botón do pánico</string>

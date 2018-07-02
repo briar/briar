@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Hvis Briar ikke er lagt til i listen over beskyttede programmer, vil det ikke kunne kjøre i bakgrunnen.</string>
   <string name="warning_dozed">%s klarte ikke å kjøre i bakgrunnen</string>
   <!--Login-->
-  <string name="enter_password">Skriv inn passord:</string>
+  <string name="enter_password">Passord</string>
   <string name="try_again">Feil passord, prøv igjen</string>
   <string name="sign_in_button">Logg inn</string>
   <string name="forgotten_password">Jeg har glemt passordet mitt</string>
@@ -120,6 +120,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introduser kontaktene dine</string>
   <string name="introduction_onboarding_text">Du kan introdusere dine kontakter til hverandre, slik at de ikke trenger å møtes personlig for å treffes på Briar.</string>
+  <string name="introduction_menu_item">Introduser ovenfor hverandre</string>
   <string name="introduction_activity_title">Velg kontakt</string>
   <string name="introduction_message_title">Introduser kontakter</string>
   <string name="introduction_message_hint">Legg til melding (valgfritt)</string>
@@ -202,8 +203,6 @@
     <item quantity="one">%d post</item>
     <item quantity="other">%d poster</item>
   </plurals>
-  <string name="forum_new_entry_posted">Forumoppføring postet</string>
-  <string name="forum_new_message_hint">Ny oppføring</string>
   <string name="forum_message_reply_hint">Nytt svar</string>
   <string name="btn_reply">Svar</string>
   <string name="forum_leave">Forlat forum</string>
@@ -272,6 +271,7 @@
   <string name="blogs_rss_feeds_manage_error">Feil ved lasting av dine strømmer. Prøv igjen senere.</string>
   <!--Settings Display-->
   <string name="display_settings_title">Vis</string>
+  <string name="pref_theme_system">Systemforvalg</string>
   <!--Settings Network-->
   <string name="network_settings_title">Nettverk</string>
   <string name="bluetooth_setting">Koble til via Blåtann</string>
@@ -284,9 +284,8 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sikkerhet</string>
   <string name="change_password">Endre passord</string>
-  <string name="current_password">Skriv inn nåværende passord:</string>
-  <string name="choose_new_password">Velg ditt nye passord:</string>
-  <string name="confirm_new_password">Bekreft ditt nye passord:</string>
+  <string name="choose_new_password">Nytt passord</string>
+  <string name="confirm_new_password">Bekreft nytt passord</string>
   <string name="password_changed">Passordet har blitt endret.</string>
   <string name="panic_setting">Oppsett av panikk-knapp</string>
   <string name="panic_setting_title">Panikk-knapp</string>

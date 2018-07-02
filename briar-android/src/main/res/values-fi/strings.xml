@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Jos Briaria ei lisätä suojattujen sovellusten listalle, se ei voi toimia taustalla.</string>
   <string name="warning_dozed">%s ei voinut toimia taustalla</string>
   <!--Login-->
-  <string name="enter_password">Syötä salasana:</string>
+  <string name="enter_password">Salasana</string>
   <string name="try_again">Väärä salasana, yritä uudelleen</string>
   <string name="sign_in_button">Kirjaudu sisään</string>
   <string name="forgotten_password">Olen unohtanut salasanani</string>
@@ -133,6 +133,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Esittele yhteyshenkilösi</string>
   <string name="introduction_onboarding_text">Voit esitellä muita käyttäjiä toisilleen, niin että heidän ei tarvitse tavata kasvokkain ollakseen yhteydessä Briarin kautta.</string>
+  <string name="introduction_menu_item">Tee esittely</string>
   <string name="introduction_activity_title">Valitse yhteystieto</string>
   <string name="introduction_not_possible">Sinulla on jo yksi esittely käynnissä näillä yhteystiedoilla. Odota kunnes se tulee valmiiksi. Tämä voi kestää jonkin aikaa jos sinä tai yhteyshenkilösi ovat harvoin netissä.</string>
   <string name="introduction_message_title">Esittele yhteyshenkilö</string>
@@ -220,8 +221,6 @@
     <item quantity="one">%d viesti</item>
     <item quantity="other">%d viestiä</item>
   </plurals>
-  <string name="forum_new_entry_posted">Foorumikirjoitus julkaistu</string>
-  <string name="forum_new_message_hint">Uusi viesti</string>
   <string name="forum_message_reply_hint">Uusi vastaus</string>
   <string name="btn_reply">Vastaa</string>
   <string name="forum_leave">Lähde foorumista</string>
@@ -308,6 +307,9 @@
   <string name="pref_language_changed">Tämä asetus otetaan käyttöön kun uudelleenkäynnistät Briarin. Kirjaudu ulos ja käynnistä Briar uudelleen.</string>
   <string name="pref_language_default">Järjestelmäoletus</string>
   <string name="display_settings_title">Näytä</string>
+  <string name="pref_theme_title">Teema</string>
+  <string name="pref_theme_light">Vaalea</string>
+  <string name="pref_theme_dark">Tumma</string>
   <!--Settings Network-->
   <string name="network_settings_title">Verkot</string>
   <string name="bluetooth_setting">Yhdistä Bluetoothin kautta</string>
@@ -320,9 +322,8 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Turvallisuus</string>
   <string name="change_password">Vaihda salasana</string>
-  <string name="current_password">Syötä nykyinen salasana:</string>
-  <string name="choose_new_password">Valitse uusi salasana:</string>
-  <string name="confirm_new_password">Vahvista uusi salasana:</string>
+  <string name="choose_new_password">Uusi salasana</string>
+  <string name="confirm_new_password">Vahvista uusi salasana</string>
   <string name="password_changed">Salasana on vaihdettu.</string>
   <string name="panic_setting">Paniikkinapin asetus</string>
   <string name="panic_setting_title">Paniikkinappi</string>

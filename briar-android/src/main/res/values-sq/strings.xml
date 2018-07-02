@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Nëse Briar-i s’është shtuar te lista e aplikacioneve të mbrojtur, s’do të jetë në gjendje të xhirojë në prapaskenë.</string>
   <string name="warning_dozed">%s s’qe në gjendje të xhirojë në prapaskenë</string>
   <!--Login-->
-  <string name="enter_password">Jepni fjalëkalimin tuaj:</string>
+  <string name="enter_password">Fjalëkalim</string>
   <string name="try_again">Fjalëkalim i gabuar, riprovoni</string>
   <string name="sign_in_button">Hyni</string>
   <string name="forgotten_password">Kam harruar fjalëkalimin tim</string>
@@ -62,6 +62,9 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">U dol nga Briar-i</string>
+  <string name="reminder_notification_text">Që të rifuteni, prekeni, ose fërkojeni për ta hedhur tej.</string>
+  <string name="reminder_notification_channel_title">Kujtues Hyrjeje Briar</string>
   <string name="ongoing_notification_title">Hytë në Briar</string>
   <string name="ongoing_notification_text">Prekeni, që të hapet Briar-i</string>
   <plurals name="private_message_notification_text">
@@ -133,6 +136,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Prezantoni kontaktet tuaja</string>
   <string name="introduction_onboarding_text">Kontaktet tuaja mund t\’ia prezantoni njëri-tjetrit, që kështu të mos u duhet të takohen realisht për të mundur të lidhen në Briar.</string>
+  <string name="introduction_menu_item">Bëje prezantimin</string>
   <string name="introduction_activity_title">Përzgjidhni Kontakt</string>
   <string name="introduction_not_possible">Keni filluar tashmë një prezantim me këto kontakte. Ju lutemi, lëreni të përfundojë së pari. Nëse ju ose kontaktet tuaja rrallë gjenden <em>online</em>, kjo mund të dojë ca kohë.</string>
   <string name="introduction_message_title">Prezantoni Kontakte</string>
@@ -220,8 +224,8 @@
     <item quantity="one">%d postim</item>
     <item quantity="other">%d postime</item>
   </plurals>
-  <string name="forum_new_entry_posted">U postua zë forumi</string>
-  <string name="forum_new_message_hint">Zë i Ri</string>
+  <string name="forum_new_entry_posted">U botua postim forumi</string>
+  <string name="forum_new_message_hint">Postim i Ri</string>
   <string name="forum_message_reply_hint">Përgjigje e Re</string>
   <string name="btn_reply">Përgjigju</string>
   <string name="forum_leave">Braktiseni Forumin</string>
@@ -308,6 +312,11 @@
   <string name="pref_language_changed">Ky rregullim do të hyjë në fuqi kur të rinisni Briar-in. Ju lutemi, bëni daljen nga llogaria dhe rinisni Briar-in.</string>
   <string name="pref_language_default">Parazgjedhje sistemi</string>
   <string name="display_settings_title">Shfaqje</string>
+  <string name="pref_theme_title">Temë</string>
+  <string name="pref_theme_light">E çelët</string>
+  <string name="pref_theme_dark">E errët</string>
+  <string name="pref_theme_auto">Automatike (Daytime)</string>
+  <string name="pref_theme_system">Parazgjedhje Sistemi</string>
   <!--Settings Network-->
   <string name="network_settings_title">Rrjete</string>
   <string name="bluetooth_setting">Lidhu përmes Bluetooth-i</string>
@@ -320,9 +329,9 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Siguri</string>
   <string name="change_password">Ndryshoni fjalëkalimin</string>
-  <string name="current_password">Jepni fjalëkalimin tuaj të tanishëm:</string>
-  <string name="choose_new_password">Zgjidhni fjalëkalimin tuaj të ri:</string>
-  <string name="confirm_new_password">Ripohoni fjalëkalimin tuaj të ri:</string>
+  <string name="current_password">Fjalëkalimi i tanishëm</string>
+  <string name="choose_new_password">Fjalëkalim i ri</string>
+  <string name="confirm_new_password">Konfirmo fjalëkalimin e ri</string>
   <string name="password_changed">Fjalëkalimi u ndryshua.</string>
   <string name="panic_setting">Rregullimi i butonit të panikut</string>
   <string name="panic_setting_title">Buton paniku</string>

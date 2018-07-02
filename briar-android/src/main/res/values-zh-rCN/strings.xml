@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">如果没有将 Briar 加入受保护应用列表，将无法在后台运行。</string>
   <string name="warning_dozed">%s 无法在后台运行。</string>
   <!--Login-->
-  <string name="enter_password">请输入密码：</string>
+  <string name="enter_password">密码</string>
   <string name="try_again">密码不正确，请重试</string>
   <string name="sign_in_button">登录</string>
   <string name="forgotten_password">我忘记了密码</string>
@@ -128,6 +128,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">介绍您的联系人</string>
   <string name="introduction_onboarding_text">您可以互相介绍联系人，这样他们可以直接在 Briar 上建立联系而不必亲自见面。</string>
+  <string name="introduction_menu_item">完成介绍</string>
   <string name="introduction_activity_title">选择联系人</string>
   <string name="introduction_not_possible">您当前正给这些联系人交换名片。请先等待交换完成。如果您或您的好友很少在线，那需要花些时间。</string>
   <string name="introduction_message_title">介绍联系人</string>
@@ -211,8 +212,6 @@
   <plurals name="posts">
     <item quantity="other">%d 条帖子</item>
   </plurals>
-  <string name="forum_new_entry_posted">论坛条目已发布</string>
-  <string name="forum_new_message_hint">新条目</string>
   <string name="forum_message_reply_hint">新回复</string>
   <string name="btn_reply">回复</string>
   <string name="forum_leave">退出论坛</string>
@@ -306,9 +305,6 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">安全</string>
   <string name="change_password">更改密码</string>
-  <string name="current_password">输入当前密码：</string>
-  <string name="choose_new_password">键入新密码：</string>
-  <string name="confirm_new_password">确认新密码：</string>
   <string name="password_changed">密码已更改。</string>
   <string name="panic_setting">创建应急开关</string>
   <string name="panic_setting_title">应急开关</string>

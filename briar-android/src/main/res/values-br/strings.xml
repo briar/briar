@@ -17,7 +17,7 @@
   <string name="don_t_ask_again">Arabat goulenn ganin ken</string>
   <string name="setup_huawei_button">Gwareziñ Briar</string>
   <!--Login-->
-  <string name="enter_password">Ebarzhit ho ker-tremen:</string>
+  <string name="enter_password">Ger-tremen</string>
   <string name="try_again">Ger-tremen fall, klaskit adarre</string>
   <string name="sign_in_button">Kevreañ</string>
   <string name="forgotten_password">Ankoueet em eus ma ger-tremen</string>
@@ -102,6 +102,7 @@
   <string name="camera_error">Fazi Kamera</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Degas e-barzh ho tarempredoù</string>
+  <string name="introduction_menu_item">Sevel un digoradur</string>
   <string name="introduction_activity_title">Diuziñ darempred</string>
   <string name="introduction_message_title">Degas e-barzh darempredoù</string>
   <string name="introduction_message_hint">Ouzhpennañ ur gemennadenn (diret)</string>
@@ -161,6 +162,7 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Surentezh</string>
   <string name="change_password">Cheñch ar ger-tremen</string>
+  <string name="confirm_new_password">Kadarnaat ar ger-tremen nevez</string>
   <string name="panic_app_setting_none">Hini ebet</string>
   <string name="lock_setting_title">Digevreañ</string>
   <!--Settings Notifications-->

@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">Если Briar не добавлен в список защищенных приложений, он не сможет работать в фоновом режиме.</string>
   <string name="warning_dozed">%s не удалось выполнить в фоновом режиме</string>
   <!--Login-->
-  <string name="enter_password">Введите пароль:</string>
+  <string name="enter_password">пароль</string>
   <string name="try_again">Неверный пароль, повторите попытку</string>
   <string name="sign_in_button">Войти</string>
   <string name="forgotten_password">Я забыл свой пароль</string>
@@ -64,6 +64,9 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">Выход из Briar</string>
+  <string name="reminder_notification_text">Коснитесь, чтобы вернуться или прокрутите, чтобы закрыть.</string>
+  <string name="reminder_notification_channel_title">Briar Напоминание о входе</string>
   <string name="ongoing_notification_title">Выполнен вход в Briar</string>
   <string name="ongoing_notification_text">Коснитесь, чтобы открыть Briar</string>
   <plurals name="private_message_notification_text">
@@ -143,6 +146,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Знакомство с контактами</string>
   <string name="introduction_onboarding_text">Вы можете представить свои контакты друг другу, поэтому им не нужно встречаться лично, чтобы подключиться к Briar. </string>
+  <string name="introduction_menu_item">Выполнить знакомство</string>
   <string name="introduction_activity_title">Выберите контакт</string>
   <string name="introduction_not_possible">Вы уже отправили запрос контактам. Пожалуйста, подождите пока они ответят на него. Если вы или ваши контакты редко бываете в сети, это может занять некоторое время.</string>
   <string name="introduction_message_title">Познакомить контакты</string>
@@ -328,6 +332,11 @@
   <string name="pref_language_changed">Этот параметр вступит в силу после перезапуска Briar. Пожалуйста, выйдите и перезапустите Briar.</string>
   <string name="pref_language_default">По умолчанию</string>
   <string name="display_settings_title">Отображение</string>
+  <string name="pref_theme_title">Тема</string>
+  <string name="pref_theme_light">Светлая</string>
+  <string name="pref_theme_dark">Тёмная</string>
+  <string name="pref_theme_auto">Автоматический (Дневной)</string>
+  <string name="pref_theme_system">По-умолчанию</string>
   <!--Settings Network-->
   <string name="network_settings_title">Сети</string>
   <string name="bluetooth_setting">Подключение через Bluetooth</string>
@@ -340,9 +349,9 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Безопасность</string>
   <string name="change_password">Изменить пароль</string>
-  <string name="current_password">Введите текущий пароль:</string>
-  <string name="choose_new_password">Придумайте новый пароль:</string>
-  <string name="confirm_new_password">Подтвердите новый пароль:</string>
+  <string name="current_password">Текущий пароль</string>
+  <string name="choose_new_password">Новый пароль</string>
+  <string name="confirm_new_password">Подтвердите новый пароль</string>
   <string name="password_changed">Пароль был изменен.</string>
   <string name="panic_setting">Настройка тревожной кнопки</string>
   <string name="panic_setting_title">Тревожная кнопка</string>

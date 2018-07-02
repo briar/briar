@@ -10,7 +10,7 @@
   <string name="passwords_do_not_match">Šifre se ne poklapaju</string>
   <string name="create_account_button">Kreirajte račun</string>
   <!--Login-->
-  <string name="enter_password">Unesite vašu šifru:</string>
+  <string name="enter_password">Лозинка</string>
   <string name="try_again">Pogrešna šifra, probajte opet</string>
   <string name="sign_in_button">Prijavite se</string>
   <string name="forgotten_password">Zaboravio sam šifru</string>
@@ -82,6 +82,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Upoznajte vaše kontakte</string>
   <string name="introduction_onboarding_text">Vi možete da upoznate vaše kontakte međusobno, da nebi morali da srijeću lice u liceda bi se povezali na Briar.</string>
+  <string name="introduction_menu_item">Izvršite upoznavanje</string>
   <string name="introduction_activity_title">Izaberite kontakt</string>
   <string name="introduction_message_title">Upoznajte kontakte</string>
   <string name="introduction_message_hint">Dodajte poruku (opciono)</string>
@@ -148,8 +149,6 @@
   <string name="create_forum_button">Kreirajte forum</string>
   <string name="forum_created_toast">Forum je kreiran</string>
   <string name="no_posts">Nema postova</string>
-  <string name="forum_new_entry_posted">Forumski zapis postovan</string>
-  <string name="forum_new_message_hint">Novi zapis</string>
   <string name="forum_message_reply_hint">Novi odgovor</string>
   <string name="btn_reply">Odgovor</string>
   <string name="forum_leave">Napustite forum</string>
@@ -213,6 +212,9 @@
   <string name="blogs_rss_feeds_manage_delete_error">Kanal nije bilo moguće ukloniti!</string>
   <string name="blogs_rss_feeds_manage_error">Došlo je do problema pri učitavanju vaših kanala. Probajte opet kasnije.</string>
   <!--Settings Display-->
+  <string name="pref_theme_title">Тема</string>
+  <string name="pref_theme_light">Светла</string>
+  <string name="pref_theme_dark">Тамна</string>
   <!--Settings Network-->
   <string name="network_settings_title">Mreže</string>
   <string name="bluetooth_setting">Povežite se preko Bluetooth-a</string>
@@ -225,9 +227,6 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sigurnost</string>
   <string name="change_password">Promijeni sifru</string>
-  <string name="current_password">Unesite vašu trenutnu šifru:</string>
-  <string name="choose_new_password">Izaberite vašu novu šifru:</string>
-  <string name="confirm_new_password">Potvrdite vašu novu šifru:</string>
   <string name="password_changed">Šifra je promijenjena</string>
   <string name="panic_setting">Podešavanje panik dugmeta</string>
   <string name="panic_setting_title">Panik dugme</string>

@@ -10,7 +10,7 @@
   <string name="passwords_do_not_match">Girdiğiniz iki parola uyuşmuyor</string>
   <string name="create_account_button">Hesabı Oluştur</string>
   <!--Login-->
-  <string name="enter_password">Parolanızı girin</string>
+  <string name="enter_password">Parola</string>
   <string name="try_again">Parola yanlış, tekrar deneyin</string>
   <string name="sign_in_button">Giriş Yap</string>
   <string name="forgotten_password">Parolamı unuttum</string>
@@ -97,6 +97,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kişilerinizi tanıştırın</string>
   <string name="introduction_onboarding_text">Kişilerinizi birbirinize tanıtabilirsiniz, bu nedenle Briar\'a bağlanmak için şahsen bir araya gelmeniz gerekmez.</string>
+  <string name="introduction_menu_item">Tanıştır</string>
   <string name="introduction_activity_title">Kişi seç</string>
   <string name="introduction_message_title">Kişileri Tanıştırın</string>
   <string name="introduction_button">Tanıştır</string>
@@ -176,8 +177,6 @@
     <item quantity="one">%d gönderi</item>
     <item quantity="other">%d gönderi</item>
   </plurals>
-  <string name="forum_new_entry_posted">Forum girdisi gönderildi</string>
-  <string name="forum_new_message_hint">Yeni Girdi</string>
   <string name="forum_message_reply_hint">Yeni Cevap</string>
   <string name="btn_reply">Cevapla</string>
   <string name="forum_leave">Forumdan Ayrıl</string>
@@ -254,9 +253,7 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Güvenlik</string>
   <string name="change_password">Parola değiştir</string>
-  <string name="current_password">Geçerli parolanızı girin:</string>
-  <string name="choose_new_password">Yeni parolanızı girin:</string>
-  <string name="confirm_new_password">Yeni parolanızı tekrar girin:</string>
+  <string name="confirm_new_password">Yeni parolayı onaylayın</string>
   <string name="password_changed">Parolanız başarıyla değişti.</string>
   <string name="panic_setting">Panik buton ayarları</string>
   <string name="panic_setting_title">Panik butonu</string>
@@ -281,6 +278,7 @@
   <string name="notify_forum_posts_setting_summary">Forum gönderileri için uyarıları göster</string>
   <string name="notify_blog_posts_setting_summary">Blog gönderileri için uyarıları göster</string>
   <string name="notify_vibration_setting">Titretişim</string>
+  <string name="notify_lock_screen_setting_title">Ekranı Kilitle</string>
   <string name="notify_sound_setting">Ses</string>
   <string name="notify_sound_setting_default">Varsayılan zil sesi</string>
   <string name="notify_sound_setting_disabled">Yok</string>

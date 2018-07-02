@@ -2,8 +2,10 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">La benvenguda a Briar</string>
+  <string name="setup_name_explanation">Vòstre escais-nom serà mostrat al costat de cada de vòstra publicacion. Poiretz pas lo cambiar aprèp la creacion del compte.</string>
   <string name="setup_next">Seguent</string>
   <string name="setup_password_intro">Causissètz un senhal</string>
+  <string name="setup_doze_button">Autorizar las connexions</string>
   <string name="choose_nickname">Causir un escais-nom</string>
   <string name="choose_password">Causir un senhal</string>
   <string name="confirm_password">Confirmar lo senhal</string>
@@ -14,8 +16,10 @@
   <string name="more_info">Mai d’informacions</string>
   <string name="don_t_ask_again">Demandar pas mai</string>
   <string name="setup_huawei_button">Projècte Briar</string>
+  <string name="setup_huawei_help">Se Briar es pas ajustat a la lista de las aplicacion protegidas poirà pas s’executar en rèire plan.</string>
+  <string name="warning_dozed">%s a pas pogut s’executar en rèire plan</string>
   <!--Login-->
-  <string name="enter_password">Picatz vòstre senhal :</string>
+  <string name="enter_password">Senhal</string>
   <string name="try_again">Senhal incorècte, tornatz ensajar</string>
   <string name="sign_in_button">Se connectar</string>
   <string name="forgotten_password">Senhal oblidat</string>
@@ -26,8 +30,10 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="startup_failed_notification_title">Briar a pas pogut aviar</string>
   <string name="startup_failed_notification_text">Tocatz per mai d’informacions.</string>
   <string name="startup_failed_activity_title">Fracàs de l’aviada de Briar.</string>
+  <string name="startup_failed_data_too_new_error">Aquesta version de l’aplicacion es tròp anciana. Mercés de la metre al nivèl de la darrièra e de tornar ensajar.</string>
   <string name="startup_failed_service_error">Briar a pas pogut aviar un modul necessari. Tornar installar Briar pòt resolver aquò. Que aquò siá dich : perdretz vòstre compte e totas las donadas ligadas a aqueste. Briar utiliza pas de servidor centralizat per salvar sas donadas.</string>
   <string name="expiry_date_reached">Vòstre logicial s’acabèt.\nMercés d’aver ensajat !</string>
+  <string name="download_briar">Per téner d’utilizar Briar mercés de telecargar la version 1.0.</string>
   <string name="create_new_account">Vos caldrà crear un nòu compte, mas podètz emplegar lo meteis escais-nom.</string>
   <string name="download_briar_button">Telecargar Briar 1.0</string>
   <string name="startup_open_database">Deschirament de la basa de donadas…</string>
@@ -46,6 +52,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wifi</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">Desconnectat de Briar</string>
   <string name="ongoing_notification_title">Connectat a Briar</string>
   <string name="ongoing_notification_text">Tocatz per dobrir</string>
   <plurals name="private_message_notification_text">
@@ -84,8 +91,11 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="ellipsis">...</string>
   <string name="text_too_long">Lo tèxte picat es tròp long</string>
   <string name="show_onboarding">Mostrar l’ajuda</string>
+  <string name="fix">Correccion</string>
   <string name="help">Ajuda</string>
+  <string name="sorry">O planhèm</string>
   <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Cap de contactes de mostrar\n\nTocatz l’icòna + per ajustar un contacte</string>
   <string name="date_no_private_messages">Cap messatge</string>
   <string name="no_private_messages">Cap de messatge de mostrar</string>
   <string name="message_hint">Picatz lo messatge</string>
@@ -108,10 +118,12 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="camera_error">Error de camèra</string>
   <string name="connecting_to_device">Connexion a l’aparelh\u2026</string>
   <string name="authenticating_with_device">Autentificacion amb l’aparelh\u2026</string>
+  <string name="connection_aborted_local">Avèm copat la connexion ! Poiriá arribar que qualqu’un ensage d’interferir amb vòstra connexion</string>
   <string name="connection_aborted_remote">Vòstre contacte a copat la connexion ! Poiriá arribar que qualqu’un ensage d’interferir amb aquela</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presentatz vòstres contactes</string>
   <string name="introduction_onboarding_text">Podètz presentar vòstres contactes, lor caldrà pas se veire per s’apondre e se connectar a Briar.</string>
+  <string name="introduction_menu_item">Escafar l’introduccion</string>
   <string name="introduction_activity_title">Seleccionar contacte</string>
   <string name="introduction_message_title">Presentar de contactes</string>
   <string name="introduction_message_hint">Apondre un messatge (opcional)</string>
@@ -194,8 +206,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
     <item quantity="one">%d publicacion</item>
     <item quantity="other">%d publicacions</item>
   </plurals>
-  <string name="forum_new_entry_posted">Publicacions enviadas</string>
-  <string name="forum_new_message_hint">Nòva publicacion</string>
   <string name="forum_message_reply_hint">Nòva responsa</string>
   <string name="btn_reply">Respondre</string>
   <string name="forum_leave">Quitar lo fòrum</string>
@@ -235,6 +245,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="blogs_blog_post_scroll_to">Anar a</string>
   <string name="blogs_remove_blog">Suprimir lo blòg</string>
   <string name="blogs_remove_blog_ok">Suprimir</string>
+  <string name="blogs_blog_removed">Blòg tirat</string>
   <string name="blogs_reblog_comment_hint">Apondre un comentari (opcional)</string>
   <string name="blogs_reblog_button">Partejar</string>
   <!--Blog Sharing-->
@@ -249,6 +260,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="blogs_sharing_invitation_received">%1$s a partejat lo blòg « %2$s » amb vos.</string>
   <string name="blogs_sharing_invitation_sent">Avètz partejat lo blòg « %1$s » amb %2$s.</string>
   <string name="blogs_sharing_invitations_title">Convidacion al blòg</string>
+  <string name="blogs_sharing_joined_toast">S’abonar al blòg</string>
   <string name="sharing_status_blog">Qual que siá seguidor d’un blòg pòt lo partejar amb sos contactes. Partejatz lo blòg amb los contactes seguents. I a benlèu mai de monde qu’o seguen que vesètz pas.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importar de fluxes RSS</string>
@@ -264,6 +276,14 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="blogs_rss_feeds_manage_delete_error">Impossible de suprimir lo flux !</string>
   <string name="blogs_rss_feeds_manage_error">Error en cargar vòstres fluxes. Ensajatz mai tard.</string>
   <!--Settings Display-->
+  <string name="pref_language_title">Lenga &amp; region</string>
+  <string name="pref_language_default">Sistèma per defaut</string>
+  <string name="display_settings_title">Afichatge</string>
+  <string name="pref_theme_title">Tèma</string>
+  <string name="pref_theme_light">Clar</string>
+  <string name="pref_theme_dark">Escur</string>
+  <string name="pref_theme_auto">Automatic (Segon l’ora)</string>
+  <string name="pref_theme_system">Per defaut sistèma</string>
   <!--Settings Network-->
   <string name="network_settings_title">Ret</string>
   <string name="bluetooth_setting">Se connectar per Bluetooth</string>
@@ -276,9 +296,9 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
   <string name="change_password">Modificar lo senhal</string>
-  <string name="current_password">Marcatz lo senhal actual :</string>
-  <string name="choose_new_password">Causissètz lo novèl senhal :</string>
-  <string name="confirm_new_password">Confirmatz lo novèl senhal :</string>
+  <string name="current_password">Senhal actual</string>
+  <string name="choose_new_password">Nòu senhal</string>
+  <string name="confirm_new_password">Confirmatz lo senhal</string>
   <string name="password_changed">Lo senhal a cambiat</string>
   <string name="panic_setting">Paramètres del boton urgéncia</string>
   <string name="panic_setting_title">Boton urgéncia</string>
@@ -299,8 +319,10 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="notification_settings_title">Notificacions</string>
   <string name="notify_private_messages_setting_title">Messatges privats</string>
   <string name="notify_private_messages_setting_summary">Notificar los messatges privats</string>
+  <string name="notify_private_messages_setting_summary_26">Configuratz las alèrtas pels messatges privats</string>
   <string name="notify_group_messages_setting_title">Messatges gropats</string>
   <string name="notify_group_messages_setting_summary">Notificar los messatges gropats</string>
+  <string name="notify_group_messages_setting_summary_26">Configuratz las alèrtas pels messatges de grop</string>
   <string name="notify_forum_posts_setting_title">Publicacions al fòrum</string>
   <string name="notify_forum_posts_setting_summary">Notificar las publicacions al fòrum</string>
   <string name="notify_blog_posts_setting_title">Articles de blòg</string>
@@ -312,6 +334,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="notify_sound_setting_default">Sonariá per defaut</string>
   <string name="notify_sound_setting_disabled">Cap</string>
   <string name="choose_ringtone_title">Causir la sonariá</string>
+  <string name="cannot_load_ringtone">Cargament impossible de las sonariás</string>
   <!--Settings Feedback-->
   <string name="feedback_settings_title">Comentaris</string>
   <string name="send_feedback">Enviar vòstres comentaris</string>
@@ -343,6 +366,8 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <!--Permission Requests-->
   <string name="permission_camera_title">Permission de la camèra</string>
   <string name="permission_camera_request_body">Per numerizar lo còdi QR cal que Briar aja l’accès a la camèra.</string>
+  <string name="permission_camera_denied_body">Avètz regetat l’accès a la camèra, mas per ajustar de contacte cal utilizar la camèra.\n\n Mercés de li donar l’accès</string>
   <string name="permission_camera_denied_toast">La permission a la camèra es pas estada donada</string>
   <string name="qr_code">Còdi QR</string>
+  <string name="show_qr_code_fullscreen">Mostrar lo còdi QR en ecran complèt</string>
 </resources>

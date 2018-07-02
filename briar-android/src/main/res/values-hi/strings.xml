@@ -24,7 +24,7 @@
   <string name="setup_huawei_help">अगर Briar संरक्षित ऐप्स सूची में नहीं जोड़ा गया है, तो यह पृष्ठभूमि में चलने में असमर्थ होगा।</string>
   <string name="warning_dozed">%sपृष्ठभूमि में चलाने में असमर्थ था</string>
   <!--Login-->
-  <string name="enter_password">अपना पासवर्ड डालें:</string>
+  <string name="enter_password">पासवर्ड</string>
   <string name="try_again">गलत पासवर्ड, फिर से प्रयास करें</string>
   <string name="sign_in_button">साइन इन करें</string>
   <string name="forgotten_password">मुझे अपना पासवर्ड याद नहीं है</string>
@@ -133,6 +133,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">अपने संपर्कों का परिचय दें</string>
   <string name="introduction_onboarding_text">आप अपने संपर्कों को एक दूसरे से जोड़ सकते हैं, इसलिए उन्हें ब्रियर से जुड़ने के लिए व्यक्तिगत रूप से मिलने की जरूरत नहीं है।</string>
+  <string name="introduction_menu_item">परिचय करें</string>
   <string name="introduction_activity_title">संपर्क का चयन करें</string>
   <string name="introduction_not_possible">इन संपर्कों के साथ आपके पास पहले से ही एक परिचय प्रगति है। कृपया इसे पहले खत्म करने की अनुमति दें। यदि आप या आपके संपर्क शायद ही कभी ऑनलाइन हैं, तो इसमें कुछ समय लग सकता है।</string>
   <string name="introduction_message_title">संपर्कों का परिचय</string>
@@ -220,8 +221,6 @@
     <item quantity="one">%dपदों</item>
     <item quantity="other">%dपदों</item>
   </plurals>
-  <string name="forum_new_entry_posted">फ़ोरम प्रविष्टि पोस्ट की गई</string>
-  <string name="forum_new_message_hint">नविन प्रवेश</string>
   <string name="forum_message_reply_hint">नया उत्तर</string>
   <string name="btn_reply">जवाब दें</string>
   <string name="forum_leave">फोरम छोड़ें</string>
@@ -316,9 +315,7 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">सुरक्षा</string>
   <string name="change_password">पासवर्ड बदलें</string>
-  <string name="current_password">अपना वर्तमान पासवर्ड दर्ज करें:</string>
-  <string name="choose_new_password">अपना नया पासवर्ड चुनें:</string>
-  <string name="confirm_new_password">अपने नए पासवर्ड की पुष्टि करें:</string>
+  <string name="confirm_new_password">नए पासवर्ड की पुष्टि करें</string>
   <string name="password_changed">पासवर्ड बदला जा चुका है।</string>
   <string name="panic_setting">आतंक बटन सेटअप</string>
   <string name="panic_setting_title">घबराहट होना</string>

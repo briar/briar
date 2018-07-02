@@ -11,7 +11,7 @@
   <string name="passwords_do_not_match">Паролите не съвпадат</string>
   <string name="create_account_button">Създаване на профил</string>
   <!--Login-->
-  <string name="enter_password">Въведете парола:</string>
+  <string name="enter_password">Парола</string>
   <string name="try_again">Грешна парола, опитайте пак</string>
   <string name="sign_in_button">Вход</string>
   <string name="forgotten_password">Забравена парола</string>
@@ -99,6 +99,7 @@
   <!--Introductions-->
   <string name="introduction_onboarding_title">Представете контактите си</string>
   <string name="introduction_onboarding_text">Можете да представите контактите си един на друг, за да не им се налага да се срещат лично, когато се свързват чрез Briar.</string>
+  <string name="introduction_menu_item">Представи</string>
   <string name="introduction_activity_title">Избери контакт</string>
   <string name="introduction_message_title">Представи контакти</string>
   <string name="introduction_message_hint">Добавете съобщение (незадължително)</string>
@@ -181,8 +182,6 @@
     <item quantity="one">%d публикация</item>
     <item quantity="other">%d публикации</item>
   </plurals>
-  <string name="forum_new_entry_posted">Публикувано</string>
-  <string name="forum_new_message_hint">Нова публикация</string>
   <string name="forum_message_reply_hint">Нов отговор</string>
   <string name="btn_reply">Отговори</string>
   <string name="forum_leave">Напусни форума</string>
@@ -262,9 +261,6 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Сигурност</string>
   <string name="change_password">Промяна на парола</string>
-  <string name="current_password">Въведете сегашната си парола:</string>
-  <string name="choose_new_password">Изберете нова парола:</string>
-  <string name="confirm_new_password">Потвърдете нова парола:</string>
   <string name="password_changed">Паролата е променена.</string>
   <string name="panic_setting">Настройка на паник бутон</string>
   <string name="panic_setting_title">Паник бутон</string>

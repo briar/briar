@@ -19,7 +19,6 @@
   <string name="setup_huawei_button">Protexer Briar</string>
   <string name="warning_dozed">%s nun pudo executase\'n segundu planu</string>
   <!--Login-->
-  <string name="enter_password">Escribi la contraseña</string>
   <string name="try_again">Contraseña enquivocada, tenta otra vuelta</string>
   <string name="sign_in_button">Aniciar sesión</string>
   <string name="forgotten_password">Escaecí la contraseña</string>
