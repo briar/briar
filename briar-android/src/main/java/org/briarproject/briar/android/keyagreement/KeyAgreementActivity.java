@@ -177,7 +177,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		// FIXME #824
 		FragmentManager fm = getSupportFragmentManager();
 		if (fm.findFragmentByTag(KeyAgreementFragment.TAG) == null) {
-			BaseFragment f = KeyAgreementFragment.newInstance(this);
+			BaseFragment f = KeyAgreementFragment.newInstance();
 			fm.beginTransaction()
 					.replace(R.id.fragmentContainer, f, f.getUniqueTag())
 					.addToBackStack(f.getUniqueTag())
