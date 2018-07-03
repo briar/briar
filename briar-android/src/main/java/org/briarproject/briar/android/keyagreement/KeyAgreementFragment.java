@@ -91,13 +91,17 @@ public class KeyAgreementFragment extends BaseEventFragment
 	private KeyAgreementTask task;
 	private KeyAgreementEventListener listener;
 
-	public static KeyAgreementFragment newInstance(
-			KeyAgreementEventListener listener) {
+	public static KeyAgreementFragment newInstance() {
 		Bundle args = new Bundle();
 		KeyAgreementFragment fragment = new KeyAgreementFragment();
-		fragment.listener = listener;
 		fragment.setArguments(args);
 		return fragment;
+	}
+
+	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		listener = (KeyAgreementEventListener) context;
 	}
 
 	@Override
