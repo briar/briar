@@ -507,7 +507,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (enable) {
 			Collection<String> conf = new ArrayList<>();
 			conf.add("UseBridges 1");
-			conf.addAll(bridgeProvider.getBridges());
+			conf.addAll(bridgeProvider.getBridges(appContext));
 			controlConnection.setConf(conf);
 		} else {
 			controlConnection.setConf("UseBridges", "0");

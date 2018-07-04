@@ -9,13 +9,14 @@ class TorNetworkMetadata {
 	/**
 	 * Countries where Tor is blocked, i.e. vanilla Tor connection won't work.
 	 */
-	private static final String[] BLOCKED = { "CN", "IR", "EG", "SY", "VE" };
+	private static final String[] BLOCKED =
+			{"CN", "IR", "EG", "BY", "TR", "SY", "VE"};
 
 	/**
 	 * Countries where vanilla bridge connection are likely to work.
 	 * Should be a subset of {@link #BLOCKED}.
 	 */
-	private static final String[] BRIDGES = { "SY", "VE" };
+	private static final String[] BRIDGES = { "EG", "BY", "TR", "SY", "VE" };
 
 	// See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 	// and https://trac.torproject.org/projects/tor/wiki/doc/OONI/censorshipwiki

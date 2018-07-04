@@ -14,6 +14,7 @@ import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,7 +26,6 @@ import javax.net.SocketFactory;
 
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.briarproject.bramble.plugin.tor.BridgeProviderImpl.BRIDGES;
 import static org.briarproject.bramble.plugin.tor.TorNetworkMetadata.doBridgesWork;
 import static org.briarproject.bramble.plugin.tor.TorNetworkMetadata.isTorProbablyBlocked;
 import static org.junit.Assert.assertTrue;
@@ -50,6 +50,7 @@ public class BridgeTest extends BrambleTestCase {
 
 	private final TorPluginFactory factory;
 	private TorPlugin plugin;
+	private final List<String> bridges;
 	private int currentBridge = 0;
 
 	public BridgeTest() {
@@ -62,8 +63,9 @@ public class BridgeTest extends BrambleTestCase {
 		Context appContext = InstrumentationRegistry.getTargetContext();
 		LocationUtils locationUtils = () -> BRIDGE_COUNTRY;
 		SocketFactory torSocketFactory = SocketFactory.getDefault();
+		bridges = new BridgeProviderImpl().getBridges(appContext);
 		BridgeProvider bridgeProvider =
-				() -> singletonList(BRIDGES[currentBridge]);
+				context -> singletonList(bridges.get(currentBridge));
 		factory = new TorPluginFactory(ioExecutor, scheduler, appContext,
 				locationUtils, eventBus, torSocketFactory,
 				backoffFactory, bridgeProvider, clock);
@@ -73,9 +75,9 @@ public class BridgeTest extends BrambleTestCase {
 	public void testBridges() throws Exception {
 		assertTrue(isTorProbablyBlocked(BRIDGE_COUNTRY));
 		assertTrue(doBridgesWork(BRIDGE_COUNTRY));
-		assertTrue(BRIDGES.length > 0);
+		assertTrue(bridges.size() > 0);
 
-		for (int i = 0; i < BRIDGES.length; i++) {
+		for (int i = 0; i < bridges.size(); i++) {
 			plugin = (TorPlugin) factory.createPlugin(new TorPluginCallBack());
 			testBridge(i);
 		}
@@ -83,7 +85,7 @@ public class BridgeTest extends BrambleTestCase {
 
 	private void testBridge(int bridge) throws Exception {
 		currentBridge = bridge;
-		LOG.warning("Testing " + BRIDGES[currentBridge]);
+		LOG.warning("Testing " + bridges.get(currentBridge));
 		try {
 			plugin.start();
 			long start = clock.currentTimeMillis();

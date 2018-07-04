@@ -1,20 +1,42 @@
 package org.briarproject.bramble.plugin.tor;
 
-import java.util.Arrays;
+import android.content.Context;
+import android.content.res.Resources;
+
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
+
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+
+import javax.annotation.Nullable;
 
 public class BridgeProviderImpl implements BridgeProvider {
 
-	final static String[] BRIDGES = {
-		"Bridge 131.252.210.150:8081 0E858AC201BF0F3FA3C462F64844CBFFC7297A42",
-//		"Bridge 128.105.214.161:8081 1E326AAFB3FCB515015250D8FCCC8E37F91A153B",
-		"Bridge 67.205.189.122:8443 12D64D5D44E20169585E7378580C0D33A872AD98",
-		"Bridge 45.32.148.146:8443 0CE016FB2462D8BF179AE71F7D702D09DEAC3F1D",
-	};
+	private final static String BRIDGE_FILE_NAME = "bridges";
+
+	@Nullable
+	private volatile List<String> bridges = null;
 
 	@Override
-	public List<String> getBridges() {
-		return Arrays.asList(BRIDGES);
+	@IoExecutor
+	public List<String> getBridges(Context context) {
+		if (this.bridges != null) return this.bridges;
+
+		Resources res = context.getResources();
+		int resId = res.getIdentifier(BRIDGE_FILE_NAME, "raw",
+				context.getPackageName());
+		InputStream is = context.getResources().openRawResource(resId);
+		Scanner scanner = new Scanner(is);
+
+		List<String> bridges = new ArrayList<>();
+		while (scanner.hasNextLine()) {
+			String line = scanner.nextLine();
+			if (!line.startsWith("#")) bridges.add(line);
+		}
+		this.bridges = bridges;
+		return bridges;
 	}
 
 }
