@@ -15,7 +15,9 @@
 		android:layout_weight="1"
 		android:gravity="top"
 		android:hint="@string/blogs_rss_feeds_import_hint"
-		android:inputType="textUri"/>
+		android:inputType="textUri"
+		android:paddingLeft="@dimen/margin_large"
+		android:paddingRight="@dimen/margin_large"/>
 
 	<Button
 		android:id="@+id/importButton"
