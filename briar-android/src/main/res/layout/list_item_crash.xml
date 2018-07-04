@@ -9,9 +9,7 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal"
-		android:paddingLeft="@dimen/margin_large"
-		android:paddingRight="@dimen/margin_large">
+		android:orientation="horizontal">
 
 		<CheckBox
 			android:id="@+id/include_in_report"
@@ -24,19 +22,17 @@
 			android:layout_height="match_parent"
 			android:layout_marginBottom="@dimen/margin_small"
 			android:gravity="bottom"
-			android:textColor="@color/briar_text_primary"
 			android:textSize="@dimen/text_size_large"
+			android:textColor="@color/briar_text_primary"
 			tools:text="Crash log entry title"/>
 	</LinearLayout>
 
 	<TextView
 		android:id="@+id/content"
-		android:layout_width="match_parent"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginBottom="@dimen/margin_medium"
-		android:paddingRight="@dimen/margin_large"
 		android:textColor="@color/briar_text_secondary"
-		tools:paddingLeft="@dimen/margin_large"
 		tools:text="Crash log entry value"/>
 
 </LinearLayout>
