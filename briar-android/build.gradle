@@ -261,7 +261,7 @@ android {
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 		}
 		release {
-			shrinkResources true
+			shrinkResources false
 			minifyEnabled true
 			crunchPngs false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
