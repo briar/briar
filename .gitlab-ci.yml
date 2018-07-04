@@ -21,11 +21,7 @@ test:
 
 
 test_reproducible:
-  image: briar/reproducer:latest
-
   script:
-    - cd /opt/briar-reproducer
-    - ./reproduce.py ${CI_COMMIT_REF_NAME}
-
+    - "curl -X POST -F token=${RELEASE_CHECK_TOKEN} -F ref=master -F variables[RELEASE_TAG]=${CI_COMMIT_REF_NAME} https://code.briarproject.org/api/v4/projects/61/trigger/pipeline"
   only:
     - tags
