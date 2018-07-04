@@ -62,8 +62,8 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
-  <string name="reminder_notification_title">Has sortit de Briar</string>
-  <string name="reminder_notification_text">Toqueu per tornar a iniciar sessió o feu lliscar el dit per descartar.</string>
+  <string name="reminder_notification_title">Heu sortit de Briar</string>
+  <string name="reminder_notification_text">Toqueu per reiniciar la sessió o feu lliscar el dit per descartar-la.</string>
   <string name="reminder_notification_channel_title">Recordatori d\'inici de sessió de Briar</string>
   <string name="ongoing_notification_title">Sessió iniciada</string>
   <string name="ongoing_notification_text">Toca per a obrir Briar.</string>
@@ -224,8 +224,8 @@
     <item quantity="one">%d publicacio</item>
     <item quantity="other">%d apunts</item>
   </plurals>
-  <string name="forum_new_entry_posted">Publicació del fòrum publicada</string>
-  <string name="forum_new_message_hint">Nova publicació</string>
+  <string name="forum_new_entry_posted">S\'ha publicat l\'apunt al fòrum</string>
+  <string name="forum_new_message_hint">Apunt nou</string>
   <string name="forum_message_reply_hint">Resposta nova</string>
   <string name="btn_reply">Respon</string>
   <string name="forum_leave">Abandona el fòrum</string>
