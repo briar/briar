@@ -12,7 +12,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Annotation for injecting the executor for long-running IO tasks. Also used
- * for annotating methods that should run on the UI executor.
+ * for annotating methods that should run on the IO executor.
  * <p>
  * The contract of this executor is that tasks may be run concurrently, and
  * submitting a task will never block. Tasks may run indefinitely. Tasks
