@@ -375,7 +375,7 @@
 	<!-- Settings Notifications -->
 	<string name="notification_settings_title">Notifications</string>
 	<string name="notify_sign_in_title">Remind me to sign in</string>
-	<string name="notify_sign_in_summary">Shows a reminder when the phone starts</string>
+	<string name="notify_sign_in_summary">Show a reminder when the phone starts or the app got updated</string>
 	<string name="notify_private_messages_setting_title">Private messages</string>
 	<string name="notify_private_messages_setting_summary">Show alerts for private messages</string>
 	<string name="notify_private_messages_setting_summary_26">Configure alerts for private messages</string>
