@@ -77,7 +77,7 @@ public class BriarApplicationImpl extends Application
 	private final CachingLogHandler logHandler = new CachingLogHandler();
 
 	private AndroidComponent applicationComponent;
-	private SharedPreferences prefs;
+	private volatile SharedPreferences prefs;
 
 	@Override
 	protected void attachBaseContext(Context base) {

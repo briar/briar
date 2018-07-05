@@ -1,4 +1,4 @@
-package org.briarproject.briar.android;
+package org.briarproject.briar.android.login;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -12,6 +12,8 @@ import android.support.v4.content.ContextCompat;
 
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.AndroidComponent;
+import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.settings.SettingsActivity;
 
@@ -20,6 +22,7 @@ import javax.inject.Inject;
 import static android.app.NotificationManager.IMPORTANCE_LOW;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.ACTION_BOOT_COMPLETED;
+import static android.content.Intent.ACTION_MY_PACKAGE_REPLACED;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.VERSION.SDK_INT;
@@ -31,7 +34,7 @@ import static org.briarproject.briar.android.settings.SettingsFragment.NOTIFY_SI
 import static org.briarproject.briar.api.android.AndroidNotificationManager.REMINDER_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.REMINDER_NOTIFICATION_ID;
 
-public class BootReceiver extends BroadcastReceiver {
+public class SignInReminderReceiver extends BroadcastReceiver {
 
 	@Inject
 	DatabaseConfig databaseConfig;
@@ -45,7 +48,9 @@ public class BootReceiver extends BroadcastReceiver {
 		applicationComponent.inject(this);
 
 		String action = intent.getAction();
-		if (action != null && action.equals(ACTION_BOOT_COMPLETED)) {
+		if (action == null) return;
+		if (action.equals(ACTION_BOOT_COMPLETED) ||
+				action.equals(ACTION_MY_PACKAGE_REPLACED)) {
 			if (databaseConfig.databaseExists()) {
 				SharedPreferences prefs = app.getDefaultSharedPreferences();
 				if (prefs.getBoolean(NOTIFY_SIGN_IN, true)) {
