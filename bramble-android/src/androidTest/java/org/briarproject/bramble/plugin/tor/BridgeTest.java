@@ -1,16 +1,17 @@
 package org.briarproject.bramble.plugin.tor;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.briarproject.bramble.DaggerIntegrationTestComponent;
 import org.briarproject.bramble.IntegrationTestComponent;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
+import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.test.BrambleTestCase;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -24,10 +25,10 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.net.SocketFactory;
 
+import static android.support.test.InstrumentationRegistry.getTargetContext;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.briarproject.bramble.plugin.tor.TorNetworkMetadata.doBridgesWork;
-import static org.briarproject.bramble.plugin.tor.TorNetworkMetadata.isTorProbablyBlocked;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -35,7 +36,6 @@ import static org.junit.Assert.fail;
 @RunWith(AndroidJUnit4.class)
 public class BridgeTest extends BrambleTestCase {
 
-	private final static String BRIDGE_COUNTRY = "VE";
 	private final static long TIMEOUT = SECONDS.toMillis(23);
 
 	private final static Logger LOG =
@@ -48,42 +48,64 @@ public class BridgeTest extends BrambleTestCase {
 	@Inject
 	Clock clock;
 
-	private final TorPluginFactory factory;
-	private TorPlugin plugin;
+	private final Context appContext = getTargetContext();
+	private final CircumventionProvider circumventionProvider;
 	private final List<String> bridges;
-	private int currentBridge = 0;
+	private TorPluginFactory factory;
+	private volatile int currentBridge = 0;
 
 	public BridgeTest() {
+		super();
+		circumventionProvider = new CircumventionProvider() {
+			@Override
+			public boolean isTorProbablyBlocked(String countryCode) {
+				return true;
+			}
+
+			@Override
+			public boolean doBridgesWork(String countryCode) {
+				return true;
+			}
+
+			@Override
+			public List<String> getBridges() {
+				return singletonList(bridges.get(currentBridge));
+			}
+		};
+		bridges = new CircumventionProviderImpl(appContext).getBridges();
+	}
+
+	@Before
+	public void setUp() {
 		IntegrationTestComponent component =
 				DaggerIntegrationTestComponent.builder().build();
 		component.inject(this);
 
 		Executor ioExecutor = Executors.newCachedThreadPool();
 		ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(1);
-		Context appContext = InstrumentationRegistry.getTargetContext();
-		LocationUtils locationUtils = () -> BRIDGE_COUNTRY;
+		LocationUtils locationUtils = () -> "US";
 		SocketFactory torSocketFactory = SocketFactory.getDefault();
-		bridges = new BridgeProviderImpl().getBridges(appContext);
-		BridgeProvider bridgeProvider =
-				context -> singletonList(bridges.get(currentBridge));
+
 		factory = new TorPluginFactory(ioExecutor, scheduler, appContext,
 				locationUtils, eventBus, torSocketFactory,
-				backoffFactory, bridgeProvider, clock);
+				backoffFactory, circumventionProvider, clock);
 	}
 
 	@Test
 	public void testBridges() throws Exception {
-		assertTrue(isTorProbablyBlocked(BRIDGE_COUNTRY));
-		assertTrue(doBridgesWork(BRIDGE_COUNTRY));
 		assertTrue(bridges.size() > 0);
 
 		for (int i = 0; i < bridges.size(); i++) {
-			plugin = (TorPlugin) factory.createPlugin(new TorPluginCallBack());
 			testBridge(i);
 		}
 	}
 
 	private void testBridge(int bridge) throws Exception {
+		DuplexPlugin duplexPlugin =
+				factory.createPlugin(new TorPluginCallBack());
+		assertNotNull(duplexPlugin);
+		TorPlugin plugin = (TorPlugin) duplexPlugin;
+
 		currentBridge = bridge;
 		LOG.warning("Testing " + bridges.get(currentBridge));
 		try {

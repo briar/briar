@@ -1,7 +1,9 @@
 package org.briarproject.bramble;
 
-import org.briarproject.bramble.plugin.tor.BridgeProvider;
-import org.briarproject.bramble.plugin.tor.BridgeProviderImpl;
+import android.app.Application;
+
+import org.briarproject.bramble.plugin.tor.CircumventionProvider;
+import org.briarproject.bramble.plugin.tor.CircumventionProviderImpl;
 import org.briarproject.bramble.system.AndroidSystemModule;
 
 import javax.inject.Singleton;
@@ -16,8 +18,8 @@ public class BrambleAndroidModule {
 
 	@Provides
 	@Singleton
-	BridgeProvider provideBridgeProvider() {
-		return new BridgeProviderImpl();
+	CircumventionProvider provideCircumventionProvider(Application app) {
+		return new CircumventionProviderImpl(app.getApplicationContext());
 	}
 
 }

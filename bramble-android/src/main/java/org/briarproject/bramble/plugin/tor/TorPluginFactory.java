@@ -43,14 +43,14 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	private final EventBus eventBus;
 	private final SocketFactory torSocketFactory;
 	private final BackoffFactory backoffFactory;
-	private final BridgeProvider bridgeProvider;
+	private final CircumventionProvider circumventionProvider;
 	private final Clock clock;
 
 	public TorPluginFactory(Executor ioExecutor,
 			ScheduledExecutorService scheduler, Context appContext,
 			LocationUtils locationUtils, EventBus eventBus,
 			SocketFactory torSocketFactory, BackoffFactory backoffFactory,
-			BridgeProvider bridgeProvider,
+			CircumventionProvider circumventionProvider,
 			Clock clock) {
 		this.ioExecutor = ioExecutor;
 		this.scheduler = scheduler;
@@ -59,7 +59,7 @@ public class TorPluginFactory implements DuplexPluginFactory {
 		this.eventBus = eventBus;
 		this.torSocketFactory = torSocketFactory;
 		this.backoffFactory = backoffFactory;
-		this.bridgeProvider = bridgeProvider;
+		this.circumventionProvider = circumventionProvider;
 		this.clock = clock;
 	}
 
@@ -98,7 +98,7 @@ public class TorPluginFactory implements DuplexPluginFactory {
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		TorPlugin plugin = new TorPlugin(ioExecutor, scheduler, appContext,
 				locationUtils, torSocketFactory, clock, backoff, callback,
-				architecture, bridgeProvider, MAX_LATENCY, MAX_IDLE_TIME);
+				architecture, circumventionProvider, MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

@@ -93,7 +93,6 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_WIFI;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION;
-import static org.briarproject.bramble.plugin.tor.TorNetworkMetadata.doBridgesWork;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
 
@@ -122,7 +121,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
 	private final String architecture;
-	private final BridgeProvider bridgeProvider;
+	private final CircumventionProvider circumventionProvider;
 	private final int maxLatency, maxIdleTime, socketTimeout;
 	private final ConnectionStatus connectionStatus;
 	private final File torDirectory, torFile, geoIpFile, configFile;
@@ -142,7 +141,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			Context appContext, LocationUtils locationUtils,
 			SocketFactory torSocketFactory, Clock clock, Backoff backoff,
 			DuplexPluginCallback callback, String architecture,
-			BridgeProvider bridgeProvider, int maxLatency, int maxIdleTime) {
+			CircumventionProvider circumventionProvider, int maxLatency, int maxIdleTime) {
 		this.ioExecutor = ioExecutor;
 		this.scheduler = scheduler;
 		this.appContext = appContext;
@@ -152,7 +151,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		this.backoff = backoff;
 		this.callback = callback;
 		this.architecture = architecture;
-		this.bridgeProvider = bridgeProvider;
+		this.circumventionProvider = circumventionProvider;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
 		if (maxIdleTime > Integer.MAX_VALUE / 2)
@@ -507,7 +506,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (enable) {
 			Collection<String> conf = new ArrayList<>();
 			conf.add("UseBridges 1");
-			conf.addAll(bridgeProvider.getBridges(appContext));
+			conf.addAll(circumventionProvider.getBridges());
 			controlConnection.setConf(conf);
 		} else {
 			controlConnection.setConf("UseBridges", "0");
@@ -678,8 +677,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			boolean online = net != null && net.isConnected();
 			boolean wifi = online && net.getType() == TYPE_WIFI;
 			String country = locationUtils.getCurrentCountry();
-			boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(
-					country);
+			boolean blocked =
+					circumventionProvider.isTorProbablyBlocked(country);
 			Settings s = callback.getSettings();
 			int network = s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_ALWAYS);
 
@@ -693,8 +692,12 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				if (!online) {
 					LOG.info("Disabling network, device is offline");
 					enableNetwork(false);
+				} else if (network == PREF_TOR_NETWORK_NEVER
+						|| (network == PREF_TOR_NETWORK_WIFI && !wifi)) {
+					LOG.info("Disabling network due to data setting");
+					enableNetwork(false);
 				} else if (blocked) {
-					if (doBridgesWork(country)) {
+					if (circumventionProvider.doBridgesWork(country)) {
 						LOG.info("Enabling network, using bridges");
 						enableBridges(true);
 						enableNetwork(true);
@@ -702,10 +705,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 						LOG.info("Disabling network, country is blocked");
 						enableNetwork(false);
 					}
-				} else if (network == PREF_TOR_NETWORK_NEVER
-						|| (network == PREF_TOR_NETWORK_WIFI && !wifi)) {
-					LOG.info("Disabling network due to data setting");
-					enableNetwork(false);
 				} else {
 					LOG.info("Enabling network");
 					enableBridges(false);
