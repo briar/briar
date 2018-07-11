@@ -1,12 +1,13 @@
-package org.briarproject.briar.android.controller;
+package org.briarproject.briar.android.account;
 
-import android.content.Context;
+import android.app.Application;
 import android.content.SharedPreferences;
-import android.support.v7.preference.PreferenceManager;
 
+import org.briarproject.bramble.account.AccountManagerImpl;
+import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.AndroidUtils;
+import org.briarproject.briar.android.BriarApplication;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,27 +21,30 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.AndroidUtils.deleteAppData;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
-public class ConfigControllerImpl implements ConfigController {
+public class AndroidAccountManagerImpl extends AccountManagerImpl {
 
-	private static final Logger LOG =
-			Logger.getLogger(ConfigControllerImpl.class.getName());
+	private final static Logger LOG =
+			Logger.getLogger(AndroidAccountManagerImpl.class.getSimpleName());
 
 	private static final String PREF_DB_KEY = "key";
 	private static final String DB_KEY_FILENAME = "db.key";
 	private static final String DB_KEY_BACKUP_FILENAME = "db.key.bak";
 
-	private final SharedPreferences briarPrefs;
+	private final BriarApplication app;
+	private final SharedPreferences dbPrefs;
 	private final File dbKeyFile, dbKeyBackupFile;
-	protected final DatabaseConfig databaseConfig;
 
 	@Inject
-	public ConfigControllerImpl(SharedPreferences briarPrefs,
-			DatabaseConfig databaseConfig) {
-		this.briarPrefs = briarPrefs;
-		this.databaseConfig = databaseConfig;
+	public AndroidAccountManagerImpl(CryptoComponent crypto,
+			DatabaseConfig databaseConfig, Application app,
+			SharedPreferences dbPrefs) {
+		super(crypto, databaseConfig);
+		this.app = (BriarApplication) app;
+		this.dbPrefs = dbPrefs;
 		File keyDir = databaseConfig.getDatabaseKeyDirectory();
 		dbKeyFile = new File(keyDir, DB_KEY_FILENAME);
 		dbKeyBackupFile = new File(keyDir, DB_KEY_BACKUP_FILENAME);
@@ -48,7 +52,7 @@ public class ConfigControllerImpl implements ConfigController {
 
 	@Override
 	@Nullable
-	public String getEncryptedDatabaseKey() {
+	protected String getEncryptedDatabaseKey() {
 		String key = getDatabaseKeyFromPreferences();
 		if (key == null) key = getDatabaseKeyFromFile();
 		else migrateDatabaseKeyToFile(key);
@@ -57,7 +61,7 @@ public class ConfigControllerImpl implements ConfigController {
 
 	@Nullable
 	private String getDatabaseKeyFromPreferences() {
-		String key = briarPrefs.getString(PREF_DB_KEY, null);
+		String key = dbPrefs.getString(PREF_DB_KEY, null);
 		if (key == null) LOG.info("No database key in preferences");
 		else LOG.info("Found database key in preferences");
 		return key;
@@ -97,7 +101,7 @@ public class ConfigControllerImpl implements ConfigController {
 
 	private void migrateDatabaseKeyToFile(String key) {
 		if (storeEncryptedDatabaseKey(key)) {
-			if (briarPrefs.edit().remove(PREF_DB_KEY).commit())
+			if (dbPrefs.edit().remove(PREF_DB_KEY).commit())
 				LOG.info("Database key migrated to file");
 			else LOG.warning("Database key not removed from preferences");
 		} else {
@@ -106,7 +110,7 @@ public class ConfigControllerImpl implements ConfigController {
 	}
 
 	@Override
-	public boolean storeEncryptedDatabaseKey(String hex) {
+	protected boolean storeEncryptedDatabaseKey(String hex) {
 		LOG.info("Storing database key in file");
 		// Create the directory if necessary
 		if (databaseConfig.getDatabaseKeyDirectory().mkdirs())
@@ -151,21 +155,10 @@ public class ConfigControllerImpl implements ConfigController {
 	}
 
 	@Override
-	public void deleteAccount(Context ctx) {
+	public void deleteAccount() {
 		LOG.info("Deleting account");
-		SharedPreferences defaultPrefs =
-				PreferenceManager.getDefaultSharedPreferences(ctx);
-		AndroidUtils.deleteAppData(ctx, briarPrefs, defaultPrefs);
+		SharedPreferences defaultPrefs = app.getDefaultSharedPreferences();
+		deleteAppData(app.getApplicationContext(), dbPrefs, defaultPrefs);
 	}
 
-	@Override
-	public boolean accountExists() {
-		String hex = getEncryptedDatabaseKey();
-		return hex != null && databaseConfig.databaseExists();
-	}
-
-	@Override
-	public boolean accountSignedIn() {
-		return databaseConfig.getEncryptionKey() != null;
-	}
 }

@@ -61,7 +61,7 @@ public abstract class BriarActivity extends BaseActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		if (!briarController.hasEncryptionKey() && !isFinishing()) {
+		if (!briarController.signedIn() && !isFinishing()) {
 			Intent i = new Intent(this, PasswordActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
 		} else if (SDK_INT >= 23) {
@@ -138,7 +138,7 @@ public abstract class BriarActivity extends BaseActivity {
 	}
 
 	protected void signOut(boolean removeFromRecentApps) {
-		if (briarController.hasEncryptionKey()) {
+		if (briarController.signedIn()) {
 			// Don't use UiResultHandler because we want the result even if
 			// this activity has been destroyed
 			briarController.signOut(result -> runOnUiThread(

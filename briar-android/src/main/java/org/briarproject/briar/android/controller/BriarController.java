@@ -6,7 +6,7 @@ public interface BriarController extends ActivityLifecycleController {
 
 	void startAndBindService();
 
-	boolean hasEncryptionKey();
+	boolean signedIn();
 
 	/**
 	 * Returns true via the handler when the app has dozed

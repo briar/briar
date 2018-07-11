@@ -10,7 +10,7 @@ import android.content.SharedPreferences;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
-import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.BriarApplication;
@@ -28,6 +28,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.PRIORITY_LOW;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
+import static org.briarproject.bramble.api.account.AccountState.NO_ACCOUNT;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_SIGN_IN_REMINDER;
 import static org.briarproject.briar.android.settings.SettingsActivity.NO_NOTIFY_SIGN_IN;
 import static org.briarproject.briar.android.settings.SettingsFragment.NOTIFY_SIGN_IN;
@@ -37,7 +38,7 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.REMI
 public class SignInReminderReceiver extends BroadcastReceiver {
 
 	@Inject
-	DatabaseConfig databaseConfig;
+	AccountManager accountManager;
 
 	@Override
 	public void onReceive(Context ctx, Intent intent) {
@@ -51,7 +52,7 @@ public class SignInReminderReceiver extends BroadcastReceiver {
 		if (action == null) return;
 		if (action.equals(ACTION_BOOT_COMPLETED) ||
 				action.equals(ACTION_MY_PACKAGE_REPLACED)) {
-			if (databaseConfig.databaseExists()) {
+			if (accountManager.getAccountState() != NO_ACCOUNT) {
 				SharedPreferences prefs = app.getDefaultSharedPreferences();
 				if (prefs.getBoolean(NOTIFY_SIGN_IN, true)) {
 					showSignInNotification(ctx);

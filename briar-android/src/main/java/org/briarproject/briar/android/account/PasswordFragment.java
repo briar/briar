@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
 import android.os.Bundle;
 import android.os.IBinder;
@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.login.StrengthMeter;
 import org.briarproject.briar.android.util.UiUtils;
 
 import javax.annotation.Nullable;

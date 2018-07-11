@@ -17,7 +17,8 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
-import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.account.AccountState;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
@@ -48,6 +49,8 @@ import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.account.AccountState.CREATING_ACCOUNT;
+import static org.briarproject.bramble.api.account.AccountState.SIGNED_IN;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
@@ -75,7 +78,7 @@ public class BriarService extends Service {
 	private BroadcastReceiver receiver = null;
 
 	@Inject
-	protected DatabaseConfig databaseConfig;
+	protected AccountManager accountManager;
 	// Fields that are accessed from background threads must be volatile
 	@Inject
 	protected volatile LifecycleManager lifecycleManager;
@@ -96,7 +99,8 @@ public class BriarService extends Service {
 			stopSelf();
 			return;
 		}
-		if (databaseConfig.getEncryptionKey() == null) {
+		AccountState accountState = accountManager.getAccountState();
+		if (accountState != SIGNED_IN && accountState != CREATING_ACCOUNT) {
 			LOG.info("No database key");
 			stopSelf();
 			return;
@@ -141,7 +145,7 @@ public class BriarService extends Service {
 		nm.cancel(REMINDER_NOTIFICATION_ID);
 		// Start the services in a background thread
 		new Thread(() -> {
-			String nickname = databaseConfig.getLocalAuthorName();
+			String nickname = accountManager.getCreatedLocalAuthorName();
 			StartResult result = lifecycleManager.startServices(nickname);
 			if (result == SUCCESS) {
 				started = true;

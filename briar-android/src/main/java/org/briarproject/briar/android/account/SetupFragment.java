@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -17,7 +17,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
-abstract class SetupFragment extends BaseFragment implements TextWatcher,
+public abstract class SetupFragment extends BaseFragment implements TextWatcher,
 		OnEditorActionListener, OnClickListener {
 
 	@Inject

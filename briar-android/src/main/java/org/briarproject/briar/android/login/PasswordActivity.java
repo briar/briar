@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
+import org.briarproject.briar.android.account.SetupActivity;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.controller.BriarController;
@@ -85,7 +86,7 @@ public class PasswordActivity extends BaseActivity {
 	public void onStart() {
 		super.onStart();
 		// If the user has already signed in, clean up this instance
-		if (briarController.hasEncryptionKey()) {
+		if (briarController.signedIn()) {
 			setResult(RESULT_OK);
 			finish();
 		}
@@ -105,7 +106,7 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	private void deleteAccount() {
-		passwordController.deleteAccount(this);
+		passwordController.deleteAccount();
 		Localizer.reinitialize();
 		UiUtils.setTheme(this, getString(R.string.pref_theme_light_value));
 		setResult(RESULT_CANCELED);

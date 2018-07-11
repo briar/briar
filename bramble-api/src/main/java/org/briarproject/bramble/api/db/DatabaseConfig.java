@@ -21,10 +21,5 @@ public interface DatabaseConfig {
 	@Nullable
 	SecretKey getEncryptionKey();
 
-	void setLocalAuthorName(String nickname);
-
-	@Nullable
-	String getLocalAuthorName();
-
 	long getMaxSize();
 }

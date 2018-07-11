@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
@@ -29,6 +30,7 @@ import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.plugin.tor.TorPluginFactory;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.briar.android.account.AndroidAccountManagerImpl;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.ReferenceManager;
@@ -92,6 +94,13 @@ public class AppModule {
 		DatabaseConfig databaseConfig =
 				new AndroidDatabaseConfig(dbDir, keyDir);
 		return databaseConfig;
+	}
+
+	@Provides
+	@Singleton
+	AccountManager provideAccountManager(
+			AndroidAccountManagerImpl androidAccountManager) {
+		return androidAccountManager;
 	}
 
 	@Provides

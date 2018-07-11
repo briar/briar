@@ -45,7 +45,7 @@ public class TestForumActivity extends ForumActivity {
 			protected BriarController provideBriarController(
 					BriarControllerImpl briarController) {
 				BriarController c = Mockito.mock(BriarController.class);
-				Mockito.when(c.hasEncryptionKey()).thenReturn(true);
+				Mockito.when(c.signedIn()).thenReturn(true);
 				return c;
 			}
 

@@ -1,6 +1,7 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.android.login.PasswordController;
 
 @NotNullByDefault
 public interface SetupController extends PasswordController {

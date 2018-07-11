@@ -1,16 +1,15 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
-import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
-import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
+import org.briarproject.briar.android.login.PasswordControllerImpl;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -28,11 +27,10 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	private volatile SetupActivity setupActivity;
 
 	@Inject
-	SetupControllerImpl(SharedPreferences briarPrefs,
-			DatabaseConfig databaseConfig,
+	SetupControllerImpl(AccountManager accountManager,
 			@CryptoExecutor Executor cryptoExecutor, CryptoComponent crypto,
 			PasswordStrengthEstimator strengthEstimator) {
-		super(briarPrefs, databaseConfig, cryptoExecutor, crypto,
+		super(accountManager, cryptoExecutor, crypto,
 				strengthEstimator);
 	}
 
@@ -102,11 +100,7 @@ public class SetupControllerImpl extends PasswordControllerImpl
 		if (password == null) throw new IllegalStateException();
 		cryptoExecutor.execute(() -> {
 			LOG.info("Creating account");
-			databaseConfig.setLocalAuthorName(authorName);
-			SecretKey key = crypto.generateSecretKey();
-			databaseConfig.setEncryptionKey(key);
-			String hex = encryptDatabaseKey(key, password);
-			storeEncryptedDatabaseKey(hex);
+			accountManager.createAccount(authorName, password);
 			resultHandler.onResult(null);
 		});
 	}

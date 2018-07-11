@@ -7,18 +7,20 @@ import android.os.Handler;
 import android.support.v7.preference.PreferenceManager;
 import android.transition.Fade;
 
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.account.SetupActivity;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
-import org.briarproject.briar.android.controller.ConfigController;
 import org.briarproject.briar.android.login.OpenDatabaseActivity;
-import org.briarproject.briar.android.login.SetupActivity;
 
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.account.AccountState.NO_ACCOUNT;
+import static org.briarproject.bramble.api.account.AccountState.SIGNED_IN;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 
 public class SplashScreenActivity extends BaseActivity {
@@ -27,7 +29,7 @@ public class SplashScreenActivity extends BaseActivity {
 			Logger.getLogger(SplashScreenActivity.class.getName());
 
 	@Inject
-	protected ConfigController configController;
+	AccountManager accountManager;
 	@Inject
 	protected AndroidExecutor androidExecutor;
 
@@ -43,7 +45,7 @@ public class SplashScreenActivity extends BaseActivity {
 
 		setContentView(R.layout.splash);
 
-		if (configController.accountSignedIn()) {
+		if (accountManager.getAccountState() == SIGNED_IN) {
 			startActivity(new Intent(this, OpenDatabaseActivity.class));
 			finish();
 		} else {
@@ -64,12 +66,12 @@ public class SplashScreenActivity extends BaseActivity {
 			LOG.info("Expired");
 			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
-			if (configController.accountExists()) {
+			if (accountManager.getAccountState() != NO_ACCOUNT) {
 				LOG.info("Account exists");
 				startActivity(new Intent(this, OpenDatabaseActivity.class));
 			} else {
 				LOG.info("Account does not exist");
-				configController.deleteAccount(this);
+				accountManager.deleteAccount();
 				startActivity(new Intent(this, SetupActivity.class));
 			}
 		}

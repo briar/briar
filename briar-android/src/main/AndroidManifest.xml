@@ -70,7 +70,7 @@
 		</activity>
 
 		<activity
-			android:name="org.briarproject.briar.android.login.SetupActivity"
+			android:name="org.briarproject.briar.android.account.SetupActivity"
 			android:label="@string/setup_title"
 			android:windowSoftInputMode="adjustResize">
 		</activity>

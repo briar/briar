@@ -7,10 +7,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.controller.ConfigController;
 import org.iilab.IilabEngineeringRSA2048Pin;
 
 import java.util.logging.Logger;
@@ -33,7 +33,7 @@ public class PanicResponderActivity extends BriarActivity {
 			Logger.getLogger(PanicResponderActivity.class.getName());
 
 	@Inject
-	protected ConfigController configController;
+	protected AccountManager accountManager;
 	@Inject
 	protected AndroidExecutor androidExecutor;
 
@@ -94,7 +94,7 @@ public class PanicResponderActivity extends BriarActivity {
 
 	private void deleteAllData() {
 		androidExecutor.runOnBackgroundThread(() -> {
-			configController.deleteAccount(PanicResponderActivity.this);
+			accountManager.deleteAccount();
 			// TODO somehow delete/shred the database more thoroughly
 			PanicResponder.deleteAllAppData(PanicResponderActivity.this);
 

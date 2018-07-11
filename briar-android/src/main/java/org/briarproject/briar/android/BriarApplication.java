@@ -1,5 +1,6 @@
 package org.briarproject.briar.android;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Collection;
@@ -14,6 +15,8 @@ public interface BriarApplication {
 	Collection<LogRecord> getRecentLogRecords();
 
 	AndroidComponent getApplicationComponent();
+
+	Context getApplicationContext();
 
 	SharedPreferences getDefaultSharedPreferences();
 }

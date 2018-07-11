@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -10,6 +10,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
+import org.briarproject.briar.android.login.OpenDatabaseActivity;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
