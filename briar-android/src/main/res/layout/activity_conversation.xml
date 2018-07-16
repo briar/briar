@@ -24,7 +24,7 @@
 
 				<include layout="@layout/contact_avatar_status"/>
 
-				<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+				<com.vanniktech.emoji.EmojiTextView
 					android:id="@+id/contactName"
 					style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
 					android:textColor="@color/action_bar_text"

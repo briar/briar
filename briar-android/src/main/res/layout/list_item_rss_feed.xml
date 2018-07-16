@@ -10,7 +10,7 @@
 	android:layout_marginTop="@dimen/listitem_horizontal_margin"
 	android:background="?attr/selectableItemBackground">
 
-	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/titleView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
 		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"/>
 
-	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/authorView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -101,7 +101,7 @@
 		android:textSize="@dimen/text_size_small"
 		tools:text="5 min. ago"/>
 
-	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/descriptionView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

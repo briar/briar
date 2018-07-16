@@ -19,7 +19,7 @@
 		android:layout_marginRight="@dimen/listitem_horizontal_margin"
 		android:layout_marginTop="@dimen/listitem_horizontal_margin"/>
 
-	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/nameView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
 		android:textSize="@dimen/text_size_medium"
 		tools:text="This is a name of a Private Group"/>
 
-	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/creatorView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

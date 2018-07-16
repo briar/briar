@@ -18,7 +18,7 @@
 		android:background="@drawable/msg_out"
 		android:elevation="@dimen/message_bubble_elevation">
 
-		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+		<com.vanniktech.emoji.EmojiTextView
 			android:id="@+id/text"
 			style="@style/TextMessage"
 			android:layout_width="wrap_content"

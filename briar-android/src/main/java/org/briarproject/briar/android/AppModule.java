@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 
+import com.vanniktech.emoji.RecentEmoji;
+
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
@@ -65,6 +67,8 @@ public class AppModule {
 		NetworkUsageLogger networkUsageLogger;
 		@Inject
 		DozeWatchdog dozeWatchdog;
+		@Inject
+		RecentEmoji recentEmoji;
 	}
 
 	private final Application application;
@@ -211,4 +215,11 @@ public class AppModule {
 		return lockManager;
 	}
 
+	@Provides
+	@Singleton
+	RecentEmoji provideRecentEmoji(LifecycleManager lifecycleManager,
+			RecentEmojiImpl recentEmoji) {
+		lifecycleManager.registerClient(recentEmoji);
+		return recentEmoji;
+	}
 }

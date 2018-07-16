@@ -202,7 +202,6 @@ public class GroupActivity extends
 		if (!enabled) {
 			textInput.setVisibility(GONE);
 			if (textInput.isKeyboardOpen()) textInput.hideSoftKeyboard();
-			if (textInput.isEmojiDrawerOpen()) textInput.hideEmojiDrawer();
 		} else {
 			textInput.setVisibility(VISIBLE);
 		}

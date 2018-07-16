@@ -71,7 +71,7 @@
 		android:layout_height="wrap_content"
 		android:layout_weight="1">
 
-		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+		<com.vanniktech.emoji.EmojiTextView
 			android:id="@+id/text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

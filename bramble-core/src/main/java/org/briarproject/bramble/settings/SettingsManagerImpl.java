@@ -35,6 +35,12 @@ class SettingsManagerImpl implements SettingsManager {
 	}
 
 	@Override
+	public Settings getSettings(Transaction txn, String namespace)
+			throws DbException {
+		return db.getSettings(txn, namespace);
+	}
+
+	@Override
 	public void mergeSettings(Settings s, String namespace) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {

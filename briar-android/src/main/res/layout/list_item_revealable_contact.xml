@@ -27,7 +27,7 @@
 			android:layout_marginRight="@dimen/listitem_horizontal_margin"
 			tools:src="@mipmap/ic_launcher_round"/>
 
-		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+		<com.vanniktech.emoji.EmojiTextView
 			android:id="@+id/nameView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

@@ -31,9 +31,8 @@ dependencies {
 	implementation 'info.guardianproject.trustedintents:trustedintents:0.2'
 	implementation 'de.hdodenhof:circleimageview:2.2.0'
 	implementation 'com.google.zxing:core:3.3.0'
-	implementation 'com.jpardogo.materialtabstrip:library:1.1.0'
-	implementation 'com.github.bumptech.glide:glide:3.8.0'
 	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.8.0'
+	implementation 'com.vanniktech:emoji-google:0.5.1'
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
 
@@ -80,7 +79,7 @@ android {
 	buildToolsVersion '27.0.3'
 
 	defaultConfig {
-		minSdkVersion 14
+		minSdkVersion 15
 		targetSdkVersion 26
 		versionCode 10013
 		versionName "1.0.13"
