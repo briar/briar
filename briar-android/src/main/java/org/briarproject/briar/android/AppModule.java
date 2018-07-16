@@ -31,7 +31,6 @@ import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
-import org.briarproject.briar.api.android.ReferenceManager;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 
 import java.io.File;
@@ -164,12 +163,6 @@ public class AppModule {
 	@Provides
 	SharedPreferences provideSharedPreferences(Application app) {
 		return app.getSharedPreferences("db", MODE_PRIVATE);
-	}
-
-	@Provides
-	@Singleton
-	ReferenceManager provideReferenceManager() {
-		return new ReferenceManagerImpl();
 	}
 
 	@Provides
