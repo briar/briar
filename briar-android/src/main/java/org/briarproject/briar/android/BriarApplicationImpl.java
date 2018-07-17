@@ -92,7 +92,6 @@ public class BriarApplicationImpl extends Application
 				Localizer.getInstance().setLocale(base));
 		setTheme(base, prefs);
 		ACRA.init(this);
-		EmojiManager.install(new GoogleEmojiProvider());
 	}
 
 	@Override
@@ -114,6 +113,7 @@ public class BriarApplicationImpl extends Application
 		LOG.info("Created");
 
 		applicationComponent = createApplicationComponent();
+		EmojiManager.install(new GoogleEmojiProvider());
 	}
 
 	protected AndroidComponent createApplicationComponent() {
