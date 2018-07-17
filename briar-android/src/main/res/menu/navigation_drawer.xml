@@ -28,7 +28,7 @@
 			android:title="@string/settings_button"/>
 		<item
 			android:id="@+id/nav_btn_signout"
-			android:icon="@drawable/ic_signout_black_24dp"
+			android:icon="@drawable/ic_signout"
 			android:title="@string/sign_out_button"/>
 	</group>
 

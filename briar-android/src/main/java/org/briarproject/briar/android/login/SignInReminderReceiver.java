@@ -15,7 +15,6 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
-import org.briarproject.briar.android.settings.SettingsActivity;
 
 import javax.inject.Inject;
 
@@ -29,12 +28,13 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.PRIORITY_LOW;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_SIGN_IN_REMINDER;
-import static org.briarproject.briar.android.settings.SettingsActivity.NO_NOTIFY_SIGN_IN;
 import static org.briarproject.briar.android.settings.SettingsFragment.NOTIFY_SIGN_IN;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.REMINDER_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.REMINDER_NOTIFICATION_ID;
 
 public class SignInReminderReceiver extends BroadcastReceiver {
+
+	public static final String DISMISS_REMINDER = "dismissReminder";
 
 	@Inject
 	DatabaseConfig databaseConfig;
@@ -57,6 +57,8 @@ public class SignInReminderReceiver extends BroadcastReceiver {
 					showSignInNotification(ctx);
 				}
 			}
+		} else if (action.equals(DISMISS_REMINDER)) {
+			dismissReminder(ctx);
 		}
 	}
 
@@ -76,7 +78,7 @@ public class SignInReminderReceiver extends BroadcastReceiver {
 
 		NotificationCompat.Builder b =
 				new NotificationCompat.Builder(ctx, REMINDER_CHANNEL_ID);
-		b.setSmallIcon(R.drawable.notification_reminder);
+		b.setSmallIcon(R.drawable.ic_signout);
 		b.setColor(ContextCompat.getColor(ctx, R.color.briar_primary));
 		b.setContentTitle(ctx.getText(R.string.reminder_notification_title));
 		b.setContentText(ctx.getText(R.string.reminder_notification_text));
@@ -84,12 +86,12 @@ public class SignInReminderReceiver extends BroadcastReceiver {
 		b.setWhen(0); // Don't show the time
 		b.setPriority(PRIORITY_LOW);
 
-		// Add a 'Do not show sign-in reminder' action
+		// Add a 'Dismiss' action
 		String actionTitle =
-				ctx.getString(R.string.reminder_notification_do_not_show_again);
-		Intent i1 = new Intent(ctx, SettingsActivity.class);
-		i1.setAction(NO_NOTIFY_SIGN_IN);
-		PendingIntent actionIntent = PendingIntent.getActivity(ctx, 0, i1, 0);
+				ctx.getString(R.string.reminder_notification_dismiss);
+		Intent i1 = new Intent(ctx, SignInReminderReceiver.class);
+		i1.setAction(DISMISS_REMINDER);
+		PendingIntent actionIntent = PendingIntent.getBroadcast(ctx, 0, i1, 0);
 		b.addAction(0, actionTitle, actionIntent);
 
 		Intent i = new Intent(ctx, NavDrawerActivity.class);
@@ -97,6 +99,13 @@ public class SignInReminderReceiver extends BroadcastReceiver {
 		b.setContentIntent(PendingIntent.getActivity(ctx, 0, i, 0));
 
 		nm.notify(REMINDER_NOTIFICATION_ID, b.build());
+	}
+
+	private void dismissReminder(Context ctx) {
+		NotificationManager nm = (NotificationManager)
+				ctx.getSystemService(NOTIFICATION_SERVICE);
+		if (nm == null) return;
+		nm.cancel(REMINDER_NOTIFICATION_ID);
 	}
 
 }

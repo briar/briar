@@ -69,9 +69,9 @@
 
 	<!-- Notifications -->
 	<string name="reminder_notification_title">Signed out of Briar</string>
-	<string name="reminder_notification_text">Tap to sign back in or swipe to dismiss.</string>
+	<string name="reminder_notification_text">Tap to sign back in.</string>
 	<string name="reminder_notification_channel_title">Briar Sign-in Reminder</string>
-	<string name="reminder_notification_do_not_show_again">Don\'t show again</string>
+	<string name="reminder_notification_dismiss">Dismiss</string>
 	<string name="ongoing_notification_title">Signed into Briar</string>
 	<string name="ongoing_notification_text">Touch to open Briar.</string>
 	<plurals name="private_message_notification_text">
