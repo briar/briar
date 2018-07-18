@@ -23,7 +23,7 @@ public class TestBriarApplication extends Application
 			Logger.getLogger(TestBriarApplication.class.getName());
 
 	private AndroidComponent applicationComponent;
-	private SharedPreferences prefs;
+	private volatile SharedPreferences prefs;
 
 	@Override
 	public void onCreate() {
