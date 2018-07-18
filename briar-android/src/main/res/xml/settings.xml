@@ -83,6 +83,12 @@
 
 		<CheckBoxPreference
 			android:defaultValue="true"
+			android:key="pref_key_notify_sign_in"
+			android:summary="@string/notify_sign_in_summary"
+			android:title="@string/notify_sign_in_title"/>
+
+		<CheckBoxPreference
+			android:defaultValue="true"
 			android:key="pref_key_notify_private_messages"
 			android:persistent="false"
 			android:summary="@string/notify_private_messages_setting_summary"

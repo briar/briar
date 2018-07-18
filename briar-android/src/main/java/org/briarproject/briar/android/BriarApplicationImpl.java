@@ -77,11 +77,12 @@ public class BriarApplicationImpl extends Application
 	private final CachingLogHandler logHandler = new CachingLogHandler();
 
 	private AndroidComponent applicationComponent;
+	private volatile SharedPreferences prefs;
 
 	@Override
 	protected void attachBaseContext(Context base) {
-		SharedPreferences prefs =
-				PreferenceManager.getDefaultSharedPreferences(base);
+		if (prefs == null)
+			prefs = PreferenceManager.getDefaultSharedPreferences(base);
 		// Loading the language needs to be done here.
 		Localizer.initialize(prefs);
 		super.attachBaseContext(
@@ -155,5 +156,10 @@ public class BriarApplicationImpl extends Application
 	@Override
 	public AndroidComponent getApplicationComponent() {
 		return applicationComponent;
+	}
+
+	@Override
+	public SharedPreferences getDefaultSharedPreferences() {
+		return prefs;
 	}
 }

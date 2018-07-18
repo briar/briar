@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreModule;
+import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.reporting.BriarReportSender;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
@@ -150,7 +151,7 @@ public interface AndroidComponent
 	@IoExecutor
 	Executor ioExecutor();
 
-	void inject(BootReceiver briarService);
+	void inject(SignInReminderReceiver briarService);
 
 	void inject(BriarService briarService);
 
