@@ -45,6 +45,11 @@
 		<item name="android:textSize">@dimen/text_size_medium</item>
 	</style>
 
+	<style name="BriarButtonFlat.Neutral" parent="Widget.AppCompat.Button.Borderless">
+		<item name="android:textColor">@color/briar_button_neutral</item>
+		<item name="android:textSize">@dimen/text_size_medium</item>
+	</style>
+
 	<style name="BriarButtonFlat.Positive.Tiny" parent="BriarButtonFlat.Positive">
 		<item name="android:textSize">@dimen/text_size_tiny</item>
 		<item name="android:padding">@dimen/margin_medium</item>
@@ -83,6 +88,7 @@
 
 	<style name="BriarCard" parent="CardView">
 		<item name="cardUseCompatPadding">true</item>
+		<item name="cardBackgroundColor">@color/card_background</item>
 		<item name="android:layout_margin">@dimen/margin_small</item>
 	</style>
 

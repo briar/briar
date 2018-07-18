@@ -15,7 +15,6 @@
 		android:layout_height="wrap_content"
 		android:listSelector="@android:color/transparent"
 		android:numColumns="3"
-		android:padding="@dimen/margin_medium"
 		tools:listitem="@layout/list_item_transport"/>
 
 </LinearLayout>

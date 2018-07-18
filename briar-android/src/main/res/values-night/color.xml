@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<color name="briar_accent">@color/briar_blue_light2</color>
-	<color name="preference_category">@color/briar_blue_light2</color>
+	<color name="briar_primary">@color/briar_blue_dark</color>
+	<color name="briar_accent">@color/briar_green</color>
+
+	<color name="preference_category">@color/briar_accent</color>
+	<color name="preference_category_background">@color/divider</color>
 
 	<color name="color_primary">#ffffff</color>
 
-	<color name="window_background">#ff303030</color>
-	<color name="card_background">@color/cardview_dark_background</color>
-	<color name="divider">#666666</color>
+	<color name="window_background">@color/briar_blue_very_dark</color>
+	<color name="card_background">@color/briar_blue_dark</color>
+	<color name="item_background_highlight">@color/briar_blue</color>
+	<color name="divider">#000000</color>
 
+	<color name="briar_button_neutral">@color/briar_link</color>
 	<color name="briar_button_text_disabled">#23cccccc</color>
 
 	<color name="thread_item_background">@color/window_background</color>
