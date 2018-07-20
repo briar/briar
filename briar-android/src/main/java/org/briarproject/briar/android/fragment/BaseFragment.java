@@ -85,7 +85,7 @@ public abstract class BaseFragment extends Fragment
 			activity.runOnUiThread(() -> {
 				// Note that we don't have to check if the activity has
 				// been destroyed as the Fragment has not been detached yet
-				if (!isDetached() && !activity.isFinishing()) {
+				if (isAdded() && !activity.isFinishing()) {
 					r.run();
 				}
 			});
