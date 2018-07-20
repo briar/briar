@@ -17,7 +17,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
-import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
@@ -75,12 +75,13 @@ public class BriarService extends Service {
 	private BroadcastReceiver receiver = null;
 
 	@Inject
-	protected DatabaseConfig databaseConfig;
+	AccountManager accountManager;
+
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	protected volatile LifecycleManager lifecycleManager;
+	volatile LifecycleManager lifecycleManager;
 	@Inject
-	protected volatile AndroidExecutor androidExecutor;
+	volatile AndroidExecutor androidExecutor;
 	private volatile boolean started = false;
 
 	@Override
@@ -96,7 +97,7 @@ public class BriarService extends Service {
 			stopSelf();
 			return;
 		}
-		if (databaseConfig.getEncryptionKey() == null) {
+		if (!accountManager.hasDatabaseKey()) {
 			LOG.info("No database key");
 			stopSelf();
 			return;

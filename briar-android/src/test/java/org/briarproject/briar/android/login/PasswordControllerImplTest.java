@@ -2,6 +2,7 @@ package org.briarproject.briar.android.login;
 
 import android.content.SharedPreferences;
 
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.db.DatabaseConfig;
@@ -30,6 +31,8 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 
 	private final SharedPreferences briarPrefs =
 			context.mock(SharedPreferences.class);
+	private final AccountManager accountManager =
+			context.mock(AccountManager.class);
 	private final DatabaseConfig databaseConfig =
 			context.mock(DatabaseConfig.class);
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
@@ -70,7 +73,8 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 		storeDatabaseKey(keyBackupFile, toHexString(oldEncryptedKey));
 
 		PasswordControllerImpl p = new PasswordControllerImpl(briarPrefs,
-				databaseConfig, cryptoExecutor, crypto, estimator);
+				accountManager, databaseConfig, cryptoExecutor, crypto,
+				estimator);
 
 		AtomicBoolean capturedResult = new AtomicBoolean(false);
 		p.changePassword(oldPassword, newPassword, capturedResult::set);
@@ -104,7 +108,8 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 		storeDatabaseKey(keyBackupFile, toHexString(oldEncryptedKey));
 
 		PasswordControllerImpl p = new PasswordControllerImpl(briarPrefs,
-				databaseConfig, cryptoExecutor, crypto, estimator);
+				accountManager, databaseConfig, cryptoExecutor, crypto,
+				estimator);
 
 		AtomicBoolean capturedResult = new AtomicBoolean(true);
 		p.changePassword(oldPassword, newPassword, capturedResult::set);

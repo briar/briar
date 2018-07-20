@@ -3,6 +3,7 @@ package org.briarproject.briar.android.login;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -37,6 +38,8 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 
 	private final SharedPreferences briarPrefs =
 			context.mock(SharedPreferences.class);
+	private final AccountManager accountManager =
+			context.mock(AccountManager.class);
 	private final DatabaseConfig databaseConfig =
 			context.mock(DatabaseConfig.class);
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
@@ -101,8 +104,8 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 		assertFalse(keyBackupFile.exists());
 
 		SetupControllerImpl s = new SetupControllerImpl(briarPrefs,
-				databaseConfig, cryptoExecutor, crypto, estimator,
-				identityManager);
+				accountManager, databaseConfig, cryptoExecutor, crypto,
+				estimator, identityManager);
 		s.setSetupActivity(setupActivity);
 
 		AtomicBoolean called = new AtomicBoolean(false);

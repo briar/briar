@@ -3,6 +3,7 @@ package org.briarproject.briar.android.controller;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
@@ -26,6 +27,8 @@ public class ConfigControllerImplTest extends BrambleMockTestCase {
 
 	private final SharedPreferences prefs =
 			context.mock(SharedPreferences.class);
+	private final AccountManager accountManager =
+			context.mock(AccountManager.class);
 	private final DatabaseConfig databaseConfig =
 			context.mock(DatabaseConfig.class);
 	private final Editor editor = context.mock(Editor.class);
@@ -56,7 +59,7 @@ public class ConfigControllerImplTest extends BrambleMockTestCase {
 		assertFalse(keyFile.exists());
 		assertFalse(keyBackupFile.exists());
 
-		ConfigControllerImpl c = new ConfigControllerImpl(prefs,
+		ConfigControllerImpl c = new ConfigControllerImpl(prefs, accountManager,
 				databaseConfig);
 
 		assertEquals(encryptedKeyHex, c.getEncryptedDatabaseKey());
@@ -85,7 +88,7 @@ public class ConfigControllerImplTest extends BrambleMockTestCase {
 		assertFalse(keyBackupFile.exists());
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
 
-		ConfigControllerImpl c = new ConfigControllerImpl(prefs,
+		ConfigControllerImpl c = new ConfigControllerImpl(prefs, accountManager,
 				databaseConfig);
 
 		assertEquals(encryptedKeyHex, c.getEncryptedDatabaseKey());
@@ -113,7 +116,7 @@ public class ConfigControllerImplTest extends BrambleMockTestCase {
 		assertTrue(keyBackupFile.exists());
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
 
-		ConfigControllerImpl c = new ConfigControllerImpl(prefs,
+		ConfigControllerImpl c = new ConfigControllerImpl(prefs, accountManager,
 				databaseConfig);
 
 		assertEquals(encryptedKeyHex, c.getEncryptedDatabaseKey());
@@ -135,7 +138,7 @@ public class ConfigControllerImplTest extends BrambleMockTestCase {
 		assertFalse(keyFile.exists());
 		assertFalse(keyBackupFile.exists());
 
-		ConfigControllerImpl c = new ConfigControllerImpl(prefs,
+		ConfigControllerImpl c = new ConfigControllerImpl(prefs, accountManager,
 				databaseConfig);
 
 		assertNull(c.getEncryptedDatabaseKey());
@@ -160,7 +163,7 @@ public class ConfigControllerImplTest extends BrambleMockTestCase {
 		assertFalse(keyBackupFile.exists());
 		assertEquals(oldEncryptedKeyHex, loadDatabaseKey(keyFile));
 
-		ConfigController c = new ConfigControllerImpl(prefs,
+		ConfigController c = new ConfigControllerImpl(prefs, accountManager,
 				databaseConfig);
 
 		assertTrue(c.storeEncryptedDatabaseKey(encryptedKeyHex));
@@ -187,7 +190,7 @@ public class ConfigControllerImplTest extends BrambleMockTestCase {
 		assertTrue(keyBackupFile.exists());
 		assertEquals(oldEncryptedKeyHex, loadDatabaseKey(keyBackupFile));
 
-		ConfigController c = new ConfigControllerImpl(prefs,
+		ConfigController c = new ConfigControllerImpl(prefs, accountManager,
 				databaseConfig);
 
 		assertTrue(c.storeEncryptedDatabaseKey(encryptedKeyHex));

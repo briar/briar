@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import org.briarproject.bramble.BrambleAndroidModule;
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.contact.ContactExchangeTask;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
@@ -150,6 +151,8 @@ public interface AndroidComponent
 
 	@IoExecutor
 	Executor ioExecutor();
+
+	AccountManager accountManager();
 
 	void inject(SignInReminderReceiver briarService);
 

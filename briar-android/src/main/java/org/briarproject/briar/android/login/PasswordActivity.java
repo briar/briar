@@ -85,7 +85,7 @@ public class PasswordActivity extends BaseActivity {
 	public void onStart() {
 		super.onStart();
 		// If the user has already signed in, clean up this instance
-		if (briarController.hasEncryptionKey()) {
+		if (briarController.accountSignedIn()) {
 			setResult(RESULT_OK);
 			finish();
 		}

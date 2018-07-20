@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v7.preference.PreferenceManager;
 
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.AndroidUtils;
@@ -34,12 +35,14 @@ public class ConfigControllerImpl implements ConfigController {
 
 	private final SharedPreferences briarPrefs;
 	private final File dbKeyFile, dbKeyBackupFile;
+	private final AccountManager accountManager;
 	protected final DatabaseConfig databaseConfig;
 
 	@Inject
 	public ConfigControllerImpl(SharedPreferences briarPrefs,
-			DatabaseConfig databaseConfig) {
+			AccountManager accountManager, DatabaseConfig databaseConfig) {
 		this.briarPrefs = briarPrefs;
+		this.accountManager = accountManager;
 		this.databaseConfig = databaseConfig;
 		File keyDir = databaseConfig.getDatabaseKeyDirectory();
 		dbKeyFile = new File(keyDir, DB_KEY_FILENAME);
@@ -166,6 +169,6 @@ public class ConfigControllerImpl implements ConfigController {
 
 	@Override
 	public boolean accountSignedIn() {
-		return databaseConfig.getEncryptionKey() != null;
+		return accountManager.hasDatabaseKey();
 	}
 }

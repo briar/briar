@@ -3,6 +3,7 @@ package org.briarproject.briar.android.login;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
@@ -33,12 +34,12 @@ public class SetupControllerImpl extends PasswordControllerImpl
 
 	@Inject
 	SetupControllerImpl(SharedPreferences briarPrefs,
-			DatabaseConfig databaseConfig,
+			AccountManager accountManager, DatabaseConfig databaseConfig,
 			@CryptoExecutor Executor cryptoExecutor, CryptoComponent crypto,
 			PasswordStrengthEstimator strengthEstimator,
 			IdentityManager identityManager) {
-		super(briarPrefs, databaseConfig, cryptoExecutor, crypto,
-				strengthEstimator);
+		super(briarPrefs, accountManager, databaseConfig, cryptoExecutor,
+				crypto, strengthEstimator);
 		this.identityManager = identityManager;
 	}
 
