@@ -6,8 +6,6 @@ import org.briarproject.bramble.api.sync.Client;
 
 import java.util.concurrent.ExecutorService;
 
-import javax.annotation.Nullable;
-
 /**
  * Manages the lifecycle of the app, starting {@link Client Clients}, starting
  * and stopping {@link Service Services}, shutting down
@@ -18,7 +16,7 @@ import javax.annotation.Nullable;
 public interface LifecycleManager {
 
 	/**
-	 * The result of calling {@link #startServices(String)}.
+	 * The result of calling {@link #startServices()}.
 	 */
 	enum StartResult {
 		ALREADY_RUNNING,
@@ -44,28 +42,27 @@ public interface LifecycleManager {
 
 	/**
 	 * Registers a {@link Service} to be started and stopped. This method
-	 * should be called before {@link #startServices(String)}.
+	 * should be called before {@link #startServices()}.
 	 */
 	void registerService(Service s);
 
 	/**
 	 * Registers a {@link Client} to be started. This method should be called
-	 * before {@link #startServices(String)}.
+	 * before {@link #startServices()}.
 	 */
 	void registerClient(Client c);
 
 	/**
 	 * Registers an {@link ExecutorService} to be shut down. This method
-	 * should be called before {@link #startServices(String)}.
+	 * should be called before {@link #startServices()}.
 	 */
 	void registerForShutdown(ExecutorService e);
 
 	/**
-	 * Opens the {@link DatabaseComponent}, optionally creates a local author
-	 * with the provided nickname, and starts any registered
+	 * Opens the {@link DatabaseComponent} and starts any registered
 	 * {@link Client Clients} and {@link Service Services}.
 	 */
-	StartResult startServices(@Nullable String nickname);
+	StartResult startServices();
 
 	/**
 	 * Stops any registered {@link Service Services}, shuts down any

@@ -8,6 +8,8 @@ import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
@@ -24,6 +26,8 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(SetupControllerImpl.class.getName());
 
+	private final IdentityManager identityManager;
+
 	@Nullable
 	private volatile SetupActivity setupActivity;
 
@@ -31,9 +35,11 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	SetupControllerImpl(SharedPreferences briarPrefs,
 			DatabaseConfig databaseConfig,
 			@CryptoExecutor Executor cryptoExecutor, CryptoComponent crypto,
-			PasswordStrengthEstimator strengthEstimator) {
+			PasswordStrengthEstimator strengthEstimator,
+			IdentityManager identityManager) {
 		super(briarPrefs, databaseConfig, cryptoExecutor, crypto,
 				strengthEstimator);
+		this.identityManager = identityManager;
 	}
 
 	@Override
@@ -102,13 +108,14 @@ public class SetupControllerImpl extends PasswordControllerImpl
 		if (password == null) throw new IllegalStateException();
 		cryptoExecutor.execute(() -> {
 			LOG.info("Creating account");
-			databaseConfig.setLocalAuthorName(authorName);
+			LocalAuthor localAuthor =
+					identityManager.createLocalAuthor(authorName);
+			identityManager.registerLocalAuthor(localAuthor);
 			SecretKey key = crypto.generateSecretKey();
-			databaseConfig.setEncryptionKey(key);
 			String hex = encryptDatabaseKey(key, password);
 			storeEncryptedDatabaseKey(hex);
+			databaseConfig.setEncryptionKey(key);
 			resultHandler.onResult(null);
 		});
 	}
-
 }

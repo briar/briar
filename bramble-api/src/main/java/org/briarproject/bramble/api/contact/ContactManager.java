@@ -16,7 +16,7 @@ public interface ContactManager {
 	/**
 	 * Registers a hook to be called whenever a contact is added or removed.
 	 * This method should be called before
-	 * {@link LifecycleManager#startServices(String)}.
+	 * {@link LifecycleManager#startServices()}.
 	 */
 	void registerContactHook(ContactHook hook);
 

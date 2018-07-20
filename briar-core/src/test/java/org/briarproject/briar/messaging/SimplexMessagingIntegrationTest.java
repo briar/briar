@@ -44,7 +44,6 @@ import java.io.InputStream;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
 import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
-import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.junit.Assert.assertEquals;
@@ -58,8 +57,6 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private final File bobDir = new File(testDir, "bob");
 	private final SecretKey master = getSecretKey();
 	private final long timestamp = System.currentTimeMillis();
-	private final LocalAuthor aliceAuthor = getLocalAuthor();
-	private final LocalAuthor bobAuthor = getLocalAuthor();
 
 	private SimplexMessagingIntegrationTestComponent alice, bob;
 
@@ -76,6 +73,11 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	@Test
 	public void testWriteAndRead() throws Exception {
+		// Create the identities
+		LocalAuthor aliceAuthor =
+				alice.getIdentityManager().createLocalAuthor("Alice");
+		LocalAuthor bobAuthor =
+				bob.getIdentityManager().createLocalAuthor("Bob");
 		// Set up the devices and get the contact IDs
 		ContactId bobId = setUp(alice, aliceAuthor, bobAuthor, true);
 		ContactId aliceId = setUp(bob, bobAuthor, aliceAuthor, false);
@@ -98,13 +100,13 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	private ContactId setUp(SimplexMessagingIntegrationTestComponent device,
 			LocalAuthor local, Author remote, boolean alice) throws Exception {
-		// Start the lifecycle manager
-		LifecycleManager lifecycleManager = device.getLifecycleManager();
-		lifecycleManager.startServices(null);
-		lifecycleManager.waitForStartup();
 		// Add an identity for the user
 		IdentityManager identityManager = device.getIdentityManager();
 		identityManager.registerLocalAuthor(local);
+		// Start the lifecycle manager
+		LifecycleManager lifecycleManager = device.getLifecycleManager();
+		lifecycleManager.startServices();
+		lifecycleManager.waitForStartup();
 		// Add the other user as a contact
 		ContactManager contactManager = device.getContactManager();
 		return contactManager.addContact(remote, local.getId(), master,

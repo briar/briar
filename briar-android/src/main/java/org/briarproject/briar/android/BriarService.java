@@ -141,8 +141,7 @@ public class BriarService extends Service {
 		nm.cancel(REMINDER_NOTIFICATION_ID);
 		// Start the services in a background thread
 		new Thread(() -> {
-			String nickname = databaseConfig.getLocalAuthorName();
-			StartResult result = lifecycleManager.startServices(nickname);
+			StartResult result = lifecycleManager.startServices();
 			if (result == SUCCESS) {
 				started = true;
 			} else if (result == ALREADY_RUNNING) {

@@ -1,10 +1,5 @@
 package org.briarproject.bramble.lifecycle;
 
-import org.briarproject.bramble.api.crypto.CryptoComponent;
-import org.briarproject.bramble.api.db.DatabaseComponent;
-import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.identity.AuthorFactory;
-import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
@@ -54,11 +49,9 @@ public class LifecycleModule {
 
 	@Provides
 	@Singleton
-	LifecycleManager provideLifecycleManager(DatabaseComponent db,
-			EventBus eventBus, CryptoComponent crypto,
-			AuthorFactory authorFactory, IdentityManager identityManager) {
-		return new LifecycleManagerImpl(db, eventBus, crypto, authorFactory,
-				identityManager);
+	LifecycleManager provideLifecycleManager(
+			LifecycleManagerImpl lifecycleManager) {
+		return lifecycleManager;
 	}
 
 	@Provides

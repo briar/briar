@@ -1,7 +1,5 @@
 package org.briarproject.bramble.lifecycle;
 
-import org.briarproject.bramble.api.crypto.CryptoComponent;
-import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -9,9 +7,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
@@ -26,7 +22,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
@@ -60,8 +55,6 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 	private final List<Service> services;
 	private final List<Client> clients;
 	private final List<ExecutorService> executors;
-	private final CryptoComponent crypto;
-	private final AuthorFactory authorFactory;
 	private final IdentityManager identityManager;
 	private final Semaphore startStopSemaphore = new Semaphore(1);
 	private final CountDownLatch dbLatch = new CountDownLatch(1);
@@ -72,12 +65,9 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 
 	@Inject
 	LifecycleManagerImpl(DatabaseComponent db, EventBus eventBus,
-			CryptoComponent crypto, AuthorFactory authorFactory,
 			IdentityManager identityManager) {
 		this.db = db;
 		this.eventBus = eventBus;
-		this.crypto = crypto;
-		this.authorFactory = authorFactory;
 		this.identityManager = identityManager;
 		services = new CopyOnWriteArrayList<>();
 		clients = new CopyOnWriteArrayList<>();
@@ -104,25 +94,8 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 		executors.add(e);
 	}
 
-	private LocalAuthor createLocalAuthor(String nickname) {
-		long start = now();
-		KeyPair keyPair = crypto.generateSignatureKeyPair();
-		byte[] publicKey = keyPair.getPublic().getEncoded();
-		byte[] privateKey = keyPair.getPrivate().getEncoded();
-		LocalAuthor localAuthor = authorFactory
-				.createLocalAuthor(nickname, publicKey, privateKey);
-		logDuration(LOG, "Creating local author", start);
-		return localAuthor;
-	}
-
-	private void registerLocalAuthor(LocalAuthor author) throws DbException {
-		long start = now();
-		identityManager.registerLocalAuthor(author);
-		logDuration(LOG, "Registering local author", start);
-	}
-
 	@Override
-	public StartResult startServices(@Nullable String nickname) {
+	public StartResult startServices() {
 		if (!startStopSemaphore.tryAcquire()) {
 			LOG.info("Already starting or stopping");
 			return ALREADY_RUNNING;
@@ -134,10 +107,7 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			boolean reopened = db.open(this);
 			if (reopened) logDuration(LOG, "Reopening database", start);
 			else logDuration(LOG, "Creating database", start);
-
-			if (nickname != null) {
-				registerLocalAuthor(createLocalAuthor(nickname));
-			}
+			identityManager.storeLocalAuthor();
 
 			state = STARTING_SERVICES;
 			dbLatch.countDown();

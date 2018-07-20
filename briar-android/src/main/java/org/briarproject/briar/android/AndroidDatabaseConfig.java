@@ -21,8 +21,6 @@ class AndroidDatabaseConfig implements DatabaseConfig {
 
 	@Nullable
 	private volatile SecretKey key = null;
-	@Nullable
-	private volatile String nickname = null;
 
 	AndroidDatabaseConfig(File dbDir, File keyDir) {
 		this.dbDir = dbDir;
@@ -68,21 +66,6 @@ class AndroidDatabaseConfig implements DatabaseConfig {
 	public void setEncryptionKey(SecretKey key) {
 		LOG.info("Setting database key");
 		this.key = key;
-	}
-
-	@Override
-	public void setLocalAuthorName(String nickname) {
-		LOG.info("Setting local author name");
-		this.nickname = nickname;
-	}
-
-	@Override
-	@Nullable
-	public String getLocalAuthorName() {
-		String nickname = this.nickname;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Local author name has been set: " + (nickname != null));
-		return nickname;
 	}
 
 	@Override
