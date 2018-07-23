@@ -1,5 +1,7 @@
 package org.briarproject.briar.feed;
 
+import org.briarproject.bramble.account.AccountModule;
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.client.ClientModule;
@@ -36,6 +38,7 @@ import dagger.Component;
 		TestSecureRandomModule.class,
 		TestSocksModule.class,
 		TestDnsModule.class,
+		AccountModule.class,
 		BriarClientModule.class,
 		ClientModule.class,
 		ContactModule.class,
@@ -78,6 +81,8 @@ interface FeedManagerIntegrationTestComponent {
 	void inject(VersioningModule.EagerSingletons init);
 
 	IdentityManager getIdentityManager();
+
+	AccountManager getAccountManager();
 
 	LifecycleManager getLifecycleManager();
 

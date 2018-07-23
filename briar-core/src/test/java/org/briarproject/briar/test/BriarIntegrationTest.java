@@ -140,6 +140,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		assertTrue(testDir.mkdirs());
 		createComponents();
 
+		c0.getAccountManager().setDatabaseKey(getSecretKey());
+		c1.getAccountManager().setDatabaseKey(getSecretKey());
+		c2.getAccountManager().setDatabaseKey(getSecretKey());
 		identityManager0 = c0.getIdentityManager();
 		identityManager1 = c1.getIdentityManager();
 		identityManager2 = c2.getIdentityManager();

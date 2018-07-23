@@ -15,6 +15,7 @@ import java.util.List;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getMean;
 import static org.briarproject.bramble.test.TestUtils.getMedian;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getStandardDeviation;
 import static org.briarproject.bramble.test.UTest.Z_CRITICAL_0_01;
 
@@ -71,7 +72,7 @@ public abstract class DatabasePerformanceComparisonTest
 			throws DbException {
 		Database<Connection> db = createDatabase(conditionA,
 				new TestDatabaseConfig(testDir, MAX_SIZE), new SystemClock());
-		db.open(null);
+		db.open(getSecretKey(), null);
 		return db;
 	}
 

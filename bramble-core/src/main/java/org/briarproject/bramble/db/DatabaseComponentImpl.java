@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.ContactStatusChangedEvent;
 import org.briarproject.bramble.api.contact.event.ContactVerifiedEvent;
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -103,9 +104,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public boolean open(@Nullable MigrationListener listener)
+	public boolean open(SecretKey key, @Nullable MigrationListener listener)
 			throws DbException {
-		boolean reopened = db.open(listener);
+		boolean reopened = db.open(key, listener);
 		shutdown.addShutdownHook(() -> {
 			try {
 				close();

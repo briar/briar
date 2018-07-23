@@ -1,5 +1,6 @@
 package org.briarproject.briar.introduction;
 
+import org.briarproject.bramble.account.AccountModule;
 import org.briarproject.bramble.client.ClientModule;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoExecutorModule;
@@ -36,6 +37,7 @@ import dagger.Component;
 		TestDatabaseModule.class,
 		TestPluginConfigModule.class,
 		TestSecureRandomModule.class,
+		AccountModule.class,
 		BlogModule.class,
 		BriarClientModule.class,
 		ClientModule.class,

@@ -1,13 +1,10 @@
 package org.briarproject.briar.android;
 
-import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.File;
 import java.util.logging.Logger;
-
-import javax.annotation.Nullable;
 
 import static java.util.logging.Level.INFO;
 
@@ -18,9 +15,6 @@ class AndroidDatabaseConfig implements DatabaseConfig {
 			Logger.getLogger(AndroidDatabaseConfig.class.getName());
 
 	private final File dbDir, keyDir;
-
-	@Nullable
-	private volatile SecretKey key = null;
 
 	AndroidDatabaseConfig(File dbDir, File keyDir) {
 		this.dbDir = dbDir;
@@ -60,21 +54,6 @@ class AndroidDatabaseConfig implements DatabaseConfig {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Database key directory: " + keyDir.getAbsolutePath());
 		return keyDir;
-	}
-
-	@Override
-	public void setEncryptionKey(SecretKey key) {
-		LOG.info("Setting database key");
-		this.key = key;
-	}
-
-	@Override
-	@Nullable
-	public SecretKey getEncryptionKey() {
-		SecretKey key = this.key;
-		if (LOG.isLoggable(INFO))
-			LOG.info("Database key has been set: " + (key != null));
-		return key;
 	}
 
 	@Override

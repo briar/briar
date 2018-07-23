@@ -32,6 +32,9 @@ class H2Database extends JdbcDatabase {
 	private final DatabaseConfig config;
 	private final String url;
 
+	@Nullable
+	private volatile SecretKey key = null;
+
 	@Inject
 	H2Database(DatabaseConfig config, Clock clock) {
 		super(HASH_TYPE, SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE,
@@ -44,11 +47,12 @@ class H2Database extends JdbcDatabase {
 	}
 
 	@Override
-	public boolean open(@Nullable MigrationListener listener)
+	public boolean open(SecretKey key, @Nullable MigrationListener listener)
 			throws DbException {
+		this.key = key;
 		boolean reopen = config.databaseExists();
 		if (!reopen) config.getDatabaseDirectory().mkdirs();
-		super.open("org.h2.Driver", reopen, listener);
+		super.open("org.h2.Driver", reopen, key, listener);
 		return reopen;
 	}
 
@@ -63,7 +67,7 @@ class H2Database extends JdbcDatabase {
 	}
 
 	@Override
-	public long getFreeSpace() throws DbException {
+	public long getFreeSpace() {
 		File dir = config.getDatabaseDirectory();
 		long maxSize = config.getMaxSize();
 		long free = dir.getFreeSpace();
@@ -88,7 +92,7 @@ class H2Database extends JdbcDatabase {
 
 	@Override
 	protected Connection createConnection() throws SQLException {
-		SecretKey key = config.getEncryptionKey();
+		SecretKey key = this.key;
 		if (key == null) throw new IllegalStateException();
 		Properties props = new Properties();
 		props.setProperty("user", "user");

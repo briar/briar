@@ -13,6 +13,7 @@ import java.util.List;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getMean;
 import static org.briarproject.bramble.test.TestUtils.getMedian;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getStandardDeviation;
 
 public abstract class SingleDatabasePerformanceTest
@@ -40,7 +41,7 @@ public abstract class SingleDatabasePerformanceTest
 	private Database<Connection> openDatabase() throws DbException {
 		Database<Connection> db = createDatabase(
 				new TestDatabaseConfig(testDir, MAX_SIZE), new SystemClock());
-		db.open(null);
+		db.open(getSecretKey(), null);
 		return db;
 	}
 

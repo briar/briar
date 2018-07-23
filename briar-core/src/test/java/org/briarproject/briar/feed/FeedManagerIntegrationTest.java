@@ -27,6 +27,7 @@ import org.junit.Test;
 import java.io.File;
 import java.util.Collection;
 
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -52,6 +53,8 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 		IdentityManager identityManager = component.getIdentityManager();
 		LocalAuthor localAuthor = identityManager.createLocalAuthor("feedTest");
 		identityManager.registerLocalAuthor(localAuthor);
+
+		component.getAccountManager().setDatabaseKey(getSecretKey());
 
 		lifecycleManager = component.getLifecycleManager();
 		lifecycleManager.startServices();

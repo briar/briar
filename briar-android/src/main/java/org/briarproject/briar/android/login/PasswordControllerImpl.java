@@ -57,7 +57,7 @@ public class PasswordControllerImpl extends ConfigControllerImpl
 			if (key == null) {
 				resultHandler.onResult(false);
 			} else {
-				databaseConfig.setEncryptionKey(new SecretKey(key));
+				accountManager.setDatabaseKey(new SecretKey(key));
 				resultHandler.onResult(true);
 			}
 		});

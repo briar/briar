@@ -115,7 +115,7 @@ public class SetupControllerImpl extends PasswordControllerImpl
 			SecretKey key = crypto.generateSecretKey();
 			String hex = encryptDatabaseKey(key, password);
 			storeEncryptedDatabaseKey(hex);
-			databaseConfig.setEncryptionKey(key);
+			accountManager.setDatabaseKey(key);
 			resultHandler.onResult(null);
 		});
 	}

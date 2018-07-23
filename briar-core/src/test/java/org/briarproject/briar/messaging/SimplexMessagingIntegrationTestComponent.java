@@ -1,5 +1,7 @@
 package org.briarproject.briar.messaging;
 
+import org.briarproject.bramble.account.AccountModule;
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
@@ -39,6 +41,7 @@ import dagger.Component;
 		TestDatabaseModule.class,
 		TestPluginConfigModule.class,
 		TestSecureRandomModule.class,
+		AccountModule.class,
 		BriarClientModule.class,
 		ClientModule.class,
 		ContactModule.class,
@@ -76,6 +79,8 @@ interface SimplexMessagingIntegrationTestComponent {
 	LifecycleManager getLifecycleManager();
 
 	IdentityManager getIdentityManager();
+
+	AccountManager getAccountManager();
 
 	ContactManager getContactManager();
 

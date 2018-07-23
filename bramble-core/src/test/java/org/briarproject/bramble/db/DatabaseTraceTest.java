@@ -16,6 +16,7 @@ import java.sql.Connection;
 import javax.annotation.Nullable;
 
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 
 public abstract class DatabaseTraceTest extends DatabasePerformanceTest {
 
@@ -43,7 +44,7 @@ public abstract class DatabaseTraceTest extends DatabasePerformanceTest {
 	private Database<Connection> openDatabase() throws DbException {
 		Database<Connection> db = createDatabase(
 				new TestDatabaseConfig(testDir, MAX_SIZE), new SystemClock());
-		db.open(null);
+		db.open(getSecretKey(), null);
 		return db;
 	}
 
