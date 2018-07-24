@@ -109,15 +109,20 @@ public class BriarApplicationImpl extends Application
 
 		LOG.info("Created");
 
-		applicationComponent = DaggerAndroidComponent.builder()
+		applicationComponent = createApplicationComponent();
+	}
+
+	protected AndroidComponent createApplicationComponent() {
+		AndroidComponent androidComponent = DaggerAndroidComponent.builder()
 				.appModule(new AppModule(this))
 				.build();
 
 		// We need to load the eager singletons directly after making the
 		// dependency graphs
-		BrambleCoreModule.initEagerSingletons(applicationComponent);
-		BriarCoreModule.initEagerSingletons(applicationComponent);
-		AndroidEagerSingletons.initEagerSingletons(applicationComponent);
+		BrambleCoreModule.initEagerSingletons(androidComponent);
+		BriarCoreModule.initEagerSingletons(androidComponent);
+		AndroidEagerSingletons.initEagerSingletons(androidComponent);
+		return androidComponent;
 	}
 
 	@Override

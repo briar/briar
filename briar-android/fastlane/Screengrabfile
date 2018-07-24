@@ -1,0 +1,5 @@
+app_package_name "org.briarproject.briar.android.screenshot"
+locales ['en-US']
+app_apk_path "build/outputs/apk/screenshot/briar-android-screenshot.apk"
+tests_apk_path "build/outputs/apk/androidTest/screenshot/briar-android-screenshot-androidTest.apk"
+test_instrumentation_runner "org.briarproject.briar.android.test.BriarTestRunner"

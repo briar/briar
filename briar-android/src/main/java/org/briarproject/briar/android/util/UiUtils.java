@@ -55,6 +55,7 @@ import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
+import static org.briarproject.briar.BuildConfig.BUILD_TYPE;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 
 @MethodsNotNullByDefault
@@ -174,6 +175,7 @@ public class UiUtils {
 
 	public static boolean needsDozeWhitelisting(Context ctx) {
 		if (SDK_INT < 23) return false;
+		if (BUILD_TYPE.equals("screenshot")) return false;
 		PowerManager pm = (PowerManager) ctx.getSystemService(POWER_SERVICE);
 		String packageName = ctx.getPackageName();
 		if (pm == null) throw new AssertionError();
