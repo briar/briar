@@ -40,4 +40,7 @@ public interface TestingConstants {
 	 * Feature flag for enabling the sign-in reminder in release builds.
 	 */
 	boolean FEATURE_FLAG_SIGN_IN_REMINDER = IS_DEBUG_BUILD;
+
+	String ACTION_ALARM = "org.briarproject.briar.android.ACTION_ALARM";
+
 }
