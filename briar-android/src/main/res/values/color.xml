@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<color name="briar_blue">#2D3E50</color>
-	<color name="briar_blue_dark">#0F1720</color>
+	<color name="briar_blue_dark">#222E3C</color>
+	<color name="briar_blue_very_dark">#0F1720</color>
 	<color name="briar_blue_light">#4F6C8C</color>
-	<color name="briar_blue_light2">#5a7da3</color>
+	<color name="briar_green">#5C940D</color>
 	<color name="briar_green_light">#95D220</color>
-	<color name="briar_link">#06B9FF</color>
+	<color name="briar_link">#2A93C6</color>
 
 	<color name="window_background">#fffafafa</color>
 	<color name="card_background">@color/cardview_light_background</color>
+	<color name="item_background_highlight">#DCDCDC</color>
 	<color name="action_bar_text">#FFFFFF</color>
 	<color name="private_message_date_inverse">#e0e0e0</color>
 	<color name="forum_avatar_shadow">#99000000</color>
 
 	<color name="briar_primary">@color/briar_blue</color>
-	<color name="briar_primary_dark">@color/briar_blue_dark</color>
+	<color name="briar_primary_dark">@color/briar_blue_very_dark</color>
 
 	<color name="briar_accent">@color/briar_blue</color>
 
@@ -27,8 +29,10 @@
 	<color name="briar_text_secondary_inverse">#b4ffffff</color>
 	<color name="briar_text_tertiary_inverse">#80ffffff</color>
 	<color name="preference_category">@color/briar_blue_light</color>
+	<color name="preference_category_background">@color/window_background</color>
 
 	<color name="briar_button_positive">@color/briar_link</color>
+	<color name="briar_button_neutral">@color/briar_blue_light</color>
 	<color name="briar_button_negative">#ff0000</color>
 	<color name="briar_button_text_disabled">#28000000</color>
 	<color name="briar_warning_background">#ff0000</color>
@@ -37,6 +41,4 @@
 	<color name="thread_item_background">#eceff1</color>
 	<color name="thread_item_highlight">#ffffff</color>
 	<color name="divider">#c1c1c1</color>
-
-	<color name="spinner_border">#61000000</color> <!-- 38% Black -->
 </resources>

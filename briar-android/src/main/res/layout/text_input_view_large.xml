@@ -18,6 +18,7 @@
 		android:layout_marginTop="@dimen/margin_medium"
 		android:elevation="@dimen/cardview_default_elevation"
 		android:minHeight="@dimen/text_input_height"
+		app:cardBackgroundColor="@color/card_background"
 		app:cardCornerRadius="0dp"
 		app:cardUseCompatPadding="false">
 
