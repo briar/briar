@@ -56,7 +56,7 @@ public class DarkThemeTest extends ScreenshotTest {
 				.check(matches(isDisplayed()))
 				.perform(click());
 
-		screenshot("dark_theme_settings");
+		screenshot("manual_dark_theme_settings");
 
 		onView(withText(R.string.pref_theme_title))
 				.check(matches(isDisplayed()))
@@ -83,7 +83,7 @@ public class DarkThemeTest extends ScreenshotTest {
 				.check(matches(isClosed(Gravity.LEFT)))
 				.perform(DrawerActions.open());
 
-		screenshot("dark_theme_nav_drawer");
+		screenshot("manual_dark_theme_nav_drawer");
 	}
 
 }

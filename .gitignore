@@ -23,5 +23,12 @@ local.properties
 !.idea/codeStyles
 .gradle
 build/
+captures
 *.iml
 projectFilesBackup/
+
+# Fastlane Non-Google Play Screenshots
+briar-android/fastlane/metadata/android/screenshots.html
+briar-android/fastlane/metadata/android/*/images/phoneScreenshots/manual_*.png
+briar-android/fastlane/report.xml
+briar-android/fastlane/README.md
