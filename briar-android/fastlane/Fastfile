@@ -19,8 +19,10 @@ platform :android do
   desc "Takes screenshots for manual and Google Play"
   lane :screenshots do
     gradle(project_dir: "..", task: "assembleScreenshot assembleAndroidTest")
+    system './demo-mode-activate.sh'
     capture_android_screenshots
-	system './rename_screenshots.py'
+    system './demo-mode-deactivate.sh'
+    system './rename_screenshots.py'
   end
 end
 
