@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.db.DbException;
@@ -56,8 +57,8 @@ public abstract class BaseFragment extends Fragment
 
 	@UiThread
 	protected void finish() {
-		if (!isDetached())
-			getActivity().supportFinishAfterTransition();
+		FragmentActivity activity = getActivity();
+		if (activity != null) activity.supportFinishAfterTransition();
 	}
 
 	public interface BaseFragmentListener {
@@ -85,7 +86,7 @@ public abstract class BaseFragment extends Fragment
 			activity.runOnUiThread(() -> {
 				// Note that we don't have to check if the activity has
 				// been destroyed as the Fragment has not been detached yet
-				if (!isDetached() && !activity.isFinishing()) {
+				if (isAdded() && !activity.isFinishing()) {
 					r.run();
 				}
 			});
