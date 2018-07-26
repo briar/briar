@@ -50,8 +50,7 @@ class H2Database extends JdbcDatabase {
 	public boolean open(SecretKey key, @Nullable MigrationListener listener)
 			throws DbException {
 		this.key = key;
-		boolean reopen = config.databaseExists();
-		if (!reopen) config.getDatabaseDirectory().mkdirs();
+		boolean reopen = !config.getDatabaseDirectory().mkdirs();
 		super.open("org.h2.Driver", reopen, key, listener);
 		return reopen;
 	}

@@ -76,8 +76,8 @@ public class ConfigControllerImpl implements ConfigController {
 
 	@Override
 	public boolean accountExists() {
-		String hex = getEncryptedDatabaseKey();
-		return hex != null && databaseConfig.databaseExists();
+		return getEncryptedDatabaseKey() != null &&
+				databaseConfig.getDatabaseDirectory().isDirectory();
 	}
 
 	@Override

@@ -18,13 +18,6 @@ public class TestDatabaseConfig implements DatabaseConfig {
 	}
 
 	@Override
-	public boolean databaseExists() {
-		if (!dbDir.isDirectory()) return false;
-		File[] files = dbDir.listFiles();
-		return files != null && files.length > 0;
-	}
-
-	@Override
 	public File getDatabaseDirectory() {
 		return dbDir;
 	}

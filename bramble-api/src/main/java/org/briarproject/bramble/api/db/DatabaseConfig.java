@@ -7,8 +7,6 @@ import java.io.File;
 @NotNullByDefault
 public interface DatabaseConfig {
 
-	boolean databaseExists();
-
 	File getDatabaseDirectory();
 
 	File getDatabaseKeyDirectory();
