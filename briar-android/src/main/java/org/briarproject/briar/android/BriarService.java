@@ -14,10 +14,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Binder;
-import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
-import android.os.PowerManager.WakeLock;
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -30,17 +31,16 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
-import java.util.Calendar;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.TimeUnit;
-
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
+import static android.app.AlarmManager.ELAPSED_REALTIME_WAKEUP;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.app.NotificationManager.IMPORTANCE_NONE;
 import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
@@ -52,6 +52,7 @@ import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SERVICE;
 import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
@@ -60,12 +61,12 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
+import static org.briarproject.briar.android.TestingConstants.ACTION_ALARM;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.REMINDER_NOTIFICATION_ID;
-import static org.briarproject.briar.android.TestingConstants.ACTION_ALARM;
 
 public class BriarService extends Service {
 
@@ -76,15 +77,13 @@ public class BriarService extends Service {
 	public static String EXTRA_STARTUP_FAILED =
 			"org.briarproject.briar.STARTUP_FAILED";
 
-
-	private WakeLock wakeLock;
-	private AlarmManager alarm;
-
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
 
 	private final AtomicBoolean created = new AtomicBoolean(false);
 	private final Binder binder = new BriarBinder();
+
+	private AlarmManager alarm;
 
 	@Nullable
 	private BroadcastReceiver receiver = null;
@@ -105,7 +104,8 @@ public class BriarService extends Service {
 		BriarApplication application = (BriarApplication) getApplication();
 		application.getApplicationComponent().inject(this);
 
-		alarm = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+		alarm = (AlarmManager)
+				getApplicationContext().getSystemService(ALARM_SERVICE);
 
 		setAlarm();
 
@@ -184,7 +184,6 @@ public class BriarService extends Service {
 		};
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_SHUTDOWN);
-		filter.addAction(ACTION_ALARM);
 		filter.addAction("android.intent.action.QUICKBOOT_POWEROFF");
 		filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF");
 		registerReceiver(receiver, filter);
@@ -192,26 +191,31 @@ public class BriarService extends Service {
 
 	private void setAlarm() {
 		PendingIntent pi = getPendingIntent();
-		long millis = getRealTimeMillis(5000, MILLISECONDS);
-		if (Build.VERSION.SDK_INT >= 23) alarm.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, millis, pi);
-		else if (Build.VERSION.SDK_INT >= 19) alarm.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, millis, pi);
-		else alarm.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, millis, pi);
+		long millis = getElapsedRealTimeMillis(5000, MILLISECONDS);
+		if (SDK_INT >= 23) {
+			alarm.setExactAndAllowWhileIdle(ELAPSED_REALTIME_WAKEUP,
+					millis, pi);
+		} else if (SDK_INT >= 19) {
+			alarm.setExact(ELAPSED_REALTIME_WAKEUP, millis, pi);
+		} else {
+			alarm.set(ELAPSED_REALTIME_WAKEUP, millis, pi);
+		}
 		Log.i("ALARM_TEST", "Alarm set");
 	}
 
-	long getRealTimeMillis(long delay, TimeUnit unit) {
-		return System.currentTimeMillis() + MILLISECONDS.convert(delay, unit);
+	long getElapsedRealTimeMillis(long delay, TimeUnit unit) {
+		return SystemClock.elapsedRealtime()
+				+ MILLISECONDS.convert(delay, unit);
 	}
 
 	PendingIntent getPendingIntent() {
-		return PendingIntent.getService(getApplicationContext(), 0, getAlarmIntent(), FLAG_CANCEL_CURRENT);
+		return PendingIntent.getService(getApplicationContext(), 0,
+				getAlarmIntent(), FLAG_CANCEL_CURRENT);
 	}
 
 	Intent getAlarmIntent() {
 		Intent i = new Intent(getApplicationContext(), BriarService.class);
 		i.setAction(ACTION_ALARM);
-		String action = i.getAction();
-		Log.i("ALARM_TEST", "Action set to "+action);
 		return i;
 	}
 
@@ -249,24 +253,20 @@ public class BriarService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		String action = intent.getAction();
-		Log.i("ALARM_TEST", "Action = "+action);
 		if (ACTION_ALARM.equals(intent.getAction())) {
 			//acquire wakelock
-			PowerManager powerManager = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
-			wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "briar:TestWakeLock");
+			PowerManager powerManager = (PowerManager)
+					getApplicationContext().getSystemService(POWER_SERVICE);
+			WakeLock wakeLock = powerManager.newWakeLock(PARTIAL_WAKE_LOCK,
+					"briar:TestWakeLock");
 			wakeLock.acquire();
-			//do work
 			Log.i("ALARM_TEST", "WakeLock acquired");
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-
-			}
-			//release wakelock
-			wakeLock.release();
-			//repeat
-			setAlarm();
+			new Handler().postDelayed(() -> {
+				//release wakelock
+				wakeLock.release();
+				Log.i("ALARM_TEST", "WakeLock released");
+				setAlarm();
+			}, 5000);
 		}
 		return START_NOT_STICKY; // Don't restart automatically if killed
 	}
