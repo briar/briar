@@ -2,13 +2,18 @@ package org.briarproject.briar.android.test;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.NoMatchingViewException;
+import android.support.test.espresso.contrib.DrawerActions;
 import android.util.Log;
+import android.view.Gravity;
 
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarTestApplication;
 import org.briarproject.briar.android.BriarTestComponent;
 import org.junit.Before;
 import org.junit.ClassRule;
+
+import javax.inject.Inject;
 
 import tools.fastlane.screengrab.Screengrab;
 import tools.fastlane.screengrab.UiAutomatorScreenshotStrategy;
@@ -18,9 +23,11 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.contrib.DrawerMatchers.isClosed;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 import static tools.fastlane.screengrab.Screengrab.setDefaultScreenshotStrategy;
 
 public abstract class ScreenshotTest {
@@ -39,6 +46,8 @@ public abstract class ScreenshotTest {
 	private final BriarTestApplication app =
 			(BriarTestApplication) InstrumentationRegistry.getTargetContext()
 					.getApplicationContext();
+	@Inject
+	LifecycleManager lifecycleManager;
 
 	protected abstract void inject(BriarTestComponent component);
 
@@ -51,6 +60,7 @@ public abstract class ScreenshotTest {
 	@Before
 	public void signIn() throws Exception {
 		inject((BriarTestComponent) app.getApplicationComponent());
+		if (lifecycleManager.getLifecycleState() == RUNNING) return;
 
 		try {
 			onView(withId(R.id.edit_password))
@@ -91,6 +101,15 @@ public abstract class ScreenshotTest {
 				.perform(click());
 		onView(withId(R.id.progress))
 				.check(matches(isDisplayed()));
+	}
+
+	protected void signOut() {
+		onView(withId(R.id.drawer_layout))
+				.check(matches(isClosed(Gravity.LEFT)))
+				.perform(DrawerActions.open());
+		onView(withText(R.string.sign_out_button))
+				.check(matches(isDisplayed()))
+				.perform(click());
 	}
 
 	protected void screenshot(String name) {

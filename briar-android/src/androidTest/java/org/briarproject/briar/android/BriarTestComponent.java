@@ -3,7 +3,8 @@ package org.briarproject.briar.android;
 import org.briarproject.bramble.BrambleAndroidModule;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.briar.BriarCoreModule;
-import org.briarproject.briar.android.settings.DarkThemeTest;
+import org.briarproject.briar.android.navdrawer.NavDrawerActivityTest;
+import org.briarproject.briar.android.settings.SettingsActivityTest;
 
 import javax.inject.Singleton;
 
@@ -18,6 +19,7 @@ import dagger.Component;
 })
 public interface BriarTestComponent extends AndroidComponent {
 
-	void inject(DarkThemeTest test);
+	void inject(NavDrawerActivityTest test);
+	void inject(SettingsActivityTest test);
 
 }

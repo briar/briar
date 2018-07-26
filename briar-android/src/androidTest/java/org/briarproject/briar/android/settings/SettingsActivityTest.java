@@ -28,7 +28,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.briarproject.briar.android.test.ViewActions.waitForActivityToResume;
 
 @RunWith(AndroidJUnit4.class)
-public class DarkThemeTest extends ScreenshotTest {
+public class SettingsActivityTest extends ScreenshotTest {
 
 	@Rule
 	public ActivityTestRule<SettingsActivity> activityRule =
