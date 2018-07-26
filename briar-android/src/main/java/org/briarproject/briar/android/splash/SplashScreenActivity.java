@@ -69,7 +69,7 @@ public class SplashScreenActivity extends BaseActivity {
 				startActivity(new Intent(this, OpenDatabaseActivity.class));
 			} else {
 				LOG.info("Account does not exist");
-				configController.deleteAccount(this);
+				configController.deleteAccount();
 				startActivity(new Intent(this, SetupActivity.class));
 			}
 		}

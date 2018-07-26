@@ -3,7 +3,6 @@ package org.briarproject.bramble.util;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.provider.Settings;
 
@@ -56,30 +55,6 @@ public class AndroidUtils {
 		return !StringUtils.isNullOrEmpty(address)
 				&& BluetoothAdapter.checkBluetoothAddress(address)
 				&& !address.equals(FAKE_BLUETOOTH_ADDRESS);
-	}
-
-	public static void deleteAppData(Context ctx, SharedPreferences... clear) {
-		// Clear and commit shared preferences
-		for (SharedPreferences prefs : clear) {
-			if (!prefs.edit().clear().commit())
-				LOG.warning("Could not clear shared preferences");
-		}
-		// Delete files, except lib and shared_prefs directories
-		File dataDir = new File(ctx.getApplicationInfo().dataDir);
-		File[] children = dataDir.listFiles();
-		if (children == null) {
-			LOG.warning("Could not list files in app data dir");
-		} else {
-			for (File child : children) {
-				String name = child.getName();
-				if (!name.equals("lib") && !name.equals("shared_prefs")) {
-					IoUtils.deleteFileOrDir(child);
-				}
-			}
-		}
-		// Recreate the cache dir as some OpenGL drivers expect it to exist
-		if (!new File(dataDir, "cache").mkdir())
-			LOG.warning("Could not recreate cache dir");
 	}
 
 	public static File getReportDir(Context ctx) {

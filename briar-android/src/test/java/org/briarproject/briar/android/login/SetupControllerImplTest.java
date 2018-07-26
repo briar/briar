@@ -1,12 +1,9 @@
 package org.briarproject.briar.android.login;
 
-import android.content.SharedPreferences;
-
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.test.BrambleMockTestCase;
@@ -28,12 +25,8 @@ import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 public class SetupControllerImplTest extends BrambleMockTestCase {
 
-	private final SharedPreferences briarPrefs =
-			context.mock(SharedPreferences.class);
 	private final AccountManager accountManager =
 			context.mock(AccountManager.class);
-	private final DatabaseConfig databaseConfig =
-			context.mock(DatabaseConfig.class);
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
 	private final PasswordStrengthEstimator estimator =
 			context.mock(PasswordStrengthEstimator.class);
@@ -84,9 +77,8 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 			oneOf(accountManager).setDatabaseKey(key);
 		}});
 
-		SetupControllerImpl s = new SetupControllerImpl(briarPrefs,
-				accountManager, databaseConfig, cryptoExecutor, crypto,
-				estimator, identityManager);
+		SetupControllerImpl s = new SetupControllerImpl(accountManager,
+				cryptoExecutor, crypto, estimator, identityManager);
 		s.setSetupActivity(setupActivity);
 
 		AtomicBoolean called = new AtomicBoolean(false);

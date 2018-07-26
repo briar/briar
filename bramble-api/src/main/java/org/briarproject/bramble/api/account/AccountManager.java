@@ -19,4 +19,8 @@ public interface AccountManager {
 	String getEncryptedDatabaseKey();
 
 	boolean storeEncryptedDatabaseKey(String hex);
+
+	boolean accountExists();
+
+	void deleteAccount();
 }

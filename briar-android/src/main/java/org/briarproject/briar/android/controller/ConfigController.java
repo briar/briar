@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.controller;
 
-import android.content.Context;
-
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
@@ -14,7 +12,7 @@ public interface ConfigController {
 
 	boolean storeEncryptedDatabaseKey(String hex);
 
-	void deleteAccount(Context ctx);
+	void deleteAccount();
 
 	boolean accountExists();
 

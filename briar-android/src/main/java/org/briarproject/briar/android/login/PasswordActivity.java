@@ -105,7 +105,7 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	private void deleteAccount() {
-		passwordController.deleteAccount(this);
+		passwordController.deleteAccount();
 		Localizer.reinitialize();
 		UiUtils.setTheme(this, getString(R.string.pref_theme_light_value));
 		setResult(RESULT_CANCELED);

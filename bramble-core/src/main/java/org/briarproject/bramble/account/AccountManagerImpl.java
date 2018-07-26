@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.util.IoUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -136,5 +137,18 @@ class AccountManagerImpl implements AccountManager {
 		out.write(key.getBytes("UTF-8"));
 		out.flush();
 		out.close();
+	}
+
+	@Override
+	public boolean accountExists() {
+		return getEncryptedDatabaseKey() != null
+				&& databaseConfig.getDatabaseDirectory().isDirectory();
+	}
+
+	@Override
+	public void deleteAccount() {
+		LOG.info("Deleting account");
+		IoUtils.deleteFileOrDir(databaseConfig.getDatabaseKeyDirectory());
+		IoUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
 	}
 }

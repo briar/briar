@@ -1,11 +1,8 @@
 package org.briarproject.briar.android.login;
 
-import android.content.SharedPreferences;
-
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
-import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.jmock.Expectations;
@@ -22,12 +19,8 @@ import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 public class PasswordControllerImplTest extends BrambleMockTestCase {
 
-	private final SharedPreferences briarPrefs =
-			context.mock(SharedPreferences.class);
 	private final AccountManager accountManager =
 			context.mock(AccountManager.class);
-	private final DatabaseConfig databaseConfig =
-			context.mock(DatabaseConfig.class);
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
 	private final PasswordStrengthEstimator estimator =
 			context.mock(PasswordStrengthEstimator.class);
@@ -46,8 +39,6 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 	public void testChangePasswordReturnsTrue() {
 		context.checking(new Expectations() {{
 			// Look up the encrypted DB key
-			oneOf(briarPrefs).getString("key", null);
-			will(returnValue(null));
 			oneOf(accountManager).getEncryptedDatabaseKey();
 			will(returnValue(oldEncryptedKeyHex));
 			// Decrypt and re-encrypt the key
@@ -60,9 +51,8 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 			will(returnValue(true));
 		}});
 
-		PasswordControllerImpl p = new PasswordControllerImpl(briarPrefs,
-				accountManager, databaseConfig, cryptoExecutor, crypto,
-				estimator);
+		PasswordControllerImpl p = new PasswordControllerImpl(accountManager,
+				cryptoExecutor, crypto, estimator);
 
 		AtomicBoolean capturedResult = new AtomicBoolean(false);
 		p.changePassword(oldPassword, newPassword, capturedResult::set);
@@ -73,8 +63,6 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 	public void testChangePasswordReturnsFalseIfOldPasswordIsWrong() {
 		context.checking(new Expectations() {{
 			// Look up the encrypted DB key
-			oneOf(briarPrefs).getString("key", null);
-			will(returnValue(null));
 			oneOf(accountManager).getEncryptedDatabaseKey();
 			will(returnValue(oldEncryptedKeyHex));
 			// Try to decrypt the key - the password is wrong
@@ -82,9 +70,8 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 			will(returnValue(null));
 		}});
 
-		PasswordControllerImpl p = new PasswordControllerImpl(briarPrefs,
-				accountManager, databaseConfig, cryptoExecutor, crypto,
-				estimator);
+		PasswordControllerImpl p = new PasswordControllerImpl(accountManager,
+				cryptoExecutor, crypto, estimator);
 
 		AtomicBoolean capturedResult = new AtomicBoolean(true);
 		p.changePassword(oldPassword, newPassword, capturedResult::set);

@@ -1,6 +1,5 @@
 package org.briarproject.bramble;
 
-import org.briarproject.bramble.account.AccountModule;
 import org.briarproject.bramble.client.ClientModule;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoExecutorModule;
@@ -27,7 +26,6 @@ import org.briarproject.bramble.versioning.VersioningModule;
 import dagger.Module;
 
 @Module(includes = {
-		AccountModule.class,
 		ClientModule.class,
 		ContactModule.class,
 		CryptoModule.class,
