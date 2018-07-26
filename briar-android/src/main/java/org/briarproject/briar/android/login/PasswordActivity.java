@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.login;
 
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,6 +29,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.REMINDER_NOTIFICATION_ID;
 
 public class PasswordActivity extends BaseActivity {
 
@@ -88,6 +90,11 @@ public class PasswordActivity extends BaseActivity {
 		if (briarController.hasEncryptionKey()) {
 			setResult(RESULT_OK);
 			finish();
+		} else {
+			// Remove sign-in reminder notification
+			NotificationManager nm = (NotificationManager)
+					getSystemService(NOTIFICATION_SERVICE);
+			nm.cancel(REMINDER_NOTIFICATION_ID);
 		}
 	}
 
