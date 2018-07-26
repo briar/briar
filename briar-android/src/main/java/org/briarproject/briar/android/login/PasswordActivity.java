@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -32,6 +33,9 @@ import static android.view.View.VISIBLE;
 public class PasswordActivity extends BaseActivity {
 
 	@Inject
+	AccountManager accountManager;
+
+	@Inject
 	PasswordController passwordController;
 
 	@Inject
@@ -48,7 +52,7 @@ public class PasswordActivity extends BaseActivity {
 		// fade-in after splash screen instead of default animation
 		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 
-		if (!passwordController.accountExists()) {
+		if (!accountManager.accountExists()) {
 			deleteAccount();
 			return;
 		}
@@ -105,7 +109,7 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	private void deleteAccount() {
-		passwordController.deleteAccount();
+		accountManager.deleteAccount();
 		Localizer.reinitialize();
 		UiUtils.setTheme(this, getString(R.string.pref_theme_light_value));
 		setResult(RESULT_CANCELED);

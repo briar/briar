@@ -110,7 +110,7 @@ public class SetupControllerImpl extends PasswordControllerImpl
 			identityManager.registerLocalAuthor(localAuthor);
 			SecretKey key = crypto.generateSecretKey();
 			String hex = encryptDatabaseKey(key, password);
-			storeEncryptedDatabaseKey(hex);
+			accountManager.storeEncryptedDatabaseKey(hex);
 			accountManager.setDatabaseKey(key);
 			resultHandler.onResult(null);
 		});

@@ -7,11 +7,11 @@ import android.os.Handler;
 import android.support.v7.preference.PreferenceManager;
 import android.transition.Fade;
 
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
-import org.briarproject.briar.android.controller.ConfigController;
 import org.briarproject.briar.android.login.OpenDatabaseActivity;
 import org.briarproject.briar.android.login.SetupActivity;
 
@@ -27,7 +27,7 @@ public class SplashScreenActivity extends BaseActivity {
 			Logger.getLogger(SplashScreenActivity.class.getName());
 
 	@Inject
-	protected ConfigController configController;
+	protected AccountManager accountManager;
 	@Inject
 	protected AndroidExecutor androidExecutor;
 
@@ -43,7 +43,7 @@ public class SplashScreenActivity extends BaseActivity {
 
 		setContentView(R.layout.splash);
 
-		if (configController.accountSignedIn()) {
+		if (accountManager.hasDatabaseKey()) {
 			startActivity(new Intent(this, OpenDatabaseActivity.class));
 			finish();
 		} else {
@@ -64,12 +64,12 @@ public class SplashScreenActivity extends BaseActivity {
 			LOG.info("Expired");
 			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
-			if (configController.accountExists()) {
+			if (accountManager.accountExists()) {
 				LOG.info("Account exists");
 				startActivity(new Intent(this, OpenDatabaseActivity.class));
 			} else {
 				LOG.info("Account does not exist");
-				configController.deleteAccount();
+				accountManager.deleteAccount();
 				startActivity(new Intent(this, SetupActivity.class));
 			}
 		}

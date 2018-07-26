@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Bundle;
 
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -26,6 +27,9 @@ public class SetupActivity extends BaseActivity
 	private static final String STATE_KEY_PASSWORD = "password";
 
 	@Inject
+	AccountManager accountManager;
+
+	@Inject
 	SetupController setupController;
 
 	@Nullable
@@ -39,8 +43,7 @@ public class SetupActivity extends BaseActivity
 		setContentView(R.layout.activity_fragment_container);
 
 		if (state == null) {
-			if (setupController.accountExists())
-				throw new AssertionError();
+			if (accountManager.accountExists()) throw new AssertionError();
 			showInitialFragment(AuthorNameFragment.newInstance());
 		} else {
 			authorName = state.getString(STATE_KEY_AUTHOR_NAME);

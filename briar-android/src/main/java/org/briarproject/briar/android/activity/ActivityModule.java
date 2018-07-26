@@ -4,8 +4,6 @@ import android.app.Activity;
 
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.BriarControllerImpl;
-import org.briarproject.briar.android.controller.ConfigController;
-import org.briarproject.briar.android.controller.ConfigControllerImpl;
 import org.briarproject.briar.android.controller.DbController;
 import org.briarproject.briar.android.controller.DbControllerImpl;
 import org.briarproject.briar.android.login.PasswordController;
@@ -46,13 +44,6 @@ public class ActivityModule {
 	SetupController provideSetupController(
 			SetupControllerImpl setupController) {
 		return setupController;
-	}
-
-	@ActivityScope
-	@Provides
-	ConfigController provideConfigController(
-			ConfigControllerImpl configController) {
-		return configController;
 	}
 
 	@ActivityScope
