@@ -4,6 +4,8 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 
 import java.util.List;
 
+// TODO: Create a module for this so it doesn't have to be public
+
 public interface CircumventionProvider {
 
 	/**

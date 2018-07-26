@@ -16,6 +16,8 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+// TODO: Create a module for this so it doesn't need to be public
+
 public class CircumventionProviderImpl implements CircumventionProvider {
 
 	private final static String BRIDGE_FILE_NAME = "bridges";
