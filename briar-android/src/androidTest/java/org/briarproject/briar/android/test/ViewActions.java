@@ -21,7 +21,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class ViewActions {
 
-	private final static long TIMEOUT_MS = SECONDS.toMillis(5);
+	private final static long TIMEOUT_MS = SECONDS.toMillis(10);
 	private final static long WAIT_MS = 50;
 
 	public static ViewAction waitUntilMatches(Matcher<View> viewMatcher) {

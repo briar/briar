@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.settings;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.test.espresso.contrib.DrawerActions;
 import android.support.test.rule.ActivityTestRule;
@@ -9,10 +10,9 @@ import android.view.Gravity;
 import junit.framework.AssertionFailedError;
 
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.BriarTestComponent;
+import org.briarproject.briar.android.TestComponent;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.test.ScreenshotTest;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,10 +22,8 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerMatchers.isClosed;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.briarproject.briar.android.test.ViewActions.waitForActivityToResume;
 
 @RunWith(AndroidJUnit4.class)
 public class SettingsActivityTest extends ScreenshotTest {
@@ -35,14 +33,13 @@ public class SettingsActivityTest extends ScreenshotTest {
 			new ActivityTestRule<>(SettingsActivity.class);
 
 	@Override
-	protected void inject(BriarTestComponent component) {
+	protected void inject(TestComponent component) {
 		component.inject(this);
 	}
 
-	@Before
-	public void waitForSignIn() {
-		onView(isRoot())
-				.perform(waitForActivityToResume(activityRule.getActivity()));
+	@Override
+	protected Activity getActivity() {
+		return activityRule.getActivity();
 	}
 
 	@Test

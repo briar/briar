@@ -17,7 +17,7 @@ import dagger.Component;
 		BrambleAndroidModule.class,
 		BrambleCoreModule.class
 })
-public interface BriarTestComponent extends AndroidComponent {
+public interface TestComponent extends AndroidComponent {
 
 	void inject(NavDrawerActivityTest test);
 	void inject(SettingsActivityTest test);

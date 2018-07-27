@@ -3,11 +3,11 @@ package org.briarproject.briar.android;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.briar.BriarCoreModule;
 
-public class BriarTestApplication extends BriarApplicationImpl {
+public class TestBriarApplication extends BriarApplicationImpl {
 
 	@Override
 	protected AndroidComponent createApplicationComponent() {
-		AndroidComponent component = DaggerBriarTestComponent.builder()
+		AndroidComponent component = DaggerTestComponent.builder()
 				.appModule(new AppModule(this)).build();
 		// We need to load the eager singletons directly after making the
 		// dependency graphs
