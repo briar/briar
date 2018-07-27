@@ -63,7 +63,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 		assertFalse(keyBackupFile.exists());
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
 
-		assertEquals(encryptedKeyHex, accountManager.loadEncryptedDatabaseKey());
+		assertEquals(encryptedKeyHex,
+				accountManager.loadEncryptedDatabaseKey());
 
 		assertTrue(keyFile.exists());
 		assertFalse(keyBackupFile.exists());
@@ -81,7 +82,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 		assertTrue(keyBackupFile.exists());
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
 
-		assertEquals(encryptedKeyHex, accountManager.loadEncryptedDatabaseKey());
+		assertEquals(encryptedKeyHex,
+				accountManager.loadEncryptedDatabaseKey());
 
 		assertFalse(keyFile.exists());
 		assertTrue(keyBackupFile.exists());

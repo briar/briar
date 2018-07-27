@@ -35,15 +35,14 @@ class AndroidAccountManager extends AccountManagerImpl
 		appContext = app.getApplicationContext();
 	}
 
+	// Locking: stateChangeLock
 	@Override
 	@Nullable
 	protected String loadEncryptedDatabaseKey() {
-		synchronized (stateChangeLock) {
-			String key = getDatabaseKeyFromPreferences();
-			if (key == null) key = super.loadEncryptedDatabaseKey();
-			else migrateDatabaseKeyToFile(key);
-			return key;
-		}
+		String key = getDatabaseKeyFromPreferences();
+		if (key == null) key = super.loadEncryptedDatabaseKey();
+		else migrateDatabaseKeyToFile(key);
+		return key;
 	}
 
 	// Locking: stateChangeLock

@@ -38,7 +38,7 @@ class AccountManagerImpl implements AccountManager {
 	private final CryptoComponent crypto;
 	private final File dbKeyFile, dbKeyBackupFile;
 
-	protected final Object stateChangeLock = new Object();
+	final Object stateChangeLock = new Object();
 
 	@Nullable
 	private volatile SecretKey databaseKey = null;
@@ -63,20 +63,19 @@ class AccountManagerImpl implements AccountManager {
 		return databaseKey;
 	}
 
+	// Locking: stateChangeLock
 	@Nullable
 	protected String loadEncryptedDatabaseKey() {
-		synchronized (stateChangeLock) {
-			String key = readDbKeyFromFile(dbKeyFile);
-			if (key == null) {
-				LOG.info("No database key in primary file");
-				key = readDbKeyFromFile(dbKeyBackupFile);
-				if (key == null) LOG.info("No database key in backup file");
-				else LOG.warning("Found database key in backup file");
-			} else {
-				LOG.info("Found database key in primary file");
-			}
-			return key;
+		String key = readDbKeyFromFile(dbKeyFile);
+		if (key == null) {
+			LOG.info("No database key in primary file");
+			key = readDbKeyFromFile(dbKeyBackupFile);
+			if (key == null) LOG.info("No database key in backup file");
+			else LOG.warning("Found database key in backup file");
+		} else {
+			LOG.info("Found database key in primary file");
 		}
+		return key;
 	}
 
 	// Locking: stateChangeLock
