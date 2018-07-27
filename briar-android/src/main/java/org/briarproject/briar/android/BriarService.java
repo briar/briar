@@ -54,7 +54,6 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.FAIL
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_NOTIFICATION_ID;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.REMINDER_NOTIFICATION_ID;
 
 public class BriarService extends Service {
 
@@ -103,9 +102,9 @@ public class BriarService extends Service {
 		}
 
 		// Create notification channels
-		NotificationManager nm = (NotificationManager)
-				getSystemService(NOTIFICATION_SERVICE);
 		if (SDK_INT >= 26) {
+			NotificationManager nm = (NotificationManager)
+					getSystemService(NOTIFICATION_SERVICE);
 			NotificationChannel ongoingChannel = new NotificationChannel(
 					ONGOING_CHANNEL_ID,
 					getString(R.string.ongoing_notification_title),
@@ -137,8 +136,6 @@ public class BriarService extends Service {
 		}
 		b.setPriority(PRIORITY_MIN);
 		startForeground(ONGOING_NOTIFICATION_ID, b.build());
-		// Remove sign-in reminder notification
-		nm.cancel(REMINDER_NOTIFICATION_ID);
 		// Start the services in a background thread
 		new Thread(() -> {
 			String nickname = databaseConfig.getLocalAuthorName();
