@@ -14,6 +14,10 @@ public interface NavDrawerController extends ActivityLifecycleController {
 
 	boolean isTransportRunning(TransportId transportId);
 
+	void isLockable(ResultHandler<Boolean> handler);
+
+	void lock();
+
 	void showExpiryWarning(ResultHandler<ExpiryWarning> handler);
 
 	void expiryWarningDismissed();

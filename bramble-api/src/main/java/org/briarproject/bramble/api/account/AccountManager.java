@@ -67,4 +67,8 @@ public interface AccountManager {
 	 * and stored.
 	 */
 	boolean changePassword(String oldPassword, String newPassword);
+
+	boolean isLocked();
+
+	void setLocked(boolean locked);
 }

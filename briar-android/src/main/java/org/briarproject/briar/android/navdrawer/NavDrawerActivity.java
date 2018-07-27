@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
@@ -59,6 +60,7 @@ import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSW
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
 import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
+import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 
 public class NavDrawerActivity extends BriarActivity implements
 		BaseFragmentListener, TransportStateListener,
@@ -152,6 +154,14 @@ public class NavDrawerActivity extends BriarActivity implements
 	public void onStart() {
 		super.onStart();
 		updateTransports();
+		if (hasScreenLock(this)) {
+			controller.isLockable(new UiResultHandler<Boolean>(this) {
+				@Override
+				public void onResultUi(@NonNull Boolean lockable) {
+					setLockVisible(lockable);
+				}
+			});
+		} else setLockVisible(false);
 		controller.showExpiryWarning(new UiResultHandler<ExpiryWarning>(this) {
 			@Override
 			public void onResultUi(ExpiryWarning expiry) {
@@ -213,9 +223,15 @@ public class NavDrawerActivity extends BriarActivity implements
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 		drawerLayout.closeDrawer(START);
 		clearBackStack();
-		loadFragment(item.getItemId());
-		// Don't display the Settings item as checked
-		return item.getItemId() != R.id.nav_btn_settings;
+		if (item.getItemId() == R.id.nav_btn_lock) {
+			controller.lock();
+			ActivityCompat.finishAfterTransition(this);
+			return false;
+		} else {
+			loadFragment(item.getItemId());
+			// Don't display the Settings item as checked
+			return item.getItemId() != R.id.nav_btn_settings;
+		}
 	}
 
 	@Override
@@ -299,6 +315,11 @@ public class NavDrawerActivity extends BriarActivity implements
 	@Override
 	public void handleDbException(DbException e) {
 		// Do nothing for now
+	}
+
+	private void setLockVisible(boolean visible) {
+		MenuItem item = navigation.getMenu().findItem(R.id.nav_btn_lock);
+		if (item != null) item.setVisible(visible);
 	}
 
 	@SuppressWarnings("ConstantConditions")

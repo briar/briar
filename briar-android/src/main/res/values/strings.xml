@@ -62,6 +62,7 @@
 	<string name="groups_button">Private Groups</string>
 	<string name="forums_button">Forums</string>
 	<string name="blogs_button">Blogs</string>
+	<string name="lock_button">Lock App</string>
 	<string name="settings_button">Settings</string>
 	<string name="sign_out_button">Sign Out</string>
 
@@ -356,6 +357,8 @@
 
 	<!-- Settings Security and Panic -->
 	<string name="security_settings_title">Security</string>
+	<string name="pref_lock_title">Screen Lock</string>
+	<string name="pref_lock_summary">Lock app access with Android screen lock or fingerprint</string>
 	<string name="change_password">Change password</string>
 	<string name="current_password">Current password</string>
 	<string name="choose_new_password">New password</string>
@@ -444,4 +447,10 @@
 	<string name="permission_camera_denied_toast">Camera permission was not granted</string>
 	<string name="qr_code">QR code</string>
 	<string name="show_qr_code_fullscreen">Show QR code fullscreen</string>
+
+	<!-- App Locking -->
+	<string name="lock_unlock">Unlock Briar</string>
+	<string name="lock_is_locked">Briar is locked</string>
+	<string name="lock_tap_to_unlock">Tap to unlock</string>
+
 </resources>

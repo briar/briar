@@ -14,6 +14,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.login.OpenDatabaseActivity;
 import org.briarproject.briar.android.login.SetupActivity;
+import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import java.util.logging.Logger;
 
@@ -44,7 +45,15 @@ public class SplashScreenActivity extends BaseActivity {
 		setContentView(R.layout.splash);
 
 		if (accountManager.hasDatabaseKey()) {
-			startActivity(new Intent(this, OpenDatabaseActivity.class));
+			Intent i;
+			if (accountManager.isLocked()) {
+				// The database is already open, so start main activity which
+				// will open the activity to unlock, then brings main to front.
+				i = new Intent(this, NavDrawerActivity.class);
+			} else {
+				i = new Intent(this, OpenDatabaseActivity.class);
+			}
+			startActivity(i);
 			finish();
 		} else {
 			new Handler().postDelayed(() -> {

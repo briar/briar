@@ -56,6 +56,13 @@
 		android:layout="@layout/preferences_category"
 		android:title="@string/security_settings_title">
 
+		<CheckBoxPreference
+			android:key="pref_key_lock"
+			android:persistent="false"
+			android:summary="@string/pref_lock_summary"
+			android:title="@string/pref_lock_title"
+			android:visibility="gone"/>
+
 		<Preference
 			android:key="pref_key_change_password"
 			android:title="@string/change_password">

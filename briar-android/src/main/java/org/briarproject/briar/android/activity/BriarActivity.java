@@ -16,6 +16,7 @@ import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.DbController;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.login.PasswordActivity;
+import org.briarproject.briar.android.login.UnlockActivity;
 import org.briarproject.briar.android.logout.ExitActivity;
 
 import java.util.logging.Logger;
@@ -30,6 +31,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_UNLOCK;
 import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingIntent;
 import static org.briarproject.briar.android.util.UiUtils.isSamsung7;
 
@@ -55,6 +57,8 @@ public abstract class BriarActivity extends BaseActivity {
 		if (request == REQUEST_PASSWORD) {
 			if (result == RESULT_OK) briarController.startAndBindService();
 			else supportFinishAfterTransition();
+		} else if (request == REQUEST_UNLOCK) {
+			if (result != RESULT_OK) supportFinishAfterTransition();
 		}
 	}
 
@@ -64,6 +68,9 @@ public abstract class BriarActivity extends BaseActivity {
 		if (!briarController.accountSignedIn() && !isFinishing()) {
 			Intent i = new Intent(this, PasswordActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
+		} else if(briarController.isLocked()) {
+			Intent i = new Intent(this, UnlockActivity.class);
+			startActivityForResult(i, REQUEST_UNLOCK);
 		} else if (SDK_INT >= 23) {
 			briarController.hasDozed(new UiResultHandler<Boolean>(this) {
 				@Override

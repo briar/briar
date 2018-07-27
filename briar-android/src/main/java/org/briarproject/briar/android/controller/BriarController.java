@@ -8,6 +8,8 @@ public interface BriarController extends ActivityLifecycleController {
 
 	boolean accountSignedIn();
 
+	boolean isLocked();
+
 	/**
 	 * Returns true via the handler when the app has dozed
 	 * without being white-listed.

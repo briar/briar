@@ -402,5 +402,11 @@
 			android:theme="@android:style/Theme.NoDisplay">
 		</activity>
 
+		<activity
+			android:name=".android.login.UnlockActivity"
+			android:label="@string/lock_unlock"
+			android:launchMode="singleTask"
+			android:theme="@style/BriarTheme.NoActionBar"/>
+
 	</application>
 </manifest>
