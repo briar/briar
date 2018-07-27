@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.util.IoUtils;
 
@@ -23,29 +24,29 @@ class AndroidAccountManager extends AccountManagerImpl
 
 	private static final String PREF_DB_KEY = "key";
 
-	private final SharedPreferences briarPrefs;
+	private final SharedPreferences prefs;
 	private final Context appContext;
 
 	@Inject
 	AndroidAccountManager(DatabaseConfig databaseConfig,
-			SharedPreferences briarPrefs, Application app) {
-		super(databaseConfig);
-		this.briarPrefs = briarPrefs;
+			CryptoComponent crypto, SharedPreferences prefs, Application app) {
+		super(databaseConfig, crypto);
+		this.prefs = prefs;
 		appContext = app.getApplicationContext();
 	}
 
 	@Override
 	@Nullable
-	public String getEncryptedDatabaseKey() {
+	protected String loadEncryptedDatabaseKey() {
 		String key = getDatabaseKeyFromPreferences();
-		if (key == null) key = super.getEncryptedDatabaseKey();
+		if (key == null) key = super.loadEncryptedDatabaseKey();
 		else migrateDatabaseKeyToFile(key);
 		return key;
 	}
 
 	@Nullable
 	private String getDatabaseKeyFromPreferences() {
-		String key = briarPrefs.getString(PREF_DB_KEY, null);
+		String key = prefs.getString(PREF_DB_KEY, null);
 		if (key == null) LOG.info("No database key in preferences");
 		else LOG.info("Found database key in preferences");
 		return key;
@@ -53,7 +54,7 @@ class AndroidAccountManager extends AccountManagerImpl
 
 	private void migrateDatabaseKeyToFile(String key) {
 		if (storeEncryptedDatabaseKey(key)) {
-			if (briarPrefs.edit().remove(PREF_DB_KEY).commit())
+			if (prefs.edit().remove(PREF_DB_KEY).commit())
 				LOG.info("Database key migrated to file");
 			else LOG.warning("Database key not removed from preferences");
 		} else {
@@ -66,7 +67,7 @@ class AndroidAccountManager extends AccountManagerImpl
 		super.deleteAccount();
 		SharedPreferences defaultPrefs =
 				PreferenceManager.getDefaultSharedPreferences(appContext);
-		deleteAppData(briarPrefs, defaultPrefs);
+		deleteAppData(prefs, defaultPrefs);
 	}
 
 	private void deleteAppData(SharedPreferences... clear) {
@@ -92,5 +93,4 @@ class AndroidAccountManager extends AccountManagerImpl
 		if (!new File(dataDir, "cache").mkdir())
 			LOG.warning("Could not recreate cache dir");
 	}
-
 }

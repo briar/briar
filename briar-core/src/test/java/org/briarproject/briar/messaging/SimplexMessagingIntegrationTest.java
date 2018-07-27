@@ -100,11 +100,11 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	private ContactId setUp(SimplexMessagingIntegrationTestComponent device,
 			LocalAuthor local, Author remote, boolean alice) throws Exception {
-		// Create a database key
-		device.getAccountManager().setDatabaseKey(getSecretKey());
 		// Add an identity for the user
 		IdentityManager identityManager = device.getIdentityManager();
 		identityManager.registerLocalAuthor(local);
+		// Create an account
+		device.getAccountManager().createAccount("password");
 		// Start the lifecycle manager
 		LifecycleManager lifecycleManager = device.getLifecycleManager();
 		lifecycleManager.startServices();

@@ -1,6 +1,7 @@
 package org.briarproject.bramble.account;
 
 import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -20,6 +21,8 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.fromHexString;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -32,14 +35,16 @@ class AccountManagerImpl implements AccountManager {
 	private static final String DB_KEY_BACKUP_FILENAME = "db.key.bak";
 
 	private final DatabaseConfig databaseConfig;
+	private final CryptoComponent crypto;
 	private final File dbKeyFile, dbKeyBackupFile;
 
 	@Nullable
 	private volatile SecretKey databaseKey = null;
 
 	@Inject
-	AccountManagerImpl(DatabaseConfig databaseConfig) {
+	AccountManagerImpl(DatabaseConfig databaseConfig, CryptoComponent crypto) {
 		this.databaseConfig = databaseConfig;
+		this.crypto = crypto;
 		File keyDir = databaseConfig.getDatabaseKeyDirectory();
 		dbKeyFile = new File(keyDir, DB_KEY_FILENAME);
 		dbKeyBackupFile = new File(keyDir, DB_KEY_BACKUP_FILENAME);
@@ -56,14 +61,8 @@ class AccountManagerImpl implements AccountManager {
 		return databaseKey;
 	}
 
-	@Override
-	public void setDatabaseKey(SecretKey k) {
-		databaseKey = k;
-	}
-
-	@Override
 	@Nullable
-	public String getEncryptedDatabaseKey() {
+	protected String loadEncryptedDatabaseKey() {
 		String key = readDbKeyFromFile(dbKeyFile);
 		if (key == null) {
 			LOG.info("No database key in primary file");
@@ -94,8 +93,7 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
-	@Override
-	public boolean storeEncryptedDatabaseKey(String hex) {
+	protected boolean storeEncryptedDatabaseKey(String hex) {
 		LOG.info("Storing database key in file");
 		// Create the directory if necessary
 		if (databaseConfig.getDatabaseKeyDirectory().mkdirs())
@@ -141,8 +139,22 @@ class AccountManagerImpl implements AccountManager {
 
 	@Override
 	public boolean accountExists() {
-		return getEncryptedDatabaseKey() != null
+		return loadEncryptedDatabaseKey() != null
 				&& databaseConfig.getDatabaseDirectory().isDirectory();
+	}
+
+	@Override
+	public boolean createAccount(String password) {
+		SecretKey key = crypto.generateSecretKey();
+		if (!encryptAndStoreDatabaseKey(key, password)) return false;
+		databaseKey = key;
+		return true;
+	}
+
+	private boolean encryptAndStoreDatabaseKey(SecretKey key, String password) {
+		byte[] plaintext = key.getBytes();
+		byte[] ciphertext = crypto.encryptWithPassword(plaintext, password);
+		return storeEncryptedDatabaseKey(toHexString(ciphertext));
 	}
 
 	@Override
@@ -150,5 +162,35 @@ class AccountManagerImpl implements AccountManager {
 		LOG.info("Deleting account");
 		IoUtils.deleteFileOrDir(databaseConfig.getDatabaseKeyDirectory());
 		IoUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
+	}
+
+	@Override
+	public boolean signIn(String password) {
+		SecretKey key = loadAndDecryptDatabaseKey(password);
+		if (key == null) return false;
+		databaseKey = key;
+		return true;
+	}
+
+	@Nullable
+	private SecretKey loadAndDecryptDatabaseKey(String password) {
+		String hex = loadEncryptedDatabaseKey();
+		if (hex == null) {
+			LOG.warning("Failed to load encrypted database key");
+			return null;
+		}
+		byte[] ciphertext = fromHexString(hex);
+		byte[] plaintext = crypto.decryptWithPassword(ciphertext, password);
+		if (plaintext == null) {
+			LOG.info("Failed to decrypt database key");
+			return null;
+		}
+		return new SecretKey(plaintext);
+	}
+
+	@Override
+	public boolean changePassword(String oldPassword, String newPassword) {
+		SecretKey key = loadAndDecryptDatabaseKey(oldPassword);
+		return key != null && encryptAndStoreDatabaseKey(key, newPassword);
 	}
 }

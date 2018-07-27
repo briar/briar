@@ -1,5 +1,6 @@
 package org.briarproject.bramble.account;
 
+import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
@@ -29,6 +30,7 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 
 	private final DatabaseConfig databaseConfig =
 			context.mock(DatabaseConfig.class);
+	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
 
 	private final byte[] encryptedKey = getRandomBytes(123);
 	private final String encryptedKeyHex = toHexString(encryptedKey);
@@ -46,7 +48,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 			allowing(databaseConfig).getDatabaseKeyDirectory();
 			will(returnValue(keyDir));
 		}});
-		accountManager = new AccountManagerImpl(databaseConfig);
+		assertTrue(keyDir.mkdirs());
+		accountManager = new AccountManagerImpl(databaseConfig, crypto);
 	}
 
 	@Test
@@ -60,7 +63,7 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 		assertFalse(keyBackupFile.exists());
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
 
-		assertEquals(encryptedKeyHex, accountManager.getEncryptedDatabaseKey());
+		assertEquals(encryptedKeyHex, accountManager.loadEncryptedDatabaseKey());
 
 		assertTrue(keyFile.exists());
 		assertFalse(keyBackupFile.exists());
@@ -78,7 +81,7 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 		assertTrue(keyBackupFile.exists());
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
 
-		assertEquals(encryptedKeyHex, accountManager.getEncryptedDatabaseKey());
+		assertEquals(encryptedKeyHex, accountManager.loadEncryptedDatabaseKey());
 
 		assertFalse(keyFile.exists());
 		assertTrue(keyBackupFile.exists());
@@ -90,7 +93,7 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 		assertFalse(keyFile.exists());
 		assertFalse(keyBackupFile.exists());
 
-		assertNull(accountManager.getEncryptedDatabaseKey());
+		assertNull(accountManager.loadEncryptedDatabaseKey());
 
 		assertFalse(keyFile.exists());
 		assertFalse(keyBackupFile.exists());
@@ -134,13 +137,7 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
 	}
 
-	@After
-	public void tearDown() {
-		deleteTestDirectory(testDir);
-	}
-
 	private void storeDatabaseKey(File f, String hex) throws IOException {
-		f.getParentFile().mkdirs();
 		FileOutputStream out = new FileOutputStream(f);
 		out.write(hex.getBytes("UTF-8"));
 		out.flush();
@@ -154,5 +151,10 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 		String hex = reader.readLine();
 		reader.close();
 		return hex;
+	}
+
+	@After
+	public void tearDown() {
+		deleteTestDirectory(testDir);
 	}
 }

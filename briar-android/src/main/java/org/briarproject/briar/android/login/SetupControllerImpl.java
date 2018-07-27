@@ -3,12 +3,10 @@ package org.briarproject.briar.android.login;
 import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.account.AccountManager;
-import org.briarproject.bramble.api.crypto.CryptoComponent;
-import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
-import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
@@ -32,10 +30,10 @@ public class SetupControllerImpl extends PasswordControllerImpl
 
 	@Inject
 	SetupControllerImpl(AccountManager accountManager,
-			@CryptoExecutor Executor cryptoExecutor, CryptoComponent crypto,
+			@IoExecutor Executor ioExecutor,
 			PasswordStrengthEstimator strengthEstimator,
 			IdentityManager identityManager) {
-		super(accountManager, cryptoExecutor, crypto, strengthEstimator);
+		super(accountManager, ioExecutor, strengthEstimator);
 		this.identityManager = identityManager;
 	}
 
@@ -83,10 +81,10 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	@Override
 	public void createAccount() {
 		SetupActivity setupActivity = this.setupActivity;
-		UiResultHandler<Void> resultHandler =
-				new UiResultHandler<Void>(setupActivity) {
+		UiResultHandler<Boolean> resultHandler =
+				new UiResultHandler<Boolean>(setupActivity) {
 					@Override
-					public void onResultUi(Void result) {
+					public void onResultUi(Boolean result) {
 						if (setupActivity == null)
 							throw new IllegalStateException();
 						setupActivity.showApp();
@@ -96,23 +94,19 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	}
 
 	// Package access for testing
-	void createAccount(ResultHandler<Void> resultHandler) {
+	void createAccount(ResultHandler<Boolean> resultHandler) {
 		SetupActivity setupActivity = this.setupActivity;
 		if (setupActivity == null) throw new IllegalStateException();
 		String authorName = setupActivity.getAuthorName();
 		if (authorName == null) throw new IllegalStateException();
 		String password = setupActivity.getPassword();
 		if (password == null) throw new IllegalStateException();
-		cryptoExecutor.execute(() -> {
+		ioExecutor.execute(() -> {
 			LOG.info("Creating account");
 			LocalAuthor localAuthor =
 					identityManager.createLocalAuthor(authorName);
 			identityManager.registerLocalAuthor(localAuthor);
-			SecretKey key = crypto.generateSecretKey();
-			String hex = encryptDatabaseKey(key, password);
-			accountManager.storeEncryptedDatabaseKey(hex);
-			accountManager.setDatabaseKey(key);
-			resultHandler.onResult(null);
+			resultHandler.onResult(accountManager.createAccount(password));
 		});
 	}
 }

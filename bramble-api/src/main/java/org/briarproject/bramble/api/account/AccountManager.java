@@ -13,14 +13,13 @@ public interface AccountManager {
 	@Nullable
 	SecretKey getDatabaseKey();
 
-	void setDatabaseKey(SecretKey k);
-
-	@Nullable
-	String getEncryptedDatabaseKey();
-
-	boolean storeEncryptedDatabaseKey(String hex);
-
 	boolean accountExists();
 
+	boolean createAccount(String password);
+
 	void deleteAccount();
+
+	boolean signIn(String password);
+
+	boolean changePassword(String oldPassword, String newPassword);
 }

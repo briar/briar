@@ -3,6 +3,7 @@ package org.briarproject.bramble.account;
 import android.app.Application;
 import android.content.SharedPreferences;
 
+import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
@@ -27,6 +28,7 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 			context.mock(SharedPreferences.class);
 	private final DatabaseConfig databaseConfig =
 			context.mock(DatabaseConfig.class);
+	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
 	private final SharedPreferences.Editor
 			editor = context.mock(SharedPreferences.Editor.class);
 	private final Application app;
@@ -52,7 +54,8 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 			allowing(app).getApplicationContext();
 			will(returnValue(app));
 		}});
-		accountManager = new AndroidAccountManager(databaseConfig, prefs, app);
+		accountManager = new AndroidAccountManager(databaseConfig, crypto,
+				prefs, app);
 	}
 
 	@Test
@@ -71,7 +74,7 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 		assertFalse(keyFile.exists());
 		assertFalse(keyBackupFile.exists());
 
-		assertEquals(encryptedKeyHex, accountManager.getEncryptedDatabaseKey());
+		assertEquals(encryptedKeyHex, accountManager.loadEncryptedDatabaseKey());
 
 		assertTrue(keyFile.exists());
 		assertTrue(keyBackupFile.exists());

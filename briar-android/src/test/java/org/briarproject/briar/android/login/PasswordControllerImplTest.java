@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.login;
 
 import org.briarproject.bramble.api.account.AccountManager;
-import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
@@ -13,46 +12,28 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
-import static org.briarproject.bramble.test.TestUtils.getSecretKey;
-import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 public class PasswordControllerImplTest extends BrambleMockTestCase {
 
 	private final AccountManager accountManager =
 			context.mock(AccountManager.class);
-	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
 	private final PasswordStrengthEstimator estimator =
 			context.mock(PasswordStrengthEstimator.class);
 
-	private final Executor cryptoExecutor = new ImmediateExecutor();
+	private final Executor ioExecutor = new ImmediateExecutor();
 
 	private final String oldPassword = "some.old.pass";
 	private final String newPassword = "some.new.pass";
-	private final byte[] oldEncryptedKey = getRandomBytes(123);
-	private final byte[] newEncryptedKey = getRandomBytes(123);
-	private final byte[] key = getSecretKey().getBytes();
-	private final String oldEncryptedKeyHex = toHexString(oldEncryptedKey);
-	private final String newEncryptedKeyHex = toHexString(newEncryptedKey);
 
 	@Test
 	public void testChangePasswordReturnsTrue() {
 		context.checking(new Expectations() {{
-			// Look up the encrypted DB key
-			oneOf(accountManager).getEncryptedDatabaseKey();
-			will(returnValue(oldEncryptedKeyHex));
-			// Decrypt and re-encrypt the key
-			oneOf(crypto).decryptWithPassword(oldEncryptedKey, oldPassword);
-			will(returnValue(key));
-			oneOf(crypto).encryptWithPassword(key, newPassword);
-			will(returnValue(newEncryptedKey));
-			// Store the new key
-			oneOf(accountManager).storeEncryptedDatabaseKey(newEncryptedKeyHex);
+			oneOf(accountManager).changePassword(oldPassword, newPassword);
 			will(returnValue(true));
 		}});
 
 		PasswordControllerImpl p = new PasswordControllerImpl(accountManager,
-				cryptoExecutor, crypto, estimator);
+				ioExecutor, estimator);
 
 		AtomicBoolean capturedResult = new AtomicBoolean(false);
 		p.changePassword(oldPassword, newPassword, capturedResult::set);
@@ -62,16 +43,12 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testChangePasswordReturnsFalseIfOldPasswordIsWrong() {
 		context.checking(new Expectations() {{
-			// Look up the encrypted DB key
-			oneOf(accountManager).getEncryptedDatabaseKey();
-			will(returnValue(oldEncryptedKeyHex));
-			// Try to decrypt the key - the password is wrong
-			oneOf(crypto).decryptWithPassword(oldEncryptedKey, oldPassword);
-			will(returnValue(null));
+			oneOf(accountManager).changePassword(oldPassword, newPassword);
+			will(returnValue(false));
 		}});
 
 		PasswordControllerImpl p = new PasswordControllerImpl(accountManager,
-				cryptoExecutor, crypto, estimator);
+				ioExecutor, estimator);
 
 		AtomicBoolean capturedResult = new AtomicBoolean(true);
 		p.changePassword(oldPassword, newPassword, capturedResult::set);

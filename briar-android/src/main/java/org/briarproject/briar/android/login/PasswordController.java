@@ -11,7 +11,7 @@ public interface PasswordController {
 	void validatePassword(String password,
 			ResultHandler<Boolean> resultHandler);
 
-	void changePassword(String password, String newPassword,
+	void changePassword(String oldPassword, String newPassword,
 			ResultHandler<Boolean> resultHandler);
 
 }
