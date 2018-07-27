@@ -12,7 +12,7 @@ public interface AccountManager {
 	 * Returns true if the manager has the database key. This will be false
 	 * before {@link #createAccount(String)} or {@link #signIn(String)} has
 	 * been called, and true after {@link #createAccount(String)} or
-	 * {@link #signIn(String)} has returned, until the process exits.
+	 * {@link #signIn(String)} has returned true, until the process exits.
 	 */
 	boolean hasDatabaseKey();
 
@@ -20,14 +20,14 @@ public interface AccountManager {
 	 * Returns the database key if the manager has it. This will be null
 	 * before {@link #createAccount(String)} or {@link #signIn(String)} has
 	 * been called, and non-null after {@link #createAccount(String)} or
-	 * {@link #signIn(String)} has returned, until the process exits.
+	 * {@link #signIn(String)} has returned true, until the process exits.
 	 */
 	@Nullable
 	SecretKey getDatabaseKey();
 
 	/**
-	 * Returns true if the encrypted database key can be loaded from disk and
-	 * the database directory exists.
+	 * Returns true if the encrypted database key can be loaded from disk, and
+	 * the database directory exists and is a directory.
 	 */
 	boolean accountExists();
 

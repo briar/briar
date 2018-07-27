@@ -69,10 +69,14 @@ class AndroidAccountManager extends AccountManagerImpl
 	public void deleteAccount() {
 		synchronized (stateChangeLock) {
 			super.deleteAccount();
-			SharedPreferences defaultPrefs =
-					PreferenceManager.getDefaultSharedPreferences(appContext);
+			SharedPreferences defaultPrefs = getDefaultSharedPreferences();
 			deleteAppData(prefs, defaultPrefs);
 		}
+	}
+
+	// Package access for testing
+	SharedPreferences getDefaultSharedPreferences() {
+		return PreferenceManager.getDefaultSharedPreferences(appContext);
 	}
 
 	// Locking: stateChangeLock
