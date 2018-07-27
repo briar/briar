@@ -1,7 +1,5 @@
 package org.briarproject.briar.test;
 
-import org.briarproject.bramble.account.AccountModule;
-import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -56,7 +54,6 @@ import dagger.Component;
 		TestDatabaseModule.class,
 		TestPluginConfigModule.class,
 		TestSecureRandomModule.class,
-		AccountModule.class,
 		BlogModule.class,
 		BriarClientModule.class,
 		ClientModule.class,
@@ -122,8 +119,6 @@ public interface BriarIntegrationTestComponent {
 	EventBus getEventBus();
 
 	IdentityManager getIdentityManager();
-
-	AccountManager getAccountManager();
 
 	ClientHelper getClientHelper();
 

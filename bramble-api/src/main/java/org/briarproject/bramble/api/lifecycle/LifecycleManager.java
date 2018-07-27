@@ -1,5 +1,6 @@
 package org.briarproject.bramble.api.lifecycle;
 
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
@@ -16,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 public interface LifecycleManager {
 
 	/**
-	 * The result of calling {@link #startServices()}.
+	 * The result of calling {@link #startServices(SecretKey)}.
 	 */
 	enum StartResult {
 		ALREADY_RUNNING,
@@ -42,27 +43,27 @@ public interface LifecycleManager {
 
 	/**
 	 * Registers a {@link Service} to be started and stopped. This method
-	 * should be called before {@link #startServices()}.
+	 * should be called before {@link #startServices(SecretKey)}.
 	 */
 	void registerService(Service s);
 
 	/**
 	 * Registers a {@link Client} to be started. This method should be called
-	 * before {@link #startServices()}.
+	 * before {@link #startServices(SecretKey)}.
 	 */
 	void registerClient(Client c);
 
 	/**
 	 * Registers an {@link ExecutorService} to be shut down. This method
-	 * should be called before {@link #startServices()}.
+	 * should be called before {@link #startServices(SecretKey)}.
 	 */
 	void registerForShutdown(ExecutorService e);
 
 	/**
-	 * Opens the {@link DatabaseComponent} and starts any registered
-	 * {@link Client Clients} and {@link Service Services}.
+	 * Opens the {@link DatabaseComponent} using the given key and starts any
+	 * registered {@link Client Clients} and {@link Service Services}.
 	 */
-	StartResult startServices();
+	StartResult startServices(SecretKey dbKey);
 
 	/**
 	 * Stops any registered {@link Service Services}, shuts down any

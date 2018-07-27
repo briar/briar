@@ -140,9 +140,6 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		assertTrue(testDir.mkdirs());
 		createComponents();
 
-		c0.getAccountManager().createAccount("password");
-		c1.getAccountManager().createAccount("password");
-		c2.getAccountManager().createAccount("password");
 		identityManager0 = c0.getIdentityManager();
 		identityManager1 = c1.getIdentityManager();
 		identityManager2 = c2.getIdentityManager();
@@ -196,9 +193,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		lifecycleManager0 = c0.getLifecycleManager();
 		lifecycleManager1 = c1.getLifecycleManager();
 		lifecycleManager2 = c2.getLifecycleManager();
-		lifecycleManager0.startServices();
-		lifecycleManager1.startServices();
-		lifecycleManager2.startServices();
+		lifecycleManager0.startServices(getSecretKey());
+		lifecycleManager1.startServices(getSecretKey());
+		lifecycleManager2.startServices(getSecretKey());
 		lifecycleManager0.waitForStartup();
 		lifecycleManager1.waitForStartup();
 		lifecycleManager2.waitForStartup();

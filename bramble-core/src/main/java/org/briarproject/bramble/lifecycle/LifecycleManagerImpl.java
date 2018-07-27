@@ -1,6 +1,5 @@
 package org.briarproject.bramble.lifecycle;
 
-import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
@@ -57,7 +56,6 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 	private final List<Service> services;
 	private final List<Client> clients;
 	private final List<ExecutorService> executors;
-	private final AccountManager accountManager;
 	private final IdentityManager identityManager;
 	private final Semaphore startStopSemaphore = new Semaphore(1);
 	private final CountDownLatch dbLatch = new CountDownLatch(1);
@@ -68,10 +66,9 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 
 	@Inject
 	LifecycleManagerImpl(DatabaseComponent db, EventBus eventBus,
-			AccountManager accountManager, IdentityManager identityManager) {
+			IdentityManager identityManager) {
 		this.db = db;
 		this.eventBus = eventBus;
-		this.accountManager = accountManager;
 		this.identityManager = identityManager;
 		services = new CopyOnWriteArrayList<>();
 		clients = new CopyOnWriteArrayList<>();
@@ -99,7 +96,7 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 	}
 
 	@Override
-	public StartResult startServices() {
+	public StartResult startServices(SecretKey dbKey) {
 		if (!startStopSemaphore.tryAcquire()) {
 			LOG.info("Already starting or stopping");
 			return ALREADY_RUNNING;
@@ -108,9 +105,7 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			LOG.info("Starting services");
 			long start = now();
 
-			SecretKey key = accountManager.getDatabaseKey();
-			if (key == null) throw new IllegalStateException();
-			boolean reopened = db.open(key, this);
+			boolean reopened = db.open(dbKey, this);
 			if (reopened) logDuration(LOG, "Reopening database", start);
 			else logDuration(LOG, "Creating database", start);
 			identityManager.storeLocalAuthor();

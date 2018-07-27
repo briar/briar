@@ -103,11 +103,9 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Add an identity for the user
 		IdentityManager identityManager = device.getIdentityManager();
 		identityManager.registerLocalAuthor(local);
-		// Create an account
-		device.getAccountManager().createAccount("password");
 		// Start the lifecycle manager
 		LifecycleManager lifecycleManager = device.getLifecycleManager();
-		lifecycleManager.startServices();
+		lifecycleManager.startServices(getSecretKey());
 		lifecycleManager.waitForStartup();
 		// Add the other user as a contact
 		ContactManager contactManager = device.getContactManager();

@@ -18,6 +18,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
 import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
@@ -97,7 +98,8 @@ public class BriarService extends Service {
 			stopSelf();
 			return;
 		}
-		if (!accountManager.hasDatabaseKey()) {
+		SecretKey dbKey = accountManager.getDatabaseKey();
+		if (dbKey == null) {
 			LOG.info("No database key");
 			stopSelf();
 			return;
@@ -142,7 +144,7 @@ public class BriarService extends Service {
 		nm.cancel(REMINDER_NOTIFICATION_ID);
 		// Start the services in a background thread
 		new Thread(() -> {
-			StartResult result = lifecycleManager.startServices();
+			StartResult result = lifecycleManager.startServices(dbKey);
 			if (result == SUCCESS) {
 				started = true;
 			} else if (result == ALREADY_RUNNING) {

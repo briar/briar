@@ -1,5 +1,6 @@
 package org.briarproject.bramble.test;
 
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.Service;
@@ -39,7 +40,7 @@ public class TestLifecycleModule {
 			}
 
 			@Override
-			public StartResult startServices() {
+			public StartResult startServices(SecretKey dbKey) {
 				return StartResult.SUCCESS;
 			}
 

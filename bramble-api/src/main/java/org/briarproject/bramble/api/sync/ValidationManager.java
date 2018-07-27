@@ -1,5 +1,6 @@
 package org.briarproject.bramble.api.sync;
 
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
@@ -35,7 +36,8 @@ public interface ValidationManager {
 
 	/**
 	 * Registers the message validator for the given client. This method
-	 * should be called before {@link LifecycleManager#startServices()}.
+	 * should be called before
+	 * {@link LifecycleManager#startServices(SecretKey)}.
 	 */
 	void registerMessageValidator(ClientId c, int majorVersion,
 			MessageValidator v);
@@ -43,7 +45,8 @@ public interface ValidationManager {
 	/**
 	 * Registers the incoming message hook for the given client. The hook will
 	 * be called once for each incoming message that passes validation. This
-	 * method should be called before {@link LifecycleManager#startServices()}.
+	 * method should be called before
+	 * {@link LifecycleManager#startServices(SecretKey)}.
 	 */
 	void registerIncomingMessageHook(ClientId c, int majorVersion,
 			IncomingMessageHook hook);
