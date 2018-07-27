@@ -38,12 +38,15 @@ class AndroidAccountManager extends AccountManagerImpl
 	@Override
 	@Nullable
 	protected String loadEncryptedDatabaseKey() {
-		String key = getDatabaseKeyFromPreferences();
-		if (key == null) key = super.loadEncryptedDatabaseKey();
-		else migrateDatabaseKeyToFile(key);
-		return key;
+		synchronized (stateChangeLock) {
+			String key = getDatabaseKeyFromPreferences();
+			if (key == null) key = super.loadEncryptedDatabaseKey();
+			else migrateDatabaseKeyToFile(key);
+			return key;
+		}
 	}
 
+	// Locking: stateChangeLock
 	@Nullable
 	private String getDatabaseKeyFromPreferences() {
 		String key = prefs.getString(PREF_DB_KEY, null);
@@ -52,6 +55,7 @@ class AndroidAccountManager extends AccountManagerImpl
 		return key;
 	}
 
+	// Locking: stateChangeLock
 	private void migrateDatabaseKeyToFile(String key) {
 		if (storeEncryptedDatabaseKey(key)) {
 			if (prefs.edit().remove(PREF_DB_KEY).commit())
@@ -64,12 +68,15 @@ class AndroidAccountManager extends AccountManagerImpl
 
 	@Override
 	public void deleteAccount() {
-		super.deleteAccount();
-		SharedPreferences defaultPrefs =
-				PreferenceManager.getDefaultSharedPreferences(appContext);
-		deleteAppData(prefs, defaultPrefs);
+		synchronized (stateChangeLock) {
+			super.deleteAccount();
+			SharedPreferences defaultPrefs =
+					PreferenceManager.getDefaultSharedPreferences(appContext);
+			deleteAppData(prefs, defaultPrefs);
+		}
 	}
 
+	// Locking: stateChangeLock
 	private void deleteAppData(SharedPreferences... clear) {
 		// Clear and commit shared preferences
 		for (SharedPreferences prefs : clear) {

@@ -53,6 +53,7 @@ public class PasswordActivity extends BaseActivity {
 		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 
 		if (!accountManager.accountExists()) {
+			// TODO: Finish instead of deleting account?
 			deleteAccount();
 			return;
 		}

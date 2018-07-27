@@ -38,6 +38,8 @@ class AccountManagerImpl implements AccountManager {
 	private final CryptoComponent crypto;
 	private final File dbKeyFile, dbKeyBackupFile;
 
+	protected final Object stateChangeLock = new Object();
+
 	@Nullable
 	private volatile SecretKey databaseKey = null;
 
@@ -63,18 +65,21 @@ class AccountManagerImpl implements AccountManager {
 
 	@Nullable
 	protected String loadEncryptedDatabaseKey() {
-		String key = readDbKeyFromFile(dbKeyFile);
-		if (key == null) {
-			LOG.info("No database key in primary file");
-			key = readDbKeyFromFile(dbKeyBackupFile);
-			if (key == null) LOG.info("No database key in backup file");
-			else LOG.warning("Found database key in backup file");
-		} else {
-			LOG.info("Found database key in primary file");
+		synchronized (stateChangeLock) {
+			String key = readDbKeyFromFile(dbKeyFile);
+			if (key == null) {
+				LOG.info("No database key in primary file");
+				key = readDbKeyFromFile(dbKeyBackupFile);
+				if (key == null) LOG.info("No database key in backup file");
+				else LOG.warning("Found database key in backup file");
+			} else {
+				LOG.info("Found database key in primary file");
+			}
+			return key;
 		}
-		return key;
 	}
 
+	// Locking: stateChangeLock
 	@Nullable
 	private String readDbKeyFromFile(File f) {
 		if (!f.exists()) {
@@ -93,6 +98,7 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
+	// Locking: stateChangeLock
 	protected boolean storeEncryptedDatabaseKey(String hex) {
 		LOG.info("Storing database key in file");
 		// Create the directory if necessary
@@ -130,6 +136,7 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
+	// Locking: stateChangeLock
 	private void writeDbKeyToFile(String key, File f) throws IOException {
 		FileOutputStream out = new FileOutputStream(f);
 		out.write(key.getBytes("UTF-8"));
@@ -139,18 +146,23 @@ class AccountManagerImpl implements AccountManager {
 
 	@Override
 	public boolean accountExists() {
-		return loadEncryptedDatabaseKey() != null
-				&& databaseConfig.getDatabaseDirectory().isDirectory();
+		synchronized (stateChangeLock) {
+			return loadEncryptedDatabaseKey() != null
+					&& databaseConfig.getDatabaseDirectory().isDirectory();
+		}
 	}
 
 	@Override
 	public boolean createAccount(String password) {
-		SecretKey key = crypto.generateSecretKey();
-		if (!encryptAndStoreDatabaseKey(key, password)) return false;
-		databaseKey = key;
-		return true;
+		synchronized (stateChangeLock) {
+			SecretKey key = crypto.generateSecretKey();
+			if (!encryptAndStoreDatabaseKey(key, password)) return false;
+			databaseKey = key;
+			return true;
+		}
 	}
 
+	// Locking: stateChangeLock
 	private boolean encryptAndStoreDatabaseKey(SecretKey key, String password) {
 		byte[] plaintext = key.getBytes();
 		byte[] ciphertext = crypto.encryptWithPassword(plaintext, password);
@@ -159,19 +171,24 @@ class AccountManagerImpl implements AccountManager {
 
 	@Override
 	public void deleteAccount() {
-		LOG.info("Deleting account");
-		IoUtils.deleteFileOrDir(databaseConfig.getDatabaseKeyDirectory());
-		IoUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
+		synchronized (stateChangeLock) {
+			LOG.info("Deleting account");
+			IoUtils.deleteFileOrDir(databaseConfig.getDatabaseKeyDirectory());
+			IoUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
+		}
 	}
 
 	@Override
 	public boolean signIn(String password) {
-		SecretKey key = loadAndDecryptDatabaseKey(password);
-		if (key == null) return false;
-		databaseKey = key;
-		return true;
+		synchronized (stateChangeLock) {
+			SecretKey key = loadAndDecryptDatabaseKey(password);
+			if (key == null) return false;
+			databaseKey = key;
+			return true;
+		}
 	}
 
+	// Locking: stateChangeLock
 	@Nullable
 	private SecretKey loadAndDecryptDatabaseKey(String password) {
 		String hex = loadEncryptedDatabaseKey();
@@ -190,7 +207,9 @@ class AccountManagerImpl implements AccountManager {
 
 	@Override
 	public boolean changePassword(String oldPassword, String newPassword) {
-		SecretKey key = loadAndDecryptDatabaseKey(oldPassword);
-		return key != null && encryptAndStoreDatabaseKey(key, newPassword);
+		synchronized (stateChangeLock) {
+			SecretKey key = loadAndDecryptDatabaseKey(oldPassword);
+			return key != null && encryptAndStoreDatabaseKey(key, newPassword);
+		}
 	}
 }
