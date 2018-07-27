@@ -55,6 +55,7 @@ dependencies {
 	androidTestImplementation "com.android.support.test.espresso:espresso-contrib:$espressoVersion"
 	androidTestImplementation "com.android.support.test.espresso:espresso-intents:$espressoVersion"
 	androidTestImplementation "tools.fastlane:screengrab:1.1.0"
+	androidTestImplementation "com.android.support.test.uiautomator:uiautomator-v18:2.1.3"
 	androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:2.0.2"
 	androidTestCompileOnly 'javax.annotation:jsr250-api:1.0'
 	androidTestImplementation 'junit:junit:4.12'
@@ -75,6 +76,14 @@ dependencyVerification {
 			'com.almworks.sqlite4java:sqlite4java:0.282:sqlite4java-0.282.jar:9e1d8dd83ca6003f841e3af878ce2dc7c22497493a7bb6d1b62ec1b0d0a83c05',
 			'com.android.support.constraint:constraint-layout-solver:1.1.0:constraint-layout-solver-1.1.0.jar:fcb4c7d705754ca3d69b1b2c3caf445a425599fda8caabbcf855d98ea0663e4e',
 			'com.android.support.constraint:constraint-layout:1.1.0:constraint-layout-1.1.0.aar:d490188709b7bb2f11609beadd7e5eb7538892f308828ec3ff261a74e6ecf47e',
+			'com.android.support.test.espresso:espresso-contrib:3.0.2:espresso-contrib-3.0.2.aar:eacb4a10dde5597b8a6b8668804d4b63e3ae2d46a78192068532922fec0b4a66',
+			'com.android.support.test.espresso:espresso-core:3.0.2:espresso-core-3.0.2.aar:f40bf62e26e6f95a9c376c4e318415a77053b7dbb7ec12688eb6fab93dffdf73',
+			'com.android.support.test.espresso:espresso-idling-resource:3.0.2:espresso-idling-resource-3.0.2.aar:c6485150f9f4aea1ce9d138f3d60d82ebed3fe35b340a8b1dc975ff01f3b17b2',
+			'com.android.support.test.espresso:espresso-intents:3.0.2:espresso-intents-3.0.2.aar:556f99e8c8723a9ef313ed816fb9074d65903c6767521a66b099720d2cc21f10',
+			'com.android.support.test.uiautomator:uiautomator-v18:2.1.3:uiautomator-v18-2.1.3.aar:15e6b3c7104859630bf844e31805aa7cb2eb4b385e6119ab34132c8258eee2c4',
+			'com.android.support.test:monitor:1.0.2:monitor-1.0.2.aar:38ef4fa98a32dc55550ff49bb36a583e178b3a9b830fcb8dcc27bfc4254bc2bc',
+			'com.android.support.test:rules:1.0.2:rules-1.0.2.aar:7ddad387d1a16d4dbdbefacee070d34574e565b008117c1a163edac8ae02a6aa',
+			'com.android.support.test:runner:1.0.2:runner-1.0.2.aar:f04b9ae342975ba1cb3e4a06e13426e3e6b8a73faa45acba604493d83c9a4f00',
 			'com.android.support:animated-vector-drawable:27.1.1:animated-vector-drawable-27.1.1.aar:59670473f6e98fda792f7bef25dd7292b0a3106031c7a5e30eb020bf26f077bd',
 			'com.android.support:appcompat-v7:27.1.1:appcompat-v7-27.1.1.aar:0c7808fbbc5838d831e32e3c0a6f84e1f2c981deb8f11e010650f2b57923a335',
 			'com.android.support:cardview-v7:27.1.1:cardview-v7-27.1.1.aar:8ed955dd037d82a7b4bbcaedb4f896523c3e4c1bf3ca698ce807c350767a2886',
@@ -118,8 +127,10 @@ dependencyVerification {
 			'com.android.tools:sdk-common:26.1.3:sdk-common-26.1.3.jar:1948603ca9ff22c7ebb3178000bffa3a9dd2ca1cc5cb0c793cae08468b8fcfc1',
 			'com.android.tools:sdklib:26.1.3:sdklib-26.1.3.jar:4adcfaad9514607098d2c51503c39811112d3050f4d1e744c01c7f08f591032b',
 			'com.github.bumptech.glide:glide:3.8.0:glide-3.8.0.jar:750d9e7b940dc0ee48f8680623b55d46e14e8727acc922d7b156e57e7c549655',
+			'com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:2.0:accessibility-test-framework-2.0.jar:cdf16ef8f5b8023d003ce3cc1b0d51bda737762e2dab2fedf43d1c4292353f7f',
 			'com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:2.1:accessibility-test-framework-2.1.jar:7b0aa6ed7553597ce0610684a9f7eca8021eee218f2e2f427c04a7fbf5f920bd',
 			'com.google.code.findbugs:jsr305:1.3.9:jsr305-1.3.9.jar:905721a0eea90a81534abb7ee6ef4ea2e5e645fa1def0a5cd88402df1b46c9ed',
+			'com.google.code.findbugs:jsr305:3.0.2:jsr305-3.0.2.jar:766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7',
 			'com.google.code.gson:gson:2.7:gson-2.7.jar:2d43eb5ea9e133d2ee2405cc14f5ee08951b8361302fdd93494a3a997b508d32',
 			'com.google.dagger:dagger-compiler:2.0.2:dagger-compiler-2.0.2.jar:b74bc9de063dd4c6400b232231f2ef5056145b8fbecbf5382012007dd1c071b3',
 			'com.google.dagger:dagger-producers:2.0-beta:dagger-producers-2.0-beta.jar:99ec15e8a0507ba569e7655bc1165ee5e5ca5aa914b3c8f7e2c2458f724edd6b',
@@ -136,6 +147,7 @@ dependencyVerification {
 			'com.googlecode.json-simple:json-simple:1.1:json-simple-1.1.jar:2d9484f4c649f708f47f9a479465fc729770ee65617dca3011836602264f6439',
 			'com.ibm.icu:icu4j:53.1:icu4j-53.1.jar:e37a4467bac5cdeb02c5c4b8e5063d2f4e67b69e3c7df6d6b610f13185572bab',
 			'com.jpardogo.materialtabstrip:library:1.1.0:library-1.1.0.aar:24d19232b319f8c73e25793432357919a7ed972186f57a3b2c9093ea74ad8311',
+			'com.squareup:javawriter:2.1.1:javawriter-2.1.1.jar:f699823d0081f69cbb676c1845ea222e0ada79bc88a53e5d22d8bd02d328f57e',
 			'com.squareup:javawriter:2.5.0:javawriter-2.5.0.jar:fcfb09fb0ea0aa97d3cfe7ea792398081348e468f126b3603cb3803f240197f0',
 			'com.sun.activation:javax.activation:1.2.0:javax.activation-1.2.0.jar:993302b16cd7056f21e779cc577d175a810bb4900ef73cd8fbf2b50f928ba9ce',
 			'com.sun.istack:istack-commons-runtime:2.21:istack-commons-runtime-2.21.jar:c33e67a0807095f02a0e2da139412dd7c4f9cc1a4c054b3e434f96831ba950f4',
@@ -190,6 +202,7 @@ dependencyVerification {
 			'org.glassfish.jaxb:jaxb-runtime:2.2.11:jaxb-runtime-2.2.11.jar:a874f2351cfba8e2946be3002d10c18a6da8f21b52ba2acf52f2b85d5520ed70',
 			'org.glassfish.jaxb:txw2:2.2.11:txw2-2.2.11.jar:272a3ccad45a4511351920cd2a8633c53cab8d5220c7a92954da5526bb5eafea',
 			'org.hamcrest:hamcrest-core:1.3:hamcrest-core-1.3.jar:66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9',
+			'org.hamcrest:hamcrest-integration:1.3:hamcrest-integration-1.3.jar:70f418efbb506c5155da5f9a5a33262ea08a9e4d7fea186aa9015c41a7224ac2',
 			'org.hamcrest:hamcrest-library:1.3:hamcrest-library-1.3.jar:711d64522f9ec410983bd310934296da134be4254a125080a0416ec178dfad1c',
 			'org.jetbrains.kotlin:kotlin-reflect:1.2.0:kotlin-reflect-1.2.0.jar:4f48a872bad6e4d9c053f4ad610d11e4012ad7e58dc19a03dd5eb811f36069dd',
 			'org.jetbrains.kotlin:kotlin-stdlib-jre7:1.2.0:kotlin-stdlib-jre7-1.2.0.jar:c7a20fb951d437797afe8980aff6c1e5a03f310c661ba58ba1d4fa90cb0f2926',
@@ -221,6 +234,7 @@ dependencyVerification {
 			'org.robolectric:shadows-framework:3.5.1:shadows-framework-3.5.1.jar:597b54cc1a494799d783921c6ac04352f33e94fca8e00f299d4ca192db79e3fc',
 			'org.robolectric:shadows-support-v4:3.0:shadows-support-v4-3.0.jar:66bcc3257b037d72998e860d67b1bc58215b7eeac8ad860fcc3e613332d88619',
 			'org.robolectric:utils:3.5.1:utils-3.5.1.jar:d7d77326867e6d903156ebb18c244819b26aebe3aa82a1c57081081a0b6c4f63',
+			'tools.fastlane:screengrab:1.1.0:screengrab-1.1.0.aar:03ce3868ee8a0082d14e7a1de0999f91531c0cc794392688beb08ee9bc4495fd',
 			'uk.co.samuelwall:material-tap-target-prompt:2.8.0:material-tap-target-prompt-2.8.0.aar:ac70770c05bbc4675a1d5712c0e53d46ee4fa961b74947589fce50d8003065ec',
 			'xmlpull:xmlpull:1.1.3.1:xmlpull-1.1.3.1.jar:34e08ee62116071cbb69c0ed70d15a7a5b208d62798c59f2120bb8929324cb63',
 			'xpp3:xpp3_min:1.1.4c:xpp3_min-1.1.4c.jar:bfc90e9e32d0eab1f397fb974b5f150a815188382ac41f372a7149d5bc178008',
@@ -260,6 +274,24 @@ android {
 		testInstrumentationRunner 'org.briarproject.briar.android.test.BriarTestRunner'
 	}
 
+	flavorDimensions "version"
+	productFlavors {
+		screenshot {
+			dimension "version"
+			minSdkVersion 18
+			applicationIdSuffix ".screenshot"
+			resValue "string", "app_package", "org.briarproject.briar.android.screenshot.debug"
+		}
+		main {
+			dimension "version"
+		}
+	}
+	variantFilter { variant ->
+		if (variant.flavors*.name.contains("screenshot") && variant.buildType.name == "release") {
+			setIgnore(true)
+		}
+	}
+
 	buildTypes {
 		debug {
 			applicationIdSuffix ".debug"
@@ -269,12 +301,6 @@ android {
 			minifyEnabled true
 			crunchPngs false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-		}
-		screenshot {
-			initWith debug
-			applicationIdSuffix ".screenshot"
-			resValue "string", "app_package", "org.briarproject.briar.android.screenshot"
-			resValue "string", "app_name", "Briar Screenshot"
 			testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt', 'proguard-test.txt'
 		}
 		release {
@@ -284,8 +310,6 @@ android {
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 		}
 	}
-
-	testBuildType "screenshot"
 
 	compileOptions {
 		sourceCompatibility JavaVersion.VERSION_1_8
