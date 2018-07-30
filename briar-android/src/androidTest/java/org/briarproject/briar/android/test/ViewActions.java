@@ -6,16 +6,16 @@ import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitor;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
+import android.support.test.runner.lifecycle.Stage;
 import android.view.View;
 
 import org.hamcrest.Matcher;
 
 import java.util.concurrent.TimeoutException;
 
-import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.util.HumanReadables.describe;
 import static android.support.test.espresso.util.TreeIterables.breadthFirstViewTraversal;
-import static android.support.test.runner.lifecycle.Stage.RESUMED;
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -30,10 +30,13 @@ public class ViewActions {
 
 	private static ViewAction waitUntilMatches(Matcher<View> viewMatcher,
 			long timeout) {
-		return new ViewAction() {
+		return new CustomViewAction() {
 			@Override
-			public Matcher<View> getConstraints() {
-				return isRoot();
+			protected boolean exitConditionTrue(View view) {
+				for (View child : breadthFirstViewTraversal(view)) {
+					if (viewMatcher.matches(child)) return true;
+				}
+				return false;
 			}
 
 			@Override
@@ -41,35 +44,16 @@ public class ViewActions {
 				return "Wait for view matcher " + viewMatcher +
 						" to match within " + timeout + " milliseconds.";
 			}
-
-			@Override
-			public void perform(final UiController uiController,
-					final View view) {
-				uiController.loopMainThreadUntilIdle();
-				long endTime = currentTimeMillis() + timeout;
-
-				do {
-					for (View child : breadthFirstViewTraversal(view)) {
-						if (viewMatcher.matches(child)) return;
-					}
-					uiController.loopMainThreadForAtLeast(WAIT_MS);
-				}
-				while (currentTimeMillis() < endTime);
-
-				throw new PerformException.Builder()
-						.withActionDescription(getDescription())
-						.withViewDescription(describe(view))
-						.withCause(new TimeoutException())
-						.build();
-			}
 		};
 	}
 
-	public static ViewAction waitForActivityToResume(Activity activity) {
-		return new ViewAction() {
+	public static ViewAction waitForActivity(Activity activity, Stage stage) {
+		return new CustomViewAction() {
 			@Override
-			public Matcher<View> getConstraints() {
-				return isRoot();
+			protected boolean exitConditionTrue(View view) {
+				ActivityLifecycleMonitor lifecycleMonitor =
+						ActivityLifecycleMonitorRegistry.getInstance();
+				return lifecycleMonitor.getLifecycleStageOf(activity) == stage;
 			}
 
 			@Override
@@ -77,28 +61,33 @@ public class ViewActions {
 				return "Wait for activity " + activity.getClass().getName() +
 						" to resume within " + TIMEOUT_MS + " milliseconds.";
 			}
-
-			@Override
-			public void perform(final UiController uiController,
-					final View view) {
-				uiController.loopMainThreadUntilIdle();
-				long endTime = currentTimeMillis() + TIMEOUT_MS;
-				ActivityLifecycleMonitor lifecycleMonitor =
-						ActivityLifecycleMonitorRegistry.getInstance();
-				do {
-					if (lifecycleMonitor.getLifecycleStageOf(activity) ==
-							RESUMED) return;
-					uiController.loopMainThreadForAtLeast(WAIT_MS);
-				}
-				while (currentTimeMillis() < endTime);
-
-				throw new PerformException.Builder()
-						.withActionDescription(getDescription())
-						.withViewDescription(describe(view))
-						.withCause(new TimeoutException())
-						.build();
-			}
 		};
+	}
+
+	private static abstract class CustomViewAction implements ViewAction {
+		@Override
+		public Matcher<View> getConstraints() {
+			return isDisplayed();
+		}
+
+		@Override
+		public void perform(UiController uiController, View view) {
+			uiController.loopMainThreadUntilIdle();
+			long endTime = currentTimeMillis() + TIMEOUT_MS;
+			do {
+				if (exitConditionTrue(view)) return;
+				uiController.loopMainThreadForAtLeast(WAIT_MS);
+			}
+			while (currentTimeMillis() < endTime);
+
+			throw new PerformException.Builder()
+					.withActionDescription(getDescription())
+					.withViewDescription(describe(view))
+					.withCause(new TimeoutException())
+					.build();
+		}
+
+		protected abstract boolean exitConditionTrue(View view);
 	}
 
 }

@@ -3,7 +3,7 @@ package org.briarproject.briar.android;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.briar.BriarCoreModule;
 
-public class TestBriarApplication extends BriarApplicationImpl {
+public class BriarTestComponentApplication extends BriarApplicationImpl {
 
 	@Override
 	protected AndroidComponent createApplicationComponent() {

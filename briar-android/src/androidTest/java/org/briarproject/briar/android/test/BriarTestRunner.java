@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.support.test.runner.AndroidJUnitRunner;
 
-import org.briarproject.briar.android.TestBriarApplication;
+import org.briarproject.briar.android.BriarTestComponentApplication;
 
 public class BriarTestRunner extends AndroidJUnitRunner {
 
@@ -13,7 +13,7 @@ public class BriarTestRunner extends AndroidJUnitRunner {
 			Context context)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		return super.newApplication(cl, TestBriarApplication.class.getName(),
+		return super.newApplication(cl, BriarTestComponentApplication.class.getName(),
 				context);
 	}
 

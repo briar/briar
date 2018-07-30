@@ -1,48 +1,50 @@
-package org.briarproject.briar.android.navdrawer;
+package org.briarproject.briar.android.login;
 
-import android.support.test.espresso.contrib.DrawerActions;
 import android.support.test.runner.AndroidJUnit4;
-import android.view.Gravity;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.TestComponent;
-import org.briarproject.briar.android.settings.SettingsActivity;
 import org.briarproject.briar.android.test.ScreenshotTest;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.contrib.DrawerMatchers.isClosed;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
+
 
 @RunWith(AndroidJUnit4.class)
-public class NavDrawerActivityTest extends ScreenshotTest {
+public class PasswordActivityTest extends ScreenshotTest {
 
 	@Rule
-	public CleanAccountTestRule<NavDrawerActivity> testRule =
-			new CleanAccountTestRule<>(NavDrawerActivity.class);
+	public CleanAccountTestRule<PasswordActivity> testRule =
+			new CleanAccountTestRule<>(PasswordActivity.class);
 
 	@Override
 	protected void inject(TestComponent component) {
 		component.inject(this);
 	}
 
+	// FIXME
+	@Ignore("Need to find a way to sign-out after creating fresh account")
 	@Test
-	public void openSettings() {
-		onView(withId(R.id.drawer_layout))
-				.check(matches(isClosed(Gravity.START)))
-				.perform(DrawerActions.open());
-		onView(withText(R.string.settings_button))
+	public void successfulLogin() {
+		onView(withId(R.id.edit_password))
+				.check(matches(isDisplayed()))
+				.perform(typeText(PASSWORD));
+		onView(withId(R.id.btn_sign_in))
 				.check(matches(isDisplayed()))
 				.perform(click());
-		intended(hasComponent(SettingsActivity.class.getName()));
+		onView(withId(R.id.progress))
+				.check(matches(isDisplayed()));
+		intended(hasComponent(OpenDatabaseActivity.class.getName()));
 	}
 
 }
