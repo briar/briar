@@ -63,7 +63,6 @@
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Desconectou de Briar</string>
-  <string name="reminder_notification_text">Toque para voltar a conectar ou desplace para desbotar.</string>
   <string name="reminder_notification_channel_title">Recordatorio para conectar a Briar</string>
   <string name="ongoing_notification_title">Conectado a Briar</string>
   <string name="ongoing_notification_text">Toque para abrir Briar</string>
@@ -224,6 +223,8 @@
     <item quantity="one">%d publicación</item>
     <item quantity="other">%d publicacións</item>
   </plurals>
+  <string name="forum_new_entry_posted">Foro público publicado</string>
+  <string name="forum_new_message_hint">Nova publicación</string>
   <string name="forum_message_reply_hint">Nova Resposta</string>
   <string name="btn_reply">Respostar</string>
   <string name="forum_leave">Deixar foro</string>

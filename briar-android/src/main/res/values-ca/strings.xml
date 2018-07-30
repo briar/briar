@@ -63,8 +63,9 @@
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Heu sortit de Briar</string>
-  <string name="reminder_notification_text">Toqueu per reiniciar la sessió o feu lliscar el dit per descartar-la.</string>
+  <string name="reminder_notification_text">Toqueu per tornar a iniciar sessió.</string>
   <string name="reminder_notification_channel_title">Recordatori d\'inici de sessió de Briar</string>
+  <string name="reminder_notification_dismiss">Descarta</string>
   <string name="ongoing_notification_title">Sessió iniciada</string>
   <string name="ongoing_notification_text">Toca per a obrir Briar.</string>
   <plurals name="private_message_notification_text">
@@ -350,6 +351,8 @@
   <string name="uninstall_setting_summary">Això requeria la confirmació manual malgrat ser en una situació de pànic</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificacions</string>
+  <string name="notify_sign_in_title">Recordeu-me que iniciï sessió</string>
+  <string name="notify_sign_in_summary">Mostra un recordatori quan s\'inicia el telèfon o s\'ha actualitzat l\'aplicació</string>
   <string name="notify_private_messages_setting_title">Missatges privats</string>
   <string name="notify_private_messages_setting_summary">Mostra avisos pels missatges privats</string>
   <string name="notify_private_messages_setting_summary_26">Configura els avisos pels missatges privats</string>

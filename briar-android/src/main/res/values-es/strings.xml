@@ -63,6 +63,7 @@
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Desconectado de Briar</string>
+  <string name="reminder_notification_dismiss">Descartar</string>
   <string name="ongoing_notification_title">Conectado a Briar</string>
   <string name="ongoing_notification_text">Toca para abrir Briar.</string>
   <plurals name="private_message_notification_text">

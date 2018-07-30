@@ -65,8 +65,9 @@
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Выход из Briar</string>
-  <string name="reminder_notification_text">Коснитесь, чтобы вернуться или прокрутите, чтобы закрыть.</string>
+  <string name="reminder_notification_text">Нажмите, чтобы снова войти.</string>
   <string name="reminder_notification_channel_title">Briar Напоминание о входе</string>
+  <string name="reminder_notification_dismiss">Отклонить</string>
   <string name="ongoing_notification_title">Выполнен вход в Briar</string>
   <string name="ongoing_notification_text">Коснитесь, чтобы открыть Briar</string>
   <plurals name="private_message_notification_text">
@@ -370,6 +371,8 @@
   <string name="uninstall_setting_summary">Это потребует вашего подтверждения</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Уведомления</string>
+  <string name="notify_sign_in_title">Напомнить мне войти</string>
+  <string name="notify_sign_in_summary">Показывать напоминание при запуске телефона или обновлении приложения.</string>
   <string name="notify_private_messages_setting_title">Личные сообщения</string>
   <string name="notify_private_messages_setting_summary">Показывать оповещения для личных сообщений</string>
   <string name="notify_private_messages_setting_summary_26">Настройка оповещений для личных сообщений</string>

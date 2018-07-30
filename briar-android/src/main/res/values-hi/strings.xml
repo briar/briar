@@ -62,6 +62,7 @@
   <string name="transport_bt">ब्लूटूथ</string>
   <string name="transport_lan">वाई - फाई</string>
   <!--Notifications-->
+  <string name="reminder_notification_dismiss">खारिज करना</string>
   <string name="ongoing_notification_title">ब्रायर में हस्ताक्षर किए</string>
   <string name="ongoing_notification_text">ब्रियर को खोलने के लिए स्पर्श करें</string>
   <plurals name="private_message_notification_text">

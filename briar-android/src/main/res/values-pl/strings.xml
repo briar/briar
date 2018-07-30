@@ -65,7 +65,6 @@
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Wylogowano z Briar</string>
-  <string name="reminder_notification_text">Dotknij aby zalogować się z powrotem lub przesuń aby pominąć.</string>
   <string name="reminder_notification_channel_title">Przypomnienie o zalogowaniu</string>
   <string name="ongoing_notification_title">Zalogowany w Briar</string>
   <string name="ongoing_notification_text">Dotknij aby otworzyć Briar</string>

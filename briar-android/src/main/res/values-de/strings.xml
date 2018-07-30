@@ -222,6 +222,7 @@
     <item quantity="one">%d Beitrag</item>
     <item quantity="other">%d Beiträge</item>
   </plurals>
+  <string name="forum_new_message_hint">Neuer Beitrag</string>
   <string name="forum_message_reply_hint">Neue Antwort</string>
   <string name="btn_reply">Antworten</string>
   <string name="forum_leave">Forum verlassen</string>
@@ -301,6 +302,7 @@
   <string name="blogs_rss_feeds_manage_empty_state">Du hast noch keine RSS-Feeds\n\nTippe auf das +-Symbol um einen Feed zu importieren</string>
   <string name="blogs_rss_feeds_manage_error">Es gab ein Problem beim Laden deiner Feeds. Bitte versuche es später erneut.</string>
   <!--Settings Display-->
+  <string name="pref_language_title">Sprache &amp; Region</string>
   <string name="pref_language_changed">Diese Einstellung wird aktiv sobald Du Briar neu startest. Bitte melde dich ab und starte Briar neu.</string>
   <string name="display_settings_title">Anzeigen</string>
   <string name="pref_theme_title">Design</string>
@@ -318,6 +320,7 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicherheit</string>
   <string name="change_password">Passwort ändern</string>
+  <string name="current_password">Aktuelles Passwort</string>
   <string name="choose_new_password">Neues Passwort</string>
   <string name="confirm_new_password">Neues Passwort bestätigen</string>
   <string name="password_changed">Passwort wurde geändert.</string>

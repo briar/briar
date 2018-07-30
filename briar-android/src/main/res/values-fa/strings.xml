@@ -69,7 +69,6 @@
   <string name="transport_lan">وای فای</string>
   <!--Notifications-->
   <string name="reminder_notification_title">از برایر خارج شد</string>
-  <string name="reminder_notification_text">برای اینکه دوباره وارد شوید کلیک کنید و برای رد کردن آن را بکشید</string>
   <string name="reminder_notification_channel_title">یادآور ورود برایر</string>
   <string name="ongoing_notification_title">وارد برایر شد</string>
   <string name="ongoing_notification_text">برای باز کردن برایر کلیک کنید.</string>

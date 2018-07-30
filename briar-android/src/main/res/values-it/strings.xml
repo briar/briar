@@ -63,8 +63,9 @@
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Uscito da Briar</string>
-  <string name="reminder_notification_text">Tocca per riaccedere o scorri per annullare.</string>
+  <string name="reminder_notification_text">Tocca per riaccedere.</string>
   <string name="reminder_notification_channel_title">Promemoria accesso a Briar</string>
+  <string name="reminder_notification_dismiss">Ignora</string>
   <string name="ongoing_notification_title">Entrato in Briar</string>
   <string name="ongoing_notification_text">Tocca per aprire Briar.</string>
   <plurals name="private_message_notification_text">
@@ -350,6 +351,8 @@
   <string name="uninstall_setting_summary">Questo richiede una conferma manuale in un evento panico</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notifiche</string>
+  <string name="notify_sign_in_title">Ricordami di accedere</string>
+  <string name="notify_sign_in_summary">Mostra un promemoria quando si avvia il telefono o l\'app è stata aggiornata</string>
   <string name="notify_private_messages_setting_title">Messaggi privati</string>
   <string name="notify_private_messages_setting_summary">Mostra avvisi per i messaggi privati</string>
   <string name="notify_private_messages_setting_summary_26">Configurare avvisi per messaggi privati</string>

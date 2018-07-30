@@ -63,6 +63,9 @@
   <string name="transport_lan">Wifi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Uitgelogd van Briar</string>
+  <string name="reminder_notification_text">Tik om opnieuw in te loggen.</string>
+  <string name="reminder_notification_channel_title">Briar inlogherinnering</string>
+  <string name="reminder_notification_dismiss">Afwijzen</string>
   <string name="ongoing_notification_title">Ingelogd op Briar</string>
   <string name="ongoing_notification_text">Raak aan om Briar te openen.</string>
   <plurals name="private_message_notification_text">
@@ -105,7 +108,7 @@
   <string name="help">Help</string>
   <string name="sorry">Excuses</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Geen contacten om te tonen\n\nTap het +-icoon om contact toe te voegen</string>
+  <string name="no_contacts">Geen contacten om te tonen\n\nTik op het +-icoon om een contact toe te voegen</string>
   <string name="date_no_private_messages">Geen berichten.</string>
   <string name="no_private_messages">Geen berichten om te tonen</string>
   <string name="message_hint">Schrijf een bericht</string>
@@ -114,7 +117,7 @@
   <string name="dialog_message_delete_contact">Weet je zeker dat je dit contact en alle berichten die met dit contact zijn uitgewisseld wil verwijderen?</string>
   <string name="contact_deleted_toast">Contact is verwijderd</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Voed contact toe</string>
+  <string name="add_contact_title">Voeg contact toe</string>
   <string name="face_to_face">Je moet een persoon in levenden lijve ontmoeten om die als contact toe te voegen.\n\nDit voortkomt dat anderen zich als jou voor kunnen doen of in de toekomst je berichten kunnen lezen.</string>
   <string name="continue_button">Ga verder</string>
   <string name="connection_failed">Connectie is mislukt</string>
@@ -222,6 +225,8 @@
     <item quantity="one">%d post</item>
     <item quantity="other">%d posts</item>
   </plurals>
+  <string name="forum_new_entry_posted">Forumbericht gepubliceerd</string>
+  <string name="forum_new_message_hint">Nieuw bericht</string>
   <string name="forum_message_reply_hint">Nieuwe reactie</string>
   <string name="btn_reply">Antwoord</string>
   <string name="forum_leave">Verlaat forum</string>
@@ -304,10 +309,15 @@
   <string name="blogs_rss_feeds_manage_empty_state">Geen RSS-feeds om te tonen\n\nTap op het +-icoon om een feed te importeren</string>
   <string name="blogs_rss_feeds_manage_error">Er was een probleem met het laden van je feeds. Probeer het later nog een keer.</string>
   <!--Settings Display-->
+  <string name="pref_language_title">Taal &amp; regio</string>
+  <string name="pref_language_changed">Deze instelling zal werken wanneer u Briar opnieuw opstart. Gelieve uit te loggen en Briar opnieuw te starten.</string>
+  <string name="pref_language_default">Systeemstandaard</string>
   <string name="display_settings_title">Weergeven</string>
   <string name="pref_theme_title">Thema</string>
   <string name="pref_theme_light">Licht</string>
   <string name="pref_theme_dark">Donker</string>
+  <string name="pref_theme_auto">Automatisch (overdag)</string>
+  <string name="pref_theme_system">Systeemstandaard</string>
   <!--Settings Network-->
   <string name="network_settings_title">Netwerken</string>
   <string name="bluetooth_setting">Verbind via Bluetooth</string>
@@ -320,6 +330,7 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Beveiliging</string>
   <string name="change_password">Wijzig wachtwoord</string>
+  <string name="current_password">Huidig wachtwoord</string>
   <string name="choose_new_password">Nieuw wachtwoord</string>
   <string name="confirm_new_password">Nieuw wachtwoord bevestigen</string>
   <string name="password_changed">Wachtwoord is gewijzigd</string>
@@ -340,6 +351,8 @@
   <string name="uninstall_setting_summary">Dit vereist een handmatige bevestiging op een paniekmoment</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Meldingen</string>
+  <string name="notify_sign_in_title">Herinner me om in te loggen</string>
+  <string name="notify_sign_in_summary">Stuur een herinnering wanneer de telefoon opstart of als de app is bijgewerkt</string>
   <string name="notify_private_messages_setting_title">Privéberichten</string>
   <string name="notify_private_messages_setting_summary">Toon meldingen voor privéberichten</string>
   <string name="notify_private_messages_setting_summary_26">Configureer alarmen voor privéberichten</string>

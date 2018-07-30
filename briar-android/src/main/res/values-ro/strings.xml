@@ -64,8 +64,9 @@
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Ieșire din Briar</string>
-  <string name="reminder_notification_text">Atingeți pentru autentificare sau glisați pentru anulare.</string>
+  <string name="reminder_notification_text">Atingeți pentru autentificare.</string>
   <string name="reminder_notification_channel_title">Reamintire autentificare Briar</string>
+  <string name="reminder_notification_dismiss">Renunță</string>
   <string name="ongoing_notification_title">Autentificat în Briar</string>
   <string name="ongoing_notification_text">Atingeți pentru a deschide Briar</string>
   <plurals name="private_message_notification_text">
@@ -361,6 +362,8 @@
   <string name="uninstall_setting_summary">Aceasta necesită o confirmare manuală în timpul unui eveniment de panică</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificări</string>
+  <string name="notify_sign_in_title">Reamintește-mi să mă autentific</string>
+  <string name="notify_sign_in_summary">Arată o notificare atunci când dispozitivul pornește sau aplicația a fost actualizată</string>
   <string name="notify_private_messages_setting_title">Mesaje private</string>
   <string name="notify_private_messages_setting_summary">Arată alerte pentru mesajele private</string>
   <string name="notify_private_messages_setting_summary_26">Configurare alerte pentru mesajele private</string>

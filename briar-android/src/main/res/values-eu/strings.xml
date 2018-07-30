@@ -63,8 +63,9 @@
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Briar saioa amaituta</string>
-  <string name="reminder_notification_text">Sakatu saioa berriro hasteko edo pasatu hatza baztertzeko</string>
+  <string name="reminder_notification_text">Sakatu saioa berriro hasteko</string>
   <string name="reminder_notification_channel_title">Briar saioaren oroigarria</string>
+  <string name="reminder_notification_dismiss">Baztertu</string>
   <string name="ongoing_notification_title">Briar saioa hasita</string>
   <string name="ongoing_notification_text">Ukitu Briar irekitzeko</string>
   <plurals name="private_message_notification_text">
@@ -350,6 +351,8 @@
   <string name="uninstall_setting_summary">Honek eskuzko berrespena behar du larrialdi egoeran</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Jakinarazpenak</string>
+  <string name="notify_sign_in_title">Gogorarazi saioa hasteko</string>
+  <string name="notify_sign_in_summary">Erakutsi oroigarri bat telefonoa abiatzean edo aplikazioa eguneratzean.</string>
   <string name="notify_private_messages_setting_title">Mezu pribatuak</string>
   <string name="notify_private_messages_setting_summary">Erakutsi mezu pribatuen alertak</string>
   <string name="notify_private_messages_setting_summary_26">Konfiguratu mezu pribatuen alertak</string>

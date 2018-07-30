@@ -63,8 +63,9 @@
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Déconnecté de Briar</string>
-  <string name="reminder_notification_text">Toucher pour se reconnecter au balayer pour annuler</string>
+  <string name="reminder_notification_text">Touchez pour vous reconnecter</string>
   <string name="reminder_notification_channel_title">Rappel de connexion à Briar</string>
+  <string name="reminder_notification_dismiss">Fermer</string>
   <string name="ongoing_notification_title">Connecté à Briar</string>
   <string name="ongoing_notification_text">Toucher pour ouvrir Briar.</string>
   <plurals name="private_message_notification_text">
@@ -350,6 +351,8 @@
   <string name="uninstall_setting_summary">Une confirmation manuelle est exigée en cas d’événement d’urgence</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notifications</string>
+  <string name="notify_sign_in_title">Rappelez-moi de me connecter</string>
+  <string name="notify_sign_in_summary">Afficher un rappel lors du démarrage du téléphone ou si l’appli a été mise à jour</string>
   <string name="notify_private_messages_setting_title">Messages privés</string>
   <string name="notify_private_messages_setting_summary">Afficher des notifications pour les messages privés</string>
   <string name="notify_private_messages_setting_summary_26">Configurer les alertes pour les messages privés</string>

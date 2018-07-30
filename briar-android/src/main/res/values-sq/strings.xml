@@ -63,8 +63,9 @@
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">U dol nga Briar-i</string>
-  <string name="reminder_notification_text">Që të rifuteni, prekeni, ose fërkojeni për ta hedhur tej.</string>
+  <string name="reminder_notification_text">Prekeni që të ribëhet hyrja.</string>
   <string name="reminder_notification_channel_title">Kujtues Hyrjeje Briar</string>
+  <string name="reminder_notification_dismiss">Hidhe tej</string>
   <string name="ongoing_notification_title">Hytë në Briar</string>
   <string name="ongoing_notification_text">Prekeni, që të hapet Briar-i</string>
   <plurals name="private_message_notification_text">
@@ -350,6 +351,8 @@
   <string name="uninstall_setting_summary">Kjo lyp ripohim dorazi, në rast akti paniku</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Njoftime</string>
+  <string name="notify_sign_in_title">Rikujtomë të bëj hyrjen</string>
+  <string name="notify_sign_in_summary">Shfaq një kujtues kur niset telefoni ose aplikacioni është përditësuar</string>
   <string name="notify_private_messages_setting_title">Mesazhe private</string>
   <string name="notify_private_messages_setting_summary">Shfaq sinjalizime për mesazhe private</string>
   <string name="notify_private_messages_setting_summary_26">Formësoni sinjalizimet për mesazhe private</string>
