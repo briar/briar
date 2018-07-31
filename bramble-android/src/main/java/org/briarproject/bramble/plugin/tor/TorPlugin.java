@@ -580,7 +580,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		try {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Connecting to " + scrubOnion(onion));
-			controlConnection.forgetHiddenService(onion);
 			s = torSocketFactory.createSocket(onion + ".onion", 80);
 			s.setSoTimeout(socketTimeout);
 			if (LOG.isLoggable(INFO))
