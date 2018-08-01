@@ -85,6 +85,7 @@ public class SetupControllerImpl extends PasswordControllerImpl
 				new UiResultHandler<Boolean>(setupActivity) {
 					@Override
 					public void onResultUi(Boolean result) {
+						// TODO: Show an error if result is false
 						if (setupActivity == null)
 							throw new IllegalStateException();
 						setupActivity.showApp();
