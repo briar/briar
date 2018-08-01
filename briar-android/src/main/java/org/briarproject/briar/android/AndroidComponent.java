@@ -1,17 +1,14 @@
 package org.briarproject.briar.android;
 
-import android.content.SharedPreferences;
-
 import org.briarproject.bramble.BrambleAndroidModule;
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
+import org.briarproject.bramble.account.BriarAccountModule;
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.contact.ContactExchangeTask;
 import org.briarproject.bramble.api.contact.ContactManager;
-import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
-import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
@@ -63,6 +60,7 @@ import dagger.Component;
 		BrambleCoreModule.class,
 		BriarCoreModule.class,
 		BrambleAndroidModule.class,
+		BriarAccountModule.class,
 		AppModule.class
 })
 public interface AndroidComponent
@@ -73,10 +71,6 @@ public interface AndroidComponent
 	Executor cryptoExecutor();
 
 	PasswordStrengthEstimator passwordStrengthIndicator();
-
-	CryptoComponent cryptoComponent();
-
-	DatabaseConfig databaseConfig();
 
 	@DatabaseExecutor
 	Executor databaseExecutor();
@@ -92,8 +86,6 @@ public interface AndroidComponent
 	EventBus eventBus();
 
 	AndroidNotificationManager androidNotificationManager();
-
-	SharedPreferences sharedPreferences();
 
 	ScreenFilterMonitor screenFilterMonitor();
 

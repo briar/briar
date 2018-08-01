@@ -24,8 +24,8 @@ class AndroidAccountManager extends AccountManagerImpl
 
 	private static final String PREF_DB_KEY = "key";
 
+	protected final Context appContext;
 	private final SharedPreferences prefs;
-	private final Context appContext;
 
 	@Inject
 	AndroidAccountManager(DatabaseConfig databaseConfig,

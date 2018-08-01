@@ -14,7 +14,6 @@ import android.widget.ProgressBar;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.controller.BriarController;
@@ -111,8 +110,6 @@ public class PasswordActivity extends BaseActivity {
 
 	private void deleteAccount() {
 		accountManager.deleteAccount();
-		Localizer.reinitialize();
-		UiUtils.setTheme(this, getString(R.string.pref_theme_light_value));
 		setResult(RESULT_CANCELED);
 		Intent i = new Intent(this, SetupActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);
