@@ -43,6 +43,7 @@ import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.util.UserFeedback;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -67,15 +68,19 @@ import static android.provider.Settings.EXTRA_CHANNEL_ID;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static android.widget.Toast.LENGTH_SHORT;
+import static java.util.Arrays.asList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_DISABLE_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_ALWAYS;
+import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BLOCKED;
+import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BRIDGES;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.bramble.util.StringUtils.join;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_DARK_THEME;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_SIGN_IN_REMINDER;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
@@ -154,6 +159,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		enableBluetooth = (ListPreference) findPreference("pref_key_bluetooth");
 		torNetwork = (ListPreference) findPreference("pref_key_tor_network");
 		torBlocked = (CheckBoxPreference) findPreference(TOR_LOCATION);
+		setBlockedCountries();
 		CheckBoxPreference notifySignIn =
 				(CheckBoxPreference) findPreference(NOTIFY_SIGN_IN);
 		notifyPrivateMessages = (CheckBoxPreference) findPreference(
@@ -291,6 +297,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		if (language.equals("iw") || language.equals("he")) return false;
 		int direction = TextUtilsCompat.getLayoutDirectionFromLocale(locale);
 		return direction == LAYOUT_DIRECTION_LTR;
+	}
+
+	private void setBlockedCountries() {
+		List<String> countries = new ArrayList<>(asList(BLOCKED));
+		countries.removeAll(asList(BRIDGES));
+		Collections.sort(countries);
+		String format = getString(R.string.tor_location_setting_hint_format);
+		torBlocked.setSummary(String.format(format, join(countries, ", ")));
 	}
 
 	private void loadSettings() {

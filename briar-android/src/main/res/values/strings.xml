@@ -349,7 +349,7 @@
 	<string name="tor_network_setting_wifi">Only when using Wi-Fi</string>
 	<string name="tor_network_setting_always">When using Wi-Fi or mobile data</string>
 	<string name="tor_location_setting_title">Disable Tor based on location</string>
-	<string name="tor_location_setting_hint">Disable Tor in countries where it is likely to be blocked</string>
+	<string name="tor_location_setting_hint_format">Disable Tor in countries where it is likely to be blocked (%1$s)</string>
 
 	<!-- Settings Security and Panic -->
 	<string name="security_settings_title">Security</string>

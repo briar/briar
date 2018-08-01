@@ -48,7 +48,6 @@
 			android:defaultValue="true"
 			android:key="pref_key_tor_location"
 			android:persistent="false"
-			android:summary="@string/tor_location_setting_hint"
 			android:title="@string/tor_location_setting_title"/>
 
 	</PreferenceCategory>
