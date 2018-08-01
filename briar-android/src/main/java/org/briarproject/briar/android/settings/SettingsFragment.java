@@ -205,12 +205,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		enableBluetooth.setOnPreferenceChangeListener(this);
 		torNetwork.setOnPreferenceChangeListener(this);
 		torBlocked.setOnPreferenceChangeListener(this);
-		if (getActivity() != null && hasScreenLock(getActivity())) {
-			screenLock.setVisible(FEATURE_FLAG_PIN_LOCK);
-			screenLock.setOnPreferenceChangeListener(this);
-		} else {
-			screenLock.setVisible(false);
-		}
+		screenLock.setOnPreferenceChangeListener(this);
 		if (SDK_INT >= 21) {
 			notifyLockscreen.setVisible(true);
 			notifyLockscreen.setOnPreferenceChangeListener(this);
@@ -231,6 +226,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		} else {
 			theme.setVisible(FEATURE_FLAG_DARK_THEME);
 			notifySignIn.setVisible(FEATURE_FLAG_SIGN_IN_REMINDER);
+			screenLock.setVisible(FEATURE_FLAG_PIN_LOCK);
 
 			findPreference("pref_key_explode").setVisible(false);
 			findPreference("pref_key_test_data").setVisible(false);
@@ -428,7 +424,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		enableBluetooth.setEnabled(enabled);
 		torNetwork.setEnabled(enabled);
 		torBlocked.setEnabled(enabled);
-		screenLock.setEnabled(enabled);
+		if (enabled && getActivity() != null && hasScreenLock(getActivity())) {
+			screenLock.setEnabled(true);
+		} else {
+			screenLock.setEnabled(false);
+			screenLock.setSummary(getString(R.string.lock_disabled));
+		}
 		notifyPrivateMessages.setEnabled(enabled);
 		notifyGroupMessages.setEnabled(enabled);
 		notifyForumPosts.setEnabled(enabled);

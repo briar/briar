@@ -452,5 +452,6 @@
 	<string name="lock_unlock">Unlock Briar</string>
 	<string name="lock_is_locked">Briar is locked</string>
 	<string name="lock_tap_to_unlock">Tap to unlock</string>
+	<string name="lock_disabled">Only available on Android 5 or newer and when a system screen lock is set</string>
 
 </resources>

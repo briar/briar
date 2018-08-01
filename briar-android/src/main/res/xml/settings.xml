@@ -61,7 +61,7 @@
 			android:persistent="false"
 			android:summary="@string/pref_lock_summary"
 			android:title="@string/pref_lock_title"
-			android:visibility="gone"/>
+			android:enabled="false"/>
 
 		<Preference
 			android:key="pref_key_change_password"
