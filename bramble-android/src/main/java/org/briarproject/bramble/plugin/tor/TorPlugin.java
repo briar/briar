@@ -76,6 +76,7 @@ import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_DISABLE_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_ALWAYS;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_NEVER;
@@ -128,8 +129,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			LocationUtils locationUtils, SocketFactory torSocketFactory,
 			Clock clock, CircumventionProvider circumventionProvider,
 			Backoff backoff, DuplexPluginCallback callback,
-			String architecture,
-			int maxLatency, int maxIdleTime) {
+			String architecture, int maxLatency, int maxIdleTime) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
 		this.networkManager = networkManager;
@@ -661,6 +661,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 					circumventionProvider.isTorProbablyBlocked(country);
 			Settings s = callback.getSettings();
 			int network = s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_ALWAYS);
+			boolean disableWhenBlocked =
+					s.getBoolean(PREF_TOR_DISABLE_BLOCKED, true);
 
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Online: " + online + ", wifi: " + wifi);
@@ -681,9 +683,12 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 						LOG.info("Enabling network, using bridges");
 						enableBridges(true);
 						enableNetwork(true);
-					} else {
+					} else if (disableWhenBlocked) {
 						LOG.info("Disabling network, country is blocked");
 						enableNetwork(false);
+					} else {
+						LOG.info("Enabling network but country is blocked");
+						enableNetwork(true);
 					}
 				} else {
 					LOG.info("Enabling network");

@@ -70,6 +70,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_DISABLE_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_ALWAYS;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -104,6 +105,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public static final String TOR_NAMESPACE = TorConstants.ID.getString();
 	public static final String LANGUAGE = "pref_key_language";
 	public static final String NOTIFY_SIGN_IN = "pref_key_notify_sign_in";
+	public static final String TOR_LOCATION = "pref_key_tor_location";
 
 	private static final Logger LOG =
 			Logger.getLogger(SettingsFragment.class.getName());
@@ -112,6 +114,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private ListPreference language;
 	private ListPreference enableBluetooth;
 	private ListPreference torNetwork;
+	private CheckBoxPreference torBlocked;
 	private CheckBoxPreference notifyPrivateMessages;
 	private CheckBoxPreference notifyGroupMessages;
 	private CheckBoxPreference notifyForumPosts;
@@ -150,6 +153,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				(ListPreference) findPreference("pref_key_theme");
 		enableBluetooth = (ListPreference) findPreference("pref_key_bluetooth");
 		torNetwork = (ListPreference) findPreference("pref_key_tor_network");
+		torBlocked = (CheckBoxPreference) findPreference(TOR_LOCATION);
 		CheckBoxPreference notifySignIn =
 				(CheckBoxPreference) findPreference(NOTIFY_SIGN_IN);
 		notifyPrivateMessages = (CheckBoxPreference) findPreference(
@@ -189,6 +193,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		});
 		enableBluetooth.setOnPreferenceChangeListener(this);
 		torNetwork.setOnPreferenceChangeListener(this);
+		torBlocked.setOnPreferenceChangeListener(this);
 		if (SDK_INT >= 21) {
 			notifyLockscreen.setVisible(true);
 			notifyLockscreen.setOnPreferenceChangeListener(this);
@@ -299,19 +304,24 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				logDuration(LOG, "Loading settings", start);
 				boolean btSetting =
 						btSettings.getBoolean(PREF_BT_ENABLE, false);
-				int torSetting = torSettings.getInt(PREF_TOR_NETWORK,
+				int torNetworkSetting = torSettings.getInt(PREF_TOR_NETWORK,
 						PREF_TOR_NETWORK_ALWAYS);
-				displaySettings(btSetting, torSetting);
+				boolean torBlockedSetting =
+						torSettings.getBoolean(PREF_TOR_DISABLE_BLOCKED, true);
+				displaySettings(btSetting, torNetworkSetting,
+						torBlockedSetting);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
 		});
 	}
 
-	private void displaySettings(boolean btSetting, int torSetting) {
+	private void displaySettings(boolean btSetting, int torNetworkSetting,
+			boolean torBlockedSetting) {
 		listener.runOnUiThreadUnlessDestroyed(() -> {
 			enableBluetooth.setValue(Boolean.toString(btSetting));
-			torNetwork.setValue(Integer.toString(torSetting));
+			torNetwork.setValue(Integer.toString(torNetworkSetting));
+			torBlocked.setChecked(torBlockedSetting);
 
 			if (SDK_INT < 26) {
 				notifyPrivateMessages.setChecked(settings.getBoolean(
@@ -371,6 +381,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		// - pref_key_notify_sign_in
 		enableBluetooth.setEnabled(enabled);
 		torNetwork.setEnabled(enabled);
+		torBlocked.setEnabled(enabled);
 		notifyPrivateMessages.setEnabled(enabled);
 		notifyGroupMessages.setEnabled(enabled);
 		notifyForumPosts.setEnabled(enabled);
@@ -430,8 +441,11 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			boolean btSetting = Boolean.valueOf((String) newValue);
 			storeBluetoothSettings(btSetting);
 		} else if (preference == torNetwork) {
-			int torSetting = Integer.valueOf((String) newValue);
-			storeTorSettings(torSetting);
+			int torNetworkSetting = Integer.valueOf((String) newValue);
+			storeTorNetworkSetting(torNetworkSetting);
+		} else if (preference == torBlocked) {
+			boolean torBlockedSetting = (Boolean) newValue;
+			storeTorBlockedSetting(torBlockedSetting);
 		} else if (preference == notifyPrivateMessages) {
 			Settings s = new Settings();
 			s.putBoolean(PREF_NOTIFY_PRIVATE, (Boolean) newValue);
@@ -480,39 +494,33 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		builder.show();
 	}
 
-	private void storeTorSettings(int torSetting) {
-		listener.runOnDbThread(() -> {
-			try {
-				Settings s = new Settings();
-				s.putInt(PREF_TOR_NETWORK, torSetting);
-				long start = now();
-				settingsManager.mergeSettings(s, TOR_NAMESPACE);
-				logDuration(LOG, "Merging settings", start);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+	private void storeTorNetworkSetting(int torNetworkSetting) {
+		Settings s = new Settings();
+		s.putInt(PREF_TOR_NETWORK, torNetworkSetting);
+		mergeSettings(s, TOR_NAMESPACE);
+	}
+
+	private void storeTorBlockedSetting(boolean torBlockedSetting) {
+		Settings s = new Settings();
+		s.putBoolean(PREF_TOR_DISABLE_BLOCKED, torBlockedSetting);
+		mergeSettings(s, TOR_NAMESPACE);
 	}
 
 	private void storeBluetoothSettings(boolean btSetting) {
-		listener.runOnDbThread(() -> {
-			try {
-				Settings s = new Settings();
-				s.putBoolean(PREF_BT_ENABLE, btSetting);
-				long start = now();
-				settingsManager.mergeSettings(s, BT_NAMESPACE);
-				logDuration(LOG, "Merging settings", start);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		Settings s = new Settings();
+		s.putBoolean(PREF_BT_ENABLE, btSetting);
+		mergeSettings(s, BT_NAMESPACE);
 	}
 
-	private void storeSettings(Settings settings) {
+	private void storeSettings(Settings s) {
+		mergeSettings(s, SETTINGS_NAMESPACE);
+	}
+
+	private void mergeSettings(Settings s, String namespace) {
 		listener.runOnDbThread(() -> {
 			try {
 				long start = now();
-				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+				settingsManager.mergeSettings(s, namespace);
 				logDuration(LOG, "Merging settings", start);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
