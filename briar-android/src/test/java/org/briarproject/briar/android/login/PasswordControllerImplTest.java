@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 
 public class PasswordControllerImplTest extends BrambleMockTestCase {
 
@@ -22,8 +23,8 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 
 	private final Executor ioExecutor = new ImmediateExecutor();
 
-	private final String oldPassword = "some.old.pass";
-	private final String newPassword = "some.new.pass";
+	private final String oldPassword = getRandomString(10);
+	private final String newPassword = getRandomString(10);
 
 	@Test
 	public void testChangePasswordReturnsTrue() {

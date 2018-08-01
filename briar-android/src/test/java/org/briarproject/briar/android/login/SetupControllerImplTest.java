@@ -31,7 +31,7 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 	private final Executor ioExecutor = new ImmediateExecutor();
 
 	private final String authorName = getRandomString(MAX_AUTHOR_NAME_LENGTH);
-	private final String password = "some.strong.pass";
+	private final String password = getRandomString(10);
 	private final LocalAuthor localAuthor = getLocalAuthor();
 
 	public SetupControllerImplTest() {

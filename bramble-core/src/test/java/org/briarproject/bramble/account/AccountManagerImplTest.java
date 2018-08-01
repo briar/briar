@@ -25,6 +25,7 @@ import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.bramble.util.StringUtils.toHexString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -41,8 +42,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	private final String encryptedKeyHex = toHexString(encryptedKey);
 	private final byte[] newEncryptedKey = getRandomBytes(123);
 	private final String newEncryptedKeyHex = toHexString(newEncryptedKey);
-	private final String password = "some.password";
-	private final String newPassword = "some.new.password";
+	private final String password = getRandomString(10);
+	private final String newPassword = getRandomString(10);
 	private final File testDir = getTestDirectory();
 	private final File dbDir = new File(testDir, "db");
 	private final File keyDir = new File(testDir, "key");
@@ -64,21 +65,6 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 
 		assertFalse(keyFile.exists());
 		assertFalse(keyBackupFile.exists());
-	}
-
-	@Test
-	public void testCreatingAccountStoresDbKey() throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(crypto).generateSecretKey();
-			will(returnValue(key));
-			oneOf(crypto).encryptWithPassword(key.getBytes(), password);
-			will(returnValue(encryptedKey));
-		}});
-
-		accountManager.createAccount(password);
-
-		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
-		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
 	}
 
 	@Test
@@ -302,7 +288,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testChangePasswordReturnsTrueIfPasswordIsRight() throws Exception {
+	public void testChangePasswordReturnsTrueIfPasswordIsRight()
+			throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(crypto).decryptWithPassword(encryptedKey, password);
 			will(returnValue(key.getBytes()));
