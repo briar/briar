@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_UNLOCK;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.ACTION_LOCK;
 
 @RequiresApi(21)
 @MethodsNotNullByDefault
@@ -44,7 +45,13 @@ public class UnlockActivity extends BaseActivity {
 
 		Button button = findViewById(R.id.unlock);
 		button.setOnClickListener(view -> requestKeyguardUnlock());
-		requestKeyguardUnlock();
+
+		Intent intent = getIntent();
+		if (intent != null && ACTION_LOCK.equals(intent.getAction())) {
+			accountManager.setLocked(true);
+		} else {
+			requestKeyguardUnlock();
+		}
 	}
 
 	@Override

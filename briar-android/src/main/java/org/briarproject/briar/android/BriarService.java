@@ -2,6 +2,7 @@ package org.briarproject.briar.android;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -15,7 +16,6 @@ import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -25,6 +25,7 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
+import org.briarproject.briar.api.android.AndroidNotificationManager;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,8 +45,6 @@ import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
-import static android.support.v4.app.NotificationCompat.CATEGORY_SERVICE;
-import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -74,6 +73,8 @@ public class BriarService extends Service {
 	@Nullable
 	private BroadcastReceiver receiver = null;
 
+	@Inject
+	AndroidNotificationManager notificationManager;
 	@Inject
 	AccountManager accountManager;
 
@@ -121,24 +122,9 @@ public class BriarService extends Service {
 			failureChannel.setLockscreenVisibility(VISIBILITY_SECRET);
 			nm.createNotificationChannel(failureChannel);
 		}
-		// Show an ongoing notification that the service is running
-		NotificationCompat.Builder b =
-				new NotificationCompat.Builder(this, ONGOING_CHANNEL_ID);
-		b.setSmallIcon(R.drawable.notification_ongoing);
-		b.setColor(ContextCompat.getColor(this, R.color.briar_primary));
-		b.setContentTitle(getText(R.string.ongoing_notification_title));
-		b.setContentText(getText(R.string.ongoing_notification_text));
-		b.setWhen(0); // Don't show the time
-		b.setOngoing(true);
-		Intent i = new Intent(this, NavDrawerActivity.class);
-		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
-		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
-		if (SDK_INT >= 21) {
-			b.setCategory(CATEGORY_SERVICE);
-			b.setVisibility(VISIBILITY_SECRET);
-		}
-		b.setPriority(PRIORITY_MIN);
-		startForeground(ONGOING_NOTIFICATION_ID, b.build());
+		Notification foregroundNotification =
+				notificationManager.getForegroundNotification();
+		startForeground(ONGOING_NOTIFICATION_ID, foregroundNotification);
 		// Start the services in a background thread
 		new Thread(() -> {
 			StartResult result = lifecycleManager.startServices(dbKey);

@@ -42,6 +42,7 @@ import org.briarproject.briar.android.logout.SignOutFragment;
 import org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning;
 import org.briarproject.briar.android.privategroup.list.GroupListFragment;
 import org.briarproject.briar.android.settings.SettingsActivity;
+import org.briarproject.briar.api.android.AndroidNotificationManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +82,8 @@ public class NavDrawerActivity extends BriarActivity implements
 	NavDrawerController controller;
 	@Inject
 	LifecycleManager lifecycleManager;
+	@Inject
+	AndroidNotificationManager notificationManager;
 
 	private DrawerLayout drawerLayout;
 	private NavigationView navigation;
@@ -320,6 +323,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	private void setLockVisible(boolean visible) {
 		MenuItem item = navigation.getMenu().findItem(R.id.nav_btn_lock);
 		if (item != null) item.setVisible(visible);
+		notificationManager.updateForegroundNotification(visible, false);
 	}
 
 	@SuppressWarnings("ConstantConditions")

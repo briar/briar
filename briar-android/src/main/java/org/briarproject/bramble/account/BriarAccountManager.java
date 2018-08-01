@@ -9,16 +9,26 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.util.UiUtils;
+import org.briarproject.briar.api.android.AndroidNotificationManager;
 
 import javax.inject.Inject;
 
 class BriarAccountManager extends AndroidAccountManager {
 
+	private final AndroidNotificationManager notificationManager;
+
 	@Inject
 	BriarAccountManager(DatabaseConfig databaseConfig, CryptoComponent crypto,
 			IdentityManager identityManager, SharedPreferences prefs,
-			Application app) {
+			Application app, AndroidNotificationManager notificationManager) {
 		super(databaseConfig, crypto, identityManager, prefs, app);
+		this.notificationManager = notificationManager;
+	}
+
+	@Override
+	public void setLocked(boolean locked) {
+		super.setLocked(locked);
+		notificationManager.updateForegroundNotification(true, locked);
 	}
 
 	@Override
