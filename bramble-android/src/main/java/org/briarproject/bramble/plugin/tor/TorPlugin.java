@@ -647,9 +647,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				updateConnectionStatus(networkManager.getNetworkStatus());
 			}
 		} else if (e instanceof NetworkStatusEvent) {
-			LOG.info("Network status changed");
-			NetworkStatusEvent n = (NetworkStatusEvent) e;
-			updateConnectionStatus(n.getStatus());
+			updateConnectionStatus(((NetworkStatusEvent) e).getStatus());
 		}
 	}
 

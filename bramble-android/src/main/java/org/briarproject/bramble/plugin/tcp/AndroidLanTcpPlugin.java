@@ -137,10 +137,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof NetworkStatusEvent) {
-			LOG.info("Network status changed");
-			updateConnectionStatus();
-		}
+		if (e instanceof NetworkStatusEvent) updateConnectionStatus();
 	}
 
 	private void updateConnectionStatus() {
