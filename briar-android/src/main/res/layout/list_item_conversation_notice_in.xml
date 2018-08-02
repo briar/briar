@@ -4,6 +4,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:layout_marginTop="@dimen/message_bubble_margin"
 	android:orientation="vertical">
 
 	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
@@ -14,7 +15,6 @@
 		android:layout_gravity="left|start"
 		android:layout_marginLeft="@dimen/message_bubble_margin_tail"
 		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
-		android:layout_marginTop="@dimen/message_bubble_margin"
 		android:background="@drawable/msg_in_top"
 		android:elevation="@dimen/message_bubble_elevation"
 		tools:text="Short message"/>

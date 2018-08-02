@@ -35,7 +35,7 @@
 
 	<Button
 		android:id="@+id/button"
-		style="@style/BriarButton.Default"
+		style="@style/BriarButton"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_margin="8dp"

@@ -38,7 +38,7 @@
 
 		<Button
 			android:id="@+id/download_briar_button"
-			style="@style/BriarButton.Default"
+			style="@style/BriarButton"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="@dimen/margin_medium"
