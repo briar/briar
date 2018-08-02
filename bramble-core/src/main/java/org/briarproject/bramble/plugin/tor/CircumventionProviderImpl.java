@@ -1,6 +1,7 @@
 package org.briarproject.bramble.plugin.tor;
 
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.system.ResourceProvider;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -10,10 +11,11 @@ import java.util.Scanner;
 import java.util.Set;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 import static java.util.Arrays.asList;
 
-abstract class CircumventionProviderImpl implements CircumventionProvider {
+class CircumventionProviderImpl implements CircumventionProvider {
 
 	private final static String BRIDGE_FILE_NAME = "bridges";
 
@@ -22,10 +24,15 @@ abstract class CircumventionProviderImpl implements CircumventionProvider {
 	private static final Set<String> BRIDGES_WORK_IN_COUNTRIES =
 			new HashSet<>(asList(BRIDGES));
 
+	private final ResourceProvider resourceProvider;
+
 	@Nullable
 	private volatile List<String> bridges = null;
 
-	protected abstract InputStream getResourceInputStream(String name);
+	@Inject
+	CircumventionProviderImpl(ResourceProvider resourceProvider) {
+		this.resourceProvider = resourceProvider;
+	}
 
 	@Override
 	public boolean isTorProbablyBlocked(String countryCode) {
@@ -40,12 +47,14 @@ abstract class CircumventionProviderImpl implements CircumventionProvider {
 	@Override
 	@IoExecutor
 	public List<String> getBridges() {
-		if (this.bridges != null) return this.bridges;
+		List<String> bridges = this.bridges;
+		if (bridges != null) return new ArrayList<>(bridges);
 
-		InputStream is = getResourceInputStream(BRIDGE_FILE_NAME);
+		InputStream is =
+				resourceProvider.getResourceInputStream(BRIDGE_FILE_NAME);
 		Scanner scanner = new Scanner(is);
 
-		List<String> bridges = new ArrayList<>();
+		bridges = new ArrayList<>();
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
 			if (!line.startsWith("#")) bridges.add(line);

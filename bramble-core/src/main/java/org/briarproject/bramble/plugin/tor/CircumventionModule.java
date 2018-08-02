@@ -6,12 +6,12 @@ import dagger.Module;
 import dagger.Provides;
 
 @Module
-public class AndroidCircumventionModule {
+public class CircumventionModule {
 
 	@Provides
 	@Singleton
 	CircumventionProvider provideCircumventionProvider(
-			AndroidCircumventionProvider circumventionProvider) {
-		return circumventionProvider;
+			CircumventionProviderImpl provider) {
+		return provider;
 	}
 }

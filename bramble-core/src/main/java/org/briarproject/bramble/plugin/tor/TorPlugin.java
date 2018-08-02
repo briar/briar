@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.util.IoUtils;
 import org.briarproject.bramble.util.StringUtils;
 
@@ -97,6 +98,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final DuplexPluginCallback callback;
 	private final String architecture;
 	private final CircumventionProvider circumventionProvider;
+	private final ResourceProvider resourceProvider;
 	private final int maxLatency, maxIdleTime, socketTimeout;
 	private final File torDirectory, torFile, geoIpFile, configFile;
 	private final File doneFile, cookieFile;
@@ -113,23 +115,22 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	protected abstract long getLastUpdateTime();
 
-	protected abstract InputStream getResourceInputStream(String name);
-
 	TorPlugin(Executor ioExecutor, NetworkManager networkManager,
 			LocationUtils locationUtils, SocketFactory torSocketFactory,
-			Clock clock, CircumventionProvider circumventionProvider,
-			Backoff backoff, DuplexPluginCallback callback,
-			String architecture, int maxLatency, int maxIdleTime,
-			File torDirectory) {
+			Clock clock, ResourceProvider resourceProvider,
+			CircumventionProvider circumventionProvider, Backoff backoff,
+			DuplexPluginCallback callback, String architecture, int maxLatency,
+			int maxIdleTime, File torDirectory) {
 		this.ioExecutor = ioExecutor;
 		this.networkManager = networkManager;
 		this.locationUtils = locationUtils;
 		this.torSocketFactory = torSocketFactory;
 		this.clock = clock;
+		this.resourceProvider = resourceProvider;
+		this.circumventionProvider = circumventionProvider;
 		this.backoff = backoff;
 		this.callback = callback;
 		this.architecture = architecture;
-		this.circumventionProvider = circumventionProvider;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
 		if (maxIdleTime > Integer.MAX_VALUE / 2)
@@ -285,21 +286,22 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private InputStream getTorInputStream() throws IOException {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Installing Tor binary for " + architecture);
-		InputStream in = getResourceInputStream("tor_" + architecture);
+		InputStream in =
+				resourceProvider.getResourceInputStream("tor_" + architecture);
 		ZipInputStream zin = new ZipInputStream(in);
 		if (zin.getNextEntry() == null) throw new IOException();
 		return zin;
 	}
 
 	private InputStream getGeoIpInputStream() throws IOException {
-		InputStream in = getResourceInputStream("geoip");
+		InputStream in = resourceProvider.getResourceInputStream("geoip");
 		ZipInputStream zin = new ZipInputStream(in);
 		if (zin.getNextEntry() == null) throw new IOException();
 		return zin;
 	}
 
 	private InputStream getConfigInputStream() {
-		return getResourceInputStream("torrc");
+		return resourceProvider.getResourceInputStream("torrc");
 	}
 
 	private void tryToClose(@Nullable Closeable c) {

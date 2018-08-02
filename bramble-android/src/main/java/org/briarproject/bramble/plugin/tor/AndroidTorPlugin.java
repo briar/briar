@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Resources;
 import android.os.PowerManager;
 
 import org.briarproject.bramble.api.network.NetworkManager;
@@ -14,10 +13,10 @@ import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.util.RenewableWakeLock;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -41,12 +40,13 @@ class AndroidTorPlugin extends TorPlugin {
 	AndroidTorPlugin(Executor ioExecutor, ScheduledExecutorService scheduler,
 			Context appContext, NetworkManager networkManager,
 			LocationUtils locationUtils, SocketFactory torSocketFactory,
-			Clock clock, CircumventionProvider circumventionProvider,
-			Backoff backoff, DuplexPluginCallback callback,
-			String architecture, int maxLatency, int maxIdleTime) {
+			Clock clock, ResourceProvider resourceProvider,
+			CircumventionProvider circumventionProvider, Backoff backoff,
+			DuplexPluginCallback callback, String architecture, int maxLatency,
+			int maxIdleTime) {
 		super(ioExecutor, networkManager, locationUtils, torSocketFactory,
-				clock, circumventionProvider, backoff, callback, architecture,
-				maxLatency, maxIdleTime,
+				clock, resourceProvider, circumventionProvider, backoff,
+				callback, architecture, maxLatency, maxIdleTime,
 				appContext.getDir("tor", MODE_PRIVATE));
 		this.appContext = appContext;
 		PowerManager pm = (PowerManager)
@@ -70,13 +70,6 @@ class AndroidTorPlugin extends TorPlugin {
 		} catch (NameNotFoundException e) {
 			throw new AssertionError(e);
 		}
-	}
-
-	@Override
-	protected InputStream getResourceInputStream(String name) {
-		Resources res = appContext.getResources();
-		int resId = res.getIdentifier(name, "raw", appContext.getPackageName());
-		return res.openRawResource(resId);
 	}
 
 	@Override

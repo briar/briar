@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.test.BrambleAndroidIntegrationTestComponent;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.DaggerBrambleAndroidIntegrationTestComponent;
@@ -45,6 +46,8 @@ public class BridgeTest extends BrambleTestCase {
 	@Inject
 	NetworkManager networkManager;
 	@Inject
+	ResourceProvider resourceProvider;
+	@Inject
 	CircumventionProvider circumventionProvider;
 	@Inject
 	EventBus eventBus;
@@ -59,7 +62,7 @@ public class BridgeTest extends BrambleTestCase {
 	private List<String> bridges;
 	private AndroidTorPluginFactory factory;
 
-	private volatile int currentBridge = 0;
+	private volatile String currentBridge = null;
 
 	@Before
 	public void setUp() {
@@ -73,7 +76,7 @@ public class BridgeTest extends BrambleTestCase {
 		SocketFactory torSocketFactory = SocketFactory.getDefault();
 
 		bridges = circumventionProvider.getBridges();
-		CircumventionProvider testProvider = new CircumventionProvider() {
+		CircumventionProvider bridgeProvider = new CircumventionProvider() {
 			@Override
 			public boolean isTorProbablyBlocked(String countryCode) {
 				return true;
@@ -86,31 +89,29 @@ public class BridgeTest extends BrambleTestCase {
 
 			@Override
 			public List<String> getBridges() {
-				return singletonList(bridges.get(currentBridge));
+				return singletonList(currentBridge);
 			}
 		};
 		factory = new AndroidTorPluginFactory(ioExecutor, scheduler, appContext,
 				networkManager, locationUtils, eventBus, torSocketFactory,
-				backoffFactory, testProvider, clock);
+				backoffFactory, resourceProvider, bridgeProvider, clock);
 	}
 
 	@Test
 	public void testBridges() throws Exception {
 		assertTrue(bridges.size() > 0);
 
-		for (int i = 0; i < bridges.size(); i++) {
-			testBridge(i);
-		}
+		for (String bridge : bridges) testBridge(bridge);
 	}
 
-	private void testBridge(int bridge) throws Exception {
+	private void testBridge(String bridge) throws Exception {
 		DuplexPlugin duplexPlugin =
 				factory.createPlugin(new TorPluginCallBack());
 		assertNotNull(duplexPlugin);
 		AndroidTorPlugin plugin = (AndroidTorPlugin) duplexPlugin;
 
 		currentBridge = bridge;
-		LOG.warning("Testing " + bridges.get(currentBridge));
+		LOG.warning("Testing " + bridge);
 		try {
 			plugin.start();
 			long start = clock.currentTimeMillis();
