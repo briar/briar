@@ -9,6 +9,11 @@
 
 	<color name="color_primary">#ffffff</color>
 
+	<color name="msg_in">#2D3E50</color>
+	<color name="msg_out">#3C80A9</color>
+	<color name="notice_in">@color/briar_blue_dark</color>
+	<color name="notice_out">#236087</color>
+
 	<color name="window_background">@color/briar_blue_very_dark</color>
 	<color name="card_background">@color/briar_blue_dark</color>
 	<color name="item_background_highlight">@color/briar_blue</color>
