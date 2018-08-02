@@ -2,6 +2,7 @@ package org.briarproject.bramble.plugin.tcp;
 
 import android.content.Context;
 
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
@@ -11,7 +12,6 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -28,15 +28,14 @@ public class AndroidLanTcpPluginFactory implements DuplexPluginFactory {
 	private static final double BACKOFF_BASE = 1.2;
 
 	private final Executor ioExecutor;
-	private final ScheduledExecutorService scheduler;
+	private final EventBus eventBus;
 	private final BackoffFactory backoffFactory;
 	private final Context appContext;
 
-	public AndroidLanTcpPluginFactory(Executor ioExecutor,
-			ScheduledExecutorService scheduler, BackoffFactory backoffFactory,
-			Context appContext) {
+	public AndroidLanTcpPluginFactory(Executor ioExecutor, EventBus eventBus,
+			BackoffFactory backoffFactory, Context appContext) {
 		this.ioExecutor = ioExecutor;
-		this.scheduler = scheduler;
+		this.eventBus = eventBus;
 		this.backoffFactory = backoffFactory;
 		this.appContext = appContext;
 	}
@@ -55,7 +54,9 @@ public class AndroidLanTcpPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		return new AndroidLanTcpPlugin(ioExecutor, scheduler, backoff,
-				appContext, callback, MAX_LATENCY, MAX_IDLE_TIME);
+		AndroidLanTcpPlugin plugin = new AndroidLanTcpPlugin(ioExecutor,
+				appContext, backoff, callback, MAX_LATENCY, MAX_IDLE_TIME);
+		eventBus.addListener(plugin);
+		return plugin;
 	}
 }

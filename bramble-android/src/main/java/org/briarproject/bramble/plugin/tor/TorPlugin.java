@@ -1,15 +1,10 @@
 package org.briarproject.bramble.plugin.tor;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.PowerManager;
 
 import net.freehaven.tor.control.EventHandler;
@@ -21,6 +16,9 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
+import org.briarproject.bramble.api.network.NetworkManager;
+import org.briarproject.bramble.api.network.NetworkStatus;
+import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -59,10 +57,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
@@ -70,15 +66,8 @@ import java.util.zip.ZipInputStream;
 import javax.annotation.Nullable;
 import javax.net.SocketFactory;
 
-import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.POWER_SERVICE;
-import static android.content.Intent.ACTION_SCREEN_OFF;
-import static android.content.Intent.ACTION_SCREEN_ON;
-import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
-import static android.net.ConnectivityManager.TYPE_WIFI;
-import static android.os.Build.VERSION.SDK_INT;
-import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
 import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.INFO;
@@ -113,8 +102,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			Logger.getLogger(TorPlugin.class.getName());
 
 	private final Executor ioExecutor, connectionStatusExecutor;
-	private final ScheduledExecutorService scheduler;
 	private final Context appContext;
+	private final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
 	private final SocketFactory torSocketFactory;
 	private final Clock clock;
@@ -127,24 +116,23 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final File torDirectory, torFile, geoIpFile, configFile;
 	private final File doneFile, cookieFile;
 	private final RenewableWakeLock wakeLock;
-	private final AtomicReference<Future<?>> connectivityCheck =
-			new AtomicReference<>();
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	private volatile boolean running = false;
 	private volatile ServerSocket socket = null;
 	private volatile Socket controlSocket = null;
 	private volatile TorControlConnection controlConnection = null;
-	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	TorPlugin(Executor ioExecutor, ScheduledExecutorService scheduler,
-			Context appContext, LocationUtils locationUtils,
-			SocketFactory torSocketFactory, Clock clock, Backoff backoff,
-			DuplexPluginCallback callback, String architecture,
-			CircumventionProvider circumventionProvider, int maxLatency, int maxIdleTime) {
+			Context appContext, NetworkManager networkManager,
+			LocationUtils locationUtils, SocketFactory torSocketFactory,
+			Clock clock, CircumventionProvider circumventionProvider,
+			Backoff backoff, DuplexPluginCallback callback,
+			String architecture,
+			int maxLatency, int maxIdleTime) {
 		this.ioExecutor = ioExecutor;
-		this.scheduler = scheduler;
 		this.appContext = appContext;
+		this.networkManager = networkManager;
 		this.locationUtils = locationUtils;
 		this.torSocketFactory = torSocketFactory;
 		this.clock = clock;
@@ -165,8 +153,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
 		// Don't execute more than one connection status check at a time
-		connectionStatusExecutor = new PoliteExecutor("TorPlugin",
-				ioExecutor, 1);
+		connectionStatusExecutor =
+				new PoliteExecutor("TorPlugin", ioExecutor, 1);
 		PowerManager pm = (PowerManager)
 				appContext.getSystemService(POWER_SERVICE);
 		wakeLock = new RenewableWakeLock(pm, scheduler, PARTIAL_WAKE_LOCK,
@@ -271,14 +259,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		} catch (IOException e) {
 			throw new PluginException(e);
 		}
-		// Register to receive network status events
-		networkStateReceiver = new NetworkStateReceiver();
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(CONNECTIVITY_ACTION);
-		filter.addAction(ACTION_SCREEN_ON);
-		filter.addAction(ACTION_SCREEN_OFF);
-		if (SDK_INT >= 23) filter.addAction(ACTION_DEVICE_IDLE_MODE_CHANGED);
-		appContext.registerReceiver(networkStateReceiver, filter);
+		// Check whether we're online
+		updateConnectionStatus(networkManager.getNetworkStatus());
 		// Bind a server socket to receive incoming hidden service connections
 		bind();
 	}
@@ -517,8 +499,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	public void stop() {
 		running = false;
 		tryToClose(socket);
-		if (networkStateReceiver != null)
-			appContext.unregisterReceiver(networkStateReceiver);
 		if (controlSocket != null && controlConnection != null) {
 			try {
 				LOG.info("Stopping Tor");
@@ -628,8 +608,10 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void orConnStatus(String status, String orName) {
 		if (LOG.isLoggable(INFO)) LOG.info("OR connection " + status);
-		if (status.equals("CLOSED") || status.equals("FAILED"))
-			updateConnectionStatus(); // Check whether we've lost connectivity
+		if (status.equals("CLOSED") || status.equals("FAILED")) {
+			// Check whether we've lost connectivity
+			updateConnectionStatus(networkManager.getNetworkStatus());
+		}
 	}
 
 	@Override
@@ -662,19 +644,18 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
 			if (s.getNamespace().equals(ID.getString())) {
 				LOG.info("Tor settings updated");
-				updateConnectionStatus();
+				updateConnectionStatus(networkManager.getNetworkStatus());
 			}
+		} else if (e instanceof NetworkStatusEvent) {
+			updateConnectionStatus(((NetworkStatusEvent) e).getStatus());
 		}
 	}
 
-	private void updateConnectionStatus() {
+	private void updateConnectionStatus(NetworkStatus status) {
 		connectionStatusExecutor.execute(() -> {
 			if (!running) return;
-			Object o = appContext.getSystemService(CONNECTIVITY_SERVICE);
-			ConnectivityManager cm = (ConnectivityManager) o;
-			NetworkInfo net = cm.getActiveNetworkInfo();
-			boolean online = net != null && net.isConnected();
-			boolean wifi = online && net.getType() == TYPE_WIFI;
+			boolean online = status.isConnected();
+			boolean wifi = status.isWifi();
 			String country = locationUtils.getCurrentCountry();
 			boolean blocked =
 					circumventionProvider.isTorProbablyBlocked(country);
@@ -713,29 +694,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				logException(LOG, WARNING, e);
 			}
 		});
-	}
-
-	private void scheduleConnectionStatusUpdate() {
-		Future<?> newConnectivityCheck =
-				scheduler.schedule(this::updateConnectionStatus, 1, MINUTES);
-		Future<?> oldConnectivityCheck =
-				connectivityCheck.getAndSet(newConnectivityCheck);
-		if (oldConnectivityCheck != null) oldConnectivityCheck.cancel(false);
-	}
-
-	private class NetworkStateReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive(Context ctx, Intent i) {
-			if (!running) return;
-			String action = i.getAction();
-			if (LOG.isLoggable(INFO)) LOG.info("Received broadcast " + action);
-			updateConnectionStatus();
-			if (ACTION_SCREEN_ON.equals(action)
-					|| ACTION_SCREEN_OFF.equals(action)) {
-				scheduleConnectionStatusUpdate();
-			}
-		}
 	}
 
 	private static class ConnectionStatus {

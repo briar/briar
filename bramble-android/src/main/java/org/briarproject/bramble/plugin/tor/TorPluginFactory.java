@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Build;
 
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
@@ -39,6 +40,7 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	private final Executor ioExecutor;
 	private final ScheduledExecutorService scheduler;
 	private final Context appContext;
+	private final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
 	private final EventBus eventBus;
 	private final SocketFactory torSocketFactory;
@@ -48,13 +50,14 @@ public class TorPluginFactory implements DuplexPluginFactory {
 
 	public TorPluginFactory(Executor ioExecutor,
 			ScheduledExecutorService scheduler, Context appContext,
-			LocationUtils locationUtils, EventBus eventBus,
-			SocketFactory torSocketFactory, BackoffFactory backoffFactory,
-			CircumventionProvider circumventionProvider,
-			Clock clock) {
+			NetworkManager networkManager, LocationUtils locationUtils,
+			EventBus eventBus, SocketFactory torSocketFactory,
+			BackoffFactory backoffFactory,
+			CircumventionProvider circumventionProvider, Clock clock) {
 		this.ioExecutor = ioExecutor;
 		this.scheduler = scheduler;
 		this.appContext = appContext;
+		this.networkManager = networkManager;
 		this.locationUtils = locationUtils;
 		this.eventBus = eventBus;
 		this.torSocketFactory = torSocketFactory;
@@ -97,8 +100,9 @@ public class TorPluginFactory implements DuplexPluginFactory {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		TorPlugin plugin = new TorPlugin(ioExecutor, scheduler, appContext,
-				locationUtils, torSocketFactory, clock, backoff, callback,
-				architecture, circumventionProvider, MAX_LATENCY, MAX_IDLE_TIME);
+				networkManager, locationUtils, torSocketFactory, clock,
+				circumventionProvider, backoff, callback, architecture,
+				MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

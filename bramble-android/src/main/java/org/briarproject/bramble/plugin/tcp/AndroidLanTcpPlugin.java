@@ -1,15 +1,16 @@
 package org.briarproject.bramble.plugin.tcp;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
+import org.briarproject.bramble.PoliteExecutor;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventListener;
+import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
@@ -20,7 +21,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -28,21 +28,13 @@ import javax.net.SocketFactory;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.content.Context.WIFI_SERVICE;
-import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.TYPE_WIFI;
-import static android.net.wifi.WifiManager.EXTRA_WIFI_STATE;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 @NotNullByDefault
-class AndroidLanTcpPlugin extends LanTcpPlugin {
-
-	// See android.net.wifi.WifiManager
-	private static final String WIFI_AP_STATE_CHANGED_ACTION =
-			"android.net.wifi.WIFI_AP_STATE_CHANGED";
-	private static final int WIFI_AP_STATE_ENABLED = 13;
+class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 
 	private static final byte[] WIFI_AP_ADDRESS_BYTES =
 			{(byte) 192, (byte) 168, 43, 1};
@@ -60,25 +52,23 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		}
 	}
 
-	private final ScheduledExecutorService scheduler;
-	private final Context appContext;
+	private final Executor connectionStatusExecutor;
 	private final ConnectivityManager connectivityManager;
 	@Nullable
 	private final WifiManager wifiManager;
 
-	@Nullable
-	private volatile BroadcastReceiver networkStateReceiver = null;
 	private volatile SocketFactory socketFactory;
 
-	AndroidLanTcpPlugin(Executor ioExecutor, ScheduledExecutorService scheduler,
-			Backoff backoff, Context appContext, DuplexPluginCallback callback,
-			int maxLatency, int maxIdleTime) {
+	AndroidLanTcpPlugin(Executor ioExecutor, Context appContext,
+			Backoff backoff, DuplexPluginCallback callback, int maxLatency,
+			int maxIdleTime) {
 		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime);
-		this.scheduler = scheduler;
-		this.appContext = appContext;
+		// Don't execute more than one connection status check at a time
+		connectionStatusExecutor =
+				new PoliteExecutor("AndroidLanTcpPlugin", ioExecutor, 1);
 		ConnectivityManager connectivityManager = (ConnectivityManager)
 				appContext.getSystemService(CONNECTIVITY_SERVICE);
-		if (connectivityManager == null) throw new AssertionError();
+		assert connectivityManager != null;
 		this.connectivityManager = connectivityManager;
 		wifiManager = (WifiManager) appContext.getApplicationContext()
 				.getSystemService(WIFI_SERVICE);
@@ -89,19 +79,12 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		running = true;
-		// Register to receive network status events
-		networkStateReceiver = new NetworkStateReceiver();
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(CONNECTIVITY_ACTION);
-		filter.addAction(WIFI_AP_STATE_CHANGED_ACTION);
-		appContext.registerReceiver(networkStateReceiver, filter);
+		updateConnectionStatus();
 	}
 
 	@Override
 	public void stop() {
 		running = false;
-		if (networkStateReceiver != null)
-			appContext.unregisterReceiver(networkStateReceiver);
 		tryToClose(socket);
 	}
 
@@ -120,7 +103,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 			return singletonList(intToInetAddress(info.getIpAddress()));
 		// If we're running an access point, return its address
 		if (super.getLocalIpAddresses().contains(WIFI_AP_ADDRESS))
-				return singletonList(WIFI_AP_ADDRESS);
+			return singletonList(WIFI_AP_ADDRESS);
 		// No suitable addresses
 		return emptyList();
 	}
@@ -152,21 +135,13 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		return SocketFactory.getDefault();
 	}
 
-	private class NetworkStateReceiver extends BroadcastReceiver {
+	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof NetworkStatusEvent) updateConnectionStatus();
+	}
 
-		@Override
-		public void onReceive(Context ctx, Intent i) {
-			if (!running) return;
-			if (isApEnabledEvent(i)) {
-				// The state change may be broadcast before the AP address is
-				// visible, so delay handling the event
-				scheduler.schedule(this::handleConnectivityChange, 1, SECONDS);
-			} else {
-				handleConnectivityChange();
-			}
-		}
-
-		private void handleConnectivityChange() {
+	private void updateConnectionStatus() {
+		connectionStatusExecutor.execute(() -> {
 			if (!running) return;
 			Collection<InetAddress> addrs = getLocalIpAddresses();
 			if (addrs.contains(WIFI_AP_ADDRESS)) {
@@ -186,11 +161,6 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 				socketFactory = getSocketFactory();
 				if (socket == null || socket.isClosed()) bind();
 			}
-		}
-
-		private boolean isApEnabledEvent(Intent i) {
-			return WIFI_AP_STATE_CHANGED_ACTION.equals(i.getAction()) &&
-					i.getIntExtra(EXTRA_WIFI_STATE, 0) == WIFI_AP_STATE_ENABLED;
-		}
+		});
 	}
 }
