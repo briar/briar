@@ -75,7 +75,7 @@
 
 		<Button
 			android:id="@+id/continueButton"
-			style="@style/BriarButton.Default"
+			style="@style/BriarButton"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"

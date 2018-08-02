@@ -50,7 +50,6 @@
 				android:paddingRight="@dimen/margin_small"
 				android:paddingTop="@dimen/margin_small"
 				android:textColor="?android:attr/textColorPrimary"
-				android:textColorHint="?android:attr/textColorTertiary"
 				tools:ignore="RtlSymmetry"/>
 
 		</LinearLayout>
