@@ -3,14 +3,15 @@ package org.briarproject.bramble.plugin.tor;
 import android.content.Context;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.briarproject.bramble.DaggerIntegrationTestComponent;
-import org.briarproject.bramble.IntegrationTestComponent;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.test.BrambleAndroidIntegrationTestComponent;
 import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.DaggerBrambleAndroidIntegrationTestComponent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +42,8 @@ public class BridgeTest extends BrambleTestCase {
 	private final static Logger LOG =
 			Logger.getLogger(BridgeTest.class.getSimpleName());
 
+	@Inject
+	NetworkManager networkManager;
 	@Inject
 	EventBus eventBus;
 	@Inject
@@ -77,8 +80,8 @@ public class BridgeTest extends BrambleTestCase {
 
 	@Before
 	public void setUp() {
-		IntegrationTestComponent component =
-				DaggerIntegrationTestComponent.builder().build();
+		BrambleAndroidIntegrationTestComponent component =
+				DaggerBrambleAndroidIntegrationTestComponent.builder().build();
 		component.inject(this);
 
 		Executor ioExecutor = Executors.newCachedThreadPool();
@@ -87,7 +90,7 @@ public class BridgeTest extends BrambleTestCase {
 		SocketFactory torSocketFactory = SocketFactory.getDefault();
 
 		factory = new TorPluginFactory(ioExecutor, scheduler, appContext,
-				locationUtils, eventBus, torSocketFactory,
+				networkManager, locationUtils, eventBus, torSocketFactory,
 				backoffFactory, circumventionProvider, clock);
 	}
 
