@@ -1,12 +1,5 @@
 package org.briarproject.bramble.plugin.tor;
 
-import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Resources;
-import android.os.PowerManager;
-
 import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
 
@@ -34,7 +27,6 @@ import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.util.IoUtils;
-import org.briarproject.bramble.util.RenewableWakeLock;
 import org.briarproject.bramble.util.StringUtils;
 
 import java.io.Closeable;
@@ -57,7 +49,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -66,10 +57,6 @@ import java.util.zip.ZipInputStream;
 import javax.annotation.Nullable;
 import javax.net.SocketFactory;
 
-import static android.content.Context.MODE_PRIVATE;
-import static android.content.Context.POWER_SERVICE;
-import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
@@ -88,7 +75,10 @@ import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
+abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
+
+	private static final Logger LOG =
+			Logger.getLogger(TorPlugin.class.getName());
 
 	private static final String[] EVENTS = {
 			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
@@ -97,13 +87,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private static final int COOKIE_TIMEOUT_MS = 3000;
 	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
 	private static final Pattern ONION = Pattern.compile("[a-z2-7]{16}");
-	// This tag may prevent Huawei's power manager from killing us
-	private static final String WAKE_LOCK_TAG = "LocationManagerService";
-	private static final Logger LOG =
-			Logger.getLogger(TorPlugin.class.getName());
 
 	private final Executor ioExecutor, connectionStatusExecutor;
-	private final Context appContext;
 	private final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
 	private final SocketFactory torSocketFactory;
@@ -113,25 +98,30 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final String architecture;
 	private final CircumventionProvider circumventionProvider;
 	private final int maxLatency, maxIdleTime, socketTimeout;
-	private final ConnectionStatus connectionStatus;
 	private final File torDirectory, torFile, geoIpFile, configFile;
 	private final File doneFile, cookieFile;
-	private final RenewableWakeLock wakeLock;
+	private final ConnectionStatus connectionStatus;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
-	private volatile boolean running = false;
 	private volatile ServerSocket socket = null;
 	private volatile Socket controlSocket = null;
 	private volatile TorControlConnection controlConnection = null;
 
-	TorPlugin(Executor ioExecutor, ScheduledExecutorService scheduler,
-			Context appContext, NetworkManager networkManager,
+	protected volatile boolean running = false;
+
+	protected abstract int getProcessId();
+
+	protected abstract long getLastUpdateTime();
+
+	protected abstract InputStream getResourceInputStream(String name);
+
+	TorPlugin(Executor ioExecutor, NetworkManager networkManager,
 			LocationUtils locationUtils, SocketFactory torSocketFactory,
 			Clock clock, CircumventionProvider circumventionProvider,
 			Backoff backoff, DuplexPluginCallback callback,
-			String architecture, int maxLatency, int maxIdleTime) {
+			String architecture, int maxLatency, int maxIdleTime,
+			File torDirectory) {
 		this.ioExecutor = ioExecutor;
-		this.appContext = appContext;
 		this.networkManager = networkManager;
 		this.locationUtils = locationUtils;
 		this.torSocketFactory = torSocketFactory;
@@ -145,20 +135,16 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (maxIdleTime > Integer.MAX_VALUE / 2)
 			socketTimeout = Integer.MAX_VALUE;
 		else socketTimeout = maxIdleTime * 2;
-		connectionStatus = new ConnectionStatus();
-		torDirectory = appContext.getDir("tor", MODE_PRIVATE);
+		this.torDirectory = torDirectory;
 		torFile = new File(torDirectory, "tor");
 		geoIpFile = new File(torDirectory, "geoip");
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
+		connectionStatus = new ConnectionStatus();
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
 				new PoliteExecutor("TorPlugin", ioExecutor, 1);
-		PowerManager pm = (PowerManager)
-				appContext.getSystemService(POWER_SERVICE);
-		wakeLock = new RenewableWakeLock(pm, scheduler, PARTIAL_WAKE_LOCK,
-				WAKE_LOCK_TAG, 1, MINUTES);
 	}
 
 	@Override
@@ -187,7 +173,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		LOG.info("Starting Tor");
 		String torPath = torFile.getAbsolutePath();
 		String configPath = configFile.getAbsolutePath();
-		String pid = String.valueOf(android.os.Process.myPid());
+		String pid = String.valueOf(getProcessId());
 		Process torProcess;
 		ProcessBuilder pb =
 				new ProcessBuilder(torPath, "-f", configPath, OWNER, pid);
@@ -266,13 +252,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private boolean assetsAreUpToDate() {
-		try {
-			PackageManager pm = appContext.getPackageManager();
-			PackageInfo pi = pm.getPackageInfo(appContext.getPackageName(), 0);
-			return doneFile.lastModified() > pi.lastUpdateTime;
-		} catch (NameNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+		return doneFile.lastModified() > getLastUpdateTime();
 	}
 
 	private void installAssets() throws PluginException {
@@ -305,29 +285,21 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private InputStream getTorInputStream() throws IOException {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Installing Tor binary for " + architecture);
-		int resId = getResourceId("tor_" + architecture);
-		InputStream in = appContext.getResources().openRawResource(resId);
+		InputStream in = getResourceInputStream("tor_" + architecture);
 		ZipInputStream zin = new ZipInputStream(in);
 		if (zin.getNextEntry() == null) throw new IOException();
 		return zin;
 	}
 
 	private InputStream getGeoIpInputStream() throws IOException {
-		int resId = getResourceId("geoip");
-		InputStream in = appContext.getResources().openRawResource(resId);
+		InputStream in = getResourceInputStream("geoip");
 		ZipInputStream zin = new ZipInputStream(in);
 		if (zin.getNextEntry() == null) throw new IOException();
 		return zin;
 	}
 
 	private InputStream getConfigInputStream() {
-		int resId = getResourceId("torrc");
-		return appContext.getResources().openRawResource(resId);
-	}
-
-	private int getResourceId(String filename) {
-		Resources res = appContext.getResources();
-		return res.getIdentifier(filename, "raw", appContext.getPackageName());
+		return getResourceInputStream("torrc");
 	}
 
 	private void tryToClose(@Nullable Closeable c) {
@@ -473,15 +445,11 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 	}
 
-	private void enableNetwork(boolean enable) throws IOException {
+	protected void enableNetwork(boolean enable) throws IOException {
 		if (!running) return;
-		if (enable) wakeLock.acquire();
 		connectionStatus.enableNetwork(enable);
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
-		if (!enable) {
-			callback.transportDisabled();
-			wakeLock.release();
-		}
+		if (!enable) callback.transportDisabled();
 	}
 
 	private void enableBridges(boolean enable) throws IOException {
@@ -509,7 +477,6 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				logException(LOG, WARNING, e);
 			}
 		}
-		wakeLock.release();
 	}
 
 	@Override

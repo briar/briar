@@ -1,12 +1,13 @@
 package org.briarproject.bramble.test;
 
 import android.app.Application;
-import android.support.test.InstrumentationRegistry;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+
+import static android.support.test.InstrumentationRegistry.getTargetContext;
 
 @Module
 class ApplicationModule {
@@ -14,7 +15,6 @@ class ApplicationModule {
 	@Provides
 	@Singleton
 	Application provideApplication() {
-		return (Application) InstrumentationRegistry.getTargetContext()
-						.getApplicationContext();
+		return (Application) getTargetContext().getApplicationContext();
 	}
 }

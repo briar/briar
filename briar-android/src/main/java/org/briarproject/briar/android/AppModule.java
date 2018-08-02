@@ -24,8 +24,8 @@ import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.Scheduler;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
+import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
-import org.briarproject.bramble.plugin.tor.TorPluginFactory;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -100,8 +100,8 @@ public class AppModule {
 		DuplexPluginFactory bluetooth =
 				new AndroidBluetoothPluginFactory(ioExecutor, androidExecutor,
 						appContext, random, eventBus, backoffFactory);
-		DuplexPluginFactory tor = new TorPluginFactory(ioExecutor, scheduler,
-				appContext, networkManager, locationUtils, eventBus,
+		DuplexPluginFactory tor = new AndroidTorPluginFactory(ioExecutor,
+				scheduler, appContext, networkManager, locationUtils, eventBus,
 				torSocketFactory, backoffFactory, circumventionProvider, clock);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
 				eventBus, backoffFactory, appContext);

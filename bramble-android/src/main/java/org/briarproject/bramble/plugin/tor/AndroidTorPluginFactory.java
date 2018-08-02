@@ -26,10 +26,10 @@ import javax.net.SocketFactory;
 
 @Immutable
 @NotNullByDefault
-public class TorPluginFactory implements DuplexPluginFactory {
+public class AndroidTorPluginFactory implements DuplexPluginFactory {
 
 	private static final Logger LOG =
-			Logger.getLogger(TorPluginFactory.class.getName());
+			Logger.getLogger(AndroidTorPluginFactory.class.getName());
 
 	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
 	private static final int MAX_IDLE_TIME = 30 * 1000; // 30 seconds
@@ -48,7 +48,7 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	private final CircumventionProvider circumventionProvider;
 	private final Clock clock;
 
-	public TorPluginFactory(Executor ioExecutor,
+	public AndroidTorPluginFactory(Executor ioExecutor,
 			ScheduledExecutorService scheduler, Context appContext,
 			NetworkManager networkManager, LocationUtils locationUtils,
 			EventBus eventBus, SocketFactory torSocketFactory,
@@ -99,7 +99,8 @@ public class TorPluginFactory implements DuplexPluginFactory {
 
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		TorPlugin plugin = new TorPlugin(ioExecutor, scheduler, appContext,
+		AndroidTorPlugin
+				plugin = new AndroidTorPlugin(ioExecutor, scheduler, appContext,
 				networkManager, locationUtils, torSocketFactory, clock,
 				circumventionProvider, backoff, callback, architecture,
 				MAX_LATENCY, MAX_IDLE_TIME);

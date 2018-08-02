@@ -45,21 +45,35 @@ public class BridgeTest extends BrambleTestCase {
 	@Inject
 	NetworkManager networkManager;
 	@Inject
+	CircumventionProvider circumventionProvider;
+	@Inject
 	EventBus eventBus;
 	@Inject
 	BackoffFactory backoffFactory;
 	@Inject
 	Clock clock;
 
-	private final Context appContext = getTargetContext();
-	private final CircumventionProvider circumventionProvider;
-	private final List<String> bridges;
-	private TorPluginFactory factory;
+	private final Context appContext =
+			getTargetContext().getApplicationContext();
+
+	private List<String> bridges;
+	private AndroidTorPluginFactory factory;
+
 	private volatile int currentBridge = 0;
 
-	public BridgeTest() {
-		super();
-		circumventionProvider = new CircumventionProvider() {
+	@Before
+	public void setUp() {
+		BrambleAndroidIntegrationTestComponent component =
+				DaggerBrambleAndroidIntegrationTestComponent.builder().build();
+		component.inject(this);
+
+		Executor ioExecutor = Executors.newCachedThreadPool();
+		ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(1);
+		LocationUtils locationUtils = () -> "US";
+		SocketFactory torSocketFactory = SocketFactory.getDefault();
+
+		bridges = circumventionProvider.getBridges();
+		CircumventionProvider testProvider = new CircumventionProvider() {
 			@Override
 			public boolean isTorProbablyBlocked(String countryCode) {
 				return true;
@@ -75,23 +89,9 @@ public class BridgeTest extends BrambleTestCase {
 				return singletonList(bridges.get(currentBridge));
 			}
 		};
-		bridges = new CircumventionProviderImpl(appContext).getBridges();
-	}
-
-	@Before
-	public void setUp() {
-		BrambleAndroidIntegrationTestComponent component =
-				DaggerBrambleAndroidIntegrationTestComponent.builder().build();
-		component.inject(this);
-
-		Executor ioExecutor = Executors.newCachedThreadPool();
-		ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(1);
-		LocationUtils locationUtils = () -> "US";
-		SocketFactory torSocketFactory = SocketFactory.getDefault();
-
-		factory = new TorPluginFactory(ioExecutor, scheduler, appContext,
+		factory = new AndroidTorPluginFactory(ioExecutor, scheduler, appContext,
 				networkManager, locationUtils, eventBus, torSocketFactory,
-				backoffFactory, circumventionProvider, clock);
+				backoffFactory, testProvider, clock);
 	}
 
 	@Test
@@ -107,7 +107,7 @@ public class BridgeTest extends BrambleTestCase {
 		DuplexPlugin duplexPlugin =
 				factory.createPlugin(new TorPluginCallBack());
 		assertNotNull(duplexPlugin);
-		TorPlugin plugin = (TorPlugin) duplexPlugin;
+		AndroidTorPlugin plugin = (AndroidTorPlugin) duplexPlugin;
 
 		currentBridge = bridge;
 		LOG.warning("Testing " + bridges.get(currentBridge));
