@@ -2,6 +2,7 @@ package org.briarproject.bramble;
 
 import android.app.Application;
 
+import org.briarproject.bramble.network.AndroidNetworkModule;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.plugin.tor.CircumventionProviderImpl;
 import org.briarproject.bramble.system.AndroidSystemModule;
@@ -12,6 +13,7 @@ import dagger.Module;
 import dagger.Provides;
 
 @Module(includes = {
+		AndroidNetworkModule.class,
 		AndroidSystemModule.class
 })
 public class BrambleAndroidModule {
