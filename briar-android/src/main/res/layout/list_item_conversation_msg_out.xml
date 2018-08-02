@@ -11,30 +11,31 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="right|end"
+		android:layout_marginBottom="@dimen/message_bubble_margin"
 		android:layout_marginLeft="@dimen/message_bubble_margin_non_tail"
 		android:layout_marginRight="@dimen/message_bubble_margin_tail"
-		android:background="@drawable/msg_out">
+		android:layout_marginTop="@dimen/message_bubble_margin"
+		android:background="@drawable/msg_out"
+		android:elevation="@dimen/message_bubble_elevation">
 
 		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 			android:id="@+id/text"
+			style="@style/TextMessage"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:textColor="@color/briar_text_primary_inverse"
-			android:textIsSelectable="true"
-			android:textSize="@dimen/text_size_medium"
 			tools:text="This is a long long long message that spans over several lines.\n\nIt ends here."/>
 
 		<TextView
 			android:id="@+id/time"
+			style="@style/TextMessage.Timestamp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
 			android:layout_alignParentStart="true"
 			android:layout_below="@+id/text"
 			android:layout_marginTop="@dimen/message_bubble_timestamp_margin"
-			android:maxLines="1"
 			android:textColor="@color/private_message_date_inverse"
-			android:textSize="@dimen/text_size_tiny"
 			tools:text="Dec 24, 13:37"/>
 
 		<ImageView

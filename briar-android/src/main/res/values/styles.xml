@@ -81,6 +81,25 @@
 		<item name="civ_border_color">?android:attr/textColorSecondary</item>
 	</style>
 
+	<style name="TextMessage">
+		<item name="android:textIsSelectable">true</item>
+		<item name="android:textSize">@dimen/text_size_medium</item>
+		<item name="android:textColor">?android:attr/textColorPrimary</item>
+	</style>
+
+	<style name="TextMessage.Notice">
+		<item name="android:textIsSelectable">true</item>
+		<item name="android:textSize">@dimen/text_size_tiny</item>
+		<item name="android:textColor">?android:attr/textColorSecondary</item>
+		<item name="android:textStyle">italic</item>
+	</style>
+
+	<style name="TextMessage.Timestamp">
+		<item name="android:textSize">@dimen/text_size_tiny</item>
+		<item name="android:textColor">?android:attr/textColorTertiary</item>
+		<item name="android:maxLines">1</item>
+	</style>
+
 	<style name="DiscussionLevelIndicator">
 		<item name="android:layout_marginLeft">4dp</item>
 		<item name="android:background">@color/thread_indicator</item>
