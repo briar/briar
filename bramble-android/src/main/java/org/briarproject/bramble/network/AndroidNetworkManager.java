@@ -13,6 +13,8 @@ import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.network.NetworkStatus;
 import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.Scheduler;
 
 import java.util.concurrent.Future;
@@ -22,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
@@ -35,6 +38,8 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.INFO;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 class AndroidNetworkManager implements NetworkManager, Service {
 
 	private static final Logger LOG =
@@ -122,7 +127,7 @@ class AndroidNetworkManager implements NetworkManager, Service {
 			}
 		}
 
-		private boolean isSleepOrDozeEvent(String action) {
+		private boolean isSleepOrDozeEvent(@Nullable String action) {
 			boolean isSleep = ACTION_SCREEN_ON.equals(action) ||
 					ACTION_SCREEN_OFF.equals(action);
 			boolean isDoze = SDK_INT >= 23 &&
@@ -130,7 +135,7 @@ class AndroidNetworkManager implements NetworkManager, Service {
 			return isSleep || isDoze;
 		}
 
-		private boolean isApEvent(String action) {
+		private boolean isApEvent(@Nullable String action) {
 			return WIFI_AP_STATE_CHANGED_ACTION.equals(action);
 		}
 	}
