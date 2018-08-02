@@ -114,8 +114,7 @@ class AndroidNetworkManager implements NetworkManager, Service {
 			String action = i.getAction();
 			if (LOG.isLoggable(INFO)) LOG.info("Received broadcast " + action);
 			updateConnectionStatus();
-			// TODO: Also schedule update after idle mode changes
-			if (isSleepEvent(i)) {
+			if (isSleepOrDozeEvent(i)) {
 				scheduleConnectionStatusUpdate(1, MINUTES);
 			} else if (isApEnabledEvent(i)) {
 				// The state change may be broadcast before the AP address is
@@ -125,9 +124,13 @@ class AndroidNetworkManager implements NetworkManager, Service {
 			}
 		}
 
-		private boolean isSleepEvent(Intent i) {
-			return ACTION_SCREEN_ON.equals(i.getAction()) ||
-					ACTION_SCREEN_OFF.equals(i.getAction());
+		private boolean isSleepOrDozeEvent(Intent i) {
+			String action = i.getAction();
+			boolean isSleep = ACTION_SCREEN_ON.equals(action) ||
+					ACTION_SCREEN_OFF.equals(action);
+			boolean isDoze = SDK_INT >= 23 &&
+					ACTION_DEVICE_IDLE_MODE_CHANGED.equals(action);
+			return isSleep || isDoze;
 		}
 
 		private boolean isApEnabledEvent(Intent i) {
