@@ -29,7 +29,6 @@ import static android.content.Intent.ACTION_SCREEN_OFF;
 import static android.content.Intent.ACTION_SCREEN_ON;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.TYPE_WIFI;
-import static android.net.wifi.WifiManager.EXTRA_WIFI_STATE;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -44,7 +43,6 @@ class AndroidNetworkManager implements NetworkManager, Service {
 	// See android.net.wifi.WifiManager
 	private static final String WIFI_AP_STATE_CHANGED_ACTION =
 			"android.net.wifi.WIFI_AP_STATE_CHANGED";
-	private static final int WIFI_AP_STATE_ENABLED = 13;
 
 	private final ScheduledExecutorService scheduler;
 	private final EventBus eventBus;
@@ -114,18 +112,17 @@ class AndroidNetworkManager implements NetworkManager, Service {
 			String action = i.getAction();
 			if (LOG.isLoggable(INFO)) LOG.info("Received broadcast " + action);
 			updateConnectionStatus();
-			if (isSleepOrDozeEvent(i)) {
+			if (isSleepOrDozeEvent(action)) {
+				// Allow time for the network to be enabled or disabled
 				scheduleConnectionStatusUpdate(1, MINUTES);
-			} else if (isApEnabledEvent(i)) {
+			} else if (isApEvent(action)) {
 				// The state change may be broadcast before the AP address is
 				// visible, so delay handling the event
-				// TODO: Wait longer, and also wait after stopping - see #1301
-				scheduleConnectionStatusUpdate(1, SECONDS);
+				scheduleConnectionStatusUpdate(5, SECONDS);
 			}
 		}
 
-		private boolean isSleepOrDozeEvent(Intent i) {
-			String action = i.getAction();
+		private boolean isSleepOrDozeEvent(String action) {
 			boolean isSleep = ACTION_SCREEN_ON.equals(action) ||
 					ACTION_SCREEN_OFF.equals(action);
 			boolean isDoze = SDK_INT >= 23 &&
@@ -133,9 +130,8 @@ class AndroidNetworkManager implements NetworkManager, Service {
 			return isSleep || isDoze;
 		}
 
-		private boolean isApEnabledEvent(Intent i) {
-			return WIFI_AP_STATE_CHANGED_ACTION.equals(i.getAction()) &&
-					i.getIntExtra(EXTRA_WIFI_STATE, 0) == WIFI_AP_STATE_ENABLED;
+		private boolean isApEvent(String action) {
+			return WIFI_AP_STATE_CHANGED_ACTION.equals(action);
 		}
 	}
 }
