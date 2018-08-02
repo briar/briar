@@ -1,13 +1,10 @@
 package org.briarproject.briar.android.login;
 
-import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
-import org.briarproject.bramble.api.crypto.CryptoComponent;
-import org.briarproject.bramble.api.crypto.CryptoExecutor;
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
-import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
@@ -28,12 +25,10 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	private volatile SetupActivity setupActivity;
 
 	@Inject
-	SetupControllerImpl(SharedPreferences briarPrefs,
-			DatabaseConfig databaseConfig,
-			@CryptoExecutor Executor cryptoExecutor, CryptoComponent crypto,
+	SetupControllerImpl(AccountManager accountManager,
+			@IoExecutor Executor ioExecutor,
 			PasswordStrengthEstimator strengthEstimator) {
-		super(briarPrefs, databaseConfig, cryptoExecutor, crypto,
-				strengthEstimator);
+		super(accountManager, ioExecutor, strengthEstimator);
 	}
 
 	@Override
@@ -80,10 +75,11 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	@Override
 	public void createAccount() {
 		SetupActivity setupActivity = this.setupActivity;
-		UiResultHandler<Void> resultHandler =
-				new UiResultHandler<Void>(setupActivity) {
+		UiResultHandler<Boolean> resultHandler =
+				new UiResultHandler<Boolean>(setupActivity) {
 					@Override
-					public void onResultUi(Void result) {
+					public void onResultUi(Boolean result) {
+						// TODO: Show an error if result is false
 						if (setupActivity == null)
 							throw new IllegalStateException();
 						setupActivity.showApp();
@@ -93,22 +89,17 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	}
 
 	// Package access for testing
-	void createAccount(ResultHandler<Void> resultHandler) {
+	void createAccount(ResultHandler<Boolean> resultHandler) {
 		SetupActivity setupActivity = this.setupActivity;
 		if (setupActivity == null) throw new IllegalStateException();
 		String authorName = setupActivity.getAuthorName();
 		if (authorName == null) throw new IllegalStateException();
 		String password = setupActivity.getPassword();
 		if (password == null) throw new IllegalStateException();
-		cryptoExecutor.execute(() -> {
+		ioExecutor.execute(() -> {
 			LOG.info("Creating account");
-			databaseConfig.setLocalAuthorName(authorName);
-			SecretKey key = crypto.generateSecretKey();
-			databaseConfig.setEncryptionKey(key);
-			String hex = encryptDatabaseKey(key, password);
-			storeEncryptedDatabaseKey(hex);
-			resultHandler.onResult(null);
+			resultHandler.onResult(accountManager.createAccount(authorName,
+					password));
 		});
 	}
-
 }

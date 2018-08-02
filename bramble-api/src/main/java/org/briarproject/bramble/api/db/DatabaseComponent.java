@@ -2,6 +2,7 @@ package org.briarproject.bramble.api.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -44,7 +45,8 @@ public interface DatabaseComponent {
 	 * @throws DataTooOldException if the data uses an older schema than the
 	 * current code and cannot be migrated
 	 */
-	boolean open(@Nullable MigrationListener listener) throws DbException;
+	boolean open(SecretKey key, @Nullable MigrationListener listener)
+			throws DbException;
 
 	/**
 	 * Waits for any open transactions to finish and closes the database.
@@ -267,7 +269,7 @@ public interface DatabaseComponent {
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessageIds(Transaction txn, GroupId g)
-		throws DbException;
+			throws DbException;
 
 	/**
 	 * Returns the IDs of any messages that need to be validated.
@@ -487,7 +489,7 @@ public interface DatabaseComponent {
 	 * Removes the given transport keys from the database.
 	 */
 	void removeTransportKeys(Transaction txn, TransportId t, KeySetId k)
-		throws DbException;
+			throws DbException;
 
 	/**
 	 * Marks the given contact as verified.
@@ -534,7 +536,7 @@ public interface DatabaseComponent {
 	 * Marks the given transport keys as usable for outgoing streams.
 	 */
 	void setTransportKeysActive(Transaction txn, TransportId t, KeySetId k)
-		throws DbException;
+			throws DbException;
 
 	/**
 	 * Stores the given transport keys, deleting any keys they have replaced.

@@ -1,5 +1,7 @@
 package org.briarproject.briar.feed;
 
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoExecutorModule;
@@ -25,6 +27,7 @@ import org.junit.Test;
 import java.io.File;
 import java.util.Collection;
 
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -47,8 +50,12 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 		component.inject(this);
 		injectEagerSingletons(component);
 
+		IdentityManager identityManager = component.getIdentityManager();
+		LocalAuthor localAuthor = identityManager.createLocalAuthor("feedTest");
+		identityManager.registerLocalAuthor(localAuthor);
+
 		lifecycleManager = component.getLifecycleManager();
-		lifecycleManager.startServices("feedTest");
+		lifecycleManager.startServices(getSecretKey());
 		lifecycleManager.waitForStartup();
 
 		feedManager = component.getFeedManager();

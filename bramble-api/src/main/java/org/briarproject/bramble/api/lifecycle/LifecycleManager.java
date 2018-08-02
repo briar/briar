@@ -1,12 +1,11 @@
 package org.briarproject.bramble.api.lifecycle;
 
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 
 import java.util.concurrent.ExecutorService;
-
-import javax.annotation.Nullable;
 
 /**
  * Manages the lifecycle of the app, starting {@link Client Clients}, starting
@@ -18,7 +17,7 @@ import javax.annotation.Nullable;
 public interface LifecycleManager {
 
 	/**
-	 * The result of calling {@link #startServices(String)}.
+	 * The result of calling {@link #startServices(SecretKey)}.
 	 */
 	enum StartResult {
 		ALREADY_RUNNING,
@@ -44,28 +43,27 @@ public interface LifecycleManager {
 
 	/**
 	 * Registers a {@link Service} to be started and stopped. This method
-	 * should be called before {@link #startServices(String)}.
+	 * should be called before {@link #startServices(SecretKey)}.
 	 */
 	void registerService(Service s);
 
 	/**
 	 * Registers a {@link Client} to be started. This method should be called
-	 * before {@link #startServices(String)}.
+	 * before {@link #startServices(SecretKey)}.
 	 */
 	void registerClient(Client c);
 
 	/**
 	 * Registers an {@link ExecutorService} to be shut down. This method
-	 * should be called before {@link #startServices(String)}.
+	 * should be called before {@link #startServices(SecretKey)}.
 	 */
 	void registerForShutdown(ExecutorService e);
 
 	/**
-	 * Opens the {@link DatabaseComponent}, optionally creates a local author
-	 * with the provided nickname, and starts any registered
-	 * {@link Client Clients} and {@link Service Services}.
+	 * Opens the {@link DatabaseComponent} using the given key and starts any
+	 * registered {@link Client Clients} and {@link Service Services}.
 	 */
-	StartResult startServices(@Nullable String nickname);
+	StartResult startServices(SecretKey dbKey);
 
 	/**
 	 * Stops any registered {@link Service Services}, shuts down any

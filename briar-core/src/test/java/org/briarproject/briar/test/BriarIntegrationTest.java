@@ -160,8 +160,8 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		validationWaiter = new Waiter();
 		deliveryWaiter = new Waiter();
 
+		createAndRegisterIdentities();
 		startLifecycles();
-		getDefaultIdentities();
 		listenToEvents();
 		addDefaultContacts();
 	}
@@ -193,9 +193,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		lifecycleManager0 = c0.getLifecycleManager();
 		lifecycleManager1 = c1.getLifecycleManager();
 		lifecycleManager2 = c2.getLifecycleManager();
-		lifecycleManager0.startServices(AUTHOR0);
-		lifecycleManager1.startServices(AUTHOR1);
-		lifecycleManager2.startServices(AUTHOR2);
+		lifecycleManager0.startServices(getSecretKey());
+		lifecycleManager1.startServices(getSecretKey());
+		lifecycleManager2.startServices(getSecretKey());
 		lifecycleManager0.waitForStartup();
 		lifecycleManager1.waitForStartup();
 		lifecycleManager2.waitForStartup();
@@ -230,10 +230,13 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		}
 	}
 
-	private void getDefaultIdentities() throws DbException {
-		author0 = identityManager0.getLocalAuthor();
-		author1 = identityManager1.getLocalAuthor();
-		author2 = identityManager2.getLocalAuthor();
+	private void createAndRegisterIdentities() {
+		author0 = identityManager0.createLocalAuthor(AUTHOR0);
+		identityManager0.registerLocalAuthor(author0);
+		author1 = identityManager1.createLocalAuthor(AUTHOR1);
+		identityManager1.registerLocalAuthor(author1);
+		author2 = identityManager2.createLocalAuthor(AUTHOR2);
+		identityManager2.registerLocalAuthor(author2);
 	}
 
 	protected void addDefaultContacts() throws Exception {

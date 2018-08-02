@@ -34,6 +34,14 @@ dependencies {
 
 	compileOnly 'javax.annotation:jsr250-api:1.0'
 
+	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	testImplementation 'junit:junit:4.12'
+	testImplementation "org.jmock:jmock:2.8.2"
+	testImplementation "org.jmock:jmock-junit4:2.8.2"
+	testImplementation "org.jmock:jmock-legacy:2.8.2"
+	testImplementation "org.hamcrest:hamcrest-library:1.3"
+	testImplementation "org.hamcrest:hamcrest-core:1.3"
+
 	androidTestImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	androidTestImplementation project(path: ':bramble-core', configuration: 'testOutput')
 	androidTestImplementation 'com.android.support.test:runner:1.0.2'
@@ -43,6 +51,10 @@ dependencies {
 
 dependencyVerification {
 	verify = [
+			'cglib:cglib:3.2.0:cglib-3.2.0.jar:adb13bab79712ad6bdf1bd59f2a3918018a8016e722e8a357065afb9e6690861',
+			'com.android.support.test:monitor:1.0.2:monitor-1.0.2.aar:38ef4fa98a32dc55550ff49bb36a583e178b3a9b830fcb8dcc27bfc4254bc2bc',
+			'com.android.support.test:runner:1.0.2:runner-1.0.2.aar:f04b9ae342975ba1cb3e4a06e13426e3e6b8a73faa45acba604493d83c9a4f00',
+			'com.android.support:support-annotations:27.1.1:support-annotations-27.1.1.jar:3365960206c3d2b09e845f555e7f88f8effc8d2f00b369e66c4be384029299cf',
 			'com.android.tools.analytics-library:protos:26.1.3:protos-26.1.3.jar:818c9f256f141d9dafec03a1aa2b94d240b2c140acfd7ee31a8b3e6c2b9479e3',
 			'com.android.tools.analytics-library:shared:26.1.3:shared-26.1.3.jar:7110706c7ada96c8b6f5ca80c478291bc7899d46277de2c48527e045442401a3',
 			'com.android.tools.analytics-library:tracker:26.1.3:tracker-26.1.3.jar:4155424bf2ce4872da83332579a1707252bc66cbd77c5144fdc4483d0f2e1418',
@@ -91,12 +103,16 @@ dependencyVerification {
 			'javax.annotation:jsr250-api:1.0:jsr250-api-1.0.jar:a1a922d0d9b6d183ed3800dfac01d1e1eb159f0e8c6f94736931c1def54a941f',
 			'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
 			'javax.xml.bind:jaxb-api:2.2.12-b140109.1041:jaxb-api-2.2.12-b140109.1041.jar:b5e60cd8b7b5ff01ce4a74c5dd008f4fbd14ced3495d0b47b85cfedc182211f2',
+			'junit:junit:4.12:junit-4.12.jar:59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a',
 			'net.sf.jopt-simple:jopt-simple:4.9:jopt-simple-4.9.jar:26c5856e954b5f864db76f13b86919b59c6eecf9fd930b96baa8884626baf2f5',
 			'net.sf.kxml:kxml2:2.3.0:kxml2-2.3.0.jar:f264dd9f79a1fde10ce5ecc53221eff24be4c9331c830b7d52f2f08a7b633de2',
+			'org.apache.ant:ant-launcher:1.9.4:ant-launcher-1.9.4.jar:7bccea20b41801ca17bcbc909a78c835d0f443f12d639c77bd6ae3d05861608d',
+			'org.apache.ant:ant:1.9.4:ant-1.9.4.jar:649ae0730251de07b8913f49286d46bba7b92d47c5f332610aa426c4f02161d8',
 			'org.apache.commons:commons-compress:1.12:commons-compress-1.12.jar:2c1542faf343185b7cab9c3d55c8ae5471d6d095d3887a4adefdbdf2984dc0b6',
 			'org.apache.httpcomponents:httpclient:4.2.6:httpclient-4.2.6.jar:362e9324ee7c697e21279e20077b52737ddef3f1b2c1a7abe5ad34b465145550',
 			'org.apache.httpcomponents:httpcore:4.2.5:httpcore-4.2.5.jar:e5e82da4cc66c8d917bbf743e3c0752efe8522735e7fc9dbddb65bccea81cfe9',
 			'org.apache.httpcomponents:httpmime:4.1:httpmime-4.1.jar:31629566148e8a47688ae43b420abc3ecd783ed15b33bebc00824bf24c9b15aa',
+			'org.beanshell:bsh:1.3.0:bsh-1.3.0.jar:9b04edc75d19db54f1b4e8b5355e9364384c6cf71eb0a1b9724c159d779879f8',
 			'org.bouncycastle:bcpkix-jdk15on:1.56:bcpkix-jdk15on-1.56.jar:7043dee4e9e7175e93e0b36f45b1ec1ecb893c5f755667e8b916eb8dd201c6ca',
 			'org.bouncycastle:bcprov-jdk15on:1.56:bcprov-jdk15on-1.56.jar:963e1ee14f808ffb99897d848ddcdb28fa91ddda867eb18d303e82728f878349',
 			'org.briarproject:jtorctl:0.3:jtorctl-0.3.jar:f2939238a097898998432effe93b0334d97a787972ab3a91a8973a1d309fc864',
@@ -106,17 +122,25 @@ dependencyVerification {
 			'org.glassfish.jaxb:jaxb-core:2.2.11:jaxb-core-2.2.11.jar:37bcaee8ebb04362c8352a5bf6221b86967ecdab5164c696b10b9a2bb587b2aa',
 			'org.glassfish.jaxb:jaxb-runtime:2.2.11:jaxb-runtime-2.2.11.jar:a874f2351cfba8e2946be3002d10c18a6da8f21b52ba2acf52f2b85d5520ed70',
 			'org.glassfish.jaxb:txw2:2.2.11:txw2-2.2.11.jar:272a3ccad45a4511351920cd2a8633c53cab8d5220c7a92954da5526bb5eafea',
+			'org.hamcrest:hamcrest-core:1.3:hamcrest-core-1.3.jar:66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9',
+			'org.hamcrest:hamcrest-library:1.3:hamcrest-library-1.3.jar:711d64522f9ec410983bd310934296da134be4254a125080a0416ec178dfad1c',
 			'org.jetbrains.kotlin:kotlin-reflect:1.2.0:kotlin-reflect-1.2.0.jar:4f48a872bad6e4d9c053f4ad610d11e4012ad7e58dc19a03dd5eb811f36069dd',
 			'org.jetbrains.kotlin:kotlin-stdlib-jre7:1.2.0:kotlin-stdlib-jre7-1.2.0.jar:c7a20fb951d437797afe8980aff6c1e5a03f310c661ba58ba1d4fa90cb0f2926',
 			'org.jetbrains.kotlin:kotlin-stdlib-jre8:1.2.0:kotlin-stdlib-jre8-1.2.0.jar:633524eee6ef1941f7cb1dab7ee3927b0a221ceee9047aeb5515f4cbb990c82a',
 			'org.jetbrains.kotlin:kotlin-stdlib:1.2.0:kotlin-stdlib-1.2.0.jar:05cfd9f5ac0b41910703a8925f7211a495909b27a2ffdd1c5106f1689aeafcd4',
 			'org.jetbrains.trove4j:trove4j:20160824:trove4j-20160824.jar:1917871c8deb468307a584680c87a44572f5a8b0b98c6d397fc0f5f86596dbe7',
 			'org.jetbrains:annotations:13.0:annotations-13.0.jar:ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478',
+			'org.jmock:jmock-junit4:2.8.2:jmock-junit4-2.8.2.jar:f7ee4df4f7bd7b7f1cafad3b99eb74d579f109d5992ff625347352edb55e674c',
+			'org.jmock:jmock-legacy:2.8.2:jmock-legacy-2.8.2.jar:f2b985a5c08a9edb7f37612330c058809da3f6a6d63ce792426ebf8ff0d6d31b',
+			'org.jmock:jmock-testjar:2.8.2:jmock-testjar-2.8.2.jar:8900860f72c474e027cf97fe78dcbf154a1aa7fc62b6845c5fb4e4f3c7bc8760',
+			'org.jmock:jmock:2.8.2:jmock-2.8.2.jar:6c73cb4a2e6dbfb61fd99c9a768539c170ab6568e57846bd60dbf19596b65b16',
 			'org.jvnet.staxex:stax-ex:1.7.7:stax-ex-1.7.7.jar:a31ff7d77163c0deb09e7fee59ad35ae44c2cee2cc8552a116ccd1583d813fb4',
+			'org.objenesis:objenesis:2.1:objenesis-2.1.jar:c74330cc6b806c804fd37e74487b4fe5d7c2750c5e15fbc6efa13bdee1bdef80',
 			'org.ow2.asm:asm-analysis:5.1:asm-analysis-5.1.jar:a34658f5c5de4b573eef21131cc32cc25f7b66407944f312b28ec2e56abb1fa9',
 			'org.ow2.asm:asm-commons:5.1:asm-commons-5.1.jar:97b3786e1f55e74bddf8ad102bf50e33bbcbc1f6b7fd7b36f0bbbb25cd4981be',
 			'org.ow2.asm:asm-tree:5.1:asm-tree-5.1.jar:c0de2bbc4cb8297419659813ecd4ed1d077ed1dd5c1f5544cc5143e493e84c10',
 			'org.ow2.asm:asm-util:5.1:asm-util-5.1.jar:ee032c39ae5e3cd099148fbba9a2124f9ed613e5cb93e03ee0fa8808ce364040',
+			'org.ow2.asm:asm:5.0.4:asm-5.0.4.jar:896618ed8ae62702521a78bc7be42b7c491a08e6920a15f89a3ecdec31e9a220',
 			'org.ow2.asm:asm:5.1:asm-5.1.jar:d2da399a9967c69f0a21739256fa79d284222c223082cacadc17372244764b54',
 	]
 }

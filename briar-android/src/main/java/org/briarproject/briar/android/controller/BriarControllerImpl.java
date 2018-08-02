@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.CallSuper;
 
-import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.settings.Settings;
@@ -33,8 +33,7 @@ public class BriarControllerImpl implements BriarController {
 	public static final String DOZE_ASK_AGAIN = "dozeAskAgain";
 
 	private final BriarServiceConnection serviceConnection;
-	private final DatabaseConfig databaseConfig;
-	@DatabaseExecutor
+	private final AccountManager accountManager;
 	private final Executor databaseExecutor;
 	private final SettingsManager settingsManager;
 	private final DozeWatchdog dozeWatchdog;
@@ -44,12 +43,12 @@ public class BriarControllerImpl implements BriarController {
 
 	@Inject
 	BriarControllerImpl(BriarServiceConnection serviceConnection,
-			DatabaseConfig databaseConfig,
+			AccountManager accountManager,
 			@DatabaseExecutor Executor databaseExecutor,
 			SettingsManager settingsManager, DozeWatchdog dozeWatchdog,
 			Activity activity) {
 		this.serviceConnection = serviceConnection;
-		this.databaseConfig = databaseConfig;
+		this.accountManager = accountManager;
 		this.databaseExecutor = databaseExecutor;
 		this.settingsManager = settingsManager;
 		this.dozeWatchdog = dozeWatchdog;
@@ -59,7 +58,7 @@ public class BriarControllerImpl implements BriarController {
 	@Override
 	@CallSuper
 	public void onActivityCreate(Activity activity) {
-		if (databaseConfig.getEncryptionKey() != null) startAndBindService();
+		if (accountManager.hasDatabaseKey()) startAndBindService();
 	}
 
 	@Override
@@ -84,8 +83,8 @@ public class BriarControllerImpl implements BriarController {
 	}
 
 	@Override
-	public boolean hasEncryptionKey() {
-		return databaseConfig.getEncryptionKey() != null;
+	public boolean accountSignedIn() {
+		return accountManager.hasDatabaseKey();
 	}
 
 	@Override

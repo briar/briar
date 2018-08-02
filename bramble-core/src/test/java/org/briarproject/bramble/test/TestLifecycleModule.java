@@ -1,5 +1,6 @@
 package org.briarproject.bramble.test;
 
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.Service;
@@ -11,7 +12,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.annotation.Nullable;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -40,7 +40,7 @@ public class TestLifecycleModule {
 			}
 
 			@Override
-			public StartResult startServices(@Nullable String nickname) {
+			public StartResult startServices(SecretKey dbKey) {
 				return StartResult.SUCCESS;
 			}
 
@@ -49,15 +49,15 @@ public class TestLifecycleModule {
 			}
 
 			@Override
-			public void waitForDatabase() throws InterruptedException {
+			public void waitForDatabase() {
 			}
 
 			@Override
-			public void waitForStartup() throws InterruptedException {
+			public void waitForStartup() {
 			}
 
 			@Override
-			public void waitForShutdown() throws InterruptedException {
+			public void waitForShutdown() {
 			}
 
 			@Override

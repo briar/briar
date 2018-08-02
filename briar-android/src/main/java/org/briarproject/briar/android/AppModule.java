@@ -11,9 +11,7 @@ import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
@@ -86,11 +84,7 @@ public class AppModule {
 		File dbDir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
 		File keyDir = app.getApplicationContext().getDir("key", MODE_PRIVATE);
 		StrictMode.setThreadPolicy(tp);
-		@MethodsNotNullByDefault
-		@ParametersNotNullByDefault
-		DatabaseConfig databaseConfig =
-				new AndroidDatabaseConfig(dbDir, keyDir);
-		return databaseConfig;
+		return new AndroidDatabaseConfig(dbDir, keyDir);
 	}
 
 	@Provides

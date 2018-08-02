@@ -10,7 +10,7 @@ import android.content.SharedPreferences;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
-import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.BriarApplication;
@@ -37,7 +37,7 @@ public class SignInReminderReceiver extends BroadcastReceiver {
 	public static final String DISMISS_REMINDER = "dismissReminder";
 
 	@Inject
-	DatabaseConfig databaseConfig;
+	AccountManager accountManager;
 
 	@Override
 	public void onReceive(Context ctx, Intent intent) {
@@ -51,7 +51,7 @@ public class SignInReminderReceiver extends BroadcastReceiver {
 		if (action == null) return;
 		if (action.equals(ACTION_BOOT_COMPLETED) ||
 				action.equals(ACTION_MY_PACKAGE_REPLACED)) {
-			if (databaseConfig.databaseExists()) {
+			if (accountManager.accountExists()) {
 				SharedPreferences prefs = app.getDefaultSharedPreferences();
 				if (prefs.getBoolean(NOTIFY_SIGN_IN, true)) {
 					showSignInNotification(ctx);

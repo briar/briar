@@ -13,8 +13,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.controller.BriarController;
@@ -34,6 +34,9 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.REMI
 public class PasswordActivity extends BaseActivity {
 
 	@Inject
+	AccountManager accountManager;
+
+	@Inject
 	PasswordController passwordController;
 
 	@Inject
@@ -50,7 +53,8 @@ public class PasswordActivity extends BaseActivity {
 		// fade-in after splash screen instead of default animation
 		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 
-		if (!passwordController.accountExists()) {
+		if (!accountManager.accountExists()) {
+			// TODO: Finish instead of deleting account?
 			deleteAccount();
 			return;
 		}
@@ -87,7 +91,7 @@ public class PasswordActivity extends BaseActivity {
 	public void onStart() {
 		super.onStart();
 		// If the user has already signed in, clean up this instance
-		if (briarController.hasEncryptionKey()) {
+		if (briarController.accountSignedIn()) {
 			setResult(RESULT_OK);
 			finish();
 		} else {
@@ -112,9 +116,7 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	private void deleteAccount() {
-		passwordController.deleteAccount(this);
-		Localizer.reinitialize();
-		UiUtils.setTheme(this, getString(R.string.pref_theme_light_value));
+		accountManager.deleteAccount();
 		setResult(RESULT_CANCELED);
 		Intent i = new Intent(this, SetupActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);

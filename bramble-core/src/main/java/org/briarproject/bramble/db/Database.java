@@ -2,6 +2,7 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DbException;
@@ -48,7 +49,8 @@ interface Database<T> {
 	 * @throws DataTooOldException if the data uses an older schema than the
 	 * current code and cannot be migrated
 	 */
-	boolean open(@Nullable MigrationListener listener) throws DbException;
+	boolean open(SecretKey key, @Nullable MigrationListener listener)
+			throws DbException;
 
 	/**
 	 * Prevents new transactions from starting, waits for all current
@@ -641,7 +643,7 @@ interface Database<T> {
 	 * Marks the given transport keys as usable for outgoing streams.
 	 */
 	void setTransportKeysActive(T txn, TransportId t, KeySetId k)
-		throws DbException;
+			throws DbException;
 
 	/**
 	 * Updates the transmission count and expiry time of the given message

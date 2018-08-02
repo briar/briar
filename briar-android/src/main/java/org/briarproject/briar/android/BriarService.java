@@ -17,7 +17,8 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
-import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
@@ -74,12 +75,13 @@ public class BriarService extends Service {
 	private BroadcastReceiver receiver = null;
 
 	@Inject
-	protected DatabaseConfig databaseConfig;
+	AccountManager accountManager;
+
 	// Fields that are accessed from background threads must be volatile
 	@Inject
-	protected volatile LifecycleManager lifecycleManager;
+	volatile LifecycleManager lifecycleManager;
 	@Inject
-	protected volatile AndroidExecutor androidExecutor;
+	volatile AndroidExecutor androidExecutor;
 	private volatile boolean started = false;
 
 	@Override
@@ -95,7 +97,8 @@ public class BriarService extends Service {
 			stopSelf();
 			return;
 		}
-		if (databaseConfig.getEncryptionKey() == null) {
+		SecretKey dbKey = accountManager.getDatabaseKey();
+		if (dbKey == null) {
 			LOG.info("No database key");
 			stopSelf();
 			return;
@@ -138,8 +141,7 @@ public class BriarService extends Service {
 		startForeground(ONGOING_NOTIFICATION_ID, b.build());
 		// Start the services in a background thread
 		new Thread(() -> {
-			String nickname = databaseConfig.getLocalAuthorName();
-			StartResult result = lifecycleManager.startServices(nickname);
+			StartResult result = lifecycleManager.startServices(dbKey);
 			if (result == SUCCESS) {
 				started = true;
 			} else if (result == ALREADY_RUNNING) {

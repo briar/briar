@@ -1,5 +1,6 @@
 package org.briarproject.bramble.db;
 
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DatabaseConfig;
@@ -26,6 +27,7 @@ import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
 import static org.briarproject.bramble.db.DatabaseConstants.SCHEMA_VERSION_KEY;
 import static org.briarproject.bramble.db.JdbcDatabase.CODE_SCHEMA_VERSION;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -43,6 +45,7 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 
 	protected final DatabaseConfig config =
 			new TestDatabaseConfig(testDir, 1024 * 1024);
+	protected final SecretKey key = getSecretKey();
 	protected final Clock clock = new SystemClock();
 
 	abstract Database<Connection> createDatabase(
@@ -62,7 +65,7 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 	public void testDoesNotRunMigrationsWhenCreatingDatabase()
 			throws Exception {
 		Database<Connection> db = createDatabase(singletonList(migration));
-		assertFalse(db.open(null));
+		assertFalse(db.open(key, null));
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		db.close();
 	}
@@ -72,14 +75,14 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 			throws Exception {
 		// Open the DB for the first time
 		Database<Connection> db = createDatabase(asList(migration, migration1));
-		assertFalse(db.open(null));
+		assertFalse(db.open(key, null));
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		// Override the data schema version
 		setDataSchemaVersion(db, -1);
 		db.close();
 		// Reopen the DB - an exception should be thrown
 		db = createDatabase(asList(migration, migration1));
-		db.open(null);
+		db.open(key, null);
 	}
 
 	@Test
@@ -87,12 +90,12 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 			throws Exception {
 		// Open the DB for the first time
 		Database<Connection> db = createDatabase(asList(migration, migration1));
-		assertFalse(db.open(null));
+		assertFalse(db.open(key, null));
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		db.close();
 		// Reopen the DB - migrations should not be run
 		db = createDatabase(asList(migration, migration1));
-		assertTrue(db.open(null));
+		assertTrue(db.open(key, null));
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		db.close();
 	}
@@ -101,14 +104,14 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 	public void testThrowsExceptionIfDataIsNewerThanCode() throws Exception {
 		// Open the DB for the first time
 		Database<Connection> db = createDatabase(asList(migration, migration1));
-		assertFalse(db.open(null));
+		assertFalse(db.open(key, null));
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		// Override the data schema version
 		setDataSchemaVersion(db, CODE_SCHEMA_VERSION + 1);
 		db.close();
 		// Reopen the DB - an exception should be thrown
 		db = createDatabase(asList(migration, migration1));
-		db.open(null);
+		db.open(key, null);
 	}
 
 	@Test(expected = DataTooOldException.class)
@@ -116,13 +119,13 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 			throws Exception {
 		// Open the DB for the first time
 		Database<Connection> db = createDatabase(emptyList());
-		assertFalse(db.open(null));
+		assertFalse(db.open(key, null));
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		setDataSchemaVersion(db, CODE_SCHEMA_VERSION - 1);
 		db.close();
 		// Reopen the DB - an exception should be thrown
 		db = createDatabase(emptyList());
-		db.open(null);
+		db.open(key, null);
 	}
 
 	@Test(expected = DataTooOldException.class)
@@ -141,14 +144,14 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 
 		// Open the DB for the first time
 		Database<Connection> db = createDatabase(asList(migration, migration1));
-		assertFalse(db.open(null));
+		assertFalse(db.open(key, null));
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		// Override the data schema version
 		setDataSchemaVersion(db, CODE_SCHEMA_VERSION - 3);
 		db.close();
 		// Reopen the DB - an exception should be thrown
 		db = createDatabase(asList(migration, migration1));
-		db.open(null);
+		db.open(key, null);
 	}
 
 	@Test
@@ -170,14 +173,14 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 
 		// Open the DB for the first time
 		Database<Connection> db = createDatabase(asList(migration, migration1));
-		assertFalse(db.open(null));
+		assertFalse(db.open(key, null));
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		// Override the data schema version
 		setDataSchemaVersion(db, CODE_SCHEMA_VERSION - 2);
 		db.close();
 		// Reopen the DB - the first migration should be run
 		db = createDatabase(asList(migration, migration1));
-		assertTrue(db.open(null));
+		assertTrue(db.open(key, null));
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		db.close();
 	}
@@ -202,14 +205,14 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 
 		// Open the DB for the first time
 		Database<Connection> db = createDatabase(asList(migration, migration1));
-		assertFalse(db.open(null));
+		assertFalse(db.open(key, null));
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		// Override the data schema version
 		setDataSchemaVersion(db, CODE_SCHEMA_VERSION - 2);
 		db.close();
 		// Reopen the DB - both migrations should be run
 		db = createDatabase(asList(migration, migration1));
-		assertTrue(db.open(null));
+		assertTrue(db.open(key, null));
 		assertEquals(CODE_SCHEMA_VERSION, getDataSchemaVersion(db));
 		db.close();
 	}

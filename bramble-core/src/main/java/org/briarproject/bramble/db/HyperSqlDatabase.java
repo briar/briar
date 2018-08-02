@@ -33,6 +33,9 @@ class HyperSqlDatabase extends JdbcDatabase {
 	private final DatabaseConfig config;
 	private final String url;
 
+	@Nullable
+	private volatile SecretKey key = null;
+
 	@Inject
 	HyperSqlDatabase(DatabaseConfig config, Clock clock) {
 		super(HASH_TYPE, SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE,
@@ -46,10 +49,11 @@ class HyperSqlDatabase extends JdbcDatabase {
 	}
 
 	@Override
-	public boolean open(@Nullable MigrationListener listener) throws DbException {
-		boolean reopen = config.databaseExists();
-		if (!reopen) config.getDatabaseDirectory().mkdirs();
-		super.open("org.hsqldb.jdbc.JDBCDriver", reopen, listener);
+	public boolean open(SecretKey key, @Nullable MigrationListener listener)
+			throws DbException {
+		this.key = key;
+		boolean reopen = !config.getDatabaseDirectory().mkdirs();
+		super.open("org.hsqldb.jdbc.JDBCDriver", reopen, key, listener);
 		return reopen;
 	}
 
@@ -93,7 +97,7 @@ class HyperSqlDatabase extends JdbcDatabase {
 
 	@Override
 	protected Connection createConnection() throws SQLException {
-		SecretKey key = config.getEncryptionKey();
+		SecretKey key = this.key;
 		if (key == null) throw new IllegalStateException();
 		String hex = StringUtils.toHexString(key.getBytes());
 		return DriverManager.getConnection(url + ";crypt_key=" + hex);

@@ -64,6 +64,7 @@ import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -79,7 +80,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private static final int ONE_MEGABYTE = 1024 * 1024;
 	private static final int MAX_SIZE = 5 * ONE_MEGABYTE;
 
-	private final File testDir = TestUtils.getTestDirectory();
+	private final SecretKey key = getSecretKey();
+	private final File testDir = getTestDirectory();
 	private final GroupId groupId;
 	private final ClientId clientId;
 	private final int majorVersion;
@@ -96,7 +98,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private final KeySetId keySetId, keySetId1;
 	private final Random random = new Random();
 
-	JdbcDatabaseTest() throws Exception {
+	JdbcDatabaseTest() {
 		clientId = getClientId();
 		majorVersion = 123;
 		group = getGroup(clientId, majorVersion);
@@ -1819,7 +1821,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Database<Connection> db = createDatabase(
 				new TestDatabaseConfig(testDir, MAX_SIZE), clock);
 		if (!resume) TestUtils.deleteTestDirectory(testDir);
-		db.open(null);
+		db.open(key, null);
 		return db;
 	}
 
