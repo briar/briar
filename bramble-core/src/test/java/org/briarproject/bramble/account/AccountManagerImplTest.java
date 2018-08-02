@@ -3,6 +3,8 @@ package org.briarproject.bramble.account;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
 import org.junit.After;
@@ -22,6 +24,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
+import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
@@ -36,12 +39,16 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	private final DatabaseConfig databaseConfig =
 			context.mock(DatabaseConfig.class);
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
+	private final IdentityManager identityManager =
+			context.mock(IdentityManager.class);
 
 	private final SecretKey key = getSecretKey();
 	private final byte[] encryptedKey = getRandomBytes(123);
 	private final String encryptedKeyHex = toHexString(encryptedKey);
 	private final byte[] newEncryptedKey = getRandomBytes(123);
 	private final String newEncryptedKeyHex = toHexString(newEncryptedKey);
+	private final LocalAuthor localAuthor = getLocalAuthor();
+	private final String authorName = localAuthor.getName();
 	private final String password = getRandomString(10);
 	private final String newPassword = getRandomString(10);
 	private final File testDir = getTestDirectory();
@@ -61,7 +68,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(keyDir));
 		}});
 
-		accountManager = new AccountManagerImpl(databaseConfig, crypto);
+		accountManager =
+				new AccountManagerImpl(databaseConfig, crypto, identityManager);
 
 		assertFalse(keyFile.exists());
 		assertFalse(keyBackupFile.exists());
@@ -243,6 +251,9 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testCreateAccountStoresDbKey() throws Exception {
 		context.checking(new Expectations() {{
+			oneOf(identityManager).createLocalAuthor(authorName);
+			will(returnValue(localAuthor));
+			oneOf(identityManager).registerLocalAuthor(localAuthor);
 			oneOf(crypto).generateSecretKey();
 			will(returnValue(key));
 			oneOf(crypto).encryptWithPassword(key.getBytes(), password);
@@ -251,7 +262,7 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 
 		assertFalse(accountManager.hasDatabaseKey());
 
-		assertTrue(accountManager.createAccount(password));
+		assertTrue(accountManager.createAccount(authorName, password));
 
 		assertTrue(accountManager.hasDatabaseKey());
 		SecretKey dbKey = accountManager.getDatabaseKey();

@@ -4,6 +4,8 @@ import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.util.IoUtils;
@@ -36,6 +38,7 @@ class AccountManagerImpl implements AccountManager {
 
 	private final DatabaseConfig databaseConfig;
 	private final CryptoComponent crypto;
+	private final IdentityManager identityManager;
 	private final File dbKeyFile, dbKeyBackupFile;
 
 	final Object stateChangeLock = new Object();
@@ -44,9 +47,11 @@ class AccountManagerImpl implements AccountManager {
 	private volatile SecretKey databaseKey = null;
 
 	@Inject
-	AccountManagerImpl(DatabaseConfig databaseConfig, CryptoComponent crypto) {
+	AccountManagerImpl(DatabaseConfig databaseConfig, CryptoComponent crypto,
+			IdentityManager identityManager) {
 		this.databaseConfig = databaseConfig;
 		this.crypto = crypto;
+		this.identityManager = identityManager;
 		File keyDir = databaseConfig.getDatabaseKeyDirectory();
 		dbKeyFile = new File(keyDir, DB_KEY_FILENAME);
 		dbKeyBackupFile = new File(keyDir, DB_KEY_BACKUP_FILENAME);
@@ -152,8 +157,10 @@ class AccountManagerImpl implements AccountManager {
 	}
 
 	@Override
-	public boolean createAccount(String password) {
+	public boolean createAccount(String name, String password) {
 		synchronized (stateChangeLock) {
+			LocalAuthor localAuthor = identityManager.createLocalAuthor(name);
+			identityManager.registerLocalAuthor(localAuthor);
 			SecretKey key = crypto.generateSecretKey();
 			if (!encryptAndStoreDatabaseKey(key, password)) return false;
 			databaseKey = key;

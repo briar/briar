@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.util.IoUtils;
 
 import java.io.File;
@@ -29,8 +30,9 @@ class AndroidAccountManager extends AccountManagerImpl
 
 	@Inject
 	AndroidAccountManager(DatabaseConfig databaseConfig,
-			CryptoComponent crypto, SharedPreferences prefs, Application app) {
-		super(databaseConfig, crypto);
+			CryptoComponent crypto, IdentityManager identityManager,
+			SharedPreferences prefs, Application app) {
+		super(databaseConfig, crypto, identityManager);
 		this.prefs = prefs;
 		appContext = app.getApplicationContext();
 	}

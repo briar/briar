@@ -4,8 +4,6 @@ import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
-import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
@@ -23,18 +21,14 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(SetupControllerImpl.class.getName());
 
-	private final IdentityManager identityManager;
-
 	@Nullable
 	private volatile SetupActivity setupActivity;
 
 	@Inject
 	SetupControllerImpl(AccountManager accountManager,
 			@IoExecutor Executor ioExecutor,
-			PasswordStrengthEstimator strengthEstimator,
-			IdentityManager identityManager) {
+			PasswordStrengthEstimator strengthEstimator) {
 		super(accountManager, ioExecutor, strengthEstimator);
-		this.identityManager = identityManager;
 	}
 
 	@Override
@@ -104,10 +98,8 @@ public class SetupControllerImpl extends PasswordControllerImpl
 		if (password == null) throw new IllegalStateException();
 		ioExecutor.execute(() -> {
 			LOG.info("Creating account");
-			LocalAuthor localAuthor =
-					identityManager.createLocalAuthor(authorName);
-			identityManager.registerLocalAuthor(localAuthor);
-			resultHandler.onResult(accountManager.createAccount(password));
+			resultHandler.onResult(accountManager.createAccount(authorName,
+					password));
 		});
 	}
 }

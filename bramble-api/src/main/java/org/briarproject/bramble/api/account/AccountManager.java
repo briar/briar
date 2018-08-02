@@ -1,6 +1,7 @@
 package org.briarproject.bramble.api.account;
 
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
@@ -10,17 +11,18 @@ public interface AccountManager {
 
 	/**
 	 * Returns true if the manager has the database key. This will be false
-	 * before {@link #createAccount(String)} or {@link #signIn(String)} has
-	 * been called, and true after {@link #createAccount(String)} or
-	 * {@link #signIn(String)} has returned true, until the process exits.
+	 * before {@link #createAccount(String, String)} or {@link #signIn(String)}
+	 * has been called, and true after {@link #createAccount(String, String)}
+	 * or {@link #signIn(String)} has returned true, until the process exits.
 	 */
 	boolean hasDatabaseKey();
 
 	/**
 	 * Returns the database key if the manager has it. This will be null
-	 * before {@link #createAccount(String)} or {@link #signIn(String)} has
-	 * been called, and non-null after {@link #createAccount(String)} or
-	 * {@link #signIn(String)} has returned true, until the process exits.
+	 * before {@link #createAccount(String, String)} or {@link #signIn(String)}
+	 * has been called, and non-null after
+	 * {@link #createAccount(String, String)} or {@link #signIn(String)} has
+	 * returned true, until the process exits.
 	 */
 	@Nullable
 	SecretKey getDatabaseKey();
@@ -32,12 +34,15 @@ public interface AccountManager {
 	boolean accountExists();
 
 	/**
-	 * Creates a database key, encrypts it with the given password and stores
-	 * it on disk. This method does not create the database directory, so
+	 * Creates an identity with the given name and registers it with the
+	 * {@link IdentityManager}. Creates a database key, encrypts it with the
+	 * given password and stores it on disk.
+	 * <p/>
+	 * This method does not create the database directory, so
 	 * {@link #accountExists()} will continue to return false until the
 	 * database directory is created.
 	 */
-	boolean createAccount(String password);
+	boolean createAccount(String name, String password);
 
 	/**
 	 * Deletes all account state from disk. {@link #accountExists()} will

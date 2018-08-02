@@ -2,8 +2,6 @@ package org.briarproject.briar.android.login;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
-import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.jmock.Expectations;
@@ -15,7 +13,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static junit.framework.Assert.assertTrue;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 
 public class SetupControllerImplTest extends BrambleMockTestCase {
@@ -24,15 +21,12 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 			context.mock(AccountManager.class);
 	private final PasswordStrengthEstimator estimator =
 			context.mock(PasswordStrengthEstimator.class);
-	private final IdentityManager identityManager =
-			context.mock(IdentityManager.class);
 	private final SetupActivity setupActivity;
 
 	private final Executor ioExecutor = new ImmediateExecutor();
 
 	private final String authorName = getRandomString(MAX_AUTHOR_NAME_LENGTH);
 	private final String password = getRandomString(10);
-	private final LocalAuthor localAuthor = getLocalAuthor();
 
 	public SetupControllerImplTest() {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
@@ -51,17 +45,13 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 			will(returnValue(authorName));
 			oneOf(setupActivity).getPassword();
 			will(returnValue(password));
-			// Create and register the local author
-			oneOf(identityManager).createLocalAuthor(authorName);
-			will(returnValue(localAuthor));
-			oneOf(identityManager).registerLocalAuthor(localAuthor);
 			// Create the account
-			oneOf(accountManager).createAccount(password);
+			oneOf(accountManager).createAccount(authorName, password);
 			will(returnValue(true));
 		}});
 
 		SetupControllerImpl s = new SetupControllerImpl(accountManager,
-				ioExecutor, estimator, identityManager);
+				ioExecutor, estimator);
 		s.setSetupActivity(setupActivity);
 
 		AtomicBoolean called = new AtomicBoolean(false);

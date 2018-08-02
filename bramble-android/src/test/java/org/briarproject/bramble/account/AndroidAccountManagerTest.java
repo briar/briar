@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
@@ -32,6 +33,8 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 	private final DatabaseConfig databaseConfig =
 			context.mock(DatabaseConfig.class);
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
+	private final IdentityManager identityManager =
+			context.mock(IdentityManager.class);
 	private final SharedPreferences.Editor
 			editor = context.mock(SharedPreferences.Editor.class);
 	private final Application app;
@@ -64,7 +67,7 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 			will(returnValue(app));
 		}});
 		accountManager = new AndroidAccountManager(databaseConfig, crypto,
-				prefs, app) {
+				identityManager, prefs, app) {
 			@Override
 			SharedPreferences getDefaultSharedPreferences() {
 				return defaultPrefs;
