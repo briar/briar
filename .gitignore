@@ -23,5 +23,6 @@ local.properties
 !.idea/codeStyles
 .gradle
 build/
+captures
 *.iml
 projectFilesBackup/
