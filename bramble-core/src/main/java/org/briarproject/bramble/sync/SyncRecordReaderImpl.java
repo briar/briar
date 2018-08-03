@@ -46,7 +46,7 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 	}
 
 	private void readRecord() throws IOException {
-		assert nextRecord == null;
+		if (nextRecord != null) throw new AssertionError();
 		while (true) {
 			nextRecord = reader.readRecord();
 			// Check the protocol version
@@ -62,7 +62,7 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 	}
 
 	private byte getNextRecordType() {
-		assert nextRecord != null;
+		if (nextRecord == null) throw new AssertionError();
 		return nextRecord.getRecordType();
 	}
 
@@ -100,7 +100,7 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 	}
 
 	private List<MessageId> readMessageIds() throws IOException {
-		assert nextRecord != null;
+		if (nextRecord == null) throw new AssertionError();
 		byte[] payload = nextRecord.getPayload();
 		if (payload.length == 0) throw new FormatException();
 		if (payload.length % UniqueId.LENGTH != 0) throw new FormatException();
@@ -122,7 +122,7 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 	@Override
 	public Message readMessage() throws IOException {
 		if (!hasMessage()) throw new FormatException();
-		assert nextRecord != null;
+		if (nextRecord == null) throw new AssertionError();
 		byte[] payload = nextRecord.getPayload();
 		if (payload.length < MESSAGE_HEADER_LENGTH) throw new FormatException();
 		// Validate timestamp

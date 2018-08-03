@@ -68,7 +68,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 				new PoliteExecutor("AndroidLanTcpPlugin", ioExecutor, 1);
 		ConnectivityManager connectivityManager = (ConnectivityManager)
 				appContext.getSystemService(CONNECTIVITY_SERVICE);
-		assert connectivityManager != null;
+		if (connectivityManager == null) throw new AssertionError();
 		this.connectivityManager = connectivityManager;
 		wifiManager = (WifiManager) appContext.getApplicationContext()
 				.getSystemService(WIFI_SERVICE);

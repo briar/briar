@@ -91,7 +91,7 @@ class AndroidNetworkManager implements NetworkManager, Service {
 	public NetworkStatus getNetworkStatus() {
 		ConnectivityManager cm = (ConnectivityManager)
 				appContext.getSystemService(CONNECTIVITY_SERVICE);
-		assert cm != null;
+		if (cm == null) throw new AssertionError();
 		NetworkInfo net = cm.getActiveNetworkInfo();
 		boolean connected = net != null && net.isConnected();
 		boolean wifi = connected && net.getType() == TYPE_WIFI;
