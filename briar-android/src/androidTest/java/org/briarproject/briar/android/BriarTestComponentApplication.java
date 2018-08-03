@@ -7,7 +7,7 @@ public class BriarTestComponentApplication extends BriarApplicationImpl {
 
 	@Override
 	protected AndroidComponent createApplicationComponent() {
-		AndroidComponent component = DaggerTestComponent.builder()
+		AndroidComponent component = DaggerBriarUiTestComponent.builder()
 				.appModule(new AppModule(this)).build();
 		// We need to load the eager singletons directly after making the
 		// dependency graphs

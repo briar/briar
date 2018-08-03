@@ -7,7 +7,7 @@ import android.util.Log;
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.briar.android.BriarTestComponentApplication;
-import org.briarproject.briar.android.TestComponent;
+import org.briarproject.briar.android.BriarUiTestComponent;
 import org.junit.ClassRule;
 
 import javax.inject.Inject;
@@ -38,10 +38,10 @@ public abstract class ScreenshotTest {
 		BriarTestComponentApplication app =
 				(BriarTestComponentApplication) getTargetContext()
 						.getApplicationContext();
-		inject((TestComponent) app.getApplicationComponent());
+		inject((BriarUiTestComponent) app.getApplicationComponent());
 	}
 
-	protected abstract void inject(TestComponent component);
+	protected abstract void inject(BriarUiTestComponent component);
 
 	protected void screenshot(String name) {
 		try {

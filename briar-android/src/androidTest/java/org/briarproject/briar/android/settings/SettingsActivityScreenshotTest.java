@@ -6,7 +6,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.view.Gravity;
 
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.TestComponent;
+import org.briarproject.briar.android.BriarUiTestComponent;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.test.ScreenshotTest;
 import org.junit.Rule;
@@ -22,14 +22,14 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 @RunWith(AndroidJUnit4.class)
-public class SettingsActivityTest extends ScreenshotTest {
+public class SettingsActivityScreenshotTest extends ScreenshotTest {
 
 	@Rule
 	public CleanAccountTestRule<SettingsActivity> testRule =
 			new CleanAccountTestRule<>(SettingsActivity.class);
 
 	@Override
-	protected void inject(TestComponent component) {
+	protected void inject(BriarUiTestComponent component) {
 		component.inject(this);
 	}
 

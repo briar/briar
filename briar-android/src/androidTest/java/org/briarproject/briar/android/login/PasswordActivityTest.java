@@ -3,7 +3,7 @@ package org.briarproject.briar.android.login;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.TestComponent;
+import org.briarproject.briar.android.BriarUiTestComponent;
 import org.briarproject.briar.android.test.ScreenshotTest;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -28,7 +28,7 @@ public class PasswordActivityTest extends ScreenshotTest {
 			new CleanAccountTestRule<>(PasswordActivity.class);
 
 	@Override
-	protected void inject(TestComponent component) {
+	protected void inject(BriarUiTestComponent component) {
 		component.inject(this);
 	}
 

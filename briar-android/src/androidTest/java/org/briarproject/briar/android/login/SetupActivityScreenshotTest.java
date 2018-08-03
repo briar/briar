@@ -7,7 +7,7 @@ import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiSelector;
 
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.TestComponent;
+import org.briarproject.briar.android.BriarUiTestComponent;
 import org.briarproject.briar.android.test.ScreenshotTest;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,7 +33,7 @@ import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
 
 @RunWith(AndroidJUnit4.class)
-public class SetupActivityTest extends ScreenshotTest {
+public class SetupActivityScreenshotTest extends ScreenshotTest {
 
 	@Rule
 	public IntentsTestRule<SetupActivity> testRule =
@@ -46,7 +46,7 @@ public class SetupActivityTest extends ScreenshotTest {
 			};
 
 	@Override
-	protected void inject(TestComponent component) {
+	protected void inject(BriarUiTestComponent component) {
 		component.inject(this);
 	}
 
