@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 
@@ -33,8 +34,10 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.ConversationActivity;
 import org.briarproject.briar.android.forum.ForumActivity;
+import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
+import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.util.BriarNotificationBuilder;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
@@ -64,11 +67,14 @@ import static android.app.Notification.DEFAULT_SOUND;
 import static android.app.Notification.DEFAULT_VIBRATE;
 import static android.app.Notification.VISIBILITY_SECRET;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
+import static android.app.NotificationManager.IMPORTANCE_LOW;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.CATEGORY_MESSAGE;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SOCIAL;
+import static android.support.v4.app.NotificationCompat.PRIORITY_LOW;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
@@ -107,6 +113,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private int nextRequestId = 0;
 	private ContactId blockedContact = null;
 	private GroupId blockedGroup = null;
+	private boolean blockSignInReminder = false;
 	private boolean blockContacts = false, blockGroups = false;
 	private boolean blockForums = false, blockBlogs = false;
 	private boolean blockIntroductions = false;
@@ -610,6 +617,58 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	public void clearAllIntroductionNotifications() {
 		androidExecutor.runOnUiThread(
 				this::clearIntroductionSuccessNotification);
+	}
+
+	@Override
+	public void showSignInNotification() {
+		if (blockSignInReminder) return;
+		if (SDK_INT >= 26) {
+			NotificationChannel channel =
+					new NotificationChannel(REMINDER_CHANNEL_ID, appContext
+							.getString(
+									R.string.reminder_notification_channel_title),
+							IMPORTANCE_LOW);
+			channel.setLockscreenVisibility(
+					NotificationCompat.VISIBILITY_SECRET);
+			notificationManager.createNotificationChannel(channel);
+		}
+
+		NotificationCompat.Builder b =
+				new NotificationCompat.Builder(appContext, REMINDER_CHANNEL_ID);
+		b.setSmallIcon(R.drawable.ic_signout);
+		b.setColor(ContextCompat.getColor(appContext, R.color.briar_primary));
+		b.setContentTitle(
+				appContext.getText(R.string.reminder_notification_title));
+		b.setContentText(
+				appContext.getText(R.string.reminder_notification_text));
+		b.setAutoCancel(true);
+		b.setWhen(0); // Don't show the time
+		b.setPriority(PRIORITY_LOW);
+
+		// Add a 'Dismiss' action
+		String actionTitle =
+				appContext.getString(R.string.reminder_notification_dismiss);
+		Intent i1 = new Intent(appContext, SignInReminderReceiver.class);
+		i1.setAction(ACTION_DISMISS_REMINDER);
+		PendingIntent actionIntent =
+				PendingIntent.getBroadcast(appContext, 0, i1, 0);
+		b.addAction(0, actionTitle, actionIntent);
+
+		Intent i = new Intent(appContext, SplashScreenActivity.class);
+		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
+		b.setContentIntent(PendingIntent.getActivity(appContext, 0, i, 0));
+
+		notificationManager.notify(REMINDER_NOTIFICATION_ID, b.build());
+	}
+
+	@Override
+	public void clearSignInNotification() {
+		notificationManager.cancel(REMINDER_NOTIFICATION_ID);
+	}
+
+	@Override
+	public void blockSignInNotification() {
+		blockSignInReminder = true;
 	}
 
 	@Override

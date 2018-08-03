@@ -49,6 +49,9 @@ public interface AndroidNotificationManager {
 	String BLOG_URI = "content://org.briarproject.briar/blog";
 	String INTRODUCTION_URI = "content://org.briarproject.briar/introduction";
 
+	// Actions for pending intents
+	String ACTION_DISMISS_REMINDER = "dismissReminder";
+
 	void clearContactNotification(ContactId c);
 
 	void clearAllContactNotifications();
@@ -66,6 +69,12 @@ public interface AndroidNotificationManager {
 	void clearAllBlogPostNotifications();
 
 	void clearAllIntroductionNotifications();
+
+	void showSignInNotification();
+
+	void clearSignInNotification();
+
+	void blockSignInNotification();
 
 	void blockContactNotification(ContactId c);
 
