@@ -51,7 +51,8 @@ public class SignInReminderReceiver extends BroadcastReceiver {
 		if (action == null) return;
 		if (action.equals(ACTION_BOOT_COMPLETED) ||
 				action.equals(ACTION_MY_PACKAGE_REPLACED)) {
-			if (accountManager.accountExists()) {
+			if (accountManager.accountExists() &&
+					!accountManager.hasDatabaseKey()) {
 				SharedPreferences prefs = app.getDefaultSharedPreferences();
 				if (prefs.getBoolean(NOTIFY_SIGN_IN, true)) {
 					showSignInNotification(ctx);
