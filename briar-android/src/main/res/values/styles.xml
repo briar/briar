@@ -30,7 +30,7 @@
 
 	<style name="ButtonTheme" parent="Theme.AppCompat.DayNight">
 		<!-- A strange hack needed only to override button color on all API levels -->
-		<item name="colorAccent">@color/briar_button_color</item>
+		<item name="colorAccent">@color/briar_button_background_color</item>
 	</style>
 
 	<style name="BriarButton" parent="Widget.AppCompat.Button.Colored">
@@ -41,17 +41,17 @@
 	</style>
 
 	<style name="BriarButtonFlat.Negative" parent="Widget.AppCompat.Button.Borderless">
-		<item name="android:textColor">@color/briar_button_negative</item>
+		<item name="android:textColor">@color/briar_button_text_negative</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
 	</style>
 
 	<style name="BriarButtonFlat.Positive" parent="Widget.AppCompat.Button.Borderless">
-		<item name="android:textColor">@color/briar_button_positive</item>
+		<item name="android:textColor">@color/briar_button_text_positive</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
 	</style>
 
 	<style name="BriarButtonFlat.Neutral" parent="Widget.AppCompat.Button.Borderless">
-		<item name="android:textColor">@color/briar_button_neutral</item>
+		<item name="android:textColor">@color/briar_button_text_neutral</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
 	</style>
 
