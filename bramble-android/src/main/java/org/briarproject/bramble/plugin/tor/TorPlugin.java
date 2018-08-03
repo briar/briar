@@ -688,6 +688,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 						enableNetwork(false);
 					} else {
 						LOG.info("Enabling network but country is blocked");
+						enableBridges(false);
 						enableNetwork(true);
 					}
 				} else {
