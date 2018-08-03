@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+	<string name="app_name" translatable="false">Briar</string>
+	<string name="app_package" translatable="false">org.briarproject.briar.android</string>
+
 	<!-- Setup -->
 	<string name="setup_title">Welcome to Briar</string>
 	<string name="setup_name_explanation">Your nickname will be shown next to any content you post. You can\'t change it after creating your account.</string>

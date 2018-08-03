@@ -264,8 +264,6 @@ android {
 		versionCode 10013
 		versionName "1.0.13"
 		applicationId "org.briarproject.briar.android"
-		resValue "string", "app_package", "org.briarproject.briar.android"
-		resValue "string", "app_name", "Briar"
 		buildConfigField "String", "GitHash",
 				"\"${getStdout(['git', 'rev-parse', '--short=7', 'HEAD'], 'No commit hash')}\""
 		def now = (long) (System.currentTimeMillis() / 1000)
@@ -274,29 +272,9 @@ android {
 		testInstrumentationRunner 'org.briarproject.briar.android.test.BriarTestRunner'
 	}
 
-	flavorDimensions "version"
-	productFlavors {
-		screenshot {
-			dimension "version"
-			minSdkVersion 18
-			applicationIdSuffix ".screenshot"
-			resValue "string", "app_package", "org.briarproject.briar.android.screenshot.debug"
-		}
-		main {
-			dimension "version"
-		}
-	}
-	variantFilter { variant ->
-		if (variant.flavors*.name.contains("screenshot") && variant.buildType.name == "release") {
-			setIgnore(true)
-		}
-	}
-
 	buildTypes {
 		debug {
 			applicationIdSuffix ".debug"
-			resValue "string", "app_package", "org.briarproject.briar.android.debug"
-			resValue "string", "app_name", "Briar Debug"
 			shrinkResources false
 			minifyEnabled true
 			crunchPngs false
@@ -308,6 +286,23 @@ android {
 			minifyEnabled true
 			crunchPngs false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+		}
+	}
+
+	flavorDimensions "version"
+	productFlavors {
+		screenshot {
+			dimension "version"
+			minSdkVersion 18
+			applicationIdSuffix ".screenshot" // = org.briarproject.briar.android.screenshot.debug
+		}
+		main {
+			dimension "version"
+		}
+	}
+	variantFilter { variant ->
+		if (variant.flavors*.name.contains("screenshot") && variant.buildType.name == "release") {
+			setIgnore(true)
 		}
 	}
 
