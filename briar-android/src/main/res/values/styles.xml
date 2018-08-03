@@ -38,6 +38,7 @@
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:textColor">@color/button_text</item>
+		<item name="android:padding">@dimen/margin_large</item>
 	</style>
 
 	<style name="BriarButtonFlat.Negative" parent="Widget.AppCompat.Button.Borderless">
@@ -100,6 +101,7 @@
 	</style>
 
 	<style name="TextMessage.Timestamp">
+		<item name="android:textIsSelectable">false</item>
 		<item name="android:textSize">@dimen/text_size_tiny</item>
 		<item name="android:textColor">?android:attr/textColorTertiary</item>
 		<item name="android:maxLines">1</item>
