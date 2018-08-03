@@ -44,6 +44,12 @@
 			android:summary="%s"
 			android:title="@string/tor_network_setting"/>
 
+		<CheckBoxPreference
+			android:defaultValue="true"
+			android:key="pref_key_tor_location"
+			android:persistent="false"
+			android:title="@string/tor_location_setting_title"/>
+
 	</PreferenceCategory>
 
 	<PreferenceCategory

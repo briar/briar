@@ -14,6 +14,7 @@ public interface TorConstants {
 
 	String PREF_TOR_NETWORK = "network";
 	String PREF_TOR_PORT = "port";
+	String PREF_TOR_DISABLE_BLOCKED = "disableWhenBlocked";
 
 	int PREF_TOR_NETWORK_NEVER = 0;
 	int PREF_TOR_NETWORK_WIFI = 1;
