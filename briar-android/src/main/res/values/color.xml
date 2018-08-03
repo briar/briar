@@ -3,48 +3,60 @@
 	<color name="briar_blue">#2D3E50</color>
 	<color name="briar_blue_dark">#222E3C</color>
 	<color name="briar_blue_very_dark">#0F1720</color>
-	<color name="briar_blue_light">#4F6C8C</color>
+	<color name="briar_blue_medium">#4F6C8C</color>
+	<color name="briar_blue_elio">#236087</color>
+	<color name="briar_blue_elio_light">#3C80A9</color>
+	<color name="briar_blue_light">#2A93C6</color>
+	<color name="briar_blue_grey">#EBEFF2</color>
 	<color name="briar_green">#5C940D</color>
 	<color name="briar_green_light">#95D220</color>
-	<color name="briar_link">#2A93C6</color>
+	<color name="briar_red">#ff0000</color>
+	<color name="briar_white">#FFFFFF</color>
+	<color name="briar_black">#000000</color>
+	<color name="briar_black_almost">#080C10</color>
 
-	<color name="window_background">#E3EBEF</color>
-	<color name="card_background">@color/cardview_light_background</color>
-	<color name="item_background_highlight">#DCDCDC</color>
-	<color name="action_bar_text">#FFFFFF</color>
-	<color name="private_message_date_inverse">#e0e0e0</color>
-	<color name="forum_avatar_shadow">#99000000</color>
+	<color name="m_grey_300">#e0e0e0</color>
+	<color name="m_grey_500">#9e9e9e</color>
+	<color name="m_blue_grey_50">#eceff1</color>
 
 	<color name="briar_primary">@color/briar_blue</color>
 	<color name="briar_primary_dark">@color/briar_blue_very_dark</color>
 	<color name="briar_accent">@color/briar_blue</color>
 
+	<color name="window_background">#E3EBEF</color>
+	<color name="card_background">@color/cardview_light_background</color>
+	<color name="item_background_highlight">#DCDCDC</color>
+	<color name="briar_warning_background">@color/briar_red</color>
+	<color name="action_bar_text">@color/briar_white</color>
+	<color name="private_message_date_inverse">@color/m_grey_300</color>
+	<color name="forum_avatar_shadow">#99000000</color>
+
 	<color name="color_primary">#dd000000</color>
 
-	<color name="msg_in">#FFFFFF</color>
-	<color name="msg_out">#3C7FA9</color>
-	<color name="notice_in">#EBEFF2</color>
-	<color name="notice_out">#236087</color>
+	<color name="msg_in">@color/briar_white</color>
+	<color name="msg_out">@color/briar_blue_elio_light</color>
+	<color name="notice_in">@color/briar_blue_grey</color>
+	<color name="notice_out">@color/briar_blue_elio</color>
 
 	<!-- text colors -->
-	<color name="briar_text_link">@color/briar_link</color>
+	<color name="briar_text_link">@color/briar_blue_light</color>
 	<color name="briar_text_primary">#df000000</color>
-	<color name="briar_text_primary_inverse">#ffffff</color>
+	<color name="briar_text_primary_inverse">@color/briar_white</color>
 	<color name="briar_text_secondary_inverse">#b4ffffff</color>
 	<color name="briar_text_tertiary_inverse">#80ffffff</color>
-	<color name="preference_category">@color/briar_blue_light</color>
+
+	<color name="preference_category">@color/briar_blue_medium</color>
 	<color name="preference_category_background">@color/window_background</color>
 
-	<color name="briar_button_color">@color/briar_accent</color>
-	<color name="briar_button_positive">@color/briar_link</color>
-	<color name="briar_button_neutral">@color/briar_blue_light</color>
-	<color name="briar_button_negative">#ff0000</color>
+	<color name="briar_button_background_color">@color/briar_accent</color>
+	<color name="briar_button_text_positive">@color/briar_blue_light</color>
+	<color name="briar_button_text_neutral">@color/briar_blue_medium</color>
+	<color name="briar_button_text_negative">@color/briar_red</color>
 	<color name="briar_button_text_disabled">#28000000</color>
-	<color name="briar_warning_background">#ff0000</color>
 
-	<color name="thread_indicator">#9e9e9e</color>
-	<color name="thread_item_background">#eceff1</color>
-	<color name="thread_item_highlight">#ffffff</color>
+	<color name="thread_indicator">@color/m_grey_500</color>
+	<color name="thread_item_background">@color/m_blue_grey_50</color>
+	<color name="thread_item_highlight">@color/briar_white</color>
 
 	<color name="divider">#c1c1c1</color>
 </resources>

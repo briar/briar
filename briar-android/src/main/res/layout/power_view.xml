@@ -52,7 +52,7 @@
 		android:layout_margin="8dp"
 		android:contentDescription="@string/help"
 		android:src="@drawable/ic_help_outline_white"
-		android:tint="@color/briar_button_positive"
+		android:tint="@color/briar_button_text_positive"
 		app:layout_constraintBottom_toBottomOf="@+id/button"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/button"/>
