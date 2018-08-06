@@ -18,6 +18,7 @@ import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.login.PasswordActivity;
 import org.briarproject.briar.android.login.UnlockActivity;
 import org.briarproject.briar.android.logout.ExitActivity;
+import org.briarproject.briar.api.android.LockManager;
 
 import java.util.logging.Logger;
 
@@ -46,10 +47,11 @@ public abstract class BriarActivity extends BaseActivity {
 
 	@Inject
 	BriarController briarController;
-
 	@Deprecated
 	@Inject
 	DbController dbController;
+	@Inject
+	protected LockManager lockManager;
 
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
@@ -68,7 +70,7 @@ public abstract class BriarActivity extends BaseActivity {
 		if (!briarController.accountSignedIn() && !isFinishing()) {
 			Intent i = new Intent(this, PasswordActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
-		} else if(briarController.isLocked()) {
+		} else if(lockManager.isLocked().getValue()) {
 			Intent i = new Intent(this, UnlockActivity.class);
 			startActivityForResult(i, REQUEST_UNLOCK);
 		} else if (SDK_INT >= 23) {
@@ -82,6 +84,7 @@ public abstract class BriarActivity extends BaseActivity {
 				}
 			});
 		}
+		lockManager.recheckLockable();
 	}
 
 	public void setSceneTransitionAnimation() {
@@ -120,6 +123,10 @@ public abstract class BriarActivity extends BaseActivity {
 			ab.setDisplayShowTitleEnabled(!ownLayout);
 		}
 		return toolbar;
+	}
+
+	protected void onLockableChanged(boolean lockable) {
+
 	}
 
 	protected void showDozeDialog(String message) {

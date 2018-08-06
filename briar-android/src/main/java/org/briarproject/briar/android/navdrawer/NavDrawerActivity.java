@@ -42,7 +42,6 @@ import org.briarproject.briar.android.logout.SignOutFragment;
 import org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning;
 import org.briarproject.briar.android.privategroup.list.GroupListFragment;
 import org.briarproject.briar.android.settings.SettingsActivity;
-import org.briarproject.briar.api.android.AndroidNotificationManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +60,6 @@ import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSW
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
 import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
-import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 
 public class NavDrawerActivity extends BriarActivity implements
 		BaseFragmentListener, TransportStateListener,
@@ -82,8 +80,6 @@ public class NavDrawerActivity extends BriarActivity implements
 	NavDrawerController controller;
 	@Inject
 	LifecycleManager lifecycleManager;
-	@Inject
-	AndroidNotificationManager notificationManager;
 
 	private DrawerLayout drawerLayout;
 	private NavigationView navigation;
@@ -141,6 +137,8 @@ public class NavDrawerActivity extends BriarActivity implements
 		initializeTransports(getLayoutInflater());
 		transportsView.setAdapter(transportsAdapter);
 
+		lockManager.isLockable().observe(this, this::setLockVisible);
+
 		if (lifecycleManager.getLifecycleState().isAfter(RUNNING)) {
 			showSignOutFragment();
 		} else if (state == null) {
@@ -157,14 +155,6 @@ public class NavDrawerActivity extends BriarActivity implements
 	public void onStart() {
 		super.onStart();
 		updateTransports();
-		if (hasScreenLock(this)) {
-			controller.isLockable(new UiResultHandler<Boolean>(this) {
-				@Override
-				public void onResultUi(@NonNull Boolean lockable) {
-					setLockVisible(lockable);
-				}
-			});
-		} else setLockVisible(false);
 		controller.showExpiryWarning(new UiResultHandler<ExpiryWarning>(this) {
 			@Override
 			public void onResultUi(ExpiryWarning expiry) {
@@ -227,7 +217,7 @@ public class NavDrawerActivity extends BriarActivity implements
 		drawerLayout.closeDrawer(START);
 		clearBackStack();
 		if (item.getItemId() == R.id.nav_btn_lock) {
-			controller.lock();
+			lockManager.setLocked(true);
 			ActivityCompat.finishAfterTransition(this);
 			return false;
 		} else {
@@ -323,7 +313,6 @@ public class NavDrawerActivity extends BriarActivity implements
 	private void setLockVisible(boolean visible) {
 		MenuItem item = navigation.getMenu().findItem(R.id.nav_btn_lock);
 		if (item != null) item.setVisible(visible);
-		notificationManager.updateForegroundNotification(visible, false);
 	}
 
 	@SuppressWarnings("ConstantConditions")

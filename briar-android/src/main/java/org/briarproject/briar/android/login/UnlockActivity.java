@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
+import org.briarproject.briar.api.android.LockManager;
 
 import java.util.logging.Logger;
 
@@ -33,6 +34,8 @@ public class UnlockActivity extends BaseActivity {
 
 	@Inject
 	AccountManager accountManager;
+	@Inject
+	LockManager lockManager;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -48,7 +51,7 @@ public class UnlockActivity extends BaseActivity {
 
 		Intent intent = getIntent();
 		if (intent != null && ACTION_LOCK.equals(intent.getAction())) {
-			accountManager.setLocked(true);
+			lockManager.setLocked(true);
 		} else {
 			requestKeyguardUnlock();
 		}
@@ -80,7 +83,7 @@ public class UnlockActivity extends BaseActivity {
 	}
 
 	private void unlock() {
-		accountManager.setLocked(false);
+		lockManager.setLocked(false);
 		setResult(RESULT_OK);
 		ActivityCompat.finishAfterTransition(this);
 	}

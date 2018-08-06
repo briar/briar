@@ -3,7 +3,6 @@ package org.briarproject.briar.android.navdrawer;
 import android.app.Activity;
 import android.content.Context;
 
-import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
@@ -37,7 +36,6 @@ import static org.briarproject.briar.android.controller.BriarControllerImpl.DOZE
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.SHOW;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
-import static org.briarproject.briar.android.settings.SettingsFragment.PREF_SCREEN_LOCK;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
@@ -53,7 +51,6 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 
 	private final PluginManager pluginManager;
 	private final SettingsManager settingsManager;
-	private final AccountManager accountManager;
 	private final EventBus eventBus;
 
 	private volatile TransportStateListener listener;
@@ -61,12 +58,10 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	@Inject
 	NavDrawerControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, PluginManager pluginManager,
-			SettingsManager settingsManager, AccountManager accountManager,
-			EventBus eventBus) {
+			SettingsManager settingsManager, EventBus eventBus) {
 		super(dbExecutor, lifecycleManager);
 		this.pluginManager = pluginManager;
 		this.settingsManager = settingsManager;
-		this.accountManager = accountManager;
 		this.eventBus = eventBus;
 	}
 
@@ -110,25 +105,6 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	private void transportStateUpdate(TransportId id, boolean enabled) {
 		listener.runOnUiThreadUnlessDestroyed(
 				() -> listener.stateUpdate(id, enabled));
-	}
-
-	@Override
-	public void isLockable(ResultHandler<Boolean> handler) {
-		runOnDbThread(() -> {
-			try {
-				Settings settings =
-						settingsManager.getSettings(SETTINGS_NAMESPACE);
-				boolean ask = settings.getBoolean(PREF_SCREEN_LOCK, false);
-				handler.onResult(ask);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
-	}
-
-	@Override
-	public void lock() {
-		accountManager.setLocked(true);
 	}
 
 	@Override

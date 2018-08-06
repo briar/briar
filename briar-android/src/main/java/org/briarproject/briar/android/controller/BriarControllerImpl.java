@@ -88,11 +88,6 @@ public class BriarControllerImpl implements BriarController {
 	}
 
 	@Override
-	public boolean isLocked() {
-		return accountManager.isLocked();
-	}
-
-	@Override
 	public void hasDozed(ResultHandler<Boolean> handler) {
 		if (!dozeWatchdog.getAndResetDozeFlag()
 				|| !needsDozeWhitelisting(activity)) {

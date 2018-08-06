@@ -231,9 +231,10 @@ public class UiUtils {
 	}
 
 	public static boolean hasScreenLock(Context ctx) {
+		if (SDK_INT < 21) return false;
 		KeyguardManager keyguardManager = (KeyguardManager) ctx
 				.getSystemService(Context.KEYGUARD_SERVICE);
-		if (keyguardManager == null || SDK_INT < 21) return false;
+		if (keyguardManager == null) return false;
 		// check if there's a lock mechanism we can use, try to ignore SIM
 		return (SDK_INT < 23 && keyguardManager.isKeyguardSecure()) ||
 				(SDK_INT >= 23 && keyguardManager.isDeviceSecure());

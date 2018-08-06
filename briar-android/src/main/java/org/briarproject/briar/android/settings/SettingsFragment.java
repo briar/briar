@@ -41,6 +41,7 @@ import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.util.UserFeedback;
+import org.briarproject.briar.api.android.LockManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -140,6 +141,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	@Inject
 	volatile EventBus eventBus;
 
+	@Inject
+	LockManager lockManager;
 	@Inject
 	AndroidExecutor androidExecutor;
 
@@ -495,6 +498,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			boolean torBlockedSetting = (Boolean) newValue;
 			storeTorBlockedSetting(torBlockedSetting);
 		} else if (preference == screenLock) {
+			lockManager.updateLockableSetting((Boolean) newValue);
 			Settings s = new Settings();
 			s.putBoolean(PREF_SCREEN_LOCK, (Boolean) newValue);
 			storeSettings(s);

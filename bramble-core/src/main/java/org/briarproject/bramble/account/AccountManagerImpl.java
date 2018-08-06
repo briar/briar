@@ -45,7 +45,6 @@ class AccountManagerImpl implements AccountManager {
 
 	@Nullable
 	private volatile SecretKey databaseKey = null;
-	private volatile boolean locked = false;
 
 	@Inject
 	AccountManagerImpl(DatabaseConfig databaseConfig, CryptoComponent crypto,
@@ -217,18 +216,6 @@ class AccountManagerImpl implements AccountManager {
 		synchronized (stateChangeLock) {
 			SecretKey key = loadAndDecryptDatabaseKey(oldPassword);
 			return key != null && encryptAndStoreDatabaseKey(key, newPassword);
-		}
-	}
-
-	@Override
-	public boolean isLocked() {
-		return locked;
-	}
-
-	@Override
-	public void setLocked(boolean locked) {
-		synchronized (stateChangeLock) {
-			this.locked = locked;
 		}
 	}
 }

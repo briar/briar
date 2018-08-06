@@ -15,6 +15,7 @@ import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.login.OpenDatabaseActivity;
 import org.briarproject.briar.android.login.SetupActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
+import org.briarproject.briar.api.android.LockManager;
 
 import java.util.logging.Logger;
 
@@ -29,6 +30,8 @@ public class SplashScreenActivity extends BaseActivity {
 
 	@Inject
 	protected AccountManager accountManager;
+	@Inject
+	protected LockManager lockManager;
 	@Inject
 	protected AndroidExecutor androidExecutor;
 
@@ -46,7 +49,7 @@ public class SplashScreenActivity extends BaseActivity {
 
 		if (accountManager.hasDatabaseKey()) {
 			Intent i;
-			if (accountManager.isLocked()) {
+			if (lockManager.isLocked().getValue()) {
 				// The database is already open, so start main activity which
 				// will open the activity to unlock, then brings main to front.
 				i = new Intent(this, NavDrawerActivity.class);
