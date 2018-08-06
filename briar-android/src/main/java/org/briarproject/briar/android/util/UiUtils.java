@@ -240,4 +240,11 @@ public class UiUtils {
 				(SDK_INT >= 23 && keyguardManager.isDeviceSecure());
 	}
 
+	public static void showAndroidHomeScreen(Context ctx) {
+		Intent i = new Intent(Intent.ACTION_MAIN);
+		i.addCategory(Intent.CATEGORY_HOME);
+		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		ctx.startActivity(i);
+	}
+
 }

@@ -358,7 +358,7 @@
 	<!-- Settings Security and Panic -->
 	<string name="security_settings_title">Security</string>
 	<string name="pref_lock_title">Screen Lock</string>
-	<string name="pref_lock_summary">Lock app access with Android screen lock or fingerprint</string>
+	<string name="pref_lock_summary">Use the device\'s screen lock to protect Briar while signed in</string>
 	<string name="change_password">Change password</string>
 	<string name="current_password">Current password</string>
 	<string name="choose_new_password">New password</string>
@@ -450,9 +450,10 @@
 
 	<!-- App Locking -->
 	<string name="lock_unlock">Unlock Briar</string>
+	<string name="lock_unlock_description">Enter your device PIN, pattern or password to continue</string>
 	<string name="lock_is_locked">Briar is locked</string>
 	<string name="lock_tap_to_unlock">Tap to unlock</string>
-	<string name="lock_disabled">Only available on Android 5 or newer and when a system screen lock is set</string>
+	<string name="lock_disabled">Set up a screen lock for your device to protect Briar while signed in</string>
 	<!-- This is meant as an imperative, but should be shorter than: Lock the app! -->
 	<string name="lock_lock">Lock</string>
 

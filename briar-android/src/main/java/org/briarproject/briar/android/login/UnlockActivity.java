@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_UNLOCK;
+import static org.briarproject.briar.android.util.UiUtils.showAndroidHomeScreen;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ACTION_LOCK;
 
 @RequiresApi(21)
@@ -52,9 +53,15 @@ public class UnlockActivity extends BaseActivity {
 		Intent intent = getIntent();
 		if (intent != null && ACTION_LOCK.equals(intent.getAction())) {
 			lockManager.setLocked(true);
+			finish();
 		} else {
 			requestKeyguardUnlock();
 		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		showAndroidHomeScreen(this);
 	}
 
 	@Override
@@ -70,9 +77,9 @@ public class UnlockActivity extends BaseActivity {
 		KeyguardManager keyguardManager = (KeyguardManager) getSystemService(
 				Context.KEYGUARD_SERVICE);
 		assert keyguardManager != null;
-		Intent intent = keyguardManager
-				.createConfirmDeviceCredentialIntent(getString(R.string.lock_unlock),
-						null);
+		Intent intent = keyguardManager.createConfirmDeviceCredentialIntent(
+				getString(R.string.lock_unlock),
+				getString(R.string.lock_unlock_description));
 		if (intent == null) {
 			// the user must have removed the screen lock since locked
 			LOG.warning("Unlocking without keyguard");

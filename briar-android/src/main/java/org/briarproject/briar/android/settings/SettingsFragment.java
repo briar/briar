@@ -256,6 +256,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void onStart() {
 		super.onStart();
 		eventBus.addListener(this);
+		updateScreenLockSetting(settings != null);
 	}
 
 	@Override
@@ -350,10 +351,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 						PREF_TOR_NETWORK_ALWAYS);
 				boolean torBlockedSetting =
 						torSettings.getBoolean(PREF_TOR_DISABLE_BLOCKED, true);
-				boolean screenLockSetting =
-						settings.getBoolean(PREF_SCREEN_LOCK, false);
-				displaySettings(btSetting, torNetworkSetting, torBlockedSetting,
-						screenLockSetting);
+				displaySettings(btSetting, torNetworkSetting,
+						torBlockedSetting);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -361,13 +360,18 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	private void displaySettings(boolean btSetting, int torNetworkSetting,
-			boolean torBlockedSetting, boolean screenLockSetting) {
+			boolean torBlockedSetting) {
 		listener.runOnUiThreadUnlessDestroyed(() -> {
 			enableBluetooth.setValue(Boolean.toString(btSetting));
 			torNetwork.setValue(Integer.toString(torNetworkSetting));
 			torBlocked.setChecked(torBlockedSetting);
-			screenLock.setChecked(screenLockSetting);
 
+			if (SDK_INT >= 21) {
+				boolean screenLockable =
+						settings.getBoolean(PREF_SCREEN_LOCK, false);
+				screenLock.setChecked(
+						screenLockable && hasScreenLock(getActivity()));
+			}
 			if (SDK_INT < 26) {
 				notifyPrivateMessages.setChecked(settings.getBoolean(
 						PREF_NOTIFY_PRIVATE, true));
@@ -427,12 +431,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		enableBluetooth.setEnabled(enabled);
 		torNetwork.setEnabled(enabled);
 		torBlocked.setEnabled(enabled);
-		if (enabled && getActivity() != null && hasScreenLock(getActivity())) {
-			screenLock.setEnabled(true);
-		} else {
-			screenLock.setEnabled(false);
-			screenLock.setSummary(getString(R.string.lock_disabled));
-		}
+		updateScreenLockSetting(enabled);
 		notifyPrivateMessages.setEnabled(enabled);
 		notifyGroupMessages.setEnabled(enabled);
 		notifyForumPosts.setEnabled(enabled);
@@ -440,6 +439,18 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		notifyVibration.setEnabled(enabled);
 		notifyLockscreen.setEnabled(enabled);
 		notifySound.setEnabled(enabled);
+	}
+
+	private void updateScreenLockSetting(boolean enabled) {
+		if (SDK_INT < 21) {
+			screenLock.setVisible(false);
+		} else if (enabled && hasScreenLock(getActivity())) {
+			screenLock.setEnabled(true);
+		} else {
+			screenLock.setEnabled(false);
+			screenLock.setChecked(false);
+			screenLock.setSummary(getString(R.string.lock_disabled));
+		}
 	}
 
 	@TargetApi(26)

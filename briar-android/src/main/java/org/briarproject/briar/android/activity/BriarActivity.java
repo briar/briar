@@ -35,6 +35,7 @@ import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSW
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_UNLOCK;
 import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingIntent;
 import static org.briarproject.briar.android.util.UiUtils.isSamsung7;
+import static org.briarproject.briar.android.util.UiUtils.showAndroidHomeScreen;
 
 @SuppressLint("Registered")
 public abstract class BriarActivity extends BaseActivity {
@@ -73,18 +74,30 @@ public abstract class BriarActivity extends BaseActivity {
 		} else if(lockManager.isLocked().getValue()) {
 			Intent i = new Intent(this, UnlockActivity.class);
 			startActivityForResult(i, REQUEST_UNLOCK);
-		} else if (SDK_INT >= 23) {
-			briarController.hasDozed(new UiResultHandler<Boolean>(this) {
-				@Override
-				public void onResultUi(Boolean result) {
-					if (result) {
-						showDozeDialog(getString(R.string.warning_dozed,
-								getString(R.string.app_name)));
-					}
-				}
+		} else {
+			lockManager.isLocked().observe(this, locked -> {
+				if (locked != null && locked) showAndroidHomeScreen(this);
 			});
+			lockManager.recheckLockable();
+			if (SDK_INT >= 23) {
+				briarController.hasDozed(new UiResultHandler<Boolean>(this) {
+					@Override
+					public void onResultUi(Boolean result) {
+						if (result) {
+							showDozeDialog(getString(R.string.warning_dozed,
+									getString(R.string.app_name)));
+						}
+					}
+				});
+			}
 		}
-		lockManager.recheckLockable();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		// only react to lock changes while in foreground
+		lockManager.isLocked().removeObservers(this);
 	}
 
 	public void setSceneTransitionAnimation() {
@@ -123,10 +136,6 @@ public abstract class BriarActivity extends BaseActivity {
 			ab.setDisplayShowTitleEnabled(!ownLayout);
 		}
 		return toolbar;
-	}
-
-	protected void onLockableChanged(boolean lockable) {
-
 	}
 
 	protected void showDozeDialog(String message) {
