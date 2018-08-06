@@ -4,7 +4,12 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:layout_marginBottom="@dimen/message_bubble_margin"
+	android:layout_marginLeft="@dimen/message_bubble_margin_tail"
+	android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
 	android:layout_marginTop="@dimen/message_bubble_margin"
+	android:padding="1px"
+	android:background="@drawable/msg_in_border"
 	android:orientation="vertical">
 
 	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
@@ -12,10 +17,7 @@
 		style="@style/TextMessage"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginLeft="@dimen/message_bubble_margin_tail"
-		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
 		android:background="@drawable/msg_in_top"
-		android:elevation="@dimen/message_bubble_elevation"
 		android:textColor="?android:attr/textColorPrimary"
 		tools:text="Short message"/>
 
@@ -23,11 +25,7 @@
 		android:id="@+id/layout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="@dimen/message_bubble_margin"
-		android:layout_marginLeft="@dimen/message_bubble_margin_tail"
-		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
-		android:background="@drawable/notice_in_bottom"
-		android:elevation="@dimen/message_bubble_elevation">
+		android:background="@drawable/notice_in_bottom">
 
 		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 			android:id="@+id/text"

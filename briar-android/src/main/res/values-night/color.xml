@@ -12,6 +12,7 @@
 	<color name="msg_out">@color/briar_blue_elio_light</color>
 	<color name="notice_in">@color/briar_blue_dark</color>
 	<color name="notice_out">@color/briar_blue_elio</color>
+	<color name="msg_border">@color/briar_blue_very_dark</color>
 
 	<color name="window_background">@color/briar_blue_very_dark</color>
 	<color name="card_background">@color/briar_blue_dark</color>
