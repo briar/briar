@@ -40,7 +40,7 @@ public class BridgeTest extends BrambleTestCase {
 	private final static long TIMEOUT = SECONDS.toMillis(23);
 
 	private final static Logger LOG =
-			Logger.getLogger(BridgeTest.class.getSimpleName());
+			Logger.getLogger(BridgeTest.class.getName());
 
 	@Inject
 	NetworkManager networkManager;
