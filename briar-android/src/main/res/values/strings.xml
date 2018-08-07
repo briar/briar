@@ -475,6 +475,8 @@
 	<!-- App Locking -->
 	<string name="lock_unlock">Unlock Briar</string>
 	<string name="lock_unlock_verbose">Enter your device PIN, pattern or password to unlock Briar</string>
+	<string name="lock_unlock_fingerprint_description">Touch your fingerprint sensor with the registered finger to continue</string>
+	<string name="lock_unlock_password">Use Password</string>
 	<string name="lock_is_locked">Briar is locked</string>
 	<string name="lock_tap_to_unlock">Tap to unlock</string>
 

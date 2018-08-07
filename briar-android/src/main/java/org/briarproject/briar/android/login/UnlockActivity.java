@@ -3,9 +3,12 @@ package org.briarproject.briar.android.login;
 import android.app.KeyguardManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CancellationSignal;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.widget.Button;
+import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -18,8 +21,19 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import moe.feng.support.biometricprompt.BiometricPromptCompat;
+import moe.feng.support.biometricprompt.BiometricPromptCompat.Builder;
+import moe.feng.support.biometricprompt.BiometricPromptCompat.IAuthenticationCallback;
+import moe.feng.support.biometricprompt.BiometricPromptCompat.IAuthenticationResult;
+
 import static android.os.Build.VERSION.SDK_INT;
+import static moe.feng.support.biometricprompt.BiometricPromptCompat.BIOMETRIC_ERROR_CANCELED;
+import static moe.feng.support.biometricprompt.BiometricPromptCompat.BIOMETRIC_ERROR_LOCKOUT;
+import static moe.feng.support.biometricprompt.BiometricPromptCompat.BIOMETRIC_ERROR_LOCKOUT_PERMANENT;
+import static moe.feng.support.biometricprompt.BiometricPromptCompat.BIOMETRIC_ERROR_USER_CANCELED;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_KEYGUARD_UNLOCK;
+import static org.briarproject.briar.android.util.UiUtils.hasKeyguardLock;
+import static org.briarproject.briar.android.util.UiUtils.hasUsableFingerprint;
 
 @RequiresApi(21)
 @MethodsNotNullByDefault
@@ -46,7 +60,7 @@ public class UnlockActivity extends BaseActivity {
 		setContentView(R.layout.activity_unlock);
 
 		Button button = findViewById(R.id.unlock);
-		button.setOnClickListener(view -> requestKeyguardUnlock());
+		button.setOnClickListener(view -> requestUnlock());
 
 		keyguardShown = state != null && state.getBoolean(KEYGUARD_SHOWN);
 	}
@@ -83,16 +97,78 @@ public class UnlockActivity extends BaseActivity {
 		// Check if app is still locked, lockable
 		// and not finishing (which is possible if recreated)
 		if (!keyguardShown && lockManager.isLocked() && !isFinishing()) {
-			requestKeyguardUnlock();
+			requestUnlock();
 		} else if (!lockManager.isLocked()) {
 			setResult(RESULT_OK);
 			finish();
 		}
 	}
 
+	private void requestUnlock() {
+		if (hasUsableFingerprint(this)) {
+			requestFingerprintUnlock();
+		} else {
+			requestKeyguardUnlock();
+		}
+	}
+
 	@Override
 	public void onBackPressed() {
 		moveTaskToBack(true);
+	}
+
+	private void requestFingerprintUnlock() {
+		BiometricPromptCompat biometricPrompt = new Builder(this)
+				.setTitle(R.string.lock_unlock)
+				.setDescription(R.string.lock_unlock_fingerprint_description)
+				.setNegativeButton(R.string.lock_unlock_password,
+						(dialog, which) -> {
+							requestKeyguardUnlock();
+						})
+				.build();
+		CancellationSignal signal = new CancellationSignal();
+		biometricPrompt.authenticate(signal, new IAuthenticationCallback() {
+			@Override
+			public void onAuthenticationError(int errorCode,
+					@Nullable CharSequence errString) {
+				// when back button is pressed while fingerprint dialog shows
+				if (errorCode == BIOMETRIC_ERROR_CANCELED ||
+						errorCode == BIOMETRIC_ERROR_USER_CANCELED) {
+					finish();
+				}
+				// locked out due to 5 failed attempts, lasts for 30 seconds
+				else if (errorCode == BIOMETRIC_ERROR_LOCKOUT ||
+						errorCode == BIOMETRIC_ERROR_LOCKOUT_PERMANENT) {
+					if (hasKeyguardLock(UnlockActivity.this)) {
+						requestKeyguardUnlock();
+					} else {
+						// normally fingerprints require a screen lock, but
+						// who knows if that's true for all devices out there
+						Toast.makeText(UnlockActivity.this, errString,
+								Toast.LENGTH_LONG).show();
+						finish();
+					}
+				} else {
+					Toast.makeText(UnlockActivity.this, errString,
+							Toast.LENGTH_LONG).show();
+				}
+			}
+
+			@Override
+			public void onAuthenticationHelp(int helpCode,
+					@Nullable CharSequence helpString) {
+			}
+
+			@Override
+			public void onAuthenticationSucceeded(
+					@NonNull IAuthenticationResult result) {
+				unlock();
+			}
+
+			@Override
+			public void onAuthenticationFailed() {
+			}
+		});
 	}
 
 	private void requestKeyguardUnlock() {

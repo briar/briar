@@ -59,6 +59,8 @@ import static android.text.format.DateUtils.FORMAT_ABBREV_TIME;
 import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.WEEK_IN_MILLIS;
+import static moe.feng.support.biometricprompt.BiometricPromptCompat.hasEnrolledFingerprints;
+import static moe.feng.support.biometricprompt.BiometricPromptCompat.isHardwareDetected;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 
@@ -261,6 +263,10 @@ public class UiUtils {
 	}
 
 	public static boolean hasScreenLock(Context ctx) {
+		return hasKeyguardLock(ctx) || hasUsableFingerprint(ctx);
+	}
+
+	public static boolean hasKeyguardLock(Context ctx) {
 		if (SDK_INT < 21) return false;
 		KeyguardManager keyguardManager =
 				(KeyguardManager) ctx.getSystemService(KEYGUARD_SERVICE);
@@ -269,6 +275,11 @@ public class UiUtils {
 		// first one is true if SIM card is locked, so use second if available
 		return (SDK_INT < 23 && keyguardManager.isKeyguardSecure()) ||
 				(SDK_INT >= 23 && keyguardManager.isDeviceSecure());
+	}
+
+	public static boolean hasUsableFingerprint(Context ctx) {
+		return SDK_INT >= 23 && isHardwareDetected(ctx) &&
+				hasEnrolledFingerprints(ctx);
 	}
 
 	public static void triggerFeedback(AndroidExecutor androidExecutor) {

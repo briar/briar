@@ -33,6 +33,7 @@ dependencies {
 	implementation 'com.google.zxing:core:3.3.0'
 	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.8.0'
 	implementation 'com.vanniktech:emoji-google:0.5.1'
+	implementation 'moe.feng.support.biometricprompt:library:1.0.1'
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
 
@@ -75,8 +76,8 @@ def getStdout = { command, defaultValue ->
 }
 
 android {
-	compileSdkVersion 27
-	buildToolsVersion '27.0.3'
+	compileSdkVersion 28
+	buildToolsVersion '28.0.2'
 
 	defaultConfig {
 		minSdkVersion 15
