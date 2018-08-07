@@ -53,11 +53,10 @@ public interface AndroidNotificationManager {
 
 	// Actions for pending intents
 	String ACTION_DISMISS_REMINDER = "dismissReminder";
-	String ACTION_LOCK = "lock";
 
 	Notification getForegroundNotification();
 
-	void updateForegroundNotification(boolean lockable, boolean locked);
+	void updateForegroundNotification(boolean locked);
 
 	void clearContactNotification(ContactId c);
 

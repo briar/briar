@@ -155,6 +155,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	public void onStart() {
 		super.onStart();
 		updateTransports();
+		lockManager.checkIfLockable();
 		controller.showExpiryWarning(new UiResultHandler<ExpiryWarning>(this) {
 			@Override
 			public void onResultUi(ExpiryWarning expiry) {

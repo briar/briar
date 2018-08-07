@@ -8,14 +8,10 @@ import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
-import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.LockManager;
 
@@ -34,7 +30,7 @@ import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 @ThreadSafe
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class LockManagerImpl implements LockManager, Service, EventListener {
+public class LockManagerImpl implements LockManager {
 
 	private static final Logger LOG =
 			Logger.getLogger(LockManagerImpl.class.getName());
@@ -45,7 +41,7 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 	@DatabaseExecutor
 	private final Executor dbExecutor;
 
-	private final MutableLiveData<Boolean> locked = new MutableLiveData<>();
+	private volatile boolean locked = false;
 	private final MutableLiveData<Boolean> lockable = new MutableLiveData<>();
 
 	@Inject
@@ -57,56 +53,8 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 		this.notificationManager = notificationManager;
 		this.dbExecutor = dbExecutor;
 
-		// setting these in the constructor makes #getValue() @NonNull
-		this.locked.setValue(false);
+		// setting this in the constructor makes #getValue() @NonNull
 		this.lockable.setValue(false);
-	}
-
-	@Override
-	public void startService() {
-		lockable.observeForever(this::onLockableChanged);
-		if (hasScreenLock(appContext)) {
-			loadLockableSetting();
-		} else {
-			lockable.postValue(false);
-		}
-	}
-
-	@Override
-	public void stopService() {
-		lockable.removeObserver(this::onLockableChanged);
-	}
-
-	@Override
-	public void eventOccurred(Event event) {
-		if (event instanceof SettingsUpdatedEvent) {
-			SettingsUpdatedEvent e = (SettingsUpdatedEvent) event;
-			String namespace = e.getNamespace();
-			if (namespace.equals(SETTINGS_NAMESPACE)) {
-				loadLockableSetting();
-			}
-		}
-	}
-
-	private void loadLockableSetting() {
-		dbExecutor.execute(() -> {
-			try {
-				Settings settings =
-						settingsManager.getSettings(SETTINGS_NAMESPACE);
-				boolean lockable =
-						settings.getBoolean(PREF_SCREEN_LOCK, false);
-				boolean newValue = hasScreenLock(appContext) && lockable;
-				this.lockable.postValue(newValue);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				this.lockable.postValue(false);
-			}
-		});
-	}
-
-	private void onLockableChanged(boolean lockable) {
-		notificationManager
-				.updateForegroundNotification(lockable, locked.getValue());
 	}
 
 	@Override
@@ -116,23 +64,33 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 
 	@UiThread
 	@Override
-	public void recheckLockable() {
-		boolean oldValue = this.lockable.getValue();
-		boolean newValue = hasScreenLock(appContext) && lockable.getValue();
-		if (oldValue != newValue) {
-			this.lockable.setValue(newValue);
-		}
+	public void checkIfLockable() {
+		boolean oldValue = lockable.getValue();
+		dbExecutor.execute(() -> {
+			try {
+				Settings settings =
+						settingsManager.getSettings(SETTINGS_NAMESPACE);
+				boolean lockable =
+						settings.getBoolean(PREF_SCREEN_LOCK, false);
+				boolean newValue = hasScreenLock(appContext) && lockable;
+				if (oldValue != newValue) {
+					this.lockable.postValue(newValue);
+				}
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+				this.lockable.postValue(false);
+			}
+		});
 	}
 
 	@Override
-	public LiveData<Boolean> isLocked() {
+	public boolean isLocked() {
 		return locked;
 	}
 
 	@Override
 	public void setLocked(boolean locked) {
-		this.locked.setValue(locked);
-		notificationManager
-				.updateForegroundNotification(lockable.getValue(), locked);
+		this.locked = locked;
+		notificationManager.updateForegroundNotification(locked);
 	}
 }

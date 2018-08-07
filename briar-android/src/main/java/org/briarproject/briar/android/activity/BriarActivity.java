@@ -70,33 +70,20 @@ public abstract class BriarActivity extends BaseActivity {
 		if (!briarController.accountSignedIn() && !isFinishing()) {
 			Intent i = new Intent(this, PasswordActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
-		} else if (lockManager.isLocked().getValue()) {
+		} else if (lockManager.isLocked()) {
 			Intent i = new Intent(this, UnlockActivity.class);
 			startActivityForResult(i, REQUEST_UNLOCK);
-		} else {
-			lockManager.isLocked().observe(this, locked -> {
-				if (locked != null && locked) moveTaskToBack(true);
-			});
-			lockManager.recheckLockable();
-			if (SDK_INT >= 23) {
-				briarController.hasDozed(new UiResultHandler<Boolean>(this) {
-					@Override
-					public void onResultUi(Boolean result) {
-						if (result) {
-							showDozeDialog(getString(R.string.warning_dozed,
-									getString(R.string.app_name)));
-						}
+		} else if (SDK_INT >= 23) {
+			briarController.hasDozed(new UiResultHandler<Boolean>(this) {
+				@Override
+				public void onResultUi(Boolean result) {
+					if (result) {
+						showDozeDialog(getString(R.string.warning_dozed,
+								getString(R.string.app_name)));
 					}
-				});
-			}
+				}
+			});
 		}
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-		// only react to lock changes while in foreground
-		lockManager.isLocked().removeObservers(this);
 	}
 
 	public void setSceneTransitionAnimation() {

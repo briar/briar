@@ -35,7 +35,6 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.ConversationActivity;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
-import org.briarproject.briar.android.login.UnlockActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
@@ -277,12 +276,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@UiThread
 	@Override
 	public Notification getForegroundNotification() {
-		return getForegroundNotification(false, false);
+		return getForegroundNotification(false);
 	}
 
 	@UiThread
-	private Notification getForegroundNotification(boolean lockable,
-			boolean locked) {
+	private Notification getForegroundNotification(boolean locked) {
 		int title = locked ? R.string.lock_is_locked :
 				R.string.ongoing_notification_title;
 		int text = locked ? R.string.lock_tap_to_unlock :
@@ -304,24 +302,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			b.setVisibility(VISIBILITY_SECRET);
 		}
 		b.setPriority(PRIORITY_MIN);
-
-		// Add a 'Lock' action
-		if (lockable && !locked) {
-			String actionTitle = appContext.getString(R.string.lock_lock);
-			Intent i1 = new Intent(appContext, UnlockActivity.class);
-			i1.setAction(ACTION_LOCK);
-			PendingIntent actionIntent =
-					PendingIntent.getActivity(appContext, 0, i1, 0);
-			b.addAction(R.drawable.startup_lock, actionTitle, actionIntent);
-		}
 		return b.build();
 	}
 
 	@UiThread
 	@Override
-	public void updateForegroundNotification(boolean lockable,
-			boolean locked) {
-		Notification n = getForegroundNotification(lockable, locked);
+	public void updateForegroundNotification(boolean locked) {
+		Notification n = getForegroundNotification(locked);
 		notificationManager.notify(ONGOING_NOTIFICATION_ID, n);
 	}
 
