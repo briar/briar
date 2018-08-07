@@ -164,7 +164,7 @@
   <string name="change_password">Cheñch ar ger-tremen</string>
   <string name="confirm_new_password">Kadarnaat ar ger-tremen nevez</string>
   <string name="panic_app_setting_none">Hini ebet</string>
-  <string name="lock_setting_title">Digevreañ</string>
+  <string name="panic_setting_signout_title">Digevreañ</string>
   <!--Settings Notifications-->
   <string name="notify_sound_setting_disabled">Hini ebet</string>
   <!--Settings Feedback-->

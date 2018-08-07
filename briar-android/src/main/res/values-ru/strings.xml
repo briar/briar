@@ -363,8 +363,8 @@
   <string name="panic_app_setting_none">Нет</string>
   <string name="dialog_title_connect_panic_app">Подтвердить приложение тревожной кнопки</string>
   <string name="dialog_message_connect_panic_app">Вы уверены, что хотите разрешить %1$s запускать действия тревожной кнопки?</string>
-  <string name="lock_setting_title">Выйти</string>
-  <string name="lock_setting_summary">Выйти из Briar, если нажата тревожная кнопка</string>
+  <string name="panic_setting_signout_title">Выйти</string>
+  <string name="panic_setting_signout_summary">Выйти из Briar, если нажата тревожная кнопка</string>
   <string name="purge_setting_title">Удалить аккаунт</string>
   <string name="purge_setting_summary">Удалить вашу учетную запись Briar при нажатии тревожной кнопки. Внимание: это необратимо удалит ваши идентификаторы, контакты и сообщения</string>
   <string name="uninstall_setting_title">Удалить Briar</string>

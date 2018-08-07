@@ -4,14 +4,18 @@ import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
+import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
+import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.LockManager;
 
@@ -30,10 +34,10 @@ import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 @ThreadSafe
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class LockManagerImpl implements LockManager, Service {
+public class LockManagerImpl implements LockManager, Service, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(LockManagerImpl.class.getSimpleName());
+			Logger.getLogger(LockManagerImpl.class.getName());
 
 	private final Context appContext;
 	private final SettingsManager settingsManager;
@@ -53,6 +57,7 @@ public class LockManagerImpl implements LockManager, Service {
 		this.notificationManager = notificationManager;
 		this.dbExecutor = dbExecutor;
 
+		// setting these in the constructor makes #getValue() @NonNull
 		this.locked.setValue(false);
 		this.lockable.setValue(false);
 	}
@@ -61,17 +66,7 @@ public class LockManagerImpl implements LockManager, Service {
 	public void startService() {
 		lockable.observeForever(this::onLockableChanged);
 		if (hasScreenLock(appContext)) {
-			dbExecutor.execute(() -> {
-				try {
-					Settings settings =
-							settingsManager.getSettings(SETTINGS_NAMESPACE);
-					boolean lockable =
-							settings.getBoolean(PREF_SCREEN_LOCK, false);
-					this.lockable.postValue(lockable);
-				} catch (DbException e) {
-					logException(LOG, WARNING, e);
-				}
-			});
+			loadLockableSetting();
 		} else {
 			lockable.postValue(false);
 		}
@@ -80,6 +75,33 @@ public class LockManagerImpl implements LockManager, Service {
 	@Override
 	public void stopService() {
 		lockable.removeObserver(this::onLockableChanged);
+	}
+
+	@Override
+	public void eventOccurred(Event event) {
+		if (event instanceof SettingsUpdatedEvent) {
+			SettingsUpdatedEvent e = (SettingsUpdatedEvent) event;
+			String namespace = e.getNamespace();
+			if (namespace.equals(SETTINGS_NAMESPACE)) {
+				loadLockableSetting();
+			}
+		}
+	}
+
+	private void loadLockableSetting() {
+		dbExecutor.execute(() -> {
+			try {
+				Settings settings =
+						settingsManager.getSettings(SETTINGS_NAMESPACE);
+				boolean lockable =
+						settings.getBoolean(PREF_SCREEN_LOCK, false);
+				boolean newValue = hasScreenLock(appContext) && lockable;
+				this.lockable.postValue(newValue);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+				this.lockable.postValue(false);
+			}
+		});
 	}
 
 	private void onLockableChanged(boolean lockable) {
@@ -92,19 +114,11 @@ public class LockManagerImpl implements LockManager, Service {
 		return lockable;
 	}
 
+	@UiThread
 	@Override
 	public void recheckLockable() {
 		boolean oldValue = this.lockable.getValue();
 		boolean newValue = hasScreenLock(appContext) && lockable.getValue();
-		if (oldValue != newValue) {
-			this.lockable.setValue(newValue);
-		}
-	}
-
-	@Override
-	public void updateLockableSetting(boolean lockable) {
-		boolean oldValue = this.lockable.getValue();
-		boolean newValue = hasScreenLock(appContext) && lockable;
 		if (oldValue != newValue) {
 			this.lockable.setValue(newValue);
 		}

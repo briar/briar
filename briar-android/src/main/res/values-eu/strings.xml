@@ -343,8 +343,8 @@
   <string name="panic_app_setting_none">Bat ere ez</string>
   <string name="dialog_title_connect_panic_app">Berretsi larrialdi-aplikazioa</string>
   <string name="dialog_message_connect_panic_app">Ziur %1$s baimendu nahi duzula larrialdi botoiaren ekintza suntsitzaileak burutzea?</string>
-  <string name="lock_setting_title">Amaitu saioa</string>
-  <string name="lock_setting_summary">Amaitu saioa larrialdi botoia zapaltzen bada</string>
+  <string name="panic_setting_signout_title">Amaitu saioa</string>
+  <string name="panic_setting_signout_summary">Amaitu saioa larrialdi botoia zapaltzen bada</string>
   <string name="purge_setting_title">Ezabatu kontua</string>
   <string name="purge_setting_summary">Ezabatu kontua Briar larrialdi botoia zapaltzen bada. Kontuz: Honek behin betiko ezabatuko ditu zure identitateak, kontaktuak eta mezuak</string>
   <string name="uninstall_setting_title">Desinstalatu Briar</string>

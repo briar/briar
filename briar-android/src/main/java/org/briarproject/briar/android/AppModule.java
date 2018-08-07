@@ -205,8 +205,9 @@ public class AppModule {
 	@Provides
 	@Singleton
 	LockManager provideLockManager(LifecycleManager lifecycleManager,
-			LockManagerImpl lockManager) {
+			EventBus eventBus, LockManagerImpl lockManager) {
 		lifecycleManager.registerService(lockManager);
+		eventBus.addListener(lockManager);
 		return lockManager;
 	}
 

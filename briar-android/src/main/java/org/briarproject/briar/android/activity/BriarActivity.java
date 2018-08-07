@@ -35,7 +35,6 @@ import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSW
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_UNLOCK;
 import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingIntent;
 import static org.briarproject.briar.android.util.UiUtils.isSamsung7;
-import static org.briarproject.briar.android.util.UiUtils.showAndroidHomeScreen;
 
 @SuppressLint("Registered")
 public abstract class BriarActivity extends BaseActivity {
@@ -71,12 +70,12 @@ public abstract class BriarActivity extends BaseActivity {
 		if (!briarController.accountSignedIn() && !isFinishing()) {
 			Intent i = new Intent(this, PasswordActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
-		} else if(lockManager.isLocked().getValue()) {
+		} else if (lockManager.isLocked().getValue()) {
 			Intent i = new Intent(this, UnlockActivity.class);
 			startActivityForResult(i, REQUEST_UNLOCK);
 		} else {
 			lockManager.isLocked().observe(this, locked -> {
-				if (locked != null && locked) showAndroidHomeScreen(this);
+				if (locked != null && locked) moveTaskToBack(true);
 			});
 			lockManager.recheckLockable();
 			if (SDK_INT >= 23) {

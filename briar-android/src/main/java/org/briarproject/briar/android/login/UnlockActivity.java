@@ -22,7 +22,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_UNLOCK;
-import static org.briarproject.briar.android.util.UiUtils.showAndroidHomeScreen;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ACTION_LOCK;
 
 @RequiresApi(21)
@@ -61,7 +60,7 @@ public class UnlockActivity extends BaseActivity {
 
 	@Override
 	public void onBackPressed() {
-		showAndroidHomeScreen(this);
+		moveTaskToBack(true);
 	}
 
 	@Override

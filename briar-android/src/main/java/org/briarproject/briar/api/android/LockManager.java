@@ -1,14 +1,14 @@
 package org.briarproject.briar.api.android;
 
 import android.arch.lifecycle.LiveData;
+import android.support.annotation.UiThread;
 
 public interface LockManager {
 
 	LiveData<Boolean> isLockable();
 
+	@UiThread
 	void recheckLockable();
-
-	void updateLockableSetting(boolean lockable);
 
 	LiveData<Boolean>  isLocked();
 

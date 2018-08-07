@@ -41,7 +41,6 @@ import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.util.UserFeedback;
-import org.briarproject.briar.api.android.LockManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -142,8 +141,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	volatile EventBus eventBus;
 
 	@Inject
-	LockManager lockManager;
-	@Inject
 	AndroidExecutor androidExecutor;
 
 	@Override
@@ -183,8 +180,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		notifyLockscreen = (CheckBoxPreference) findPreference(
 				"pref_key_notify_lock_screen");
 		notifySound = findPreference("pref_key_notify_sound");
-
-		setSettingsEnabled(false);
 
 		language.setOnPreferenceChangeListener(this);
 		theme.setOnPreferenceChangeListener((preference, newValue) -> {
@@ -239,7 +234,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			testing.setVisible(false);
 		}
 
-		loadSettings();
 	}
 
 	@Override
@@ -256,7 +250,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void onStart() {
 		super.onStart();
 		eventBus.addListener(this);
-		updateScreenLockSetting(settings != null);
+		setSettingsEnabled(false);
+		loadSettings();
 	}
 
 	@Override
@@ -365,13 +360,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			enableBluetooth.setValue(Boolean.toString(btSetting));
 			torNetwork.setValue(Integer.toString(torNetworkSetting));
 			torBlocked.setChecked(torBlockedSetting);
+			displayScreenLockSetting();
 
-			if (SDK_INT >= 21) {
-				boolean screenLockable =
-						settings.getBoolean(PREF_SCREEN_LOCK, false);
-				screenLock.setChecked(
-						screenLockable && hasScreenLock(getActivity()));
-			}
 			if (SDK_INT < 26) {
 				notifyPrivateMessages.setChecked(settings.getBoolean(
 						PREF_NOTIFY_PRIVATE, true));
@@ -428,10 +418,11 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		// preferences not needed here, because handled by SharedPreferences:
 		// - pref_key_theme
 		// - pref_key_notify_sign_in
+		// preferences not needed here, because they have their own logic
+		// - pref_key_lock (screenLock -> displayScreenLockSetting())
 		enableBluetooth.setEnabled(enabled);
 		torNetwork.setEnabled(enabled);
 		torBlocked.setEnabled(enabled);
-		updateScreenLockSetting(enabled);
 		notifyPrivateMessages.setEnabled(enabled);
 		notifyGroupMessages.setEnabled(enabled);
 		notifyForumPosts.setEnabled(enabled);
@@ -441,15 +432,20 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		notifySound.setEnabled(enabled);
 	}
 
-	private void updateScreenLockSetting(boolean enabled) {
+	private void displayScreenLockSetting() {
 		if (SDK_INT < 21) {
 			screenLock.setVisible(false);
-		} else if (enabled && hasScreenLock(getActivity())) {
-			screenLock.setEnabled(true);
 		} else {
-			screenLock.setEnabled(false);
-			screenLock.setChecked(false);
-			screenLock.setSummary(getString(R.string.lock_disabled));
+			if (getActivity() != null && hasScreenLock(getActivity())) {
+				screenLock.setEnabled(true);
+				screenLock.setChecked(
+						settings.getBoolean(PREF_SCREEN_LOCK, false));
+				screenLock.setSummary(R.string.pref_lock_summary);
+			} else {
+				screenLock.setEnabled(false);
+				screenLock.setChecked(false);
+				screenLock.setSummary(R.string.pref_lock_disabled_summary);
+			}
 		}
 	}
 
@@ -509,7 +505,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			boolean torBlockedSetting = (Boolean) newValue;
 			storeTorBlockedSetting(torBlockedSetting);
 		} else if (preference == screenLock) {
-			lockManager.updateLockableSetting((Boolean) newValue);
 			Settings s = new Settings();
 			s.putBoolean(PREF_SCREEN_LOCK, (Boolean) newValue);
 			storeSettings(s);

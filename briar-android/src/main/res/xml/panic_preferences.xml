@@ -12,8 +12,8 @@
 		android:defaultValue="true"
 		android:enabled="false"
 		android:key="pref_key_lock"
-		android:summary="@string/lock_setting_summary"
-		android:title="@string/lock_setting_title"/>
+		android:summary="@string/panic_setting_signout_summary"
+		android:title="@string/panic_setting_signout_title"/>
 
 	<CheckBoxPreference
 		android:defaultValue="false"

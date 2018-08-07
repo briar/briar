@@ -321,11 +321,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Override
 	public void updateForegroundNotification(boolean lockable,
 			boolean locked) {
-		NotificationManager nm = (NotificationManager) appContext
-				.getSystemService(NOTIFICATION_SERVICE);
-		assert nm != null;
 		Notification n = getForegroundNotification(lockable, locked);
-		nm.notify(ONGOING_NOTIFICATION_ID, n);
+		notificationManager.notify(ONGOING_NOTIFICATION_ID, n);
 	}
 
 	private void showContactNotification(ContactId c) {

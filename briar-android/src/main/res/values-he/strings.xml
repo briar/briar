@@ -239,7 +239,7 @@
   <string name="security_settings_title">אבטחה</string>
   <string name="choose_new_password">סיסמא חדשה</string>
   <string name="panic_app_setting_none">כלום</string>
-  <string name="lock_setting_title">יציאה</string>
+  <string name="panic_setting_signout_title">יציאה</string>
   <string name="purge_setting_title">מחק חשבון</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">הודעות מערכת</string>

@@ -341,8 +341,8 @@
   <string name="panic_app_setting_none">Ningún</string>
   <string name="dialog_title_connect_panic_app">Confirme a App do pánico</string>
   <string name="dialog_message_connect_panic_app">Está segura de querer permitir a %1$s activar accións destrutivas do botón do pánico?</string>
-  <string name="lock_setting_title">Finalizar sesión</string>
-  <string name="lock_setting_summary">Desconecte de Briar si o botón do pánico se preme</string>
+  <string name="panic_setting_signout_title">Finalizar sesión</string>
+  <string name="panic_setting_signout_summary">Desconecte de Briar si o botón do pánico se preme</string>
   <string name="purge_setting_title">Eliminar conta</string>
   <string name="purge_setting_summary">Elimina a súa conta en Briar si se preme o botón do pánico. Coidado: Esto eliminará permanentemente as súas identidade, contactos e mensaxes</string>
   <string name="uninstall_setting_title">Desinstalar Briar</string>

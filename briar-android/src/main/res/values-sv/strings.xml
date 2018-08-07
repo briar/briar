@@ -129,8 +129,8 @@
   <string name="choose_new_password">Nytt lösenord</string>
   <string name="confirm_new_password">Bekräfta nytt lösenord</string>
   <string name="panic_app_setting_none">Ingen</string>
-  <string name="lock_setting_title">Logga ut</string>
-  <string name="lock_setting_summary">Logga ut från Briar om panikknappen tryckts</string>
+  <string name="panic_setting_signout_title">Logga ut</string>
+  <string name="panic_setting_signout_summary">Logga ut från Briar om panikknappen tryckts</string>
   <string name="purge_setting_title">Radera kontot</string>
   <string name="uninstall_setting_title">Avinstallera Briar</string>
   <!--Settings Notifications-->

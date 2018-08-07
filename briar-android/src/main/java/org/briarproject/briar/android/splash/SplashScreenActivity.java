@@ -50,8 +50,9 @@ public class SplashScreenActivity extends BaseActivity {
 		if (accountManager.hasDatabaseKey()) {
 			Intent i;
 			if (lockManager.isLocked().getValue()) {
-				// The database is already open, so start main activity which
-				// will open the activity to unlock, then brings main to front.
+				// The database needs to be opened for the app to be locked.
+				// Start main activity right away. It will open UnlockActivity.
+				// Otherwise, we would end up with two screen unlock inputs.
 				i = new Intent(this, NavDrawerActivity.class);
 			} else {
 				i = new Intent(this, OpenDatabaseActivity.class);
