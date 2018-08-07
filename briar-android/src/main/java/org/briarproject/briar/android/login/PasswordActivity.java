@@ -23,8 +23,6 @@ import org.briarproject.briar.api.android.AndroidNotificationManager;
 
 import javax.inject.Inject;
 
-import static android.content.Intent.ACTION_MAIN;
-import static android.content.Intent.CATEGORY_HOME;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.view.View.INVISIBLE;
@@ -110,10 +108,8 @@ public class PasswordActivity extends BaseActivity {
 
 	@Override
 	public void onBackPressed() {
-		// Show the home screen rather than another password prompt
-		Intent intent = new Intent(ACTION_MAIN);
-		intent.addCategory(CATEGORY_HOME);
-		startActivity(intent);
+		// Move the whole task to the back, don't show another password prompt
+		moveTaskToBack(true);
 	}
 
 	private void deleteAccount() {
