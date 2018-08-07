@@ -65,7 +65,6 @@ import javax.inject.Inject;
 import static android.app.Notification.DEFAULT_LIGHTS;
 import static android.app.Notification.DEFAULT_SOUND;
 import static android.app.Notification.DEFAULT_VIBRATE;
-import static android.app.Notification.VISIBILITY_SECRET;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.app.NotificationManager.IMPORTANCE_LOW;
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -75,6 +74,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.CATEGORY_MESSAGE;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SOCIAL;
 import static android.support.v4.app.NotificationCompat.PRIORITY_LOW;
+import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
@@ -623,13 +623,12 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	public void showSignInNotification() {
 		if (blockSignInReminder) return;
 		if (SDK_INT >= 26) {
+			String title = appContext
+					.getString(R.string.reminder_notification_channel_title);
 			NotificationChannel channel =
-					new NotificationChannel(REMINDER_CHANNEL_ID, appContext
-							.getString(
-									R.string.reminder_notification_channel_title),
+					new NotificationChannel(REMINDER_CHANNEL_ID, title,
 							IMPORTANCE_LOW);
-			channel.setLockscreenVisibility(
-					NotificationCompat.VISIBILITY_SECRET);
+			channel.setLockscreenVisibility(VISIBILITY_SECRET);
 			notificationManager.createNotificationChannel(channel);
 		}
 
