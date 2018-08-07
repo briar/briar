@@ -60,8 +60,9 @@ public class UnlockActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode,
 			Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == REQUEST_UNLOCK && resultCode == RESULT_OK) {
-			unlock();
+		if (requestCode == REQUEST_UNLOCK) {
+			if (resultCode == RESULT_OK) unlock();
+			else finish();
 		}
 	}
 
@@ -78,6 +79,7 @@ public class UnlockActivity extends BaseActivity {
 			unlock();
 		} else {
 			startActivityForResult(intent, REQUEST_UNLOCK);
+			overridePendingTransition(0, 0);
 		}
 	}
 
