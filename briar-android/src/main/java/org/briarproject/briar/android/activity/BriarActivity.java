@@ -61,7 +61,7 @@ public abstract class BriarActivity extends BaseActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		if (!briarController.accountSignedIn() && !isFinishing()) {
+		if (!briarController.accountSignedIn()) {
 			Intent i = new Intent(this, PasswordActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
 		} else if (SDK_INT >= 23) {
