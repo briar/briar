@@ -56,7 +56,7 @@ class IntroduceeProtocolEngine
 		extends AbstractProtocolEngine<IntroduceeSession> {
 
 	private final static Logger LOG =
-			Logger.getLogger(IntroduceeProtocolEngine.class.getSimpleName());
+			Logger.getLogger(IntroduceeProtocolEngine.class.getName());
 
 	private final IntroductionCrypto crypto;
 	private final KeyManager keyManager;

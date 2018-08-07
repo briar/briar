@@ -17,7 +17,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 @ParametersNotNullByDefault
 public class ErrorFragment extends BaseFragment {
 
-	private static final String TAG = ErrorFragment.class.getSimpleName();
+	private static final String TAG = ErrorFragment.class.getName();
 
 	private static final String ERROR_MSG = "errorMessage";
 
