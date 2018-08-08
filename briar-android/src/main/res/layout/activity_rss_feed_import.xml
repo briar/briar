@@ -1,23 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical"
 	android:padding="@dimen/margin_small"
-	tools:context=".android.blogs.RssFeedImportActivity">
+	tools:context=".android.blog.RssFeedImportActivity">
 
-	<EditText
-		android:id="@+id/urlInput"
+	<android.support.v7.widget.CardView
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
 		android:layout_weight="1"
-		android:gravity="top"
-		android:hint="@string/blogs_rss_feeds_import_hint"
-		android:inputType="textUri"
-		android:paddingLeft="@dimen/margin_large"
-		android:paddingRight="@dimen/margin_large"/>
+		android:elevation="@dimen/cardview_default_elevation"
+		app:cardBackgroundColor="@color/card_background"
+		app:cardCornerRadius="0dp"
+		app:cardUseCompatPadding="false">
+
+		<EditText
+			android:id="@+id/urlInput"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="@android:color/transparent"
+			android:gravity="top"
+			android:hint="@string/blogs_rss_feeds_import_hint"
+			android:inputType="textUri"
+			android:padding="@dimen/margin_medium"
+			android:textColor="?android:attr/textColorPrimary"/>
+
+	</android.support.v7.widget.CardView>
 
 	<Button
 		android:id="@+id/importButton"

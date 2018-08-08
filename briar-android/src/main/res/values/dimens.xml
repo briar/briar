@@ -41,6 +41,7 @@
 	<dimen name="message_bubble_margin_tail">3dp</dimen>
 	<dimen name="message_bubble_margin_non_tail">30dp</dimen>
 	<dimen name="message_bubble_timestamp_margin">7dp</dimen>
+
 	<dimen name="forum_nested_line_width">2dp</dimen>
 	<dimen name="forum_nested_indicator">24dp</dimen>
 

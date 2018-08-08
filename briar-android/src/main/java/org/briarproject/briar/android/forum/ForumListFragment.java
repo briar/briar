@@ -103,7 +103,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
 		snackbar.setAction(R.string.show, this);
 		snackbar.setActionTextColor(ContextCompat
-				.getColor(getContext(), R.color.briar_button_positive));
+				.getColor(getContext(), R.color.briar_button_text_positive));
 
 		return contentView;
 	}

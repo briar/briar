@@ -9,6 +9,7 @@
 		<item name="titleTextAppearance">@style/BriarToolbarTitleTextAppearance</item>
 		<item name="subtitleTextAppearance">@style/BriarToolbarSubTitleTextAppearance</item>
 		<item name="android:theme">@style/BriarToolbarTheme</item>
+		<item name="popupTheme">@style/PopupMenu</item>
 	</style>
 
 	<style name="BriarToolbarTheme">
@@ -23,11 +24,17 @@
 		<item name="android:textColor">@color/briar_text_secondary_inverse</item>
 	</style>
 
-	<style name="BriarButton.Default">
-		<item name="android:textAllCaps">true</item>
+	<style name="PopupMenu" parent="Theme.AppCompat.DayNight.DarkActionBar">
+		<item name="android:colorBackground">@color/window_background</item>
+	</style>
+
+	<style name="ButtonTheme" parent="Theme.AppCompat.DayNight">
+		<!-- A strange hack needed only to override button color on all API levels -->
+		<item name="colorAccent">@color/briar_button_background_color</item>
 	</style>
 
 	<style name="BriarButton" parent="Widget.AppCompat.Button.Colored">
+		<item name="android:theme">@style/ButtonTheme</item>
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
@@ -36,17 +43,17 @@
 	</style>
 
 	<style name="BriarButtonFlat.Negative" parent="Widget.AppCompat.Button.Borderless">
-		<item name="android:textColor">@color/briar_button_negative</item>
+		<item name="android:textColor">@color/briar_button_text_negative</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
 	</style>
 
 	<style name="BriarButtonFlat.Positive" parent="Widget.AppCompat.Button.Borderless">
-		<item name="android:textColor">@color/briar_button_positive</item>
+		<item name="android:textColor">@color/briar_button_text_positive</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
 	</style>
 
 	<style name="BriarButtonFlat.Neutral" parent="Widget.AppCompat.Button.Borderless">
-		<item name="android:textColor">@color/briar_button_neutral</item>
+		<item name="android:textColor">@color/briar_button_text_neutral</item>
 		<item name="android:textSize">@dimen/text_size_medium</item>
 	</style>
 
@@ -67,8 +74,8 @@
 
 	<style name="Divider.ContactList" parent="Divider">
 		<item name="android:layout_width">match_parent</item>
-		<item name="android:layout_height">1dp</item>
-		<item name="android:layout_marginLeft">@dimen/margin_large</item>
+		<item name="android:layout_height">1px</item>
+		<item name="android:layout_marginLeft">72dp</item>
 	</style>
 
 	<style name="Divider.ThreadItem" parent="Divider">
@@ -79,6 +86,26 @@
 	<style name="BriarAvatar">
 		<item name="civ_border_width">@dimen/avatar_border_width</item>
 		<item name="civ_border_color">?android:attr/textColorSecondary</item>
+	</style>
+
+	<style name="TextMessage">
+		<item name="android:textIsSelectable">true</item>
+		<item name="android:textSize">@dimen/text_size_medium</item>
+		<item name="android:textColor">?android:attr/textColorPrimary</item>
+	</style>
+
+	<style name="TextMessage.Notice">
+		<item name="android:textIsSelectable">true</item>
+		<item name="android:textSize">@dimen/text_size_small</item>
+		<item name="android:textColor">?android:attr/textColorSecondary</item>
+		<item name="android:textStyle">italic</item>
+	</style>
+
+	<style name="TextMessage.Timestamp">
+		<item name="android:textIsSelectable">false</item>
+		<item name="android:textSize">@dimen/text_size_tiny</item>
+		<item name="android:textColor">?android:attr/textColorTertiary</item>
+		<item name="android:maxLines">1</item>
 	</style>
 
 	<style name="DiscussionLevelIndicator">

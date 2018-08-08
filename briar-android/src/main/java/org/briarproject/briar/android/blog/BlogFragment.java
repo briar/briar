@@ -335,7 +335,7 @@ public class BlogFragment extends BaseFragment
 			View.OnClickListener onClick = v -> list.smoothScrollToPosition(0);
 			snackbar.setActionTextColor(ContextCompat
 					.getColor(getContext(),
-							R.color.briar_button_positive));
+							R.color.briar_button_text_positive));
 			snackbar.setAction(R.string.blogs_blog_post_scroll_to, onClick);
 		}
 		snackbar.show();

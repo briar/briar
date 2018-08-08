@@ -12,22 +12,20 @@
 
 	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 		android:id="@+id/text"
+		style="@style/TextMessage"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:textColor="?android:attr/textColorPrimary"
-		android:textIsSelectable="true"
-		android:textSize="@dimen/text_size_medium"
 		tools:text="Short message"/>
 
 	<TextView
 		android:id="@+id/time"
+		style="@style/TextMessage.Timestamp"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="right|end"
 		android:layout_marginTop="@dimen/message_bubble_timestamp_margin"
-		android:maxLines="1"
 		android:textColor="?android:attr/textColorSecondary"
-		android:textSize="@dimen/text_size_tiny"
 		tools:text="Dec 24, 13:37"/>
 
 </LinearLayout>

@@ -9,14 +9,13 @@
 
 	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 		android:id="@+id/msgText"
+		style="@style/TextMessage"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginLeft="@dimen/message_bubble_margin_non_tail"
 		android:layout_marginRight="@dimen/message_bubble_margin_tail"
 		android:background="@drawable/msg_out_top"
 		android:textColor="@color/briar_text_primary_inverse"
-		android:textIsSelectable="true"
-		android:textSize="@dimen/text_size_medium"
 		tools:text="This is a long long long message that spans over several lines.\n\nIt ends here."/>
 
 	<RelativeLayout
@@ -29,16 +28,15 @@
 
 		<org.thoughtcrime.securesms.components.emoji.EmojiTextView
 			android:id="@+id/text"
+			style="@style/TextMessage.Notice"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:textColor="?android:attr/textColorSecondary"
-			android:textIsSelectable="true"
-			android:textSize="@dimen/text_size_medium"
-			android:textStyle="italic"
 			tools:text="@string/introduction_request_received"/>
 
 		<TextView
 			android:id="@+id/time"
+			style="@style/TextMessage.Timestamp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
@@ -46,7 +44,6 @@
 			android:layout_below="@+id/text"
 			android:layout_marginTop="@dimen/message_bubble_timestamp_margin"
 			android:textColor="?android:attr/textColorTertiary"
-			android:textSize="@dimen/text_size_tiny"
 			tools:text="Dec 24, 13:37"/>
 
 		<android.support.v7.widget.AppCompatImageView

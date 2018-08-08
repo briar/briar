@@ -250,7 +250,7 @@ public class FeedFragment extends BaseFragment implements
 			OnClickListener onClick = v -> list.smoothScrollToPosition(0);
 			s.setActionTextColor(ContextCompat
 					.getColor(getContext(),
-							R.color.briar_button_positive));
+							R.color.briar_button_text_positive));
 			s.setAction(R.string.blogs_blog_post_scroll_to, onClick);
 		}
 		s.show();

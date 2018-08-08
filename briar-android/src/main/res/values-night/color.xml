@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
 	<color name="briar_primary">@color/briar_blue_dark</color>
 	<color name="briar_accent">@color/briar_green</color>
 
 	<color name="preference_category">@color/briar_accent</color>
-	<color name="preference_category_background">@color/divider</color>
+	<color name="preference_category_background">@color/briar_black_almost</color>
 
-	<color name="color_primary">#ffffff</color>
+	<color name="color_primary">@color/briar_white</color>
 
 	<color name="window_background">@color/briar_blue_very_dark</color>
 	<color name="card_background">@color/briar_blue_dark</color>
 	<color name="item_background_highlight">@color/briar_blue</color>
-	<color name="divider">#000000</color>
 
-	<color name="briar_button_neutral">@color/briar_link</color>
+	<color name="briar_button_background_color">@color/briar_blue_medium</color>
+	<color name="briar_button_text_neutral">@color/briar_blue_light</color>
 	<color name="briar_button_text_disabled">#23cccccc</color>
 
+	<color name="thread_indicator">@color/briar_blue</color>
 	<color name="thread_item_background">@color/window_background</color>
-	<color name="thread_item_highlight">#000000</color>
+	<color name="thread_item_highlight">@color/briar_black</color>
 
+	<color name="divider">@color/briar_black</color>
 </resources>

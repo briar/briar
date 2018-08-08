@@ -10,7 +10,7 @@
 		android:layout_width="@dimen/avatar_forum_size"
 		android:layout_height="@dimen/avatar_forum_size"
 		android:layout_gravity="bottom|left"
-		android:src="@color/briar_button_positive"/>
+		android:src="@color/briar_button_text_positive"/>
 
 	<android.support.v7.widget.AppCompatTextView
 		android:id="@+id/textAvatarView"
