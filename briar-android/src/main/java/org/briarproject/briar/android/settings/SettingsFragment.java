@@ -418,11 +418,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		// preferences not needed here, because handled by SharedPreferences:
 		// - pref_key_theme
 		// - pref_key_notify_sign_in
-		// preferences not needed here, because they have their own logic
+		// preferences partly needed here, because they have their own logic
 		// - pref_key_lock (screenLock -> displayScreenLockSetting())
 		enableBluetooth.setEnabled(enabled);
 		torNetwork.setEnabled(enabled);
 		torBlocked.setEnabled(enabled);
+		if (!enabled) screenLock.setEnabled(false);
 		notifyPrivateMessages.setEnabled(enabled);
 		notifyGroupMessages.setEnabled(enabled);
 		notifyForumPosts.setEnabled(enabled);

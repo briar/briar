@@ -60,6 +60,7 @@ public abstract class BriarActivity extends BaseActivity {
 			if (result == RESULT_OK) briarController.startAndBindService();
 			else supportFinishAfterTransition();
 		} else if (request == REQUEST_UNLOCK) {
+			// if we don't finish here, we will enter onStart()
 			if (result != RESULT_OK) supportFinishAfterTransition();
 		}
 	}
@@ -73,7 +74,6 @@ public abstract class BriarActivity extends BaseActivity {
 		} else if (lockManager.isLocked()) {
 			Intent i = new Intent(this, UnlockActivity.class);
 			startActivityForResult(i, REQUEST_UNLOCK);
-			overridePendingTransition(0, 0);
 		} else if (SDK_INT >= 23) {
 			briarController.hasDozed(new UiResultHandler<Boolean>(this) {
 				@Override

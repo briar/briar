@@ -13,5 +13,6 @@ public interface RequestCodes {
 	int REQUEST_DOZE_WHITELISTING = 9;
 	int REQUEST_ENABLE_BLUETOOTH = 10;
 	int REQUEST_UNLOCK = 11;
+	int REQUEST_KEYGUARD_UNLOCK = 12;
 
 }
