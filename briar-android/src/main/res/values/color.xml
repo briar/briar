@@ -4,10 +4,7 @@
 	<color name="briar_blue_dark">#222E3C</color>
 	<color name="briar_blue_very_dark">#0F1720</color>
 	<color name="briar_blue_medium">#4F6C8C</color>
-	<color name="briar_blue_elio">#236087</color>
-	<color name="briar_blue_elio_light">#3C80A9</color>
 	<color name="briar_blue_light">#2A93C6</color>
-	<color name="briar_blue_grey">#EBEFF2</color>
 	<color name="briar_green">#5C940D</color>
 	<color name="briar_green_light">#95D220</color>
 	<color name="briar_red">#ff0000</color>
@@ -32,11 +29,6 @@
 	<color name="forum_avatar_shadow">#99000000</color>
 
 	<color name="color_primary">#dd000000</color>
-
-	<color name="msg_in">@color/briar_white</color>
-	<color name="msg_out">@color/briar_blue_elio_light</color>
-	<color name="notice_in">@color/briar_blue_grey</color>
-	<color name="notice_out">@color/briar_blue_elio</color>
 
 	<!-- text colors -->
 	<color name="briar_text_link">@color/briar_blue_light</color>
