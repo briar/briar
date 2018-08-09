@@ -300,8 +300,26 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	private void setBlockedCountries() {
-		List<String> countries = new ArrayList<>(asList(BLOCKED));
-		countries.removeAll(asList(BRIDGES));
+		List<String> countryCodes = new ArrayList<>(asList(BLOCKED));
+		countryCodes.removeAll(asList(BRIDGES));
+		// Look up country names in the user's chosen language if available
+		Locale[] locales = Locale.getAvailableLocales();
+		List<String> countries = new ArrayList<>(countryCodes.size());
+		for (String countryCode : countryCodes) {
+			boolean found = false;
+			for (Locale locale : locales) {
+				if (locale.getCountry().equalsIgnoreCase(countryCode)) {
+					countries.add(locale.getDisplayCountry());
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				if (LOG.isLoggable(INFO))
+					LOG.info("No locale for " + countryCode);
+				countries.add(countryCode);
+			}
+		}
 		Collections.sort(countries);
 		String format = getString(R.string.tor_location_setting_hint_format);
 		torBlocked.setSummary(String.format(format, join(countries, ", ")));
