@@ -296,7 +296,7 @@ android {
 			minSdkVersion 18
 			applicationIdSuffix ".screenshot" // = org.briarproject.briar.android.screenshot.debug
 		}
-		main {
+		official {
 			dimension "version"
 		}
 	}
