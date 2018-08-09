@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_KEYGUARD_UNLOCK;
 
 @RequiresApi(21)
@@ -67,7 +68,8 @@ public class UnlockActivity extends BaseActivity {
 				(KeyguardManager) getSystemService(KEYGUARD_SERVICE);
 		if (keyguardManager == null) throw new AssertionError();
 		Intent intent = keyguardManager.createConfirmDeviceCredentialIntent(
-				getString(R.string.lock_unlock), null);
+				SDK_INT < 23 ? getString(R.string.lock_unlock_verbose) :
+						getString(R.string.lock_unlock), null);
 		if (intent == null) {
 			// the user must have removed the screen lock since locked
 			LOG.warning("Unlocking without keyguard");
