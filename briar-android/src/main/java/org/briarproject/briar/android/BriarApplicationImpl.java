@@ -117,6 +117,7 @@ public class BriarApplicationImpl extends Application
 		BrambleCoreModule.initEagerSingletons(applicationComponent);
 		BriarCoreModule.initEagerSingletons(applicationComponent);
 		AndroidEagerSingletons.initEagerSingletons(applicationComponent);
+		new SleepMonitor().start();
 	}
 
 	@Override

@@ -82,6 +82,7 @@ public class BriarService extends Service {
 
 	private final AtomicBoolean created = new AtomicBoolean(false);
 	private final Binder binder = new BriarBinder();
+	private final BriarBroadcastReceiver testReceiver = new BriarBroadcastReceiver();
 
 	private AlarmManager alarm;
 
@@ -187,11 +188,12 @@ public class BriarService extends Service {
 		filter.addAction("android.intent.action.QUICKBOOT_POWEROFF");
 		filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF");
 		registerReceiver(receiver, filter);
+		registerReceiver(testReceiver, testReceiver.getIntentFilter());
 	}
 
 	private void setAlarm() {
 		PendingIntent pi = getPendingIntent();
-		long millis = getElapsedRealTimeMillis(5000, MILLISECONDS);
+		long millis = getElapsedRealTimeMillis(15000, MILLISECONDS);
 		if (SDK_INT >= 23) {
 			alarm.setExactAndAllowWhileIdle(ELAPSED_REALTIME_WAKEUP,
 					millis, pi);
@@ -282,10 +284,12 @@ public class BriarService extends Service {
 		LOG.info("Destroyed");
 		stopForeground(true);
 		if (receiver != null) unregisterReceiver(receiver);
+		unregisterReceiver(testReceiver);
 		// Stop the services in a background thread
 		new Thread(() -> {
 			if (started) lifecycleManager.stopServices();
 		}).start();
+
 	}
 
 	@Override
