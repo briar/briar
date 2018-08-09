@@ -1,9 +1,8 @@
 package org.briarproject.bramble.system;
 
-import android.app.Application;
-
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
 
 import javax.inject.Singleton;
@@ -16,18 +15,26 @@ public class AndroidSystemModule {
 
 	@Provides
 	@Singleton
-	SecureRandomProvider provideSecureRandomProvider(Application app) {
-		return new AndroidSecureRandomProvider(app);
+	SecureRandomProvider provideSecureRandomProvider(
+			AndroidSecureRandomProvider provider) {
+		return provider;
 	}
 
 	@Provides
-	LocationUtils provideLocationUtils(Application app) {
-		return new AndroidLocationUtils(app);
+	LocationUtils provideLocationUtils(AndroidLocationUtils locationUtils) {
+		return locationUtils;
 	}
 
 	@Provides
 	@Singleton
-	AndroidExecutor provideAndroidExecutor(Application app) {
-		return new AndroidExecutorImpl(app);
+	AndroidExecutor provideAndroidExecutor(
+			AndroidExecutorImpl androidExecutor) {
+		return androidExecutor;
+	}
+
+	@Provides
+	@Singleton
+	ResourceProvider provideResourceProvider(AndroidResourceProvider provider) {
+		return provider;
 	}
 }

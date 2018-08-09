@@ -1,13 +1,10 @@
 package org.briarproject.bramble.plugin.tor;
 
-import android.content.Context;
-import android.content.res.Resources;
-
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.system.ResourceProvider;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
@@ -16,25 +13,26 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-// TODO: Create a module for this so it doesn't need to be public
+import static java.util.Arrays.asList;
 
-public class CircumventionProviderImpl implements CircumventionProvider {
+class CircumventionProviderImpl implements CircumventionProvider {
 
 	private final static String BRIDGE_FILE_NAME = "bridges";
 
-	private final Context ctx;
+	private static final Set<String> BLOCKED_IN_COUNTRIES =
+			new HashSet<>(asList(BLOCKED));
+	private static final Set<String> BRIDGES_WORK_IN_COUNTRIES =
+			new HashSet<>(asList(BRIDGES));
+
+	private final ResourceProvider resourceProvider;
+
 	@Nullable
 	private volatile List<String> bridges = null;
 
 	@Inject
-	public CircumventionProviderImpl(Context ctx) {
-		this.ctx = ctx;
+	CircumventionProviderImpl(ResourceProvider resourceProvider) {
+		this.resourceProvider = resourceProvider;
 	}
-
-	private static final Set<String> BLOCKED_IN_COUNTRIES =
-			new HashSet<>(Arrays.asList(BLOCKED));
-	private static final Set<String> BRIDGES_WORK_IN_COUNTRIES =
-			new HashSet<>(Arrays.asList(BRIDGES));
 
 	@Override
 	public boolean isTorProbablyBlocked(String countryCode) {
@@ -49,15 +47,14 @@ public class CircumventionProviderImpl implements CircumventionProvider {
 	@Override
 	@IoExecutor
 	public List<String> getBridges() {
-		if (this.bridges != null) return this.bridges;
+		List<String> bridges = this.bridges;
+		if (bridges != null) return new ArrayList<>(bridges);
 
-		Resources res = ctx.getResources();
-		int resId = res.getIdentifier(BRIDGE_FILE_NAME, "raw",
-				ctx.getPackageName());
-		InputStream is = ctx.getResources().openRawResource(resId);
+		InputStream is =
+				resourceProvider.getResourceInputStream(BRIDGE_FILE_NAME);
 		Scanner scanner = new Scanner(is);
 
-		List<String> bridges = new ArrayList<>();
+		bridges = new ArrayList<>();
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
 			if (!line.startsWith("#")) bridges.add(line);

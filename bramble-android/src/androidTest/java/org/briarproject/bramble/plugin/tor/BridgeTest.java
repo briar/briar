@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.test.BrambleAndroidIntegrationTestComponent;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.DaggerBrambleAndroidIntegrationTestComponent;
@@ -45,38 +46,23 @@ public class BridgeTest extends BrambleTestCase {
 	@Inject
 	NetworkManager networkManager;
 	@Inject
+	ResourceProvider resourceProvider;
+	@Inject
+	CircumventionProvider circumventionProvider;
+	@Inject
 	EventBus eventBus;
 	@Inject
 	BackoffFactory backoffFactory;
 	@Inject
 	Clock clock;
 
-	private final Context appContext = getTargetContext();
-	private final CircumventionProvider circumventionProvider;
-	private final List<String> bridges;
-	private TorPluginFactory factory;
-	private volatile int currentBridge = 0;
+	private final Context appContext =
+			getTargetContext().getApplicationContext();
 
-	public BridgeTest() {
-		super();
-		circumventionProvider = new CircumventionProvider() {
-			@Override
-			public boolean isTorProbablyBlocked(String countryCode) {
-				return true;
-			}
+	private List<String> bridges;
+	private AndroidTorPluginFactory factory;
 
-			@Override
-			public boolean doBridgesWork(String countryCode) {
-				return true;
-			}
-
-			@Override
-			public List<String> getBridges() {
-				return singletonList(bridges.get(currentBridge));
-			}
-		};
-		bridges = new CircumventionProviderImpl(appContext).getBridges();
-	}
+	private volatile String currentBridge = null;
 
 	@Before
 	public void setUp() {
@@ -89,28 +75,43 @@ public class BridgeTest extends BrambleTestCase {
 		LocationUtils locationUtils = () -> "US";
 		SocketFactory torSocketFactory = SocketFactory.getDefault();
 
-		factory = new TorPluginFactory(ioExecutor, scheduler, appContext,
+		bridges = circumventionProvider.getBridges();
+		CircumventionProvider bridgeProvider = new CircumventionProvider() {
+			@Override
+			public boolean isTorProbablyBlocked(String countryCode) {
+				return true;
+			}
+
+			@Override
+			public boolean doBridgesWork(String countryCode) {
+				return true;
+			}
+
+			@Override
+			public List<String> getBridges() {
+				return singletonList(currentBridge);
+			}
+		};
+		factory = new AndroidTorPluginFactory(ioExecutor, scheduler, appContext,
 				networkManager, locationUtils, eventBus, torSocketFactory,
-				backoffFactory, circumventionProvider, clock);
+				backoffFactory, resourceProvider, bridgeProvider, clock);
 	}
 
 	@Test
 	public void testBridges() throws Exception {
 		assertTrue(bridges.size() > 0);
 
-		for (int i = 0; i < bridges.size(); i++) {
-			testBridge(i);
-		}
+		for (String bridge : bridges) testBridge(bridge);
 	}
 
-	private void testBridge(int bridge) throws Exception {
+	private void testBridge(String bridge) throws Exception {
 		DuplexPlugin duplexPlugin =
 				factory.createPlugin(new TorPluginCallBack());
 		assertNotNull(duplexPlugin);
-		TorPlugin plugin = (TorPlugin) duplexPlugin;
+		AndroidTorPlugin plugin = (AndroidTorPlugin) duplexPlugin;
 
 		currentBridge = bridge;
-		LOG.warning("Testing " + bridges.get(currentBridge));
+		LOG.warning("Testing " + bridge);
 		try {
 			plugin.start();
 			long start = clock.currentTimeMillis();
