@@ -60,8 +60,17 @@
 			android:key="pref_key_lock"
 			android:persistent="false"
 			android:summary="@string/pref_lock_summary"
-			android:title="@string/pref_lock_title"
-			android:enabled="false"/>
+			android:title="@string/pref_lock_title"/>
+
+		<ListPreference
+			android:defaultValue="@string/pref_lock_timeout_value_default"
+			android:dependency="pref_key_lock"
+			android:entries="@array/pref_key_lock_timeout_entries"
+			android:entryValues="@array/pref_key_lock_timeout_values"
+			android:key="pref_key_lock_timeout"
+			android:persistent="false"
+			android:summary="@string/pref_lock_timeout_summary"
+			android:title="@string/pref_lock_timeout_title"/>
 
 		<Preference
 			android:key="pref_key_change_password"

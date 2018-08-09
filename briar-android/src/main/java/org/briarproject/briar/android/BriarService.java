@@ -26,6 +26,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.android.LockManager;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,6 +55,7 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.FAIL
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_NOTIFICATION_ID;
+import static org.briarproject.briar.api.android.LockManager.ACTION_LOCK;
 
 public class BriarService extends Service {
 
@@ -77,6 +79,8 @@ public class BriarService extends Service {
 	AndroidNotificationManager notificationManager;
 	@Inject
 	AccountManager accountManager;
+	@Inject
+	LockManager lockManager;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -189,6 +193,9 @@ public class BriarService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		if (ACTION_LOCK.equals(intent.getAction())) {
+			lockManager.setLocked(true);
+		}
 		return START_NOT_STICKY; // Don't restart automatically if killed
 	}
 
