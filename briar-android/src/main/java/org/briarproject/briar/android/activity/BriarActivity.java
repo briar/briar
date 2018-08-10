@@ -56,22 +56,32 @@ public abstract class BriarActivity extends BaseActivity {
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
-		if (request == REQUEST_PASSWORD) {
-			if (result == RESULT_OK) briarController.startAndBindService();
-			else supportFinishAfterTransition();
-		} else if (request == REQUEST_UNLOCK) {
-			// if we don't finish here, we will enter onStart()
-			if (result != RESULT_OK) supportFinishAfterTransition();
+		if (request == REQUEST_PASSWORD && result == RESULT_OK) {
+			// PasswordActivity finishes when password was entered correctly.
+			// When back button is pressed there, it will bring itself back,
+			// so that we never arrive here with a result that is not OK.
+			briarController.startAndBindService();
+		} else if (request == REQUEST_UNLOCK && result != RESULT_OK) {
+			// We arrive here, if the user presses 'back'
+			// in the Keyguard unlock screen, because UnlockActivity finishes.
+			// If we don't finish here, isFinishing will be false in onResume()
+			// and we launch a new UnlockActivity causing a loop.
+			supportFinishAfterTransition();
+			// If the result is OK, we don't need to do anything here
+			// and can resume normally.
 		}
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
-		if (!briarController.accountSignedIn() && !isFinishing()) {
+	public void onResume() {
+		super.onResume();
+		if (!briarController.accountSignedIn()) {
 			Intent i = new Intent(this, PasswordActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
-		} else if (lockManager.isLocked()) {
+		} else if (lockManager.isLocked() && !isFinishing()) {
+			// Also check that the activity isn't finishing already.
+			// This is possible if finishing in onActivityResult().
+			// Failure to do this check would cause an UnlockActivity loop.
 			Intent i = new Intent(this, UnlockActivity.class);
 			startActivityForResult(i, REQUEST_UNLOCK);
 		} else if (SDK_INT >= 23) {

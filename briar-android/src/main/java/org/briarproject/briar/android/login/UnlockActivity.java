@@ -20,6 +20,7 @@ import javax.inject.Inject;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_KEYGUARD_UNLOCK;
+import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 
 @RequiresApi(21)
 @MethodsNotNullByDefault
@@ -27,7 +28,7 @@ import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_KEYGU
 public class UnlockActivity extends BaseActivity {
 
 	private static final Logger LOG =
-			Logger.getLogger(UnlockActivity.class.getSimpleName());
+			Logger.getLogger(UnlockActivity.class.getName());
 
 	@Inject
 	LockManager lockManager;
@@ -44,13 +45,6 @@ public class UnlockActivity extends BaseActivity {
 
 		Button button = findViewById(R.id.unlock);
 		button.setOnClickListener(view -> requestKeyguardUnlock());
-
-		requestKeyguardUnlock();
-	}
-
-	@Override
-	public void onBackPressed() {
-		moveTaskToBack(true);
 	}
 
 	@Override
@@ -61,6 +55,22 @@ public class UnlockActivity extends BaseActivity {
 			if (resultCode == RESULT_OK) unlock();
 			else finish();
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		// Show keyguard after onActivityResult() as been called.
+		// Check if app is still locked, lockable
+		// and not finishing (which is possible if recreated)
+		if (lockManager.isLocked() && hasScreenLock(this) && !isFinishing()) {
+			requestKeyguardUnlock();
+		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		moveTaskToBack(true);
 	}
 
 	private void requestKeyguardUnlock() {
