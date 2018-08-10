@@ -147,6 +147,8 @@
 	<string name="authenticating_with_device">Authenticating with device\u2026</string>
 	<string name="connection_aborted_local">Connection aborted! This could mean that someone is trying to interfere with your connection</string>
 	<string name="connection_aborted_remote">Connection aborted by your contact! This could mean that someone is trying to interfere with your connection</string>
+	<string name="connection_error_title">Could not connect to your contact</string>
+	<string name="connection_error_explanation">Please check that you\'re both connected to the same Wi-Fi network.\n\nIf this problem persists, please <a href="feedback">send feedback</a> to help us improve the app.</string>
 
 	<!-- Introductions -->
 	<string name="introduction_onboarding_title">Introduce your contacts</string>

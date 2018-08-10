@@ -27,6 +27,7 @@ import org.briarproject.briar.android.introduction.ContactChooserFragment;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.introduction.IntroductionMessageFragment;
 import org.briarproject.briar.android.keyagreement.ContactExchangeActivity;
+import org.briarproject.briar.android.keyagreement.ContactExchangeErrorFragment;
 import org.briarproject.briar.android.keyagreement.IntroFragment;
 import org.briarproject.briar.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.briar.android.keyagreement.KeyAgreementFragment;
@@ -208,4 +209,6 @@ public interface ActivityComponent {
 	void inject(SettingsFragment fragment);
 
 	void inject(ScreenFilterDialogFragment fragment);
+
+	void inject(ContactExchangeErrorFragment fragment);
 }

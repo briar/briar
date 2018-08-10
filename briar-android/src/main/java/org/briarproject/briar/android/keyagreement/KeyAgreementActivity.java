@@ -7,6 +7,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
@@ -28,6 +29,7 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.keyagreement.IntroFragment.IntroScreenSeenListener;
+import org.briarproject.briar.android.keyagreement.KeyAgreementFragment.KeyAgreementEventListener;
 import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.logging.Logger;
@@ -50,7 +52,7 @@ import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMI
 @ParametersNotNullByDefault
 public abstract class KeyAgreementActivity extends BriarActivity implements
 		BaseFragmentListener, IntroScreenSeenListener,
-		KeyAgreementFragment.KeyAgreementEventListener {
+		KeyAgreementEventListener {
 
 	private enum BluetoothState {
 		UNKNOWN, NO_ADAPTER, WAITING, REFUSED, ENABLED
@@ -183,6 +185,12 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 					.addToBackStack(f.getUniqueTag())
 					.commit();
 		}
+	}
+
+	protected void showErrorFragment(@StringRes int errorResId) {
+		String errorMessage = getString(errorResId);
+		BaseFragment f = ContactExchangeErrorFragment.newInstance(errorMessage);
+		showNextFragment(f);
 	}
 
 	private boolean checkPermissions() {
