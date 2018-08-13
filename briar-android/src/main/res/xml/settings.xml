@@ -36,7 +36,7 @@
 			android:title="@string/bluetooth_setting"/>
 
 		<ListPreference
-			android:defaultValue="2"
+			android:defaultValue="0"
 			android:entries="@array/tor_network_setting_names"
 			android:entryValues="@array/tor_network_setting_values"
 			android:key="pref_key_tor_network"
@@ -46,9 +46,9 @@
 
 		<SwitchPreference
 			android:defaultValue="true"
-			android:key="pref_key_tor_location"
+			android:key="pref_key_tor_mobile_data"
 			android:persistent="false"
-			android:title="@string/tor_location_setting_title"/>
+			android:title="@string/tor_mobile_data_title"/>
 
 	</PreferenceCategory>
 

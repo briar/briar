@@ -64,11 +64,11 @@ import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_DISABLE_BLOCKED;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_ALWAYS;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_AUTOMATIC;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_NEVER;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_WIFI;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_WITH_BRIDGES;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -170,6 +170,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (!assetsAreUpToDate()) installAssets();
 		if (cookieFile.exists() && !cookieFile.delete())
 			LOG.warning("Old auth cookie not deleted");
+		// Migrate old settings before having a chance to stop
+		migrateSettings();
 		// Start a new Tor process
 		LOG.info("Starting Tor");
 		String torPath = torFile.getAbsolutePath();
@@ -629,9 +631,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			boolean blocked =
 					circumventionProvider.isTorProbablyBlocked(country);
 			Settings s = callback.getSettings();
-			int network = s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_ALWAYS);
-			boolean disableWhenBlocked =
-					s.getBoolean(PREF_TOR_DISABLE_BLOCKED, true);
+			int network =
+					s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_AUTOMATIC);
+			boolean useMobile = s.getBoolean(PREF_TOR_MOBILE, true);
+			boolean bridgesWork = circumventionProvider.doBridgesWork(country);
+			boolean automatic = network == PREF_TOR_NETWORK_AUTOMATIC;
 
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Online: " + online + ", wifi: " + wifi);
@@ -643,25 +647,20 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				if (!online) {
 					LOG.info("Disabling network, device is offline");
 					enableNetwork(false);
-				} else if (network == PREF_TOR_NETWORK_NEVER
-						|| (network == PREF_TOR_NETWORK_WIFI && !wifi)) {
+				} else if (network == PREF_TOR_NETWORK_NEVER ||
+						(!useMobile && !wifi)) {
 					LOG.info("Disabling network due to data setting");
 					enableNetwork(false);
-				} else if (blocked) {
-					if (circumventionProvider.doBridgesWork(country)) {
-						LOG.info("Enabling network, using bridges");
-						enableBridges(true);
-						enableNetwork(true);
-					} else if (disableWhenBlocked) {
-						LOG.info("Disabling network, country is blocked");
-						enableNetwork(false);
-					} else {
-						LOG.info("Enabling network but country is blocked");
-						enableBridges(false);
-						enableNetwork(true);
-					}
+				} else if (automatic && blocked && !bridgesWork) {
+					LOG.info("Disabling network, country is blocked");
+					enableNetwork(false);
+				} else if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
+						(automatic && bridgesWork)) {
+					LOG.info("Enabling network, using bridges");
+					enableBridges(true);
+					enableNetwork(true);
 				} else {
-					LOG.info("Enabling network");
+					LOG.info("Enabling network, not using bridges");
 					enableBridges(false);
 					enableNetwork(true);
 				}
@@ -669,6 +668,21 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				logException(LOG, WARNING, e);
 			}
 		});
+	}
+
+	// TODO remove when sufficient time has passed. Added 2018-08-15
+	private void migrateSettings() {
+		Settings sOld = callback.getSettings();
+		int oldNetwork = sOld.getInt("network", -1);
+		if (oldNetwork == -1) return;
+		Settings s = new Settings();
+		if (oldNetwork == 0) {
+			s.putInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_NEVER);
+		} else if (oldNetwork == 1) {
+			s.putBoolean(PREF_TOR_MOBILE, false);
+		}
+		s.putInt("network", -1);
+		callback.mergeSettings(s);
 	}
 
 	private static class ConnectionStatus {
