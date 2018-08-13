@@ -8,21 +8,21 @@
 		android:summary="@string/panic_app_setting_summary"
 		android:title="@string/panic_app_setting_title"/>
 
-	<CheckBoxPreference
+	<SwitchPreference
 		android:defaultValue="true"
 		android:enabled="false"
 		android:key="pref_key_lock"
 		android:summary="@string/lock_setting_summary"
 		android:title="@string/lock_setting_title"/>
 
-	<CheckBoxPreference
+	<SwitchPreference
 		android:defaultValue="false"
 		android:enabled="false"
 		android:key="pref_key_purge"
 		android:summary="@string/purge_setting_summary"
 		android:title="@string/purge_setting_title"/>
 
-	<CheckBoxPreference
+	<SwitchPreference
 		android:defaultValue="false"
 		android:enabled="false"
 		android:key="pref_key_uninstall"

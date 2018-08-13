@@ -10,9 +10,9 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.support.v14.preference.SwitchPreference;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.text.TextUtilsCompat;
-import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
@@ -119,13 +119,13 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private ListPreference language;
 	private ListPreference enableBluetooth;
 	private ListPreference torNetwork;
-	private CheckBoxPreference torBlocked;
-	private CheckBoxPreference notifyPrivateMessages;
-	private CheckBoxPreference notifyGroupMessages;
-	private CheckBoxPreference notifyForumPosts;
-	private CheckBoxPreference notifyBlogPosts;
-	private CheckBoxPreference notifyVibration;
-	private CheckBoxPreference notifyLockscreen;
+	private SwitchPreference torBlocked;
+	private SwitchPreference notifyPrivateMessages;
+	private SwitchPreference notifyGroupMessages;
+	private SwitchPreference notifyForumPosts;
+	private SwitchPreference notifyBlogPosts;
+	private SwitchPreference notifyVibration;
+	private SwitchPreference notifyLockscreen;
 
 	private Preference notifySound;
 
@@ -158,21 +158,21 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				(ListPreference) findPreference("pref_key_theme");
 		enableBluetooth = (ListPreference) findPreference("pref_key_bluetooth");
 		torNetwork = (ListPreference) findPreference("pref_key_tor_network");
-		torBlocked = (CheckBoxPreference) findPreference(TOR_LOCATION);
+		torBlocked = (SwitchPreference) findPreference(TOR_LOCATION);
 		setBlockedCountries();
-		CheckBoxPreference notifySignIn =
-				(CheckBoxPreference) findPreference(NOTIFY_SIGN_IN);
-		notifyPrivateMessages = (CheckBoxPreference) findPreference(
+		SwitchPreference notifySignIn =
+				(SwitchPreference) findPreference(NOTIFY_SIGN_IN);
+		notifyPrivateMessages = (SwitchPreference) findPreference(
 				"pref_key_notify_private_messages");
-		notifyGroupMessages = (CheckBoxPreference) findPreference(
+		notifyGroupMessages = (SwitchPreference) findPreference(
 				"pref_key_notify_group_messages");
-		notifyForumPosts = (CheckBoxPreference) findPreference(
+		notifyForumPosts = (SwitchPreference) findPreference(
 				"pref_key_notify_forum_posts");
-		notifyBlogPosts = (CheckBoxPreference) findPreference(
+		notifyBlogPosts = (SwitchPreference) findPreference(
 				"pref_key_notify_blog_posts");
-		notifyVibration = (CheckBoxPreference) findPreference(
+		notifyVibration = (SwitchPreference) findPreference(
 				"pref_key_notify_vibration");
-		notifyLockscreen = (CheckBoxPreference) findPreference(
+		notifyLockscreen = (SwitchPreference) findPreference(
 				"pref_key_notify_lock_screen");
 		notifySound = findPreference("pref_key_notify_sound");
 
@@ -424,7 +424,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	@TargetApi(26)
-	private void setupNotificationPreference(CheckBoxPreference pref,
+	private void setupNotificationPreference(SwitchPreference pref,
 			String channelId, @StringRes int summary) {
 		pref.setWidgetLayoutResource(0);
 		pref.setSummary(summary);
