@@ -20,7 +20,6 @@ import javax.inject.Inject;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_KEYGUARD_UNLOCK;
-import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 
 @RequiresApi(21)
 @MethodsNotNullByDefault
@@ -29,9 +28,12 @@ public class UnlockActivity extends BaseActivity {
 
 	private static final Logger LOG =
 			Logger.getLogger(UnlockActivity.class.getName());
+	private static final String KEYGUARD_SHOWN = "keyguardShown";
 
 	@Inject
 	LockManager lockManager;
+
+	private boolean keyguardShown = false;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -45,6 +47,20 @@ public class UnlockActivity extends BaseActivity {
 
 		Button button = findViewById(R.id.unlock);
 		button.setOnClickListener(view -> requestKeyguardUnlock());
+
+		keyguardShown = state != null && state.getBoolean(KEYGUARD_SHOWN);
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		// Saving whether we've shown the keyguard already is necessary
+		// for Android 6 when this activity gets destroyed.
+		//
+		// This will not help Android 5.
+		// There the system will show the keyguard once again.
+		// So if this activity was destroyed, the user needs to enter PIN twice.
+		outState.putBoolean(KEYGUARD_SHOWN, keyguardShown);
 	}
 
 	@Override
@@ -53,7 +69,10 @@ public class UnlockActivity extends BaseActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQUEST_KEYGUARD_UNLOCK) {
 			if (resultCode == RESULT_OK) unlock();
-			else finish();
+			else {
+				finish();
+				overridePendingTransition(0, 0);
+			}
 		}
 	}
 
@@ -63,8 +82,11 @@ public class UnlockActivity extends BaseActivity {
 		// Show keyguard after onActivityResult() as been called.
 		// Check if app is still locked, lockable
 		// and not finishing (which is possible if recreated)
-		if (lockManager.isLocked() && hasScreenLock(this) && !isFinishing()) {
+		if (!keyguardShown && lockManager.isLocked() && !isFinishing()) {
 			requestKeyguardUnlock();
+		} else if (!lockManager.isLocked()) {
+			setResult(RESULT_OK);
+			finish();
 		}
 	}
 
@@ -85,6 +107,7 @@ public class UnlockActivity extends BaseActivity {
 			LOG.warning("Unlocking without keyguard");
 			unlock();
 		} else {
+			keyguardShown = true;
 			startActivityForResult(intent, REQUEST_KEYGUARD_UNLOCK);
 			overridePendingTransition(0, 0);
 		}

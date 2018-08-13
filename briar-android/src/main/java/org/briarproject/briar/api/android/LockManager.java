@@ -20,6 +20,8 @@ public interface LockManager {
 
 	/**
 	 * Returns true if app is currently locked, false otherwise.
+	 * If the device's screen lock was removed while the app was locked,
+	 * calling this will unlock the app automatically.
 	 */
 	boolean isLocked();
 

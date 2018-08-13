@@ -89,6 +89,10 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 
 	@Override
 	public boolean isLocked() {
+		if (locked && !hasScreenLock(appContext)) {
+			lockable.postValue(false);
+			locked = false;
+		}
 		return locked;
 	}
 
