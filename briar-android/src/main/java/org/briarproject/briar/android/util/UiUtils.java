@@ -21,6 +21,7 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.format.DateUtils;
+import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.URLSpan;
@@ -28,9 +29,11 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
+import org.acra.ACRA;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
@@ -147,6 +150,32 @@ public class UiUtils {
 		v.setMovementMethod(ArticleMovementMethod.getInstance());
 	}
 
+	/**
+	 * Executes the runnable when clicking the link in the textView's text.
+	 *
+	 * Attention: This assumes that there's only <b>one</b> link in the text.
+	 */
+	public static void onSingleLinkClick(TextView textView, Runnable runnable) {
+		SpannableStringBuilder ssb =
+				new SpannableStringBuilder(textView.getText());
+		ClickableSpan[] spans =
+				ssb.getSpans(0, ssb.length(), ClickableSpan.class);
+		if (spans.length != 1) throw new AssertionError();
+		ClickableSpan span = spans[0];
+		int start = ssb.getSpanStart(span);
+		int end = ssb.getSpanEnd(span);
+		ssb.removeSpan(span);
+		ClickableSpan cSpan = new ClickableSpan() {
+			@Override
+			public void onClick(View v) {
+				runnable.run();
+			}
+		};
+		ssb.setSpan(cSpan, start + 1, end, 0);
+		textView.setText(ssb);
+		textView.setMovementMethod(new LinkMovementMethod());
+	}
+
 	public static String getAvatarTransitionName(ContactId c) {
 		return "avatar" + c.getInt();
 	}
@@ -240,6 +269,12 @@ public class UiUtils {
 		// first one is true if SIM card is locked, so use second if available
 		return (SDK_INT < 23 && keyguardManager.isKeyguardSecure()) ||
 				(SDK_INT >= 23 && keyguardManager.isDeviceSecure());
+	}
+
+	public static void triggerFeedback(AndroidExecutor androidExecutor) {
+		androidExecutor.runOnBackgroundThread(
+				() -> ACRA.getErrorReporter()
+						.handleException(new UserFeedback(), false));
 	}
 
 }

@@ -2,25 +2,23 @@ package org.briarproject.briar.android.keyagreement;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.SpannableStringBuilder;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.acra.ACRA;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
-import org.briarproject.briar.android.util.UserFeedback;
+import org.briarproject.briar.android.util.UiUtils;
 
 import javax.inject.Inject;
+
+import static org.briarproject.briar.android.util.UiUtils.onSingleLinkClick;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -70,24 +68,7 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 
 		// make feedback link clickable
 		TextView explanation = v.findViewById(R.id.errorMessage);
-		SpannableStringBuilder ssb =
-				new SpannableStringBuilder(explanation.getText());
-		ClickableSpan[] spans =
-				ssb.getSpans(0, ssb.length(), ClickableSpan.class);
-		if (spans.length != 1) throw new AssertionError();
-		ClickableSpan span = spans[0];
-		int start = ssb.getSpanStart(span);
-		int end = ssb.getSpanEnd(span);
-		ssb.removeSpan(span);
-		ClickableSpan cSpan = new ClickableSpan() {
-			@Override
-			public void onClick(View v) {
-				triggerFeedback();
-			}
-		};
-		ssb.setSpan(cSpan, start + 1, end, 0);
-		explanation.setText(ssb);
-		explanation.setMovementMethod(new LinkMovementMethod());
+		onSingleLinkClick(explanation, this::triggerFeedback);
 
 		// technical error message
 		TextView msg = v.findViewById(R.id.errorMessageTech);
@@ -110,9 +91,7 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 
 	private void triggerFeedback() {
 		finish();
-		androidExecutor.runOnBackgroundThread(
-				() -> ACRA.getErrorReporter()
-						.handleException(new UserFeedback(), false));
+		UiUtils.triggerFeedback(androidExecutor);
 	}
 
 }
