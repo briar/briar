@@ -63,6 +63,7 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 	private volatile boolean lockableSetting = false;
 	private volatile int timeoutMinutes;
 	private int activitiesRunning = 0;
+	private long idleTime;
 	private final MutableLiveData<Boolean> lockable = new MutableLiveData<>();
 
 	@Inject
@@ -101,6 +102,11 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 	@UiThread
 	@Override
 	public void onActivityStart() {
+		if (!locked && activitiesRunning == 0 && timeoutEnabled() &&
+				timedOut()) {
+			// lock the app in case the alarm wasn't run during sleep
+			setLocked(true);
+		}
 		activitiesRunning++;
 		alarmManager.cancel(lockIntent);
 	}
@@ -109,12 +115,14 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 	@Override
 	public void onActivityStop() {
 		activitiesRunning--;
-		if (activitiesRunning == 0 && !locked &&
-				timeoutMinutes != timeoutNever && lockable.getValue()) {
-			alarmManager.cancel(lockIntent);
-			long triggerAt =
-					elapsedRealtime() + MINUTES.toMillis(timeoutMinutes);
-			alarmManager.set(ELAPSED_REALTIME, triggerAt, lockIntent);
+		if (activitiesRunning == 0) {
+			idleTime = elapsedRealtime();
+			if (!locked && timeoutEnabled()) {
+				alarmManager.cancel(lockIntent);
+				long triggerAt =
+						elapsedRealtime() + MINUTES.toMillis(timeoutMinutes);
+				alarmManager.set(ELAPSED_REALTIME, triggerAt, lockIntent);
+			}
 		}
 	}
 
@@ -138,6 +146,8 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 		if (locked && !hasScreenLock(appContext)) {
 			lockable.postValue(false);
 			locked = false;
+		} else if (!locked && activitiesRunning == 0 && timeoutEnabled()) {
+			setLocked(true);
 		}
 		return locked;
 	}
@@ -177,6 +187,14 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 				lockable.postValue(false);
 			}
 		});
+	}
+
+	private boolean timeoutEnabled() {
+		return timeoutMinutes != timeoutNever && lockable.getValue();
+	}
+
+	private boolean timedOut() {
+		return elapsedRealtime() - idleTime > MINUTES.toMillis(timeoutMinutes);
 	}
 
 }
