@@ -14,4 +14,7 @@
 		android:top="@dimen/message_bubble_padding_bottom"/>
 	<solid
 		android:color="@color/notice_out"/>
+	<stroke
+		android:width="@dimen/message_bubble_stroke"
+		android:color="@color/msg_stroke_dark"/>
 </shape>
