@@ -14,6 +14,8 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.login.OpenDatabaseActivity;
 import org.briarproject.briar.android.login.SetupActivity;
+import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
+import org.briarproject.briar.api.android.LockManager;
 
 import java.util.logging.Logger;
 
@@ -28,6 +30,8 @@ public class SplashScreenActivity extends BaseActivity {
 
 	@Inject
 	protected AccountManager accountManager;
+	@Inject
+	protected LockManager lockManager;
 	@Inject
 	protected AndroidExecutor androidExecutor;
 
@@ -44,7 +48,16 @@ public class SplashScreenActivity extends BaseActivity {
 		setContentView(R.layout.splash);
 
 		if (accountManager.hasDatabaseKey()) {
-			startActivity(new Intent(this, OpenDatabaseActivity.class));
+			Intent i;
+			if (lockManager.isLocked()) {
+				// The database needs to be opened for the app to be locked.
+				// Start main activity right away. It will open UnlockActivity.
+				// Otherwise, we would end up with two screen unlock inputs.
+				i = new Intent(this, NavDrawerActivity.class);
+			} else {
+				i = new Intent(this, OpenDatabaseActivity.class);
+			}
+			startActivity(i);
 			finish();
 		} else {
 			new Handler().postDelayed(() -> {

@@ -37,6 +37,7 @@ import org.briarproject.briar.android.login.OpenDatabaseActivity;
 import org.briarproject.briar.android.login.PasswordActivity;
 import org.briarproject.briar.android.login.PasswordFragment;
 import org.briarproject.briar.android.login.SetupActivity;
+import org.briarproject.briar.android.login.UnlockActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.panic.PanicPreferencesActivity;
 import org.briarproject.briar.android.panic.PanicResponderActivity;
@@ -162,6 +163,8 @@ public interface ActivityComponent {
 	void inject(RssFeedManageActivity activity);
 
 	void inject(StartupFailureActivity activity);
+
+	void inject(UnlockActivity activity);
 
 	// Fragments
 	void inject(AuthorNameFragment fragment);

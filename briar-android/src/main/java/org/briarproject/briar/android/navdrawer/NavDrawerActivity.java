@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
@@ -136,6 +137,8 @@ public class NavDrawerActivity extends BriarActivity implements
 		initializeTransports(getLayoutInflater());
 		transportsView.setAdapter(transportsAdapter);
 
+		lockManager.isLockable().observe(this, this::setLockVisible);
+
 		if (lifecycleManager.getLifecycleState().isAfter(RUNNING)) {
 			showSignOutFragment();
 		} else if (state == null) {
@@ -152,6 +155,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	public void onStart() {
 		super.onStart();
 		updateTransports();
+		lockManager.checkIfLockable();
 		controller.showExpiryWarning(new UiResultHandler<ExpiryWarning>(this) {
 			@Override
 			public void onResultUi(ExpiryWarning expiry) {
@@ -213,9 +217,15 @@ public class NavDrawerActivity extends BriarActivity implements
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 		drawerLayout.closeDrawer(START);
 		clearBackStack();
-		loadFragment(item.getItemId());
-		// Don't display the Settings item as checked
-		return item.getItemId() != R.id.nav_btn_settings;
+		if (item.getItemId() == R.id.nav_btn_lock) {
+			lockManager.setLocked(true);
+			ActivityCompat.finishAfterTransition(this);
+			return false;
+		} else {
+			loadFragment(item.getItemId());
+			// Don't display the Settings item as checked
+			return item.getItemId() != R.id.nav_btn_settings;
+		}
 	}
 
 	@Override
@@ -299,6 +309,11 @@ public class NavDrawerActivity extends BriarActivity implements
 	@Override
 	public void handleDbException(DbException e) {
 		// Do nothing for now
+	}
+
+	private void setLockVisible(boolean visible) {
+		MenuItem item = navigation.getMenu().findItem(R.id.nav_btn_lock);
+		if (item != null) item.setVisible(visible);
 	}
 
 	@SuppressWarnings("ConstantConditions")

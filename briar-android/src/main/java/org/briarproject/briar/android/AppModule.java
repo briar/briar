@@ -29,8 +29,10 @@ import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.briar.android.account.LockManagerImpl;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
+import org.briarproject.briar.api.android.LockManager;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 
 import java.io.File;
@@ -198,6 +200,15 @@ public class AppModule {
 		DozeWatchdogImpl dozeWatchdog = new DozeWatchdogImpl(application);
 		lifecycleManager.registerService(dozeWatchdog);
 		return dozeWatchdog;
+	}
+
+	@Provides
+	@Singleton
+	LockManager provideLockManager(LifecycleManager lifecycleManager,
+			EventBus eventBus, LockManagerImpl lockManager) {
+		lifecycleManager.registerService(lockManager);
+		eventBus.addListener(lockManager);
+		return lockManager;
 	}
 
 }

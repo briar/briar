@@ -296,8 +296,8 @@
   <string name="panic_app_setting_none">Inget</string>
   <string name="dialog_title_connect_panic_app">Bekreft panikk-knapp-program</string>
   <string name="dialog_message_connect_panic_app">Er du sikker på at du vil tillate %1$s å utløse destruktive panikk-knapp-handlinger?</string>
-  <string name="lock_setting_title">Logg ut</string>
-  <string name="lock_setting_summary">Logg ut av Briar hvis panikk-knappen trykkes</string>
+  <string name="panic_setting_signout_title">Logg ut</string>
+  <string name="panic_setting_signout_summary">Logg ut av Briar hvis panikk-knappen trykkes</string>
   <string name="purge_setting_title">Slett konto</string>
   <string name="purge_setting_summary">Slett Briar-kontoen din hvis panikk-knappen trykkes. Advarsel: Dette vil slette dine identiteter, kontakter og meldinger for godt.</string>
   <string name="uninstall_setting_title">Avinstaller Briar</string>

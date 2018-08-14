@@ -346,8 +346,8 @@
   <string name="panic_app_setting_none">Žádný</string>
   <string name="dialog_title_connect_panic_app">Potvrdit aplikaci Paniky</string>
   <string name="dialog_message_connect_panic_app">Jste si jisti, že chcete povolit %1$s spustit akci zneškodnění pomocí tlačítka paniky?</string>
-  <string name="lock_setting_title">Odhlásit se</string>
-  <string name="lock_setting_summary">Odhlásit se z Briar, pokud je stisknuto tlačítko paniky</string>
+  <string name="panic_setting_signout_title">Odhlásit se</string>
+  <string name="panic_setting_signout_summary">Odhlásit se z Briar, pokud je stisknuto tlačítko paniky</string>
   <string name="purge_setting_title">Odstranit účet</string>
   <string name="purge_setting_summary">Vymazat váš Briar účet pokud je stlačeno tlačítko paniky. Upozornění: Toto trvale vymaže vaši identitu, kontakty a zprávy</string>
   <string name="uninstall_setting_title">Odinstalovat Briar</string>

@@ -343,8 +343,8 @@
   <string name="panic_app_setting_none">Asnjë</string>
   <string name="dialog_title_connect_panic_app">Ripohoni Aplikacion Paniku</string>
   <string name="dialog_message_connect_panic_app">Jeni i sigurt se doni të lejohet %1$s të prodhojë veprime shkatërruese butoni paniku?</string>
-  <string name="lock_setting_title">Dilni</string>
-  <string name="lock_setting_summary">Dil nga Briar-i nëse shtypet një buton paniku</string>
+  <string name="panic_setting_signout_title">Dilni</string>
+  <string name="panic_setting_signout_summary">Dil nga Briar-i nëse shtypet një buton paniku</string>
   <string name="purge_setting_title">Fshi Llogarinë</string>
   <string name="purge_setting_summary">Fshijeni llogarinë tuaj Briar, nëse shtypet një buton paniku. Kujdes: Kjo do të shkaktojë fshirjen e identiteteve, kontakteve dhe mesazheve tuaj</string>
   <string name="uninstall_setting_title">Çinstalo Briar-in</string>

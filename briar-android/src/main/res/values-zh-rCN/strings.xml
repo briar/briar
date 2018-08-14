@@ -333,8 +333,8 @@
   <string name="panic_app_setting_none">无</string>
   <string name="dialog_title_connect_panic_app">确认应急应用</string>
   <string name="dialog_message_connect_panic_app">是否允许 %1$s 触发破坏性应急开关反应？</string>
-  <string name="lock_setting_title">登出</string>
-  <string name="lock_setting_summary">触发应急开关时登出 Briar</string>
+  <string name="panic_setting_signout_title">登出</string>
+  <string name="panic_setting_signout_summary">触发应急开关时登出 Briar</string>
   <string name="purge_setting_title">删除账号</string>
   <string name="purge_setting_summary">触发应急开关时删除您的账号。注意：您的身份、联系人和消息将会永久遗失。</string>
   <string name="uninstall_setting_title">卸载 Briar</string>

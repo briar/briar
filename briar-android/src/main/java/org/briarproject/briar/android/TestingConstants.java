@@ -40,4 +40,9 @@ public interface TestingConstants {
 	 * Feature flag for enabling the sign-in reminder in release builds.
 	 */
 	boolean FEATURE_FLAG_SIGN_IN_REMINDER = IS_DEBUG_BUILD;
+
+	/**
+	 * Feature flag for enabling the PIN lock in release builds.
+	 */
+	boolean FEATURE_FLAG_PIN_LOCK = IS_DEBUG_BUILD;
 }

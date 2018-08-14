@@ -2,6 +2,7 @@ package org.briarproject.briar.android.util;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -36,6 +37,7 @@ import org.briarproject.briar.android.widget.LinkDialogFragment;
 
 import javax.annotation.Nullable;
 
+import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.POWER_SERVICE;
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -227,6 +229,17 @@ public class UiUtils {
 		@ColorRes
 		int color = resolveAttribute(ctx, res);
 		return ContextCompat.getColor(ctx, color);
+	}
+
+	public static boolean hasScreenLock(Context ctx) {
+		if (SDK_INT < 21) return false;
+		KeyguardManager keyguardManager =
+				(KeyguardManager) ctx.getSystemService(KEYGUARD_SERVICE);
+		if (keyguardManager == null) return false;
+		// check if there's a lock mechanism we can use
+		// first one is true if SIM card is locked, so use second if available
+		return (SDK_INT < 23 && keyguardManager.isKeyguardSecure()) ||
+				(SDK_INT >= 23 && keyguardManager.isDeviceSecure());
 	}
 
 }

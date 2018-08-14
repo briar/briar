@@ -28,6 +28,7 @@ import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.reporting.BriarReportSender;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
+import org.briarproject.briar.api.android.LockManager;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPostFactory;
@@ -145,6 +146,8 @@ public interface AndroidComponent
 	Executor ioExecutor();
 
 	AccountManager accountManager();
+
+	LockManager lockManager();
 
 	void inject(SignInReminderReceiver briarService);
 

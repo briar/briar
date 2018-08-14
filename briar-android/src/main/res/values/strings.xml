@@ -62,6 +62,7 @@
 	<string name="groups_button">Private Groups</string>
 	<string name="forums_button">Forums</string>
 	<string name="blogs_button">Blogs</string>
+	<string name="lock_button">Lock App</string>
 	<string name="settings_button">Settings</string>
 	<string name="sign_out_button">Sign Out</string>
 
@@ -356,6 +357,9 @@
 
 	<!-- Settings Security and Panic -->
 	<string name="security_settings_title">Security</string>
+	<string name="pref_lock_title">Screen Lock</string>
+	<string name="pref_lock_summary">Use the device\'s screen lock to protect Briar while signed in</string>
+	<string name="pref_lock_disabled_summary">Set up a screen lock for your device to protect Briar while signed in</string>
 	<string name="change_password">Change password</string>
 	<string name="current_password">Current password</string>
 	<string name="choose_new_password">New password</string>
@@ -370,8 +374,8 @@
 	<string name="panic_app_setting_none">None</string>
 	<string name="dialog_title_connect_panic_app">Confirm Panic App</string>
 	<string name="dialog_message_connect_panic_app">Are you sure that you want to allow %1$s to trigger destructive panic button actions?</string>
-	<string name="lock_setting_title">Sign Out</string>
-	<string name="lock_setting_summary">Sign out of Briar if a panic button is pressed</string>
+	<string name="panic_setting_signout_title">Sign Out</string>
+	<string name="panic_setting_signout_summary">Sign out of Briar if a panic button is pressed</string>
 	<string name="purge_setting_title">Delete Account</string>
 	<string name="purge_setting_summary">Delete your Briar account if a panic button is pressed. Caution: This will permanently delete your identities, contacts and messages</string>
 	<string name="uninstall_setting_title">Uninstall Briar</string>
@@ -444,4 +448,11 @@
 	<string name="permission_camera_denied_toast">Camera permission was not granted</string>
 	<string name="qr_code">QR code</string>
 	<string name="show_qr_code_fullscreen">Show QR code fullscreen</string>
+
+	<!-- App Locking -->
+	<string name="lock_unlock">Unlock Briar</string>
+	<string name="lock_unlock_verbose">Enter your device PIN, pattern or password to unlock Briar</string>
+	<string name="lock_is_locked">Briar is locked</string>
+	<string name="lock_tap_to_unlock">Tap to unlock</string>
+
 </resources>

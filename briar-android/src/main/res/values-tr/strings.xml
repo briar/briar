@@ -264,8 +264,8 @@
   <string name="panic_app_setting_none">Yok</string>
   <string name="dialog_title_connect_panic_app">Panik Uygulaması Doğrulama</string>
   <string name="dialog_message_connect_panic_app">%1$s kişisinin yıkıcı panik düğmesi eylemlerini tetiklemesine izin vermek istediğinizden emin misiniz?</string>
-  <string name="lock_setting_title">Çıkış Yap</string>
-  <string name="lock_setting_summary">Panik Butonuna basıldığında Briar\'dan çıkış yap</string>
+  <string name="panic_setting_signout_title">Çıkış Yap</string>
+  <string name="panic_setting_signout_summary">Panik Butonuna basıldığında Briar\'dan çıkış yap</string>
   <string name="purge_setting_title">Hesabı Sil</string>
   <string name="purge_setting_summary">Bir panik düğmesine basıldığında Briar hesabınızı silin. Dikkat: Bu, kimliklerinizi, kayıtlarınızı ve iletilerinizi kalıcı olarak silecektir.</string>
   <string name="uninstall_setting_title">Briar\'ı Kaldır</string>

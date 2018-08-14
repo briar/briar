@@ -1,5 +1,7 @@
 package org.briarproject.briar.api.android;
 
+import android.app.Notification;
+
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.sync.GroupId;
 
@@ -51,6 +53,10 @@ public interface AndroidNotificationManager {
 
 	// Actions for pending intents
 	String ACTION_DISMISS_REMINDER = "dismissReminder";
+
+	Notification getForegroundNotification();
+
+	void updateForegroundNotification(boolean locked);
 
 	void clearContactNotification(ContactId c);
 

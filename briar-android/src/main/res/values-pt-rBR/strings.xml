@@ -332,8 +332,8 @@
   <string name="panic_app_setting_none">Nenhum</string>
   <string name="dialog_title_connect_panic_app">Confirmar aplicativo de pânico</string>
   <string name="dialog_message_connect_panic_app">Você tem certeza que quer permitir que %1$s ative ações destrutivas do botão de pânico?</string>
-  <string name="lock_setting_title">Desconectar</string>
-  <string name="lock_setting_summary">Desconectar do Briar se o botão de pânico for apertado</string>
+  <string name="panic_setting_signout_title">Desconectar</string>
+  <string name="panic_setting_signout_summary">Desconectar do Briar se o botão de pânico for apertado</string>
   <string name="purge_setting_title">Apagar conta</string>
   <string name="purge_setting_summary">Apagar sua conta do Briar se o botão de pânico for apertado. Atenção: isso irá apagar permanentemente suas identidades, contatos e mensagens</string>
   <string name="uninstall_setting_title">Desinstalar o Briar</string>

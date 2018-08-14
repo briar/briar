@@ -2,6 +2,7 @@ package org.briarproject.briar.android;
 
 import android.annotation.TargetApi;
 import android.app.Application;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,7 +13,6 @@ import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.content.ContextCompat;
 
 import org.briarproject.bramble.api.Multiset;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -65,7 +65,6 @@ import javax.inject.Inject;
 import static android.app.Notification.DEFAULT_LIGHTS;
 import static android.app.Notification.DEFAULT_SOUND;
 import static android.app.Notification.DEFAULT_VIBRATE;
-import static android.app.Notification.VISIBILITY_SECRET;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.app.NotificationManager.IMPORTANCE_LOW;
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -73,8 +72,12 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.CATEGORY_MESSAGE;
+import static android.support.v4.app.NotificationCompat.CATEGORY_SERVICE;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SOCIAL;
 import static android.support.v4.app.NotificationCompat.PRIORITY_LOW;
+import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
+import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
+import static android.support.v4.content.ContextCompat.getColor;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
@@ -173,8 +176,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		nc.setLockscreenVisibility(VISIBILITY_SECRET);
 		nc.enableVibration(true);
 		nc.enableLights(true);
-		nc.setLightColor(
-				ContextCompat.getColor(appContext, R.color.briar_green_light));
+		nc.setLightColor(getColor(appContext, R.color.briar_green_light));
 		notificationManager.createNotificationChannel(nc);
 	}
 
@@ -269,6 +271,47 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				logException(LOG, WARNING, e);
 			}
 		});
+	}
+
+	@UiThread
+	@Override
+	public Notification getForegroundNotification() {
+		return getForegroundNotification(false);
+	}
+
+	@UiThread
+	private Notification getForegroundNotification(boolean locked) {
+		int title = locked ? R.string.lock_is_locked :
+				R.string.ongoing_notification_title;
+		int text = locked ? R.string.lock_tap_to_unlock :
+				R.string.ongoing_notification_text;
+		int icon = locked ? R.drawable.startup_lock :
+				R.drawable.notification_ongoing;
+		// Ongoing foreground notification that shows BriarService is running
+		NotificationCompat.Builder b =
+				new NotificationCompat.Builder(appContext, ONGOING_CHANNEL_ID);
+		b.setSmallIcon(icon);
+		b.setColor(getColor(appContext, R.color.briar_primary));
+		b.setContentTitle(appContext.getText(title));
+		b.setContentText(appContext.getText(text));
+		b.setWhen(0); // Don't show the time
+		b.setOngoing(true);
+		Intent i = new Intent(appContext, NavDrawerActivity.class);
+		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
+		b.setContentIntent(PendingIntent.getActivity(appContext, 0, i, 0));
+		if (SDK_INT >= 21) {
+			b.setCategory(CATEGORY_SERVICE);
+			b.setVisibility(VISIBILITY_SECRET);
+		}
+		b.setPriority(PRIORITY_MIN);
+		return b.build();
+	}
+
+	@UiThread
+	@Override
+	public void updateForegroundNotification(boolean locked) {
+		Notification n = getForegroundNotification(locked);
+		notificationManager.notify(ONGOING_NOTIFICATION_ID, n);
 	}
 
 	private void showContactNotification(ContactId c) {
@@ -636,7 +679,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		NotificationCompat.Builder b =
 				new NotificationCompat.Builder(appContext, REMINDER_CHANNEL_ID);
 		b.setSmallIcon(R.drawable.ic_signout);
-		b.setColor(ContextCompat.getColor(appContext, R.color.briar_primary));
+		b.setColor(getColor(appContext, R.color.briar_primary));
 		b.setContentTitle(
 				appContext.getText(R.string.reminder_notification_title));
 		b.setContentText(

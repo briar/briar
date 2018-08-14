@@ -40,9 +40,9 @@ dependencies {
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
-	testImplementation 'org.robolectric:robolectric:3.5.1'
-	testImplementation 'org.robolectric:shadows-support-v4:3.0'
-	testImplementation 'org.mockito:mockito-core:2.8.9'
+	testImplementation 'org.robolectric:robolectric:3.8'
+	testImplementation 'org.robolectric:shadows-support-v4:3.3.2'
+	testImplementation 'org.mockito:mockito-core:2.13.0'
 	testImplementation 'junit:junit:4.12'
 	testImplementation "org.jmock:jmock:2.8.2"
 	testImplementation "org.jmock:jmock-junit4:2.8.2"
@@ -165,8 +165,8 @@ dependencyVerification {
 			'junit:junit:4.12:junit-4.12.jar:59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a',
 			'nekohtml:nekohtml:1.9.6.2:nekohtml-1.9.6.2.jar:fdff6cfa9ed9cc911c842a5d2395f209ec621ef1239d46810e9e495809d3ae09',
 			'nekohtml:xercesMinimal:1.9.6.2:xercesMinimal-1.9.6.2.jar:95b8b357d19f63797dd7d67622fd3f18374d64acbc6584faba1c7759a31e8438',
-			'net.bytebuddy:byte-buddy-agent:1.6.14:byte-buddy-agent-1.6.14.jar:c141a2d6809c3eeff4a43d25992826abccebdd4b793af3e7a5f346e88ae73a33',
-			'net.bytebuddy:byte-buddy:1.6.14:byte-buddy-1.6.14.jar:917758b3c651e278a15a029ba1d42dbf802d8b0e1fe2aa4b81c5750c64f461c1',
+			'net.bytebuddy:byte-buddy-agent:1.7.9:byte-buddy-agent-1.7.9.jar:ac1a993befb528c3271a83a9ad9c42d363d399e9deb26e0470e3c4962066c550',
+			'net.bytebuddy:byte-buddy:1.7.9:byte-buddy-1.7.9.jar:2ea2ada12b790d16ac7f6e6c065cb55cbcdb6ba519355f5958851159cad3b16a',
 			'net.sf.jopt-simple:jopt-simple:4.9:jopt-simple-4.9.jar:26c5856e954b5f864db76f13b86919b59c6eecf9fd930b96baa8884626baf2f5',
 			'net.sf.kxml:kxml2:2.3.0:kxml2-2.3.0.jar:f264dd9f79a1fde10ce5ecc53221eff24be4c9331c830b7d52f2f08a7b633de2',
 			'org.apache.ant:ant-launcher:1.9.4:ant-launcher-1.9.4.jar:7bccea20b41801ca17bcbc909a78c835d0f443f12d639c77bd6ae3d05861608d',
@@ -215,8 +215,8 @@ dependencyVerification {
 			'org.jmock:jmock-testjar:2.8.2:jmock-testjar-2.8.2.jar:8900860f72c474e027cf97fe78dcbf154a1aa7fc62b6845c5fb4e4f3c7bc8760',
 			'org.jmock:jmock:2.8.2:jmock-2.8.2.jar:6c73cb4a2e6dbfb61fd99c9a768539c170ab6568e57846bd60dbf19596b65b16',
 			'org.jvnet.staxex:stax-ex:1.7.7:stax-ex-1.7.7.jar:a31ff7d77163c0deb09e7fee59ad35ae44c2cee2cc8552a116ccd1583d813fb4',
-			'org.mockito:mockito-core:2.8.9:mockito-core-2.8.9.jar:a2bb9b8b40d81bb02ccb84259524c0f4911f73c6577bfc7ddd940b8fc729b6e6',
-			'org.objenesis:objenesis:2.5:objenesis-2.5.jar:293328e1b0d31ed30bb89fca542b6c52fac00989bb0e62eb9d98d630c4dd6b7c',
+			'org.mockito:mockito-core:2.13.0:mockito-core-2.13.0.jar:92a746b37cf8c5730a5e7b35fd7d8cd72700089435ff92ee03ed8384d4eb3377',
+			'org.objenesis:objenesis:2.6:objenesis-2.6.jar:5e168368fbc250af3c79aa5fef0c3467a2d64e5a7bd74005f25d8399aeb0708d',
 			'org.ow2.asm:asm-analysis:5.1:asm-analysis-5.1.jar:a34658f5c5de4b573eef21131cc32cc25f7b66407944f312b28ec2e56abb1fa9',
 			'org.ow2.asm:asm-commons:5.0.1:asm-commons-5.0.1.jar:fb1cb7fa27d892712ced8fbf8d027eb5052ecd3999dba1ba47824357accb40e7',
 			'org.ow2.asm:asm-commons:5.1:asm-commons-5.1.jar:97b3786e1f55e74bddf8ad102bf50e33bbcbc1f6b7fd7b36f0bbbb25cd4981be',
@@ -225,15 +225,15 @@ dependencyVerification {
 			'org.ow2.asm:asm-util:5.1:asm-util-5.1.jar:ee032c39ae5e3cd099148fbba9a2124f9ed613e5cb93e03ee0fa8808ce364040',
 			'org.ow2.asm:asm:5.0.4:asm-5.0.4.jar:896618ed8ae62702521a78bc7be42b7c491a08e6920a15f89a3ecdec31e9a220',
 			'org.ow2.asm:asm:5.1:asm-5.1.jar:d2da399a9967c69f0a21739256fa79d284222c223082cacadc17372244764b54',
-			'org.robolectric:annotations:3.5.1:annotations-3.5.1.jar:14db0f7d2299c5400ff7764bb37b4fa80306582d8965fdf6999091723e2384ce',
-			'org.robolectric:junit:3.5.1:junit-3.5.1.jar:b2e81b7d5a22755f2ea76aa9bbbd4359d61c4cb9577193ccfbb8f97378ed293b',
-			'org.robolectric:resources:3.5.1:resources-3.5.1.jar:22a5564590c8bfd8df7efb2b0c7d9942b46a0beb59ba38899d59c1270f293b1c',
-			'org.robolectric:robolectric:3.5.1:robolectric-3.5.1.jar:603cf898f93b854f18021fab452aca3fe482368eeb2e720988ae82212ebcf4b6',
-			'org.robolectric:sandbox:3.5.1:sandbox-3.5.1.jar:beff8c3c1e840e0f7f78aadef170f347bae349f098babfc176765f499a4bcbb5',
-			'org.robolectric:shadowapi:3.5.1:shadowapi-3.5.1.jar:6d574f9ae0922791eb8f06979f0010997d4b862c7aec96d485ae797ddfc13278',
-			'org.robolectric:shadows-framework:3.5.1:shadows-framework-3.5.1.jar:597b54cc1a494799d783921c6ac04352f33e94fca8e00f299d4ca192db79e3fc',
-			'org.robolectric:shadows-support-v4:3.0:shadows-support-v4-3.0.jar:66bcc3257b037d72998e860d67b1bc58215b7eeac8ad860fcc3e613332d88619',
-			'org.robolectric:utils:3.5.1:utils-3.5.1.jar:d7d77326867e6d903156ebb18c244819b26aebe3aa82a1c57081081a0b6c4f63',
+			'org.robolectric:annotations:3.8:annotations-3.8.jar:8eab08facfe2a8cd22f6a09f4378f012a5985c0d4f4ad4e203e00f75b5568458',
+			'org.robolectric:junit:3.8:junit-3.8.jar:042575dbc95dc82ec046d13438ccda578917ce786d2f464cba0eb18da1f412cb',
+			'org.robolectric:resources:3.8:resources-3.8.jar:6d11e6d39df8eda837c52319cf8d6bef424df45be6f29b3a731707832eb6ffc1',
+			'org.robolectric:robolectric:3.8:robolectric-3.8.jar:34908fc858e6e4113be2cf97fe55d3ffa4462bf7183d466542582ca1898ce60a',
+			'org.robolectric:sandbox:3.8:sandbox-3.8.jar:cc257dc75c5af9e62a43572ac89dff4d8520427307cf973e6b663c88fb000720',
+			'org.robolectric:shadowapi:3.8:shadowapi-3.8.jar:28bc24cb5c4b4030852cebebfd5f12536d03088892cb3c8b1d1379297087aca8',
+			'org.robolectric:shadows-framework:3.8:shadows-framework-3.8.jar:83548db7249edf1af87e1a1f4d8f4eec3e85d6220161da601e6f6398476911b2',
+			'org.robolectric:shadows-support-v4:3.3.2:shadows-support-v4-3.3.2.jar:6f689264738266e70fe08db7c04b7b5a75155994f4e3f7f311960d90486bf005',
+			'org.robolectric:utils:3.8:utils-3.8.jar:e945d04d40e37554e02d4be1bc3abf9bede45375c843aa36d10ccb6b63edbf34',
 			'tools.fastlane:screengrab:1.1.0:screengrab-1.1.0.aar:03ce3868ee8a0082d14e7a1de0999f91531c0cc794392688beb08ee9bc4495fd',
 			'uk.co.samuelwall:material-tap-target-prompt:2.8.0:material-tap-target-prompt-2.8.0.aar:ac70770c05bbc4675a1d5712c0e53d46ee4fa961b74947589fce50d8003065ec',
 			'xmlpull:xmlpull:1.1.3.1:xmlpull-1.1.3.1.jar:34e08ee62116071cbb69c0ed70d15a7a5b208d62798c59f2120bb8929324cb63',

@@ -133,7 +133,7 @@
   <string name="security_settings_title">Seguridá</string>
   <string name="panic_setting">Configuración del Botón d\'espantu</string>
   <string name="panic_setting_title">Botón d\'espantu</string>
-  <string name="lock_setting_title">Colar</string>
+  <string name="panic_setting_signout_title">Colar</string>
   <string name="uninstall_setting_title">Desinstalar Briar</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Avisos</string>
