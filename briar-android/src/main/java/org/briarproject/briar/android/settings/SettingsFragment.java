@@ -460,7 +460,20 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			int timeout = settings.getInt(PREF_SCREEN_LOCK_TIMEOUT,
 					Integer.valueOf(getString(
 							R.string.pref_lock_timeout_value_default)));
-			screenLockTimeout.setValue(String.valueOf(timeout));
+			String newValue = String.valueOf(timeout);
+			screenLockTimeout.setValue(newValue);
+			setScreenLockTimeoutSummary(newValue);
+		}
+	}
+
+	private void setScreenLockTimeoutSummary(String timeout) {
+		String never = getString(R.string.pref_lock_timeout_value_never);
+		if (timeout.equals(never)) {
+			screenLockTimeout
+					.setSummary(R.string.pref_lock_timeout_never_summary);
+		} else {
+			screenLockTimeout
+					.setSummary(R.string.pref_lock_timeout_summary);
 		}
 	}
 
@@ -525,9 +538,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			storeSettings(s);
 		} else if (preference == screenLockTimeout) {
 			Settings s = new Settings();
-			s.putInt(PREF_SCREEN_LOCK_TIMEOUT,
-					Integer.valueOf((String) newValue));
+			String value = (String) newValue;
+			s.putInt(PREF_SCREEN_LOCK_TIMEOUT, Integer.valueOf(value));
 			storeSettings(s);
+			setScreenLockTimeoutSummary(value);
 		} else if (preference == notifyPrivateMessages) {
 			Settings s = new Settings();
 			s.putBoolean(PREF_NOTIFY_PRIVATE, (Boolean) newValue);
