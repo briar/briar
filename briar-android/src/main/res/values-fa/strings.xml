@@ -382,8 +382,8 @@
   <string name="panic_app_setting_none">هیچکدام</string>
   <string name="dialog_title_connect_panic_app">تایید برنامه هراس</string>
   <string name="dialog_message_connect_panic_app">آیا مطمئن هستید که میخواهید به %1$s اجازه دهید تا باعث عملیات مخرب دکمه هراس بشود؟</string>
-  <string name="lock_setting_title">خروج</string>
-  <string name="lock_setting_summary">در صورت کلیک بر روی کلید هراس از برایر خارج شو</string>
+  <string name="panic_setting_signout_title">خروج</string>
+  <string name="panic_setting_signout_summary">در صورت کلیک بر روی کلید هراس از برایر خارج شو</string>
   <string name="purge_setting_title">حذف حساب کاربری</string>
   <string name="purge_setting_summary">پاک کردن حساب کاربری برایر شما در صورتی که دکمه هراس فشار داده شود. اخطار: این باعث پاک شدن دائمی تمام هویت ها، مخاطبان و پیام های شما خواهد شد</string>
   <string name="uninstall_setting_title">پاک کردن برایر</string>

@@ -343,8 +343,8 @@
   <string name="panic_app_setting_none">Ei mitään</string>
   <string name="dialog_title_connect_panic_app">Vahvista paniikkisovellus</string>
   <string name="dialog_message_connect_panic_app">Oletko varma, että haluat myöntää ohjelmalle %1$s luvan laukaista tuhoa aiheuttavia paniikkinapin toimintoja?</string>
-  <string name="lock_setting_title">Kirjaudu ulos</string>
-  <string name="lock_setting_summary">Kirjaudu ulos Briarista jos paniikkinappia on painettu</string>
+  <string name="panic_setting_signout_title">Kirjaudu ulos</string>
+  <string name="panic_setting_signout_summary">Kirjaudu ulos Briarista jos paniikkinappia on painettu</string>
   <string name="purge_setting_title">Poista tili</string>
   <string name="purge_setting_summary">Poista Briar tilisi jos paniikkinappia on painettu. Varoitus: Tämä tulee pysyvästi poistamaan sinun tunnukset, yhteystiedot ja viestit</string>
   <string name="uninstall_setting_title">Poista Briarin asennus</string>

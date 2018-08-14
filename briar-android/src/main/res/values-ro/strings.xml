@@ -354,8 +354,8 @@
   <string name="panic_app_setting_none">Nici una</string>
   <string name="dialog_title_connect_panic_app">Confirmare aplicație de panică</string>
   <string name="dialog_message_connect_panic_app">Sigur doriți să permiteți %1$s să declanșeze acțiuni destructive pentru butonul de panică?</string>
-  <string name="lock_setting_title">Ieșire</string>
-  <string name="lock_setting_summary">Ieși din Briar dacă un buton de panică este apăsat</string>
+  <string name="panic_setting_signout_title">Ieșire</string>
+  <string name="panic_setting_signout_summary">Ieși din Briar dacă un buton de panică este apăsat</string>
   <string name="purge_setting_title">Șterge cont</string>
   <string name="purge_setting_summary">Ștergeți contul Briar dacă este apăsat buton de panică. Atenție: aceasta va șterge definitiv identitatea, contactele și mesajele dvs.</string>
   <string name="uninstall_setting_title">Dezinstalare Briar</string>

@@ -271,8 +271,8 @@
   <string name="panic_app_setting_none">Няма</string>
   <string name="dialog_title_connect_panic_app">Потвърждение на паник приложение</string>
   <string name="dialog_message_connect_panic_app">Сигурни ли сте, че искате да позволите на %1$s да задейства унищожителни действия на паник бутон?</string>
-  <string name="lock_setting_title">Отписване</string>
-  <string name="lock_setting_summary">Отписване от Briar, ако паник бутонът е натиснат</string>
+  <string name="panic_setting_signout_title">Отписване</string>
+  <string name="panic_setting_signout_summary">Отписване от Briar, ако паник бутонът е натиснат</string>
   <string name="purge_setting_title">Изтриване на профил</string>
   <string name="purge_setting_summary">Изтриване на Briar профила, ако паник бутонът е натиснат. Внимание: Изтрива завинаги вашия профил, контакти и съобщения</string>
   <string name="uninstall_setting_title">Деинсталиране на Briar</string>

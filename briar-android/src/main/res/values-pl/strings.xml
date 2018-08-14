@@ -361,8 +361,8 @@
   <string name="panic_app_setting_none">Brak</string>
   <string name="dialog_title_connect_panic_app">Potwierdź Awaryjną Aplikację</string>
   <string name="dialog_message_connect_panic_app">Czy na pewno chcesz pozwolić %1$s aby działała jako przycisk wyjścia awaryjnego?</string>
-  <string name="lock_setting_title">Wyloguj się</string>
-  <string name="lock_setting_summary">Wyloguj się z Briar jeśli przycisk zostanie wciśnięty</string>
+  <string name="panic_setting_signout_title">Wyloguj się</string>
+  <string name="panic_setting_signout_summary">Wyloguj się z Briar jeśli przycisk zostanie wciśnięty</string>
   <string name="purge_setting_title">Skasuj Konto</string>
   <string name="purge_setting_summary">Skasuj Twoje konto Briar jeśli przycisk wyjścia awaryjnego zostanie wciśnięty. Ostrzeżenie: Ta akcja usunie permanentnie Twoje konto, kontakty i wiadomości</string>
   <string name="uninstall_setting_title">Odinstaluj Briar</string>

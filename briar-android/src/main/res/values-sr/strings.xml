@@ -237,8 +237,8 @@
   <string name="panic_app_setting_none">Ništa</string>
   <string name="dialog_title_connect_panic_app">Potvrdi Panic App</string>
   <string name="dialog_message_connect_panic_app">Jeste li sigurni da želite da dozvolite %1$s da pokrene destruktivne akcije panik dugmeta?</string>
-  <string name="lock_setting_title">Izlogujte se</string>
-  <string name="lock_setting_summary">Izloguj se iz Briar-a ako je pritisnuto panik dugme</string>
+  <string name="panic_setting_signout_title">Izlogujte se</string>
+  <string name="panic_setting_signout_summary">Izloguj se iz Briar-a ako je pritisnuto panik dugme</string>
   <string name="purge_setting_title">Izbriši račun</string>
   <string name="purge_setting_summary">Izbriši Briar račun ako je panik dugme pritisnuto. Pažnja: Ovo će permanentno izbrisati vaše identitete, kontakte i poruke</string>
   <string name="uninstall_setting_title">Deinstaliraj Briar</string>

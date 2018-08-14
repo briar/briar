@@ -309,8 +309,8 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="panic_app_setting_none">Cap</string>
   <string name="dialog_title_connect_panic_app">Confirmar l’aplicacion Urgéncia</string>
   <string name="dialog_message_connect_panic_app">Sètz segur de voler autorizar %1$s a aviar las accions de destruccion del boton Urgéncia ?</string>
-  <string name="lock_setting_title">Se desconnectar</string>
-  <string name="lock_setting_summary">Se desconnectar de Briar en apiejant lo boton Urgéncia ?</string>
+  <string name="panic_setting_signout_title">Se desconnectar</string>
+  <string name="panic_setting_signout_summary">Se desconnectar de Briar en apiejant lo boton Urgéncia ?</string>
   <string name="purge_setting_title">Suprimir lo compte</string>
   <string name="purge_setting_summary">Suprimir vòstre compte en apiejant lo boton Urgéncia. Mèfi, aquò escafarà per totjorn vòstra identitat, vòstres contactes e messatges.</string>
   <string name="uninstall_setting_title">Desinstallar Briar</string>

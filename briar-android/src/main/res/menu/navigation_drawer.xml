@@ -27,6 +27,11 @@
 			android:icon="@drawable/ic_settings_black_24dp"
 			android:title="@string/settings_button"/>
 		<item
+			android:id="@+id/nav_btn_lock"
+			android:icon="@drawable/startup_lock"
+			android:title="@string/lock_button"
+			android:visible="false"/>
+		<item
 			android:id="@+id/nav_btn_signout"
 			android:icon="@drawable/ic_signout"
 			android:title="@string/sign_out_button"/>

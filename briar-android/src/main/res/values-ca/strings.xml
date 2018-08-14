@@ -343,8 +343,8 @@
   <string name="panic_app_setting_none">Cap</string>
   <string name="dialog_title_connect_panic_app">Confirmeu l\'aplicació de pànic</string>
   <string name="dialog_message_connect_panic_app">Segur que voleu permetre que %1$s desencadeni accions destructives a conseqüència del botó de pànic?</string>
-  <string name="lock_setting_title">Tanca la sessió</string>
-  <string name="lock_setting_summary">Tanca la sessió de Briar si es prem un botó de pànic</string>
+  <string name="panic_setting_signout_title">Tanca la sessió</string>
+  <string name="panic_setting_signout_summary">Tanca la sessió de Briar si es prem un botó de pànic</string>
   <string name="purge_setting_title">Esborreu el compte</string>
   <string name="purge_setting_summary">Suprimeix el compte de Briar si es prem el botó de pànic. Atenció: En aquest cas, s\'eliminarien permanentment les vostres identitats, contactes i missatges</string>
   <string name="uninstall_setting_title">Desinstal·leu Briar</string>

@@ -333,8 +333,8 @@
   <string name="panic_app_setting_none">Keine</string>
   <string name="dialog_title_connect_panic_app">Bestätige Panik-App</string>
   <string name="dialog_message_connect_panic_app">Bist du sicher, dass du %1$s erlauben willst, Panik-Button-Ereignisse auszulösen? Dies kann zum Löschen von Daten führen.</string>
-  <string name="lock_setting_title">Abmelden</string>
-  <string name="lock_setting_summary">Von Briar abmelden, wenn ein Panik-Button aktiviert wird</string>
+  <string name="panic_setting_signout_title">Abmelden</string>
+  <string name="panic_setting_signout_summary">Von Briar abmelden, wenn ein Panik-Button aktiviert wird</string>
   <string name="purge_setting_title">Konto löschen</string>
   <string name="purge_setting_summary">Briar-Konto löschen, wenn der Panik-Button gedrückt wird. Achtung: Es werden alle Identitäten, Kontakte und Nachrichten unwiderruflich gelöscht.</string>
   <string name="uninstall_setting_title">Briar deinstallieren</string>

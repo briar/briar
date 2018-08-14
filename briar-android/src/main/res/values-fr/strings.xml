@@ -343,8 +343,8 @@
   <string name="panic_app_setting_none">Aucune</string>
   <string name="dialog_title_connect_panic_app">Confirmer l’application d’urgence</string>
   <string name="dialog_message_connect_panic_app">Voulez-vous vraiment autoriser %1$s à déclencher les actions destructrices du bouton d’urgence ?</string>
-  <string name="lock_setting_title">Déconnexion</string>
-  <string name="lock_setting_summary">Se déconnecter de Briar lorsqu’on appuie sur un bouton d’urgence</string>
+  <string name="panic_setting_signout_title">Déconnexion</string>
+  <string name="panic_setting_signout_summary">Se déconnecter de Briar lorsqu’on appuie sur un bouton d’urgence</string>
   <string name="purge_setting_title">Supprimer le compte</string>
   <string name="purge_setting_summary">Supprimer votre compte Briar lorsqu’on appuie sur un bouton d’urgence. Attention : cela supprimera définitivement vos identités, contacts et messages</string>
   <string name="uninstall_setting_title">Désinstaller Briar</string>

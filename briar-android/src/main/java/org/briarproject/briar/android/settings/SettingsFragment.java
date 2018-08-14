@@ -82,10 +82,12 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.bramble.util.StringUtils.join;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_DARK_THEME;
+import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_PIN_LOCK;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_SIGN_IN_REMINDER;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_SIGN_OUT;
+import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.BLOG_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.CONTACT_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FORUM_CHANNEL_ID;
@@ -109,6 +111,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public static final String BT_NAMESPACE = BluetoothConstants.ID.getString();
 	public static final String TOR_NAMESPACE = TorConstants.ID.getString();
 	public static final String LANGUAGE = "pref_key_language";
+	public static final String PREF_SCREEN_LOCK = "pref_key_lock";
 	public static final String NOTIFY_SIGN_IN = "pref_key_notify_sign_in";
 	public static final String TOR_LOCATION = "pref_key_tor_location";
 
@@ -120,6 +123,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private ListPreference enableBluetooth;
 	private ListPreference torNetwork;
 	private CheckBoxPreference torBlocked;
+	private CheckBoxPreference screenLock;
 	private CheckBoxPreference notifyPrivateMessages;
 	private CheckBoxPreference notifyGroupMessages;
 	private CheckBoxPreference notifyForumPosts;
@@ -162,6 +166,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		setBlockedCountries();
 		CheckBoxPreference notifySignIn =
 				(CheckBoxPreference) findPreference(NOTIFY_SIGN_IN);
+		screenLock = (CheckBoxPreference) findPreference(PREF_SCREEN_LOCK);
 		notifyPrivateMessages = (CheckBoxPreference) findPreference(
 				"pref_key_notify_private_messages");
 		notifyGroupMessages = (CheckBoxPreference) findPreference(
@@ -175,8 +180,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		notifyLockscreen = (CheckBoxPreference) findPreference(
 				"pref_key_notify_lock_screen");
 		notifySound = findPreference("pref_key_notify_sound");
-
-		setSettingsEnabled(false);
 
 		language.setOnPreferenceChangeListener(this);
 		theme.setOnPreferenceChangeListener((preference, newValue) -> {
@@ -200,6 +203,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		enableBluetooth.setOnPreferenceChangeListener(this);
 		torNetwork.setOnPreferenceChangeListener(this);
 		torBlocked.setOnPreferenceChangeListener(this);
+		screenLock.setOnPreferenceChangeListener(this);
 		if (SDK_INT >= 21) {
 			notifyLockscreen.setVisible(true);
 			notifyLockscreen.setOnPreferenceChangeListener(this);
@@ -220,6 +224,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		} else {
 			theme.setVisible(FEATURE_FLAG_DARK_THEME);
 			notifySignIn.setVisible(FEATURE_FLAG_SIGN_IN_REMINDER);
+			screenLock.setVisible(FEATURE_FLAG_PIN_LOCK);
 
 			findPreference("pref_key_explode").setVisible(false);
 			findPreference("pref_key_test_data").setVisible(false);
@@ -229,7 +234,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			testing.setVisible(false);
 		}
 
-		loadSettings();
 	}
 
 	@Override
@@ -246,6 +250,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void onStart() {
 		super.onStart();
 		eventBus.addListener(this);
+		setSettingsEnabled(false);
+		loadSettings();
 	}
 
 	@Override
@@ -354,6 +360,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			enableBluetooth.setValue(Boolean.toString(btSetting));
 			torNetwork.setValue(Integer.toString(torNetworkSetting));
 			torBlocked.setChecked(torBlockedSetting);
+			displayScreenLockSetting();
 
 			if (SDK_INT < 26) {
 				notifyPrivateMessages.setChecked(settings.getBoolean(
@@ -411,9 +418,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		// preferences not needed here, because handled by SharedPreferences:
 		// - pref_key_theme
 		// - pref_key_notify_sign_in
+		// preferences partly needed here, because they have their own logic
+		// - pref_key_lock (screenLock -> displayScreenLockSetting())
 		enableBluetooth.setEnabled(enabled);
 		torNetwork.setEnabled(enabled);
 		torBlocked.setEnabled(enabled);
+		if (!enabled) screenLock.setEnabled(false);
 		notifyPrivateMessages.setEnabled(enabled);
 		notifyGroupMessages.setEnabled(enabled);
 		notifyForumPosts.setEnabled(enabled);
@@ -421,6 +431,23 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		notifyVibration.setEnabled(enabled);
 		notifyLockscreen.setEnabled(enabled);
 		notifySound.setEnabled(enabled);
+	}
+
+	private void displayScreenLockSetting() {
+		if (SDK_INT < 21) {
+			screenLock.setVisible(false);
+		} else {
+			if (getActivity() != null && hasScreenLock(getActivity())) {
+				screenLock.setEnabled(true);
+				screenLock.setChecked(
+						settings.getBoolean(PREF_SCREEN_LOCK, false));
+				screenLock.setSummary(R.string.pref_lock_summary);
+			} else {
+				screenLock.setEnabled(false);
+				screenLock.setChecked(false);
+				screenLock.setSummary(R.string.pref_lock_disabled_summary);
+			}
+		}
 	}
 
 	@TargetApi(26)
@@ -478,6 +505,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		} else if (preference == torBlocked) {
 			boolean torBlockedSetting = (Boolean) newValue;
 			storeTorBlockedSetting(torBlockedSetting);
+		} else if (preference == screenLock) {
+			Settings s = new Settings();
+			s.putBoolean(PREF_SCREEN_LOCK, (Boolean) newValue);
+			storeSettings(s);
 		} else if (preference == notifyPrivateMessages) {
 			Settings s = new Settings();
 			s.putBoolean(PREF_NOTIFY_PRIVATE, (Boolean) newValue);

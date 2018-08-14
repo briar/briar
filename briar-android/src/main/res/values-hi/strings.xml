@@ -327,8 +327,8 @@
   <string name="panic_app_setting_none">कुछ भी नहीं</string>
   <string name="dialog_title_connect_panic_app">आतंक ऐप की पुष्टि करें</string>
   <string name="dialog_message_connect_panic_app">क्या आप निश्चित हैं कि आप%1$s को विनाशकारी आतंक बटन क्रियाओं को ट्रिगर करने की अनुमति देना चाहते हैं?</string>
-  <string name="lock_setting_title">साइन आउट</string>
-  <string name="lock_setting_summary">यदि कोई आतंक बटन दबाया जाता है तो बियर से साइन आउट करें</string>
+  <string name="panic_setting_signout_title">साइन आउट</string>
+  <string name="panic_setting_signout_summary">यदि कोई आतंक बटन दबाया जाता है तो बियर से साइन आउट करें</string>
   <string name="purge_setting_title">खाता हटा दो</string>
   <string name="purge_setting_summary">यदि आपका आतंक बटन दबाया गया हो तो अपने ब्रियर खाते को हटा दें। सावधानी: यह आपकी पहचान, संपर्क और संदेश को स्थायी रूप से हटा देगा</string>
   <string name="uninstall_setting_title">बरिअर की स्थापना रद्द करें</string>

@@ -114,7 +114,7 @@
   <string name="change_password">パスワードの変更</string>
   <string name="confirm_new_password">新しいパスワードの確認</string>
   <string name="panic_app_setting_none">なし</string>
-  <string name="lock_setting_title">サインアウト</string>
+  <string name="panic_setting_signout_title">サインアウト</string>
   <string name="purge_setting_title">アカウントを削除</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">通知</string>
