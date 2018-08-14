@@ -44,7 +44,7 @@
 			android:summary="%s"
 			android:title="@string/tor_network_setting"/>
 
-		<CheckBoxPreference
+		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_tor_location"
 			android:persistent="false"
@@ -56,7 +56,7 @@
 		android:layout="@layout/preferences_category"
 		android:title="@string/security_settings_title">
 
-		<CheckBoxPreference
+		<SwitchPreference
 			android:key="pref_key_lock"
 			android:persistent="false"
 			android:summary="@string/pref_lock_summary"
@@ -94,41 +94,41 @@
 		android:layout="@layout/preferences_category"
 		android:title="@string/notification_settings_title">
 
-		<CheckBoxPreference
+		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_sign_in"
 			android:summary="@string/notify_sign_in_summary"
 			android:title="@string/notify_sign_in_title"/>
 
-		<CheckBoxPreference
+		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_private_messages"
 			android:persistent="false"
 			android:summary="@string/notify_private_messages_setting_summary"
 			android:title="@string/notify_private_messages_setting_title"/>
 
-		<CheckBoxPreference
+		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_group_messages"
 			android:persistent="false"
 			android:summary="@string/notify_group_messages_setting_summary"
 			android:title="@string/notify_group_messages_setting_title"/>
 
-		<CheckBoxPreference
+		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_forum_posts"
 			android:persistent="false"
 			android:summary="@string/notify_forum_posts_setting_summary"
 			android:title="@string/notify_forum_posts_setting_title"/>
 
-		<CheckBoxPreference
+		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_blog_posts"
 			android:persistent="false"
 			android:summary="@string/notify_blog_posts_setting_summary"
 			android:title="@string/notify_blog_posts_setting_title"/>
 
-		<CheckBoxPreference
+		<SwitchPreference
 			android:defaultValue="false"
 			android:key="pref_key_notify_lock_screen"
 			android:persistent="false"
@@ -136,7 +136,7 @@
 			android:title="@string/notify_lock_screen_setting_title"
 			android:visibility="gone"/>
 
-		<CheckBoxPreference
+		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_vibration"
 			android:persistent="false"

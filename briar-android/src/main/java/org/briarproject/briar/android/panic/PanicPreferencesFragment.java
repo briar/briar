@@ -9,8 +9,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v14.preference.SwitchPreference;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.text.TextUtils;
@@ -37,7 +37,7 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 			Logger.getLogger(PanicPreferencesFragment.class.getName());
 
 	private PackageManager pm;
-	private CheckBoxPreference lockPref, purgePref, uninstallPref;
+	private SwitchPreference lockPref, purgePref, uninstallPref;
 	private ListPreference panicAppPref;
 
 	@Override
@@ -46,10 +46,10 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 
 		pm = getActivity().getPackageManager();
 
-		lockPref = (CheckBoxPreference) findPreference(KEY_LOCK);
+		lockPref = (SwitchPreference) findPreference(KEY_LOCK);
 		panicAppPref = (ListPreference) findPreference(KEY_PANIC_APP);
-		purgePref = (CheckBoxPreference) findPreference(KEY_PURGE);
-		uninstallPref = (CheckBoxPreference) findPreference(KEY_UNINSTALL);
+		purgePref = (SwitchPreference) findPreference(KEY_PURGE);
+		uninstallPref = (SwitchPreference) findPreference(KEY_UNINSTALL);
 
 		// check for connect/disconnect intents from panic trigger apps
 		if (PanicResponder.checkForDisconnectIntent(getActivity())) {
