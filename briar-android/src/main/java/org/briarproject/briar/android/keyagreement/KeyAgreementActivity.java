@@ -188,8 +188,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	protected void showErrorFragment(@StringRes int errorResId) {
-		String errorMessage = getString(errorResId);
-		BaseFragment f = ContactExchangeErrorFragment.newInstance(errorMessage);
+		BaseFragment f = ContactExchangeErrorFragment.newInstance(errorResId);
 		showNextFragment(f);
 	}
 

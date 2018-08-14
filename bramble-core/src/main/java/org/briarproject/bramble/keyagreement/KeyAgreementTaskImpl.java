@@ -102,6 +102,7 @@ class KeyAgreementTaskImpl extends Thread implements KeyAgreementTask,
 		KeyAgreementTransport transport =
 				connector.connect(remotePayload, alice);
 		if (transport == null) {
+			LOG.warning("Key agreement failed. Transport was null.");
 			// Notify caller that the connection failed
 			eventBus.broadcast(new KeyAgreementFailedEvent());
 			return;

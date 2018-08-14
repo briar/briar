@@ -97,14 +97,14 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 	@Override
 	public void contactExchangeFailed() {
 		runOnUiThreadUnlessDestroyed(() -> {
-			showErrorFragment(R.string.contact_exchange_failed);
+			showErrorFragment(R.string.connection_error_explanation);
 		});
 	}
 
 	@UiThread
 	@Override
 	public void keyAgreementFailed() {
-		showErrorFragment(R.string.connection_failed);
+		showErrorFragment(R.string.connection_error_explanation);
 	}
 
 	@UiThread

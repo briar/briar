@@ -2,6 +2,7 @@ package org.briarproject.briar.android.keyagreement;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,10 +29,10 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 			ContactExchangeErrorFragment.class.getName();
 	private static final String ERROR_MSG = "errorMessage";
 
-	public static ContactExchangeErrorFragment newInstance(String message) {
+	public static ContactExchangeErrorFragment newInstance(@StringRes int res) {
 		ContactExchangeErrorFragment f = new ContactExchangeErrorFragment();
 		Bundle args = new Bundle();
-		args.putString(ERROR_MSG, message);
+		args.putInt(ERROR_MSG, res);
 		f.setArguments(args);
 		return f;
 	}
@@ -39,22 +40,9 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 	@Inject
 	AndroidExecutor androidExecutor;
 
-	private String errorMessage;
-
 	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		Bundle args = getArguments();
-		if (args == null) {
-			throw new IllegalArgumentException("Use newInstance()");
-		}
-		errorMessage = args.getString(ERROR_MSG);
 	}
 
 	@Nullable
@@ -66,13 +54,17 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 				.inflate(R.layout.fragment_error_contact_exchange, container,
 						false);
 
-		// make feedback link clickable
+		// set humanized error message
 		TextView explanation = v.findViewById(R.id.errorMessage);
-		onSingleLinkClick(explanation, this::triggerFeedback);
+		Bundle args = getArguments();
+		if (args == null) {
+			throw new IllegalArgumentException("Use newInstance()");
+		}
+		explanation.setText(args.getInt(ERROR_MSG));
 
-		// technical error message
-		TextView msg = v.findViewById(R.id.errorMessageTech);
-		msg.setText(errorMessage);
+		// make feedback link clickable
+		TextView sendFeedback = v.findViewById(R.id.sendFeedback);
+		onSingleLinkClick(sendFeedback, this::triggerFeedback);
 
 		// buttons
 		Button tryAgain = v.findViewById(R.id.tryAgainButton);
