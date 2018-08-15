@@ -36,7 +36,6 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseEventFragment;
-import org.briarproject.briar.android.fragment.ErrorFragment;
 import org.briarproject.briar.android.view.QrCodeView;
 
 import java.io.IOException;
@@ -247,7 +246,7 @@ public class KeyAgreementFragment extends BaseEventFragment
 			reset();
 			String msg = getString(R.string.qr_code_unsupported,
 					getString(R.string.app_name));
-			showNextFragment(ErrorFragment.newInstance(msg));
+			showNextFragment(ContactExchangeErrorFragment.newInstance(msg));
 		} catch (CameraException e) {
 			logCameraExceptionAndFinish(e);
 		} catch (IOException | IllegalArgumentException e) {

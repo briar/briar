@@ -2,7 +2,6 @@ package org.briarproject.briar.android.keyagreement;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,10 +28,10 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 			ContactExchangeErrorFragment.class.getName();
 	private static final String ERROR_MSG = "errorMessage";
 
-	public static ContactExchangeErrorFragment newInstance(@StringRes int res) {
+	public static ContactExchangeErrorFragment newInstance(String errorMsg) {
 		ContactExchangeErrorFragment f = new ContactExchangeErrorFragment();
 		Bundle args = new Bundle();
-		args.putInt(ERROR_MSG, res);
+		args.putString(ERROR_MSG, errorMsg);
 		f.setArguments(args);
 		return f;
 	}
@@ -60,7 +59,7 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 		if (args == null) {
 			throw new IllegalArgumentException("Use newInstance()");
 		}
-		explanation.setText(args.getInt(ERROR_MSG));
+		explanation.setText(args.getString(ERROR_MSG));
 
 		// make feedback link clickable
 		TextView sendFeedback = v.findViewById(R.id.sendFeedback);
