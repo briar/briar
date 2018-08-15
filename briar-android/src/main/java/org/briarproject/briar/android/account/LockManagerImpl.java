@@ -63,11 +63,15 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 	private volatile boolean lockableSetting = false;
 	private volatile int timeoutMinutes;
 	private int activitiesRunning = 0;
+	private boolean alarmSet = false;
+	// This is to ensure that we don't start unlocked after a timeout and thus
+	// is set to the elapsed real time when no more activities are running.
+	// Its value is only relevant as long as no activity is running.
 	private long idleTime;
 	private final MutableLiveData<Boolean> lockable = new MutableLiveData<>();
 
 	@Inject
-	public LockManagerImpl(Application app, SettingsManager settingsManager,
+	LockManagerImpl(Application app, SettingsManager settingsManager,
 			AndroidNotificationManager notificationManager,
 			@DatabaseExecutor Executor dbExecutor) {
 		this.appContext = app.getApplicationContext();
@@ -108,7 +112,10 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 			setLocked(true);
 		}
 		activitiesRunning++;
-		alarmManager.cancel(lockIntent);
+		if (alarmSet) {
+			alarmManager.cancel(lockIntent);
+			alarmSet = false;
+		}
 	}
 
 	@UiThread
@@ -118,10 +125,11 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 		if (activitiesRunning == 0) {
 			idleTime = elapsedRealtime();
 			if (!locked && timeoutEnabled()) {
-				alarmManager.cancel(lockIntent);
+				if (alarmSet) alarmManager.cancel(lockIntent);
 				long triggerAt =
 						elapsedRealtime() + MINUTES.toMillis(timeoutMinutes);
 				alarmManager.set(ELAPSED_REALTIME, triggerAt, lockIntent);
+				alarmSet = true;
 			}
 		}
 	}
@@ -146,7 +154,8 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 		if (locked && !hasScreenLock(appContext)) {
 			lockable.postValue(false);
 			locked = false;
-		} else if (!locked && activitiesRunning == 0 && timeoutEnabled()) {
+		} else if (!locked && activitiesRunning == 0 && timeoutEnabled() &&
+				timedOut()) {
 			setLocked(true);
 		}
 		return locked;
