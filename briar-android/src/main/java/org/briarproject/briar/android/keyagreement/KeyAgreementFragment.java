@@ -300,9 +300,7 @@ public class KeyAgreementFragment extends BaseEventFragment
 	private void keyAgreementAborted(boolean remoteAborted) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			reset();
-			qrCodeView.setVisibility(VISIBLE);
-			statusView.setVisibility(INVISIBLE);
-			status.setText(listener.keyAgreementAborted(remoteAborted));
+			listener.keyAgreementAborted(remoteAborted);
 		});
 	}
 
@@ -361,10 +359,9 @@ public class KeyAgreementFragment extends BaseEventFragment
 		@Nullable
 		String keyAgreementStarted();
 
-		// Should return a string to be displayed as status.
+		// Will show an error fragment.
 		@UiThread
-		@Nullable
-		String keyAgreementAborted(boolean remoteAborted);
+		void keyAgreementAborted(boolean remoteAborted);
 
 		// Should return a string to be displayed as status.
 		@UiThread

@@ -119,13 +119,10 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 		return getString(R.string.authenticating_with_device);
 	}
 
-	@Nullable
 	@UiThread
 	@Override
-	public String keyAgreementAborted(boolean remoteAborted) {
-		showErrorFragment(remoteAborted ? R.string.connection_aborted_remote :
-				R.string.connection_aborted_local);
-		return null;
+	public void keyAgreementAborted(boolean remoteAborted) {
+		showErrorFragment(R.string.connection_error_explanation);
 	}
 
 	@UiThread

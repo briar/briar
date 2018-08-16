@@ -49,9 +49,8 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		View v = inflater
-				.inflate(R.layout.fragment_error_contact_exchange, container,
-						false);
+		View v = inflater.inflate(R.layout.fragment_error_contact_exchange,
+				container, false);
 
 		// set humanized error message
 		TextView explanation = v.findViewById(R.id.errorMessage);
