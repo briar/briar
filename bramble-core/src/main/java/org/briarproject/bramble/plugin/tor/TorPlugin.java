@@ -649,7 +649,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 					enableNetwork(false);
 				} else if (network == PREF_TOR_NETWORK_NEVER ||
 						(!useMobile && !wifi)) {
-					LOG.info("Disabling network due to data setting");
+					LOG.info("Disabling network due to setting");
 					enableNetwork(false);
 				} else if (automatic && blocked && !bridgesWork) {
 					LOG.info("Disabling network, country is blocked");

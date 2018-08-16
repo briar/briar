@@ -355,9 +355,7 @@
 	<string name="tor_network_setting_never">Don\'t connect</string>
 	<!-- How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus) -->
 	<string name="tor_network_setting_summary">Automatic: %1$s (in %2$s)</string>
-	<!-- The placeholder when we don't know the user's current country -->
-	<string name="tor_network_country_unknown">unknown</string>
-	<string name="tor_mobile_data_title">Use Mobile Data</string>
+	<string name="tor_mobile_data_title">Use mobile data</string>
 
 	<!-- Settings Security and Panic -->
 	<string name="security_settings_title">Security</string>

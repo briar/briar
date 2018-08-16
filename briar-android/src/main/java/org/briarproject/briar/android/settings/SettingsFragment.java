@@ -314,7 +314,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 		// Look up country name in the user's chosen language if available
 		String country = locationUtils.getCurrentCountry();
-		String countryName = getString(R.string.tor_network_country_unknown);
+		String countryName = country;
 		for (Locale locale : Locale.getAvailableLocales()) {
 			if (locale.getCountry().equalsIgnoreCase(country)) {
 				countryName = locale.getDisplayCountry();
