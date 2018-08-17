@@ -123,7 +123,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	private volatile Waiter validationWaiter;
 	private volatile Waiter deliveryWaiter;
 
-	protected final static int TIMEOUT = 15000;
+	protected final static int TIMEOUT = 30000;
 	protected C c0, c1, c2;
 
 	private final File testDir = TestUtils.getTestDirectory();
