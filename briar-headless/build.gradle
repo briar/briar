@@ -1,0 +1,41 @@
+plugins {
+	id 'java'
+	id 'net.ltgt.apt'
+	id 'idea'
+	id 'witness'
+}
+apply from: 'witness.gradle'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+	implementation project(path: ':briar-core', configuration: 'default')
+	implementation project(path: ':bramble-java', configuration: 'default')
+
+	implementation 'io.javalin:javalin:1.7.0'
+	implementation 'org.slf4j:slf4j-simple:1.7.25'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.6'
+
+	apt 'com.google.dagger:dagger-compiler:2.0.2'
+
+	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
+	testImplementation 'junit:junit:4.12'
+	testImplementation "org.jmock:jmock:2.8.2"
+	testImplementation "org.jmock:jmock-junit4:2.8.2"
+	testImplementation "org.jmock:jmock-legacy:2.8.2"
+	testImplementation "org.hamcrest:hamcrest-library:1.3"
+	testImplementation "org.hamcrest:hamcrest-core:1.3"
+}
+
+jar {
+	manifest {
+		attributes(
+				'Main-Class': 'org.briarproject.briar.headless.Main'
+		)
+	}
+	from {
+		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+	}
+}

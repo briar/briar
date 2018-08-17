@@ -9,6 +9,7 @@ PROJECTS=(
     'briar-api'
     'briar-core'
     'briar-android'
+    'briar-headless'
 )
 
 # clear witness files to prevent errors when upgrading dependencies
