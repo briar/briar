@@ -81,7 +81,9 @@ public class FeedFragment extends BaseFragment implements
 		list = v.findViewById(R.id.postList);
 		list.setLayoutManager(layoutManager);
 		list.setAdapter(adapter);
+		list.setEmptyImage(R.drawable.ic_empty_state_blog);
 		list.setEmptyText(R.string.blogs_feed_empty_state);
+		list.setEmptyAction(R.string.blogs_feed_empty_state_action);
 
 		return v;
 	}

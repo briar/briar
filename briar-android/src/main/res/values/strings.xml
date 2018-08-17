@@ -121,7 +121,8 @@
 	<string name="sorry">Sorry</string>
 
 	<!-- Contacts and Private Conversations-->
-	<string name="no_contacts">No contacts to show\n\nTap the + icon to add a contact</string>
+	<string name="no_contacts">No contacts to show</string>
+	<string name="no_contacts_action">Tap the + icon to add a contact</string>
 	<string name="date_no_private_messages">No messages.</string>
 	<string name="no_private_messages">No messages to show</string>
 	<string name="message_hint">Type message</string>
@@ -177,7 +178,8 @@
 	</plurals>
 
 	<!-- Private Groups -->
-	<string name="groups_list_empty">No groups to show\n\nTap the + icon to create a group, or ask your contacts to share groups with you</string>
+	<string name="groups_list_empty">No groups to show</string>
+	<string name="groups_list_empty_action">Tap the + icon to create a group, or ask your contacts to share groups with you</string>
 	<string name="groups_created_by">Created by %s</string>
 	<plurals name="messages">
 		<item quantity="one">%d message</item>
@@ -233,7 +235,8 @@
 	<string name="groups_reveal_invisible">Contact relationship is not visible to the group</string>
 
 	<!-- Forums -->
-	<string name="no_forums">No forums to show\n\nTap the + icon to create a forum, or ask your contacts to share forums with you</string>
+	<string name="no_forums">No forums to show</string>
+	<string name="no_forums_action">Tap the + icon to create a forum, or ask your contacts to share forums with you</string>
 	<string name="create_forum_title">Create Forum</string>
 	<string name="choose_forum_hint">Choose a name for your forum</string>
 	<string name="create_forum_button">Create Forum</string>
@@ -293,7 +296,8 @@
 	<string name="blogs_blog_post_created">Blog Post Created</string>
 	<string name="blogs_blog_post_received">New Blog Post Received</string>
 	<string name="blogs_blog_post_scroll_to">Scroll To</string>
-	<string name="blogs_feed_empty_state">No posts to show\n\nPosts from your contacts and blogs you subscribe to will appear here\n\nTap the pen icon to write a post</string>
+	<string name="blogs_feed_empty_state">No posts to show</string>
+	<string name="blogs_feed_empty_state_action">Posts from your contacts and blogs you subscribe to will appear here\n\nTap the pen icon to write a post</string>
 	<string name="blogs_remove_blog">Remove Blog</string>
 	<string name="blogs_remove_blog_dialog_message">Are you sure that you want to remove this blog?\n\nPosts will be removed from your device but not from other people\'s devices.\n\nAny contacts you\'ve shared this blog with might stop receiving updates.</string>
 	<string name="blogs_remove_blog_ok">Remove</string>
