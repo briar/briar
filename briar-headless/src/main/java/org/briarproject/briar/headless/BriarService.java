@@ -9,7 +9,9 @@ import java.util.Scanner;
 import java.util.logging.Logger;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import static java.lang.System.console;
 import static java.lang.System.err;
@@ -18,6 +20,8 @@ import static java.lang.System.out;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
+@Immutable
+@Singleton
 @MethodsNotNullByDefault
 @ParametersAreNonnullByDefault
 public class BriarService {

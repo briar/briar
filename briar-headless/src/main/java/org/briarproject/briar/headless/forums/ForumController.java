@@ -1,17 +1,25 @@
-package org.briarproject.briar.headless;
+package org.briarproject.briar.headless.forums;
 
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumManager;
 
 import java.util.Collection;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import io.javalin.Context;
 
 import static io.javalin.translator.json.JavalinJsonPlugin.getObjectToJsonMapper;
 
+@Immutable
+@Singleton
+@MethodsNotNullByDefault
+@ParametersAreNonnullByDefault
 public class ForumController {
 
 	private final ForumManager forumManager;
