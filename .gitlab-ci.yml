@@ -11,8 +11,8 @@ test:
       - .gradle/caches
 
   script:
-    - ./gradlew --no-daemon animalSnifferMain animalSnifferTest
-    - ./gradlew --no-daemon test
+    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom animalSnifferMain animalSnifferTest
+    - ./gradlew --no-daemon -Djava.security.egd=file:/dev/urandom test
 
   after_script:
     # these file change every time but should not be cached
