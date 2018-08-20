@@ -11,7 +11,8 @@ test:
       - .gradle/caches
 
   script:
-    - ./gradlew clean
+    - ./gradlew --stop
+    - ./gradlew --no-daemon animalSnifferMain animalSnifferTest
 
   after_script:
     # these file change every time but should not be cached
