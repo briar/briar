@@ -261,7 +261,8 @@
 	<string name="forum_share_button">Share Forum</string>
 	<string name="contacts_selected">Contacts selected</string>
 	<string name="activity_share_toolbar_header">Choose Contacts</string>
-	<string name="no_contacts_selector">No contacts to show\n\nPlease come back here after adding a contact</string>
+	<string name="no_contacts_selector">No contacts to show</string>
+	<string name="no_contacts_selector_action">Please come back here after adding a contact</string>
 	<string name="forum_shared_snackbar">Forum shared with chosen contacts</string>
 	<string name="forum_share_message">Add a message (optional)</string>
 	<string name="forum_share_error">There was an error sharing this forum.</string>

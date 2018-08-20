@@ -69,7 +69,9 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 
 		list = contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
+		list.setEmptyImage(R.drawable.ic_empty_state_contact_list);
 		list.setEmptyText(getString(R.string.no_contacts_selector));
+		list.setEmptyAction(getString(R.string.no_contacts_selector_action));
 		adapter = getAdapter(getContext(), this);
 		list.setAdapter(adapter);
 

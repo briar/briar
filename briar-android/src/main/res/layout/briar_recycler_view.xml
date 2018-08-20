@@ -76,7 +76,6 @@
 		android:paddingBottom="@dimen/margin_large"
 		android:paddingLeft="@dimen/margin_large"
 		android:paddingRight="@dimen/margin_large"
-		android:text="@string/no_data"
 		android:textSize="@dimen/text_size_small"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
