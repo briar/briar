@@ -106,4 +106,8 @@ public class BriarService {
 		return password;
 	}
 
+	public void stop() {
+		lifecycleManager.stopServices();
+	}
+
 }
