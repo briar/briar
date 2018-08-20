@@ -11,6 +11,7 @@ test:
       - $GRADLE_USER_HOME/caches
 
   script:
+    - ls -R $GRADLE_USER_HOME/wrapper/dists
     - ./gradlew --no-daemon animalSnifferMain animalSnifferTest
 
   after_script:
