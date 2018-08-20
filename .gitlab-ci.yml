@@ -1,27 +1,5 @@
 image: briar/ci-image-android:latest
 
 test:
-  before_script:
-    - set -e
-    - export GRADLE_USER_HOME=$PWD/.gradle
-
-  cache:
-    paths:
-      - .gradle/wrapper
-      - .gradle/caches
-
   script:
-    - ./gradlew --no-daemon animalSnifferMain animalSnifferTest
-    - ./gradlew --no-daemon test
-
-  after_script:
-    # these file change every time but should not be cached
-    - rm -f $GRADLE_USER_HOME/caches/modules-2/modules-2.lock
-    - rm -fr $GRADLE_USER_HOME/caches/*/plugin-resolution/
-
-
-test_reproducible:
-  script:
-    - "curl -X POST -F token=${RELEASE_CHECK_TOKEN} -F ref=master -F variables[RELEASE_TAG]=${CI_COMMIT_REF_NAME} https://code.briarproject.org/api/v4/projects/61/trigger/pipeline"
-  only:
-    - tags
+    - echo 'Hello world'
