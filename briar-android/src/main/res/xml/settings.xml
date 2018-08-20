@@ -48,7 +48,8 @@
 			android:defaultValue="true"
 			android:key="pref_key_tor_mobile_data"
 			android:persistent="false"
-			android:title="@string/tor_mobile_data_title"/>
+			android:title="@string/tor_mobile_data_title"
+			android:widgetLayout="@layout/preference_switch_compat"/>
 
 	</PreferenceCategory>
 
@@ -57,10 +58,12 @@
 		android:title="@string/security_settings_title">
 
 		<SwitchPreference
+			android:enabled="false"
 			android:key="pref_key_lock"
 			android:persistent="false"
 			android:summary="@string/pref_lock_summary"
-			android:title="@string/pref_lock_title"/>
+			android:title="@string/pref_lock_title"
+			android:widgetLayout="@layout/preference_switch_compat"/>
 
 		<ListPreference
 			android:defaultValue="@string/pref_lock_timeout_value_default"
@@ -107,35 +110,40 @@
 			android:defaultValue="true"
 			android:key="pref_key_notify_sign_in"
 			android:summary="@string/notify_sign_in_summary"
-			android:title="@string/notify_sign_in_title"/>
+			android:title="@string/notify_sign_in_title"
+			android:widgetLayout="@layout/preference_switch_compat"/>
 
 		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_private_messages"
 			android:persistent="false"
 			android:summary="@string/notify_private_messages_setting_summary"
-			android:title="@string/notify_private_messages_setting_title"/>
+			android:title="@string/notify_private_messages_setting_title"
+			android:widgetLayout="@layout/preference_switch_compat"/>
 
 		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_group_messages"
 			android:persistent="false"
 			android:summary="@string/notify_group_messages_setting_summary"
-			android:title="@string/notify_group_messages_setting_title"/>
+			android:title="@string/notify_group_messages_setting_title"
+			android:widgetLayout="@layout/preference_switch_compat"/>
 
 		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_forum_posts"
 			android:persistent="false"
 			android:summary="@string/notify_forum_posts_setting_summary"
-			android:title="@string/notify_forum_posts_setting_title"/>
+			android:title="@string/notify_forum_posts_setting_title"
+			android:widgetLayout="@layout/preference_switch_compat"/>
 
 		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_blog_posts"
 			android:persistent="false"
 			android:summary="@string/notify_blog_posts_setting_summary"
-			android:title="@string/notify_blog_posts_setting_title"/>
+			android:title="@string/notify_blog_posts_setting_title"
+			android:widgetLayout="@layout/preference_switch_compat"/>
 
 		<SwitchPreference
 			android:defaultValue="false"
@@ -143,13 +151,15 @@
 			android:persistent="false"
 			android:summary="@string/notify_lock_screen_setting_summary"
 			android:title="@string/notify_lock_screen_setting_title"
-			android:visibility="gone"/>
+			android:visibility="gone"
+			android:widgetLayout="@layout/preference_switch_compat"/>
 
 		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_vibration"
 			android:persistent="false"
-			android:title="@string/notify_vibration_setting"/>
+			android:title="@string/notify_vibration_setting"
+			android:widgetLayout="@layout/preference_switch_compat"/>
 
 		<Preference
 			android:key="pref_key_notify_sound"
