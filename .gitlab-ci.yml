@@ -8,11 +8,11 @@ test:
   cache:
     key: potato
     paths:
-      - $GRADLE_USER_HOME/wrapper
-      - $GRADLE_USER_HOME/caches
+      - ./wrapper
+      - ./caches
 
   script:
-    - ./gradlew --no-daemon animalSnifferMain animalSnifferTest
+    - ./gradlew clean
 
   after_script:
     # these file change every time but should not be cached
