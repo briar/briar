@@ -349,12 +349,14 @@
 	<string name="bluetooth_setting">Connect via Bluetooth</string>
 	<string name="bluetooth_setting_enabled">Whenever contacts are nearby</string>
 	<string name="bluetooth_setting_disabled">Only when adding contacts</string>
-	<string name="tor_network_setting">Connect via Tor</string>
-	<string name="tor_network_setting_never">Never</string>
-	<string name="tor_network_setting_wifi">Only when using Wi-Fi</string>
-	<string name="tor_network_setting_always">When using Wi-Fi or mobile data</string>
-	<string name="tor_location_setting_title">Disable Tor based on location</string>
-	<string name="tor_location_setting_hint_format">Disable Tor in countries where it is likely to be blocked (%1$s)</string>
+	<string name="tor_network_setting">Connect via Internet (Tor)</string>
+	<string name="tor_network_setting_automatic">Automatic based on location</string>
+	<string name="tor_network_setting_without_bridges">Use Tor without bridges</string>
+	<string name="tor_network_setting_with_bridges">Use Tor with bridges</string>
+	<string name="tor_network_setting_never">Don\'t connect</string>
+	<!-- How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus) -->
+	<string name="tor_network_setting_summary">Automatic: %1$s (in %2$s)</string>
+	<string name="tor_mobile_data_title">Use mobile data</string>
 
 	<!-- Settings Security and Panic -->
 	<string name="security_settings_title">Security</string>

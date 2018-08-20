@@ -36,6 +36,8 @@ import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
@@ -44,7 +46,6 @@ import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.util.UserFeedback;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -69,19 +70,15 @@ import static android.provider.Settings.EXTRA_CHANNEL_ID;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static android.widget.Toast.LENGTH_SHORT;
-import static java.util.Arrays.asList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_DISABLE_BLOCKED;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_ALWAYS;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BLOCKED;
-import static org.briarproject.bramble.plugin.tor.CircumventionProvider.BRIDGES;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_AUTOMATIC;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.bramble.util.StringUtils.join;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_DARK_THEME;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_PIN_LOCK;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_SIGN_IN_REMINDER;
@@ -116,7 +113,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public static final String PREF_SCREEN_LOCK_TIMEOUT =
 			"pref_key_lock_timeout";
 	public static final String NOTIFY_SIGN_IN = "pref_key_notify_sign_in";
-	public static final String TOR_LOCATION = "pref_key_tor_location";
+	public static final String TOR_NETWORK = "pref_key_tor_network";
+	public static final String TOR_MOBILE = "pref_key_tor_mobile_data";
 
 	private static final Logger LOG =
 			Logger.getLogger(SettingsFragment.class.getName());
@@ -125,7 +123,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private ListPreference language;
 	private ListPreference enableBluetooth;
 	private ListPreference torNetwork;
-	private SwitchPreference torBlocked;
+	private SwitchPreference torMobile;
 	private SwitchPreference screenLock;
 	private ListPreference screenLockTimeout;
 	private SwitchPreference notifyPrivateMessages;
@@ -134,6 +132,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private SwitchPreference notifyBlogPosts;
 	private SwitchPreference notifyVibration;
 	private SwitchPreference notifyLockscreen;
+
 	private Preference notifySound;
 
 	// Fields that are accessed from background threads must be volatile
@@ -142,6 +141,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	volatile SettingsManager settingsManager;
 	@Inject
 	volatile EventBus eventBus;
+	@Inject
+	LocationUtils locationUtils;
+	@Inject
+	CircumventionProvider circumventionProvider;
 
 	@Inject
 	AndroidExecutor androidExecutor;
@@ -164,9 +167,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		ListPreference theme =
 				(ListPreference) findPreference("pref_key_theme");
 		enableBluetooth = (ListPreference) findPreference("pref_key_bluetooth");
-		torNetwork = (ListPreference) findPreference("pref_key_tor_network");
-		torBlocked = (SwitchPreference) findPreference(TOR_LOCATION);
-		setBlockedCountries();
+		torNetwork = (ListPreference) findPreference(TOR_NETWORK);
+		torMobile = (SwitchPreference) findPreference(TOR_MOBILE);
 		SwitchPreference notifySignIn =
 				(SwitchPreference) findPreference(NOTIFY_SIGN_IN);
 		screenLock = (SwitchPreference) findPreference(PREF_SCREEN_LOCK);
@@ -207,7 +209,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		});
 		enableBluetooth.setOnPreferenceChangeListener(this);
 		torNetwork.setOnPreferenceChangeListener(this);
-		torBlocked.setOnPreferenceChangeListener(this);
+		torMobile.setOnPreferenceChangeListener(this);
 		screenLock.setOnPreferenceChangeListener(this);
 		screenLockTimeout.setOnPreferenceChangeListener(this);
 		if (SDK_INT >= 21) {
@@ -312,30 +314,33 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		return direction == LAYOUT_DIRECTION_LTR;
 	}
 
-	private void setBlockedCountries() {
-		List<String> countryCodes = new ArrayList<>(asList(BLOCKED));
-		countryCodes.removeAll(asList(BRIDGES));
-		// Look up country names in the user's chosen language if available
-		Locale[] locales = Locale.getAvailableLocales();
-		List<String> countries = new ArrayList<>(countryCodes.size());
-		for (String countryCode : countryCodes) {
-			boolean found = false;
-			for (Locale locale : locales) {
-				if (locale.getCountry().equalsIgnoreCase(countryCode)) {
-					countries.add(locale.getDisplayCountry());
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
-				if (LOG.isLoggable(INFO))
-					LOG.info("No locale for " + countryCode);
-				countries.add(countryCode);
+	private void setTorNetworkSummary(int torNetworkSetting) {
+		if (torNetworkSetting != PREF_TOR_NETWORK_AUTOMATIC) {
+			torNetwork.setSummary("%s");  // use setting value
+			return;
+		}
+
+		// Look up country name in the user's chosen language if available
+		String country = locationUtils.getCurrentCountry();
+		String countryName = country;
+		for (Locale locale : Locale.getAvailableLocales()) {
+			if (locale.getCountry().equalsIgnoreCase(country)) {
+				countryName = locale.getDisplayCountry();
+				break;
 			}
 		}
-		Collections.sort(countries);
-		String format = getString(R.string.tor_location_setting_hint_format);
-		torBlocked.setSummary(String.format(format, join(countries, ", ")));
+		boolean blocked =
+				circumventionProvider.isTorProbablyBlocked(country);
+		boolean useBridges = circumventionProvider.doBridgesWork(country);
+		String setting = getString(R.string.tor_network_setting_without_bridges);
+		if (blocked && useBridges) {
+			setting = getString(R.string.tor_network_setting_with_bridges);
+		} else if (blocked) {
+			setting = getString(R.string.tor_network_setting_never);
+		}
+		torNetwork.setSummary(
+				getString(R.string.tor_network_setting_summary, setting,
+						countryName));
 	}
 
 	private void loadSettings() {
@@ -350,11 +355,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				boolean btSetting =
 						btSettings.getBoolean(PREF_BT_ENABLE, false);
 				int torNetworkSetting = torSettings.getInt(PREF_TOR_NETWORK,
-						PREF_TOR_NETWORK_ALWAYS);
-				boolean torBlockedSetting =
-						torSettings.getBoolean(PREF_TOR_DISABLE_BLOCKED, true);
-				displaySettings(btSetting, torNetworkSetting,
-						torBlockedSetting);
+						PREF_TOR_NETWORK_AUTOMATIC);
+				boolean torMobileSetting =
+						torSettings.getBoolean(PREF_TOR_MOBILE, true);
+				displaySettings(btSetting, torNetworkSetting, torMobileSetting);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -362,11 +366,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	private void displaySettings(boolean btSetting, int torNetworkSetting,
-			boolean torBlockedSetting) {
+			boolean torMobileSetting) {
 		listener.runOnUiThreadUnlessDestroyed(() -> {
 			enableBluetooth.setValue(Boolean.toString(btSetting));
 			torNetwork.setValue(Integer.toString(torNetworkSetting));
-			torBlocked.setChecked(torBlockedSetting);
+			setTorNetworkSummary(torNetworkSetting);
+			torMobile.setChecked(torMobileSetting);
 			displayScreenLockSetting();
 
 			if (SDK_INT < 26) {
@@ -430,7 +435,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		// - pref_key_lock_timeout (screenLockTimeout)
 		enableBluetooth.setEnabled(enabled);
 		torNetwork.setEnabled(enabled);
-		torBlocked.setEnabled(enabled);
+		torMobile.setEnabled(enabled);
 		if (!enabled) screenLock.setEnabled(false);
 		notifyPrivateMessages.setEnabled(enabled);
 		notifyGroupMessages.setEnabled(enabled);
@@ -529,9 +534,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		} else if (preference == torNetwork) {
 			int torNetworkSetting = Integer.valueOf((String) newValue);
 			storeTorNetworkSetting(torNetworkSetting);
-		} else if (preference == torBlocked) {
-			boolean torBlockedSetting = (Boolean) newValue;
-			storeTorBlockedSetting(torBlockedSetting);
+			setTorNetworkSummary(torNetworkSetting);
+		} else if (preference == torMobile) {
+			boolean torMobileSetting = (Boolean) newValue;
+			storeTorMobileSetting(torMobileSetting);
 		} else if (preference == screenLock) {
 			Settings s = new Settings();
 			s.putBoolean(PREF_SCREEN_LOCK, (Boolean) newValue);
@@ -596,9 +602,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		mergeSettings(s, TOR_NAMESPACE);
 	}
 
-	private void storeTorBlockedSetting(boolean torBlockedSetting) {
+	private void storeTorMobileSetting(boolean torMobileSetting) {
 		Settings s = new Settings();
-		s.putBoolean(PREF_TOR_DISABLE_BLOCKED, torBlockedSetting);
+		s.putBoolean(PREF_TOR_MOBILE, torMobileSetting);
 		mergeSettings(s, TOR_NAMESPACE);
 	}
 

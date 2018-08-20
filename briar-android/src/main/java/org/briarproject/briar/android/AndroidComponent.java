@@ -22,6 +22,8 @@ import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
@@ -148,6 +150,10 @@ public interface AndroidComponent
 	AccountManager accountManager();
 
 	LockManager lockManager();
+
+	LocationUtils locationUtils();
+
+	CircumventionProvider circumventionProvider();
 
 	void inject(SignInReminderReceiver briarService);
 
