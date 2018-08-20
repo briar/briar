@@ -32,3 +32,9 @@ dependencies {
 
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }
+
+test {
+	testLogging {
+		events "passed", "skipped", "failed", "standardOut", "standardError"
+	}
+}
