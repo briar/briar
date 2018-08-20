@@ -1,5 +1,19 @@
 image: briar/ci-image-android:latest
 
 test:
+  before_script:
+    - set -e
+    - export GRADLE_USER_HOME=$PWD/.gradle
+
+  cache:
+    paths:
+      - .gradle/wrapper
+      - .gradle/caches
+
   script:
     - echo 'Hello world'
+
+  after_script:
+    # these file change every time but should not be cached
+    - rm -f $GRADLE_USER_HOME/caches/modules-2/modules-2.lock
+    - rm -fr $GRADLE_USER_HOME/caches/*/plugin-resolution/
