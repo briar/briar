@@ -8,8 +8,8 @@ test:
   cache:
     key: potato
     paths:
-      - ./wrapper
-      - ./caches
+      - .gradle/wrapper
+      - .gradle/caches
 
   script:
     - ./gradlew clean
