@@ -34,6 +34,7 @@ import org.briarproject.briar.api.introduction.event.IntroductionResponseReceive
 import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -70,6 +71,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class IntroductionIntegrationTest
 		extends BriarIntegrationTest<IntroductionIntegrationTestComponent> {
 
