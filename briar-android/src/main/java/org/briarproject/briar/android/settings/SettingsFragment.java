@@ -23,7 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import org.acra.ACRA;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
@@ -43,7 +42,6 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.util.UiUtils;
-import org.briarproject.briar.android.util.UserFeedback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,6 +84,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_SIGN_OUT;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
+import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.BLOG_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.CONTACT_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FORUM_CHANNEL_ID;
@@ -219,7 +218,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 		findPreference("pref_key_send_feedback").setOnPreferenceClickListener(
 				preference -> {
-					triggerFeedback();
+					triggerFeedback(androidExecutor);
 					return true;
 				});
 
@@ -515,11 +514,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		}
 		startActivityForResult(i, REQUEST_RINGTONE);
 		return true;
-	}
-
-	private void triggerFeedback() {
-		androidExecutor.runOnBackgroundThread(() -> ACRA.getErrorReporter()
-				.handleException(new UserFeedback(), false));
 	}
 
 	@Override

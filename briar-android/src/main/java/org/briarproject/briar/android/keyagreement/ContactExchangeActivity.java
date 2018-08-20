@@ -14,7 +14,6 @@ import org.briarproject.bramble.api.keyagreement.KeyAgreementResult;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.R.string;
 import org.briarproject.briar.android.activity.ActivityComponent;
 
 import java.util.logging.Logger;
@@ -48,7 +47,7 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
-		getSupportActionBar().setTitle(string.add_contact_title);
+		getSupportActionBar().setTitle(R.string.add_contact_title);
 	}
 
 	private void startContactExchange(KeyAgreementResult result) {
@@ -75,7 +74,7 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 	public void contactExchangeSucceeded(Author remoteAuthor) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			String contactName = remoteAuthor.getName();
-			String format = getString(string.contact_added_toast);
+			String format = getString(R.string.contact_added_toast);
 			String text = String.format(format, contactName);
 			Toast.makeText(ContactExchangeActivity.this, text, LENGTH_LONG)
 					.show();
@@ -87,7 +86,7 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 	public void duplicateContact(Author remoteAuthor) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			String contactName = remoteAuthor.getName();
-			String format = getString(string.contact_already_exists);
+			String format = getString(R.string.contact_already_exists);
 			String text = String.format(format, contactName);
 			Toast.makeText(ContactExchangeActivity.this, text, LENGTH_LONG)
 					.show();
@@ -98,18 +97,14 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 	@Override
 	public void contactExchangeFailed() {
 		runOnUiThreadUnlessDestroyed(() -> {
-			Toast.makeText(ContactExchangeActivity.this,
-					string.contact_exchange_failed, LENGTH_LONG).show();
-			finish();
+			showErrorFragment(R.string.connection_error_explanation);
 		});
 	}
 
 	@UiThread
 	@Override
 	public void keyAgreementFailed() {
-		// TODO show failure somewhere persistent?
-		Toast.makeText(this, R.string.connection_failed,
-				LENGTH_LONG).show();
+		showErrorFragment(R.string.connection_error_explanation);
 	}
 
 	@UiThread
@@ -126,19 +121,14 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 
 	@UiThread
 	@Override
-	public String keyAgreementAborted(boolean remoteAborted) {
-		// TODO show abort somewhere persistent?
-		Toast.makeText(this,
-				remoteAborted ? R.string.connection_aborted_remote :
-						R.string.connection_aborted_local, LENGTH_LONG)
-				.show();
-		return null;
+	public void keyAgreementAborted(boolean remoteAborted) {
+		showErrorFragment(R.string.connection_error_explanation);
 	}
 
 	@UiThread
 	@Override
 	public String keyAgreementFinished(KeyAgreementResult result) {
 		startContactExchange(result);
-		return getString(string.exchanging_contact_details);
+		return getString(R.string.exchanging_contact_details);
 	}
 }

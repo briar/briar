@@ -36,7 +36,6 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseEventFragment;
-import org.briarproject.briar.android.fragment.ErrorFragment;
 import org.briarproject.briar.android.view.QrCodeView;
 
 import java.io.IOException;
@@ -247,7 +246,7 @@ public class KeyAgreementFragment extends BaseEventFragment
 			reset();
 			String msg = getString(R.string.qr_code_unsupported,
 					getString(R.string.app_name));
-			showNextFragment(ErrorFragment.newInstance(msg));
+			showNextFragment(ContactExchangeErrorFragment.newInstance(msg));
 		} catch (CameraException e) {
 			logCameraExceptionAndFinish(e);
 		} catch (IOException | IllegalArgumentException e) {
@@ -301,9 +300,7 @@ public class KeyAgreementFragment extends BaseEventFragment
 	private void keyAgreementAborted(boolean remoteAborted) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			reset();
-			qrCodeView.setVisibility(VISIBLE);
-			statusView.setVisibility(INVISIBLE);
-			status.setText(listener.keyAgreementAborted(remoteAborted));
+			listener.keyAgreementAborted(remoteAborted);
 		});
 	}
 
@@ -362,10 +359,9 @@ public class KeyAgreementFragment extends BaseEventFragment
 		@Nullable
 		String keyAgreementStarted();
 
-		// Should return a string to be displayed as status.
+		// Will show an error fragment.
 		@UiThread
-		@Nullable
-		String keyAgreementAborted(boolean remoteAborted);
+		void keyAgreementAborted(boolean remoteAborted);
 
 		// Should return a string to be displayed as status.
 		@UiThread
