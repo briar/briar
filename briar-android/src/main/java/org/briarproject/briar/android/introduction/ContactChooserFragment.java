@@ -82,7 +82,7 @@ public class ContactChooserFragment extends BaseFragment {
 		list = contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
-		list.setEmptyText(getString(R.string.no_contacts));
+		list.setEmptyText(R.string.no_contacts);
 
 		contactId = new ContactId(getArguments().getInt(CONTACT_ID));
 

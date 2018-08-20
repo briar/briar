@@ -3,7 +3,9 @@
 
 	<declare-styleable name="BriarRecyclerView">
 		<attr name="scrollToEnd" format="boolean" />
+		<attr name="emptyImage" format="integer" />
 		<attr name="emptyText" format="string" />
+		<attr name="emptyAction" format="string" />
 	</declare-styleable>
 
 	<declare-styleable name="AuthorView">

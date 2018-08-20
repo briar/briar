@@ -97,7 +97,6 @@ public class ForumListFragment extends BaseEventFragment implements
 		list = contentView.findViewById(R.id.forumList);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
-		list.setEmptyText(getString(R.string.no_forums));
 
 		snackbar = Snackbar.make(list, "", LENGTH_INDEFINITE);
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);

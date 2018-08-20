@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<org.briarproject.briar.android.view.BriarRecyclerView
+	android:id="@+id/forumList"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
-
-	<org.briarproject.briar.android.view.BriarRecyclerView
-		android:id="@+id/forumList"
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		app:layout_behavior="org.briarproject.briar.android.view.BriarRecyclerViewBehavior"/>
-
-</android.support.design.widget.CoordinatorLayout>
+	android:layout_height="match_parent"
+	app:emptyAction="@string/no_forums_action"
+	app:emptyImage="@drawable/ic_empty_state_forum_list"
+	app:emptyText="@string/no_forums"
+	app:layout_behavior="org.briarproject.briar.android.view.BriarRecyclerViewBehavior"/>

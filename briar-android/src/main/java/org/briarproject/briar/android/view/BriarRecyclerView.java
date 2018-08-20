@@ -2,8 +2,13 @@ package org.briarproject.briar.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.StringRes;
+import android.support.constraint.Group;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.util.AttributeSet;
@@ -29,7 +34,9 @@ public class BriarRecyclerView extends FrameLayout {
 	private final Handler handler = new Handler(Looper.getMainLooper());
 
 	private RecyclerView recyclerView;
-	private TextView emptyView;
+	private Group emptyState;
+	private AppCompatImageView emptyImage;
+	private TextView emptyText, emptyAction;
 	private ProgressBar progressBar;
 	private RecyclerView.AdapterDataObserver emptyObserver;
 	private Runnable refresher = null;
@@ -51,9 +58,15 @@ public class BriarRecyclerView extends FrameLayout {
 				R.styleable.BriarRecyclerView);
 		isScrollingToEnd = attributes
 				.getBoolean(R.styleable.BriarRecyclerView_scrollToEnd, true);
+		Drawable drawable = attributes
+				.getDrawable(R.styleable.BriarRecyclerView_emptyImage);
+		if (drawable != null) setEmptyImage(drawable);
 		String emtpyText =
 				attributes.getString(R.styleable.BriarRecyclerView_emptyText);
 		if (emtpyText != null) setEmptyText(emtpyText);
+		String emtpyAction =
+				attributes.getString(R.styleable.BriarRecyclerView_emptyAction);
+		if (emtpyAction != null) setEmptyAction(emtpyAction);
 		attributes.recycle();
 	}
 
@@ -68,7 +81,10 @@ public class BriarRecyclerView extends FrameLayout {
 				R.layout.briar_recycler_view, this, true);
 
 		recyclerView = v.findViewById(R.id.recyclerView);
-		emptyView = v.findViewById(R.id.emptyView);
+		emptyState = v.findViewById(R.id.emptyState);
+		emptyImage = v.findViewById(R.id.emptyImage);
+		emptyText = v.findViewById(R.id.emptyText);
+		emptyAction = v.findViewById(R.id.emptyAction);
 		progressBar = v.findViewById(R.id.progressBar);
 
 		showProgressBar();
@@ -129,20 +145,40 @@ public class BriarRecyclerView extends FrameLayout {
 		}
 	}
 
-	public void setEmptyText(String text) {
+	public void setEmptyImage(Drawable drawable) {
 		if (recyclerView == null) initViews();
-		emptyView.setText(text);
+		emptyImage.setImageDrawable(drawable);
 	}
 
-	public void setEmptyText(int res) {
+	public void setEmptyImage(@DrawableRes int res) {
 		if (recyclerView == null) initViews();
-		emptyView.setText(res);
+		emptyImage.setImageResource(res);
+	}
+
+	public void setEmptyText(String text) {
+		if (recyclerView == null) initViews();
+		emptyText.setText(text);
+	}
+
+	public void setEmptyText(@StringRes int res) {
+		if (recyclerView == null) initViews();
+		emptyText.setText(res);
+	}
+
+	public void setEmptyAction(String text) {
+		if (recyclerView == null) initViews();
+		emptyAction.setText(text);
+	}
+
+	public void setEmptyAction(@StringRes int res) {
+		if (recyclerView == null) initViews();
+		emptyAction.setText(res);
 	}
 
 	public void showProgressBar() {
 		if (recyclerView == null) initViews();
 		recyclerView.setVisibility(INVISIBLE);
-		emptyView.setVisibility(INVISIBLE);
+		emptyState.setVisibility(INVISIBLE);
 		progressBar.setVisibility(VISIBLE);
 	}
 
@@ -151,11 +187,11 @@ public class BriarRecyclerView extends FrameLayout {
 		Adapter adapter = recyclerView.getAdapter();
 		if (adapter != null) {
 			if (adapter.getItemCount() == 0) {
-				emptyView.setVisibility(VISIBLE);
+				emptyState.setVisibility(VISIBLE);
 				recyclerView.setVisibility(INVISIBLE);
 			} else {
 				// use GONE here so empty view doesn't use space on small lists
-				emptyView.setVisibility(GONE);
+				emptyState.setVisibility(GONE);
 				recyclerView.setVisibility(VISIBLE);
 			}
 			progressBar.setVisibility(GONE);
