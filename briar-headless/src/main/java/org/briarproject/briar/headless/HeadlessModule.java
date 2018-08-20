@@ -11,26 +11,51 @@ import org.briarproject.bramble.api.reporting.DevConfig;
 import org.briarproject.bramble.util.StringUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.attribute.PosixFilePermission;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
 
+import static java.nio.file.Files.setPosixFilePermissions;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 import static java.util.Collections.emptyList;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
 
 @Module
 public class HeadlessModule {
 
+	private final static Logger LOG = getLogger(HeadlessModule.class.getName());
+
+	private final String appDir;
+
+	public HeadlessModule() {
+		String home = System.getProperty("user.home");
+		appDir = home + File.separator + ".briar";
+		try {
+			ensurePermissions(new File(appDir));
+		} catch (IOException e) {
+			LOG.log(WARNING, e.getMessage(), e);
+		}
+	}
+
 	@Provides
 	@Singleton
 	DatabaseConfig provideDatabaseConfig() {
-		File dbDir = new File("dbDir");
-		File keyDir = new File("keyDir");
+		File dbDir = appDir("db");
+		File keyDir = appDir("key");
 		return new HeadlessDatabaseConfig(dbDir, keyDir);
 	}
 
@@ -81,10 +106,27 @@ public class HeadlessModule {
 
 			@Override
 			public File getReportDir() {
-				return new File("reportDir");
+				return appDir("reportDir");
 			}
 		};
 		return devConfig;
+	}
+
+	private File appDir(String file) {
+		return new File(appDir + File.separator + file);
+	}
+
+	private void ensurePermissions(File file)throws IOException {
+		if (!file.exists()) {
+			if (!file.mkdirs()) {
+				throw new IOException("Could not create directory");
+			}
+		}
+		Set<PosixFilePermission> perms = new HashSet<>();
+		perms.add(OWNER_READ);
+		perms.add(OWNER_WRITE);
+		perms.add(OWNER_EXECUTE);
+		setPosixFilePermissions(file.toPath(), perms);
 	}
 
 }
