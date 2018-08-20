@@ -62,6 +62,7 @@
 	<string name="groups_button">Private Groups</string>
 	<string name="forums_button">Forums</string>
 	<string name="blogs_button">Blogs</string>
+	<!-- This is part of the main menu. The app will be locked when this is tapped. -->
 	<string name="lock_button">Lock App</string>
 	<string name="settings_button">Settings</string>
 	<string name="sign_out_button">Sign Out</string>
@@ -357,9 +358,25 @@
 
 	<!-- Settings Security and Panic -->
 	<string name="security_settings_title">Security</string>
-	<string name="pref_lock_title">Screen Lock</string>
+	<string name="pref_lock_title">Screen lock</string>
 	<string name="pref_lock_summary">Use the device\'s screen lock to protect Briar while signed in</string>
-	<string name="pref_lock_disabled_summary">Set up a screen lock for your device to protect Briar while signed in</string>
+	<string name="pref_lock_disabled_summary">To use this feature, set up a screen lock for your device</string>
+	<string name="pref_lock_timeout_title">Screen lock inactivity timeout</string>
+	<!-- The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour -->
+	<string name="pref_lock_timeout_summary">When not using Briar, automatically lock it after %s</string>
+	<!-- Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s" -->
+	<string name="pref_lock_timeout_1">1 minute</string>
+	<!-- Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s" -->
+	<string name="pref_lock_timeout_5">5 minutes</string>
+	<!-- Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s" -->
+	<string name="pref_lock_timeout_15">15 minutes</string>
+	<!-- Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s" -->
+	<string name="pref_lock_timeout_30">30 minutes</string>
+	<!-- Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s" -->
+	<string name="pref_lock_timeout_60">1 hour</string>
+	<string name="pref_lock_timeout_never">Never</string>
+	<string name="pref_lock_timeout_never_summary">Never lock Briar automatically</string>
+
 	<string name="change_password">Change password</string>
 	<string name="current_password">Current password</string>
 	<string name="choose_new_password">New password</string>

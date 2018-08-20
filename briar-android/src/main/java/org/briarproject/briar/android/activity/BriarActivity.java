@@ -54,6 +54,12 @@ public abstract class BriarActivity extends BaseActivity {
 	protected LockManager lockManager;
 
 	@Override
+	public void onStart() {
+		super.onStart();
+		lockManager.onActivityStart();
+	}
+
+	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_PASSWORD && result == RESULT_OK) {
@@ -95,6 +101,12 @@ public abstract class BriarActivity extends BaseActivity {
 				}
 			});
 		}
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		lockManager.onActivityStop();
 	}
 
 	public void setSceneTransitionAnimation() {

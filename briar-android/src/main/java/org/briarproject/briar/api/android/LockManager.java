@@ -1,9 +1,26 @@
 package org.briarproject.briar.api.android;
 
+import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.UiThread;
 
 public interface LockManager {
+
+	String ACTION_LOCK = "lock";
+
+	/**
+	 * Stops the inactivity timer when the user interacts with the app.
+	 * Should typically be called by {@link Activity#onStart()}
+	 */
+	@UiThread
+	void onActivityStart();
+
+	/**
+	 * Starts the inactivity timer which will lock the app.
+	 * Should typically be called by {@link Activity#onStop()}
+	 */
+	@UiThread
+	void onActivityStop();
 
 	/**
 	 * Returns an observable LiveData to indicate whether the app can be locked.
