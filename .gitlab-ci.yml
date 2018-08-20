@@ -6,12 +6,12 @@ test:
     - export GRADLE_USER_HOME=$PWD/.gradle
 
   cache:
+    key: potato
     paths:
       - $GRADLE_USER_HOME/wrapper
       - $GRADLE_USER_HOME/caches
 
   script:
-    - ls -R $GRADLE_USER_HOME
     - ./gradlew --no-daemon animalSnifferMain animalSnifferTest
 
   after_script:
