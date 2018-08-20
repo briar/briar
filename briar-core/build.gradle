@@ -32,3 +32,8 @@ dependencies {
 
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }
+
+tasks.withType(Test) {
+	// Use entropy-gathering device specified on command line, if any
+	systemProperty 'java.security.egd', System.getProperty('java.security.egd')
+}
