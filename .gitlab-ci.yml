@@ -6,13 +6,13 @@ test:
     - export GRADLE_USER_HOME=$PWD/.gradle
 
   cache:
-    key: potato
     paths:
       - .gradle/wrapper
       - .gradle/caches
 
   script:
-    - ./gradlew clean
+    - ./gradlew --no-daemon animalSnifferMain animalSnifferTest
+    - ./gradlew --no-daemon briar-core:test
 
   after_script:
     # these file change every time but should not be cached
