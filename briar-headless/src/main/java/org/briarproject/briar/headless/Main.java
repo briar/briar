@@ -1,5 +1,8 @@
 package org.briarproject.briar.headless;
 
+import org.briarproject.bramble.BrambleCoreModule;
+import org.briarproject.briar.BriarCoreModule;
+
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -16,10 +19,14 @@ public class Main {
 			}
 		}
 
-		DaggerBriarHeadlessApp
-				.create()
-				.router()
-				.start();
+		BriarHeadlessApp app = DaggerBriarHeadlessApp.builder()
+				.headlessModule(new HeadlessModule()).build();
+		// We need to load the eager singletons directly after making the
+		// dependency graphs
+		BrambleCoreModule.initEagerSingletons(app);
+		BriarCoreModule.initEagerSingletons(app);
+
+		app.router().start();
 	}
 
 }

@@ -1,5 +1,6 @@
 package org.briarproject.bramble.system;
 
+import org.briarproject.bramble.api.ConfigurationManager;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 
@@ -10,6 +11,13 @@ import dagger.Provides;
 
 @Module
 public class JavaSystemModule {
+
+	@Provides
+	@Singleton
+	ConfigurationManager provideConfigurationManager(
+			JavaConfigurationManager configurationManager) {
+		return configurationManager;
+	}
 
 	@Provides
 	@Singleton

@@ -1,67 +1,73 @@
 package org.briarproject.briar.headless;
 
+import org.briarproject.bramble.api.ConfigurationManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevConfig;
+import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.system.LocationUtils;
+import org.briarproject.bramble.api.system.ResourceProvider;
+import org.briarproject.bramble.network.JavaNetworkModule;
+import org.briarproject.bramble.plugin.tor.CircumventionModule;
+import org.briarproject.bramble.plugin.tor.CircumventionProvider;
+import org.briarproject.bramble.plugin.tor.LinuxTorPluginFactory;
+import org.briarproject.bramble.system.JavaSystemModule;
 import org.briarproject.bramble.util.StringUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.attribute.PosixFilePermission;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.Logger;
+import java.util.concurrent.Executor;
 
 import javax.inject.Singleton;
+import javax.net.SocketFactory;
 
 import dagger.Module;
 import dagger.Provides;
 
-import static java.nio.file.Files.setPosixFilePermissions;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 import static java.util.Collections.emptyList;
-import static java.util.logging.Level.WARNING;
-import static java.util.logging.Logger.getLogger;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
 
-@Module
+@Module(includes = {
+		JavaNetworkModule.class,
+		JavaSystemModule.class,
+		CircumventionModule.class
+})
 public class HeadlessModule {
-
-	private final static Logger LOG = getLogger(HeadlessModule.class.getName());
-
-	private final String appDir;
-
-	public HeadlessModule() {
-		String home = System.getProperty("user.home");
-		appDir = home + File.separator + ".briar";
-		try {
-			ensurePermissions(new File(appDir));
-		} catch (IOException e) {
-			LOG.log(WARNING, e.getMessage(), e);
-		}
-	}
 
 	@Provides
 	@Singleton
-	DatabaseConfig provideDatabaseConfig() {
-		File dbDir = appDir("db");
-		File keyDir = appDir("key");
+	DatabaseConfig provideDatabaseConfig(
+			ConfigurationManager configurationManager) {
+		File dbDir = appDir(configurationManager, "db");
+		File keyDir = appDir(configurationManager, "key");
 		return new HeadlessDatabaseConfig(dbDir, keyDir);
 	}
 
 	@Provides
-	PluginConfig providePluginConfig() {
-		Collection<DuplexPluginFactory> duplex = emptyList();
+	PluginConfig providePluginConfig(@IoExecutor Executor ioExecutor,
+			SocketFactory torSocketFactory, BackoffFactory backoffFactory,
+			NetworkManager networkManager, LocationUtils locationUtils,
+			EventBus eventBus, ResourceProvider resourceProvider,
+			CircumventionProvider circumventionProvider, Clock clock,
+			ConfigurationManager configurationManager) {
+		File torDirectory = appDir(configurationManager, "tor");
+		DuplexPluginFactory tor = new LinuxTorPluginFactory(ioExecutor,
+				networkManager, locationUtils, eventBus, torSocketFactory,
+				backoffFactory, resourceProvider, circumventionProvider, clock,
+				torDirectory);
+		Collection<DuplexPluginFactory> duplex = singletonList(tor);
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {
 
@@ -85,7 +91,8 @@ public class HeadlessModule {
 
 	@Provides
 	@Singleton
-	DevConfig provideDevConfig(CryptoComponent crypto) {
+	DevConfig provideDevConfig(CryptoComponent crypto,
+			ConfigurationManager configurationManager) {
 		@NotNullByDefault
 		DevConfig devConfig = new DevConfig() {
 
@@ -106,27 +113,15 @@ public class HeadlessModule {
 
 			@Override
 			public File getReportDir() {
-				return appDir("reportDir");
+				return appDir(configurationManager, "reportDir");
 			}
 		};
 		return devConfig;
 	}
 
-	private File appDir(String file) {
-		return new File(appDir + File.separator + file);
-	}
-
-	private void ensurePermissions(File file)throws IOException {
-		if (!file.exists()) {
-			if (!file.mkdirs()) {
-				throw new IOException("Could not create directory");
-			}
-		}
-		Set<PosixFilePermission> perms = new HashSet<>();
-		perms.add(OWNER_READ);
-		perms.add(OWNER_WRITE);
-		perms.add(OWNER_EXECUTE);
-		setPosixFilePermissions(file.toPath(), perms);
+	private File appDir(ConfigurationManager configurationManager,
+			String file) {
+		return new File(configurationManager.getAppDir(), file);
 	}
 
 }
