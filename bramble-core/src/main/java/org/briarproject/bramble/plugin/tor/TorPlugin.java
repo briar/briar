@@ -288,22 +288,22 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private InputStream getTorInputStream() throws IOException {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Installing Tor binary for " + architecture);
-		InputStream in =
-				resourceProvider.getResourceInputStream("tor_" + architecture);
+		InputStream in = resourceProvider
+				.getResourceInputStream("tor_" + architecture + ".zip");
 		ZipInputStream zin = new ZipInputStream(in);
 		if (zin.getNextEntry() == null) throw new IOException();
 		return zin;
 	}
 
 	private InputStream getGeoIpInputStream() throws IOException {
-		InputStream in = resourceProvider.getResourceInputStream("geoip");
+		InputStream in = resourceProvider.getResourceInputStream("geoip.zip");
 		ZipInputStream zin = new ZipInputStream(in);
 		if (zin.getNextEntry() == null) throw new IOException();
 		return zin;
 	}
 
 	private InputStream getConfigInputStream() {
-		return resourceProvider.getResourceInputStream("torrc");
+		return getClass().getClassLoader().getResourceAsStream("torrc");
 	}
 
 	private void tryToClose(@Nullable Closeable c) {
