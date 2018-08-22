@@ -578,7 +578,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public void orConnStatus(String status, String orName) {
-		if (LOG.isLoggable(INFO)) LOG.info("OR connection " + status);
+		if (LOG.isLoggable(INFO))
+			LOG.info("OR connection " + status + " " + orName);
 		if (status.equals("CLOSED") || status.equals("FAILED")) {
 			// Check whether we've lost connectivity
 			updateConnectionStatus(networkManager.getNetworkStatus());
