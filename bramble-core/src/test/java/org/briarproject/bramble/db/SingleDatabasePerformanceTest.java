@@ -1,5 +1,6 @@
 package org.briarproject.bramble.db;
 
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.system.Clock;
@@ -22,6 +23,8 @@ public abstract class SingleDatabasePerformanceTest
 	abstract Database<Connection> createDatabase(DatabaseConfig databaseConfig,
 			Clock clock);
 
+	private SecretKey databaseKey = getSecretKey();
+
 	@Override
 	protected void benchmark(String name,
 			BenchmarkTask<Database<Connection>> task) throws Exception {
@@ -41,7 +44,7 @@ public abstract class SingleDatabasePerformanceTest
 	private Database<Connection> openDatabase() throws DbException {
 		Database<Connection> db = createDatabase(
 				new TestDatabaseConfig(testDir, MAX_SIZE), new SystemClock());
-		db.open(getSecretKey(), null);
+		db.open(databaseKey, null);
 		return db;
 	}
 

@@ -1,5 +1,6 @@
 package org.briarproject.bramble.db;
 
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.system.Clock;
@@ -26,6 +27,7 @@ public abstract class DatabasePerformanceComparisonTest
 	 * How many blocks of each condition to compare.
 	 */
 	private static final int COMPARISON_BLOCKS = 10;
+	private SecretKey databaseKey = getSecretKey();
 
 	abstract Database<Connection> createDatabase(boolean conditionA,
 			DatabaseConfig databaseConfig, Clock clock);
@@ -72,7 +74,7 @@ public abstract class DatabasePerformanceComparisonTest
 			throws DbException {
 		Database<Connection> db = createDatabase(conditionA,
 				new TestDatabaseConfig(testDir, MAX_SIZE), new SystemClock());
-		db.open(getSecretKey(), null);
+		db.open(databaseKey, null);
 		return db;
 	}
 
