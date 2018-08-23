@@ -487,7 +487,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		return db.getMessagesToShare(txn);
 	}
 
-	@Nullable
 	@Override
 	public byte[] getRawMessage(Transaction transaction, MessageId m)
 			throws DbException {

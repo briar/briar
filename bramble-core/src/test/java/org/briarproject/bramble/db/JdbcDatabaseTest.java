@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.MessageDeletedException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -1654,8 +1655,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		ids = db.getMessagesToOffer(txn, contactId, 100);
 		assertEquals(singletonList(messageId), ids);
 
-		// The raw message should not be null
-		assertNotNull(db.getRawMessage(txn, messageId));
+		// The raw message should be available
+		assertArrayEquals(raw, db.getRawMessage(txn, messageId));
 
 		// Delete the message
 		db.deleteMessage(txn, messageId);
@@ -1669,8 +1670,13 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		ids = db.getMessagesToOffer(txn, contactId, 100);
 		assertTrue(ids.isEmpty());
 
-		// The raw message should be null
-		assertNull(db.getRawMessage(txn, messageId));
+		// Requesting the raw message should throw an exception
+		try {
+			db.getRawMessage(txn, messageId);
+			fail();
+		} catch (MessageDeletedException expected) {
+			// Expected
+		}
 
 		db.commitTransaction(txn);
 		db.close();

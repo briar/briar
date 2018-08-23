@@ -204,10 +204,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	@Override
 	public String getPostBody(MessageId m) throws DbException {
 		try {
-			// Parent ID, author, forum post body, signature
-			BdfList body = clientHelper.getMessageAsList(m);
-			if (body == null) throw new DbException();
-			return getPostBody(body);
+			return getPostBody(clientHelper.getMessageAsList(m));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

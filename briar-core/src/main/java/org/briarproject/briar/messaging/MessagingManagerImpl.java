@@ -217,9 +217,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 	public String getMessageBody(MessageId m) throws DbException {
 		try {
 			// 0: private message body
-			BdfList message = clientHelper.getMessageAsList(m);
-			if (message == null) throw new DbException();
-			return message.getString(0);
+			return clientHelper.getMessageAsList(m).getString(0);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

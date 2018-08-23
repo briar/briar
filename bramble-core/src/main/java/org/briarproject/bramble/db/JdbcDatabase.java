@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DbClosedException;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.MessageDeletedException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.identity.Author;
@@ -2019,7 +2020,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	@Nullable
 	public byte[] getRawMessage(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2034,6 +2034,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
+			if (raw == null) throw new MessageDeletedException();
 			return raw;
 		} catch (SQLException e) {
 			tryToClose(rs);

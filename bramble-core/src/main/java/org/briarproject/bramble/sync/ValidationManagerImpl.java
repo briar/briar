@@ -129,7 +129,6 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			try {
 				MessageId id = unvalidated.poll();
 				byte[] raw = db.getRawMessage(txn, id);
-				if (raw == null) throw new DbException();
 				m = messageFactory.createMessage(id, raw);
 				g = db.getGroup(txn, m.getGroupId());
 				db.commitTransaction(txn);
@@ -198,7 +197,6 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						invalidate = getDependentsToInvalidate(txn, id);
 					} else if (allDelivered) {
 						byte[] raw = db.getRawMessage(txn, id);
-						if (raw == null) throw new DbException();
 						Message m = messageFactory.createMessage(id, raw);
 						Group g = db.getGroup(txn, m.getGroupId());
 						ClientId c = g.getClientId();
