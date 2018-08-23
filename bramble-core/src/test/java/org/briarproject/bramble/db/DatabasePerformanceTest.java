@@ -96,6 +96,9 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 	 */
 	private static final int STEADY_STATE_BLOCKS = 5;
 
+	// All our transports use a maximum latency of 30 seconds
+	private static final int MAX_LATENCY = 30 * 1000;
+
 	protected final File testDir = getTestDirectory();
 	private final File resultsFile = new File(getTestName() + ".tsv");
 	protected final Random random = new Random();
@@ -448,7 +451,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
 			db.getMessagesToOffer(txn, pickRandom(contacts).getId(),
-					MAX_MESSAGE_IDS);
+					MAX_MESSAGE_IDS, MAX_LATENCY);
 			db.commitTransaction(txn);
 		});
 	}
@@ -470,7 +473,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
 			db.getMessagesToSend(txn, pickRandom(contacts).getId(),
-					MAX_MESSAGE_IDS);
+					MAX_MESSAGE_IDS, MAX_LATENCY);
 			db.commitTransaction(txn);
 		});
 	}
@@ -521,7 +524,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
 			db.getRequestedMessagesToSend(txn, pickRandom(contacts).getId(),
-					MAX_MESSAGE_IDS);
+					MAX_MESSAGE_IDS, MAX_LATENCY);
 			db.commitTransaction(txn);
 		});
 	}

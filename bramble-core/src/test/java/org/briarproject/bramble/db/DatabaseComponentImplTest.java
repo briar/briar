@@ -871,15 +871,15 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).getMessagesToSend(txn, contactId,
-					MAX_MESSAGE_LENGTH * 2);
+					MAX_MESSAGE_LENGTH * 2, maxLatency);
 			will(returnValue(ids));
 			oneOf(database).getMessage(txn, messageId);
 			will(returnValue(message));
-			oneOf(database).updateExpiryTime(txn, contactId, messageId,
+			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId,
 					maxLatency);
 			oneOf(database).getMessage(txn, messageId1);
 			will(returnValue(message1));
-			oneOf(database).updateExpiryTime(txn, contactId, messageId1,
+			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId1,
 					maxLatency);
 			oneOf(database).lowerRequestedFlag(txn, contactId, ids);
 			oneOf(database).commitTransaction(txn);
@@ -907,11 +907,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getMessagesToOffer(txn, contactId, 123);
+			oneOf(database).getMessagesToOffer(txn, contactId, 123, maxLatency);
 			will(returnValue(ids));
-			oneOf(database).updateExpiryTime(txn, contactId, messageId,
+			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId,
 					maxLatency);
-			oneOf(database).updateExpiryTime(txn, contactId, messageId1,
+			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId1,
 					maxLatency);
 			oneOf(database).commitTransaction(txn);
 		}});
@@ -967,15 +967,15 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).getRequestedMessagesToSend(txn, contactId,
-					MAX_MESSAGE_LENGTH * 2);
+					MAX_MESSAGE_LENGTH * 2, maxLatency);
 			will(returnValue(ids));
 			oneOf(database).getMessage(txn, messageId);
 			will(returnValue(message));
-			oneOf(database).updateExpiryTime(txn, contactId, messageId,
+			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId,
 					maxLatency);
 			oneOf(database).getMessage(txn, messageId1);
 			will(returnValue(message1));
-			oneOf(database).updateExpiryTime(txn, contactId, messageId1,
+			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId1,
 					maxLatency);
 			oneOf(database).lowerRequestedFlag(txn, contactId, ids);
 			oneOf(database).commitTransaction(txn);
