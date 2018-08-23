@@ -24,7 +24,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,6 +35,9 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
+import static java.net.NetworkInterface.getNetworkInterfaces;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.list;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -303,16 +306,16 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	Collection<InetAddress> getLocalIpAddresses() {
-		List<NetworkInterface> ifaces;
 		try {
-			ifaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+			Enumeration<NetworkInterface> ifaces = getNetworkInterfaces();
+			if (ifaces == null) return emptyList();
+			List<InetAddress> addrs = new ArrayList<>();
+			for (NetworkInterface iface : list(ifaces))
+				addrs.addAll(list(iface.getInetAddresses()));
+			return addrs;
 		} catch (SocketException e) {
 			logException(LOG, WARNING, e);
-			return Collections.emptyList();
+			return emptyList();
 		}
-		List<InetAddress> addrs = new ArrayList<>();
-		for (NetworkInterface iface : ifaces)
-			addrs.addAll(Collections.list(iface.getInetAddresses()));
-		return addrs;
 	}
 }
