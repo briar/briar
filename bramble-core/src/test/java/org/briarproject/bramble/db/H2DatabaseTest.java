@@ -9,6 +9,6 @@ public class H2DatabaseTest extends JdbcDatabaseTest {
 	@Override
 	protected JdbcDatabase createDatabase(DatabaseConfig config,
 			MessageFactory messageFactory, Clock clock) {
-		return new H2Database(config, messageFactory, clock);
+		return new H2Database(config, clock);
 	}
 }

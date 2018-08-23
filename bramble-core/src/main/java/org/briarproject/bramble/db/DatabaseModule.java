@@ -6,7 +6,6 @@ import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
-import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.system.Clock;
 
 import java.sql.Connection;
@@ -22,9 +21,8 @@ public class DatabaseModule {
 
 	@Provides
 	@Singleton
-	Database<Connection> provideDatabase(DatabaseConfig config,
-			MessageFactory messageFactory, Clock clock) {
-		return new H2Database(config, messageFactory, clock);
+	Database<Connection> provideDatabase(DatabaseConfig config, Clock clock) {
+		return new H2Database(config, clock);
 	}
 
 	@Provides

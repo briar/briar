@@ -30,7 +30,6 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
-import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.validation.MessageState;
@@ -76,7 +75,6 @@ import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
-import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.api.sync.validation.MessageState.UNKNOWN;
@@ -98,7 +96,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 47;
+	static final int CODE_SCHEMA_VERSION = 48;
 
 	// Time period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
@@ -181,7 +179,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " shared BOOLEAN NOT NULL,"
 					+ " temporary BOOLEAN NOT NULL,"
 					+ " length INT NOT NULL,"
-					+ " raw BLOB," // Null if message has been deleted
+					+ " deleted BOOLEAN NOT NULL,"
+					+ " blockCount INT NOT NULL,"
 					+ " PRIMARY KEY (messageId),"
 					+ " FOREIGN KEY (groupId)"
 					+ " REFERENCES groups (groupId)"
@@ -225,6 +224,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " PRIMARY KEY (messageId, contactId),"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
+
+	private static final String CREATE_BLOCKS =
+			"CREATE TABLE blocks"
+					+ " (messageId _HASH NOT NULL,"
+					+ " blockNumber INT NOT NULL,"
+					+ " blockLength INT NOT NULL,"
+					+ " data BLOB," // Null if message has been deleted
+					+ " PRIMARY KEY (messageId, blockNumber),"
+					+ " FOREIGN KEY (messageId)"
+					+ " REFERENCES messages (messageId)"
 					+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_STATUSES =
@@ -339,7 +349,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final Logger LOG =
 			getLogger(JdbcDatabase.class.getName());
 
-	private final MessageFactory messageFactory;
 	private final Clock clock;
 	private final DatabaseTypes dbTypes;
 
@@ -359,10 +368,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected abstract void compactAndClose() throws DbException;
 
-	JdbcDatabase(DatabaseTypes databaseTypes, MessageFactory messageFactory,
-			Clock clock) {
+	JdbcDatabase(DatabaseTypes databaseTypes, Clock clock) {
 		this.dbTypes = databaseTypes;
-		this.messageFactory = messageFactory;
 		this.clock = clock;
 	}
 
@@ -463,7 +470,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				new Migration43_44(dbTypes),
 				new Migration44_45(),
 				new Migration45_46(),
-				new Migration46_47(dbTypes)
+				new Migration46_47(dbTypes),
+				new Migration47_48(dbTypes)
 		);
 	}
 
@@ -509,6 +517,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_MESSAGE_METADATA));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_MESSAGE_DEPENDENCIES));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_OFFERS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_BLOCKS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_STATUSES));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_TRANSPORTS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_PENDING_CONTACTS));
@@ -726,7 +735,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT messageId, timestamp, state, shared,"
-					+ " length, raw IS NULL"
+					+ " length, deleted"
 					+ " FROM messages"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
@@ -788,8 +797,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO messages (messageId, groupId, timestamp,"
-					+ " state, shared, temporary, length, raw)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+					+ " state, shared, temporary, length, deleted, blockCount)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, FALSE, 1)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			ps.setBytes(2, m.getGroupId().getBytes());
@@ -797,10 +806,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(4, state.getValue());
 			ps.setBoolean(5, shared);
 			ps.setBoolean(6, temporary);
-			byte[] raw = messageFactory.getRawMessage(m);
-			ps.setInt(7, raw.length);
-			ps.setBytes(8, raw);
+			ps.setInt(7, m.getRawLength());
 			int affected = ps.executeUpdate();
+			if (affected != 1) throw new DbStateException();
+			ps.close();
+			sql = "INSERT INTO blocks (messageId, blockNumber, blockLength,"
+					+ " data)"
+					+ " VALUES (?, 0, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getId().getBytes());
+			ps.setInt(2, m.getBody().length);
+			ps.setBytes(3, m.getBody());
+			affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 			// Create a status row for each contact that can see the group
@@ -811,7 +828,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				boolean offered = removeOfferedMessage(txn, c, m.getId());
 				boolean seen = offered || c.equals(sender);
 				addStatus(txn, m.getId(), c, m.getGroupId(), m.getTimestamp(),
-						raw.length, state, e.getValue(), shared, false, seen);
+						m.getRawLength(), state, e.getValue(), shared, false,
+						seen);
 			}
 			// Update denormalised column in messageDependencies if dependency
 			// is in same group as dependent
@@ -1290,12 +1308,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void deleteMessage(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE messages SET raw = NULL WHERE messageId = ?";
+			String sql = "UPDATE messages SET deleted = TRUE"
+					+ " WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+			sql = "UPDATE blocks SET data = NULL WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			affected = ps.executeUpdate();
 			if (affected < 0) throw new DbStateException();
-			if (affected > 1) throw new DbStateException();
 			ps.close();
 			// Update denormalised column in statuses
 			sql = "UPDATE statuses SET deleted = TRUE WHERE messageId = ?";
@@ -1692,7 +1716,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT groupId, timestamp, raw FROM messages"
+			String sql = "SELECT groupId, timestamp, deleted FROM messages"
 					+ " WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
@@ -1700,15 +1724,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (!rs.next()) throw new DbStateException();
 			GroupId g = new GroupId(rs.getBytes(1));
 			long timestamp = rs.getLong(2);
-			byte[] raw = rs.getBytes(3);
+			boolean deleted = rs.getBoolean(3);
 			if (rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			if (raw == null) throw new MessageDeletedException();
-			if (raw.length <= MESSAGE_HEADER_LENGTH) throw new AssertionError();
-			byte[] body = new byte[raw.length - MESSAGE_HEADER_LENGTH];
-			System.arraycopy(raw, MESSAGE_HEADER_LENGTH, body, 0, body.length);
-			return new Message(m, g, timestamp, body);
+			if (deleted) throw new MessageDeletedException();
+			sql = "SELECT data FROM blocks"
+					+ " WHERE messageId = ? AND blockNumber = 0";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbStateException();
+			byte[] data = rs.getBytes(1);
+			if (data == null) throw new DbStateException();
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return new Message(m, g, timestamp, data);
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);
@@ -2182,7 +2214,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT messageId FROM messages"
-					+ " WHERE state = ? AND raw IS NOT NULL";
+					+ " WHERE state = ? AND deleted = FALSE";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, state.getValue());
 			rs = ps.executeQuery();

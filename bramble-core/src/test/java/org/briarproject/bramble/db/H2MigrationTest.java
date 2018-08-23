@@ -11,7 +11,7 @@ public class H2MigrationTest extends DatabaseMigrationTest {
 	@Override
 	Database<Connection> createDatabase(
 			List<Migration<Connection>> migrations) {
-		return new H2Database(config, messageFactory, clock) {
+		return new H2Database(config, clock) {
 			@Override
 			List<Migration<Connection>> getMigrations() {
 				return migrations;

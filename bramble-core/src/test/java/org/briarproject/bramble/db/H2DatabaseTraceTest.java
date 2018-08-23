@@ -1,7 +1,6 @@
 package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.db.DatabaseConfig;
-import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.junit.Ignore;
 
@@ -15,8 +14,8 @@ public class H2DatabaseTraceTest extends DatabaseTraceTest {
 
 	@Override
 	Database<Connection> createDatabase(DatabaseConfig databaseConfig,
-			MessageFactory messageFactory, Clock clock) {
-		return new H2Database(databaseConfig, messageFactory, clock) {
+			Clock clock) {
+		return new H2Database(databaseConfig, clock) {
 			@Override
 			@Nonnull
 			String getUrl() {

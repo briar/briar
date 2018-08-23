@@ -17,6 +17,6 @@ public class HyperSqlDatabasePerformanceTest
 	@Override
 	protected JdbcDatabase createDatabase(DatabaseConfig config,
 			MessageFactory messageFactory, Clock clock) {
-		return new HyperSqlDatabase(config, messageFactory, clock);
+		return new HyperSqlDatabase(config, clock);
 	}
 }
