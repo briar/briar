@@ -44,7 +44,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 	@Inject
 	ForumPostFactory forumPostFactory;
 
-	public MessageSizeIntegrationTest() throws Exception {
+	public MessageSizeIntegrationTest() {
 		MessageSizeIntegrationTestComponent component =
 				DaggerMessageSizeIntegrationTestComponent.builder().build();
 		component.inject(this);
@@ -60,9 +60,9 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
 				groupId, timestamp, body);
 		// Check the size of the serialised message
-		int length = message.getMessage().getRaw().length;
-		assertTrue(
-				length > UniqueId.LENGTH + 8 + MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+		int length = message.getMessage().getLength();
+		assertTrue(length > UniqueId.LENGTH + 8
+				+ MAX_PRIVATE_MESSAGE_BODY_LENGTH);
 		assertTrue(length <= MAX_RECORD_PAYLOAD_BYTES);
 	}
 
@@ -83,7 +83,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		ForumPost post = forumPostFactory.createPost(groupId,
 				timestamp, parent, author, body);
 		// Check the size of the serialised message
-		int length = post.getMessage().getRaw().length;
+		int length = post.getMessage().getLength();
 		assertTrue(length > UniqueId.LENGTH + 8 + UniqueId.LENGTH + 4
 				+ MAX_AUTHOR_NAME_LENGTH + MAX_PUBLIC_KEY_LENGTH
 				+ MAX_FORUM_POST_BODY_LENGTH);

@@ -40,6 +40,7 @@ public class TestUtils {
 	private static final AtomicInteger nextTestDir =
 			new AtomicInteger((int) (Math.random() * 1000 * 1000));
 	private static final Random random = new Random();
+	private static final long timestamp = System.currentTimeMillis();
 
 	public static File getTestDirectory() {
 		int name = nextTestDir.getAndIncrement();
@@ -101,9 +102,8 @@ public class TestUtils {
 		String name = getRandomString(nameLength);
 		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 		byte[] privateKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		long created = System.currentTimeMillis();
 		return new LocalAuthor(id, FORMAT_VERSION, name, publicKey, privateKey,
-				created);
+				timestamp);
 	}
 
 	public static Author getAuthor() {
@@ -137,7 +137,6 @@ public class TestUtils {
 	public static Message getMessage(GroupId groupId, int rawLength) {
 		MessageId id = new MessageId(getRandomId());
 		byte[] raw = getRandomBytes(rawLength);
-		long timestamp = System.currentTimeMillis();
 		return new Message(id, groupId, timestamp, raw);
 	}
 

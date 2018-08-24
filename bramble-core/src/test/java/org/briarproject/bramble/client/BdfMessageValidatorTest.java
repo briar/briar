@@ -18,6 +18,8 @@ import org.junit.Test;
 
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
+import static org.briarproject.bramble.test.TestUtils.getMessage;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
@@ -28,8 +30,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 			new BdfMessageValidator(clientHelper, metadataEncoder, clock) {
 				@Override
 				protected BdfMessageContext validateMessage(Message m, Group g,
-						BdfList body)
-						throws InvalidMessageException, FormatException {
+						BdfList body) {
 					throw new AssertionError();
 				}
 			};
@@ -69,7 +70,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 				metadataEncoder, clock) {
 			@Override
 			protected BdfMessageContext validateMessage(Message m, Group g,
-					BdfList b) throws InvalidMessageException, FormatException {
+					BdfList b) {
 				assertSame(message, m);
 				assertSame(group, g);
 				assertSame(body, b);
@@ -83,11 +84,12 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 
 	@Test(expected = InvalidMessageException.class)
 	public void testRejectsTooShortMessage() throws Exception {
-		byte[] invalidRaw = new byte[MESSAGE_HEADER_LENGTH];
+		byte[] invalidRaw = getRandomBytes(MESSAGE_HEADER_LENGTH);
 		// Use a mock message so the length of the raw message can be invalid
 		Message invalidMessage = context.mock(Message.class);
 
 		context.checking(new Expectations() {{
+			//noinspection ResultOfMethodCallIgnored
 			oneOf(invalidMessage).getTimestamp();
 			will(returnValue(timestamp));
 			oneOf(clock).currentTimeMillis();
@@ -101,15 +103,13 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 
 	@Test
 	public void testAcceptsMinLengthMessage() throws Exception {
-		byte[] shortRaw = new byte[MESSAGE_HEADER_LENGTH + 1];
-		Message shortMessage =
-				new Message(messageId, groupId, timestamp, shortRaw);
+		Message shortMessage = getMessage(groupId, MESSAGE_HEADER_LENGTH + 1);
 
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(timestamp));
-			oneOf(clientHelper).toList(shortRaw, MESSAGE_HEADER_LENGTH,
-					shortRaw.length - MESSAGE_HEADER_LENGTH);
+			oneOf(clientHelper).toList(shortMessage.getRaw(),
+					MESSAGE_HEADER_LENGTH, 1);
 			will(returnValue(body));
 			oneOf(metadataEncoder).encode(dictionary);
 			will(returnValue(meta));
@@ -120,7 +120,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 				metadataEncoder, clock) {
 			@Override
 			protected BdfMessageContext validateMessage(Message m, Group g,
-					BdfList b) throws InvalidMessageException, FormatException {
+					BdfList b) {
 				assertSame(shortMessage, m);
 				assertSame(group, g);
 				assertSame(body, b);
@@ -160,7 +160,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 				metadataEncoder, clock) {
 			@Override
 			protected BdfMessageContext validateMessage(Message m, Group g,
-					BdfList b) throws InvalidMessageException, FormatException {
+					BdfList b) throws FormatException {
 				throw new FormatException();
 			}
 		};

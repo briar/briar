@@ -34,11 +34,10 @@ import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.MAJOR_VERSION;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -187,8 +186,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
 		GroupId contactGroupId = new GroupId(getRandomId());
-		long timestamp = 123456789;
-		Message message = getMessage(contactGroupId, timestamp);
+		Message message = getMessage(contactGroupId);
 		Metadata meta = new Metadata();
 		BdfDictionary metaDictionary = BdfDictionary.of(
 				new BdfEntry("transportId", "foo"),
@@ -229,8 +227,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
 		GroupId contactGroupId = new GroupId(getRandomId());
-		long timestamp = 123456789;
-		Message message = getMessage(contactGroupId, timestamp);
+		Message message = getMessage(contactGroupId);
 		Metadata meta = new Metadata();
 		// Version 4 is being delivered
 		BdfDictionary metaDictionary = BdfDictionary.of(
@@ -267,8 +264,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testDeletesObsoleteUpdateWhenDelivered() throws Exception {
 		Transaction txn = new Transaction(null, false);
 		GroupId contactGroupId = new GroupId(getRandomId());
-		long timestamp = 123456789;
-		Message message = getMessage(contactGroupId, timestamp);
+		Message message = getMessage(contactGroupId);
 		Metadata meta = new Metadata();
 		// Version 3 is being delivered
 		BdfDictionary metaDictionary = BdfDictionary.of(
@@ -619,12 +615,6 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 				true, active);
 	}
 
-	private Message getMessage(GroupId g, long timestamp) {
-		MessageId messageId = new MessageId(getRandomId());
-		byte[] raw = getRandomBytes(MAX_MESSAGE_BODY_LENGTH);
-		return new Message(messageId, g, timestamp, raw);
-	}
-
 	private void expectGetLocalProperties(Transaction txn) throws Exception {
 		Map<MessageId, BdfDictionary> messageMetadata = new LinkedHashMap<>();
 		// The latest update for transport "foo" should be returned
@@ -664,9 +654,9 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	private void expectStoreMessage(Transaction txn, GroupId g,
 			String transportId, BdfDictionary properties, long version,
 			boolean local, boolean shared) throws Exception {
-		long timestamp = 123456789;
 		BdfList body = BdfList.of(transportId, version, properties);
-		Message message = getMessage(g, timestamp);
+		Message message = getMessage(g);
+		long timestamp = message.getTimestamp();
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry("transportId", transportId),
 				new BdfEntry("version", version),

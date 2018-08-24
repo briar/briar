@@ -25,6 +25,7 @@ import java.security.GeneralSecurityException;
 
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
+import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -74,17 +75,12 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		);
 		blog = new Blog(group, author, false);
 		rssBlog = new Blog(group, author, true);
-
-		MessageId messageId = new MessageId(getRandomId());
-		long timestamp = System.currentTimeMillis();
-		byte[] raw = getRandomBytes(123);
-		message = new Message(messageId, group.getId(), timestamp, raw);
+		message = getMessage(group.getId());
 
 		MetadataEncoder metadataEncoder = context.mock(MetadataEncoder.class);
 		Clock clock = new SystemClock();
-		validator =
-				new BlogPostValidator(groupFactory, messageFactory, blogFactory,
-						clientHelper, metadataEncoder, clock);
+		validator = new BlogPostValidator(groupFactory, messageFactory,
+				blogFactory, clientHelper, metadataEncoder, clock);
 		context.assertIsSatisfied();
 	}
 
@@ -117,8 +113,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testValidateBlogPostWithoutAttachments()
-			throws IOException, GeneralSecurityException {
+	public void testValidateBlogPostWithoutAttachments() throws IOException {
 		BdfList content = BdfList.of(null, null, body);
 		BdfList m = BdfList.of(POST.getInt(), content, null);
 
@@ -126,8 +121,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testValidateBlogPostWithoutSignature()
-			throws IOException, GeneralSecurityException {
+	public void testValidateBlogPostWithoutSignature() throws IOException {
 		BdfList content = BdfList.of(null, null, body, null);
 		BdfList m = BdfList.of(POST.getInt(), content, null);
 

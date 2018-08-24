@@ -11,8 +11,11 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
 import org.junit.Test;
 
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
@@ -27,9 +30,9 @@ public class MessageEncoderTest extends BrambleMockTestCase {
 			new MessageEncoderImpl(clientHelper, messageFactory);
 
 	private final GroupId groupId = new GroupId(getRandomId());
-	private final Message message = getMessage(groupId);
+	private final Message message = getMessage(groupId, MAX_MESSAGE_LENGTH);
 	private final long timestamp = message.getTimestamp();
-	private final byte[] body = message.getRaw();
+	private final byte[] body = getRandomBytes(MAX_MESSAGE_BODY_LENGTH);
 	private final Author author = getAuthor();
 	private final BdfList authorList = new BdfList();
 	private final String text = getRandomString(MAX_REQUEST_MESSAGE_LENGTH);
@@ -43,8 +46,8 @@ public class MessageEncoderTest extends BrambleMockTestCase {
 		expectCreateMessage(
 				BdfList.of(REQUEST.getValue(), null, authorList, text));
 
-		messageEncoder
-				.encodeRequestMessage(groupId, timestamp, null, author, text);
+		messageEncoder.encodeRequestMessage(groupId, timestamp, null,
+				author, text);
 	}
 
 	private void expectCreateMessage(BdfList bodyList) throws FormatException {

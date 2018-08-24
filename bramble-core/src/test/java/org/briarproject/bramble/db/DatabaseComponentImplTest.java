@@ -64,6 +64,7 @@ import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
@@ -72,6 +73,7 @@ import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
+import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
@@ -97,10 +99,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	private final Group group;
 	private final Author author;
 	private final LocalAuthor localAuthor;
-	private final MessageId messageId, messageId1;
-	private final int size;
-	private final byte[] raw;
 	private final Message message;
+	private final MessageId messageId, messageId1;
+	private final byte[] raw, raw1;
 	private final Metadata metadata;
 	private final TransportId transportId;
 	private final int maxLatency;
@@ -115,12 +116,12 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		groupId = group.getId();
 		author = getAuthor();
 		localAuthor = getLocalAuthor();
-		messageId = new MessageId(getRandomId());
-		messageId1 = new MessageId(getRandomId());
-		long timestamp = System.currentTimeMillis();
-		size = 1234;
-		raw = new byte[size];
-		message = new Message(messageId, groupId, timestamp, raw);
+		message = getMessage(groupId);
+		Message message1 = getMessage(groupId);
+		messageId = message.getId();
+		messageId1 = message1.getId();
+		raw = message.getRaw();
+		raw1 = message1.getRaw();
 		metadata = new Metadata();
 		metadata.put("foo", new byte[] {'b', 'a', 'r'});
 		transportId = getTransportId();
@@ -865,7 +866,6 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testGenerateBatch() throws Exception {
-		byte[] raw1 = new byte[size];
 		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
 		Collection<byte[]> messages = Arrays.asList(raw, raw1);
 		context.checking(new Expectations() {{
@@ -873,7 +873,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getMessagesToSend(txn, contactId, size * 2);
+			oneOf(database).getMessagesToSend(txn, contactId,
+					MAX_MESSAGE_LENGTH * 2);
 			will(returnValue(ids));
 			oneOf(database).getRawMessage(txn, messageId);
 			will(returnValue(raw));
@@ -893,7 +894,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			assertEquals(messages, db.generateBatch(transaction, contactId,
-					size * 2, maxLatency));
+					MAX_MESSAGE_LENGTH * 2, maxLatency));
 			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
@@ -961,7 +962,6 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testGenerateRequestedBatch() throws Exception {
-		byte[] raw1 = new byte[size];
 		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
 		Collection<byte[]> messages = Arrays.asList(raw, raw1);
 		context.checking(new Expectations() {{
@@ -970,7 +970,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).getRequestedMessagesToSend(txn, contactId,
-					size * 2);
+					MAX_MESSAGE_LENGTH * 2);
 			will(returnValue(ids));
 			oneOf(database).getRawMessage(txn, messageId);
 			will(returnValue(raw));
@@ -990,7 +990,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			assertEquals(messages, db.generateRequestedBatch(transaction,
-					contactId, size * 2, maxLatency));
+					contactId, MAX_MESSAGE_LENGTH * 2, maxLatency));
 			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);

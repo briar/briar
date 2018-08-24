@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.concurrent.Executor;
 
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 
 public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
@@ -72,7 +73,7 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 	@Test
 	public void testSomethingToSend() throws Exception {
 		Ack ack = new Ack(Collections.singletonList(messageId));
-		byte[] raw = new byte[1234];
+		byte[] raw = getRandomBytes(1234);
 		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
 				dbExecutor, eventBus, contactId, MAX_LATENCY, streamWriter,
 				recordWriter);

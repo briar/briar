@@ -29,6 +29,7 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATUR
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
+import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -44,94 +45,83 @@ import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;
 import static org.briarproject.briar.privategroup.invitation.MessageType.LEAVE;
 import static org.junit.Assert.assertEquals;
 
-public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
+abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 
-	protected final DatabaseComponent db =
-			context.mock(DatabaseComponent.class);
-	protected final ClientHelper clientHelper =
-			context.mock(ClientHelper.class);
-	protected final ClientVersioningManager clientVersioningManager =
+	final DatabaseComponent db = context.mock(DatabaseComponent.class);
+	final ClientHelper clientHelper = context.mock(ClientHelper.class);
+	final ClientVersioningManager clientVersioningManager =
 			context.mock(ClientVersioningManager.class);
-	protected final PrivateGroupFactory privateGroupFactory =
+	final PrivateGroupFactory privateGroupFactory =
 			context.mock(PrivateGroupFactory.class);
-	protected final PrivateGroupManager privateGroupManager =
+	final PrivateGroupManager privateGroupManager =
 			context.mock(PrivateGroupManager.class);
-	protected final MessageParser messageParser =
-			context.mock(MessageParser.class);
-	protected final GroupMessageFactory groupMessageFactory =
+	final MessageParser messageParser = context.mock(MessageParser.class);
+	final GroupMessageFactory groupMessageFactory =
 			context.mock(GroupMessageFactory.class);
-	protected final IdentityManager identityManager =
-			context.mock(IdentityManager.class);
-	protected final MessageEncoder messageEncoder =
-			context.mock(MessageEncoder.class);
-	protected final MessageTracker messageTracker =
-			context.mock(MessageTracker.class);
-	protected final Clock clock = context.mock(Clock.class);
+	final IdentityManager identityManager = context.mock(IdentityManager.class);
+	final MessageEncoder messageEncoder = context.mock(MessageEncoder.class);
+	final MessageTracker messageTracker = context.mock(MessageTracker.class);
+	final Clock clock = context.mock(Clock.class);
 
-	protected final Transaction txn = new Transaction(null, false);
-	protected final GroupId contactGroupId = new GroupId(getRandomId());
-	protected final Group privateGroupGroup =
-			getGroup(CLIENT_ID, MAJOR_VERSION);
-	protected final GroupId privateGroupId = privateGroupGroup.getId();
-	protected final Author author = getAuthor();
-	protected final PrivateGroup privateGroup =
-			new PrivateGroup(privateGroupGroup,
-					getRandomString(MAX_GROUP_NAME_LENGTH), author,
-					getRandomBytes(GROUP_SALT_LENGTH));
-	protected final byte[] signature = getRandomBytes(MAX_SIGNATURE_LENGTH);
-	protected final MessageId lastLocalMessageId = new MessageId(getRandomId());
-	protected final MessageId lastRemoteMessageId =
-			new MessageId(getRandomId());
-	protected final long localTimestamp = 3L;
-	protected final long inviteTimestamp = 6L;
-	protected final long messageTimestamp = inviteTimestamp + 1;
-	protected final MessageId messageId = new MessageId(getRandomId());
-	protected final Message message = new Message(messageId, contactGroupId,
-			messageTimestamp, getRandomBytes(42));
+	final Transaction txn = new Transaction(null, false);
+	final GroupId contactGroupId = new GroupId(getRandomId());
+	final Group privateGroupGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
+	final GroupId privateGroupId = privateGroupGroup.getId();
+	final Author author = getAuthor();
+	final PrivateGroup privateGroup = new PrivateGroup(privateGroupGroup,
+			getRandomString(MAX_GROUP_NAME_LENGTH), author,
+			getRandomBytes(GROUP_SALT_LENGTH));
+	final byte[] signature = getRandomBytes(MAX_SIGNATURE_LENGTH);
+	final MessageId lastLocalMessageId = new MessageId(getRandomId());
+	final MessageId lastRemoteMessageId = new MessageId(getRandomId());
+	final Message message = getMessage(contactGroupId);
+	final MessageId messageId = message.getId();
+	final long messageTimestamp = message.getTimestamp();
+	final long inviteTimestamp = messageTimestamp - 1;
+	final long localTimestamp = inviteTimestamp - 1;
 	private final BdfDictionary meta =
 			BdfDictionary.of(new BdfEntry("me", "ta"));
-	protected final ContactId contactId = new ContactId(5);
-	protected final Contact contact = new Contact(contactId, author,
+	final ContactId contactId = new ContactId(5);
+	final Contact contact = new Contact(contactId, author,
 			new AuthorId(getRandomId()), true, true);
 
-	protected final InviteMessage inviteMessage =
+	final InviteMessage inviteMessage =
 			new InviteMessage(new MessageId(getRandomId()), contactGroupId,
 					privateGroupId, 0L, privateGroup.getName(),
 					privateGroup.getCreator(), privateGroup.getSalt(),
 					getRandomString(MAX_GROUP_INVITATION_MSG_LENGTH),
 					signature);
-	protected final JoinMessage joinMessage =
+	final JoinMessage joinMessage =
 			new JoinMessage(new MessageId(getRandomId()), contactGroupId,
 					privateGroupId, 0L, lastRemoteMessageId);
-	protected final LeaveMessage leaveMessage =
+	final LeaveMessage leaveMessage =
 			new LeaveMessage(new MessageId(getRandomId()), contactGroupId,
 					privateGroupId, 0L, lastRemoteMessageId);
-	protected final AbortMessage abortMessage =
+	final AbortMessage abortMessage =
 			new AbortMessage(messageId, contactGroupId, privateGroupId,
 					inviteTimestamp + 1);
 
-	protected void assertSessionConstantsUnchanged(Session s1, Session s2) {
+	void assertSessionConstantsUnchanged(Session s1, Session s2) {
 		assertEquals(s1.getRole(), s2.getRole());
 		assertEquals(s1.getContactGroupId(), s2.getContactGroupId());
 		assertEquals(s1.getPrivateGroupId(), s2.getPrivateGroupId());
 	}
 
-	protected void assertSessionRecordedSentMessage(Session s) {
+	void assertSessionRecordedSentMessage(Session s) {
 		assertEquals(messageId, s.getLastLocalMessageId());
 		assertEquals(lastRemoteMessageId, s.getLastRemoteMessageId());
 		assertEquals(messageTimestamp, s.getLocalTimestamp());
 		assertEquals(inviteTimestamp, s.getInviteTimestamp());
 	}
 
-	protected void expectGetLocalTimestamp(long time) {
+	void expectGetLocalTimestamp(long time) {
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(time));
 		}});
 	}
 
-	protected void expectSendInviteMessage(String msg)
-			throws Exception {
+	void expectSendInviteMessage(String msg) throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder)
 					.encodeInviteMessage(contactGroupId, privateGroupId,
@@ -142,7 +132,7 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		expectSendMessage(INVITE, true);
 	}
 
-	protected void expectSendJoinMessage(JoinMessage m, boolean visible)
+	void expectSendJoinMessage(JoinMessage m, boolean visible)
 			throws Exception {
 		expectGetLocalTimestamp(messageTimestamp);
 		context.checking(new Expectations() {{
@@ -154,7 +144,7 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		expectSendMessage(JOIN, visible);
 	}
 
-	protected void expectSendLeaveMessage(boolean visible) throws Exception {
+	void expectSendLeaveMessage(boolean visible) throws Exception {
 		expectGetLocalTimestamp(messageTimestamp);
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder)
@@ -165,7 +155,7 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		expectSendMessage(LEAVE, visible);
 	}
 
-	protected void expectSendAbortMessage() throws Exception {
+	void expectSendAbortMessage() throws Exception {
 		expectGetLocalTimestamp(messageTimestamp);
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder)
@@ -186,8 +176,7 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		}});
 	}
 
-	protected void expectSetPrivateGroupVisibility(Visibility v)
-			throws Exception {
+	void expectSetPrivateGroupVisibility(Visibility v) throws Exception {
 		expectGetContactId();
 		context.checking(new Expectations() {{
 			oneOf(clientVersioningManager).getClientVisibility(txn, contactId,
@@ -197,7 +186,7 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		}});
 	}
 
-	protected void expectGetContactId() throws Exception {
+	void expectGetContactId() throws Exception {
 		BdfDictionary groupMeta = BdfDictionary
 				.of(new BdfEntry(GROUP_KEY_CONTACT_ID, contactId.getInt()));
 		context.checking(new Expectations() {{
@@ -207,8 +196,7 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		}});
 	}
 
-	protected void expectIsSubscribedPrivateGroup()
-			throws Exception {
+	void expectIsSubscribedPrivateGroup() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(db).containsGroup(txn, privateGroupId);
 			will(returnValue(true));
@@ -217,19 +205,17 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		}});
 	}
 
-	protected void expectIsNotSubscribedPrivateGroup()
-			throws Exception {
+	void expectIsNotSubscribedPrivateGroup() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(db).containsGroup(txn, privateGroupId);
 			will(returnValue(false));
 		}});
 	}
 
-	protected void expectMarkMessageVisibleInUi(MessageId m, boolean visible)
-			throws Exception {
+	void expectMarkMessageVisibleInUi(MessageId m) throws Exception {
 		BdfDictionary d = new BdfDictionary();
 		context.checking(new Expectations() {{
-			oneOf(messageEncoder).setVisibleInUi(d, visible);
+			oneOf(messageEncoder).setVisibleInUi(d, true);
 			oneOf(clientHelper).mergeMessageMetadata(txn, m, d);
 		}});
 	}

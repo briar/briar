@@ -46,7 +46,6 @@ import javax.annotation.Nullable;
 
 import static junit.framework.TestCase.fail;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
-import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
@@ -106,9 +105,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	private final Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final Group privateGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final BdfDictionary meta = BdfDictionary.of(new BdfEntry("m", "e"));
-	private final Message message =
-			new Message(new MessageId(getRandomId()), contactGroup.getId(),
-					0L, getRandomBytes(MESSAGE_HEADER_LENGTH + 1));
+	private final Message message = getMessage(contactGroup.getId());
 	private final BdfList body = BdfList.of("body");
 	private final SessionId sessionId =
 			new SessionId(privateGroup.getId().getBytes());
@@ -725,13 +722,11 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGetInvitations() throws Exception {
 		BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
-		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		Message message2 = getMessage(contactGroup.getId());
 		BdfDictionary meta2 = BdfDictionary.of(new BdfEntry("m2", "e"));
 		Map<MessageId, BdfDictionary> results = new HashMap<>();
 		results.put(message.getId(), meta);
-		results.put(messageId2, meta2);
-		Message message2 = new Message(messageId2, contactGroup.getId(),
-				0L, getRandomBytes(MESSAGE_HEADER_LENGTH + 1));
+		results.put(message2.getId(), meta2);
 		long time1 = 1L, time2 = 2L;
 		String groupName = getRandomString(MAX_GROUP_NAME_LENGTH);
 		byte[] salt = getRandomBytes(GROUP_SALT_LENGTH);
@@ -766,7 +761,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 					salt);
 			will(returnValue(pg));
 			// message 2
-			oneOf(messageParser).getInviteMessage(txn, messageId2);
+			oneOf(messageParser).getInviteMessage(txn, message2.getId());
 			will(returnValue(inviteMessage2));
 			oneOf(privateGroupFactory).createPrivateGroup(groupName, author,
 					salt);

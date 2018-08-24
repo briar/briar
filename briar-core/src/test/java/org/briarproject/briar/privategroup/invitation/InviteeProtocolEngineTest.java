@@ -360,7 +360,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
 		}});
-		expectMarkMessageVisibleInUi(properInviteMessage.getId(), true);
+		expectMarkMessageVisibleInUi(properInviteMessage.getId());
 		expectMarkMessageAvailableToAnswer(properInviteMessage.getId(), true);
 		context.checking(new Expectations() {{
 			oneOf(messageTracker).trackMessage(txn, contactGroupId,
@@ -766,7 +766,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	}
 
 	private void assertSessionAborted(InviteeSession oldSession,
-			InviteeSession newSession) throws Exception {
+			InviteeSession newSession) {
 		assertEquals(ERROR, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);
 		assertSessionConstantsUnchanged(oldSession, newSession);

@@ -1,6 +1,5 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Metadata;
@@ -21,23 +20,26 @@ import org.briarproject.bramble.api.sync.ValidationManager.State;
 import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
-import org.briarproject.bramble.util.ByteUtils;
 import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
+import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 
 public class ValidationManagerImplTest extends BrambleMockTestCase {
@@ -54,33 +56,22 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	private final Executor validationExecutor = new ImmediateExecutor();
 	private final ClientId clientId = getClientId();
 	private final int majorVersion = 123;
-	private final MessageId messageId = new MessageId(getRandomId());
-	private final MessageId messageId1 = new MessageId(getRandomId());
-	private final MessageId messageId2 = new MessageId(getRandomId());
 	private final Group group = getGroup(clientId, majorVersion);
 	private final GroupId groupId = group.getId();
-	private final long timestamp = System.currentTimeMillis();
-	private final byte[] raw = new byte[123];
-	private final Message message = new Message(messageId, groupId, timestamp,
-			raw);
-	private final Message message1 = new Message(messageId1, groupId, timestamp,
-			raw);
-	private final Message message2 = new Message(messageId2, groupId, timestamp,
-			raw);
+	private final Message message = getMessage(groupId);
+	private final Message message1 = getMessage(groupId);
+	private final Message message2 = getMessage(groupId);
+	private final MessageId messageId = message.getId();
+	private final MessageId messageId1 = message1.getId();
+	private final MessageId messageId2 = message2.getId();
 
 	private final Metadata metadata = new Metadata();
 	private final MessageContext validResult = new MessageContext(metadata);
 	private final ContactId contactId = new ContactId(234);
 	private final MessageContext validResultWithDependencies =
-			new MessageContext(metadata, Collections.singletonList(messageId1));
+			new MessageContext(metadata, singletonList(messageId1));
 
 	private ValidationManagerImpl vm;
-
-	public ValidationManagerImplTest() {
-		// Encode the messages
-		System.arraycopy(groupId.getBytes(), 0, raw, 0, UniqueId.LENGTH);
-		ByteUtils.writeUint64(timestamp, raw, UniqueId.LENGTH);
-	}
 
 	@Before
 	public void setUp() {
@@ -101,21 +92,21 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
 			oneOf(db).getMessagesToValidate(txn);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// deliverOutstandingMessages()
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
 			oneOf(db).getPendingMessages(txn1);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// shareOutstandingMessages()
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn2));
 			oneOf(db).getMessagesToShare(txn2);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 		}});
@@ -146,8 +137,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
 			oneOf(db).getRawMessage(txn1, messageId);
-			will(returnValue(raw));
-			oneOf(messageFactory).createMessage(messageId, raw);
+			will(returnValue(message.getRaw()));
+			oneOf(messageFactory).createMessage(messageId, message.getRaw());
 			will(returnValue(message));
 			oneOf(db).getGroup(txn1, groupId);
 			will(returnValue(group));
@@ -166,15 +157,15 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).setMessageState(txn2, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn2, messageId);
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 			// Load the second raw message and group
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn3));
 			oneOf(db).getRawMessage(txn3, messageId1);
-			will(returnValue(raw));
-			oneOf(messageFactory).createMessage(messageId1, raw);
+			will(returnValue(message1.getRaw()));
+			oneOf(messageFactory).createMessage(messageId1, message1.getRaw());
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn3, groupId);
 			will(returnValue(group));
@@ -193,21 +184,21 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).deleteMessageMetadata(txn4, messageId1);
 			// Recursively invalidate any dependents
 			oneOf(db).getMessageDependents(txn4, messageId1);
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 			// Get pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn5));
 			oneOf(db).getPendingMessages(txn5);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).commitTransaction(txn5);
 			oneOf(db).endTransaction(txn5);
 			// Get messages to share
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn6));
 			oneOf(db).getMessagesToShare(txn6);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).commitTransaction(txn6);
 			oneOf(db).endTransaction(txn6);
 		}});
@@ -228,14 +219,14 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
 			oneOf(db).getMessagesToValidate(txn);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// Get pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
 			oneOf(db).getPendingMessages(txn1);
-			will(returnValue(Collections.singletonList(messageId)));
+			will(returnValue(singletonList(messageId)));
 			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Check whether the message is ready to deliver
@@ -244,11 +235,11 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageState(txn2, messageId);
 			will(returnValue(PENDING));
 			oneOf(db).getMessageDependencies(txn2, messageId);
-			will(returnValue(Collections.singletonMap(messageId1, DELIVERED)));
+			will(returnValue(singletonMap(messageId1, DELIVERED)));
 			// Get the message and its metadata to deliver
 			oneOf(db).getRawMessage(txn2, messageId);
-			will(returnValue(raw));
-			oneOf(messageFactory).createMessage(messageId, raw);
+			will(returnValue(message.getRaw()));
+			oneOf(messageFactory).createMessage(messageId, message.getRaw());
 			will(returnValue(message));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
@@ -260,7 +251,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).setMessageState(txn2, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn2, messageId);
-			will(returnValue(Collections.singletonMap(messageId2, PENDING)));
+			will(returnValue(singletonMap(messageId2, PENDING)));
 			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 			// Check whether the dependent is ready to deliver
@@ -269,11 +260,11 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageState(txn3, messageId2);
 			will(returnValue(PENDING));
 			oneOf(db).getMessageDependencies(txn3, messageId2);
-			will(returnValue(Collections.singletonMap(messageId1, DELIVERED)));
+			will(returnValue(singletonMap(messageId1, DELIVERED)));
 			// Get the dependent and its metadata to deliver
 			oneOf(db).getRawMessage(txn3, messageId2);
-			will(returnValue(raw));
-			oneOf(messageFactory).createMessage(messageId2, raw);
+			will(returnValue(message2.getRaw()));
+			oneOf(messageFactory).createMessage(messageId2, message2.getRaw());
 			will(returnValue(message2));
 			oneOf(db).getGroup(txn3, groupId);
 			will(returnValue(group));
@@ -285,7 +276,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).setMessageState(txn3, messageId2, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn3, messageId2);
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 
@@ -293,7 +284,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn4));
 			oneOf(db).getMessagesToShare(txn4);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 		}});
@@ -314,14 +305,14 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
 			oneOf(db).getMessagesToValidate(txn);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 			// No pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
 			oneOf(db).getPendingMessages(txn1);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 
@@ -329,7 +320,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn2));
 			oneOf(db).getMessagesToShare(txn2);
-			will(returnValue(Collections.singletonList(messageId)));
+			will(returnValue(singletonList(messageId)));
 			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 			// Share message and get dependencies
@@ -337,7 +328,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn3));
 			oneOf(db).setMessageShared(txn3, messageId);
 			oneOf(db).getMessageDependencies(txn3, messageId);
-			will(returnValue(Collections.singletonMap(messageId2, DELIVERED)));
+			will(returnValue(singletonMap(messageId2, DELIVERED)));
 			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 			// Share dependency
@@ -345,7 +336,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn4));
 			oneOf(db).setMessageShared(txn4, messageId2);
 			oneOf(db).getMessageDependencies(txn4, messageId2);
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 		}});
@@ -376,7 +367,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).addMessageDependencies(txn1, message,
 					validResultWithDependencies.getDependencies());
 			oneOf(db).getMessageDependencies(txn1, messageId);
-			will(returnValue(Collections.singletonMap(messageId1, DELIVERED)));
+			will(returnValue(singletonMap(messageId1, DELIVERED)));
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
@@ -384,7 +375,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			// Share message
 			oneOf(db).setMessageShared(txn1, messageId);
 			oneOf(db).commitTransaction(txn1);
@@ -394,7 +385,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn2));
 			oneOf(db).setMessageShared(txn2, messageId1);
 			oneOf(db).getMessageDependencies(txn2, messageId1);
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 		}});
@@ -431,8 +422,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn2));
 			oneOf(db).getRawMessage(txn2, messageId1);
-			will(returnValue(raw));
-			oneOf(messageFactory).createMessage(messageId1, raw);
+			will(returnValue(message1.getRaw()));
+			oneOf(messageFactory).createMessage(messageId1, message1.getRaw());
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
@@ -451,21 +442,21 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).deleteMessageMetadata(txn3, messageId1);
 			// Recursively invalidate dependents
 			oneOf(db).getMessageDependents(txn3, messageId1);
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 			// Get pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn4));
 			oneOf(db).getPendingMessages(txn4);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 			// Get messages to share
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn5));
 			oneOf(db).getMessagesToShare(txn5);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).commitTransaction(txn5);
 			oneOf(db).endTransaction(txn5);
 		}});
@@ -495,8 +486,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
 			oneOf(db).getRawMessage(txn1, messageId);
-			will(returnValue(raw));
-			oneOf(messageFactory).createMessage(messageId, raw);
+			will(returnValue(message.getRaw()));
+			oneOf(messageFactory).createMessage(messageId, message.getRaw());
 			will(returnValue(message));
 			// Load the group - *gasp* it's gone!
 			oneOf(db).getGroup(txn1, groupId);
@@ -507,8 +498,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn2));
 			oneOf(db).getRawMessage(txn2, messageId1);
-			will(returnValue(raw));
-			oneOf(messageFactory).createMessage(messageId1, raw);
+			will(returnValue(message1.getRaw()));
+			oneOf(messageFactory).createMessage(messageId1, message1.getRaw());
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
@@ -527,21 +518,21 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).deleteMessageMetadata(txn3, messageId1);
 			// Recursively invalidate dependents
 			oneOf(db).getMessageDependents(txn3, messageId1);
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 			// Get pending messages to deliver
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn4));
 			oneOf(db).getPendingMessages(txn4);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 			// Get messages to share
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn5));
 			oneOf(db).getMessagesToShare(txn5);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).commitTransaction(txn5);
 			oneOf(db).endTransaction(txn5);
 		}});
@@ -575,7 +566,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 		}});
@@ -584,7 +575,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testLocalMessagesAreNotValidatedWhenAdded() throws Exception {
+	public void testLocalMessagesAreNotValidatedWhenAdded() {
 		vm.eventOccurred(new MessageAddedEvent(message, null));
 	}
 
@@ -611,7 +602,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).addMessageDependencies(txn1, message,
 					validResultWithDependencies.getDependencies());
 			oneOf(db).getMessageDependencies(txn1, messageId);
-			will(returnValue(Collections.singletonMap(messageId1, UNKNOWN)));
+			will(returnValue(singletonMap(messageId1, UNKNOWN)));
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			oneOf(db).setMessageState(txn1, messageId, PENDING);
 			oneOf(db).commitTransaction(txn1);
@@ -644,7 +635,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).addMessageDependencies(txn1, message,
 					validResultWithDependencies.getDependencies());
 			oneOf(db).getMessageDependencies(txn1, messageId);
-			will(returnValue(Collections.singletonMap(messageId1, DELIVERED)));
+			will(returnValue(singletonMap(messageId1, DELIVERED)));
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
@@ -652,7 +643,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 		}});
@@ -685,7 +676,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 					validResultWithDependencies.getDependencies());
 			// Check for invalid dependencies
 			oneOf(db).getMessageDependencies(txn1, messageId);
-			will(returnValue(Collections.singletonMap(messageId1, INVALID)));
+			will(returnValue(singletonMap(messageId1, INVALID)));
 			// Invalidate message
 			oneOf(db).getMessageState(txn1, messageId);
 			will(returnValue(UNKNOWN));
@@ -694,7 +685,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).deleteMessageMetadata(txn1, messageId);
 			// Recursively invalidate dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
-			will(returnValue(Collections.singletonMap(messageId2, UNKNOWN)));
+			will(returnValue(singletonMap(messageId2, UNKNOWN)));
 			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Invalidate dependent in a new transaction
@@ -706,7 +697,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).deleteMessage(txn2, messageId2);
 			oneOf(db).deleteMessageMetadata(txn2, messageId2);
 			oneOf(db).getMessageDependents(txn2, messageId2);
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 		}});
@@ -763,7 +754,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).deleteMessageMetadata(txn2, messageId1);
 			// Message 1 has one dependent: 3
 			oneOf(db).getMessageDependents(txn2, messageId1);
-			will(returnValue(Collections.singletonMap(messageId3, PENDING)));
+			will(returnValue(singletonMap(messageId3, PENDING)));
 			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 			// Invalidate message 2
@@ -776,7 +767,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).deleteMessageMetadata(txn3, messageId2);
 			// Message 2 has one dependent: 3 (same dependent as 1)
 			oneOf(db).getMessageDependents(txn3, messageId2);
-			will(returnValue(Collections.singletonMap(messageId3, PENDING)));
+			will(returnValue(singletonMap(messageId3, PENDING)));
 			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 			// Invalidate message 3 (via 1)
@@ -789,7 +780,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).deleteMessageMetadata(txn4, messageId3);
 			// Message 3 has one dependent: 4
 			oneOf(db).getMessageDependents(txn4, messageId3);
-			will(returnValue(Collections.singletonMap(messageId4, PENDING)));
+			will(returnValue(singletonMap(messageId4, PENDING)));
 			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 			// Invalidate message 3 (again, via 2)
@@ -809,7 +800,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).deleteMessageMetadata(txn6, messageId4);
 			// Message 4 has no dependents
 			oneOf(db).getMessageDependents(txn6, messageId4);
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			oneOf(db).commitTransaction(txn6);
 			oneOf(db).endTransaction(txn6);
 		}});
@@ -819,12 +810,10 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testPendingDependentsGetDelivered() throws Exception {
-		MessageId messageId3 = new MessageId(getRandomId());
-		MessageId messageId4 = new MessageId(getRandomId());
-		Message message3 = new Message(messageId3, groupId, timestamp,
-				raw);
-		Message message4 = new Message(messageId4, groupId, timestamp,
-				raw);
+		Message message3 = getMessage(groupId);
+		Message message4 = getMessage(groupId);
+		MessageId messageId3 = message3.getId();
+		MessageId messageId4 = message4.getId();
 		Map<MessageId, State> twoDependents = new LinkedHashMap<>();
 		twoDependents.put(messageId1, PENDING);
 		twoDependents.put(messageId2, PENDING);
@@ -869,11 +858,11 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageState(txn2, messageId1);
 			will(returnValue(PENDING));
 			oneOf(db).getMessageDependencies(txn2, messageId1);
-			will(returnValue(Collections.singletonMap(messageId, DELIVERED)));
+			will(returnValue(singletonMap(messageId, DELIVERED)));
 			// Get message 1 and its metadata
 			oneOf(db).getRawMessage(txn2, messageId1);
-			will(returnValue(raw));
-			oneOf(messageFactory).createMessage(messageId1, raw);
+			will(returnValue(message1.getRaw()));
+			oneOf(messageFactory).createMessage(messageId1, message1.getRaw());
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
@@ -885,7 +874,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).setMessageState(txn2, messageId1, DELIVERED);
 			// Message 1 has one pending dependent: 3
 			oneOf(db).getMessageDependents(txn2, messageId1);
-			will(returnValue(Collections.singletonMap(messageId3, PENDING)));
+			will(returnValue(singletonMap(messageId3, PENDING)));
 			oneOf(db).commitTransaction(txn2);
 			oneOf(db).endTransaction(txn2);
 			// Check whether message 2 is ready to be delivered
@@ -894,11 +883,11 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageState(txn3, messageId2);
 			will(returnValue(PENDING));
 			oneOf(db).getMessageDependencies(txn3, messageId2);
-			will(returnValue(Collections.singletonMap(messageId, DELIVERED)));
+			will(returnValue(singletonMap(messageId, DELIVERED)));
 			// Get message 2 and its metadata
 			oneOf(db).getRawMessage(txn3, messageId2);
-			will(returnValue(raw));
-			oneOf(messageFactory).createMessage(messageId2, raw);
+			will(returnValue(message2.getRaw()));
+			oneOf(messageFactory).createMessage(messageId2, message2.getRaw());
 			will(returnValue(message2));
 			oneOf(db).getGroup(txn3, groupId);
 			will(returnValue(group));
@@ -910,7 +899,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).setMessageState(txn3, messageId2, DELIVERED);
 			// Message 2 has one pending dependent: 3 (same dependent as 1)
 			oneOf(db).getMessageDependents(txn3, messageId2);
-			will(returnValue(Collections.singletonMap(messageId3, PENDING)));
+			will(returnValue(singletonMap(messageId3, PENDING)));
 			oneOf(db).commitTransaction(txn3);
 			oneOf(db).endTransaction(txn3);
 			// Check whether message 3 is ready to be delivered (via 1)
@@ -922,8 +911,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(twoDependencies));
 			// Get message 3 and its metadata
 			oneOf(db).getRawMessage(txn4, messageId3);
-			will(returnValue(raw));
-			oneOf(messageFactory).createMessage(messageId3, raw);
+			will(returnValue(message3.getRaw()));
+			oneOf(messageFactory).createMessage(messageId3, message3.getRaw());
 			will(returnValue(message3));
 			oneOf(db).getGroup(txn4, groupId);
 			will(returnValue(group));
@@ -934,7 +923,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).setMessageState(txn4, messageId3, DELIVERED);
 			// Message 3 has one pending dependent: 4
 			oneOf(db).getMessageDependents(txn4, messageId3);
-			will(returnValue(Collections.singletonMap(messageId4, PENDING)));
+			will(returnValue(singletonMap(messageId4, PENDING)));
 			oneOf(db).commitTransaction(txn4);
 			oneOf(db).endTransaction(txn4);
 			// Check whether message 3 is ready to be delivered (again, via 2)
@@ -950,11 +939,11 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageState(txn6, messageId4);
 			will(returnValue(PENDING));
 			oneOf(db).getMessageDependencies(txn6, messageId4);
-			will(returnValue(Collections.singletonMap(messageId3, DELIVERED)));
+			will(returnValue(singletonMap(messageId3, DELIVERED)));
 			// Get message 4 and its metadata
 			oneOf(db).getRawMessage(txn6, messageId4);
-			will(returnValue(raw));
-			oneOf(messageFactory).createMessage(messageId4, raw);
+			will(returnValue(message4.getRaw()));
+			oneOf(messageFactory).createMessage(messageId4, message4.getRaw());
 			will(returnValue(message4));
 			oneOf(db).getGroup(txn6, groupId);
 			will(returnValue(group));
@@ -966,7 +955,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).setMessageState(txn6, messageId4, DELIVERED);
 			// Message 4 has no pending dependents
 			oneOf(db).getMessageDependents(txn6, messageId4);
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			oneOf(db).commitTransaction(txn6);
 			oneOf(db).endTransaction(txn6);
 		}});
@@ -1004,7 +993,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).setMessageState(txn1, messageId, DELIVERED);
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
-			will(returnValue(Collections.singletonMap(messageId1, PENDING)));
+			will(returnValue(singletonMap(messageId1, PENDING)));
 			oneOf(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Check whether the pending dependent is ready to be delivered
