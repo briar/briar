@@ -264,6 +264,15 @@ public interface DatabaseComponent {
 	Collection<LocalAuthor> getLocalAuthors(Transaction txn) throws DbException;
 
 	/**
+	 * Returns the message with the given ID.
+	 * <p/>
+	 * Read-only.
+	 *
+	 * @throws MessageDeletedException if the message has been deleted
+	 */
+	Message getMessage(Transaction txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the IDs of all delivered messages in the given group.
 	 * <p/>
 	 * Read-only.

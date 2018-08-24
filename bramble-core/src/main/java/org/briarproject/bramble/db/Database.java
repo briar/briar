@@ -299,6 +299,15 @@ interface Database<T> {
 	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
 
 	/**
+	 * Returns the message with the given ID.
+	 * <p/>
+	 * Read-only.
+	 *
+	 * @throws MessageDeletedException if the message has been deleted
+	 */
+	Message getMessage(T txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the IDs and states of all dependencies of the given message.
 	 * For missing dependencies and dependencies in other groups, the state
 	 * {@link State UNKNOWN} is returned.

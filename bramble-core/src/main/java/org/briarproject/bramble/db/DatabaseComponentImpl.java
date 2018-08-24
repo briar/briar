@@ -458,6 +458,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public Message getMessage(Transaction transaction, MessageId m)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		return db.getMessage(txn, m);
+	}
+
+	@Override
 	public Collection<MessageId> getMessageIds(Transaction transaction,
 			GroupId g) throws DbException {
 		T txn = unbox(transaction);

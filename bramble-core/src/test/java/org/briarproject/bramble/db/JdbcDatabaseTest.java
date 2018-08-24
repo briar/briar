@@ -1638,6 +1638,13 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		ids = db.getMessagesToOffer(txn, contactId, 100);
 		assertEquals(singletonList(messageId), ids);
 
+		// The message should be available
+		Message m = db.getMessage(txn, messageId);
+		assertEquals(messageId, m.getId());
+		assertEquals(groupId, m.getGroupId());
+		assertEquals(message.getTimestamp(), m.getTimestamp());
+		assertArrayEquals(message.getRaw(), m.getRaw());
+
 		// The raw message should be available
 		assertArrayEquals(message.getRaw(), db.getRawMessage(txn, messageId));
 
@@ -1652,6 +1659,14 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(ids.isEmpty());
 		ids = db.getMessagesToOffer(txn, contactId, 100);
 		assertTrue(ids.isEmpty());
+
+		// Requesting the message should throw an exception
+		try {
+			db.getMessage(txn, messageId);
+			fail();
+		} catch (MessageDeletedException expected) {
+			// Expected
+		}
 
 		// Requesting the raw message should throw an exception
 		try {

@@ -1484,6 +1484,32 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public Message getMessage(Connection txn, MessageId m) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT groupId, timestamp, raw FROM messages"
+					+ " WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbStateException();
+			GroupId g = new GroupId(rs.getBytes(1));
+			long timestamp = rs.getLong(2);
+			byte[] raw = rs.getBytes(3);
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if (raw == null) throw new MessageDeletedException();
+			return new Message(m, g, timestamp, raw);
+		} catch (SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public Collection<MessageId> getMessageIds(Connection txn, GroupId g)
 			throws DbException {
 		PreparedStatement ps = null;
