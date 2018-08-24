@@ -204,7 +204,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		@Override
 		public void run() throws IOException {
 			if (interrupted) return;
-			for (Message m : batch) recordWriter.writeMessage(m.getRaw());
+			for (Message m : batch) recordWriter.writeMessage(m);
 			LOG.info("Sent batch");
 			dbExecutor.execute(new GenerateBatch());
 		}

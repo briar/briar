@@ -9,7 +9,7 @@ public interface SyncRecordWriter {
 
 	void writeAck(Ack a) throws IOException;
 
-	void writeMessage(byte[] raw) throws IOException;
+	void writeMessage(Message m) throws IOException;
 
 	void writeOffer(Offer o) throws IOException;
 

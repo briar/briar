@@ -102,7 +102,7 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 			will(returnValue(singletonList(message)));
 			oneOf(db).commitTransaction(msgTxn);
 			oneOf(db).endTransaction(msgTxn);
-			oneOf(recordWriter).writeMessage(message.getRaw());
+			oneOf(recordWriter).writeMessage(message);
 			// No more acks
 			oneOf(db).startTransaction(false);
 			will(returnValue(noAckTxn));

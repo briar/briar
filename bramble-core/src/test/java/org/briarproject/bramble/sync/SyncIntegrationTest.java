@@ -108,8 +108,8 @@ public class SyncIntegrationTest extends BrambleTestCase {
 				streamWriter.getOutputStream());
 
 		recordWriter.writeAck(new Ack(messageIds));
-		recordWriter.writeMessage(message.getRaw());
-		recordWriter.writeMessage(message1.getRaw());
+		recordWriter.writeMessage(message);
+		recordWriter.writeMessage(message1);
 		recordWriter.writeOffer(new Offer(messageIds));
 		recordWriter.writeRequest(new Request(messageIds));
 
