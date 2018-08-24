@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.util.StringUtils;
 
@@ -37,9 +38,10 @@ class HyperSqlDatabase extends JdbcDatabase {
 	private volatile SecretKey key = null;
 
 	@Inject
-	HyperSqlDatabase(DatabaseConfig config, Clock clock) {
+	HyperSqlDatabase(DatabaseConfig config, MessageFactory messageFactory,
+			Clock clock) {
 		super(HASH_TYPE, SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE,
-				clock);
+				messageFactory, clock);
 		this.config = config;
 		File dir = config.getDatabaseDirectory();
 		String path = new File(dir, "db").getAbsolutePath();

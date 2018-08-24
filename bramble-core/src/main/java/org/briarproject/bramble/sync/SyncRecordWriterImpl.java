@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordWriter;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
@@ -25,10 +26,12 @@ import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
 @NotNullByDefault
 class SyncRecordWriterImpl implements SyncRecordWriter {
 
+	private final MessageFactory messageFactory;
 	private final RecordWriter writer;
 	private final ByteArrayOutputStream payload = new ByteArrayOutputStream();
 
-	SyncRecordWriterImpl(RecordWriter writer) {
+	SyncRecordWriterImpl(MessageFactory messageFactory, RecordWriter writer) {
+		this.messageFactory = messageFactory;
 		this.writer = writer;
 	}
 
@@ -46,7 +49,8 @@ class SyncRecordWriterImpl implements SyncRecordWriter {
 
 	@Override
 	public void writeMessage(Message m) throws IOException {
-		writer.writeRecord(new Record(PROTOCOL_VERSION, MESSAGE, m.getRaw()));
+		byte[] raw = messageFactory.getRawMessage(m);
+		writer.writeRecord(new Record(PROTOCOL_VERSION, MESSAGE, raw));
 	}
 
 	@Override

@@ -7,10 +7,12 @@ import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
+import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.system.SystemClock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.TestDatabaseConfig;
+import org.briarproject.bramble.test.TestMessageFactory;
 import org.briarproject.bramble.test.TestUtils;
 import org.jmock.Expectations;
 import org.junit.After;
@@ -45,6 +47,7 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 
 	protected final DatabaseConfig config =
 			new TestDatabaseConfig(testDir, 1024 * 1024);
+	protected final MessageFactory messageFactory = new TestMessageFactory();
 	protected final SecretKey key = getSecretKey();
 	protected final Clock clock = new SystemClock();
 
