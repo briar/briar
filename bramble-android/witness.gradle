@@ -1,9 +1,6 @@
 dependencyVerification {
     verify = [
         'cglib:cglib:3.2.0:cglib-3.2.0.jar:adb13bab79712ad6bdf1bd59f2a3918018a8016e722e8a357065afb9e6690861',
-        'com.android.support.test:monitor:1.0.2:monitor-1.0.2.aar:38ef4fa98a32dc55550ff49bb36a583e178b3a9b830fcb8dcc27bfc4254bc2bc',
-        'com.android.support.test:runner:1.0.2:runner-1.0.2.aar:f04b9ae342975ba1cb3e4a06e13426e3e6b8a73faa45acba604493d83c9a4f00',
-        'com.android.support:support-annotations:27.1.1:support-annotations-27.1.1.jar:3365960206c3d2b09e845f555e7f88f8effc8d2f00b369e66c4be384029299cf',
         'com.android.tools.analytics-library:protos:26.1.3:protos-26.1.3.jar:818c9f256f141d9dafec03a1aa2b94d240b2c140acfd7ee31a8b3e6c2b9479e3',
         'com.android.tools.analytics-library:shared:26.1.3:shared-26.1.3.jar:7110706c7ada96c8b6f5ca80c478291bc7899d46277de2c48527e045442401a3',
         'com.android.tools.analytics-library:tracker:26.1.3:tracker-26.1.3.jar:4155424bf2ce4872da83332579a1707252bc66cbd77c5144fdc4483d0f2e1418',

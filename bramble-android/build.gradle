@@ -41,12 +41,6 @@ dependencies {
 	testImplementation "org.jmock:jmock-legacy:2.8.2"
 	testImplementation "org.hamcrest:hamcrest-library:1.3"
 	testImplementation "org.hamcrest:hamcrest-core:1.3"
-
-	androidTestImplementation project(path: ':bramble-api', configuration: 'testOutput')
-	androidTestImplementation project(path: ':bramble-core', configuration: 'testOutput')
-	androidTestImplementation 'com.android.support.test:runner:1.0.2'
-	androidTestAnnotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
-	androidTestCompileOnly 'javax.annotation:jsr250-api:1.0'
 }
 
 project.afterEvaluate {
