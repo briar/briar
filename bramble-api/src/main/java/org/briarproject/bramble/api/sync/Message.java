@@ -50,7 +50,7 @@ public class Message {
 	/**
 	 * Returns the length of the raw message in bytes.
 	 */
-	public int getLength() {
+	public int getRawLength() {
 		return raw.length;
 	}
 

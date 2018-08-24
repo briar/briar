@@ -355,11 +355,11 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// The message is sendable, but too large to send
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
-				message.getLength() - 1);
+				message.getRawLength() - 1);
 		assertTrue(ids.isEmpty());
 
 		// The message is just the right size to send
-		ids = db.getMessagesToSend(txn, contactId, message.getLength());
+		ids = db.getMessagesToSend(txn, contactId, message.getRawLength());
 		assertEquals(singletonList(messageId), ids);
 
 		db.commitTransaction(txn);

@@ -741,7 +741,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				boolean offered = removeOfferedMessage(txn, c, m.getId());
 				boolean seen = offered || (sender != null && c.equals(sender));
 				addStatus(txn, m.getId(), c, m.getGroupId(), m.getTimestamp(),
-						m.getLength(), state, e.getValue(), messageShared,
+						m.getRawLength(), state, e.getValue(), messageShared,
 						false, seen);
 			}
 			// Update denormalised column in messageDependencies if dependency
