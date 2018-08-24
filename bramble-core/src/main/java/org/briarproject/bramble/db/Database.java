@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.MessageDeletedException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.identity.Author;
@@ -465,12 +466,12 @@ interface Database<T> {
 	long getNextSendTime(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns the message with the given ID, in serialised form, or null if
-	 * the message has been deleted.
+	 * Returns the message with the given ID, in serialised form.
 	 * <p/>
 	 * Read-only.
+	 *
+	 * @throws MessageDeletedException if the message has been deleted
 	 */
-	@Nullable
 	byte[] getRawMessage(T txn, MessageId m) throws DbException;
 
 	/**

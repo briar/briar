@@ -94,7 +94,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
-	public void addingContact(Transaction txn, Contact c) throws DbException {
+	public void addingContact(Transaction txn, Contact c) {
 	}
 
 	@Override
@@ -311,7 +311,6 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 		// Get body of message to be wrapped
 		BdfList body = clientHelper.getMessageAsList(txn, header.getId());
-		if (body == null) throw new DbException();
 		long timestamp = header.getTimestamp();
 		Message wrappedMessage;
 
@@ -459,9 +458,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	@Override
 	public String getPostBody(MessageId m) throws DbException {
 		try {
-			BdfList message = clientHelper.getMessageAsList(m);
-			if (message == null) throw new DbException();
-			return getPostBody(message);
+			return getPostBody(clientHelper.getMessageAsList(m));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

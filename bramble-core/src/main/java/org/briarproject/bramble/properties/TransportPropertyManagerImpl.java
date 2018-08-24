@@ -164,7 +164,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			for (Entry<TransportId, LatestUpdate> e : latest.entrySet()) {
 				BdfList message = clientHelper.getMessageAsList(txn,
 						e.getValue().messageId);
-				if (message == null) throw new DbException();
 				local.put(e.getKey(), parseProperties(message));
 			}
 			return local;
@@ -187,7 +186,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 					// Retrieve and parse the latest local properties
 					BdfList message = clientHelper.getMessageAsList(txn,
 							latest.messageId);
-					if (message == null) throw new DbException();
 					p = parseProperties(message);
 				}
 				db.commitTransaction(txn);
@@ -227,7 +225,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			// Retrieve and parse the latest remote properties
 			BdfList message =
 					clientHelper.getMessageAsList(txn, latest.messageId);
-			if (message == null) throw new DbException();
 			return parseProperties(message);
 		} catch (FormatException e) {
 			throw new DbException(e);
@@ -265,7 +262,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				} else {
 					BdfList message = clientHelper.getMessageAsList(txn,
 							latest.messageId);
-					if (message == null) throw new DbException();
 					TransportProperties old = parseProperties(message);
 					merged = new TransportProperties(old);
 					merged.putAll(p);

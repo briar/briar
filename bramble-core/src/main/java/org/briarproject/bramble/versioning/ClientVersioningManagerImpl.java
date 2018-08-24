@@ -139,7 +139,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	}
 
 	@Override
-	public void stopService() throws ServiceException {
+	public void stopService() {
 	}
 
 	@Override
@@ -274,9 +274,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	private List<ClientVersion> loadClientVersions(Transaction txn,
 			MessageId m) throws DbException {
 		try {
-			BdfList body = clientHelper.getMessageAsList(txn, m);
-			if (body == null) throw new DbException();
-			return parseClientVersions(body);
+			return parseClientVersions(clientHelper.getMessageAsList(txn, m));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -359,9 +357,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 	private Update loadUpdate(Transaction txn, MessageId m) throws DbException {
 		try {
-			BdfList body = clientHelper.getMessageAsList(txn, m);
-			if (body == null) throw new DbException();
-			return parseUpdate(body);
+			return parseUpdate(clientHelper.getMessageAsList(txn, m));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

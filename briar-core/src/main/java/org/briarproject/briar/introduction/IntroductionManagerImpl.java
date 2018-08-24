@@ -463,7 +463,6 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			author = session.getRemote().author;
 		} else throw new AssertionError();
 		Message msg = clientHelper.getMessage(txn, m);
-		if (msg == null) throw new AssertionError();
 		BdfList body = clientHelper.toList(msg);
 		RequestMessage rm = messageParser.parseRequestMessage(msg, body);
 		String message = rm.getMessage();

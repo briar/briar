@@ -91,7 +91,6 @@ class MessageParserImpl implements MessageParser {
 	public InviteMessage getInviteMessage(Transaction txn, MessageId m)
 			throws DbException, FormatException {
 		Message message = clientHelper.getMessage(txn, m);
-		if (message == null) throw new DbException();
 		BdfList body = clientHelper.toList(message);
 		return parseInviteMessage(message, body);
 	}

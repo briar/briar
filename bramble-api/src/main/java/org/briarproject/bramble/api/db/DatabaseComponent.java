@@ -298,12 +298,12 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Returns the message with the given ID, in serialised form, or null if
-	 * the message has been deleted.
+	 * Returns the message with the given ID, in serialised form.
 	 * <p/>
 	 * Read-only.
+	 *
+	 * @throws MessageDeletedException if the message has been deleted
 	 */
-	@Nullable
 	byte[] getRawMessage(Transaction txn, MessageId m) throws DbException;
 
 	/**
