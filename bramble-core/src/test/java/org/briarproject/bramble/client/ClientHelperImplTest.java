@@ -39,6 +39,7 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_N
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -67,11 +68,10 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	private final GroupId groupId = new GroupId(getRandomId());
 	private final BdfDictionary dictionary = new BdfDictionary();
-	private final long timestamp = 42L;
-	private final byte[] rawMessage = getRandomBytes(42);
-	private final MessageId messageId = new MessageId(getRandomId());
-	private final Message message =
-			new Message(messageId, groupId, timestamp, rawMessage);
+	private final Message message = getMessage(groupId);
+	private final MessageId messageId = message.getId();
+	private final long timestamp = message.getTimestamp();
+	private final byte[] rawMessage = message.getRaw();
 	private final Metadata metadata = new Metadata();
 	private final BdfList list = BdfList.of("Sign this!", getRandomBytes(42));
 	private final String label = StringUtils.getRandomString(5);

@@ -14,7 +14,6 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
-import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
@@ -39,8 +38,7 @@ import okhttp3.Dns;
 
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
-import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEEDS;
 import static org.briarproject.briar.api.feed.FeedManager.CLIENT_ID;
 import static org.briarproject.briar.api.feed.FeedManager.MAJOR_VERSION;
@@ -109,8 +107,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		entry.setUpdatedDate(new Date());
 		entries.add(entry);
 		String body = "<p> (" + entry.getUpdatedDate().toString() + ")</p>";
-		Message msg = new Message(new MessageId(getRandomId()), blogGroupId, 0,
-				getRandomBytes(42));
+		Message msg = getMessage(blogGroupId);
 		BlogPost post = new BlogPost(msg, null, localAuthor);
 
 		context.checking(new Expectations() {{
@@ -118,9 +115,8 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(42L));
-			oneOf(blogPostFactory)
-					.createBlogPost(feed.getBlogId(), 42L, null, localAuthor,
-							body);
+			oneOf(blogPostFactory).createBlogPost(feed.getBlogId(), 42L, null,
+					localAuthor, body);
 			will(returnValue(post));
 			oneOf(blogManager).addLocalPost(txn, post);
 			oneOf(db).commitTransaction(txn);

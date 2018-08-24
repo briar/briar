@@ -305,7 +305,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 						lastRemoteMessageId);
 
 		expectSendJoinMessage(properJoinMessage, false);
-		expectMarkMessageVisibleInUi(properJoinMessage.getId(), true);
+		expectMarkMessageVisibleInUi(properJoinMessage.getId());
 		context.checking(new Expectations() {{
 			oneOf(messageTracker)
 					.trackMessage(txn, contactGroupId, inviteTimestamp + 1,
@@ -394,7 +394,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 						lastRemoteMessageId);
 		CreatorSession session = getDefaultSession(INVITED);
 
-		expectMarkMessageVisibleInUi(properLeaveMessage.getId(), true);
+		expectMarkMessageVisibleInUi(properLeaveMessage.getId());
 		context.checking(new Expectations() {{
 			oneOf(messageTracker)
 					.trackMessage(txn, contactGroupId, inviteTimestamp + 1,
@@ -463,7 +463,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 	}
 
 	private void assertSessionAborted(CreatorSession oldSession,
-			CreatorSession newSession) throws Exception {
+			CreatorSession newSession) {
 		assertEquals(ERROR, newSession.getState());
 		assertSessionRecordedSentMessage(newSession);
 		assertSessionConstantsUnchanged(oldSession, newSession);

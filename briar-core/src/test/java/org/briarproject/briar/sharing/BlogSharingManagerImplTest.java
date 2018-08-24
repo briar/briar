@@ -36,7 +36,7 @@ import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.blog.BlogSharingManager.MAJOR_VERSION;
@@ -198,8 +198,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 			throws Exception {
 		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		BdfDictionary sessionDict = new BdfDictionary();
-		Message message = new Message(new MessageId(getRandomId()),
-				contactGroup.getId(), 42L, getRandomBytes(1337));
+		Message message = getMessage(contactGroup.getId());
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
