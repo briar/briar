@@ -12,14 +12,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.CodeSource;
 import java.util.concurrent.Executor;
 
 import javax.net.SocketFactory;
 
 @NotNullByDefault
-class JavaTorPlugin extends TorPlugin {
+class LinuxTorPlugin extends TorPlugin {
 
-	JavaTorPlugin(Executor ioExecutor, NetworkManager networkManager,
+	LinuxTorPlugin(Executor ioExecutor, NetworkManager networkManager,
 			LocationUtils locationUtils, SocketFactory torSocketFactory,
 			Clock clock, ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider, Backoff backoff,
@@ -43,10 +44,13 @@ class JavaTorPlugin extends TorPlugin {
 
 	@Override
 	protected long getLastUpdateTime() {
+		CodeSource codeSource =
+				getClass().getProtectionDomain().getCodeSource();
+		if (codeSource == null) throw new AssertionError("CodeSource null");
 		try {
-			URI path = getClass().getProtectionDomain().getCodeSource()
-					.getLocation().toURI();
-			return new File(path).lastModified();
+			URI path = codeSource.getLocation().toURI();
+			File file = new File(path);
+			return file.lastModified();
 		} catch (URISyntaxException e) {
 			throw new AssertionError(e);
 		}

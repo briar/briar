@@ -166,6 +166,12 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
+		if (!torDirectory.exists()) {
+			if (!torDirectory.mkdirs()) {
+				LOG.warning("Could not create Tor directory.");
+				throw new PluginException();
+			}
+		}
 		// Install or update the assets if necessary
 		if (!assetsAreUpToDate()) installAssets();
 		if (cookieFile.exists() && !cookieFile.delete())
@@ -289,14 +295,15 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Installing Tor binary for " + architecture);
 		InputStream in = resourceProvider
-				.getResourceInputStream("tor_" + architecture + ".zip");
+				.getResourceInputStream("tor_" + architecture, ".zip");
 		ZipInputStream zin = new ZipInputStream(in);
 		if (zin.getNextEntry() == null) throw new IOException();
 		return zin;
 	}
 
 	private InputStream getGeoIpInputStream() throws IOException {
-		InputStream in = resourceProvider.getResourceInputStream("geoip.zip");
+		InputStream in = resourceProvider.getResourceInputStream("geoip",
+				".zip");
 		ZipInputStream zin = new ZipInputStream(in);
 		if (zin.getNextEntry() == null) throw new IOException();
 		return zin;

@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.net.NetworkInterface.getNetworkInterfaces;
+import static java.util.Collections.list;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -49,13 +50,12 @@ class JavaNetworkManager implements NetworkManager, Service {
 		try {
 			Enumeration<NetworkInterface> interfaces = getNetworkInterfaces();
 			if (interfaces != null) {
-				while (interfaces.hasMoreElements()) {
-					NetworkInterface i = interfaces.nextElement();
+				for (NetworkInterface i : list(interfaces)) {
 					if (i.isLoopback()) continue;
-					if (i.isUp()) {
+					if (i.isUp() && i.getInetAddresses().hasMoreElements()) {
 						if (LOG.isLoggable(INFO)) {
 							LOG.info("Interface " + i.getDisplayName() +
-									" is up.");
+									" is up with at least one address.");
 						}
 						connected = true;
 						break;

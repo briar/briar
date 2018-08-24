@@ -15,7 +15,8 @@ class JavaResourceProvider implements ResourceProvider {
 	}
 
 	@Override
-	public InputStream getResourceInputStream(String name) {
-		return this.getClass().getClassLoader().getResourceAsStream(name);
+	public InputStream getResourceInputStream(String name, String extension) {
+		return getClass().getClassLoader()
+				.getResourceAsStream(name + extension);
 	}
 }
