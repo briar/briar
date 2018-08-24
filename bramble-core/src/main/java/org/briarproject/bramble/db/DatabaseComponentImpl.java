@@ -497,15 +497,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public byte[] getRawMessage(Transaction transaction, MessageId m)
-			throws DbException {
-		T txn = unbox(transaction);
-		if (!db.containsMessage(txn, m))
-			throw new NoSuchMessageException();
-		return db.getRawMessage(txn, m);
-	}
-
-	@Override
 	public Map<MessageId, Metadata> getMessageMetadata(Transaction transaction,
 			GroupId g) throws DbException {
 		T txn = unbox(transaction);

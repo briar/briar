@@ -307,15 +307,6 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Returns the message with the given ID, in serialised form.
-	 * <p/>
-	 * Read-only.
-	 *
-	 * @throws MessageDeletedException if the message has been deleted
-	 */
-	byte[] getRawMessage(Transaction txn, MessageId m) throws DbException;
-
-	/**
 	 * Returns the metadata for all delivered messages in the given group.
 	 * <p/>
 	 * Read-only.

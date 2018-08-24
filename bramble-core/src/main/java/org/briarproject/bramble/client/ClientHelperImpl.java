@@ -127,7 +127,7 @@ class ClientHelperImpl implements ClientHelper {
 
 	@Override
 	public Message getMessage(Transaction txn, MessageId m) throws DbException {
-		return messageFactory.createMessage(m, db.getRawMessage(txn, m));
+		return db.getMessage(txn, m);
 	}
 
 	@Override
@@ -147,7 +147,7 @@ class ClientHelperImpl implements ClientHelper {
 	@Override
 	public BdfList getMessageAsList(Transaction txn, MessageId m)
 			throws DbException, FormatException {
-		byte[] raw = db.getRawMessage(txn, m);
+		byte[] raw = db.getMessage(txn, m).getRaw();
 		return toList(raw, MESSAGE_HEADER_LENGTH,
 				raw.length - MESSAGE_HEADER_LENGTH);
 	}
