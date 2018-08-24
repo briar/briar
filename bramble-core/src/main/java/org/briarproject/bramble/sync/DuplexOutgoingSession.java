@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
+import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
@@ -274,7 +275,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (!generateBatchQueued.getAndSet(false))
 				throw new AssertionError();
 			try {
-				Collection<byte[]> b;
+				Collection<Message> b;
 				Transaction txn = db.startTransaction(false);
 				try {
 					b = db.generateRequestedBatch(txn, contactId,
@@ -296,9 +297,9 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 
 	private class WriteBatch implements ThrowingRunnable<IOException> {
 
-		private final Collection<byte[]> batch;
+		private final Collection<Message> batch;
 
-		private WriteBatch(Collection<byte[]> batch) {
+		private WriteBatch(Collection<Message> batch) {
 			this.batch = batch;
 		}
 
@@ -306,7 +307,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		@Override
 		public void run() throws IOException {
 			if (interrupted) return;
-			for (byte[] raw : batch) recordWriter.writeMessage(raw);
+			for (Message m : batch) recordWriter.writeMessage(m.getRaw());
 			LOG.info("Sent batch");
 			generateBatch();
 		}

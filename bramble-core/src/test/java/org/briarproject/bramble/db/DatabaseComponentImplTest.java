@@ -99,9 +99,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	private final Group group;
 	private final Author author;
 	private final LocalAuthor localAuthor;
-	private final Message message;
+	private final Message message, message1;
 	private final MessageId messageId, messageId1;
-	private final byte[] raw, raw1;
 	private final Metadata metadata;
 	private final TransportId transportId;
 	private final int maxLatency;
@@ -117,11 +116,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		author = getAuthor();
 		localAuthor = getLocalAuthor();
 		message = getMessage(groupId);
-		Message message1 = getMessage(groupId);
+		message1 = getMessage(groupId);
 		messageId = message.getId();
 		messageId1 = message1.getId();
-		raw = message.getRaw();
-		raw1 = message1.getRaw();
 		metadata = new Metadata();
 		metadata.put("foo", new byte[] {'b', 'a', 'r'});
 		transportId = getTransportId();
@@ -867,7 +864,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGenerateBatch() throws Exception {
 		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
-		Collection<byte[]> messages = Arrays.asList(raw, raw1);
+		Collection<Message> messages = Arrays.asList(message, message1);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -876,12 +873,12 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).getMessagesToSend(txn, contactId,
 					MAX_MESSAGE_LENGTH * 2);
 			will(returnValue(ids));
-			oneOf(database).getRawMessage(txn, messageId);
-			will(returnValue(raw));
+			oneOf(database).getMessage(txn, messageId);
+			will(returnValue(message));
 			oneOf(database).updateExpiryTime(txn, contactId, messageId,
 					maxLatency);
-			oneOf(database).getRawMessage(txn, messageId1);
-			will(returnValue(raw1));
+			oneOf(database).getMessage(txn, messageId1);
+			will(returnValue(message1));
 			oneOf(database).updateExpiryTime(txn, contactId, messageId1,
 					maxLatency);
 			oneOf(database).lowerRequestedFlag(txn, contactId, ids);
@@ -963,7 +960,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGenerateRequestedBatch() throws Exception {
 		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
-		Collection<byte[]> messages = Arrays.asList(raw, raw1);
+		Collection<Message> messages = Arrays.asList(message, message1);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -972,12 +969,12 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).getRequestedMessagesToSend(txn, contactId,
 					MAX_MESSAGE_LENGTH * 2);
 			will(returnValue(ids));
-			oneOf(database).getRawMessage(txn, messageId);
-			will(returnValue(raw));
+			oneOf(database).getMessage(txn, messageId);
+			will(returnValue(message));
 			oneOf(database).updateExpiryTime(txn, contactId, messageId,
 					maxLatency);
-			oneOf(database).getRawMessage(txn, messageId1);
-			will(returnValue(raw1));
+			oneOf(database).getMessage(txn, messageId1);
+			will(returnValue(message1));
 			oneOf(database).updateExpiryTime(txn, contactId, messageId1,
 					maxLatency);
 			oneOf(database).lowerRequestedFlag(txn, contactId, ids);

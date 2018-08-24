@@ -151,13 +151,13 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Returns a batch of raw messages for the given contact, with a total
-	 * length less than or equal to the given length, for transmission over a
+	 * Returns a batch of messages for the given contact, with a total length
+	 * less than or equal to the given length, for transmission over a
 	 * transport with the given maximum latency. Returns null if there are no
 	 * sendable messages that fit in the given length.
 	 */
 	@Nullable
-	Collection<byte[]> generateBatch(Transaction txn, ContactId c,
+	Collection<Message> generateBatch(Transaction txn, ContactId c,
 			int maxLength, int maxLatency) throws DbException;
 
 	/**
@@ -178,14 +178,14 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Returns a batch of raw messages for the given contact, with a total
-	 * length less than or equal to the given length, for transmission over a
+	 * Returns a batch of messages for the given contact, with a total length
+	 * less than or equal to the given length, for transmission over a
 	 * transport with the given maximum latency. Only messages that have been
 	 * requested by the contact are returned. Returns null if there are no
 	 * sendable messages that fit in the given length.
 	 */
 	@Nullable
-	Collection<byte[]> generateRequestedBatch(Transaction txn, ContactId c,
+	Collection<Message> generateRequestedBatch(Transaction txn, ContactId c,
 			int maxLength, int maxLatency) throws DbException;
 
 	/**

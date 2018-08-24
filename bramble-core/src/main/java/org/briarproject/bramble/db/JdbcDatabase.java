@@ -2046,30 +2046,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public byte[] getRawMessage(Connection txn, MessageId m)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT raw FROM messages WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			rs = ps.executeQuery();
-			if (!rs.next()) throw new DbStateException();
-			byte[] raw = rs.getBytes(1);
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if (raw == null) throw new MessageDeletedException();
-			return raw;
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
 	public Collection<MessageId> getRequestedMessagesToSend(Connection txn,
 			ContactId c, int maxLength) throws DbException {
 		long now = clock.currentTimeMillis();

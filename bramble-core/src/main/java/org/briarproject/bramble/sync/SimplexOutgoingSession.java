@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
+import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.transport.StreamWriter;
@@ -171,7 +172,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Collection<byte[]> b;
+				Collection<Message> b;
 				Transaction txn = db.startTransaction(false);
 				try {
 					b = db.generateBatch(txn, contactId,
@@ -193,9 +194,9 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 
 	private class WriteBatch implements ThrowingRunnable<IOException> {
 
-		private final Collection<byte[]> batch;
+		private final Collection<Message> batch;
 
-		private WriteBatch(Collection<byte[]> batch) {
+		private WriteBatch(Collection<Message> batch) {
 			this.batch = batch;
 		}
 
@@ -203,7 +204,7 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		@Override
 		public void run() throws IOException {
 			if (interrupted) return;
-			for (byte[] raw : batch) recordWriter.writeMessage(raw);
+			for (Message m : batch) recordWriter.writeMessage(m.getRaw());
 			LOG.info("Sent batch");
 			dbExecutor.execute(new GenerateBatch());
 		}

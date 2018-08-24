@@ -475,15 +475,6 @@ interface Database<T> {
 	long getNextSendTime(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns the message with the given ID, in serialised form.
-	 * <p/>
-	 * Read-only.
-	 *
-	 * @throws MessageDeletedException if the message has been deleted
-	 */
-	byte[] getRawMessage(T txn, MessageId m) throws DbException;
-
-	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact and have been requested by the contact, up to the given
 	 * total length.
