@@ -2,6 +2,8 @@ package org.briarproject.briar.headless.forums
 
 import io.javalin.BadRequestResponse
 import io.javalin.Context
+import org.briarproject.bramble.util.StringUtils
+import org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH
 import org.briarproject.briar.api.forum.ForumManager
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
@@ -18,8 +20,10 @@ constructor(private val forumManager: ForumManager) {
 
     fun create(ctx: Context): Context {
         val name = ctx.formParam("name")
-        if (name == null || name.isEmpty())
+        if (name == null || name.isNullOrEmpty())
             throw BadRequestResponse("Expecting Forum Name")
+        if (StringUtils.toUtf8(name).size > MAX_FORUM_NAME_LENGTH)
+            throw BadRequestResponse("Forum name is too long")
         return ctx.json(forumManager.addForum(name).output())
     }
 

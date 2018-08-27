@@ -1,8 +1,8 @@
 plugins {
 	id 'java'
 	id 'idea'
-	id 'org.jetbrains.kotlin.jvm' version '1.2.61'
-	id "org.jetbrains.kotlin.kapt" version "1.2.61"
+	id 'org.jetbrains.kotlin.jvm' version '1.2.70'
+	id 'org.jetbrains.kotlin.kapt' version '1.2.70'
 	id 'witness'
 }
 apply from: 'witness.gradle'
@@ -14,7 +14,7 @@ dependencies {
 	implementation project(path: ':briar-core', configuration: 'default')
 	implementation project(path: ':bramble-java', configuration: 'default')
 
-	implementation 'io.javalin:javalin:2.1.0'
+	implementation 'io.javalin:javalin:2.2.0'
 	implementation 'org.slf4j:slf4j-simple:1.7.25'
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.6'
 	implementation 'com.github.ajalt:clikt:1.5.0'
@@ -29,6 +29,7 @@ dependencies {
 	testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
 	testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 	testImplementation "io.mockk:mockk:1.8.6"
+	testImplementation "org.skyscreamer:jsonassert:1.5.0"
 }
 
 jar {

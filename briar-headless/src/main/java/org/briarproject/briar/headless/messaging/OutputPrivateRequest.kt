@@ -1,4 +1,4 @@
-@file:Suppress("MemberVisibilityCanBePrivate", "unused")
+@file:Suppress("unused")
 
 package org.briarproject.briar.headless.messaging
 
@@ -21,22 +21,28 @@ internal abstract class OutputPrivateRequest(header: PrivateRequest<*>, contactI
 }
 
 @Immutable
-internal class OutputIntroductionRequest(header: IntroductionRequest, contactId: ContactId) :
-    OutputPrivateRequest(header, contactId) {
+internal data class OutputIntroductionRequest(
+    override val iHeader: IntroductionRequest,
+    override val iContactId: ContactId
+) : OutputPrivateRequest(iHeader, iContactId) {
 
     override val type = "org.briarproject.briar.api.introduction.IntroductionRequest"
-    val alreadyContact = header.isContact
+    val alreadyContact get() = iHeader.isContact
+
 }
 
 @Immutable
-internal class OutputInvitationRequest(header: InvitationRequest<*>, contactId: ContactId) :
-    OutputPrivateRequest(header, contactId) {
+internal data class OutputInvitationRequest(
+    override val iHeader: InvitationRequest<*>,
+    override val iContactId: ContactId
+) : OutputPrivateRequest(iHeader, iContactId) {
 
-    override val type = when (header) {
+    override val type = when (iHeader) {
         is ForumInvitationRequest -> "org.briarproject.briar.api.forum.ForumInvitationRequest"
         is BlogInvitationRequest -> "org.briarproject.briar.api.blog.BlogInvitationRequest"
         is GroupInvitationRequest -> "org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest"
         else -> throw AssertionError("Unknown InvitationRequest")
     }
-    val canBeOpened = header.canBeOpened()
+    val canBeOpened get() = iHeader.canBeOpened()
+
 }

@@ -1,63 +1,128 @@
 package org.briarproject.briar.headless.blogs
 
-import io.javalin.Context
+import io.javalin.BadRequestResponse
+import io.javalin.json.JavalinJson.toJson
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verifySequence
 import org.briarproject.bramble.api.identity.Author.Status.OURSELVES
-import org.briarproject.bramble.api.identity.IdentityManager
-import org.briarproject.bramble.api.system.Clock
-import org.briarproject.bramble.test.TestUtils.*
+import org.briarproject.bramble.api.sync.MessageId
 import org.briarproject.bramble.util.StringUtils.getRandomString
-import org.briarproject.briar.api.blog.Blog
-import org.briarproject.briar.api.blog.BlogManager
-import org.briarproject.briar.api.blog.BlogPostFactory
-import org.briarproject.briar.api.blog.BlogPostHeader
+import org.briarproject.briar.api.blog.*
+import org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_BODY_LENGTH
 import org.briarproject.briar.api.blog.MessageType.POST
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.briarproject.briar.headless.ControllerTest
+import org.briarproject.briar.headless.output
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
-class BlogControllerTest {
+internal class BlogControllerTest : ControllerTest() {
 
     private val blogManager = mockk<BlogManager>()
     private val blogPostFactory = mockk<BlogPostFactory>()
-    private val identityManager = mockk<IdentityManager>()
-    private val clock = mockk<Clock>()
-    private val ctx = mockk<Context>()
 
-    private val blogController =
-            BlogController(blogManager, blogPostFactory, identityManager, clock)
+    private val controller =
+        BlogController(blogManager, blogPostFactory, identityManager, clock)
 
-    private val group = getGroup(getClientId(), 0)
-    private val author = getAuthor()
     private val blog = Blog(group, author, false)
-    private val message = getMessage(group.id)
-    private val body = getRandomString(5)
+    private val parentId: MessageId? = null
+    private val rssFeed = false
+    private val read = true
+    private val header = BlogPostHeader(
+        POST,
+        group.id,
+        message.id,
+        parentId,
+        message.timestamp,
+        timestamp,
+        author,
+        OURSELVES,
+        rssFeed,
+        read
+    )
+
+    @Test
+    fun testCreate() {
+        val post = BlogPost(message, null, localAuthor)
+
+        every { ctx.formParam("text") } returns body
+        every { identityManager.localAuthor } returns localAuthor
+        every { blogManager.getPersonalBlog(localAuthor) } returns blog
+        every { clock.currentTimeMillis() } returns message.timestamp
+        every {
+            blogPostFactory.createBlogPost(
+                message.groupId,
+                message.timestamp,
+                parentId,
+                localAuthor,
+                body
+            )
+        } returns post
+        every { blogManager.addLocalPost(post) } just Runs
+        every { blogManager.getPostHeader(post.message.groupId, post.message.id) } returns header
+        every { ctx.json(header.output(body)) } returns ctx
+
+        controller.createPost(ctx)
+    }
+
+    @Test
+    fun testCreateNoText() {
+        every { ctx.formParam("text") } returns null
+
+        assertThrows(BadRequestResponse::class.java) { controller.createPost(ctx) }
+    }
+
+    @Test
+    fun testCreateEmptyText() {
+        every { ctx.formParam("text") } returns ""
+
+        assertThrows(BadRequestResponse::class.java) { controller.createPost(ctx) }
+    }
+
+    @Test
+    fun testCreateTooLongText() {
+        every { ctx.formParam("text") } returns getRandomString(MAX_BLOG_POST_BODY_LENGTH + 1)
+
+        assertThrows(BadRequestResponse::class.java) { controller.createPost(ctx) }
+    }
 
     @Test
     fun testList() {
-        val header = BlogPostHeader(POST, group.id, message.id, null, 0, 0, author, OURSELVES, true,
-                true)
-        val slot = slot<List<OutputBlogPost>>()
-
         every { blogManager.blogs } returns listOf(blog)
-        every { blogManager.getPostHeaders(any()) } returns listOf(header)
-        every { blogManager.getPostBody(any()) } returns body
-        every { ctx.json(capture(slot)) } returns ctx
+        every { blogManager.getPostHeaders(group.id) } returns listOf(header)
+        every { blogManager.getPostBody(message.id) } returns body
+        every { ctx.json(listOf(header.output(body))) } returns ctx
 
-        blogController.listPosts(ctx)
+        controller.listPosts(ctx)
+    }
 
-        assertEquals(1, slot.captured.size)
-        assertEquals(header.id.bytes, slot.captured[0].id)
-        assertEquals(body, slot.captured[0].body)
+    @Test
+    fun testEmptyList() {
+        every { blogManager.blogs } returns listOf(blog)
+        every { blogManager.getPostHeaders(group.id) } returns emptyList()
+        every { ctx.json(emptyList<OutputBlogPost>()) } returns ctx
 
-        verifySequence {
-            blogManager.blogs
-            blogManager.getPostHeaders(group.id)
-            blogManager.getPostBody(message.id)
-            ctx.json(slot.captured)
-        }
+        controller.listPosts(ctx)
+    }
+
+    @Test
+    fun testOutputBlogPost() {
+        val json = """
+            {
+                "body": "$body",
+                "author": ${toJson(author.output())},
+                "authorStatus": "ourselves",
+                "type": "post",
+                "id": ${toJson(header.id.bytes)},
+                "parentId": $parentId,
+                "read": $read,
+                "rssFeed": $rssFeed,
+                "timestamp": ${message.timestamp},
+                "timestampReceived": $timestamp
+            }
+        """
+        assertJsonEquals(json, header.output(body))
     }
 
 }

@@ -21,23 +21,27 @@ internal abstract class OutputPrivateResponse(header: PrivateResponse, contactId
 }
 
 @Immutable
-internal class OutputIntroductionResponse(header: IntroductionResponse, contactId: ContactId) :
-    OutputPrivateResponse(header, contactId) {
+internal data class OutputIntroductionResponse(
+    override val iHeader: IntroductionResponse,
+    override val iContactId: ContactId
+) : OutputPrivateResponse(iHeader, iContactId) {
 
     override val type = "org.briarproject.briar.api.introduction.IntroductionResponse"
-    val introducedAuthor = header.introducedAuthor.output()
-    val introducer = header.isIntroducer
+    val introducedAuthor get() = iHeader.introducedAuthor.output()
+    val introducer get() = iHeader.isIntroducer
 }
 
 @Immutable
-internal class OutputInvitationResponse(header: InvitationResponse, contactId: ContactId) :
-    OutputPrivateResponse(header, contactId) {
+internal data class OutputInvitationResponse(
+    override val iHeader: InvitationResponse,
+    override val iContactId: ContactId
+) : OutputPrivateResponse(iHeader, iContactId) {
 
-    override val type = when (header) {
+    override val type = when (iHeader) {
         is ForumInvitationResponse -> "org.briarproject.briar.api.forum.ForumInvitationResponse"
         is BlogInvitationResponse -> "org.briarproject.briar.api.blog.BlogInvitationResponse"
         is GroupInvitationResponse -> "org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse"
         else -> throw AssertionError("Unknown InvitationResponse")
     }
-    val shareableId: ByteArray = header.shareableId.bytes
+    val shareableId: ByteArray get() = iHeader.shareableId.bytes
 }

@@ -4,7 +4,7 @@ import org.briarproject.briar.api.forum.Forum
 import javax.annotation.concurrent.Immutable
 
 @Immutable
-internal class OutputForum(
+internal data class OutputForum(
     val name: String,
     val id: ByteArray
 ) {

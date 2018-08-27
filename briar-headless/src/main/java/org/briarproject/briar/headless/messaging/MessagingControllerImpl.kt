@@ -20,7 +20,7 @@ import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val EVENT_PRIVATE_MESSAGE =
+internal const val EVENT_PRIVATE_MESSAGE =
     "org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent"
 
 @Immutable
@@ -79,7 +79,11 @@ constructor(
 
     private fun getContact(ctx: Context): Contact {
         val contactString = ctx.pathParam("contactId")
-        val contactInt = Integer.parseInt(contactString)
+        val contactInt = try {
+            Integer.parseInt(contactString)
+        } catch (e: NumberFormatException) {
+            throw NotFoundResponse()
+        }
         val contactId = ContactId(contactInt)
         return try {
             contactManager.getContact(contactId)
