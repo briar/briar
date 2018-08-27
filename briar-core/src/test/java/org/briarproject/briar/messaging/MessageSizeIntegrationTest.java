@@ -60,7 +60,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
 				groupId, timestamp, body);
 		// Check the size of the serialised message
-		int length = message.getMessage().getLength();
+		int length = message.getMessage().getRawLength();
 		assertTrue(length > UniqueId.LENGTH + 8
 				+ MAX_PRIVATE_MESSAGE_BODY_LENGTH);
 		assertTrue(length <= MAX_RECORD_PAYLOAD_BYTES);
@@ -83,7 +83,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		ForumPost post = forumPostFactory.createPost(groupId,
 				timestamp, parent, author, body);
 		// Check the size of the serialised message
-		int length = post.getMessage().getLength();
+		int length = post.getMessage().getRawLength();
 		assertTrue(length > UniqueId.LENGTH + 8 + UniqueId.LENGTH + 4
 				+ MAX_AUTHOR_NAME_LENGTH + MAX_PUBLIC_KEY_LENGTH
 				+ MAX_FORUM_POST_BODY_LENGTH);

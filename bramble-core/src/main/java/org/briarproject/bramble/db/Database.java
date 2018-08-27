@@ -299,6 +299,15 @@ interface Database<T> {
 	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
 
 	/**
+	 * Returns the message with the given ID.
+	 * <p/>
+	 * Read-only.
+	 *
+	 * @throws MessageDeletedException if the message has been deleted
+	 */
+	Message getMessage(T txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the IDs and states of all dependencies of the given message.
 	 * For missing dependencies and dependencies in other groups, the state
 	 * {@link State UNKNOWN} is returned.
@@ -464,15 +473,6 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	long getNextSendTime(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Returns the message with the given ID, in serialised form.
-	 * <p/>
-	 * Read-only.
-	 *
-	 * @throws MessageDeletedException if the message has been deleted
-	 */
-	byte[] getRawMessage(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the

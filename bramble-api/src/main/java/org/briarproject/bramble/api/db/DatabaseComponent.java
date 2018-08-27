@@ -151,13 +151,13 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Returns a batch of raw messages for the given contact, with a total
-	 * length less than or equal to the given length, for transmission over a
+	 * Returns a batch of messages for the given contact, with a total length
+	 * less than or equal to the given length, for transmission over a
 	 * transport with the given maximum latency. Returns null if there are no
 	 * sendable messages that fit in the given length.
 	 */
 	@Nullable
-	Collection<byte[]> generateBatch(Transaction txn, ContactId c,
+	Collection<Message> generateBatch(Transaction txn, ContactId c,
 			int maxLength, int maxLatency) throws DbException;
 
 	/**
@@ -178,14 +178,14 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Returns a batch of raw messages for the given contact, with a total
-	 * length less than or equal to the given length, for transmission over a
+	 * Returns a batch of messages for the given contact, with a total length
+	 * less than or equal to the given length, for transmission over a
 	 * transport with the given maximum latency. Only messages that have been
 	 * requested by the contact are returned. Returns null if there are no
 	 * sendable messages that fit in the given length.
 	 */
 	@Nullable
-	Collection<byte[]> generateRequestedBatch(Transaction txn, ContactId c,
+	Collection<Message> generateRequestedBatch(Transaction txn, ContactId c,
 			int maxLength, int maxLatency) throws DbException;
 
 	/**
@@ -264,6 +264,15 @@ public interface DatabaseComponent {
 	Collection<LocalAuthor> getLocalAuthors(Transaction txn) throws DbException;
 
 	/**
+	 * Returns the message with the given ID.
+	 * <p/>
+	 * Read-only.
+	 *
+	 * @throws MessageDeletedException if the message has been deleted
+	 */
+	Message getMessage(Transaction txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the IDs of all delivered messages in the given group.
 	 * <p/>
 	 * Read-only.
@@ -296,15 +305,6 @@ public interface DatabaseComponent {
 	 */
 	Collection<MessageId> getMessagesToShare(Transaction txn)
 			throws DbException;
-
-	/**
-	 * Returns the message with the given ID, in serialised form.
-	 * <p/>
-	 * Read-only.
-	 *
-	 * @throws MessageDeletedException if the message has been deleted
-	 */
-	byte[] getRawMessage(Transaction txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the metadata for all delivered messages in the given group.

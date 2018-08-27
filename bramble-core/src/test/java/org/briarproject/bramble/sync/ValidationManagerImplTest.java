@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageContext;
-import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.ValidationManager.IncomingMessageHook;
 import org.briarproject.bramble.api.sync.ValidationManager.MessageValidator;
@@ -45,8 +44,6 @@ import static org.briarproject.bramble.test.TestUtils.getRandomId;
 public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
-	private final MessageFactory messageFactory =
-			context.mock(MessageFactory.class);
 	private final MessageValidator validator =
 			context.mock(MessageValidator.class);
 	private final IncomingMessageHook hook =
@@ -75,8 +72,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Before
 	public void setUp() {
-		vm = new ValidationManagerImpl(db, dbExecutor, validationExecutor,
-				messageFactory);
+		vm = new ValidationManagerImpl(db, dbExecutor, validationExecutor);
 		vm.registerMessageValidator(clientId, majorVersion, validator);
 		vm.registerIncomingMessageHook(clientId, majorVersion, hook);
 	}
@@ -136,9 +132,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Load the first raw message and group
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
-			oneOf(db).getRawMessage(txn1, messageId);
-			will(returnValue(message.getRaw()));
-			oneOf(messageFactory).createMessage(messageId, message.getRaw());
+			oneOf(db).getMessage(txn1, messageId);
 			will(returnValue(message));
 			oneOf(db).getGroup(txn1, groupId);
 			will(returnValue(group));
@@ -163,9 +157,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Load the second raw message and group
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn3));
-			oneOf(db).getRawMessage(txn3, messageId1);
-			will(returnValue(message1.getRaw()));
-			oneOf(messageFactory).createMessage(messageId1, message1.getRaw());
+			oneOf(db).getMessage(txn3, messageId1);
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn3, groupId);
 			will(returnValue(group));
@@ -237,9 +229,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageDependencies(txn2, messageId);
 			will(returnValue(singletonMap(messageId1, DELIVERED)));
 			// Get the message and its metadata to deliver
-			oneOf(db).getRawMessage(txn2, messageId);
-			will(returnValue(message.getRaw()));
-			oneOf(messageFactory).createMessage(messageId, message.getRaw());
+			oneOf(db).getMessage(txn2, messageId);
 			will(returnValue(message));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
@@ -262,9 +252,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageDependencies(txn3, messageId2);
 			will(returnValue(singletonMap(messageId1, DELIVERED)));
 			// Get the dependent and its metadata to deliver
-			oneOf(db).getRawMessage(txn3, messageId2);
-			will(returnValue(message2.getRaw()));
-			oneOf(messageFactory).createMessage(messageId2, message2.getRaw());
+			oneOf(db).getMessage(txn3, messageId2);
 			will(returnValue(message2));
 			oneOf(db).getGroup(txn3, groupId);
 			will(returnValue(group));
@@ -414,16 +402,14 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Load the first raw message - *gasp* it's gone!
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
-			oneOf(db).getRawMessage(txn1, messageId);
+			oneOf(db).getMessage(txn1, messageId);
 			will(throwException(new NoSuchMessageException()));
 			never(db).commitTransaction(txn1);
 			oneOf(db).endTransaction(txn1);
 			// Load the second raw message and group
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn2));
-			oneOf(db).getRawMessage(txn2, messageId1);
-			will(returnValue(message1.getRaw()));
-			oneOf(messageFactory).createMessage(messageId1, message1.getRaw());
+			oneOf(db).getMessage(txn2, messageId1);
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
@@ -485,9 +471,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Load the first raw message
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn1));
-			oneOf(db).getRawMessage(txn1, messageId);
-			will(returnValue(message.getRaw()));
-			oneOf(messageFactory).createMessage(messageId, message.getRaw());
+			oneOf(db).getMessage(txn1, messageId);
 			will(returnValue(message));
 			// Load the group - *gasp* it's gone!
 			oneOf(db).getGroup(txn1, groupId);
@@ -497,9 +481,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Load the second raw message and group
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn2));
-			oneOf(db).getRawMessage(txn2, messageId1);
-			will(returnValue(message1.getRaw()));
-			oneOf(messageFactory).createMessage(messageId1, message1.getRaw());
+			oneOf(db).getMessage(txn2, messageId1);
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
@@ -860,9 +842,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageDependencies(txn2, messageId1);
 			will(returnValue(singletonMap(messageId, DELIVERED)));
 			// Get message 1 and its metadata
-			oneOf(db).getRawMessage(txn2, messageId1);
-			will(returnValue(message1.getRaw()));
-			oneOf(messageFactory).createMessage(messageId1, message1.getRaw());
+			oneOf(db).getMessage(txn2, messageId1);
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
@@ -885,9 +865,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageDependencies(txn3, messageId2);
 			will(returnValue(singletonMap(messageId, DELIVERED)));
 			// Get message 2 and its metadata
-			oneOf(db).getRawMessage(txn3, messageId2);
-			will(returnValue(message2.getRaw()));
-			oneOf(messageFactory).createMessage(messageId2, message2.getRaw());
+			oneOf(db).getMessage(txn3, messageId2);
 			will(returnValue(message2));
 			oneOf(db).getGroup(txn3, groupId);
 			will(returnValue(group));
@@ -910,9 +888,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageDependencies(txn4, messageId3);
 			will(returnValue(twoDependencies));
 			// Get message 3 and its metadata
-			oneOf(db).getRawMessage(txn4, messageId3);
-			will(returnValue(message3.getRaw()));
-			oneOf(messageFactory).createMessage(messageId3, message3.getRaw());
+			oneOf(db).getMessage(txn4, messageId3);
 			will(returnValue(message3));
 			oneOf(db).getGroup(txn4, groupId);
 			will(returnValue(group));
@@ -941,9 +917,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageDependencies(txn6, messageId4);
 			will(returnValue(singletonMap(messageId3, DELIVERED)));
 			// Get message 4 and its metadata
-			oneOf(db).getRawMessage(txn6, messageId4);
-			will(returnValue(message4.getRaw()));
-			oneOf(messageFactory).createMessage(messageId4, message4.getRaw());
+			oneOf(db).getMessage(txn6, messageId4);
 			will(returnValue(message4));
 			oneOf(db).getGroup(txn6, groupId);
 			will(returnValue(group));

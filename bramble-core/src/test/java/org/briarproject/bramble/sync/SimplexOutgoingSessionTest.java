@@ -5,6 +5,8 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.sync.Ack;
+import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.transport.StreamWriter;
@@ -13,12 +15,11 @@ import org.briarproject.bramble.test.ImmediateExecutor;
 import org.jmock.Expectations;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.concurrent.Executor;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 
 public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
@@ -33,7 +34,8 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 
 	private final Executor dbExecutor = new ImmediateExecutor();
 	private final ContactId contactId = new ContactId(234);
-	private final MessageId messageId = new MessageId(getRandomId());
+	private final Message message = getMessage(new GroupId(getRandomId()));
+	private final MessageId messageId = message.getId();
 
 	@Test
 	public void testNothingToSend() throws Exception {
@@ -72,8 +74,7 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 
 	@Test
 	public void testSomethingToSend() throws Exception {
-		Ack ack = new Ack(Collections.singletonList(messageId));
-		byte[] raw = getRandomBytes(1234);
+		Ack ack = new Ack(singletonList(messageId));
 		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
 				dbExecutor, eventBus, contactId, MAX_LATENCY, streamWriter,
 				recordWriter);
@@ -98,10 +99,10 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 			will(returnValue(msgTxn));
 			oneOf(db).generateBatch(with(msgTxn), with(contactId),
 					with(any(int.class)), with(MAX_LATENCY));
-			will(returnValue(Arrays.asList(raw)));
+			will(returnValue(singletonList(message)));
 			oneOf(db).commitTransaction(msgTxn);
 			oneOf(db).endTransaction(msgTxn);
-			oneOf(recordWriter).writeMessage(raw);
+			oneOf(recordWriter).writeMessage(message);
 			// No more acks
 			oneOf(db).startTransaction(false);
 			will(returnValue(noAckTxn));

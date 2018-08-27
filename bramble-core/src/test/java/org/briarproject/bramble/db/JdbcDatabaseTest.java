@@ -144,7 +144,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(db.containsContact(txn, contactId));
 		assertTrue(db.containsGroup(txn, groupId));
 		assertTrue(db.containsMessage(txn, messageId));
-		assertArrayEquals(message.getRaw(), db.getRawMessage(txn, messageId));
+		assertArrayEquals(message.getRaw(),
+				db.getMessage(txn, messageId).getRaw());
 
 		// Delete the records
 		db.removeMessage(txn, messageId);
@@ -354,11 +355,11 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// The message is sendable, but too large to send
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
-				message.getLength() - 1);
+				message.getRawLength() - 1);
 		assertTrue(ids.isEmpty());
 
 		// The message is just the right size to send
-		ids = db.getMessagesToSend(txn, contactId, message.getLength());
+		ids = db.getMessagesToSend(txn, contactId, message.getRawLength());
 		assertEquals(singletonList(messageId), ids);
 
 		db.commitTransaction(txn);
@@ -1638,8 +1639,12 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		ids = db.getMessagesToOffer(txn, contactId, 100);
 		assertEquals(singletonList(messageId), ids);
 
-		// The raw message should be available
-		assertArrayEquals(message.getRaw(), db.getRawMessage(txn, messageId));
+		// The message should be available
+		Message m = db.getMessage(txn, messageId);
+		assertEquals(messageId, m.getId());
+		assertEquals(groupId, m.getGroupId());
+		assertEquals(message.getTimestamp(), m.getTimestamp());
+		assertArrayEquals(message.getRaw(), m.getRaw());
 
 		// Delete the message
 		db.deleteMessage(txn, messageId);
@@ -1653,9 +1658,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		ids = db.getMessagesToOffer(txn, contactId, 100);
 		assertTrue(ids.isEmpty());
 
-		// Requesting the raw message should throw an exception
+		// Requesting the message should throw an exception
 		try {
-			db.getRawMessage(txn, messageId);
+			db.getMessage(txn, messageId);
 			fail();
 		} catch (MessageDeletedException expected) {
 			// Expected
@@ -1791,7 +1796,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 		try {
 			// Ask for a nonexistent message - an exception should be thrown
-			db.getRawMessage(txn, messageId);
+			db.getMessage(txn, messageId);
 			fail();
 		} catch (DbException expected) {
 			// It should be possible to abort the transaction without error

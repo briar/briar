@@ -16,7 +16,6 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageContext;
-import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
@@ -52,7 +51,6 @@ class ValidationManagerImpl implements ValidationManager, Service,
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor, validationExecutor;
-	private final MessageFactory messageFactory;
 	private final Map<ClientMajorVersion, MessageValidator> validators;
 	private final Map<ClientMajorVersion, IncomingMessageHook> hooks;
 	private final AtomicBoolean used = new AtomicBoolean(false);
@@ -60,12 +58,10 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@Inject
 	ValidationManagerImpl(DatabaseComponent db,
 			@DatabaseExecutor Executor dbExecutor,
-			@ValidationExecutor Executor validationExecutor,
-			MessageFactory messageFactory) {
+			@ValidationExecutor Executor validationExecutor) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.validationExecutor = validationExecutor;
-		this.messageFactory = messageFactory;
 		validators = new ConcurrentHashMap<>();
 		hooks = new ConcurrentHashMap<>();
 	}
@@ -128,8 +124,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			Transaction txn = db.startTransaction(true);
 			try {
 				MessageId id = unvalidated.poll();
-				byte[] raw = db.getRawMessage(txn, id);
-				m = messageFactory.createMessage(id, raw);
+				m = db.getMessage(txn, id);
 				g = db.getGroup(txn, m.getGroupId());
 				db.commitTransaction(txn);
 			} finally {
@@ -196,8 +191,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						invalidateMessage(txn, id);
 						invalidate = getDependentsToInvalidate(txn, id);
 					} else if (allDelivered) {
-						byte[] raw = db.getRawMessage(txn, id);
-						Message m = messageFactory.createMessage(id, raw);
+						Message m = db.getMessage(txn, id);
 						Group g = db.getGroup(txn, m.getGroupId());
 						ClientId c = g.getClientId();
 						int majorVersion = g.getMajorVersion();

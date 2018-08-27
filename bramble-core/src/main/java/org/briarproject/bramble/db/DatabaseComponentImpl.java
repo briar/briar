@@ -307,16 +307,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Nullable
 	@Override
-	public Collection<byte[]> generateBatch(Transaction transaction,
+	public Collection<Message> generateBatch(Transaction transaction,
 			ContactId c, int maxLength, int maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
 		Collection<MessageId> ids = db.getMessagesToSend(txn, c, maxLength);
-		List<byte[]> messages = new ArrayList<>(ids.size());
+		List<Message> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
-			messages.add(db.getRawMessage(txn, m));
+			messages.add(db.getMessage(txn, m));
 			db.updateExpiryTime(txn, c, m, maxLatency);
 		}
 		if (ids.isEmpty()) return null;
@@ -356,7 +356,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Nullable
 	@Override
-	public Collection<byte[]> generateRequestedBatch(Transaction transaction,
+	public Collection<Message> generateRequestedBatch(Transaction transaction,
 			ContactId c, int maxLength, int maxLatency) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
@@ -364,9 +364,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchContactException();
 		Collection<MessageId> ids = db.getRequestedMessagesToSend(txn, c,
 				maxLength);
-		List<byte[]> messages = new ArrayList<>(ids.size());
+		List<Message> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
-			messages.add(db.getRawMessage(txn, m));
+			messages.add(db.getMessage(txn, m));
 			db.updateExpiryTime(txn, c, m, maxLatency);
 		}
 		if (ids.isEmpty()) return null;
@@ -458,6 +458,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public Message getMessage(Transaction transaction, MessageId m)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		return db.getMessage(txn, m);
+	}
+
+	@Override
 	public Collection<MessageId> getMessageIds(Transaction transaction,
 			GroupId g) throws DbException {
 		T txn = unbox(transaction);
@@ -485,15 +494,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throws DbException {
 		T txn = unbox(transaction);
 		return db.getMessagesToShare(txn);
-	}
-
-	@Override
-	public byte[] getRawMessage(Transaction transaction, MessageId m)
-			throws DbException {
-		T txn = unbox(transaction);
-		if (!db.containsMessage(txn, m))
-			throw new NoSuchMessageException();
-		return db.getRawMessage(txn, m);
 	}
 
 	@Override

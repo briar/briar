@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordWriter;
 import org.briarproject.bramble.api.sync.Ack;
+import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
@@ -44,8 +45,8 @@ class SyncRecordWriterImpl implements SyncRecordWriter {
 	}
 
 	@Override
-	public void writeMessage(byte[] raw) throws IOException {
-		writer.writeRecord(new Record(PROTOCOL_VERSION, MESSAGE, raw));
+	public void writeMessage(Message m) throws IOException {
+		writer.writeRecord(new Record(PROTOCOL_VERSION, MESSAGE, m.getRaw()));
 	}
 
 	@Override

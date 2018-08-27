@@ -108,8 +108,8 @@ public class SyncIntegrationTest extends BrambleTestCase {
 				streamWriter.getOutputStream());
 
 		recordWriter.writeAck(new Ack(messageIds));
-		recordWriter.writeMessage(message.getRaw());
-		recordWriter.writeMessage(message1.getRaw());
+		recordWriter.writeMessage(message);
+		recordWriter.writeMessage(message1);
 		recordWriter.writeOffer(new Offer(messageIds));
 		recordWriter.writeRequest(new Request(messageIds));
 
@@ -169,7 +169,7 @@ public class SyncIntegrationTest extends BrambleTestCase {
 		assertArrayEquals(m1.getGroupId().getBytes(),
 				m2.getGroupId().getBytes());
 		assertEquals(m1.getTimestamp(), m2.getTimestamp());
-		assertEquals(m1.getLength(), m2.getLength());
+		assertEquals(m1.getRawLength(), m2.getRawLength());
 		assertArrayEquals(m1.getRaw(), m2.getRaw());
 	}
 }

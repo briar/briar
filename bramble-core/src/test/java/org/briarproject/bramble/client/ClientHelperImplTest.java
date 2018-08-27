@@ -71,7 +71,6 @@ public class ClientHelperImplTest extends BrambleTestCase {
 	private final Message message = getMessage(groupId);
 	private final MessageId messageId = message.getId();
 	private final long timestamp = message.getTimestamp();
-	private final byte[] rawMessage = message.getRaw();
 	private final Metadata metadata = new Metadata();
 	private final BdfList list = BdfList.of("Sign this!", getRandomBytes(42));
 	private final String label = StringUtils.getRandomString(5);
@@ -120,8 +119,8 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
-			oneOf(db).getRawMessage(txn, messageId);
-			will(returnValue(rawMessage));
+			oneOf(db).getMessage(txn, messageId);
+			will(returnValue(message));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
 		}});
@@ -267,7 +266,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 	public void testToList() throws Exception {
 		expectToList(true);
 
-		assertEquals(list, clientHelper.toList(rawMessage));
+		assertEquals(list, clientHelper.toList(getRandomBytes(123)));
 		context.assertIsSatisfied();
 	}
 
@@ -276,7 +275,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		expectToList(false); // no EOF after list
 
 		try {
-			clientHelper.toList(rawMessage);
+			clientHelper.toList(getRandomBytes(123));
 			fail();
 		} catch (FormatException e) {
 			// expected
