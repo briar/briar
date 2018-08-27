@@ -2,6 +2,7 @@ package org.briarproject.briar.headless;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.briar.headless.blogs.BlogController;
+import org.briarproject.briar.headless.contact.ContactController;
 import org.briarproject.briar.headless.forums.ForumController;
 import org.briarproject.briar.headless.messaging.MessagingController;
 
@@ -26,16 +27,19 @@ import static java.lang.Runtime.getRuntime;
 public class Router {
 
 	private final BriarService briarService;
+	private final ContactController contactController;
 	private final MessagingController messagingController;
 	private final ForumController forumController;
 	private final BlogController blogController;
 
 	@Inject
 	public Router(BriarService briarService,
+			ContactController contactController,
 			MessagingController messagingController,
 			ForumController forumController,
 			BlogController blogController) {
 		this.briarService = briarService;
+		this.contactController = contactController;
 		this.messagingController = messagingController;
 		this.forumController = forumController;
 		this.blogController = blogController;
@@ -56,6 +60,7 @@ public class Router {
 				.start();
 
 		app.routes(() -> {
+			path("/contacts", () -> get(contactController::list));
 			path("/messages/:contactId", () -> {
 				get(messagingController::list);
 				post(messagingController::write);
