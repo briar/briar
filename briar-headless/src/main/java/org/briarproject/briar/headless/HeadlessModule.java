@@ -22,6 +22,7 @@ import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.plugin.tor.LinuxTorPluginFactory;
 import org.briarproject.bramble.system.JavaSystemModule;
 import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.briar.headless.messaging.MessagingModule;
 
 import java.io.File;
 import java.security.GeneralSecurityException;
@@ -42,7 +43,8 @@ import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBL
 @Module(includes = {
 		JavaNetworkModule.class,
 		JavaSystemModule.class,
-		CircumventionModule.class
+		CircumventionModule.class,
+		MessagingModule.class
 })
 public class HeadlessModule {
 
@@ -118,6 +120,14 @@ public class HeadlessModule {
 		};
 		return devConfig;
 	}
+
+	@Provides
+	@Singleton
+	WebSocketController provideWebSocketHandler(
+			WebSocketControllerImpl webSocketController) {
+		return webSocketController;
+	}
+
 
 	private File appDir(ConfigurationManager configurationManager,
 			String file) {

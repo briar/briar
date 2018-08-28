@@ -5,7 +5,6 @@ import io.javalin.JavalinEvent.SERVER_START_FAILED
 import io.javalin.JavalinEvent.SERVER_STOPPED
 import io.javalin.apibuilder.ApiBuilder.*
 import org.briarproject.briar.headless.blogs.BlogController
-import org.briarproject.briar.headless.contact.ContactController
 import org.briarproject.briar.headless.forums.ForumController
 import org.briarproject.briar.headless.messaging.MessagingController
 import java.lang.Runtime.getRuntime
@@ -19,7 +18,8 @@ import kotlin.system.exitProcess
 class Router @Inject
 constructor(
     private val briarService: BriarService,
-    private val contactController: ContactController,
+    private val webSocketController: WebSocketController,
+    private val contactController: MessagingController,
     private val messagingController: MessagingController,
     private val forumController: ForumController,
     private val blogController: BlogController
@@ -40,23 +40,29 @@ constructor(
             .start()
 
         app.routes {
-            path("/contacts") {
-                get { ctx -> contactController.list(ctx) }
-            }
-            path("/messages/:contactId") {
-                get { ctx -> messagingController.list(ctx) }
-                post { ctx -> messagingController.write(ctx) }
-            }
-            path("/forums") {
-                get { ctx -> forumController.list(ctx) }
-                post { ctx -> forumController.create(ctx) }
-            }
-            path("/blogs") {
-                path("/posts") {
-                    get { ctx -> blogController.listPosts(ctx) }
-                    post { ctx -> blogController.createPost(ctx) }
+            path("/v1") {
+                path("/contacts") {
+                    get { ctx -> contactController.list(ctx) }
+                }
+                path("/messages/:contactId") {
+                    get { ctx -> messagingController.list(ctx) }
+                    post { ctx -> messagingController.write(ctx) }
+                }
+                path("/forums") {
+                    get { ctx -> forumController.list(ctx) }
+                    post { ctx -> forumController.create(ctx) }
+                }
+                path("/blogs") {
+                    path("/posts") {
+                        get { ctx -> blogController.listPosts(ctx) }
+                        post { ctx -> blogController.createPost(ctx) }
+                    }
                 }
             }
+        }
+        app.ws("/v1/ws") { ws ->
+            ws.onConnect { session -> webSocketController.sessions.add(session) }
+            ws.onClose { session, _, _ -> webSocketController.sessions.remove(session) }
         }
     }
 
