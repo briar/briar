@@ -119,6 +119,7 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 
 	@Override
 	public void onSendClick(String text) {
+		ui.input.hideSoftKeyboard();
 		String comment = getComment();
 		feedController.repeatPost(item, comment,
 				new UiExceptionHandler<DbException>(this) {
