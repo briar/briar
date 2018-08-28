@@ -25,19 +25,19 @@ constructor(
     private val blogController: BlogController
 ) {
 
-    fun start() {
+    fun start(port: Int, debug: Boolean) {
         briarService.start()
         getRuntime().addShutdownHook(Thread(Runnable { briarService.stop() }))
 
         val app = Javalin.create()
-            .port(7000)
+            .port(port)
             .disableStartupBanner()
-            .enableDebugLogging()
             .enableCaseSensitiveUrls()
             .enableRouteOverview("/")
             .event(SERVER_START_FAILED) { stop() }
             .event(SERVER_STOPPED) { stop() }
-            .start()
+        if (debug) app.enableDebugLogging()
+        app.start()
 
         app.routes {
             path("/v1") {
@@ -68,7 +68,7 @@ constructor(
 
     private fun stop() {
         briarService.stop()
-        exitProcess(1)
+        exitProcess(0)
     }
 
 }
