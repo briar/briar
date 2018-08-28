@@ -163,6 +163,7 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 	}
 
 	public void hideSoftKeyboard() {
+		if (emojiPopup.isShowing()) emojiPopup.dismiss();
 		IBinder token = editText.getWindowToken();
 		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
