@@ -55,21 +55,8 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 				.check(matches(isDisplayed()))
 				.perform(click());
 
-		// start main activity
-		Intent i =
-				new Intent(testRule.getActivity(), NavDrawerActivity.class);
-		testRule.getActivity().startActivity(i);
-
-		// close expiry warning
-		onView(withId(R.id.expiryWarningClose))
-				.check(matches(isDisplayed()));
-		onView(withId(R.id.expiryWarningClose))
-				.perform(click());
-
-		// open navigation drawer
-		onView(withId(R.id.drawer_layout))
-				.check(matches(isClosed(Gravity.START)))
-				.perform(DrawerActions.open());
+		// open nav drawer and remove expiry warning
+		openNavDrawer(true);
 
 		screenshot("manual_dark_theme_nav_drawer");
 	}
@@ -94,6 +81,31 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 				.check(matches(isEnabled()));
 
 		screenshot("manual_app_lock");
+
+		// no more expiry warning to remove, because sharedprefs cached?
+		openNavDrawer(false);
+
+		screenshot("manual_app_lock_nav_drawer");
+	}
+
+	private void openNavDrawer(boolean expiry) {
+		// start main activity
+		Intent i =
+				new Intent(testRule.getActivity(), NavDrawerActivity.class);
+		testRule.getActivity().startActivity(i);
+
+		// close expiry warning
+		if (expiry) {
+			onView(withId(R.id.expiryWarningClose))
+					.check(matches(isDisplayed()));
+			onView(withId(R.id.expiryWarningClose))
+					.perform(click());
+		}
+
+		// open navigation drawer
+		onView(withId(R.id.drawer_layout))
+				.check(matches(isClosed(Gravity.START)))
+				.perform(DrawerActions.open());
 	}
 
 }
