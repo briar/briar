@@ -478,4 +478,20 @@
 	<string name="lock_is_locked">Briar is locked</string>
 	<string name="lock_tap_to_unlock">Tap to unlock</string>
 
+	<!-- Screenshots -->
+
+	<!-- This is a name to be used in screenshots. Feel free to change it to a local name. -->
+	<string name="screenshot_alice">Alice</string>
+	<!-- This is a name to be used in screenshots. Feel free to change it to a local name. -->
+	<string name="screenshot_bob">Bob</string>
+	<!-- This is a name to be used in screenshots. Feel free to change it to a local name. -->
+	<string name="screenshot_carol">Carol</string>
+	<!-- This is a message to be used in screenshots. Please use the same translation for Bob! -->
+	<string name="screenshot_message_1">Hi Bob!</string>
+	<!-- This is a message to be used in screenshots. Please use the same translation for Alice! -->
+	<string name="screenshot_message_2">Hi Alice! Thanks for telling me about Briar!</string>
+	<!-- This is a message to be used in screenshots. -->
+	<string name="screenshot_message_3">No problem, hope you like it 😀</string>
+
+
 </resources>

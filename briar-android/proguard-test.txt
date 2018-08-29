@@ -12,4 +12,4 @@
 -keep class junit.** { *; }
 -dontwarn junit.**
 
--dontwarn org.briarproject.briar.android.BriarTestComponentApplication
+-dontwarn org.briarproject.briar.android.**
