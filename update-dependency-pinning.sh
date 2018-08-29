@@ -5,7 +5,7 @@ PROJECTS=(
     'bramble-api'
     'bramble-core'
     'bramble-android'
-    'bramble-j2se'
+    'bramble-java'
     'briar-api'
     'briar-core'
     'briar-android'

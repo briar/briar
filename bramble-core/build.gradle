@@ -33,7 +33,7 @@ dependencies {
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }
 
-// needed to make test output available to bramble-j2se
+// needed to make test output available to bramble-java
 configurations {
 	testOutput.extendsFrom(testCompile)
 }
