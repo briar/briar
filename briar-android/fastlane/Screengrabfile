@@ -3,6 +3,7 @@ locales ['en-US']
 use_tests_in_classes([
     'org.briarproject.briar.android.login.SetupActivityScreenshotTest',
     'org.briarproject.briar.android.settings.SettingsActivityScreenshotTest',
+    'org.briarproject.briar.android.contact.ConversationActivityScreenshotTest',
 ])
 app_apk_path "build/outputs/apk/screenshot/debug/briar-android-screenshot-debug.apk"
 tests_apk_path "build/outputs/apk/androidTest/screenshot/debug/briar-android-screenshot-debug-androidTest.apk"
