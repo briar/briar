@@ -32,7 +32,6 @@ import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -56,12 +55,14 @@ import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 import static android.support.v4.app.NotificationCompat.CATEGORY_SERVICE;
 import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
 import static org.briarproject.briar.android.TestingConstants.ACTION_ALARM;
+import static org.briarproject.briar.android.TestingConstants.ALARM_DELAY;
+import static org.briarproject.briar.android.TestingConstants.EXTRA_DUE_MILLIS;
+import static org.briarproject.briar.android.TestingConstants.WAKE_LOCK_DURATION;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_ID;
@@ -82,12 +83,14 @@ public class BriarService extends Service {
 
 	private final AtomicBoolean created = new AtomicBoolean(false);
 	private final Binder binder = new BriarBinder();
-	private final BriarBroadcastReceiver testReceiver = new BriarBroadcastReceiver();
 
 	private AlarmManager alarm;
 
 	@Nullable
 	private BroadcastReceiver receiver = null;
+
+	@Nullable
+	private BriarBroadcastReceiver testReceiver = null;
 
 	@Inject
 	protected DatabaseConfig databaseConfig;
@@ -188,36 +191,33 @@ public class BriarService extends Service {
 		filter.addAction("android.intent.action.QUICKBOOT_POWEROFF");
 		filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF");
 		registerReceiver(receiver, filter);
+		testReceiver = new BriarBroadcastReceiver();
 		registerReceiver(testReceiver, testReceiver.getIntentFilter());
 	}
 
 	private void setAlarm() {
-		PendingIntent pi = getPendingIntent();
-		long millis = getElapsedRealTimeMillis(15000, MILLISECONDS);
+		long dueMillis = SystemClock.elapsedRealtime() + ALARM_DELAY;
+		PendingIntent pi = getPendingIntent(dueMillis);
 		if (SDK_INT >= 23) {
 			alarm.setExactAndAllowWhileIdle(ELAPSED_REALTIME_WAKEUP,
-					millis, pi);
+					dueMillis, pi);
 		} else if (SDK_INT >= 19) {
-			alarm.setExact(ELAPSED_REALTIME_WAKEUP, millis, pi);
+			alarm.setExact(ELAPSED_REALTIME_WAKEUP, dueMillis, pi);
 		} else {
-			alarm.set(ELAPSED_REALTIME_WAKEUP, millis, pi);
+			alarm.set(ELAPSED_REALTIME_WAKEUP, dueMillis, pi);
 		}
-		Log.i("ALARM_TEST", "Alarm set");
+		Log.i("ALARM_TEST", "Alarm set for " + ALARM_DELAY + " ms");
 	}
 
-	long getElapsedRealTimeMillis(long delay, TimeUnit unit) {
-		return SystemClock.elapsedRealtime()
-				+ MILLISECONDS.convert(delay, unit);
-	}
-
-	PendingIntent getPendingIntent() {
+	PendingIntent getPendingIntent(long dueMillis) {
 		return PendingIntent.getService(getApplicationContext(), 0,
-				getAlarmIntent(), FLAG_CANCEL_CURRENT);
+				getAlarmIntent(dueMillis), FLAG_CANCEL_CURRENT);
 	}
 
-	Intent getAlarmIntent() {
+	Intent getAlarmIntent(long dueMillis) {
 		Intent i = new Intent(getApplicationContext(), BriarService.class);
 		i.setAction(ACTION_ALARM);
+		i.putExtra(EXTRA_DUE_MILLIS, dueMillis);
 		return i;
 	}
 
@@ -256,19 +256,24 @@ public class BriarService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (ACTION_ALARM.equals(intent.getAction())) {
+			long dueMillis = intent.getLongExtra(EXTRA_DUE_MILLIS, 0);
+			long late = SystemClock.elapsedRealtime() - dueMillis;
+			Log.i("ALARM_TEST", "Alarm fired " + late + " ms late");
 			//acquire wakelock
 			PowerManager powerManager = (PowerManager)
 					getApplicationContext().getSystemService(POWER_SERVICE);
 			WakeLock wakeLock = powerManager.newWakeLock(PARTIAL_WAKE_LOCK,
 					"briar:TestWakeLock");
 			wakeLock.acquire();
-			Log.i("ALARM_TEST", "WakeLock acquired");
+			Log.i("ALARM_TEST", "WakeLock acquired for "
+					+ WAKE_LOCK_DURATION + " ms");
 			new Handler().postDelayed(() -> {
-				//release wakelock
-				wakeLock.release();
-				Log.i("ALARM_TEST", "WakeLock released");
+				//set alarm before releasing wake lock
 				setAlarm();
-			}, 5000);
+				//release wakelock
+				Log.i("ALARM_TEST", "Releasing WakeLock");
+				wakeLock.release();
+			}, WAKE_LOCK_DURATION);
 		}
 		return START_NOT_STICKY; // Don't restart automatically if killed
 	}
@@ -284,7 +289,7 @@ public class BriarService extends Service {
 		LOG.info("Destroyed");
 		stopForeground(true);
 		if (receiver != null) unregisterReceiver(receiver);
-		unregisterReceiver(testReceiver);
+		if (testReceiver != null) unregisterReceiver(testReceiver);
 		// Stop the services in a background thread
 		new Thread(() -> {
 			if (started) lifecycleManager.stopServices();

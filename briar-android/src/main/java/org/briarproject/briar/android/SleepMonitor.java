@@ -20,8 +20,8 @@ public class SleepMonitor implements Runnable {
 	private static final int INTERVAL_MS = 5000;
 
 	/**
-	 * If the difference between uptime and real time changes by more than this amount, assume deep
-	 * sleep has occurred.
+	 * If the difference between uptime and real time changes by more than
+	 * this amount, assume deep sleep has occurred.
 	 */
 	private static final int MIN_SLEEP_DURATION_MS = 1000;
 
@@ -42,10 +42,20 @@ public class SleepMonitor implements Runnable {
 
 	@Override
 	public void run() {
+		long lastRealtime = realtime;
 		long sleepDuration = getSleepDuration();
 		if (sleepDuration > MIN_SLEEP_DURATION_MS) {
-			String start = getTime(System.currentTimeMillis() - sleepDuration);
-			Log.i("SLEEP_INFO", "System slept for " + sleepDuration + " ms (since " + start + ")");
+			long elapsed = realtime - lastRealtime;
+			long now = System.currentTimeMillis();
+			String earliestStart = getTime(now - elapsed);
+			String earliestEnd = getTime(now - elapsed + sleepDuration);
+			String latestStart = getTime(now - sleepDuration);
+			String latestEnd = getTime(now);
+			Log.i("SLEEP_INFO", "System slept for " + sleepDuration
+					+ " ms since last check " + elapsed
+					+ " ms ago (earliest " + earliestStart + " - "
+					+ earliestEnd + ", latest " + latestStart + " - "
+					+ latestEnd + ")");
 		}
 	}
 
