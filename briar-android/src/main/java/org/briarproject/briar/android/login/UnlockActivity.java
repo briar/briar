@@ -29,6 +29,7 @@ import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_LOCKOU
 import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_LOCKOUT_PERMANENT;
 import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.view.View.INVISIBLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_KEYGUARD_UNLOCK;
 import static org.briarproject.briar.android.util.UiUtils.hasKeyguardLock;
 import static org.briarproject.briar.android.util.UiUtils.hasUsableFingerprint;
@@ -59,6 +60,12 @@ public class UnlockActivity extends BaseActivity {
 
 		Button button = findViewById(R.id.unlock);
 		button.setOnClickListener(view -> requestUnlock());
+
+		if (!hasUsableFingerprint(this)) {
+			getWindow().setBackgroundDrawable(null);
+			button.setVisibility(INVISIBLE);
+			findViewById(R.id.image).setVisibility(INVISIBLE);
+		}
 
 		keyguardShown = state != null && state.getBoolean(KEYGUARD_SHOWN);
 	}
@@ -140,14 +147,14 @@ public class UnlockActivity extends BaseActivity {
 						errorCode == BIOMETRIC_ERROR_LOCKOUT_PERMANENT) {
 					if (hasKeyguardLock(UnlockActivity.this)) {
 						requestKeyguardUnlock();
-					} else {
+					} else if (errString != null) {
 						// normally fingerprints require a screen lock, but
 						// who knows if that's true for all devices out there
 						Toast.makeText(UnlockActivity.this, errString,
 								Toast.LENGTH_LONG).show();
 						finish();
 					}
-				} else {
+				} else if (errString != null) {
 					Toast.makeText(UnlockActivity.this, errString,
 							Toast.LENGTH_LONG).show();
 				}
