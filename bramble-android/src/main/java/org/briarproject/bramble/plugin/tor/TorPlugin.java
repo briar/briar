@@ -85,6 +85,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
+import static org.briarproject.bramble.PowerTestingConstants.USE_TOR_WAKE_LOCK;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
@@ -126,7 +127,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final ConnectionStatus connectionStatus;
 	private final File torDirectory, torFile, geoIpFile, configFile;
 	private final File doneFile, cookieFile;
-	//private final RenewableWakeLock wakeLock;
+	private final RenewableWakeLock wakeLock;
 	private final AtomicReference<Future<?>> connectivityCheck =
 			new AtomicReference<>();
 	private final AtomicBoolean used = new AtomicBoolean(false);
@@ -169,8 +170,8 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				ioExecutor, 1);
 		PowerManager pm = (PowerManager)
 				appContext.getSystemService(POWER_SERVICE);
-		//wakeLock = new RenewableWakeLock(pm, scheduler, PARTIAL_WAKE_LOCK,
-		//		WAKE_LOCK_TAG, 1, MINUTES);
+		wakeLock = new RenewableWakeLock(pm, scheduler, PARTIAL_WAKE_LOCK,
+				WAKE_LOCK_TAG, 1, MINUTES);
 	}
 
 	@Override
@@ -493,12 +494,12 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private void enableNetwork(boolean enable) throws IOException {
 		if (!running) return;
-		//if (enable) wakeLock.acquire();
+		if (enable && USE_TOR_WAKE_LOCK) wakeLock.acquire();
 		connectionStatus.enableNetwork(enable);
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
 		if (!enable) {
 			callback.transportDisabled();
-		//	wakeLock.release();
+			if (USE_TOR_WAKE_LOCK) wakeLock.release();
 		}
 	}
 
@@ -529,7 +530,7 @@ class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				logException(LOG, WARNING, e);
 			}
 		}
-		//wakeLock.release();
+		if (USE_TOR_WAKE_LOCK) wakeLock.release();
 	}
 
 	@Override

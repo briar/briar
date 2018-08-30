@@ -57,12 +57,11 @@ import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.PowerTestingConstants.ALARM_DELAY;
+import static org.briarproject.bramble.PowerTestingConstants.USE_TOR_WAKE_LOCK;
+import static org.briarproject.bramble.PowerTestingConstants.WAKE_LOCK_DURATION;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
-import static org.briarproject.briar.android.TestingConstants.ACTION_ALARM;
-import static org.briarproject.briar.android.TestingConstants.ALARM_DELAY;
-import static org.briarproject.briar.android.TestingConstants.EXTRA_DUE_MILLIS;
-import static org.briarproject.briar.android.TestingConstants.WAKE_LOCK_DURATION;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_ID;
@@ -77,6 +76,11 @@ public class BriarService extends Service {
 			"org.briarproject.briar.FAILURE_NOTIFICATION_ID";
 	public static String EXTRA_STARTUP_FAILED =
 			"org.briarproject.briar.STARTUP_FAILED";
+
+	private static final String ACTION_ALARM =
+			"org.briarproject.briar.android.ACTION_ALARM";
+	private static final String EXTRA_DUE_MILLIS =
+			"org.briarproject.briar.android.DUE_MILLIS";
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
@@ -259,20 +263,24 @@ public class BriarService extends Service {
 			long dueMillis = intent.getLongExtra(EXTRA_DUE_MILLIS, 0);
 			long late = SystemClock.elapsedRealtime() - dueMillis;
 			Log.i("ALARM_TEST", "Alarm fired " + late + " ms late");
-			//acquire wakelock
 			PowerManager powerManager = (PowerManager)
 					getApplicationContext().getSystemService(POWER_SERVICE);
 			WakeLock wakeLock = powerManager.newWakeLock(PARTIAL_WAKE_LOCK,
 					"briar:TestWakeLock");
-			wakeLock.acquire();
-			Log.i("ALARM_TEST", "WakeLock acquired for "
-					+ WAKE_LOCK_DURATION + " ms");
+			if (!USE_TOR_WAKE_LOCK) {
+				//acquire wakelock
+				wakeLock.acquire();
+				Log.i("ALARM_TEST", "WakeLock acquired for "
+						+ WAKE_LOCK_DURATION + " ms");
+			}
 			new Handler().postDelayed(() -> {
 				//set alarm before releasing wake lock
 				setAlarm();
-				//release wakelock
-				Log.i("ALARM_TEST", "Releasing WakeLock");
-				wakeLock.release();
+				if (!USE_TOR_WAKE_LOCK) {
+					//release wakelock
+					Log.i("ALARM_TEST", "Releasing WakeLock");
+					wakeLock.release();
+				}
 			}, WAKE_LOCK_DURATION);
 		}
 		return START_NOT_STICKY; // Don't restart automatically if killed
