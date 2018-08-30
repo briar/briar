@@ -2,9 +2,12 @@ package org.briarproject.briar.android.login;
 
 import android.app.KeyguardManager;
 import android.content.Intent;
+import android.hardware.biometrics.BiometricPrompt;
+import android.hardware.biometrics.BiometricPrompt.AuthenticationCallback;
+import android.hardware.biometrics.BiometricPrompt.AuthenticationResult;
+import android.hardware.biometrics.BiometricPrompt.Builder;
 import android.os.Bundle;
 import android.os.CancellationSignal;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.widget.Button;
@@ -21,16 +24,11 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import moe.feng.support.biometricprompt.BiometricPromptCompat;
-import moe.feng.support.biometricprompt.BiometricPromptCompat.Builder;
-import moe.feng.support.biometricprompt.BiometricPromptCompat.IAuthenticationCallback;
-import moe.feng.support.biometricprompt.BiometricPromptCompat.IAuthenticationResult;
-
+import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_CANCELED;
+import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_LOCKOUT;
+import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_LOCKOUT_PERMANENT;
+import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED;
 import static android.os.Build.VERSION.SDK_INT;
-import static moe.feng.support.biometricprompt.BiometricPromptCompat.BIOMETRIC_ERROR_CANCELED;
-import static moe.feng.support.biometricprompt.BiometricPromptCompat.BIOMETRIC_ERROR_LOCKOUT;
-import static moe.feng.support.biometricprompt.BiometricPromptCompat.BIOMETRIC_ERROR_LOCKOUT_PERMANENT;
-import static moe.feng.support.biometricprompt.BiometricPromptCompat.BIOMETRIC_ERROR_USER_CANCELED;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_KEYGUARD_UNLOCK;
 import static org.briarproject.briar.android.util.UiUtils.hasKeyguardLock;
 import static org.briarproject.briar.android.util.UiUtils.hasUsableFingerprint;
@@ -105,7 +103,7 @@ public class UnlockActivity extends BaseActivity {
 	}
 
 	private void requestUnlock() {
-		if (hasUsableFingerprint(this)) {
+		if (SDK_INT >= 28 && hasUsableFingerprint(this)) {
 			requestFingerprintUnlock();
 		} else {
 			requestKeyguardUnlock();
@@ -117,17 +115,18 @@ public class UnlockActivity extends BaseActivity {
 		moveTaskToBack(true);
 	}
 
+	@RequiresApi(api = 28)
 	private void requestFingerprintUnlock() {
-		BiometricPromptCompat biometricPrompt = new Builder(this)
-				.setTitle(R.string.lock_unlock)
-				.setDescription(R.string.lock_unlock_fingerprint_description)
-				.setNegativeButton(R.string.lock_unlock_password,
-						(dialog, which) -> {
-							requestKeyguardUnlock();
-						})
+		BiometricPrompt biometricPrompt = new Builder(this)
+				.setTitle(getString(R.string.lock_unlock))
+				.setDescription(
+						getString(R.string.lock_unlock_fingerprint_description))
+				.setNegativeButton(getString(R.string.lock_unlock_password),
+						getMainExecutor(),
+						(dialog, which) -> requestKeyguardUnlock())
 				.build();
 		CancellationSignal signal = new CancellationSignal();
-		biometricPrompt.authenticate(signal, new IAuthenticationCallback() {
+		AuthenticationCallback callback = new AuthenticationCallback() {
 			@Override
 			public void onAuthenticationError(int errorCode,
 					@Nullable CharSequence errString) {
@@ -160,15 +159,15 @@ public class UnlockActivity extends BaseActivity {
 			}
 
 			@Override
-			public void onAuthenticationSucceeded(
-					@NonNull IAuthenticationResult result) {
+			public void onAuthenticationSucceeded(AuthenticationResult result) {
 				unlock();
 			}
 
 			@Override
 			public void onAuthenticationFailed() {
 			}
-		});
+		};
+		biometricPrompt.authenticate(signal, getMainExecutor(), callback);
 	}
 
 	private void requestKeyguardUnlock() {

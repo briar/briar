@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
 	package="org.briarproject.briar"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools">
-
-	<uses-sdk tools:overrideLibrary="moe.feng.support.biometricprompt"/>
+	xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
 	<uses-feature android:name="android.hardware.camera" android:required="false"/>
@@ -20,7 +17,6 @@
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 	<uses-permission-sdk-23 android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
-	<uses-permission-sdk-23 android:name="android.permission.USE_FINGERPRINT" />
 	<uses-permission-sdk-23 android:name="android.permission.USE_BIOMETRIC" />
 
 	<application

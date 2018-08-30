@@ -14,6 +14,7 @@ import android.support.annotation.ColorRes;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.Spannable;
@@ -59,8 +60,6 @@ import static android.text.format.DateUtils.FORMAT_ABBREV_TIME;
 import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.WEEK_IN_MILLIS;
-import static moe.feng.support.biometricprompt.BiometricPromptCompat.hasEnrolledFingerprints;
-import static moe.feng.support.biometricprompt.BiometricPromptCompat.isHardwareDetected;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 
@@ -278,8 +277,9 @@ public class UiUtils {
 	}
 
 	public static boolean hasUsableFingerprint(Context ctx) {
-		return SDK_INT >= 23 && isHardwareDetected(ctx) &&
-				hasEnrolledFingerprints(ctx);
+		if (SDK_INT < 28) return false;
+		FingerprintManagerCompat fm = FingerprintManagerCompat.from(ctx);
+		return fm.hasEnrolledFingerprints() && fm.isHardwareDetected();
 	}
 
 	public static void triggerFeedback(AndroidExecutor androidExecutor) {
