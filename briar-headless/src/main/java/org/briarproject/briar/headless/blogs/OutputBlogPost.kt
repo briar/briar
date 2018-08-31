@@ -6,17 +6,28 @@ import org.briarproject.briar.headless.output
 import javax.annotation.concurrent.Immutable
 
 @Immutable
-@Suppress("unused")
-internal class OutputBlogPost(header: BlogPostHeader, val body: String) {
-
-    val author: OutputAuthor = OutputAuthor(header.author)
-    val authorStatus: String = header.authorStatus.output()
-    val type = header.type.output()
-    val id: ByteArray = header.id.bytes
-    val parentId = header.parentId?.bytes
-    val read = header.isRead
-    val rssFeed = header.isRssFeed
-    val timestamp = header.timestamp
-    val timestampReceived = header.timeReceived
-
+internal data class OutputBlogPost(
+    val body: String,
+    val author: OutputAuthor,
+    val authorStatus: String,
+    val type: String,
+    val id: ByteArray,
+    val parentId: ByteArray?,
+    val read: Boolean,
+    val rssFeed: Boolean,
+    val timestamp: Long,
+    val timestampReceived: Long
+) {
+    internal constructor(header: BlogPostHeader, body: String) : this(
+        body = body,
+        author = OutputAuthor(header.author),
+        authorStatus = header.authorStatus.output(),
+        type = header.type.output(),
+        id = header.id.bytes,
+        parentId = header.parentId?.bytes,
+        read = header.isRead,
+        rssFeed = header.isRssFeed,
+        timestamp = header.timestamp,
+        timestampReceived = header.timeReceived
+    )
 }

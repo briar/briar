@@ -4,10 +4,12 @@ import org.briarproject.briar.api.forum.Forum
 import javax.annotation.concurrent.Immutable
 
 @Immutable
-@Suppress("unused")
-internal class OutputForum(forum: Forum) {
-
-    val name: String = forum.name
-    val id: ByteArray = forum.id.bytes
-
+internal class OutputForum(
+    val name: String,
+    val id: ByteArray
+) {
+    constructor(forum: Forum) : this(
+        name = forum.name,
+        id = forum.id.bytes
+    )
 }
