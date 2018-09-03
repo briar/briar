@@ -11,9 +11,8 @@ import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.api.event.Event
 import org.briarproject.bramble.api.event.EventListener
 import org.briarproject.bramble.api.system.Clock
+import org.briarproject.briar.api.messaging.*
 import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH
-import org.briarproject.briar.api.messaging.MessagingManager
-import org.briarproject.briar.api.messaging.PrivateMessageFactory
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
 import org.briarproject.briar.headless.WebSocketController
 import java.util.concurrent.Executor
@@ -21,11 +20,15 @@ import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private const val EVENT_PRIVATE_MESSAGE =
+    "org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent"
+
 @Immutable
 @Singleton
 internal class MessagingControllerImpl @Inject
 constructor(
     private val messagingManager: MessagingManager,
+    private val conversationManager: ConversationManager,
     private val privateMessageFactory: PrivateMessageFactory,
     private val contactManager: ContactManager,
     private val webSocketController: WebSocketController,
@@ -35,10 +38,15 @@ constructor(
 
     override fun list(ctx: Context): Context {
         val contact = getContact(ctx)
-
-        val messages = messagingManager.getMessageHeaders(contact.id).map { header ->
-            val body = messagingManager.getMessageBody(header.id)
-            header.output(contact.id, body)
+        val messages = conversationManager.getMessageHeaders(contact.id).map { header ->
+            when (header) {
+                is PrivateRequest<*> -> header.output(contact.id)
+                is PrivateResponse -> header.output(contact.id)
+                else -> {
+                    val body = messagingManager.getMessageBody(header.id)
+                    header.output(contact.id, body)
+                }
+            }
         }
         return ctx.json(messages)
     }
@@ -62,11 +70,9 @@ constructor(
 
     override fun eventOccurred(e: Event) {
         when (e) {
-            is PrivateMessageReceivedEvent -> dbExecutor.run {
-                val name =
-                    "org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent"
+            is PrivateMessageReceivedEvent<*> -> dbExecutor.run {
                 val body = messagingManager.getMessageBody(e.messageHeader.id)
-                webSocketController.sendEvent(name, e.output(body))
+                webSocketController.sendEvent(EVENT_PRIVATE_MESSAGE, e.output(body))
             }
         }
     }

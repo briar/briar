@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate", "unused")
+
 package org.briarproject.briar.headless.messaging
 
 import org.briarproject.bramble.api.contact.ContactId
@@ -6,8 +8,8 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader
 import javax.annotation.concurrent.Immutable
 
 @Immutable
-internal data class OutputPrivateMessage(
-    val body: String,
+internal open class OutputPrivateMessage(
+    val body: String?,
     val timestamp: Long,
     val read: Boolean,
     val seen: Boolean,
@@ -17,7 +19,13 @@ internal data class OutputPrivateMessage(
     val groupId: ByteArray,
     val contactId: Int
 ) {
-    internal constructor(header: PrivateMessageHeader, contactId: ContactId, body: String) : this(
+    open val type = "org.briarproject.briar.api.messaging.PrivateMessageHeader"
+
+    internal constructor(
+        header: PrivateMessageHeader,
+        contactId: ContactId,
+        body: String?
+    ) : this(
         body = body,
         timestamp = header.timestamp,
         read = header.isRead,
