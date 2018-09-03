@@ -8,35 +8,47 @@ import android.os.IBinder;
 import android.support.annotation.CallSuper;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
+import android.support.v7.widget.AppCompatImageButton;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import com.vanniktech.emoji.EmojiEditText;
+import com.vanniktech.emoji.EmojiPopup;
+import com.vanniktech.emoji.RecentEmoji;
+
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.BriarApplication;
 import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
-import org.thoughtcrime.securesms.components.emoji.EmojiDrawer;
-import org.thoughtcrime.securesms.components.emoji.EmojiDrawer.EmojiEventListener;
-import org.thoughtcrime.securesms.components.emoji.EmojiEditText;
-import org.thoughtcrime.securesms.components.emoji.EmojiToggle;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-import static android.view.KeyEvent.KEYCODE_BACK;
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 
 @UiThread
-public class TextInputView extends KeyboardAwareLinearLayout
-		implements EmojiEventListener {
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
+public class TextInputView extends KeyboardAwareLinearLayout {
 
-	protected final ViewHolder ui;
-	protected TextInputListener listener;
+	@Inject
+	RecentEmoji recentEmoji;
+
+	@Nullable
+	TextInputListener listener;
+
+	AppCompatImageButton emojiToggle;
+	EmojiEditText editText;
+	EmojiPopup emojiPopup;
+	View sendButton;
 
 	public TextInputView(Context context) {
 		this(context, null);
@@ -49,11 +61,12 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	public TextInputView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
+		BriarApplication app =
+				(BriarApplication) context.getApplicationContext();
+		app.getApplicationComponent().inject(this);
 		setOrientation(VERTICAL);
 		setLayoutTransition(new LayoutTransition());
-
 		inflateLayout(context);
-		ui = new ViewHolder();
 		setUpViews(context, attrs);
 	}
 
@@ -65,89 +78,79 @@ public class TextInputView extends KeyboardAwareLinearLayout
 
 	@CallSuper
 	protected void setUpViews(Context context, @Nullable AttributeSet attrs) {
+		emojiToggle = findViewById(R.id.emoji_toggle);
+		editText = findViewById(R.id.input_text);
+		emojiPopup = EmojiPopup.Builder
+				.fromRootView(this)
+				.setRecentEmoji(recentEmoji)
+				.setOnEmojiPopupShownListener(this::showKeyboardIcon)
+				.setOnEmojiPopupDismissListener(this::showEmojiIcon)
+				.build(editText);
+		sendButton = findViewById(R.id.btn_send);
+
 		// get attributes
 		TypedArray attributes = context.obtainStyledAttributes(attrs,
 				R.styleable.TextInputView);
 		String hint = attributes.getString(R.styleable.TextInputView_hint);
 		attributes.recycle();
 
-		if (hint != null) {
-			ui.editText.setHint(hint);
-		}
+		if (hint != null) editText.setHint(hint);
 
-		ui.emojiToggle.attach(ui.emojiDrawer);
-		ui.emojiToggle.setOnClickListener(v -> onEmojiToggleClicked());
-		ui.editText.setOnClickListener(v -> showSoftKeyboard());
-		ui.editText.setOnKeyListener((v, keyCode, event) -> {
-			if (keyCode == KEYCODE_BACK && isEmojiDrawerOpen()) {
-				hideEmojiDrawer();
-				return true;
-			}
+		emojiToggle.setOnClickListener(v -> emojiPopup.toggle());
+		editText.setOnClickListener(v -> showSoftKeyboard());
+		editText.setOnKeyListener((v, keyCode, event) -> {
 			if (keyCode == KEYCODE_ENTER && event.isCtrlPressed()) {
 				trySendMessage();
 				return true;
 			}
 			return false;
 		});
-		ui.sendButton.setOnClickListener(v -> trySendMessage());
-		ui.emojiDrawer.setEmojiEventListener(this);
+		sendButton.setOnClickListener(v -> trySendMessage());
+	}
+
+	private void showEmojiIcon() {
+		emojiToggle.setImageResource(R.drawable.ic_emoji_toggle);
+	}
+
+	private void showKeyboardIcon() {
+		emojiToggle.setImageResource(R.drawable.ic_keyboard);
 	}
 
 	private void trySendMessage() {
 		if (listener != null) {
-			listener.onSendClick(ui.editText.getText().toString());
+			listener.onSendClick(editText.getText().toString());
 		}
-	}
-
-	@Override
-	public void setVisibility(int visibility) {
-		if (visibility == GONE && isKeyboardOpen()) {
-			onKeyboardClose();
-		}
-		super.setVisibility(visibility);
-	}
-
-	@Override
-	public void onKeyEvent(KeyEvent keyEvent) {
-		ui.editText.dispatchKeyEvent(keyEvent);
-	}
-
-	@Override
-	public void onEmojiSelected(String emoji) {
-		ui.editText.insertEmoji(emoji);
 	}
 
 	@Override
 	public boolean requestFocus(int direction, Rect previouslyFocusedRect) {
-		return ui.editText.requestFocus(direction, previouslyFocusedRect);
+		return editText.requestFocus(direction, previouslyFocusedRect);
 	}
 
-	private void onEmojiToggleClicked() {
-		if (isEmojiDrawerOpen()) {
-			showSoftKeyboard();
-		} else {
-			showEmojiDrawer();
-		}
+	@Override
+	public void onDetachedFromWindow() {
+		super.onDetachedFromWindow();
+		if (emojiPopup.isShowing()) emojiPopup.dismiss();
 	}
 
 	public void setText(String text) {
-		ui.editText.setText(text);
+		editText.setText(text);
 	}
 
 	public Editable getText() {
-		return ui.editText.getText();
+		return editText.getText();
 	}
 
 	public void setHint(@StringRes int res) {
-		ui.editText.setHint(res);
+		editText.setHint(res);
 	}
 
 	public void setSendButtonEnabled(boolean enabled) {
-		ui.sendButton.setEnabled(enabled);
+		sendButton.setEnabled(enabled);
 	}
 
 	public void addTextChangedListener(TextWatcher watcher) {
-		ui.editText.addTextChangedListener(watcher);
+		editText.addTextChangedListener(watcher);
 	}
 
 	public void setListener(TextInputListener listener) {
@@ -155,56 +158,15 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	}
 
 	public void showSoftKeyboard() {
-		if (isKeyboardOpen()) return;
-
-		if (ui.emojiDrawer.isShowing()) {
-			postOnKeyboardOpen(this::hideEmojiDrawer);
-		}
-		ui.editText.post(() -> {
-			ui.editText.requestFocus();
-			InputMethodManager imm = (InputMethodManager)
-					getContext().getSystemService(INPUT_METHOD_SERVICE);
-			imm.showSoftInput(ui.editText, SHOW_IMPLICIT);
-		});
+		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
+		((InputMethodManager) o).showSoftInput(editText, SHOW_IMPLICIT);
 	}
 
 	public void hideSoftKeyboard() {
-		IBinder token = ui.editText.getWindowToken();
+		if (emojiPopup.isShowing()) emojiPopup.dismiss();
+		IBinder token = editText.getWindowToken();
 		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
-	}
-
-	public void showEmojiDrawer() {
-		if (isKeyboardOpen()) {
-			postOnKeyboardClose(() -> ui.emojiDrawer.show(getKeyboardHeight()));
-			hideSoftKeyboard();
-		} else {
-			ui.emojiDrawer.show(getKeyboardHeight());
-			ui.editText.requestFocus();
-		}
-	}
-
-	public void hideEmojiDrawer() {
-		ui.emojiDrawer.hide();
-	}
-
-	public boolean isEmojiDrawerOpen() {
-		return ui.emojiDrawer.isShowing();
-	}
-
-	protected class ViewHolder {
-
-		private final EmojiToggle emojiToggle;
-		final EmojiEditText editText;
-		final View sendButton;
-		final EmojiDrawer emojiDrawer;
-
-		private ViewHolder() {
-			emojiToggle = findViewById(R.id.emoji_toggle);
-			editText = findViewById(R.id.input_text);
-			emojiDrawer = findViewById(R.id.emoji_drawer);
-			sendButton = findViewById(R.id.btn_send);
-		}
 	}
 
 	public interface TextInputListener {

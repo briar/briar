@@ -59,7 +59,7 @@
 			android:layout_toRightOf="@+id/avatarFrameView"
 			android:orientation="vertical">
 
-			<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+			<com.vanniktech.emoji.EmojiTextView
 				android:id="@+id/nameView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"

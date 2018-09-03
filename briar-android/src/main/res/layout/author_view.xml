@@ -26,7 +26,7 @@
 		android:visibility="invisible"
 		tools:ignore="ContentDescription"/>
 
-	<org.thoughtcrime.securesms.components.emoji.EmojiTextView
+	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/authorName"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

@@ -27,9 +27,4 @@
 -dontnote org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout
 
 # Emoji
--keep class org.thoughtcrime.securesms.**
--keep class com.astuetz.PagerSlidingTabStrip$OnTabReselectedListener
--keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
-    **[] $VALUES;
-    public *;
-}
+-keep class com.vanniktech.emoji.**

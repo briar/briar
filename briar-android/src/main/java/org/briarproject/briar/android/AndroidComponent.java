@@ -28,6 +28,7 @@ import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.reporting.BriarReportSender;
+import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.LockManager;
@@ -49,8 +50,6 @@ import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.api.test.TestDataCreator;
-import org.thoughtcrime.securesms.components.emoji.EmojiProvider;
-import org.thoughtcrime.securesms.components.emoji.RecentEmojiPageModel;
 
 import java.util.concurrent.Executor;
 
@@ -161,11 +160,9 @@ public interface AndroidComponent
 
 	void inject(BriarReportSender briarReportSender);
 
-	void inject(EmojiProvider emojiProvider);
-
-	void inject(RecentEmojiPageModel recentEmojiPageModel);
-
 	void inject(NotificationCleanupService notificationCleanupService);
+
+	void inject(TextInputView textInputView);
 
 	// Eager singleton load
 	void inject(AppModule.EagerSingletons init);

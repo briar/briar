@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 
 import javax.annotation.Nullable;
@@ -15,6 +17,8 @@ import javax.annotation.Nullable;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 @UiThread
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class LargeTextInputView extends TextInputView {
 
 	public LargeTextInputView(Context context) {
@@ -46,30 +50,28 @@ public class LargeTextInputView extends TextInputView {
 				R.styleable.LargeTextInputView);
 		String buttonText =
 				attributes.getString(R.styleable.LargeTextInputView_buttonText);
-		int maxLines =
-				attributes
-						.getInteger(R.styleable.LargeTextInputView_maxLines, 0);
+		int maxLines = attributes
+				.getInteger(R.styleable.LargeTextInputView_maxLines, 0);
 		boolean fillHeight = attributes
-				.getBoolean(R.styleable.LargeTextInputView_fillHeight,
-						false);
+				.getBoolean(R.styleable.LargeTextInputView_fillHeight, false);
 		attributes.recycle();
 
 		if (buttonText != null) setButtonText(buttonText);
-		if (maxLines > 0) ui.editText.setMaxLines(maxLines);
+		if (maxLines > 0) editText.setMaxLines(maxLines);
 		if (fillHeight) {
 			ViewGroup layout = findViewById(R.id.input_layout);
 			LayoutParams params = (LayoutParams) layout.getLayoutParams();
 			params.height = 0;
 			params.weight = 1;
 			layout.setLayoutParams(params);
-			ViewGroup.LayoutParams editParams = ui.editText.getLayoutParams();
+			ViewGroup.LayoutParams editParams = editText.getLayoutParams();
 			editParams.height = MATCH_PARENT;
-			ui.editText.setLayoutParams(editParams);
+			editText.setLayoutParams(editParams);
 		}
 	}
 
 	public void setButtonText(String text) {
-		((Button) ui.sendButton).setText(text);
+		((Button) sendButton).setText(text);
 	}
 
 }

@@ -16,17 +16,18 @@
 		android:layout_height="wrap_content"
 		android:background="@color/card_background">
 
-		<org.thoughtcrime.securesms.components.emoji.EmojiToggle
+		<android.support.v7.widget.AppCompatImageButton
 			android:id="@+id/emoji_toggle"
 			android:layout_width="@dimen/text_input_height"
 			android:layout_height="@dimen/text_input_height"
 			android:layout_gravity="bottom"
 			android:background="?attr/selectableItemBackground"
+			android:src="@drawable/ic_emoji_toggle"
 			android:padding="@dimen/margin_small"
 			android:scaleType="center"
 			app:tint="?attr/colorControlNormal"/>
 
-		<org.thoughtcrime.securesms.components.emoji.EmojiEditText
+		<com.vanniktech.emoji.EmojiEditText
 			android:id="@+id/input_text"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
@@ -55,12 +56,5 @@
 			app:tint="@color/briar_accent"/>
 
 	</LinearLayout>
-
-	<org.thoughtcrime.securesms.components.emoji.EmojiDrawer
-		android:id="@+id/emoji_drawer"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_below="@+id/input_text"
-		android:visibility="gone"/>
 
 </merge>

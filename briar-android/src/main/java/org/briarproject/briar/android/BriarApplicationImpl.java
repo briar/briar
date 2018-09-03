@@ -9,6 +9,9 @@ import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
 import android.preference.PreferenceManager;
 
+import com.vanniktech.emoji.EmojiManager;
+import com.vanniktech.emoji.google.GoogleEmojiProvider;
+
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
@@ -110,6 +113,7 @@ public class BriarApplicationImpl extends Application
 		LOG.info("Created");
 
 		applicationComponent = createApplicationComponent();
+		EmojiManager.install(new GoogleEmojiProvider());
 	}
 
 	protected AndroidComponent createApplicationComponent() {

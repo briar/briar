@@ -134,6 +134,7 @@ public class WriteBlogPostActivity extends BriarActivity
 	@Override
 	public void onSendClick(String body) {
 		// hide publish button, show progress bar
+		input.hideSoftKeyboard();
 		input.setVisibility(GONE);
 		progressBar.setVisibility(VISIBLE);
 
