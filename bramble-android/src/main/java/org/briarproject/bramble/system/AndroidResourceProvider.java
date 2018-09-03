@@ -24,14 +24,9 @@ class AndroidResourceProvider implements ResourceProvider {
 	@Override
 	public InputStream getResourceInputStream(String name, String extension) {
 		Resources res = appContext.getResources();
-		String fileName;
-		if (extension.equals(".zip")) {
-			fileName = name;
-		} else {
-			fileName = name + extension;
-		}
+		// extension is ignored on Android, resources are retrieved without it
 		int resId =
-				res.getIdentifier(fileName, "raw", appContext.getPackageName());
+				res.getIdentifier(name, "raw", appContext.getPackageName());
 		return res.openRawResource(resId);
 	}
 }
