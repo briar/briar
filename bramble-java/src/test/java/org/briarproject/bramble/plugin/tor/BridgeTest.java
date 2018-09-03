@@ -12,6 +12,7 @@ import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.DaggerBrambleJavaIntegrationTestComponent;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -31,7 +32,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-
+@Ignore("Might fail non-deterministically when bridges are down")
 public class BridgeTest extends BrambleTestCase {
 
 	private final static long TIMEOUT = SECONDS.toMillis(23);
