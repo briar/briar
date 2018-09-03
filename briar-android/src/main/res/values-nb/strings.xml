@@ -46,6 +46,8 @@
   <string name="groups_button">Private grupper</string>
   <string name="forums_button">Forum</string>
   <string name="blogs_button">Blogger</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Lås appen</string>
   <string name="settings_button">Innstillinger</string>
   <string name="sign_out_button">Logg ut</string>
   <!--Transports-->
@@ -104,19 +106,15 @@
   <string name="add_contact_title">Legg til en kontakt</string>
   <string name="face_to_face">Du må møte personen du ønsker å legge til som kontakt.\n\nDette vil forhindre folk fra å etterligne deg eller lese meldingene dine i fremtiden.</string>
   <string name="continue_button">Fortsett</string>
-  <string name="connection_failed">Tilkobling mislyktes</string>
   <string name="try_again_button">Prøv igjen</string>
   <string name="waiting_for_contact_to_scan">Venter på at kontakten skal skanne og koble til\u2026</string>
   <string name="exchanging_contact_details">Utveksler kontaktdetaljer\u2026</string>
   <string name="contact_added_toast">Kontakt lagt til: %s</string>
   <string name="contact_already_exists">Kontakten %s finnes allerede</string>
-  <string name="contact_exchange_failed">Kontaktutveksling mislyktes</string>
   <string name="qr_code_invalid">QR-koden er ugyldig</string>
   <string name="camera_error">Kamerafeil</string>
   <string name="connecting_to_device">Kobler til enhet\u2026</string>
   <string name="authenticating_with_device">Autentiserer med enhet\u2026</string>
-  <string name="connection_aborted_local">Tilkobling avbrutt! Dette kan bety at noen prøver å tukle med tilkoblingen din</string>
-  <string name="connection_aborted_remote">Tilkobling avbrutt av din kontakt! Dette kan bety at noen prøver å tukle med vedkommendes tilkobling</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introduser kontaktene dine</string>
   <string name="introduction_onboarding_text">Du kan introdusere dine kontakter til hverandre, slik at de ikke trenger å møtes personlig for å treffes på Briar.</string>
@@ -277,12 +275,19 @@
   <string name="bluetooth_setting">Koble til via Blåtann</string>
   <string name="bluetooth_setting_enabled">Når kontakter er i nærheten</string>
   <string name="bluetooth_setting_disabled">Bare når kontakter legges til</string>
-  <string name="tor_network_setting">Koble til via Tor</string>
-  <string name="tor_network_setting_never">Aldri</string>
-  <string name="tor_network_setting_wifi">Bare på Wi-Fi</string>
-  <string name="tor_network_setting_always">Når Wi-Fi eller mobildata brukes</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sikkerhet</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 minutt</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 minutter</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 time</string>
+  <string name="pref_lock_timeout_never">Aldri</string>
   <string name="change_password">Endre passord</string>
   <string name="choose_new_password">Nytt passord</string>
   <string name="confirm_new_password">Bekreft nytt passord</string>
@@ -353,4 +358,5 @@
   <string name="permission_camera_request_body">For å skanne QR-koden, trenger Briar tilgang til kameraet.</string>
   <string name="permission_camera_denied_body">Du har nektet tilgang til kameraet, men tillegg av kontakter krever bruk av kameraet.\n\nOvervei å innvilge tilgang.</string>
   <string name="permission_camera_denied_toast">Kameratilgang ble ikke innvilget</string>
+  <!--App Locking-->
 </resources>

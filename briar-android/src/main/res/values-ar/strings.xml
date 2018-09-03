@@ -1,0 +1,454 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Setup-->
+  <string name="setup_title">مرحبا بك في براير</string>
+  <string name="setup_name_explanation">سيتم إظهار اسمك المستعار بجانب كل ما تنشره من محتوى. لا يمكنك تغيير الاسم بعد إنشاء حسابك.</string>
+  <string name="setup_next">التالي</string>
+  <string name="setup_password_intro">اختيار كلمة السر</string>
+  <string name="setup_password_explanation">حسابك على براير سيتم تخزينه مشفرا على جهازك، وليس على الإنترنت. لذا فإنك إذا نسيت كلمة السر الخاصة بك أو قمت بإلغاء تثبيت براير، فلا توجد طريقه لاسترجاع حسابك.\n\nاختر كلمة سر طويلة يصعب تخمينها مثل أربعة كلمات عشوائية أو عشر حروف عشوائية مع أرقام ورموز.</string>
+  <string name="setup_doze_title">اتصالات الخلفية</string>
+  <string name="setup_doze_intro">لاستقبال الرسائل، يحتاج براير أن يبقى متصلا في الخلفية.</string>
+  <string name="setup_doze_explanation">لاستقبال الرسائل، يحتاج براير أن يبقى متصلا في الخلفية. الرجاء تعطيل تحسين البطارية حتى يتمكن براير من البقاء متصلا.</string>
+  <string name="setup_doze_button">السماح بالاتصالات</string>
+  <string name="choose_nickname">اختيار اسمك المستعار</string>
+  <string name="choose_password">اختيار كلمة السر</string>
+  <string name="confirm_password">تأكيد كلمة السر</string>
+  <string name="name_too_long">الاسم طويل جدا</string>
+  <string name="password_too_weak">كلمة السر ضعيفة جدا</string>
+  <string name="passwords_do_not_match">كلمات السر غير متطابقة</string>
+  <string name="create_account_button">إنشاء الحساب</string>
+  <string name="more_info">معلومات أكثر</string>
+  <string name="don_t_ask_again">عدم الطلب مرة أخرى</string>
+  <string name="setup_huawei_text">الرجاء الظغط على الزر في الأسفل والتأكد من أن براير محمى في شاشة \"التطبيقات المحمية\".</string>
+  <string name="setup_huawei_button">حماية براير</string>
+  <string name="setup_huawei_help">إذا لم يتم إضافة براير في قائمة التطبيقات المحمية، فلن يتمكن من العمل في الخلفية.</string>
+  <string name="warning_dozed">%s لم يمكن تشغيله في الخلفية</string>
+  <!--Login-->
+  <string name="enter_password">‮كلمة السّر</string>
+  <string name="try_again">كلمة السرّ خاطئة, الرجاء المحاولة مجدّدا</string>
+  <string name="sign_in_button">تسجيل الدخول</string>
+  <string name="forgotten_password">نسيتُ كلمة السر</string>
+  <string name="dialog_title_lost_password">فقدت كلمة السر</string>
+  <string name="dialog_message_lost_password">حسابك على براير سيتم تخزينه مشفرا على جهازك، وليس على الإنترنت. لذا فلا يمكننا إعادة تعيين كلمة السر الخاصة بك. فهل تودّ/ين حذف حسابك والبدء من جديد؟\n\nتحذير: سيتمّ حذف هويّاتك وجهات اتصالك ورسائلك الى الأبد.</string>
+  <string name="startup_failed_notification_title">براير لم يمكنه البدء</string>
+  <string name="startup_failed_notification_text">المس لمزيد من المعلومات</string>
+  <string name="startup_failed_activity_title">فشل تشغيل براير</string>
+  <string name="startup_failed_db_error">لسبب ما، فإن قاعدة بيانات براير قد تلفت ولم يعد من الممكن إصلاحها. حسابك وبياناتك وكل جهات اتصالك قد فقدت. للأسف، يلزم إعادة تثبيت براير أو إنشاء حساب جديد عن طريق خيار \"نسيت كلمة السر\" عند سؤالك عنها.</string>
+  <string name="startup_failed_data_too_old_error">حسابك تم إنشاؤه بواسطة إصدار قديم من هذا التطبيق ولا يمكن فتحه بهذا الإصدار. يتوجب أن تعيد تثبيت الإصدار القديم أو أن تنشئ حسابا جديدا باختيار \"نسيت كلمة السر\" عند سؤالك عنها.</string>
+  <string name="startup_failed_data_too_new_error">هذا الإصدار من التطبيق قديم جدا. من فضلك قم بالتحديث لآخر إصدار ثم حاول مجددا.</string>
+  <string name="startup_failed_service_error">براير لم يستطع تشغيل إضافة لازمة. إعادة تشغيل براير يحل مثل هذه المشكلة عادة. لكن ذلك يعني أنك ستفقد حسابك وكل بياناتك عليه حيث أن براير لا يستعمل خوادم مركزية لتخزين بياناتك.</string>
+  <plurals name="expiry_warning">
+    <item quantity="zero">هذا إصدار تجريبي من براير. حسابك سينتهي اليوم ولن يمكن تجديده.</item>
+    <item quantity="one">هذا إصدار تجريبي من براير. حسابك سينتهي خلال يوم ولن يمكن تجديده.</item>
+    <item quantity="two">هذا إصدار تجريبي من براير. حسابك سينتهي خلال يومين ولن يمكن تجديده.</item>
+    <item quantity="few">هذا إصدار تجريبي من براير. حسابك سينتهي خلال %d أيام ولن يمكن تجديده.</item>
+    <item quantity="many">هذا إصدار تجريبي من براير. حسابك سينتهي خلال %d يوم ولن يمكن تجديده.</item>
+    <item quantity="other">هذا إصدار تجريبي من براير. حسابك سينتهي خلال %d يوم ولن يمكن تجديده.</item>
+  </plurals>
+  <string name="expiry_update">تم تمديد تاريخ انتهاء التجريب. حسابك الآن سوف ينتهي بعد %d يوم.</string>
+  <string name="expiry_date_reached">هذا البرنامج قد انتهت مدته.\nشكرا لك للتجريب!</string>
+  <string name="download_briar">لتستمر في استعمال براير، من فضلك قم بتحميل إصدار رقم 1.0.</string>
+  <string name="create_new_account">تحتاج أن تنشئ حساب جديد، لكن يمكنك استعمال نفس الاسم المستعار.</string>
+  <string name="download_briar_button">تحميل براير 1.0</string>
+  <string name="startup_open_database">فك تشفير قاعدة البيانات...</string>
+  <string name="startup_migrate_database">ترقية قاعدة البيانات...</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">افتح راسم التصفح</string>
+  <string name="nav_drawer_close_description">أغلق راسم التصفح</string>
+  <string name="contact_list_button">جهات الاتصال</string>
+  <string name="groups_button">مجموعات خاصة</string>
+  <string name="forums_button">المنتديات</string>
+  <string name="blogs_button">مدونات</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">قفل التطبيق</string>
+  <string name="settings_button">الإعدادات</string>
+  <string name="sign_out_button">تسجيل خروج</string>
+  <!--Transports-->
+  <string name="transport_tor">انترنت</string>
+  <string name="transport_bt">بلوتوث</string>
+  <string name="transport_lan">واي-فاي</string>
+  <!--Notifications-->
+  <string name="reminder_notification_title">تم تسجيل الخروج من براير</string>
+  <string name="reminder_notification_text">المس لإعادة الدخول</string>
+  <string name="reminder_notification_channel_title">التذكير بتسجيل الدخول إلى براير</string>
+  <string name="reminder_notification_dismiss">ارفض</string>
+  <string name="ongoing_notification_title">سُجل الدخول إلى براير</string>
+  <string name="ongoing_notification_text">المس لفتح براير.</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="zero">لا رسائل خاصة جديدة.</item>
+    <item quantity="one"> رسالة خاصة جديدة.</item>
+    <item quantity="two">رسالتيْن خاصتيْن جديدتين.</item>
+    <item quantity="few">%d رسائل خاصة جديدة.</item>
+    <item quantity="many">%d رسالة خاصة جديدة.</item>
+    <item quantity="other">%d رسالة خاصة جديدة.</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="zero">لا رسائل مجموعة جديدة.</item>
+    <item quantity="one">رسالة مجموعة جديدة.</item>
+    <item quantity="two"> رسالتيْ مجموعة جديدتين.</item>
+    <item quantity="few">%d رسائل مجموعة جديدة.</item>
+    <item quantity="many">%d رسالة مجموعة جديدة.</item>
+    <item quantity="other">%d رسالة مجموعة جديدة.</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="zero">لا رسائل منتدى جديدة.</item>
+    <item quantity="one">رسالة منتدى جديدة.</item>
+    <item quantity="two">رسالتيْ منتدى جديدتين.</item>
+    <item quantity="few">%d رسائل منتدى جديدة.</item>
+    <item quantity="many">%d رسالة منتدى جديدة.</item>
+    <item quantity="other">%d رسالة منتدى جديدة.</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="zero">لا تدوينات جديدة.</item>
+    <item quantity="one">تدوينة جديدة.</item>
+    <item quantity="two">تدوينتين جديدتين.</item>
+    <item quantity="few">%d تدوينات جديدة.</item>
+    <item quantity="many">%d تدوينة جديدة.</item>
+    <item quantity="other">%d تدوينة جديدة.</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">الآن</string>
+  <string name="show">عرض</string>
+  <string name="hide">إخفاء</string>
+  <string name="ok">موافق</string>
+  <string name="cancel">إلغاء</string>
+  <string name="got_it">فهمت ذلك</string>
+  <string name="delete">حذف</string>
+  <string name="accept">قبول</string>
+  <string name="decline">ارفض</string>
+  <string name="options">خيارات</string>
+  <string name="online">متصل</string>
+  <string name="offline">غير متصل</string>
+  <string name="send">أرسلْ</string>
+  <string name="allow">اسمح</string>
+  <string name="open">مفتوح</string>
+  <string name="no_data">لا بيانات</string>
+  <string name="ellipsis">...</string>
+  <string name="text_too_long">النص المدخل طويل جدا</string>
+  <string name="show_onboarding">أظهر رسائل المساعدة</string>
+  <string name="fix">أصلح</string>
+  <string name="help">المساعدة</string>
+  <string name="sorry">معذرة</string>
+  <!--Contacts and Private Conversations-->
+  <string name="date_no_private_messages">لا رسائل.</string>
+  <string name="no_private_messages">لا رسائل للعرض.</string>
+  <string name="message_hint">اكتب رسالة</string>
+  <string name="delete_contact">حذف جهة اتصال</string>
+  <string name="dialog_title_delete_contact">تأكيد حذف جهة اتصال</string>
+  <string name="dialog_message_delete_contact">أواثق أنت أنك تريد حذف جهة الاتصال هذه وكل الرسائل المتبادلة بينكما؟</string>
+  <string name="contact_deleted_toast">تم حذف جهة اتصال</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">إضافة جهة اتصال</string>
+  <string name="face_to_face">لابد أن تقابل الشخص الذي تريد إضافته كجهة اتصال.\n\nهذا سيمنع أي شخص من انتحال شخصيتك أو قراءة رسائلك في المستقبل.</string>
+  <string name="continue_button">استمرار</string>
+  <string name="try_again_button">حاول مجددًا</string>
+  <string name="waiting_for_contact_to_scan">بانتظار جهة الاتصال ليقوم بالمسح والاتصال\u2026</string>
+  <string name="exchanging_contact_details">يتم تبادل معلومات جهة الاتصال\u2026</string>
+  <string name="contact_added_toast">تم إضافة جهة اتصال: %s</string>
+  <string name="contact_already_exists">جهة اتصال %s بالفعل موجودة</string>
+  <string name="qr_code_invalid">رمز QR غير صالح</string>
+  <string name="qr_code_unsupported">رمز QR الذي تحاول مسحه يعود لإصدار قديم من %s لم يعد مدعوما.\n\nمن فضلك تأكد أن كليكما يستخدم آخر إصدار ثم حاول مجددا.</string>
+  <string name="camera_error">خطأ بالكاميرا</string>
+  <string name="connecting_to_device">يتم الاتصال بالجهاز\u2026</string>
+  <string name="authenticating_with_device">يتم التوثيق مع الجهاز\u2026</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_title">قم بتقديم جهات اتصالك</string>
+  <string name="introduction_onboarding_text">يمكنك أن تقدم جهات اتصالك لبعضها البعض، فلا يحتاجون للمقابلة الشخصية ليتواصلوا عبر براير.</string>
+  <string name="introduction_menu_item">عمل تقدمة</string>
+  <string name="introduction_activity_title">اختر جهة اتصال</string>
+  <string name="introduction_not_possible">بالفعل لديك تقدمة جارية مع جهات الاتصال هذه. من فضلك اسمح لذلك بالانتهاء أولا. إذا كنت أنت أو جهات اتصالك نادرا ما تكونون متصلين فإن ذلك يمكن أن يستغرق بعض الوقت.</string>
+  <string name="introduction_message_title">قدّم جهات اتصال</string>
+  <string name="introduction_message_hint">أضف رسالة (اختياري)</string>
+  <string name="introduction_button">عمل تقدمة</string>
+  <string name="introduction_sent">تم إرسال تقدمتك.</string>
+  <string name="introduction_error">حدث خطأ في عمل التقدمة.</string>
+  <string name="introduction_response_error">خطأ في الإجابة على التقدمة</string>
+  <string name="introduction_request_sent">لقد طلبت تقدمة %1$s إلى %2$s.</string>
+  <string name="introduction_request_received">قد طلب %1$s أن يقوم بتقديمك إلى %2$s. فهل توافق أن يتم إضافتك جهات اتصال %2$s؟</string>
+  <string name="introduction_request_exists_received">قد طلب %1$s أن يقدمك إلى %2$s، لكن %2$s هو بالفعل في قائمة جهات اتصالك. وحيث أن %1$s قد لا يعرف هذا، فلا زال يمكنك الرد:</string>
+  <string name="introduction_request_answered_received">لقد طلب %1$s أن يقوم بتقديمك إلى %2$s.</string>
+  <string name="introduction_response_accepted_sent">لقد قبلت التقدمة إلى %1$s.</string>
+  <string name="introduction_response_accepted_sent_info">قبل أن يتم إضافة %1$s إلى جهات اتصالك، يحتاج أن يقبل هو أيضا بتقدمتك. هذا يمكن أن يستغرق بعض الوقت.</string>
+  <string name="introduction_response_declined_sent">لقد رفضت التقدمة إلى %1$s.</string>
+  <string name="introduction_response_accepted_received">لقد وافق %1$s على تقديمه إلى %2$s.</string>
+  <string name="introduction_response_declined_received">لقد رفض %1$sتقديمه إلى %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">يقول %1$sأن %2$s قد رفض التقدمة.</string>
+  <plurals name="introduction_notification_text">
+    <item quantity="zero">لا جهة اتصال تم إضافتها.</item>
+    <item quantity="one">جهة اتصال تم إضافتها.</item>
+    <item quantity="two">جهتيْ اتصال تم إضافتها.</item>
+    <item quantity="few">%d جهات اتصال تم إضافتها.</item>
+    <item quantity="many">%d جهة اتصال تم إضافتها.</item>
+    <item quantity="other">%d جهة اتصال تم إضافتها.</item>
+  </plurals>
+  <!--Private Groups-->
+  <string name="groups_created_by">تم إنشاؤها بواسطة %s</string>
+  <plurals name="messages">
+    <item quantity="zero">%d رسالة</item>
+    <item quantity="one">%d رسالة</item>
+    <item quantity="two">رسالتيْن</item>
+    <item quantity="few">%d رسائل</item>
+    <item quantity="many">%d رسالة</item>
+    <item quantity="other">%d رسالة</item>
+  </plurals>
+  <string name="groups_group_is_empty">هذه المجموعة فارغة</string>
+  <string name="groups_group_is_dissolved">هذه المجموعة قد تلاشت</string>
+  <string name="groups_remove">حذف</string>
+  <string name="groups_create_group_title">قم بإنشاء مجموعة خاصة</string>
+  <string name="groups_create_group_button">أنشئ مجموعة</string>
+  <string name="groups_create_group_invitation_button">أرسل دعوة</string>
+  <string name="groups_create_group_hint">اختر اسمًا لمجموعتك الخاصة</string>
+  <string name="groups_invitation_sent">تم إرسال دعوة للمجموعة</string>
+  <string name="groups_message_sent">تم إرسال الرسالة</string>
+  <string name="groups_member_list">قائمة الأعضاء</string>
+  <string name="groups_invite_members">دعوة أعضاء</string>
+  <string name="groups_member_created_you">أنت أنشأت المجموعة</string>
+  <string name="groups_member_created">%s أنشأ المجموعة</string>
+  <string name="groups_member_joined_you">قد انضممت للمجموعة</string>
+  <string name="groups_member_joined">قد انضم %s للمجموعة</string>
+  <string name="groups_leave">غادر المجموعة</string>
+  <string name="groups_leave_dialog_title">تأكيد مغادرة المجموعة</string>
+  <string name="groups_leave_dialog_message">أواثق أنت أنك تريد مغادرة هذه المجموعة؟</string>
+  <string name="groups_dissolve">حلّ المجموعة</string>
+  <string name="groups_dissolve_dialog_title">أكد حلّ وتلاشي المجموعة</string>
+  <string name="groups_dissolve_dialog_message">أواثق أنت أنك تريد حلّ هذه المجموعة؟\n\nجميع الأعضاء الآخرين لن يتمكنوا من استكمال حوارهم وربما لن يستقبلوا الرسائل الأخيرة.</string>
+  <string name="groups_dissolve_button">حلّ</string>
+  <string name="groups_dissolved_dialog_title">تم حلّ المجموعة وتلاشيها</string>
+  <string name="groups_dissolved_dialog_message">منشئ هذه المجموعة قام بحلّها.\n\n لن يمكنك كتابة رسائل إلى المجموعة كما ويحتمل أنك لم تستقبل جميع الرسائل التي تم كتابتها.</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">دعوات المجموعة</string>
+  <string name="groups_invitations_invitation_sent">لقد قمت بدعوة %1$s للانضمام إلى مجموعة \"%2$s\".</string>
+  <string name="groups_invitations_invitation_received">قام %1$s بدعوتك للانضمام لمجموعة \"%2$s\".</string>
+  <string name="groups_invitations_joined">تم الانضمام للمجموعة</string>
+  <string name="groups_invitations_declined">تم رفض الدعوة للمجموعة</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="zero">%d لا دعوة مجموعة مفتوحة</item>
+    <item quantity="one">%d دعوة مجموعة مفتوحة</item>
+    <item quantity="two">دعوتيْ مجموعة مفتوحتين</item>
+    <item quantity="few">%d دعوات مجموعة مفتوحة</item>
+    <item quantity="many">%d دعوة مجموعة مفتوحة</item>
+    <item quantity="other">%d دعوة مجموعة مفتوحة</item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">قد قبلت دعوة الانضمام للمجموعة من %s.</string>
+  <string name="groups_invitations_response_declined_sent">قد رفضت دعوة الانضمام للمجموعة من %s.</string>
+  <string name="groups_invitations_response_accepted_received">قبل %s دعوة الانضمام للمجموعة.</string>
+  <string name="groups_invitations_response_declined_received">رفض %s دعوة الانضمام للمجموعة.</string>
+  <string name="sharing_status_groups">فقط المُنشئ يمكنه دعوة أعضاء جدد للمجموعة. في الأسفل جميع الأعضاء الحاليين بالمجموعة.</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">أظهر الأعضاء</string>
+  <string name="groups_reveal_dialog_message">يمكن أن تختار إظهار جميع جهات الاتصال الحالية والمستقبلية في هذه المجموعة لبعضهم البعض.\n\nإظهار جهات الاتصال سيجعل اتصالك بالمجموعة أسرع وأفضل اعتمادية، حيث سيمكن التواصل بين جهات الاتصال الظاهرة حتى لو كان منشئ المجموعة غير متصل.</string>
+  <string name="groups_reveal_visible">علاقات جهات الاتصال ستكون ظاهرة للمجموعة</string>
+  <string name="groups_reveal_visible_revealed_by_us">علاقات جهات الاتصال ظاهرة للمجموعة (قمت أنت بكشفها)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">علاقات جهات الاتصال ظاهرة للمجموعة (قام %s بكشفها)</string>
+  <string name="groups_reveal_invisible">علاقات جهات الاتصال غير ظاهرة للمجموعة</string>
+  <!--Forums-->
+  <string name="create_forum_title">أنشئ منتدىَ</string>
+  <string name="choose_forum_hint">اختر اسم لمنتداك</string>
+  <string name="create_forum_button">أنشئ منتدىَ</string>
+  <string name="forum_created_toast">تم إنشاء المنتدى</string>
+  <string name="no_forum_posts">لا منشورات للعرض</string>
+  <string name="no_posts">لا منشورات</string>
+  <plurals name="posts">
+    <item quantity="zero">%d لا منشورات</item>
+    <item quantity="one">منشور %d</item>
+    <item quantity="two">منشوريْن</item>
+    <item quantity="few">%d منشورات</item>
+    <item quantity="many">%d منشور</item>
+    <item quantity="other">%d منشور</item>
+  </plurals>
+  <string name="forum_new_entry_posted">تم نشر منشور المنتدى</string>
+  <string name="forum_new_message_hint">منشور جديد</string>
+  <string name="forum_message_reply_hint">رد جديد</string>
+  <string name="btn_reply">الرد</string>
+  <string name="forum_leave">مغادرة المنتدى</string>
+  <string name="dialog_title_leave_forum">تأكيد مغادرة المنتدى</string>
+  <string name="dialog_message_leave_forum">أواثق أنت من رغبتك في مغادرة المنتدى؟\n\nأي جهة اتصال قمت بمشاركة هذا المنتدى معها قد يتوقف عنها استلام التحديثات.</string>
+  <string name="dialog_button_leave">مغادرة</string>
+  <string name="forum_left_toast">تم مغادرة المنتدى</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">مشاركة المنتدى</string>
+  <string name="contacts_selected">تم اختيار جهات الاتصال</string>
+  <string name="activity_share_toolbar_header">اختر جهات الاتصال</string>
+  <string name="forum_shared_snackbar">تم مشاركة المنتدى مع جهات الاتصال المختارة</string>
+  <string name="forum_share_message">أضف رسالة (اختياري)</string>
+  <string name="forum_share_error">حدث خطأ أثناء مشاركة المنتدى</string>
+  <string name="forum_invitation_received">قام %1$s بمشاركة المنتدى \"%2$s\" معك.</string>
+  <string name="forum_invitation_sent">قد قمت بمشاركة المنتدى \"%1$s\" مع %2$s.</string>
+  <string name="forum_invitations_title">دعوات المنتدى</string>
+  <string name="forum_invitation_exists">لقد قمت بالفعل بقبول دعوة لهذا المنتدى.\n\nقبول دعوات إضافية سيجعل اتصالك مع المنتدى أسرع وأكثر اعتمادية.</string>
+  <string name="forum_joined_toast">تم الانضمام للمنتدى</string>
+  <string name="forum_declined_toast">تم رفض الدعوة</string>
+  <string name="shared_by_format">شورك بواسطة %s</string>
+  <string name="forum_invitation_already_sharing">بالفعل مشارك</string>
+  <string name="forum_invitation_response_accepted_sent">قد قبلت دعوة المنتدى من %s.</string>
+  <string name="forum_invitation_response_declined_sent">قد رفضت دعوة المنتدى من %s.</string>
+  <string name="forum_invitation_response_accepted_received">قد قبل %s دعوة المنتدى.</string>
+  <string name="forum_invitation_response_declined_received">قد رفض %s دعوة المنتدى.</string>
+  <string name="sharing_status">حالة المشاركة</string>
+  <string name="sharing_status_forum">أي عضو بالمنتدى يمكنه مشاركته مع جهات اتصاله. أنت تشارك هذا المنتدى مع جهات الاتصال هذه. قد يكون هناك أعضاء آخرين لا يمكنك رؤيتهم.</string>
+  <string name="shared_with">مشارك مع %1$d (%2$d متصل)</string>
+  <plurals name="forums_shared">
+    <item quantity="zero">لا منتدى مُشارَك من جهات الاتصال</item>
+    <item quantity="one">منتدى مُشارَك من جهات الاتصال</item>
+    <item quantity="two">منتديين مشاركين من جهات الاتصال</item>
+    <item quantity="few">%d منتديات مُشارَكة من جهات الاتصال</item>
+    <item quantity="many">%d منتدى مُشارَك من جهات الاتصال</item>
+    <item quantity="other">%d منتدى مُشارَك من جهات الاتصال</item>
+  </plurals>
+  <string name="nobody">لا أحد</string>
+  <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">لا منشورات للعرض</string>
+  <string name="read_more">اقرأ المزيد</string>
+  <string name="blogs_write_blog_post">اكتب تدوينة</string>
+  <string name="blogs_write_blog_post_body_hint">اكتب تدوينتك</string>
+  <string name="blogs_publish_blog_post">نشر</string>
+  <string name="blogs_blog_post_created">تم إنشاء تدوينة</string>
+  <string name="blogs_blog_post_received">تم استلام تدوينة جديدة</string>
+  <string name="blogs_blog_post_scroll_to">إنزل إلى</string>
+  <string name="blogs_feed_empty_state">لا منشورات للعرض</string>
+  <string name="blogs_remove_blog">احذف المدونة</string>
+  <string name="blogs_remove_blog_dialog_message">أواثق أنت أنك تريد حذف هذه المدونة؟\n\nالتدوينات سيتم حذفها من جهازك فقط وليس من أجهزة الآخرين.\n\nأي جهة اتصال قمت بمشاركة المدونة معه قد لا يتمكن من استلام التحديثات.</string>
+  <string name="blogs_remove_blog_ok">‮أزِل</string>
+  <string name="blogs_blog_removed">تم حذف المدونة</string>
+  <string name="blogs_reblog_comment_hint">أضف تعليق (اختياري)</string>
+  <string name="blogs_reblog_button">أعد التدوين</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">شارك المدونة</string>
+  <string name="blogs_sharing_error">حدث خطأ في مشاركة هذه المدونة.</string>
+  <string name="blogs_sharing_button">شارك المدونة</string>
+  <string name="blogs_sharing_snackbar">تم مشاركة المدونة مع جهات الاتصال المختارة</string>
+  <string name="blogs_sharing_response_accepted_sent">قد قبلت دعوة المدونة من %s.</string>
+  <string name="blogs_sharing_response_declined_sent">قد رفضت دعوة المدونة من %s.</string>
+  <string name="blogs_sharing_response_accepted_received">قبل %s دعوة المدونة.</string>
+  <string name="blogs_sharing_response_declined_received">رفض %s دعوة المدونة.</string>
+  <string name="blogs_sharing_invitation_received">قام %1$s  بمشاركة المدونة \"%2$s\" معك.</string>
+  <string name="blogs_sharing_invitation_sent">قمت بمشاركة المدونة \"%1$s\" مع %2$s.</string>
+  <string name="blogs_sharing_invitations_title">دعوات المدونة</string>
+  <string name="blogs_sharing_joined_toast">اشترك في المدونة</string>
+  <string name="blogs_sharing_declined_toast">تم رفض الدعوة</string>
+  <string name="sharing_status_blog">أي شخص اشترك في مدونة يمكنه مشاركتها مع جهات اتصاله. أنت تشارك هذه المدونة مع جهات الاتصال التالية. قد يكون هناك مشتركون آخرون لا يمكنك رؤيتهم.</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">استورد تحديثات RSS</string>
+  <string name="blogs_rss_feeds_import_button">إستيراد</string>
+  <string name="blogs_rss_feeds_import_hint">أدخل رابط تحديثات RSS</string>
+  <string name="blogs_rss_feeds_import_error">معذرة! حدث خطأ في استيراد التحديثات.</string>
+  <string name="blogs_rss_feeds_manage">إدارة تحديثات RSS</string>
+  <string name="blogs_rss_feeds_manage_imported">مستوردة:</string>
+  <string name="blogs_rss_feeds_manage_author">المؤلف:</string>
+  <string name="blogs_rss_feeds_manage_updated">آخر تحديث:</string>
+  <string name="blogs_rss_remove_feed">أزل تحديث</string>
+  <string name="blogs_rss_remove_feed_dialog_message">أواثق أنت من رغبتك في حذف هذا التحديث؟\n\nالمنشورات ستحذف من جهازك وليس من أجهزة الآخرين.\n\nأي جهة اتصال قمت بمشاركة هذا التحديث معهم قد لا يتمكنون من استلام التحديثات.</string>
+  <string name="blogs_rss_remove_feed_ok">‮أزِل</string>
+  <string name="blogs_rss_feeds_manage_delete_error">لم يمكن إزالة التحديث</string>
+  <string name="blogs_rss_feeds_manage_empty_state">لا تحديثات RSS للعرض\n\nالمس علامة + لاستيراد تحديث.</string>
+  <string name="blogs_rss_feeds_manage_error">حدث خطأ في جلب تحديثاتك. من فضلك حاول لاحقا.</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">اللغة والمنطقة</string>
+  <string name="pref_language_changed">هذا الإعداد سيتم تفعيل بعد إعادة تشغيل براير. من فضلك سجل خروج ثم أعد تشغيل براير.</string>
+  <string name="pref_language_default">الافتراضي بالنظام</string>
+  <string name="display_settings_title">العرض</string>
+  <string name="pref_theme_title">السمة</string>
+  <string name="pref_theme_light">نهاري</string>
+  <string name="pref_theme_dark">ليلي</string>
+  <string name="pref_theme_auto">تلقائي (توقيت النهار)</string>
+  <string name="pref_theme_system">النظام الافتراضي</string>
+  <!--Settings Network-->
+  <string name="network_settings_title">الشبكات</string>
+  <string name="bluetooth_setting">الاتصال عبر بلوتوث</string>
+  <string name="bluetooth_setting_enabled">متى ما كان أحد جهات الاتصال قريبا</string>
+  <string name="bluetooth_setting_disabled">فقط عند إضافة جهة اتصال</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">الأمان</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 دقائق</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">ساعة</string>
+  <string name="pref_lock_timeout_never">أبد</string>
+  <string name="change_password">تغيير كلمة السرّ</string>
+  <string name="current_password">كلمة السر الحالية</string>
+  <string name="choose_new_password">كلمة السر الجديدة</string>
+  <string name="confirm_new_password">تأكيد كلمة السر الجديدة</string>
+  <string name="password_changed">تم تغيير كلمة السر</string>
+  <string name="panic_setting">إعداد زر الذعر</string>
+  <string name="panic_setting_title">زر الذعر</string>
+  <string name="panic_setting_hint">اضبط كيف يتصرف براير عندما تضغط زر الذعر</string>
+  <string name="panic_app_setting_title">تطبيق زر الذعر</string>
+  <string name="unknown_app">تطبيق غير معروف</string>
+  <string name="panic_app_setting_summary">لا تطبيق قد تم إعداده</string>
+  <string name="panic_app_setting_none">لا شيء</string>
+  <string name="dialog_title_connect_panic_app">تأكيد تطبيق الذعر</string>
+  <string name="dialog_message_connect_panic_app">أواثق أنت أنك تريد السماح ل %1$s أن يقوم بتفعيل إجراءات زر الذعر؟</string>
+  <string name="panic_setting_signout_title">تسجيل خروج</string>
+  <string name="panic_setting_signout_summary">سجل الخروج من براير إذا تم ضغط زر الذعر</string>
+  <string name="purge_setting_title">حذف الحساب</string>
+  <string name="purge_setting_summary">احذف حساب براير إذا تم ضغط زر الذعر. انتبه: هذا سيسبب حذف دائم لكل معرفات وحساباتك ورسائلك.</string>
+  <string name="uninstall_setting_title">ألغ تثبيت براير</string>
+  <string name="uninstall_setting_summary">هذا يتطلب تأكيد يدوي في حالة الذعر</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">الإشعارات</string>
+  <string name="notify_sign_in_title">ذكرني لتسجيل الدخول</string>
+  <string name="notify_sign_in_summary">أظهر تذكير عند تشغيل الهاتف أو عند تحديث التطبيق</string>
+  <string name="notify_private_messages_setting_title">رسائل خاصة</string>
+  <string name="notify_private_messages_setting_summary">أظهر نتبيهات للرسائل الخاصة</string>
+  <string name="notify_private_messages_setting_summary_26">اضبط تنبيهات الرسائل الخاصة</string>
+  <string name="notify_group_messages_setting_title">رسائل المجموعات</string>
+  <string name="notify_group_messages_setting_summary">أظهر التنبيهات لرسائل المجموعات</string>
+  <string name="notify_group_messages_setting_summary_26">اضبط التنبيهات لرسائل المجموعات</string>
+  <string name="notify_forum_posts_setting_title">رسائل المنتديات</string>
+  <string name="notify_forum_posts_setting_summary">أظهر التنبيهات لرسائل المنتديات</string>
+  <string name="notify_forum_posts_setting_summary_26">اضبط التنبيهات لرسائل المنتديات</string>
+  <string name="notify_blog_posts_setting_title">التدوينات</string>
+  <string name="notify_blog_posts_setting_summary">أظهر التنبيهات للتدوينات</string>
+  <string name="notify_blog_posts_setting_summary_26">اضبط التنبيهات للتدوينات</string>
+  <string name="notify_vibration_setting">إهتزاز</string>
+  <string name="notify_lock_screen_setting_title">قفل الشاشة</string>
+  <string name="notify_lock_screen_setting_summary">أظهر التنبيهات على قفل الشاشة</string>
+  <string name="notify_sound_setting">الصوت</string>
+  <string name="notify_sound_setting_default">النغمة الافتراضية</string>
+  <string name="notify_sound_setting_disabled">لا شيء</string>
+  <string name="choose_ringtone_title">اختر نغمة</string>
+  <string name="cannot_load_ringtone">لا يمكن تشغيل النغمة</string>
+  <!--Settings Feedback-->
+  <string name="feedback_settings_title">الإفادة حول التطبيق</string>
+  <string name="send_feedback">أرسل ملاحظاتك</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">تنبيه الرابط</string>
+  <string name="link_warning_intro">أنت بصدد فتح هذا الرباط في تطبيق خارجي</string>
+  <string name="link_warning_text">يمكن أن يستعمل هذا في تحديد هويتك. تأمل في مدى ثقتك بالشخص الذي أرسل لك هذا الرابط وحبذا لو قمت بفتحه باستعمال أورفوكس.</string>
+  <string name="link_warning_open_link">افتح الرابط</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">تقرير انهيار براير</string>
+  <string name="briar_crashed">معذرة، لقد انهار براير.</string>
+  <string name="not_your_fault">هذا ليس خطؤك.</string>
+  <string name="please_send_report">من فضلك ساعدنا في تحسين براير عبر إرسال تقرير انهيار.</string>
+  <string name="report_is_encrypted">نعدك بأن التقرير سيرسل مشفرا وبشكل آمن.</string>
+  <string name="feedback_title">الإفادة حول التطبيق</string>
+  <string name="describe_crash">صف ما حدث (اختياري)</string>
+  <string name="enter_feedback">أدخل ملاحظاتك</string>
+  <string name="optional_contact_email">بريدك الالكتروني (اختياري)</string>
+  <string name="include_debug_report_crash">ضمن بيانات مجهلة عن الانهيار</string>
+  <string name="include_debug_report_feedback">ضمن بيانات مجهلة عن هذا الجهاز</string>
+  <string name="could_not_load_report_data">لم يمكن تحميل بيانات التقرير.</string>
+  <string name="send_report">أرسل التقرير</string>
+  <string name="close">إغلاق</string>
+  <string name="dev_report_saved">تم حفظ التقرير. سيتم إرساله عند تسجيل الدخول إلى براير في المرة القادمة.</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">تسجيل الخروج من براير...</string>
+  <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_title">تم اكتشاف غلاف شاشة</string>
+  <string name="screen_filter_body">تطبيق آخر يقوم بالرسم فوق براير. لحماية أمنك فإن براير لن يستجيب لللمس طالما كان تطبيق آخر يرسم فوقه.\n\nيحتمل أن يكون أحد هذه التطبيقات هو ما يرسم فوق:\n\n %1$s</string>
+  <string name="screen_filter_allow">اسمح لهذه التطبيقات بالرسم فوق غيرها</string>
+  <!--Permission Requests-->
+  <string name="permission_camera_title">إذن الكاميرا</string>
+  <string name="permission_camera_request_body">لتقم بمسح رمز QR، يحتاج براير إلى استعمال الكاميرا.</string>
+  <string name="permission_camera_denied_body">قد رفضت إعطاء إذن الكاميرا، لكن إضافة جهات اتصال يتطلب استعمال الكاميرا.\n\nمن فضلك لو تمنحنا الإذن.</string>
+  <string name="permission_camera_denied_toast">لم يتم منح الإذن باستعمال الكاميرا</string>
+  <string name="qr_code">رمز QR</string>
+  <string name="show_qr_code_fullscreen">أظهر رمز QR بملء الشاشة</string>
+  <!--App Locking-->
+</resources>

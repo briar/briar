@@ -55,6 +55,8 @@
   <string name="groups_button">Yksityiset ryhmät</string>
   <string name="forums_button">Foorumit</string>
   <string name="blogs_button">Blogit</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Lukitse sovellus</string>
   <string name="settings_button">Asetukset</string>
   <string name="sign_out_button">Kirjaudu ulos</string>
   <!--Transports-->
@@ -108,7 +110,8 @@
   <string name="help">Ohje</string>
   <string name="sorry">Pahoittelemme</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Ei yhteystietoja\n\nNapauta + nappia lisätäksesi yhteystiedon</string>
+  <string name="no_contacts">Ei yhteystietoja</string>
+  <string name="no_contacts_action">Napauta + nappia lisätäksesi yhteystiedon</string>
   <string name="date_no_private_messages">Ei viestejä.</string>
   <string name="no_private_messages">Ei viestejä</string>
   <string name="message_hint">Kirjoita viesti</string>
@@ -120,20 +123,19 @@
   <string name="add_contact_title">Lisää yhteystieto</string>
   <string name="face_to_face">Sinun täytyy tavata käyttäjä, jonka haluat lisätä yhteystietoihisi.\n\nTämä estää sen, että joku voisi esittää olevansa sinä tai lukea viestejäsi tulevaisuudessa</string>
   <string name="continue_button">Jatka</string>
-  <string name="connection_failed">Yhteys epäonnistui</string>
   <string name="try_again_button">Yritä uudelleen</string>
   <string name="waiting_for_contact_to_scan">Odotetaan, että käyttäjä skannaa ja saa yhteyden\u2026</string>
   <string name="exchanging_contact_details">Yhteystietoja vaihdetaan\u2026</string>
   <string name="contact_added_toast">Yhteystieto lisätty: %s</string>
   <string name="contact_already_exists">Yhteystieto %s on jo olemassa</string>
-  <string name="contact_exchange_failed">Yhteystietojen vaihto epäonnistui</string>
   <string name="qr_code_invalid">QR koodi on virheellinen</string>
   <string name="qr_code_unsupported">Skannaamasi QR-koodi kuuluu %s:in vanhaan versioon, jonka tuki on loppunut.\n\nVarmista että kumpikin teistä käyttää uusinta versiota ja yritä uudelleen.</string>
   <string name="camera_error">Kameravirhe</string>
   <string name="connecting_to_device">Yhdistetään laitteeseen\u2026</string>
   <string name="authenticating_with_device">Tunnistaudutaan laitteen kanssa\u2026</string>
-  <string name="connection_aborted_local">Yhteys katkaistu! Tämä voi tarkoittaa, että joku muu yrittää häiritä sinun ja toisen käyttäjän välistä yhteyttä</string>
-  <string name="connection_aborted_remote">Toinen käyttäjä katkaisi yhteyden! Tämä voi tarkoittaa, että joku muu yrittää häiritä sinun ja toisen käyttäjän välistä yhteyttä</string>
+  <string name="connection_error_title">Yhteydenotto yhteystietoon epäonnistui</string>
+  <string name="connection_error_explanation">Tarkista että olette kumpikin käyttämässä samaa Wi-Fi verkkoa.</string>
+  <string name="connection_error_feedback">Jos tämä ongelma jatkuu, <a href="feedback">lähetä palautetta</a> jotta voimme parantaa sovellusta.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Esittele yhteyshenkilösi</string>
   <string name="introduction_onboarding_text">Voit esitellä muita käyttäjiä toisilleen, niin että heidän ei tarvitse tavata kasvokkain ollakseen yhteydessä Briarin kautta.</string>
@@ -161,7 +163,8 @@
     <item quantity="other">%d uutta yhteystietoa lisätty.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Ei ryhmiä\n\nNapauta + nappia luodaksesi ryhmän tai pyydä yhteyshenkilöltä kutsua päästäksesi yhteen heidän ryhmistä.</string>
+  <string name="groups_list_empty">Ei ryhmiä</string>
+  <string name="groups_list_empty_action">Napauta + nappia luodaksesi ryhmän tai pyydä yhteyshenkilöltä kutsua ryhmään</string>
   <string name="groups_created_by">Luonut %s</string>
   <plurals name="messages">
     <item quantity="one">%d viesti</item>
@@ -214,7 +217,8 @@
   <string name="groups_reveal_visible_revealed_by_contact">Yhteys käyttäjään on näkyvissä ryhmän jäsenille (käyttäjän %s paljastamana)</string>
   <string name="groups_reveal_invisible">Yhteys käyttäjään ei ole näkyvissä ryhmän jäsenille</string>
   <!--Forums-->
-  <string name="no_forums">Ei foorumeita\n\nNapauta + nappia luodaksesi foorumin tai pyydä yhteyshenkilöltä kutsua päästäksesi yhteen heidän foorumeista</string>
+  <string name="no_forums">Ei foorumeita</string>
+  <string name="no_forums_action">Napauta + nappia luodaksesi foorumin tai pyydä yhteyshenkilöltä kutsua foorumiin</string>
   <string name="create_forum_title">Luo foorumi</string>
   <string name="choose_forum_hint">Valitse nimi foorumillesi</string>
   <string name="create_forum_button">Luo foorumi</string>
@@ -238,7 +242,8 @@
   <string name="forum_share_button">Jaa foorumi</string>
   <string name="contacts_selected">Yhteystiedot valittu</string>
   <string name="activity_share_toolbar_header">Valitse yhteystiedot</string>
-  <string name="no_contacts_selector">Ei yhteystietoja\n\nPalaa tänne, kun olet lisännyt yhteystiedon</string>
+  <string name="no_contacts_selector">Ei yhteystietoja</string>
+  <string name="no_contacts_selector_action">Tule takaisin kun olet lisännyt yhteystiedon</string>
   <string name="forum_shared_snackbar">Foorumi jaettu valittujen käyttäjien kanssa</string>
   <string name="forum_share_message">Lisää viesti (valinnainen)</string>
   <string name="forum_share_error">Tämän foorumin jakamisessa tapahtui virhe.</string>
@@ -271,7 +276,7 @@
   <string name="blogs_blog_post_created">Blogikirjoitus julkaistu</string>
   <string name="blogs_blog_post_received">Uusi blogikirjoitus vastaanotettu</string>
   <string name="blogs_blog_post_scroll_to">Vieritä kohtaan</string>
-  <string name="blogs_feed_empty_state">Ei kirjoituksia\n\nYhteyshenkilöitesi ja seuraamiesi blogien kirjoitukset tulevat näkymään tässä\n\nNapauta kynää kirjoittaaksesi jotain</string>
+  <string name="blogs_feed_empty_state">Ei kirjoituksia</string>
   <string name="blogs_remove_blog">Poista blogi</string>
   <string name="blogs_remove_blog_dialog_message">Oletko varma, että haluat poistaa tämän blogin?\n\nKirjoitukset poistuvat sinun laitteelta, mutta ei muiden laitteilta.\n\nKäyttäjät joiden kanssa olet jakanut tämän blogin eivät välttämättä saa uusia päivityksiä.</string>
   <string name="blogs_remove_blog_ok">Poista</string>
@@ -323,12 +328,34 @@
   <string name="bluetooth_setting">Yhdistä Bluetoothin kautta</string>
   <string name="bluetooth_setting_enabled">Silloin kun yhteyshenkilöt ovat lähellä</string>
   <string name="bluetooth_setting_disabled">Vain kun yhteyshenkilöitä lisätään</string>
-  <string name="tor_network_setting">Yhdistä Tor-verkon kautta</string>
-  <string name="tor_network_setting_never">Ei koskaan</string>
-  <string name="tor_network_setting_wifi">Vain kun on Wi-Fi yhteys</string>
-  <string name="tor_network_setting_always">Kun on Wi-Fi tai mobiilidatayhteys</string>
+  <string name="tor_network_setting">Yhdistä verkon kautta (Tor)</string>
+  <string name="tor_network_setting_automatic">Automaattinen sijainnin perusteella</string>
+  <string name="tor_network_setting_without_bridges">Käytä Tor:ia ilman siltoja</string>
+  <string name="tor_network_setting_with_bridges">Käytä Tor:ia siltojen kanssa</string>
+  <string name="tor_network_setting_never">Älä yhdistä</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">Automaattinen: %1$s (sijainnissa %2$s)</string>
+  <string name="tor_mobile_data_title">Käytä mobiilitiedonsiirtoa</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Turvallisuus</string>
+  <string name="pref_lock_title">Näytön lukitus</string>
+  <string name="pref_lock_summary">Käytä laitteen näytön lukitusta suojataksesi Briar kun olet kirjautunut sisään</string>
+  <string name="pref_lock_disabled_summary">Käyttääksesi tätä ominaisuutta, ota käyttöön laitteesi näytön lukitus</string>
+  <string name="pref_lock_timeout_title">Näytön lukituksen inaktiviteetti aikakatkaisu</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">Kun Briar ei ole käytössä, lukitse se automaattisesti %s jälkeen</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 minuutin</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 minuutin</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">15 minuutin</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 minuutin</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 tunnin</string>
+  <string name="pref_lock_timeout_never">Ei koskaan</string>
+  <string name="pref_lock_timeout_never_summary">Älä lukitse Briaria automaattisesti</string>
   <string name="change_password">Vaihda salasana</string>
   <string name="current_password">Nykyinen salasana</string>
   <string name="choose_new_password">Uusi salasana</string>
@@ -410,4 +437,9 @@
   <string name="permission_camera_denied_toast">Kameran käyttöoikeutta ei myönnetty</string>
   <string name="qr_code">QR-koodi</string>
   <string name="show_qr_code_fullscreen">Näytä QR-koodi koko näytöllä</string>
+  <!--App Locking-->
+  <string name="lock_unlock">Avaa Briarin lukitus</string>
+  <string name="lock_unlock_verbose">Syötä laitteesi PIN, kuvio tai salasana avataksesi Briar</string>
+  <string name="lock_is_locked">Briar on lukittu</string>
+  <string name="lock_tap_to_unlock">Napauta avataksesi lukitus</string>
 </resources>

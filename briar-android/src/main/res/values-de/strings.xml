@@ -55,6 +55,8 @@
   <string name="groups_button">Private Gruppen</string>
   <string name="forums_button">Foren</string>
   <string name="blogs_button">Blogs</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">App sperren</string>
   <string name="settings_button">Einstellungen</string>
   <string name="sign_out_button">Abmelden</string>
   <!--Transports-->
@@ -105,7 +107,6 @@
   <string name="help">Hilfe</string>
   <string name="sorry">Entschuldigung</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Du hast noch keine Kontakte\n\nTippe auf das +-Symbol um einen Kontakt hinzuzufügen</string>
   <string name="date_no_private_messages">Keine Nachrichten.</string>
   <string name="no_private_messages">Keine Nachrichten zum Anzeigen</string>
   <string name="message_hint">Nachricht eingeben</string>
@@ -117,20 +118,16 @@
   <string name="add_contact_title">Kontakt hinzufügen</string>
   <string name="face_to_face">Um einen neuen Kontakt hinzuzufügen, ist es notwendig, dass sich beide Kontakte an einem Ort treffen.\n\nDadurch wird betrügerische Identitätsvortäuschung und unautorisierter Kommunikationszugriff verhindert.</string>
   <string name="continue_button">Weiter</string>
-  <string name="connection_failed">Verbindung fehlgeschlagen</string>
   <string name="try_again_button">Noch einmal versuchen</string>
   <string name="waiting_for_contact_to_scan">Warte auf Scan und Verbindung mit dem Kontakt\u2026</string>
   <string name="exchanging_contact_details">Kontaktdetails werden ausgetauscht\u2026</string>
   <string name="contact_added_toast">Kontakt hinzugefügt: %s</string>
   <string name="contact_already_exists">Kontakt %s existiert bereits</string>
-  <string name="contact_exchange_failed">Kontaktaustausch fehlgeschlagen</string>
   <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
   <string name="qr_code_unsupported">Der QR-Code, den du versuchst zu scannen, gehört zu einer alten Version von %s welche nicht mehr unterstützt wird.\n\nBitte versichert euch, dass bei euch beiden die neueste Version läuft und versucht es dann erneut.</string>
   <string name="camera_error">Kamerafehler</string>
   <string name="connecting_to_device">Verbinde mit Gerät\u2026</string>
   <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
-  <string name="connection_aborted_local">Verbindung abgebrochen! Dies könnte bedeuten, dass jemand versucht, deine Verbindung zu stören.</string>
-  <string name="connection_aborted_remote">Verbindung wurde durch deinen Kontakt abgebrochen! Möglicherweise stört jemand deine Verbindung.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Mache deine Kontakte untereinander bekannt</string>
   <string name="introduction_onboarding_text">Du kannst deine Kontakte untereinander bekannt machen. So können sie sich über Briar verbinden, ohne sich persönlich treffen zu müssen.</string>
@@ -158,7 +155,6 @@
     <item quantity="other">%d neue Kontakte hinzugefügt.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">No groups to show\n\nTap the + icon to create a group, or ask your contacts to share groups with you</string>
   <string name="groups_created_by">Erstellt durch %s</string>
   <plurals name="messages">
     <item quantity="one">%d Nachrichten</item>
@@ -211,7 +207,6 @@
   <string name="groups_reveal_visible_revealed_by_contact">Verbindung zum Kontakt ist für diese Gruppe sichtbar (offengelegt durch %s)</string>
   <string name="groups_reveal_invisible">Verbindung zum Kontakt ist für diese Gruppe nicht sichtbar</string>
   <!--Forums-->
-  <string name="no_forums">Du bist in keinem Forum Mitglied.\n\nVerwende das + Symbol am oberen Rand um ein Forum zu erstellen oder frage bitte Deine Kontakte danach, Foren mit dir zu teilen</string>
   <string name="create_forum_title">Forum erstellen</string>
   <string name="choose_forum_hint">Wähle einen Namen für dein Forum</string>
   <string name="create_forum_button">Forum erstellen</string>
@@ -266,6 +261,7 @@
   <string name="blogs_blog_post_created">Blogbeitrag erstellt</string>
   <string name="blogs_blog_post_received">Neuen Blogbeitrag empfangen</string>
   <string name="blogs_blog_post_scroll_to">Scrolle zu</string>
+  <string name="blogs_feed_empty_state">Keine Beiträge zum Anzeigen</string>
   <string name="blogs_remove_blog">Blog entfernen</string>
   <string name="blogs_remove_blog_ok">Aufheben</string>
   <string name="blogs_blog_removed">Blog wurde entfernt</string>
@@ -313,12 +309,19 @@
   <string name="bluetooth_setting">Über Bluetooth verbinden</string>
   <string name="bluetooth_setting_enabled">Sobald Kontakte in der Nähe sind</string>
   <string name="bluetooth_setting_disabled">Nur beim Hinzufügen von Kontakten</string>
-  <string name="tor_network_setting">Über Tor verbinden</string>
-  <string name="tor_network_setting_never">Nie</string>
-  <string name="tor_network_setting_wifi">Nur WLAN</string>
-  <string name="tor_network_setting_always">WLAN oder mobile Datenverbindung</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicherheit</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 Minute</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 Minuten</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 Stunde</string>
+  <string name="pref_lock_timeout_never">Nie</string>
   <string name="change_password">Passwort ändern</string>
   <string name="current_password">Aktuelles Passwort</string>
   <string name="choose_new_password">Neues Passwort</string>
@@ -398,4 +401,5 @@
   <string name="permission_camera_denied_toast">Berechtigung für Kamera wurde nicht gewährt</string>
   <string name="qr_code">QR-Code</string>
   <string name="show_qr_code_fullscreen">QR-Code im Vollbildmodus anzeigen</string>
+  <!--App Locking-->
 </resources>

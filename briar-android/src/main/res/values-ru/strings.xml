@@ -57,6 +57,8 @@
   <string name="groups_button">Приватные группы</string>
   <string name="forums_button">Форумы</string>
   <string name="blogs_button">Блоги</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Замок</string>
   <string name="settings_button">Настройки</string>
   <string name="sign_out_button">Выйти</string>
   <!--Transports-->
@@ -118,7 +120,8 @@
   <string name="help">Помощь</string>
   <string name="sorry">Сожалеем</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Нет контактов для отображения\n\nКоснитесь значка + для добавления контакта</string>
+  <string name="no_contacts">Нет контактов для отображения</string>
+  <string name="no_contacts_action">Нажмите значок +, чтобы добавить контакт</string>
   <string name="date_no_private_messages">Нет сообщений.</string>
   <string name="no_private_messages">Нет сообщений для отображения</string>
   <string name="message_hint">Печатает сообщение</string>
@@ -130,20 +133,19 @@
   <string name="add_contact_title">Добавить контакт</string>
   <string name="face_to_face">Вы должны встретиться с человеком, которого хотите добавить в контакты.\n\nЭто не позволит кому-либо выдать себя за вас или читать ваши сообщения.</string>
   <string name="continue_button">Продолжить</string>
-  <string name="connection_failed">Ошибка подключения</string>
   <string name="try_again_button">Попробовать снова</string>
   <string name="waiting_for_contact_to_scan">Ожидание контакта для сканирования и подключения\u2026</string>
   <string name="exchanging_contact_details">Обмен контактными данными\u2026</string>
   <string name="contact_added_toast">Контакт добавлен: %s</string>
   <string name="contact_already_exists">Контакт %s уже существует</string>
-  <string name="contact_exchange_failed">Обмен контактами не удался</string>
   <string name="qr_code_invalid">Неверный QR-код</string>
   <string name="qr_code_unsupported">QR-код, который вы пытаетесь отсканировать, создан в старой версии %s, которая больше не поддерживается.\n\nУбедитесь, что вы работаете с последней версией, а затем повторите попытку.</string>
   <string name="camera_error">Ошибка камеры</string>
   <string name="connecting_to_device">Подключение к устройству\u2026</string>
   <string name="authenticating_with_device">Аутентификация с устройством\u2026</string>
-  <string name="connection_aborted_local">Подключение прервано! Это может означать, что кто-то пытается вмешаться в ваше соединение</string>
-  <string name="connection_aborted_remote">Соединение прервано вашим контактом! Это может означать, что кто-то пытается вмешаться в ваше подключение</string>
+  <string name="connection_error_title">Не удалось подключиться к контакту</string>
+  <string name="connection_error_explanation">Убедитесь, что вы оба подключены к той же сети Wi-Fi.</string>
+  <string name="connection_error_feedback">Если эта проблема сохраняется, пожалуйста <a href="feedback">отправьте отзыв</a>,  чтобы помочь нам улучшить приложение.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Знакомство с контактами</string>
   <string name="introduction_onboarding_text">Вы можете представить свои контакты друг другу, поэтому им не нужно встречаться лично, чтобы подключиться к Briar. </string>
@@ -173,7 +175,8 @@
     <item quantity="other">%d новых контактов добавлено.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Нет групп для отображения\n\nКоснитесь значка + для создания группы, или попросите ваши контакты поделиться с вами группами</string>
+  <string name="groups_list_empty">Нет групп для отображения</string>
+  <string name="groups_list_empty_action">Нажмите значок +, чтобы создать группу, или попросите ваши контакты поделиться с вами группами</string>
   <string name="groups_created_by">Создано %s</string>
   <plurals name="messages">
     <item quantity="one">%d сообщение</item>
@@ -230,7 +233,8 @@
   <string name="groups_reveal_visible_revealed_by_contact">Связь между контактами видна группе (раскрывается %s)</string>
   <string name="groups_reveal_invisible">Связь между контактами не видна группе</string>
   <!--Forums-->
-  <string name="no_forums">Нет форумов для отображения\n\nКоснитесь значка + для создания форума, или попросите ваши контакты поделиться с вами форумами</string>
+  <string name="no_forums">Нет форумов для отображения</string>
+  <string name="no_forums_action">Нажмите значок +, чтобы создать форум, или попросите ваши контакты поделиться с вами форумами</string>
   <string name="create_forum_title">Создать форум</string>
   <string name="choose_forum_hint">Придумайте имя для вашего форума</string>
   <string name="create_forum_button">Создать форум</string>
@@ -256,7 +260,8 @@
   <string name="forum_share_button">Поделиться форумом</string>
   <string name="contacts_selected">Выбранные контакты</string>
   <string name="activity_share_toolbar_header">Выбор контактов</string>
-  <string name="no_contacts_selector">Нет контактов для отображения\n\nПожалуйста, вернитесь сюда после добавления контакта</string>
+  <string name="no_contacts_selector">Нет контактов для отображения</string>
+  <string name="no_contacts_selector_action">Пожалуйста, вернитесь сюда после добавления контакта</string>
   <string name="forum_shared_snackbar">Поделиться форумом совместно с выбранными контактами</string>
   <string name="forum_share_message">Добавить сообщение (необязательно)</string>
   <string name="forum_share_error">Произошла ошибка при при попытке поделиться этим форумом.</string>
@@ -291,7 +296,9 @@
   <string name="blogs_blog_post_created">Пост создан</string>
   <string name="blogs_blog_post_received">Появился новый пост в блоге</string>
   <string name="blogs_blog_post_scroll_to">Перейти</string>
-  <string name="blogs_feed_empty_state">Нет постов для отображения\n\nПосты ваших контактов и блогов, на которые вы подписаны, появятся здесь\n\nКоснитесь значка пера, чтобы написать сообщение</string>
+  <string name="blogs_feed_empty_state">Нет постов для отображения</string>
+  <string name="blogs_feed_empty_state_action">Сообщения от ваших контактов и блогов, на которые вы подписаны, появятся
+ здесь\n\nНажмите значок пера, чтобы написать сообщение</string>
   <string name="blogs_remove_blog">Удалить блог</string>
   <string name="blogs_remove_blog_dialog_message">Вы уверены, что хотите удалить этот блог?\n\nПосты будут удалены только с вашего устройства.\n\nВсе контакты, с которыми вы поделились этим блогом, могут перестать получать обновления.</string>
   <string name="blogs_remove_blog_ok">Убрать</string>
@@ -343,12 +350,34 @@
   <string name="bluetooth_setting">Подключение через Bluetooth</string>
   <string name="bluetooth_setting_enabled">Когда контакты находятся поблизости</string>
   <string name="bluetooth_setting_disabled">Только при добавлении контактов</string>
-  <string name="tor_network_setting">Подключение через Tor</string>
-  <string name="tor_network_setting_never">Никогда</string>
-  <string name="tor_network_setting_wifi">Только при использовании Wi-Fi</string>
-  <string name="tor_network_setting_always">При использовании Wi-Fi или мобильных данных</string>
+  <string name="tor_network_setting">Подключение через интернет (Tor)</string>
+  <string name="tor_network_setting_automatic">Автоматически на основе местоположения</string>
+  <string name="tor_network_setting_without_bridges">Использовать Tor без мостов</string>
+  <string name="tor_network_setting_with_bridges">Использовать Tor с мостами</string>
+  <string name="tor_network_setting_never">Не подключать</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">Автоматически: %1$s (в %2$s)</string>
+  <string name="tor_mobile_data_title">Использовать мобильные данные</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Безопасность</string>
+  <string name="pref_lock_title">Блокировка экрана</string>
+  <string name="pref_lock_summary">Использовать блокировку экрана устройства для защиты Briar при входе</string>
+  <string name="pref_lock_disabled_summary">Чтобы использовать эту функцию, установите блокировку экрана вашего устройства</string>
+  <string name="pref_lock_timeout_title">Тайм-аут блокировки блокировки экрана</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">Автоматически блокировать Briar через %s</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 минута</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 минут</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">15 минут</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 минут</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 час</string>
+  <string name="pref_lock_timeout_never">Никогда</string>
+  <string name="pref_lock_timeout_never_summary">Никогда не блокировать Briar автоматически</string>
   <string name="change_password">Изменить пароль</string>
   <string name="current_password">Текущий пароль</string>
   <string name="choose_new_password">Новый пароль</string>
@@ -430,4 +459,9 @@
   <string name="permission_camera_denied_toast">Доступ к камере не был предоставлен</string>
   <string name="qr_code">QR-код</string>
   <string name="show_qr_code_fullscreen">Показать QR-код во весь экран</string>
+  <!--App Locking-->
+  <string name="lock_unlock">Разблокировать Briar</string>
+  <string name="lock_unlock_verbose">Введите PIN-код устройства, графический ключ или пароль, чтобы разблокировать Briar</string>
+  <string name="lock_is_locked">Briar заблокирован</string>
+  <string name="lock_tap_to_unlock">Нажмите для разблокировки</string>
 </resources>

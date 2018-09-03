@@ -26,6 +26,8 @@
   <string name="groups_button">Özel Gruplar</string>
   <string name="forums_button">Forumlar</string>
   <string name="blogs_button">Bloglar</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Uygulamayı Kilitle</string>
   <string name="settings_button">Ayarlar</string>
   <string name="sign_out_button">Oturumu Kapat</string>
   <!--Transports-->
@@ -83,17 +85,14 @@
   <string name="add_contact_title">Kişi ekle</string>
   <string name="face_to_face">Kişi olarak eklemek istediğiniz kişiyle buluşmanız gerekir.\n\nBu, gelecekte başkalarının sizin kimliğinize bürünmesini veya mesajlarınızı okumasını engelleyecektir.</string>
   <string name="continue_button">Devam et</string>
-  <string name="connection_failed">Bağlantı hatası</string>
   <string name="try_again_button">Tekrar deneyin</string>
   <string name="waiting_for_contact_to_scan">Kişinin QR kodu taraması ve bağlantı kurması bekleniyor\u2026</string>
   <string name="exchanging_contact_details">Kişi ayrıntıları karşılıklı paylaşılıyor\u2026</string>
   <string name="contact_added_toast">Kişi eklendi: %s</string>
   <string name="contact_already_exists"> %s kişisi zaten var</string>
-  <string name="contact_exchange_failed">Kişi değişimi hatası</string>
   <string name="qr_code_invalid">QR kod hatalı</string>
   <string name="connecting_to_device">Cihaza bağlanıyor\u2026</string>
   <string name="authenticating_with_device">Cihazla kimlik doğrulama\u2026</string>
-  <string name="connection_aborted_remote">Bağlantı kişi tarafından kesildi! Bu, birisinin bağlantınızı kesmeye çalıştığı anlamına gelebilir</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kişilerinizi tanıştırın</string>
   <string name="introduction_onboarding_text">Kişilerinizi birbirinize tanıtabilirsiniz, bu nedenle Briar\'a bağlanmak için şahsen bir araya gelmeniz gerekmez.</string>
@@ -246,12 +245,19 @@
   <string name="bluetooth_setting">Bluetooth ile Bağlan</string>
   <string name="bluetooth_setting_enabled">Yakınlardaki her kişi</string>
   <string name="bluetooth_setting_disabled">Yalnızca kişi eklerken</string>
-  <string name="tor_network_setting">Tor ile Bağlan</string>
-  <string name="tor_network_setting_never">Asla</string>
-  <string name="tor_network_setting_wifi">Yanlızca Wi-Fi kullanırken</string>
-  <string name="tor_network_setting_always">Mobil veri veya Wi-Fi kullanırken</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Güvenlik</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 dakika</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 dakika</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 saat</string>
+  <string name="pref_lock_timeout_never">Asla</string>
   <string name="change_password">Parola değiştir</string>
   <string name="confirm_new_password">Yeni parolayı onaylayın</string>
   <string name="password_changed">Parolanız başarıyla değişti.</string>
@@ -311,4 +317,5 @@
   <string name="progress_title_logout">Briar\'dan çıkılıyor...</string>
   <!--Screen Filters & Tapjacking-->
   <!--Permission Requests-->
+  <!--App Locking-->
 </resources>

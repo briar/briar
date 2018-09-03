@@ -55,6 +55,8 @@
   <string name="groups_button">Grupe Private</string>
   <string name="forums_button">Forume</string>
   <string name="blogs_button">Blogje</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Kyçe Aplikacionin</string>
   <string name="settings_button">Rregullime</string>
   <string name="sign_out_button">Dilni</string>
   <!--Transports-->
@@ -108,7 +110,8 @@
   <string name="help">Ndihmë</string>
   <string name="sorry">Na ndjeni</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">S’ka kontakte për shfaqje\n\nPrekni ikonën + që të shtoni një kontakt</string>
+  <string name="no_contacts">S’ka kontakte për shfaqje</string>
+  <string name="no_contacts_action">Prekni ikonën + që të shtoni një kontakt</string>
   <string name="date_no_private_messages">S\’ka mesazhe.</string>
   <string name="no_private_messages">S’ka mesazhe për shfaqje</string>
   <string name="message_hint">Shtypni mesazhin</string>
@@ -120,20 +123,19 @@
   <string name="add_contact_title">Shtoni një Kontakt</string>
   <string name="face_to_face">Duhet të takoheni me personin që doni ta shtoni si kontakt.\n\nKjo do të pengojë cilindo të hiqet si ju ose të lexojë në të ardhmen mesazhet tuaj.</string>
   <string name="continue_button">Vazhdo</string>
-  <string name="connection_failed">Lidhja dështoi</string>
   <string name="try_again_button">Riprovoni</string>
   <string name="waiting_for_contact_to_scan">Po pritet që kontakti ta skanojë dhe të lidhet\u2026</string>
   <string name="exchanging_contact_details">Po shkëmbehen hollësi kontaktesh\u2026</string>
   <string name="contact_added_toast">Kontakti u shtua: %s</string>
   <string name="contact_already_exists">Kontakti %s ekziston tashmë</string>
-  <string name="contact_exchange_failed">Shkëmbimi i kontaktit dështoi</string>
   <string name="qr_code_invalid">Kodi QR është i pavlefshëm</string>
   <string name="qr_code_unsupported">Kodi QR që po provoni të skanoni më poshtë i përket një versioni të vjetër të %s-it, i cili nuk mbulohet më.\n\nJu lutemi, sigurohuni që që të dy ju xhironi versionin më të ri dhe mandej riprovoni.</string>
   <string name="camera_error">Gabim kamere</string>
   <string name="connecting_to_device">Po lidhet me pajisjen\u2026</string>
   <string name="authenticating_with_device">Po bëhet mirëfilltësimi me pajisjen\u2026</string>
-  <string name="connection_aborted_local">Lidhje e ndërprerë nga ne! Kjo mund të jetë shenjë se dikush po përpiqet të fusë hundët në lidhjen tuaj</string>
-  <string name="connection_aborted_remote">Lidhje e ndërprerë nga kontakti juaj! Kjo mund të jetë shenjë se dikush po përpiqet të fusë hundët në lidhjen tuaj</string>
+  <string name="connection_error_title">S’u lidh dot te kontakti juaj</string>
+  <string name="connection_error_explanation">Ju lutemi, kontrolloni se jeni të dy të lidhur në të njëjtin rrjet Wi-Fi.</string>
+  <string name="connection_error_feedback">Nëse problemi vazhdon, ju lutemi, <a href="feedback">na njoftoni</a>, që të mund të përmirësojmë aplikacionin.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Prezantoni kontaktet tuaja</string>
   <string name="introduction_onboarding_text">Kontaktet tuaja mund t\’ia prezantoni njëri-tjetrit, që kështu të mos u duhet të takohen realisht për të mundur të lidhen në Briar.</string>
@@ -161,7 +163,8 @@
     <item quantity="other">U shtuan %d kontakte të rinj.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">S\’ka grupe për shfaqje.\n\nPrekni ikonën + që të krijoni një grup ose kërkojuni kontakteve tuaj t\’ju ftojnë në një prej grupeve të tyre</string>
+  <string name="groups_list_empty">S’ka grupe për shfaqje</string>
+  <string name="groups_list_empty_action">Prekni ikonën + që të krijoni një grup, ose kërkojuni kontakteve tuaj të ndajnë grupe me ju</string>
   <string name="groups_created_by">Krijuar nga %s</string>
   <plurals name="messages">
     <item quantity="one">%d mesazh</item>
@@ -214,7 +217,8 @@
   <string name="groups_reveal_visible_revealed_by_contact">Marrëdhënia e kontaktit është e dukshme për grupin (shfaqur nga %s)</string>
   <string name="groups_reveal_invisible">Marrëdhënia e kontaktit s\’është e dukshme për grupin</string>
   <!--Forums-->
-  <string name="no_forums">S\’ka forume për shfaqje.\n\nPrekni ikonën + që të krijoni një forum ose kërkojuni kontakteve tuaj t\’ju ftojnë në një prej forumeve të tyre</string>
+  <string name="no_forums">S’ka forume për shfaqje</string>
+  <string name="no_forums_action">Prekni ikonën + që të krijoni një forum, ose kërkojuni kontakteve tuaj të ndajnë forume me ju</string>
   <string name="create_forum_title">Krijoje Forumin</string>
   <string name="choose_forum_hint">Zgjidhni një emër për forumin tuaj</string>
   <string name="create_forum_button">Krijoje Forumin</string>
@@ -238,7 +242,8 @@
   <string name="forum_share_button">Ndajeni Forumin Me të Tjerë</string>
   <string name="contacts_selected">Kontaktet u përzgjodhën</string>
   <string name="activity_share_toolbar_header">Zgjidhni Kontakte</string>
-  <string name="no_contacts_selector">S’ka kontakte për shfaqje\n\nJu lutemi, rikthehuni këtu pasi të shtoni një kontakt</string>
+  <string name="no_contacts_selector">S’ka kontakte për shfaqje</string>
+  <string name="no_contacts_selector_action">Ju lutemi, rikthehuni këtu pasi të shtoni një kontakt</string>
   <string name="forum_shared_snackbar">Forumi u nda me kontaktet e zgjedhur</string>
   <string name="forum_share_message">Shtoni një mesazh (në daçi)</string>
   <string name="forum_share_error">Pati një gabim në ndarjen e këtij forumi me të tjerët.</string>
@@ -271,7 +276,8 @@
   <string name="blogs_blog_post_created">Postimi i Blogut u Krijua</string>
   <string name="blogs_blog_post_received">U morën Postime të Reja Blogu</string>
   <string name="blogs_blog_post_scroll_to">Kalo Te</string>
-  <string name="blogs_feed_empty_state">S’ka postime për shfaqje\n\nPostimet prej kontakteve tuaja dhe blogjeve ku pajtoheni do të shfaqen këtu\n\nPrekni ikonën penë që të shkruani një postim</string>
+  <string name="blogs_feed_empty_state">S\’ka postime për shfaqje</string>
+  <string name="blogs_feed_empty_state_action">Këtu do të shfaqet postimet nga kontaktet tuaja dhe blogjet që ndiqni\n\nQë të shkruani një postim, prekni ikonën penë</string>
   <string name="blogs_remove_blog">hiqe Blogun</string>
   <string name="blogs_remove_blog_dialog_message">Jeni i sigurt se doni të hiqet ky blog?\n\nPostimet do të hiqen nga pajisja juaj, por jo nga pajisjet e personave të tjerë.\n\nÇfarëdo kontaktesh me të cilët e keni ndarë këtë blog mund të reshtin së marri përditësime.</string>
   <string name="blogs_remove_blog_ok">Hiqe</string>
@@ -323,12 +329,34 @@
   <string name="bluetooth_setting">Lidhu përmes Bluetooth-i</string>
   <string name="bluetooth_setting_enabled">Kurdo që kontaktet janë këtej pari</string>
   <string name="bluetooth_setting_disabled">Vetëm kur shtohen kontakte</string>
-  <string name="tor_network_setting">Lidhu përmes Tor-i</string>
-  <string name="tor_network_setting_never">Kurrë</string>
-  <string name="tor_network_setting_wifi">Vetëm kur përdoret Wi-Fi</string>
-  <string name="tor_network_setting_always">Kur përdoret Wi-Fi ose të dhëna celulari</string>
+  <string name="tor_network_setting">Lidhu nëpërmjet Internetit (Tor)</string>
+  <string name="tor_network_setting_automatic">Automatike, bazuar në vendndodhjen</string>
+  <string name="tor_network_setting_without_bridges">Përdore Tor-in pa ura</string>
+  <string name="tor_network_setting_with_bridges">Përdore Tor-in me ura</string>
+  <string name="tor_network_setting_never">Mos u lidh</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">Automatike: %1$s (në %2$s)</string>
+  <string name="tor_mobile_data_title">Përdor të dhëna celulare</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Siguri</string>
+  <string name="pref_lock_title">Kyçje ekrani</string>
+  <string name="pref_lock_summary">Përdorni kyçjen e ekranit të pajisjes që të mbroni Briar-in teksa keni bërë hyrjen në llogari </string>
+  <string name="pref_lock_disabled_summary">Që të përdorni këtë veçori, rregulloni kyçje ekrani për pajisjen tuaj</string>
+  <string name="pref_lock_timeout_title">Afat mosveprimi për kyçje ekrani</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">Kur Briar-i s’është në përdorim, kyçe vetvetiu pas %s</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 minute</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 minutash</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">15 minutash</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 minutash</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 orë</string>
+  <string name="pref_lock_timeout_never">Kurrë</string>
+  <string name="pref_lock_timeout_never_summary">Mos e kyç kurrë Briar-in vetvetiu</string>
   <string name="change_password">Ndryshoni fjalëkalimin</string>
   <string name="current_password">Fjalëkalimi i tanishëm</string>
   <string name="choose_new_password">Fjalëkalim i ri</string>
@@ -410,4 +438,9 @@
   <string name="permission_camera_denied_toast">S\’u dhanë leje mbi kamerën</string>
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Shfaqe kodin QR sa tërë ekrani</string>
+  <!--App Locking-->
+  <string name="lock_unlock">Shkyçe Briar-in</string>
+  <string name="lock_unlock_verbose">Jepni PIN-in, mostrën ose fjalëkalimin e pajisjes tuaj, që të shkyçet Briar-i</string>
+  <string name="lock_is_locked">Briar-i është i kyçur</string>
+  <string name="lock_tap_to_unlock">Prekeni që të shkyçet</string>
 </resources>

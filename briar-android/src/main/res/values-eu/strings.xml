@@ -55,6 +55,8 @@
   <string name="groups_button">Talde pribatuak</string>
   <string name="forums_button">Foroak</string>
   <string name="blogs_button">Blogak</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Blokeatu aplikazioa</string>
   <string name="settings_button">Ezarpenak</string>
   <string name="sign_out_button">Amaitu saioa</string>
   <!--Transports-->
@@ -108,7 +110,8 @@
   <string name="help">Laguntza</string>
   <string name="sorry">Sentitzen dugu</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Kontakturik ez erakusteko\n\nSakatu + ikonoa kontaktua gehitzeko</string>
+  <string name="no_contacts">Kontakturik ez erakusteko</string>
+  <string name="no_contacts_action">Sakatu + ikonoa kontaktua gehitzeko</string>
   <string name="date_no_private_messages">Mezurik ez.</string>
   <string name="no_private_messages">Mezurik ez erakusteko</string>
   <string name="message_hint">Idatzi mezua</string>
@@ -120,20 +123,19 @@
   <string name="add_contact_title">Gehitu kontaktua</string>
   <string name="face_to_face">Aurrez aurre aurkitu behar zara pertsonarekin kontaktua gehitzeko.\n\nHonek inork zure itxurak egitea edo zure mezuak irakurtzea eragotziko du.</string>
   <string name="continue_button">Jarraitu</string>
-  <string name="connection_failed">Konexioak huts egin du</string>
   <string name="try_again_button">Saiatu berriro</string>
   <string name="waiting_for_contact_to_scan">Kontaktuak eskaneatu dezan eta konektatu dadin zain\u2026</string>
   <string name="exchanging_contact_details">Kontaktu-xehetasunak trukatzen\u2016</string>
   <string name="contact_added_toast">Kontaktua gehituta: %s</string>
   <string name="contact_already_exists">%s kontaktua badago aurretik</string>
-  <string name="contact_exchange_failed">Kontaktuen trukeak huts egin du</string>
   <string name="qr_code_invalid">QR kodea baliogabea da</string>
   <string name="qr_code_unsupported">Eskaneatzen saiatu zaren QR kodea %s programaren bertsio zahar bati dagokio eta ez du euskarririk jada.\n\nZiurtatu biak azken bertsioa erabiltzen duzuela eta saiatu berriro.</string>
   <string name="camera_error">Kameraren errorea</string>
   <string name="connecting_to_device">Gailura konektatzen\u2026</string>
   <string name="authenticating_with_device">Gailuarekin autentifikatzen\u2026</string>
-  <string name="connection_aborted_local">Konexioa eten da! Honek norbait konexioan interferentziak sortzen ari dela esan nahi lezake.</string>
-  <string name="connection_aborted_remote">Zure kontaktuak eten du konexioa! Norbait zure konexioan interferentziak sortzen saiatzen ari dela esan nahi lezake</string>
+  <string name="connection_error_title">Ezin izan da zure kontaktuarekin konektatu</string>
+  <string name="connection_error_explanation">Egiaztatu biak Wi-Fi sare berera konektatuta zaudetela</string>
+  <string name="connection_error_feedback">Arazoa  mantentzen bada, mesedez <a href="feedback">bidali iruzkin bat</a> aplikazioa hobetzen laguntzeko.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Aurkeztu zure kontaktuak</string>
   <string name="introduction_onboarding_text">Zure kontaktuak bata besteari aurkeztu ditzakezu, horrela ez dute aurrez aurre elkartzeko beharra Briar erabiltzeko.</string>
@@ -161,7 +163,8 @@
     <item quantity="other">%d kontaktu berri gehituta.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Ez dago talderik erakusteko\n\nSakatu + ikonoa talde bat sortzeko, edo eskatu zure kontaktuei taldeak zurekin partekatzea</string>
+  <string name="groups_list_empty">Talderik ez erakusteko</string>
+  <string name="groups_list_empty_action">Sakatu + ikonoa talde bat sortzeko, edo eskatu kontaktuei zurekin taldeak partekatzea</string>
   <string name="groups_created_by">%s erabiltzaileak sortuta</string>
   <plurals name="messages">
     <item quantity="one">mezu %d</item>
@@ -214,7 +217,8 @@
   <string name="groups_reveal_visible_revealed_by_contact">Kontaktuen erlazioa taldean ikusgai dago (%s erabiltzaileak argitara emana)</string>
   <string name="groups_reveal_invisible">Kontaktuen erlazioa ez dago taldean ikusgai</string>
   <!--Forums-->
-  <string name="no_forums">Ez dago fororik erakusteko\n\nSakatu + ikonoa talde bat sortzeko, edo eskatu zure kontaktuei foroak zurekin partekatzea</string>
+  <string name="no_forums">Fororik ez erakusteko</string>
+  <string name="no_forums_action">Sakatu + ikonoa foro bat sortzeko, edo eskatu kontaktuei zurekin foroak partekatzea</string>
   <string name="create_forum_title">Sortu foroa</string>
   <string name="choose_forum_hint">Hautatu zure foroaren izena</string>
   <string name="create_forum_button">Sortu foroa</string>
@@ -238,7 +242,8 @@
   <string name="forum_share_button">Partekatu foroa</string>
   <string name="contacts_selected">Kontaktuak hautatuta</string>
   <string name="activity_share_toolbar_header">Hautatu kontaktuak</string>
-  <string name="no_contacts_selector">Ez dago kontakturik erakusteko\n\nItzuli hona kontakturen bat gehitu eta gero</string>
+  <string name="no_contacts_selector">Kontakturik ez erakusteko</string>
+  <string name="no_contacts_selector_action">Itzuli hona kontakturen bat gehitu eta gero</string>
   <string name="forum_shared_snackbar">Foroa partekatuta hautatutako kontaktuekin</string>
   <string name="forum_share_message">Gehitu mezua (aukerazkoa)</string>
   <string name="forum_share_error">Errore bat egon da foro hau partekatzean.</string>
@@ -271,7 +276,8 @@
   <string name="blogs_blog_post_created">Blog sarrera sortuta</string>
   <string name="blogs_blog_post_received">Blog sarrera berria jasota</string>
   <string name="blogs_blog_post_scroll_to">Korritu hona</string>
-  <string name="blogs_feed_empty_state">Ez dago sarrerarik erakusteko\n\nZure kontaktuen eta harpidetutako sarrerak bidalketak hemen agertuko dira\n\nSakatu arkatzaren ikonoa sarrera bat idazteko</string>
+  <string name="blogs_feed_empty_state">Ez dago mezurik erakusteko</string>
+  <string name="blogs_feed_empty_state_action">Zure kontaktuen eta harpidetutako blogeetako bidalketak  hemen agertuko dira\n\nSakatu arkatzaren ikonoa bidalketa bat idazteko</string>
   <string name="blogs_remove_blog">Kendu bloga</string>
   <string name="blogs_remove_blog_dialog_message">Ziur blog hau kendu nahi duzula?\n\nSarrerak zure gailutik kenduko dira baina ez besteen gailuetatik.\n\nBlog hau beste inorekin partekatu baduzu agian eguneraketak jasotzeari utziko diote.</string>
   <string name="blogs_remove_blog_ok">Kendu</string>
@@ -323,12 +329,34 @@
   <string name="bluetooth_setting">Konektatu Bluetooth bidez</string>
   <string name="bluetooth_setting_enabled">Kontaktuak hurbil daudeneak</string>
   <string name="bluetooth_setting_disabled">Kontaktuak gehitzean besterik ez</string>
-  <string name="tor_network_setting">Konektatu Tor bidez</string>
-  <string name="tor_network_setting_never">Inoiz ez</string>
-  <string name="tor_network_setting_wifi">Wi-Fi erabiltzean besterik ez</string>
-  <string name="tor_network_setting_always">Wi-Fi edo datu mugikorrak erabiltzean</string>
+  <string name="tor_network_setting">Konektatu Internet bidez (Tor)</string>
+  <string name="tor_network_setting_automatic">Automatikoa kokalekuan oinarritua</string>
+  <string name="tor_network_setting_without_bridges">Erabili Tor zubirik gabe</string>
+  <string name="tor_network_setting_with_bridges">Erabili Tor zubiekin</string>
+  <string name="tor_network_setting_never">Ez konektatu</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">Automatikoa: %1$s (%2$s)</string>
+  <string name="tor_mobile_data_title">Erabili datu mugikorrak</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Segurtasuna</string>
+  <string name="pref_lock_title">Pantaila-blokeoa</string>
+  <string name="pref_lock_summary">Erabili gailuaren pantaila blokeoa Briar babesteko saioa hasita dagoenean</string>
+  <string name="pref_lock_disabled_summary">Ezaugarri hau erabiltzeko, ezarri pantaila-blokeo bat gailuan</string>
+  <string name="pref_lock_timeout_title">Pantaila blokeorako jarduera ezaren denbora muga</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">Briar erabilttzen ez bada, blokeatu pantaila automatikoki %s eta gero</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">minutu 1</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 minutu</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">15 minutu</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 minutu</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 ordu</string>
+  <string name="pref_lock_timeout_never">Inoiz ez</string>
+  <string name="pref_lock_timeout_never_summary">Ez blokeatu Briar automatikoki inoiz</string>
   <string name="change_password">Aldatu pasahitza</string>
   <string name="current_password">Oraingo pasahitza</string>
   <string name="choose_new_password">Pasahitz berria</string>
@@ -410,4 +438,9 @@
   <string name="permission_camera_denied_toast">Eza kameraren baimenik eman</string>
   <string name="qr_code">QR kodea</string>
   <string name="show_qr_code_fullscreen">Erakutsi QR kodea pantaila osoan</string>
+  <!--App Locking-->
+  <string name="lock_unlock">Desblokeatu Briar</string>
+  <string name="lock_unlock_verbose">Sartu zure gailuaren PIN zenbakia, eredua edo pasahitza Briar desblokeatzeko</string>
+  <string name="lock_is_locked">Briar blokeatuta dago</string>
+  <string name="lock_tap_to_unlock">Sakatu desblokeatzeko</string>
 </resources>

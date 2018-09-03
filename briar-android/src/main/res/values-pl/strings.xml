@@ -57,6 +57,7 @@
   <string name="groups_button">Grupy Prywatne</string>
   <string name="forums_button">Fora</string>
   <string name="blogs_button">Blogi</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
   <string name="settings_button">Ustawienia</string>
   <string name="sign_out_button">Wyloguj się</string>
   <!--Transports-->
@@ -116,7 +117,6 @@
   <string name="help">Pomoc</string>
   <string name="sorry">Przepraszam</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Brak kontaktów do wyświetlenia\n\nDotknij ikonkę + aby dodać kontakt</string>
   <string name="date_no_private_messages">Brak wiadomości.</string>
   <string name="no_private_messages">Brak wiadomości do pokazania</string>
   <string name="message_hint">Typ wiadomości</string>
@@ -128,20 +128,16 @@
   <string name="add_contact_title">Dodaj kontakt</string>
   <string name="face_to_face">Musisz spotkać się z osobą którą chcesz dodać jako kontakt.\n\nTo uniemożliwi komukolwiek podszyć się pod Ciebie lub czytać wysyłane wiadomości.</string>
   <string name="continue_button">Kontynuuj</string>
-  <string name="connection_failed">Połączenie nieudane</string>
   <string name="try_again_button">Spróbuj ponownie</string>
   <string name="waiting_for_contact_to_scan">Czekanie aż ktoś zeskanuje kod i połączy się\u2026</string>
   <string name="exchanging_contact_details">Wymienianie szczegółów dotyczących kontatku\u2026</string>
   <string name="contact_added_toast">Kontakt dodany: %s</string>
   <string name="contact_already_exists">Kontakt %s już istnieje</string>
-  <string name="contact_exchange_failed">Wymiana kontaktów nie powiodła się</string>
   <string name="qr_code_invalid">Kod QR jest nie prawidłowy</string>
   <string name="qr_code_unsupported">Kod QR który chcecsz zeskanować jest z wersji %s która nie jest już wspierana.\n\nProszę upewnić się czy oboje używacie najnowszej wersji i spróbować ponownie.</string>
   <string name="camera_error">Błąd aparatu</string>
   <string name="connecting_to_device">Łączenie z urządzeniem\u2026</string>
   <string name="authenticating_with_device">Autoryzowanie z urządzeniem\u2026</string>
-  <string name="connection_aborted_local">Połączenie przerwane! To może oznaczać że ktoś próbuje podszyć się pod Ciebie</string>
-  <string name="connection_aborted_remote">Połączenie przerwane przez kontakt! To może oznaczać, że ktoś próbuje zagłuszyć wasze połączenie</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Udostępnij swoje kontakty.</string>
   <string name="introduction_onboarding_text">Możesz udostępniać kontakty, tak aby osoby nie musiały spotykać się osobiście.</string>
@@ -171,7 +167,6 @@
     <item quantity="other">%d nowych kontaktów zostało dodanych.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Brak grup do wyświetlenia\n\nDotknij ikonki + aby stworzyć grupę bądź poprosić kontakty o udostępnienie grup</string>
   <string name="groups_created_by">Stworzone przez %s</string>
   <plurals name="messages">
     <item quantity="one">%d wiadomość</item>
@@ -228,7 +223,6 @@
   <string name="groups_reveal_visible_revealed_by_contact">Relacje kontaktów są widoczne dla grupy (ujawnione przez %s)</string>
   <string name="groups_reveal_invisible">Relacje kontaktów są nie widoczne dla grupy</string>
   <!--Forums-->
-  <string name="no_forums">Brak for do wyświetlenia\n\nDotknij ikonę + aby stworzyć forum, lub poproś swoje kontakty o udostępnienie Ci for.</string>
   <string name="create_forum_title">Stwórz Forum</string>
   <string name="choose_forum_hint">Wybierz nazwę dla swojego forum</string>
   <string name="create_forum_button">Stwórz Forum</string>
@@ -254,7 +248,6 @@
   <string name="forum_share_button">Udostępnij Forum</string>
   <string name="contacts_selected">Zaznaczone kontakty</string>
   <string name="activity_share_toolbar_header">Wybierz Kontakty</string>
-  <string name="no_contacts_selector">Brak kontaktów do wyświetlenia\n\nWróć tu kiedy dodasz kontakt</string>
   <string name="forum_shared_snackbar">Forum udostępnione wybranym kontaktom</string>
   <string name="forum_share_message">Dodaj wiadomość (opcjonalne)</string>
   <string name="forum_share_error">Wystąpił problem podczas udostępniania tego forum.</string>
@@ -289,7 +282,7 @@
   <string name="blogs_blog_post_created">Wpis na Bloga Utworzony</string>
   <string name="blogs_blog_post_received">Otrzymano Nowy Wpis z Bloga</string>
   <string name="blogs_blog_post_scroll_to">Przewiń Do</string>
-  <string name="blogs_feed_empty_state">Brak postów do wyświetlenia\n\nPosty od Twoich kontaktów i blogów które subskrybujesz pojawią się tutaj\n\nDotknij ikonki długopisu aby napisać post</string>
+  <string name="blogs_feed_empty_state">Brak postów do pokazania</string>
   <string name="blogs_remove_blog">Usuń Blog</string>
   <string name="blogs_remove_blog_dialog_message">Jesteś pewny, że chcesz usunąć ten blog?\n\nPosty będą usunięte z Twojego urządzenia ale nie z urządzeń innych osób.\n\nWszystkie kontakty którym udostępniłeś ten blog mogą przestać otrzymywać powiadomienia.</string>
   <string name="blogs_remove_blog_ok">Usuń</string>
@@ -341,12 +334,17 @@
   <string name="bluetooth_setting">Połącz przez Bluetooth</string>
   <string name="bluetooth_setting_enabled">Zawsze wtedy gdy kontakty są w pobliżu</string>
   <string name="bluetooth_setting_disabled">Tylko gdy dodaję kontakty</string>
-  <string name="tor_network_setting">Połącz przez Tor</string>
-  <string name="tor_network_setting_never">Nigdy</string>
-  <string name="tor_network_setting_wifi">Tylko gdy używam Wi-Fi</string>
-  <string name="tor_network_setting_always">Gdy używam Wi-Fi lub sieci komórkowej</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Bezpieczeństwo</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 godzina</string>
+  <string name="pref_lock_timeout_never">Nigdy</string>
   <string name="change_password">Zmień hasło</string>
   <string name="current_password">Obecne hasło</string>
   <string name="choose_new_password">Nowe hasło</string>
@@ -426,4 +424,5 @@
   <string name="permission_camera_denied_toast">Dostęp do aparatu nie został przyznany</string>
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Pokaż QR na pełnym ekranie</string>
+  <!--App Locking-->
 </resources>

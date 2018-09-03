@@ -1,7 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
+  <string name="setup_title">Briarへようこそ</string>
+  <string name="setup_name_explanation">あなたのニックネームは、常に、あなたが投稿するコンテンツとともに表示されます。プロフィール作成後の編集はできません。</string>
   <string name="setup_next">次へ</string>
+  <string name="setup_password_intro">パスワードを選択</string>
+  <string name="setup_password_explanation">Briarのアカウント情報はクラウドではなく、暗号化され端末に保存されます。アプリのアンインストールやパスワードの紛失をした場合、アカウントへのアクセスとデータを回復する手段はありません。推測するのが難しい、長いパスワードを設定してください。ランダムな4単語やランダムな10文字などです。</string>
+  <string name="setup_doze_title">バックグラウンド接続</string>
   <string name="choose_nickname">ニックネームを入力</string>
   <string name="choose_password">パスワードを入力</string>
   <string name="confirm_password">確認のため再度パスワードを入力</string>
@@ -27,6 +32,8 @@
   <string name="groups_button">Private Groups</string>
   <string name="forums_button">フォーラム</string>
   <string name="blogs_button">Blogs</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">アプリをロック</string>
   <string name="settings_button">Settings</string>
   <string name="sign_out_button">サインアウト</string>
   <!--Transports-->
@@ -77,7 +84,6 @@
   <!--Adding Contacts-->
   <string name="add_contact_title">連絡先を追加</string>
   <string name="continue_button">続ける</string>
-  <string name="connection_failed">接続失敗</string>
   <string name="try_again_button">もう一度やり直してください</string>
   <!--Introductions-->
   <!--Private Groups-->
@@ -108,9 +114,19 @@
   <string name="pref_theme_dark">ダーク</string>
   <string name="pref_theme_system">システムデフォルト</string>
   <!--Settings Network-->
-  <string name="tor_network_setting_never">二度としない</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">セキュリティ</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 分</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 分</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 時間</string>
+  <string name="pref_lock_timeout_never">二度としない</string>
   <string name="change_password">パスワードの変更</string>
   <string name="confirm_new_password">新しいパスワードの確認</string>
   <string name="panic_app_setting_none">なし</string>
@@ -128,4 +144,5 @@
   <!--Sign Out-->
   <!--Screen Filters & Tapjacking-->
   <!--Permission Requests-->
+  <!--App Locking-->
 </resources>

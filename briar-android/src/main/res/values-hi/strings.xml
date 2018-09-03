@@ -5,10 +5,10 @@
   <string name="setup_name_explanation">आपके उपनाम आप पोस्ट किसी भी सामग्री के बगल में दिखाया जाएगा। आप अपना खाता बनाने के बाद इसे बदल नहीं सकते</string>
   <string name="setup_next">अगला</string>
   <string name="setup_password_intro">अपना पासवर्ड चुनें</string>
-  <string name="setup_password_explanation">आपका ब्रियर खाता आपके डिवाइस पर एन्क्रिप्ट किया गया है, न कि क्लाउड में। यदि आप अपना पासवर्ड भूल जाते हैं या बियर को अनइंस्टॉल करते हैं, तो आपका खाता पुनर्प्राप्त करने का कोई तरीका नहीं है। \ N \ n एक लंबे पासवर्ड चुनें जो अनुमान लगाने में मुश्किल हो, जैसे चार यादृच्छिक शब्द, या दस यादृच्छिक वर्ण, संख्याएं और प्रतीकों।</string>
+  <string name="setup_password_explanation">आपका Briar खाता आपके डिवाइस पर एन्क्रिप्ट किया गया है, न कि क्लाउड में। यदि आप अपना पासवर्ड भूल जाते हैं या Briar  को अनइंस्टॉल करते हैं, तो आपका खाता पुनर्प्राप्त करने का कोई तरीका नहीं है। \ N \ n एक लंबे पासवर्ड चुनें जो अनुमान लगाने में मुश्किल हो, जैसे चार यादृच्छिक शब्द, या दस यादृच्छिक वर्ण, संख्याएं और प्रतीकों।</string>
   <string name="setup_doze_title">पृष्ठभूमि कनेक्शन</string>
-  <string name="setup_doze_intro">संदेश प्राप्त करने के लिए, बैर को पृष्ठभूमि में जुड़े रहने की आवश्यकता है।</string>
-  <string name="setup_doze_explanation">संदेश प्राप्त करने के लिए, बैर को पृष्ठभूमि में जुड़े रहने की आवश्यकता है। कृपया बैटरी ऑप्टिमाइजेशन अक्षम करें ताकि ब्रियर कनेक्ट रह सकें।</string>
+  <string name="setup_doze_intro">संदेश प्राप्त करने के लिए, Briar को पृष्ठभूमि में जुड़े रहने की आवश्यकता है।</string>
+  <string name="setup_doze_explanation">संदेश प्राप्त करने के लिए, Briar  को पृष्ठभूमि में जुड़े रहने की आवश्यकता है। कृपया बैटरी ऑप्टिमाइजेशन अक्षम करें ताकि Briar  कनेक्ट रह सकें।</string>
   <string name="setup_doze_button">कनेक्शन की अनुमति दें</string>
   <string name="choose_nickname">आपका मुंहबोला नाम चुनें</string>
   <string name="choose_password">अपना पासवर्ड चुनें</string>
@@ -19,7 +19,7 @@
   <string name="create_account_button">खाता बनाएं</string>
   <string name="more_info">अधिक जानकारी</string>
   <string name="don_t_ask_again">फिर से मत पूछो</string>
-  <string name="setup_huawei_text">कृपया नीचे दिए गए बटन को टैप करें और सुनिश्चित करें कि \"संरक्षित ऐप्स\" स्क्रीन पर बियर सुरक्षित है</string>
+  <string name="setup_huawei_text">कृपया नीचे दिए गए बटन को टैप करें और सुनिश्चित करें कि \"संरक्षित ऐप्स\" स्क्रीन पर Briar  सुरक्षित है</string>
   <string name="setup_huawei_button">Briar की रक्षा करें</string>
   <string name="setup_huawei_help">अगर Briar संरक्षित ऐप्स सूची में नहीं जोड़ा गया है, तो यह पृष्ठभूमि में चलने में असमर्थ होगा।</string>
   <string name="warning_dozed">%sपृष्ठभूमि में चलाने में असमर्थ था</string>
@@ -29,23 +29,23 @@
   <string name="sign_in_button">साइन इन करें</string>
   <string name="forgotten_password">मुझे अपना पासवर्ड याद नहीं है</string>
   <string name="dialog_title_lost_password">पासवर्ड खो गया</string>
-  <string name="dialog_message_lost_password">आपका ब्रियर खाता आपके डिवाइस पर एन्क्रिप्ट किया गया है, बादल में नहीं, इसलिए हम आपका पासवर्ड रीसेट नहीं कर सकते। क्या आप अपना खाता हटाना चाहते हैं और फिर से शुरू करना चाहते हैं? \ N \ n सावधानी: आपकी पहचान, संपर्क और संदेश स्थायी रूप से खो जाएंगे</string>
-  <string name="startup_failed_notification_title">बियर शुरू नहीं हो सका</string>
+  <string name="dialog_message_lost_password">आपका Briar  खाता आपके डिवाइस पर एन्क्रिप्ट किया गया है, बादल में नहीं, इसलिए हम आपका पासवर्ड रीसेट नहीं कर सकते। क्या आप अपना खाता हटाना चाहते हैं और फिर से शुरू करना चाहते हैं? \ N \ n सावधानी: आपकी पहचान, संपर्क और संदेश स्थायी रूप से खो जाएंगे</string>
+  <string name="startup_failed_notification_title">Briar  शुरू नहीं हो सका</string>
   <string name="startup_failed_notification_text">अधिक जानकारी के लिए टैप करें।</string>
-  <string name="startup_failed_activity_title">ब्रियर स्टार्टअप विफलता</string>
-  <string name="startup_failed_db_error">किसी कारण से, आपका ब्रियर डेटाबेस मरम्मत से परे दूषित हो गया है। आपका खाता, आपका डेटा और आपके सभी संपर्क खो गए हैं। दुर्भाग्यवश, आपको पासवर्ड प्रॉम्प्ट पर \'मेरा पासवर्ड भूल गया है\' चुनकर ब्रियर को पुनर्स्थापित करने या एक नया खाता सेट अप करने की आवश्यकता है।</string>
+  <string name="startup_failed_activity_title">Briar  स्टार्टअप विफलता</string>
+  <string name="startup_failed_db_error">किसी कारण से, आपका Briar  डेटाबेस मरम्मत से परे दूषित हो गया है। आपका खाता, आपका डेटा और आपके सभी संपर्क खो गए हैं। दुर्भाग्यवश, आपको पासवर्ड प्रॉम्प्ट पर \'मेरा पासवर्ड भूल गया है\' चुनकर Briar  को पुनर्स्थापित करने या एक नया खाता सेट अप करने की आवश्यकता है।</string>
   <string name="startup_failed_data_too_old_error">आपका खाता इस ऐप के पुराने संस्करण के साथ बनाया गया था और इस संस्करण के साथ खोला नहीं जा सकता है। आपको या तो पुराने संस्करण को पुनर्स्थापित करना होगा या पासवर्ड प्रॉम्प्ट पर \'मैं अपना पासवर्ड भूल गया हूं\' चुनकर एक नया खाता सेट करना होगा।</string>
   <string name="startup_failed_data_too_new_error">ऐप का यह संस्करण बहुत पुराना है। कृपया नवीनतम संस्करण में अपग्रेड करें और पुनः प्रयास करें।</string>
-  <string name="startup_failed_service_error">ब्रियर एक आवश्यक प्लगइन प्रारंभ करने में असमर्थ था बरिअर को पुनः स्थापित करना आमतौर पर इस समस्या को हल करता है हालांकि, कृपया ध्यान दें कि बियर आपके डेटा को स्टोर करने के लिए केंद्रीय सर्वर का उपयोग नहीं कर रहा है, इसके बाद आप अपने खाता और उसके साथ जुड़े सभी डेटा खो देंगे।</string>
+  <string name="startup_failed_service_error">Briar  एक आवश्यक प्लगइन प्रारंभ करने में असमर्थ था Briar  को पुनः स्थापित करना आमतौर पर इस समस्या को हल करता है हालांकि, कृपया ध्यान दें कि Briar  आपके डेटा को स्टोर करने के लिए केंद्रीय सर्वर का उपयोग नहीं कर रहा है, इसके बाद आप अपने खाता और उसके साथ जुड़े सभी डेटा खो देंगे।</string>
   <plurals name="expiry_warning">
     <item quantity="one">यह Briar का एक परीक्षण संस्करण है आपका खाता %dदिनों में समाप्त हो जाएगा और नवीनीकरण नहीं किया जा सकता है</item>
     <item quantity="other">यह Briar का एक परीक्षण संस्करण है आपका खाता %dदिनों में समाप्त हो जाएगा और नवीनीकरण नहीं किया जा सकता है</item>
   </plurals>
   <string name="expiry_update">परीक्षण समाप्ति तिथि बढ़ा दी गई है। आपका खाता अब %d दिनों में समाप्त हो जाएगा</string>
   <string name="expiry_date_reached">यह सॉफ्टवेयर समाप्त हो गया है। \n परीक्षण के लिए धन्यवाद!</string>
-  <string name="download_briar">ब्रियर का उपयोग जारी रखने के लिए, कृपया संस्करण 1.0 डाउनलोड करें।</string>
+  <string name="download_briar">Briar  का उपयोग जारी रखने के लिए, कृपया संस्करण 1.0 डाउनलोड करें।</string>
   <string name="create_new_account">आपको एक नया खाता बनाना होगा, लेकिन आप उसी उपनाम का उपयोग कर सकते हैं।</string>
-  <string name="download_briar_button">ब्रायर 1.0 डाउनलोड करें</string>
+  <string name="download_briar_button">Briar  1.0 डाउनलोड करें</string>
   <string name="startup_open_database">डेटाबेस डिक्रिप्ट कर रहा है ...</string>
   <string name="startup_migrate_database">डाटाबेस का उन्नयन ...</string>
   <!--Navigation Drawer-->
@@ -55,6 +55,8 @@
   <string name="groups_button">निजी समूह</string>
   <string name="forums_button">मंच</string>
   <string name="blogs_button">ब्लॉग</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">लॉक ऐप</string>
   <string name="settings_button">सेटिंग्स</string>
   <string name="sign_out_button">साइन आउट</string>
   <!--Transports-->
@@ -62,9 +64,12 @@
   <string name="transport_bt">ब्लूटूथ</string>
   <string name="transport_lan">वाई - फाई</string>
   <!--Notifications-->
+  <string name="reminder_notification_title">Briar  से साइन आउट हो रहा है ...</string>
+  <string name="reminder_notification_text">वापस साइन इन करने के लिए टैप करें।</string>
+  <string name="reminder_notification_channel_title">Briar साइन-इन अनुस्मारक</string>
   <string name="reminder_notification_dismiss">खारिज करना</string>
-  <string name="ongoing_notification_title">ब्रायर में हस्ताक्षर किए</string>
-  <string name="ongoing_notification_text">ब्रियर को खोलने के लिए स्पर्श करें</string>
+  <string name="ongoing_notification_title">Briar  में हस्ताक्षर किए</string>
+  <string name="ongoing_notification_text">Briar को खोलने के लिए स्पर्श करें</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">नया निजी संदेश</item>
     <item quantity="other">%dनया निजी संदेश</item>
@@ -105,7 +110,8 @@
   <string name="help">सहायता</string>
   <string name="sorry">माफ़ कीजिये</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">कोई संपर्क दिखाने के लिए \ n \ n टैप + आइकन टैप करने के लिए कोई संपर्क नहीं है</string>
+  <string name="no_contacts">दिखाने के लिए कोई संपर्क नहीं है</string>
+  <string name="no_contacts_action">संपर्क जोड़ने के लिए + आइकन टैप करें</string>
   <string name="date_no_private_messages">कोई संदेश नहीं।</string>
   <string name="no_private_messages">दिखाने के लिए कोई संदेश नहीं</string>
   <string name="message_hint">संदेश लिखें</string>
@@ -117,23 +123,22 @@
   <string name="add_contact_title">संपर्क जोड़ना</string>
   <string name="face_to_face">आपको उस व्यक्ति के साथ मिलना चाहिए जिसे आप संपर्क के रूप में जोड़ना चाहते हैं। \ N \ n यह किसी को भविष्य में आपके प्रतिरूपण या पढ़ने के बाद से किसी को भी रोकेगा।</string>
   <string name="continue_button">जारी रहना</string>
-  <string name="connection_failed">कनेक्शन विफल</string>
   <string name="try_again_button">पुनः प्रयास करें</string>
   <string name="waiting_for_contact_to_scan">स्कैन करने और कनेक्ट करने के लिए संपर्क की प्रतीक्षा कर रहा है \ u2026</string>
   <string name="exchanging_contact_details">संपर्क विवरणों का आदान-प्रदान करें \ u2026</string>
   <string name="contact_added_toast">संपर्क जोड़ा गया:%s</string>
   <string name="contact_already_exists">संपर्क%s पहले से मौजूद है</string>
-  <string name="contact_exchange_failed">संपर्क विनिमय विफल</string>
   <string name="qr_code_invalid">QR कोड अमान्य है</string>
   <string name="qr_code_unsupported">क्यूआर कोड जिसे आप स्कैन करने का प्रयास कर रहे हैं वह पुराने संस्करण से संबंधित है %sजिसका अब समर्थित नहीं है। \ N \ n कृपया सुनिश्चित करें कि आप दोनों नवीनतम संस्करण चला रहे हैं और फिर पुन: प्रयास करें।</string>
   <string name="camera_error">कैमरा त्रुटि</string>
   <string name="connecting_to_device">उपकरण \ u2026 से कनेक्ट हो रहा है</string>
   <string name="authenticating_with_device">डिवाइस के साथ प्रमाणीकरण \ u2026</string>
-  <string name="connection_aborted_local">कनेक्शन निरस्त कर दिया गया! इसका मतलब यह हो सकता है कि कोई आपके कनेक्शन में हस्तक्षेप करने का प्रयास कर रहा है</string>
-  <string name="connection_aborted_remote">आपके संपर्क से कनेक्शन निरस्त! इसका मतलब यह हो सकता है कि कोई आपके कनेक्शन में हस्तक्षेप करने का प्रयास कर रहा है</string>
+  <string name="connection_error_title">आपके संपर्क से कनेक्ट नहीं हो सका</string>
+  <string name="connection_error_explanation">कृपया जांचें कि आप दोनों एक ही वाई-फाई नेटवर्क से जुड़े हुए हैं।</string>
+  <string name="connection_error_feedback">यदि यह समस्या बनी रहती है, तो कृपया ऐप को बेहतर बनाने में हमारी सहायता के लिए <a href="feedback">फ़ीडबैक भेजें</a>।</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">अपने संपर्कों का परिचय दें</string>
-  <string name="introduction_onboarding_text">आप अपने संपर्कों को एक दूसरे से जोड़ सकते हैं, इसलिए उन्हें ब्रियर से जुड़ने के लिए व्यक्तिगत रूप से मिलने की जरूरत नहीं है।</string>
+  <string name="introduction_onboarding_text">आप अपने संपर्कों को एक दूसरे से जोड़ सकते हैं, इसलिए उन्हें Briar  से जुड़ने के लिए व्यक्तिगत रूप से मिलने की जरूरत नहीं है।</string>
   <string name="introduction_menu_item">परिचय करें</string>
   <string name="introduction_activity_title">संपर्क का चयन करें</string>
   <string name="introduction_not_possible">इन संपर्कों के साथ आपके पास पहले से ही एक परिचय प्रगति है। कृपया इसे पहले खत्म करने की अनुमति दें। यदि आप या आपके संपर्क शायद ही कभी ऑनलाइन हैं, तो इसमें कुछ समय लग सकता है।</string>
@@ -158,7 +163,8 @@
     <item quantity="other">%dनया संपर्क जोड़ा।</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">कोई समूह दिखाने के लिए \ n \ n समूह बनाने के लिए + आइकन टैप करें, या अपने संपर्कों को समूहों के साथ साझा करने के लिए कहें</string>
+  <string name="groups_list_empty">दिखाने के लिए कोई समूह नहीं है</string>
+  <string name="groups_list_empty_action">समूह बनाने के लिए + आइकन टैप करें, या अपने संपर्कों को अपने साथ समूह साझा करने के लिए कहें</string>
   <string name="groups_created_by">के द्वारा बनाई गई%s</string>
   <plurals name="messages">
     <item quantity="one">संदेशों%d</item>
@@ -211,7 +217,8 @@
   <string name="groups_reveal_visible_revealed_by_contact">संपर्क संबंध समूह को दिखाई देता है (%s द्वारा पता चला है)</string>
   <string name="groups_reveal_invisible">संपर्क संबंध समूह को दिखाई नहीं दे रहा है</string>
   <!--Forums-->
-  <string name="no_forums">कोई फोरम दिखाने के लिए \ n \ n फोरम बनाने के लिए + आइकन टैप करें, या अपने संपर्कों को आपके साथ मंच साझा करने के लिए कहें</string>
+  <string name="no_forums">दिखाने के लिए कोई मंच नहीं</string>
+  <string name="no_forums_action">फोरम बनाने के लिए + आइकन टैप करें, या अपने संपर्कों को अपने साथ मंच साझा करने के लिए कहें</string>
   <string name="create_forum_title">फोरम बनाएँ</string>
   <string name="choose_forum_hint">अपने मंच का नाम चुनें</string>
   <string name="create_forum_button">फोरम बनाएँ</string>
@@ -222,6 +229,8 @@
     <item quantity="one">%dपदों</item>
     <item quantity="other">%dपदों</item>
   </plurals>
+  <string name="forum_new_entry_posted">फोरम पोस्ट प्रकाशित</string>
+  <string name="forum_new_message_hint">नई पोस्ट</string>
   <string name="forum_message_reply_hint">नया उत्तर</string>
   <string name="btn_reply">जवाब दें</string>
   <string name="forum_leave">फोरम छोड़ें</string>
@@ -233,7 +242,8 @@
   <string name="forum_share_button">शेयर फ़ोरम</string>
   <string name="contacts_selected">संपर्क चयनित</string>
   <string name="activity_share_toolbar_header">संपर्क चुनें</string>
-  <string name="no_contacts_selector">कोई संपर्क दिखाने के लिए \ n \ n संपर्क जोड़ने के बाद यहां वापस आएं</string>
+  <string name="no_contacts_selector">दिखाने के लिए कोई संपर्क नहीं है</string>
+  <string name="no_contacts_selector_action">संपर्क जोड़ने के बाद कृपया यहां वापस आएं</string>
   <string name="forum_shared_snackbar">चयनित संपर्कों के साथ फ़ोरम साझा किया गया</string>
   <string name="forum_share_message">एक संदेश जोड़ें (वैकल्पिक)</string>
   <string name="forum_share_error">इस फ़ोरम को साझा करने में कोई त्रुटि थी।</string>
@@ -266,7 +276,8 @@
   <string name="blogs_blog_post_created">ब्लॉग पोस्ट बनाया</string>
   <string name="blogs_blog_post_received">नया ब्लॉग पोस्ट प्राप्त हुआ</string>
   <string name="blogs_blog_post_scroll_to">स्क्रॉल टू</string>
-  <string name="blogs_feed_empty_state">दिखाने के लिए कोई पोस्ट नहीं \ n \ n आपके संपर्कों और ब्लॉगों से पोस्ट की जाने वाली पोस्ट यहां दिखाई देगी \ n \ n एक पोस्ट लिखने के लिए पेन आइकन टैप करें</string>
+  <string name="blogs_feed_empty_state">दिखाने के लिए कोई पोस्ट नहीं</string>
+  <string name="blogs_feed_empty_state_action">आपके संपर्कों और ब्लॉगों की सदस्यता जो आप सदस्यता लेते हैं, यहां दिखाई देंगे \ n \ n एक पोस्ट लिखने के लिए पेन आइकन टैप करें</string>
   <string name="blogs_remove_blog">ब्लॉग निकालें</string>
   <string name="blogs_remove_blog_dialog_message">क्या आप वाकई इस ब्लॉग को हटाना चाहते हैं? \ N \ n पोस्ट आपके डिवाइस से हटा दिए जाएंगे, लेकिन अन्य लोगों के डिवाइस से नहीं। \ N \ n आपके द्वारा इस ब्लॉग को साझा करने वाले किसी भी संपर्क को अपडेट प्राप्त करना बंद हो सकता है।</string>
   <string name="blogs_remove_blog_ok">हटाना</string>
@@ -304,18 +315,51 @@
   <string name="blogs_rss_feeds_manage_empty_state">कोई आरएसएस फ़ीड दिखाने के लिए फ़ीड नहीं करता \ n \ n फ़ीड आयात करने के लिए + आइकन टैप करें</string>
   <string name="blogs_rss_feeds_manage_error">आपकी फ़ीड लोड करने में एक समस्या थी बाद में पुन: प्रयास करें।</string>
   <!--Settings Display-->
+  <string name="pref_language_title">भाषा और amp; क्षेत्र</string>
+  <string name="pref_language_changed">जब आप Briar को पुनरारंभ करते हैं तो यह सेटिंग प्रभावी होगी। कृपया साइन आउट करें और Briar को पुनरारंभ करें।</string>
+  <string name="pref_language_default">प्रणालीगत चूक</string>
+  <string name="display_settings_title">प्रदर्शन</string>
+  <string name="pref_theme_title">विषय</string>
+  <string name="pref_theme_light">रोशनी</string>
+  <string name="pref_theme_dark">अंधेरा</string>
+  <string name="pref_theme_auto">स्वचालित (दिन का समय)</string>
+  <string name="pref_theme_system">प्रणालीगत चूक</string>
   <!--Settings Network-->
   <string name="network_settings_title">नेटवर्क</string>
   <string name="bluetooth_setting">ब्लूटूथ के माध्यम से कनेक्ट करें</string>
   <string name="bluetooth_setting_enabled">जब भी संपर्क आस-पास हो</string>
   <string name="bluetooth_setting_disabled">केवल जब संपर्क जोड़ते हैं</string>
-  <string name="tor_network_setting">टो के माध्यम से कनेक्ट करें</string>
-  <string name="tor_network_setting_never">कभी नहीँ</string>
-  <string name="tor_network_setting_wifi">केवल वाईफ़ाई का उपयोग करते समय</string>
-  <string name="tor_network_setting_always">वाई-फ़ाई या मोबाइल डेटा का उपयोग करते समय</string>
+  <string name="tor_network_setting">इंटरनेट (टोर) के माध्यम से कनेक्ट करें</string>
+  <string name="tor_network_setting_automatic">स्वचालित स्थान पर आधारित</string>
+  <string name="tor_network_setting_without_bridges">पुलों के बिना टोर का प्रयोग करें</string>
+  <string name="tor_network_setting_with_bridges">पुलों के साथ टोर का प्रयोग करें</string>
+  <string name="tor_network_setting_never">कनेक्ट मत करो</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">स्वचालित:%1$s (में %2$s)</string>
+  <string name="tor_mobile_data_title">मोबाइल डेटा का प्रयोग करें</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">सुरक्षा</string>
+  <string name="pref_lock_title">स्क्रीन लॉक</string>
+  <string name="pref_lock_summary">साइन इन करते समय Briar की सुरक्षा के लिए डिवाइस के स्क्रीन लॉक का उपयोग करें</string>
+  <string name="pref_lock_disabled_summary">इस सुविधा का उपयोग करने के लिए, अपने डिवाइस के लिए एक स्क्रीन लॉक सेट करें</string>
+  <string name="pref_lock_timeout_title">स्क्रीन लॉक निष्क्रियता टाइमआउट</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">Briar का उपयोग नहीं करते समय, इसे स्वचालित रूप से बाद में लॉक करें %s</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 मिनट</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 मिनट</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15"> 15 मिनट</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 मिनट</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 घंटा</string>
+  <string name="pref_lock_timeout_never">कभी नहीँ</string>
+  <string name="pref_lock_timeout_never_summary">कभी भी Briar को स्वचालित रूप से लॉक न करें</string>
   <string name="change_password">पासवर्ड बदलें</string>
+  <string name="current_password">वर्तमान पासवर्ड</string>
+  <string name="choose_new_password">नया पासवर्ड</string>
   <string name="confirm_new_password">नए पासवर्ड की पुष्टि करें</string>
   <string name="password_changed">पासवर्ड बदला जा चुका है।</string>
   <string name="panic_setting">आतंक बटन सेटअप</string>
@@ -328,13 +372,15 @@
   <string name="dialog_title_connect_panic_app">आतंक ऐप की पुष्टि करें</string>
   <string name="dialog_message_connect_panic_app">क्या आप निश्चित हैं कि आप%1$s को विनाशकारी आतंक बटन क्रियाओं को ट्रिगर करने की अनुमति देना चाहते हैं?</string>
   <string name="panic_setting_signout_title">साइन आउट</string>
-  <string name="panic_setting_signout_summary">यदि कोई आतंक बटन दबाया जाता है तो बियर से साइन आउट करें</string>
+  <string name="panic_setting_signout_summary">यदि कोई आतंक बटन दबाया जाता है तो Briar  से साइन आउट करें</string>
   <string name="purge_setting_title">खाता हटा दो</string>
-  <string name="purge_setting_summary">यदि आपका आतंक बटन दबाया गया हो तो अपने ब्रियर खाते को हटा दें। सावधानी: यह आपकी पहचान, संपर्क और संदेश को स्थायी रूप से हटा देगा</string>
-  <string name="uninstall_setting_title">बरिअर की स्थापना रद्द करें</string>
+  <string name="purge_setting_summary">यदि आपका आतंक बटन दबाया गया हो तो अपने Briar  खाते को हटा दें। सावधानी: यह आपकी पहचान, संपर्क और संदेश को स्थायी रूप से हटा देगा</string>
+  <string name="uninstall_setting_title">Briar  की स्थापना रद्द करें</string>
   <string name="uninstall_setting_summary">इसके लिए एक आतंक घटना में मैन्युअल पुष्टिकरण की आवश्यकता है</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">सूचनाएं</string>
+  <string name="notify_sign_in_title">मुझे साइन इन करने के लिए याद दिलाएं</string>
+  <string name="notify_sign_in_summary">फ़ोन शुरू होने पर या अनुस्मारक अपडेट होने पर अनुस्मारक दिखाएं</string>
   <string name="notify_private_messages_setting_title">निजी संदेश</string>
   <string name="notify_private_messages_setting_summary">निजी संदेशों के लिए अलर्ट दिखाएं</string>
   <string name="notify_private_messages_setting_summary_26">निजी संदेशों के लिए अलर्ट कॉन्फ़िगर करें</string>
@@ -364,10 +410,10 @@
   <string name="link_warning_text">इसका इस्तेमाल आपको पहचानने के लिए किया जा सकता है इस बारे में सोचें कि क्या आपको उस व्यक्ति पर भरोसा है जिसने आपको यह लिंक भेजा है और इसे ऑर्फ़ॉक्स के साथ खोलने पर विचार किया है।</string>
   <string name="link_warning_open_link">खुली लिंक</string>
   <!--Crash Reporter-->
-  <string name="crash_report_title">ब्रियर क्रैश रिपोर्ट</string>
-  <string name="briar_crashed">क्षमा करें, बियर दुर्घटनाग्रस्त हो गया है।</string>
+  <string name="crash_report_title">Briar  क्रैश रिपोर्ट</string>
+  <string name="briar_crashed">क्षमा करें, Briar  दुर्घटनाग्रस्त हो गया है।</string>
   <string name="not_your_fault">यह आपकी गलती नहीं है</string>
-  <string name="please_send_report">कृपया हमें क्रैश रिपोर्ट भेजकर बेहतर बियर बनाने में हमारी सहायता करें</string>
+  <string name="please_send_report">कृपया हमें क्रैश रिपोर्ट भेजकर बेहतर Briar  बनाने में हमारी सहायता करें</string>
   <string name="report_is_encrypted">हम वादा करते हैं कि रिपोर्ट एन्क्रिप्ट की गई है और सुरक्षित रूप से भेजा गया है।</string>
   <string name="feedback_title">प्रतिक्रिया</string>
   <string name="describe_crash">वर्णन करें कि क्या हुआ (वैकल्पिक)</string>
@@ -378,12 +424,12 @@
   <string name="could_not_load_report_data">रिपोर्ट डेटा लोड नहीं किया जा सका</string>
   <string name="send_report">रिपोर्ट भेजो</string>
   <string name="close">बंद करे</string>
-  <string name="dev_report_saved">रिपोर्ट सहेजी गई अगली बार जब आप ब्रियर में प्रवेश करेंगे तो उसे भेजा जाएगा।</string>
+  <string name="dev_report_saved">रिपोर्ट सहेजी गई अगली बार जब आप Briar  में प्रवेश करेंगे तो उसे भेजा जाएगा।</string>
   <!--Sign Out-->
-  <string name="progress_title_logout">ब्रियर से साइन आउट हो रहा है ...</string>
+  <string name="progress_title_logout">Briar  से साइन आउट हो रहा है ...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">स्क्रीन ओवरले का पता लगाया</string>
-  <string name="screen_filter_body">एक और ऐप ब्रियर के शीर्ष पर है। आपकी सुरक्षा की रक्षा के लिए, ब्रियर स्पर्श करने का जवाब नहीं देगा, जब किसी अन्य ऐप को शीर्ष पर आ रही है। \ N \ n निम्न एप्लिकेशन शीर्ष पर ड्राइंग कर सकते हैं: \ n \ n%1$s</string>
+  <string name="screen_filter_body">एक और ऐप Briar  के शीर्ष पर है। आपकी सुरक्षा की रक्षा के लिए, Briar  स्पर्श करने का जवाब नहीं देगा, जब किसी अन्य ऐप को शीर्ष पर आ रही है। \ N \ n निम्न एप्लिकेशन शीर्ष पर ड्राइंग कर सकते हैं: \ n \ n%1$s</string>
   <string name="screen_filter_allow">इन ऐप्स को शीर्ष पर आकर्षित करने की अनुमति दें</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">कैमरा अनुमति</string>
@@ -392,4 +438,9 @@
   <string name="permission_camera_denied_toast">कैमरा अनुमति नहीं दी गई थी</string>
   <string name="qr_code">क्यूआर कोड</string>
   <string name="show_qr_code_fullscreen">क्यूआर कोड पूर्णस्क्रीन दिखाएं</string>
+  <!--App Locking-->
+  <string name="lock_unlock">Briar अनलॉक करें</string>
+  <string name="lock_unlock_verbose">Briar अनलॉक करने के लिए अपना डिवाइस पिन, पैटर्न या पासवर्ड दर्ज करें</string>
+  <string name="lock_is_locked">Briar लॉक है</string>
+  <string name="lock_tap_to_unlock">अनलॉक करने के लिए टैप करें</string>
 </resources>

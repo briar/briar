@@ -56,6 +56,8 @@
   <string name="groups_button">Grupuri private</string>
   <string name="forums_button">Forumuri</string>
   <string name="blogs_button">Blog-uri</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Blochează aplicația</string>
   <string name="settings_button">Setări</string>
   <string name="sign_out_button">Ieșire</string>
   <!--Transports-->
@@ -113,7 +115,8 @@
   <string name="help">Ajutor</string>
   <string name="sorry">Ne pare rău</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Nici un contact de arătat\n\nAtingeți iconița + pentru a adăuga un contact</string>
+  <string name="no_contacts">Nici un contact de arătat</string>
+  <string name="no_contacts_action">Atingeți iconița + pentru a adăuga un contact</string>
   <string name="date_no_private_messages">Fără mesaje.</string>
   <string name="no_private_messages">Nici un mesaj de arătat</string>
   <string name="message_hint">Scrieți mesajul</string>
@@ -125,20 +128,19 @@
   <string name="add_contact_title">Adaugă un contact</string>
   <string name="face_to_face">Trebuie să vă întâlniți cu persoana pe care doriți să o adăugați la contacte.\n\nAcest pas împiedică alte persoane să vă fure identitatea sau să vă citească mesajele în viitor.</string>
   <string name="continue_button">Continuă</string>
-  <string name="connection_failed">Conexiune eșuată</string>
   <string name="try_again_button">Încearcă din nou</string>
   <string name="waiting_for_contact_to_scan">Se așteaptă scanarea și conectarea contactului\u2026</string>
   <string name="exchanging_contact_details">Se face schimbul de date de contact\u2026</string>
   <string name="contact_added_toast">Contact adăugat: %s</string>
   <string name="contact_already_exists">Contactul %s există deja</string>
-  <string name="contact_exchange_failed">Schimbul de date de contactului a eșuat</string>
   <string name="qr_code_invalid">Codul QR este invalid!</string>
   <string name="qr_code_unsupported">Codul QR pe care încercați să îl scanați aparține unei versiuni vechi %s care nu mai este acceptată.\n\nVă rugăm să vă asigurați că amândoi executați cea mai recentă versiune și încercați din nou.</string>
   <string name="camera_error">Eroare la camera foto</string>
   <string name="connecting_to_device">Conectare la dispozitiv\u2026</string>
   <string name="authenticating_with_device">Autentificare cu dispozitivul\u2026</string>
-  <string name="connection_aborted_local">Conexiune întreruptă! Aceasta poate însemna că cineva încearcă să interfereze conexiunea dumneavoastră</string>
-  <string name="connection_aborted_remote">Conexiune întreruptă de către contactul dumneavoastră! Aceasta poate însemna că cineva încearcă să interfereze conexiunea dumneavoastră</string>
+  <string name="connection_error_title">Nu s-a putut face conexiunea la contactul dumneavoastră</string>
+  <string name="connection_error_explanation">Verificați să fiți conectați la aceeași rețea Wi-Fi.</string>
+  <string name="connection_error_feedback">Dacă problema persistă, vă rugăm să <a href="feedback">trimiteți feedback</a> pentru a ne ajuta să îmbunătățim aplicația.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Recomandați-vă contactele</string>
   <string name="introduction_onboarding_text">Puteți să vă recomandați contactele unele altora, încât sa nu fie nevoie ca să se vadă față în față pentru a se putea conecta la Briar.</string>
@@ -167,7 +169,8 @@
     <item quantity="other">%d de contacte noi adăugate.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Nici un grup de arătat\n\nAtingeți iconița + pentru a crea un grup sau rugați-vă contactele să partajele grupuri cu dumneavoastră</string>
+  <string name="groups_list_empty">Nici un grup de arătat</string>
+  <string name="groups_list_empty_action">Atingeți iconița + pentru a crea un grup sau rugați-vă contactele să partajele grupuri cu dumneavoastră</string>
   <string name="groups_created_by">Creat de %s</string>
   <plurals name="messages">
     <item quantity="one">%d mesaj</item>
@@ -222,8 +225,8 @@
   <string name="groups_reveal_visible_revealed_by_contact">Lista de contacte este vizibilă grupului (dezvăluită de %s)</string>
   <string name="groups_reveal_invisible">Lista de contacte nu este vizibilă grupului</string>
   <!--Forums-->
-  <string name="no_forums">Nici un forum de arătat\n\nAtingeți iconița + pentru a crea un forum sau
- rugați-vă contactele să partajele forumuri cu dumneavoastră</string>
+  <string name="no_forums">Nici un forum de arătat</string>
+  <string name="no_forums_action">Atingeți iconița + pentru a crea un forum sau rugați-vă contactele să partajele forumuri cu dumneavoastră</string>
   <string name="create_forum_title">Creează forum</string>
   <string name="choose_forum_hint">Alegeți un nume pentru forumul dumneavoastră</string>
   <string name="create_forum_button">Creează forum</string>
@@ -248,7 +251,8 @@
   <string name="forum_share_button">Partajează forum</string>
   <string name="contacts_selected">Contacte selectate</string>
   <string name="activity_share_toolbar_header">Alegeți contactele</string>
-  <string name="no_contacts_selector">Nici un contact de arătat\n\nReveniți după ce ați adăugat un contact</string>
+  <string name="no_contacts_selector">Nici un contact de arătat</string>
+  <string name="no_contacts_selector_action">Reveniți aici după ce ați adăugat un contact</string>
   <string name="forum_shared_snackbar">Forum partajat cu contactele alese</string>
   <string name="forum_share_message">Adaugă un mesaj (opțional)</string>
   <string name="forum_share_error">A apărut o eroare la partajarea acestui forum.</string>
@@ -282,7 +286,8 @@
   <string name="blogs_blog_post_created">Mesaj pe blog creat</string>
   <string name="blogs_blog_post_received">O nou mesaj pe blog s-a primit</string>
   <string name="blogs_blog_post_scroll_to">Derulează la</string>
-  <string name="blogs_feed_empty_state">Nici un mesaj de arătat\n\nMesajele de la contactele dumneavoastră și de pe blog-urile la care sunteți abonați vor apărea aici\n\nAtingeți iconița cu creion pentru a scrie un mesaj</string>
+  <string name="blogs_feed_empty_state">Nici un mesaj de arătat</string>
+  <string name="blogs_feed_empty_state_action">Mesajele de la contactele dumneavoastră și de pe blog-urile la care sunteți abonați vor apărea aici\n\nAtingeți iconița cu creion pentru a scrie un mesaj</string>
   <string name="blogs_remove_blog">Elimină blog</string>
   <string name="blogs_remove_blog_dialog_message">Sunteți sigur că doriți să eliminați acest blog?\n\nPosturile vor fi eliminate de pe dispozitiv, dar nu și de dispozitivele altor persoane.\n\nOrice persoane de contact cu care ați partajat acest blog ar putea să nu mai primească actualizări.</string>
   <string name="blogs_remove_blog_ok">Eliminare</string>
@@ -334,12 +339,34 @@
   <string name="bluetooth_setting">Conectare prin Bluetooth</string>
   <string name="bluetooth_setting_enabled">Atunci când contactele vă sunt în apropiere</string>
   <string name="bluetooth_setting_disabled">Doar la adăugarea contactelor</string>
-  <string name="tor_network_setting">Conectare prin rețeaua Tor</string>
-  <string name="tor_network_setting_never">Niciodată</string>
-  <string name="tor_network_setting_wifi">Doar când se folosește Wi-Fi</string>
-  <string name="tor_network_setting_always">Când se folosește Wi-Fi sau date mobile</string>
+  <string name="tor_network_setting">Conectare prin Internet (rețeaua Tor)</string>
+  <string name="tor_network_setting_automatic">Automat în funcție de locație</string>
+  <string name="tor_network_setting_without_bridges">Folosește rețeaua Tor fără conexiuni bridge</string>
+  <string name="tor_network_setting_with_bridges">Folosește rețeaua Tor cu conexiuni bridge</string>
+  <string name="tor_network_setting_never">Nu conecta</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">Automat: %1$s (în %2$s)</string>
+  <string name="tor_mobile_data_title">Utilizează date mobile</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Securitate</string>
+  <string name="pref_lock_title">Blocare ecran</string>
+  <string name="pref_lock_summary">Folosește blocarea ecranului dispozitivului pentru a proteja Briar atunci cand sunteți autentificați</string>
+  <string name="pref_lock_disabled_summary">Pentru a utiliza această caracteristică, setați blocarea ecranului dispozitivului dumneavoastră</string>
+  <string name="pref_lock_timeout_title">Perioada de inactivitate înainte de blocarea ecranului</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">Când Briar nu este folosit, va fi blocat automat după %s</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 minut</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 minute</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">15 minute</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 minute</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 oră</string>
+  <string name="pref_lock_timeout_never">Niciodată</string>
+  <string name="pref_lock_timeout_never_summary">Nu bloca Briar automat niciodată</string>
   <string name="change_password">Schimbă parola</string>
   <string name="current_password">Parolă curentă</string>
   <string name="choose_new_password">Parola nouă</string>
@@ -421,4 +448,9 @@
   <string name="permission_camera_denied_toast">Permisiunea de acces la camera foto nu a fost acordată</string>
   <string name="qr_code">Cod QR</string>
   <string name="show_qr_code_fullscreen">Arată codul QR pe tot ecranul</string>
+  <!--App Locking-->
+  <string name="lock_unlock">Deblocare Briar</string>
+  <string name="lock_unlock_verbose">Introduceți PIN, model sau parolă pentru a debloca Briar</string>
+  <string name="lock_is_locked">Briar este blocat</string>
+  <string name="lock_tap_to_unlock">Atingeți pentru a debloca</string>
 </resources>

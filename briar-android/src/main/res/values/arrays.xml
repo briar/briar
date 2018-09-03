@@ -25,6 +25,7 @@
 	<string-array name="pref_language_values">
 		<item>default</item>
 		<item>en-US</item>
+		<item>ar</item>
 		<item>ast</item>
 		<item>bg</item>
 		<item>br</item>

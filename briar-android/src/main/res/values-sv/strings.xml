@@ -40,6 +40,7 @@
   <string name="groups_button">Privatgrupper</string>
   <string name="forums_button">Forum</string>
   <string name="blogs_button">Bloggar</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
   <string name="settings_button">Inställningar</string>
   <string name="sign_out_button">Logga ut</string>
   <!--Transports-->
@@ -79,7 +80,6 @@
   <!--Adding Contacts-->
   <string name="add_contact_title">Lägg till en kontakt</string>
   <string name="continue_button">Fortsätt</string>
-  <string name="connection_failed">Anslutning misslyckats</string>
   <string name="try_again_button">Försök igen</string>
   <!--Introductions-->
   <string name="introduction_onboarding_text">Du kan presentera dina kontakter för varandra, på så sätt behöver de inte ses i verkligheten för att kunna lägga till varandra på Briar.</string>
@@ -121,10 +121,17 @@
   <!--Settings Network-->
   <string name="network_settings_title">Nätverk</string>
   <string name="bluetooth_setting">Anslut via Bluetooth</string>
-  <string name="tor_network_setting">Anslut via Tor</string>
-  <string name="tor_network_setting_never">Aldrig</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Säkerhet</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 timme</string>
+  <string name="pref_lock_timeout_never">Aldrig</string>
   <string name="change_password">Ändra lösenord</string>
   <string name="choose_new_password">Nytt lösenord</string>
   <string name="confirm_new_password">Bekräfta nytt lösenord</string>
@@ -155,4 +162,5 @@
   <!--Sign Out-->
   <!--Screen Filters & Tapjacking-->
   <!--Permission Requests-->
+  <!--App Locking-->
 </resources>

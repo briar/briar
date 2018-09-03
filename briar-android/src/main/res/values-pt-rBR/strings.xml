@@ -55,6 +55,8 @@
   <string name="groups_button">Grupos Privados</string>
   <string name="forums_button">Fóruns</string>
   <string name="blogs_button">Blogs</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Bloquear Aplicativo</string>
   <string name="settings_button">Configurações</string>
   <string name="sign_out_button">Sair</string>
   <!--Transports-->
@@ -105,7 +107,6 @@
   <string name="help">Ajuda</string>
   <string name="sorry">Sentimos muito</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Nenhum contato para serexibido\n\nPressione o ícone + para adicionar um novo contato</string>
   <string name="date_no_private_messages">Sem Mensagens</string>
   <string name="no_private_messages">Nenhuma mensagem para ser exibida</string>
   <string name="message_hint">Digite a mensagem</string>
@@ -117,20 +118,16 @@
   <string name="add_contact_title">Adicionar um contato</string>
   <string name="face_to_face">Você deve estar frente-a-frente com a pessoa que deseja adicionar como contato.\n\nIsso evita que alguém se passe por você ou leia suas mensagens no futuro.</string>
   <string name="continue_button">Continuar</string>
-  <string name="connection_failed">Conexão incompleta</string>
   <string name="try_again_button">Tente novamente</string>
   <string name="waiting_for_contact_to_scan">Esperando pelo contato escanear e conectar\u2026</string>
   <string name="exchanging_contact_details">Transferindo detalhes do contato\u2026</string>
   <string name="contact_added_toast">Contato adicionado: %s</string>
   <string name="contact_already_exists">Contato %s já existe</string>
-  <string name="contact_exchange_failed">Troca de contatos falhou</string>
   <string name="qr_code_invalid">O código QR é inválido</string>
   <string name="qr_code_unsupported">O código QR que você está tentando escanear é de uma versão antiga do %s, que não é mais suportada.\n\nPor favor, verifique que você e a outra pessoa está usando a versão mais recente e tentem de novo.</string>
   <string name="camera_error">Erro da câmera</string>
   <string name="connecting_to_device">Conectando a device\u2026</string>
   <string name="authenticating_with_device">Autenticando com o dispositivo\u2026</string>
-  <string name="connection_aborted_local">Conexão abortada! Isso pode significar que alguém está tentando interferir na sua conexão.</string>
-  <string name="connection_aborted_remote">Conexão interrompida pelo seu contato! Isto pode significar que algúem está tentando interferir em sua conexão</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Apresente seus contatos</string>
   <string name="introduction_onboarding_text">Você pode apresentar seus contatos entre si, assim eles não precisam se encontrar pessoalmente para se comunicar no Briar.</string>
@@ -156,7 +153,6 @@
     <item quantity="other">%d novos contatos adicionados.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Nenhum grupo para ser exibido\n\nPressione o ícone + para criar um novo grupo ou peça para seus contatos compartilharem grupos com você.</string>
   <string name="groups_created_by">Criado por %s.</string>
   <plurals name="messages">
     <item quantity="one">%d mensagem</item>
@@ -209,7 +205,6 @@
   <string name="groups_reveal_visible_revealed_by_contact">Relação de contatos está visível para o Grupo (revelado por %s)</string>
   <string name="groups_reveal_invisible">Relação de contatos não visível para o Grupo </string>
   <!--Forums-->
-  <string name="no_forums">Nenhum fórum para ser exibido\n\nPressione o ícone + para criar um fórum ou peça para seus contatos compartilharem fóruns com você.</string>
   <string name="create_forum_title">Criar Fórum</string>
   <string name="choose_forum_hint">Escolha um nome para o seu fórum</string>
   <string name="create_forum_button">Criar fórum</string>
@@ -232,7 +227,6 @@
   <string name="forum_share_button">Compartilhar fórum</string>
   <string name="contacts_selected">Contatos Selecionados</string>
   <string name="activity_share_toolbar_header">Escolher contatos</string>
-  <string name="no_contacts_selector">Nenhum contato para ser exibido\n\nVolte aqui depois de ter adicionado um contato</string>
   <string name="forum_shared_snackbar">Fòrum compartilhado com os contatos escolhidos</string>
   <string name="forum_share_message">Adicionar uma mensagem (opcional)</string>
   <string name="forum_share_error">Houve um erro em compartilhar esse fórum.</string>
@@ -265,7 +259,7 @@
   <string name="blogs_blog_post_created">Post do Blog criado</string>
   <string name="blogs_blog_post_received">Novo Post de Blog recebido</string>
   <string name="blogs_blog_post_scroll_to">Role Para</string>
-  <string name="blogs_feed_empty_state">Nenhum post para ser exibido\n\nPosts dos seus contatos e blogs que você está inscrita apareceção aqui\n\nPressione o ícone da caneta para escrever um post</string>
+  <string name="blogs_feed_empty_state">Nenhum post para ser exibido</string>
   <string name="blogs_remove_blog">Remover Blog</string>
   <string name="blogs_remove_blog_dialog_message">Você tem certeza que quer remover este blog?\n\nOs posts serão removidos do seu dispositivo mas não dos dispositivos das outras pessoas.\n\nContatos com quem você tenha compartilhado este blog devem parar de receber atualizações dele.</string>
   <string name="blogs_remove_blog_ok">Remover</string>
@@ -313,12 +307,18 @@
   <string name="bluetooth_setting">Conectar via Bluetooth</string>
   <string name="bluetooth_setting_enabled">Sempre que estiver perto de contatos</string>
   <string name="bluetooth_setting_disabled">Somente quando adicionando contatos</string>
-  <string name="tor_network_setting">Conectar via Tor</string>
-  <string name="tor_network_setting_never">Nunca</string>
-  <string name="tor_network_setting_wifi">Apenas ao usar Wi-Fi</string>
-  <string name="tor_network_setting_always">Quando usar Wi-Fi ou dados móveis</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Segurança</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 minutos</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 hora</string>
+  <string name="pref_lock_timeout_never">Nunca</string>
   <string name="change_password">Mudar Senha</string>
   <string name="choose_new_password">Nova senha</string>
   <string name="confirm_new_password">Confirmar nova senha</string>
@@ -397,4 +397,5 @@
   <string name="permission_camera_denied_toast">A permissão da câmera não foi concedida</string>
   <string name="qr_code">Código QR</string>
   <string name="show_qr_code_fullscreen">Mostrar o código QR na tela cheia</string>
+  <!--App Locking-->
 </resources>

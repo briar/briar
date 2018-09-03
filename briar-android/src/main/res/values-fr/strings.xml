@@ -55,6 +55,8 @@
   <string name="groups_button">Groupes privés</string>
   <string name="forums_button">Forums</string>
   <string name="blogs_button">Blogues</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Verrouiller l’appli</string>
   <string name="settings_button">Paramètres</string>
   <string name="sign_out_button">Déconnexion</string>
   <!--Transports-->
@@ -108,7 +110,8 @@
   <string name="help">Aide</string>
   <string name="sorry">Désolé</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Aucun contact à afficher\n\nTouchez l’icône + pour ajouter un contact</string>
+  <string name="no_contacts">Aucun contact à afficher</string>
+  <string name="no_contacts_action">Touchez l’icône + pour ajouter un contact</string>
   <string name="date_no_private_messages">Aucun message.</string>
   <string name="no_private_messages">Aucun message à afficher</string>
   <string name="message_hint">Rédiger le message</string>
@@ -120,20 +123,19 @@
   <string name="add_contact_title">Ajouter un contact</string>
   <string name="face_to_face">Vous devez rencontrer la personne que vous voulez ajouter comme contact, afin d’éviter que quelqu’un se fasse passer pour vous et puisse lire vos messages à l’avenir.</string>
   <string name="continue_button">Continuer</string>
-  <string name="connection_failed">Échec de connexion</string>
   <string name="try_again_button">Ressayer</string>
   <string name="waiting_for_contact_to_scan">En attente de lecture du code QR par le contact et de sa connexion\u2026</string>
   <string name="exchanging_contact_details">Échange des renseignements de contact\u2026</string>
   <string name="contact_added_toast">Contact ajouté : %s</string>
   <string name="contact_already_exists">Le contact %s existe déjà</string>
-  <string name="contact_exchange_failed">Échec d’échange de contacts</string>
   <string name="qr_code_invalid">Le code QR est invalide</string>
   <string name="qr_code_unsupported">Le code QR que vous tentez de lire appartient à une ancienne version de %s qui n’est plus prise en charge.\n\nVeuillez vous assurer d’utiliser tous les deux la dernière version et ressayer.</string>
   <string name="camera_error">Erreur de la caméra</string>
   <string name="connecting_to_device">Connexion à l’appareil\u2026</string>
   <string name="authenticating_with_device">Autentification avec l’appareil\u2026</string>
-  <string name="connection_aborted_local">La connexion a été interrompue ! Cela pourrait signifier que quelqu’un tente d’interférer avec votre connexion.</string>
-  <string name="connection_aborted_remote">Votre contact a interrompu la connexion ! Cela pourrait signer que quelqu’un tente d’interférer avec votre connexion</string>
+  <string name="connection_error_title">Impossible de se connecter à votre contact</string>
+  <string name="connection_error_explanation">Veuillez vérifier que vous êtes connecté au même réseau Wi-Fi.</string>
+  <string name="connection_error_feedback">Si le problème persiste, veuillez nous <a href="feedback">envoyer une rétroaction</a> pour nous aider à améliorer l\'appli.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Présenter vos contacts</string>
   <string name="introduction_onboarding_text">Vous pouvez présenter vos contacts mutuellement, afin qu’ils n’aient pas à se rencontrer en personne pour se connecter les uns aux autres avec Briar.</string>
@@ -161,7 +163,8 @@
     <item quantity="other">%d nouveaux contacts ont été ajoutés.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Aucun groupe à afficher\n\nTouchez l’icône + pour créer un groupe ou demandez à vos contacts de partager des groupes avec vous</string>
+  <string name="groups_list_empty">Aucun groupe à afficher</string>
+  <string name="groups_list_empty_action">Touchez l’icône + pour créer un groupe ou pour demander à vos contacts de partager des groupes avec vous</string>
   <string name="groups_created_by">Créé par %s</string>
   <plurals name="messages">
     <item quantity="one">%d message</item>
@@ -214,7 +217,8 @@
   <string name="groups_reveal_visible_revealed_by_contact">Votre lien avec le contact est visible par le groupe (dévoilé par %s)</string>
   <string name="groups_reveal_invisible">Votre lien avec le contact n’est pas visible par le groupe</string>
   <!--Forums-->
-  <string name="no_forums">Aucun forum à afficher\n\nTouchez l’icône + pour créer un forum ou demandez à vos contacts de partager des forums avec vous</string>
+  <string name="no_forums">Aucun forum à afficher</string>
+  <string name="no_forums_action">Touchez l’icône + pour créer un forum ou pour demander à vos contacts de partager des forums avec vous</string>
   <string name="create_forum_title">Créer un forum</string>
   <string name="choose_forum_hint">Choisir un nom pour votre forum </string>
   <string name="create_forum_button">Créer un forum</string>
@@ -238,7 +242,8 @@
   <string name="forum_share_button">Partager le forum</string>
   <string name="contacts_selected">Des contacts ont été sélectionnés</string>
   <string name="activity_share_toolbar_header">Choisir des contacts</string>
-  <string name="no_contacts_selector">Aucun contact à afficher.\n\nVeuillez revenir ici après avoir ajouté un contact</string>
+  <string name="no_contacts_selector">Aucun contact à afficher</string>
+  <string name="no_contacts_selector_action">Veuillez revenir ici après avoir ajouter un contact</string>
   <string name="forum_shared_snackbar">Le forum a été partagé avec les contacts choisis</string>
   <string name="forum_share_message">Ajouter un message (facultatif)</string>
   <string name="forum_share_error">Une erreur est survenue lors du partage de ce forum.</string>
@@ -271,7 +276,8 @@
   <string name="blogs_blog_post_created">Le billet de blogue a été créé</string>
   <string name="blogs_blog_post_received">Un nouvel billet de blogue a été reçu</string>
   <string name="blogs_blog_post_scroll_to">Atteindre</string>
-  <string name="blogs_feed_empty_state">Aucun billet à afficher.\n\n\Les billets de vos contacts et les blogues auxquels vous vous abonnez apparaîtront ici.\n\nTouchez l’icône de crayon pour rédiger un billet</string>
+  <string name="blogs_feed_empty_state">Aucun billet à afficher</string>
+  <string name="blogs_feed_empty_state_action">Les billets de vos contacts et les blogues auxquels vous vous abonnez apparaîtront ici.\n\nTouchez l’icône de crayon pour rédiger un billet</string>
   <string name="blogs_remove_blog">Supprimer le blogue</string>
   <string name="blogs_remove_blog_dialog_message">Voulez-vous vraiment supprimer ce blogue ?\nLes billets seront supprimés de votre appareil mais pas des appareils d’autrui.\n\nLes contacts avec qui vous avez partagé ce blogue pourraient ne plus en recevoir les mises à jour.</string>
   <string name="blogs_remove_blog_ok">Supprimer</string>
@@ -323,12 +329,34 @@
   <string name="bluetooth_setting">Se connecter par Bluetooth</string>
   <string name="bluetooth_setting_enabled">Lorsque des contacts sont à proximité</string>
   <string name="bluetooth_setting_disabled">Uniquement lors de l’ajout de contacts</string>
-  <string name="tor_network_setting">Se connecter avec Tor</string>
-  <string name="tor_network_setting_never">Jamais</string>
-  <string name="tor_network_setting_wifi">Seulement par Wi-Fi</string>
-  <string name="tor_network_setting_always">En utilisant le Wi-Fi ou le service mobile de données</string>
+  <string name="tor_network_setting">Se connecter par Internet (Tor)</string>
+  <string name="tor_network_setting_automatic">Automatique d’après la position</string>
+  <string name="tor_network_setting_without_bridges">Utiliser Tor sans ponts</string>
+  <string name="tor_network_setting_with_bridges">Utiliser Tor avec des ponts</string>
+  <string name="tor_network_setting_never">Ne pas se connecter</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">Automatique : %1$s (en %2$s)</string>
+  <string name="tor_mobile_data_title">Utiliser les données cellulaires</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sécurité</string>
+  <string name="pref_lock_title">Verrouillage de l’écran</string>
+  <string name="pref_lock_summary">Utiliser le verrouillage de l’écran de l’appareil pour protéger Briar une fois connecté</string>
+  <string name="pref_lock_disabled_summary">Pour utiliser cette fonction, configurez le verrouillage de l’écran sur votre appareil</string>
+  <string name="pref_lock_timeout_title">Délai d’inactivité avant verrouillage de l’écran</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">Si Briar n’est pas utilisée, verrouiller automatiquement après %s</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 minute</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 minutes</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">15 minutes</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 minutes</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 heure</string>
+  <string name="pref_lock_timeout_never">Jamais</string>
+  <string name="pref_lock_timeout_never_summary">Ne jamais verrouiller Briar automatiquement</string>
   <string name="change_password">Changer le mot de passe</string>
   <string name="current_password">Mot de passe actuel</string>
   <string name="choose_new_password">Nouveau mot de passe</string>
@@ -344,7 +372,7 @@
   <string name="dialog_title_connect_panic_app">Confirmer l’application d’urgence</string>
   <string name="dialog_message_connect_panic_app">Voulez-vous vraiment autoriser %1$s à déclencher les actions destructrices du bouton d’urgence ?</string>
   <string name="panic_setting_signout_title">Déconnexion</string>
-  <string name="panic_setting_signout_summary">Se déconnecter de Briar lorsqu’on appuie sur un bouton d’urgence</string>
+  <string name="panic_setting_signout_summary">Se déconnecter de Briar si l’on appuie sur un bouton d’urgence</string>
   <string name="purge_setting_title">Supprimer le compte</string>
   <string name="purge_setting_summary">Supprimer votre compte Briar lorsqu’on appuie sur un bouton d’urgence. Attention : cela supprimera définitivement vos identités, contacts et messages</string>
   <string name="uninstall_setting_title">Désinstaller Briar</string>
@@ -410,4 +438,9 @@
   <string name="permission_camera_denied_toast">L’accès à la caméra n’a pas été accordé</string>
   <string name="qr_code">Code QR</string>
   <string name="show_qr_code_fullscreen">Afficher le code QR en plein écran</string>
+  <!--App Locking-->
+  <string name="lock_unlock">Déverrouiller Briar</string>
+  <string name="lock_unlock_verbose">Saisissez le NIP, le schéma ou le mot de passe de votre appareil pour déverrouiller Briar</string>
+  <string name="lock_is_locked">Briar est verrouillée</string>
+  <string name="lock_tap_to_unlock">Toucher pour déverrouiller</string>
 </resources>

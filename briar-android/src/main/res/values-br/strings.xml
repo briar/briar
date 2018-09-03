@@ -28,6 +28,8 @@
   <string name="groups_button">Strolladoù prevez</string>
   <string name="forums_button">Foromoù</string>
   <string name="blogs_button">Blogoù</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Prennañ an arload</string>
   <string name="settings_button">Arventennoù</string>
   <string name="sign_out_button">Digevreañ</string>
   <!--Transports-->
@@ -95,7 +97,6 @@
   <!--Adding Contacts-->
   <string name="add_contact_title">Ouzhpennañ un darempred</string>
   <string name="continue_button">Kenderc\'hel</string>
-  <string name="connection_failed">Kevereadenn c\'hwitet</string>
   <string name="try_again_button">Klask adarre</string>
   <string name="contact_added_toast">Darempred ouzhpennet: %s</string>
   <string name="contact_already_exists">An darempred %s a zo anezhañ endeo</string>
@@ -159,8 +160,17 @@
   <string name="blogs_rss_remove_feed_ok">Dilemel</string>
   <!--Settings Display-->
   <!--Settings Network-->
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Surentezh</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 munutenn</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 eurvezh</string>
   <string name="change_password">Cheñch ar ger-tremen</string>
   <string name="confirm_new_password">Kadarnaat ar ger-tremen nevez</string>
   <string name="panic_app_setting_none">Hini ebet</string>
@@ -174,4 +184,5 @@
   <!--Sign Out-->
   <!--Screen Filters & Tapjacking-->
   <!--Permission Requests-->
+  <!--App Locking-->
 </resources>

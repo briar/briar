@@ -27,6 +27,7 @@
   <string name="groups_button">Privatne Grupe</string>
   <string name="forums_button">Forumi</string>
   <string name="blogs_button">Blogovi</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
   <string name="settings_button">Podešavanja</string>
   <string name="sign_out_button">Odjava</string>
   <!--Transports-->
@@ -68,17 +69,14 @@
   <string name="add_contact_title">Dodaj kontakt</string>
   <string name="face_to_face">Morate se sresti sa osobom koju želite da dodate kao kontakt.\n\nOvo će spriječiti bilo koga da se predstavi kao vi ili da ubuduće čita poruke.</string>
   <string name="continue_button">Dalje</string>
-  <string name="connection_failed">Veza je pukla</string>
   <string name="try_again_button">Probajte opet</string>
   <string name="waiting_for_contact_to_scan">Čekam da kontakt skenira i poveže se\u2026</string>
   <string name="exchanging_contact_details">Razmjenjujem detalje kontakta\u2026</string>
   <string name="contact_added_toast">Kontakt dodat: %s</string>
   <string name="contact_already_exists">Kontakt %s već postoji</string>
-  <string name="contact_exchange_failed">Razmjena kontakata nije uspjela</string>
   <string name="qr_code_invalid">QR kod nije validan</string>
   <string name="connecting_to_device">Povezujem se sa uređajem\u2026</string>
   <string name="authenticating_with_device">Autentikacija sa uređajem\u2026</string>
-  <string name="connection_aborted_remote">Konekcija prekinuta sa od strane kontakta! Ovo može značiti da neko pokušava da se umiješa u vašu vezu</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Upoznajte vaše kontakte</string>
   <string name="introduction_onboarding_text">Vi možete da upoznate vaše kontakte međusobno, da nebi morali da srijeću lice u liceda bi se povezali na Briar.</string>
@@ -220,12 +218,17 @@
   <string name="bluetooth_setting">Povežite se preko Bluetooth-a</string>
   <string name="bluetooth_setting_enabled">Kad god su kontakti blizu</string>
   <string name="bluetooth_setting_disabled">Samo pri dodavanju kontakata</string>
-  <string name="tor_network_setting">Povežite se preko Tor-a</string>
-  <string name="tor_network_setting_never">Nikad</string>
-  <string name="tor_network_setting_wifi">Samo kad koristim Wi-Fi</string>
-  <string name="tor_network_setting_always">Kad koristim Wi-Fi ili mobile data</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sigurnost</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 сат</string>
+  <string name="pref_lock_timeout_never">Nikad</string>
   <string name="change_password">Promijeni sifru</string>
   <string name="password_changed">Šifra je promijenjena</string>
   <string name="panic_setting">Podešavanje panik dugmeta</string>
@@ -289,4 +292,5 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Detektovano je prekrivanje ekrana</string>
   <!--Permission Requests-->
+  <!--App Locking-->
 </resources>

@@ -5,6 +5,10 @@
   <string name="setup_name_explanation">Vòstre escais-nom serà mostrat al costat de cada de vòstra publicacion. Poiretz pas lo cambiar aprèp la creacion del compte.</string>
   <string name="setup_next">Seguent</string>
   <string name="setup_password_intro">Causissètz un senhal</string>
+  <string name="setup_password_explanation">Lo compte Briar es gardat d’un biais chifrat dins vòstre periferic, non pas sul cloud. S’oblidetz vòstre senhal o desinstalletz Briar, i a pas cap de manièra per recuperar vòstre compte.\n\nCausissètz un long senhal qu’es pas aisit de trobar, tal coma quatre mots a l’asard, o dètz letras, nombres e simbòls aleatòris.</string>
+  <string name="setup_doze_title">Connexions de rèireplan</string>
+  <string name="setup_doze_intro">Per recebre los messatges, cal que Bria demòre connectat en rèireplan.</string>
+  <string name="setup_doze_explanation">Per recebre los messatge, cal que Briar demòre connectat en rèireplan. Mercés de desactivar l’optimizacion de la batariá perque Bria demòre connectat.</string>
   <string name="setup_doze_button">Autorizar las connexions</string>
   <string name="choose_nickname">Causir un escais-nom</string>
   <string name="choose_password">Causir un senhal</string>
@@ -15,6 +19,7 @@
   <string name="create_account_button">Crear un compte</string>
   <string name="more_info">Mai d’informacions</string>
   <string name="don_t_ask_again">Demandar pas mai</string>
+  <string name="setup_huawei_text">Mercé de tocar lo boton çai-jos per vos assegurar que Briar es protegit dins l’ecran « Aplicacions protegidas ».</string>
   <string name="setup_huawei_button">Projècte Briar</string>
   <string name="setup_huawei_help">Se Briar es pas ajustat a la lista de las aplicacion protegidas poirà pas s’executar en rèire plan.</string>
   <string name="warning_dozed">%s a pas pogut s’executar en rèire plan</string>
@@ -24,14 +29,21 @@
   <string name="sign_in_button">Se connectar</string>
   <string name="forgotten_password">Senhal oblidat</string>
   <string name="dialog_title_lost_password">Senhal oblidat</string>
-  <string name="dialog_message_lost_password">Vòstre compte Briar es salvat e chifrat sus vòstre aparelh, non pas sus un servidor alonhat \"cloud\". De efècte podèm pas reïnicializar vòstre senhal.
+  <string name="dialog_message_lost_password">Vòstre compte Briar es salvat e chifrat sus vòstre aparelh, non pas sus un servidor alonhat «cloud». En fach podèm pas reïnicializar vòstre senhal.
 Volètz suprimir vòstre compte e ne crear un nòu ?\n
 \nMèfi : vòstra identitat, vòstres contactes e messatges seràn perduts per totjorn.</string>
   <string name="startup_failed_notification_title">Briar a pas pogut aviar</string>
   <string name="startup_failed_notification_text">Tocatz per mai d’informacions.</string>
   <string name="startup_failed_activity_title">Fracàs de l’aviada de Briar.</string>
+  <string name="startup_failed_db_error">Per una rason desconeguda, la basa de donadas de Briar es corrompuda e òm pòt pas la reparar. Vòstre compte, vòstras donadas e totes vòstres contactes son perduts. Malaürosament, avètz de reïnstallar Briar o configurar un nòu compte en causir « Ai oblidat mon senhal » dins la fenèstra per picar lo senhal. </string>
+  <string name="startup_failed_data_too_old_error">Vòstre compte foguèt creat amb una anciana version d’aicesta aplicacion e pòt pas èsser dobrit amb aquesta. Vos cal siá reïnstallar l’anciana version o configurar un nòu compte en causir « Ai oblidat mon senhal » dins la fenèstra per picar lo senhal.</string>
   <string name="startup_failed_data_too_new_error">Aquesta version de l’aplicacion es tròp anciana. Mercés de la metre al nivèl de la darrièra e de tornar ensajar.</string>
   <string name="startup_failed_service_error">Briar a pas pogut aviar un modul necessari. Tornar installar Briar pòt resolver aquò. Que aquò siá dich : perdretz vòstre compte e totas las donadas ligadas a aqueste. Briar utiliza pas de servidor centralizat per salvar sas donadas.</string>
+  <plurals name="expiry_warning">
+    <item quantity="one">Aquò es una version de test de Briar. Vòstre compte expirarà d’aquí %d jorn e pòt pas èsser renovat.</item>
+    <item quantity="other">Aquò es una version de test de Briar. Vòstre compte expirarà d’aquí %d jorns e pòt pas èsser renovat.</item>
+  </plurals>
+  <string name="expiry_update">La data finala pels ensages es passada. Vòstre compte expirarà d’aquí %d jorns.</string>
   <string name="expiry_date_reached">Vòstre logicial s’acabèt.\nMercés d’aver ensajat !</string>
   <string name="download_briar">Per téner d’utilizar Briar mercés de telecargar la version 1.0.</string>
   <string name="create_new_account">Vos caldrà crear un nòu compte, mas podètz emplegar lo meteis escais-nom.</string>
@@ -45,6 +57,8 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="groups_button">Grops privats</string>
   <string name="forums_button">Fòrums</string>
   <string name="blogs_button">Blòges</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Verrolhar l’aplicacion</string>
   <string name="settings_button">Paramètres</string>
   <string name="sign_out_button">Se desconnectar</string>
   <!--Transports-->
@@ -53,6 +67,9 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="transport_lan">Wifi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Desconnectat de Briar</string>
+  <string name="reminder_notification_text">Tocatz per vos desconnectar</string>
+  <string name="reminder_notification_channel_title">Recòrd de connexion Briar</string>
+  <string name="reminder_notification_dismiss">Refusar</string>
   <string name="ongoing_notification_title">Connectat a Briar</string>
   <string name="ongoing_notification_text">Tocatz per dobrir</string>
   <plurals name="private_message_notification_text">
@@ -95,7 +112,8 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="help">Ajuda</string>
   <string name="sorry">O planhèm</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Cap de contactes de mostrar\n\nTocatz l’icòna + per ajustar un contacte</string>
+  <string name="no_contacts">Cap de contacte de mostrar</string>
+  <string name="no_contacts_action">Tocatz l’icòna + per ajustar un contacte</string>
   <string name="date_no_private_messages">Cap messatge</string>
   <string name="no_private_messages">Cap de messatge de mostrar</string>
   <string name="message_hint">Picatz lo messatge</string>
@@ -107,24 +125,25 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="add_contact_title">Ajustar un contacte</string>
   <string name="face_to_face">Vos cal vos amassar amb la persona que volètz apondre als contactes.\n\n Aquò es fach per evitar qu’òm vos raube l’identitat e que vòstres messatges sián legits per d’autres.</string>
   <string name="continue_button">Contunhar</string>
-  <string name="connection_failed">Fracàs de la connexion</string>
   <string name="try_again_button">Tornar ensajar</string>
   <string name="waiting_for_contact_to_scan">En espèra de la numerizacion e de la connexion al contacte\u2026</string>
   <string name="exchanging_contact_details">Escambi dels detalhs del contacte\u2026</string>
   <string name="contact_added_toast">Contacte apondut : %s</string>
   <string name="contact_already_exists">Lo contacte %s existís ja</string>
-  <string name="contact_exchange_failed">L’escambi de contacte a fracassat</string>
   <string name="qr_code_invalid">Lo QR còdi es invalid</string>
+  <string name="qr_code_unsupported">Lo còdi QR qu’ensajatz de numerizar ven d’una anciana version de %s qu’es pas mai desvolopada.\n\nMercés de vos assegurar que los dos avètz la darrièra version e de tornar ensajar.</string>
   <string name="camera_error">Error de camèra</string>
   <string name="connecting_to_device">Connexion a l’aparelh\u2026</string>
   <string name="authenticating_with_device">Autentificacion amb l’aparelh\u2026</string>
-  <string name="connection_aborted_local">Avèm copat la connexion ! Poiriá arribar que qualqu’un ensage d’interferir amb vòstra connexion</string>
-  <string name="connection_aborted_remote">Vòstre contacte a copat la connexion ! Poiriá arribar que qualqu’un ensage d’interferir amb aquela</string>
+  <string name="connection_error_title">Connexion impossibla al contacte</string>
+  <string name="connection_error_explanation">Verificatz que sètz los dos connectats al meteis ret wifi.</string>
+  <string name="connection_error_feedback">S’aqueste problèma dura, mercés <a href="feedback"> d’enviar un comentari</a> per nos ajudar a melhorar l’aplicacion.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presentatz vòstres contactes</string>
   <string name="introduction_onboarding_text">Podètz presentar vòstres contactes, lor caldrà pas se veire per s’apondre e se connectar a Briar.</string>
   <string name="introduction_menu_item">Escafar l’introduccion</string>
   <string name="introduction_activity_title">Seleccionar contacte</string>
+  <string name="introduction_not_possible">Avètz encara una presentacion en cors amb aqueles contactes. Mercés d’autorizar d’en primièr per que se termine. Se vos o vòstres contactes sètz pas sovent en linha, aquò pòt tardar una estona.</string>
   <string name="introduction_message_title">Presentar de contactes</string>
   <string name="introduction_message_hint">Apondre un messatge (opcional)</string>
   <string name="introduction_button">Escafar l’introduccion</string>
@@ -136,6 +155,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="introduction_request_exists_received">%1$s vos demandèt d’apondre %2$s mas %2$s es ja dins vòstra tièra de contactes. Del moment que %1$s o sap pas, podètz çaquelà respondre :</string>
   <string name="introduction_request_answered_received">%1$s a demandat d’apondre %2$s.</string>
   <string name="introduction_response_accepted_sent">Avètz acceptat d’apondre %1$s.</string>
+  <string name="introduction_response_accepted_sent_info">Abans que %1$s siá ajustat a vòstres contactes, li cal acceptar la presentacion tanben. Aquò pòt tardar una estona.</string>
   <string name="introduction_response_declined_sent">Avètz refusat d’apondre %1$s.</string>
   <string name="introduction_response_accepted_received">%1$s a acceptat d’apondre %2$s.</string>
   <string name="introduction_response_declined_received">%1$s a refusat d’apondre %2$s.</string>
@@ -145,6 +165,8 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
     <item quantity="other">%d nòus contactes ajustats.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">Cap de grop de mostrar</string>
+  <string name="groups_list_empty_action">Tocatz l’icòna + per crear un grop, o demandatz a un contacte de patejar un grop amb vos</string>
   <string name="groups_created_by">Fondat per %s</string>
   <plurals name="messages">
     <item quantity="one">1 messatge</item>
@@ -197,31 +219,42 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="groups_reveal_visible_revealed_by_contact">Vòstre ligam – revelat per %s – amb lo contacte es invisible pel grop</string>
   <string name="groups_reveal_invisible">Vòstre ligam amb lo contacte es invisible pel grop</string>
   <!--Forums-->
+  <string name="no_forums">Cap de forum de mostrar</string>
+  <string name="no_forums_action">Tocatz l’icòna + per crear un forum, o demandatz a un contacte de partejar des forums amb vos</string>
   <string name="create_forum_title">Crear un fòrum</string>
   <string name="choose_forum_hint">Donar un nom al fòrum</string>
   <string name="create_forum_button">Crear un fòrum</string>
   <string name="forum_created_toast">Fòrum creat</string>
+  <string name="no_forum_posts">Cap d’article a mostrar</string>
   <string name="no_posts">Cap publicacion</string>
   <plurals name="posts">
     <item quantity="one">%d publicacion</item>
     <item quantity="other">%d publicacions</item>
   </plurals>
+  <string name="forum_new_entry_posted">Publicacion de forum publicada</string>
+  <string name="forum_new_message_hint">Nòva responsa</string>
   <string name="forum_message_reply_hint">Nòva responsa</string>
   <string name="btn_reply">Respondre</string>
   <string name="forum_leave">Quitar lo fòrum</string>
   <string name="dialog_title_leave_forum">Confirmar la sortida del fòrum</string>
+  <string name="dialog_message_leave_forum">Volètz vertadièrament quitar aqueste forum ?\n\nTotes los contactes qu’avètz convidats a aqueste forum quitaràn de recebre las mesas a jorn.</string>
   <string name="dialog_button_leave">Quitar</string>
   <string name="forum_left_toast">Quitar lo forum</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">Partejar lo fòrum</string>
   <string name="contacts_selected">Contactes seleccionats</string>
   <string name="activity_share_toolbar_header">Causissètz de contactes</string>
+  <string name="no_contacts_selector">Cap de contacte de mostrar</string>
+  <string name="no_contacts_selector_action">Tornatz aquí aprèp aver ajustat un contacte</string>
   <string name="forum_shared_snackbar">Fòrom partejat amb los contactes causits</string>
   <string name="forum_share_message">Apondre un messatge (opcional)</string>
   <string name="forum_share_error">Error en partejar lo fòrum</string>
   <string name="forum_invitation_received">%1$s a partejat lo fòrom « %2$s » amb vos.</string>
   <string name="forum_invitation_sent">Avètz partejat lo fòrom « %1$s » amb %2$s.</string>
   <string name="forum_invitations_title">Convidacion al fòrum</string>
+  <string name="forum_invitation_exists">Acceptèretz ja una invitacion a aqueste forum.\n\n Acceptar mai d’invitacion farà venir vòstra connexion al forum mai rapida e fisabla.</string>
+  <string name="forum_joined_toast">Arribèt al forum</string>
+  <string name="forum_declined_toast">Invitacion declinada</string>
   <string name="shared_by_format">Partejat per %s</string>
   <string name="forum_invitation_already_sharing">Ja a partejar</string>
   <string name="forum_invitation_response_accepted_sent">Avètz acceptat la convidacion al fòrum de %s.</string>
@@ -237,13 +270,18 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   </plurals>
   <string name="nobody">Degun</string>
   <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">Cap d’article a mostrar</string>
   <string name="read_more">Legir la seguida</string>
   <string name="blogs_write_blog_post">Escriure un article de blòg</string>
+  <string name="blogs_write_blog_post_body_hint">Escrivètz vòstre article de blòg</string>
   <string name="blogs_publish_blog_post">Publicar</string>
   <string name="blogs_blog_post_created">Article salvat</string>
   <string name="blogs_blog_post_received">Nòu article recebut</string>
   <string name="blogs_blog_post_scroll_to">Anar a</string>
+  <string name="blogs_feed_empty_state">Cap d’article a mostrar</string>
+  <string name="blogs_feed_empty_state_action">Las publicacions de vòstres contactes e blògues que seguissètz apareisseràn aquí\n\nTocatz lo gredon per escriure una publicacion</string>
   <string name="blogs_remove_blog">Suprimir lo blòg</string>
+  <string name="blogs_remove_blog_dialog_message">Volètz vertadièrament levar aqueste blòg ?\n\nLas publicacions seràn levadas de vòstre aparelh mas pas dels aparelhs del monde.\n\nTotes los contactes qu’avètz partejat aqueste blòg quitaràn benlèu de recebre las mesas a jorn.</string>
   <string name="blogs_remove_blog_ok">Suprimir</string>
   <string name="blogs_blog_removed">Blòg tirat</string>
   <string name="blogs_reblog_comment_hint">Apondre un comentari (opcional)</string>
@@ -261,6 +299,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="blogs_sharing_invitation_sent">Avètz partejat lo blòg « %1$s » amb %2$s.</string>
   <string name="blogs_sharing_invitations_title">Convidacion al blòg</string>
   <string name="blogs_sharing_joined_toast">S’abonar al blòg</string>
+  <string name="blogs_sharing_declined_toast">Invitacion declinada</string>
   <string name="sharing_status_blog">Qual que siá seguidor d’un blòg pòt lo partejar amb sos contactes. Partejatz lo blòg amb los contactes seguents. I a benlèu mai de monde qu’o seguen que vesètz pas.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importar de fluxes RSS</string>
@@ -272,11 +311,17 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="blogs_rss_feeds_manage_author">Autor :</string>
   <string name="blogs_rss_feeds_manage_updated">Darrièra mesa a jorn :</string>
   <string name="blogs_rss_remove_feed">Suprimir lo flux</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Volètz vertadièrament levar aqueste flux ?\n\nLas publicacions seràn 
+levadas de vòstre aparelh mas pas dels aparelhs del monde.\n\nTotes los 
+contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mesas
+ a jorn.</string>
   <string name="blogs_rss_remove_feed_ok">Suprimir</string>
   <string name="blogs_rss_feeds_manage_delete_error">Impossible de suprimir lo flux !</string>
+  <string name="blogs_rss_feeds_manage_empty_state">Cap de flux RSS de far veire.\n\nTocatz l’icòna + per n’importar un</string>
   <string name="blogs_rss_feeds_manage_error">Error en cargar vòstres fluxes. Ensajatz mai tard.</string>
   <!--Settings Display-->
   <string name="pref_language_title">Lenga &amp; region</string>
+  <string name="pref_language_changed">Aquel paramètre serà pres en compte aprèp una reaviada de Briar. Desconnectatz-vos e reaviatz Briar.</string>
   <string name="pref_language_default">Sistèma per defaut</string>
   <string name="display_settings_title">Afichatge</string>
   <string name="pref_theme_title">Tèma</string>
@@ -289,12 +334,34 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="bluetooth_setting">Se connectar per Bluetooth</string>
   <string name="bluetooth_setting_enabled">Quand de contactes son prèp</string>
   <string name="bluetooth_setting_disabled">Solament en apondre de contctes</string>
-  <string name="tor_network_setting">Se connectar via Tor</string>
-  <string name="tor_network_setting_never">Pas jamai</string>
-  <string name="tor_network_setting_wifi">Solament per wifi</string>
-  <string name="tor_network_setting_always">Per wifi o donadas mobil</string>
+  <string name="tor_network_setting">Se connectar via Internet (Tor)</string>
+  <string name="tor_network_setting_automatic">Automaticament basat sus l’emplaçament</string>
+  <string name="tor_network_setting_without_bridges">Utilizar Tor sens ponts</string>
+  <string name="tor_network_setting_with_bridges">Utilizar Tor amb ponts</string>
+  <string name="tor_network_setting_never">Se connectar pas</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">Automatic : %1$s (en %2$s)</string>
+  <string name="tor_mobile_data_title">Utilizar la connexion del mobil</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
+  <string name="pref_lock_title">Verrolhatge de l’ecran</string>
+  <string name="pref_lock_summary">Utilizar l’ecran de verrolhatge per protegir Briar quand es connectat</string>
+  <string name="pref_lock_disabled_summary">Per utilizar aquesta foncion, configuratz un ecran de verrolatge per l’aparelh</string>
+  <string name="pref_lock_timeout_title">Relambi pel verrolhatge de l’ecran aprèp inactivitat</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">Sens utilizar Briar, lo verrolhar aprèp %s</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 minuta</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 minutas</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">15 minutas</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 minutas</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 ora</string>
+  <string name="pref_lock_timeout_never">Pas jamai</string>
+  <string name="pref_lock_timeout_never_summary">Jamai verrolhar Briar automaticament</string>
   <string name="change_password">Modificar lo senhal</string>
   <string name="current_password">Senhal actual</string>
   <string name="choose_new_password">Nòu senhal</string>
@@ -317,6 +384,8 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="uninstall_setting_summary">Aquò demanda una confirmacion manuala.</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificacions</string>
+  <string name="notify_sign_in_title">Me rapelar de me connectar</string>
+  <string name="notify_sign_in_summary">Me mostrar un avís quand lo mobil avia o que l’aplicacion foguèt mesa a jorn</string>
   <string name="notify_private_messages_setting_title">Messatges privats</string>
   <string name="notify_private_messages_setting_summary">Notificar los messatges privats</string>
   <string name="notify_private_messages_setting_summary_26">Configuratz las alèrtas pels messatges privats</string>
@@ -325,8 +394,10 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="notify_group_messages_setting_summary_26">Configuratz las alèrtas pels messatges de grop</string>
   <string name="notify_forum_posts_setting_title">Publicacions al fòrum</string>
   <string name="notify_forum_posts_setting_summary">Notificar las publicacions al fòrum</string>
+  <string name="notify_forum_posts_setting_summary_26">Configurar las alèrtas d’articles de forum</string>
   <string name="notify_blog_posts_setting_title">Articles de blòg</string>
   <string name="notify_blog_posts_setting_summary">Notificar los articles de blòg</string>
+  <string name="notify_blog_posts_setting_summary_26">Configurar las alèrtas d’articles de blòg</string>
   <string name="notify_vibration_setting">Vibracion</string>
   <string name="notify_lock_screen_setting_title">Verrolhar l’ecran</string>
   <string name="notify_lock_screen_setting_summary">Mostrar las notificacions sus l’ecran verrolhat</string>
@@ -363,6 +434,8 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="progress_title_logout">Desconnecion de Briar...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Superposicion detectada</string>
+  <string name="screen_filter_body">Una autra aplicacion se subrepausa a Briar. Per protegir vòstra seguretat, Briar respondrà pas a las tòcas tant qu’una aplicacion li passa dessús.\n\n Las aplicacions seguentas pòdon subrepausar las autras :\n\n %1$s</string>
+  <string name="screen_filter_allow">Autorizar aquestas aplicacions a se subrepausar</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Permission de la camèra</string>
   <string name="permission_camera_request_body">Per numerizar lo còdi QR cal que Briar aja l’accès a la camèra.</string>
@@ -370,4 +443,9 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="permission_camera_denied_toast">La permission a la camèra es pas estada donada</string>
   <string name="qr_code">Còdi QR</string>
   <string name="show_qr_code_fullscreen">Mostrar lo còdi QR en ecran complèt</string>
+  <!--App Locking-->
+  <string name="lock_unlock">Desverrolhar Briar</string>
+  <string name="lock_unlock_verbose">Picatz vòstre PIN, esquèma o senhal per desverrollhar Briar</string>
+  <string name="lock_is_locked">Briar es verrolhat</string>
+  <string name="lock_tap_to_unlock">Tocatz per desverrolhar</string>
 </resources>

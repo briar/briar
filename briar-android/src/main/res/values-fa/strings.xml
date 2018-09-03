@@ -61,6 +61,8 @@
   <string name="groups_button">گروه های خصوصی</string>
   <string name="forums_button">تالار های گفتمان</string>
   <string name="blogs_button">بلاگ ها</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">قفل کردن برنامه</string>
   <string name="settings_button">تنظیمات</string>
   <string name="sign_out_button">خروج</string>
   <!--Transports-->
@@ -69,7 +71,9 @@
   <string name="transport_lan">وای فای</string>
   <!--Notifications-->
   <string name="reminder_notification_title">از برایر خارج شد</string>
+  <string name="reminder_notification_text">برای وارد شدن دوباره کلیک کنید.</string>
   <string name="reminder_notification_channel_title">یادآور ورود برایر</string>
+  <string name="reminder_notification_dismiss">رد کردن</string>
   <string name="ongoing_notification_title">وارد برایر شد</string>
   <string name="ongoing_notification_text">برای باز کردن برایر کلیک کنید.</string>
   <plurals name="private_message_notification_text">
@@ -112,9 +116,8 @@
   <string name="help">راهنما</string>
   <string name="sorry">ببخشید</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">مخاطبی برای نشان دادن وجود ندارد
-
-روی علامت + برای افزودن مخاطب کلیک کنید</string>
+  <string name="no_contacts">هیچ مخاطبی برای نمایش وجود ندارد</string>
+  <string name="no_contacts_action">برای افزودن مخاطب روی + کلیک کنید</string>
   <string name="date_no_private_messages">هیچ پیامی موجود نیست</string>
   <string name="no_private_messages">هیچ پیامی برای نشان دادن وجود ندارد</string>
   <string name="message_hint">نوشتن پیام</string>
@@ -127,13 +130,11 @@
   <string name="face_to_face">برای اضافه کردن فرد به عنوان مخاطب باید با او به صورت حضوری ملاقات کنید.
 این از جعل هویت شما و یا از خوانده شدن پیام هایتان در آینده جلوگیری خواهد کرد.</string>
   <string name="continue_button">ادامه</string>
-  <string name="connection_failed">اتصال ناموفق بود</string>
   <string name="try_again_button">دوباره سعی کنید</string>
   <string name="waiting_for_contact_to_scan">انتظار برای اسکن و اتصال مخاطبu2026\</string>
   <string name="exchanging_contact_details">تبادیل جزییات مخاطبu2026\</string>
   <string name="contact_added_toast">مخاطب اضافه شد: %s</string>
   <string name="contact_already_exists">مخاطب %s از قبل وجود دارد</string>
-  <string name="contact_exchange_failed">تبادل مخاطب با خطا مواجه شد</string>
   <string name="qr_code_invalid">کد QR نامعتبر می باشد</string>
   <string name="qr_code_unsupported">کد QR که شما سعی دارید اسکن کنید متعلق به یک نسخه قدیمی از %s میباشد که دیگر پشتیبانی نمی شود.
 
@@ -141,8 +142,9 @@
   <string name="camera_error">خطای دوربین</string>
   <string name="connecting_to_device">اتصال به دستگاهu2026\</string>
   <string name="authenticating_with_device">تصدیق سازی با دستگاه u2026\</string>
-  <string name="connection_aborted_local">اتصال قطع شد! این میتواند نشان دهنده این باشد که شخصی قصد دارد در اتصال شما اختلال ایجاد کند</string>
-  <string name="connection_aborted_remote">اتصال توسط مخاطب شما بی نتیجه ماند! این ممکن است نشان دهنده این باشد که شخصی سعی دارد تا در اتصال شما اختلال ایجاد کند</string>
+  <string name="connection_error_title">اتصال به مخاطب شما برقرار نشد</string>
+  <string name="connection_error_explanation">لطفا مطمئن شوید که هردو شما به شبکه وای فای یکسان متصل هستید.</string>
+  <string name="connection_error_feedback">اگر این مشکل ادامه پیدا کرد، لطفا <a href="feedback">بازخورد ارسال کنید</a> تا به ما در ارتقاء برنامه کمک کنید.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">معرفی مخاطبان</string>
   <string name="introduction_onboarding_text">شما می توانید مخاطبان خود را به یکدیگر معرفی کنید، در این صورت دیگر نیازی به دیدار حضوری برای اتصال روی برایر نمی باشد.</string>
@@ -170,9 +172,8 @@
     <item quantity="other">%d مخاطب جدید افزوده شد.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">هیچ گروهی برای نمایش وجود ندارد
-
-روی آیکون + برای ایجاد یک گروه کلیک کنید، یا از مخاطبان خود بخواهید تا گروهی را با شما به اشتراک بگذارند</string>
+  <string name="groups_list_empty">هیچ گروهی برای نمایش وجود ندارد</string>
+  <string name="groups_list_empty_action">برای ایجاد یک گروه روی آیکون + کلیک کنید، یا از مخاطبان خود بخواهید تا گروه های خود را با شما به اشتراک بگذارند</string>
   <string name="groups_created_by">ایجاد شده توسط %s</string>
   <plurals name="messages">
     <item quantity="one">%d پیام</item>
@@ -231,9 +232,8 @@
   <string name="groups_reveal_visible_revealed_by_contact">ارتباط مخاطب برای گروه قابل یدن می باشد (آشکار شده توسط %s)</string>
   <string name="groups_reveal_invisible">ارتباط مخاطب برای گروه قابل دیدن نمی باشد</string>
   <!--Forums-->
-  <string name="no_forums">هیچ فرومی برای نمایش وجود ندارد
-
-روی آیکون + برای ایجاد فروم کلیک کنید یا از مخاطبانتان بخواهید تا با شما فروم به اشتراک بگذارند</string>
+  <string name="no_forums">هیچ فرومی برای نمایش وجود ندارد</string>
+  <string name="no_forums_action">برای ایجاد یک فروم روی آیکون + کلیک کنید، یا از مخاطبان خود بخواهید تا فروم های خود را با شما به اشتراک بگذارند</string>
   <string name="create_forum_title">ایجاد فروم</string>
   <string name="choose_forum_hint">انتخاب یک نام برای فروم</string>
   <string name="create_forum_button">ایجاد فروم</string>
@@ -259,9 +259,8 @@
   <string name="forum_share_button">اشتراک گذاری فروم</string>
   <string name="contacts_selected">مخاطبان انتخاب شدند</string>
   <string name="activity_share_toolbar_header">انتخاب مخاطبان</string>
-  <string name="no_contacts_selector">هیچ مخاطبی برای نمایش دادن وجود ندارد
-
-لطفا بعد از افزودن مخاطب برگردید.</string>
+  <string name="no_contacts_selector">هیچ مخاطبی برای نمایش وجود ندارد</string>
+  <string name="no_contacts_selector_action">لطفا بعد از افزودن یک مخاطب به اینجا برگردید</string>
   <string name="forum_shared_snackbar">فروم با مخاطبان انتخاب شده به اشتراک گذاشته شد</string>
   <string name="forum_share_message">افزودن یک پیام (اختیاری)</string>
   <string name="forum_share_error">خطایی با اشتراک گذاری این فروم رخ داد</string>
@@ -296,11 +295,10 @@
   <string name="blogs_blog_post_created">پست بلاگ ایجاد شد</string>
   <string name="blogs_blog_post_received">پست جدید بلاگ دریافت شد</string>
   <string name="blogs_blog_post_scroll_to">حرکت به</string>
-  <string name="blogs_feed_empty_state">هیچ پستی برای نشان دادن وجود ندارد
+  <string name="blogs_feed_empty_state">هیچ پستی برای نشان دادن وجود ندارد</string>
+  <string name="blogs_feed_empty_state_action">پست های مربوط به مخاطبان و بلاگ هایی که مشترک آن ها هستید اینجا ظاهر خواهند شد
 
-پست های مخاطبان و بلاگ هایی که مشترک آن ها هستید اینجا نشان داده خواهند شد
-
-روی آیکون خودکار برای ایجاد یک پست کلیک کنید</string>
+برای نوشتن یک پست روی آیکون خودکار کلیک کنید</string>
   <string name="blogs_remove_blog">حذف بلاگ</string>
   <string name="blogs_remove_blog_dialog_message">آیا اطمینان دارید که میخواهید این بلاگ را حذف کنید؟
 
@@ -362,12 +360,34 @@
   <string name="bluetooth_setting">اتصال از طریق بلوتوث</string>
   <string name="bluetooth_setting_enabled">هر زمانی که مخاطبان نزدیک هستند</string>
   <string name="bluetooth_setting_disabled">فقط در هنگام افزودن مخاطبان</string>
-  <string name="tor_network_setting">اتصال از طریق تور</string>
-  <string name="tor_network_setting_never">هرگز</string>
-  <string name="tor_network_setting_wifi">فقط در هنگام استفاده از وای فای</string>
-  <string name="tor_network_setting_always">هنگام استفاده از وای فای یا موبایل دیتا</string>
+  <string name="tor_network_setting">اتصال از طریق اینترنت (تور)</string>
+  <string name="tor_network_setting_automatic">اتوماتیک مبتنی بر مکان</string>
+  <string name="tor_network_setting_without_bridges">استفاده از تور بدون بریج</string>
+  <string name="tor_network_setting_with_bridges">استفاده از تور با بریج</string>
+  <string name="tor_network_setting_never">وصل نشو</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">خودکار: %1$s(در %2$s)</string>
+  <string name="tor_mobile_data_title">استفاده از داده موبایل</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">امنیت</string>
+  <string name="pref_lock_title">قفل اسکرین</string>
+  <string name="pref_lock_summary">استفاده از قفل صفحه دستگاه به منظور محافظت از برایر در هنگام استفاده از آن</string>
+  <string name="pref_lock_disabled_summary">برای استفاده از این ویژگی، قفل اسکرین را برای دستگاه خود برپا کنید</string>
+  <string name="pref_lock_timeout_title">اتمام وقت عدم فعالیت قفل اسکرین</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">زمانی که از برایر استفاده نمی شود، به صورت خودکار بعد از %s آن را قفل کن</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 دقیقه</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">۵ دقیقه</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">15 دقیقه</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 دقیقه</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">۱ ساعت</string>
+  <string name="pref_lock_timeout_never">هرگز</string>
+  <string name="pref_lock_timeout_never_summary">هیچوقت برایر را به صورت خودکار قفل نکن</string>
   <string name="change_password">تغییر رمز عبور</string>
   <string name="current_password">رمز عبور فعلی</string>
   <string name="choose_new_password">رمز عبور جدید</string>
@@ -390,6 +410,8 @@
   <string name="uninstall_setting_summary">این نیازمند تایید دستی در موعد هراس میباشد</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">نوتیفیکیشن ها</string>
+  <string name="notify_sign_in_title">به من یاد آوری کن تا دوباره وارد شوم</string>
+  <string name="notify_sign_in_summary">زمانی که برنامه آپدیت شده یا استارت تلفن خورده است یک تذکر بده</string>
   <string name="notify_private_messages_setting_title">پیام های خصوصی</string>
   <string name="notify_private_messages_setting_summary">نمایش هشدار برای پیام های خصوصی</string>
   <string name="notify_private_messages_setting_summary_26">تنظیم هشدار برای پیام های شخصی</string>
@@ -453,4 +475,9 @@
   <string name="permission_camera_denied_toast">اجازه دسترسی به دوربین پذیرفته نشد</string>
   <string name="qr_code">کد QR</string>
   <string name="show_qr_code_fullscreen">نمایش کد QR به صورت فول اسکرین</string>
+  <!--App Locking-->
+  <string name="lock_unlock">آنلاک کردن برایر</string>
+  <string name="lock_unlock_verbose">PIN، الگو یا رمز عبور دستگاه خود را برای آنلاک کردن برایر وارد کنید</string>
+  <string name="lock_is_locked">برایر قفل می باشد</string>
+  <string name="lock_tap_to_unlock">برای آنلاک کردن کلیک کنید</string>
 </resources>

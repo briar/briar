@@ -28,6 +28,7 @@
   <string name="groups_button">Частни групи</string>
   <string name="forums_button">Форуми</string>
   <string name="blogs_button">Блогове</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
   <string name="settings_button">Настройки</string>
   <string name="sign_out_button">Отписване</string>
   <!--Transports-->
@@ -85,17 +86,14 @@
   <string name="add_contact_title">Добавяне на контакт</string>
   <string name="face_to_face">Трябва да се срещнете лично с човека, когото искате да добавите в Контакти.\n\nПо този начин никой не може да се представи за вас или да чете съобщенията ви в бъдеще.</string>
   <string name="continue_button">Напред</string>
-  <string name="connection_failed">Неуспешна връзка</string>
   <string name="try_again_button">Опитай пак</string>
   <string name="waiting_for_contact_to_scan">Изчакване контактът да сканира и да се свърже\u2026</string>
   <string name="exchanging_contact_details">Обмен на данни за контакт\u2026</string>
   <string name="contact_added_toast">Добавен конктакт: %s</string>
   <string name="contact_already_exists">Контактът %s вече съществува</string>
-  <string name="contact_exchange_failed">Неуспех при обмен на контакти</string>
   <string name="qr_code_invalid">QR кодът е невалиден</string>
   <string name="connecting_to_device">Свързване с устройство\u2026</string>
   <string name="authenticating_with_device">Удостоверяване с устройство\u2026</string>
-  <string name="connection_aborted_remote">Връзката е прекъсната от контакта ви! Това може да значи, че някой се опитва да попречи на свързването</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Представете контактите си</string>
   <string name="introduction_onboarding_text">Можете да представите контактите си един на друг, за да не им се налага да се срещат лично, когато се свързват чрез Briar.</string>
@@ -254,12 +252,16 @@
   <string name="bluetooth_setting">Свързване чрез Bluetooth</string>
   <string name="bluetooth_setting_enabled">Когато контактите са наблизо</string>
   <string name="bluetooth_setting_disabled">Само при добавяне на контакти</string>
-  <string name="tor_network_setting">Свързване чрез Tor</string>
-  <string name="tor_network_setting_never">Никога</string>
-  <string name="tor_network_setting_wifi">Само при активна Wi-Fi връзка</string>
-  <string name="tor_network_setting_always">През Wi-Fi или мобилни данни</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Сигурност</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_never">Никога</string>
   <string name="change_password">Промяна на парола</string>
   <string name="password_changed">Паролата е променена.</string>
   <string name="panic_setting">Настройка на паник бутон</string>
@@ -323,4 +325,5 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Открит е овърлей на екрана</string>
   <!--Permission Requests-->
+  <!--App Locking-->
 </resources>

@@ -55,6 +55,8 @@
   <string name="groups_button">Grups privats</string>
   <string name="forums_button">Fòrums</string>
   <string name="blogs_button">Blogs</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Bloqueja l\'aplicació</string>
   <string name="settings_button">Configuració</string>
   <string name="sign_out_button">Tanca la sessió </string>
   <!--Transports-->
@@ -108,7 +110,8 @@
   <string name="help">Ajuda</string>
   <string name="sorry">Ens sap greu</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">No hi ha cap contacte\n\nFeu un toc sobre la icona + per afegir un nou contacte</string>
+  <string name="no_contacts">No hi ha cap contacte per mostrar</string>
+  <string name="no_contacts_action">Toqueu la icona + per afegir un contacte</string>
   <string name="date_no_private_messages">Sense missatges.</string>
   <string name="no_private_messages">No hi ha cap missatge</string>
   <string name="message_hint">Escriviu un missatge</string>
@@ -120,20 +123,19 @@
   <string name="add_contact_title">Afegiu un contacte</string>
   <string name="face_to_face">Heu de coincidir en el mateix lloc amb la persona que voleu afegir com a contacte.\n\nD\'aquesta manera evitareu que algú suplanti les vostres identitats o pugui llegir els vostres missatges en el futur.</string>
   <string name="continue_button">Continua</string>
-  <string name="connection_failed">La connexió ha fallat</string>
   <string name="try_again_button">Torna-ho a provar</string>
   <string name="waiting_for_contact_to_scan">Esperant que el vostre contacte escanegi i es connecti\u2026</string>
   <string name="exchanging_contact_details">Intercanviant els detalls del contacte\u2026</string>
   <string name="contact_added_toast">S\'ha afegit el contacte %s</string>
   <string name="contact_already_exists">El contacte %s ja existia</string>
-  <string name="contact_exchange_failed">L\'intercanvi de contactes ha fallat</string>
   <string name="qr_code_invalid">El codi QR és invàlid</string>
   <string name="qr_code_unsupported">El codi QR que intenteu escanejar pertany a una versió antiga de %s que ja no és compatible.\n\nAssegureu-vos que tothom està executant la darrera versió i torneu a provar-ho.</string>
   <string name="camera_error">Error de la càmera</string>
   <string name="connecting_to_device">Connectant-se al dispositiu\u2026</string>
   <string name="authenticating_with_device">Autenticant-se amb el dispositiu\u2026</string>
-  <string name="connection_aborted_local">S\'ha avortat la connexió! Podria ser que algú estigués provant d\'interferir la vostra connexió</string>
-  <string name="connection_aborted_remote">El vostre contacte ha avortat la connexió! Podria ser que algú estigués provant d\'interferir la vostra connexió</string>
+  <string name="connection_error_title">No s\'ha pogut connectar al vostre contacte</string>
+  <string name="connection_error_explanation">Comproveu que estigueu connectats a la mateixa xarxa Wi-Fi.</string>
+  <string name="connection_error_feedback">Si aquest problema persisteix, <a href="feedback">envieu-nos comentaris</a> per ajudar-nos a millorar l\'aplicació.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenteu als vostres contactes</string>
   <string name="introduction_onboarding_text">Podeu presentar als vostres contactes entre si, de manera que no necessitin trobar-se en persona per a relacionar-se a través de Briar.</string>
@@ -161,7 +163,8 @@
     <item quantity="other">S\'han afegit %d nous contactes.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">No hi ha cap grup\n\nFeu un toc sobre la icona  + per crear un nou grup, o demaneu als vostres contactes que comparteixin els seus grups amb vós.</string>
+  <string name="groups_list_empty">No hi ha cap grup per mostrar</string>
+  <string name="groups_list_empty_action">Toqueu la icona + per crear un grup o demaneu als vostres contactes que comparteixin grups amb vosaltres</string>
   <string name="groups_created_by">Creat per %s</string>
   <plurals name="messages">
     <item quantity="one">1%d missatge</item>
@@ -214,7 +217,8 @@
   <string name="groups_reveal_visible_revealed_by_contact">La relació de contactes és visible pel grup (revelada per %s)</string>
   <string name="groups_reveal_invisible">La relació de contactes no és visible pel grup</string>
   <!--Forums-->
-  <string name="no_forums">No hi ha cap fòrum\n\nFeu un toc sobre la icona + per crear un nou fòrum, o demaneu als vostres contactes que comparteixin els seus fòrums amb vós.</string>
+  <string name="no_forums">No hi ha fòrums per mostrar</string>
+  <string name="no_forums_action">Toqueu la icona + per crear un fòrum o demaneu als vostres contactes que comparteixin fòrums amb vosaltres</string>
   <string name="create_forum_title">Creeu un fòrum</string>
   <string name="choose_forum_hint">Trieu un nom per al fòrum</string>
   <string name="create_forum_button">Crea el fòrum</string>
@@ -238,7 +242,8 @@
   <string name="forum_share_button">Comparteix el fòrum</string>
   <string name="contacts_selected">Contactes seleccionats</string>
   <string name="activity_share_toolbar_header">Trieu els contactes</string>
-  <string name="no_contacts_selector">No hi ha cap contacte\n\nSi us plau, reintenteu-ho després d\'haver afegit algun contacte</string>
+  <string name="no_contacts_selector">No hi ha cap contacte per mostrar</string>
+  <string name="no_contacts_selector_action">Torneu aquí després d\'afegir un contacte</string>
   <string name="forum_shared_snackbar">Fòrum compartit amb els contactes seleccionats</string>
   <string name="forum_share_message">Afegiu una nota (opcional)</string>
   <string name="forum_share_error">S\'ha produït un error en compartir aquest fòrum.</string>
@@ -271,7 +276,8 @@
   <string name="blogs_blog_post_created">S\'ha publicat l\'apunt al blog</string>
   <string name="blogs_blog_post_received">S\'ha rebut un nou apunt al blog</string>
   <string name="blogs_blog_post_scroll_to">Desplaça</string>
-  <string name="blogs_feed_empty_state">No hi ha cap apunt\n\nEls apunts dels vostres contactes i dels blogs als que esteu subscrit es mostraran aquí\n\nFeu un toc sobre la icona del bolígraf per escriure un nou apunt</string>
+  <string name="blogs_feed_empty_state">No hi ha cap apunt per mostrar</string>
+  <string name="blogs_feed_empty_state_action">Les publicacions dels vostres contactes i blocs als que us subscriu apareixeran aquí.\n\nToqueu la icona de la ploma per escriure una publicació</string>
   <string name="blogs_remove_blog">Suprimeix el blog</string>
   <string name="blogs_remove_blog_dialog_message">Segur que voleu suprimir aquest blog?\n\nEls apunts publicats s\'esborraran del vostre dispositiu però no del d\'altres persones.\n\nEls contactes amb els que hagueu compartit aquest blog poden deixar de rebre les actualitzacions.</string>
   <string name="blogs_remove_blog_ok">Suprimeix</string>
@@ -323,12 +329,34 @@
   <string name="bluetooth_setting">Connecta via bluetooth</string>
   <string name="bluetooth_setting_enabled">Sempre que hi hagi contactes propers</string>
   <string name="bluetooth_setting_disabled">Només quan s\'afegeixen contactes</string>
-  <string name="tor_network_setting">Connecta via Tor</string>
-  <string name="tor_network_setting_never">Mai</string>
-  <string name="tor_network_setting_wifi">Només quan s\'utilitzi WiFi</string>
-  <string name="tor_network_setting_always">Quan s\'utilitzi WiFi o les dades mòbils</string>
+  <string name="tor_network_setting">Connecta a través d\'Internet (Tor)</string>
+  <string name="tor_network_setting_automatic">Automàtic basat en la ubicació</string>
+  <string name="tor_network_setting_without_bridges">Utilitza Tor sense ponts</string>
+  <string name="tor_network_setting_with_bridges">Utilitza Tor amb ponts</string>
+  <string name="tor_network_setting_never">No et connectis</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">Automàtic: %1$s (en %2$s)</string>
+  <string name="tor_mobile_data_title">Utilitza dades mòbils</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
+  <string name="pref_lock_title">Bloqueig de pantalla</string>
+  <string name="pref_lock_summary">Utilitza el bloqueig de pantalla del dispositiu per protegir Briar mentre inicieu la sessió</string>
+  <string name="pref_lock_disabled_summary">Per utilitzar aquesta funció, configureu un bloqueig de pantalla per al vostre dispositiu</string>
+  <string name="pref_lock_timeout_title">Temps d\'espera d\'inactivitat del bloqueig de pantalla</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">Quan no feu servir Briar, bloquegeu-lo automàticament després de %s</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 minut</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 minuts</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">15 minuts</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 minuts</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 houra</string>
+  <string name="pref_lock_timeout_never">Mai</string>
+  <string name="pref_lock_timeout_never_summary">No bloquejar mai Briar automàticament</string>
   <string name="change_password">Canvia la contrasenya</string>
   <string name="current_password">Contrassenya actual</string>
   <string name="choose_new_password">Contrassenya nova</string>
@@ -410,4 +438,9 @@
   <string name="permission_camera_denied_toast">No s\'ha concedit el permís per accedir a la càmera</string>
   <string name="qr_code">Codi QR</string>
   <string name="show_qr_code_fullscreen">Mostra el codi QR a pantalla completa</string>
+  <!--App Locking-->
+  <string name="lock_unlock">Desbloqueja Briar</string>
+  <string name="lock_unlock_verbose">Introduïu el PIN, el patró o la contrasenya del vostre dispositiu per desbloquejar Briar</string>
+  <string name="lock_is_locked">Briar està bloquejat</string>
+  <string name="lock_tap_to_unlock">Toqueu per desbloquejar-lo</string>
 </resources>

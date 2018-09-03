@@ -2,58 +2,60 @@
 <resources>
   <!--Setup-->
   <string name="setup_title">欢迎来到 Briar</string>
-  <string name="setup_name_explanation">您的昵称将显示在您发布的任何内容旁。昵称在创建帐户后无法更改。</string>
+  <string name="setup_name_explanation">您的昵称将显示在您发布的所有内容旁。昵称在创建帐户后无法更改。</string>
   <string name="setup_next">下一步</string>
   <string name="setup_password_intro">设置一个密码</string>
-  <string name="setup_password_explanation">您的 Briar 账号将被加密储存在您的设备上，而非云端，卸载 Briar 或忘记密码，账号将无法恢复。请设置难以猜出的长密码，比如四个随意的单词，或是十个随机字母、数字和符号。</string>
+  <string name="setup_password_explanation">您的 Briar 账号将被加密储存在您的设备上，而非云端。卸载 Briar 或忘记密码，将导致账户无法恢复。建议设置一个不易被猜出的长密码，比如四个随机英文单词，或是十个包含任意字母、数字和符号的字符。</string>
   <string name="setup_doze_title">后台连接</string>
-  <string name="setup_doze_intro">为了收到消息，Briar 需要保持后台连接。</string>
-  <string name="setup_doze_explanation">为了收到消息，Briar 需要保持后台连接。请禁用电量优化选项以使 Briar 保持连接。</string>
+  <string name="setup_doze_intro">为了接收消息，Briar 需要保持后台连接。</string>
+  <string name="setup_doze_explanation">为了接收消息，Briar 需要在后台保持连接。为使Briar保持连接，请禁用电量优化选项。</string>
   <string name="setup_doze_button">允许连接</string>
   <string name="choose_nickname">设置昵称</string>
   <string name="choose_password">设置密码</string>
   <string name="confirm_password">确认密码</string>
   <string name="name_too_long">昵称过长</string>
-  <string name="password_too_weak">密码强度过弱</string>
+  <string name="password_too_weak">密码强度不够</string>
   <string name="passwords_do_not_match">两次键入密码不一致</string>
   <string name="create_account_button">创建账号</string>
   <string name="more_info">更多信息</string>
   <string name="don_t_ask_again">不再询问</string>
-  <string name="setup_huawei_text">轻触下方的按钮以保证 Briar 加入“受保护的应用”。</string>
+  <string name="setup_huawei_text">轻触下方的按钮将 Briar 加入“受保护的应用”列表。</string>
   <string name="setup_huawei_button">保护 Briar</string>
-  <string name="setup_huawei_help">如果没有将 Briar 加入受保护应用列表，将无法在后台运行。</string>
+  <string name="setup_huawei_help">如果未将 Briar 加入受保护应用列表，它将无法在后台运行。</string>
   <string name="warning_dozed">%s 无法在后台运行。</string>
   <!--Login-->
   <string name="enter_password">密码</string>
-  <string name="try_again">密码不正确，请重试</string>
+  <string name="try_again">密码错误，请重试</string>
   <string name="sign_in_button">登录</string>
   <string name="forgotten_password">我忘记了密码</string>
   <string name="dialog_title_lost_password">忘记密码</string>
-  <string name="dialog_message_lost_password">您的 Briar 账号被加密储存在您的设备上，而非云端，因此我们无法重置您的密码。您是否希望删除帐号，重新开始？\n\n注意：您的身份、联系人和消息将会永久丢失。</string>
+  <string name="dialog_message_lost_password">您的 Briar 账号被加密储存在您的设备上，而非云端，因此我们无法重置您的密码。您是否希望删除帐号，重新开始？\n\n注意：删除帐号将导致您的身份信息、联系人和消息永久丢失。</string>
   <string name="startup_failed_notification_title">Briar 无法启动</string>
   <string name="startup_failed_notification_text">点击查看更多信息。</string>
   <string name="startup_failed_activity_title">Briar 启动失败</string>
-  <string name="startup_failed_db_error">由于一些原因，Briar 数据库已损坏并且无法修复。您的帐户、数据和所有联系人已经丢失。不幸的是，您需要重新安装 Briar 或者在提示输入密码时选择“我忘记了密码”以重新创建一个 Briar 帐户。</string>
-  <string name="startup_failed_data_too_old_error">您的帐户由旧版本应用创建，无法在此版本上打开。您需要重新安装旧版本应用或在提示输入密码时选择“我忘记了密码”以创建新帐户。</string>
+  <string name="startup_failed_db_error">由于一些原因，Briar 数据库已损坏并且无法修复。您的帐户、数据和所有联系人已经丢失。很不幸，您需要重新安装 Briar 或者在提示输入密码时选择“我忘记了密码”以重新创建一个 Briar 帐户。</string>
+  <string name="startup_failed_data_too_old_error">您的帐户由旧版本应用创建，无法在此版本中打开。您需要重新安装旧版本应用或在提示输入密码时选择“我忘记了密码”以创建新帐户。</string>
   <string name="startup_failed_data_too_new_error">该应用版本过旧。请升级至最新版本并重试。</string>
-  <string name="startup_failed_service_error">Briar 无法开启一个必要插件。通常情况下，重新安装 Briar 可以解决这个问题。但是由于 Briar 并不采用中央服务器来储存您的数据，您将丢失您的账号和与您的账号相关的一切数据。</string>
+  <string name="startup_failed_service_error">Briar 无法开启一个必要插件。通常情况下，重新安装 Briar 可以解决这个问题。但是由于 Briar 不使用中央服务器来储存您的数据，该操作将导致您的账号和与您的账号相关的一切数据丢失。</string>
   <plurals name="expiry_warning">
     <item quantity="other">这是 Briar 的一个测试版本。您的帐户将在 %d 天后过期，且逾期后无法继续使用。</item>
   </plurals>
   <string name="expiry_update">测试到期时间延长，您的帐户将在 %d 天后过期。</string>
   <string name="expiry_date_reached">本软件已过期。\n感谢您的测试！</string>
   <string name="download_briar">如想继续使用 Briar，请下载 1.0 版。</string>
-  <string name="create_new_account">你需要创建一个新账户，但不能使用相同的昵称。</string>
+  <string name="create_new_account">你需要创建一个新账户，但可以使用相同的昵称。</string>
   <string name="download_briar_button">下载 Briar 1.0</string>
   <string name="startup_open_database">正在解密数据库……</string>
   <string name="startup_migrate_database">正在升级数据库……</string>
   <!--Navigation Drawer-->
-  <string name="nav_drawer_open_description">打开抽屉式导航栏</string>
-  <string name="nav_drawer_close_description">关闭抽屉式导航栏</string>
+  <string name="nav_drawer_open_description">打开侧拉菜单</string>
+  <string name="nav_drawer_close_description">关闭侧拉菜单</string>
   <string name="contact_list_button">联系人</string>
   <string name="groups_button">私有群聊</string>
   <string name="forums_button">论坛</string>
   <string name="blogs_button">博客</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">锁定应用</string>
   <string name="settings_button">设置</string>
   <string name="sign_out_button">登出</string>
   <!--Transports-->
@@ -103,46 +105,46 @@
   <string name="help">帮助</string>
   <string name="sorry">抱歉</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">没有联系人\n\n点击 + 号添加</string>
+  <string name="no_contacts">无联系人</string>
+  <string name="no_contacts_action">点击 + 图标即可添加联系人</string>
   <string name="date_no_private_messages">无消息。</string>
-  <string name="no_private_messages">没有消息</string>
+  <string name="no_private_messages">没有可显示的消息</string>
   <string name="message_hint">键入信息</string>
   <string name="delete_contact">删除联系人</string>
   <string name="dialog_title_delete_contact">确认删除联系人</string>
-  <string name="dialog_message_delete_contact">确认要删除该联系人和所有聊天记录吗？</string>
+  <string name="dialog_message_delete_contact">确认要删除该联系人和与该联系人的所有通信消息吗？</string>
   <string name="contact_deleted_toast">联系人已删除</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">添加联系人</string>
-  <string name="face_to_face">您必须与您想要添加的联系人见面。\n\n这样可以防止未来他人冒充您的身份并查看您的信息。</string>
+  <string name="face_to_face">您必须与您要添加的联系人面对面添加好友。\n\n这样可以防止未来他人冒充您的身份并查看您的信息。</string>
   <string name="continue_button">继续</string>
-  <string name="connection_failed">连接失败</string>
   <string name="try_again_button">重试</string>
   <string name="waiting_for_contact_to_scan">等待联系人扫描并连接\u2026</string>
-  <string name="exchanging_contact_details">交换联系人细节\u2026</string>
+  <string name="exchanging_contact_details">交换联系人详细信息\u2026</string>
   <string name="contact_added_toast">联系人已添加： %s</string>
   <string name="contact_already_exists">联系人 %s 已存在</string>
-  <string name="contact_exchange_failed">联系人交换失败</string>
   <string name="qr_code_invalid">二维码无效</string>
-  <string name="qr_code_unsupported">您正在扫描的是来自旧版本 %s 版的二维码，目前不再支持。\n\n请确保你们两人都在运行最新版本并重试。</string>
-  <string name="camera_error">摄像头出错</string>
+  <string name="qr_code_unsupported">您正在扫描的是来自旧版本 %s 版的二维码，该版本目前已不再支持。\n\n请确保你们两人都在运行最新版本并重试。</string>
+  <string name="camera_error">相机出错</string>
   <string name="connecting_to_device">正在连接至设备\u2026</string>
   <string name="authenticating_with_device">正在验证设备\u2026</string>
-  <string name="connection_aborted_local">连接中止！这可能意味着有人正在尝试干预你的连接</string>
-  <string name="connection_aborted_remote">连接已被您的联系人中止！这可能意味着有人正在尝试干预你们的连接</string>
+  <string name="connection_error_title">无法连接到您的联系人</string>
+  <string name="connection_error_explanation">请确保您们连接到了同一个无线局域网中。</string>
+  <string name="connection_error_feedback">如果此问题仍存在，请<a href="feedback">发送反馈</a>来帮助我们改善。</string>
   <!--Introductions-->
-  <string name="introduction_onboarding_title">介绍您的联系人</string>
-  <string name="introduction_onboarding_text">您可以互相介绍联系人，这样他们可以直接在 Briar 上建立联系而不必亲自见面。</string>
-  <string name="introduction_menu_item">完成介绍</string>
+  <string name="introduction_onboarding_title">推荐您的联系人</string>
+  <string name="introduction_onboarding_text">你们可以互相推荐联系人，这样他们可以直接在 Briar 上建立联系而不必亲自见面。</string>
+  <string name="introduction_menu_item">完成推荐</string>
   <string name="introduction_activity_title">选择联系人</string>
-  <string name="introduction_not_possible">您当前正给这些联系人交换名片。请先等待交换完成。如果您或您的好友很少在线，那需要花些时间。</string>
-  <string name="introduction_message_title">介绍联系人</string>
+  <string name="introduction_not_possible">您与这些联系人有未完成的推荐。请先等待该任务完成。如果您或您的好友很少在线，这可能需要花些时间。</string>
+  <string name="introduction_message_title">推荐联系人</string>
   <string name="introduction_message_hint">添加一句话 (选填)</string>
-  <string name="introduction_button">完成介绍</string>
-  <string name="introduction_sent">您的介绍已送出。</string>
-  <string name="introduction_error">介绍时发生错误。</string>
-  <string name="introduction_response_error">响应介绍时出错</string>
-  <string name="introduction_request_sent">您已将 %1$s 介绍给 %2$s。</string>
-  <string name="introduction_request_received">%1$s 想要将您介绍给 %2$s。您希望将 %2$s 添加至您的联系人列表吗？</string>
+  <string name="introduction_button">完成推荐</string>
+  <string name="introduction_sent">您的推荐已送出。</string>
+  <string name="introduction_error">推荐时发生错误。</string>
+  <string name="introduction_response_error">推荐响应时出错</string>
+  <string name="introduction_request_sent">您已将 %1$s 推荐给 %2$s。</string>
+  <string name="introduction_request_received">%1$s 想要将您推荐给 %2$s。您希望将 %2$s 添加至您的联系人列表吗？</string>
   <string name="introduction_request_exists_received">%1$s 想要将您介绍给 %2$s，但是 %2$s 已经在您的联系人列表。%1$s 可能并不知情，但您仍可以做出回复：</string>
   <string name="introduction_request_answered_received">%1$s 想要将您介绍给 %2$s。</string>
   <string name="introduction_response_accepted_sent">您已接受与 %1$s 建立联系</string>
@@ -155,7 +157,8 @@
     <item quantity="other">已添加 %d 位新联系人。</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">没有群组\n\n点击 + 号创建群聊，或者让您的联系人分享群组给您</string>
+  <string name="groups_list_empty">尚无群组可供展示</string>
+  <string name="groups_list_empty_action">点击 + 号创建群组，或让您的联系人分享群组给您</string>
   <string name="groups_created_by">由 %s 创建</string>
   <plurals name="messages">
     <item quantity="other">%d 条消息。</item>
@@ -206,7 +209,8 @@
   <string name="groups_reveal_visible_revealed_by_contact">联系人关系对群聊可见 (由 %s 设定)</string>
   <string name="groups_reveal_invisible">联系人关系对群聊不可见</string>
   <!--Forums-->
-  <string name="no_forums">没有论坛\n\n点击 + 号来创建一个，或者让您的联系人分享一个论坛给您</string>
+  <string name="no_forums">尚无论坛可供展示</string>
+  <string name="no_forums_action">点击 + 号创建论坛，或让您的联系人分享论坛给您</string>
   <string name="create_forum_title">创建论坛</string>
   <string name="choose_forum_hint">为论坛命名</string>
   <string name="create_forum_button">创建论坛</string>
@@ -229,7 +233,8 @@
   <string name="forum_share_button">分享论坛</string>
   <string name="contacts_selected">已选择联系人</string>
   <string name="activity_share_toolbar_header">选择联系人</string>
-  <string name="no_contacts_selector">没有联系人\n\n请添加联系人后再来</string>
+  <string name="no_contacts_selector">没有联系人</string>
+  <string name="no_contacts_selector_action">请添加联系人后再来</string>
   <string name="forum_shared_snackbar">论坛已分享给选中的联系人</string>
   <string name="forum_share_message">添加一句话 (选填)</string>
   <string name="forum_share_error">分享此论坛时发生错误。</string>
@@ -261,7 +266,8 @@
   <string name="blogs_blog_post_created">博文已创建</string>
   <string name="blogs_blog_post_received">收到新博文</string>
   <string name="blogs_blog_post_scroll_to">滑动至</string>
-  <string name="blogs_feed_empty_state">没有文章\n\n此处显示您好友的博文或您订阅的文章\n\n点击钢笔图标来写一篇文章</string>
+  <string name="blogs_feed_empty_state">尚无帖子可供展示</string>
+  <string name="blogs_feed_empty_state_action">此处显示您好友和您订阅博客的文章\n\n点击钢笔图标来写一篇文章</string>
   <string name="blogs_remove_blog">删除博客</string>
   <string name="blogs_remove_blog_dialog_message">确定要删除博文吗？\n\n文章将会从您的设备删除，但仍存在于别人的设备上。\n\n您分享过博文的用户将不再收到更新。</string>
   <string name="blogs_remove_blog_ok">删除</string>
@@ -313,12 +319,34 @@
   <string name="bluetooth_setting">通过蓝牙连接</string>
   <string name="bluetooth_setting_enabled">联系人在附近时</string>
   <string name="bluetooth_setting_disabled">仅在添加联系人时</string>
-  <string name="tor_network_setting">通过 Tor 连接</string>
-  <string name="tor_network_setting_never">从不</string>
-  <string name="tor_network_setting_wifi">仅在使用无线局域网时</string>
-  <string name="tor_network_setting_always">使用无线局域网或数据流量时</string>
+  <string name="tor_network_setting">通过网络连接（Tor）</string>
+  <string name="tor_network_setting_automatic">基于当前位置自动</string>
+  <string name="tor_network_setting_without_bridges">不通过网桥连接到 Tor</string>
+  <string name="tor_network_setting_with_bridges">通过网桥连接到 Tor</string>
+  <string name="tor_network_setting_never">不要连接</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">自动的：%1$s（在 %2$s）</string>
+  <string name="tor_mobile_data_title">使用移动数据</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">安全</string>
+  <string name="pref_lock_title">屏幕锁定</string>
+  <string name="pref_lock_summary">登录时，使用设备的屏幕锁定保护 Briar</string>
+  <string name="pref_lock_disabled_summary">欲使用此功能，请为设备设置屏幕锁定</string>
+  <string name="pref_lock_timeout_title">屏幕锁定所需的无操作时间</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">当有 %s 不使用 Briar 后，自动将其锁定</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 分钟</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 分钟</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">15 分钟</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 分钟</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 小时</string>
+  <string name="pref_lock_timeout_never">从不</string>
+  <string name="pref_lock_timeout_never_summary">永不自动锁定 Briar</string>
   <string name="change_password">更改密码</string>
   <string name="current_password">当前密码</string>
   <string name="choose_new_password">新密码</string>
@@ -400,4 +428,9 @@
   <string name="permission_camera_denied_toast">未授予相机权限</string>
   <string name="qr_code">二维码</string>
   <string name="show_qr_code_fullscreen">全屏显示二维码</string>
+  <!--App Locking-->
+  <string name="lock_unlock">解锁 Briar</string>
+  <string name="lock_unlock_verbose">输入您设备的 PIN 码，图案，或密码解锁 Briar</string>
+  <string name="lock_is_locked">Briar 已锁定</string>
+  <string name="lock_tap_to_unlock">点击即可解锁</string>
 </resources>

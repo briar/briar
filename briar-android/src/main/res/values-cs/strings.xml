@@ -57,6 +57,7 @@
   <string name="groups_button">Soukromá skupina</string>
   <string name="forums_button">Fóra</string>
   <string name="blogs_button">Blogy</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
   <string name="settings_button">Nastavení</string>
   <string name="sign_out_button">Odhlásit se</string>
   <!--Transports-->
@@ -114,7 +115,6 @@
   <string name="help">Pomoc</string>
   <string name="sorry">Promiňte</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Žádné kontakty k zobrazení\n\nKlikněte na ikonu + kde můžete přidat kontakt</string>
   <string name="date_no_private_messages">Žádné zprávy</string>
   <string name="no_private_messages">Žádné zprávy k zobrazení</string>
   <string name="message_hint">Psát zprávu</string>
@@ -126,20 +126,16 @@
   <string name="add_contact_title">Přidat kontakt</string>
   <string name="face_to_face">Musíte se osobně setkat s osobou, kterou si chcete přidat jako kontakt.\n\nToto v budoucnu zabrání komukoli, aby se za vás vydával nebo četl Vaše zprávy.</string>
   <string name="continue_button">Pokračovat</string>
-  <string name="connection_failed">Chyba spojení</string>
   <string name="try_again_button">Zkusit znovu</string>
   <string name="waiting_for_contact_to_scan">Čekání na scan kontaktu a spojení\u2026</string>
   <string name="exchanging_contact_details">Výměna detailů kontaktu\u2026</string>
   <string name="contact_added_toast">Kontakt byl přidán: %s</string>
   <string name="contact_already_exists">Kontakt %s již existuje</string>
-  <string name="contact_exchange_failed">Chyba výměny kontaktu</string>
   <string name="qr_code_invalid">QR kód je neplatný</string>
   <string name="qr_code_unsupported">QR kód, který se pokoušíte skenovat, patří k starší verzi %s, která již není podporována.\n\nJe potřebné, aby oba kontakty používali nejnovější verzi a následně to zkuste znovu.</string>
   <string name="camera_error">Vyskytla se chyba fotoaparátu</string>
   <string name="connecting_to_device">Připojování k zařízení\u2026</string>
   <string name="authenticating_with_device">Ověřování se zařízením\u2026</string>
-  <string name="connection_aborted_local">Spojení bylo přerušeno! To může znamenat, že se někdo pokouší zasáhnout do vašeho spojení.</string>
-  <string name="connection_aborted_remote">Připojení bylo přerušeno vaším kontaktem! To může znamenat, že se někdo pokouší zasahovat do vašeho připojení</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Uvést vaše kontakty</string>
   <string name="introduction_onboarding_text">Můžete si navzájem představit své kontakty, takže se následně nemusejí setkat osobně, aby se připojili k Briar.</string>
@@ -167,7 +163,6 @@
     <item quantity="other">%d nových kontaktů bylo přidáno.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Žádné skupiny k zobrazení\n\nKlikněte na ikonu + kde můžete vytvořit skupinu, nebo požádejte své kontakty o sdílení skupin s vámi</string>
   <string name="groups_created_by">Vytvořeno %s</string>
   <plurals name="messages">
     <item quantity="one">%d zpráva</item>
@@ -224,7 +219,6 @@
   <string name="groups_reveal_visible_revealed_by_contact">Vztah s kontaktem je viditelný ve skupině (byl odkrytý %s)</string>
   <string name="groups_reveal_invisible">Vztah s kontaktem není viditelný ve skupině</string>
   <!--Forums-->
-  <string name="no_forums">Žádná fóra k zobrazení\n\nKlikněte na ikonu + pro vytvoření fóra, nebo požádejte své kontakty pro sdílení fóra s vámi</string>
   <string name="create_forum_title">Vytvořit fórum</string>
   <string name="choose_forum_hint">Vybrat jméno pro vaše fórum</string>
   <string name="create_forum_button">Vytvořit fórum</string>
@@ -248,7 +242,6 @@
   <string name="forum_share_button">Sdílet fórum</string>
   <string name="contacts_selected">Zvolené kontakty</string>
   <string name="activity_share_toolbar_header">Zvolit kontakty</string>
-  <string name="no_contacts_selector">Žádné kontakty k zobrazení \n\nProsím, vraťte se zpět po přidání kontaktu</string>
   <string name="forum_shared_snackbar">Fórum sdíleno s vybranými kontakty</string>
   <string name="forum_share_message">Přidat zprávu (volitelné)</string>
   <string name="forum_share_error">Při sdílení tohoto fóra nastala chyba.</string>
@@ -282,6 +275,7 @@
   <string name="blogs_blog_post_created">Příspěvek do blogu byl vytvořen</string>
   <string name="blogs_blog_post_received">Přijatý nový příspěvek v blogu.</string>
   <string name="blogs_blog_post_scroll_to">Přejít na</string>
+  <string name="blogs_feed_empty_state">Žádné příspěvky k zobrazení</string>
   <string name="blogs_remove_blog">Odstranit blog</string>
   <string name="blogs_remove_blog_ok">Odstranit</string>
   <string name="blogs_blog_removed">Blog odstraněn</string>
@@ -329,12 +323,17 @@
   <string name="bluetooth_setting">Spojení přes Bluetooth</string>
   <string name="bluetooth_setting_enabled">Vždy, když jsou kontakty v blízkosti</string>
   <string name="bluetooth_setting_disabled">Jen když přidáte kontakty</string>
-  <string name="tor_network_setting">Spojení přes Tor</string>
-  <string name="tor_network_setting_never">Nikdy</string>
-  <string name="tor_network_setting_wifi">Jen když používáte Wi-Fi</string>
-  <string name="tor_network_setting_always">Když používáte Wi-Fi nebo mobilní data</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Zabezpečení</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 hodina</string>
+  <string name="pref_lock_timeout_never">Nikdy</string>
   <string name="change_password">Změnit heslo</string>
   <string name="password_changed">Heslo bylo změněno.</string>
   <string name="panic_setting">Nastavení tlačítka Paniky</string>
@@ -410,4 +409,5 @@
   <string name="permission_camera_denied_toast">Oprávnění pro přístup k fotoaparátu nebylo uděleno</string>
   <string name="qr_code">QR kód</string>
   <string name="show_qr_code_fullscreen">Zobrazit QR kód na celou obrazovku</string>
+  <!--App Locking-->
 </resources>

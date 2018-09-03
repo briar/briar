@@ -30,6 +30,7 @@
   <string name="groups_button">קבוצות פרטיות</string>
   <string name="forums_button">פורומים</string>
   <string name="blogs_button">בלוגים</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
   <string name="settings_button">הגדרות</string>
   <string name="sign_out_button">יציאה</string>
   <!--Transports-->
@@ -97,17 +98,14 @@
 
 זאת על מנת למנוע מצב שבו מתחזים אליכם או קוראים הודעות שלכם בעתיד.</string>
   <string name="continue_button">המשך</string>
-  <string name="connection_failed">חיבור נכשל</string>
   <string name="try_again_button">נסו שוב</string>
   <string name="waiting_for_contact_to_scan">ממתין שאיש הקשר יסרוק ויתחבר\u2026</string>
   <string name="exchanging_contact_details">מחליף פרטים של איש קשר\u2026</string>
   <string name="contact_added_toast">איש קשר נוסף: %s</string>
   <string name="contact_already_exists">איש קשר %s קיים כבר</string>
-  <string name="contact_exchange_failed">החלפת אנשי קשר נכשלה</string>
   <string name="qr_code_invalid">קוד ה- QR אינו תקף</string>
   <string name="connecting_to_device">מתחבר למכשיר\u2026</string>
   <string name="authenticating_with_device">מזדהה מול המכשיר\u2026</string>
-  <string name="connection_aborted_remote">החיבור בוטל על ידי איש הקשר! זה עלול לומר שמישהו מנסה להפריע לחיבור שלכם</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">הציגו את אנשי קשר שלכם</string>
   <string name="introduction_onboarding_text">אתם יכולים להציג את אנשי הקשר שלכם אחד לשני, כך שהם לא צריכים להפגש פנים-מול-פנים על מנת להתחבר בבריאר.</string>
@@ -235,8 +233,15 @@
   <!--Settings Display-->
   <string name="display_settings_title">מציג</string>
   <!--Settings Network-->
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <!--Settings Security and Panic-->
   <string name="security_settings_title">אבטחה</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="choose_new_password">סיסמא חדשה</string>
   <string name="panic_app_setting_none">כלום</string>
   <string name="panic_setting_signout_title">יציאה</string>
@@ -253,4 +258,5 @@
   <!--Sign Out-->
   <!--Screen Filters & Tapjacking-->
   <!--Permission Requests-->
+  <!--App Locking-->
 </resources>
