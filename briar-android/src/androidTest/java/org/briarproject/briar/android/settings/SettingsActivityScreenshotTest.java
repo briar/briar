@@ -18,7 +18,8 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerMatchers.isClosed;
-import static android.support.test.espresso.contrib.RecyclerViewActions.scrollToPosition;
+import static android.support.test.espresso.contrib.RecyclerViewActions.scrollTo;
+import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
 import static android.support.test.espresso.matcher.ViewMatchers.withChild;
@@ -65,7 +66,9 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 	public void appLock() {
 		// scroll down
 		onView(withClassName(is(RecyclerView.class.getName())))
-				.perform(scrollToPosition(13));
+				.perform(scrollTo(hasDescendant(
+						// scroll down a bit more to have settings in the middle
+						withText(R.string.panic_setting))));
 
 		// wait for settings to get loaded and enabled
 		onView(withText(R.string.tor_mobile_data_title))
@@ -86,6 +89,22 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 		openNavDrawer(false);
 
 		screenshot("manual_app_lock_nav_drawer");
+	}
+
+	@Test
+	public void torSettings() {
+		// scroll down
+		onView(withClassName(is(RecyclerView.class.getName())))
+				.perform(scrollTo(hasDescendant(
+						// scroll down a bit more to have settings in the middle
+						withText(R.string.pref_lock_timeout_title))));
+
+		// wait for settings to get loaded and enabled
+		onView(withText(R.string.tor_network_setting))
+				.check(matches(isDisplayed()))
+				.perform(waitUntilMatches(isEnabled()));
+
+		screenshot("manual_tor_settings");
 	}
 
 	private void openNavDrawer(boolean expiry) {
