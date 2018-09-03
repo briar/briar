@@ -1,7 +1,6 @@
 package org.briarproject.bramble.plugin.tor;
 
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
-import org.briarproject.bramble.api.system.ResourceProvider;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -24,14 +23,11 @@ class CircumventionProviderImpl implements CircumventionProvider {
 	private static final Set<String> BRIDGES_WORK_IN_COUNTRIES =
 			new HashSet<>(asList(BRIDGES));
 
-	private final ResourceProvider resourceProvider;
-
 	@Nullable
 	private volatile List<String> bridges = null;
 
 	@Inject
-	CircumventionProviderImpl(ResourceProvider resourceProvider) {
-		this.resourceProvider = resourceProvider;
+	CircumventionProviderImpl() {
 	}
 
 	@Override
@@ -50,8 +46,8 @@ class CircumventionProviderImpl implements CircumventionProvider {
 		List<String> bridges = this.bridges;
 		if (bridges != null) return new ArrayList<>(bridges);
 
-		InputStream is =
-				resourceProvider.getResourceInputStream(BRIDGE_FILE_NAME);
+		InputStream is = getClass().getClassLoader()
+				.getResourceAsStream(BRIDGE_FILE_NAME);
 		Scanner scanner = new Scanner(is);
 
 		bridges = new ArrayList<>();

@@ -7,5 +7,5 @@ import java.io.InputStream;
 @NotNullByDefault
 public interface ResourceProvider {
 
-	InputStream getResourceInputStream(String name);
+	InputStream getResourceInputStream(String name, String extension);
 }
