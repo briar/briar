@@ -22,7 +22,7 @@ import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.forum.event.ForumInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
-import org.briarproject.briar.api.sharing.InvitationMessage;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
@@ -131,18 +131,18 @@ public class ForumSharingIntegrationTest
 		assertEquals(1, forumManager1.getForums().size());
 
 		// invitee has one invitation message from sharer
-		List<InvitationMessage> list = new ArrayList<>(
+		List<PrivateMessageHeader> list = new ArrayList<>(
 				forumSharingManager1.getInvitationMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the forum message
-		for (InvitationMessage m : list) {
+		for (PrivateMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
 				ForumInvitationRequest invitation =
 						(ForumInvitationRequest) m;
-				assertFalse(invitation.isAvailable());
-				assertEquals(forum0.getName(), invitation.getForumName());
+				assertFalse(invitation.wasAnswered());
+				assertEquals(forum0.getName(), invitation.getName());
 				assertEquals("Hi!", invitation.getMessage());
-				assertTrue(invitation.canBeOpened());
+				assertTrue(invitation.doesExist());
 			} else {
 				ForumInvitationResponse response =
 						(ForumInvitationResponse) m;
@@ -188,17 +188,17 @@ public class ForumSharingIntegrationTest
 		assertEquals(0, forumSharingManager1.getInvitations().size());
 
 		// invitee has one invitation message from sharer and one response
-		List<InvitationMessage> list = new ArrayList<>(
+		List<PrivateMessageHeader> list = new ArrayList<>(
 				forumSharingManager1.getInvitationMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check things are alright with the forum message
-		for (InvitationMessage m : list) {
+		for (PrivateMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
 				ForumInvitationRequest invitation = (ForumInvitationRequest) m;
-				assertFalse(invitation.isAvailable());
-				assertEquals(forum0.getName(), invitation.getForumName());
+				assertFalse(invitation.wasAnswered());
+				assertEquals(forum0.getName(), invitation.getName());
 				assertEquals(null, invitation.getMessage());
-				assertFalse(invitation.canBeOpened());
+				assertFalse(invitation.doesExist());
 			} else {
 				ForumInvitationResponse response = (ForumInvitationResponse) m;
 				assertFalse(response.wasAccepted());
@@ -742,7 +742,7 @@ public class ForumSharingIntegrationTest
 
 		// get invitation MessageId for later
 		MessageId invitationId = null;
-		for (InvitationMessage m : forumSharingManager1
+		for (PrivateMessageHeader m : forumSharingManager1
 				.getInvitationMessages(contactId0From1)) {
 			if (m instanceof ForumInvitationRequest) {
 				invitationId = m.getId();

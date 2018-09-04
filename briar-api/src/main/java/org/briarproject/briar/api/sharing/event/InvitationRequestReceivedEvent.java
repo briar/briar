@@ -3,7 +3,7 @@ package org.briarproject.briar.api.sharing.event;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.api.sharing.InvitationRequest;
+import org.briarproject.briar.api.messaging.PrivateRequest;
 import org.briarproject.briar.api.sharing.Shareable;
 
 import javax.annotation.concurrent.Immutable;
@@ -15,10 +15,10 @@ public abstract class InvitationRequestReceivedEvent<S extends Shareable>
 
 	private final S shareable;
 	private final ContactId contactId;
-	private final InvitationRequest request;
+	private final PrivateRequest<S> request;
 
 	protected InvitationRequestReceivedEvent(S shareable, ContactId contactId,
-			InvitationRequest request) {
+			PrivateRequest<S> request) {
 		this.shareable = shareable;
 		this.contactId = contactId;
 		this.request = request;
@@ -28,7 +28,7 @@ public abstract class InvitationRequestReceivedEvent<S extends Shareable>
 		return contactId;
 	}
 
-	public InvitationRequest getRequest() {
+	public PrivateRequest<S> getRequest() {
 		return request;
 	}
 

@@ -331,7 +331,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 			PrivateGroup pg, ContactId c) {
 		SessionId sessionId = new SessionId(m.getPrivateGroupId().getBytes());
 		return new GroupInvitationRequest(m.getId(), m.getContactGroupId(),
-				m.getTimestamp(), false, false, true, false, sessionId, pg, c,
+				m.getTimestamp(), false, false, true, false, sessionId, pg,
 				m.getMessage(), true, false);
 	}
 

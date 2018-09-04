@@ -29,11 +29,12 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.introduction.Introduction;
 import org.briarproject.briar.api.introduction.IntroductionManager;
-import org.briarproject.briar.api.introduction.IntroductionMessage;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.Role;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.client.ConversationClientImpl;
 import org.briarproject.briar.introduction.IntroducerSession.Introducee;
 
@@ -398,9 +399,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Collection<IntroductionMessage> getIntroductionMessages(ContactId c)
+	public Collection<PrivateMessageHeader> getIntroductionMessages(ContactId c)
 			throws DbException {
-		List<IntroductionMessage> messages;
+		List<PrivateMessageHeader> messages;
 		Transaction txn = db.startTransaction(true);
 		try {
 			Contact contact = db.getContact(txn, c);
@@ -470,11 +471,11 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		boolean contactExists = contactManager
 				.contactExists(txn, rm.getAuthor().getId(),
 						localAuthor.getId());
-
-		return new IntroductionRequest(sessionId, m, contactGroupId,
-				meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), author, message,
-				!meta.isAvailableToAnswer(), contactExists);
+		Introduction introduction = new Introduction(author, role);
+		return new IntroductionRequest(m, contactGroupId, meta.getTimestamp(),
+				meta.isLocal(), status.isSent(), status.isSeen(), meta.isRead(),
+				sessionId, introduction, message, !meta.isAvailableToAnswer(),
+				contactExists);
 	}
 
 	private IntroductionResponse parseInvitationResponse(GroupId contactGroupId,

@@ -18,7 +18,7 @@ import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.event.ForumInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
-import org.briarproject.briar.api.sharing.InvitationRequest;
+import org.briarproject.briar.api.messaging.PrivateRequest;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -52,7 +52,7 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 	@Override
 	Event getInvitationRequestReceivedEvent(InviteMessage<Forum> m,
 			ContactId contactId, boolean available, boolean canBeOpened) {
-		InvitationRequest<Forum> request = invitationFactory
+		PrivateRequest<Forum> request = invitationFactory
 				.createInvitationRequest(false, false, true, false, m,
 						contactId, available, canBeOpened);
 		return new ForumInvitationRequestReceivedEvent(m.getShareable(),

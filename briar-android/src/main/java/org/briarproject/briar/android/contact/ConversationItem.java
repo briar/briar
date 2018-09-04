@@ -16,10 +16,11 @@ import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.briar.api.messaging.PrivateRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
-import org.briarproject.briar.api.sharing.InvitationRequest;
 import org.briarproject.briar.api.sharing.InvitationResponse;
+import org.briarproject.briar.api.sharing.Shareable;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -87,35 +88,6 @@ abstract class ConversationItem {
 	}
 
 	static ConversationItem from(Context ctx, String contactName,
-			IntroductionRequest ir) {
-		if (ir.isLocal()) {
-			String text = ctx.getString(R.string.introduction_request_sent,
-					contactName, ir.getName());
-			return new ConversationNoticeOutItem(ir.getId(),
-					ir.getGroupId(), text, ir.getMessage(), ir.getTimestamp(),
-					ir.isSent(), ir.isSeen());
-		} else {
-			String text;
-			if (ir.wasAnswered()) {
-				text = ctx.getString(
-						R.string.introduction_request_answered_received,
-						contactName, ir.getName());
-			} else if (ir.contactExists()){
-				text = ctx.getString(
-						R.string.introduction_request_exists_received,
-						contactName, ir.getName());
-			} else {
-				text = ctx.getString(R.string.introduction_request_received,
-						contactName, ir.getName());
-			}
-			return new ConversationRequestItem(ir.getId(),
-					ir.getGroupId(), INTRODUCTION, ir.getSessionId(), text,
-					ir.getMessage(), ir.getTimestamp(), ir.isRead(), null,
-					ir.wasAnswered(), false);
-		}
-	}
-
-	static ConversationItem from(Context ctx, String contactName,
 			IntroductionResponse ir) {
 		if (ir.isLocal()) {
 			String text;
@@ -156,21 +128,22 @@ abstract class ConversationItem {
 	}
 
 	static ConversationItem from(Context ctx, String contactName,
-			InvitationRequest ir) {
+			PrivateRequest ir) {
 		if (ir.isLocal()) {
 			String text;
-			if (ir instanceof ForumInvitationRequest) {
+			if (ir instanceof IntroductionRequest) {
+				text = ctx.getString(R.string.introduction_request_sent,
+						contactName, ir.getName());
+			} else if (ir instanceof ForumInvitationRequest) {
 				text = ctx.getString(R.string.forum_invitation_sent,
-						((ForumInvitationRequest) ir).getForumName(),
-						contactName);
+						ir.getName(), contactName);
 			} else if (ir instanceof BlogInvitationRequest) {
 				text = ctx.getString(R.string.blogs_sharing_invitation_sent,
-						((BlogInvitationRequest) ir).getBlogAuthorName(),
-						contactName);
+						ir.getName(), contactName);
 			} else if (ir instanceof GroupInvitationRequest) {
 				text = ctx.getString(
 						R.string.groups_invitations_invitation_sent,
-						contactName, ir.getShareable().getName());
+						contactName, ir.getName());
 			} else {
 				throw new IllegalArgumentException("Unknown InvitationRequest");
 			}
@@ -180,20 +153,36 @@ abstract class ConversationItem {
 		} else {
 			String text;
 			RequestType type;
-			if (ir instanceof ForumInvitationRequest) {
+			if (ir instanceof IntroductionRequest) {
+				type = INTRODUCTION;
+				if (ir.wasAnswered()) {
+					text = ctx.getString(
+							R.string.introduction_request_answered_received,
+							contactName, ir.getName());
+				} else if (ir.doesExist()) {
+					text = ctx.getString(
+							R.string.introduction_request_exists_received,
+							contactName, ir.getName());
+				} else {
+					text = ctx.getString(R.string.introduction_request_received,
+							contactName, ir.getName());
+				}
+				return new ConversationRequestItem(ir.getId(),
+						ir.getGroupId(), type, ir.getSessionId(), text,
+						ir.getMessage(), ir.getTimestamp(), ir.isRead(), null,
+						ir.wasAnswered(), false);
+			} else if (ir instanceof ForumInvitationRequest) {
 				text = ctx.getString(R.string.forum_invitation_received,
-						contactName,
-						((ForumInvitationRequest) ir).getForumName());
+						contactName, ir.getName());
 				type = FORUM;
 			} else if (ir instanceof BlogInvitationRequest) {
 				text = ctx.getString(R.string.blogs_sharing_invitation_received,
-						contactName,
-						((BlogInvitationRequest) ir).getBlogAuthorName());
+						contactName, ir.getName());
 				type = BLOG;
 			} else if (ir instanceof GroupInvitationRequest) {
 				text = ctx.getString(
 						R.string.groups_invitations_invitation_received,
-						contactName, ir.getShareable().getName());
+						contactName, ir.getName());
 				type = GROUP;
 			} else {
 				throw new IllegalArgumentException("Unknown InvitationRequest");
@@ -201,8 +190,8 @@ abstract class ConversationItem {
 			return new ConversationRequestItem(ir.getId(),
 					ir.getGroupId(), type, ir.getSessionId(), text,
 					ir.getMessage(), ir.getTimestamp(), ir.isRead(),
-					ir.getShareable().getId(), !ir.isAvailable(),
-					ir.canBeOpened());
+					((Shareable) ir.getObject()).getId(), !ir.wasAnswered(),
+					ir.doesExist());
 		}
 	}
 
@@ -276,8 +265,8 @@ abstract class ConversationItem {
 			return from(ctx, "", (IntroductionRequest) h);
 		} else if(h instanceof IntroductionResponse) {
 			return from(ctx, "", (IntroductionResponse) h);
-		} else if(h instanceof InvitationRequest) {
-			return from(ctx, "", (InvitationRequest) h);
+		} else if(h instanceof PrivateRequest) {
+			return from(ctx, "", (PrivateRequest) h);
 		} else if(h instanceof InvitationResponse) {
 			return from(ctx, "", (InvitationResponse) h);
 		} else {

@@ -24,7 +24,7 @@ public class BlogInvitationFactoryImpl
 		SessionId sessionId = new SessionId(m.getShareableId().getBytes());
 		return new BlogInvitationRequest(m.getId(), m.getContactGroupId(),
 				m.getTimestamp(), local, sent, seen, read, sessionId,
-				m.getShareable(), c, m.getMessage(), available, canBeOpened);
+				m.getShareable(), m.getMessage(), available, canBeOpened);
 	}
 
 	@Override

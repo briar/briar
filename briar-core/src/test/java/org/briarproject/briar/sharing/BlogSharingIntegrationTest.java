@@ -18,7 +18,7 @@ import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
-import org.briarproject.briar.api.sharing.InvitationMessage;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
@@ -147,17 +147,17 @@ public class BlogSharingIntegrationTest
 		assertTrue(blogManager1.getBlogs().contains(blog2));
 
 		// invitee has one invitation message from sharer
-		List<InvitationMessage> list = new ArrayList<>(
+		List<PrivateMessageHeader> list = new ArrayList<>(
 				blogSharingManager1.getInvitationMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the message
-		for (InvitationMessage m : list) {
+		for (PrivateMessageHeader m : list) {
 			if (m instanceof BlogInvitationRequest) {
 				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
-				assertFalse(invitation.isAvailable());
+				assertFalse(invitation.wasAnswered());
 				assertEquals(blog2.getAuthor().getName(),
-						invitation.getBlogAuthorName());
-				assertFalse(invitation.getShareable().isRssFeed());
+						invitation.getName());
+				assertFalse(invitation.getObject().isRssFeed());
 				assertEquals("Hi!", invitation.getMessage());
 			} else {
 				BlogInvitationResponse response = (BlogInvitationResponse) m;
@@ -218,17 +218,17 @@ public class BlogSharingIntegrationTest
 		assertTrue(blogManager1.getBlogs().contains(rssBlog));
 
 		// invitee has one invitation message from sharer
-		List<InvitationMessage> list = new ArrayList<>(
+		List<PrivateMessageHeader> list = new ArrayList<>(
 				blogSharingManager1.getInvitationMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the message
-		for (InvitationMessage m : list) {
+		for (PrivateMessageHeader m : list) {
 			if (m instanceof BlogInvitationRequest) {
 				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
-				assertFalse(invitation.isAvailable());
+				assertFalse(invitation.wasAnswered());
 				assertEquals(rssBlog.getAuthor().getName(),
-						invitation.getBlogAuthorName());
-				assertTrue(invitation.getShareable().isRssFeed());
+						invitation.getName());
+				assertTrue(invitation.getObject().isRssFeed());
 				assertEquals("Hi!", invitation.getMessage());
 			} else {
 				BlogInvitationResponse response = (BlogInvitationResponse) m;
@@ -277,16 +277,16 @@ public class BlogSharingIntegrationTest
 		assertEquals(0, blogSharingManager1.getInvitations().size());
 
 		// invitee has one invitation message from sharer and one response
-		List<InvitationMessage> list = new ArrayList<>(
+		List<PrivateMessageHeader> list = new ArrayList<>(
 				blogSharingManager1.getInvitationMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check things are alright with the  message
-		for (InvitationMessage m : list) {
+		for (PrivateMessageHeader m : list) {
 			if (m instanceof BlogInvitationRequest) {
 				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
-				assertFalse(invitation.isAvailable());
+				assertFalse(invitation.wasAnswered());
 				assertEquals(blog2.getAuthor().getName(),
-						invitation.getBlogAuthorName());
+						invitation.getName());
 				assertEquals(null, invitation.getMessage());
 			} else {
 				BlogInvitationResponse response = (BlogInvitationResponse) m;
@@ -382,7 +382,7 @@ public class BlogSharingIntegrationTest
 		assertTrue(contacts.contains(contact0From1));
 
 		// make sure 1 knows that they have blog2 already
-		Collection<InvitationMessage> messages =
+		Collection<PrivateMessageHeader> messages =
 				blogSharingManager1.getInvitationMessages(contactId0From1);
 		assertEquals(2, messages.size());
 		assertEquals(blog2, blogManager1.getBlog(blog2.getId()));

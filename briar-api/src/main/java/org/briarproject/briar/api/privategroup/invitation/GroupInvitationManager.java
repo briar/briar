@@ -9,8 +9,8 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.messaging.ConversationManager.ConversationClient;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
-import org.briarproject.briar.api.sharing.InvitationMessage;
 
 import java.util.Collection;
 
@@ -77,7 +77,7 @@ public interface GroupInvitationManager extends ConversationClient {
 	 * Returns all private group invitation messages related to the given
 	 * contact.
 	 */
-	Collection<InvitationMessage> getInvitationMessages(ContactId c)
+	Collection<PrivateMessageHeader> getInvitationMessages(ContactId c)
 			throws DbException;
 
 	/**

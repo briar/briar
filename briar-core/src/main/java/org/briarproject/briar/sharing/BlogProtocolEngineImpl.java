@@ -18,7 +18,7 @@ import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
-import org.briarproject.briar.api.sharing.InvitationRequest;
+import org.briarproject.briar.api.messaging.PrivateRequest;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -50,7 +50,7 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 	@Override
 	Event getInvitationRequestReceivedEvent(InviteMessage<Blog> m,
 			ContactId contactId, boolean available, boolean canBeOpened) {
-		InvitationRequest<Blog> request = invitationFactory
+		PrivateRequest<Blog> request = invitationFactory
 				.createInvitationRequest(false, false, true, false, m,
 						contactId, available, canBeOpened);
 		return new BlogInvitationRequestReceivedEvent(m.getShareable(),

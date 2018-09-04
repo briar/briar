@@ -25,13 +25,13 @@ import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroductionManager;
-import org.briarproject.briar.api.introduction.IntroductionMessage;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -608,10 +608,10 @@ public class IntroductionIntegrationTest
 		// assert that introducees get notified about the existing contact
 		IntroductionRequest ir1 =
 				getIntroductionRequest(introductionManager1, contactId0From1);
-		assertTrue(ir1.contactExists());
+		assertTrue(ir1.doesExist());
 		IntroductionRequest ir2 =
 				getIntroductionRequest(introductionManager2, contactId0From2);
-		assertTrue(ir2.contactExists());
+		assertTrue(ir2.doesExist());
 
 		// sync ACCEPT messages back to introducer
 		sync1To0(1, true);
@@ -1100,7 +1100,7 @@ public class IntroductionIntegrationTest
 	}
 
 	private void assertDefaultUiMessages() throws DbException {
-		Collection<IntroductionMessage> messages =
+		Collection<PrivateMessageHeader> messages =
 				introductionManager0.getIntroductionMessages(contactId1From0);
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
@@ -1122,8 +1122,8 @@ public class IntroductionIntegrationTest
 	}
 
 	private void assertMessagesAreAcked(
-			Collection<IntroductionMessage> messages) {
-		for (IntroductionMessage msg : messages) {
+			Collection<PrivateMessageHeader> messages) {
+		for (PrivateMessageHeader msg : messages) {
 			if (msg.isLocal()) assertTrue(msg.isSeen());
 		}
 	}
@@ -1299,7 +1299,7 @@ public class IntroductionIntegrationTest
 	private IntroductionRequest getIntroductionRequest(
 			IntroductionManager manager, ContactId contactId)
 			throws DbException {
-		for (IntroductionMessage im : manager
+		for (PrivateMessageHeader im : manager
 				.getIntroductionMessages(contactId)) {
 			if (im instanceof IntroductionRequest) {
 				return (IntroductionRequest) im;

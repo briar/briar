@@ -62,7 +62,6 @@ import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
-import org.briarproject.briar.api.introduction.IntroductionMessage;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
@@ -71,10 +70,9 @@ import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.briar.api.messaging.PrivateRequest;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
-import org.briarproject.briar.api.sharing.InvitationMessage;
-import org.briarproject.briar.api.sharing.InvitationRequest;
 import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.api.sharing.event.InvitationRequestReceivedEvent;
 import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
@@ -344,15 +342,15 @@ public class ConversationActivity extends BriarActivity
 				long start = now();
 				Collection<PrivateMessageHeader> headers =
 						messagingManager.getMessageHeaders(contactId);
-				Collection<IntroductionMessage> introductions =
+				Collection<PrivateMessageHeader> introductions =
 						introductionManager.getIntroductionMessages(contactId);
-				Collection<InvitationMessage> forumInvitations =
+				Collection<PrivateMessageHeader> forumInvitations =
 						forumSharingManager.getInvitationMessages(contactId);
-				Collection<InvitationMessage> blogInvitations =
+				Collection<PrivateMessageHeader> blogInvitations =
 						blogSharingManager.getInvitationMessages(contactId);
-				Collection<InvitationMessage> groupInvitations =
+				Collection<PrivateMessageHeader> groupInvitations =
 						groupInvitationManager.getInvitationMessages(contactId);
-				List<InvitationMessage> invitations = new ArrayList<>(
+				List<PrivateMessageHeader> invitations = new ArrayList<>(
 						forumInvitations.size() + blogInvitations.size() +
 								groupInvitations.size());
 				invitations.addAll(forumInvitations);
@@ -370,8 +368,8 @@ public class ConversationActivity extends BriarActivity
 
 	private void displayMessages(int revision,
 			Collection<PrivateMessageHeader> headers,
-			Collection<IntroductionMessage> introductions,
-			Collection<InvitationMessage> invitations) {
+			Collection<PrivateMessageHeader> introductions,
+			Collection<PrivateMessageHeader> invitations) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
@@ -397,8 +395,8 @@ public class ConversationActivity extends BriarActivity
 	@SuppressWarnings("ConstantConditions")
 	private List<ConversationItem> createItems(
 			Collection<PrivateMessageHeader> headers,
-			Collection<IntroductionMessage> introductions,
-			Collection<InvitationMessage> invitations) {
+			Collection<PrivateMessageHeader> introductions,
+			Collection<PrivateMessageHeader> invitations) {
 		int size =
 				headers.size() + introductions.size() + invitations.size();
 		List<ConversationItem> items = new ArrayList<>(size);
@@ -409,7 +407,7 @@ public class ConversationActivity extends BriarActivity
 			else item.setBody(body);
 			items.add(item);
 		}
-		for (IntroductionMessage m : introductions) {
+		for (PrivateMessageHeader m : introductions) {
 			ConversationItem item;
 			if (m instanceof IntroductionRequest) {
 				IntroductionRequest i = (IntroductionRequest) m;
@@ -420,11 +418,11 @@ public class ConversationActivity extends BriarActivity
 			}
 			items.add(item);
 		}
-		for (InvitationMessage i : invitations) {
+		for (PrivateMessageHeader i : invitations) {
 			ConversationItem item;
-			if (i instanceof InvitationRequest) {
-				InvitationRequest r = (InvitationRequest) i;
-				item = ConversationItem.from(this, contactName, r);
+			if (i instanceof PrivateRequest) {
+				item = ConversationItem
+						.from(this, contactName, (PrivateRequest) i);
 			} else {
 				InvitationResponse r = (InvitationResponse) i;
 				item = ConversationItem.from(this, contactName, r);
@@ -525,7 +523,7 @@ public class ConversationActivity extends BriarActivity
 					(InvitationRequestReceivedEvent) e;
 			if (event.getContactId().equals(contactId)) {
 				LOG.info("Invitation received, adding...");
-				InvitationRequest ir = event.getRequest();
+				PrivateRequest ir = event.getRequest();
 				handleInvitationRequest(ir);
 			}
 		} else if (e instanceof InvitationResponseReceivedEvent) {
@@ -586,7 +584,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void handleInvitationRequest(InvitationRequest m) {
+	private void handleInvitationRequest(PrivateRequest m) {
 		getContactNameTask().addListener(new FutureTaskListener<String>() {
 			@Override
 			public void onSuccess(String contactName) {

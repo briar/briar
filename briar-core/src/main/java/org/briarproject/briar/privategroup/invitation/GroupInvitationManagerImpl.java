@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -34,7 +35,6 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationItem;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
-import org.briarproject.briar.api.sharing.InvitationMessage;
 import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.util.ArrayList;
@@ -368,9 +368,9 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Collection<InvitationMessage> getInvitationMessages(ContactId c)
+	public Collection<PrivateMessageHeader> getInvitationMessages(ContactId c)
 			throws DbException {
-		List<InvitationMessage> messages;
+		List<PrivateMessageHeader> messages;
 		Transaction txn = db.startTransaction(true);
 		try {
 			Contact contact = db.getContact(txn, c);
@@ -422,7 +422,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				db.containsGroup(txn, invite.getPrivateGroupId());
 		return new GroupInvitationRequest(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), sessionId, pg, c,
+				status.isSeen(), meta.isRead(), sessionId, pg,
 				invite.getMessage(), meta.isAvailableToAnswer(), canBeOpened);
 	}
 

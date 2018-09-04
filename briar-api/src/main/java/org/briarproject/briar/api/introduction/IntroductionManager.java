@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.messaging.ConversationManager.ConversationClient;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 
 import java.util.Collection;
 
@@ -50,7 +51,7 @@ public interface IntroductionManager extends ConversationClient {
 	/**
 	 * Returns all introduction messages for the given contact.
 	 */
-	Collection<IntroductionMessage> getIntroductionMessages(ContactId contactId)
+	Collection<PrivateMessageHeader> getIntroductionMessages(ContactId contactId)
 			throws DbException;
 
 }

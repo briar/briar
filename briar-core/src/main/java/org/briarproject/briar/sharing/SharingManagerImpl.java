@@ -26,8 +26,8 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.api.sharing.InvitationMessage;
-import org.briarproject.briar.api.sharing.InvitationRequest;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.briar.api.messaging.PrivateRequest;
 import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.api.sharing.Shareable;
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
@@ -321,9 +321,9 @@ abstract class SharingManagerImpl<S extends Shareable>
 	}
 
 	@Override
-	public Collection<InvitationMessage> getInvitationMessages(ContactId c)
+	public Collection<PrivateMessageHeader> getInvitationMessages(ContactId c)
 			throws DbException {
-		List<InvitationMessage> messages;
+		List<PrivateMessageHeader> messages;
 		Transaction txn = db.startTransaction(true);
 		try {
 			Contact contact = db.getContact(txn, c);
@@ -360,7 +360,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 		return messages;
 	}
 
-	private InvitationRequest parseInvitationRequest(Transaction txn,
+	private PrivateRequest parseInvitationRequest(Transaction txn,
 			ContactId c, MessageId m, MessageMetadata meta,
 			MessageStatus status) throws DbException, FormatException {
 		// Look up the invite message to get the details of the private group

@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.introduction.Introduction;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
@@ -254,9 +255,11 @@ class IntroduceeProtocolEngine
 				localAuthor.getId());
 		boolean contactExists = contactManager
 				.contactExists(txn, m.getAuthor().getId(), localAuthor.getId());
-		IntroductionRequest request = new IntroductionRequest(s.getSessionId(),
-				m.getMessageId(), m.getGroupId(), m.getTimestamp(), false,
-				false, false, false, m.getAuthor(), m.getMessage(), false,
+		Introduction introduction =
+				new Introduction(m.getAuthor(), s.getRole());
+		IntroductionRequest request = new IntroductionRequest(m.getMessageId(),
+				m.getGroupId(), m.getTimestamp(), false, false, false, false,
+				s.getSessionId(), introduction, m.getMessage(), false,
 				contactExists);
 		IntroductionRequestReceivedEvent e =
 				new IntroductionRequestReceivedEvent(c.getId(), request);
