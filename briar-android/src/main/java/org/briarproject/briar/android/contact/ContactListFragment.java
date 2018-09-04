@@ -36,7 +36,6 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.keyagreement.ContactExchangeActivity;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
-import org.briarproject.briar.api.client.BaseMessageHeader;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
@@ -283,7 +282,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		}
 	}
 
-	private void updateItem(ContactId c, BaseMessageHeader h) {
+	private void updateItem(ContactId c, PrivateMessageHeader h) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.incrementRevision();
 			int position = adapter.findItemPosition(c);

@@ -100,7 +100,6 @@ public class GroupInvitationIntegrationTest
 		assertEquals(msg, request.getMessage());
 		assertEquals(author0, request.getShareable().getCreator());
 		assertEquals(timestamp, request.getTimestamp());
-		assertEquals(contactId0From1, request.getContactId());
 		assertEquals(privateGroup0.getName(), request.getShareable().getName());
 		assertFalse(request.isLocal());
 		assertFalse(request.isRead());
@@ -126,7 +125,6 @@ public class GroupInvitationIntegrationTest
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
 				InvitationResponse response = (GroupInvitationResponse) m;
-				assertEquals(contactId0From1, response.getContactId());
 				assertTrue(response.isLocal());
 				assertFalse(response.wasAccepted());
 			}
@@ -143,7 +141,6 @@ public class GroupInvitationIntegrationTest
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
 				InvitationResponse response = (GroupInvitationResponse) m;
-				assertEquals(contactId0From1, response.getContactId());
 				assertFalse(response.isLocal());
 				assertFalse(response.wasAccepted());
 			}

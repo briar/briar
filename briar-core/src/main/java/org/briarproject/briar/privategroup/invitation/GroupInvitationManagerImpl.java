@@ -434,7 +434,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		return new GroupInvitationResponse(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
 				status.isSeen(), meta.isRead(), sessionId,
-				meta.getPrivateGroupId(), c, accept);
+				meta.getPrivateGroupId(), accept);
 	}
 
 	@Override

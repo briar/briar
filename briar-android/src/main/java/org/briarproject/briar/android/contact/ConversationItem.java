@@ -11,7 +11,6 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.ConversationRequestItem.RequestType;
 import org.briarproject.briar.api.blog.BlogInvitationRequest;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
-import org.briarproject.briar.api.client.BaseMessageHeader;
 import org.briarproject.briar.api.forum.ForumInvitationRequest;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
@@ -92,7 +91,7 @@ abstract class ConversationItem {
 		if (ir.isLocal()) {
 			String text = ctx.getString(R.string.introduction_request_sent,
 					contactName, ir.getName());
-			return new ConversationNoticeOutItem(ir.getMessageId(),
+			return new ConversationNoticeOutItem(ir.getId(),
 					ir.getGroupId(), text, ir.getMessage(), ir.getTimestamp(),
 					ir.isSent(), ir.isSeen());
 		} else {
@@ -109,7 +108,7 @@ abstract class ConversationItem {
 				text = ctx.getString(R.string.introduction_request_received,
 						contactName, ir.getName());
 			}
-			return new ConversationRequestItem(ir.getMessageId(),
+			return new ConversationRequestItem(ir.getId(),
 					ir.getGroupId(), INTRODUCTION, ir.getSessionId(), text,
 					ir.getMessage(), ir.getTimestamp(), ir.isRead(), null,
 					ir.wasAnswered(), false);
@@ -132,9 +131,8 @@ abstract class ConversationItem {
 						R.string.introduction_response_declined_sent,
 						ir.getName());
 			}
-			return new ConversationNoticeOutItem(ir.getMessageId(),
-					ir.getGroupId(), text, null, ir.getTimestamp(), ir.isSent(),
-					ir.isSeen());
+			return new ConversationNoticeOutItem(ir.getId(), ir.getGroupId(),
+					text, null, ir.getTimestamp(), ir.isSent(), ir.isSeen());
 		} else {
 			String text;
 			if (ir.wasAccepted()) {
@@ -152,9 +150,8 @@ abstract class ConversationItem {
 							contactName, ir.getName());
 				}
 			}
-			return new ConversationNoticeInItem(ir.getMessageId(),
-					ir.getGroupId(), text, null, ir.getTimestamp(),
-					ir.isRead());
+			return new ConversationNoticeInItem(ir.getId(), ir.getGroupId(),
+					text, null, ir.getTimestamp(), ir.isRead());
 		}
 	}
 
@@ -272,12 +269,10 @@ abstract class ConversationItem {
 	/**
 	 * This method should not be used to display the resulting ConversationItem
 	 * in the UI, but only to update list information based on the
-	 * BaseMessageHeader.
+	 * PrivateMessageHeader.
 	 **/
-	static ConversationItem from(Context ctx, BaseMessageHeader h) {
-		if (h instanceof PrivateMessageHeader) {
-			return from((PrivateMessageHeader) h);
-		} else if(h instanceof IntroductionRequest) {
+	static ConversationItem from(Context ctx, PrivateMessageHeader h) {
+		if(h instanceof IntroductionRequest) {
 			return from(ctx, "", (IntroductionRequest) h);
 		} else if(h instanceof IntroductionResponse) {
 			return from(ctx, "", (IntroductionResponse) h);
@@ -286,7 +281,7 @@ abstract class ConversationItem {
 		} else if(h instanceof InvitationResponse) {
 			return from(ctx, "", (InvitationResponse) h);
 		} else {
-			throw new IllegalArgumentException("Unknown message header");
+			return from(h);
 		}
 	}
 

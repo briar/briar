@@ -20,7 +20,7 @@ public class GroupInvitationRequest extends InvitationRequest<PrivateGroup> {
 			SessionId sessionId, PrivateGroup shareable, ContactId contactId,
 			@Nullable String message, boolean available, boolean canBeOpened) {
 		super(id, groupId, time, local, sent, seen, read, sessionId, shareable,
-				contactId, message, available, canBeOpened);
+				message, available, canBeOpened);
 	}
 
 }

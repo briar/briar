@@ -153,18 +153,14 @@ public class BlogSharingIntegrationTest
 		// check other things are alright with the message
 		for (InvitationMessage m : list) {
 			if (m instanceof BlogInvitationRequest) {
-				BlogInvitationRequest invitation =
-						(BlogInvitationRequest) m;
+				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
 				assertFalse(invitation.isAvailable());
 				assertEquals(blog2.getAuthor().getName(),
 						invitation.getBlogAuthorName());
 				assertFalse(invitation.getShareable().isRssFeed());
-				assertEquals(contactId1From0, invitation.getContactId());
 				assertEquals("Hi!", invitation.getMessage());
 			} else {
-				BlogInvitationResponse response =
-						(BlogInvitationResponse) m;
-				assertEquals(contactId0From1, response.getContactId());
+				BlogInvitationResponse response = (BlogInvitationResponse) m;
 				assertTrue(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}
@@ -228,18 +224,14 @@ public class BlogSharingIntegrationTest
 		// check other things are alright with the message
 		for (InvitationMessage m : list) {
 			if (m instanceof BlogInvitationRequest) {
-				BlogInvitationRequest invitation =
-						(BlogInvitationRequest) m;
+				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
 				assertFalse(invitation.isAvailable());
 				assertEquals(rssBlog.getAuthor().getName(),
 						invitation.getBlogAuthorName());
 				assertTrue(invitation.getShareable().isRssFeed());
-				assertEquals(contactId1From0, invitation.getContactId());
 				assertEquals("Hi!", invitation.getMessage());
 			} else {
-				BlogInvitationResponse response =
-						(BlogInvitationResponse) m;
-				assertEquals(contactId0From1, response.getContactId());
+				BlogInvitationResponse response = (BlogInvitationResponse) m;
 				assertTrue(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}
@@ -291,17 +283,13 @@ public class BlogSharingIntegrationTest
 		// check things are alright with the  message
 		for (InvitationMessage m : list) {
 			if (m instanceof BlogInvitationRequest) {
-				BlogInvitationRequest invitation =
-						(BlogInvitationRequest) m;
+				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
 				assertFalse(invitation.isAvailable());
 				assertEquals(blog2.getAuthor().getName(),
 						invitation.getBlogAuthorName());
-				assertEquals(contactId1From0, invitation.getContactId());
 				assertEquals(null, invitation.getMessage());
 			} else {
-				BlogInvitationResponse response =
-						(BlogInvitationResponse) m;
-				assertEquals(contactId0From1, response.getContactId());
+				BlogInvitationResponse response = (BlogInvitationResponse) m;
 				assertFalse(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}

@@ -706,7 +706,6 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		assertEquals(2, messages.size());
 		for (InvitationMessage m : messages) {
 			assertEquals(contactGroup.getId(), m.getGroupId());
-			assertEquals(contactId, m.getContactId());
 			if (m.getId().equals(message.getId())) {
 				assertTrue(m instanceof GroupInvitationRequest);
 				assertEquals(time1, m.getTimestamp());

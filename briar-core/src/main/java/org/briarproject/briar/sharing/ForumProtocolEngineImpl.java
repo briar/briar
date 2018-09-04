@@ -65,7 +65,7 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 		ForumInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
-						m.getShareableId(), contactId, true);
+						m.getShareableId(), true);
 		return new ForumInvitationResponseReceivedEvent(contactId, response);
 	}
 
@@ -75,7 +75,7 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 		ForumInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
-						m.getShareableId(), contactId, true);
+						m.getShareableId(), true);
 		return new ForumInvitationResponseReceivedEvent(contactId, response);
 	}
 

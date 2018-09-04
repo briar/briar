@@ -17,7 +17,7 @@ public class BlogInvitationRequest extends InvitationRequest<Blog> {
 			SessionId sessionId, Blog blog, ContactId contactId,
 			@Nullable String message, boolean available, boolean canBeOpened) {
 		super(id, groupId, time, local, sent, seen, read, sessionId, blog,
-				contactId, message, available, canBeOpened);
+				message, available, canBeOpened);
 	}
 
 	public String getBlogAuthorName() {

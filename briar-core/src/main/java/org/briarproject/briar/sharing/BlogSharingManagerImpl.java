@@ -80,8 +80,8 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 
 		// Pre-share both blogs, if they have not been shared already
 		try {
-			preShareShareable(txn, c, ourBlog);
-			preShareShareable(txn, c, theirBlog);
+			preShareGroup(txn, c, ourBlog.getGroup());
+			preShareGroup(txn, c, theirBlog.getGroup());
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

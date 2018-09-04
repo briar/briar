@@ -19,7 +19,7 @@ public class ForumInvitationRequest extends InvitationRequest<Forum> {
 			SessionId sessionId, Forum forum, ContactId contactId,
 			@Nullable String message, boolean available, boolean canBeOpened) {
 		super(id, groupId, time, local, sent, seen, read, sessionId, forum,
-				contactId, message, available, canBeOpened);
+				message, available, canBeOpened);
 	}
 
 	public String getForumName() {

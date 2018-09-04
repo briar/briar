@@ -31,10 +31,10 @@ public class ForumInvitationFactoryImpl
 	public ForumInvitationResponse createInvitationResponse(MessageId id,
 			GroupId contactGroupId, long time, boolean local, boolean sent,
 			boolean seen, boolean read, GroupId shareableId,
-			ContactId contactId, boolean accept) {
+			boolean accept) {
 		SessionId sessionId = new SessionId(shareableId.getBytes());
 		return new ForumInvitationResponse(id, contactGroupId, time, local,
-				sent, seen, read, sessionId, shareableId, contactId, accept);
+				sent, seen, read, sessionId, shareableId, accept);
 	}
 
 }

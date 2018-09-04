@@ -41,7 +41,6 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_AUTH;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_RESPONSES;
 import static org.briarproject.briar.introduction.IntroduceeState.LOCAL_ACCEPTED;
@@ -255,11 +254,10 @@ class IntroduceeProtocolEngine
 				localAuthor.getId());
 		boolean contactExists = contactManager
 				.contactExists(txn, m.getAuthor().getId(), localAuthor.getId());
-		IntroductionRequest request =
-				new IntroductionRequest(s.getSessionId(), m.getMessageId(),
-						m.getGroupId(), INTRODUCEE, m.getTimestamp(), false,
-						false, false, false, m.getAuthor().getName(), false,
-						m.getMessage(), false, contactExists);
+		IntroductionRequest request = new IntroductionRequest(s.getSessionId(),
+				m.getMessageId(), m.getGroupId(), m.getTimestamp(), false,
+				false, false, false, m.getAuthor(), m.getMessage(), false,
+				contactExists);
 		IntroductionRequestReceivedEvent e =
 				new IntroductionRequestReceivedEvent(c.getId(), request);
 		txn.attach(e);

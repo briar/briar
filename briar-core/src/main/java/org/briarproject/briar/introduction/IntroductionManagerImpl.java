@@ -472,10 +472,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 						localAuthor.getId());
 
 		return new IntroductionRequest(sessionId, m, contactGroupId,
-				role, meta.getTimestamp(), meta.isLocal(),
-				status.isSent(), status.isSeen(), meta.isRead(),
-				author.getName(), false, message, !meta.isAvailableToAnswer(),
-				contactExists);
+				meta.getTimestamp(), meta.isLocal(), status.isSent(),
+				status.isSeen(), meta.isRead(), author, message,
+				!meta.isAvailableToAnswer(), contactExists);
 	}
 
 	private IntroductionResponse parseInvitationResponse(GroupId contactGroupId,

@@ -156,29 +156,29 @@ abstract class SharingManagerImpl<S extends Shareable>
 	}
 
 	/**
-	 * Adds the given Shareable and initializes a session between us
+	 * Adds the given Group and initializes a session between us
 	 * and the Contact c in state SHARING.
 	 * If a session already exists, this does nothing.
 	 */
-	void preShareShareable(Transaction txn, Contact c, S shareable)
+	void preShareGroup(Transaction txn, Contact c, Group g)
 			throws DbException, FormatException {
 		// Return if a session already exists with the contact
 		GroupId contactGroupId = getContactGroup(c).getId();
 		StoredSession existingSession = getSession(txn, contactGroupId,
-				getSessionId(shareable.getId()));
+				getSessionId(g.getId()));
 		if (existingSession != null) return;
 
-		// Add the shareable
-		db.addGroup(txn, shareable.getGroup());
+		// Add the shareable's group
+		db.addGroup(txn, g);
 
 		// Apply the client's visibility
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				c.getId(), getShareableClientId(), getShareableMajorVersion());
-		db.setGroupVisibility(txn, c.getId(), shareable.getId(), client);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 
 		// Initialize session in sharing state
-		Session session = new Session(SHARING, contactGroupId,
-				shareable.getId(), null, null, 0, 0);
+		Session session = new Session(SHARING, contactGroupId, g.getId(),
+				null, null, 0, 0);
 		MessageId storageId = createStorageId(txn, contactGroupId);
 		storeSession(txn, storageId, session);
 	}
@@ -343,11 +343,11 @@ abstract class SharingManagerImpl<S extends Shareable>
 							parseInvitationRequest(txn, c, m, meta, status));
 				} else if (type == ACCEPT) {
 					messages.add(
-							parseInvitationResponse(c, contactGroupId, m, meta,
+							parseInvitationResponse(contactGroupId, m, meta,
 									status, true));
 				} else if (type == DECLINE) {
 					messages.add(
-							parseInvitationResponse(c, contactGroupId, m, meta,
+							parseInvitationResponse(contactGroupId, m, meta,
 									status, false));
 				}
 			}
@@ -374,13 +374,12 @@ abstract class SharingManagerImpl<S extends Shareable>
 						meta.isAvailableToAnswer(), canBeOpened);
 	}
 
-	private InvitationResponse parseInvitationResponse(ContactId c,
-			GroupId contactGroupId, MessageId m, MessageMetadata meta,
-			MessageStatus status, boolean accept)
-			throws DbException, FormatException {
+	private InvitationResponse parseInvitationResponse(GroupId contactGroupId,
+			MessageId m, MessageMetadata meta, MessageStatus status,
+			boolean accept) {
 		return invitationFactory.createInvitationResponse(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), meta.getShareableId(), c,
+				status.isSeen(), meta.isRead(), meta.getShareableId(),
 				accept);
 	}
 

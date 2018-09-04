@@ -16,6 +16,6 @@ public interface InvitationFactory<S extends Shareable, I extends InvitationResp
 	I createInvitationResponse(MessageId id,
 			GroupId contactGroupId, long time, boolean local, boolean sent,
 			boolean seen, boolean read, GroupId shareableId,
-			ContactId contactId, boolean accept);
+			boolean accept);
 
 }
