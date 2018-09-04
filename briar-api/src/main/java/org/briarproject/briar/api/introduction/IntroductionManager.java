@@ -51,7 +51,8 @@ public interface IntroductionManager extends ConversationClient {
 	/**
 	 * Returns all introduction messages for the given contact.
 	 */
-	Collection<PrivateMessageHeader> getIntroductionMessages(ContactId contactId)
+	@Deprecated
+	Collection<PrivateMessageHeader> getMessages(ContactId contactId)
 			throws DbException;
 
 }

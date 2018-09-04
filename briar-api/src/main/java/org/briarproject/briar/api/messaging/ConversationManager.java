@@ -10,6 +10,8 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 
+import java.util.Collection;
+
 @NotNullByDefault
 public interface ConversationManager {
 
@@ -20,6 +22,15 @@ public interface ConversationManager {
 	void registerConversationClient(ConversationClient client);
 
 	/**
+	 * Returns (the headers) of all messages in the given private conversation.
+	 *
+	 * Only {@link MessagingManager} returns only headers.
+	 * The others also return the message body.
+	 */
+	Collection<PrivateMessageHeader> getMessages(ContactId c)
+			throws DbException;
+
+	/**
 	 * Returns the unified group count for all private conversation messages.
 	 */
 	GroupCount getGroupCount(ContactId c) throws DbException;
@@ -28,6 +39,9 @@ public interface ConversationManager {
 	interface ConversationClient {
 
 		Group getContactGroup(Contact c);
+
+		Collection<PrivateMessageHeader> getMessages(Transaction txn,
+				ContactId contactId) throws DbException;
 
 		GroupCount getGroupCount(Transaction txn, ContactId c)
 				throws DbException;

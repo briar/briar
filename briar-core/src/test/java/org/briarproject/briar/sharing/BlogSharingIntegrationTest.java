@@ -148,7 +148,7 @@ public class BlogSharingIntegrationTest
 
 		// invitee has one invitation message from sharer
 		List<PrivateMessageHeader> list = new ArrayList<>(
-				blogSharingManager1.getInvitationMessages(contactId0From1));
+				blogSharingManager1.getMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the message
 		for (PrivateMessageHeader m : list) {
@@ -167,7 +167,7 @@ public class BlogSharingIntegrationTest
 		}
 		// sharer has own invitation message and response
 		assertEquals(2,
-				blogSharingManager0.getInvitationMessages(contactId1From0)
+				blogSharingManager0.getMessages(contactId1From0)
 						.size());
 		// blog can not be shared again
 		assertFalse(blogSharingManager0.canBeShared(blog2.getId(),
@@ -219,7 +219,7 @@ public class BlogSharingIntegrationTest
 
 		// invitee has one invitation message from sharer
 		List<PrivateMessageHeader> list = new ArrayList<>(
-				blogSharingManager1.getInvitationMessages(contactId0From1));
+				blogSharingManager1.getMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the message
 		for (PrivateMessageHeader m : list) {
@@ -237,7 +237,7 @@ public class BlogSharingIntegrationTest
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2, blogSharingManager0.getInvitationMessages(
+		assertEquals(2, blogSharingManager0.getMessages(
 				contactId1From0).size());
 		// blog can not be shared again
 		assertFalse(blogSharingManager0.canBeShared(rssBlog.getId(),
@@ -278,7 +278,7 @@ public class BlogSharingIntegrationTest
 
 		// invitee has one invitation message from sharer and one response
 		List<PrivateMessageHeader> list = new ArrayList<>(
-				blogSharingManager1.getInvitationMessages(contactId0From1));
+				blogSharingManager1.getMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check things are alright with the  message
 		for (PrivateMessageHeader m : list) {
@@ -296,7 +296,7 @@ public class BlogSharingIntegrationTest
 		}
 		// sharer has own invitation message and response
 		assertEquals(2,
-				blogSharingManager0.getInvitationMessages(contactId1From0)
+				blogSharingManager0.getMessages(contactId1From0)
 						.size());
 		// blog can be shared again
 		assertTrue(
@@ -383,7 +383,7 @@ public class BlogSharingIntegrationTest
 
 		// make sure 1 knows that they have blog2 already
 		Collection<PrivateMessageHeader> messages =
-				blogSharingManager1.getInvitationMessages(contactId0From1);
+				blogSharingManager1.getMessages(contactId0From1);
 		assertEquals(2, messages.size());
 		assertEquals(blog2, blogManager1.getBlog(blog2.getId()));
 

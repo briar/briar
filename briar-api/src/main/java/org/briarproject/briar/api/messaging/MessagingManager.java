@@ -46,7 +46,8 @@ public interface MessagingManager extends ConversationClient {
 	/**
 	 * Returns the headers of all messages in the given private conversation.
 	 */
-	Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
+	@Deprecated
+	Collection<PrivateMessageHeader> getMessages(ContactId c)
 			throws DbException;
 
 	/**

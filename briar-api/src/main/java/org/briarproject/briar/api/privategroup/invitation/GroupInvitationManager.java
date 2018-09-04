@@ -77,7 +77,8 @@ public interface GroupInvitationManager extends ConversationClient {
 	 * Returns all private group invitation messages related to the given
 	 * contact.
 	 */
-	Collection<PrivateMessageHeader> getInvitationMessages(ContactId c)
+	@Deprecated
+	Collection<PrivateMessageHeader> getMessages(ContactId c)
 			throws DbException;
 
 	/**

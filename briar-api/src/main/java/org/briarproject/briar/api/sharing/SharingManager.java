@@ -40,8 +40,9 @@ public interface SharingManager<S extends Shareable>
 	 * Returns all group sharing messages sent by the Contact
 	 * identified by contactId.
 	 */
-	Collection<PrivateMessageHeader> getInvitationMessages(
-			ContactId contactId) throws DbException;
+	@Deprecated
+	Collection<PrivateMessageHeader> getMessages(ContactId contactId)
+			throws DbException;
 
 	/**
 	 * Returns all invitations to groups.

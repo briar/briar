@@ -132,7 +132,7 @@ public class ForumSharingIntegrationTest
 
 		// invitee has one invitation message from sharer
 		List<PrivateMessageHeader> list = new ArrayList<>(
-				forumSharingManager1.getInvitationMessages(contactId0From1));
+				forumSharingManager1.getMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the forum message
 		for (PrivateMessageHeader m : list) {
@@ -152,7 +152,7 @@ public class ForumSharingIntegrationTest
 		}
 		// sharer has own invitation message and response
 		assertEquals(2,
-				forumSharingManager0.getInvitationMessages(contactId1From0)
+				forumSharingManager0.getMessages(contactId1From0)
 						.size());
 		// forum can not be shared again
 		Contact c1 = contactManager0.getContact(contactId1From0);
@@ -189,7 +189,7 @@ public class ForumSharingIntegrationTest
 
 		// invitee has one invitation message from sharer and one response
 		List<PrivateMessageHeader> list = new ArrayList<>(
-				forumSharingManager1.getInvitationMessages(contactId0From1));
+				forumSharingManager1.getMessages(contactId0From1));
 		assertEquals(2, list.size());
 		// check things are alright with the forum message
 		for (PrivateMessageHeader m : list) {
@@ -207,7 +207,7 @@ public class ForumSharingIntegrationTest
 		}
 		// sharer has own invitation message and response
 		assertEquals(2,
-				forumSharingManager0.getInvitationMessages(contactId1From0)
+				forumSharingManager0.getMessages(contactId1From0)
 						.size());
 		// forum can be shared again
 		Contact c1 = contactManager0.getContact(contactId1From0);
@@ -485,9 +485,9 @@ public class ForumSharingIntegrationTest
 
 		// and both have each other's invitations (and no response)
 		assertEquals(2, forumSharingManager0
-				.getInvitationMessages(contactId1From0).size());
+				.getMessages(contactId1From0).size());
 		assertEquals(2, forumSharingManager1
-				.getInvitationMessages(contactId0From1).size());
+				.getMessages(contactId0From1).size());
 
 		// there are no more open invitations
 		assertTrue(forumSharingManager0.getInvitations().isEmpty());
@@ -743,7 +743,7 @@ public class ForumSharingIntegrationTest
 		// get invitation MessageId for later
 		MessageId invitationId = null;
 		for (PrivateMessageHeader m : forumSharingManager1
-				.getInvitationMessages(contactId0From1)) {
+				.getMessages(contactId0From1)) {
 			if (m instanceof ForumInvitationRequest) {
 				invitationId = m.getId();
 			}

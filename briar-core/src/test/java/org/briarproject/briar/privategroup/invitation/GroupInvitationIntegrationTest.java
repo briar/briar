@@ -93,7 +93,7 @@ public class GroupInvitationIntegrationTest
 		assertFalse(item.isSubscribed());
 
 		Collection<PrivateMessageHeader> messages =
-				groupInvitationManager1.getInvitationMessages(contactId0From1);
+				groupInvitationManager1.getMessages(contactId0From1);
 		assertEquals(1, messages.size());
 		GroupInvitationRequest request =
 				(GroupInvitationRequest) messages.iterator().next();
@@ -118,7 +118,7 @@ public class GroupInvitationIntegrationTest
 				.respondToInvitation(contactId0From1, privateGroup0, false);
 
 		Collection<PrivateMessageHeader> messages =
-				groupInvitationManager1.getInvitationMessages(contactId0From1);
+				groupInvitationManager1.getMessages(contactId0From1);
 		assertEquals(2, messages.size());
 		boolean foundResponse = false;
 		for (PrivateMessageHeader m : messages) {
@@ -134,7 +134,7 @@ public class GroupInvitationIntegrationTest
 		sync1To0(1, true);
 
 		messages =
-				groupInvitationManager0.getInvitationMessages(contactId1From0);
+				groupInvitationManager0.getMessages(contactId1From0);
 		assertEquals(2, messages.size());
 		foundResponse = false;
 		for (PrivateMessageHeader m : messages) {
@@ -165,7 +165,7 @@ public class GroupInvitationIntegrationTest
 				.respondToInvitation(contactId0From1, privateGroup0, true);
 
 		Collection<PrivateMessageHeader> messages =
-				groupInvitationManager1.getInvitationMessages(contactId0From1);
+				groupInvitationManager1.getMessages(contactId0From1);
 		assertEquals(2, messages.size());
 		boolean foundResponse = false;
 		for (PrivateMessageHeader m : messages) {
@@ -182,7 +182,7 @@ public class GroupInvitationIntegrationTest
 		sync1To0(1, true);
 
 		messages =
-				groupInvitationManager0.getInvitationMessages(contactId1From0);
+				groupInvitationManager0.getMessages(contactId1From0);
 		assertEquals(2, messages.size());
 		foundResponse = false;
 		for (PrivateMessageHeader m : messages) {
@@ -217,7 +217,7 @@ public class GroupInvitationIntegrationTest
 		Group g0 = groupInvitationManager1.getContactGroup(contact0From1);
 		assertGroupCount(messageTracker1, g0.getId(), 1, 1, timestamp);
 		PrivateMessageHeader m =
-				groupInvitationManager1.getInvitationMessages(contactId0From1)
+				groupInvitationManager1.getMessages(contactId0From1)
 						.iterator().next();
 
 		groupInvitationManager1

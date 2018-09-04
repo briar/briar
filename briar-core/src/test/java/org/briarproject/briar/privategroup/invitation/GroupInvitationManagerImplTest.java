@@ -702,7 +702,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		Collection<PrivateMessageHeader> messages =
-				groupInvitationManager.getInvitationMessages(contactId);
+				groupInvitationManager.getMessages(contactId);
 		assertEquals(2, messages.size());
 		for (PrivateMessageHeader m : messages) {
 			assertEquals(contactGroup.getId(), m.getGroupId());

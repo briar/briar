@@ -341,15 +341,15 @@ public class ConversationActivity extends BriarActivity
 			try {
 				long start = now();
 				Collection<PrivateMessageHeader> headers =
-						messagingManager.getMessageHeaders(contactId);
+						messagingManager.getMessages(contactId);
 				Collection<PrivateMessageHeader> introductions =
-						introductionManager.getIntroductionMessages(contactId);
+						introductionManager.getMessages(contactId);
 				Collection<PrivateMessageHeader> forumInvitations =
-						forumSharingManager.getInvitationMessages(contactId);
+						forumSharingManager.getMessages(contactId);
 				Collection<PrivateMessageHeader> blogInvitations =
-						blogSharingManager.getInvitationMessages(contactId);
+						blogSharingManager.getMessages(contactId);
 				Collection<PrivateMessageHeader> groupInvitations =
-						groupInvitationManager.getInvitationMessages(contactId);
+						groupInvitationManager.getMessages(contactId);
 				List<PrivateMessageHeader> invitations = new ArrayList<>(
 						forumInvitations.size() + blogInvitations.size() +
 								groupInvitations.size());

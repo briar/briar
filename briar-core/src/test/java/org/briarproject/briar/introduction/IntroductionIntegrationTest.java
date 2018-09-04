@@ -298,21 +298,17 @@ public class IntroductionIntegrationTest
 		Group g1 = introductionManager0.getContactGroup(introducee1);
 		Group g2 = introductionManager0.getContactGroup(introducee2);
 		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId1From0)
-						.size());
+				introductionManager0.getMessages(contactId1From0).size());
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
 		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId2From0)
-						.size());
+				introductionManager0.getMessages(contactId2From0).size());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
 		assertEquals(2,
-				introductionManager1.getIntroductionMessages(contactId0From1)
-						.size());
+				introductionManager1.getMessages(contactId0From1).size());
 		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
 		// introducee2 should also have the decline response of introducee1
 		assertEquals(3,
-				introductionManager2.getIntroductionMessages(contactId0From2)
-						.size());
+				introductionManager2.getMessages(contactId0From2).size());
 		assertGroupCount(messageTracker2, g2.getId(), 3, 2);
 
 		assertFalse(listener0.aborted);
@@ -363,16 +359,13 @@ public class IntroductionIntegrationTest
 				.contactExists(author1.getId(), author2.getId()));
 
 		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId1From0)
-						.size());
+				introductionManager0.getMessages(contactId1From0).size());
 		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId2From0)
-						.size());
+				introductionManager0.getMessages(contactId2From0).size());
 		assertEquals(3,
-				introductionManager1.getIntroductionMessages(contactId0From1)
-						.size());
+				introductionManager1.getMessages(contactId0From1).size());
 		assertEquals(3,
-				introductionManager2.getIntroductionMessages(contactId0From2)
+				introductionManager2.getMessages(contactId0From2)
 						.size());
 		assertFalse(listener0.aborted);
 		assertFalse(listener1.aborted);
@@ -520,20 +513,16 @@ public class IntroductionIntegrationTest
 		Group g1 = introductionManager0.getContactGroup(introducee1);
 		Group g2 = introductionManager0.getContactGroup(introducee2);
 		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId1From0)
-						.size());
+				introductionManager0.getMessages(contactId1From0).size());
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
 		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId2From0)
-						.size());
+				introductionManager0.getMessages(contactId2From0).size());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
 		assertEquals(3,
-				introductionManager1.getIntroductionMessages(contactId0From1)
-						.size());
+				introductionManager1.getMessages(contactId0From1).size());
 		assertGroupCount(messageTracker1, g1.getId(), 3, 2);
 		assertEquals(3,
-				introductionManager2.getIntroductionMessages(contactId0From2)
-						.size());
+				introductionManager2.getMessages(contactId0From2).size());
 		assertGroupCount(messageTracker2, g2.getId(), 3, 2);
 
 		assertFalse(listener0.aborted);
@@ -557,8 +546,7 @@ public class IntroductionIntegrationTest
 		assertFalse(listener1.requestReceived);
 
 		// make really sure we don't have that request
-		assertTrue(introductionManager1.getIntroductionMessages(contactId0From1)
-				.isEmpty());
+		assertTrue(introductionManager1.getMessages(contactId0From1).isEmpty());
 
 		// The message was invalid, so no abort message was sent
 		assertFalse(listener0.aborted);
@@ -1101,22 +1089,19 @@ public class IntroductionIntegrationTest
 
 	private void assertDefaultUiMessages() throws DbException {
 		Collection<PrivateMessageHeader> messages =
-				introductionManager0.getIntroductionMessages(contactId1From0);
+				introductionManager0.getMessages(contactId1From0);
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 
-		messages = introductionManager0.getIntroductionMessages(
-				contactId2From0);
+		messages = introductionManager0.getMessages(contactId2From0);
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 
-		messages = introductionManager1.getIntroductionMessages(
-				contactId0From1);
+		messages = introductionManager1.getMessages(contactId0From1);
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 
-		messages = introductionManager2.getIntroductionMessages(
-				contactId0From2);
+		messages = introductionManager2.getMessages(contactId0From2);
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 	}
@@ -1299,8 +1284,7 @@ public class IntroductionIntegrationTest
 	private IntroductionRequest getIntroductionRequest(
 			IntroductionManager manager, ContactId contactId)
 			throws DbException {
-		for (PrivateMessageHeader im : manager
-				.getIntroductionMessages(contactId)) {
+		for (PrivateMessageHeader im : manager.getMessages(contactId)) {
 			if (im instanceof IntroductionRequest) {
 				return (IntroductionRequest) im;
 			}

@@ -399,17 +399,30 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Collection<PrivateMessageHeader> getIntroductionMessages(ContactId c)
+	public Collection<PrivateMessageHeader> getMessages(ContactId c)
 			throws DbException {
-		List<PrivateMessageHeader> messages;
+		Collection<PrivateMessageHeader> messages;
 		Transaction txn = db.startTransaction(true);
+		try {
+			messages = getMessages(txn, c);
+			db.commitTransaction(txn);
+		} finally {
+			db.endTransaction(txn);
+		}
+		return messages;
+	}
+
+	@Override
+	public Collection<PrivateMessageHeader> getMessages(Transaction txn,
+			ContactId c) throws DbException {
 		try {
 			Contact contact = db.getContact(txn, c);
 			GroupId contactGroupId = getContactGroup(contact).getId();
 			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
-			messages = new ArrayList<>(results.size());
+			List<PrivateMessageHeader> messages =
+					new ArrayList<>(results.size());
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();
 				MessageMetadata meta =
@@ -432,13 +445,10 @@ class IntroductionManagerImpl extends ConversationClientImpl
 									status, ss.bdfSession, false));
 				}
 			}
-			db.commitTransaction(txn);
+			return messages;
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
-		return messages;
 	}
 
 	private IntroductionRequest parseInvitationRequest(Transaction txn,
