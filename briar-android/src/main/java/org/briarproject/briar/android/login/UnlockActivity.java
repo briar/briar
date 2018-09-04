@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.widget.Button;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -25,8 +24,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_CANCELED;
-import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_LOCKOUT;
-import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_LOCKOUT_PERMANENT;
 import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.INVISIBLE;
@@ -58,15 +55,10 @@ public class UnlockActivity extends BaseActivity {
 		overridePendingTransition(0, 0);
 		setContentView(R.layout.activity_unlock);
 
-		Button button = findViewById(R.id.unlock);
-		button.setOnClickListener(view -> requestUnlock());
-
 		if (!hasUsableFingerprint(this)) {
 			getWindow().setBackgroundDrawable(null);
-			button.setVisibility(INVISIBLE);
 			findViewById(R.id.image).setVisibility(INVISIBLE);
 		}
-
 		keyguardShown = state != null && state.getBoolean(KEYGUARD_SHOWN);
 	}
 
@@ -142,21 +134,19 @@ public class UnlockActivity extends BaseActivity {
 						errorCode == BIOMETRIC_ERROR_USER_CANCELED) {
 					finish();
 				}
-				// locked out due to 5 failed attempts, lasts for 30 seconds
-				else if (errorCode == BIOMETRIC_ERROR_LOCKOUT ||
-						errorCode == BIOMETRIC_ERROR_LOCKOUT_PERMANENT) {
+				// e.g. 5 failed attempts
+				else {
 					if (hasKeyguardLock(UnlockActivity.this)) {
 						requestKeyguardUnlock();
-					} else if (errString != null) {
+					} else {
 						// normally fingerprints require a screen lock, but
 						// who knows if that's true for all devices out there
-						Toast.makeText(UnlockActivity.this, errString,
-								Toast.LENGTH_LONG).show();
+						if (errString != null) {
+							Toast.makeText(UnlockActivity.this, errString,
+									Toast.LENGTH_LONG).show();
+						}
 						finish();
 					}
-				} else if (errString != null) {
-					Toast.makeText(UnlockActivity.this, errString,
-							Toast.LENGTH_LONG).show();
 				}
 			}
 

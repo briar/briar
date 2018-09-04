@@ -14,22 +14,11 @@
 		android:layout_height="150dp"
 		android:layout_margin="@dimen/margin_large"
 		android:src="@drawable/splash_screen"
-		app:layout_constraintBottom_toTopOf="@+id/unlock"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_bias="0.1"
 		app:tint="?attr/colorControlNormal"/>
-
-	<Button
-		android:id="@+id/unlock"
-		style="@style/BriarButton"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_margin="@dimen/margin_large"
-		android:text="@string/lock_unlock"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>
