@@ -96,7 +96,7 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 	@Override
 	public void startService() {
 		// only load the setting here, because database isn't open before
-		loadLockableSetting();
+		loadSettings();
 	}
 
 	@Override
@@ -170,32 +170,31 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 	@Override
 	public void eventOccurred(Event event) {
 		if (event instanceof SettingsUpdatedEvent) {
-			SettingsUpdatedEvent e = (SettingsUpdatedEvent) event;
-			String namespace = e.getNamespace();
-			if (namespace.equals(SETTINGS_NAMESPACE)) {
-				loadLockableSetting();
+			SettingsUpdatedEvent s = (SettingsUpdatedEvent) event;
+			if (s.getNamespace().equals(SETTINGS_NAMESPACE)) {
+				applySettings(s.getSettings());
 			}
 		}
 	}
 
-	private void loadLockableSetting() {
+	private void loadSettings() {
 		dbExecutor.execute(() -> {
 			try {
-				Settings settings =
-						settingsManager.getSettings(SETTINGS_NAMESPACE);
-				// is the app lockable?
-				lockableSetting = settings.getBoolean(PREF_SCREEN_LOCK, false);
-				boolean newValue = hasScreenLock(appContext) && lockableSetting;
-				lockable.postValue(newValue);
-				// what is the timeout in minutes?
-				timeoutMinutes = settings.getInt(PREF_SCREEN_LOCK_TIMEOUT,
-						timeoutDefault);
+				applySettings(settingsManager.getSettings(SETTINGS_NAMESPACE));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
-				lockableSetting = false;
-				lockable.postValue(false);
 			}
 		});
+	}
+
+	private void applySettings(Settings settings) {
+		// is the app lockable?
+		lockableSetting = settings.getBoolean(PREF_SCREEN_LOCK, false);
+		boolean newValue = hasScreenLock(appContext) && lockableSetting;
+		lockable.postValue(newValue);
+		// what is the timeout in minutes?
+		timeoutMinutes = settings.getInt(PREF_SCREEN_LOCK_TIMEOUT,
+				timeoutDefault);
 	}
 
 	private boolean timeoutEnabled() {
