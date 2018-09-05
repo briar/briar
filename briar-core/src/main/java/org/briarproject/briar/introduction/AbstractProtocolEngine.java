@@ -157,7 +157,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 						s.getSessionId(), introduction,
 						m instanceof AcceptMessage);
 		IntroductionResponseReceivedEvent e =
-				new IntroductionResponseReceivedEvent(c.getId(), response);
+				new IntroductionResponseReceivedEvent(response, c.getId());
 		txn.attach(e);
 	}
 

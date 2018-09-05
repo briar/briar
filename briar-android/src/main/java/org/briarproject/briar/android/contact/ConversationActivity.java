@@ -64,8 +64,6 @@ import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
-import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
-import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -74,8 +72,6 @@ import org.briarproject.briar.api.messaging.PrivateRequest;
 import org.briarproject.briar.api.messaging.PrivateResponse;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
-import org.briarproject.briar.api.sharing.event.InvitationRequestReceivedEvent;
-import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 import org.thoughtcrime.securesms.components.util.FutureTaskListener;
 import org.thoughtcrime.securesms.components.util.ListenableFutureTask;
 
@@ -474,9 +470,7 @@ public class ConversationActivity extends BriarActivity
 			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
 			if (p.getContactId().equals(contactId)) {
 				LOG.info("Message received, adding");
-				PrivateMessageHeader h = p.getMessageHeader();
-				addConversationItem(ConversationItem.from(h));
-				loadMessageBody(h.getId());
+				onNewPrivateMessage(p.getMessageHeader());
 			}
 		} else if (e instanceof MessagesSentEvent) {
 			MessagesSentEvent m = (MessagesSentEvent) e;
@@ -502,38 +496,6 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Contact disconnected");
 				displayContactOnlineStatus();
 			}
-		} else if (e instanceof IntroductionRequestReceivedEvent) {
-			IntroductionRequestReceivedEvent event =
-					(IntroductionRequestReceivedEvent) e;
-			if (event.getContactId().equals(contactId)) {
-				LOG.info("Introduction request received, adding...");
-				PrivateRequest ir = event.getIntroductionRequest();
-				handlePrivateRequest(ir);
-			}
-		} else if (e instanceof IntroductionResponseReceivedEvent) {
-			IntroductionResponseReceivedEvent event =
-					(IntroductionResponseReceivedEvent) e;
-			if (event.getContactId().equals(contactId)) {
-				LOG.info("Introduction response received, adding...");
-				PrivateResponse ir = event.getIntroductionResponse();
-				handlePrivateResponse(ir);
-			}
-		} else if (e instanceof InvitationRequestReceivedEvent) {
-			InvitationRequestReceivedEvent event =
-					(InvitationRequestReceivedEvent) e;
-			if (event.getContactId().equals(contactId)) {
-				LOG.info("Invitation received, adding...");
-				PrivateRequest ir = event.getRequest();
-				handlePrivateRequest(ir);
-			}
-		} else if (e instanceof InvitationResponseReceivedEvent) {
-			InvitationResponseReceivedEvent event =
-					(InvitationResponseReceivedEvent) e;
-			if (event.getContactId().equals(contactId)) {
-				LOG.info("Invitation response received, adding...");
-				PrivateResponse ir = event.getResponse();
-				handlePrivateResponse(ir);
-			}
 		}
 	}
 
@@ -546,42 +508,44 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void handlePrivateRequest(PrivateRequest m) {
-		getContactNameTask().addListener(new FutureTaskListener<String>() {
-			@Override
-			public void onSuccess(String contactName) {
-				runOnUiThreadUnlessDestroyed(() -> {
-					ConversationItem item = ConversationItem
-							.from(ConversationActivity.this, contactName, m);
-					addConversationItem(item);
-				});
-			}
+	private void onNewPrivateMessage(PrivateMessageHeader h) {
+		if (h instanceof PrivateRequest || h instanceof PrivateResponse) {
+			getContactNameTask().addListener(new FutureTaskListener<String>() {
+				@Override
+				public void onSuccess(String contactName) {
+					runOnUiThreadUnlessDestroyed(() -> {
+						handlePrivateRequestAndResponse(h, contactName);
+					});
+				}
 
-			@Override
-			public void onFailure(Throwable exception) {
-				runOnUiThreadUnlessDestroyed(
-						() -> handleDbException((DbException) exception));
-			}
-		});
+				@Override
+				public void onFailure(Throwable exception) {
+					runOnUiThreadUnlessDestroyed(
+							() -> handleDbException((DbException) exception));
+				}
+			});
+		} else {
+			addConversationItem(ConversationItem.from(h));
+			loadMessageBody(h.getId());
+		}
 	}
 
-	private void handlePrivateResponse(PrivateResponse m) {
-		getContactNameTask().addListener(new FutureTaskListener<String>() {
-			@Override
-			public void onSuccess(String contactName) {
-				runOnUiThreadUnlessDestroyed(() -> {
-					ConversationItem item = ConversationItem
-							.from(ConversationActivity.this, contactName, m);
-					addConversationItem(item);
-				});
-			}
-
-			@Override
-			public void onFailure(Throwable exception) {
-				runOnUiThreadUnlessDestroyed(
-						() -> handleDbException((DbException) exception));
-			}
-		});
+	@UiThread
+	private void handlePrivateRequestAndResponse(PrivateMessageHeader h,
+			String contactName) {
+		ConversationItem item;
+		if (h instanceof PrivateRequest) {
+			PrivateRequest m = (PrivateRequest) h;
+			item = ConversationItem
+					.from(ConversationActivity.this, contactName, m);
+		} else if (h instanceof PrivateResponse) {
+			PrivateResponse m = (PrivateResponse) h;
+			item = ConversationItem
+					.from(ConversationActivity.this, contactName, m);
+		} else {
+			throw new AssertionError("Unknown PrivateMessageHeader");
+		}
+		addConversationItem(item);
 	}
 
 	private void markMessages(Collection<MessageId> messageIds, boolean sent,

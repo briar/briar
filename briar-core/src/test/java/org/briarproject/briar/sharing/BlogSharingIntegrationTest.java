@@ -559,7 +559,7 @@ public class BlogSharingIntegrationTest
 				BlogInvitationRequestReceivedEvent event =
 						(BlogInvitationRequestReceivedEvent) e;
 				eventWaiter.assertEquals(contactId1From0, event.getContactId());
-				Blog b = event.getShareable();
+				Blog b = event.getRequest().getObject();
 				try {
 					Contact c = contactManager0.getContact(contactId1From0);
 					blogSharingManager0.respondToInvitation(b, c, true);
@@ -595,7 +595,7 @@ public class BlogSharingIntegrationTest
 						(BlogInvitationRequestReceivedEvent) e;
 				requestReceived = true;
 				if (!answer) return;
-				Blog b = event.getShareable();
+				Blog b = event.getRequest().getObject();
 				try {
 					eventWaiter.assertEquals(1,
 							blogSharingManager1.getInvitations().size());

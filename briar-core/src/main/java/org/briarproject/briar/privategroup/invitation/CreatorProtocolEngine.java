@@ -69,8 +69,7 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 	}
 
 	@Override
-	public CreatorSession onJoinAction(Transaction txn, CreatorSession s)
-			throws DbException {
+	public CreatorSession onJoinAction(Transaction txn, CreatorSession s) {
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 
@@ -92,8 +91,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 	}
 
 	@Override
-	public CreatorSession onMemberAddedAction(Transaction txn, CreatorSession s)
-			throws DbException {
+	public CreatorSession onMemberAddedAction(Transaction txn,
+			CreatorSession s) {
 		return s; // Ignored in this role
 	}
 
@@ -196,8 +195,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
 		PrivateGroup privateGroup =
 				privateGroupManager.getPrivateGroup(txn, m.getPrivateGroupId());
-		txn.attach(new GroupInvitationResponseReceivedEvent(contactId,
-				createInvitationResponse(m, privateGroup, true)));
+		txn.attach(new GroupInvitationResponseReceivedEvent(
+				createInvitationResponse(m, privateGroup, true), contactId));
 		// Move to the JOINED state
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), m.getId(), sent.getTimestamp(),
@@ -220,8 +219,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
 		PrivateGroup privateGroup =
 				privateGroupManager.getPrivateGroup(txn, m.getPrivateGroupId());
-		txn.attach(new GroupInvitationResponseReceivedEvent(contactId,
-				createInvitationResponse(m, privateGroup, false)));
+		txn.attach(new GroupInvitationResponseReceivedEvent(
+				createInvitationResponse(m, privateGroup, false), contactId));
 		// Move to the START state
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),

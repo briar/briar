@@ -116,8 +116,8 @@ class MessagingManagerImpl extends ConversationClientImpl
 		PrivateMessageHeader header = new PrivateMessageHeader(
 				m.getId(), groupId, timestamp, local, read, false, false);
 		ContactId contactId = getContactId(txn, groupId);
-		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
-				header, contactId, groupId);
+		PrivateMessageReceivedEvent<PrivateMessageHeader> event =
+				new PrivateMessageReceivedEvent<>(header, contactId);
 		txn.attach(event);
 		messageTracker.trackIncomingMessage(txn, m);
 

@@ -813,7 +813,7 @@ public class ForumSharingIntegrationTest
 						(ForumInvitationRequestReceivedEvent) e;
 				eventWaiter.assertEquals(contactId1From0, event.getContactId());
 				requestReceived = true;
-				Forum f = event.getShareable();
+				Forum f = event.getRequest().getObject();
 				try {
 					if (respond) {
 						Contact c = contactManager0.getContact(contactId1From0);
@@ -851,7 +851,7 @@ public class ForumSharingIntegrationTest
 						(ForumInvitationRequestReceivedEvent) e;
 				requestReceived = true;
 				if (!answer) return;
-				Forum f = event.getShareable();
+				Forum f = event.getRequest().getObject();
 				try {
 					if (respond) {
 						eventWaiter.assertEquals(1,

@@ -262,7 +262,7 @@ class IntroduceeProtocolEngine
 				s.getSessionId(), introduction, m.getMessage(), false,
 				contactExists);
 		IntroductionRequestReceivedEvent e =
-				new IntroductionRequestReceivedEvent(c.getId(), request);
+				new IntroductionRequestReceivedEvent(request, c.getId());
 		txn.attach(e);
 
 		// Move to the AWAIT_RESPONSES state

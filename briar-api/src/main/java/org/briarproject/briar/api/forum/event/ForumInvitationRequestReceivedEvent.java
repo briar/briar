@@ -4,18 +4,18 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.messaging.PrivateRequest;
-import org.briarproject.briar.api.sharing.event.InvitationRequestReceivedEvent;
+import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
 public class ForumInvitationRequestReceivedEvent extends
-		InvitationRequestReceivedEvent<Forum> {
+		PrivateMessageReceivedEvent<PrivateRequest<Forum>> {
 
-	public ForumInvitationRequestReceivedEvent(Forum forum, ContactId contactId,
-			PrivateRequest<Forum> request) {
-		super(forum, contactId, request);
+	public ForumInvitationRequestReceivedEvent(PrivateRequest<Forum> request,
+			ContactId contactId) {
+		super(request, contactId);
 	}
 
 }

@@ -84,8 +84,7 @@ class ForumControllerImpl extends
 		} else if (e instanceof ForumInvitationResponseReceivedEvent) {
 			ForumInvitationResponseReceivedEvent f =
 					(ForumInvitationResponseReceivedEvent) e;
-			ForumInvitationResponse r =
-					(ForumInvitationResponse) f.getResponse();
+			ForumInvitationResponse r = f.getMessageHeader();
 			if (r.getObject().getId().equals(getGroupId()) && r.wasAccepted()) {
 				LOG.info("Forum invitation was accepted");
 				onForumInvitationAccepted(f.getContactId());

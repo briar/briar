@@ -55,8 +55,7 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 		PrivateRequest<Forum> request = invitationFactory
 				.createInvitationRequest(false, false, true, false, m,
 						contactId, available, canBeOpened);
-		return new ForumInvitationRequestReceivedEvent(m.getShareable(),
-				contactId, request);
+		return new ForumInvitationRequestReceivedEvent(request, contactId);
 	}
 
 	@Override
@@ -66,7 +65,7 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
 						shareable, true);
-		return new ForumInvitationResponseReceivedEvent(contactId, response);
+		return new ForumInvitationResponseReceivedEvent(response, contactId);
 	}
 
 	@Override
@@ -76,7 +75,7 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
 						shareable, true);
-		return new ForumInvitationResponseReceivedEvent(contactId, response);
+		return new ForumInvitationResponseReceivedEvent(response, contactId);
 	}
 
 	@Override

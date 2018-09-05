@@ -41,13 +41,9 @@ import org.briarproject.briar.android.util.BriarNotificationBuilder;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
-import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
-import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
-import org.briarproject.briar.api.sharing.event.InvitationRequestReceivedEvent;
-import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -235,19 +231,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		} else if (e instanceof BlogPostAddedEvent) {
 			BlogPostAddedEvent b = (BlogPostAddedEvent) e;
 			showBlogPostNotification(b.getGroupId());
-		} else if (e instanceof IntroductionRequestReceivedEvent) {
-			ContactId c = ((IntroductionRequestReceivedEvent) e).getContactId();
-			showContactNotification(c);
-		} else if (e instanceof IntroductionResponseReceivedEvent) {
-			ContactId c =
-					((IntroductionResponseReceivedEvent) e).getContactId();
-			showContactNotification(c);
-		} else if (e instanceof InvitationRequestReceivedEvent) {
-			ContactId c = ((InvitationRequestReceivedEvent) e).getContactId();
-			showContactNotification(c);
-		} else if (e instanceof InvitationResponseReceivedEvent) {
-			ContactId c = ((InvitationResponseReceivedEvent) e).getContactId();
-			showContactNotification(c);
 		} else if (e instanceof IntroductionSucceededEvent) {
 			showIntroductionNotification();
 		}

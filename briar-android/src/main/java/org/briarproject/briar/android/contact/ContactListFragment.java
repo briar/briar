@@ -37,17 +37,9 @@ import org.briarproject.briar.android.keyagreement.ContactExchangeActivity;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
-import org.briarproject.briar.api.introduction.IntroductionRequest;
-import org.briarproject.briar.api.introduction.IntroductionResponse;
-import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
-import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 import org.briarproject.briar.api.messaging.ConversationManager;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
-import org.briarproject.briar.api.messaging.PrivateRequest;
-import org.briarproject.briar.api.messaging.PrivateResponse;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
-import org.briarproject.briar.api.sharing.event.InvitationRequestReceivedEvent;
-import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -255,30 +247,6 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
 			PrivateMessageHeader h = p.getMessageHeader();
 			updateItem(p.getContactId(), h);
-		} else if (e instanceof IntroductionRequestReceivedEvent) {
-			LOG.info("Introduction request received, updating item");
-			IntroductionRequestReceivedEvent m =
-					(IntroductionRequestReceivedEvent) e;
-			IntroductionRequest ir = m.getIntroductionRequest();
-			updateItem(m.getContactId(), ir);
-		} else if (e instanceof IntroductionResponseReceivedEvent) {
-			LOG.info("Introduction response received, updating item");
-			IntroductionResponseReceivedEvent m =
-					(IntroductionResponseReceivedEvent) e;
-			IntroductionResponse ir = m.getIntroductionResponse();
-			updateItem(m.getContactId(), ir);
-		} else if (e instanceof InvitationRequestReceivedEvent) {
-			LOG.info("Invitation Request received, update item");
-			InvitationRequestReceivedEvent m =
-					(InvitationRequestReceivedEvent) e;
-			PrivateRequest ir = m.getRequest();
-			updateItem(m.getContactId(), ir);
-		} else if (e instanceof InvitationResponseReceivedEvent) {
-			LOG.info("Invitation response received, updating item");
-			InvitationResponseReceivedEvent m =
-					(InvitationResponseReceivedEvent) e;
-			PrivateResponse ir = m.getResponse();
-			updateItem(m.getContactId(), ir);
 		}
 	}
 

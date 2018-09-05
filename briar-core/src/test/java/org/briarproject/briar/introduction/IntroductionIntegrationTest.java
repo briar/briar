@@ -24,14 +24,16 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.introduction.Introduction;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
-import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.briar.api.messaging.PrivateRequest;
+import org.briarproject.briar.api.messaging.PrivateResponse;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -1131,11 +1133,11 @@ public class IntroductionIntegrationTest
 		protected volatile Event latestEvent;
 
 		@SuppressWarnings("WeakerAccess")
-		IntroductionResponse getResponse() {
+		PrivateResponse<Introduction> getResponse() {
 			assertTrue(
 					latestEvent instanceof IntroductionResponseReceivedEvent);
 			return ((IntroductionResponseReceivedEvent) latestEvent)
-					.getIntroductionResponse();
+					.getResponse();
 		}
 	}
 
@@ -1163,7 +1165,7 @@ public class IntroductionIntegrationTest
 				IntroductionRequestReceivedEvent introEvent =
 						((IntroductionRequestReceivedEvent) e);
 				requestReceived = true;
-				IntroductionRequest ir = introEvent.getIntroductionRequest();
+				PrivateRequest<Introduction> ir = introEvent.getRequest();
 				ContactId contactId = introEvent.getContactId();
 				sessionId = ir.getSessionId();
 				long time = clock.currentTimeMillis();
@@ -1200,11 +1202,11 @@ public class IntroductionIntegrationTest
 			}
 		}
 
-		private IntroductionRequest getRequest() {
+		private PrivateRequest<Introduction> getRequest() {
 			assertTrue(
 					latestEvent instanceof IntroductionRequestReceivedEvent);
 			return ((IntroductionRequestReceivedEvent) latestEvent)
-					.getIntroductionRequest();
+					.getRequest();
 		}
 	}
 

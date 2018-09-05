@@ -53,8 +53,7 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 		PrivateRequest<Blog> request = invitationFactory
 				.createInvitationRequest(false, false, true, false, m,
 						contactId, available, canBeOpened);
-		return new BlogInvitationRequestReceivedEvent(m.getShareable(),
-				contactId, request);
+		return new BlogInvitationRequestReceivedEvent(request, contactId);
 	}
 
 	@Override
@@ -64,7 +63,7 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
 						shareable, true);
-		return new BlogInvitationResponseReceivedEvent(contactId, response);
+		return new BlogInvitationResponseReceivedEvent(response, contactId);
 	}
 
 	@Override
@@ -74,7 +73,7 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
 						shareable, true);
-		return new BlogInvitationResponseReceivedEvent(contactId, response);
+		return new BlogInvitationResponseReceivedEvent(response, contactId);
 	}
 
 	@Override

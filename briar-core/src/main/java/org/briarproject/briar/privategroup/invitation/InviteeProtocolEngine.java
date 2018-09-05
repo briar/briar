@@ -56,8 +56,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 
 	@Override
 	public InviteeSession onInviteAction(Transaction txn, InviteeSession s,
-			@Nullable String message, long timestamp, byte[] signature)
-			throws DbException {
+			@Nullable String message, long timestamp, byte[] signature) {
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 
@@ -99,8 +98,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 	}
 
 	@Override
-	public InviteeSession onMemberAddedAction(Transaction txn, InviteeSession s)
-			throws DbException {
+	public InviteeSession onMemberAddedAction(Transaction txn,
+			InviteeSession s) {
 		return s; // Ignored in this role
 	}
 
@@ -244,9 +243,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		// Broadcast an event
 		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
 				m.getGroupName(), m.getCreator(), m.getSalt());
-		txn.attach(
-				new GroupInvitationRequestReceivedEvent(privateGroup, contactId,
-						createInvitationRequest(m, privateGroup, contactId)));
+		txn.attach(new GroupInvitationRequestReceivedEvent(
+				createInvitationRequest(m, privateGroup), contactId));
 		// Move to the INVITED state
 		return new InviteeSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -328,7 +326,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 	}
 
 	private GroupInvitationRequest createInvitationRequest(InviteMessage m,
-			PrivateGroup pg, ContactId c) {
+			PrivateGroup pg) {
 		SessionId sessionId = new SessionId(m.getPrivateGroupId().getBytes());
 		return new GroupInvitationRequest(m.getId(), m.getContactGroupId(),
 				m.getTimestamp(), false, false, true, false, sessionId, pg,
