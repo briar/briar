@@ -1508,7 +1508,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			if (raw == null) throw new MessageDeletedException();
-			if (raw.length < MESSAGE_HEADER_LENGTH) throw new AssertionError();
+			if (raw.length <= MESSAGE_HEADER_LENGTH) throw new AssertionError();
 			byte[] body = new byte[raw.length - MESSAGE_HEADER_LENGTH];
 			System.arraycopy(raw, MESSAGE_HEADER_LENGTH, body, 0, body.length);
 			return new Message(m, g, timestamp, body);

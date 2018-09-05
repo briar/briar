@@ -79,18 +79,6 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 		assertSame(meta, messageContext.getMetadata());
 	}
 
-	@Test(expected = InvalidMessageException.class)
-	public void testRejectsTooShortMessage() throws Exception {
-		Message invalidMessage = getMessage(groupId, 0);
-
-		context.checking(new Expectations() {{
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(timestamp));
-		}});
-
-		failIfSubclassIsCalled.validateMessage(invalidMessage, group);
-	}
-
 	@Test
 	public void testAcceptsMinLengthMessage() throws Exception {
 		Message shortMessage = getMessage(groupId, 1);

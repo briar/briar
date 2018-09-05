@@ -124,7 +124,8 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 		if (!hasMessage()) throw new FormatException();
 		if (nextRecord == null) throw new AssertionError();
 		byte[] payload = nextRecord.getPayload();
-		if (payload.length < MESSAGE_HEADER_LENGTH) throw new FormatException();
+		if (payload.length <= MESSAGE_HEADER_LENGTH)
+			throw new FormatException();
 		// Validate timestamp
 		long timestamp = ByteUtils.readUint64(payload, UniqueId.LENGTH);
 		if (timestamp < 0) throw new FormatException();

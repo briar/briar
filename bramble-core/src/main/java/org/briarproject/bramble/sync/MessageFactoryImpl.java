@@ -36,6 +36,7 @@ class MessageFactoryImpl implements MessageFactory {
 
 	@Override
 	public Message createMessage(GroupId g, long timestamp, byte[] body) {
+		if (body.length == 0) throw new IllegalArgumentException();
 		if (body.length > MAX_MESSAGE_BODY_LENGTH)
 			throw new IllegalArgumentException();
 		MessageId id = getMessageId(g, timestamp, body);
@@ -54,7 +55,7 @@ class MessageFactoryImpl implements MessageFactory {
 
 	@Override
 	public Message createMessage(byte[] raw) {
-		if (raw.length < MESSAGE_HEADER_LENGTH)
+		if (raw.length <= MESSAGE_HEADER_LENGTH)
 			throw new IllegalArgumentException();
 		if (raw.length > MAX_MESSAGE_LENGTH)
 			throw new IllegalArgumentException();

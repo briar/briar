@@ -16,6 +16,7 @@ public class Message {
 	private final byte[] body;
 
 	public Message(MessageId id, GroupId groupId, long timestamp, byte[] body) {
+		if (body.length == 0) throw new IllegalArgumentException();
 		if (body.length > MAX_MESSAGE_BODY_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
