@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.AuthorFactory;
@@ -376,4 +377,21 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		assertNotNull(contactId1From2);
 		contactManager2.removeContact(contactId1From2);
 	}
+
+	@FunctionalInterface
+	protected interface TransactionScope {
+		void execute(Transaction txn) throws DbException;
+	}
+
+	protected void withinTransaction(DatabaseComponent db, TransactionScope scope)
+			throws DbException {
+		Transaction txn = db.startTransaction(false);
+		try {
+			scope.execute(txn);
+			db.commitTransaction(txn);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
 }

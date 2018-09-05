@@ -30,11 +30,10 @@ public class ForumInvitationFactoryImpl
 	@Override
 	public ForumInvitationResponse createInvitationResponse(MessageId id,
 			GroupId contactGroupId, long time, boolean local, boolean sent,
-			boolean seen, boolean read, GroupId shareableId,
-			boolean accept) {
-		SessionId sessionId = new SessionId(shareableId.getBytes());
+			boolean seen, boolean read, Forum forum, boolean accept) {
+		SessionId sessionId = new SessionId(forum.getId().getBytes());
 		return new ForumInvitationResponse(id, contactGroupId, time, local,
-				sent, seen, read, sessionId, shareableId, accept);
+				sent, seen, read, sessionId, forum, accept);
 	}
 
 }

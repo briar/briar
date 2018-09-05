@@ -310,6 +310,8 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 			oneOf(messageTracker)
 					.trackMessage(txn, contactGroupId, inviteTimestamp + 1,
 							false);
+			oneOf(privateGroupManager).getPrivateGroup(txn, privateGroupId);
+			will(returnValue(privateGroup));
 		}});
 		expectGetContactId();
 		expectSetPrivateGroupVisibility(SHARED);
@@ -399,6 +401,8 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 			oneOf(messageTracker)
 					.trackMessage(txn, contactGroupId, inviteTimestamp + 1,
 							false);
+			oneOf(privateGroupManager).getPrivateGroup(txn, privateGroupId);
+			will(returnValue(privateGroup));
 		}});
 		expectGetContactId();
 		CreatorSession newSession =

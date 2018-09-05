@@ -154,6 +154,7 @@ public class BlogSharingIntegrationTest
 		for (PrivateMessageHeader m : list) {
 			if (m instanceof BlogInvitationRequest) {
 				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
+				assertEquals(blog2, invitation.getObject());
 				assertFalse(invitation.wasAnswered());
 				assertEquals(blog2.getAuthor().getName(),
 						invitation.getName());
@@ -161,6 +162,7 @@ public class BlogSharingIntegrationTest
 				assertEquals("Hi!", invitation.getMessage());
 			} else {
 				BlogInvitationResponse response = (BlogInvitationResponse) m;
+				assertEquals(blog2, response.getObject());
 				assertTrue(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}
@@ -225,6 +227,7 @@ public class BlogSharingIntegrationTest
 		for (PrivateMessageHeader m : list) {
 			if (m instanceof BlogInvitationRequest) {
 				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
+				assertEquals(rssBlog, invitation.getObject());
 				assertFalse(invitation.wasAnswered());
 				assertEquals(rssBlog.getAuthor().getName(),
 						invitation.getName());
@@ -232,6 +235,7 @@ public class BlogSharingIntegrationTest
 				assertEquals("Hi!", invitation.getMessage());
 			} else {
 				BlogInvitationResponse response = (BlogInvitationResponse) m;
+				assertEquals(rssBlog, response.getObject());
 				assertTrue(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}
@@ -284,12 +288,14 @@ public class BlogSharingIntegrationTest
 		for (PrivateMessageHeader m : list) {
 			if (m instanceof BlogInvitationRequest) {
 				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
+				assertEquals(blog2, invitation.getObject());
 				assertFalse(invitation.wasAnswered());
 				assertEquals(blog2.getAuthor().getName(),
 						invitation.getName());
 				assertEquals(null, invitation.getMessage());
 			} else {
 				BlogInvitationResponse response = (BlogInvitationResponse) m;
+				assertEquals(blog2, response.getObject());
 				assertFalse(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}
@@ -612,7 +618,7 @@ public class BlogSharingIntegrationTest
 		}
 	}
 
-	private void listenToEvents(boolean accept) throws DbException {
+	private void listenToEvents(boolean accept) {
 		listener0 = new SharerListener();
 		c0.getEventBus().addListener(listener0);
 		listener1 = new InviteeListener(accept);

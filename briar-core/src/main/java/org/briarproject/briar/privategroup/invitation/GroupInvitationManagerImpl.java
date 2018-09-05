@@ -353,7 +353,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	private <S extends Session> S handleAction(Transaction txn,
 			LocalAction type, S session, ProtocolEngine<S> engine)
-			throws DbException, FormatException {
+			throws DbException {
 		if (type == LocalAction.INVITE) {
 			throw new IllegalArgumentException();
 		} else if (type == LocalAction.JOIN) {
@@ -392,23 +392,36 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
 			List<PrivateMessageHeader> messages =
 					new ArrayList<>(results.size());
+			// get invite message first and remember private groups
+			Map<SessionId, PrivateGroup> privateGroups = new HashMap<>();
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();
 				MessageMetadata meta =
 						messageParser.parseMetadata(e.getValue());
-				MessageStatus status = db.getMessageStatus(txn, c, m);
 				MessageType type = meta.getMessageType();
-				if (type == INVITE) {
-					messages.add(parseInvitationRequest(txn, c, contactGroupId,
-							m, meta, status));
-				} else if (type == JOIN) {
-					messages.add(
-							parseInvitationResponse(c, contactGroupId, m, meta,
-									status, true));
+				if (type != INVITE) continue;
+				MessageStatus status = db.getMessageStatus(txn, c, m);
+				GroupInvitationRequest invite = parseInvitationRequest(txn,
+						contactGroupId, m, meta, status);
+				messages.add(invite);
+				privateGroups.put(invite.getSessionId(), invite.getObject());
+			}
+			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
+				MessageId m = e.getKey();
+				MessageMetadata meta =
+						messageParser.parseMetadata(e.getValue());
+				MessageType type = meta.getMessageType();
+				if (type == INVITE) continue;
+				MessageStatus status = db.getMessageStatus(txn, c, m);
+				SessionId sessionId = getSessionId(meta.getPrivateGroupId());
+				PrivateGroup privateGroup = privateGroups.get(sessionId);
+				if (privateGroup == null) throw new AssertionError();
+				if (type == JOIN) {
+					messages.add(parseInvitationResponse(contactGroupId, m,
+							meta, status, sessionId, privateGroup, true));
 				} else if (type == LEAVE) {
-					messages.add(
-							parseInvitationResponse(c, contactGroupId, m, meta,
-									status, false));
+					messages.add(parseInvitationResponse(contactGroupId, m,
+							meta, status, sessionId, privateGroup, false));
 				}
 			}
 			return messages;
@@ -418,9 +431,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	private GroupInvitationRequest parseInvitationRequest(Transaction txn,
-			ContactId c, GroupId contactGroupId, MessageId m,
-			MessageMetadata meta, MessageStatus status)
-			throws DbException, FormatException {
+			GroupId contactGroupId, MessageId m, MessageMetadata meta,
+			MessageStatus status) throws DbException, FormatException {
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
 		// Look up the invite message to get the details of the private group
 		InviteMessage invite = messageParser.getInviteMessage(txn, m);
@@ -436,15 +448,14 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				invite.getMessage(), meta.isAvailableToAnswer(), canBeOpened);
 	}
 
-	private GroupInvitationResponse parseInvitationResponse(ContactId c,
+	private GroupInvitationResponse parseInvitationResponse(
 			GroupId contactGroupId, MessageId m, MessageMetadata meta,
-			MessageStatus status, boolean accept)
-			throws DbException, FormatException {
-		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
+			MessageStatus status, SessionId sessionId,
+			PrivateGroup privateGroup, boolean accept) {
 		return new GroupInvitationResponse(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), sessionId,
-				meta.getPrivateGroupId(), accept);
+				status.isSeen(), meta.isRead(), sessionId, privateGroup,
+				accept);
 	}
 
 	@Override

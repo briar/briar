@@ -59,21 +59,21 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 
 	@Override
 	Event getInvitationResponseReceivedEvent(AcceptMessage m,
-			ContactId contactId) {
+			ContactId contactId, Blog shareable) {
 		BlogInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
-						m.getShareableId(), true);
+						shareable, true);
 		return new BlogInvitationResponseReceivedEvent(contactId, response);
 	}
 
 	@Override
 	Event getInvitationResponseReceivedEvent(DeclineMessage m,
-			ContactId contactId) {
+			ContactId contactId, Blog shareable) {
 		BlogInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
-						m.getShareableId(), true);
+						shareable, true);
 		return new BlogInvitationResponseReceivedEvent(contactId, response);
 	}
 

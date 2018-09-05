@@ -44,8 +44,8 @@ import org.briarproject.briar.api.introduction.event.IntroductionResponseReceive
 import org.briarproject.briar.api.messaging.ConversationManager;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.PrivateRequest;
+import org.briarproject.briar.api.messaging.PrivateResponse;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
-import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.api.sharing.event.InvitationRequestReceivedEvent;
 import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 
@@ -277,7 +277,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			LOG.info("Invitation response received, updating item");
 			InvitationResponseReceivedEvent m =
 					(InvitationResponseReceivedEvent) e;
-			InvitationResponse ir = m.getResponse();
+			PrivateResponse ir = m.getResponse();
 			updateItem(m.getContactId(), ir);
 		}
 	}

@@ -17,9 +17,9 @@ import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.PrivateRequest;
+import org.briarproject.briar.api.messaging.PrivateResponse;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
-import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.api.sharing.Shareable;
 
 import javax.annotation.Nullable;
@@ -84,46 +84,6 @@ abstract class ConversationItem {
 			return new ConversationMessageOutItem(h);
 		} else {
 			return new ConversationMessageInItem(h);
-		}
-	}
-
-	static ConversationItem from(Context ctx, String contactName,
-			IntroductionResponse ir) {
-		if (ir.isLocal()) {
-			String text;
-			if (ir.wasAccepted()) {
-				text = ctx.getString(
-						R.string.introduction_response_accepted_sent,
-						ir.getName());
-				text += "\n\n" + ctx.getString(
-						R.string.introduction_response_accepted_sent_info,
-						ir.getName());
-			} else {
-				text = ctx.getString(
-						R.string.introduction_response_declined_sent,
-						ir.getName());
-			}
-			return new ConversationNoticeOutItem(ir.getId(), ir.getGroupId(),
-					text, null, ir.getTimestamp(), ir.isSent(), ir.isSeen());
-		} else {
-			String text;
-			if (ir.wasAccepted()) {
-				text = ctx.getString(
-						R.string.introduction_response_accepted_received,
-						contactName, ir.getName());
-			} else {
-				if (ir.isIntroducer()) {
-					text = ctx.getString(
-							R.string.introduction_response_declined_received,
-							contactName, ir.getName());
-				} else {
-					text = ctx.getString(
-							R.string.introduction_response_declined_received_by_introducee,
-							contactName, ir.getName());
-				}
-			}
-			return new ConversationNoticeInItem(ir.getId(), ir.getGroupId(),
-					text, null, ir.getTimestamp(), ir.isRead());
 		}
 	}
 
@@ -196,7 +156,44 @@ abstract class ConversationItem {
 	}
 
 	static ConversationItem from(Context ctx, String contactName,
-			InvitationResponse ir) {
+			IntroductionResponse ir) {
+		if (ir.isLocal()) {
+			String text;
+			if (ir.wasAccepted()) {
+				text = ctx.getString(
+						R.string.introduction_response_accepted_sent,
+						ir.getObject().getName());
+				text += "\n\n" + ctx.getString(
+						R.string.introduction_response_accepted_sent_info,
+						ir.getObject().getName());
+			} else {
+				text = ctx.getString(
+						R.string.introduction_response_declined_sent,
+						ir.getObject().getName());
+			}
+			return new ConversationNoticeOutItem(ir.getId(), ir.getGroupId(),
+					text, null, ir.getTimestamp(), ir.isSent(), ir.isSeen());
+		} else {
+			@StringRes int res;
+			if (ir.wasAccepted()) {
+				res = R.string.introduction_response_accepted_received;
+			} else {
+				if (ir.getObject().isIntroducer()) {
+					res = R.string.introduction_response_declined_received;
+				} else {
+					res =
+							R.string.introduction_response_declined_received_by_introducee;
+				}
+			}
+			String text =
+					ctx.getString(res, contactName, ir.getObject().getName());
+			return new ConversationNoticeInItem(ir.getId(), ir.getGroupId(),
+					text, null, ir.getTimestamp(), ir.isRead());
+		}
+	}
+
+	static ConversationItem from(Context ctx, String contactName,
+			PrivateResponse ir) {
 		@StringRes int res;
 		if (ir.isLocal()) {
 			if (ir.wasAccepted()) {
@@ -208,7 +205,7 @@ abstract class ConversationItem {
 					res = R.string.groups_invitations_response_accepted_sent;
 				} else {
 					throw new IllegalArgumentException(
-							"Unknown InvitationResponse");
+							"Unknown PrivateResponse");
 				}
 			} else {
 				if (ir instanceof ForumInvitationResponse) {
@@ -219,7 +216,7 @@ abstract class ConversationItem {
 					res = R.string.groups_invitations_response_declined_sent;
 				} else {
 					throw new IllegalArgumentException(
-							"Unknown InvitationResponse");
+							"Unknown PrivateResponse");
 				}
 			}
 			String text = ctx.getString(res, contactName);
@@ -235,7 +232,7 @@ abstract class ConversationItem {
 					res = R.string.groups_invitations_response_accepted_received;
 				} else {
 					throw new IllegalArgumentException(
-							"Unknown InvitationResponse");
+							"Unknown PrivateResponse");
 				}
 			} else {
 					if (ir instanceof ForumInvitationResponse) {
@@ -246,7 +243,7 @@ abstract class ConversationItem {
 						res = R.string.groups_invitations_response_declined_received;
 					} else {
 						throw new IllegalArgumentException(
-								"Unknown InvitationResponse");
+								"Unknown PrivateResponse");
 					}
 			}
 			String text = ctx.getString(res, contactName);
@@ -261,14 +258,12 @@ abstract class ConversationItem {
 	 * PrivateMessageHeader.
 	 **/
 	static ConversationItem from(Context ctx, PrivateMessageHeader h) {
-		if(h instanceof IntroductionRequest) {
-			return from(ctx, "", (IntroductionRequest) h);
-		} else if(h instanceof IntroductionResponse) {
+		if(h instanceof IntroductionResponse) {
 			return from(ctx, "", (IntroductionResponse) h);
 		} else if(h instanceof PrivateRequest) {
 			return from(ctx, "", (PrivateRequest) h);
-		} else if(h instanceof InvitationResponse) {
-			return from(ctx, "", (InvitationResponse) h);
+		} else if(h instanceof PrivateResponse) {
+			return from(ctx, "", (PrivateResponse) h);
 		} else {
 			return from(h);
 		}

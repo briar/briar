@@ -2,6 +2,7 @@ package org.briarproject.briar.privategroup.invitation;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
@@ -12,7 +13,6 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationItem;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
-import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
@@ -124,7 +124,8 @@ public class GroupInvitationIntegrationTest
 		for (PrivateMessageHeader m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
-				InvitationResponse response = (GroupInvitationResponse) m;
+				GroupInvitationResponse response = (GroupInvitationResponse) m;
+				assertEquals(privateGroup0, response.getObject());
 				assertTrue(response.isLocal());
 				assertFalse(response.wasAccepted());
 			}
@@ -140,7 +141,8 @@ public class GroupInvitationIntegrationTest
 		for (PrivateMessageHeader m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
-				InvitationResponse response = (GroupInvitationResponse) m;
+				GroupInvitationResponse response = (GroupInvitationResponse) m;
+				assertEquals(privateGroup0, response.getObject());
 				assertFalse(response.isLocal());
 				assertFalse(response.wasAccepted());
 			}
@@ -171,24 +173,27 @@ public class GroupInvitationIntegrationTest
 		for (PrivateMessageHeader m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
-				InvitationResponse response = (GroupInvitationResponse) m;
+				GroupInvitationResponse response = (GroupInvitationResponse) m;
+				assertEquals(privateGroup0, response.getObject());
 				assertTrue(response.wasAccepted());
 			} else {
-				assertTrue(((GroupInvitationRequest) m).doesExist());
+				GroupInvitationRequest request = (GroupInvitationRequest) m;
+				assertEquals(privateGroup0, request.getObject());
+				assertTrue(request.doesExist());
 			}
 		}
 		assertTrue(foundResponse);
 
 		sync1To0(1, true);
 
-		messages =
-				groupInvitationManager0.getMessages(contactId1From0);
+		messages = groupInvitationManager0.getMessages(contactId1From0);
 		assertEquals(2, messages.size());
 		foundResponse = false;
 		for (PrivateMessageHeader m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
-				InvitationResponse response = (GroupInvitationResponse) m;
+				GroupInvitationResponse response = (GroupInvitationResponse) m;
+				assertEquals(privateGroup0, response.getObject());
 				assertTrue(response.wasAccepted());
 			}
 		}
@@ -430,6 +435,36 @@ public class GroupInvitationIntegrationTest
 
 		// Invitee's leave message is delivered to creator
 		sync1To0(1, true);
+	}
+
+	@Test(expected = AssertionError.class)
+	public void testDeleteOnlyInvitationFails() throws Exception {
+		// send invitation
+		sendInvitation(clock.currentTimeMillis(), null);
+		sync0To1(1, true);
+
+		// save MessageId of invitation
+		Collection<PrivateMessageHeader> messages =
+				groupInvitationManager1.getMessages(contactId0From1);
+		assertEquals(1, messages.size());
+		MessageId inviteId = messages.iterator().next().getId();
+
+		// decline invitation
+		groupInvitationManager1
+				.respondToInvitation(contactId0From1, privateGroup0, false);
+
+		// we should have an invitation and a decline message
+		messages = groupInvitationManager1.getMessages(contactId0From1);
+		assertEquals(2, messages.size());
+
+		// delete only invitation
+		withinTransaction(db1, txn -> {
+			db1.deleteMessage(txn, inviteId);
+			db1.deleteMessageMetadata(txn, inviteId);
+		});
+
+		// This should fail
+		groupInvitationManager1.getMessages(contactId0From1);
 	}
 
 	private void sendInvitation(long timestamp, @Nullable String msg) throws

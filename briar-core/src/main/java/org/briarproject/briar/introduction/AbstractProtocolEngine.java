@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.introduction.Introduction;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 
@@ -147,12 +148,13 @@ abstract class AbstractProtocolEngine<S extends Session>
 	void broadcastIntroductionResponseReceivedEvent(Transaction txn, Session s,
 			AuthorId sender, Author otherAuthor, AbstractIntroductionMessage m)
 			throws DbException {
+		Introduction introduction = new Introduction(otherAuthor, s.getRole());
 		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
 		Contact c = contactManager.getContact(txn, sender, localAuthorId);
 		IntroductionResponse response =
-				new IntroductionResponse(s.getSessionId(), m.getMessageId(),
-						m.getGroupId(), s.getRole(), m.getTimestamp(), false,
-						false, false, false, otherAuthor.getName(),
+				new IntroductionResponse(m.getMessageId(), m.getGroupId(),
+						m.getTimestamp(), false, false, false, false,
+						s.getSessionId(), introduction,
 						m instanceof AcceptMessage);
 		IntroductionResponseReceivedEvent e =
 				new IntroductionResponseReceivedEvent(c.getId(), response);

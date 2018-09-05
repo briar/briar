@@ -137,15 +137,15 @@ public class ForumSharingIntegrationTest
 		// check other things are alright with the forum message
 		for (PrivateMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
-				ForumInvitationRequest invitation =
-						(ForumInvitationRequest) m;
+				ForumInvitationRequest invitation = (ForumInvitationRequest) m;
 				assertFalse(invitation.wasAnswered());
 				assertEquals(forum0.getName(), invitation.getName());
+				assertEquals(forum0, invitation.getObject());
 				assertEquals("Hi!", invitation.getMessage());
 				assertTrue(invitation.doesExist());
 			} else {
-				ForumInvitationResponse response =
-						(ForumInvitationResponse) m;
+				ForumInvitationResponse response = (ForumInvitationResponse) m;
+				assertEquals(forum0, response.getObject());
 				assertTrue(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}
@@ -195,12 +195,14 @@ public class ForumSharingIntegrationTest
 		for (PrivateMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
 				ForumInvitationRequest invitation = (ForumInvitationRequest) m;
+				assertEquals(forum0, invitation.getObject());
 				assertFalse(invitation.wasAnswered());
 				assertEquals(forum0.getName(), invitation.getName());
 				assertEquals(null, invitation.getMessage());
 				assertFalse(invitation.doesExist());
 			} else {
 				ForumInvitationResponse response = (ForumInvitationResponse) m;
+				assertEquals(forum0, response.getObject());
 				assertFalse(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}

@@ -94,9 +94,6 @@ abstract class MessageParserImpl<S extends Shareable>
 				m.getGroupId(), shareable, message, m.getTimestamp());
 	}
 
-	protected abstract S createShareable(BdfList descriptor)
-			throws FormatException;
-
 	@Override
 	public AcceptMessage parseAcceptMessage(Message m, BdfList body)
 			throws FormatException {

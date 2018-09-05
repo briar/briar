@@ -113,13 +113,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 
 	private Message sendInviteMessage(Transaction txn, Session s,
 			@Nullable String message, long timestamp) throws DbException {
-		Group g = db.getGroup(txn, s.getShareableId());
-		BdfList descriptor;
-		try {
-			descriptor = clientHelper.toList(g.getDescriptor());
-		} catch (FormatException e) {
-			throw new DbException(e); // Invalid group descriptor
-		}
+		BdfList descriptor = getDescriptor(txn, s.getShareableId());
 		long localTimestamp = Math.max(timestamp, getLocalTimestamp(s));
 		Message m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
 				localTimestamp, s.getLastLocalMessageId(), descriptor, message);
@@ -373,7 +367,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 				m.getTimestamp(), false);
 		// Broadcast an event
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
-		txn.attach(getInvitationResponseReceivedEvent(m, contactId));
+		S shareable = getShareable(txn, s.getShareableId());
+		txn.attach(getInvitationResponseReceivedEvent(m, contactId, shareable));
 		// Move to the next state
 		return new Session(nextState, s.getContactGroupId(), s.getShareableId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -391,7 +386,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	}
 
 	abstract Event getInvitationResponseReceivedEvent(AcceptMessage m,
-			ContactId contactId);
+			ContactId contactId, S shareable);
 
 	@Override
 	public Session onDeclineMessage(Transaction txn, Session s,
@@ -431,7 +426,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		}
 		// Broadcast an event
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
-		txn.attach(getInvitationResponseReceivedEvent(m, contactId));
+		S shareable = getShareable(txn, s.getShareableId());
+		txn.attach(getInvitationResponseReceivedEvent(m, contactId, shareable));
 		// Move to the next state
 		return new Session(START, s.getContactGroupId(), s.getShareableId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -439,7 +435,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	}
 
 	abstract Event getInvitationResponseReceivedEvent(DeclineMessage m,
-			ContactId contactId);
+			ContactId contactId, S shareable);
 
 	@Override
 	public Session onLeaveMessage(Transaction txn, Session s,
@@ -528,6 +524,26 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		// Reset the session back to initial state
 		return new Session(START, s.getContactGroupId(), s.getShareableId(),
 				sent.getId(), null, 0, 0);
+	}
+
+	private S getShareable(Transaction txn, GroupId groupId)
+			throws DbException {
+		BdfList descriptor = getDescriptor(txn, groupId);
+		try {
+			return messageParser.createShareable(descriptor);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	private BdfList getDescriptor(Transaction txn, GroupId groupId)
+			throws DbException {
+		Group g = db.getGroup(txn, groupId);
+		try {
+			return clientHelper.toList(g.getDescriptor());
+		} catch (FormatException e) {
+			throw new DbException(e); // Invalid group descriptor
+		}
 	}
 
 	private void markInvitesUnavailableToAnswer(Transaction txn, Session s)

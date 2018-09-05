@@ -25,7 +25,7 @@ import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
-import org.briarproject.briar.api.sharing.InvitationResponse;
+import org.briarproject.briar.api.messaging.PrivateResponse;
 import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 
 import java.util.ArrayList;
@@ -107,8 +107,8 @@ class BlogControllerImpl extends BaseControllerImpl
 		} else if (e instanceof BlogInvitationResponseReceivedEvent) {
 			BlogInvitationResponseReceivedEvent b =
 					(BlogInvitationResponseReceivedEvent) e;
-			InvitationResponse r = b.getResponse();
-			if (r.getShareableId().equals(groupId) && r.wasAccepted()) {
+			PrivateResponse<Blog> r = b.getResponse();
+			if (r.getObject().getId().equals(groupId) && r.wasAccepted()) {
 				LOG.info("Blog invitation accepted");
 				onBlogInvitationAccepted(b.getContactId());
 			}

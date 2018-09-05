@@ -101,7 +101,7 @@ class GroupControllerImpl extends
 					(GroupInvitationResponseReceivedEvent) e;
 			GroupInvitationResponse r =
 					(GroupInvitationResponse) g.getResponse();
-			if (getGroupId().equals(r.getShareableId()) && r.wasAccepted()) {
+			if (getGroupId().equals(r.getObject().getId()) && r.wasAccepted()) {
 				listener.runOnUiThreadUnlessDestroyed(
 						() -> listener.onInvitationAccepted(g.getContactId()));
 			}

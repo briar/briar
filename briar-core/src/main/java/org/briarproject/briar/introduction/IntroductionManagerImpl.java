@@ -509,9 +509,10 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			sessionId = session.getSessionId();
 			author = session.getRemote().author;
 		} else throw new AssertionError();
-		return new IntroductionResponse(sessionId, m, contactGroupId,
-				role, meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), author.getName(), accept);
+		Introduction introduction = new Introduction(author, role);
+		return new IntroductionResponse(m, contactGroupId, meta.getTimestamp(),
+				meta.isLocal(), status.isSent(), status.isSeen(), meta.isRead(),
+				sessionId, introduction, accept);
 	}
 
 	private void removeSessionWithIntroducer(Transaction txn,

@@ -61,21 +61,21 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 
 	@Override
 	Event getInvitationResponseReceivedEvent(AcceptMessage m,
-			ContactId contactId) {
+			ContactId contactId, Forum shareable) {
 		ForumInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
-						m.getShareableId(), true);
+						shareable, true);
 		return new ForumInvitationResponseReceivedEvent(contactId, response);
 	}
 
 	@Override
 	Event getInvitationResponseReceivedEvent(DeclineMessage m,
-			ContactId contactId) {
+			ContactId contactId, Forum shareable) {
 		ForumInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
-						m.getShareableId(), true);
+						shareable, true);
 		return new ForumInvitationResponseReceivedEvent(contactId, response);
 	}
 
