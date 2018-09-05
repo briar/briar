@@ -14,6 +14,7 @@ import android.support.annotation.ColorRes;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.Spannable;
@@ -261,6 +262,10 @@ public class UiUtils {
 	}
 
 	public static boolean hasScreenLock(Context ctx) {
+		return hasKeyguardLock(ctx) || hasUsableFingerprint(ctx);
+	}
+
+	public static boolean hasKeyguardLock(Context ctx) {
 		if (SDK_INT < 21) return false;
 		KeyguardManager keyguardManager =
 				(KeyguardManager) ctx.getSystemService(KEYGUARD_SERVICE);
@@ -269,6 +274,12 @@ public class UiUtils {
 		// first one is true if SIM card is locked, so use second if available
 		return (SDK_INT < 23 && keyguardManager.isKeyguardSecure()) ||
 				(SDK_INT >= 23 && keyguardManager.isDeviceSecure());
+	}
+
+	public static boolean hasUsableFingerprint(Context ctx) {
+		if (SDK_INT < 28) return false;
+		FingerprintManagerCompat fm = FingerprintManagerCompat.from(ctx);
+		return fm.hasEnrolledFingerprints() && fm.isHardwareDetected();
 	}
 
 	public static void triggerFeedback(AndroidExecutor androidExecutor) {
