@@ -7,7 +7,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.messaging.ConversationManager.ConversationClient;
-import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 
 import java.util.Collection;
 
@@ -34,14 +33,6 @@ public interface SharingManager<S extends Shareable>
 	 * Responds to a pending group invitation
 	 */
 	void respondToInvitation(ContactId c, SessionId id, boolean accept)
-			throws DbException;
-
-	/**
-	 * Returns all group sharing messages sent by the Contact
-	 * identified by contactId.
-	 */
-	@Deprecated
-	Collection<PrivateMessageHeader> getMessages(ContactId contactId)
 			throws DbException;
 
 	/**

@@ -178,21 +178,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Collection<PrivateMessageHeader> getMessages(ContactId c)
-			throws DbException {
-		Collection<PrivateMessageHeader> headers;
-		Transaction txn = db.startTransaction(true);
-		try {
-			headers = getMessages(txn, c);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return headers;
-	}
-
-	@Override
-	public Collection<PrivateMessageHeader> getMessages(Transaction txn,
+	public Collection<PrivateMessageHeader> getMessageHeaders(Transaction txn,
 			ContactId c) throws DbException {
 		Map<MessageId, BdfDictionary> metadata;
 		Collection<MessageStatus> statuses;

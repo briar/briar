@@ -34,7 +34,8 @@ import static org.briarproject.briar.android.contact.ConversationRequestItem.Req
 @NotNullByDefault
 abstract class ConversationItem {
 
-	protected @Nullable String body;
+	@Nullable
+	protected String body;
 	private final MessageId id;
 	private final GroupId groupId;
 	private final long time;
@@ -105,7 +106,7 @@ abstract class ConversationItem {
 						R.string.groups_invitations_invitation_sent,
 						contactName, ir.getName());
 			} else {
-				throw new IllegalArgumentException("Unknown InvitationRequest");
+				throw new IllegalArgumentException("Unknown PrivateRequest");
 			}
 			return new ConversationNoticeOutItem(ir.getId(), ir.getGroupId(),
 					text, ir.getMessage(), ir.getTimestamp(), ir.isSent(),
@@ -145,7 +146,7 @@ abstract class ConversationItem {
 						contactName, ir.getName());
 				type = GROUP;
 			} else {
-				throw new IllegalArgumentException("Unknown InvitationRequest");
+				throw new IllegalArgumentException("Unknown PrivateRequest");
 			}
 			return new ConversationRequestItem(ir.getId(),
 					ir.getGroupId(), type, ir.getSessionId(), text,
@@ -229,22 +230,24 @@ abstract class ConversationItem {
 				} else if (ir instanceof BlogInvitationResponse) {
 					res = R.string.blogs_sharing_response_accepted_received;
 				} else if (ir instanceof GroupInvitationResponse) {
-					res = R.string.groups_invitations_response_accepted_received;
+					res =
+							R.string.groups_invitations_response_accepted_received;
 				} else {
 					throw new IllegalArgumentException(
 							"Unknown PrivateResponse");
 				}
 			} else {
-					if (ir instanceof ForumInvitationResponse) {
-						res = R.string.forum_invitation_response_declined_received;
-					} else if (ir instanceof BlogInvitationResponse) {
-						res = R.string.blogs_sharing_response_declined_received;
-					} else if (ir instanceof GroupInvitationResponse) {
-						res = R.string.groups_invitations_response_declined_received;
-					} else {
-						throw new IllegalArgumentException(
-								"Unknown PrivateResponse");
-					}
+				if (ir instanceof ForumInvitationResponse) {
+					res = R.string.forum_invitation_response_declined_received;
+				} else if (ir instanceof BlogInvitationResponse) {
+					res = R.string.blogs_sharing_response_declined_received;
+				} else if (ir instanceof GroupInvitationResponse) {
+					res =
+							R.string.groups_invitations_response_declined_received;
+				} else {
+					throw new IllegalArgumentException(
+							"Unknown PrivateResponse");
+				}
 			}
 			String text = ctx.getString(res, contactName);
 			return new ConversationNoticeInItem(ir.getId(), ir.getGroupId(),
@@ -258,11 +261,11 @@ abstract class ConversationItem {
 	 * PrivateMessageHeader.
 	 **/
 	static ConversationItem from(Context ctx, PrivateMessageHeader h) {
-		if(h instanceof IntroductionResponse) {
+		if (h instanceof IntroductionResponse) {
 			return from(ctx, "", (IntroductionResponse) h);
-		} else if(h instanceof PrivateRequest) {
+		} else if (h instanceof PrivateRequest) {
 			return from(ctx, "", (PrivateRequest) h);
-		} else if(h instanceof PrivateResponse) {
+		} else if (h instanceof PrivateResponse) {
 			return from(ctx, "", (PrivateResponse) h);
 		} else {
 			return from(h);

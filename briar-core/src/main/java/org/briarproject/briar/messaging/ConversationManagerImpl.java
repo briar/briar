@@ -38,13 +38,13 @@ class ConversationManagerImpl implements ConversationManager {
 	}
 
 	@Override
-	public Collection<PrivateMessageHeader> getMessages(ContactId c)
+	public Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException {
 		List<PrivateMessageHeader> messages = new ArrayList<>();
 		Transaction txn = db.startTransaction(true);
 		try {
 			for (ConversationClient client : clients) {
-				messages.addAll(client.getMessages(txn, c));
+				messages.addAll(client.getMessageHeaders(txn, c));
 			}
 			db.commitTransaction(txn);
 		} finally {

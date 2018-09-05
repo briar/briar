@@ -669,8 +669,6 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 						invite.getCreator(), invite.getSalt());
 
 		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
@@ -700,13 +698,10 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(messageParser).parseMetadata(meta);
 			will(returnValue(messageMetadata1));
 			oneOf(db).getMessageStatus(txn, contactId, messageId2);
-			// end transaction
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		Collection<PrivateMessageHeader> messages =
-				groupInvitationManager.getMessages(contactId);
+				groupInvitationManager.getMessageHeaders(txn, contactId);
 		assertEquals(2, messages.size());
 		for (PrivateMessageHeader m : messages) {
 			assertEquals(contactGroup.getId(), m.getGroupId());

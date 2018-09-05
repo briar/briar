@@ -93,7 +93,8 @@ public class GroupInvitationIntegrationTest
 		assertFalse(item.isSubscribed());
 
 		Collection<PrivateMessageHeader> messages =
-				groupInvitationManager1.getMessages(contactId0From1);
+				withinTransactionReturns(db1, txn -> groupInvitationManager1
+						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(1, messages.size());
 		GroupInvitationRequest request =
 				(GroupInvitationRequest) messages.iterator().next();
@@ -118,7 +119,8 @@ public class GroupInvitationIntegrationTest
 				.respondToInvitation(contactId0From1, privateGroup0, false);
 
 		Collection<PrivateMessageHeader> messages =
-				groupInvitationManager1.getMessages(contactId0From1);
+				withinTransactionReturns(db1, txn -> groupInvitationManager1
+						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, messages.size());
 		boolean foundResponse = false;
 		for (PrivateMessageHeader m : messages) {
@@ -134,8 +136,8 @@ public class GroupInvitationIntegrationTest
 
 		sync1To0(1, true);
 
-		messages =
-				groupInvitationManager0.getMessages(contactId1From0);
+		messages = withinTransactionReturns(db0, txn -> groupInvitationManager0
+				.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		foundResponse = false;
 		for (PrivateMessageHeader m : messages) {
@@ -167,7 +169,8 @@ public class GroupInvitationIntegrationTest
 				.respondToInvitation(contactId0From1, privateGroup0, true);
 
 		Collection<PrivateMessageHeader> messages =
-				groupInvitationManager1.getMessages(contactId0From1);
+				withinTransactionReturns(db1, txn -> groupInvitationManager1
+						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, messages.size());
 		boolean foundResponse = false;
 		for (PrivateMessageHeader m : messages) {
@@ -186,7 +189,8 @@ public class GroupInvitationIntegrationTest
 
 		sync1To0(1, true);
 
-		messages = groupInvitationManager0.getMessages(contactId1From0);
+		messages = withinTransactionReturns(db1, txn -> groupInvitationManager0
+				.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		foundResponse = false;
 		for (PrivateMessageHeader m : messages) {
@@ -221,9 +225,9 @@ public class GroupInvitationIntegrationTest
 		// 1 has one unread message
 		Group g0 = groupInvitationManager1.getContactGroup(contact0From1);
 		assertGroupCount(messageTracker1, g0.getId(), 1, 1, timestamp);
-		PrivateMessageHeader m =
-				groupInvitationManager1.getMessages(contactId0From1)
-						.iterator().next();
+		PrivateMessageHeader m = withinTransactionReturns(db1,
+				txn -> groupInvitationManager1.getMessageHeaders(txn, contactId0From1)
+						.iterator().next());
 
 		groupInvitationManager1
 				.respondToInvitation(contactId0From1, privateGroup0, true);
@@ -445,7 +449,8 @@ public class GroupInvitationIntegrationTest
 
 		// save MessageId of invitation
 		Collection<PrivateMessageHeader> messages =
-				groupInvitationManager1.getMessages(contactId0From1);
+				withinTransactionReturns(db1, txn -> groupInvitationManager1
+						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(1, messages.size());
 		MessageId inviteId = messages.iterator().next().getId();
 
@@ -454,17 +459,18 @@ public class GroupInvitationIntegrationTest
 				.respondToInvitation(contactId0From1, privateGroup0, false);
 
 		// we should have an invitation and a decline message
-		messages = groupInvitationManager1.getMessages(contactId0From1);
+		messages = withinTransactionReturns(db1, txn -> groupInvitationManager1
+				.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, messages.size());
 
 		// delete only invitation
 		withinTransaction(db1, txn -> {
 			db1.deleteMessage(txn, inviteId);
 			db1.deleteMessageMetadata(txn, inviteId);
+			// This should fail
+			groupInvitationManager1.getMessageHeaders(txn, contactId0From1);
 		});
 
-		// This should fail
-		groupInvitationManager1.getMessages(contactId0From1);
 	}
 
 	private void sendInvitation(long timestamp, @Nullable String msg) throws

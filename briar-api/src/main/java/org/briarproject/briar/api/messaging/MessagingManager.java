@@ -8,8 +8,6 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.messaging.ConversationManager.ConversationClient;
 
-import java.util.Collection;
-
 @NotNullByDefault
 public interface MessagingManager extends ConversationClient {
 
@@ -42,13 +40,6 @@ public interface MessagingManager extends ConversationClient {
 	 * Returns the ID of the private conversation with the given contact.
 	 */
 	GroupId getConversationId(ContactId c) throws DbException;
-
-	/**
-	 * Returns the headers of all messages in the given private conversation.
-	 */
-	@Deprecated
-	Collection<PrivateMessageHeader> getMessages(ContactId c)
-			throws DbException;
 
 	/**
 	 * Returns the body of the private message with the given ID.

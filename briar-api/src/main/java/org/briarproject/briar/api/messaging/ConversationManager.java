@@ -22,12 +22,12 @@ public interface ConversationManager {
 	void registerConversationClient(ConversationClient client);
 
 	/**
-	 * Returns (the headers) of all messages in the given private conversation.
+	 * Returns the headers of all messages in the given private conversation.
 	 *
 	 * Only {@link MessagingManager} returns only headers.
 	 * The others also return the message body.
 	 */
-	Collection<PrivateMessageHeader> getMessages(ContactId c)
+	Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException;
 
 	/**
@@ -40,7 +40,7 @@ public interface ConversationManager {
 
 		Group getContactGroup(Contact c);
 
-		Collection<PrivateMessageHeader> getMessages(Transaction txn,
+		Collection<PrivateMessageHeader> getMessageHeaders(Transaction txn,
 				ContactId contactId) throws DbException;
 
 		GroupCount getGroupCount(Transaction txn, ContactId c)

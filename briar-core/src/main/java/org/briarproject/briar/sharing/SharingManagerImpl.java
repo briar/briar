@@ -321,21 +321,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 	}
 
 	@Override
-	public Collection<PrivateMessageHeader> getMessages(ContactId c)
-			throws DbException {
-		Collection<PrivateMessageHeader> messages;
-		Transaction txn = db.startTransaction(true);
-		try {
-			messages = getMessages(txn, c);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return messages;
-	}
-
-	@Override
-	public Collection<PrivateMessageHeader> getMessages(Transaction txn,
+	public Collection<PrivateMessageHeader> getMessageHeaders(Transaction txn,
 			ContactId c) throws DbException {
 		try {
 			Contact contact = db.getContact(txn, c);

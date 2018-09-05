@@ -27,9 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.blog.BlogSharingManager.MAJOR_VERSION;
@@ -147,8 +145,8 @@ public class BlogSharingIntegrationTest
 		assertTrue(blogManager1.getBlogs().contains(blog2));
 
 		// invitee has one invitation message from sharer
-		List<PrivateMessageHeader> list = new ArrayList<>(
-				blogSharingManager1.getMessages(contactId0From1));
+		Collection<PrivateMessageHeader> list = withinTransactionReturns(db1,
+				txn -> blogSharingManager1.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the message
 		for (PrivateMessageHeader m : list) {
@@ -168,9 +166,9 @@ public class BlogSharingIntegrationTest
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2,
-				blogSharingManager0.getMessages(contactId1From0)
-						.size());
+		assertEquals(2, withinTransactionReturns(db0,
+				txn -> blogSharingManager0.getMessageHeaders(txn, contactId1From0))
+				.size());
 		// blog can not be shared again
 		assertFalse(blogSharingManager0.canBeShared(blog2.getId(),
 				contact1From0));
@@ -220,8 +218,8 @@ public class BlogSharingIntegrationTest
 		assertTrue(blogManager1.getBlogs().contains(rssBlog));
 
 		// invitee has one invitation message from sharer
-		List<PrivateMessageHeader> list = new ArrayList<>(
-				blogSharingManager1.getMessages(contactId0From1));
+		Collection<PrivateMessageHeader> list = withinTransactionReturns(db1,
+				txn -> blogSharingManager1.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the message
 		for (PrivateMessageHeader m : list) {
@@ -241,8 +239,9 @@ public class BlogSharingIntegrationTest
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2, blogSharingManager0.getMessages(
-				contactId1From0).size());
+		assertEquals(2, withinTransactionReturns(db0,
+				txn -> blogSharingManager0.getMessageHeaders(txn, contactId1From0))
+				.size());
 		// blog can not be shared again
 		assertFalse(blogSharingManager0.canBeShared(rssBlog.getId(),
 				contact1From0));
@@ -281,8 +280,8 @@ public class BlogSharingIntegrationTest
 		assertEquals(0, blogSharingManager1.getInvitations().size());
 
 		// invitee has one invitation message from sharer and one response
-		List<PrivateMessageHeader> list = new ArrayList<>(
-				blogSharingManager1.getMessages(contactId0From1));
+		Collection<PrivateMessageHeader> list = withinTransactionReturns(db1,
+				txn -> blogSharingManager1.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check things are alright with the  message
 		for (PrivateMessageHeader m : list) {
@@ -301,9 +300,9 @@ public class BlogSharingIntegrationTest
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2,
-				blogSharingManager0.getMessages(contactId1From0)
-						.size());
+		assertEquals(2, withinTransactionReturns(db0,
+				txn -> blogSharingManager0.getMessageHeaders(txn, contactId1From0))
+				.size());
 		// blog can be shared again
 		assertTrue(
 				blogSharingManager0.canBeShared(blog2.getId(), contact1From0));
@@ -389,7 +388,8 @@ public class BlogSharingIntegrationTest
 
 		// make sure 1 knows that they have blog2 already
 		Collection<PrivateMessageHeader> messages =
-				blogSharingManager1.getMessages(contactId0From1);
+				withinTransactionReturns(db1, txn -> blogSharingManager1
+						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, messages.size());
 		assertEquals(blog2, blogManager1.getBlog(blog2.getId()));
 
@@ -559,7 +559,7 @@ public class BlogSharingIntegrationTest
 				BlogInvitationRequestReceivedEvent event =
 						(BlogInvitationRequestReceivedEvent) e;
 				eventWaiter.assertEquals(contactId1From0, event.getContactId());
-				Blog b = event.getRequest().getObject();
+				Blog b = event.getMessageHeader().getObject();
 				try {
 					Contact c = contactManager0.getContact(contactId1From0);
 					blogSharingManager0.respondToInvitation(b, c, true);
@@ -595,7 +595,7 @@ public class BlogSharingIntegrationTest
 						(BlogInvitationRequestReceivedEvent) e;
 				requestReceived = true;
 				if (!answer) return;
-				Blog b = event.getRequest().getObject();
+				Blog b = event.getMessageHeader().getObject();
 				try {
 					eventWaiter.assertEquals(1,
 							blogSharingManager1.getInvitations().size());
