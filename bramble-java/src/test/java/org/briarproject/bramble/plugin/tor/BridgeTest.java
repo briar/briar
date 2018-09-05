@@ -1,8 +1,5 @@
 package org.briarproject.bramble.plugin.tor;
 
-import android.content.Context;
-import android.support.test.runner.AndroidJUnit4;
-
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
@@ -10,32 +7,32 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
-import org.briarproject.bramble.test.BrambleAndroidIntegrationTestComponent;
+import org.briarproject.bramble.test.BrambleJavaIntegrationTestComponent;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.DaggerBrambleAndroidIntegrationTestComponent;
+import org.briarproject.bramble.test.DaggerBrambleJavaIntegrationTestComponent;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 import javax.net.SocketFactory;
 
-import static android.support.test.InstrumentationRegistry.getTargetContext;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
+import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-
-@RunWith(AndroidJUnit4.class)
+@Ignore("Might fail non-deterministically when bridges are down")
 public class BridgeTest extends BrambleTestCase {
 
 	private final static long TIMEOUT = SECONDS.toMillis(23);
@@ -56,22 +53,19 @@ public class BridgeTest extends BrambleTestCase {
 	@Inject
 	Clock clock;
 
-	private final Context appContext =
-			getTargetContext().getApplicationContext();
-
 	private List<String> bridges;
-	private AndroidTorPluginFactory factory;
+	private LinuxTorPluginFactory factory;
+	private final static File torDir = getTestDirectory();
 
 	private volatile String currentBridge = null;
 
 	@Before
 	public void setUp() {
-		BrambleAndroidIntegrationTestComponent component =
-				DaggerBrambleAndroidIntegrationTestComponent.builder().build();
+		BrambleJavaIntegrationTestComponent component =
+				DaggerBrambleJavaIntegrationTestComponent.builder().build();
 		component.inject(this);
 
 		Executor ioExecutor = Executors.newCachedThreadPool();
-		ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(1);
 		LocationUtils locationUtils = () -> "US";
 		SocketFactory torSocketFactory = SocketFactory.getDefault();
 
@@ -92,9 +86,14 @@ public class BridgeTest extends BrambleTestCase {
 				return singletonList(currentBridge);
 			}
 		};
-		factory = new AndroidTorPluginFactory(ioExecutor, scheduler, appContext,
-				networkManager, locationUtils, eventBus, torSocketFactory,
-				backoffFactory, resourceProvider, bridgeProvider, clock);
+		factory = new LinuxTorPluginFactory(ioExecutor, networkManager,
+				locationUtils, eventBus, torSocketFactory, backoffFactory,
+				resourceProvider, bridgeProvider, clock, torDir);
+	}
+
+	@AfterClass
+	public static void tearDown() {
+		deleteTestDirectory(torDir);
 	}
 
 	@Test
@@ -108,7 +107,7 @@ public class BridgeTest extends BrambleTestCase {
 		DuplexPlugin duplexPlugin =
 				factory.createPlugin(new TorPluginCallBack());
 		assertNotNull(duplexPlugin);
-		AndroidTorPlugin plugin = (AndroidTorPlugin) duplexPlugin;
+		LinuxTorPlugin plugin = (LinuxTorPlugin) duplexPlugin;
 
 		currentBridge = bridge;
 		LOG.warning("Testing " + bridge);

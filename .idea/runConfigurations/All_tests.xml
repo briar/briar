@@ -22,7 +22,7 @@
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in bramble-api" run_configuration_type="AndroidJUnit" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in bramble-core" run_configuration_type="AndroidJUnit" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in bramble-android" run_configuration_type="AndroidJUnit" />
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in bramble-j2se" run_configuration_type="AndroidJUnit" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in bramble-java" run_configuration_type="AndroidJUnit" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="All tests in briar-core" run_configuration_type="AndroidJUnit" />
     </method>
   </configuration>
