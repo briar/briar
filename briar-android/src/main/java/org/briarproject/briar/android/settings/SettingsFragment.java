@@ -135,7 +135,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private Preference notifySound;
 
 	// Fields that are accessed from background threads must be volatile
-	volatile Settings settings;
+	private volatile Settings settings, btSettings, torSettings;
+
 	@Inject
 	volatile SettingsManager settingsManager;
 	@Inject
@@ -241,7 +242,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			if (testing == null) throw new AssertionError();
 			testing.setVisible(false);
 		}
-
 	}
 
 	@Override
@@ -347,30 +347,31 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			try {
 				long start = now();
 				settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
-				Settings btSettings = settingsManager.getSettings(BT_NAMESPACE);
-				Settings torSettings =
-						settingsManager.getSettings(TOR_NAMESPACE);
+				btSettings = settingsManager.getSettings(BT_NAMESPACE);
+				torSettings = settingsManager.getSettings(TOR_NAMESPACE);
 				logDuration(LOG, "Loading settings", start);
-				boolean btSetting =
-						btSettings.getBoolean(PREF_BT_ENABLE, false);
-				int torNetworkSetting = torSettings.getInt(PREF_TOR_NETWORK,
-						PREF_TOR_NETWORK_AUTOMATIC);
-				boolean torMobileSetting =
-						torSettings.getBoolean(PREF_TOR_MOBILE, true);
-				displaySettings(btSetting, torNetworkSetting, torMobileSetting);
+				displaySettings();
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
 		});
 	}
 
-	private void displaySettings(boolean btSetting, int torNetworkSetting,
-			boolean torMobileSetting) {
+	private void displaySettings() {
 		listener.runOnUiThreadUnlessDestroyed(() -> {
-			enableBluetooth.setValue(Boolean.toString(btSetting));
+			boolean btEnabledSetting =
+					btSettings.getBoolean(PREF_BT_ENABLE, false);
+			enableBluetooth.setValue(Boolean.toString(btEnabledSetting));
+
+			int torNetworkSetting = torSettings.getInt(PREF_TOR_NETWORK,
+					PREF_TOR_NETWORK_AUTOMATIC);
 			torNetwork.setValue(Integer.toString(torNetworkSetting));
 			setTorNetworkSummary(torNetworkSetting);
+
+			boolean torMobileSetting =
+					torSettings.getBoolean(PREF_TOR_MOBILE, true);
 			torMobile.setChecked(torMobileSetting);
+
 			displayScreenLockSetting();
 
 			if (SDK_INT < 26) {
@@ -660,12 +661,20 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof SettingsUpdatedEvent) {
-			String namespace = ((SettingsUpdatedEvent) e).getNamespace();
-			if (namespace.equals(BT_NAMESPACE)
-					|| namespace.equals(TOR_NAMESPACE)
-					|| namespace.equals(SETTINGS_NAMESPACE)) {
+			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
+			String namespace = s.getNamespace();
+			if (namespace.equals(SETTINGS_NAMESPACE)) {
 				LOG.info("Settings updated");
-				loadSettings();
+				settings = s.getSettings();
+				displaySettings();
+			} else if (namespace.equals(BT_NAMESPACE)) {
+				LOG.info("Bluetooth settings updated");
+				btSettings = s.getSettings();
+				displaySettings();
+			} else if (namespace.equals(TOR_NAMESPACE)) {
+				LOG.info("Tor settings updated");
+				torSettings = s.getSettings();
+				displaySettings();
 			}
 		}
 	}

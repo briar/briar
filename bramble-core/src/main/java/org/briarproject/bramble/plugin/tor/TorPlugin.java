@@ -108,6 +108,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private volatile ServerSocket socket = null;
 	private volatile Socket controlSocket = null;
 	private volatile TorControlConnection controlConnection = null;
+	private volatile Settings settings = null;
 
 	protected volatile boolean running = false;
 
@@ -172,6 +173,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				throw new PluginException();
 			}
 		}
+		// Load the settings
+		settings = callback.getSettings();
 		// Install or update the assets if necessary
 		if (!assetsAreUpToDate()) installAssets();
 		if (cookieFile.exists() && !cookieFile.delete())
@@ -357,7 +360,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private void bind() {
 		ioExecutor.execute(() -> {
 			// If there's already a port number stored in config, reuse it
-			String portString = callback.getSettings().get(PREF_TOR_PORT);
+			String portString = settings.get(PREF_TOR_PORT);
 			int port;
 			if (StringUtils.isNullOrEmpty(portString)) port = 0;
 			else port = Integer.parseInt(portString);
@@ -402,7 +405,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private void publishHiddenService(String port) {
 		if (!running) return;
 		LOG.info("Creating hidden service");
-		String privKey = callback.getSettings().get(HS_PRIVKEY);
+		String privKey = settings.get(HS_PRIVKEY);
 		Map<Integer, String> portLines =
 				Collections.singletonMap(80, "127.0.0.1:" + port);
 		Map<String, String> response;
@@ -623,6 +626,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
 			if (s.getNamespace().equals(ID.getString())) {
 				LOG.info("Tor settings updated");
+				settings = s.getSettings();
 				updateConnectionStatus(networkManager.getNetworkStatus());
 			}
 		} else if (e instanceof NetworkStatusEvent) {
@@ -638,10 +642,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			String country = locationUtils.getCurrentCountry();
 			boolean blocked =
 					circumventionProvider.isTorProbablyBlocked(country);
-			Settings s = callback.getSettings();
-			int network =
-					s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_AUTOMATIC);
-			boolean useMobile = s.getBoolean(PREF_TOR_MOBILE, true);
+			int network = settings.getInt(PREF_TOR_NETWORK,
+					PREF_TOR_NETWORK_AUTOMATIC);
+			boolean useMobile = settings.getBoolean(PREF_TOR_MOBILE, true);
 			boolean bridgesWork = circumventionProvider.doBridgesWork(country);
 			boolean automatic = network == PREF_TOR_NETWORK_AUTOMATIC;
 

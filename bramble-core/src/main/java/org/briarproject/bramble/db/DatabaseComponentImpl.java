@@ -655,7 +655,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		merged.putAll(s);
 		if (!merged.equals(old)) {
 			db.mergeSettings(txn, s, namespace);
-			transaction.attach(new SettingsUpdatedEvent(namespace));
+			transaction.attach(new SettingsUpdatedEvent(namespace, merged));
 		}
 	}
 

@@ -2,6 +2,7 @@ package org.briarproject.bramble.api.settings.event;
 
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.settings.Settings;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -13,12 +14,18 @@ import javax.annotation.concurrent.Immutable;
 public class SettingsUpdatedEvent extends Event {
 
 	private final String namespace;
+	private final Settings settings;
 
-	public SettingsUpdatedEvent(String namespace) {
+	public SettingsUpdatedEvent(String namespace, Settings settings) {
 		this.namespace = namespace;
+		this.settings = settings;
 	}
 
 	public String getNamespace() {
 		return namespace;
+	}
+
+	public Settings getSettings() {
+		return settings;
 	}
 }

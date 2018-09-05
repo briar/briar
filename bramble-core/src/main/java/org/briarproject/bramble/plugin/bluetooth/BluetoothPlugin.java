@@ -21,6 +21,7 @@ import org.briarproject.bramble.api.plugin.event.BluetoothEnabledEvent;
 import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
 import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.util.StringUtils;
 
@@ -146,16 +147,15 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		}
 		updateProperties();
 		running = true;
-		loadSettings();
+		loadSettings(callback.getSettings());
 		if (shouldAllowContactConnections()) {
 			if (isAdapterEnabled()) bind();
 			else enableAdapter();
 		}
 	}
 
-	private void loadSettings() {
-		contactConnections =
-				callback.getSettings().getBoolean(PREF_BT_ENABLE, false);
+	private void loadSettings(Settings settings) {
+		contactConnections = settings.getBoolean(PREF_BT_ENABLE, false);
 	}
 
 	private boolean shouldAllowContactConnections() {
@@ -387,7 +387,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		} else if (e instanceof SettingsUpdatedEvent) {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
 			if (s.getNamespace().equals(ID.getString()))
-				ioExecutor.execute(this::onSettingsUpdated);
+				ioExecutor.execute(() -> onSettingsUpdated(s.getSettings()));
 		} else if (e instanceof KeyAgreementListeningEvent) {
 			ioExecutor.execute(connectionLimiter::keyAgreementStarted);
 		} else if (e instanceof KeyAgreementStoppedListeningEvent) {
@@ -395,9 +395,9 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		}
 	}
 
-	private void onSettingsUpdated() {
+	private void onSettingsUpdated(Settings settings) {
 		boolean wasAllowed = shouldAllowContactConnections();
-		loadSettings();
+		loadSettings(settings);
 		boolean isAllowed = shouldAllowContactConnections();
 		if (wasAllowed && !isAllowed) {
 			LOG.info("Contact connections disabled");

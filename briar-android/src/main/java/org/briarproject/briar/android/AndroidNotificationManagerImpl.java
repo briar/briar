@@ -16,7 +16,6 @@ import android.support.v4.app.TaskStackBuilder;
 
 import org.briarproject.bramble.api.Multiset;
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
@@ -53,11 +52,9 @@ import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
@@ -78,8 +75,6 @@ import static android.support.v4.app.NotificationCompat.PRIORITY_LOW;
 import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static android.support.v4.content.ContextCompat.getColor;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_BLOGS;
@@ -96,10 +91,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	private static final long SOUND_DELAY = TimeUnit.SECONDS.toMillis(2);
 
-	private static final Logger LOG =
-			Logger.getLogger(AndroidNotificationManagerImpl.class.getName());
-
-	private final Executor dbExecutor;
 	private final SettingsManager settingsManager;
 	private final AndroidExecutor androidExecutor;
 	private final Clock clock;
@@ -125,10 +116,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private volatile Settings settings = new Settings();
 
 	@Inject
-	AndroidNotificationManagerImpl(@DatabaseExecutor Executor dbExecutor,
-			SettingsManager settingsManager, AndroidExecutor androidExecutor,
-			Application app, Clock clock) {
-		this.dbExecutor = dbExecutor;
+	AndroidNotificationManagerImpl(SettingsManager settingsManager,
+			AndroidExecutor androidExecutor, Application app, Clock clock) {
 		this.settingsManager = settingsManager;
 		this.androidExecutor = androidExecutor;
 		this.clock = clock;
@@ -232,7 +221,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	public void eventOccurred(Event e) {
 		if (e instanceof SettingsUpdatedEvent) {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
-			if (s.getNamespace().equals(SETTINGS_NAMESPACE)) loadSettings();
+			if (s.getNamespace().equals(SETTINGS_NAMESPACE))
+				settings = s.getSettings();
 		} else if (e instanceof PrivateMessageReceivedEvent) {
 			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
 			showContactNotification(p.getContactId());
@@ -263,15 +253,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		}
 	}
 
-	private void loadSettings() {
-		dbExecutor.execute(() -> {
-			try {
-				settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
-	}
 
 	@UiThread
 	@Override
