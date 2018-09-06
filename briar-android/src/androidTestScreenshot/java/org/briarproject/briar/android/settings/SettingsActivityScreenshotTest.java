@@ -9,7 +9,7 @@ import android.view.Gravity;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarUiTestComponent;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
-import org.briarproject.briar.android.test.ScreenshotTest;
+import org.briarproject.briar.android.ScreenshotTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +26,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withChild;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.briarproject.briar.android.test.ViewActions.waitUntilMatches;
+import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
 import static org.hamcrest.CoreMatchers.is;
 
 @RunWith(AndroidJUnit4.class)
