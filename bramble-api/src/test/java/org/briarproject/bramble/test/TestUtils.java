@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.util.Arrays.asList;
 import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
@@ -172,5 +173,11 @@ public class TestUtils {
 	public static double getStandardDeviation(
 			Collection<? extends Number> samples) {
 		return Math.sqrt(getVariance(samples));
+	}
+
+	public static boolean isOptionalTestEnabled(Class testClass) {
+		String optionalTests = System.getenv("OPTIONAL_TESTS");
+		return optionalTests != null &&
+				asList(optionalTests.split(",")).contains(testClass.getName());
 	}
 }

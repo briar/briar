@@ -184,8 +184,3 @@ task verifyTranslations {
 project.afterEvaluate {
 	preBuild.dependsOn.add(verifyTranslations)
 }
-
-tasks.withType(Test) {
-	// Use entropy-gathering device specified on command line, if any
-	systemProperty 'java.security.egd', System.getProperty('java.security.egd')
-}

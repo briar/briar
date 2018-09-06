@@ -6,6 +6,14 @@ allprojects {
 		mavenLocal()
 		google()
 	}
+	afterEvaluate {
+		tasks.withType(Test) {
+			// Allow tests to be re-run if any optional tests are enabled
+			outputs.upToDateWhen { System.getenv("OPTIONAL_TESTS") == null }
+			// Use entropy-gathering device specified on command line, if any
+			systemProperty 'java.security.egd', System.getProperty('java.security.egd')
+		}
+	}
 }
 
 buildscript {
