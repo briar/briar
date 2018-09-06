@@ -9,7 +9,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarUiTestComponent;
-import org.briarproject.briar.android.test.ScreenshotTest;
+import org.briarproject.briar.android.ScreenshotTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +22,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
-import static org.briarproject.briar.android.test.ViewActions.waitUntilMatches;
+import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
 import static org.hamcrest.Matchers.allOf;
 
 @RunWith(AndroidJUnit4.class)

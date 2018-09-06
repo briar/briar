@@ -8,7 +8,7 @@ import android.support.test.uiautomator.UiSelector;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarUiTestComponent;
-import org.briarproject.briar.android.test.ScreenshotTest;
+import org.briarproject.briar.android.ScreenshotTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,8 +27,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.test.runner.lifecycle.Stage.PAUSED;
 import static junit.framework.Assert.assertTrue;
-import static org.briarproject.briar.android.test.ViewActions.waitForActivity;
-import static org.briarproject.briar.android.test.ViewActions.waitUntilMatches;
+import static org.briarproject.briar.android.ViewActions.waitForActivity;
+import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
 

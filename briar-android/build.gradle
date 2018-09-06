@@ -2,65 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'witness'
 apply from: 'witness.gradle'
 
-dependencies {
-	implementation project(path: ':briar-core', configuration: 'default')
-	implementation project(path: ':bramble-core', configuration: 'default')
-	implementation project(':bramble-android')
-
-	def supportVersion = '27.1.1'
-	implementation "com.android.support:support-v4:$supportVersion"
-	implementation("com.android.support:appcompat-v7:$supportVersion") {
-		exclude module: 'support-v4'
-	}
-	implementation("com.android.support:preference-v14:$supportVersion") {
-		exclude module: 'support-v4'
-	}
-	implementation("com.android.support:design:$supportVersion") {
-		exclude module: 'support-v4'
-		exclude module: 'recyclerview-v7'
-	}
-	implementation "com.android.support:cardview-v7:$supportVersion"
-	implementation "com.android.support:support-annotations:$supportVersion"
-	implementation 'com.android.support.constraint:constraint-layout:1.1.0'
-
-	implementation('ch.acra:acra:4.9.1') {
-		exclude module: 'support-v4'
-		exclude module: 'support-annotations'
-	}
-	implementation 'info.guardianproject.panic:panic:0.5'
-	implementation 'info.guardianproject.trustedintents:trustedintents:0.2'
-	implementation 'de.hdodenhof:circleimageview:2.2.0'
-	implementation 'com.google.zxing:core:3.3.0'
-	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.8.0'
-	implementation 'com.vanniktech:emoji-google:0.5.1'
-
-	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
-
-	compileOnly 'javax.annotation:jsr250-api:1.0'
-
-	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
-	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
-	testImplementation 'org.robolectric:robolectric:3.8'
-	testImplementation 'org.robolectric:shadows-support-v4:3.3.2'
-	testImplementation 'org.mockito:mockito-core:2.13.0'
-	testImplementation 'junit:junit:4.12'
-	testImplementation "org.jmock:jmock:2.8.2"
-	testImplementation "org.jmock:jmock-junit4:2.8.2"
-	testImplementation "org.jmock:jmock-legacy:2.8.2"
-	testImplementation "org.hamcrest:hamcrest-library:1.3"
-	testImplementation "org.hamcrest:hamcrest-core:1.3"
-
-	def espressoVersion = '3.0.2'
-	androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
-	androidTestImplementation "com.android.support.test.espresso:espresso-contrib:$espressoVersion"
-	androidTestImplementation "com.android.support.test.espresso:espresso-intents:$espressoVersion"
-	androidTestImplementation "tools.fastlane:screengrab:1.1.0"
-	androidTestImplementation "com.android.support.test.uiautomator:uiautomator-v18:2.1.3"
-	androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:2.0.2"
-	androidTestCompileOnly 'javax.annotation:jsr250-api:1.0'
-	androidTestImplementation 'junit:junit:4.12'
-}
-
 def getStdout = { command, defaultValue ->
 	def stdout = new ByteArrayOutputStream()
 	try {
@@ -89,7 +30,7 @@ android {
 		def now = (long) (System.currentTimeMillis() / 1000)
 		buildConfigField "Long", "BuildTimestamp",
 				"${getStdout(['git', 'log', '-n', '1', '--format=%ct'], now)}000L"
-		testInstrumentationRunner 'org.briarproject.briar.android.test.BriarTestRunner'
+		testInstrumentationRunner 'org.briarproject.briar.android.BriarTestRunner'
 	}
 
 	buildTypes {
@@ -142,6 +83,65 @@ android {
 		warning 'ImpliedQuantity'
 		warning 'ExtraTranslation'
 	}
+}
+
+dependencies {
+	implementation project(path: ':briar-core', configuration: 'default')
+	implementation project(path: ':bramble-core', configuration: 'default')
+	implementation project(':bramble-android')
+
+	def supportVersion = '27.1.1'
+	implementation "com.android.support:support-v4:$supportVersion"
+	implementation("com.android.support:appcompat-v7:$supportVersion") {
+		exclude module: 'support-v4'
+	}
+	implementation("com.android.support:preference-v14:$supportVersion") {
+		exclude module: 'support-v4'
+	}
+	implementation("com.android.support:design:$supportVersion") {
+		exclude module: 'support-v4'
+		exclude module: 'recyclerview-v7'
+	}
+	implementation "com.android.support:cardview-v7:$supportVersion"
+	implementation "com.android.support:support-annotations:$supportVersion"
+	implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+
+	implementation('ch.acra:acra:4.9.1') {
+		exclude module: 'support-v4'
+		exclude module: 'support-annotations'
+	}
+	implementation 'info.guardianproject.panic:panic:0.5'
+	implementation 'info.guardianproject.trustedintents:trustedintents:0.2'
+	implementation 'de.hdodenhof:circleimageview:2.2.0'
+	implementation 'com.google.zxing:core:3.3.0'
+	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.8.0'
+	implementation 'com.vanniktech:emoji-google:0.5.1'
+
+	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
+
+	compileOnly 'javax.annotation:jsr250-api:1.0'
+
+	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
+	testImplementation 'org.robolectric:robolectric:3.8'
+	testImplementation 'org.robolectric:shadows-support-v4:3.3.2'
+	testImplementation 'org.mockito:mockito-core:2.13.0'
+	testImplementation 'junit:junit:4.12'
+	testImplementation "org.jmock:jmock:2.8.2"
+	testImplementation "org.jmock:jmock-junit4:2.8.2"
+	testImplementation "org.jmock:jmock-legacy:2.8.2"
+	testImplementation "org.hamcrest:hamcrest-library:1.3"
+	testImplementation "org.hamcrest:hamcrest-core:1.3"
+
+	def espressoVersion = '3.0.2'
+	androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
+	androidTestImplementation "com.android.support.test.espresso:espresso-contrib:$espressoVersion"
+	androidTestImplementation "com.android.support.test.espresso:espresso-intents:$espressoVersion"
+	androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:2.0.2"
+	androidTestCompileOnly 'javax.annotation:jsr250-api:1.0'
+	androidTestImplementation 'junit:junit:4.12'
+	androidTestScreenshotImplementation "tools.fastlane:screengrab:1.1.0"
+	androidTestScreenshotImplementation "com.android.support.test.uiautomator:uiautomator-v18:2.1.3"
 }
 
 task verifyTranslations {
