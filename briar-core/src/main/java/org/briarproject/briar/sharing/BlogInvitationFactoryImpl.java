@@ -30,10 +30,10 @@ public class BlogInvitationFactoryImpl
 	@Override
 	public BlogInvitationResponse createInvitationResponse(MessageId id,
 			GroupId contactGroupId, long time, boolean local, boolean sent,
-			boolean seen, boolean read, Blog blog, boolean accept) {
-		SessionId sessionId = new SessionId(blog.getId().getBytes());
+			boolean seen, boolean read, boolean accept, GroupId shareableId) {
+		SessionId sessionId = new SessionId(shareableId.getBytes());
 		return new BlogInvitationResponse(id, contactGroupId, time, local, sent,
-				seen, read, sessionId, blog, accept);
+				seen, read, sessionId, accept, shareableId);
 	}
 
 }

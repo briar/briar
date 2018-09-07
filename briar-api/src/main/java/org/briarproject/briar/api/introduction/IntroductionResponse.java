@@ -13,16 +13,22 @@ import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
 
 @Immutable
 @NotNullByDefault
-public class IntroductionResponse extends PrivateResponse<Author> {
+public class IntroductionResponse extends PrivateResponse {
 
+	private final Author introducedAuthor;
 	private final Role ourRole;
 
 	public IntroductionResponse(MessageId messageId, GroupId groupId, long time,
 			boolean local, boolean sent, boolean seen, boolean read,
-			SessionId sessionId, Author author, boolean accepted, Role role) {
+			SessionId sessionId, boolean accepted, Author author, Role role) {
 		super(messageId, groupId, time, local, sent, seen, read, sessionId,
-				author, accepted);
+				accepted);
+		this.introducedAuthor = author;
 		this.ourRole = role;
+	}
+
+	public Author getIntroducedAuthor() {
+		return introducedAuthor;
 	}
 
 	public boolean isIntroducer() {

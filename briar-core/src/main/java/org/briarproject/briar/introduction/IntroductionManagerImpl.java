@@ -495,7 +495,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		} else throw new AssertionError();
 		return new IntroductionResponse(m, contactGroupId, meta.getTimestamp(),
 				meta.isLocal(), status.isSent(), status.isSeen(), meta.isRead(),
-				sessionId, author, accept, role);
+				sessionId, accept, author, role);
 	}
 
 	private void removeSessionWithIntroducer(Transaction txn,

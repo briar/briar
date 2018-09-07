@@ -31,8 +31,7 @@ import static org.briarproject.briar.api.forum.ForumManager.MAJOR_VERSION;
 class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 
 	private final ForumManager forumManager;
-	private final InvitationFactory<Forum, ForumInvitationResponse>
-			invitationFactory;
+	private final InvitationFactory<Forum, ForumInvitationResponse> invitationFactory;
 
 	@Inject
 	ForumProtocolEngineImpl(DatabaseComponent db,
@@ -60,21 +59,21 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 
 	@Override
 	Event getInvitationResponseReceivedEvent(AcceptMessage m,
-			ContactId contactId, Forum shareable) {
+			ContactId contactId) {
 		ForumInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
-						shareable, true);
+						true, m.getShareableId());
 		return new ForumInvitationResponseReceivedEvent(response, contactId);
 	}
 
 	@Override
 	Event getInvitationResponseReceivedEvent(DeclineMessage m,
-			ContactId contactId, Forum shareable) {
+			ContactId contactId) {
 		ForumInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
-						shareable, true);
+						true, m.getShareableId());
 		return new ForumInvitationResponseReceivedEvent(response, contactId);
 	}
 

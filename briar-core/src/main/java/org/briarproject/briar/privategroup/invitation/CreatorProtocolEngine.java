@@ -15,7 +15,6 @@ import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
-import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.event.GroupInvitationResponseReceivedEvent;
@@ -193,10 +192,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		setPrivateGroupVisibility(txn, s, SHARED);
 		// Broadcast an event
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
-		PrivateGroup privateGroup =
-				privateGroupManager.getPrivateGroup(txn, m.getPrivateGroupId());
 		txn.attach(new GroupInvitationResponseReceivedEvent(
-				createInvitationResponse(m, privateGroup, true), contactId));
+				createInvitationResponse(m, true), contactId));
 		// Move to the JOINED state
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), m.getId(), sent.getTimestamp(),
@@ -217,10 +214,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 				m.getTimestamp(), false);
 		// Broadcast an event
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
-		PrivateGroup privateGroup =
-				privateGroupManager.getPrivateGroup(txn, m.getPrivateGroupId());
 		txn.attach(new GroupInvitationResponseReceivedEvent(
-				createInvitationResponse(m, privateGroup, false), contactId));
+				createInvitationResponse(m, false), contactId));
 		// Move to the START state
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -258,11 +253,10 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 	}
 
 	private GroupInvitationResponse createInvitationResponse(
-			GroupInvitationMessage m, PrivateGroup privateGroup,
-			boolean accept) {
+			GroupInvitationMessage m, boolean accept) {
 		SessionId sessionId = new SessionId(m.getPrivateGroupId().getBytes());
 		return new GroupInvitationResponse(m.getId(), m.getContactGroupId(),
 				m.getTimestamp(), false, false, true, false, sessionId,
-				privateGroup, accept);
+				accept, m.getPrivateGroupId());
 	}
 }

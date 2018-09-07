@@ -142,7 +142,7 @@ public class ForumSharingIntegrationTest
 				assertTrue(invitation.canBeOpened());
 			} else {
 				ForumInvitationResponse response = (ForumInvitationResponse) m;
-				assertEquals(forum0, response.getNameable());
+				assertEquals(forum0.getId(), response.getShareableId());
 				assertTrue(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}
@@ -198,7 +198,7 @@ public class ForumSharingIntegrationTest
 				assertFalse(invitation.canBeOpened());
 			} else {
 				ForumInvitationResponse response = (ForumInvitationResponse) m;
-				assertEquals(forum0, response.getNameable());
+				assertEquals(forum0.getId(), response.getShareableId());
 				assertFalse(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}

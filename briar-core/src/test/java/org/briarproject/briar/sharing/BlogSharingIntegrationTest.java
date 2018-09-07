@@ -160,7 +160,7 @@ public class BlogSharingIntegrationTest
 				assertEquals("Hi!", invitation.getMessage());
 			} else {
 				BlogInvitationResponse response = (BlogInvitationResponse) m;
-				assertEquals(blog2, response.getNameable());
+				assertEquals(blog2.getId(), response.getShareableId());
 				assertTrue(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}
@@ -233,7 +233,7 @@ public class BlogSharingIntegrationTest
 				assertEquals("Hi!", invitation.getMessage());
 			} else {
 				BlogInvitationResponse response = (BlogInvitationResponse) m;
-				assertEquals(rssBlog, response.getNameable());
+				assertEquals(rssBlog.getId(), response.getShareableId());
 				assertTrue(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}
@@ -294,7 +294,7 @@ public class BlogSharingIntegrationTest
 				assertEquals(null, invitation.getMessage());
 			} else {
 				BlogInvitationResponse response = (BlogInvitationResponse) m;
-				assertEquals(blog2, response.getNameable());
+				assertEquals(blog2.getId(), response.getShareableId());
 				assertFalse(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}

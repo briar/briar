@@ -113,7 +113,13 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 
 	private Message sendInviteMessage(Transaction txn, Session s,
 			@Nullable String message, long timestamp) throws DbException {
-		BdfList descriptor = getDescriptor(txn, s.getShareableId());
+		Group g = db.getGroup(txn, s.getShareableId());
+		BdfList descriptor;
+		try {
+			descriptor = clientHelper.toList(g.getDescriptor());
+		} catch (FormatException e) {
+			throw new DbException(e); // Invalid group descriptor
+		}
 		long localTimestamp = Math.max(timestamp, getLocalTimestamp(s));
 		Message m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
 				localTimestamp, s.getLastLocalMessageId(), descriptor, message);
@@ -287,7 +293,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		if (m.getTimestamp() <= s.getInviteTimestamp())
 			return abortWithMessage(txn, s);
 		// The dependency, if any, must be the last remote message
-		if (!isValidDependency(s, m.getPreviousMessageId()))
+		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abortWithMessage(txn, s);
 		// Mark the invite message visible in the UI and (un)available to answer
 		markMessageVisibleInUi(txn, m.getId());
@@ -311,7 +317,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		if (m.getTimestamp() <= s.getInviteTimestamp())
 			return abortWithMessage(txn, s);
 		// The dependency, if any, must be the last remote message
-		if (!isValidDependency(s, m.getPreviousMessageId()))
+		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abortWithMessage(txn, s);
 		// Mark the invite message visible in the UI and unavailable to answer
 		markMessageVisibleInUi(txn, m.getId());
@@ -358,7 +364,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		if (m.getTimestamp() <= s.getInviteTimestamp())
 			return abortWithMessage(txn, s);
 		// The dependency, if any, must be the last remote message
-		if (!isValidDependency(s, m.getPreviousMessageId()))
+		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abortWithMessage(txn, s);
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getId());
@@ -367,8 +373,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 				m.getTimestamp(), false);
 		// Broadcast an event
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
-		S shareable = getShareable(txn, s.getShareableId());
-		txn.attach(getInvitationResponseReceivedEvent(m, contactId, shareable));
+		txn.attach(getInvitationResponseReceivedEvent(m, contactId));
 		// Move to the next state
 		return new Session(nextState, s.getContactGroupId(), s.getShareableId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -386,7 +391,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	}
 
 	abstract Event getInvitationResponseReceivedEvent(AcceptMessage m,
-			ContactId contactId, S shareable);
+			ContactId contactId);
 
 	@Override
 	public Session onDeclineMessage(Transaction txn, Session s,
@@ -411,7 +416,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		if (m.getTimestamp() <= s.getInviteTimestamp())
 			return abortWithMessage(txn, s);
 		// The dependency, if any, must be the last remote message
-		if (!isValidDependency(s, m.getPreviousMessageId()))
+		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abortWithMessage(txn, s);
 		// Mark the response visible in the UI
 		markMessageVisibleInUi(txn, m.getId());
@@ -426,8 +431,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		}
 		// Broadcast an event
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
-		S shareable = getShareable(txn, s.getShareableId());
-		txn.attach(getInvitationResponseReceivedEvent(m, contactId, shareable));
+		txn.attach(getInvitationResponseReceivedEvent(m, contactId));
 		// Move to the next state
 		return new Session(START, s.getContactGroupId(), s.getShareableId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -435,7 +439,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	}
 
 	abstract Event getInvitationResponseReceivedEvent(DeclineMessage m,
-			ContactId contactId, S shareable);
+			ContactId contactId);
 
 	@Override
 	public Session onLeaveMessage(Transaction txn, Session s,
@@ -459,7 +463,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private Session onRemoteLeaveWhenInvited(Transaction txn, Session s,
 			LeaveMessage m) throws DbException, FormatException {
 		// The dependency, if any, must be the last remote message
-		if (!isValidDependency(s, m.getPreviousMessageId()))
+		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abortWithMessage(txn, s);
 		// Mark any invite messages in the session unavailable to answer
 		markInvitesUnavailableToAnswer(txn, s);
@@ -472,7 +476,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private Session onRemoteLeaveWhenLocalLeft(Transaction txn, Session s,
 			LeaveMessage m) throws DbException, FormatException {
 		// The dependency, if any, must be the last remote message
-		if (!isValidDependency(s, m.getPreviousMessageId()))
+		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abortWithMessage(txn, s);
 		// Move to the next state
 		return new Session(START, s.getContactGroupId(), s.getShareableId(),
@@ -483,7 +487,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private Session onRemoteLeaveWhenSharing(Transaction txn, Session s,
 			LeaveMessage m) throws DbException, FormatException {
 		// The dependency, if any, must be the last remote message
-		if (!isValidDependency(s, m.getPreviousMessageId()))
+		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abortWithMessage(txn, s);
 		// Broadcast event informing that contact left
 		ContactId contactId = getContactId(txn, s.getContactGroupId());
@@ -524,26 +528,6 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		// Reset the session back to initial state
 		return new Session(START, s.getContactGroupId(), s.getShareableId(),
 				sent.getId(), null, 0, 0);
-	}
-
-	private S getShareable(Transaction txn, GroupId groupId)
-			throws DbException {
-		BdfList descriptor = getDescriptor(txn, groupId);
-		try {
-			return messageParser.createShareable(descriptor);
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
-	}
-
-	private BdfList getDescriptor(Transaction txn, GroupId groupId)
-			throws DbException {
-		Group g = db.getGroup(txn, groupId);
-		try {
-			return clientHelper.toList(g.getDescriptor());
-		} catch (FormatException e) {
-			throw new DbException(e); // Invalid group descriptor
-		}
 	}
 
 	private void markInvitesUnavailableToAnswer(Transaction txn, Session s)
@@ -639,11 +623,11 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
 	}
 
-	private boolean isValidDependency(Session session,
+	private boolean isInvalidDependency(Session session,
 			@Nullable MessageId dependency) {
 		MessageId expected = session.getLastRemoteMessageId();
-		if (dependency == null) return expected == null;
-		return expected != null && dependency.equals(expected);
+		if (dependency == null) return expected != null;
+		return expected == null || !dependency.equals(expected);
 	}
 
 	private long getLocalTimestamp(Session session) {

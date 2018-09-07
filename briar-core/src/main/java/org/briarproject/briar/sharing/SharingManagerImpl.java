@@ -28,7 +28,7 @@ import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.PrivateRequest;
-import org.briarproject.briar.api.messaging.PrivateResponse;
+import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.api.sharing.Shareable;
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
 import org.briarproject.briar.api.sharing.SharingManager;
@@ -329,37 +329,23 @@ abstract class SharingManagerImpl<S extends Shareable>
 			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
-			List<PrivateMessageHeader> messages =
+			Collection<PrivateMessageHeader> messages =
 					new ArrayList<>(results.size());
-			// get invite messages first and remember shareables
-			Map<GroupId, S> shareables = new HashMap<>();
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();
 				MessageMetadata meta =
 						messageParser.parseMetadata(e.getValue());
-				MessageType type = meta.getMessageType();
-				if (type != INVITE) continue;
 				MessageStatus status = db.getMessageStatus(txn, c, m);
-				PrivateRequest<S> invite = parseInvitationRequest(txn, c, m,
-						meta, status);
-				messages.add(invite);
-				shareables.put(invite.getNameable().getId(), invite.getNameable());
-			}
-			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
-				MessageId m = e.getKey();
-				MessageMetadata meta =
-						messageParser.parseMetadata(e.getValue());
 				MessageType type = meta.getMessageType();
-				if (type == INVITE) continue;
-				MessageStatus status = db.getMessageStatus(txn, c, m);
-				S shareable = shareables.get(meta.getShareableId());
-				if (shareable == null) throw new AssertionError();
-				if (type == ACCEPT) {
+				if (type == INVITE) {
+					messages.add(parseInvitationRequest(txn, c, m,
+							meta, status));
+				} else if (type == ACCEPT) {
 					messages.add(parseInvitationResponse(contactGroupId, m,
-							meta, status, shareable, true));
+							meta, status, true));
 				} else if (type == DECLINE) {
 					messages.add(parseInvitationResponse(contactGroupId, m,
-							meta, status, shareable, false));
+							meta, status, false));
 				}
 			}
 			return messages;
@@ -382,12 +368,12 @@ abstract class SharingManagerImpl<S extends Shareable>
 						meta.isAvailableToAnswer(), canBeOpened);
 	}
 
-	private PrivateResponse<S> parseInvitationResponse(GroupId contactGroupId,
+	private InvitationResponse parseInvitationResponse(GroupId contactGroupId,
 			MessageId m, MessageMetadata meta, MessageStatus status,
-			S shareable, boolean accept) {
+			boolean accept) {
 		return invitationFactory.createInvitationResponse(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), shareable, accept);
+				status.isSeen(), meta.isRead(), accept, meta.getShareableId());
 	}
 
 	@Override

@@ -21,11 +21,11 @@ import org.briarproject.briar.android.controller.ActivityLifecycleController;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.Blog;
+import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
-import org.briarproject.briar.api.messaging.PrivateResponse;
 import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 
 import java.util.ArrayList;
@@ -107,8 +107,8 @@ class BlogControllerImpl extends BaseControllerImpl
 		} else if (e instanceof BlogInvitationResponseReceivedEvent) {
 			BlogInvitationResponseReceivedEvent b =
 					(BlogInvitationResponseReceivedEvent) e;
-			PrivateResponse<Blog> r = b.getMessageHeader();
-			if (r.getNameable().getId().equals(groupId) && r.wasAccepted()) {
+			BlogInvitationResponse r = b.getMessageHeader();
+			if (r.getShareableId().equals(groupId) && r.wasAccepted()) {
 				LOG.info("Blog invitation accepted");
 				onBlogInvitationAccepted(b.getContactId());
 			}

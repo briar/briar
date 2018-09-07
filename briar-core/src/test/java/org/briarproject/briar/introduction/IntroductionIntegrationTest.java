@@ -159,7 +159,7 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response1Received);
 		assertEquals(introducee2.getAuthor().getName(),
-				listener0.getResponse().getNameable().getName());
+				listener0.getResponse().getIntroducedAuthor().getName());
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
 
 		// sync second ACCEPT message
@@ -167,7 +167,7 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response2Received);
 		assertEquals(introducee1.getAuthor().getName(),
-				listener0.getResponse().getNameable().getName());
+				listener0.getResponse().getIntroducedAuthor().getName());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
 
 		// sync forwarded ACCEPT messages to introducees
@@ -265,7 +265,7 @@ public class IntroductionIntegrationTest
 
 		// assert that the name on the decline event is correct
 		assertEquals(introducee2.getAuthor().getName(),
-				listener0.getResponse().getNameable().getName());
+				listener0.getResponse().getIntroducedAuthor().getName());
 
 		// sync second response
 		sync2To0(1, true);
@@ -282,7 +282,7 @@ public class IntroductionIntegrationTest
 		// assert that the name on the decline event is correct
 		eventWaiter.await(TIMEOUT, 1);
 		assertEquals(introducee1.getAuthor().getName(),
-				listener2.getResponse().getNameable().getName());
+				listener2.getResponse().getIntroducedAuthor().getName());
 
 		// note how the introducer does not forward the second response,
 		// because after the first decline the protocol finished
@@ -356,7 +356,7 @@ public class IntroductionIntegrationTest
 		// assert that the name on the decline event is correct
 		eventWaiter.await(TIMEOUT, 1);
 		assertEquals(contact2From0.getAuthor().getName(),
-				listener1.getResponse().getNameable().getName());
+				listener1.getResponse().getIntroducedAuthor().getName());
 
 		assertFalse(contactManager1
 				.contactExists(author2.getId(), author1.getId()));
@@ -484,7 +484,7 @@ public class IntroductionIntegrationTest
 		// assert that the name on the decline event is correct
 		eventWaiter.await(TIMEOUT, 1);
 		assertEquals(introducee1.getAuthor().getName(),
-				listener2.getResponse().getNameable().getName());
+				listener2.getResponse().getIntroducedAuthor().getName());
 
 		// assert that introducee2 is in correct state
 		introduceeSession = getIntroduceeSession(c2);

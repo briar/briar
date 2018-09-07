@@ -680,8 +680,6 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId(), query);
 			will(returnValue(results));
 			// first message
-			oneOf(messageParser).parseMetadata(meta2);
-			will(returnValue(messageMetadata2));
 			oneOf(messageParser).parseMetadata(meta);
 			will(returnValue(messageMetadata1));
 			oneOf(db).getMessageStatus(txn, contactId, message.getId());
@@ -695,8 +693,6 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			// second message
 			oneOf(messageParser).parseMetadata(meta2);
 			will(returnValue(messageMetadata2));
-			oneOf(messageParser).parseMetadata(meta);
-			will(returnValue(messageMetadata1));
 			oneOf(db).getMessageStatus(txn, contactId, messageId2);
 		}});
 
@@ -712,7 +708,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			} else if (m.getId().equals(messageId2)) {
 				assertTrue(m instanceof GroupInvitationResponse);
 				assertEquals(time2, m.getTimestamp());
-				assertEquals(pg, ((GroupInvitationResponse) m).getNameable());
+				assertEquals(pg.getId(),
+						((GroupInvitationResponse) m).getShareableId());
 			} else {
 				throw new AssertionError();
 			}
