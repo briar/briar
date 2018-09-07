@@ -1,8 +1,11 @@
 package org.briarproject.briar.android.contact;
 
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -72,8 +75,6 @@ import org.briarproject.briar.api.messaging.PrivateRequest;
 import org.briarproject.briar.api.messaging.PrivateResponse;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
-import org.thoughtcrime.securesms.components.util.FutureTaskListener;
-import org.thoughtcrime.securesms.components.util.ListenableFutureTask;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -81,13 +82,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -141,18 +139,6 @@ public class ConversationActivity extends BriarActivity
 	private BriarRecyclerView list;
 	private TextInputView textInputView;
 
-	private final ListenableFutureTask<String> contactNameTask =
-			new ListenableFutureTask<>(new Callable<String>() {
-				@Override
-				public String call() throws Exception {
-					Contact c = contactManager.getContact(contactId);
-					contactName = c.getAuthor().getName();
-					return c.getAuthor().getName();
-				}
-			});
-	private final AtomicBoolean contactNameTaskStarted =
-			new AtomicBoolean(false);
-
 	// Fields that are accessed from background threads must be volatile
 	@Inject
 	volatile ContactManager contactManager;
@@ -177,11 +163,10 @@ public class ConversationActivity extends BriarActivity
 
 	private volatile ContactId contactId;
 	@Nullable
-	private volatile String contactName;
-	@Nullable
 	private volatile AuthorId contactAuthorId;
 	@Nullable
 	private volatile GroupId messagingGroupId;
+	private MutableLiveData<String> contactName = new MutableLiveData<>();
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
@@ -292,7 +277,7 @@ public class ConversationActivity extends BriarActivity
 				long start = now();
 				if (contactName == null || contactAuthorId == null) {
 					Contact contact = contactManager.getContact(contactId);
-					contactName = contact.getAuthor().getName();
+					contactName.postValue(contact.getAuthor().getName());
 					contactAuthorId = contact.getAuthor().getId();
 				}
 				logDuration(LOG, "Loading contact", start);
@@ -306,12 +291,13 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
+	// contactAuthorId and contactName are expected to be set
 	private void displayContactDetails() {
 		runOnUiThreadUnlessDestroyed(() -> {
 			//noinspection ConstantConditions
 			toolbarAvatar.setImageDrawable(
 					new IdenticonDrawable(contactAuthorId.getBytes()));
-			toolbarTitle.setText(contactName);
+			toolbarTitle.setText(contactName.getValue());
 		});
 	}
 
@@ -381,13 +367,13 @@ public class ConversationActivity extends BriarActivity
 			ConversationItem item;
 			if (h instanceof IntroductionResponse) {
 				IntroductionResponse i = (IntroductionResponse) h;
-				item = ConversationItem.from(this, contactName, i);
+				item = ConversationItem.from(this, contactName.getValue(), i);
 			} else if (h instanceof PrivateRequest) {
 				PrivateRequest r = (PrivateRequest) h;
-				item = ConversationItem.from(this, contactName, r);
+				item = ConversationItem.from(this, contactName.getValue(), r);
 			} else if (h instanceof PrivateResponse) {
 				PrivateResponse r = (PrivateResponse) h;
-				item = ConversationItem.from(this, contactName, r);
+				item = ConversationItem.from(this, contactName.getValue(), r);
 			} else {
 				item = ConversationItem.from(h);
 				String body = bodyCache.get(h.getId());
@@ -480,43 +466,42 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void onNewPrivateMessage(PrivateMessageHeader h) {
-		if (h instanceof PrivateRequest || h instanceof PrivateResponse) {
-			getContactNameTask().addListener(new FutureTaskListener<String>() {
-				@Override
-				public void onSuccess(String contactName) {
-					runOnUiThreadUnlessDestroyed(
-							() -> handlePrivateRequestAndResponse(h,
-									contactName));
-				}
-
-				@Override
-				public void onFailure(Throwable exception) {
-					runOnUiThreadUnlessDestroyed(
-							() -> handleDbException((DbException) exception));
-				}
-			});
-		} else {
-			addConversationItem(ConversationItem.from(h));
-			loadMessageBody(h.getId());
-		}
-	}
-
-	@UiThread
-	private void handlePrivateRequestAndResponse(PrivateMessageHeader h,
-			String contactName) {
-		ConversationItem item;
-		if (h instanceof PrivateRequest) {
-			PrivateRequest m = (PrivateRequest) h;
-			item = ConversationItem
-					.from(ConversationActivity.this, contactName, m);
-		} else if (h instanceof PrivateResponse) {
-			PrivateResponse m = (PrivateResponse) h;
-			item = ConversationItem
-					.from(ConversationActivity.this, contactName, m);
-		} else {
-			throw new AssertionError("Unknown PrivateMessageHeader");
-		}
-		addConversationItem(item);
+		runOnUiThreadUnlessDestroyed(() -> {
+			if (h instanceof PrivateRequest) {
+				contactName.observe(this, new Observer<String>() {
+					@Override
+					public void onChanged(@Nullable String name) {
+						if (name == null) loadContactName();
+						else {
+							PrivateRequest m = (PrivateRequest) h;
+							ConversationItem item = ConversationItem.from(
+									ConversationActivity.this, name, m);
+							addConversationItem(item);
+							contactName.removeObserver(this);
+						}
+					}
+				});
+				if (contactName.getValue() == null) loadContactName();
+			} else if (h instanceof PrivateResponse) {
+				contactName.observe(this, new Observer<String>() {
+					@Override
+					public void onChanged(@Nullable String name) {
+						if (name == null) loadContactName();
+						else {
+							PrivateResponse m = (PrivateResponse) h;
+							ConversationItem item = ConversationItem.from(
+									ConversationActivity.this, name, m);
+							addConversationItem(item);
+							contactName.removeObserver(this);
+						}
+					}
+				});
+				if (contactName.getValue() == null) loadContactName();
+			} else {
+				addConversationItem(ConversationItem.from(h));
+				loadMessageBody(h.getId());
+			}
+		});
 	}
 
 	private void markMessages(Collection<MessageId> messageIds, boolean sent,
@@ -804,10 +789,15 @@ public class ConversationActivity extends BriarActivity
 		groupInvitationManager.respondToInvitation(contactId, id, accept);
 	}
 
-	private ListenableFutureTask<String> getContactNameTask() {
-		if (!contactNameTaskStarted.getAndSet(true))
-			runOnDbThread(contactNameTask);
-		return contactNameTask;
+	private void loadContactName() {
+		runOnDbThread(() -> {
+			try {
+				Contact c = contactManager.getContact(contactId);
+				contactName.postValue(c.getAuthor().getName());
+			} catch (DbException e) {
+				handleDbException(e);
+			}
+		});
 	}
 
 }
