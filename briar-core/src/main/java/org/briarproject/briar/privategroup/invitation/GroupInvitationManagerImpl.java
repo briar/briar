@@ -390,7 +390,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				GroupInvitationRequest invite = parseInvitationRequest(txn,
 						contactGroupId, m, meta, status);
 				messages.add(invite);
-				privateGroups.put(invite.getSessionId(), invite.getObject());
+				privateGroups.put(invite.getSessionId(), invite.getNameable());
 			}
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();

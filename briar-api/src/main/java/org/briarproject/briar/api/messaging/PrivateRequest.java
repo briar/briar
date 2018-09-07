@@ -10,21 +10,21 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class PrivateRequest<O extends Nameable> extends PrivateMessageHeader {
+public class PrivateRequest<N extends Nameable> extends PrivateMessageHeader {
 
 	private final SessionId sessionId;
-	private final O object;
+	private final N nameable;
 	@Nullable
 	private final String message;
 	private final boolean answered, exists;
 
 	public PrivateRequest(MessageId messageId, GroupId groupId, long time,
 			boolean local, boolean sent, boolean seen, boolean read,
-			SessionId sessionId, O object, @Nullable String message,
+			SessionId sessionId, N nameable, @Nullable String message,
 			boolean answered, boolean exists) {
 		super(messageId, groupId, time, local, sent, seen, read);
 		this.sessionId = sessionId;
-		this.object = object;
+		this.nameable = nameable;
 		this.message = message;
 		this.answered = answered;
 		this.exists = exists;
@@ -34,12 +34,12 @@ public class PrivateRequest<O extends Nameable> extends PrivateMessageHeader {
 		return sessionId;
 	}
 
-	public O getObject() {
-		return object;
+	public N getNameable() {
+		return nameable;
 	}
 
 	public String getName() {
-		return object.getName();
+		return nameable.getName();
 	}
 
 	@Nullable

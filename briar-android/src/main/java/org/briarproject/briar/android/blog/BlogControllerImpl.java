@@ -108,7 +108,7 @@ class BlogControllerImpl extends BaseControllerImpl
 			BlogInvitationResponseReceivedEvent b =
 					(BlogInvitationResponseReceivedEvent) e;
 			PrivateResponse<Blog> r = b.getMessageHeader();
-			if (r.getObject().getId().equals(groupId) && r.wasAccepted()) {
+			if (r.getNameable().getId().equals(groupId) && r.wasAccepted()) {
 				LOG.info("Blog invitation accepted");
 				onBlogInvitationAccepted(b.getContactId());
 			}

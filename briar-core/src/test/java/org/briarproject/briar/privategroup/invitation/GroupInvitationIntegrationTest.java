@@ -99,9 +99,9 @@ public class GroupInvitationIntegrationTest
 		GroupInvitationRequest request =
 				(GroupInvitationRequest) messages.iterator().next();
 		assertEquals(msg, request.getMessage());
-		assertEquals(author0, request.getObject().getCreator());
+		assertEquals(author0, request.getNameable().getCreator());
 		assertEquals(timestamp, request.getTimestamp());
-		assertEquals(privateGroup0.getName(), request.getObject().getName());
+		assertEquals(privateGroup0.getName(), request.getNameable().getName());
 		assertFalse(request.isLocal());
 		assertFalse(request.isRead());
 		assertFalse(request.doesExist());
@@ -127,7 +127,7 @@ public class GroupInvitationIntegrationTest
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
 				GroupInvitationResponse response = (GroupInvitationResponse) m;
-				assertEquals(privateGroup0, response.getObject());
+				assertEquals(privateGroup0, response.getNameable());
 				assertTrue(response.isLocal());
 				assertFalse(response.wasAccepted());
 			}
@@ -144,7 +144,7 @@ public class GroupInvitationIntegrationTest
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
 				GroupInvitationResponse response = (GroupInvitationResponse) m;
-				assertEquals(privateGroup0, response.getObject());
+				assertEquals(privateGroup0, response.getNameable());
 				assertFalse(response.isLocal());
 				assertFalse(response.wasAccepted());
 			}
@@ -177,11 +177,11 @@ public class GroupInvitationIntegrationTest
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
 				GroupInvitationResponse response = (GroupInvitationResponse) m;
-				assertEquals(privateGroup0, response.getObject());
+				assertEquals(privateGroup0, response.getNameable());
 				assertTrue(response.wasAccepted());
 			} else {
 				GroupInvitationRequest request = (GroupInvitationRequest) m;
-				assertEquals(privateGroup0, request.getObject());
+				assertEquals(privateGroup0, request.getNameable());
 				assertTrue(request.doesExist());
 			}
 		}
@@ -197,7 +197,7 @@ public class GroupInvitationIntegrationTest
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
 				GroupInvitationResponse response = (GroupInvitationResponse) m;
-				assertEquals(privateGroup0, response.getObject());
+				assertEquals(privateGroup0, response.getNameable());
 				assertTrue(response.wasAccepted());
 			}
 		}

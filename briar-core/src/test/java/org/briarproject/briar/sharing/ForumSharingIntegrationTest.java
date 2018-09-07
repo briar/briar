@@ -137,12 +137,12 @@ public class ForumSharingIntegrationTest
 				ForumInvitationRequest invitation = (ForumInvitationRequest) m;
 				assertFalse(invitation.wasAnswered());
 				assertEquals(forum0.getName(), invitation.getName());
-				assertEquals(forum0, invitation.getObject());
+				assertEquals(forum0, invitation.getNameable());
 				assertEquals("Hi!", invitation.getMessage());
 				assertTrue(invitation.doesExist());
 			} else {
 				ForumInvitationResponse response = (ForumInvitationResponse) m;
-				assertEquals(forum0, response.getObject());
+				assertEquals(forum0, response.getNameable());
 				assertTrue(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}
@@ -191,14 +191,14 @@ public class ForumSharingIntegrationTest
 		for (PrivateMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
 				ForumInvitationRequest invitation = (ForumInvitationRequest) m;
-				assertEquals(forum0, invitation.getObject());
+				assertEquals(forum0, invitation.getNameable());
 				assertFalse(invitation.wasAnswered());
 				assertEquals(forum0.getName(), invitation.getName());
 				assertEquals(null, invitation.getMessage());
 				assertFalse(invitation.doesExist());
 			} else {
 				ForumInvitationResponse response = (ForumInvitationResponse) m;
-				assertEquals(forum0, response.getObject());
+				assertEquals(forum0, response.getNameable());
 				assertFalse(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}
@@ -805,7 +805,7 @@ public class ForumSharingIntegrationTest
 						(ForumInvitationRequestReceivedEvent) e;
 				eventWaiter.assertEquals(contactId1From0, event.getContactId());
 				requestReceived = true;
-				Forum f = event.getMessageHeader().getObject();
+				Forum f = event.getMessageHeader().getNameable();
 				try {
 					if (respond) {
 						Contact c = contactManager0.getContact(contactId1From0);
@@ -843,7 +843,7 @@ public class ForumSharingIntegrationTest
 						(ForumInvitationRequestReceivedEvent) e;
 				requestReceived = true;
 				if (!answer) return;
-				Forum f = event.getMessageHeader().getObject();
+				Forum f = event.getMessageHeader().getNameable();
 				try {
 					if (respond) {
 						eventWaiter.assertEquals(1,

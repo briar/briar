@@ -9,19 +9,19 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public abstract class PrivateResponse<O extends Nameable>
+public abstract class PrivateResponse<N extends Nameable>
 		extends PrivateMessageHeader {
 
 	private final SessionId sessionId;
-	private final O object;
+	private final N nameable;
 	private final boolean accepted;
 
 	public PrivateResponse(MessageId id, GroupId groupId, long time,
 			boolean local, boolean sent, boolean seen, boolean read,
-			SessionId sessionId, O object, boolean accepted) {
+			SessionId sessionId, N nameable, boolean accepted) {
 		super(id, groupId, time, local, sent, seen, read);
 		this.sessionId = sessionId;
-		this.object = object;
+		this.nameable = nameable;
 		this.accepted = accepted;
 	}
 
@@ -29,8 +29,8 @@ public abstract class PrivateResponse<O extends Nameable>
 		return sessionId;
 	}
 
-	public O getObject() {
-		return object;
+	public N getNameable() {
+		return nameable;
 	}
 
 	public boolean wasAccepted() {

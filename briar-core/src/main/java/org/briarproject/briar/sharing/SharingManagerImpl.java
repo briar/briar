@@ -343,7 +343,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 				PrivateRequest<S> invite = parseInvitationRequest(txn, c, m,
 						meta, status);
 				messages.add(invite);
-				shareables.put(invite.getObject().getId(), invite.getObject());
+				shareables.put(invite.getNameable().getId(), invite.getNameable());
 			}
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();

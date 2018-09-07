@@ -151,7 +151,7 @@ abstract class ConversationItem {
 			return new ConversationRequestItem(ir.getId(),
 					ir.getGroupId(), type, ir.getSessionId(), text,
 					ir.getMessage(), ir.getTimestamp(), ir.isRead(),
-					((Shareable) ir.getObject()).getId(), !ir.wasAnswered(),
+					((Shareable) ir.getNameable()).getId(), !ir.wasAnswered(),
 					ir.doesExist());
 		}
 	}
@@ -163,14 +163,14 @@ abstract class ConversationItem {
 			if (ir.wasAccepted()) {
 				text = ctx.getString(
 						R.string.introduction_response_accepted_sent,
-						ir.getObject().getName());
+						ir.getNameable().getName());
 				text += "\n\n" + ctx.getString(
 						R.string.introduction_response_accepted_sent_info,
-						ir.getObject().getName());
+						ir.getNameable().getName());
 			} else {
 				text = ctx.getString(
 						R.string.introduction_response_declined_sent,
-						ir.getObject().getName());
+						ir.getNameable().getName());
 			}
 			return new ConversationNoticeOutItem(ir.getId(), ir.getGroupId(),
 					text, null, ir.getTimestamp(), ir.isSent(), ir.isSeen());
@@ -179,7 +179,7 @@ abstract class ConversationItem {
 			if (ir.wasAccepted()) {
 				res = R.string.introduction_response_accepted_received;
 			} else {
-				if (ir.getObject().isIntroducer()) {
+				if (ir.getNameable().isIntroducer()) {
 					res = R.string.introduction_response_declined_received;
 				} else {
 					res =
@@ -187,7 +187,7 @@ abstract class ConversationItem {
 				}
 			}
 			String text =
-					ctx.getString(res, contactName, ir.getObject().getName());
+					ctx.getString(res, contactName, ir.getNameable().getName());
 			return new ConversationNoticeInItem(ir.getId(), ir.getGroupId(),
 					text, null, ir.getTimestamp(), ir.isRead());
 		}

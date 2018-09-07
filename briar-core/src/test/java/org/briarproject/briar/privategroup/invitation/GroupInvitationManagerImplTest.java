@@ -708,11 +708,11 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			if (m.getId().equals(message.getId())) {
 				assertTrue(m instanceof GroupInvitationRequest);
 				assertEquals(time1, m.getTimestamp());
-				assertEquals(pg, ((GroupInvitationRequest) m).getObject());
+				assertEquals(pg, ((GroupInvitationRequest) m).getNameable());
 			} else if (m.getId().equals(messageId2)) {
 				assertTrue(m instanceof GroupInvitationResponse);
 				assertEquals(time2, m.getTimestamp());
-				assertEquals(pg, ((GroupInvitationResponse) m).getObject());
+				assertEquals(pg, ((GroupInvitationResponse) m).getNameable());
 			} else {
 				throw new AssertionError();
 			}
