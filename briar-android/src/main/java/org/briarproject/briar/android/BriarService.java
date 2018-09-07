@@ -77,6 +77,8 @@ public class BriarService extends Service {
 	public static String EXTRA_STARTUP_FAILED =
 			"org.briarproject.briar.STARTUP_FAILED";
 
+	// This tag prevents the wake lock from being ignored on some Huawei devices
+	private static final String WAKE_LOCK_TAG = "LocationManagerService";
 	private static final String ACTION_ALARM =
 			"org.briarproject.briar.android.ACTION_ALARM";
 	private static final String EXTRA_DUE_MILLIS =
@@ -266,7 +268,7 @@ public class BriarService extends Service {
 			PowerManager powerManager = (PowerManager)
 					getApplicationContext().getSystemService(POWER_SERVICE);
 			WakeLock wakeLock = powerManager.newWakeLock(PARTIAL_WAKE_LOCK,
-					"briar:TestWakeLock");
+					WAKE_LOCK_TAG);
 			if (!USE_TOR_WAKE_LOCK) {
 				//acquire wakelock
 				wakeLock.acquire();
