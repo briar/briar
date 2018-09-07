@@ -13,12 +13,18 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class IntroductionRequest extends PrivateRequest<Introduction> {
 
+	private final boolean contact;
+
 	public IntroductionRequest(MessageId messageId, GroupId groupId,
 			long time, boolean local, boolean sent, boolean seen, boolean read,
 			SessionId sessionId, Introduction introduction,
-			@Nullable String message, boolean answered, boolean exists) {
+			@Nullable String message, boolean answered, boolean contact) {
 		super(messageId, groupId, time, local, sent, seen, read, sessionId,
-				introduction, message, answered, exists);
+				introduction, message, answered);
+		this.contact = contact;
 	}
 
+	public boolean isContact() {
+		return contact;
+	}
 }

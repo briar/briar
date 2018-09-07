@@ -16,18 +16,17 @@ public class PrivateRequest<N extends Nameable> extends PrivateMessageHeader {
 	private final N nameable;
 	@Nullable
 	private final String message;
-	private final boolean answered, exists;
+	private final boolean answered;
 
 	public PrivateRequest(MessageId messageId, GroupId groupId, long time,
 			boolean local, boolean sent, boolean seen, boolean read,
 			SessionId sessionId, N nameable, @Nullable String message,
-			boolean answered, boolean exists) {
+			boolean answered) {
 		super(messageId, groupId, time, local, sent, seen, read);
 		this.sessionId = sessionId;
 		this.nameable = nameable;
 		this.message = message;
 		this.answered = answered;
-		this.exists = exists;
 	}
 
 	public SessionId getSessionId() {
@@ -49,9 +48,5 @@ public class PrivateRequest<N extends Nameable> extends PrivateMessageHeader {
 
 	public boolean wasAnswered() {
 		return answered;
-	}
-
-	public boolean doesExist() {
-		return exists;
 	}
 }

@@ -613,10 +613,10 @@ public class IntroductionIntegrationTest
 		// assert that introducees get notified about the existing contact
 		IntroductionRequest ir1 = getIntroductionRequest(db1,
 				introductionManager1, contactId0From1);
-		assertTrue(ir1.doesExist());
+		assertTrue(ir1.isContact());
 		IntroductionRequest ir2 = getIntroductionRequest(db2,
 				introductionManager2, contactId0From2);
-		assertTrue(ir2.doesExist());
+		assertTrue(ir2.isContact());
 
 		// sync ACCEPT messages back to introducer
 		sync1To0(1, true);

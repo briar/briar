@@ -114,13 +114,14 @@ abstract class ConversationItem {
 		} else {
 			String text;
 			RequestType type;
+			boolean canBeOpened;
 			if (ir instanceof IntroductionRequest) {
 				type = INTRODUCTION;
 				if (ir.wasAnswered()) {
 					text = ctx.getString(
 							R.string.introduction_request_answered_received,
 							contactName, ir.getName());
-				} else if (ir.doesExist()) {
+				} else if (((IntroductionRequest) ir).isContact()) {
 					text = ctx.getString(
 							R.string.introduction_request_exists_received,
 							contactName, ir.getName());
@@ -136,15 +137,18 @@ abstract class ConversationItem {
 				text = ctx.getString(R.string.forum_invitation_received,
 						contactName, ir.getName());
 				type = FORUM;
+				canBeOpened = ((ForumInvitationRequest) ir).canBeOpened();
 			} else if (ir instanceof BlogInvitationRequest) {
 				text = ctx.getString(R.string.blogs_sharing_invitation_received,
 						contactName, ir.getName());
 				type = BLOG;
+				canBeOpened = ((BlogInvitationRequest) ir).canBeOpened();
 			} else if (ir instanceof GroupInvitationRequest) {
 				text = ctx.getString(
 						R.string.groups_invitations_invitation_received,
 						contactName, ir.getName());
 				type = GROUP;
+				canBeOpened = ((GroupInvitationRequest) ir).canBeOpened();
 			} else {
 				throw new IllegalArgumentException("Unknown PrivateRequest");
 			}
@@ -152,7 +156,7 @@ abstract class ConversationItem {
 					ir.getGroupId(), type, ir.getSessionId(), text,
 					ir.getMessage(), ir.getTimestamp(), ir.isRead(),
 					((Shareable) ir.getNameable()).getId(), !ir.wasAnswered(),
-					ir.doesExist());
+					canBeOpened);
 		}
 	}
 
