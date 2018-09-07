@@ -24,16 +24,14 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.api.introduction.Introduction;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
+import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
-import org.briarproject.briar.api.messaging.PrivateRequest;
-import org.briarproject.briar.api.messaging.PrivateResponse;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -1148,7 +1146,7 @@ public class IntroductionIntegrationTest
 		protected volatile Event latestEvent;
 
 		@SuppressWarnings("WeakerAccess")
-		PrivateResponse<Introduction> getResponse() {
+		IntroductionResponse getResponse() {
 			assertTrue(
 					latestEvent instanceof IntroductionResponseReceivedEvent);
 			return ((IntroductionResponseReceivedEvent) latestEvent)
@@ -1180,7 +1178,7 @@ public class IntroductionIntegrationTest
 				IntroductionRequestReceivedEvent introEvent =
 						((IntroductionRequestReceivedEvent) e);
 				requestReceived = true;
-				PrivateRequest<Introduction> ir = introEvent.getMessageHeader();
+				IntroductionRequest ir = introEvent.getMessageHeader();
 				ContactId contactId = introEvent.getContactId();
 				sessionId = ir.getSessionId();
 				long time = clock.currentTimeMillis();
@@ -1217,7 +1215,7 @@ public class IntroductionIntegrationTest
 			}
 		}
 
-		private PrivateRequest<Introduction> getRequest() {
+		private IntroductionRequest getRequest() {
 			assertTrue(
 					latestEvent instanceof IntroductionRequestReceivedEvent);
 			return ((IntroductionRequestReceivedEvent) latestEvent)

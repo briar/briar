@@ -29,7 +29,6 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.api.introduction.Introduction;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
@@ -467,10 +466,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		boolean contactExists = contactManager
 				.contactExists(txn, rm.getAuthor().getId(),
 						localAuthor.getId());
-		Introduction introduction = new Introduction(author, role);
 		return new IntroductionRequest(m, contactGroupId, meta.getTimestamp(),
 				meta.isLocal(), status.isSent(), status.isSeen(), meta.isRead(),
-				sessionId, introduction, message, !meta.isAvailableToAnswer(),
+				sessionId, author, message, !meta.isAvailableToAnswer(),
 				contactExists);
 	}
 
@@ -495,10 +493,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			sessionId = session.getSessionId();
 			author = session.getRemote().author;
 		} else throw new AssertionError();
-		Introduction introduction = new Introduction(author, role);
 		return new IntroductionResponse(m, contactGroupId, meta.getTimestamp(),
 				meta.isLocal(), status.isSent(), status.isSeen(), meta.isRead(),
-				sessionId, introduction, accept);
+				sessionId, author, accept, role);
 	}
 
 	private void removeSessionWithIntroducer(Transaction txn,

@@ -183,7 +183,7 @@ abstract class ConversationItem {
 			if (ir.wasAccepted()) {
 				res = R.string.introduction_response_accepted_received;
 			} else {
-				if (ir.getNameable().isIntroducer()) {
+				if (ir.isIntroducer()) {
 					res = R.string.introduction_response_declined_received;
 				} else {
 					res =
