@@ -256,7 +256,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			int position = adapter.findItemPosition(c);
 			ContactListItem item = adapter.getItemAt(position);
 			if (item != null) {
-				ConversationItem i = ConversationItem.from(getContext(), h);
+				ConversationItem i = ConversationItem.from(getContext(), "", h);
 				item.addMessage(i);
 				adapter.updateItemAt(position, item);
 			}

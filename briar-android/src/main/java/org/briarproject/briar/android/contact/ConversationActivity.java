@@ -65,7 +65,6 @@ import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
-import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.messaging.ConversationManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
@@ -365,15 +364,8 @@ public class ConversationActivity extends BriarActivity
 		List<ConversationItem> items = new ArrayList<>(headers.size());
 		for (PrivateMessageHeader h : headers) {
 			ConversationItem item;
-			if (h instanceof IntroductionResponse) {
-				IntroductionResponse i = (IntroductionResponse) h;
-				item = ConversationItem.from(this, contactName.getValue(), i);
-			} else if (h instanceof PrivateRequest) {
-				PrivateRequest r = (PrivateRequest) h;
-				item = ConversationItem.from(this, contactName.getValue(), r);
-			} else if (h instanceof PrivateResponse) {
-				PrivateResponse r = (PrivateResponse) h;
-				item = ConversationItem.from(this, contactName.getValue(), r);
+			if (h instanceof PrivateRequest || h instanceof PrivateResponse) {
+				item = ConversationItem.from(this, contactName.getValue(), h);
 			} else {
 				item = ConversationItem.from(h);
 				String body = bodyCache.get(h.getId());
@@ -703,7 +695,7 @@ public class ConversationActivity extends BriarActivity
 	@UiThread
 	@Override
 	public void respondToRequest(ConversationRequestItem item, boolean accept) {
-		item.setAnswered(true);
+		item.setAnswered();
 		int position = adapter.findItemPosition(item);
 		if (position != INVALID_POSITION) {
 			adapter.notifyItemChanged(position, item);
