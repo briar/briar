@@ -1,178 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<ScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:fillViewport="true"
+	android:padding="@dimen/margin_medium"
+	tools:ignore="HardcodedText">
 
-	<ScrollView
+	<android.support.constraint.ConstraintLayout
 		android:layout_width="match_parent"
-		android:layout_height="0dp"
-		android:padding="8dp"
-		tools:ignore="HardcodedText">
+		android:layout_height="wrap_content">
 
-		<android.support.constraint.ConstraintLayout
-			xmlns:android="http://schemas.android.com/apk/res/android"
-			xmlns:app="http://schemas.android.com/apk/res-auto"
+		<TextView
+			android:id="@+id/textViewContacts"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_medium"
+			android:text="Number of contacts"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
 
-			<TextView
-				android:id="@+id/textViewContacts"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_margin="@dimen/margin_medium"
-				android:text="Number of contacts"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent"/>
+		<SeekBar
+			android:id="@+id/seekBarContacts"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:max="50"
+			android:progress="20"
+			app:layout_constraintEnd_toStartOf="@+id/textViewContactsSb"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewContacts"/>
 
-			<SeekBar
-				android:id="@+id/seekBarContacts"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:max="49"
-				android:progress="20"
-				app:layout_constraintEnd_toStartOf="@+id/textViewContactsSb"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/textViewContacts"/>
+		<TextView
+			android:id="@+id/textViewContactsSb"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:ems="2"
+			android:text="20"
+			app:layout_constraintBottom_toBottomOf="@+id/seekBarContacts"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewContacts"/>
 
-			<TextView
-				android:id="@+id/textViewContactsSb"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:ems="2"
-				android:text="20"
-				app:layout_constraintBottom_toBottomOf="@+id/seekBarContacts"
-				app:layout_constraintEnd_toEndOf="parent"/>
+		<TextView
+			android:id="@+id/textViewMessages"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_medium"
+			android:text="Number of messages per contact"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/seekBarContacts"/>
 
+		<SeekBar
+			android:id="@+id/seekBarMessages"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:max="50"
+			android:paddingTop="5dp"
+			android:progress="20"
+			app:layout_constraintEnd_toStartOf="@+id/textViewMessagesSb"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewMessages"/>
 
-			<TextView
-				android:id="@+id/textViewMessages"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_margin="@dimen/margin_medium"
-				android:text="Number of messages per contact"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/seekBarContacts"/>
+		<TextView
+			android:id="@+id/textViewMessagesSb"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:ems="2"
+			android:text="20"
+			app:layout_constraintBottom_toBottomOf="@+id/seekBarMessages"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewMessages"/>
 
-			<SeekBar
-				android:id="@+id/seekBarMessages"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:max="50"
-				android:paddingTop="5dp"
-				android:progress="15"
-				app:layout_constraintEnd_toStartOf="@+id/textViewMessagesSb"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/textViewMessages"/>
+		<TextView
+			android:id="@+id/textViewBlogPosts"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_medium"
+			android:text="Number of blog posts"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/seekBarMessages"/>
 
-			<TextView
-				android:id="@+id/textViewMessagesSb"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:ems="2"
-				android:text="20"
-				app:layout_constraintBottom_toBottomOf="@+id/seekBarMessages"
-				app:layout_constraintEnd_toEndOf="parent"/>
+		<SeekBar
+			android:id="@+id/seekBarBlogPosts"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:max="50"
+			android:paddingTop="5dp"
+			android:progress="20"
+			app:layout_constraintEnd_toStartOf="@+id/TextViewBlogPostsSb"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewBlogPosts"/>
 
-			<TextView
-				android:id="@+id/textViewBlogPosts"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_margin="@dimen/margin_medium"
-				android:text="Number of blog posts"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/seekBarMessages"/>
+		<TextView
+			android:id="@+id/TextViewBlogPostsSb"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:ems="2"
+			android:text="20"
+			app:layout_constraintBottom_toBottomOf="@+id/seekBarBlogPosts"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewBlogPosts"/>
 
-			<SeekBar
-				android:id="@+id/seekBarBlogPosts"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:max="50"
-				android:paddingTop="5dp"
-				android:progress="30"
-				app:layout_constraintEnd_toStartOf="@+id/TextViewBlogPostsSb"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/textViewBlogPosts"/>
+		<TextView
+			android:id="@+id/textViewForums"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_medium"
+			android:text="Number of forums"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/seekBarBlogPosts"/>
 
-			<TextView
-				android:id="@+id/TextViewBlogPostsSb"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:ems="2"
-				android:text="20"
-				app:layout_constraintBottom_toBottomOf="@+id/seekBarBlogPosts"
-				app:layout_constraintEnd_toEndOf="parent"/>
+		<SeekBar
+			android:id="@+id/seekBarForums"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:max="50"
+			android:paddingTop="5dp"
+			android:progress="5"
+			app:layout_constraintEnd_toStartOf="@+id/TextViewForumsSb"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewForums"/>
 
-			<TextView
-				android:id="@+id/textViewForums"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_margin="@dimen/margin_medium"
-				android:text="Number of forums"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/seekBarBlogPosts"/>
+		<TextView
+			android:id="@+id/TextViewForumsSb"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:ems="2"
+			android:text="5"
+			app:layout_constraintBottom_toBottomOf="@+id/seekBarForums"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewForums"/>
 
-			<SeekBar
-				android:id="@+id/seekBarForums"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:max="10"
-				android:paddingTop="5dp"
-				android:progress="3"
-				app:layout_constraintEnd_toStartOf="@+id/TextViewForumsSb"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/textViewForums"/>
+		<TextView
+			android:id="@+id/textViewForumMessages"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_medium"
+			android:text="Number of forum messages"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/seekBarForums"/>
 
-			<TextView
-				android:id="@+id/TextViewForumsSb"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:ems="2"
-				android:text="20"
-				app:layout_constraintBottom_toBottomOf="@+id/seekBarForums"
-				app:layout_constraintEnd_toEndOf="parent"/>
+		<SeekBar
+			android:id="@+id/seekBarForumMessages"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:max="50"
+			android:paddingTop="5dp"
+			android:progress="20"
+			app:layout_constraintEnd_toStartOf="@+id/TextViewForumMessagesSb"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewForumMessages"/>
 
-			<TextView
-				android:id="@+id/textViewForumMessages"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_margin="@dimen/margin_medium"
-				android:text="Number of forum messages"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/seekBarForums"/>
+		<TextView
+			android:id="@+id/TextViewForumMessagesSb"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:ems="2"
+			android:text="20"
+			app:layout_constraintBottom_toBottomOf="@+id/seekBarForumMessages"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewForumMessages"/>
 
-			<SeekBar
-				android:id="@+id/seekBarForumMessages"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:max="50"
-				android:paddingTop="5dp"
-				android:progress="30"
-				app:layout_constraintEnd_toStartOf="@+id/TextViewForumMessagesSb"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/textViewForumMessages"/>
+		<Button
+			android:id="@+id/buttonCreateTestData"
+			style="@style/BriarButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dp"
+			android:text="Create test data"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/seekBarForumMessages"
+			app:layout_constraintVertical_bias="1.0"/>
+	</android.support.constraint.ConstraintLayout>
 
-			<TextView
-				android:id="@+id/TextViewForumMessagesSb"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:ems="2"
-				android:text="20"
-				app:layout_constraintBottom_toBottomOf="@+id/seekBarForumMessages"
-				app:layout_constraintEnd_toEndOf="parent"/>
-
-			<Button
-				android:id="@+id/buttonCreateTestData"
-				style="@style/BriarButton"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_margin="10dp"
-				android:text="Create test data"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/seekBarForumMessages"/>
-		</android.support.constraint.ConstraintLayout>
-	</ScrollView>
-</android.support.constraint.ConstraintLayout>
+</ScrollView>

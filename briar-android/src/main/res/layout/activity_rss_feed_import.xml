@@ -6,7 +6,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical"
-	android:padding="@dimen/margin_small"
+	android:padding="@dimen/margin_medium"
 	tools:context=".android.blog.RssFeedImportActivity">
 
 	<android.support.v7.widget.CardView
@@ -35,7 +35,8 @@
 		android:id="@+id/importButton"
 		style="@style/BriarButton"
 		android:enabled="false"
-		android:text="@string/blogs_rss_feeds_import_button"/>
+		android:text="@string/blogs_rss_feeds_import_button"
+		tools:enabled="true"/>
 
 	<ProgressBar
 		android:id="@+id/progressBar"
@@ -43,6 +44,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		android:visibility="gone"/>
+		android:visibility="gone"
+		tools:visibility="gone"/>
 
 </LinearLayout>

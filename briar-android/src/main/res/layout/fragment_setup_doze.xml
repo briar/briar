@@ -10,19 +10,13 @@
 	<android.support.constraint.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:paddingBottom="@dimen/margin_activity_vertical"
-		android:paddingEnd="@dimen/margin_activity_horizontal"
-		android:paddingLeft="@dimen/margin_activity_horizontal"
-		android:paddingRight="@dimen/margin_activity_horizontal"
-		android:paddingStart="@dimen/margin_activity_horizontal"
-		android:paddingTop="@dimen/margin_activity_vertical">
+		android:padding="@dimen/margin_activity_vertical">
 
 		<org.briarproject.briar.android.login.DozeView
 			android:id="@+id/dozeView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:layout_constraintLeft_toLeftOf="parent"
-			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"/>
 
@@ -30,8 +24,8 @@
 			android:id="@+id/huaweiView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:layout_constraintLeft_toLeftOf="parent"
-			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/dozeView"/>
 
 		<Button
@@ -42,8 +36,8 @@
 			android:enabled="false"
 			android:text="@string/create_account_button"
 			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintLeft_toLeftOf="parent"
-			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/huaweiView"
 			app:layout_constraintVertical_bias="1.0"
 			tools:enabled="true"/>
@@ -55,8 +49,8 @@
 			android:layout_height="wrap_content"
 			android:visibility="invisible"
 			app:layout_constraintBottom_toBottomOf="@+id/next"
-			app:layout_constraintLeft_toLeftOf="parent"
-			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="@+id/next"/>
 
 	</android.support.constraint.ConstraintLayout>

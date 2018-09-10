@@ -13,8 +13,8 @@
 		android:layout_height="match_parent"
 		android:gravity="bottom"
 		app:buttonText="@string/blogs_publish_blog_post"
-		app:hint="@string/blogs_write_blog_post_body_hint"
-		app:fillHeight="true"/>
+		app:fillHeight="true"
+		app:hint="@string/blogs_write_blog_post_body_hint"/>
 
 	<ProgressBar
 		android:id="@+id/progressBar"

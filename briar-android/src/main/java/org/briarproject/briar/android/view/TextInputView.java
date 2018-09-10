@@ -61,9 +61,11 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 	public TextInputView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		BriarApplication app =
-				(BriarApplication) context.getApplicationContext();
-		app.getApplicationComponent().inject(this);
+		if (!isInEditMode()) {
+			BriarApplication app =
+					(BriarApplication) context.getApplicationContext();
+			app.getApplicationComponent().inject(this);
+		}
 		setOrientation(VERTICAL);
 		setLayoutTransition(new LayoutTransition());
 		inflateLayout(context);

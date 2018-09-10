@@ -19,7 +19,7 @@
 		android:id="@+id/contactStatus"
 		android:layout_width="15dp"
 		android:layout_height="15dp"
-		android:layout_gravity="bottom|right"
+		android:layout_gravity="bottom|end|right"
 		android:scaleType="fitCenter"
 		tools:ignore="ContentDescription"
 		tools:src="@drawable/contact_online"/>

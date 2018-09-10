@@ -10,6 +10,7 @@
 		android:layout_width="@dimen/blogs_avatar_normal_size"
 		android:layout_height="@dimen/blogs_avatar_normal_size"
 		android:layout_alignTop="@+id/authorName"
+		android:layout_marginEnd="@dimen/margin_medium"
 		android:layout_marginRight="@dimen/margin_medium"
 		tools:src="@mipmap/ic_launcher_round"/>
 
@@ -18,6 +19,7 @@
 		android:layout_width="@dimen/blogs_avatar_icon_size"
 		android:layout_height="@dimen/blogs_avatar_icon_size"
 		android:layout_alignBottom="@+id/avatar"
+		android:layout_alignEnd="@+id/avatar"
 		android:layout_alignRight="@+id/avatar"
 		android:background="@drawable/bubble_white"
 		android:padding="2dp"
@@ -43,6 +45,8 @@
 		android:layout_alignBottom="@+id/authorName"
 		android:layout_alignTop="@+id/authorName"
 		android:layout_marginLeft="@dimen/margin_small"
+		android:layout_marginStart="@dimen/margin_small"
+		android:layout_toEndOf="@id/authorName"
 		android:layout_toRightOf="@id/authorName"
 		android:scaleType="center"
 		tools:src="@drawable/trust_indicator_verified"/>
