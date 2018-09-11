@@ -33,8 +33,10 @@
 					android:layout_marginLeft="@dimen/margin_medium"
 					android:layout_marginStart="@dimen/margin_medium"
 					android:gravity="center"
+					android:maxLines="1"
+					android:ellipsize="end"
 					android:textColor="@color/action_bar_text"
-					tools:text="Contact Name"/>
+					tools:text="Contact Name of someone who chose a long name"/>
 
 			</LinearLayout>
 
