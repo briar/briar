@@ -1,38 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.constraint.ConstraintLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical">
+	android:layout_height="wrap_content">
 
-	<LinearLayout
-		android:layout_width="match_parent"
+	<CheckBox
+		android:id="@+id/include_in_report"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal">
-
-		<CheckBox
-			android:id="@+id/include_in_report"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"/>
-
-		<TextView
-			android:id="@+id/title"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:layout_marginBottom="@dimen/margin_small"
-			android:gravity="bottom"
-			android:textSize="@dimen/text_size_large"
-			android:textColor="?android:attr/textColorPrimary"
-			tools:text="Crash log entry title"/>
-	</LinearLayout>
+		android:textColor="?android:attr/textColorPrimary"
+		android:textSize="@dimen/text_size_large"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:text="Crash log entry title"/>
 
 	<TextView
 		android:id="@+id/content"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="@dimen/margin_medium"
+		android:layout_marginTop="4dp"
 		android:textColor="?android:attr/textColorSecondary"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/include_in_report"
 		tools:text="Crash log entry value"/>
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>
