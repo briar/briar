@@ -5,8 +5,8 @@
 	<corners
 		android:bottomLeftRadius="0dp"
 		android:bottomRightRadius="0dp"
-		android:topLeftRadius="@dimen/message_bubble_radius_big"
-		android:topRightRadius="@dimen/message_bubble_radius_small"/>
+		android:topLeftRadius="@dimen/message_bubble_radius_top_outer"
+		android:topRightRadius="@dimen/message_bubble_radius_top_inner"/>
 	<padding
 		android:bottom="@dimen/message_bubble_padding_top"
 		android:left="@dimen/message_bubble_padding_sides"

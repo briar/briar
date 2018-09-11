@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:layout_marginBottom="@dimen/message_bubble_margin"
+	android:layout_marginEnd="@dimen/message_bubble_margin_non_tail"
+	android:layout_marginLeft="@dimen/message_bubble_margin_tail"
+	android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
+	android:layout_marginStart="@dimen/message_bubble_margin_tail"
 	android:layout_marginTop="@dimen/message_bubble_margin"
 	android:orientation="vertical">
 
@@ -12,20 +18,15 @@
 		style="@style/TextMessage"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginLeft="@dimen/message_bubble_margin_tail"
-		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
 		android:background="@drawable/msg_in_top"
 		android:elevation="@dimen/message_bubble_elevation"
 		android:textColor="?android:attr/textColorPrimary"
 		tools:text="Short message"/>
 
-	<RelativeLayout
+	<android.support.constraint.ConstraintLayout
 		android:id="@+id/layout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="@dimen/message_bubble_margin"
-		android:layout_marginLeft="@dimen/message_bubble_margin_tail"
-		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
 		android:background="@drawable/notice_in_bottom"
 		android:elevation="@dimen/message_bubble_elevation">
 
@@ -34,41 +35,38 @@
 			style="@style/TextMessage.Notice"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
 			tools:text="@string/introduction_request_received"/>
-
-		<TextView
-			android:id="@+id/time"
-			style="@style/TextMessage.Timestamp"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignEnd="@+id/text"
-			android:layout_alignRight="@+id/text"
-			android:layout_below="@+id/acceptButton"
-			android:layout_marginTop="@dimen/message_bubble_timestamp_margin"
-			tools:text="Dec 24, 13:37"/>
 
 		<Button
 			android:id="@+id/acceptButton"
 			style="@style/BriarButtonFlat.Positive"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignEnd="@+id/text"
-			android:layout_alignRight="@+id/text"
-			android:layout_below="@+id/text"
-			android:layout_marginBottom="-10dp"
-			android:text="@string/accept"/>
+			android:text="@string/accept"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/text"/>
 
 		<Button
 			android:id="@+id/declineButton"
 			style="@style/BriarButtonFlat.Negative"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignBottom="@+id/acceptButton"
-			android:layout_alignTop="@+id/acceptButton"
-			android:layout_toLeftOf="@+id/acceptButton"
-			android:layout_toStartOf="@+id/acceptButton"
-			android:text="@string/decline"/>
+			android:text="@string/decline"
+			app:layout_constraintBottom_toBottomOf="@+id/acceptButton"
+			app:layout_constraintEnd_toStartOf="@+id/acceptButton"
+			app:layout_constraintTop_toTopOf="@+id/acceptButton"/>
 
-	</RelativeLayout>
+		<TextView
+			android:id="@+id/time"
+			style="@style/TextMessage.Timestamp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/acceptButton"
+			tools:text="Dec 24, 13:37"/>
+
+	</android.support.constraint.ConstraintLayout>
 
 </LinearLayout>
