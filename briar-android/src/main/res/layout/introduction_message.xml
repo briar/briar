@@ -7,113 +7,121 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical">
 
-	<LinearLayout
+	<android.support.constraint.ConstraintLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical">
+		android:layout_height="wrap_content">
 
-		<LinearLayout
-			android:layout_width="match_parent"
+		<de.hdodenhof.circleimageview.CircleImageView
+			android:id="@+id/avatarContact1"
+			style="@style/BriarAvatar"
+			android:layout_width="42dp"
 			android:layout_height="wrap_content"
-			android:layout_margin="@dimen/margin_activity_horizontal"
+			android:layout_margin="@dimen/margin_large"
+			app:layout_constraintEnd_toStartOf="@+id/introductionIcon"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			tools:src="@mipmap/ic_launcher_round"/>
+
+		<com.vanniktech.emoji.EmojiTextView
+			android:id="@+id/nameContact1"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="@dimen/margin_large"
+			android:layout_marginStart="@dimen/margin_large"
+			android:layout_marginTop="@dimen/margin_medium"
 			android:gravity="center"
-			android:orientation="horizontal">
+			android:textColor="?android:attr/textColorPrimary"
+			android:textSize="@dimen/text_size_small"
+			app:layout_constraintEnd_toStartOf="@+id/introductionIcon"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/avatarContact1"
+			tools:text="Contact 1"/>
 
-			<LinearLayout
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:gravity="top|center_horizontal"
-				android:orientation="vertical">
+		<android.support.v7.widget.AppCompatImageView
+			android:id="@+id/introductionIcon"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_large"
+			android:src="@drawable/ic_contact_introduction"
+			app:layout_constraintBottom_toBottomOf="@+id/barrier"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="@+id/avatarContact2"
+			app:tint="?attr/colorControlNormal"
+			tools:ignore="ContentDescription"/>
 
-				<de.hdodenhof.circleimageview.CircleImageView
-					android:id="@+id/avatarContact1"
-					style="@style/BriarAvatar"
-					android:layout_width="@dimen/listitem_picture_size"
-					android:layout_height="@dimen/listitem_picture_size"
-					android:layout_marginEnd="@dimen/listitem_horizontal_margin"
-					android:layout_marginLeft="@dimen/listitem_horizontal_margin"
-					android:layout_marginRight="@dimen/listitem_horizontal_margin"
-					android:layout_marginStart="@dimen/listitem_horizontal_margin"
-					tools:src="@mipmap/ic_launcher_round"/>
+		<de.hdodenhof.circleimageview.CircleImageView
+			android:id="@+id/avatarContact2"
+			style="@style/BriarAvatar"
+			android:layout_width="42dp"
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_large"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@+id/introductionIcon"
+			app:layout_constraintTop_toTopOf="parent"
+			tools:src="@mipmap/ic_launcher_round"/>
 
-				<com.vanniktech.emoji.EmojiTextView
-					android:id="@+id/nameContact1"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="@dimen/margin_small"
-					android:gravity="center"
-					android:textColor="?android:attr/textColorPrimary"
-					android:textSize="@dimen/text_size_small"
-					tools:text="Contact 1"/>
+		<com.vanniktech.emoji.EmojiTextView
+			android:id="@+id/nameContact2"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="@dimen/margin_large"
+			android:layout_marginStart="@dimen/margin_large"
+			android:layout_marginTop="@dimen/margin_medium"
+			android:gravity="center"
+			android:textColor="?android:attr/textColorPrimary"
+			android:textSize="@dimen/text_size_small"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@+id/introductionIcon"
+			app:layout_constraintTop_toBottomOf="@+id/avatarContact2"
+			tools:text="Contact 2 can have quite a long name"/>
 
-			</LinearLayout>
-
-			<android.support.v7.widget.AppCompatImageView
-				android:id="@+id/introductionIcon"
-				android:layout_width="@dimen/listitem_picture_size"
-				android:layout_height="@dimen/listitem_picture_size"
-				android:src="@drawable/ic_contact_introduction"
-				app:tint="?attr/colorControlNormal"
-				tools:ignore="ContentDescription"/>
-
-			<LinearLayout
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:gravity="top|center_horizontal"
-				android:orientation="vertical">
-
-				<de.hdodenhof.circleimageview.CircleImageView
-					android:id="@+id/avatarContact2"
-					style="@style/BriarAvatar"
-					android:layout_width="@dimen/listitem_picture_size"
-					android:layout_height="@dimen/listitem_picture_size"
-					android:layout_marginEnd="@dimen/listitem_horizontal_margin"
-					android:layout_marginLeft="@dimen/listitem_horizontal_margin"
-					android:layout_marginRight="@dimen/listitem_horizontal_margin"
-					android:layout_marginStart="@dimen/listitem_horizontal_margin"
-					tools:src="@mipmap/ic_launcher_round"/>
-
-				<com.vanniktech.emoji.EmojiTextView
-					android:id="@+id/nameContact2"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="@dimen/margin_small"
-					android:gravity="center"
-					android:textColor="?android:attr/textColorPrimary"
-					android:textSize="@dimen/text_size_small"
-					tools:text="Contact 2"/>
-
-			</LinearLayout>
-
-		</LinearLayout>
+		<android.support.constraint.Barrier
+			android:id="@+id/barrier"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			app:barrierDirection="bottom"
+			app:constraint_referenced_ids="nameContact1,nameContact2"/>
 
 		<ProgressBar
 			android:id="@+id/progressBar"
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center"
+			android:layout_margin="@dimen/margin_large"
+			app:layout_constraintBottom_toTopOf="@+id/introductionNotPossibleView"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="@+id/barrier"
 			tools:visibility="gone"/>
 
 		<TextView
 			android:id="@+id/introductionNotPossibleView"
-			android:layout_width="match_parent"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_margin="@dimen/margin_activity_horizontal"
+			android:layout_margin="@dimen/margin_large"
 			android:text="@string/introduction_not_possible"
 			android:textSize="@dimen/text_size_large"
 			android:visibility="gone"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/progressBar"
 			tools:visibility="visible"/>
 
 		<org.briarproject.briar.android.view.LargeTextInputView
 			android:id="@+id/introductionMessageView"
-			android:layout_width="match_parent"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/margin_large"
 			android:visibility="gone"
 			app:buttonText="@string/introduction_button"
 			app:hint="@string/introduction_message_hint"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/introductionNotPossibleView"
 			app:maxLines="5"
 			tools:visibility="visible"/>
 
-	</LinearLayout>
+	</android.support.constraint.ConstraintLayout>
 </ScrollView>
