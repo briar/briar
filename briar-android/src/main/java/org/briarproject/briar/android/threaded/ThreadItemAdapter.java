@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.threaded;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -36,8 +37,9 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		this.layoutManager = layoutManager;
 	}
 
+	@NonNull
 	@Override
-	public BaseThreadItemViewHolder<I> onCreateViewHolder(
+	public BaseThreadItemViewHolder<I> onCreateViewHolder(@NonNull
 			ViewGroup parent, int viewType) {
 		View v = LayoutInflater.from(parent.getContext())
 				.inflate(R.layout.list_item_thread, parent, false);
@@ -45,7 +47,8 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	}
 
 	@Override
-	public void onBindViewHolder(BaseThreadItemViewHolder<I> ui, int position) {
+	public void onBindViewHolder(@NonNull BaseThreadItemViewHolder<I> ui,
+			int position) {
 		I item = items.get(position);
 		ui.bind(item, listener);
 	}

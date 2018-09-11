@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.constraint.ConstraintLayout
 	android:id="@+id/layout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:baselineAligned="false"
-	android:orientation="vertical">
+	android:layout_height="wrap_content">
 
 	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/text"
@@ -17,20 +15,24 @@
 		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_medium"
 		android:textStyle="italic"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
 		tools:text="@string/groups_member_joined"/>
 
 	<org.briarproject.briar.android.view.AuthorView
 		android:id="@+id/author"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignLeft="@+id/text"
-		android:layout_alignStart="@+id/text"
-		android:layout_below="@+id/text"
+		android:layout_margin="@dimen/margin_medium"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/text"
 		app:persona="commenter"/>
 
 	<View
+		android:id="@+id/divider"
 		style="@style/Divider.ThreadItem"
-		android:layout_below="@+id/author"
-		android:layout_marginTop="@dimen/margin_medium"/>
+		android:layout_marginTop="@dimen/margin_medium"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/author"/>
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>
