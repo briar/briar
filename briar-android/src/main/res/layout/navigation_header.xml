@@ -10,9 +10,10 @@
 	<ImageView
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="bottom"
+		android:layout_gravity="bottom|start"
 		android:layout_marginBottom="@dimen/margin_medium"
-		android:layout_marginLeft="@dimen/margin_medium"
+		android:layout_marginEnd="@dimen/margin_medium"
+		android:layout_marginStart="@dimen/margin_medium"
 		android:contentDescription="@string/app_name"
 		android:src="@drawable/navigation_drawer_header"/>
 

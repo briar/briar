@@ -65,7 +65,7 @@ public class TestDataActivity extends BriarActivity {
 					@Override
 					public void onProgressChanged(SeekBar seekBar,
 							int progress, boolean fromUser) {
-						contactsTextView.setText(String.valueOf(progress + 1));
+						contactsTextView.setText(String.valueOf(progress));
 					}
 
 					@Override
@@ -151,7 +151,7 @@ public class TestDataActivity extends BriarActivity {
 	}
 
 	private void createTestData() {
-		testDataCreator.createTestData(contactsSeekBar.getProgress() + 1,
+		testDataCreator.createTestData(contactsSeekBar.getProgress(),
 				messagesSeekBar.getProgress(), blogPostsSeekBar.getProgress(),
 				forumsSeekBar.getProgress(), forumPostsSeekBar.getProgress());
 		Intent intent = new Intent(this, NavDrawerActivity.class);

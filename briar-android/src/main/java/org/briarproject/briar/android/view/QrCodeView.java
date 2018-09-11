@@ -19,8 +19,7 @@ public class QrCodeView extends FrameLayout {
     private boolean fullscreen = false;
     private FullscreenListener listener;
 
-    public QrCodeView(@NonNull Context context,
-                      @Nullable AttributeSet attrs) {
+    public QrCodeView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);

@@ -10,4 +10,4 @@
 	android:textColor="@color/briar_accent"
 	android:textSize="14sp"
 	android:textStyle="bold"
-	tools:text="This is a category"/>
+	tools:text="@string/security_settings_title"/>

@@ -5,11 +5,11 @@
 	android:layout_height="match_parent">
 
 	<ImageView
-		android:src="@drawable/splash_screen"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
 		android:layout_margin="@dimen/margin_xxlarge"
-		android:contentDescription="@string/app_name"/>
+		android:contentDescription="@string/app_name"
+		android:src="@drawable/splash_screen"/>
 
 </FrameLayout>

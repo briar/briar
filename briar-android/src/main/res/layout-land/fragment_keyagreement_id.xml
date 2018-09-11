@@ -26,7 +26,8 @@
 			app:layout_constraintBottom_toBottomOf="@id/explanationText"
 			app:layout_constraintEnd_toStartOf="@id/explanationText"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent"/>
+			app:layout_constraintTop_toTopOf="parent"
+			tools:ignore="ContentDescription"/>
 
 		<ImageView
 			android:id="@+id/explanationImage"
@@ -34,8 +35,8 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:adjustViewBounds="true"
-			android:paddingLeft="@dimen/margin_large"
-			android:paddingRight="@dimen/margin_large"
+			android:paddingEnd="@dimen/margin_large"
+			android:paddingStart="@dimen/margin_large"
 			android:paddingTop="@dimen/margin_large"
 			android:scaleType="fitCenter"
 			android:src="@drawable/qr_code_explanation"

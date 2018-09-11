@@ -22,9 +22,9 @@
 			android:layout_height="@dimen/text_input_height"
 			android:layout_gravity="bottom"
 			android:background="?attr/selectableItemBackground"
-			android:src="@drawable/ic_emoji_toggle"
 			android:padding="@dimen/margin_small"
 			android:scaleType="center"
+			android:src="@drawable/ic_emoji_toggle"
 			app:tint="?attr/colorControlNormal"/>
 
 		<com.vanniktech.emoji.EmojiEditText
@@ -37,8 +37,10 @@
 			android:maxLines="4"
 			android:minHeight="@dimen/text_input_height"
 			android:paddingLeft="2dp"
+			android:paddingStart="2dp"
 			android:textColor="?android:attr/textColorPrimary"
-			tools:ignore="RtlSymmetry"/>
+			tools:ignore="RtlSymmetry"
+			tools:text="Line 1\nLine 2\nLine 3"/>
 
 		<android.support.v7.widget.AppCompatImageButton
 			android:id="@+id/btn_send"
