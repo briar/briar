@@ -75,7 +75,6 @@
 	<style name="Divider.ContactList" parent="Divider">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">1px</item>
-		<item name="android:layout_marginLeft">72dp</item>
 	</style>
 
 	<style name="Divider.ThreadItem" parent="Divider">

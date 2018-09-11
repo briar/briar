@@ -1,95 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.constraint.ConstraintLayout
+	android:id="@+id/linearLayout4"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="?attr/selectableItemBackground"
 	android:clickable="true"
-	android:focusable="true"
-	android:orientation="vertical">
+	android:focusable="true">
 
-	<RelativeLayout
-		android:layout_width="match_parent"
+	<FrameLayout
+		android:id="@+id/avatarFrameView"
+		android:layout_width="@dimen/listitem_picture_frame_size"
+		android:layout_height="@dimen/listitem_picture_frame_size"
+		android:layout_margin="@dimen/listitem_horizontal_margin"
+		app:layout_constraintBottom_toTopOf="@+id/divider"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent">
+
+		<de.hdodenhof.circleimageview.CircleImageView
+			android:id="@+id/avatarView"
+			style="@style/BriarAvatar"
+			android:layout_width="@dimen/listitem_picture_size"
+			android:layout_height="@dimen/listitem_picture_size"
+			android:layout_gravity="bottom|left|start"
+			tools:src="@mipmap/ic_launcher_round"/>
+
+	</FrameLayout>
+
+	<TextView
+		android:id="@+id/unreadCountView"
+		android:layout_width="wrap_content"
+		android:layout_height="@dimen/unread_bubble_size"
+		android:background="@drawable/bubble"
+		android:gravity="center"
+		android:minWidth="@dimen/unread_bubble_size"
+		android:textColor="@color/briar_text_primary_inverse"
+		android:textSize="@dimen/unread_bubble_text_size"
+		android:textStyle="bold"
+		app:layout_constraintEnd_toEndOf="@+id/avatarFrameView"
+		app:layout_constraintTop_toTopOf="@+id/avatarFrameView"
+		tools:text="123"/>
+
+	<com.vanniktech.emoji.EmojiTextView
+		android:id="@+id/nameView"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:paddingBottom="@dimen/listitem_horizontal_margin"
-		android:paddingTop="@dimen/listitem_horizontal_margin">
+		android:layout_marginEnd="@dimen/margin_medium"
+		android:layout_marginStart="@dimen/margin_medium"
+		android:layout_marginTop="@dimen/listitem_vertical_margin"
+		android:paddingEnd="@dimen/margin_medium"
+		android:paddingStart="@dimen/margin_medium"
+		android:textColor="?android:attr/textColorPrimary"
+		android:textSize="@dimen/text_size_medium"
+		app:layout_constraintBottom_toTopOf="@+id/dateView"
+		app:layout_constraintEnd_toStartOf="@+id/bulbView"
+		app:layout_constraintStart_toEndOf="@+id/avatarFrameView"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="This is a name of a contact"/>
 
-		<FrameLayout
-			android:id="@+id/avatarFrameView"
-			android:layout_width="@dimen/listitem_picture_frame_size"
-			android:layout_height="@dimen/listitem_picture_frame_size"
-			android:layout_alignParentLeft="true"
-			android:layout_alignParentStart="true"
-			android:layout_centerVertical="true"
-			android:layout_marginLeft="@dimen/listitem_horizontal_margin"
-			android:layout_marginStart="@dimen/listitem_horizontal_margin">
+	<TextView
+		android:id="@+id/dateView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="@dimen/listitem_vertical_margin"
+		android:layout_marginEnd="@dimen/margin_medium"
+		android:layout_marginStart="@dimen/margin_medium"
+		android:paddingEnd="@dimen/margin_medium"
+		android:paddingStart="@dimen/margin_medium"
+		android:textColor="?android:attr/textColorSecondary"
+		android:textSize="@dimen/text_size_small"
+		app:layout_constraintBottom_toTopOf="@+id/divider"
+		app:layout_constraintEnd_toStartOf="@+id/bulbView"
+		app:layout_constraintStart_toEndOf="@+id/avatarFrameView"
+		app:layout_constraintTop_toBottomOf="@+id/nameView"
+		tools:text="Dec 24"/>
 
-			<de.hdodenhof.circleimageview.CircleImageView
-				android:id="@+id/avatarView"
-				style="@style/BriarAvatar"
-				android:layout_width="@dimen/listitem_picture_size"
-				android:layout_height="@dimen/listitem_picture_size"
-				android:layout_gravity="bottom|left"
-				tools:src="@mipmap/ic_launcher_round"/>
+	<ImageView
+		android:id="@+id/bulbView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="@dimen/listitem_horizontal_margin"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:ignore="ContentDescription"
+		tools:src="@drawable/contact_connected"/>
 
-			<TextView
-				android:id="@+id/unreadCountView"
-				android:layout_width="wrap_content"
-				android:layout_height="@dimen/unread_bubble_size"
-				android:layout_gravity="right|top"
-				android:background="@drawable/bubble"
-				android:gravity="center"
-				android:minWidth="@dimen/unread_bubble_size"
-				android:textColor="@color/briar_text_primary_inverse"
-				android:textSize="@dimen/unread_bubble_text_size"
-				android:textStyle="bold"
-				tools:text="123"/>
+	<View
+		android:id="@+id/divider"
+		style="@style/Divider.ContactList"
+		android:layout_width="0dp"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="@+id/nameView"/>
 
-		</FrameLayout>
-
-		<LinearLayout
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_centerVertical="true"
-			android:layout_marginLeft="@dimen/listitem_horizontal_margin"
-			android:layout_marginStart="@dimen/listitem_horizontal_margin"
-			android:layout_toEndOf="@+id/avatarFrameView"
-			android:layout_toLeftOf="@+id/bulbView"
-			android:layout_toRightOf="@+id/avatarFrameView"
-			android:orientation="vertical">
-
-			<com.vanniktech.emoji.EmojiTextView
-				android:id="@+id/nameView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:maxLines="2"
-				android:textColor="?android:attr/textColorPrimary"
-				android:textSize="@dimen/text_size_medium"
-				tools:text="This is a name of a contact"/>
-
-			<TextView
-				android:id="@+id/dateView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:textColor="?android:attr/textColorSecondary"
-				android:textSize="@dimen/text_size_small"
-				tools:text="Dec 24"/>
-
-		</LinearLayout>
-
-		<ImageView
-			android:id="@+id/bulbView"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentEnd="true"
-			android:layout_alignParentRight="true"
-			android:layout_centerVertical="true"
-			android:layout_marginRight="@dimen/listitem_horizontal_margin"
-			tools:src="@drawable/contact_connected"/>
-
-	</RelativeLayout>
-
-	<View style="@style/Divider.ContactList"/>
-
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>
