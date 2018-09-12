@@ -77,9 +77,6 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_DARK_THEME;
-import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_PIN_LOCK;
-import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_SIGN_IN_REMINDER;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_SIGN_OUT;
@@ -169,8 +166,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		enableBluetooth = (ListPreference) findPreference("pref_key_bluetooth");
 		torNetwork = (ListPreference) findPreference(TOR_NETWORK);
 		torMobile = (SwitchPreference) findPreference(TOR_MOBILE);
-		SwitchPreference notifySignIn =
-				(SwitchPreference) findPreference(NOTIFY_SIGN_IN);
 		screenLock = (SwitchPreference) findPreference(PREF_SCREEN_LOCK);
 		screenLockTimeout =
 				(ListPreference) findPreference(PREF_SCREEN_LOCK_TIMEOUT);
@@ -230,11 +225,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 					}
 			);
 		} else {
-			theme.setVisible(FEATURE_FLAG_DARK_THEME);
-			notifySignIn.setVisible(FEATURE_FLAG_SIGN_IN_REMINDER);
-			screenLock.setVisible(FEATURE_FLAG_PIN_LOCK);
-			screenLockTimeout.setVisible(FEATURE_FLAG_PIN_LOCK);
-
 			findPreference("pref_key_explode").setVisible(false);
 			findPreference("pref_key_test_data").setVisible(false);
 			PreferenceGroup testing =
