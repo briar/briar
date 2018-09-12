@@ -32,11 +32,6 @@ public interface TestingConstants {
 			Long.MAX_VALUE;
 
 	/**
-	 * Feature flag for enabling the dark UI theme in release builds.
-	 */
-	boolean FEATURE_FLAG_DARK_THEME = false;
-
-	/**
 	 * Feature flag for enabling the PIN lock in release builds.
 	 */
 	boolean FEATURE_FLAG_PIN_LOCK = IS_DEBUG_BUILD;
