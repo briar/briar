@@ -81,8 +81,8 @@ android {
 	defaultConfig {
 		minSdkVersion 15
 		targetSdkVersion 26
-		versionCode 10013
-		versionName "1.0.13"
+		versionCode 10100
+		versionName "1.1.0"
 		applicationId "org.briarproject.briar.android"
 		buildConfigField "String", "GitHash",
 				"\"${getStdout(['git', 'rev-parse', '--short=7', 'HEAD'], 'No commit hash')}\""
