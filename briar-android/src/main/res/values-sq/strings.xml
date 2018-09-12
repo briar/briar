@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Setup-->
-  <string name="setup_title">Rregullimi i Briar-it</string>
+  <string name="setup_title">Mirë se vini në Briar</string>
   <string name="setup_name_explanation">Nofka juaj do të shfaqet në krah të çfarëdo gjëje që postoni. S\’mund ta ndryshoni më, pas krijimit të llogarisë tuaj.</string>
   <string name="setup_next">Pasuesi</string>
   <string name="setup_password_intro">Zgjidhni një Fjalëkalim</string>
@@ -346,7 +346,7 @@
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Kur Briar-i s’është në përdorim, kyçe vetvetiu pas %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
-  <string name="pref_lock_timeout_1">1 minute</string>
+  <string name="pref_lock_timeout_1">1 minuti</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_5">5 minutash</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -441,6 +441,8 @@
   <!--App Locking-->
   <string name="lock_unlock">Shkyçe Briar-in</string>
   <string name="lock_unlock_verbose">Jepni PIN-in, mostrën ose fjalëkalimin e pajisjes tuaj, që të shkyçet Briar-i</string>
+  <string name="lock_unlock_fingerprint_description">Prekni sensorin e shenjave të gishtërinjëve me gishtin e regjistruar për të vazhduar</string>
+  <string name="lock_unlock_password">Përdorni fjalëkalimin</string>
   <string name="lock_is_locked">Briar-i është i kyçur</string>
   <string name="lock_tap_to_unlock">Prekeni që të shkyçet</string>
 </resources>

@@ -441,6 +441,8 @@
   <!--App Locking-->
   <string name="lock_unlock">Déverrouiller Briar</string>
   <string name="lock_unlock_verbose">Saisissez le NIP, le schéma ou le mot de passe de votre appareil pour déverrouiller Briar</string>
+  <string name="lock_unlock_fingerprint_description">Touchez votre capteur d’empreinte avec le doigt mémorisé pour poursuivre</string>
+  <string name="lock_unlock_password">Utiliser un mot de passe</string>
   <string name="lock_is_locked">Briar est verrouillée</string>
   <string name="lock_tap_to_unlock">Toucher pour déverrouiller</string>
 </resources>

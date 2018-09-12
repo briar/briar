@@ -441,6 +441,8 @@
   <!--App Locking-->
   <string name="lock_unlock">Sblocca Briar</string>
   <string name="lock_unlock_verbose">Inserisci il PIN, sequenza o password del dispositivo per sbloccare Briar</string>
+  <string name="lock_unlock_fingerprint_description">Tocca il sensore di impronte con il dito registrato per continuare</string>
+  <string name="lock_unlock_password">Usa password</string>
   <string name="lock_is_locked">Briar è bloccato</string>
   <string name="lock_tap_to_unlock">Tocca per sbloccare</string>
 </resources>

@@ -36,7 +36,7 @@
   <string name="startup_failed_db_error">Din anumite motive, baza dvs. de date Briar este deteriorată fără vreo posibilitate de a o recupera. Contul dvs., datele dvs. și toate persoanele de contact sunt pierdute. Din nefericire, trebuie să reinstalați Briar sau să creați un nou cont, selectând \"Am uitat parola\" la promptul de parolă.</string>
   <string name="startup_failed_data_too_old_error">Contul dvs. a fost creat cu o versiune veche a acestei aplicații și nu poate fi deschis cu această versiune. Trebuie fie să reinstalați versiunea veche, fie să configurați un nou cont, selectând \"Am uitat parola\" la solicitarea de a introduce parola.</string>
   <string name="startup_failed_data_too_new_error">Această versiune a aplicației este prea veche. Vă rugăm să actualizați la cea mai nouă versiune și să încercați din nou.</string>
-  <string name="startup_failed_service_error">Briar nu a reușit să pornească un plugin necesar. Reinstalarea lui Briar rezolvă de obicei această problemă. Cu toate acestea, rețineți că după aceasta veți pierde contul și toate datele asociate, deoarece Briar nu utilizează serverele centrale pentru a stoca date.</string>
+  <string name="startup_failed_service_error">Briar nu a reușit să pornească un plugin necesar. Reinstalarea lui Briar rezolvă de obicei această problemă. Cu toate acestea, rețineți că după aceasta veți pierde contul și toate datele asociate, deoarece Briar nu utilizează servere centralizate pentru a stoca date.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zi și nu se poate reînnoi</item>
     <item quantity="few">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zile și nu se poate reînnoi.</item>
@@ -134,7 +134,7 @@
   <string name="contact_added_toast">Contact adăugat: %s</string>
   <string name="contact_already_exists">Contactul %s există deja</string>
   <string name="qr_code_invalid">Codul QR este invalid!</string>
-  <string name="qr_code_unsupported">Codul QR pe care încercați să îl scanați aparține unei versiuni vechi %s care nu mai este acceptată.\n\nVă rugăm să vă asigurați că amândoi executați cea mai recentă versiune și încercați din nou.</string>
+  <string name="qr_code_unsupported">Codul QR pe care încercați să îl scanați aparține unei versiuni vechi %s care nu mai este acceptată.\n\nVă rugăm să vă asigurați că amândoi aveți cea mai recentă versiune și încercați din nou.</string>
   <string name="camera_error">Eroare la camera foto</string>
   <string name="connecting_to_device">Conectare la dispozitiv\u2026</string>
   <string name="authenticating_with_device">Autentificare cu dispozitivul\u2026</string>
@@ -146,7 +146,7 @@
   <string name="introduction_onboarding_text">Puteți să vă recomandați contactele unele altora, încât sa nu fie nevoie ca să se vadă față în față pentru a se putea conecta la Briar.</string>
   <string name="introduction_menu_item">Fă o recomandare</string>
   <string name="introduction_activity_title">Alege un contact</string>
-  <string name="introduction_not_possible">Ați trimis deja o solicitare la contacte. Așteptați să răspundă. Dacă dvs. sau persoanele persoanele de contact sunteți rareori online, este posibil să dureze ceva timp.</string>
+  <string name="introduction_not_possible">Ați trimis deja o solicitare la contacte. Așteptați să vă răspundă. Dacă dvs. sau persoanele persoanele de contact sunteți rareori online, este posibil să dureze ceva timp.</string>
   <string name="introduction_message_title">Recomandă contacte</string>
   <string name="introduction_message_hint">Adaugă un mesaj (opțional)</string>
   <string name="introduction_button">Fă o recomandare</string>
@@ -158,7 +158,7 @@
   <string name="introduction_request_exists_received">%1$s a cerut să vă recomande către %2$s, dar %2$s este deja în lista dumneavoastră de contacte. Cum %1$s s-ar putea să nu știe asta, puteți totuși răspunde:</string>
   <string name="introduction_request_answered_received">%1$s vă recomandă pe %2$s.</string>
   <string name="introduction_response_accepted_sent">Ați acceptat recomandarea pentru %1$s.</string>
-  <string name="introduction_response_accepted_sent_info">Înainte de a adăuga %1$s ca persoane de contact, este necesar ca ei tot să accepte solicitarea. Aceasta poate dura ceva timp.</string>
+  <string name="introduction_response_accepted_sent_info">Înainte de a adăuga %1$s ca persoane de contact, este necesar ca și ei să accepte solicitarea. Aceasta poate dura ceva timp.</string>
   <string name="introduction_response_declined_sent">Ați refuzat recomandarea pentru %1$s.</string>
   <string name="introduction_response_accepted_received">%1$s a acceptat recomandarea pentru %2$s.</string>
   <string name="introduction_response_declined_received">%1$s a refuzat recomandarea pentru %2$s.</string>
@@ -197,10 +197,10 @@
   <string name="groups_leave_dialog_message">Sigur doriți să părăsiți acest grup?</string>
   <string name="groups_dissolve">Dizolvă grupul</string>
   <string name="groups_dissolve_dialog_title">Confirmă dizolvarea grupului</string>
-  <string name="groups_dissolve_dialog_message">Sunteți sigur că doriți să dizolvați acest grup?\n\nToți ceilalți membri nu vor putea continua conversația lor și s-ar putea să nu primească cele mai recente mesaje.</string>
+  <string name="groups_dissolve_dialog_message">Sunteți siguri că doriți să dizolvați acest grup?\n\nToți ceilalți membri nu vor putea continua conversația lor și s-ar putea să nu primească cele mai recente mesaje.</string>
   <string name="groups_dissolve_button">Dizolvă</string>
   <string name="groups_dissolved_dialog_title">Grupul a fost dizolvat</string>
-  <string name="groups_dissolved_dialog_message">Creatorul acestui grup a dizolvat-o.\n\nNu mai puteți scrie mesaje către grup și nu mai puteți primi postările scrise.</string>
+  <string name="groups_dissolved_dialog_message">Creatorul acestui grup la dizolvat.\n\nNu mai puteți scrie mesaje către grup și nu mai puteți primi mesajele deja scrise.</string>
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">Invitații în grup</string>
   <string name="groups_invitations_invitation_sent">Ați invitat pe %1$s să se alăture grupului \"%2$s\".</string>
@@ -219,7 +219,7 @@
   <string name="sharing_status_groups">Doar persoana care a creat grupul poate invita noi membrii. Mai jos vedeți membrii actuali ai grupului.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Arată contactele</string>
-  <string name="groups_reveal_dialog_message">Puteți alege să dezvăluiți contacte tuturor membrilor actuali și viitori acestui grup.\n\nDeschiderea contactelor face conexiunea dvs. cu grupul mai rapidă și mai sigură, deoarece puteți comunica cu persoanele de contact dezvăluite chiar și atunci când creatorul grupului este offline.</string>
+  <string name="groups_reveal_dialog_message">Puteți alege să dezvăluiți contacte tuturor membrilor actuali și viitori acestui grup.\n\nPartajarea contactelor face conexiunea dvs. cu grupul mai rapidă și mai fiabilă, deoarece puteți comunica cu persoanele de contact dezvăluite chiar și atunci când creatorul grupului este deconectat.</string>
   <string name="groups_reveal_visible">Lista de contacte este vizibilă grupului</string>
   <string name="groups_reveal_visible_revealed_by_us">Lista de contacte este vizibilă grupului (dezvăluită de dumneavoastră)</string>
   <string name="groups_reveal_visible_revealed_by_contact">Lista de contacte este vizibilă grupului (dezvăluită de %s)</string>
@@ -244,7 +244,7 @@
   <string name="btn_reply">Răspunde</string>
   <string name="forum_leave">Părăsește forum</string>
   <string name="dialog_title_leave_forum">Confirmare părăsire forum</string>
-  <string name="dialog_message_leave_forum">Sunteți sigur că doriți să părăsiți acest forum?\n\nOrice persoane de contact cu care ați împărtășit acest forum s-ar putea să nu mai primească actualizări.</string>
+  <string name="dialog_message_leave_forum">Sunteți siguri că doriți să părăsiți acest forum?\n\nOrice persoană de contact cu care ați împărtășit acest forum s-ar putea să nu mai primească actualizări.</string>
   <string name="dialog_button_leave">Părăsește</string>
   <string name="forum_left_toast">Forum părăsit</string>
   <!--Forum Sharing-->
@@ -259,7 +259,7 @@
   <string name="forum_invitation_received">%1$s a partajat forumul \"%2$s\" cu dumneavoastră.</string>
   <string name="forum_invitation_sent">Ați partajat forumul \"%1$s\" cu %2$s.</string>
   <string name="forum_invitations_title">Invitații la forum</string>
-  <string name="forum_invitation_exists">Ați acceptat deja o invitație la acest forum.\n\nAcceptarea mai multor invitații va face conexiunea dvs. la forum mai rapidă și mai sigură.</string>
+  <string name="forum_invitation_exists">Ați acceptat deja o invitație la acest forum.\n\nAcceptarea mai multor invitații va face conexiunea dvs. la forum mai rapidă și mai fiabilă.</string>
   <string name="forum_joined_toast">Alăturare forum</string>
   <string name="forum_declined_toast">Invitația a fost refuzată</string>
   <string name="shared_by_format">Partajat de %s</string>
@@ -269,7 +269,7 @@
   <string name="forum_invitation_response_accepted_received">%s a acceptat invitația la forum.</string>
   <string name="forum_invitation_response_declined_received">%s a refuzat invitația la forum.</string>
   <string name="sharing_status">Partajare stare</string>
-  <string name="sharing_status_forum">Orice membru al unui forum poate să-l împărtășească cu contactele lor. Îți partajați acest forum cu următoarele persoane de contact. Pot exista și alți membri pe care nu îi puteți vedea.</string>
+  <string name="sharing_status_forum">Orice membru al unui forum poate să-l împărtășească cu contactele lor. Partajați acest forum cu următoarele persoane de contact. Pot exista și alți membri pe care să nu îi puteți vedea.</string>
   <string name="shared_with">Partajat cu %1$d (%2$d conectați)</string>
   <plurals name="forums_shared">
     <item quantity="one">%d forum partajat de contacte</item>
@@ -283,13 +283,13 @@
   <string name="blogs_write_blog_post">Scrie mesaj pe blog</string>
   <string name="blogs_write_blog_post_body_hint">Introduceți mesajul pentru blog aici</string>
   <string name="blogs_publish_blog_post">Publică</string>
-  <string name="blogs_blog_post_created">Mesaj pe blog creat</string>
-  <string name="blogs_blog_post_received">O nou mesaj pe blog s-a primit</string>
+  <string name="blogs_blog_post_created">Mesaj creat pe blog</string>
+  <string name="blogs_blog_post_received">S-a primit un nou mesaj pe blog</string>
   <string name="blogs_blog_post_scroll_to">Derulează la</string>
   <string name="blogs_feed_empty_state">Nici un mesaj de arătat</string>
   <string name="blogs_feed_empty_state_action">Mesajele de la contactele dumneavoastră și de pe blog-urile la care sunteți abonați vor apărea aici\n\nAtingeți iconița cu creion pentru a scrie un mesaj</string>
   <string name="blogs_remove_blog">Elimină blog</string>
-  <string name="blogs_remove_blog_dialog_message">Sunteți sigur că doriți să eliminați acest blog?\n\nPosturile vor fi eliminate de pe dispozitiv, dar nu și de dispozitivele altor persoane.\n\nOrice persoane de contact cu care ați partajat acest blog ar putea să nu mai primească actualizări.</string>
+  <string name="blogs_remove_blog_dialog_message">Sunteți siguri că doriți să eliminați acest blog?\n\nMesajele vor fi eliminate de pe dispozitiv, dar nu și de pe dispozitivele altor persoane.\n\nOrice persoană de contact cu care ați partajat acest blog s-ar putea să nu mai primească actualizări.</string>
   <string name="blogs_remove_blog_ok">Eliminare</string>
   <string name="blogs_blog_removed">Blog eliminat</string>
   <string name="blogs_reblog_comment_hint">Adaugă un comentariu (opțional)</string>
@@ -308,7 +308,7 @@
   <string name="blogs_sharing_invitations_title">Invitații la blog-uri</string>
   <string name="blogs_sharing_joined_toast">Abonare la blog</string>
   <string name="blogs_sharing_declined_toast">Invitația a fost refuzată</string>
-  <string name="sharing_status_blog">Oricine abonat la un blog poate să-l împărtășească cu persoanele de contact. Partajați acest blog cu următoarele persoane de contact. Pot exista și alți abonați pe care nu îi puteți vedea.</string>
+  <string name="sharing_status_blog">Oricine abonat la un blog poate să-l împărtășească cu persoanele de contact. Partajați acest blog cu următoarele persoane de contact. Pot exista și alți abonați pe care să nu îi puteți vedea.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">Importă flux RSS</string>
   <string name="blogs_rss_feeds_import_button">Importă</string>
@@ -319,7 +319,7 @@
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Actualizat ultima dată:</string>
   <string name="blogs_rss_remove_feed">Șterge flux</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Sunteți sigur că doriți să eliminați acest feed?\n\nPosturile vor fi eliminate de pe dispozitiv, dar nu și de dispozitivele altor persoane.\n\nOrice persoane de contact cu care ați distribuit acest feed nu vor mai primi actualizări.</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Sunteți siguri că doriți să eliminați acest flux?\n\nMesajele vor fi eliminate de pe dispozitiv, dar nu și de pe dispozitivele altor persoane.\n\nOrice persoană de contact către care ați distribuit acest flux s-ar putea sa nu mai primească actualizări.</string>
   <string name="blogs_rss_remove_feed_ok">Eliminare</string>
   <string name="blogs_rss_feeds_manage_delete_error">Fluxul nu a putut fi șters!</string>
   <string name="blogs_rss_feeds_manage_empty_state">Nici un flux RSS de arătat\n\nAtingeți iconița + pentru a adăuga un flux</string>
@@ -384,7 +384,7 @@
   <string name="panic_setting_signout_title">Ieșire</string>
   <string name="panic_setting_signout_summary">Ieși din Briar dacă un buton de panică este apăsat</string>
   <string name="purge_setting_title">Șterge cont</string>
-  <string name="purge_setting_summary">Ștergeți contul Briar dacă este apăsat buton de panică. Atenție: aceasta va șterge definitiv identitatea, contactele și mesajele dvs.</string>
+  <string name="purge_setting_summary">Ștergeți contul Briar dacă este apăsat un buton de panică. Atenție: aceasta va șterge definitiv identitatea, contactele și mesajele dvs.</string>
   <string name="uninstall_setting_title">Dezinstalare Briar</string>
   <string name="uninstall_setting_summary">Aceasta necesită o confirmare manuală în timpul unui eveniment de panică</string>
   <!--Settings Notifications-->
@@ -439,7 +439,7 @@
   <string name="progress_title_logout">Ieșire din Briar...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">S-a detectat ceva suprapus pe ecran</string>
-  <string name="screen_filter_body">O altă aplicație este suprapusă pe Briar. Pentru a vă proteja securitatea, Briar nu va reacționa la atingere în timp ce există o suprapunere.\n\nAplicațiile următoare pot fi suprapuse:\n\n%1$s</string>
+  <string name="screen_filter_body">O altă aplicație este suprapusă pe Briar. Pentru a vă proteja securitatea, Briar nu va reacționa la atingeri în timp ce există o suprapunere.\n\nAplicațiile următoare pot fi suprapuse:\n\n%1$s</string>
   <string name="screen_filter_allow">Permite acestor aplicații să deseneze deasupra</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Permisiune de acces la camera foto</string>
@@ -451,6 +451,8 @@
   <!--App Locking-->
   <string name="lock_unlock">Deblocare Briar</string>
   <string name="lock_unlock_verbose">Introduceți PIN, model sau parolă pentru a debloca Briar</string>
+  <string name="lock_unlock_fingerprint_description">Atingeți senzorul de amprentă cu degetul înregistrat pentru a continua</string>
+  <string name="lock_unlock_password">Folosește parola</string>
   <string name="lock_is_locked">Briar este blocat</string>
   <string name="lock_tap_to_unlock">Atingeți pentru a debloca</string>
 </resources>

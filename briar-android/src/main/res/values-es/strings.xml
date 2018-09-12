@@ -441,6 +441,8 @@
   <!--App Locking-->
   <string name="lock_unlock">Desbloquear Briar</string>
   <string name="lock_unlock_verbose">Entrar el NPI de tu dispositivo, patrón o contraseña para desbloquear Briar</string>
+  <string name="lock_unlock_fingerprint_description">Toca tu sensor de huellas dactilares con el dedo que has registrado para continuar.</string>
+  <string name="lock_unlock_password">Usa la contraseña</string>
   <string name="lock_is_locked">Briar está bloqueado</string>
   <string name="lock_tap_to_unlock">Golpear para desbloquear</string>
 </resources>

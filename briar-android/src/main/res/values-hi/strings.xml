@@ -441,6 +441,8 @@
   <!--App Locking-->
   <string name="lock_unlock">Briar अनलॉक करें</string>
   <string name="lock_unlock_verbose">Briar अनलॉक करने के लिए अपना डिवाइस पिन, पैटर्न या पासवर्ड दर्ज करें</string>
+  <string name="lock_unlock_fingerprint_description">जारी रखने के लिए पंजीकृत उंगली के साथ अपने फिंगरप्रिंट सेंसर को स्पर्श करें</string>
+  <string name="lock_unlock_password">पासवर्ड का प्रयोग करें</string>
   <string name="lock_is_locked">Briar लॉक है</string>
   <string name="lock_tap_to_unlock">अनलॉक करने के लिए टैप करें</string>
 </resources>

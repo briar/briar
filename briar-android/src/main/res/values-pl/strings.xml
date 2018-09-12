@@ -58,6 +58,7 @@
   <string name="forums_button">Fora</string>
   <string name="blogs_button">Blogi</string>
   <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Zablokuj Aplikację</string>
   <string name="settings_button">Ustawienia</string>
   <string name="sign_out_button">Wyloguj się</string>
   <!--Transports-->
@@ -66,7 +67,9 @@
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Wylogowano z Briar</string>
+  <string name="reminder_notification_text">Dotknij aby zalogować.</string>
   <string name="reminder_notification_channel_title">Przypomnienie o zalogowaniu</string>
+  <string name="reminder_notification_dismiss">Odrzuć</string>
   <string name="ongoing_notification_title">Zalogowany w Briar</string>
   <string name="ongoing_notification_text">Dotknij aby otworzyć Briar</string>
   <plurals name="private_message_notification_text">
@@ -117,6 +120,8 @@
   <string name="help">Pomoc</string>
   <string name="sorry">Przepraszam</string>
   <!--Contacts and Private Conversations-->
+  <string name="no_contacts">Brak kontaktów do pokazania</string>
+  <string name="no_contacts_action">Dotknij ikonki + aby dodać kontakt</string>
   <string name="date_no_private_messages">Brak wiadomości.</string>
   <string name="no_private_messages">Brak wiadomości do pokazania</string>
   <string name="message_hint">Typ wiadomości</string>
@@ -138,6 +143,9 @@
   <string name="camera_error">Błąd aparatu</string>
   <string name="connecting_to_device">Łączenie z urządzeniem\u2026</string>
   <string name="authenticating_with_device">Autoryzowanie z urządzeniem\u2026</string>
+  <string name="connection_error_title">Nie udało się połączyć z kontaktem</string>
+  <string name="connection_error_explanation">Sprawdź czy oboje jesteście połączeni z tą samą siecią Wi-Fi.</string>
+  <string name="connection_error_feedback">Jeśli problem będzie występować, proszę <a href="feedback">wysłać zgłoszenie</a> aby pomóc nam ulepszyć aplikację.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Udostępnij swoje kontakty.</string>
   <string name="introduction_onboarding_text">Możesz udostępniać kontakty, tak aby osoby nie musiały spotykać się osobiście.</string>
@@ -167,6 +175,8 @@
     <item quantity="other">%d nowych kontaktów zostało dodanych.</item>
   </plurals>
   <!--Private Groups-->
+  <string name="groups_list_empty">Brak grup do pokazania</string>
+  <string name="groups_list_empty_action">Dotknij ikonkę + aby stworzyć grupę, lub poprosić kontakty o ich udostępnienie</string>
   <string name="groups_created_by">Stworzone przez %s</string>
   <plurals name="messages">
     <item quantity="one">%d wiadomość</item>
@@ -223,6 +233,8 @@
   <string name="groups_reveal_visible_revealed_by_contact">Relacje kontaktów są widoczne dla grupy (ujawnione przez %s)</string>
   <string name="groups_reveal_invisible">Relacje kontaktów są nie widoczne dla grupy</string>
   <!--Forums-->
+  <string name="no_forums">Brak for do pokazania</string>
+  <string name="no_forums_action">Dotknij ikonkę + aby stworzyć forum, lub poprosić kontakty o ich udostępnienie</string>
   <string name="create_forum_title">Stwórz Forum</string>
   <string name="choose_forum_hint">Wybierz nazwę dla swojego forum</string>
   <string name="create_forum_button">Stwórz Forum</string>
@@ -248,6 +260,8 @@
   <string name="forum_share_button">Udostępnij Forum</string>
   <string name="contacts_selected">Zaznaczone kontakty</string>
   <string name="activity_share_toolbar_header">Wybierz Kontakty</string>
+  <string name="no_contacts_selector">Brak kontaktów do pokazania</string>
+  <string name="no_contacts_selector_action">Wróć tutaj gdy dodasz kontakt</string>
   <string name="forum_shared_snackbar">Forum udostępnione wybranym kontaktom</string>
   <string name="forum_share_message">Dodaj wiadomość (opcjonalne)</string>
   <string name="forum_share_error">Wystąpił problem podczas udostępniania tego forum.</string>
@@ -283,6 +297,7 @@
   <string name="blogs_blog_post_received">Otrzymano Nowy Wpis z Bloga</string>
   <string name="blogs_blog_post_scroll_to">Przewiń Do</string>
   <string name="blogs_feed_empty_state">Brak postów do pokazania</string>
+  <string name="blogs_feed_empty_state_action">Posty twoich od Twoich kontaktów i blogów które subskrybujesz pojawią się tutaj\n\nDotknij ikonki długopisu aby napisać post</string>
   <string name="blogs_remove_blog">Usuń Blog</string>
   <string name="blogs_remove_blog_dialog_message">Jesteś pewny, że chcesz usunąć ten blog?\n\nPosty będą usunięte z Twojego urządzenia ale nie z urządzeń innych osób.\n\nWszystkie kontakty którym udostępniłeś ten blog mogą przestać otrzymywać powiadomienia.</string>
   <string name="blogs_remove_blog_ok">Usuń</string>
@@ -334,17 +349,34 @@
   <string name="bluetooth_setting">Połącz przez Bluetooth</string>
   <string name="bluetooth_setting_enabled">Zawsze wtedy gdy kontakty są w pobliżu</string>
   <string name="bluetooth_setting_disabled">Tylko gdy dodaję kontakty</string>
+  <string name="tor_network_setting">Połącz przez Internet (Tor)</string>
+  <string name="tor_network_setting_automatic">Automatycznie bazując na lokalizacji</string>
+  <string name="tor_network_setting_without_bridges">Używaj Tor bez mostów</string>
+  <string name="tor_network_setting_with_bridges">Używaj Tor z mostami</string>
+  <string name="tor_network_setting_never">Nie łącz</string>
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">Automatycznie: %1$s (za %2$s)</string>
+  <string name="tor_mobile_data_title">Używaj danych komórkowych</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Bezpieczeństwo</string>
+  <string name="pref_lock_title">Blokada ekranu</string>
+  <string name="pref_lock_summary">Użyj blokady ekranu urządzenia by chronić Briar gdy zalogowany</string>
+  <string name="pref_lock_disabled_summary">Aby użyć tej funkcji skonfiguruj blokadę ekranu na swoim urządzeniu</string>
+  <string name="pref_lock_timeout_title">Blokada ekranu gdy wykryto aktywności</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">Gdy nie używam Briar, automatycznie zablokuj po %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 minucie</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 minutach</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">15 minutach</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 minutach</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_60">1 godzina</string>
   <string name="pref_lock_timeout_never">Nigdy</string>
+  <string name="pref_lock_timeout_never_summary">Nigdy nie blokuj Briar automatycznie</string>
   <string name="change_password">Zmień hasło</string>
   <string name="current_password">Obecne hasło</string>
   <string name="choose_new_password">Nowe hasło</string>
@@ -367,6 +399,8 @@
   <string name="uninstall_setting_summary">To wymaga manualnego potwierdzenia w przypadku aktywowania</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Powiadomienia</string>
+  <string name="notify_sign_in_title">Przypomnij mi by się zalogować</string>
+  <string name="notify_sign_in_summary">Pokaż przypomnienie gdy telefon się uruchomi lub aplikacja zostanie zaktualizowana</string>
   <string name="notify_private_messages_setting_title">Prywatne wiadomości</string>
   <string name="notify_private_messages_setting_summary">Pokaż powiadomienia dla prywatnych wiadomości</string>
   <string name="notify_private_messages_setting_summary_26">Skonfiguruj powiadomienia dla prywatnych wiadomości</string>
@@ -425,4 +459,10 @@
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Pokaż QR na pełnym ekranie</string>
   <!--App Locking-->
+  <string name="lock_unlock">Odblokuj Briar</string>
+  <string name="lock_unlock_verbose">Wprowadź PIN swojego urządzenia, wzór lub hasło aby odblokować Briar</string>
+  <string name="lock_unlock_fingerprint_description">Dotknij czytnika linii papilarnych zapisanym odciskiem palca.</string>
+  <string name="lock_unlock_password">Użyj hasła</string>
+  <string name="lock_is_locked">Briar jest zablokowany</string>
+  <string name="lock_tap_to_unlock">Dotknij by odblokować</string>
 </resources>

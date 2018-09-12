@@ -65,7 +65,7 @@
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Heu sortit de Briar</string>
-  <string name="reminder_notification_text">Toqueu per tornar a iniciar sessió.</string>
+  <string name="reminder_notification_text">Toqueu per a reiniciar la sessió.</string>
   <string name="reminder_notification_channel_title">Recordatori d\'inici de sessió de Briar</string>
   <string name="reminder_notification_dismiss">Descarta</string>
   <string name="ongoing_notification_title">Sessió iniciada</string>
@@ -133,9 +133,9 @@
   <string name="camera_error">Error de la càmera</string>
   <string name="connecting_to_device">Connectant-se al dispositiu\u2026</string>
   <string name="authenticating_with_device">Autenticant-se amb el dispositiu\u2026</string>
-  <string name="connection_error_title">No s\'ha pogut connectar al vostre contacte</string>
-  <string name="connection_error_explanation">Comproveu que estigueu connectats a la mateixa xarxa Wi-Fi.</string>
-  <string name="connection_error_feedback">Si aquest problema persisteix, <a href="feedback">envieu-nos comentaris</a> per ajudar-nos a millorar l\'aplicació.</string>
+  <string name="connection_error_title">No ha pogut connectar-se al vostre contacte</string>
+  <string name="connection_error_explanation">Comproveu que esteu connectats a la mateixa xarxa Wi-Fi.</string>
+  <string name="connection_error_feedback">Si aquest problema persisteix, <a href="feedback">envieu-nos un comentari</a> per ajudar-nos a millorar l\'aplicació.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenteu als vostres contactes</string>
   <string name="introduction_onboarding_text">Podeu presentar als vostres contactes entre si, de manera que no necessitin trobar-se en persona per a relacionar-se a través de Briar.</string>
@@ -164,7 +164,7 @@
   </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">No hi ha cap grup per mostrar</string>
-  <string name="groups_list_empty_action">Toqueu la icona + per crear un grup o demaneu als vostres contactes que comparteixin grups amb vosaltres</string>
+  <string name="groups_list_empty_action">Toqueu la icona + per crear un grup o demaneu als vostres contactes que us afegeixin als seus grups</string>
   <string name="groups_created_by">Creat per %s</string>
   <plurals name="messages">
     <item quantity="one">1%d missatge</item>
@@ -193,7 +193,7 @@
   <string name="groups_dissolve_dialog_message">Esteu segur que voleu dissoldre aquest grup?\n\nSi el dissoleu cap altre membre podrà continuar la conversa i alguns membres pot ser que no rebin els darrers missatges.</string>
   <string name="groups_dissolve_button">Dissol</string>
   <string name="groups_dissolved_dialog_title">S\'ha dissolt el grup</string>
-  <string name="groups_dissolved_dialog_message">El creador del grup l\'ha dissolt.\n\nJa no hi podeu escriure més. És possible que no hagueu rebut algun dels darrers missatges que s\'hi havien escrit.</string>
+  <string name="groups_dissolved_dialog_message">El creador del grup l\'ha dissolt.\n\nJa no hi podeu escriure més. És possible que no hàgeu rebut algun dels darrers missatges que s\'hi havien escrit.</string>
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">Convideu a formar part del grup</string>
   <string name="groups_invitations_invitation_sent">Heu convidat a %1$s a afegir-se al grup «%2$s».</string>
@@ -217,8 +217,8 @@
   <string name="groups_reveal_visible_revealed_by_contact">La relació de contactes és visible pel grup (revelada per %s)</string>
   <string name="groups_reveal_invisible">La relació de contactes no és visible pel grup</string>
   <!--Forums-->
-  <string name="no_forums">No hi ha fòrums per mostrar</string>
-  <string name="no_forums_action">Toqueu la icona + per crear un fòrum o demaneu als vostres contactes que comparteixin fòrums amb vosaltres</string>
+  <string name="no_forums">No hi ha cap fòrum per mostrar</string>
+  <string name="no_forums_action">Toqueu la icona + per crear un fòrum o demaneu als vostres contactes que us afegeixin als seus fòrums</string>
   <string name="create_forum_title">Creeu un fòrum</string>
   <string name="choose_forum_hint">Trieu un nom per al fòrum</string>
   <string name="create_forum_button">Crea el fòrum</string>
@@ -234,8 +234,8 @@
   <string name="forum_message_reply_hint">Resposta nova</string>
   <string name="btn_reply">Respon</string>
   <string name="forum_leave">Abandona el fòrum</string>
-  <string name="dialog_title_leave_forum">Confirmeu l\'abandonament del Forum</string>
-  <string name="dialog_message_leave_forum">Segur que voleu abandonar aquest fòrum?\n\nEls contactes amb els que heu compartit aquest fòrum poden deixar de rebre les actualitzacions</string>
+  <string name="dialog_title_leave_forum">Confirmeu l\'abandonament del Fòrum</string>
+  <string name="dialog_message_leave_forum">Segur que voleu abandonar aquest fòrum?\n\nEls contactes amb els que heu compartit aquest fòrum poden deixar de rebre les actualitzacions.</string>
   <string name="dialog_button_leave">Abandona</string>
   <string name="forum_left_toast">Heu abandonat el fòrum</string>
   <!--Forum Sharing-->
@@ -277,9 +277,9 @@
   <string name="blogs_blog_post_received">S\'ha rebut un nou apunt al blog</string>
   <string name="blogs_blog_post_scroll_to">Desplaça</string>
   <string name="blogs_feed_empty_state">No hi ha cap apunt per mostrar</string>
-  <string name="blogs_feed_empty_state_action">Les publicacions dels vostres contactes i blocs als que us subscriu apareixeran aquí.\n\nToqueu la icona de la ploma per escriure una publicació</string>
+  <string name="blogs_feed_empty_state_action">Aquí hi trobareu els apunts dels vostres contactes i dels blocs subscrits. \n\nToqueu la icona de la ploma per escriure un apunt</string>
   <string name="blogs_remove_blog">Suprimeix el blog</string>
-  <string name="blogs_remove_blog_dialog_message">Segur que voleu suprimir aquest blog?\n\nEls apunts publicats s\'esborraran del vostre dispositiu però no del d\'altres persones.\n\nEls contactes amb els que hagueu compartit aquest blog poden deixar de rebre les actualitzacions.</string>
+  <string name="blogs_remove_blog_dialog_message">Segur que voleu suprimir aquest blog?\n\nEls apunts publicats s\'esborraran del vostre dispositiu però no del d\'altres persones.\n\nEls contactes amb els que hàgeu compartit aquest blog poden deixar de rebre les actualitzacions.</string>
   <string name="blogs_remove_blog_ok">Suprimeix</string>
   <string name="blogs_blog_removed">S\'ha suprimit el blog</string>
   <string name="blogs_reblog_comment_hint">Afegiu una nota (opcional)</string>
@@ -309,7 +309,7 @@
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Darrera actualització:</string>
   <string name="blogs_rss_remove_feed">Suprimeix la subscripció al canal de notícies</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Segur que voleu suprimir la subscripció a aquest canal de notícies?\n\nLes notícies d\'aquest canal s\'eliminaran del vostre dispositiu però no del d\'altres persones.\n\nEls contactes amb els que hagueu compartit aquest canal poden deixar de rebre les actualitzacions.</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Segur que voleu suprimir la subscripció a aquest canal de notícies?\n\nLes notícies d\'aquest canal s\'eliminaran del vostre dispositiu però no del d\'altres persones.\n\nEls contactes amb els que hàgeu compartit aquest canal poden deixar de rebre les actualitzacions.</string>
   <string name="blogs_rss_remove_feed_ok">Suprimeix la subscripció</string>
   <string name="blogs_rss_feeds_manage_delete_error">La subscripció al canal de notícies no s\'ha pogut suprimir.</string>
   <string name="blogs_rss_feeds_manage_empty_state">No hi ha cap notícia per mostrar\n\nFeu un toc sobre la icona + per subscriure-us a un canal de notícies</string>
@@ -331,20 +331,20 @@
   <string name="bluetooth_setting_disabled">Només quan s\'afegeixen contactes</string>
   <string name="tor_network_setting">Connecta a través d\'Internet (Tor)</string>
   <string name="tor_network_setting_automatic">Automàtic basat en la ubicació</string>
-  <string name="tor_network_setting_without_bridges">Utilitza Tor sense ponts</string>
-  <string name="tor_network_setting_with_bridges">Utilitza Tor amb ponts</string>
+  <string name="tor_network_setting_without_bridges">Usa Tor sense ponts</string>
+  <string name="tor_network_setting_with_bridges">Usa Tor amb ponts</string>
   <string name="tor_network_setting_never">No et connectis</string>
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Automàtic: %1$s (en %2$s)</string>
-  <string name="tor_mobile_data_title">Utilitza dades mòbils</string>
+  <string name="tor_mobile_data_title">Usa dades mòbils</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
   <string name="pref_lock_title">Bloqueig de pantalla</string>
-  <string name="pref_lock_summary">Utilitza el bloqueig de pantalla del dispositiu per protegir Briar mentre inicieu la sessió</string>
-  <string name="pref_lock_disabled_summary">Per utilitzar aquesta funció, configureu un bloqueig de pantalla per al vostre dispositiu</string>
-  <string name="pref_lock_timeout_title">Temps d\'espera d\'inactivitat del bloqueig de pantalla</string>
+  <string name="pref_lock_summary">Usa el bloqueig de pantalla del dispositiu per protegir Briar mentre inicieu la sessió</string>
+  <string name="pref_lock_disabled_summary">Per utilitzar aquesta funció, configureu el bloqueig de pantalla en el vostre dispositiu</string>
+  <string name="pref_lock_timeout_title">Temps d\'inactivitat del bloqueig de pantalla</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
-  <string name="pref_lock_timeout_summary">Quan no feu servir Briar, bloquegeu-lo automàticament després de %s</string>
+  <string name="pref_lock_timeout_summary">Briar es bloquejarà automàticament després de %s de no usar-se.</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_1">1 minut</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -354,13 +354,13 @@
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_30">30 minuts</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
-  <string name="pref_lock_timeout_60">1 houra</string>
+  <string name="pref_lock_timeout_60">1 hora</string>
   <string name="pref_lock_timeout_never">Mai</string>
-  <string name="pref_lock_timeout_never_summary">No bloquejar mai Briar automàticament</string>
+  <string name="pref_lock_timeout_never_summary">No bloquegis mai Briar automàticament</string>
   <string name="change_password">Canvia la contrasenya</string>
-  <string name="current_password">Contrassenya actual</string>
+  <string name="current_password">Contrasenya actual</string>
   <string name="choose_new_password">Contrassenya nova</string>
-  <string name="confirm_new_password">Confirmació de la contrassenya nova</string>
+  <string name="confirm_new_password">Confirmació de la contrasenya nova</string>
   <string name="password_changed">Heu canviat la contrasenya.</string>
   <string name="panic_setting">Configuració del botó del pànic</string>
   <string name="panic_setting_title">Botó de pànic</string>
@@ -379,8 +379,8 @@
   <string name="uninstall_setting_summary">Això requeria la confirmació manual malgrat ser en una situació de pànic</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificacions</string>
-  <string name="notify_sign_in_title">Recordeu-me que iniciï sessió</string>
-  <string name="notify_sign_in_summary">Mostra un recordatori quan s\'inicia el telèfon o s\'ha actualitzat l\'aplicació</string>
+  <string name="notify_sign_in_title">Recorda\'m que iniciï la sessió</string>
+  <string name="notify_sign_in_summary">Mostra\'m un recordatori quan s\'inicii el telèfon o s\'actualitzi l\'aplicació</string>
   <string name="notify_private_messages_setting_title">Missatges privats</string>
   <string name="notify_private_messages_setting_summary">Mostra avisos pels missatges privats</string>
   <string name="notify_private_messages_setting_summary_26">Configura els avisos pels missatges privats</string>
@@ -441,6 +441,8 @@
   <!--App Locking-->
   <string name="lock_unlock">Desbloqueja Briar</string>
   <string name="lock_unlock_verbose">Introduïu el PIN, el patró o la contrasenya del vostre dispositiu per desbloquejar Briar</string>
+  <string name="lock_unlock_fingerprint_description">Toqueu el sensor d\'empremtes amb el dit enregistrat per continuar</string>
+  <string name="lock_unlock_password">Usa la contrasenya</string>
   <string name="lock_is_locked">Briar està bloquejat</string>
   <string name="lock_tap_to_unlock">Toqueu per desbloquejar-lo</string>
 </resources>

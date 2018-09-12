@@ -224,7 +224,7 @@
   <string name="create_forum_button">Luo foorumi</string>
   <string name="forum_created_toast">Foorumi luotu</string>
   <string name="no_forum_posts">Ei kirjoituksia</string>
-  <string name="no_posts">Ei viestejä</string>
+  <string name="no_posts">Ei kirjoituksia</string>
   <plurals name="posts">
     <item quantity="one">%d viesti</item>
     <item quantity="other">%d viestiä</item>
@@ -277,6 +277,7 @@
   <string name="blogs_blog_post_received">Uusi blogikirjoitus vastaanotettu</string>
   <string name="blogs_blog_post_scroll_to">Vieritä kohtaan</string>
   <string name="blogs_feed_empty_state">Ei kirjoituksia</string>
+  <string name="blogs_feed_empty_state_action">Yhteyshenkilöitesi ja seuraamiesi blogien kirjoitukset tulevat näkymään tässä\n\nNapauta kynää kirjoittaaksesi jotain</string>
   <string name="blogs_remove_blog">Poista blogi</string>
   <string name="blogs_remove_blog_dialog_message">Oletko varma, että haluat poistaa tämän blogin?\n\nKirjoitukset poistuvat sinun laitteelta, mutta ei muiden laitteilta.\n\nKäyttäjät joiden kanssa olet jakanut tämän blogin eivät välttämättä saa uusia päivityksiä.</string>
   <string name="blogs_remove_blog_ok">Poista</string>
@@ -440,6 +441,8 @@
   <!--App Locking-->
   <string name="lock_unlock">Avaa Briarin lukitus</string>
   <string name="lock_unlock_verbose">Syötä laitteesi PIN, kuvio tai salasana avataksesi Briar</string>
+  <string name="lock_unlock_fingerprint_description">Kosketa sormenjälkitunnistinta rekisteröidyllä sormella jatkaaksesi</string>
+  <string name="lock_unlock_password">Käytä salasanaa</string>
   <string name="lock_is_locked">Briar on lukittu</string>
   <string name="lock_tap_to_unlock">Napauta avataksesi lukitus</string>
 </resources>

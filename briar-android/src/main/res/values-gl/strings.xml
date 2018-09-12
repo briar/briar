@@ -4,8 +4,8 @@
   <string name="setup_title">Benvida a Briar</string>
   <string name="setup_name_explanation">O seu alcume mostrarase xunto a todas as mensaxes que publique. Pode cambialo tras crear a súa conta.</string>
   <string name="setup_next">Seguinte</string>
-  <string name="setup_password_intro">Escolla un Contrasinal</string>
-  <string name="setup_password_explanation">A súa conta en Briar gárdase cifrada no seu dispositivo, non na nube. Si esquece o contrasinal ou desinstala Briar, non haberá xeito de recuperar a súa conta.\n\nEscolla un contrasinal longo que sexa difícil de supoñer, algo como catro palabras ao chou, ou dez letras aleatorias, números e símbolos.</string>
+  <string name="setup_password_intro">Escolla unha Clave</string>
+  <string name="setup_password_explanation">A súa conta en Briar gárdase cifrada no seu dispositivo, non na nube. Si esquece o contrasinal ou desinstala Briar, non haberá xeito de recuperar a súa conta.\n\nEscolla unha clave longa que sexa difícil de adiviñar, algo como catro palabras ao chou, ou dez letras aleatorias, números e símbolos.</string>
   <string name="setup_doze_title">Conexións en segundo plano</string>
   <string name="setup_doze_intro">Para recibir mensaxes, Briar precisa estar conectada en segundo plano.</string>
   <string name="setup_doze_explanation">Para recibir mensaxes, Briar precisa estar conectada en segundo plano. Por favor desactive as optimizacións de batería para que Briar poida permanecer conectada.</string>
@@ -24,22 +24,22 @@
   <string name="setup_huawei_help">Si Briar non se engade ao listado de apps protexidas, non poderá funcionar en segundo plano.</string>
   <string name="warning_dozed">%s non foi quen de funcionar en segundo plano</string>
   <!--Login-->
-  <string name="enter_password">Contrasinal</string>
+  <string name="enter_password">Clave</string>
   <string name="try_again">Clave incorrecta, tenteo de novo</string>
   <string name="sign_in_button">Iniciar sesión</string>
   <string name="forgotten_password">Esquecín a miña clave</string>
   <string name="dialog_title_lost_password">Clave perdida</string>
-  <string name="dialog_message_lost_password">Briar almacena a súa configuración encriptada no dispositivo, non na nube, así que non podemos restabelecer a súa clave. Querrías borrar a túa conta e empezar de novo?\n\nPrecaución: As túas identidades, contactos e mensaxes serán eliminadas de forma permanente.</string>
+  <string name="dialog_message_lost_password">Briar almacena a súa configuración encriptada no dispositivo, non na nube, así que non podemos restabelecer a súa clave. Quererías borrar a túa conta e empezar de novo?\n\nPrecaución: As túas identidades, contactos e mensaxes serán eliminadas de forma permanente.</string>
   <string name="startup_failed_notification_title">Briar non puido iniciarse</string>
   <string name="startup_failed_notification_text">Toque para máis información.</string>
   <string name="startup_failed_activity_title">Fallo de Inicio de Briar</string>
-  <string name="startup_failed_db_error">Por algún motivo, a súa base de datos de Briar está defectuosa sen remedio. A súa conta, os seus datos e contactos perdéronse. Desgraciadamente, debe reinstalar Briar ou crear unha nova conta escollendo \'Esquecín o meu contrasinal\' cando se lle solicite o contrasinal.</string>
-  <string name="startup_failed_data_too_old_error">A súa conta foi creada con unha versión anterior da aplicación e non se pode abrir con esta versión. Deberá reinstalar a versión anterior ou ben crear unha nova conta escollendo \'Esquecín o meu contrasinal\' cando se lle solicite o contrasinal.</string>
-  <string name="startup_failed_data_too_new_error">Esta versión da app é moi antiga. Actualice por favor a última versión e inténteo de novo.</string>
+  <string name="startup_failed_db_error">Por algún motivo, a súa base de datos de Briar está defectuosa sen remedio. A súa conta, os seus datos e contactos perdéronse. Desgraciadamente, debe reinstalar Briar ou crear unha nova conta escollendo \'Esquecín o meu contrasinal\' cando se lle solicite a clave.</string>
+  <string name="startup_failed_data_too_old_error">A súa conta foi creada cunha versión anterior da aplicación e non se pode abrir con esta versión. Deberá reinstalar a versión anterior ou ben crear unha nova conta escollendo \'Esquecín o meu contrasinal\' cando se lle solicite o contrasinal.</string>
+  <string name="startup_failed_data_too_new_error">Esta versión da app é moi antiga. Actualice por favor á última versión e inténteo de novo.</string>
   <string name="startup_failed_service_error"> Briar non puido iniciar un complemento necesario. Xeralmente reinstalar Briar resolve este problema. Teña en conta que entón perderá a súa conta e todos os datos asociados a esta pois Briar non está a utilizar servidores centrais para almacenar os seus datos.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Esta versión de Briar é para probas. A conta caducará en %d día e non se pode anovar.</item>
-    <item quantity="other">Esta versión de Briar é para probas. A conta caducará en %d días e non se pode anovar.</item>
+    <item quantity="other">Esta é unha versión de proba de Briar. A conta caducará en %d días e non se pode anovar.</item>
   </plurals>
   <string name="expiry_update">A data de caducidade de probas foi alongada. Agora a súa conta caduca en %d días.</string>
   <string name="expiry_date_reached">Este software caducou.\nGrazas por probalo!</string>
@@ -110,10 +110,10 @@
   <string name="help">Axuda</string>
   <string name="sorry">Desculpe</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Sen contactos a mostrar</string>
+  <string name="no_contacts">Sen contactos para amosar</string>
   <string name="no_contacts_action">Toque a icona + para engadir un contacto</string>
   <string name="date_no_private_messages">Sen mensaxes</string>
-  <string name="no_private_messages">Sen mensaxes que mostrar</string>
+  <string name="no_private_messages">Sen mensaxes que amosar</string>
   <string name="message_hint">Esciba unha mensaxe</string>
   <string name="delete_contact">Eliminar contacto</string>
   <string name="dialog_title_delete_contact">Confirme a eliminación do contacto</string>
@@ -121,7 +121,7 @@
   <string name="contact_deleted_toast">Contacto eliminado</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Engada un contacto</string>
-  <string name="face_to_face">Debe encontrarse coa persoa que quere engadir como contacto.\n\nEsto evitará que calquera poida suplantala ou ler as súas mensaxes no futuro.</string>
+  <string name="face_to_face">Debe atoparse coa persoa que quere engadir como contacto.\n\Isto evitará que calquera poida suplantala ou ler as súas mensaxes no futuro.</string>
   <string name="continue_button">Continuar</string>
   <string name="try_again_button">Tenteo de novo</string>
   <string name="waiting_for_contact_to_scan">Agardando polo contacto para escanear e conectar\u2026</string>
@@ -129,7 +129,7 @@
   <string name="contact_added_toast">Contacto engadido: %s</string>
   <string name="contact_already_exists">O contacto %s xa existe</string>
   <string name="qr_code_invalid">O código QR non é válido</string>
-  <string name="qr_code_unsupported">O código QR que intenta escanear pertence a unha versión antiga de %s que xa non está soportada.\n\nPor favor, asegúrese que ambas utilizan a última versión e inténteno de novo.</string>
+  <string name="qr_code_unsupported">O código QR que intenta escanear pertence a unha versión antiga de %s que xa non ten mantemento.\n\nPor favor, asegúrese que ambas utilizan a última versión e inténteno de novo.</string>
   <string name="camera_error">Fallo na cámara</string>
   <string name="connecting_to_device">Conectando co dispositivo\u2026</string>
   <string name="authenticating_with_device">Autenticándose co dispositivo\u2026</string>
@@ -137,17 +137,17 @@
   <string name="connection_error_explanation">Por favor, comprobe que ambas están conectadas a mesma rede Wi-Fi.</string>
   <string name="connection_error_feedback">Si persiste o problema,<a href="feedback">envíe un informe</a> para axudarnos a mellorar a app.</string>
   <!--Introductions-->
-  <string name="introduction_onboarding_title">Presente os seus contactos</string>
+  <string name="introduction_onboarding_title">Presente aos seus contactos</string>
   <string name="introduction_onboarding_text">Pode presentar aos seus contactos, así non precisan encontrarse en persoa para conectar a través de Briar.</string>
   <string name="introduction_menu_item">Preséntese</string>
-  <string name="introduction_activity_title">Escoller contacto</string>
-  <string name="introduction_not_possible">Xa ten unha presentación en progreso con estes contactos. Por favor, deixe que remate o proceso. Si vostede ou os contactos se conectan con pouca asiduidade esto podería levar algún tempo.</string>
+  <string name="introduction_activity_title">Escolla contacto</string>
+  <string name="introduction_not_possible">Xa ten unha presentación en progreso con estes contactos. Por favor, deixe que remate o proceso. Isto podería levar algún tempo se vostede ou os contactos raramente se conectan.</string>
   <string name="introduction_message_title">Introducir Contactos</string>
   <string name="introduction_message_hint">Engadir unha mensaxe (opcional)</string>
   <string name="introduction_button">Preséntese</string>
   <string name="introduction_sent">Enviouse a súa presentación.</string>
   <string name="introduction_error">Algo fallou ao enviar a presentación.</string>
-  <string name="introduction_response_error">Fallo respondendo a presentación</string>
+  <string name="introduction_response_error">Fallo respondendo á presentación</string>
   <string name="introduction_request_sent">Solicitou presentar %1$s a %2$s.</string>
   <string name="introduction_request_received">%1$s solicitou presentala a %2$s. Quere engadir a %2$s ao seu listado de contactos?</string>
   <string name="introduction_request_exists_received">%1$s solicitou presentala a %2$s, pero %2$s xa está no seu listado de contactos. Xa que %1$s podería non sabelo, pode responder igualmente:</string>
@@ -163,7 +163,7 @@
     <item quantity="other">%d novos contactos engadidos.</item>
   </plurals>
   <!--Private Groups-->
-  <string name="groups_list_empty">Sen grupos que mostrar</string>
+  <string name="groups_list_empty">Sen grupos que amosar</string>
   <string name="groups_list_empty_action">Toque a icona + para crear un grupo, ou solicite aos contactos que compartan grupos con vostede</string>
   <string name="groups_created_by">Creado por %s</string>
   <plurals name="messages">
@@ -190,7 +190,7 @@
   <string name="groups_leave_dialog_message">Está certo de que quere deixar este grupo?</string>
   <string name="groups_dissolve">Desfacer o grupo</string>
   <string name="groups_dissolve_dialog_title">Confirme a disolución do grupo</string>
-  <string name="groups_dissolve_dialog_message">Segura de querer desfacer o grupo?\n\nO resto da membresía non poderá continuar a conversa e podería non recibir as últimas mensaxes.</string>
+  <string name="groups_dissolve_dialog_message">Segura de querer desfacer o grupo?\n\nOs restantes membros non poderán continuar as súas conversas e poderían non recibir as últimas mensaxes.</string>
   <string name="groups_dissolve_button">Desfacer</string>
   <string name="groups_dissolved_dialog_title">O grupo foi desfeito</string>
   <string name="groups_dissolved_dialog_message">A persoa creadora do grupo desfíxoo.\n\nXa non poderá escribir mensaxes ao grupo e podería non ter recibido todas as mensaxes que foran escritas.</string>
@@ -356,12 +356,12 @@
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_60">1 hora</string>
   <string name="pref_lock_timeout_never">Nunca</string>
-  <string name="pref_lock_timeout_never_summary">Non bloquear nunca automáticamente</string>
-  <string name="change_password">Cambiar contrasinal</string>
-  <string name="current_password">Contrasinal actual</string>
-  <string name="choose_new_password">Novo contrasinal</string>
-  <string name="confirm_new_password">Confirme o novo contrasinal</string>
-  <string name="password_changed">Cambiou o contrasinal</string>
+  <string name="pref_lock_timeout_never_summary">Nunca bloquear Briar automáticamente</string>
+  <string name="change_password">Trocar a clave</string>
+  <string name="current_password">Clave actual</string>
+  <string name="choose_new_password">Nova clave</string>
+  <string name="confirm_new_password">Confirme a nova clave</string>
+  <string name="password_changed">Trocouse a clave</string>
   <string name="panic_setting">Axustes do botón do pánico</string>
   <string name="panic_setting_title">Botón do pánico</string>
   <string name="panic_setting_hint">Axuste como debe reaccionar Briar cando utilice a app botón do pánico</string>
@@ -374,36 +374,36 @@
   <string name="panic_setting_signout_title">Finalizar sesión</string>
   <string name="panic_setting_signout_summary">Desconecte de Briar si o botón do pánico se preme</string>
   <string name="purge_setting_title">Eliminar conta</string>
-  <string name="purge_setting_summary">Elimina a súa conta en Briar si se preme o botón do pánico. Coidado: Esto eliminará permanentemente as súas identidade, contactos e mensaxes</string>
+  <string name="purge_setting_summary">Elimina a súa conta en Briar si se preme o botón do pánico. Coidado: Isto eliminará permanentemente as súas identidades, contactos e mensaxes</string>
   <string name="uninstall_setting_title">Desinstalar Briar</string>
   <string name="uninstall_setting_summary">Esto require confirmación manual no evento do pánico</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificacións</string>
   <string name="notify_sign_in_title">Lembrarme conectar</string>
-  <string name="notify_sign_in_summary">Mostrar unha alerta cando o teléfono se inicie ou a app fose actualizada</string>
+  <string name="notify_sign_in_summary">Amosar unha alerta cando o teléfono se inicie ou a app fose actualizada</string>
   <string name="notify_private_messages_setting_title">Mensaxes privadas</string>
-  <string name="notify_private_messages_setting_summary">Mostra alertas para mensaxes privadas</string>
+  <string name="notify_private_messages_setting_summary">Amosar alertas para mensaxes privadas</string>
   <string name="notify_private_messages_setting_summary_26">Configurar alertas para mensaxes privadas</string>
   <string name="notify_group_messages_setting_title">Mensaxes de grupo</string>
-  <string name="notify_group_messages_setting_summary">Mostra alertas para mensaxes de grupo</string>
+  <string name="notify_group_messages_setting_summary">Amosar alertas para mensaxes de grupo</string>
   <string name="notify_group_messages_setting_summary_26">Configurar alertas para mensaxes de grupo</string>
   <string name="notify_forum_posts_setting_title">Entradas no foro</string>
-  <string name="notify_forum_posts_setting_summary">Mostra alertas para mensaxes nos foros</string>
+  <string name="notify_forum_posts_setting_summary">Amosar alertas para mensaxes nos foros</string>
   <string name="notify_forum_posts_setting_summary_26">Configurar alertas para mensaxes nos foros</string>
   <string name="notify_blog_posts_setting_title">Entradas no Blog</string>
-  <string name="notify_blog_posts_setting_summary">Mostra alertas para entradas no blog</string>
+  <string name="notify_blog_posts_setting_summary">Amosar alertas para entradas no blog</string>
   <string name="notify_blog_posts_setting_summary_26">Configurar alertas para entradas no blog</string>
   <string name="notify_vibration_setting">Vibrar</string>
   <string name="notify_lock_screen_setting_title">Bloquear pantalla</string>
-  <string name="notify_lock_screen_setting_summary">Mostra notificacións na pantalla bloqueada</string>
+  <string name="notify_lock_screen_setting_summary">Amosar notificacións na pantalla bloqueada</string>
   <string name="notify_sound_setting">Son</string>
-  <string name="notify_sound_setting_default">Son por omisión</string>
+  <string name="notify_sound_setting_default">Ton por omisión</string>
   <string name="notify_sound_setting_disabled">Ningún</string>
-  <string name="choose_ringtone_title">Escolla son</string>
-  <string name="cannot_load_ringtone">Non se cargou o son</string>
+  <string name="choose_ringtone_title">Escolla ton</string>
+  <string name="cannot_load_ringtone">Non se cargou o ton</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Comente</string>
-  <string name="send_feedback">Envíe comentario</string>
+  <string name="feedback_settings_title">Avaliación</string>
+  <string name="send_feedback">Envíe a avaliación</string>
   <!--Link Warning-->
   <string name="link_warning_title">Aviso de ligazón</string>
   <string name="link_warning_intro">Vai abrir a seguinte ligazón nunha aplicación externa.</string>
@@ -415,9 +415,9 @@
   <string name="not_your_fault">Non é culpa súa.</string>
   <string name="please_send_report">Axúdenos por favor a mellorar Briar enviándonos un informe do fallo.</string>
   <string name="report_is_encrypted">Prometemos que o informe está cifrado e enviado con seguridade.</string>
-  <string name="feedback_title">Comente</string>
+  <string name="feedback_title">Avaliación</string>
   <string name="describe_crash">Describa que aconteceu (optativo)</string>
-  <string name="enter_feedback">Escriba o seu comentario</string>
+  <string name="enter_feedback">Escriba a súa avaliación</string>
   <string name="optional_contact_email">O seu enderezo e-mail (optativo)</string>
   <string name="include_debug_report_crash">Incluír datos anónimos sobre o fallo</string>
   <string name="include_debug_report_feedback">Incluír datos anónimos sobre este dispositivo</string>
@@ -429,18 +429,20 @@
   <string name="progress_title_logout">Desconectando de Briar...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Detectouse unha sobreescrita da pantalla</string>
-  <string name="screen_filter_body">Outra aplicación estase mostrando enriba de Briar. Para protexer a súa seguridade, Briar non responderá a toques cando outra aplicación está debuxando enriba.\n\nAs seguintes aplicacións poderían estar debuxando enriba:\n\n%1$s</string>
-  <string name="screen_filter_allow">Permitir a estas aplicación mostrarse enriba</string>
+  <string name="screen_filter_body">Outra aplicación estase a amosar enriba de Briar. Para protexer a súa seguridade, Briar non responderá a toques cando outra aplicación está debuxando enriba.\n\nAs seguintes aplicacións poderían estar debuxando enriba:\n\n%1$s</string>
+  <string name="screen_filter_allow">Permitir a estas aplicación amosarse enriba</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Permiso da cámara</string>
   <string name="permission_camera_request_body">Para escanear códigos QR, Briar precisa acceso a cámara.</string>
   <string name="permission_camera_denied_body">Denegou o permiso de acceso a cámara, pero é necesario para engadir contactos.\n\nPor favor, considere conceder o permiso.</string>
   <string name="permission_camera_denied_toast">Non concedeu o acceso a cámara</string>
   <string name="qr_code">Código QR</string>
-  <string name="show_qr_code_fullscreen">Mostrar o código QR a pantalla completa</string>
+  <string name="show_qr_code_fullscreen">Amosar o código QR a pantalla completa</string>
   <!--App Locking-->
   <string name="lock_unlock">Desbloquear Briar</string>
   <string name="lock_unlock_verbose">Introduza o PIN do dispositivo, patrón ou contrasinal para desbloquear Briar</string>
+  <string name="lock_unlock_fingerprint_description">Toque o sensor de pegadas co dedo rexistrado para continuar</string>
+  <string name="lock_unlock_password">Utilizar contrasinal</string>
   <string name="lock_is_locked">Briar está bloqueada</string>
   <string name="lock_tap_to_unlock">Toque para desbloquear</string>
 </resources>

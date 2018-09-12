@@ -446,6 +446,8 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <!--App Locking-->
   <string name="lock_unlock">Desverrolhar Briar</string>
   <string name="lock_unlock_verbose">Picatz vòstre PIN, esquèma o senhal per desverrollhar Briar</string>
+  <string name="lock_unlock_fingerprint_description">Tocatz lo captaire de detada amb lo det enregistrat per contunhar</string>
+  <string name="lock_unlock_password">Utilizar lo senhal</string>
   <string name="lock_is_locked">Briar es verrolhat</string>
   <string name="lock_tap_to_unlock">Tocatz per desverrolhar</string>
 </resources>
