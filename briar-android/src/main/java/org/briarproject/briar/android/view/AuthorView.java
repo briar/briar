@@ -5,11 +5,10 @@ import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.support.annotation.DimenRes;
 import android.support.annotation.UiThread;
+import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.identity.Author;
@@ -30,7 +29,7 @@ import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
 import static org.briarproject.briar.android.util.UiUtils.resolveAttribute;
 
 @UiThread
-public class AuthorView extends RelativeLayout {
+public class AuthorView extends ConstraintLayout {
 
 	public static final int NORMAL = 0;
 	public static final int REBLOGGER = 1;
@@ -133,32 +132,24 @@ public class AuthorView extends RelativeLayout {
 				date.setVisibility(VISIBLE);
 				setAvatarSize(R.dimen.blogs_avatar_normal_size);
 				setTextSize(authorName, R.dimen.text_size_small);
-				setCenterVertical(authorName, false);
-				setCenterVertical(trustIndicator, false);
 				break;
 			case REBLOGGER:
 				avatarIcon.setVisibility(VISIBLE);
 				date.setVisibility(VISIBLE);
 				setAvatarSize(R.dimen.blogs_avatar_normal_size);
 				setTextSize(authorName, R.dimen.text_size_small);
-				setCenterVertical(authorName, false);
-				setCenterVertical(trustIndicator, false);
 				break;
 			case COMMENTER:
 				avatarIcon.setVisibility(INVISIBLE);
 				date.setVisibility(VISIBLE);
 				setAvatarSize(R.dimen.blogs_avatar_comment_size);
 				setTextSize(authorName, R.dimen.text_size_tiny);
-				setCenterVertical(authorName, false);
-				setCenterVertical(trustIndicator, false);
 				break;
 			case LIST:
 				avatarIcon.setVisibility(INVISIBLE);
 				date.setVisibility(GONE);
 				setAvatarSize(R.dimen.listitem_picture_size_small);
 				setTextSize(authorName, R.dimen.text_size_medium);
-				setCenterVertical(authorName, true);
-				setCenterVertical(trustIndicator, true);
 				break;
 			case RSS_FEED:
 				avatarIcon.setVisibility(INVISIBLE);
@@ -166,8 +157,6 @@ public class AuthorView extends RelativeLayout {
 				avatar.setImageResource(R.drawable.ic_rss_feed);
 				setAvatarSize(R.dimen.blogs_avatar_normal_size);
 				setTextSize(authorName, R.dimen.text_size_small);
-				setCenterVertical(authorName, false);
-				setCenterVertical(trustIndicator, false);
 				break;
 			case RSS_FEED_REBLOGGED:
 				avatarIcon.setVisibility(INVISIBLE);
@@ -175,8 +164,6 @@ public class AuthorView extends RelativeLayout {
 				avatar.setImageResource(R.drawable.ic_rss_feed);
 				setAvatarSize(R.dimen.blogs_avatar_comment_size);
 				setTextSize(authorName, R.dimen.text_size_tiny);
-				setCenterVertical(authorName, false);
-				setCenterVertical(trustIndicator, false);
 				break;
 		}
 	}
@@ -192,12 +179,6 @@ public class AuthorView extends RelativeLayout {
 	private void setTextSize(TextView v, @DimenRes int res) {
 		float textSize = getResources().getDimensionPixelSize(res);
 		v.setTextSize(COMPLEX_UNIT_PX, textSize);
-	}
-
-	private void setCenterVertical(View v, boolean center) {
-		LayoutParams params = (LayoutParams) v.getLayoutParams();
-		params.addRule(CENTER_VERTICAL, center ? RelativeLayout.TRUE : 0);
-		v.setLayoutParams(params);
 	}
 
 }

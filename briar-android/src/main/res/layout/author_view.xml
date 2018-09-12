@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge
+	android:id="@+id/merge"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	tools:layout_height="wrap_content"
+	tools:layout_width="match_parent"
+	tools:parentTag="android.support.constraint.ConstraintLayout"
 	tools:showIn="@layout/list_item_blog_post">
 
 	<de.hdodenhof.circleimageview.CircleImageView
@@ -9,58 +14,61 @@
 		style="@style/BriarAvatar"
 		android:layout_width="@dimen/blogs_avatar_normal_size"
 		android:layout_height="@dimen/blogs_avatar_normal_size"
-		android:layout_alignTop="@+id/authorName"
-		android:layout_marginEnd="@dimen/margin_medium"
-		android:layout_marginRight="@dimen/margin_medium"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/authorName"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
 		tools:src="@mipmap/ic_launcher_round"/>
 
 	<ImageView
 		android:id="@+id/avatarIcon"
 		android:layout_width="@dimen/blogs_avatar_icon_size"
 		android:layout_height="@dimen/blogs_avatar_icon_size"
-		android:layout_alignBottom="@+id/avatar"
-		android:layout_alignEnd="@+id/avatar"
-		android:layout_alignRight="@+id/avatar"
 		android:background="@drawable/bubble_white"
+		android:contentDescription="@string/blogs_reblog_button"
 		android:padding="2dp"
 		android:scaleType="fitCenter"
 		android:src="@drawable/ic_repeat"
 		android:visibility="invisible"
-		tools:ignore="ContentDescription"/>
+		app:layout_constraintBottom_toBottomOf="@+id/avatar"
+		app:layout_constraintEnd_toEndOf="@+id/avatar"/>
 
 	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/authorName"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_toEndOf="@+id/avatar"
-		android:layout_toRightOf="@+id/avatar"
+		android:layout_marginLeft="@dimen/margin_medium"
+		android:layout_marginStart="@dimen/margin_medium"
 		android:textColor="?android:attr/textColorPrimary"
 		android:textSize="@dimen/text_size_small"
-		tools:text="Author Name"/>
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/avatar"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:text="Author View that can have a long name"/>
+
+	<TextView
+		android:id="@+id/dateView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:textColor="?android:attr/textColorSecondary"
+		android:textSize="@dimen/text_size_tiny"
+		app:layout_constraintStart_toStartOf="@+id/authorName"
+		app:layout_constraintTop_toBottomOf="@+id/authorName"
+		tools:text="yesterday"
+		tools:visibility="visible"/>
 
 	<org.briarproject.briar.android.view.TrustIndicatorView
 		android:id="@+id/trustIndicator"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignBottom="@+id/authorName"
-		android:layout_alignTop="@+id/authorName"
-		android:layout_marginLeft="@dimen/margin_small"
-		android:layout_marginStart="@dimen/margin_small"
-		android:layout_toEndOf="@id/authorName"
-		android:layout_toRightOf="@id/authorName"
+		android:layout_marginEnd="@dimen/margin_medium"
+		android:layout_marginStart="@dimen/margin_medium"
 		android:scaleType="center"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/dateView"
+		app:layout_constraintTop_toTopOf="@+id/dateView"
+		app:layout_goneMarginEnd="0dp"
+		app:layout_goneMarginStart="0dp"
 		tools:src="@drawable/trust_indicator_verified"/>
-
-	<TextView
-		android:id="@+id/dateView"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_below="@+id/authorName"
-		android:layout_toEndOf="@+id/avatar"
-		android:layout_toRightOf="@+id/avatar"
-		android:gravity="bottom"
-		android:textColor="?android:attr/textColorSecondary"
-		android:textSize="@dimen/text_size_tiny"
-		tools:text="yesterday"/>
 
 </merge>
