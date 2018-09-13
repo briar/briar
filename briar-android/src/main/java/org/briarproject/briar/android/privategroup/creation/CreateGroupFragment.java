@@ -19,6 +19,8 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
+import static org.briarproject.briar.android.util.UiUtils.enterPressed;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 
 public class CreateGroupFragment extends BaseFragment {
@@ -62,8 +64,11 @@ public class CreateGroupFragment extends BaseFragment {
 			}
 		});
 		nameEntry.setOnEditorActionListener((v1, actionId, e) -> {
-			createGroup();
-			return true;
+			if (actionId == IME_ACTION_DONE || enterPressed(actionId, e)) {
+				createGroup();
+				return true;
+			}
+			return false;
 		});
 
 		nameLayout = v.findViewById(R.id.nameLayout);
