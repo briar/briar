@@ -62,11 +62,10 @@ public abstract class BriarActivity extends BaseActivity {
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
-		if (request == REQUEST_PASSWORD && result == RESULT_OK) {
-			// PasswordActivity finishes when password was entered correctly.
-			// When back button is pressed there, it will bring itself back,
-			// so that we never arrive here with a result that is not OK.
-			briarController.startAndBindService();
+		if (request == REQUEST_PASSWORD) {
+			// The result can be RESULT_CANCELED if there's no account
+			if (result == RESULT_OK) briarController.startAndBindService();
+			else finish();
 		} else if (request == REQUEST_UNLOCK && result != RESULT_OK) {
 			// We arrive here, if the user presses 'back'
 			// in the Keyguard unlock screen, because UnlockActivity finishes.
@@ -81,13 +80,16 @@ public abstract class BriarActivity extends BaseActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (!briarController.accountSignedIn()) {
+		if (!briarController.accountSignedIn() && !isFinishing()) {
+			// Also check that the activity isn't finishing already.
+			// This is possible if we finished in onActivityResult().
+			// Launching another PasswordActivity would cause a loop.
 			Intent i = new Intent(this, PasswordActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
 		} else if (lockManager.isLocked() && !isFinishing()) {
 			// Also check that the activity isn't finishing already.
-			// This is possible if finishing in onActivityResult().
-			// Failure to do this check would cause an UnlockActivity loop.
+			// This is possible if we finished in onActivityResult().
+			// Lauching another UnlockActivity would cause a loop.
 			Intent i = new Intent(this, UnlockActivity.class);
 			startActivityForResult(i, REQUEST_UNLOCK);
 		} else if (SDK_INT >= 23) {
