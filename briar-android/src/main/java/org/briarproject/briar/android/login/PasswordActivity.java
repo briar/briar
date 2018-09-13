@@ -25,6 +25,8 @@ import javax.inject.Inject;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
+import static org.briarproject.briar.android.util.UiUtils.enterPressed;
 
 public class PasswordActivity extends BaseActivity {
 
@@ -63,8 +65,11 @@ public class PasswordActivity extends BaseActivity {
 		input = findViewById(R.id.password_layout);
 		password = findViewById(R.id.edit_password);
 		password.setOnEditorActionListener((v, actionId, event) -> {
-			validatePassword();
-			return true;
+			if (actionId == IME_ACTION_DONE || enterPressed(actionId, event)) {
+				validatePassword();
+				return true;
+			}
+			return false;
 		});
 		password.addTextChangedListener(new TextWatcher() {
 
