@@ -12,7 +12,6 @@ import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.DaggerBrambleJavaIntegrationTestComponent;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -28,11 +27,12 @@ import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
+import static org.briarproject.bramble.test.TestUtils.isOptionalTestEnabled;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
-@Ignore("Might fail non-deterministically when bridges are down")
 public class BridgeTest extends BrambleTestCase {
 
 	private final static long TIMEOUT = SECONDS.toMillis(23);
@@ -61,6 +61,9 @@ public class BridgeTest extends BrambleTestCase {
 
 	@Before
 	public void setUp() {
+		// Skip this test unless it's explicitly enabled in the environment
+		assumeTrue(isOptionalTestEnabled(BridgeTest.class));
+
 		BrambleJavaIntegrationTestComponent component =
 				DaggerBrambleJavaIntegrationTestComponent.builder().build();
 		component.inject(this);
