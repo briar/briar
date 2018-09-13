@@ -27,11 +27,13 @@ import javax.inject.Inject;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.briar.android.util.UiUtils.enterPressed;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 
 @MethodsNotNullByDefault
@@ -76,8 +78,11 @@ public class CreateForumActivity extends BriarActivity {
 			}
 		});
 		nameEntry.setOnEditorActionListener((v, actionId, e) -> {
-			createForum();
-			return true;
+			if (actionId == IME_ACTION_DONE || enterPressed(actionId, e)) {
+				createForum();
+				return true;
+			}
+			return false;
 		});
 
 		createForumButton = findViewById(R.id.createForumButton);
