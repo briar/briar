@@ -11,6 +11,7 @@ import android.os.PowerManager;
 import android.support.annotation.AttrRes;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -27,6 +28,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.URLSpan;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -38,8 +40,6 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
-
-import javax.annotation.Nullable;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.POWER_SERVICE;
@@ -60,6 +60,10 @@ import static android.text.format.DateUtils.FORMAT_ABBREV_TIME;
 import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.WEEK_IN_MILLIS;
+import static android.view.KeyEvent.ACTION_DOWN;
+import static android.view.KeyEvent.ACTION_UP;
+import static android.view.KeyEvent.KEYCODE_ENTER;
+import static android.view.inputmethod.EditorInfo.IME_NULL;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 
@@ -286,6 +290,14 @@ public class UiUtils {
 		androidExecutor.runOnBackgroundThread(
 				() -> ACRA.getErrorReporter()
 						.handleException(new UserFeedback(), false));
+	}
+
+	public static boolean enterPressed(int actionId,
+			@Nullable KeyEvent keyEvent) {
+		return actionId == IME_NULL &&
+				keyEvent != null &&
+				keyEvent.getAction() == ACTION_DOWN &&
+				keyEvent.getKeyCode() == KEYCODE_ENTER;
 	}
 
 }

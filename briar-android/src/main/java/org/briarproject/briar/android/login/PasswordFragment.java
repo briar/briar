@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 
 @MethodsNotNullByDefault
@@ -78,6 +79,7 @@ public class PasswordFragment extends SetupFragment {
 		// the controller is not yet available in onCreateView()
 		if (!setupController.needToShowDozeFragment()) {
 			nextButton.setText(R.string.create_account_button);
+			passwordConfirmation.setImeOptions(IME_ACTION_DONE);
 		}
 	}
 
