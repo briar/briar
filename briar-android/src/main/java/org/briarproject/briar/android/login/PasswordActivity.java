@@ -23,8 +23,6 @@ import org.briarproject.briar.api.android.AndroidNotificationManager;
 
 import javax.inject.Inject;
 
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
@@ -54,8 +52,8 @@ public class PasswordActivity extends BaseActivity {
 		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 
 		if (!accountManager.accountExists()) {
-			// TODO: Finish instead of deleting account?
-			deleteAccount();
+			setResult(RESULT_CANCELED);
+			finish();
 			return;
 		}
 
@@ -114,10 +112,9 @@ public class PasswordActivity extends BaseActivity {
 
 	private void deleteAccount() {
 		accountManager.deleteAccount();
+		startActivity(new Intent(this, SetupActivity.class));
 		setResult(RESULT_CANCELED);
-		Intent i = new Intent(this, SetupActivity.class);
-		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);
-		startActivity(i);
+		finish();
 	}
 
 	public void onSignInClick(View v) {
