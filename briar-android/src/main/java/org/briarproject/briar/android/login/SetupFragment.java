@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.login;
 
+import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -10,13 +11,18 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
 import javax.inject.Inject;
 
+import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
+import static android.view.inputmethod.EditorInfo.IME_ACTION_NEXT;
+import static org.briarproject.briar.android.util.UiUtils.enterPressed;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
+@NotNullByDefault
 abstract class SetupFragment extends BaseFragment implements TextWatcher,
 		OnEditorActionListener, OnClickListener {
 
@@ -55,9 +61,13 @@ abstract class SetupFragment extends BaseFragment implements TextWatcher,
 
 	@Override
 	public boolean onEditorAction(TextView textView, int actionId,
-			KeyEvent keyEvent) {
-		onClick(textView);
-		return true;
+			@Nullable KeyEvent keyEvent) {
+		if (actionId == IME_ACTION_NEXT || actionId == IME_ACTION_DONE ||
+				enterPressed(actionId, keyEvent)) {
+			onClick(textView);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
