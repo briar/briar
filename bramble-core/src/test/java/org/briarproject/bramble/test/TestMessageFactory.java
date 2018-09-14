@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
-import org.briarproject.bramble.util.ByteUtils;
 
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
@@ -25,9 +24,6 @@ public class TestMessageFactory implements MessageFactory {
 	public byte[] getRawMessage(Message m) {
 		byte[] body = m.getBody();
 		byte[] raw = new byte[MESSAGE_HEADER_LENGTH + body.length];
-		byte[] groupId = m.getGroupId().getBytes();
-		System.arraycopy(groupId, 0, raw, 0, groupId.length);
-		ByteUtils.writeUint64(m.getTimestamp(), raw, groupId.length);
 		System.arraycopy(body, 0, raw, MESSAGE_HEADER_LENGTH, body.length);
 		return raw;
 	}
