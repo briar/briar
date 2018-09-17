@@ -68,6 +68,11 @@ public abstract class BaseActivity extends AppCompatActivity
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
+		// WARNING: When removing this or making it possible to turn it off,
+		//          we need a solution for the app lock feature.
+		//          When the app is locked by a timeout and FLAG_SECURE is not
+		//          set, the app content becomes visible briefly before the
+		//          unlock screen is shown.
 		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
 		AndroidComponent applicationComponent =
