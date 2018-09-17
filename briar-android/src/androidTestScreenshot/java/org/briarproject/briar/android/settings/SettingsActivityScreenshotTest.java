@@ -2,14 +2,15 @@ package org.briarproject.briar.android.settings;
 
 import android.content.Intent;
 import android.support.test.espresso.contrib.DrawerActions;
+import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarUiTestComponent;
-import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.ScreenshotTest;
+import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,8 +34,8 @@ import static org.hamcrest.CoreMatchers.is;
 public class SettingsActivityScreenshotTest extends ScreenshotTest {
 
 	@Rule
-	public CleanAccountTestRule<SettingsActivity> testRule =
-			new CleanAccountTestRule<>(SettingsActivity.class);
+	public ActivityTestRule<SettingsActivity> testRule =
+			new ActivityTestRule<>(SettingsActivity.class);
 
 	@Override
 	protected void inject(BriarUiTestComponent component) {
@@ -46,7 +47,7 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 		onView(withText(R.string.settings_button))
 				.check(matches(isDisplayed()));
 
-		screenshot("manual_dark_theme_settings");
+		screenshot("manual_dark_theme_settings", testRule.getActivity());
 
 		// switch to dark theme
 		onView(withText(R.string.pref_theme_title))
@@ -56,10 +57,20 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 				.check(matches(isDisplayed()))
 				.perform(click());
 
-		// open nav drawer and remove expiry warning
-		openNavDrawer(true);
+		openNavDrawer();
 
-		screenshot("manual_dark_theme_nav_drawer");
+		screenshot("manual_dark_theme_nav_drawer", testRule.getActivity());
+
+		// switch to back to light theme
+		onView(withText(R.string.settings_button))
+				.check(matches(isDisplayed()))
+				.perform(click());
+		onView(withText(R.string.pref_theme_title))
+				.check(matches(isDisplayed()))
+				.perform(click());
+		onView(withText(R.string.pref_theme_light))
+				.check(matches(isDisplayed()))
+				.perform(click());
 	}
 
 	@Test
@@ -83,12 +94,11 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 				.check(matches(isDisplayed()))
 				.check(matches(isEnabled()));
 
-		screenshot("manual_app_lock");
+		screenshot("manual_app_lock", testRule.getActivity());
 
-		// no more expiry warning to remove, because sharedprefs cached?
-		openNavDrawer(false);
+		openNavDrawer();
 
-		screenshot("manual_app_lock_nav_drawer");
+		screenshot("manual_app_lock_nav_drawer", testRule.getActivity());
 	}
 
 	@Test
@@ -104,22 +114,14 @@ public class SettingsActivityScreenshotTest extends ScreenshotTest {
 				.check(matches(isDisplayed()))
 				.perform(waitUntilMatches(isEnabled()));
 
-		screenshot("manual_tor_settings");
+		screenshot("manual_tor_settings", testRule.getActivity());
 	}
 
-	private void openNavDrawer(boolean expiry) {
+	private void openNavDrawer() {
 		// start main activity
 		Intent i =
 				new Intent(testRule.getActivity(), NavDrawerActivity.class);
 		testRule.getActivity().startActivity(i);
-
-		// close expiry warning
-		if (expiry) {
-			onView(withId(R.id.expiryWarningClose))
-					.check(matches(isDisplayed()));
-			onView(withId(R.id.expiryWarningClose))
-					.perform(click());
-		}
 
 		// open navigation drawer
 		onView(withId(R.id.drawer_layout))

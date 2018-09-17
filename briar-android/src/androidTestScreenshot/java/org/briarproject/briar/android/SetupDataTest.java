@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android;
 
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -6,9 +6,12 @@ import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiSelector;
 
+import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.BriarUiTestComponent;
-import org.briarproject.briar.android.ScreenshotTest;
+import org.briarproject.briar.android.login.OpenDatabaseActivity;
+import org.briarproject.briar.android.login.SetupActivity;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,14 +29,14 @@ import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.test.runner.lifecycle.Stage.PAUSED;
-import static junit.framework.Assert.assertTrue;
+import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.briar.android.ViewActions.waitForActivity;
 import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
-
+import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
-public class SetupActivityScreenshotTest extends ScreenshotTest {
+public class SetupDataTest extends ScreenshotTest {
 
 	@Rule
 	public IntentsTestRule<SetupActivity> testRule =
@@ -61,7 +64,7 @@ public class SetupActivityScreenshotTest extends ScreenshotTest {
 		onView(withId(R.id.nickname_entry))
 				.perform(waitUntilMatches(withText(USERNAME)));
 
-		screenshot("manual_create_account");
+		screenshot("manual_create_account", testRule.getActivity());
 
 		onView(withId(R.id.next))
 				.check(matches(isDisplayed()))
@@ -94,13 +97,54 @@ public class SetupActivityScreenshotTest extends ScreenshotTest {
 		}
 
 		// wait for OpenDatabaseActivity to show up
-		onView(withId(R.id.progress))
-				.check(matches(isDisplayed()));
 		onView(isRoot())
 				.perform(waitForActivity(testRule.getActivity(), PAUSED));
 		intended(hasComponent(OpenDatabaseActivity.class.getName()));
 
 		assertTrue(accountManager.hasDatabaseKey());
+
+		lifecycleManager.waitForStartup();
+		createTestData();
+
+		// close expiry warning
+		onView(withId(R.id.expiryWarning))
+				.perform(waitUntilMatches(isDisplayed()));
+		onView(withId(R.id.expiryWarningClose))
+				.check(matches(isDisplayed()));
+		onView(withId(R.id.expiryWarningClose))
+				.perform(click());
+	}
+
+	private void createTestData() {
+		try {
+			createTestDataExceptions();
+		} catch (DbException | FormatException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	private void createTestDataExceptions()
+			throws DbException, FormatException {
+		String bobName =
+				getTargetContext().getString(R.string.screenshot_bob);
+		Contact bob = testDataCreator.addContact(bobName);
+
+		String bobHi = getTargetContext()
+				.getString(R.string.screenshot_message_1);
+		long bobTime = getMinutesAgo(2);
+		testDataCreator.addPrivateMessage(bob, bobHi, bobTime, true);
+
+		String aliceHi = getTargetContext()
+				.getString(R.string.screenshot_message_2);
+		long aliceTime = getMinutesAgo(1);
+		testDataCreator.addPrivateMessage(bob, aliceHi, aliceTime, false);
+
+		String bobHi2 = getTargetContext()
+				.getString(R.string.screenshot_message_3);
+		long bobTime2 = getMinutesAgo(0);
+		testDataCreator.addPrivateMessage(bob, bobHi2, bobTime2, true);
+
+		connectionRegistry.registerConnection(bob.getId(), ID, true);
 	}
 
 }

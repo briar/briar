@@ -7,6 +7,7 @@ import android.support.test.espresso.intent.rule.IntentsTestRule;
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.R;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -16,7 +17,8 @@ import static android.support.test.InstrumentationRegistry.getTargetContext;
 @SuppressWarnings("WeakerAccess")
 public abstract class UiTest {
 
-	protected static final String USERNAME = "Alice";
+	protected final String USERNAME =
+			getTargetContext().getString(R.string.screenshot_alice);
 	protected static final String PASSWORD = "123456";
 
 	@Inject
