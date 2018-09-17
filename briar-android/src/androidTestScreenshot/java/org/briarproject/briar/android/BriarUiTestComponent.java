@@ -5,7 +5,6 @@ import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.account.BriarAccountModule;
 import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.contact.ConversationActivityScreenshotTest;
-import org.briarproject.briar.android.login.SetupActivityScreenshotTest;
 import org.briarproject.briar.android.settings.SettingsActivityScreenshotTest;
 
 import javax.inject.Singleton;
@@ -22,8 +21,9 @@ import dagger.Component;
 })
 public interface BriarUiTestComponent extends AndroidComponent {
 
+	void inject(SetupDataTest test);
+
 	void inject(ConversationActivityScreenshotTest test);
-	void inject(SetupActivityScreenshotTest test);
 	void inject(SettingsActivityScreenshotTest test);
 
 }

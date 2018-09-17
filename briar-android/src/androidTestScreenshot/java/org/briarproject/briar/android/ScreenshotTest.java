@@ -1,5 +1,6 @@
 package org.briarproject.briar.android;
 
+import android.app.Activity;
 import android.util.Log;
 
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
@@ -9,11 +10,9 @@ import org.junit.ClassRule;
 
 import javax.inject.Inject;
 
+import tools.fastlane.screengrab.FalconScreenshotStrategy;
 import tools.fastlane.screengrab.Screengrab;
-import tools.fastlane.screengrab.UiAutomatorScreenshotStrategy;
 import tools.fastlane.screengrab.locale.LocaleTestRule;
-
-import static tools.fastlane.screengrab.Screengrab.setDefaultScreenshotStrategy;
 
 public abstract class ScreenshotTest extends UiTest {
 
@@ -27,14 +26,9 @@ public abstract class ScreenshotTest extends UiTest {
 	@Inject
 	protected Clock clock;
 
-	public ScreenshotTest() {
-		super();
-		setDefaultScreenshotStrategy(new UiAutomatorScreenshotStrategy());
-	}
-
-	protected void screenshot(String name) {
+	protected void screenshot(String name, Activity activity) {
 		try {
-			Screengrab.screenshot(name);
+			Screengrab.screenshot(name, new FalconScreenshotStrategy(activity));
 		} catch (RuntimeException e) {
 			if (!e.getMessage().equals("Unable to capture screenshot."))
 				throw e;
