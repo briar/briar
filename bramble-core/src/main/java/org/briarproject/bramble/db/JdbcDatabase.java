@@ -1882,7 +1882,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND groupShared = TRUE AND messageShared = TRUE"
 					+ " AND deleted = FALSE"
 					+ " AND seen = FALSE AND requested = FALSE"
-					+ " AND (expiry < ? OR eta > ?)"
+					+ " AND (expiry <= ? OR eta > ?)"
 					+ " ORDER BY timestamp LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -1941,7 +1941,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND groupShared = TRUE AND messageShared = TRUE"
 					+ " AND deleted = FALSE"
 					+ " AND seen = FALSE"
-					+ " AND (expiry < ? OR eta > ?)"
+					+ " AND (expiry <= ? OR eta > ?)"
 					+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -2072,7 +2072,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND groupShared = TRUE AND messageShared = TRUE"
 					+ " AND deleted = FALSE"
 					+ " AND seen = FALSE AND requested = TRUE"
-					+ " AND (expiry < ? OR eta > ?)"
+					+ " AND (expiry <= ? OR eta > ?)"
 					+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
