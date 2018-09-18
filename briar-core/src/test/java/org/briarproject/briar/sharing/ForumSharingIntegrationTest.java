@@ -135,7 +135,7 @@ public class ForumSharingIntegrationTest
 		for (PrivateMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
 				ForumInvitationRequest invitation = (ForumInvitationRequest) m;
-				assertFalse(invitation.wasAnswered());
+				assertTrue(invitation.wasAnswered());
 				assertEquals(forum0.getName(), invitation.getName());
 				assertEquals(forum0, invitation.getNameable());
 				assertEquals("Hi!", invitation.getMessage());
@@ -192,7 +192,7 @@ public class ForumSharingIntegrationTest
 			if (m instanceof ForumInvitationRequest) {
 				ForumInvitationRequest invitation = (ForumInvitationRequest) m;
 				assertEquals(forum0, invitation.getNameable());
-				assertFalse(invitation.wasAnswered());
+				assertTrue(invitation.wasAnswered());
 				assertEquals(forum0.getName(), invitation.getName());
 				assertEquals(null, invitation.getMessage());
 				assertFalse(invitation.canBeOpened());

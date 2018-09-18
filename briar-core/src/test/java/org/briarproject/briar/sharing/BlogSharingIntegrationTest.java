@@ -153,7 +153,7 @@ public class BlogSharingIntegrationTest
 			if (m instanceof BlogInvitationRequest) {
 				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
 				assertEquals(blog2, invitation.getNameable());
-				assertFalse(invitation.wasAnswered());
+				assertTrue(invitation.wasAnswered());
 				assertEquals(blog2.getAuthor().getName(),
 						invitation.getName());
 				assertFalse(invitation.getNameable().isRssFeed());
@@ -226,7 +226,7 @@ public class BlogSharingIntegrationTest
 			if (m instanceof BlogInvitationRequest) {
 				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
 				assertEquals(rssBlog, invitation.getNameable());
-				assertFalse(invitation.wasAnswered());
+				assertTrue(invitation.wasAnswered());
 				assertEquals(rssBlog.getAuthor().getName(),
 						invitation.getName());
 				assertTrue(invitation.getNameable().isRssFeed());
@@ -288,7 +288,7 @@ public class BlogSharingIntegrationTest
 			if (m instanceof BlogInvitationRequest) {
 				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
 				assertEquals(blog2, invitation.getNameable());
-				assertFalse(invitation.wasAnswered());
+				assertTrue(invitation.wasAnswered());
 				assertEquals(blog2.getAuthor().getName(),
 						invitation.getName());
 				assertEquals(null, invitation.getMessage());

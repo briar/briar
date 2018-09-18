@@ -104,6 +104,7 @@ public class GroupInvitationIntegrationTest
 		assertFalse(request.isLocal());
 		assertFalse(request.isRead());
 		assertFalse(request.canBeOpened());
+		assertFalse(request.wasAnswered());
 	}
 
 	@Test
@@ -181,6 +182,7 @@ public class GroupInvitationIntegrationTest
 			} else {
 				GroupInvitationRequest request = (GroupInvitationRequest) m;
 				assertEquals(privateGroup0, request.getNameable());
+				assertTrue(request.wasAnswered());
 				assertTrue(request.canBeOpened());
 			}
 		}
