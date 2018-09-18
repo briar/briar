@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertTrue;
+
+import org.briarproject.bramble.test.ArrayClock;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
@@ -73,25 +75,5 @@ public class ScryptKdfTest extends BrambleTestCase {
 		);
 		PasswordBasedKdf kdf = new ScryptKdf(clock);
 		assertEquals(256, kdf.chooseCostParameter());
-	}
-
-	private static class ArrayClock implements Clock {
-
-		private final long[] times;
-		private int index = 0;
-
-		private ArrayClock(long... times) {
-			this.times = times;
-		}
-
-		@Override
-		public long currentTimeMillis() {
-			return times[index++];
-		}
-
-		@Override
-		public void sleep(long milliseconds) throws InterruptedException {
-			Thread.sleep(milliseconds);
-		}
 	}
 }

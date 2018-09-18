@@ -421,7 +421,7 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<MessageId> getMessagesToOffer(T txn, ContactId c,
-			int maxMessages) throws DbException;
+			int maxMessages, int maxLatency) throws DbException;
 
 	/**
 	 * Returns the IDs of some messages that are eligible to be requested from
@@ -438,8 +438,8 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<MessageId> getMessagesToSend(T txn, ContactId c, int maxLength)
-			throws DbException;
+	Collection<MessageId> getMessagesToSend(T txn, ContactId c, int maxLength,
+			int maxLatency) throws DbException;
 
 	/**
 	 * Returns the IDs of any messages that need to be validated.
@@ -482,7 +482,7 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<MessageId> getRequestedMessagesToSend(T txn, ContactId c,
-			int maxLength) throws DbException;
+			int maxLength, int maxLatency) throws DbException;
 
 	/**
 	 * Returns all settings in the given namespace.
@@ -647,11 +647,11 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Updates the transmission count and expiry time of the given message
-	 * with respect to the given contact, using the latency of the transport
-	 * over which it was sent.
+	 * Updates the transmission count, expiry time and estimated time of arrival
+	 * of the given message with respect to the given contact, using the latency
+	 * of the transport over which it was sent.
 	 */
-	void updateExpiryTime(T txn, ContactId c, MessageId m, int maxLatency)
+	void updateExpiryTimeAndEta(T txn, ContactId c, MessageId m, int maxLatency)
 			throws DbException;
 
 	/**

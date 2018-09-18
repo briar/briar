@@ -313,11 +313,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		Collection<MessageId> ids = db.getMessagesToSend(txn, c, maxLength);
+		Collection<MessageId> ids =
+				db.getMessagesToSend(txn, c, maxLength, maxLatency);
 		List<Message> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
 			messages.add(db.getMessage(txn, m));
-			db.updateExpiryTime(txn, c, m, maxLatency);
+			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
 		}
 		if (ids.isEmpty()) return null;
 		db.lowerRequestedFlag(txn, c, ids);
@@ -333,9 +334,11 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		Collection<MessageId> ids = db.getMessagesToOffer(txn, c, maxMessages);
+		Collection<MessageId> ids =
+				db.getMessagesToOffer(txn, c, maxMessages, maxLatency);
 		if (ids.isEmpty()) return null;
-		for (MessageId m : ids) db.updateExpiryTime(txn, c, m, maxLatency);
+		for (MessageId m : ids)
+			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
 		return new Offer(ids);
 	}
 
@@ -362,12 +365,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		Collection<MessageId> ids = db.getRequestedMessagesToSend(txn, c,
-				maxLength);
+		Collection<MessageId> ids =
+				db.getRequestedMessagesToSend(txn, c, maxLength, maxLatency);
 		List<Message> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
 			messages.add(db.getMessage(txn, m));
-			db.updateExpiryTime(txn, c, m, maxLatency);
+			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
 		}
 		if (ids.isEmpty()) return null;
 		db.lowerRequestedFlag(txn, c, ids);
@@ -855,7 +858,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
 		if (db.getMessageState(txn, m) != DELIVERED)
-			throw new IllegalArgumentException("Shared undelivered message");
+			throw new IllegalArgumentException(
+					"Shared undelivered message");
 		db.setMessageShared(txn, m);
 		transaction.attach(new MessageSharedEvent(m));
 	}
@@ -881,7 +885,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchMessageException();
 		State dependentState = db.getMessageState(txn, dependent.getId());
 		for (MessageId dependency : dependencies) {
-			db.addMessageDependency(txn, dependent, dependency, dependentState);
+			db.addMessageDependency(txn, dependent, dependency,
+					dependentState);
 		}
 	}
 
@@ -913,7 +918,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		for (KeySet ks : keys) {
 			TransportId t = ks.getTransportKeys().getTransportId();
-			if (db.containsTransport(txn, t)) db.updateTransportKeys(txn, ks);
+			if (db.containsTransport(txn, t))
+				db.updateTransportKeys(txn, ks);
 		}
 	}
 }
