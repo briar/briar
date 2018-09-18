@@ -27,6 +27,7 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:max="50"
+			android:min="1"
 			android:progress="20"
 			app:layout_constraintEnd_toStartOf="@+id/textViewContactsSb"
 			app:layout_constraintStart_toStartOf="parent"

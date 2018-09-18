@@ -29,6 +29,8 @@
 			android:layout_height="wrap_content"
 			android:layout_marginEnd="@dimen/margin_large"
 			android:layout_marginStart="@dimen/margin_large"
+			android:layout_marginTop="@dimen/margin_large"
+			app:hintEnabled="false"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/appBar">
@@ -38,6 +40,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:inputType="textMultiLine|textCapSentences"
+				android:maxLines="5"
 				tools:hint="@string/describe_crash"/>
 
 		</android.support.design.widget.TextInputLayout>
@@ -48,6 +51,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginEnd="@dimen/margin_large"
 			android:layout_marginStart="@dimen/margin_large"
+			app:hintEnabled="false"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/user_comment_layout">
@@ -71,8 +75,8 @@
 			android:checked="false"
 			android:text="@string/include_debug_report_crash"
 			app:layout_constraintBottom_toBottomOf="@+id/chevron"
-			app:layout_constraintLeft_toLeftOf="parent"
-			app:layout_constraintRight_toLeftOf="@+id/chevron"
+			app:layout_constraintEnd_toStartOf="@+id/chevron"
+			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="@+id/chevron"/>
 
 		<Button
@@ -81,7 +85,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/show"
-			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/user_email_layout"/>
 
 		<ScrollView
@@ -99,11 +103,10 @@
 				android:orientation="vertical"
 				android:paddingBottom="@dimen/listitem_height_one_line_avatar"
 				android:paddingEnd="@dimen/margin_large"
-				android:paddingLeft="@dimen/margin_large"
-				android:paddingRight="@dimen/margin_large"
 				android:paddingStart="@dimen/margin_large"
 				android:paddingTop="@dimen/margin_small"
-				android:visibility="gone"/>
+				android:visibility="gone"
+				tools:visibility="visible"/>
 
 		</ScrollView>
 
@@ -115,9 +118,10 @@
 			android:indeterminate="true"
 			android:visibility="gone"
 			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintLeft_toLeftOf="parent"
-			app:layout_constraintRight_toRightOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/include_debug_report"/>
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/include_debug_report"
+			tools:visibility="visible"/>
 
 	</android.support.constraint.ConstraintLayout>
 
@@ -137,9 +141,11 @@
 			android:text="@string/briar_crashed"
 			android:textColor="?android:attr/textColorSecondary"
 			android:textSize="@dimen/text_size_large"
+			app:layout_constraintBottom_toTopOf="@+id/fault"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintVertical_chainStyle="packed"
 			tools:layout_editor_absoluteY="8dp"/>
 
 		<TextView
@@ -151,6 +157,7 @@
 			android:text="@string/not_your_fault"
 			android:textColor="?android:attr/textColorSecondary"
 			android:textSize="@dimen/text_size_large"
+			app:layout_constraintBottom_toTopOf="@+id/pleaseSend"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/crashed"/>
@@ -164,6 +171,7 @@
 			android:text="@string/please_send_report"
 			android:textColor="?android:attr/textColorSecondary"
 			android:textSize="@dimen/text_size_large"
+			app:layout_constraintBottom_toTopOf="@+id/encrypted"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/fault"/>
@@ -177,6 +185,7 @@
 			android:text="@string/report_is_encrypted"
 			android:textColor="?android:attr/textColorSecondary"
 			android:textSize="@dimen/text_size_large"
+			app:layout_constraintBottom_toTopOf="@+id/acceptButton"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/pleaseSend"/>
@@ -186,14 +195,12 @@
 			style="@style/BriarButtonFlat.Negative"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="@dimen/margin_large"
 			android:text="@string/close"
-			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintBottom_toBottomOf="@+id/acceptButton"
 			app:layout_constraintEnd_toStartOf="@+id/acceptButton"
 			app:layout_constraintHorizontal_weight="1"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/encrypted"
-			app:layout_constraintVertical_bias="1.0"/>
+			app:layout_constraintTop_toTopOf="@+id/acceptButton"/>
 
 		<Button
 			android:id="@+id/acceptButton"
@@ -206,8 +213,7 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintHorizontal_weight="1"
 			app:layout_constraintStart_toEndOf="@+id/declineButton"
-			app:layout_constraintTop_toBottomOf="@+id/encrypted"
-			app:layout_constraintVertical_bias="1.0"/>
+			app:layout_constraintTop_toBottomOf="@+id/encrypted"/>
 
 	</android.support.constraint.ConstraintLayout>
 

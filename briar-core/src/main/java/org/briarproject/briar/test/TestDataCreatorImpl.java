@@ -130,13 +130,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private void createTestDataOnIoExecutor(int numContacts, int numPrivateMsgs,
 			int numBlogPosts, int numForums, int numForumPosts)
 			throws DbException {
-		List<Contact> contacts;
-		if (numContacts == 0) {
-			contacts = new ArrayList<>(contactManager.getActiveContacts());
-			if (contacts.isEmpty()) contacts = createContacts(1);
-		} else {
-			contacts = createContacts(numContacts);
-		}
+		List<Contact> contacts = createContacts(numContacts);
 		createPrivateMessages(contacts, numPrivateMsgs);
 		createBlogPosts(contacts, numBlogPosts);
 		List<Forum> forums = createForums(contacts, numForums, numForumPosts);

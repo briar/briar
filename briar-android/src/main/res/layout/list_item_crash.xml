@@ -10,6 +10,8 @@
 		android:id="@+id/include_in_report"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
+		android:layout_marginLeft="@dimen/margin_medium"
+		android:layout_marginStart="@dimen/margin_medium"
 		android:textColor="?android:attr/textColorPrimary"
 		android:textSize="@dimen/text_size_large"
 		app:layout_constraintEnd_toEndOf="parent"

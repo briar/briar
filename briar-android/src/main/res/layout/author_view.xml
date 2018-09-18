@@ -16,6 +16,8 @@
 		android:layout_height="@dimen/blogs_avatar_normal_size"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toStartOf="@+id/authorName"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintHorizontal_chainStyle="packed"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		tools:src="@mipmap/ic_launcher_round"/>
@@ -35,16 +37,29 @@
 
 	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/authorName"
-		android:layout_width="0dp"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginLeft="@dimen/margin_medium"
+		android:layout_marginEnd="@dimen/margin_medium"
 		android:layout_marginStart="@dimen/margin_medium"
 		android:textColor="?android:attr/textColorPrimary"
 		android:textSize="@dimen/text_size_small"
-		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constrainedWidth="true"
+		app:layout_constraintEnd_toStartOf="@+id/trustIndicator"
 		app:layout_constraintStart_toEndOf="@+id/avatar"
 		app:layout_constraintTop_toTopOf="parent"
 		tools:text="Author View that can have a long name"/>
+
+	<org.briarproject.briar.android.view.TrustIndicatorView
+		android:id="@+id/trustIndicator"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		app:layout_constraintBottom_toBottomOf="@+id/authorName"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/authorName"
+		app:layout_constraintTop_toTopOf="@+id/authorName"
+		app:layout_goneMarginEnd="0dp"
+		app:layout_goneMarginStart="0dp"
+		tools:src="@drawable/trust_indicator_verified"/>
 
 	<TextView
 		android:id="@+id/dateView"
@@ -56,19 +71,5 @@
 		app:layout_constraintTop_toBottomOf="@+id/authorName"
 		tools:text="yesterday"
 		tools:visibility="visible"/>
-
-	<org.briarproject.briar.android.view.TrustIndicatorView
-		android:id="@+id/trustIndicator"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginEnd="@dimen/margin_medium"
-		android:layout_marginStart="@dimen/margin_medium"
-		android:scaleType="center"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintStart_toEndOf="@+id/dateView"
-		app:layout_constraintTop_toTopOf="@+id/dateView"
-		app:layout_goneMarginEnd="0dp"
-		app:layout_goneMarginStart="0dp"
-		tools:src="@drawable/trust_indicator_verified"/>
 
 </merge>
