@@ -129,6 +129,7 @@ public class ConversationActivity extends BriarActivity
 	Executor cryptoExecutor;
 
 	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
+	private final MutableLiveData<String> contactName = new MutableLiveData<>();
 
 	private ConversationAdapter adapter;
 	private Toolbar toolbar;
@@ -165,7 +166,6 @@ public class ConversationActivity extends BriarActivity
 	private volatile AuthorId contactAuthorId;
 	@Nullable
 	private volatile GroupId messagingGroupId;
-	private MutableLiveData<String> contactName = new MutableLiveData<>();
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
@@ -274,7 +274,7 @@ public class ConversationActivity extends BriarActivity
 		runOnDbThread(() -> {
 			try {
 				long start = now();
-				if (contactName == null || contactAuthorId == null) {
+				if (contactAuthorId == null) {
 					Contact contact = contactManager.getContact(contactId);
 					contactName.postValue(contact.getAuthor().getName());
 					contactAuthorId = contact.getAuthor().getId();
@@ -459,41 +459,33 @@ public class ConversationActivity extends BriarActivity
 
 	private void onNewPrivateMessage(PrivateMessageHeader h) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			if (h instanceof PrivateRequest) {
-				contactName.observe(this, new Observer<String>() {
-					@Override
-					public void onChanged(@Nullable String name) {
-						if (name == null) loadContactName();
-						else {
-							PrivateRequest m = (PrivateRequest) h;
-							ConversationItem item = ConversationItem.from(
-									ConversationActivity.this, name, m);
-							addConversationItem(item);
-							contactName.removeObserver(this);
+			if (h instanceof PrivateRequest || h instanceof PrivateResponse) {
+				String cName = contactName.getValue();
+				if (cName == null) {
+					// Wait for the contact name to be loaded
+					contactName.observe(this, new Observer<String>() {
+						@Override
+						public void onChanged(@Nullable String cName) {
+							if (cName != null) {
+								onNewPrivateRequestOrResponse(h, cName);
+								contactName.removeObserver(this);
+							}
 						}
-					}
-				});
-				if (contactName.getValue() == null) loadContactName();
-			} else if (h instanceof PrivateResponse) {
-				contactName.observe(this, new Observer<String>() {
-					@Override
-					public void onChanged(@Nullable String name) {
-						if (name == null) loadContactName();
-						else {
-							PrivateResponse m = (PrivateResponse) h;
-							ConversationItem item = ConversationItem.from(
-									ConversationActivity.this, name, m);
-							addConversationItem(item);
-							contactName.removeObserver(this);
-						}
-					}
-				});
-				if (contactName.getValue() == null) loadContactName();
+					});
+				} else {
+					onNewPrivateRequestOrResponse(h, cName);
+				}
 			} else {
 				addConversationItem(ConversationItem.from(h));
 				loadMessageBody(h.getId());
 			}
 		});
+	}
+
+	@UiThread
+	private void onNewPrivateRequestOrResponse(PrivateMessageHeader h,
+			String cName) {
+		addConversationItem(ConversationItem.from(this, cName, h));
 	}
 
 	private void markMessages(Collection<MessageId> messageIds, boolean sent,
@@ -550,7 +542,8 @@ public class ConversationActivity extends BriarActivity
 				//noinspection ConstantConditions init in loadGroupId()
 				storeMessage(privateMessageFactory.createPrivateMessage(
 						messagingGroupId, timestamp, body), body);
-			} catch (FormatException e) {throw new RuntimeException(e);
+			} catch (FormatException e) {
+				throw new RuntimeException(e);
 			}
 		});
 	}
@@ -780,16 +773,4 @@ public class ConversationActivity extends BriarActivity
 			throws DbException {
 		groupInvitationManager.respondToInvitation(contactId, id, accept);
 	}
-
-	private void loadContactName() {
-		runOnDbThread(() -> {
-			try {
-				Contact c = contactManager.getContact(contactId);
-				contactName.postValue(c.getAuthor().getName());
-			} catch (DbException e) {
-				handleDbException(e);
-			}
-		});
-	}
-
 }
