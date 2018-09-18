@@ -28,3 +28,5 @@
 
 # Emoji
 -keep class com.vanniktech.emoji.**
+
+-keepclasseswithmembers public class android.support.v7.widget.RecyclerView { *; }

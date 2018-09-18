@@ -21,6 +21,8 @@ public abstract class UiTest {
 			getTargetContext().getString(R.string.screenshot_alice);
 	protected static final String PASSWORD = "123456";
 
+	protected final BriarUiTestComponent alice;
+
 	@Inject
 	protected AccountManager accountManager;
 	@Inject
@@ -30,7 +32,8 @@ public abstract class UiTest {
 		BriarTestComponentApplication app =
 				(BriarTestComponentApplication) getTargetContext()
 						.getApplicationContext();
-		inject((BriarUiTestComponent) app.getApplicationComponent());
+		alice = (BriarUiTestComponent) app.getApplicationComponent();
+		inject(alice);
 	}
 
 	protected abstract void inject(BriarUiTestComponent component);

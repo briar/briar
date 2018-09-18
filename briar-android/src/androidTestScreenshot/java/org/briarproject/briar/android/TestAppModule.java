@@ -34,8 +34,8 @@ import static android.content.Context.MODE_PRIVATE;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
 
-@Module(includes = PluginConfigModule.class)
-public class AppModule {
+@Module(includes = TestPluginConfigModule.class)
+public class TestAppModule {
 
 	static class EagerSingletons {
 		@Inject
@@ -50,7 +50,7 @@ public class AppModule {
 
 	private final Application application;
 
-	public AppModule(Application application) {
+	public TestAppModule(Application application) {
 		this.application = application;
 	}
 

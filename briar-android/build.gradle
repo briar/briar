@@ -140,6 +140,9 @@ dependencies {
 	androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:2.0.2"
 	androidTestCompileOnly 'javax.annotation:jsr250-api:1.0'
 	androidTestImplementation 'junit:junit:4.12'
+
+	androidTestScreenshotImplementation project(path: ':bramble-api', configuration: 'testOutput')
+	androidTestScreenshotImplementation project(path: ':bramble-core', configuration: 'testOutput')
 	androidTestScreenshotImplementation "tools.fastlane:screengrab:1.2.0"
 	androidTestScreenshotImplementation "com.android.support.test.uiautomator:uiautomator-v18:2.1.3"
 }

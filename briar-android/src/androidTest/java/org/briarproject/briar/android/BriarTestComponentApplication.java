@@ -8,7 +8,7 @@ public class BriarTestComponentApplication extends BriarApplicationImpl {
 	@Override
 	protected AndroidComponent createApplicationComponent() {
 		AndroidComponent component = DaggerBriarUiTestComponent.builder()
-				.appModule(new AppModule(this)).build();
+				.testAppModule(new TestAppModule(this)).build();
 		// We need to load the eager singletons directly after making the
 		// dependency graphs
 		BrambleCoreModule.initEagerSingletons(component);

@@ -13,13 +13,13 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
-		AppModule.class,
+		TestAppModule.class,
 		BriarCoreModule.class,
 		BrambleAndroidModule.class,
 		BriarAccountModule.class,
 		BrambleCoreModule.class
 })
-public interface BriarUiTestComponent extends AndroidComponent {
+public interface BriarUiTestComponent extends AndroidComponent, FakeDataTestComponent {
 
 	void inject(SetupDataTest test);
 

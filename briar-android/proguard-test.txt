@@ -13,3 +13,4 @@
 -dontwarn junit.**
 
 -dontwarn org.briarproject.briar.android.**
+-dontwarn org.briarproject.bramble.**
