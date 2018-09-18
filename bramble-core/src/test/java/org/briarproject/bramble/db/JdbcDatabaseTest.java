@@ -432,7 +432,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
 				ONE_MEGABYTE, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
-		db.updateExpiryTimeAndEta(txn, contactId, messageId, Integer.MAX_VALUE);
+		db.updateExpiryTimeAndEta(txn, contactId, messageId, MAX_LATENCY);
 
 		// The message should no longer be sendable
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
@@ -1816,11 +1816,12 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testFasterMessageRetransmission() throws Exception {
+	public void testMessageRetransmission() throws Exception {
 		long now = System.currentTimeMillis();
-		long steps[] = {now, now, now + MAX_LATENCY, now + MAX_LATENCY,
-				now + 1 + MAX_LATENCY * 2};
-		Database<Connection> db = open(false, new ArrayClock(steps));
+		long steps[] = {now, now, now + MAX_LATENCY * 2,
+				now + MAX_LATENCY * 2 + 1};
+		Database<Connection> db =
+				open(false, new TestMessageFactory(), new ArrayClock(steps));
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
@@ -1832,29 +1833,79 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.addMessage(txn, message, DELIVERED, true, null);
 
 		// Time: now
-		// Retrieve the message from the database and mark it as sent
+		// Retrieve the message from the database
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
 				ONE_MEGABYTE, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
+
 		// Time: now
+		// Mark the message as sent
 		db.updateExpiryTimeAndEta(txn, contactId, messageId, MAX_LATENCY);
 
-		// Time: now + MAX_LATENCY
-		// The message should no longer be sendable via transports with
-		// with an equal or higher ETA
+		// The message should expire after 2 * MAX_LATENCY
+		assertEquals(now + MAX_LATENCY * 2, db.getNextSendTime(txn, contactId));
+
+		// Time: now + MAX_LATENCY * 2
+		// The message should not yet be sendable
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
 
-		// Time: now + MAX_LATENCY
-		// The message should be sendable via a transport with a faster ETA
-		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE,
-				MAX_LATENCY / 2 - 1);
-		assertEquals(singletonList(messageId), ids);
-
-		// Time: now + 1 + MAX_LATENCY * 2
-		// The message expired and should be sendable by every transport.
+		// Time: now + MAX_LATENCY * 2 + 1
+		// The message should have expired and should now be sendable
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+
+	@Test
+	public void testFasterMessageRetransmission() throws Exception {
+		long now = System.currentTimeMillis();
+		long steps[] = {now, now, now, now, now + 1};
+		Database<Connection> db =
+				open(false, new TestMessageFactory(), new ArrayClock(steps));
+		Connection txn = db.startTransaction();
+
+		// Add a contact, a shared group and a shared message
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
+				true, true));
+		db.addGroup(txn, group);
+		db.addGroupVisibility(txn, contactId, groupId, true);
+		db.addMessage(txn, message, DELIVERED, true, null);
+
+		// Time: now
+		// Retrieve the message from the database
+		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
+				ONE_MEGABYTE, MAX_LATENCY);
+		assertEquals(singletonList(messageId), ids);
+
+		// Time: now
+		// Mark the message as sent
+		db.updateExpiryTimeAndEta(txn, contactId, messageId, MAX_LATENCY);
+
+		// The message should expire after 2 * MAX_LATENCY
+		assertEquals(now + MAX_LATENCY * 2, db.getNextSendTime(txn, contactId));
+
+		// Time: now
+		// The message should not be sendable via the same transport
+		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
+		assertTrue(ids.isEmpty());
+
+		// Time: now
+		// The message should be sendable via a transport with a faster ETA
+		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE,
+				MAX_LATENCY - 1);
+		assertEquals(singletonList(messageId), ids);
+
+		// Time: now + 1
+		// The message should no longer be sendable via the faster transport,
+		// as the ETA is now equal
+		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE,
+				MAX_LATENCY - 1);
+		assertTrue(ids.isEmpty());
 
 		db.commitTransaction(txn);
 		db.close();

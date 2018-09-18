@@ -1873,7 +1873,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public Collection<MessageId> getMessagesToOffer(Connection txn,
 			ContactId c, int maxMessages, int maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
-		long eta = now + maxLatency * 2;
+		long eta = now + maxLatency;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1932,7 +1932,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public Collection<MessageId> getMessagesToSend(Connection txn, ContactId c,
 			int maxLength, int maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
-		long eta = now + maxLatency * 2;
+		long eta = now + maxLatency;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2063,7 +2063,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public Collection<MessageId> getRequestedMessagesToSend(Connection txn,
 			ContactId c, int maxLength, int maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
-		long eta = now + maxLatency * 2;
+		long eta = now + maxLatency;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2910,7 +2910,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			long now = clock.currentTimeMillis();
-			long eta = now + maxLatency * 2;
+			long eta = now + maxLatency;
 			ps.setLong(1, calculateExpiry(now, maxLatency, txCount));
 			ps.setLong(2, eta);
 			ps.setBytes(3, m.getBytes());
