@@ -408,7 +408,7 @@ public class PrivateGroupManagerIntegrationTest
 			groupManager2.addPrivateGroup(txn, privateGroup0, joinMsg2, false);
 			// share the group with 0
 			db2.setGroupVisibility(txn,
-					contactId0From1, privateGroup0.getId(), SHARED); // TODO contactId
+					contactId0From2, privateGroup0.getId(), SHARED);
 		});
 
 		// sync join messages

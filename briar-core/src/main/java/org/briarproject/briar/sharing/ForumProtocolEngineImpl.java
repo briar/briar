@@ -73,7 +73,7 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 		ForumInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
-						true, m.getShareableId());
+						false, m.getShareableId());
 		return new ForumInvitationResponseReceivedEvent(response, contactId);
 	}
 

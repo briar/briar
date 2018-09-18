@@ -70,34 +70,34 @@ class ConversationNoticeOutItem extends ConversationOutItem {
 	}
 
 	private static String getText(Context ctx, String contactName,
-			PrivateResponse ir) {
-		if (ir.wasAccepted()) {
-			if (ir instanceof IntroductionResponse) {
-				String name = ((IntroductionResponse) ir).getIntroducedAuthor()
+			PrivateResponse r) {
+		if (r.wasAccepted()) {
+			if (r instanceof IntroductionResponse) {
+				String name = ((IntroductionResponse) r).getIntroducedAuthor()
 						.getName();
 				return ctx.getString(
 						R.string.introduction_response_accepted_sent,
 						name) + "\n\n" + ctx.getString(
 						R.string.introduction_response_accepted_sent_info,
 						name);
-			} else if (ir instanceof ForumInvitationResponse) {
+			} else if (r instanceof ForumInvitationResponse) {
 				return ctx.getString(R.string.forum_invitation_response_accepted_sent, contactName);
-			} else if (ir instanceof BlogInvitationResponse) {
+			} else if (r instanceof BlogInvitationResponse) {
 				return ctx.getString(R.string.blogs_sharing_response_accepted_sent, contactName);
-			} else if (ir instanceof GroupInvitationResponse) {
+			} else if (r instanceof GroupInvitationResponse) {
 				return ctx.getString(R.string.groups_invitations_response_accepted_sent, contactName);
 			}
 		} else {
-			if (ir instanceof IntroductionResponse) {
-				String name = ((IntroductionResponse) ir).getIntroducedAuthor()
+			if (r instanceof IntroductionResponse) {
+				String name = ((IntroductionResponse) r).getIntroducedAuthor()
 						.getName();
 				return ctx.getString(
 						R.string.introduction_response_declined_sent, name);
-			} else if (ir instanceof ForumInvitationResponse) {
+			} else if (r instanceof ForumInvitationResponse) {
 				return ctx.getString(R.string.forum_invitation_response_declined_sent, contactName);
-			} else if (ir instanceof BlogInvitationResponse) {
+			} else if (r instanceof BlogInvitationResponse) {
 				return ctx.getString(R.string.blogs_sharing_response_declined_sent, contactName);
-			} else if (ir instanceof GroupInvitationResponse) {
+			} else if (r instanceof GroupInvitationResponse) {
 				return ctx.getString(R.string.groups_invitations_response_declined_sent, contactName);
 			}
 		}

@@ -61,7 +61,7 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 			ContactId contactId) {
 		BlogInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
-						m.getTimestamp(), false, false, true, false,
+						m.getTimestamp(), false, false, false, false,
 						true, m.getShareableId());
 		return new BlogInvitationResponseReceivedEvent(response, contactId);
 	}
@@ -71,8 +71,8 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 			ContactId contactId) {
 		BlogInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
-						m.getTimestamp(), false, false, true, false,
-						true, m.getShareableId());
+						m.getTimestamp(), false, false, false, false,
+						false, m.getShareableId());
 		return new BlogInvitationResponseReceivedEvent(response, contactId);
 	}
 

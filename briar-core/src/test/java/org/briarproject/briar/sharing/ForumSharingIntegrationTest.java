@@ -478,11 +478,11 @@ public class ForumSharingIntegrationTest
 				.contains(contact0From1));
 
 		// and both have each other's invitations (and no response)
-		assertEquals(2, withinTransactionReturns(db0, txn2 ->
-				forumSharingManager0.getMessageHeaders(txn2, contactId1From0))
+		assertEquals(2, withinTransactionReturns(db0, txn ->
+				forumSharingManager0.getMessageHeaders(txn, contactId1From0))
 				.size());
-		assertEquals(2, withinTransactionReturns(db1, txn2 ->
-				forumSharingManager1.getMessageHeaders(txn2, contactId0From1))
+		assertEquals(2, withinTransactionReturns(db1, txn ->
+				forumSharingManager1.getMessageHeaders(txn, contactId0From1))
 				.size());
 
 		// there are no more open invitations
@@ -561,11 +561,11 @@ public class ForumSharingIntegrationTest
 		withinTransaction(db2, txn -> db2.addGroup(txn, forum0.getGroup()));
 
 		// add listeners
-		listener0 = new SharerListener();
+		listener0 = new SharerListener(true);
 		c0.getEventBus().addListener(listener0);
 		listener1 = new InviteeListener(true, false);
 		c1.getEventBus().addListener(listener1);
-		listener2 = new SharerListener();
+		listener2 = new SharerListener(true);
 		c2.getEventBus().addListener(listener2);
 
 		// send invitation
@@ -790,13 +790,22 @@ public class ForumSharingIntegrationTest
 	@NotNullByDefault
 	private class SharerListener implements EventListener {
 
+		private final boolean accept;
 		private volatile boolean requestReceived = false;
 		private volatile boolean responseReceived = false;
+
+		private SharerListener(boolean accept) {
+			this.accept = accept;
+		}
 
 		@Override
 		public void eventOccurred(Event e) {
 			if (e instanceof ForumInvitationResponseReceivedEvent) {
+				ForumInvitationResponseReceivedEvent event =
+						(ForumInvitationResponseReceivedEvent) e;
 				responseReceived = true;
+				eventWaiter.assertEquals(accept,
+						event.getMessageHeader().wasAccepted());
 				eventWaiter.resume();
 			}
 			// this is only needed for tests where a forum is re-shared
@@ -868,17 +877,19 @@ public class ForumSharingIntegrationTest
 				ForumInvitationResponseReceivedEvent event =
 						(ForumInvitationResponseReceivedEvent) e;
 				eventWaiter.assertEquals(contactId0From1, event.getContactId());
+				eventWaiter.assertEquals(accept,
+						event.getMessageHeader().wasAccepted());
 				eventWaiter.resume();
 			}
 		}
 	}
 
-	private void listenToEvents(boolean accept) throws DbException {
-		listener0 = new SharerListener();
+	private void listenToEvents(boolean accept) {
+		listener0 = new SharerListener(accept);
 		c0.getEventBus().addListener(listener0);
 		listener1 = new InviteeListener(accept);
 		c1.getEventBus().addListener(listener1);
-		listener2 = new SharerListener();
+		listener2 = new SharerListener(accept);
 		c2.getEventBus().addListener(listener2);
 	}
 

@@ -368,13 +368,16 @@ public class IntroductionIntegrationTest
 						.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		messages = withinTransactionReturns(db0,
-				txn -> introductionManager0.getMessageHeaders(txn, contactId2From0));
+				txn -> introductionManager0
+						.getMessageHeaders(txn, contactId2From0));
 		assertEquals(2, messages.size());
 		messages = withinTransactionReturns(db1,
-				txn -> introductionManager1.getMessageHeaders(txn, contactId0From1));
-		assertEquals(3,messages.size());
+				txn -> introductionManager1
+						.getMessageHeaders(txn, contactId0From1));
+		assertEquals(3, messages.size());
 		messages = withinTransactionReturns(db2,
-				txn -> introductionManager2.getMessageHeaders(txn, contactId0From2));
+				txn -> introductionManager2
+						.getMessageHeaders(txn, contactId0From2));
 		assertEquals(3, messages.size());
 		assertFalse(listener0.aborted);
 		assertFalse(listener1.aborted);
