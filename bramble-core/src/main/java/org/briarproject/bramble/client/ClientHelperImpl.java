@@ -41,7 +41,6 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_N
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
-import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
@@ -147,9 +146,7 @@ class ClientHelperImpl implements ClientHelper {
 	@Override
 	public BdfList getMessageAsList(Transaction txn, MessageId m)
 			throws DbException, FormatException {
-		byte[] raw = db.getMessage(txn, m).getRaw();
-		return toList(raw, MESSAGE_HEADER_LENGTH,
-				raw.length - MESSAGE_HEADER_LENGTH);
+		return toList(db.getMessage(txn, m).getBody());
 	}
 
 	@Override
@@ -361,9 +358,7 @@ class ClientHelperImpl implements ClientHelper {
 
 	@Override
 	public BdfList toList(Message m) throws FormatException {
-		byte[] raw = m.getRaw();
-		return toList(raw, MESSAGE_HEADER_LENGTH,
-				raw.length - MESSAGE_HEADER_LENGTH);
+		return toList(m.getBody());
 	}
 
 	@Override

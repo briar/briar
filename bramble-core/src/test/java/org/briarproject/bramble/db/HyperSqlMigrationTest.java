@@ -9,9 +9,9 @@ import java.util.List;
 public class HyperSqlMigrationTest extends DatabaseMigrationTest {
 
 	@Override
-	Database<Connection> createDatabase(List<Migration<Connection>> migrations)
-			throws Exception {
-		return new HyperSqlDatabase(config, clock) {
+	Database<Connection> createDatabase(
+			List<Migration<Connection>> migrations) {
+		return new HyperSqlDatabase(config, messageFactory, clock) {
 			@Override
 			List<Migration<Connection>> getMigrations() {
 				return migrations;

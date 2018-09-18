@@ -170,6 +170,6 @@ public class SyncIntegrationTest extends BrambleTestCase {
 				m2.getGroupId().getBytes());
 		assertEquals(m1.getTimestamp(), m2.getTimestamp());
 		assertEquals(m1.getRawLength(), m2.getRawLength());
-		assertArrayEquals(m1.getRaw(), m2.getRaw());
+		assertArrayEquals(m1.getBody(), m2.getBody());
 	}
 }

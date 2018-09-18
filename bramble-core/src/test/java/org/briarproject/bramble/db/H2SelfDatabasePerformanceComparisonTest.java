@@ -1,6 +1,7 @@
 package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.junit.Ignore;
 
@@ -17,8 +18,9 @@ public class H2SelfDatabasePerformanceComparisonTest
 
 	@Override
 	Database<Connection> createDatabase(boolean conditionA,
-			DatabaseConfig databaseConfig, Clock clock) {
-		return new H2Database(databaseConfig, clock);
+			DatabaseConfig databaseConfig, MessageFactory messageFactory,
+			Clock clock) {
+		return new H2Database(databaseConfig, messageFactory, clock);
 	}
 
 	@Override

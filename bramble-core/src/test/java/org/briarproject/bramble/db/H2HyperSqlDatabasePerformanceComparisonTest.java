@@ -1,6 +1,7 @@
 package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.junit.Ignore;
 
@@ -12,9 +13,11 @@ public class H2HyperSqlDatabasePerformanceComparisonTest
 
 	@Override
 	Database<Connection> createDatabase(boolean conditionA,
-			DatabaseConfig databaseConfig, Clock clock) {
-		if (conditionA) return new H2Database(databaseConfig, clock);
-		else return new HyperSqlDatabase(databaseConfig, clock);
+			DatabaseConfig databaseConfig, MessageFactory messageFactory,
+			Clock clock) {
+		if (conditionA)
+			return new H2Database(databaseConfig, messageFactory, clock);
+		else return new HyperSqlDatabase(databaseConfig, messageFactory, clock);
 	}
 
 	@Override

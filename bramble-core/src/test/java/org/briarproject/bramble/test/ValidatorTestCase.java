@@ -30,7 +30,6 @@ public abstract class ValidatorTestCase extends BrambleMockTestCase {
 	protected final Message message = getMessage(groupId);
 	protected final MessageId messageId = message.getId();
 	protected final long timestamp = message.getTimestamp();
-	protected final byte[] raw = message.getRaw();
 	protected final Author author = getAuthor();
 	protected final BdfList authorList = BdfList.of(
 			author.getFormatVersion(),

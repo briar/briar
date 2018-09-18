@@ -21,6 +21,7 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.ValidationManager.State;
@@ -61,6 +62,7 @@ import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
@@ -305,6 +307,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Different database libraries use different names for certain types
 	private final String hashType, secretType, binaryType;
 	private final String counterType, stringType;
+	private final MessageFactory messageFactory;
 	private final Clock clock;
 
 	// Locking: connectionsLock
@@ -320,12 +323,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final Condition connectionsChanged = connectionsLock.newCondition();
 
 	JdbcDatabase(String hashType, String secretType, String binaryType,
-			String counterType, String stringType, Clock clock) {
+			String counterType, String stringType,
+			MessageFactory messageFactory, Clock clock) {
 		this.hashType = hashType;
 		this.secretType = secretType;
 		this.binaryType = binaryType;
 		this.counterType = counterType;
 		this.stringType = stringType;
+		this.messageFactory = messageFactory;
 		this.clock = clock;
 	}
 
@@ -727,7 +732,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(3, m.getTimestamp());
 			ps.setInt(4, state.getValue());
 			ps.setBoolean(5, messageShared);
-			byte[] raw = m.getRaw();
+			byte[] raw = messageFactory.getRawMessage(m);
 			ps.setInt(6, raw.length);
 			ps.setBytes(7, raw);
 			int affected = ps.executeUpdate();
@@ -741,7 +746,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				boolean offered = removeOfferedMessage(txn, c, m.getId());
 				boolean seen = offered || (sender != null && c.equals(sender));
 				addStatus(txn, m.getId(), c, m.getGroupId(), m.getTimestamp(),
-						m.getRawLength(), state, e.getValue(), messageShared,
+						raw.length, state, e.getValue(), messageShared,
 						false, seen);
 			}
 			// Update denormalised column in messageDependencies if dependency
@@ -1501,7 +1506,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			if (raw == null) throw new MessageDeletedException();
-			return new Message(m, g, timestamp, raw);
+			if (raw.length < MESSAGE_HEADER_LENGTH) throw new AssertionError();
+			byte[] body = new byte[raw.length - MESSAGE_HEADER_LENGTH];
+			System.arraycopy(raw, MESSAGE_HEADER_LENGTH, body, 0, body.length);
+			return new Message(m, g, timestamp, body);
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

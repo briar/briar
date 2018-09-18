@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.ValidationManager.State;
@@ -27,6 +28,7 @@ import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.system.SystemClock;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestDatabaseConfig;
+import org.briarproject.bramble.test.TestMessageFactory;
 import org.briarproject.bramble.test.TestUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -112,7 +114,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	}
 
 	protected abstract JdbcDatabase createDatabase(DatabaseConfig config,
-			Clock clock);
+			MessageFactory messageFactory, Clock clock);
 
 	@Before
 	public void setUp() {
@@ -144,8 +146,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(db.containsContact(txn, contactId));
 		assertTrue(db.containsGroup(txn, groupId));
 		assertTrue(db.containsMessage(txn, messageId));
-		assertArrayEquals(message.getRaw(),
-				db.getMessage(txn, messageId).getRaw());
+		assertArrayEquals(message.getBody(),
+				db.getMessage(txn, messageId).getBody());
 
 		// Delete the records
 		db.removeMessage(txn, messageId);
@@ -1644,7 +1646,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(messageId, m.getId());
 		assertEquals(groupId, m.getGroupId());
 		assertEquals(message.getTimestamp(), m.getTimestamp());
-		assertArrayEquals(message.getRaw(), m.getRaw());
+		assertArrayEquals(message.getBody(), m.getBody());
 
 		// Delete the message
 		db.deleteMessage(txn, messageId);
@@ -1727,7 +1729,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testGetNextSendTime() throws Exception {
 		long now = System.currentTimeMillis();
-		Database<Connection> db = open(false, new StoppedClock(now));
+		Database<Connection> db = open(false, new TestMessageFactory(),
+				new StoppedClock(now));
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a group and a message
@@ -1807,13 +1810,14 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	}
 
 	private Database<Connection> open(boolean resume) throws Exception {
-		return open(resume, new SystemClock());
+		return open(resume, new TestMessageFactory(), new SystemClock());
 	}
 
-	private Database<Connection> open(boolean resume, Clock clock)
-			throws Exception {
-		Database<Connection> db = createDatabase(
-				new TestDatabaseConfig(testDir, MAX_SIZE), clock);
+	private Database<Connection> open(boolean resume,
+			MessageFactory messageFactory, Clock clock) throws Exception {
+		Database<Connection> db =
+				createDatabase(new TestDatabaseConfig(testDir, MAX_SIZE),
+						messageFactory, clock);
 		if (!resume) TestUtils.deleteTestDirectory(testDir);
 		db.open(key, null);
 		return db;

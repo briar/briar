@@ -9,5 +9,5 @@ public interface MessageFactory {
 
 	Message createMessage(byte[] raw);
 
-	Message createMessage(MessageId m, byte[] raw);
+	byte[] getRawMessage(Message m);
 }

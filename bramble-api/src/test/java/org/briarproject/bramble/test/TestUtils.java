@@ -33,7 +33,6 @@ import static org.briarproject.bramble.api.properties.TransportPropertyConstants
 import static org.briarproject.bramble.api.sync.ClientId.MAX_CLIENT_ID_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
-import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 
 public class TestUtils {
@@ -132,13 +131,13 @@ public class TestUtils {
 
 	public static Message getMessage(GroupId groupId) {
 		int bodyLength = 1 + random.nextInt(MAX_MESSAGE_BODY_LENGTH);
-		return getMessage(groupId, MESSAGE_HEADER_LENGTH + bodyLength);
+		return getMessage(groupId, bodyLength);
 	}
 
-	public static Message getMessage(GroupId groupId, int rawLength) {
+	public static Message getMessage(GroupId groupId, int bodyLength) {
 		MessageId id = new MessageId(getRandomId());
-		byte[] raw = getRandomBytes(rawLength);
-		return new Message(id, groupId, timestamp, raw);
+		byte[] body = getRandomBytes(bodyLength);
+		return new Message(id, groupId, timestamp, body);
 	}
 
 	public static double getMedian(Collection<? extends Number> samples) {

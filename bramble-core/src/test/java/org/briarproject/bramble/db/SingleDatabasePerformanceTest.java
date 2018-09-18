@@ -3,9 +3,11 @@ package org.briarproject.bramble.db;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.system.SystemClock;
 import org.briarproject.bramble.test.TestDatabaseConfig;
+import org.briarproject.bramble.test.TestMessageFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -21,7 +23,7 @@ public abstract class SingleDatabasePerformanceTest
 		extends DatabasePerformanceTest {
 
 	abstract Database<Connection> createDatabase(DatabaseConfig databaseConfig,
-			Clock clock);
+			MessageFactory messageFactory, Clock clock);
 
 	private SecretKey databaseKey = getSecretKey();
 
@@ -43,7 +45,8 @@ public abstract class SingleDatabasePerformanceTest
 
 	private Database<Connection> openDatabase() throws DbException {
 		Database<Connection> db = createDatabase(
-				new TestDatabaseConfig(testDir, MAX_SIZE), new SystemClock());
+				new TestDatabaseConfig(testDir, MAX_SIZE),
+				new TestMessageFactory(), new SystemClock());
 		db.open(databaseKey, null);
 		return db;
 	}

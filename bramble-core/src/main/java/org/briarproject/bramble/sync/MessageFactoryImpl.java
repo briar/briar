@@ -39,11 +39,7 @@ class MessageFactoryImpl implements MessageFactory {
 		if (body.length > MAX_MESSAGE_BODY_LENGTH)
 			throw new IllegalArgumentException();
 		MessageId id = getMessageId(g, timestamp, body);
-		byte[] raw = new byte[MESSAGE_HEADER_LENGTH + body.length];
-		System.arraycopy(g.getBytes(), 0, raw, 0, UniqueId.LENGTH);
-		ByteUtils.writeUint64(timestamp, raw, UniqueId.LENGTH);
-		System.arraycopy(body, 0, raw, MESSAGE_HEADER_LENGTH, body.length);
-		return new Message(id, g, timestamp, raw);
+		return new Message(id, g, timestamp, body);
 	}
 
 	private MessageId getMessageId(GroupId g, long timestamp, byte[] body) {
@@ -69,18 +65,16 @@ class MessageFactoryImpl implements MessageFactory {
 		byte[] body = new byte[raw.length - MESSAGE_HEADER_LENGTH];
 		System.arraycopy(raw, MESSAGE_HEADER_LENGTH, body, 0, body.length);
 		MessageId id = getMessageId(g, timestamp, body);
-		return new Message(id, g, timestamp, raw);
+		return new Message(id, g, timestamp, body);
 	}
 
 	@Override
-	public Message createMessage(MessageId m, byte[] raw) {
-		if (raw.length < MESSAGE_HEADER_LENGTH)
-			throw new IllegalArgumentException();
-		if (raw.length > MAX_MESSAGE_LENGTH)
-			throw new IllegalArgumentException();
-		byte[] groupId = new byte[UniqueId.LENGTH];
-		System.arraycopy(raw, 0, groupId, 0, UniqueId.LENGTH);
-		long timestamp = ByteUtils.readUint64(raw, UniqueId.LENGTH);
-		return new Message(m, new GroupId(groupId), timestamp, raw);
+	public byte[] getRawMessage(Message m) {
+		byte[] body = m.getBody();
+		byte[] raw = new byte[MESSAGE_HEADER_LENGTH + body.length];
+		System.arraycopy(m.getGroupId().getBytes(), 0, raw, 0, UniqueId.LENGTH);
+		ByteUtils.writeUint64(m.getTimestamp(), raw, UniqueId.LENGTH);
+		System.arraycopy(body, 0, raw, MESSAGE_HEADER_LENGTH, body.length);
+		return raw;
 	}
 }

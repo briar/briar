@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.sync;
 
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
 public class Message {
@@ -13,17 +13,15 @@ public class Message {
 	private final MessageId id;
 	private final GroupId groupId;
 	private final long timestamp;
-	private final byte[] raw;
+	private final byte[] body;
 
-	public Message(MessageId id, GroupId groupId, long timestamp, byte[] raw) {
-		if (raw.length <= MESSAGE_HEADER_LENGTH)
-			throw new IllegalArgumentException();
-		if (raw.length > MAX_MESSAGE_LENGTH)
+	public Message(MessageId id, GroupId groupId, long timestamp, byte[] body) {
+		if (body.length > MAX_MESSAGE_BODY_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
 		this.groupId = groupId;
 		this.timestamp = timestamp;
-		this.raw = raw;
+		this.body = body;
 	}
 
 	/**
@@ -51,14 +49,14 @@ public class Message {
 	 * Returns the length of the raw message in bytes.
 	 */
 	public int getRawLength() {
-		return raw.length;
+		return MESSAGE_HEADER_LENGTH + body.length;
 	}
 
 	/**
-	 * Returns the raw message.
+	 * Returns the message body.
 	 */
-	public byte[] getRaw() {
-		return raw;
+	public byte[] getBody() {
+		return body;
 	}
 
 	@Override

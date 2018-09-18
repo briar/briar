@@ -16,10 +16,8 @@ import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 
-import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
@@ -58,8 +56,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(timestamp - MAX_CLOCK_DIFFERENCE));
-			oneOf(clientHelper).toList(raw, MESSAGE_HEADER_LENGTH,
-					raw.length - MESSAGE_HEADER_LENGTH);
+			oneOf(clientHelper).toList(message.getBody());
 			will(returnValue(body));
 			oneOf(metadataEncoder).encode(dictionary);
 			will(returnValue(meta));
@@ -84,18 +81,11 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 
 	@Test(expected = InvalidMessageException.class)
 	public void testRejectsTooShortMessage() throws Exception {
-		byte[] invalidRaw = getRandomBytes(MESSAGE_HEADER_LENGTH);
-		// Use a mock message so the length of the raw message can be invalid
-		Message invalidMessage = context.mock(Message.class);
+		Message invalidMessage = getMessage(groupId, 0);
 
 		context.checking(new Expectations() {{
-			//noinspection ResultOfMethodCallIgnored
-			oneOf(invalidMessage).getTimestamp();
-			will(returnValue(timestamp));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(timestamp));
-			oneOf(invalidMessage).getRaw();
-			will(returnValue(invalidRaw));
 		}});
 
 		failIfSubclassIsCalled.validateMessage(invalidMessage, group);
@@ -103,13 +93,12 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 
 	@Test
 	public void testAcceptsMinLengthMessage() throws Exception {
-		Message shortMessage = getMessage(groupId, MESSAGE_HEADER_LENGTH + 1);
+		Message shortMessage = getMessage(groupId, 1);
 
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(timestamp));
-			oneOf(clientHelper).toList(shortMessage.getRaw(),
-					MESSAGE_HEADER_LENGTH, 1);
+			oneOf(clientHelper).toList(shortMessage.getBody());
 			will(returnValue(body));
 			oneOf(metadataEncoder).encode(dictionary);
 			will(returnValue(meta));
@@ -137,8 +126,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(timestamp));
-			oneOf(clientHelper).toList(raw, MESSAGE_HEADER_LENGTH,
-					raw.length - MESSAGE_HEADER_LENGTH);
+			oneOf(clientHelper).toList(message.getBody());
 			will(throwException(new FormatException()));
 		}});
 
@@ -150,8 +138,7 @@ public class BdfMessageValidatorTest extends ValidatorTestCase {
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(timestamp));
-			oneOf(clientHelper).toList(raw, MESSAGE_HEADER_LENGTH,
-					raw.length - MESSAGE_HEADER_LENGTH);
+			oneOf(clientHelper).toList(message.getBody());
 			will(returnValue(body));
 		}});
 
