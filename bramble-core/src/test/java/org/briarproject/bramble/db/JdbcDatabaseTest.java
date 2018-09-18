@@ -1818,8 +1818,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testMessageRetransmission() throws Exception {
 		long now = System.currentTimeMillis();
-		long steps[] = {now, now, now + MAX_LATENCY * 2,
-				now + MAX_LATENCY * 2 + 1};
+		long steps[] = {now, now, now + MAX_LATENCY * 2 - 1,
+				now + MAX_LATENCY * 2};
 		Database<Connection> db =
 				open(false, new TestMessageFactory(), new ArrayClock(steps));
 		Connection txn = db.startTransaction();
@@ -1845,12 +1845,12 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// The message should expire after 2 * MAX_LATENCY
 		assertEquals(now + MAX_LATENCY * 2, db.getNextSendTime(txn, contactId));
 
-		// Time: now + MAX_LATENCY * 2
+		// Time: now + MAX_LATENCY * 2 - 1
 		// The message should not yet be sendable
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
 
-		// Time: now + MAX_LATENCY * 2 + 1
+		// Time: now + MAX_LATENCY * 2
 		// The message should have expired and should now be sendable
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
