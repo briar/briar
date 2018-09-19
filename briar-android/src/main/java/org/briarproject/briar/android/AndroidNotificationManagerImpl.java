@@ -327,9 +327,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 					R.plurals.private_message_notification_text, contactTotal,
 					contactTotal));
 			b.setNumber(contactTotal);
-			boolean showOnLockScreen =
-					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
-			b.setLockscreenVisibility(CATEGORY_MESSAGE, showOnLockScreen);
+			b.setNotificationCategory(CATEGORY_MESSAGE);
 			if (mayAlertAgain) setAlertProperties(b);
 			setDeleteIntent(b, CONTACT_URI);
 			Set<ContactId> contacts = contactCounts.keySet();
@@ -431,9 +429,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 					R.plurals.group_message_notification_text, groupTotal,
 					groupTotal));
 			b.setNumber(groupTotal);
-			boolean showOnLockScreen =
-					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
-			b.setLockscreenVisibility(CATEGORY_SOCIAL, showOnLockScreen);
+			b.setNotificationCategory(CATEGORY_SOCIAL);
 			if (mayAlertAgain) setAlertProperties(b);
 			setDeleteIntent(b, GROUP_URI);
 			Set<GroupId> groups = groupCounts.keySet();
@@ -504,9 +500,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 					R.plurals.forum_post_notification_text, forumTotal,
 					forumTotal));
 			b.setNumber(forumTotal);
-			boolean showOnLockScreen =
-					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
-			b.setLockscreenVisibility(CATEGORY_SOCIAL, showOnLockScreen);
+			b.setNotificationCategory(CATEGORY_SOCIAL);
 			if (mayAlertAgain) setAlertProperties(b);
 			setDeleteIntent(b, FORUM_URI);
 			Set<GroupId> forums = forumCounts.keySet();
@@ -575,9 +569,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 					R.plurals.blog_post_notification_text, blogTotal,
 					blogTotal));
 			b.setNumber(blogTotal);
-			boolean showOnLockScreen =
-					settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
-			b.setLockscreenVisibility(CATEGORY_SOCIAL, showOnLockScreen);
+			b.setNotificationCategory(CATEGORY_SOCIAL);
 			if (mayAlertAgain) setAlertProperties(b);
 			setDeleteIntent(b, BLOG_URI);
 			// Touching the notification shows the combined blog feed
@@ -618,9 +610,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		b.setContentText(appContext.getResources().getQuantityString(
 				R.plurals.introduction_notification_text, introductionTotal,
 				introductionTotal));
-		boolean showOnLockScreen =
-				settings.getBoolean(PREF_NOTIFY_LOCK_SCREEN, false);
-		b.setLockscreenVisibility(CATEGORY_MESSAGE, showOnLockScreen);
+		b.setNotificationCategory(CATEGORY_MESSAGE);
 		setAlertProperties(b);
 		setDeleteIntent(b, INTRODUCTION_URI);
 		// Touching the notification shows the contact list

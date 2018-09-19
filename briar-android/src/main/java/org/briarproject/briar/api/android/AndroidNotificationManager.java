@@ -21,7 +21,6 @@ public interface AndroidNotificationManager {
 	String PREF_NOTIFY_RINGTONE_NAME = "notifyRingtoneName";
 	String PREF_NOTIFY_RINGTONE_URI = "notifyRingtoneUri";
 	String PREF_NOTIFY_VIBRATION = "notifyVibration";
-	String PREF_NOTIFY_LOCK_SCREEN = "notifyLockScreen";
 
 	// Notification IDs
 	int ONGOING_NOTIFICATION_ID = 1;
