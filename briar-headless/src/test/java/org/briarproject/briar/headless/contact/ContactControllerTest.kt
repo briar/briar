@@ -29,7 +29,7 @@ internal class ContactControllerTest : ControllerTest() {
     fun testOutputContact() {
         val json = """
             {
-                "id": ${contact.id.int},
+                "contactId": ${contact.id.int},
                 "author": ${toJson(author.output())},
                 "verified": ${contact.isVerified}
             }

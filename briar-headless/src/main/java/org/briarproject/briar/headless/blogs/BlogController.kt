@@ -28,7 +28,7 @@ constructor(
                 val body = blogManager.getPostBody(header.id)
                 header.output(body)
             }
-        }
+        }.sortedBy { it.timestampReceived }
         return ctx.json(posts)
     }
 

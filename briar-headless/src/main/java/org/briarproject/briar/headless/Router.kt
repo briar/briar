@@ -7,6 +7,7 @@ import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.ContextUtil
 import io.javalin.core.util.Header
 import org.briarproject.briar.headless.blogs.BlogController
+import org.briarproject.briar.headless.contact.ContactController
 import org.briarproject.briar.headless.forums.ForumController
 import org.briarproject.briar.headless.messaging.MessagingController
 import java.lang.Runtime.getRuntime
@@ -22,7 +23,7 @@ class Router @Inject
 constructor(
     private val briarService: BriarService,
     private val webSocketController: WebSocketController,
-    private val contactController: MessagingController,
+    private val contactController: ContactController,
     private val messagingController: MessagingController,
     private val forumController: ForumController,
     private val blogController: BlogController

@@ -7,12 +7,12 @@ import javax.annotation.concurrent.Immutable
 
 @Immutable
 internal data class OutputContact(
-    val id: Int,
+    val contactId: Int,
     val author: OutputAuthor,
     val verified: Boolean
 ) {
     internal constructor(c: Contact) : this(
-        id = c.id.int,
+        contactId = c.id.int,
         author = c.author.output(),
         verified = c.isVerified
     )

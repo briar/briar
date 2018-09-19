@@ -10,7 +10,7 @@
     <option name="TEST_OBJECT" value="package" />
     <option name="VM_PARAMETERS" value="" />
     <option name="PARAMETERS" value="" />
-    <option name="WORKING_DIRECTORY" value="file://$MODULE_DIR$" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/briar-headless" />
     <option name="ENV_VARIABLES" />
     <option name="PASS_PARENT_ENVS" value="true" />
     <option name="TEST_SEARCH_SCOPE">

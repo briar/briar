@@ -47,7 +47,7 @@ constructor(
                     header.output(contact.id, body)
                 }
             }
-        }
+        }.sortedBy { it.timestamp }
         return ctx.json(messages)
     }
 
