@@ -116,6 +116,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	@Override
 	public void createTestData(int numContacts, int numPrivateMsgs,
 			int numBlogPosts, int numForums, int numForumPosts) {
+		if (numContacts == 0) throw new IllegalArgumentException(
+				"Number of contacts must be >= 1");
 		ioExecutor.execute(() -> {
 			try {
 				createTestDataOnIoExecutor(numContacts, numPrivateMsgs,
