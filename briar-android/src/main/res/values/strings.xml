@@ -364,10 +364,10 @@
 
 	<!-- Settings Security and Panic -->
 	<string name="security_settings_title">Security</string>
-	<string name="pref_lock_title">Screen lock</string>
+	<string name="pref_lock_title">App lock</string>
 	<string name="pref_lock_summary">Use the device\'s screen lock to protect Briar while signed in</string>
 	<string name="pref_lock_disabled_summary">To use this feature, set up a screen lock for your device</string>
-	<string name="pref_lock_timeout_title">Screen lock inactivity timeout</string>
+	<string name="pref_lock_timeout_title">App lock inactivity timeout</string>
 	<!-- The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour -->
 	<string name="pref_lock_timeout_summary">When not using Briar, automatically lock it after %s</string>
 	<!-- Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s" -->
