@@ -80,13 +80,25 @@ public class Localizer {
 		if (locale.equals(currentLocale))
 			return context;
 		Locale.setDefault(locale);
-		if (SDK_INT >= 17) {
-			conf.setLocale(locale);
+		updateConfiguration(conf, locale);
+		Configuration systemConfiguration =
+				Resources.getSystem().getConfiguration();
+		updateConfiguration(systemConfiguration, locale);
+		// DateUtils uses the system resources, so we need to update them too.
+		// Apparently updateConfiguration is not deprecated here but is below.
+		Resources.getSystem().updateConfiguration(systemConfiguration,
+				Resources.getSystem().getDisplayMetrics());
+		if (SDK_INT >= 17)
 			context.createConfigurationContext(conf);
-		} else
-			conf.locale = locale;
 		//noinspection deprecation
 		res.updateConfiguration(conf, res.getDisplayMetrics());
 		return context;
+	}
+
+	private void updateConfiguration(Configuration conf, Locale locale) {
+		if (SDK_INT >= 17) {
+			conf.setLocale(locale);
+		} else
+			conf.locale = locale;
 	}
 }
