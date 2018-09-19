@@ -24,7 +24,6 @@ internal class WebSocketControllerImpl @Inject constructor() : WebSocketControll
 }
 
 @Immutable
-@Suppress("unused")
 internal class OutputEvent(val name: String, val data: Any) {
     val type = "event"
 }

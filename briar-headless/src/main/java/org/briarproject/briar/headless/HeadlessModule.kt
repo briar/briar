@@ -40,7 +40,7 @@ import javax.net.SocketFactory
         MessagingModule::class
     ]
 )
-class HeadlessModule(private val appDir: File) {
+internal class HeadlessModule(private val appDir: File) {
 
     @Provides
     @Singleton

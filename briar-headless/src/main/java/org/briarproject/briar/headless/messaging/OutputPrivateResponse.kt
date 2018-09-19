@@ -3,13 +3,13 @@
 package org.briarproject.briar.headless.messaging
 
 import org.briarproject.bramble.api.contact.ContactId
+import org.briarproject.bramble.identity.output
 import org.briarproject.briar.api.blog.BlogInvitationResponse
 import org.briarproject.briar.api.forum.ForumInvitationResponse
 import org.briarproject.briar.api.introduction.IntroductionResponse
 import org.briarproject.briar.api.messaging.PrivateResponse
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse
 import org.briarproject.briar.api.sharing.InvitationResponse
-import org.briarproject.briar.headless.output
 import javax.annotation.concurrent.Immutable
 
 @Immutable
@@ -44,4 +44,12 @@ internal data class OutputInvitationResponse(
         else -> throw AssertionError("Unknown InvitationResponse")
     }
     val shareableId: ByteArray get() = iHeader.shareableId.bytes
+}
+
+internal fun PrivateResponse.output(contactId: ContactId): OutputPrivateMessage {
+    return when (this) {
+        is IntroductionResponse -> OutputIntroductionResponse(this, contactId)
+        is InvitationResponse -> OutputInvitationResponse(this, contactId)
+        else -> throw AssertionError("Unknown PrivateResponse")
+    }
 }

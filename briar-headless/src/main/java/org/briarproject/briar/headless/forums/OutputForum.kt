@@ -13,3 +13,7 @@ internal data class OutputForum(
         id = forum.id.bytes
     )
 }
+
+internal fun Forum.output() = OutputForum(this)
+
+internal fun Collection<Forum>.output() = map { it.output() }

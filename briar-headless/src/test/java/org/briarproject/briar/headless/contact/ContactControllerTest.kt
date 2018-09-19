@@ -3,8 +3,8 @@ package org.briarproject.briar.headless.contact
 import io.javalin.json.JavalinJson.toJson
 import io.mockk.every
 import org.briarproject.bramble.api.contact.Contact
+import org.briarproject.bramble.identity.output
 import org.briarproject.briar.headless.ControllerTest
-import org.briarproject.briar.headless.output
 import org.junit.jupiter.api.Test
 
 internal class ContactControllerTest : ControllerTest() {

@@ -46,3 +46,14 @@ internal data class OutputInvitationRequest(
     val canBeOpened get() = iHeader.canBeOpened()
 
 }
+
+internal fun PrivateRequest<*>.output(contactId: ContactId): OutputPrivateMessage {
+    return when (this) {
+        is IntroductionRequest -> OutputIntroductionRequest(this, contactId)
+        is InvitationRequest -> OutputInvitationRequest(this, contactId)
+        else -> throw AssertionError("Unknown PrivateRequest")
+    }
+}
+
+internal fun IntroductionRequest.output(contactId: ContactId) =
+    OutputIntroductionRequest(this, contactId)

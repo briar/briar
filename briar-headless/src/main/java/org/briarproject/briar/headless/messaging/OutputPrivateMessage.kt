@@ -3,6 +3,7 @@ package org.briarproject.briar.headless.messaging
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.briar.api.messaging.PrivateMessage
 import org.briarproject.briar.api.messaging.PrivateMessageHeader
+import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
 import javax.annotation.concurrent.Immutable
 
 @Immutable
@@ -48,3 +49,14 @@ internal data class OutputPrivateMessageHeader(
         ), contactId, body
     )
 }
+
+internal fun PrivateMessageHeader.output(
+    contactId: ContactId,
+    body: String?
+) = OutputPrivateMessageHeader(this, contactId, body)
+
+internal fun PrivateMessage.output(contactId: ContactId, body: String) =
+    OutputPrivateMessageHeader(this, contactId, body)
+
+internal fun PrivateMessageReceivedEvent<*>.output(body: String) =
+    messageHeader.output(contactId, body)

@@ -24,7 +24,7 @@ import java.util.logging.LogManager
 private const val DEFAULT_PORT = 7000
 private val DEFAULT_DATA_DIR = getProperty("user.home") + separator + ".briar"
 
-class Main : CliktCommand(
+private class Main : CliktCommand(
     name = "briar-headless",
     help = "A Briar client without GUI that exposes a REST and Websocket API"
 ) {
@@ -61,7 +61,7 @@ class Main : CliktCommand(
             1 -> INFO
             else -> ALL
         }
-        setProperty(DEFAULT_LOG_LEVEL_KEY, levelSlf4j);
+        setProperty(DEFAULT_LOG_LEVEL_KEY, levelSlf4j)
         LogManager.getLogManager().getLogger("").level = level
 
         val dataDir = getDataDir()
@@ -84,11 +84,11 @@ class Main : CliktCommand(
         } else if (!file.isDirectory) {
             throw IOException("Data dir is not a directory: ${file.absolutePath}")
         }
-        val perms = HashSet<PosixFilePermission>();
-        perms.add(OWNER_READ);
-        perms.add(OWNER_WRITE);
-        perms.add(OWNER_EXECUTE);
-        setPosixFilePermissions(file.toPath(), perms);
+        val perms = HashSet<PosixFilePermission>()
+        perms.add(OWNER_READ)
+        perms.add(OWNER_WRITE)
+        perms.add(OWNER_EXECUTE)
+        setPosixFilePermissions(file.toPath(), perms)
         return file
     }
 

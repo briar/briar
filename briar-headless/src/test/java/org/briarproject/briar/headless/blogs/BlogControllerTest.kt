@@ -8,12 +8,12 @@ import io.mockk.just
 import io.mockk.mockk
 import org.briarproject.bramble.api.identity.Author.Status.OURSELVES
 import org.briarproject.bramble.api.sync.MessageId
+import org.briarproject.bramble.identity.output
 import org.briarproject.bramble.util.StringUtils.getRandomString
 import org.briarproject.briar.api.blog.*
 import org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_BODY_LENGTH
 import org.briarproject.briar.api.blog.MessageType.POST
 import org.briarproject.briar.headless.ControllerTest
-import org.briarproject.briar.headless.output
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 

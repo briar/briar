@@ -19,7 +19,7 @@ import kotlin.system.exitProcess
 
 @Immutable
 @Singleton
-class Router @Inject
+internal class Router @Inject
 constructor(
     private val briarService: BriarService,
     private val webSocketController: WebSocketController,

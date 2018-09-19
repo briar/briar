@@ -15,3 +15,7 @@ data class OutputAuthor(
         publicKey = author.publicKey
     )
 }
+
+fun Author.output() = OutputAuthor(this)
+
+fun Author.Status.output() = name.toLowerCase()

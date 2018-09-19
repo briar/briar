@@ -1,8 +1,9 @@
 package org.briarproject.briar.headless.blogs
 
 import org.briarproject.bramble.identity.OutputAuthor
+import org.briarproject.bramble.identity.output
 import org.briarproject.briar.api.blog.BlogPostHeader
-import org.briarproject.briar.headless.output
+import org.briarproject.briar.api.blog.MessageType
 import javax.annotation.concurrent.Immutable
 
 @Immutable
@@ -31,3 +32,7 @@ internal data class OutputBlogPost(
         timestampReceived = header.timeReceived
     )
 }
+
+internal fun BlogPostHeader.output(body: String) = OutputBlogPost(this, body)
+
+internal fun MessageType.output() = name.toLowerCase()
