@@ -89,7 +89,6 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.GROU
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_BLOG;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_FORUM;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_GROUP;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_LOCK_SCREEN;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_PRIVATE;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_RINGTONE_NAME;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.PREF_NOTIFY_RINGTONE_URI;
@@ -127,7 +126,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private SwitchPreference notifyForumPosts;
 	private SwitchPreference notifyBlogPosts;
 	private SwitchPreference notifyVibration;
-	private SwitchPreference notifyLockscreen;
 
 	private Preference notifySound;
 
@@ -179,8 +177,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				"pref_key_notify_blog_posts");
 		notifyVibration = (SwitchPreference) findPreference(
 				"pref_key_notify_vibration");
-		notifyLockscreen = (SwitchPreference) findPreference(
-				"pref_key_notify_lock_screen");
 		notifySound = findPreference("pref_key_notify_sound");
 
 		language.setOnPreferenceChangeListener(this);
@@ -207,10 +203,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		torMobile.setOnPreferenceChangeListener(this);
 		screenLock.setOnPreferenceChangeListener(this);
 		screenLockTimeout.setOnPreferenceChangeListener(this);
-		if (SDK_INT >= 21) {
-			notifyLockscreen.setVisible(true);
-			notifyLockscreen.setOnPreferenceChangeListener(this);
-		}
 
 		findPreference("pref_key_send_feedback").setOnPreferenceClickListener(
 				preference -> {
@@ -380,8 +372,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				notifyForumPosts.setOnPreferenceChangeListener(this);
 				notifyBlogPosts.setOnPreferenceChangeListener(this);
 				notifyVibration.setOnPreferenceChangeListener(this);
-				notifyLockscreen.setChecked(settings.getBoolean(
-						PREF_NOTIFY_LOCK_SCREEN, false));
 				notifySound.setOnPreferenceClickListener(
 						pref -> onNotificationSoundClicked());
 				String text;
@@ -409,7 +399,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				setupNotificationPreference(notifyBlogPosts, BLOG_CHANNEL_ID,
 						R.string.notify_blog_posts_setting_summary_26);
 				notifyVibration.setVisible(false);
-				notifyLockscreen.setVisible(false);
 				notifySound.setVisible(false);
 			}
 			setSettingsEnabled(true);
@@ -432,7 +421,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		notifyForumPosts.setEnabled(enabled);
 		notifyBlogPosts.setEnabled(enabled);
 		notifyVibration.setEnabled(enabled);
-		notifyLockscreen.setEnabled(enabled);
 		notifySound.setEnabled(enabled);
 	}
 
@@ -552,10 +540,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		} else if (preference == notifyVibration) {
 			Settings s = new Settings();
 			s.putBoolean(PREF_NOTIFY_VIBRATION, (Boolean) newValue);
-			storeSettings(s);
-		} else if (preference == notifyLockscreen) {
-			Settings s = new Settings();
-			s.putBoolean(PREF_NOTIFY_LOCK_SCREEN, (Boolean) newValue);
 			storeSettings(s);
 		}
 		return true;

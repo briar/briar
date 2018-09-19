@@ -146,15 +146,6 @@
 			android:widgetLayout="@layout/preference_switch_compat"/>
 
 		<SwitchPreference
-			android:defaultValue="false"
-			android:key="pref_key_notify_lock_screen"
-			android:persistent="false"
-			android:summary="@string/notify_lock_screen_setting_summary"
-			android:title="@string/notify_lock_screen_setting_title"
-			android:visibility="gone"
-			android:widgetLayout="@layout/preference_switch_compat"/>
-
-		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_vibration"
 			android:persistent="false"
