@@ -17,6 +17,7 @@ import java.lang.System.setProperty
 import java.nio.file.Files.setPosixFilePermissions
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermission.*
+import java.util.UUID.randomUUID
 import java.util.logging.Level.*
 import java.util.logging.LogManager
 
@@ -63,14 +64,17 @@ class Main : CliktCommand(
         setProperty(DEFAULT_LOG_LEVEL_KEY, levelSlf4j);
         LogManager.getLogManager().getLogger("").level = level
 
+        val dataDir = getDataDir()
+        val authToken = getOrCreateAuthToken(dataDir)
+
         val app =
-            DaggerBriarHeadlessApp.builder().headlessModule(HeadlessModule(getDataDir())).build()
+            DaggerBriarHeadlessApp.builder().headlessModule(HeadlessModule(dataDir)).build()
         // We need to load the eager singletons directly after making the
         // dependency graphs
         BrambleCoreModule.initEagerSingletons(app)
         BriarCoreModule.initEagerSingletons(app)
 
-        app.router().start(port, debug)
+        app.router().start(authToken, port, debug)
     }
 
     private fun getDataDir(): File {
@@ -87,6 +91,19 @@ class Main : CliktCommand(
         setPosixFilePermissions(file.toPath(), perms);
         return file
     }
+
+    private fun getOrCreateAuthToken(dataDir: File): String {
+        val tokenFile = File(dataDir, "auth_token")
+        return if (tokenFile.isFile) {
+            tokenFile.readText()
+        } else {
+            // TODO use better way of getting random token?
+            val authToken = randomUUID().toString()
+            tokenFile.writeText(authToken)
+            authToken
+        }
+    }
+
 }
 
 fun main(args: Array<String>) = Main().main(args)

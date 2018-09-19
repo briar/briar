@@ -25,7 +25,7 @@ constructor(
     private val blogController: BlogController
 ) {
 
-    fun start(port: Int, debug: Boolean) {
+    fun start(authToken: String, port: Int, debug: Boolean) {
         briarService.start()
         getRuntime().addShutdownHook(Thread(Runnable { briarService.stop() }))
 
@@ -39,6 +39,13 @@ constructor(
         if (debug) app.enableDebugLogging()
         app.start()
 
+        app.accessManager { handler, ctx, _ ->
+            if (ctx.header("Authorization") == "Bearer $authToken") {
+                handler.handle(ctx)
+            } else {
+                ctx.status(401).result("Unauthorized")
+            }
+        }
         app.routes {
             path("/v1") {
                 path("/contacts") {
