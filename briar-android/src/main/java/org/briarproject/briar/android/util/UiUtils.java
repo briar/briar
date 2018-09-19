@@ -61,7 +61,6 @@ import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.WEEK_IN_MILLIS;
 import static android.view.KeyEvent.ACTION_DOWN;
-import static android.view.KeyEvent.ACTION_UP;
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.EditorInfo.IME_NULL;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
@@ -157,7 +156,7 @@ public class UiUtils {
 
 	/**
 	 * Executes the runnable when clicking the link in the textView's text.
-	 *
+	 * <p>
 	 * Attention: This assumes that there's only <b>one</b> link in the text.
 	 */
 	public static void onSingleLinkClick(TextView textView, Runnable runnable) {
