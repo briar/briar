@@ -4,10 +4,13 @@ import io.javalin.Javalin
 import io.javalin.JavalinEvent.SERVER_START_FAILED
 import io.javalin.JavalinEvent.SERVER_STOPPED
 import io.javalin.apibuilder.ApiBuilder.*
+import io.javalin.core.util.ContextUtil
+import io.javalin.core.util.Header
 import org.briarproject.briar.headless.blogs.BlogController
 import org.briarproject.briar.headless.forums.ForumController
 import org.briarproject.briar.headless.messaging.MessagingController
 import java.lang.Runtime.getRuntime
+import java.util.logging.Logger
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -24,6 +27,8 @@ constructor(
     private val forumController: ForumController,
     private val blogController: BlogController
 ) {
+
+    private val logger: Logger = Logger.getLogger(this.javaClass.name)
 
     fun start(authToken: String, port: Int, debug: Boolean) {
         briarService.start()
@@ -68,8 +73,21 @@ constructor(
             }
         }
         app.ws("/v1/ws") { ws ->
-            ws.onConnect { session -> webSocketController.sessions.add(session) }
-            ws.onClose { session, _, _ -> webSocketController.sessions.remove(session) }
+            ws.onConnect { session ->
+                val authHeader = session.header(Header.AUTHORIZATION)
+                val token = ContextUtil.getBasicAuthCredentials(authHeader)?.username
+                if (authToken == token) {
+                    logger.info("Adding websocket session with ${session.remoteAddress}")
+                    webSocketController.sessions.add(session)
+                } else {
+                    logger.info("Closing websocket connection with ${session.remoteAddress}")
+                    session.close(1008, "Invalid Authentication Token")
+                }
+            }
+            ws.onClose { session, _, _ ->
+                logger.info("Removing websocket connection with ${session.remoteAddress}")
+                webSocketController.sessions.remove(session)
+            }
         }
     }
 
