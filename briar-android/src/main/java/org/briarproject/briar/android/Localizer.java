@@ -72,13 +72,6 @@ public class Localizer {
 	public Context setLocale(Context context) {
 		Resources res = context.getResources();
 		Configuration conf = res.getConfiguration();
-		Locale currentLocale;
-		if (SDK_INT >= 24) {
-			currentLocale = conf.getLocales().get(0);
-		} else
-			currentLocale = conf.locale;
-		if (locale.equals(currentLocale))
-			return context;
 		Locale.setDefault(locale);
 		updateConfiguration(conf, locale);
 		Configuration systemConfiguration =
@@ -89,7 +82,7 @@ public class Localizer {
 		Resources.getSystem().updateConfiguration(systemConfiguration,
 				Resources.getSystem().getDisplayMetrics());
 		if (SDK_INT >= 17)
-			context.createConfigurationContext(conf);
+			return context.createConfigurationContext(conf);
 		//noinspection deprecation
 		res.updateConfiguration(conf, res.getDisplayMetrics());
 		return context;
