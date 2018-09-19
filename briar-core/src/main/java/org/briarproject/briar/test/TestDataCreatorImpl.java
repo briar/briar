@@ -2,7 +2,6 @@ package org.briarproject.briar.test;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
-import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -25,7 +24,6 @@ import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
-import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -34,12 +32,10 @@ import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
-import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumPost;
-import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -82,7 +78,6 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private final DatabaseComponent db;
 	private final IdentityManager identityManager;
 	private final ContactManager contactManager;
-	private final ContactGroupFactory contactGroupFactory;
 	private final TransportPropertyManager transportPropertyManager;
 	private final MessagingManager messagingManager;
 	private final BlogManager blogManager;
@@ -101,7 +96,6 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			BlogPostFactory blogPostFactory, CryptoComponent cryptoComponent,
 			DatabaseComponent db, IdentityManager identityManager,
 			ContactManager contactManager,
-			ContactGroupFactory contactGroupFactory,
 			TransportPropertyManager transportPropertyManager,
 			MessagingManager messagingManager, BlogManager blogManager,
 			ForumManager forumManager, @IoExecutor Executor ioExecutor) {
@@ -115,7 +109,6 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		this.db = db;
 		this.identityManager = identityManager;
 		this.contactManager = contactManager;
-		this.contactGroupFactory = contactGroupFactory;
 		this.transportPropertyManager = transportPropertyManager;
 		this.messagingManager = messagingManager;
 		this.blogManager = blogManager;
@@ -183,7 +176,6 @@ public class TestDataCreatorImpl implements TestDataCreator {
 							timestamp, true, verified, true);
 			transportPropertyManager.addRemoteProperties(txn, contactId, props);
 			contact = db.getContact(txn, contactId);
-			fakeClientVisibilities(txn, contact);
 			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
@@ -199,11 +191,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	@Override
 	public Contact addContact(String name) throws DbException {
-		// load localAuthor from DB, because cache doesn't get refreshed
-		// when Espresso tests run within one lifecycle
-		Transaction txn = db.startTransaction(false);
-		LocalAuthor localAuthor = db.getLocalAuthors(txn).iterator().next();
-		db.endTransaction(txn);
+		LocalAuthor localAuthor = identityManager.getLocalAuthor();
 		return addContact(localAuthor.getId(), getAuthor(name));
 	}
 
@@ -309,8 +297,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			Group group = messagingManager.getContactGroup(contact);
 			for (int i = 0; i < numPrivateMsgs; i++) {
 				try {
-					createRandomPrivateMessage(contact.getId(), group.getId(),
-							i);
+					createRandomPrivateMessage(group.getId(), i);
 				} catch (FormatException e) {
 					throw new RuntimeException(e);
 				}
@@ -322,30 +309,27 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		}
 	}
 
-	private void createRandomPrivateMessage(ContactId contactId,
-			GroupId groupId, int num) throws DbException, FormatException {
+	private void createRandomPrivateMessage(GroupId groupId, int num)
+			throws DbException, FormatException {
 		long timestamp = clock.currentTimeMillis() - num * 60 * 1000;
 		String body = getRandomText();
 		boolean local = random.nextBoolean();
-		createPrivateMessage(contactId, groupId, body, timestamp, local);
+		createPrivateMessage(groupId, body, timestamp, local);
 	}
 
-	private void createPrivateMessage(ContactId contactId, GroupId groupId,
-			String body, long timestamp, boolean local)
-			throws DbException, FormatException {
+	private void createPrivateMessage(GroupId groupId, String body,
+			long timestamp, boolean local) throws DbException, FormatException {
 		PrivateMessage m = privateMessageFactory
 				.createPrivateMessage(groupId, timestamp, body);
 		BdfDictionary meta = new BdfDictionary();
 		meta.put("timestamp", timestamp);
 		meta.put("local", local);
 		meta.put("read", local);  // all local messages are read
+
 		Transaction txn = db.startTransaction(false);
 		try {
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
-			if (local) {
-				messageTracker.trackOutgoingMessage(txn, m.getMessage());
-				db.receiveMessage(txn, contactId, m.getMessage());
-			}
+			if (local) messageTracker.trackOutgoingMessage(txn, m.getMessage());
 			else messageTracker.trackIncomingMessage(txn, m.getMessage());
 			db.commitTransaction(txn);
 		} finally {
@@ -357,8 +341,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	public void addPrivateMessage(Contact contact, String body, long time,
 			boolean local) throws DbException, FormatException {
 		Group group = messagingManager.getContactGroup(contact);
-		createPrivateMessage(contact.getId(), group.getId(), body, time,
-				local);
+		createPrivateMessage(group.getId(), body, time, local);
 	}
 
 	private void createBlogPosts(List<Contact> contacts, int numBlogPosts)
@@ -437,23 +420,6 @@ public class TestDataCreatorImpl implements TestDataCreator {
 						post.getMessage().getId(), false);
 			}
 		}
-	}
-
-	private void fakeClientVisibilities(Transaction txn, Contact contact)
-			throws DbException {
-		fakeClientVisibilities(txn, contact, MessagingManager.CLIENT_ID,
-				MessagingManager.MAJOR_VERSION);
-		fakeClientVisibilities(txn, contact, ForumSharingManager.CLIENT_ID,
-				ForumSharingManager.MAJOR_VERSION);
-		fakeClientVisibilities(txn, contact, BlogSharingManager.CLIENT_ID,
-				BlogSharingManager.MAJOR_VERSION);
-	}
-
-	private void fakeClientVisibilities(Transaction txn, Contact contact,
-			ClientId clientId, int majorVersion) throws DbException {
-		Group group = contactGroupFactory
-				.createContactGroup(clientId, majorVersion, contact);
-		db.setGroupVisibility(txn, contact.getId(), group.getId(), SHARED);
 	}
 
 	private String getRandomText() {
