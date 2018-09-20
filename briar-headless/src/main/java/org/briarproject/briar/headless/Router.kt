@@ -8,6 +8,7 @@ import io.javalin.core.util.ContextUtil
 import io.javalin.core.util.Header
 import org.briarproject.briar.headless.blogs.BlogController
 import org.briarproject.briar.headless.contact.ContactController
+import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.forums.ForumController
 import org.briarproject.briar.headless.messaging.MessagingController
 import java.lang.Runtime.getRuntime

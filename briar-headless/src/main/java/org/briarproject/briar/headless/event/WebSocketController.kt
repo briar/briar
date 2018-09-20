@@ -1,4 +1,4 @@
-package org.briarproject.briar.headless
+package org.briarproject.briar.headless.event
 
 import io.javalin.websocket.WsSession
 

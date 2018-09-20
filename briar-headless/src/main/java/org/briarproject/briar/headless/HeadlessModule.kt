@@ -24,6 +24,8 @@ import org.briarproject.bramble.plugin.tor.CircumventionProvider
 import org.briarproject.bramble.plugin.tor.LinuxTorPluginFactory
 import org.briarproject.bramble.system.JavaSystemModule
 import org.briarproject.bramble.util.StringUtils.fromHexString
+import org.briarproject.briar.headless.event.WebSocketController
+import org.briarproject.briar.headless.event.WebSocketControllerImpl
 import org.briarproject.briar.headless.messaging.MessagingModule
 import java.io.File
 import java.security.GeneralSecurityException
@@ -108,7 +110,8 @@ internal class HeadlessModule(private val appDir: File) {
     @Provides
     @Singleton
     internal fun provideWebSocketHandler(
-        webSocketController: WebSocketControllerImpl): WebSocketController {
+        webSocketController: WebSocketControllerImpl
+    ): WebSocketController {
         return webSocketController
     }
 

@@ -14,7 +14,8 @@ import org.briarproject.bramble.api.system.Clock
 import org.briarproject.briar.api.messaging.*
 import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
-import org.briarproject.briar.headless.WebSocketController
+import org.briarproject.briar.headless.event.WebSocketController
+import org.briarproject.briar.headless.event.output
 import java.util.concurrent.Executor
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
