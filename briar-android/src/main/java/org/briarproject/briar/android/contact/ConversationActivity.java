@@ -53,6 +53,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.contact.ConversationAdapter.ConversationListener;
+import org.briarproject.briar.android.contact.ConversationVisitor.BodyCache;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
@@ -111,7 +112,8 @@ import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.S
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ConversationActivity extends BriarActivity
-		implements EventListener, ConversationListener, TextInputListener {
+		implements EventListener, ConversationListener, TextInputListener,
+		BodyCache {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
@@ -131,6 +133,7 @@ public class ConversationActivity extends BriarActivity
 	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
 	private final MutableLiveData<String> contactName = new MutableLiveData<>();
 
+	private ConversationVisitor visitor;
 	private ConversationAdapter adapter;
 	private Toolbar toolbar;
 	private CircleImageView toolbarAvatar;
@@ -191,6 +194,7 @@ public class ConversationActivity extends BriarActivity
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
 		setTransitionName(toolbarStatus, getBulbTransitionName(contactId));
 
+		visitor = new ConversationVisitor(this, this, contactName);
 		adapter = new ConversationAdapter(this, this);
 		list = findViewById(R.id.conversationView);
 		list.setLayoutManager(new LinearLayoutManager(this));
@@ -362,18 +366,7 @@ public class ConversationActivity extends BriarActivity
 	private List<ConversationItem> createItems(
 			Collection<PrivateMessageHeader> headers) {
 		List<ConversationItem> items = new ArrayList<>(headers.size());
-		for (PrivateMessageHeader h : headers) {
-			ConversationItem item;
-			if (h instanceof PrivateRequest || h instanceof PrivateResponse) {
-				item = ConversationItem.from(this, contactName.getValue(), h);
-			} else {
-				item = ConversationItem.from(h);
-				String body = bodyCache.get(h.getId());
-				if (body == null) loadMessageBody(h.getId());
-				else item.setBody(body);
-			}
-			items.add(item);
-		}
+		for (PrivateMessageHeader h : headers) items.add(h.accept(visitor));
 		return items;
 	}
 
@@ -467,25 +460,19 @@ public class ConversationActivity extends BriarActivity
 						@Override
 						public void onChanged(@Nullable String cName) {
 							if (cName != null) {
-								onNewPrivateRequestOrResponse(h, cName);
+								addConversationItem(h.accept(visitor));
 								contactName.removeObserver(this);
 							}
 						}
 					});
 				} else {
-					onNewPrivateRequestOrResponse(h, cName);
+					addConversationItem(h.accept(visitor));
 				}
 			} else {
-				addConversationItem(ConversationItem.from(h));
+				addConversationItem(h.accept(visitor));
 				loadMessageBody(h.getId());
 			}
 		});
-	}
-
-	@UiThread
-	private void onNewPrivateRequestOrResponse(PrivateMessageHeader h,
-			String cName) {
-		addConversationItem(ConversationItem.from(this, cName, h));
 	}
 
 	private void markMessages(Collection<MessageId> messageIds, boolean sent,
@@ -558,10 +545,8 @@ public class ConversationActivity extends BriarActivity
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
 						message.getTimestamp(), true, false, false, false);
-				ConversationItem item = ConversationItem.from(h);
-				item.setBody(body);
 				bodyCache.put(message.getId(), body);
-				addConversationItem(item);
+				addConversationItem(h.accept(visitor));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -772,5 +757,13 @@ public class ConversationActivity extends BriarActivity
 	private void respondToGroupRequest(SessionId id, boolean accept)
 			throws DbException {
 		groupInvitationManager.respondToInvitation(contactId, id, accept);
+	}
+
+	@Nullable
+	@Override
+	public String getBody(MessageId m) {
+		String body = bodyCache.get(m);
+		if (body == null) loadMessageBody(m);
+		return body;
 	}
 }

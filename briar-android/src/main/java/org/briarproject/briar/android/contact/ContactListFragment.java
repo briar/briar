@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.contact;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -48,6 +47,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.support.v4.view.ViewCompat.getTransitionName;
 import static java.util.logging.Level.WARNING;
@@ -113,7 +113,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 					ContactId contactId = item.getContact().getId();
 					i.putExtra(CONTACT_ID, contactId.getInt());
 
-					if (Build.VERSION.SDK_INT >= 23) {
+					if (SDK_INT >= 23) {
 						ContactListItemViewHolder holder =
 								(ContactListItemViewHolder) list
 										.getRecyclerView()
@@ -256,8 +256,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			int position = adapter.findItemPosition(c);
 			ContactListItem item = adapter.getItemAt(position);
 			if (item != null) {
-				ConversationItem i = ConversationItem.from(getContext(), "", h);
-				item.addMessage(i);
+				item.addMessage(h);
 				adapter.updateItemAt(position, item);
 			}
 		});
