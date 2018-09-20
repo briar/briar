@@ -21,7 +21,7 @@ public class BlogInvitationRequest extends InvitationRequest<Blog> {
 	}
 
 	@Override
-	public void accept(PrivateMessageVisitor v) {
-		v.visitBlogInvitatioRequest(this);
+	public <T> T accept(PrivateMessageVisitor<T> v) {
+		return v.visitBlogInvitationRequest(this);
 	}
 }

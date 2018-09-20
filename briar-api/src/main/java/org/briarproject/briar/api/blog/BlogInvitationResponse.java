@@ -18,7 +18,7 @@ public class BlogInvitationResponse extends InvitationResponse {
 	}
 
 	@Override
-	public void accept(PrivateMessageVisitor v) {
-		v.visitBlogInvitationResponse(this);
+	public <T> T accept(PrivateMessageVisitor<T> v) {
+		return v.visitBlogInvitationResponse(this);
 	}
 }

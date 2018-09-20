@@ -37,7 +37,7 @@ public class IntroductionResponse extends PrivateResponse {
 	}
 
 	@Override
-	public void accept(PrivateMessageVisitor v) {
-		v.visitIntroductionResponse(this);
+	public <T> T accept(PrivateMessageVisitor<T> v) {
+		return v.visitIntroductionResponse(this);
 	}
 }

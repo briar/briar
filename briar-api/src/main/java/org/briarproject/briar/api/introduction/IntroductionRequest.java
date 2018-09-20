@@ -31,7 +31,7 @@ public class IntroductionRequest extends PrivateRequest<Author> {
 	}
 
 	@Override
-	public void accept(PrivateMessageVisitor v) {
-		v.visitIntroductionRequest(this);
+	public <T> T accept(PrivateMessageVisitor<T> v) {
+		return v.visitIntroductionRequest(this);
 	}
 }

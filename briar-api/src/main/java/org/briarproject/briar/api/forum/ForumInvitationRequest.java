@@ -23,7 +23,7 @@ public class ForumInvitationRequest extends InvitationRequest<Forum> {
 	}
 
 	@Override
-	public void accept(PrivateMessageVisitor v) {
-		v.visitForumInvitationRequest(this);
+	public <T> T accept(PrivateMessageVisitor<T> v) {
+		return v.visitForumInvitationRequest(this);
 	}
 }

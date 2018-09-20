@@ -21,7 +21,7 @@ public class GroupInvitationResponse extends InvitationResponse {
 	}
 
 	@Override
-	public void accept(PrivateMessageVisitor v) {
-		v.visitGroupInvitationResponse(this);
+	public <T> T accept(PrivateMessageVisitor<T> v) {
+		return v.visitGroupInvitationResponse(this);
 	}
 }

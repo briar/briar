@@ -1,5 +1,6 @@
 package org.briarproject.briar.api.messaging;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.blog.BlogInvitationRequest;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.forum.ForumInvitationRequest;
@@ -9,23 +10,24 @@ import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
 
-public interface PrivateMessageVisitor {
+@NotNullByDefault
+public interface PrivateMessageVisitor<T> {
 
-	void visitPrivateMessageHeader(PrivateMessageHeader h);
+	T visitPrivateMessageHeader(PrivateMessageHeader h);
 
-	void visitBlogInvitatioRequest(BlogInvitationRequest r);
+	T visitBlogInvitationRequest(BlogInvitationRequest r);
 
-	void visitBlogInvitationResponse(BlogInvitationResponse r);
+	T visitBlogInvitationResponse(BlogInvitationResponse r);
 
-	void visitForumInvitationRequest(ForumInvitationRequest r);
+	T visitForumInvitationRequest(ForumInvitationRequest r);
 
-	void visitForumInvitationResponse(ForumInvitationResponse r);
+	T visitForumInvitationResponse(ForumInvitationResponse r);
 
-	void visitGroupInvitationRequest(GroupInvitationRequest r);
+	T visitGroupInvitationRequest(GroupInvitationRequest r);
 
-	void visitGroupInvitationResponse(GroupInvitationResponse r);
+	T visitGroupInvitationResponse(GroupInvitationResponse r);
 
-	void visitIntroductionRequest(IntroductionRequest r);
+	T visitIntroductionRequest(IntroductionRequest r);
 
-	void visitIntroductionResponse(IntroductionResponse r);
+	T visitIntroductionResponse(IntroductionResponse r);
 }
