@@ -54,4 +54,7 @@ public class PrivateMessageHeader {
 		return read;
 	}
 
+	public <T> T accept(PrivateMessageVisitor<T> v) {
+		return v.visitPrivateMessageHeader(this);
+	}
 }
