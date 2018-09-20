@@ -101,6 +101,8 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 
 	@Override
 	public void stopService() {
+		timeoutMinutes = timeoutNever;
+		if (alarmSet) alarmManager.cancel(lockIntent);
 	}
 
 	@UiThread
