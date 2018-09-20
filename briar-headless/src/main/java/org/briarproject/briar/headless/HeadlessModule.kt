@@ -109,7 +109,7 @@ internal class HeadlessModule(private val appDir: File) {
 
     @Provides
     @Singleton
-    internal fun provideWebSocketHandler(
+    internal fun provideWebSocketController(
         webSocketController: WebSocketControllerImpl
     ): WebSocketController {
         return webSocketController

@@ -40,7 +40,6 @@ constructor(
             .port(port)
             .disableStartupBanner()
             .enableCaseSensitiveUrls()
-            .enableRouteOverview("/")
             .event(SERVER_START_FAILED) { stop() }
             .event(SERVER_STOPPED) { stop() }
         if (debug) app.enableDebugLogging()

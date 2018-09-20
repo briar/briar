@@ -8,7 +8,7 @@ or to develop your own user interface for it.
 ## How to use
 
 The REST API client comes as a `jar` file
-and needs a Java Runtime Environment (JRE).
+and needs a Java Runtime Environment (JRE) that supports at least Java 8.
 It currently works only on GNU/Linux operating systems.
 
 You can start the client (and its API server) like this:
@@ -151,6 +151,9 @@ You can test connecting to the websocket with curl:
            --header "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
            --header "Sec-WebSocket-Version: 13" \
            http://DZbfoUie8sjap7CSDR9y6cgJCojV+xUITTIFbgtAgqk=@127.0.0.1:7000/v1/ws
+
+The headers are only required when testing with curl.
+Your websocket client will most likely add these headers automatically.
 
 ### Receiving new private messages
 

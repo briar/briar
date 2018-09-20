@@ -26,7 +26,7 @@ constructor(
         if (!accountManager.accountExists()) {
             createAccount()
         } else {
-            val password = prompt("Password")
+            val password = prompt("Password", hideInput = true)
                 ?: throw UsageError("Could not get password. Is STDIN connected?")
             if (!accountManager.signIn(password)) {
                 echo("Error: Password invalid")
@@ -49,11 +49,12 @@ constructor(
                 throw UsageError("Please choose a shorter nickname!")
             nickname
         }
-        val password = prompt("Password") { password ->
-            if (passwordStrengthEstimator.estimateStrength(password) < QUITE_WEAK)
-                throw UsageError("Please enter a stronger password!")
-            password
-        }
+        val password =
+            prompt("Password", hideInput = true, requireConfirmation = true) { password ->
+                if (passwordStrengthEstimator.estimateStrength(password) < QUITE_WEAK)
+                    throw UsageError("Please enter a stronger password!")
+                password
+            }
         if (nickname == null || password == null)
             throw UsageError("Could not get account information. Is STDIN connected?")
         accountManager.createAccount(nickname, password)
