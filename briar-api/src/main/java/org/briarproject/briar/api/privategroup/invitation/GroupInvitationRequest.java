@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.messaging.PrivateMessageVisitor;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.sharing.InvitationRequest;
 
@@ -22,4 +23,8 @@ public class GroupInvitationRequest extends InvitationRequest<PrivateGroup> {
 				message, available, canBeOpened);
 	}
 
+	@Override
+	public void accept(PrivateMessageVisitor v) {
+		v.visitGroupInvitationRequest(this);
+	}
 }

@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.messaging.PrivateMessageVisitor;
 import org.briarproject.briar.api.messaging.PrivateRequest;
 
 import javax.annotation.Nullable;
@@ -27,5 +28,10 @@ public class IntroductionRequest extends PrivateRequest<Author> {
 
 	public boolean isContact() {
 		return contact;
+	}
+
+	@Override
+	public void accept(PrivateMessageVisitor v) {
+		v.visitIntroductionRequest(this);
 	}
 }

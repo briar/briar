@@ -54,4 +54,7 @@ public class PrivateMessageHeader {
 		return read;
 	}
 
+	public void accept(PrivateMessageVisitor v) {
+		v.visitPrivateMessageHeader(this);
+	}
 }

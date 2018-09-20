@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.messaging.PrivateMessageVisitor;
 import org.briarproject.briar.api.messaging.PrivateResponse;
 
 import javax.annotation.concurrent.Immutable;
@@ -35,4 +36,8 @@ public class IntroductionResponse extends PrivateResponse {
 		return ourRole == INTRODUCER;
 	}
 
+	@Override
+	public void accept(PrivateMessageVisitor v) {
+		v.visitIntroductionResponse(this);
+	}
 }
