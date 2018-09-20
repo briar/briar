@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.sharing;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +27,7 @@ public abstract class InvitationAdapter<I extends InvitationItem, VH extends Inv
 	}
 
 	@Override
-	public void onBindViewHolder(VH ui, int position) {
+	public void onBindViewHolder(@NonNull VH ui, int position) {
 		I item = getItemAt(position);
 		if (item == null) return;
 		ui.onBind(item, listener);

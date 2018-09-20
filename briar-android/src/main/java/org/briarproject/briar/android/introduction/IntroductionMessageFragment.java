@@ -2,6 +2,7 @@ package org.briarproject.briar.android.introduction;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
@@ -82,8 +83,8 @@ public class IntroductionMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater,
+			ViewGroup container, Bundle savedInstanceState) {
 
 		// change toolbar text
 		ActionBar actionBar = introductionActivity.getSupportActionBar();
@@ -182,7 +183,7 @@ public class IntroductionMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public void onSendClick(String text) {
+	public void onSendClick(@NonNull String text) {
 		// disable button to prevent accidental double invitations
 		ui.message.setSendButtonEnabled(false);
 

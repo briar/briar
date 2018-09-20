@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
-	android:id="@+id/relativeLayout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -62,8 +61,6 @@
 		android:textSize="@dimen/text_size_large"
 		app:layout_constraintBottom_toTopOf="@+id/emptyAction"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintLeft_toLeftOf="parent"
-		app:layout_constraintRight_toRightOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/emptyImage"
 		tools:text="@string/no_contacts"/>
@@ -79,8 +76,6 @@
 		android:textSize="@dimen/text_size_small"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintLeft_toLeftOf="parent"
-		app:layout_constraintRight_toRightOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/emptyText"
 		tools:text="@string/no_contacts_action"/>

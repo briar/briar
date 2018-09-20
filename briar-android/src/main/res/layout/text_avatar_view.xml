@@ -9,8 +9,8 @@
 		style="@style/BriarAvatar"
 		android:layout_width="@dimen/avatar_forum_size"
 		android:layout_height="@dimen/avatar_forum_size"
-		android:layout_gravity="bottom|left"
-		android:src="@color/briar_button_text_positive"/>
+		android:layout_gravity="bottom|left|start"
+		tools:src="@color/briar_button_text_positive"/>
 
 	<android.support.v7.widget.AppCompatTextView
 		android:id="@+id/textAvatarView"
@@ -32,13 +32,15 @@
 		android:id="@+id/unreadCountView"
 		android:layout_width="wrap_content"
 		android:layout_height="@dimen/unread_bubble_size"
-		android:layout_gravity="right|top"
+		android:layout_gravity="right|end|top"
 		android:background="@drawable/bubble"
 		android:gravity="center"
 		android:minWidth="@dimen/unread_bubble_size"
 		android:textColor="@color/briar_text_primary_inverse"
 		android:textSize="@dimen/unread_bubble_text_size"
 		android:textStyle="bold"
-		tools:text="12"/>
+		android:visibility="invisible"
+		tools:text="12"
+		tools:visibility="visible"/>
 
 </merge>

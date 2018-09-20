@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.constraint.ConstraintLayout
 	android:id="@+id/layout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
 	android:layout_marginBottom="@dimen/message_bubble_margin"
+	android:layout_marginEnd="@dimen/message_bubble_margin_non_tail"
 	android:layout_marginLeft="@dimen/message_bubble_margin_tail"
 	android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
+	android:layout_marginStart="@dimen/message_bubble_margin_tail"
 	android:layout_marginTop="@dimen/message_bubble_margin"
 	android:background="@drawable/msg_in"
-	android:elevation="@dimen/message_bubble_elevation"
-	android:orientation="vertical">
+	android:elevation="@dimen/message_bubble_elevation">
 
 	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/text"
@@ -19,6 +21,9 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:textColor="?android:attr/textColorPrimary"
+		app:layout_constraintBottom_toTopOf="@+id/time"
+		app:layout_constraintEnd_toEndOf="@+id/time"
+		app:layout_constraintTop_toTopOf="parent"
 		tools:text="Short message"/>
 
 	<TextView
@@ -26,8 +31,9 @@
 		style="@style/TextMessage.Timestamp"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="right|end"
-		android:layout_marginTop="@dimen/message_bubble_timestamp_margin"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/text"
 		tools:text="Dec 24, 13:37"/>
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

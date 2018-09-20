@@ -49,7 +49,7 @@ public class UnreadMessageButton extends FrameLayout {
 		setDirection(direction);
 		attributes.recycle();
 
-		setUnreadCount(0);
+		if (!isInEditMode()) setUnreadCount(0);
 	}
 
 	private void setDirection(int direction) {
@@ -64,11 +64,11 @@ public class UnreadMessageButton extends FrameLayout {
 
 	public void setUnreadCount(int count) {
 		if (count == 0) {
-			setVisibility(INVISIBLE);
+			fab.hide();
+			unread.setVisibility(INVISIBLE);
 		} else {
-			// FIXME: Use animations when upgrading to support library 24.2.0
-			//        https://code.google.com/p/android/issues/detail?id=216469
-			setVisibility(VISIBLE);
+			fab.show();
+			unread.setVisibility(VISIBLE);
 			unread.setText(String.valueOf(count));
 		}
 	}

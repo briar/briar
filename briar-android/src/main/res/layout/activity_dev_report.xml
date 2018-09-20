@@ -1,186 +1,220 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<LinearLayout
+	<android.support.constraint.ConstraintLayout
 		android:id="@+id/report_form"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:orientation="vertical"
 		android:visibility="visible"
-		tools:context=".android.reporting.DevReportActivity">
+		tools:context=".android.reporting.DevReportActivity"
+		tools:visibility="invisible">
 
-		<include layout="@layout/toolbar"/>
+		<include
+			android:id="@+id/appBar"
+			layout="@layout/toolbar"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
 
-		<RelativeLayout
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/user_comment_layout"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
 			android:layout_marginEnd="@dimen/margin_large"
+			android:layout_marginStart="@dimen/margin_large"
+			android:layout_marginTop="@dimen/margin_large"
+			app:hintEnabled="false"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/appBar">
+
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/user_comment"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:inputType="textMultiLine|textCapSentences"
+				android:maxLines="5"
+				tools:hint="@string/describe_crash"/>
+
+		</android.support.design.widget.TextInputLayout>
+
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/user_email_layout"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="@dimen/margin_large"
+			android:layout_marginStart="@dimen/margin_large"
+			app:hintEnabled="false"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/user_comment_layout">
+
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/user_email"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/optional_contact_email"
+				android:inputType="textEmailAddress"
+				android:maxLines="1"/>
+
+		</android.support.design.widget.TextInputLayout>
+
+		<CheckBox
+			android:id="@+id/include_debug_report"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
 			android:layout_marginLeft="@dimen/margin_large"
-			android:layout_marginRight="@dimen/margin_large"
-			android:layout_marginStart="@dimen/margin_large">
+			android:layout_marginStart="@dimen/margin_large"
+			android:checked="false"
+			android:text="@string/include_debug_report_crash"
+			app:layout_constraintBottom_toBottomOf="@+id/chevron"
+			app:layout_constraintEnd_toStartOf="@+id/chevron"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="@+id/chevron"/>
 
-			<android.support.design.widget.TextInputLayout
-				android:id="@+id/user_comment_layout"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+		<Button
+			android:id="@+id/chevron"
+			style="@style/BriarButtonFlat.Positive"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/show"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/user_email_layout"/>
 
-				<android.support.design.widget.TextInputEditText
-					android:id="@+id/user_comment"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:inputType="textMultiLine|textCapSentences"
-					tools:hint="@string/describe_crash"/>
+		<ScrollView
+			android:id="@+id/report_scroll"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/include_debug_report">
 
-			</android.support.design.widget.TextInputLayout>
-
-			<android.support.design.widget.TextInputLayout
-				android:id="@+id/user_email_layout"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_below="@+id/user_comment_layout"
-				android:layout_marginTop="@dimen/margin_small">
-
-				<android.support.design.widget.TextInputEditText
-					android:id="@+id/user_email"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:hint="@string/optional_contact_email"
-					android:inputType="textEmailAddress"
-					android:maxLines="1"/>
-
-			</android.support.design.widget.TextInputLayout>
-
-			<CheckBox
-				android:id="@+id/include_debug_report"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_below="@+id/user_email_layout"
-				android:layout_marginTop="@dimen/margin_small"
-				android:layout_toLeftOf="@+id/chevron"
-				android:checked="false"
-				android:text="@string/include_debug_report_crash"/>
-
-			<Button
-				android:id="@+id/chevron"
-				style="@style/BriarButtonFlat.Positive"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentRight="true"
-				android:layout_alignTop="@+id/include_debug_report"
-				android:text="@string/show"/>
-
-			<ScrollView
+			<LinearLayout
+				android:id="@+id/report_content"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_below="@id/include_debug_report"
-				android:layout_marginTop="@dimen/margin_small">
+				android:gravity="center_horizontal"
+				android:orientation="vertical"
+				android:paddingBottom="@dimen/listitem_height_one_line_avatar"
+				android:paddingEnd="@dimen/margin_large"
+				android:paddingStart="@dimen/margin_large"
+				android:paddingTop="@dimen/margin_small"
+				android:visibility="gone"
+				tools:visibility="visible"/>
 
-				<LinearLayout
-					android:id="@+id/report_content"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:gravity="center_horizontal"
-					android:orientation="vertical"
-					android:paddingBottom="@dimen/listitem_height_one_line_avatar"
-					android:paddingEnd="@dimen/margin_large"
-					android:paddingLeft="@dimen/margin_large"
-					android:paddingRight="@dimen/margin_large"
-					android:paddingStart="@dimen/margin_large"
-					android:paddingTop="@dimen/margin_small"
-					android:visibility="gone"/>
+		</ScrollView>
 
-			</ScrollView>
+		<ProgressBar
+			android:id="@+id/progress_wheel"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:indeterminate="true"
+			android:visibility="gone"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/include_debug_report"
+			tools:visibility="visible"/>
 
-			<ProgressBar
-				android:id="@+id/progress_wheel"
-				style="?android:attr/progressBarStyleLarge"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentBottom="true"
-				android:layout_below="@+id/include_debug_report"
-				android:layout_centerHorizontal="true"
-				android:indeterminate="true"
-				android:visibility="gone"/>
+	</android.support.constraint.ConstraintLayout>
 
-		</RelativeLayout>
-	</LinearLayout>
-
-	<RelativeLayout
+	<android.support.constraint.ConstraintLayout
 		android:id="@+id/request_report"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:clickable="true"
-		android:gravity="center"
 		android:padding="@dimen/margin_large"
-		android:visibility="invisible">
+		android:visibility="invisible"
+		tools:visibility="visible">
 
 		<TextView
 			android:id="@+id/crashed"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="@dimen/margin_large"
 			android:gravity="center"
 			android:text="@string/briar_crashed"
 			android:textColor="?android:attr/textColorSecondary"
-			android:textSize="@dimen/text_size_large"/>
+			android:textSize="@dimen/text_size_large"
+			app:layout_constraintBottom_toTopOf="@+id/fault"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintVertical_chainStyle="packed"
+			tools:layout_editor_absoluteY="8dp"/>
 
 		<TextView
 			android:id="@+id/fault"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_below="@+id/crashed"
 			android:layout_marginTop="@dimen/margin_large"
 			android:gravity="center"
 			android:text="@string/not_your_fault"
 			android:textColor="?android:attr/textColorSecondary"
-			android:textSize="@dimen/text_size_large"/>
+			android:textSize="@dimen/text_size_large"
+			app:layout_constraintBottom_toTopOf="@+id/pleaseSend"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/crashed"/>
 
 		<TextView
 			android:id="@+id/pleaseSend"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_below="@+id/fault"
 			android:layout_marginTop="@dimen/margin_large"
 			android:gravity="center"
 			android:text="@string/please_send_report"
 			android:textColor="?android:attr/textColorSecondary"
-			android:textSize="@dimen/text_size_large"/>
+			android:textSize="@dimen/text_size_large"
+			app:layout_constraintBottom_toTopOf="@+id/encrypted"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/fault"/>
 
 		<TextView
 			android:id="@+id/encrypted"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_below="@+id/pleaseSend"
-			android:layout_marginBottom="@dimen/margin_large"
 			android:layout_marginTop="@dimen/margin_large"
 			android:gravity="center"
 			android:text="@string/report_is_encrypted"
 			android:textColor="?android:attr/textColorSecondary"
-			android:textSize="@dimen/text_size_large"/>
+			android:textSize="@dimen/text_size_large"
+			app:layout_constraintBottom_toTopOf="@+id/acceptButton"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/pleaseSend"/>
 
 		<Button
 			android:id="@+id/declineButton"
 			style="@style/BriarButtonFlat.Negative"
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_alignParentLeft="true"
-			android:layout_below="@+id/encrypted"
-			android:text="@string/close"/>
+			android:text="@string/close"
+			app:layout_constraintBottom_toBottomOf="@+id/acceptButton"
+			app:layout_constraintEnd_toStartOf="@+id/acceptButton"
+			app:layout_constraintHorizontal_weight="1"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="@+id/acceptButton"/>
 
 		<Button
 			android:id="@+id/acceptButton"
 			style="@style/BriarButtonFlat.Positive"
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_below="@+id/encrypted"
-			android:text="@string/send_report"/>
+			android:layout_marginTop="@dimen/margin_large"
+			android:text="@string/send_report"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHorizontal_weight="1"
+			app:layout_constraintStart_toEndOf="@+id/declineButton"
+			app:layout_constraintTop_toBottomOf="@+id/encrypted"/>
 
-	</RelativeLayout>
+	</android.support.constraint.ConstraintLayout>
 
 </FrameLayout>

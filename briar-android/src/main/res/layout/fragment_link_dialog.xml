@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
@@ -47,27 +48,28 @@
 
 	</LinearLayout>
 
-	<LinearLayout
+	<android.support.constraint.ConstraintLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal">
+		android:layout_height="@dimen/button_size">
 
 		<Button
 			android:id="@+id/cancelButton"
 			style="@style/BriarButtonFlat.Positive"
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_weight="0.5"
-			android:text="@string/cancel"/>
+			android:text="@string/cancel"
+			app:layout_constraintEnd_toStartOf="@+id/openButton"
+			app:layout_constraintStart_toStartOf="parent"/>
 
 		<Button
 			android:id="@+id/openButton"
 			style="@style/BriarButtonFlat.Negative"
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_weight="0.5"
-			android:text="@string/link_warning_open_link"/>
+			android:text="@string/link_warning_open_link"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@+id/cancelButton"/>
 
-	</LinearLayout>
+	</android.support.constraint.ConstraintLayout>
 
 </LinearLayout>

@@ -7,6 +7,7 @@ import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.ProgressBar;
 
@@ -15,6 +16,7 @@ import static android.graphics.Paint.Style.FILL;
 import static android.graphics.Paint.Style.STROKE;
 import static android.graphics.drawable.ClipDrawable.HORIZONTAL;
 import static android.view.Gravity.LEFT;
+import static android.view.Gravity.START;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_STRONG;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.STRONG;
@@ -35,11 +37,11 @@ public class StrengthMeter extends ProgressBar {
 		this(context, null);
 	}
 
-	public StrengthMeter(Context context, AttributeSet attrs) {
+	public StrengthMeter(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs, android.R.attr.progressBarStyleHorizontal);
 		bar = new ShapeDrawable();
 		bar.getPaint().setColor(RED);
-		ClipDrawable clip = new ClipDrawable(bar, LEFT, HORIZONTAL);
+		ClipDrawable clip = new ClipDrawable(bar, LEFT & START, HORIZONTAL);
 		ShapeDrawable background = new ShapeDrawable();
 		Paint p = background.getPaint();
 		p.setStyle(FILL);
@@ -50,6 +52,7 @@ public class StrengthMeter extends ProgressBar {
 		Drawable[] layers = new Drawable[] { clip, background };
 		setProgressDrawable(new LayerDrawable(layers));
 		setIndeterminate(false);
+		if (isInEditMode()) setStrength(STRONG);
 	}
 
 	@Override

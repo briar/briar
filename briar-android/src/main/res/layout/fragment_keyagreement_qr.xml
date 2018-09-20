@@ -39,7 +39,7 @@
 				android:layout_height="wrap_content"
 				android:gravity="center"
 				android:paddingTop="@dimen/margin_large"
-				tools:text="Connection failed"/>
+				tools:text="@string/waiting_for_contact_to_scan"/>
 		</LinearLayout>
 
 		<org.briarproject.briar.android.view.QrCodeView
@@ -47,6 +47,9 @@
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
 			android:layout_weight="1"
-			android:background="@android:color/white"/>
+			android:background="@android:color/white"
+			tools:visibility="visible"/>
+
 	</LinearLayout>
+
 </FrameLayout>

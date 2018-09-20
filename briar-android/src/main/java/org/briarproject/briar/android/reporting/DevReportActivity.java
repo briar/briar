@@ -292,8 +292,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 						cb.setChecked(required || !excluded);
 						cb.setEnabled(!required);
 						cb.setOnCheckedChangeListener(DevReportActivity.this);
-						TextView title = v.findViewById(R.id.title);
-						title.setText(field.toString());
+						cb.setText(field.toString());
 						TextView content = v.findViewById(R.id.content);
 						content.setText(value);
 						report.addView(v);

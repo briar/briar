@@ -1,61 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.constraint.ConstraintLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:background="?attr/selectableItemBackground"
-	android:paddingLeft="@dimen/listitem_horizontal_margin"
-	android:paddingStart="@dimen/listitem_horizontal_margin"
-	tools:ignore="RtlSymmetry">
+	android:background="?attr/selectableItemBackground">
 
 	<org.briarproject.briar.android.view.TextAvatarView
 		android:id="@+id/avatarView"
 		android:layout_width="@dimen/listitem_picture_frame_size"
 		android:layout_height="@dimen/listitem_picture_frame_size"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentStart="true"
-		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
-		android:layout_marginRight="@dimen/listitem_horizontal_margin"
-		android:layout_marginTop="@dimen/listitem_horizontal_margin"/>
+		android:layout_margin="@dimen/listitem_horizontal_margin"
+		app:layout_constraintBottom_toTopOf="@+id/divider"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"/>
 
 	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/nameView"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"
-		android:layout_marginTop="@dimen/listitem_horizontal_margin"
-		android:layout_toEndOf="@+id/avatarView"
-		android:layout_toRightOf="@+id/avatarView"
-		android:maxLines="2"
+		android:layout_margin="@dimen/listitem_horizontal_margin"
 		android:textColor="?android:attr/textColorPrimary"
 		android:textSize="@dimen/text_size_medium"
-		tools:text="This is a name of a Private Group"/>
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/avatarView"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:text="This is a name of a Private Group which can be quite long actually"/>
 
 	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/creatorView"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/nameView"
-		android:layout_marginBottom="@dimen/margin_small"
-		android:layout_toEndOf="@+id/avatarView"
-		android:layout_toRightOf="@+id/avatarView"
-		android:paddingTop="@dimen/margin_small"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginRight="@dimen/listitem_horizontal_margin"
+		android:layout_marginTop="@dimen/margin_small"
 		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="@+id/nameView"
+		app:layout_constraintTop_toBottomOf="@+id/nameView"
 		tools:text="Created by Santa Claus"/>
 
 	<TextView
 		android:id="@+id/messageCountView"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/creatorView"
-		android:layout_marginBottom="@dimen/margin_small"
-		android:layout_toEndOf="@+id/avatarView"
-		android:layout_toRightOf="@+id/avatarView"
-		android:paddingTop="@dimen/margin_small"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginStart="@dimen/listitem_horizontal_margin"
+		android:layout_marginTop="@dimen/margin_medium"
 		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"
+		app:layout_constraintEnd_toStartOf="@+id/dateView"
+		app:layout_constraintStart_toEndOf="@+id/avatarView"
+		app:layout_constraintTop_toBottomOf="@+id/creatorView"
 		tools:text="1337 messages"
 		tools:visibility="visible"/>
 
@@ -63,27 +61,27 @@
 		android:id="@+id/dateView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignParentEnd="true"
-		android:layout_alignParentRight="true"
-		android:layout_below="@+id/creatorView"
-		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
-		android:layout_marginRight="@dimen/listitem_horizontal_margin"
-		android:paddingTop="@dimen/margin_small"
+		android:layout_margin="@dimen/listitem_horizontal_margin"
 		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"
+		app:layout_constraintBaseline_toBaselineOf="@+id/messageCountView"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintRight_toRightOf="parent"
 		tools:text="3 weeks ago, 12:00"
 		tools:visibility="visible"/>
 
 	<TextView
 		android:id="@+id/statusView"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/messageCountView"
-		android:layout_toEndOf="@+id/avatarView"
-		android:layout_toLeftOf="@+id/removeButton"
-		android:layout_toRightOf="@+id/avatarView"
-		android:paddingTop="@dimen/margin_small"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginStart="@dimen/listitem_horizontal_margin"
+		android:layout_marginTop="@dimen/margin_medium"
 		android:textColor="?android:attr/textColorTertiary"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintLeft_toRightOf="@+id/avatarView"
+		app:layout_constraintStart_toEndOf="@+id/avatarView"
+		app:layout_constraintTop_toBottomOf="@+id/messageCountView"
 		tools:text="@string/groups_group_is_empty"/>
 
 	<Button
@@ -91,18 +89,21 @@
 		style="@style/BriarButtonFlat.Negative"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignBottom="@+id/divider"
-		android:layout_alignParentRight="true"
 		android:text="@string/groups_remove"
+		app:layout_constraintBottom_toBottomOf="@+id/divider"
+		app:layout_constraintRight_toRightOf="parent"
 		tools:visibility="gone"/>
 
 	<View
 		android:id="@+id/divider"
 		style="@style/Divider.ThreadItem"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentStart="true"
-		android:layout_below="@+id/statusView"
-		android:layout_marginTop="@dimen/listitem_horizontal_margin"/>
+		android:layout_width="0dp"
+		android:layout_marginLeft="@dimen/margin_medium"
+		android:layout_marginStart="@dimen/margin_medium"
+		android:layout_marginTop="@dimen/listitem_horizontal_margin"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/avatarView"
+		app:layout_constraintTop_toBottomOf="@+id/statusView"/>
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>
 

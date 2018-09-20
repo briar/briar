@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.constraint.ConstraintLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -9,27 +9,32 @@
 
 	<View
 		android:id="@+id/inputDivider"
-		style="@style/Divider.Horizontal"/>
+		style="@style/Divider.Horizontal"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"/>
 
 	<org.briarproject.briar.android.view.AuthorView
 		android:id="@+id/authorView"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentTop="true"
 		android:padding="@dimen/listitem_vertical_margin"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
 		app:persona="commenter"/>
 
 	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/bodyView"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/authorView"
 		android:paddingBottom="@dimen/listitem_vertical_margin"
-		android:paddingLeft="@dimen/listitem_vertical_margin"
-		android:paddingRight="@dimen/listitem_vertical_margin"
+		android:paddingEnd="@dimen/listitem_vertical_margin"
+		android:paddingStart="@dimen/listitem_vertical_margin"
 		android:textColor="?android:attr/textColorSecondary"
 		android:textSize="@dimen/text_size_small"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/authorView"
 		tools:text="This is a comment that appears below a blog post. Usually, it is expected to be rather short. Not much longer than this one."/>
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

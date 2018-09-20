@@ -20,20 +20,23 @@
 
 			<LinearLayout
 				android:layout_width="wrap_content"
-				android:layout_height="match_parent">
+				android:layout_height="match_parent"
+				android:orientation="horizontal">
 
 				<include layout="@layout/contact_avatar_status"/>
 
 				<com.vanniktech.emoji.EmojiTextView
 					android:id="@+id/contactName"
 					style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
-					android:textColor="@color/action_bar_text"
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
 					android:layout_marginLeft="@dimen/margin_medium"
 					android:layout_marginStart="@dimen/margin_medium"
 					android:gravity="center"
-					tools:text="Contact Name"/>
+					android:maxLines="1"
+					android:ellipsize="end"
+					android:textColor="@color/action_bar_text"
+					tools:text="Contact Name of someone who chose a long name"/>
 
 			</LinearLayout>
 

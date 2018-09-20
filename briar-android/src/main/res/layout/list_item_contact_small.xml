@@ -23,7 +23,7 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_vertical"
-		android:layout_marginLeft="@dimen/margin_medium"
+		android:layout_marginEnd="@dimen/margin_medium"
 		android:layout_marginStart="@dimen/margin_medium"
 		android:layout_weight="1"
 		android:maxLines="2"
@@ -36,7 +36,9 @@
 		android:layout_width="@dimen/listitem_horizontal_margin"
 		android:layout_height="@dimen/listitem_horizontal_margin"
 		android:layout_gravity="center_vertical"
+		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
 		android:layout_marginRight="@dimen/listitem_horizontal_margin"
+		tools:ignore="ContentDescription"
 		tools:src="@drawable/contact_connected"/>
 
 </LinearLayout>
