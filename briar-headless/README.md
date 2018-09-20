@@ -33,11 +33,11 @@ By default, Briar creates a folder `~/.briar` where it stores its database and o
 There you also find the authentication token which is required to interact with the API:
 
     $ cat ~/.briar/auth_token
-    e175b010-e647-4440-ae8a-638d92ecfc8a
+    DZbfoUie8sjap7CSDR9y6cgJCojV+xUITTIFbgtAgqk=
 
 You can test that things work as expected by running:
 
-    $ curl -H "Authorization: Bearer e175b010-e647-4440-ae8a-638d92ecfc8a" http://127.0.0.1:7000/v1/contacts
+    $ curl -H "Authorization: Bearer DZbfoUie8sjap7CSDR9y6cgJCojV+xUITTIFbgtAgqk=" http://127.0.0.1:7000/v1/contacts
     []
 
 The answer is an empty JSON array, because you don't have any contacts.
@@ -150,7 +150,7 @@ You can test connecting to the websocket with curl:
            --header "Upgrade: websocket" \
            --header "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
            --header "Sec-WebSocket-Version: 13" \
-           http://e175b010-e647-4440-ae8a-638d92ecfc8a@127.0.0.1:7000/v1/ws
+           http://DZbfoUie8sjap7CSDR9y6cgJCojV+xUITTIFbgtAgqk=@127.0.0.1:7000/v1/ws
 
 ### Receiving new private messages
 

@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.types.int
 import org.briarproject.bramble.BrambleCoreModule
 import org.briarproject.briar.BriarCoreModule
 import org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY
+import org.spongycastle.util.encoders.Base64.toBase64String
 import java.io.File
 import java.io.File.separator
 import java.io.IOException
@@ -17,7 +18,7 @@ import java.lang.System.setProperty
 import java.nio.file.Files.setPosixFilePermissions
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermission.*
-import java.util.UUID.randomUUID
+import java.security.SecureRandom
 import java.util.logging.Level.*
 import java.util.logging.LogManager
 
@@ -65,8 +66,6 @@ private class Main : CliktCommand(
         LogManager.getLogManager().getLogger("").level = level
 
         val dataDir = getDataDir()
-        val authToken = getOrCreateAuthToken(dataDir)
-
         val app =
             DaggerBriarHeadlessApp.builder().headlessModule(HeadlessModule(dataDir)).build()
         // We need to load the eager singletons directly after making the
@@ -74,7 +73,9 @@ private class Main : CliktCommand(
         BrambleCoreModule.initEagerSingletons(app)
         BriarCoreModule.initEagerSingletons(app)
 
-        app.router().start(authToken, port, debug)
+        val authToken = getOrCreateAuthToken(dataDir, app.getSecureRandom())
+
+        app.getRouter().start(authToken, port, debug)
     }
 
     private fun getDataDir(): File {
@@ -92,16 +93,21 @@ private class Main : CliktCommand(
         return file
     }
 
-    private fun getOrCreateAuthToken(dataDir: File): String {
+    private fun getOrCreateAuthToken(dataDir: File, secureRandom: SecureRandom): String {
         val tokenFile = File(dataDir, "auth_token")
         return if (tokenFile.isFile) {
             tokenFile.readText()
         } else {
-            // TODO use better way of getting random token?
-            val authToken = randomUUID().toString()
+            val authToken = createAuthToken(secureRandom)
             tokenFile.writeText(authToken)
             authToken
         }
+    }
+
+    private fun createAuthToken(secureRandom: SecureRandom): String {
+        val bytes = ByteArray(32)
+        secureRandom.nextBytes(bytes)
+        return toBase64String(bytes)
     }
 
 }

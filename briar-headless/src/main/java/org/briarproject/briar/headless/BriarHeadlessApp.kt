@@ -7,6 +7,7 @@ import org.briarproject.bramble.account.AccountModule
 import org.briarproject.bramble.system.DesktopSecureRandomModule
 import org.briarproject.briar.BriarCoreEagerSingletons
 import org.briarproject.briar.BriarCoreModule
+import java.security.SecureRandom
 import javax.inject.Singleton
 
 @Component(
@@ -20,5 +21,7 @@ import javax.inject.Singleton
 )
 @Singleton
 internal interface BriarHeadlessApp : BrambleCoreEagerSingletons, BriarCoreEagerSingletons {
-    fun router(): Router
+    fun getRouter(): Router
+
+    fun getSecureRandom(): SecureRandom
 }
