@@ -1,5 +1,6 @@
 package org.briarproject.bramble.api.identity;
 
+import org.briarproject.bramble.api.Nameable;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.StringUtils;
 
@@ -13,7 +14,7 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_K
  */
 @Immutable
 @NotNullByDefault
-public class Author {
+public class Author implements Nameable {
 
 	public enum Status {
 		NONE, ANONYMOUS, UNKNOWN, UNVERIFIED, VERIFIED, OURSELVES

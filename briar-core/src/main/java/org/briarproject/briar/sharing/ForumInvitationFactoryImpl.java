@@ -24,17 +24,16 @@ public class ForumInvitationFactoryImpl
 		SessionId sessionId = new SessionId(m.getShareableId().getBytes());
 		return new ForumInvitationRequest(m.getId(), m.getContactGroupId(),
 				m.getTimestamp(), local, sent, seen, read, sessionId,
-				m.getShareable(), c, m.getMessage(), available, canBeOpened);
+				m.getShareable(), m.getMessage(), available, canBeOpened);
 	}
 
 	@Override
 	public ForumInvitationResponse createInvitationResponse(MessageId id,
 			GroupId contactGroupId, long time, boolean local, boolean sent,
-			boolean seen, boolean read, GroupId shareableId,
-			ContactId contactId, boolean accept) {
+			boolean seen, boolean read, boolean accept, GroupId shareableId) {
 		SessionId sessionId = new SessionId(shareableId.getBytes());
 		return new ForumInvitationResponse(id, contactGroupId, time, local,
-				sent, seen, read, sessionId, shareableId, contactId, accept);
+				sent, seen, read, sessionId, accept, shareableId);
 	}
 
 }

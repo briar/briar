@@ -2,6 +2,7 @@ package org.briarproject.briar.test;
 
 import net.jodah.concurrentunit.Waiter;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
@@ -10,6 +11,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.AuthorFactory;
@@ -376,4 +378,41 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		assertNotNull(contactId1From2);
 		contactManager2.removeContact(contactId1From2);
 	}
+
+	@FunctionalInterface
+	protected interface TransactionScope {
+		void execute(Transaction txn) throws DbException, FormatException;
+	}
+
+	protected void withinTransaction(DatabaseComponent db,
+			TransactionScope scope) throws DbException {
+		Transaction txn = db.startTransaction(false);
+		try {
+			scope.execute(txn);
+			db.commitTransaction(txn);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	@FunctionalInterface
+	protected interface TransactionResultScope<R> {
+		R execute(Transaction txn) throws DbException;
+	}
+
+	protected <R> R withinTransactionReturns(DatabaseComponent db,
+			TransactionResultScope<R> scope) throws DbException {
+		Transaction txn = db.startTransaction(false);
+		R r;
+		try {
+			r = scope.execute(txn);
+			db.commitTransaction(txn);
+		} finally {
+			db.endTransaction(txn);
+		}
+		return r;
+	}
+
 }

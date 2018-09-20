@@ -22,6 +22,8 @@ interface MessageParser<S extends Shareable> {
 
 	MessageMetadata parseMetadata(BdfDictionary meta) throws FormatException;
 
+	S createShareable(BdfList descriptor) throws FormatException;
+
 	InviteMessage<S> getInviteMessage(Transaction txn, MessageId m)
 			throws DbException, FormatException;
 

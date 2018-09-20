@@ -1,35 +1,38 @@
 package org.briarproject.briar.api.introduction;
 
+import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.messaging.PrivateResponse;
 
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
+
 @Immutable
 @NotNullByDefault
-public class IntroductionResponse extends IntroductionMessage {
+public class IntroductionResponse extends PrivateResponse {
 
-	private final String name;
-	private final boolean accepted;
+	private final Author introducedAuthor;
+	private final Role ourRole;
 
-	public IntroductionResponse(SessionId sessionId, MessageId messageId,
-			GroupId groupId, Role role, long time, boolean local, boolean sent,
-			boolean seen, boolean read, String name, boolean accepted) {
-		super(sessionId, messageId, groupId, role, time, local, sent, seen,
-				read);
-
-		this.name = name;
-		this.accepted = accepted;
+	public IntroductionResponse(MessageId messageId, GroupId groupId, long time,
+			boolean local, boolean sent, boolean seen, boolean read,
+			SessionId sessionId, boolean accepted, Author author, Role role) {
+		super(messageId, groupId, time, local, sent, seen, read, sessionId,
+				accepted);
+		this.introducedAuthor = author;
+		this.ourRole = role;
 	}
 
-	public String getName() {
-		return name;
+	public Author getIntroducedAuthor() {
+		return introducedAuthor;
 	}
 
-	public boolean wasAccepted() {
-		return accepted;
+	public boolean isIntroducer() {
+		return ourRole == INTRODUCER;
 	}
 
 }

@@ -9,8 +9,8 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.Author;
@@ -25,13 +25,13 @@ import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroductionManager;
-import org.briarproject.briar.api.introduction.IntroductionMessage;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -159,7 +159,7 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response1Received);
 		assertEquals(introducee2.getAuthor().getName(),
-				listener0.getResponse().getName());
+				listener0.getResponse().getIntroducedAuthor().getName());
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
 
 		// sync second ACCEPT message
@@ -167,7 +167,7 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener0.response2Received);
 		assertEquals(introducee1.getAuthor().getName(),
-				listener0.getResponse().getName());
+				listener0.getResponse().getIntroducedAuthor().getName());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
 
 		// sync forwarded ACCEPT messages to introducees
@@ -265,7 +265,7 @@ public class IntroductionIntegrationTest
 
 		// assert that the name on the decline event is correct
 		assertEquals(introducee2.getAuthor().getName(),
-				listener0.getResponse().getName());
+				listener0.getResponse().getIntroducedAuthor().getName());
 
 		// sync second response
 		sync2To0(1, true);
@@ -282,7 +282,7 @@ public class IntroductionIntegrationTest
 		// assert that the name on the decline event is correct
 		eventWaiter.await(TIMEOUT, 1);
 		assertEquals(introducee1.getAuthor().getName(),
-				listener2.getResponse().getName());
+				listener2.getResponse().getIntroducedAuthor().getName());
 
 		// note how the introducer does not forward the second response,
 		// because after the first decline the protocol finished
@@ -297,22 +297,23 @@ public class IntroductionIntegrationTest
 
 		Group g1 = introductionManager0.getContactGroup(introducee1);
 		Group g2 = introductionManager0.getContactGroup(introducee2);
-		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId1From0)
-						.size());
+		Collection<PrivateMessageHeader> messages =
+				withinTransactionReturns(db0, txn -> introductionManager0
+						.getMessageHeaders(txn, contactId1From0));
+		assertEquals(2, messages.size());
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
-		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId2From0)
-						.size());
+		messages = withinTransactionReturns(db0,
+				txn -> introductionManager0.getMessageHeaders(txn, contactId2From0));
+		assertEquals(2, messages.size());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
-		assertEquals(2,
-				introductionManager1.getIntroductionMessages(contactId0From1)
-						.size());
+		messages = withinTransactionReturns(db1,
+				txn -> introductionManager1.getMessageHeaders(txn, contactId0From1));
+		assertEquals(2, messages.size());
 		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
 		// introducee2 should also have the decline response of introducee1
-		assertEquals(3,
-				introductionManager2.getIntroductionMessages(contactId0From2)
-						.size());
+		messages = withinTransactionReturns(db2,
+				txn -> introductionManager2.getMessageHeaders(txn, contactId0From2));
+		assertEquals(3, messages.size());
 		assertGroupCount(messageTracker2, g2.getId(), 3, 2);
 
 		assertFalse(listener0.aborted);
@@ -355,25 +356,29 @@ public class IntroductionIntegrationTest
 		// assert that the name on the decline event is correct
 		eventWaiter.await(TIMEOUT, 1);
 		assertEquals(contact2From0.getAuthor().getName(),
-				listener1.getResponse().getName());
+				listener1.getResponse().getIntroducedAuthor().getName());
 
 		assertFalse(contactManager1
 				.contactExists(author2.getId(), author1.getId()));
 		assertFalse(contactManager2
 				.contactExists(author1.getId(), author2.getId()));
 
-		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId1From0)
-						.size());
-		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId2From0)
-						.size());
-		assertEquals(3,
-				introductionManager1.getIntroductionMessages(contactId0From1)
-						.size());
-		assertEquals(3,
-				introductionManager2.getIntroductionMessages(contactId0From2)
-						.size());
+		Collection<PrivateMessageHeader> messages =
+				withinTransactionReturns(db0, txn -> introductionManager0
+						.getMessageHeaders(txn, contactId1From0));
+		assertEquals(2, messages.size());
+		messages = withinTransactionReturns(db0,
+				txn -> introductionManager0
+						.getMessageHeaders(txn, contactId2From0));
+		assertEquals(2, messages.size());
+		messages = withinTransactionReturns(db1,
+				txn -> introductionManager1
+						.getMessageHeaders(txn, contactId0From1));
+		assertEquals(3, messages.size());
+		messages = withinTransactionReturns(db2,
+				txn -> introductionManager2
+						.getMessageHeaders(txn, contactId0From2));
+		assertEquals(3, messages.size());
 		assertFalse(listener0.aborted);
 		assertFalse(listener1.aborted);
 		assertFalse(listener2.aborted);
@@ -482,7 +487,7 @@ public class IntroductionIntegrationTest
 		// assert that the name on the decline event is correct
 		eventWaiter.await(TIMEOUT, 1);
 		assertEquals(introducee1.getAuthor().getName(),
-				listener2.getResponse().getName());
+				listener2.getResponse().getIntroducedAuthor().getName());
 
 		// assert that introducee2 is in correct state
 		introduceeSession = getIntroduceeSession(c2);
@@ -519,21 +524,21 @@ public class IntroductionIntegrationTest
 
 		Group g1 = introductionManager0.getContactGroup(introducee1);
 		Group g2 = introductionManager0.getContactGroup(introducee2);
-		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId1From0)
-						.size());
+		assertEquals(2, withinTransactionReturns(db0,
+				txn -> introductionManager0.getMessageHeaders(txn, contactId1From0))
+				.size());
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
-		assertEquals(2,
-				introductionManager0.getIntroductionMessages(contactId2From0)
-						.size());
+		assertEquals(2, withinTransactionReturns(db0,
+				txn -> introductionManager0.getMessageHeaders(txn, contactId2From0))
+				.size());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
-		assertEquals(3,
-				introductionManager1.getIntroductionMessages(contactId0From1)
-						.size());
+		assertEquals(3, withinTransactionReturns(db1,
+				txn -> introductionManager1.getMessageHeaders(txn, contactId0From1))
+				.size());
 		assertGroupCount(messageTracker1, g1.getId(), 3, 2);
-		assertEquals(3,
-				introductionManager2.getIntroductionMessages(contactId0From2)
-						.size());
+		assertEquals(3, withinTransactionReturns(db2,
+				txn -> introductionManager2.getMessageHeaders(txn, contactId0From2))
+				.size());
 		assertGroupCount(messageTracker2, g2.getId(), 3, 2);
 
 		assertFalse(listener0.aborted);
@@ -557,7 +562,8 @@ public class IntroductionIntegrationTest
 		assertFalse(listener1.requestReceived);
 
 		// make really sure we don't have that request
-		assertTrue(introductionManager1.getIntroductionMessages(contactId0From1)
+		assertTrue(withinTransactionReturns(db1,
+				txn -> introductionManager1.getMessageHeaders(txn, contactId0From1))
 				.isEmpty());
 
 		// The message was invalid, so no abort message was sent
@@ -606,12 +612,12 @@ public class IntroductionIntegrationTest
 		sync0To2(1, true);
 
 		// assert that introducees get notified about the existing contact
-		IntroductionRequest ir1 =
-				getIntroductionRequest(introductionManager1, contactId0From1);
-		assertTrue(ir1.contactExists());
-		IntroductionRequest ir2 =
-				getIntroductionRequest(introductionManager2, contactId0From2);
-		assertTrue(ir2.contactExists());
+		IntroductionRequest ir1 = getIntroductionRequest(db1,
+				introductionManager1, contactId0From1);
+		assertTrue(ir1.isContact());
+		IntroductionRequest ir2 = getIntroductionRequest(db2,
+				introductionManager2, contactId0From2);
+		assertTrue(ir2.isContact());
 
 		// sync ACCEPT messages back to introducer
 		sync1To0(1, true);
@@ -991,8 +997,7 @@ public class IntroductionIntegrationTest
 		AcceptMessage m = visitor.visit(message);
 
 		// replace original response with modified one
-		Transaction txn = db0.startTransaction(false);
-		try {
+		withinTransaction(db0, txn -> {
 			db0.removeMessage(txn, message.getMessageId());
 			Message msg = c0.getMessageEncoder()
 					.encodeAcceptMessage(m.getGroupId(), m.getTimestamp(),
@@ -1012,10 +1017,7 @@ public class IntroductionIntegrationTest
 					session.getValue(), msg.getId());
 			c0.getClientHelper().mergeMessageMetadata(txn, session.getKey(),
 					session.getValue());
-			db0.commitTransaction(txn);
-		} finally {
-			db0.endTransaction(txn);
-		}
+		});
 
 		// sync second response
 		sync2To0(1, true);
@@ -1100,30 +1102,31 @@ public class IntroductionIntegrationTest
 	}
 
 	private void assertDefaultUiMessages() throws DbException {
-		Collection<IntroductionMessage> messages =
-				introductionManager0.getIntroductionMessages(contactId1From0);
+		Collection<PrivateMessageHeader> messages =
+				withinTransactionReturns(db0, txn -> introductionManager0
+						.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 
-		messages = introductionManager0.getIntroductionMessages(
-				contactId2From0);
+		messages = withinTransactionReturns(db0,
+				txn -> introductionManager0.getMessageHeaders(txn, contactId2From0));
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 
-		messages = introductionManager1.getIntroductionMessages(
-				contactId0From1);
+		messages = withinTransactionReturns(db1,
+				txn -> introductionManager1.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 
-		messages = introductionManager2.getIntroductionMessages(
-				contactId0From2);
+		messages = withinTransactionReturns(db2,
+				txn -> introductionManager2.getMessageHeaders(txn, contactId0From2));
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 	}
 
 	private void assertMessagesAreAcked(
-			Collection<IntroductionMessage> messages) {
-		for (IntroductionMessage msg : messages) {
+			Collection<PrivateMessageHeader> messages) {
+		for (PrivateMessageHeader msg : messages) {
 			if (msg.isLocal()) assertTrue(msg.isSeen());
 		}
 	}
@@ -1150,7 +1153,7 @@ public class IntroductionIntegrationTest
 			assertTrue(
 					latestEvent instanceof IntroductionResponseReceivedEvent);
 			return ((IntroductionResponseReceivedEvent) latestEvent)
-					.getIntroductionResponse();
+					.getMessageHeader();
 		}
 	}
 
@@ -1178,7 +1181,7 @@ public class IntroductionIntegrationTest
 				IntroductionRequestReceivedEvent introEvent =
 						((IntroductionRequestReceivedEvent) e);
 				requestReceived = true;
-				IntroductionRequest ir = introEvent.getIntroductionRequest();
+				IntroductionRequest ir = introEvent.getMessageHeader();
 				ContactId contactId = introEvent.getContactId();
 				sessionId = ir.getSessionId();
 				long time = clock.currentTimeMillis();
@@ -1219,7 +1222,7 @@ public class IntroductionIntegrationTest
 			assertTrue(
 					latestEvent instanceof IntroductionRequestReceivedEvent);
 			return ((IntroductionRequestReceivedEvent) latestEvent)
-					.getIntroductionRequest();
+					.getMessageHeader();
 		}
 	}
 
@@ -1296,11 +1299,12 @@ public class IntroductionIntegrationTest
 		} else throw new AssertionError("Not implemented");
 	}
 
-	private IntroductionRequest getIntroductionRequest(
+	private IntroductionRequest getIntroductionRequest(DatabaseComponent db,
 			IntroductionManager manager, ContactId contactId)
 			throws DbException {
-		for (IntroductionMessage im : manager
-				.getIntroductionMessages(contactId)) {
+		Collection<PrivateMessageHeader> messages = withinTransactionReturns(db,
+				txn -> manager.getMessageHeaders(txn, contactId));
+		for (PrivateMessageHeader im : messages) {
 			if (im instanceof IntroductionRequest) {
 				return (IntroductionRequest) im;
 			}

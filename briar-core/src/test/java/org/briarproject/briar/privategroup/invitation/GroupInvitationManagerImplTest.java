@@ -24,13 +24,13 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationItem;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
-import org.briarproject.briar.api.sharing.InvitationMessage;
 import org.jmock.AbstractExpectations;
 import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
@@ -669,8 +669,6 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 						invite.getCreator(), invite.getSalt());
 
 		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
@@ -696,23 +694,22 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(messageParser).parseMetadata(meta2);
 			will(returnValue(messageMetadata2));
 			oneOf(db).getMessageStatus(txn, contactId, messageId2);
-			// end transaction
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
-		Collection<InvitationMessage> messages =
-				groupInvitationManager.getInvitationMessages(contactId);
+		Collection<PrivateMessageHeader> messages =
+				groupInvitationManager.getMessageHeaders(txn, contactId);
 		assertEquals(2, messages.size());
-		for (InvitationMessage m : messages) {
+		for (PrivateMessageHeader m : messages) {
 			assertEquals(contactGroup.getId(), m.getGroupId());
-			assertEquals(contactId, m.getContactId());
 			if (m.getId().equals(message.getId())) {
 				assertTrue(m instanceof GroupInvitationRequest);
 				assertEquals(time1, m.getTimestamp());
+				assertEquals(pg, ((GroupInvitationRequest) m).getNameable());
 			} else if (m.getId().equals(messageId2)) {
 				assertTrue(m instanceof GroupInvitationResponse);
 				assertEquals(time2, m.getTimestamp());
+				assertEquals(pg.getId(),
+						((GroupInvitationResponse) m).getShareableId());
 			} else {
 				throw new AssertionError();
 			}

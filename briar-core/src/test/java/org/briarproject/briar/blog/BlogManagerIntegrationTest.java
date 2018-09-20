@@ -1,6 +1,5 @@
 package org.briarproject.briar.blog;
 
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -63,10 +62,7 @@ public class BlogManagerIntegrationTest
 		blog1 = blogFactory.createBlog(author1);
 
 		rssBlog = blogFactory.createFeedBlog(rssAuthor);
-		Transaction txn = db0.startTransaction(false);
-		blogManager0.addBlog(txn, rssBlog);
-		db0.commitTransaction(txn);
-		db0.endTransaction(txn);
+		withinTransaction(db0, txn -> blogManager0.addBlog(txn, rssBlog));
 	}
 
 	@Override

@@ -7,7 +7,11 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.messaging.ConversationManager;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -31,6 +35,22 @@ class ConversationManagerImpl implements ConversationManager {
 	public void registerConversationClient(ConversationClient client) {
 		if (!clients.add(client))
 			throw new IllegalStateException("Client is already registered");
+	}
+
+	@Override
+	public Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
+			throws DbException {
+		List<PrivateMessageHeader> messages = new ArrayList<>();
+		Transaction txn = db.startTransaction(true);
+		try {
+			for (ConversationClient client : clients) {
+				messages.addAll(client.getMessageHeaders(txn, c));
+			}
+			db.commitTransaction(txn);
+		} finally {
+			db.endTransaction(txn);
+		}
+		return messages;
 	}
 
 	@Override

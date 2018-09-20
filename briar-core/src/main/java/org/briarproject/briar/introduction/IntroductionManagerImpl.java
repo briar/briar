@@ -30,10 +30,10 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVer
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroductionManager;
-import org.briarproject.briar.api.introduction.IntroductionMessage;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.Role;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.client.ConversationClientImpl;
 import org.briarproject.briar.introduction.IntroducerSession.Introducee;
 
@@ -398,17 +398,16 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Collection<IntroductionMessage> getIntroductionMessages(ContactId c)
-			throws DbException {
-		List<IntroductionMessage> messages;
-		Transaction txn = db.startTransaction(true);
+	public Collection<PrivateMessageHeader> getMessageHeaders(Transaction txn,
+			ContactId c) throws DbException {
 		try {
 			Contact contact = db.getContact(txn, c);
 			GroupId contactGroupId = getContactGroup(contact).getId();
 			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
-			messages = new ArrayList<>(results.size());
+			List<PrivateMessageHeader> messages =
+					new ArrayList<>(results.size());
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();
 				MessageMetadata meta =
@@ -431,13 +430,10 @@ class IntroductionManagerImpl extends ConversationClientImpl
 									status, ss.bdfSession, false));
 				}
 			}
-			db.commitTransaction(txn);
+			return messages;
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
-		return messages;
 	}
 
 	private IntroductionRequest parseInvitationRequest(Transaction txn,
@@ -470,11 +466,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		boolean contactExists = contactManager
 				.contactExists(txn, rm.getAuthor().getId(),
 						localAuthor.getId());
-
-		return new IntroductionRequest(sessionId, m, contactGroupId,
-				role, meta.getTimestamp(), meta.isLocal(),
-				status.isSent(), status.isSeen(), meta.isRead(),
-				author.getName(), false, message, !meta.isAvailableToAnswer(),
+		return new IntroductionRequest(m, contactGroupId, meta.getTimestamp(),
+				meta.isLocal(), status.isSent(), status.isSeen(), meta.isRead(),
+				sessionId, author, message, !meta.isAvailableToAnswer(),
 				contactExists);
 	}
 
@@ -499,9 +493,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			sessionId = session.getSessionId();
 			author = session.getRemote().author;
 		} else throw new AssertionError();
-		return new IntroductionResponse(sessionId, m, contactGroupId,
-				role, meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), author.getName(), accept);
+		return new IntroductionResponse(m, contactGroupId, meta.getTimestamp(),
+				meta.isLocal(), status.isSent(), status.isSeen(), meta.isRead(),
+				sessionId, accept, author, role);
 	}
 
 	private void removeSessionWithIntroducer(Transaction txn,

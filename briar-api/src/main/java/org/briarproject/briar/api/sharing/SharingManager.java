@@ -36,13 +36,6 @@ public interface SharingManager<S extends Shareable>
 			throws DbException;
 
 	/**
-	 * Returns all group sharing messages sent by the Contact
-	 * identified by contactId.
-	 */
-	Collection<InvitationMessage> getInvitationMessages(
-			ContactId contactId) throws DbException;
-
-	/**
 	 * Returns all invitations to groups.
 	 */
 	Collection<SharingInvitationItem> getInvitations() throws DbException;

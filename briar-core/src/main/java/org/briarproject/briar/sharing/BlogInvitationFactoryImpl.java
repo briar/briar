@@ -24,17 +24,16 @@ public class BlogInvitationFactoryImpl
 		SessionId sessionId = new SessionId(m.getShareableId().getBytes());
 		return new BlogInvitationRequest(m.getId(), m.getContactGroupId(),
 				m.getTimestamp(), local, sent, seen, read, sessionId,
-				m.getShareable(), c, m.getMessage(), available, canBeOpened);
+				m.getShareable(), m.getMessage(), available, canBeOpened);
 	}
 
 	@Override
 	public BlogInvitationResponse createInvitationResponse(MessageId id,
 			GroupId contactGroupId, long time, boolean local, boolean sent,
-			boolean seen, boolean read, GroupId shareableId,
-			ContactId contactId, boolean accept) {
+			boolean seen, boolean read, boolean accept, GroupId shareableId) {
 		SessionId sessionId = new SessionId(shareableId.getBytes());
-		return new BlogInvitationResponse(id, contactGroupId, time, local,
-				sent, seen, read, sessionId, shareableId, contactId, accept);
+		return new BlogInvitationResponse(id, contactGroupId, time, local, sent,
+				seen, read, sessionId, accept, shareableId);
 	}
 
 }

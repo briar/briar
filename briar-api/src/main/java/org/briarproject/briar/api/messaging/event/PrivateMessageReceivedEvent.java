@@ -3,7 +3,6 @@ package org.briarproject.briar.api.messaging.event;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 
 import javax.annotation.concurrent.Immutable;
@@ -13,28 +12,22 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @NotNullByDefault
-public class PrivateMessageReceivedEvent extends Event {
+public class PrivateMessageReceivedEvent<H extends PrivateMessageHeader>
+		extends Event {
 
-	private final PrivateMessageHeader messageHeader;
+	private final H messageHeader;
 	private final ContactId contactId;
-	private final GroupId groupId;
 
-	public PrivateMessageReceivedEvent(PrivateMessageHeader messageHeader,
-			ContactId contactId, GroupId groupId) {
+	public PrivateMessageReceivedEvent(H messageHeader, ContactId contactId) {
 		this.messageHeader = messageHeader;
 		this.contactId = contactId;
-		this.groupId = groupId;
 	}
 
-	public PrivateMessageHeader getMessageHeader() {
+	public H getMessageHeader() {
 		return messageHeader;
 	}
 
 	public ContactId getContactId() {
 		return contactId;
-	}
-
-	public GroupId getGroupId() {
-		return groupId;
 	}
 }

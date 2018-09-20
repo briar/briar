@@ -8,8 +8,6 @@ import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.messaging.ConversationManager.ConversationClient;
 
-import java.util.Collection;
-
 import javax.annotation.Nullable;
 
 @NotNullByDefault
@@ -46,11 +44,5 @@ public interface IntroductionManager extends ConversationClient {
 	 */
 	void respondToIntroduction(ContactId contactId, SessionId sessionId,
 			long timestamp, boolean accept) throws DbException;
-
-	/**
-	 * Returns all introduction messages for the given contact.
-	 */
-	Collection<IntroductionMessage> getIntroductionMessages(ContactId contactId)
-			throws DbException;
 
 }

@@ -5,7 +5,6 @@ import net.jodah.concurrentunit.Waiter;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -22,7 +21,7 @@ import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.forum.event.ForumInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
-import org.briarproject.briar.api.sharing.InvitationMessage;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
@@ -32,9 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -131,31 +128,28 @@ public class ForumSharingIntegrationTest
 		assertEquals(1, forumManager1.getForums().size());
 
 		// invitee has one invitation message from sharer
-		List<InvitationMessage> list = new ArrayList<>(
-				forumSharingManager1.getInvitationMessages(contactId0From1));
+		Collection<PrivateMessageHeader> list = withinTransactionReturns(db1,
+				txn -> forumSharingManager1.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the forum message
-		for (InvitationMessage m : list) {
+		for (PrivateMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
-				ForumInvitationRequest invitation =
-						(ForumInvitationRequest) m;
-				assertFalse(invitation.isAvailable());
-				assertEquals(forum0.getName(), invitation.getForumName());
-				assertEquals(contactId1From0, invitation.getContactId());
+				ForumInvitationRequest invitation = (ForumInvitationRequest) m;
+				assertTrue(invitation.wasAnswered());
+				assertEquals(forum0.getName(), invitation.getName());
+				assertEquals(forum0, invitation.getNameable());
 				assertEquals("Hi!", invitation.getMessage());
 				assertTrue(invitation.canBeOpened());
 			} else {
-				ForumInvitationResponse response =
-						(ForumInvitationResponse) m;
-				assertEquals(contactId0From1, response.getContactId());
+				ForumInvitationResponse response = (ForumInvitationResponse) m;
+				assertEquals(forum0.getId(), response.getShareableId());
 				assertTrue(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2,
-				forumSharingManager0.getInvitationMessages(contactId1From0)
-						.size());
+		assertEquals(2, withinTransactionReturns(db0, txn ->
+				forumSharingManager0.getMessageHeaders(txn, contactId1From0)).size());
 		// forum can not be shared again
 		Contact c1 = contactManager0.getContact(contactId1From0);
 		assertFalse(forumSharingManager0.canBeShared(forum0.getId(), c1));
@@ -190,31 +184,28 @@ public class ForumSharingIntegrationTest
 		assertEquals(0, forumSharingManager1.getInvitations().size());
 
 		// invitee has one invitation message from sharer and one response
-		List<InvitationMessage> list = new ArrayList<>(
-				forumSharingManager1.getInvitationMessages(contactId0From1));
+		Collection<PrivateMessageHeader> list = withinTransactionReturns(db1,
+				txn -> forumSharingManager1.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check things are alright with the forum message
-		for (InvitationMessage m : list) {
+		for (PrivateMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
-				ForumInvitationRequest invitation =
-						(ForumInvitationRequest) m;
-				assertFalse(invitation.isAvailable());
-				assertEquals(forum0.getName(), invitation.getForumName());
-				assertEquals(contactId1From0, invitation.getContactId());
+				ForumInvitationRequest invitation = (ForumInvitationRequest) m;
+				assertEquals(forum0, invitation.getNameable());
+				assertTrue(invitation.wasAnswered());
+				assertEquals(forum0.getName(), invitation.getName());
 				assertEquals(null, invitation.getMessage());
 				assertFalse(invitation.canBeOpened());
 			} else {
-				ForumInvitationResponse response =
-						(ForumInvitationResponse) m;
-				assertEquals(contactId0From1, response.getContactId());
+				ForumInvitationResponse response = (ForumInvitationResponse) m;
+				assertEquals(forum0.getId(), response.getShareableId());
 				assertFalse(response.wasAccepted());
 				assertTrue(response.isLocal());
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2,
-				forumSharingManager0.getInvitationMessages(contactId1From0)
-						.size());
+		assertEquals(2, withinTransactionReturns(db0, txn ->
+				forumSharingManager0.getMessageHeaders(txn, contactId1From0)).size());
 		// forum can be shared again
 		Contact c1 = contactManager0.getContact(contactId1From0);
 		assertTrue(forumSharingManager0.canBeShared(forum0.getId(), c1));
@@ -455,10 +446,7 @@ public class ForumSharingIntegrationTest
 		listenToEvents(true);
 
 		// invitee adds the same forum
-		Transaction txn = db1.startTransaction(false);
-		forumManager1.addForum(txn, forum0);
-		db1.commitTransaction(txn);
-		db1.endTransaction(txn);
+		withinTransaction(db1, txn -> forumManager1.addForum(txn, forum0));
 
 		// send invitation
 		forumSharingManager0
@@ -490,10 +478,12 @@ public class ForumSharingIntegrationTest
 				.contains(contact0From1));
 
 		// and both have each other's invitations (and no response)
-		assertEquals(2, forumSharingManager0
-				.getInvitationMessages(contactId1From0).size());
-		assertEquals(2, forumSharingManager1
-				.getInvitationMessages(contactId0From1).size());
+		assertEquals(2, withinTransactionReturns(db0, txn ->
+				forumSharingManager0.getMessageHeaders(txn, contactId1From0))
+				.size());
+		assertEquals(2, withinTransactionReturns(db1, txn ->
+				forumSharingManager1.getMessageHeaders(txn, contactId0From1))
+				.size());
 
 		// there are no more open invitations
 		assertTrue(forumSharingManager0.getInvitations().isEmpty());
@@ -568,17 +558,14 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testTwoContactsShareSameForum() throws Exception {
 		// second sharer adds the same forum
-		Transaction txn = db2.startTransaction(false);
-		db2.addGroup(txn, forum0.getGroup());
-		db2.commitTransaction(txn);
-		db2.endTransaction(txn);
+		withinTransaction(db2, txn -> db2.addGroup(txn, forum0.getGroup()));
 
 		// add listeners
-		listener0 = new SharerListener();
+		listener0 = new SharerListener(true);
 		c0.getEventBus().addListener(listener0);
 		listener1 = new InviteeListener(true, false);
 		c1.getEventBus().addListener(listener1);
-		listener2 = new SharerListener();
+		listener2 = new SharerListener(true);
 		c2.getEventBus().addListener(listener2);
 
 		// send invitation
@@ -748,8 +735,9 @@ public class ForumSharingIntegrationTest
 
 		// get invitation MessageId for later
 		MessageId invitationId = null;
-		for (InvitationMessage m : forumSharingManager1
-				.getInvitationMessages(contactId0From1)) {
+		Collection<PrivateMessageHeader> list = withinTransactionReturns(db1,
+				txn -> forumSharingManager1.getMessageHeaders(txn, contactId0From1));
+		for (PrivateMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
 				invitationId = m.getId();
 			}
@@ -802,13 +790,22 @@ public class ForumSharingIntegrationTest
 	@NotNullByDefault
 	private class SharerListener implements EventListener {
 
+		private final boolean accept;
 		private volatile boolean requestReceived = false;
 		private volatile boolean responseReceived = false;
+
+		private SharerListener(boolean accept) {
+			this.accept = accept;
+		}
 
 		@Override
 		public void eventOccurred(Event e) {
 			if (e instanceof ForumInvitationResponseReceivedEvent) {
+				ForumInvitationResponseReceivedEvent event =
+						(ForumInvitationResponseReceivedEvent) e;
 				responseReceived = true;
+				eventWaiter.assertEquals(accept,
+						event.getMessageHeader().wasAccepted());
 				eventWaiter.resume();
 			}
 			// this is only needed for tests where a forum is re-shared
@@ -817,7 +814,7 @@ public class ForumSharingIntegrationTest
 						(ForumInvitationRequestReceivedEvent) e;
 				eventWaiter.assertEquals(contactId1From0, event.getContactId());
 				requestReceived = true;
-				Forum f = event.getShareable();
+				Forum f = event.getMessageHeader().getNameable();
 				try {
 					if (respond) {
 						Contact c = contactManager0.getContact(contactId1From0);
@@ -855,7 +852,7 @@ public class ForumSharingIntegrationTest
 						(ForumInvitationRequestReceivedEvent) e;
 				requestReceived = true;
 				if (!answer) return;
-				Forum f = event.getShareable();
+				Forum f = event.getMessageHeader().getNameable();
 				try {
 					if (respond) {
 						eventWaiter.assertEquals(1,
@@ -880,17 +877,19 @@ public class ForumSharingIntegrationTest
 				ForumInvitationResponseReceivedEvent event =
 						(ForumInvitationResponseReceivedEvent) e;
 				eventWaiter.assertEquals(contactId0From1, event.getContactId());
+				eventWaiter.assertEquals(accept,
+						event.getMessageHeader().wasAccepted());
 				eventWaiter.resume();
 			}
 		}
 	}
 
-	private void listenToEvents(boolean accept) throws DbException {
-		listener0 = new SharerListener();
+	private void listenToEvents(boolean accept) {
+		listener0 = new SharerListener(accept);
 		c0.getEventBus().addListener(listener0);
 		listener1 = new InviteeListener(accept);
 		c1.getEventBus().addListener(listener1);
-		listener2 = new SharerListener();
+		listener2 = new SharerListener(accept);
 		c2.getEventBus().addListener(listener2);
 	}
 

@@ -68,8 +68,7 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 	}
 
 	@Override
-	public CreatorSession onJoinAction(Transaction txn, CreatorSession s)
-			throws DbException {
+	public CreatorSession onJoinAction(Transaction txn, CreatorSession s) {
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 
@@ -91,8 +90,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 	}
 
 	@Override
-	public CreatorSession onMemberAddedAction(Transaction txn, CreatorSession s)
-			throws DbException {
+	public CreatorSession onMemberAddedAction(Transaction txn,
+			CreatorSession s) {
 		return s; // Ignored in this role
 	}
 
@@ -193,8 +192,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		setPrivateGroupVisibility(txn, s, SHARED);
 		// Broadcast an event
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
-		txn.attach(new GroupInvitationResponseReceivedEvent(contactId,
-				createInvitationResponse(m, contactId, true)));
+		txn.attach(new GroupInvitationResponseReceivedEvent(
+				createInvitationResponse(m, true), contactId));
 		// Move to the JOINED state
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), m.getId(), sent.getTimestamp(),
@@ -215,8 +214,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 				m.getTimestamp(), false);
 		// Broadcast an event
 		ContactId contactId = getContactId(txn, m.getContactGroupId());
-		txn.attach(new GroupInvitationResponseReceivedEvent(contactId,
-				createInvitationResponse(m, contactId, false)));
+		txn.attach(new GroupInvitationResponseReceivedEvent(
+				createInvitationResponse(m, false), contactId));
 		// Move to the START state
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
@@ -254,10 +253,10 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 	}
 
 	private GroupInvitationResponse createInvitationResponse(
-			GroupInvitationMessage m, ContactId c, boolean accept) {
+			GroupInvitationMessage m, boolean accept) {
 		SessionId sessionId = new SessionId(m.getPrivateGroupId().getBytes());
 		return new GroupInvitationResponse(m.getId(), m.getContactGroupId(),
-				m.getTimestamp(), false, false, true, false, sessionId,
-				m.getPrivateGroupId(), c, accept);
+				m.getTimestamp(), false, false, false, false, sessionId,
+				accept, m.getPrivateGroupId());
 	}
 }

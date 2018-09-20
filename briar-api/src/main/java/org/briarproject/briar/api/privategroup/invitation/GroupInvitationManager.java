@@ -10,7 +10,6 @@ import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.messaging.ConversationManager.ConversationClient;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
-import org.briarproject.briar.api.sharing.InvitationMessage;
 
 import java.util.Collection;
 
@@ -72,13 +71,6 @@ public interface GroupInvitationManager extends ConversationClient {
 	 * to be revealed, for example because the contact has revealed it.
 	 */
 	void revealRelationship(ContactId c, GroupId g) throws DbException;
-
-	/**
-	 * Returns all private group invitation messages related to the given
-	 * contact.
-	 */
-	Collection<InvitationMessage> getInvitationMessages(ContactId c)
-			throws DbException;
 
 	/**
 	 * Returns all private groups to which the user has been invited.

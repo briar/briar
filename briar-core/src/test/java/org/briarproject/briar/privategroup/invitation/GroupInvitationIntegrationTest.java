@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -11,8 +12,6 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationItem;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
-import org.briarproject.briar.api.sharing.InvitationMessage;
-import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
@@ -92,19 +91,20 @@ public class GroupInvitationIntegrationTest
 		assertEquals(privateGroup0.getName(), item.getName());
 		assertFalse(item.isSubscribed());
 
-		Collection<InvitationMessage> messages =
-				groupInvitationManager1.getInvitationMessages(contactId0From1);
+		Collection<PrivateMessageHeader> messages =
+				withinTransactionReturns(db1, txn -> groupInvitationManager1
+						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(1, messages.size());
 		GroupInvitationRequest request =
 				(GroupInvitationRequest) messages.iterator().next();
 		assertEquals(msg, request.getMessage());
-		assertEquals(author0, request.getShareable().getCreator());
+		assertEquals(author0, request.getNameable().getCreator());
 		assertEquals(timestamp, request.getTimestamp());
-		assertEquals(contactId0From1, request.getContactId());
-		assertEquals(privateGroup0.getName(), request.getShareable().getName());
+		assertEquals(privateGroup0.getName(), request.getNameable().getName());
 		assertFalse(request.isLocal());
 		assertFalse(request.isRead());
 		assertFalse(request.canBeOpened());
+		assertFalse(request.wasAnswered());
 	}
 
 	@Test
@@ -118,15 +118,16 @@ public class GroupInvitationIntegrationTest
 		groupInvitationManager1
 				.respondToInvitation(contactId0From1, privateGroup0, false);
 
-		Collection<InvitationMessage> messages =
-				groupInvitationManager1.getInvitationMessages(contactId0From1);
+		Collection<PrivateMessageHeader> messages =
+				withinTransactionReturns(db1, txn -> groupInvitationManager1
+						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, messages.size());
 		boolean foundResponse = false;
-		for (InvitationMessage m : messages) {
+		for (PrivateMessageHeader m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
-				InvitationResponse response = (GroupInvitationResponse) m;
-				assertEquals(contactId0From1, response.getContactId());
+				GroupInvitationResponse response = (GroupInvitationResponse) m;
+				assertEquals(privateGroup0.getId(), response.getShareableId());
 				assertTrue(response.isLocal());
 				assertFalse(response.wasAccepted());
 			}
@@ -135,15 +136,15 @@ public class GroupInvitationIntegrationTest
 
 		sync1To0(1, true);
 
-		messages =
-				groupInvitationManager0.getInvitationMessages(contactId1From0);
+		messages = withinTransactionReturns(db0, txn -> groupInvitationManager0
+				.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		foundResponse = false;
-		for (InvitationMessage m : messages) {
+		for (PrivateMessageHeader m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
-				InvitationResponse response = (GroupInvitationResponse) m;
-				assertEquals(contactId0From1, response.getContactId());
+				GroupInvitationResponse response = (GroupInvitationResponse) m;
+				assertEquals(privateGroup0.getId(), response.getShareableId());
 				assertFalse(response.isLocal());
 				assertFalse(response.wasAccepted());
 			}
@@ -167,31 +168,37 @@ public class GroupInvitationIntegrationTest
 		groupInvitationManager1
 				.respondToInvitation(contactId0From1, privateGroup0, true);
 
-		Collection<InvitationMessage> messages =
-				groupInvitationManager1.getInvitationMessages(contactId0From1);
+		Collection<PrivateMessageHeader> messages =
+				withinTransactionReturns(db1, txn -> groupInvitationManager1
+						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, messages.size());
 		boolean foundResponse = false;
-		for (InvitationMessage m : messages) {
+		for (PrivateMessageHeader m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
-				InvitationResponse response = (GroupInvitationResponse) m;
+				GroupInvitationResponse response = (GroupInvitationResponse) m;
+				assertEquals(privateGroup0.getId(), response.getShareableId());
 				assertTrue(response.wasAccepted());
 			} else {
-				assertTrue(((GroupInvitationRequest) m).canBeOpened());
+				GroupInvitationRequest request = (GroupInvitationRequest) m;
+				assertEquals(privateGroup0, request.getNameable());
+				assertTrue(request.wasAnswered());
+				assertTrue(request.canBeOpened());
 			}
 		}
 		assertTrue(foundResponse);
 
 		sync1To0(1, true);
 
-		messages =
-				groupInvitationManager0.getInvitationMessages(contactId1From0);
+		messages = withinTransactionReturns(db1, txn -> groupInvitationManager0
+				.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		foundResponse = false;
-		for (InvitationMessage m : messages) {
+		for (PrivateMessageHeader m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
-				InvitationResponse response = (GroupInvitationResponse) m;
+				GroupInvitationResponse response = (GroupInvitationResponse) m;
+				assertEquals(privateGroup0.getId(), response.getShareableId());
 				assertTrue(response.wasAccepted());
 			}
 		}
@@ -219,9 +226,9 @@ public class GroupInvitationIntegrationTest
 		// 1 has one unread message
 		Group g0 = groupInvitationManager1.getContactGroup(contact0From1);
 		assertGroupCount(messageTracker1, g0.getId(), 1, 1, timestamp);
-		InvitationMessage m =
-				groupInvitationManager1.getInvitationMessages(contactId0From1)
-						.iterator().next();
+		PrivateMessageHeader m = withinTransactionReturns(db1,
+				txn -> groupInvitationManager1.getMessageHeaders(txn, contactId0From1)
+						.iterator().next());
 
 		groupInvitationManager1
 				.respondToInvitation(contactId0From1, privateGroup0, true);

@@ -18,7 +18,7 @@ import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.event.ForumInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
-import org.briarproject.briar.api.sharing.InvitationRequest;
+import org.briarproject.briar.api.messaging.PrivateRequest;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -31,8 +31,7 @@ import static org.briarproject.briar.api.forum.ForumManager.MAJOR_VERSION;
 class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 
 	private final ForumManager forumManager;
-	private final InvitationFactory<Forum, ForumInvitationResponse>
-			invitationFactory;
+	private final InvitationFactory<Forum, ForumInvitationResponse> invitationFactory;
 
 	@Inject
 	ForumProtocolEngineImpl(DatabaseComponent db,
@@ -52,11 +51,10 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 	@Override
 	Event getInvitationRequestReceivedEvent(InviteMessage<Forum> m,
 			ContactId contactId, boolean available, boolean canBeOpened) {
-		InvitationRequest<Forum> request = invitationFactory
+		PrivateRequest<Forum> request = invitationFactory
 				.createInvitationRequest(false, false, true, false, m,
 						contactId, available, canBeOpened);
-		return new ForumInvitationRequestReceivedEvent(m.getShareable(),
-				contactId, request);
+		return new ForumInvitationRequestReceivedEvent(request, contactId);
 	}
 
 	@Override
@@ -65,8 +63,8 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 		ForumInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
-						m.getShareableId(), contactId, true);
-		return new ForumInvitationResponseReceivedEvent(contactId, response);
+						true, m.getShareableId());
+		return new ForumInvitationResponseReceivedEvent(response, contactId);
 	}
 
 	@Override
@@ -75,8 +73,8 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 		ForumInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, true, false,
-						m.getShareableId(), contactId, true);
-		return new ForumInvitationResponseReceivedEvent(contactId, response);
+						false, m.getShareableId());
+		return new ForumInvitationResponseReceivedEvent(response, contactId);
 	}
 
 	@Override

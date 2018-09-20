@@ -26,8 +26,8 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.api.sharing.InvitationMessage;
-import org.briarproject.briar.api.sharing.InvitationRequest;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.briar.api.messaging.PrivateRequest;
 import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.api.sharing.Shareable;
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
@@ -156,29 +156,29 @@ abstract class SharingManagerImpl<S extends Shareable>
 	}
 
 	/**
-	 * Adds the given Shareable and initializes a session between us
+	 * Adds the given Group and initializes a session between us
 	 * and the Contact c in state SHARING.
 	 * If a session already exists, this does nothing.
 	 */
-	void preShareShareable(Transaction txn, Contact c, S shareable)
+	void preShareGroup(Transaction txn, Contact c, Group g)
 			throws DbException, FormatException {
 		// Return if a session already exists with the contact
 		GroupId contactGroupId = getContactGroup(c).getId();
 		StoredSession existingSession = getSession(txn, contactGroupId,
-				getSessionId(shareable.getId()));
+				getSessionId(g.getId()));
 		if (existingSession != null) return;
 
-		// Add the shareable
-		db.addGroup(txn, shareable.getGroup());
+		// Add the shareable's group
+		db.addGroup(txn, g);
 
 		// Apply the client's visibility
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				c.getId(), getShareableClientId(), getShareableMajorVersion());
-		db.setGroupVisibility(txn, c.getId(), shareable.getId(), client);
+		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 
 		// Initialize session in sharing state
-		Session session = new Session(SHARING, contactGroupId,
-				shareable.getId(), null, null, 0, 0);
+		Session session = new Session(SHARING, contactGroupId, g.getId(),
+				null, null, 0, 0);
 		MessageId storageId = createStorageId(txn, contactGroupId);
 		storeSession(txn, storageId, session);
 	}
@@ -321,17 +321,16 @@ abstract class SharingManagerImpl<S extends Shareable>
 	}
 
 	@Override
-	public Collection<InvitationMessage> getInvitationMessages(ContactId c)
-			throws DbException {
-		List<InvitationMessage> messages;
-		Transaction txn = db.startTransaction(true);
+	public Collection<PrivateMessageHeader> getMessageHeaders(Transaction txn,
+			ContactId c) throws DbException {
 		try {
 			Contact contact = db.getContact(txn, c);
 			GroupId contactGroupId = getContactGroup(contact).getId();
 			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
-			messages = new ArrayList<>(results.size());
+			Collection<PrivateMessageHeader> messages =
+					new ArrayList<>(results.size());
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();
 				MessageMetadata meta =
@@ -339,28 +338,23 @@ abstract class SharingManagerImpl<S extends Shareable>
 				MessageStatus status = db.getMessageStatus(txn, c, m);
 				MessageType type = meta.getMessageType();
 				if (type == INVITE) {
-					messages.add(
-							parseInvitationRequest(txn, c, m, meta, status));
+					messages.add(parseInvitationRequest(txn, c, m,
+							meta, status));
 				} else if (type == ACCEPT) {
-					messages.add(
-							parseInvitationResponse(c, contactGroupId, m, meta,
-									status, true));
+					messages.add(parseInvitationResponse(contactGroupId, m,
+							meta, status, true));
 				} else if (type == DECLINE) {
-					messages.add(
-							parseInvitationResponse(c, contactGroupId, m, meta,
-									status, false));
+					messages.add(parseInvitationResponse(contactGroupId, m,
+							meta, status, false));
 				}
 			}
-			db.commitTransaction(txn);
+			return messages;
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
-		return messages;
 	}
 
-	private InvitationRequest parseInvitationRequest(Transaction txn,
+	private PrivateRequest<S> parseInvitationRequest(Transaction txn,
 			ContactId c, MessageId m, MessageMetadata meta,
 			MessageStatus status) throws DbException, FormatException {
 		// Look up the invite message to get the details of the private group
@@ -374,14 +368,12 @@ abstract class SharingManagerImpl<S extends Shareable>
 						meta.isAvailableToAnswer(), canBeOpened);
 	}
 
-	private InvitationResponse parseInvitationResponse(ContactId c,
-			GroupId contactGroupId, MessageId m, MessageMetadata meta,
-			MessageStatus status, boolean accept)
-			throws DbException, FormatException {
+	private InvitationResponse parseInvitationResponse(GroupId contactGroupId,
+			MessageId m, MessageMetadata meta, MessageStatus status,
+			boolean accept) {
 		return invitationFactory.createInvitationResponse(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), meta.getShareableId(), c,
-				accept);
+				status.isSeen(), meta.isRead(), accept, meta.getShareableId());
 	}
 
 	@Override

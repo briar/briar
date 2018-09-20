@@ -150,12 +150,12 @@ abstract class AbstractProtocolEngine<S extends Session>
 		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
 		Contact c = contactManager.getContact(txn, sender, localAuthorId);
 		IntroductionResponse response =
-				new IntroductionResponse(s.getSessionId(), m.getMessageId(),
-						m.getGroupId(), s.getRole(), m.getTimestamp(), false,
-						false, false, false, otherAuthor.getName(),
-						m instanceof AcceptMessage);
+				new IntroductionResponse(m.getMessageId(), m.getGroupId(),
+						m.getTimestamp(), false, false, false, false,
+						s.getSessionId(), m instanceof AcceptMessage,
+						otherAuthor, s.getRole());
 		IntroductionResponseReceivedEvent e =
-				new IntroductionResponseReceivedEvent(c.getId(), response);
+				new IntroductionResponseReceivedEvent(response, c.getId());
 		txn.attach(e);
 	}
 

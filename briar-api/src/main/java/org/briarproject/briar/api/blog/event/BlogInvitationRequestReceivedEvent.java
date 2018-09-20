@@ -3,19 +3,19 @@ package org.briarproject.briar.api.blog.event;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.blog.Blog;
-import org.briarproject.briar.api.sharing.InvitationRequest;
-import org.briarproject.briar.api.sharing.event.InvitationRequestReceivedEvent;
+import org.briarproject.briar.api.messaging.PrivateRequest;
+import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
 public class BlogInvitationRequestReceivedEvent extends
-		InvitationRequestReceivedEvent<Blog> {
+		PrivateMessageReceivedEvent<PrivateRequest<Blog>> {
 
-	public BlogInvitationRequestReceivedEvent(Blog blog, ContactId contactId,
-			InvitationRequest<Blog> request) {
-		super(blog, contactId, request);
+	public BlogInvitationRequestReceivedEvent(PrivateRequest<Blog> request,
+			ContactId contactId) {
+		super(request, contactId);
 	}
 
 }

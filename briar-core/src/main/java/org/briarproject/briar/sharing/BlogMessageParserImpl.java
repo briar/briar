@@ -30,7 +30,7 @@ class BlogMessageParserImpl extends MessageParserImpl<Blog> {
 	}
 
 	@Override
-	protected Blog createShareable(BdfList descriptor) throws FormatException {
+	public Blog createShareable(BdfList descriptor) throws FormatException {
 		// Author, RSS
 		BdfList authorList = descriptor.getList(0);
 		boolean rssFeed = descriptor.getBoolean(1);

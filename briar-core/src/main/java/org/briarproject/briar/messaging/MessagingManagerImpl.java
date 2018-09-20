@@ -116,8 +116,8 @@ class MessagingManagerImpl extends ConversationClientImpl
 		PrivateMessageHeader header = new PrivateMessageHeader(
 				m.getId(), groupId, timestamp, local, read, false, false);
 		ContactId contactId = getContactId(txn, groupId);
-		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
-				header, contactId, groupId);
+		PrivateMessageReceivedEvent<PrivateMessageHeader> event =
+				new PrivateMessageReceivedEvent<>(header, contactId);
 		txn.attach(event);
 		messageTracker.trackIncomingMessage(txn, m);
 
@@ -178,21 +178,17 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
-			throws DbException {
+	public Collection<PrivateMessageHeader> getMessageHeaders(Transaction txn,
+			ContactId c) throws DbException {
 		Map<MessageId, BdfDictionary> metadata;
 		Collection<MessageStatus> statuses;
 		GroupId g;
-		Transaction txn = db.startTransaction(true);
 		try {
 			g = getContactGroup(db.getContact(txn, c)).getId();
 			metadata = clientHelper.getMessageMetadataAsDictionary(txn, g);
 			statuses = db.getMessageStatus(txn, c, g);
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 		Collection<PrivateMessageHeader> headers = new ArrayList<>();
 		for (MessageStatus s : statuses) {
@@ -203,9 +199,8 @@ class MessagingManagerImpl extends ConversationClientImpl
 				long timestamp = meta.getLong("timestamp");
 				boolean local = meta.getBoolean("local");
 				boolean read = meta.getBoolean("read");
-				headers.add(
-						new PrivateMessageHeader(id, g, timestamp, local, read,
-								s.isSent(), s.isSeen()));
+				headers.add(new PrivateMessageHeader(id, g, timestamp, local,
+						read, s.isSent(), s.isSeen()));
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}

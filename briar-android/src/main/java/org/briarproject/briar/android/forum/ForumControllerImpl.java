@@ -84,11 +84,10 @@ class ForumControllerImpl extends
 		} else if (e instanceof ForumInvitationResponseReceivedEvent) {
 			ForumInvitationResponseReceivedEvent f =
 					(ForumInvitationResponseReceivedEvent) e;
-			ForumInvitationResponse r =
-					(ForumInvitationResponse) f.getResponse();
+			ForumInvitationResponse r = f.getMessageHeader();
 			if (r.getShareableId().equals(getGroupId()) && r.wasAccepted()) {
 				LOG.info("Forum invitation was accepted");
-				onForumInvitationAccepted(r.getContactId());
+				onForumInvitationAccepted(f.getContactId());
 			}
 		} else if (e instanceof ContactLeftShareableEvent) {
 			ContactLeftShareableEvent c = (ContactLeftShareableEvent) e;

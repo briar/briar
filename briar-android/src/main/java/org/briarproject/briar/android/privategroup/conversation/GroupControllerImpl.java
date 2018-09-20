@@ -99,11 +99,10 @@ class GroupControllerImpl extends
 		} else if (e instanceof GroupInvitationResponseReceivedEvent) {
 			GroupInvitationResponseReceivedEvent g =
 					(GroupInvitationResponseReceivedEvent) e;
-			GroupInvitationResponse r =
-					(GroupInvitationResponse) g.getResponse();
+			GroupInvitationResponse r = g.getMessageHeader();
 			if (getGroupId().equals(r.getShareableId()) && r.wasAccepted()) {
 				listener.runOnUiThreadUnlessDestroyed(
-						() -> listener.onInvitationAccepted(r.getContactId()));
+						() -> listener.onInvitationAccepted(g.getContactId()));
 			}
 		} else if (e instanceof GroupDissolvedEvent) {
 			GroupDissolvedEvent g = (GroupDissolvedEvent) e;

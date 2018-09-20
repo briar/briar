@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -34,7 +35,6 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationItem;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
-import org.briarproject.briar.api.sharing.InvitationMessage;
 import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.util.ArrayList;
@@ -353,7 +353,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	private <S extends Session> S handleAction(Transaction txn,
 			LocalAction type, S session, ProtocolEngine<S> engine)
-			throws DbException, FormatException {
+			throws DbException {
 		if (type == LocalAction.INVITE) {
 			throw new IllegalArgumentException();
 		} else if (type == LocalAction.JOIN) {
@@ -368,17 +368,16 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Collection<InvitationMessage> getInvitationMessages(ContactId c)
-			throws DbException {
-		List<InvitationMessage> messages;
-		Transaction txn = db.startTransaction(true);
+	public Collection<PrivateMessageHeader> getMessageHeaders(Transaction txn,
+			ContactId c) throws DbException {
 		try {
 			Contact contact = db.getContact(txn, c);
 			GroupId contactGroupId = getContactGroup(contact).getId();
 			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
-			messages = new ArrayList<>(results.size());
+			List<PrivateMessageHeader> messages =
+					new ArrayList<>(results.size());
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();
 				MessageMetadata meta =
@@ -386,31 +385,25 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				MessageStatus status = db.getMessageStatus(txn, c, m);
 				MessageType type = meta.getMessageType();
 				if (type == INVITE) {
-					messages.add(parseInvitationRequest(txn, c, contactGroupId,
-							m, meta, status));
+					messages.add(parseInvitationRequest(txn, contactGroupId, m,
+							meta, status));
 				} else if (type == JOIN) {
-					messages.add(
-							parseInvitationResponse(c, contactGroupId, m, meta,
-									status, true));
+					messages.add(parseInvitationResponse(contactGroupId, m,
+							meta, status, true));
 				} else if (type == LEAVE) {
-					messages.add(
-							parseInvitationResponse(c, contactGroupId, m, meta,
-									status, false));
+					messages.add(parseInvitationResponse(contactGroupId, m,
+							meta, status, false));
 				}
 			}
-			db.commitTransaction(txn);
+			return messages;
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
-		return messages;
 	}
 
 	private GroupInvitationRequest parseInvitationRequest(Transaction txn,
-			ContactId c, GroupId contactGroupId, MessageId m,
-			MessageMetadata meta, MessageStatus status)
-			throws DbException, FormatException {
+			GroupId contactGroupId, MessageId m, MessageMetadata meta,
+			MessageStatus status) throws DbException, FormatException {
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
 		// Look up the invite message to get the details of the private group
 		InviteMessage invite = messageParser.getInviteMessage(txn, m);
@@ -422,19 +415,19 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				db.containsGroup(txn, invite.getPrivateGroupId());
 		return new GroupInvitationRequest(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), sessionId, pg, c,
+				status.isSeen(), meta.isRead(), sessionId, pg,
 				invite.getMessage(), meta.isAvailableToAnswer(), canBeOpened);
 	}
 
-	private GroupInvitationResponse parseInvitationResponse(ContactId c,
+	private GroupInvitationResponse parseInvitationResponse(
 			GroupId contactGroupId, MessageId m, MessageMetadata meta,
-			MessageStatus status, boolean accept)
-			throws DbException, FormatException {
+			MessageStatus status, boolean accept) {
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
 		return new GroupInvitationResponse(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), sessionId,
-				meta.getPrivateGroupId(), c, accept);
+				status.isSeen(), meta.isRead(), sessionId, accept,
+				meta.getPrivateGroupId()
+		);
 	}
 
 	@Override
