@@ -76,7 +76,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
         val slot = CapturingSlot<OutputPrivateMessageHeader>()
 
         expectGetContact()
-        every { ctx.formParam("message") } returns body
+        every { ctx.formParam("text") } returns body
         every { messagingManager.getContactGroup(contact) } returns group
         every { clock.currentTimeMillis() } returns timestamp
         every {
@@ -110,7 +110,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     @Test
     fun writeNonexistentBody() {
         expectGetContact()
-        every { ctx.formParam("message") } returns null
+        every { ctx.formParam("text") } returns null
 
         assertThrows(BadRequestResponse::class.java) { controller.write(ctx) }
     }
@@ -118,7 +118,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     @Test
     fun writeEmptyBody() {
         expectGetContact()
-        every { ctx.formParam("message") } returns ""
+        every { ctx.formParam("text") } returns ""
 
         assertThrows(BadRequestResponse::class.java) { controller.write(ctx) }
     }
@@ -126,7 +126,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     @Test
     fun writeTooLongBody() {
         expectGetContact()
-        every { ctx.formParam("message") } returns getRandomString(MAX_PRIVATE_MESSAGE_BODY_LENGTH + 1)
+        every { ctx.formParam("text") } returns getRandomString(MAX_PRIVATE_MESSAGE_BODY_LENGTH + 1)
 
         assertThrows(BadRequestResponse::class.java) { controller.write(ctx) }
     }

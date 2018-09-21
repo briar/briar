@@ -101,7 +101,7 @@ Attention: There can messages of other `type`s where the message `body` is `null
 
 `POST /messages/{contactId}`
 
-The text of the message should be included in the form parameter `message`.
+The text of the message should be included in the form parameter `text`.
 
 ### Listing blog posts
 

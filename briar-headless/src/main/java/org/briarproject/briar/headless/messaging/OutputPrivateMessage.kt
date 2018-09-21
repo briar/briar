@@ -12,7 +12,7 @@ internal abstract class OutputPrivateMessage(
     open val body: String?
 ) {
 
-    open val type: String get() = throw NotImplementedError()
+    abstract val type: String
     val contactId: Int get() = iContactId.int
     val timestamp: Long get() = iHeader.timestamp
     val read: Boolean get() = iHeader.isRead

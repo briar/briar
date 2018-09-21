@@ -23,7 +23,7 @@ internal class BlogControllerTest : ControllerTest() {
     private val blogPostFactory = mockk<BlogPostFactory>()
 
     private val controller =
-        BlogController(blogManager, blogPostFactory, identityManager, clock)
+        BlogControllerImpl(blogManager, blogPostFactory, identityManager, clock)
 
     private val blog = Blog(group, author, false)
     private val parentId: MessageId? = null

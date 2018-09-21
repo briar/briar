@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.api.event.Event
 import org.briarproject.bramble.api.event.EventListener
 import org.briarproject.bramble.api.system.Clock
+import org.briarproject.bramble.util.StringUtils.utf8IsTooLong
 import org.briarproject.briar.api.messaging.*
 import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
@@ -26,8 +27,8 @@ internal const val EVENT_PRIVATE_MESSAGE =
 
 @Immutable
 @Singleton
-internal class MessagingControllerImpl @Inject
-constructor(
+internal class MessagingControllerImpl
+@Inject constructor(
     private val messagingManager: MessagingManager,
     private val conversationManager: ConversationManager,
     private val privateMessageFactory: PrivateMessageFactory,
@@ -55,10 +56,10 @@ constructor(
     override fun write(ctx: Context): Context {
         val contact = getContact(ctx)
 
-        val message = ctx.formParam("message")
+        val message = ctx.formParam("text")
         if (message == null || message.isEmpty())
             throw BadRequestResponse("Expecting Message text")
-        if (message.length > MAX_PRIVATE_MESSAGE_BODY_LENGTH)
+        if (utf8IsTooLong(message, MAX_PRIVATE_MESSAGE_BODY_LENGTH))
             throw BadRequestResponse("Message text too large")
 
         val group = messagingManager.getContactGroup(contact)
@@ -71,7 +72,7 @@ constructor(
 
     override fun eventOccurred(e: Event) {
         when (e) {
-            is PrivateMessageReceivedEvent<*> -> dbExecutor.run {
+            is PrivateMessageReceivedEvent<*> -> dbExecutor.execute {
                 val body = messagingManager.getMessageBody(e.messageHeader.id)
                 webSocketController.sendEvent(EVENT_PRIVATE_MESSAGE, e.output(body))
             }

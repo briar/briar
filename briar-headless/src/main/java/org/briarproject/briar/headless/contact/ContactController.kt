@@ -1,21 +1,9 @@
 package org.briarproject.briar.headless.contact
 
 import io.javalin.Context
-import org.briarproject.bramble.api.contact.ContactManager
-import javax.annotation.concurrent.Immutable
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Immutable
-@Singleton
-class ContactController @Inject
-constructor(private val contactManager: ContactManager) {
+interface ContactController {
 
-    fun list(ctx: Context): Context {
-        val contacts = contactManager.activeContacts.map { contact ->
-            contact.output()
-        }
-        return ctx.json(contacts)
-    }
+    fun list(ctx: Context): Context
 
 }

@@ -24,9 +24,11 @@ import org.briarproject.bramble.plugin.tor.CircumventionProvider
 import org.briarproject.bramble.plugin.tor.LinuxTorPluginFactory
 import org.briarproject.bramble.system.JavaSystemModule
 import org.briarproject.bramble.util.StringUtils.fromHexString
-import org.briarproject.briar.headless.event.WebSocketController
-import org.briarproject.briar.headless.event.WebSocketControllerImpl
-import org.briarproject.briar.headless.messaging.MessagingModule
+import org.briarproject.briar.headless.blogs.HeadlessBlogModule
+import org.briarproject.briar.headless.contact.HeadlessContactModule
+import org.briarproject.briar.headless.event.HeadlessEventModule
+import org.briarproject.briar.headless.forums.HeadlessForumModule
+import org.briarproject.briar.headless.messaging.HeadlessMessagingModule
 import java.io.File
 import java.security.GeneralSecurityException
 import java.util.Collections.emptyList
@@ -39,7 +41,11 @@ import javax.net.SocketFactory
         JavaNetworkModule::class,
         JavaSystemModule::class,
         CircumventionModule::class,
-        MessagingModule::class
+        HeadlessBlogModule::class,
+        HeadlessContactModule::class,
+        HeadlessEventModule::class,
+        HeadlessForumModule::class,
+        HeadlessMessagingModule::class
     ]
 )
 internal class HeadlessModule(private val appDir: File) {
@@ -105,14 +111,6 @@ internal class HeadlessModule(private val appDir: File) {
                 return File(appDir, "reportDir")
             }
         }
-    }
-
-    @Provides
-    @Singleton
-    internal fun provideWebSocketController(
-        webSocketController: WebSocketControllerImpl
-    ): WebSocketController {
-        return webSocketController
     }
 
 }

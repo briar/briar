@@ -15,8 +15,8 @@ import javax.inject.Singleton
 
 @Immutable
 @Singleton
-internal class BriarService @Inject
-constructor(
+internal class BriarService
+@Inject constructor(
     private val accountManager: AccountManager,
     private val lifecycleManager: LifecycleManager,
     private val passwordStrengthEstimator: PasswordStrengthEstimator

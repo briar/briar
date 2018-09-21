@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 
 internal class ContactControllerTest : ControllerTest() {
 
-    private val controller = ContactController(contactManager)
+    private val controller = ContactControllerImpl(contactManager)
 
     @Test
     fun testEmptyContactList() {

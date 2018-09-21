@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.event.EventBus
 import javax.inject.Singleton
 
 @Module
-class MessagingModule {
+class HeadlessMessagingModule {
 
     @Provides
     @Singleton

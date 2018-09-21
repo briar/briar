@@ -12,7 +12,8 @@ import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.forums.ForumController
 import org.briarproject.briar.headless.messaging.MessagingController
 import java.lang.Runtime.getRuntime
-import java.util.logging.Logger
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.logging.Logger.getLogger
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,11 +31,12 @@ constructor(
     private val blogController: BlogController
 ) {
 
-    private val logger: Logger = Logger.getLogger(this.javaClass.name)
+    private val logger = getLogger(Router::javaClass.name)
+    private val stopped = AtomicBoolean(false)
 
     fun start(authToken: String, port: Int, debug: Boolean) {
         briarService.start()
-        getRuntime().addShutdownHook(Thread(Runnable { briarService.stop() }))
+        getRuntime().addShutdownHook(Thread(Runnable { stop() }))
 
         val app = Javalin.create()
             .port(port)
@@ -93,8 +95,10 @@ constructor(
     }
 
     private fun stop() {
-        briarService.stop()
-        exitProcess(0)
+        if (!stopped.getAndSet(true)) {
+            briarService.stop()
+            exitProcess(0)
+        }
     }
 
 }

@@ -16,7 +16,7 @@ internal class ForumControllerTest : ControllerTest() {
 
     private val forumManager = mockk<ForumManager>()
 
-    private val controller = ForumController(forumManager)
+    private val controller = ForumControllerImpl(forumManager)
 
     private val forum = Forum(group, getRandomString(5), getRandomBytes(5))
 
@@ -30,7 +30,7 @@ internal class ForumControllerTest : ControllerTest() {
 
     @Test
     fun create() {
-        every { ctx.formParam("name") } returns forum.name
+        every { ctx.formParam("text") } returns forum.name
         every { forumManager.addForum(forum.name) } returns forum
         every { ctx.json(forum.output()) } returns ctx
 
@@ -39,21 +39,21 @@ internal class ForumControllerTest : ControllerTest() {
 
     @Test
     fun createNoName() {
-        every { ctx.formParam("name") } returns null
+        every { ctx.formParam("text") } returns null
 
         assertThrows(BadRequestResponse::class.java) { controller.create(ctx) }
     }
 
     @Test
     fun createEmptyName() {
-        every { ctx.formParam("name") } returns ""
+        every { ctx.formParam("text") } returns ""
 
         assertThrows(BadRequestResponse::class.java) { controller.create(ctx) }
     }
 
     @Test
     fun createTooLongName() {
-        every { ctx.formParam("name") } returns getRandomString(MAX_FORUM_NAME_LENGTH + 1)
+        every { ctx.formParam("text") } returns getRandomString(MAX_FORUM_NAME_LENGTH + 1)
 
         assertThrows(BadRequestResponse::class.java) { controller.create(ctx) }
     }
