@@ -40,16 +40,18 @@ internal class MessagingControllerImpl
 
     override fun list(ctx: Context): Context {
         val contact = getContact(ctx)
-        val messages = conversationManager.getMessageHeaders(contact.id).map { header ->
-            when (header) {
-                is PrivateRequest<*> -> header.output(contact.id)
-                is PrivateResponse -> header.output(contact.id)
-                else -> {
-                    val body = messagingManager.getMessageBody(header.id)
-                    header.output(contact.id, body)
+        val messages = conversationManager.getMessageHeaders(contact.id)
+            .sortedBy { it.timestamp }
+            .map { header ->
+                when (header) {
+                    is PrivateRequest<*> -> header.output(contact.id)
+                    is PrivateResponse -> header.output(contact.id)
+                    else -> {
+                        val body = messagingManager.getMessageBody(header.id)
+                        header.output(contact.id, body)
+                    }
                 }
             }
-        }.sortedBy { it.timestamp }
         return ctx.json(messages)
     }
 

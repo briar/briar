@@ -101,7 +101,7 @@ internal class BlogControllerTest : ControllerTest() {
     fun testEmptyList() {
         every { blogManager.blogs } returns listOf(blog)
         every { blogManager.getPostHeaders(group.id) } returns emptyList()
-        every { ctx.json(emptyList<OutputBlogPost>()) } returns ctx
+        every { ctx.json(emptyList<Any>()) } returns ctx
 
         controller.listPosts(ctx)
     }

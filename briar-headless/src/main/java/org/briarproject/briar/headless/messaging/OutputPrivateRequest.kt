@@ -6,54 +6,56 @@ import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.briar.api.blog.BlogInvitationRequest
 import org.briarproject.briar.api.forum.ForumInvitationRequest
 import org.briarproject.briar.api.introduction.IntroductionRequest
+import org.briarproject.briar.api.messaging.PrivateMessageHeader
 import org.briarproject.briar.api.messaging.PrivateRequest
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest
 import org.briarproject.briar.api.sharing.InvitationRequest
-import javax.annotation.concurrent.Immutable
 
-@Immutable
-internal abstract class OutputPrivateRequest(header: PrivateRequest<*>, contactId: ContactId) :
-    OutputPrivateMessage(header, contactId, header.message) {
-
-    val sessionId: ByteArray = header.sessionId.bytes
-    val name: String = header.name
-    val answered = header.wasAnswered()
+internal fun PrivateRequest<*>.output(contactId: ContactId): Map<String, Any> {
+    val map: HashMap<String, Any> = hashMapOf(
+        "sessionId" to sessionId.bytes,
+        "name" to name,
+        "answered" to wasAnswered()
+    )
+    map.putAll((this as PrivateMessageHeader).output(contactId, null))
+    return map
 }
 
-@Immutable
-internal data class OutputIntroductionRequest(
-    override val iHeader: IntroductionRequest,
-    override val iContactId: ContactId
-) : OutputPrivateRequest(iHeader, iContactId) {
-
-    override val type = "org.briarproject.briar.api.introduction.IntroductionRequest"
-    val alreadyContact get() = iHeader.isContact
-
+internal fun IntroductionRequest.output(contactId: ContactId): Map<String, Any> {
+    val map: HashMap<String, Any> = hashMapOf(
+        "type" to "org.briarproject.briar.api.introduction.IntroductionRequest",
+        "alreadyContact" to isContact
+    )
+    map.putAll((this as PrivateRequest<*>).output(contactId))
+    return map
 }
 
-@Immutable
-internal data class OutputInvitationRequest(
-    override val iHeader: InvitationRequest<*>,
-    override val iContactId: ContactId
-) : OutputPrivateRequest(iHeader, iContactId) {
-
-    override val type = when (iHeader) {
-        is ForumInvitationRequest -> "org.briarproject.briar.api.forum.ForumInvitationRequest"
-        is BlogInvitationRequest -> "org.briarproject.briar.api.blog.BlogInvitationRequest"
-        is GroupInvitationRequest -> "org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest"
-        else -> throw AssertionError("Unknown InvitationRequest")
-    }
-    val canBeOpened get() = iHeader.canBeOpened()
-
+internal fun InvitationRequest<*>.output(contactId : ContactId): Map<String, Any> {
+    val map: HashMap<String, Any> = hashMapOf("canBeOpened" to canBeOpened())
+    map.putAll((this as PrivateRequest<*>).output(contactId))
+    return map
 }
 
-internal fun PrivateRequest<*>.output(contactId: ContactId): OutputPrivateMessage {
-    return when (this) {
-        is IntroductionRequest -> OutputIntroductionRequest(this, contactId)
-        is InvitationRequest -> OutputInvitationRequest(this, contactId)
-        else -> throw AssertionError("Unknown PrivateRequest")
-    }
+internal fun BlogInvitationRequest.output(contactId : ContactId): Map<String, Any> {
+    val map: HashMap<String, Any> = hashMapOf(
+        "type" to "org.briarproject.briar.api.blog.BlogInvitationRequest"
+    )
+    map.putAll((this as InvitationRequest<*>).output(contactId))
+    return map
 }
 
-internal fun IntroductionRequest.output(contactId: ContactId) =
-    OutputIntroductionRequest(this, contactId)
+internal fun ForumInvitationRequest.output(contactId: ContactId): Map<String, Any> {
+    val map: HashMap<String, Any> = hashMapOf(
+        "type" to "org.briarproject.briar.api.forum.ForumInvitationRequest"
+    )
+    map.putAll((this as InvitationRequest<*>).output(contactId))
+    return map
+}
+
+internal fun GroupInvitationRequest.output(contactId : ContactId): Map<String, Any> {
+    val map: HashMap<String, Any> = hashMapOf(
+        "type" to "org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest"
+    )
+    map.putAll((this as InvitationRequest<*>).output(contactId))
+    return map
+}

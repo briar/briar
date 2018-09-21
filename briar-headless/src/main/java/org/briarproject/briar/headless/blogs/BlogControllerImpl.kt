@@ -23,12 +23,10 @@ internal class BlogControllerImpl
 ) : BlogController {
 
     override fun listPosts(ctx: Context): Context {
-        val posts = blogManager.blogs.flatMap { blog ->
-            blogManager.getPostHeaders(blog.id).map { header ->
-                val body = blogManager.getPostBody(header.id)
-                header.output(body)
-            }
-        }.sortedBy { it.timestampReceived }
+        val posts = blogManager.blogs
+            .flatMap { blog -> blogManager.getPostHeaders(blog.id) }
+            .sortedBy { it.timeReceived }
+            .map { header -> header.output(blogManager.getPostBody(header.id)) }
         return ctx.json(posts)
     }
 

@@ -55,7 +55,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
         every { ctx.pathParam("contactId") } returns contact.id.int.toString()
         every { contactManager.getContact(contact.id) } returns contact
         every { conversationManager.getMessageHeaders(contact.id) } returns emptyList<PrivateMessageHeader>()
-        every { ctx.json(emptyList<OutputPrivateMessageHeader>()) } returns ctx
+        every { ctx.json(emptyList<Any>()) } returns ctx
 
         controller.list(ctx)
     }
@@ -73,7 +73,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     @Test
     fun write() {
         val privateMessage = PrivateMessage(message)
-        val slot = CapturingSlot<OutputPrivateMessageHeader>()
+        val slot = CapturingSlot<Map<String, Any>>()
 
         expectGetContact()
         every { ctx.formParam("text") } returns body
@@ -92,9 +92,9 @@ internal class MessagingControllerImplTest : ControllerTest() {
         controller.write(ctx)
 
         val output = slot.captured
-        assertEquals(contact.id.int, output.contactId)
-        assertEquals(body, output.body)
-        assertEquals(message.id.bytes, output.id)
+        assertEquals(contact.id.int, output.get("contactId"))
+        assertEquals(body, output.get("body"))
+        assertEquals(message.id.bytes, output.get("id"))
     }
 
     @Test
