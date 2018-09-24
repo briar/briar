@@ -141,7 +141,8 @@
 	<string name="contact_added_toast">Contact added: %s</string>
 	<string name="contact_already_exists">Contact %s already exists</string>
 	<string name="qr_code_invalid">The QR code is invalid</string>
-	<string name="qr_code_unsupported">The QR code you are trying to scan belongs to an old version of %s which is no longer supported.\n\nPlease ensure that both of you are running the latest version and then try again.</string>
+	<string name="qr_code_too_old">The QR code you have scanned comes from an older version of %s.\n\nPlease ask your contact to upgrade to the latest version and then try again.</string>
+	<string name="qr_code_too_new">The QR code you have scanned comes from a newer version of %s.\n\nPlease upgrade to the latest version and then try again.</string>
 	<string name="camera_error">Camera error</string>
 	<string name="connecting_to_device">Connecting to device\u2026</string>
 	<string name="authenticating_with_device">Authenticating with device\u2026</string>
