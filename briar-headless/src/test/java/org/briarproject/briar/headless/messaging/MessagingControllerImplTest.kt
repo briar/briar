@@ -8,7 +8,11 @@ import io.mockk.*
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.test.ImmediateExecutor
+import org.briarproject.bramble.test.TestUtils.getRandomId
 import org.briarproject.bramble.util.StringUtils.getRandomString
+import org.briarproject.briar.api.client.SessionId
+import org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH
+import org.briarproject.briar.api.introduction.IntroductionRequest
 import org.briarproject.briar.api.messaging.*
 import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
@@ -38,15 +42,31 @@ internal class MessagingControllerImplTest : ControllerTest() {
         clock
     )
 
-    private val header = PrivateMessageHeader(message.id, group.id, timestamp, true, true, true, true)
-    private val headers = listOf(header)
+    private val header =
+        PrivateMessageHeader(message.id, group.id, timestamp, true, true, true, true)
 
     @Test
     fun list() {
         expectGetContact()
-        every { conversationManager.getMessageHeaders(contact.id) } returns headers
+        every { conversationManager.getMessageHeaders(contact.id) } returns listOf(header)
         every { messagingManager.getMessageBody(message.id) } returns body
         every { ctx.json(listOf(header.output(contact.id, body))) } returns ctx
+
+        controller.list(ctx)
+    }
+
+    @Test
+    fun listIntroductionRequest() {
+        val sessionId = SessionId(getRandomId())
+        val text = getRandomString(MAX_REQUEST_MESSAGE_LENGTH)
+        val request = IntroductionRequest(
+            message.id, group.id, timestamp, true, true, false, true, sessionId, author, text,
+            false, false
+        )
+
+        expectGetContact()
+        every { conversationManager.getMessageHeaders(contact.id) } returns listOf(request)
+        every { ctx.json(listOf(request.output(contact.id))) } returns ctx
 
         controller.list(ctx)
     }
@@ -72,7 +92,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     }
 
     @Test
-    fun listPrivateMessage() {
+    fun write() {
         val privateMessage = PrivateMessage(message)
         val slot = CapturingSlot<JsonDict>()
 
@@ -96,8 +116,10 @@ internal class MessagingControllerImplTest : ControllerTest() {
         assertEquals(contact.id.int, output.get("contactId"))
         assertEquals(body, output.get("body"))
         assertEquals(message.id.bytes, output.get("id"))
-        assertEquals("org.briarproject.briar.api.messaging.PrivateMessageHeader",
-            output.get("type"))
+        assertEquals(
+            "org.briarproject.briar.api.messaging.PrivateMessageHeader",
+            output.get("type")
+        )
     }
 
     @Test
