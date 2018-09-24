@@ -124,4 +124,23 @@
 		<item name="android:layout_margin">@dimen/margin_small</item>
 	</style>
 
+	<style name="StepBubble">
+		<item name="android:layout_width">28dp</item>
+		<item name="android:layout_height">28dp</item>
+		<item name="android:background">@drawable/bubble_accent</item>
+		<item name="android:gravity">center</item>
+		<item name="android:textColor">@color/briar_white</item>
+		<item name="android:textSize">18sp</item>
+	</style>
+
+	<style name="StepBubble.Upcoming">
+		<item name="android:alpha">0.5</item>
+	</style>
+
+	<style name="StepBubble.Completed">
+		<item name="android:background">@drawable/bubble_completed</item>
+		<item name="android:scaleType">center</item>
+		<item name="android:src">@drawable/ic_check_white</item>
+	</style>
+
 </resources>

@@ -10,11 +10,16 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
 @NotNullByDefault
 public interface ContactManager {
+
+	int LINK_LENGTH = 64;
+	Pattern LINK_REGEX =
+			Pattern.compile("(briar://)?([a-z2-7]{" + LINK_LENGTH + "})");
 
 	/**
 	 * Registers a hook to be called whenever a contact is added or removed.
@@ -55,7 +60,7 @@ public interface ContactManager {
 	/**
 	 * Returns the static link that needs to be sent to the contact to be added.
 	 */
-	String getRemoteContactLink();
+	String getRemoteContactLink() throws DbException;
 
 	/**
 	 * Returns true if the given link is syntactically valid.
@@ -69,12 +74,12 @@ public interface ContactManager {
 	 * @param alias The alias the user has given this contact.
 	 * @return A PendingContact representing the contact to be added.
 	 */
-	PendingContact addRemoteContactRequest(String link, String alias);
+	void addRemoteContactRequest(String link, String alias);
 
 	/**
 	 * Returns a list of {@link PendingContact}s.
 	 */
-	Collection<PendingContact> getPendingContacts();
+	Collection<PendingContact> getPendingContacts() throws DbException;
 
 	/**
 	 * Removes a {@link PendingContact} that is in state

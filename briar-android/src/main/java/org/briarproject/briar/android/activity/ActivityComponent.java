@@ -15,8 +15,12 @@ import org.briarproject.briar.android.blog.ReblogFragment;
 import org.briarproject.briar.android.blog.RssFeedImportActivity;
 import org.briarproject.briar.android.blog.RssFeedManageActivity;
 import org.briarproject.briar.android.blog.WriteBlogPostActivity;
+import org.briarproject.briar.android.contact.add.remote.AddContactActivity;
+import org.briarproject.briar.android.contact.add.remote.LinkExchangeFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.contact.ContactModule;
+import org.briarproject.briar.android.contact.add.remote.NicknameFragment;
+import org.briarproject.briar.android.contact.add.remote.PendingRequestsActivity;
 import org.briarproject.briar.android.conversation.AliasDialogFragment;
 import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.conversation.ImageActivity;
@@ -168,6 +172,10 @@ public interface ActivityComponent {
 
 	void inject(UnlockActivity activity);
 
+	void inject(AddContactActivity activity);
+
+	void inject(PendingRequestsActivity activity);
+
 	// Fragments
 	void inject(AuthorNameFragment fragment);
 
@@ -190,6 +198,10 @@ public interface ActivityComponent {
 	void inject(FeedFragment fragment);
 
 	void inject(KeyAgreementFragment fragment);
+
+	void inject(LinkExchangeFragment fragment);
+
+	void inject(NicknameFragment fragment);
 
 	void inject(ContactChooserFragment fragment);
 
