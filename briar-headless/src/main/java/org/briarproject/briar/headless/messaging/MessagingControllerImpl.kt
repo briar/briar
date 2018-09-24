@@ -12,11 +12,20 @@ import org.briarproject.bramble.api.event.Event
 import org.briarproject.bramble.api.event.EventListener
 import org.briarproject.bramble.api.system.Clock
 import org.briarproject.bramble.util.StringUtils.utf8IsTooLong
+import org.briarproject.briar.api.blog.BlogInvitationRequest
+import org.briarproject.briar.api.blog.BlogInvitationResponse
+import org.briarproject.briar.api.forum.ForumInvitationRequest
+import org.briarproject.briar.api.forum.ForumInvitationResponse
+import org.briarproject.briar.api.introduction.IntroductionRequest
+import org.briarproject.briar.api.introduction.IntroductionResponse
 import org.briarproject.briar.api.messaging.*
 import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse
 import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.event.output
+import org.briarproject.briar.headless.json.JsonDict
 import java.util.concurrent.Executor
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
@@ -40,18 +49,10 @@ internal class MessagingControllerImpl
 
     override fun list(ctx: Context): Context {
         val contact = getContact(ctx)
+        val jsonVisitor = JsonVisitor(contact.id, messagingManager)
         val messages = conversationManager.getMessageHeaders(contact.id)
             .sortedBy { it.timestamp }
-            .map { header ->
-                when (header) {
-                    is PrivateRequest<*> -> header.output(contact.id)
-                    is PrivateResponse -> header.output(contact.id)
-                    else -> {
-                        val body = messagingManager.getMessageBody(header.id)
-                        header.output(contact.id, body)
-                    }
-                }
-            }
+            .map { header -> header.accept(jsonVisitor) }
         return ctx.json(messages)
     }
 
@@ -95,5 +96,29 @@ internal class MessagingControllerImpl
             throw NotFoundResponse()
         }
     }
+}
 
+private class JsonVisitor(
+    private val contactId: ContactId,
+    private val messagingManager: MessagingManager
+) : PrivateMessageVisitor<JsonDict> {
+
+    override fun visitPrivateMessageHeader(h: PrivateMessageHeader) =
+        h.output(contactId, messagingManager.getMessageBody(h.id))
+
+    override fun visitBlogInvitationRequest(r: BlogInvitationRequest) = r.output(contactId)
+
+    override fun visitBlogInvitationResponse(r: BlogInvitationResponse) = r.output(contactId)
+
+    override fun visitForumInvitationRequest(r: ForumInvitationRequest) = r.output(contactId)
+
+    override fun visitForumInvitationResponse(r: ForumInvitationResponse) = r.output(contactId)
+
+    override fun visitGroupInvitationRequest(r: GroupInvitationRequest) = r.output(contactId)
+
+    override fun visitGroupInvitationResponse(r: GroupInvitationResponse) = r.output(contactId)
+
+    override fun visitIntroductionRequest(r: IntroductionRequest) = r.output(contactId)
+
+    override fun visitIntroductionResponse(r: IntroductionResponse) = r.output(contactId)
 }
