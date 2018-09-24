@@ -3,7 +3,13 @@ package org.briarproject.bramble.api.keyagreement;
 public interface KeyAgreementConstants {
 
 	/**
-	 * The current version of the BQP protocol. Version number 89 is reserved.
+	 * The version of the BQP protocol used in beta releases. This version
+	 * number is reserved.
+	 */
+	byte BETA_PROTOCOL_VERSION = 89;
+
+	/**
+	 * The current version of the BQP protocol.
 	 */
 	byte PROTOCOL_VERSION = 4;
 

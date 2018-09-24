@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import com.google.zxing.Result;
 
-import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementResult;
@@ -23,6 +22,7 @@ import org.briarproject.bramble.api.keyagreement.KeyAgreementTask;
 import org.briarproject.bramble.api.keyagreement.Payload;
 import org.briarproject.bramble.api.keyagreement.PayloadEncoder;
 import org.briarproject.bramble.api.keyagreement.PayloadParser;
+import org.briarproject.bramble.api.keyagreement.UnsupportedVersionException;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementAbortedEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementFailedEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementFinishedEvent;
@@ -244,8 +244,14 @@ public class KeyAgreementFragment extends BaseEventFragment
 			task.connectAndRunProtocol(remotePayload);
 		} catch (UnsupportedVersionException e) {
 			reset();
-			String msg = getString(R.string.qr_code_unsupported,
-					getString(R.string.app_name));
+			String msg;
+			if (e.isTooOld()) {
+				msg = getString(R.string.qr_code_too_old,
+						getString(R.string.app_name));
+			} else {
+				msg = getString(R.string.qr_code_too_new,
+						getString(R.string.app_name));
+			}
 			showNextFragment(ContactExchangeErrorFragment.newInstance(msg));
 		} catch (CameraException e) {
 			logCameraExceptionAndFinish(e);
