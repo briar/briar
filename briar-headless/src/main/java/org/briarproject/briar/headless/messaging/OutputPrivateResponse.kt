@@ -11,52 +11,47 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader
 import org.briarproject.briar.api.messaging.PrivateResponse
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse
 import org.briarproject.briar.api.sharing.InvitationResponse
+import org.briarproject.briar.headless.json.JsonDict
 
-internal fun PrivateResponse.output(contactId: ContactId): Map<String, Any> {
-    val map: HashMap<String, Any> = hashMapOf(
+internal fun PrivateResponse.output(contactId: ContactId): JsonDict {
+    val dict = (this as PrivateMessageHeader).output(contactId, null)
+    dict.putAll(
         "sessionId" to sessionId.bytes,
         "accepted" to wasAccepted()
     )
-    map.putAll((this as PrivateMessageHeader).output(contactId, null))
-    return map
+    return dict
 }
 
-internal fun IntroductionResponse.output(contactId: ContactId): Map<String, Any> {
-    val map: HashMap<String, Any> = hashMapOf(
+internal fun IntroductionResponse.output(contactId: ContactId): JsonDict {
+    val dict = (this as PrivateResponse).output(contactId)
+    dict.putAll(
         "type" to "org.briarproject.briar.api.introduction.IntroductionResponse",
         "introducedAuthor" to introducedAuthor.output(),
         "introducer" to isIntroducer
     )
-    map.putAll((this as PrivateResponse).output(contactId))
-    return map
+    return dict
 }
 
-internal fun InvitationResponse.output(contactId: ContactId): Map<String, Any> {
-    val map: HashMap<String, Any> = hashMapOf("shareableId" to shareableId.bytes)
-    map.putAll((this as PrivateResponse).output(contactId))
-    return map
+internal fun InvitationResponse.output(contactId: ContactId): JsonDict {
+    val dict = (this as PrivateResponse).output(contactId)
+    dict.put("shareableId", shareableId.bytes)
+    return dict
 }
 
-internal fun BlogInvitationResponse.output(contactId: ContactId): Map<String, Any> {
-    val map: HashMap<String, Any> = hashMapOf(
-        "type" to "org.briarproject.briar.api.blog.BlogInvitationResponse"
-    )
-    map.putAll((this as InvitationResponse).output(contactId))
-    return map
+internal fun BlogInvitationResponse.output(contactId: ContactId): JsonDict {
+    val dict = (this as InvitationResponse).output(contactId)
+    dict.put("type", "org.briarproject.briar.api.blog.BlogInvitationResponse")
+    return dict
 }
 
-internal fun ForumInvitationResponse.output(contactId: ContactId): Map<String, Any> {
-    val map: HashMap<String, Any> = hashMapOf(
-        "type" to "org.briarproject.briar.api.blog.BlogInvitationResponse"
-    )
-    map.putAll((this as InvitationResponse).output(contactId))
-    return map
+internal fun ForumInvitationResponse.output(contactId: ContactId): JsonDict {
+    val dict = (this as InvitationResponse).output(contactId)
+    dict.put("type", "org.briarproject.briar.api.blog.BlogInvitationResponse")
+    return dict
 }
 
-internal fun GroupInvitationResponse.output(contactId: ContactId): Map<String, Any> {
-    val map: HashMap<String, Any> = hashMapOf(
-        "type" to "org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse"
-    )
-    map.putAll((this as InvitationResponse).output(contactId))
-    return map
+internal fun GroupInvitationResponse.output(contactId: ContactId): JsonDict {
+    val dict = (this as InvitationResponse).output(contactId)
+    dict.put("type", "org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse")
+    return dict
 }

@@ -3,9 +3,10 @@ package org.briarproject.briar.headless.messaging
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.briar.api.messaging.PrivateMessage
 import org.briarproject.briar.api.messaging.PrivateMessageHeader
+import org.briarproject.briar.headless.json.JsonDict
 
-internal fun PrivateMessageHeader.output(contactId: ContactId, body: String?): Map<String, Any> {
-    val map: HashMap<String, Any> = hashMapOf(
+internal fun PrivateMessageHeader.output(contactId: ContactId, body: String?): JsonDict {
+    val dict = JsonDict(
         "type" to "org.briarproject.briar.api.messaging.PrivateMessageHeader",
         "contactId" to contactId.int,
         "timestamp" to timestamp,
@@ -16,11 +17,11 @@ internal fun PrivateMessageHeader.output(contactId: ContactId, body: String?): M
         "id" to id.bytes,
         "groupId" to groupId.bytes
     )
-    if (body != null) map.put("body", body)
-    return map
+    if (body != null) dict.put("body", body)
+    return dict
 }
 
-internal fun PrivateMessage.output(contactId: ContactId, body: String) = mapOf(
+internal fun PrivateMessage.output(contactId: ContactId, body: String) = JsonDict(
     "type" to "org.briarproject.briar.api.messaging.PrivateMessageHeader",
     "contactId" to contactId.int,
     "timestamp" to message.timestamp,

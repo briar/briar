@@ -15,6 +15,7 @@ import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
 import org.briarproject.briar.headless.ControllerTest
 import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.event.output
+import org.briarproject.briar.headless.json.JsonDict
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -71,9 +72,9 @@ internal class MessagingControllerImplTest : ControllerTest() {
     }
 
     @Test
-    fun write() {
+    fun listPrivateMessage() {
         val privateMessage = PrivateMessage(message)
-        val slot = CapturingSlot<Map<String, Any>>()
+        val slot = CapturingSlot<JsonDict>()
 
         expectGetContact()
         every { ctx.formParam("text") } returns body
@@ -95,6 +96,8 @@ internal class MessagingControllerImplTest : ControllerTest() {
         assertEquals(contact.id.int, output.get("contactId"))
         assertEquals(body, output.get("body"))
         assertEquals(message.id.bytes, output.get("id"))
+        assertEquals("org.briarproject.briar.api.messaging.PrivateMessageHeader",
+            output.get("type"))
     }
 
     @Test
