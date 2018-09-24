@@ -2,8 +2,10 @@ package org.briarproject.briar.android.contact;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
@@ -12,6 +14,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.leinardi.android.speeddial.SpeedDialActionItem;
+import com.leinardi.android.speeddial.SpeedDialView;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -49,6 +54,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.os.Build.VERSION.SDK_INT;
+import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.support.v4.view.ViewCompat.getTransitionName;
 import static java.util.logging.Level.WARNING;
@@ -59,7 +65,8 @@ import static org.briarproject.briar.android.conversation.ConversationActivity.C
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class ContactListFragment extends BaseFragment implements EventListener {
+public class ContactListFragment extends BaseFragment implements EventListener,
+		SpeedDialView.OnActionSelectedListener {
 
 	public static final String TAG = ContactListFragment.class.getName();
 	private static final Logger LOG = Logger.getLogger(TAG);
@@ -73,6 +80,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 	private ContactListAdapter adapter;
 	private BriarRecyclerView list;
+	private Snackbar snackbar;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -105,7 +113,11 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 		getActivity().setTitle(R.string.contact_list_button);
 
-		View contentView = inflater.inflate(R.layout.list, container, false);
+		View contentView = inflater.inflate(R.layout.fragment_contact_list, container, false);
+
+		SpeedDialView speedDialView = contentView.findViewById(R.id.speedDial);
+		speedDialView.inflate(R.menu.contact_list_actions);
+		speedDialView.setOnActionSelectedListener(this);
 
 		OnContactClickListener<ContactListItem> onContactClickListener =
 				(view, item) -> {
@@ -144,12 +156,21 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		list.setEmptyText(getString(R.string.no_contacts));
 		list.setEmptyAction(getString(R.string.no_contacts_action));
 
+		snackbar =
+				Snackbar.make(contentView, "There are pending contact requests",
+						LENGTH_INDEFINITE);
+		snackbar.getView().setBackgroundResource(R.color.briar_primary);
+		snackbar.setAction(R.string.show, v -> startActivity(
+				new Intent(getContext(), ContactLinkInputActivity.class)));
+		snackbar.setActionTextColor(ContextCompat
+				.getColor(getContext(), R.color.briar_button_text_positive));
+
 		return contentView;
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.contact_list_actions, menu);
+//		inflater.inflate(R.menu.contact_list_actions, menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
@@ -168,6 +189,23 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	}
 
 	@Override
+	public boolean onActionSelected(SpeedDialActionItem item) {
+		switch (item.getId()) {
+			case R.id.action_add_contact:
+				Intent intent =
+						new Intent(getContext(), ContactExchangeActivity.class);
+				startActivity(intent);
+				return true;
+			case R.id.action_add_contact_via_link:
+				startActivity(new Intent(getContext(),
+						ContactLinkOutputActivity.class));
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	@Override
 	public void onStart() {
 		super.onStart();
 		eventBus.addListener(this);
@@ -175,6 +213,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		notificationManager.clearAllIntroductionNotifications();
 		loadContacts();
 		list.startPeriodicUpdate();
+
+		snackbar.show();
 	}
 
 	@Override

@@ -126,6 +126,9 @@ dependencies {
 	}
 	implementation 'com.github.chrisbanes:PhotoView:2.1.4' // later versions already use androidx
 
+	// prototype
+	implementation "com.leinardi.android:speed-dial:2.0.0"
+
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.19'
 	annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 

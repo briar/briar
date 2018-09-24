@@ -15,6 +15,8 @@ import org.briarproject.briar.android.blog.ReblogFragment;
 import org.briarproject.briar.android.blog.RssFeedImportActivity;
 import org.briarproject.briar.android.blog.RssFeedManageActivity;
 import org.briarproject.briar.android.blog.WriteBlogPostActivity;
+import org.briarproject.briar.android.contact.ContactLinkInputActivity;
+import org.briarproject.briar.android.contact.ContactLinkOutputActivity;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.contact.ContactModule;
 import org.briarproject.briar.android.conversation.AliasDialogFragment;
@@ -170,6 +172,9 @@ public interface ActivityComponent {
 	void inject(StartupFailureActivity activity);
 
 	void inject(UnlockActivity activity);
+
+	void inject(ContactLinkOutputActivity activity);
+	void inject(ContactLinkInputActivity activity);
 
 	// Fragments
 	void inject(AuthorNameFragment fragment);

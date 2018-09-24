@@ -164,6 +164,9 @@
 	<string name="connection_error_explanation">Please check that you\'re both connected to the same Wi-Fi network.</string>
 	<string name="connection_error_feedback">If this problem persists, please <a href="feedback">send feedback</a> to help us improve the app.</string>
 
+	<string name="add_contact_nearby_title">Add contact nearby</string>
+	<string name="add_contact_via_link_title">Add contact via link</string>
+
 	<!-- Introductions -->
 	<string name="introduction_onboarding_title">Introduce your contacts</string>
 	<string name="introduction_onboarding_text">You can introduce your contacts to each other, so they don\'t need to meet in person to connect on Briar.</string>

@@ -116,6 +116,7 @@ dependencyVerification {
         'com.ibm.icu:icu4j:53.1:icu4j-53.1.jar:e37a4467bac5cdeb02c5c4b8e5063d2f4e67b69e3c7df6d6b610f13185572bab',
         'com.jraska:falcon:1.0.4:falcon-1.0.4.aar:6114a48d8b3814f75fc69b5e84dc087c1254883874eae8a36bd778979800630a',
         'com.squareup:javapoet:1.11.1:javapoet-1.11.1.jar:9cbf2107be499ec6e95afd36b58e3ca122a24166cdd375732e51267d64058e90',
+        'com.leinardi.android:speed-dial:2.0.0:speed-dial-2.0.0.aar:c219aac9e4e803c85a5ebf47f160b31736bc7b17ca56c024ce6803f11fc18741',
         'com.squareup:javawriter:2.1.1:javawriter-2.1.1.jar:f699823d0081f69cbb676c1845ea222e0ada79bc88a53e5d22d8bd02d328f57e',
         'com.squareup:javawriter:2.5.0:javawriter-2.5.0.jar:fcfb09fb0ea0aa97d3cfe7ea792398081348e468f126b3603cb3803f240197f0',
         'com.sun.activation:javax.activation:1.2.0:javax.activation-1.2.0.jar:993302b16cd7056f21e779cc577d175a810bb4900ef73cd8fbf2b50f928ba9ce',
