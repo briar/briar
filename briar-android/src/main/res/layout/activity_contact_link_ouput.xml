@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<TextView
+		android:id="@+id/linkIntro"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_margin="16dp"
+		android:text="Copy this link and send it to the contact you want to add:"
+		android:textIsSelectable="true"
+		android:textSize="18sp"
+		app:layout_constraintBottom_toTopOf="@+id/linkView"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_chainStyle="packed"/>
+
+	<TextView
+		android:id="@+id/linkView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_margin="16dp"
+		android:textIsSelectable="true"
+		android:textSize="18sp"
+		android:typeface="monospace"
+		app:layout_constraintBottom_toTopOf="@+id/button"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/linkIntro"
+		tools:text="briar://scnsdflamslmksdflksdf"/>
+
+	<Button
+		android:id="@+id/button"
+		style="@style/BriarButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="16dp"
+		android:text="Copy link"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/enterLinkButton"
+		app:layout_constraintHorizontal_bias="0.5"
+		app:layout_constraintHorizontal_chainStyle="spread"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/linkView"/>
+
+	<Button
+		android:id="@+id/enterLinkButton"
+		style="@style/BriarButtonFlat.Positive"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="8dp"
+		android:layout_marginLeft="8dp"
+		android:layout_marginRight="8dp"
+		android:layout_marginStart="8dp"
+		android:text="Enter Link"
+		app:layout_constraintBottom_toBottomOf="@+id/button"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.5"
+		app:layout_constraintStart_toEndOf="@+id/button"
+		app:layout_constraintTop_toTopOf="@+id/button"/>
+
+</android.support.constraint.ConstraintLayout>
