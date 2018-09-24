@@ -7,7 +7,7 @@ dependencies {
 	implementation project(path: ':bramble-core', configuration: 'default')
 	implementation project(':bramble-android')
 
-	def supportVersion = '27.1.1'
+	def supportVersion = '28.0.0'
 	implementation "com.android.support:support-v4:$supportVersion"
 	implementation("com.android.support:appcompat-v7:$supportVersion") {
 		exclude module: 'support-v4'
@@ -33,6 +33,9 @@ dependencies {
 	implementation 'com.google.zxing:core:3.3.0'
 	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.8.0'
 	implementation 'com.vanniktech:emoji-google:0.5.1'
+
+	// prototype
+	implementation "com.leinardi.android:speed-dial:2.0.0"
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
 
