@@ -16,6 +16,8 @@ import org.briarproject.briar.android.activity.BriarActivity;
 
 import javax.annotation.Nullable;
 
+import static android.content.Intent.ACTION_SEND;
+import static android.content.Intent.EXTRA_TEXT;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 
@@ -30,15 +32,14 @@ public class ContactLinkOutputActivity extends BriarActivity {
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
-		setContentView(R.layout.activity_contact_link_ouput);
+		setContentView(R.layout.activity_contact_link_output);
 
 		ActionBar ab = getSupportActionBar();
 		if (ab != null) {
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
-		setTitle(R.string.add_contact_via_link_title);
 
-		String link = "briar://" + getRandomString(16);
+		String link = "briar://" + getRandomString(64);
 
 		TextView linkView = findViewById(R.id.linkView);
 		linkView.setText(link);
@@ -46,17 +47,23 @@ public class ContactLinkOutputActivity extends BriarActivity {
 		ClipboardManager clipboard = (ClipboardManager)
 				getSystemService(CLIPBOARD_SERVICE);
 		if (clipboard == null) throw new AssertionError();
-		ClipData clip = ClipData.newPlainText("Briar link", link);
+		ClipData clip = ClipData.newPlainText(
+				getString(R.string.link_clip_label), link);
 
-		Button button = findViewById(R.id.button);
-		button.setOnClickListener(v -> {
+		Button copyButton = findViewById(R.id.copyButton);
+		copyButton.setOnClickListener(v -> {
 			clipboard.setPrimaryClip(clip);
-			Toast.makeText(this, "Link copied!", LENGTH_SHORT).show();
+			Toast.makeText(this, R.string.link_copied_toast, LENGTH_SHORT)
+					.show();
 		});
 
-		Button enterLinkButton = findViewById(R.id.enterLinkButton);
-		enterLinkButton.setOnClickListener(v -> startActivity(
-				new Intent(this, ContactLinkInputActivity.class)));
+		Button shareButton = findViewById(R.id.shareButton);
+		shareButton.setOnClickListener(v ->  {
+			Intent i = new Intent(ACTION_SEND);
+			i.putExtra(EXTRA_TEXT, link);
+			i.setType("text/plain");
+			startActivity(i);
+		});
 	}
 
 	@Override

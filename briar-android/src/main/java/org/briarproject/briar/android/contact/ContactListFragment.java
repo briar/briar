@@ -195,11 +195,15 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 				Intent intent =
 						new Intent(getContext(), ContactExchangeActivity.class);
 				startActivity(intent);
-				return true;
-			case R.id.action_add_contact_via_link:
+				return false;
+			case R.id.action_open_link:
+				startActivity(new Intent(getContext(),
+						ContactLinkInputActivity.class));
+				return false;
+			case R.id.action_send_link:
 				startActivity(new Intent(getContext(),
 						ContactLinkOutputActivity.class));
-				return true;
+				return false;
 			default:
 				return false;
 		}

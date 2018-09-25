@@ -10,9 +10,15 @@
 		app:showAsAction="ifRoom"/>
 
 	<item
-		android:id="@+id/action_add_contact_via_link"
+		android:id="@+id/action_open_link"
 		android:icon="@drawable/ic_link"
-		android:title="@string/add_contact_via_link_title"
+		android:title="@string/open_link_title"
+		app:showAsAction="never"/>
+
+	<item
+		android:id="@+id/action_send_link"
+		android:icon="@drawable/ic_link"
+		android:title="@string/send_link_title"
 		app:showAsAction="never"/>
 
 </menu>
