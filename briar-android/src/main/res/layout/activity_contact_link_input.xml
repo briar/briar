@@ -7,61 +7,57 @@
 	android:layout_height="match_parent">
 
 	<EditText
-		android:id="@+id/linkInput"
+		android:id="@+id/contactNameInput"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_margin="16dp"
-		android:hint="Enter Briar link"
-		android:inputType="textUri"
-		app:layout_constraintEnd_toStartOf="@+id/pasteButton"
-		app:layout_constraintHorizontal_bias="0.5"
+		android:layout_margin="@dimen/margin_large"
+		android:hint="@string/contact_name_hint"
+		android:importantForAutofill="no"
+		android:inputType="text|textCapWords"
+		app:layout_constraintBottom_toTopOf="@id/linkInput"
+		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_chainStyle="packed"/>
+
+	<EditText
+		android:id="@+id/linkInput"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="@dimen/margin_large"
+		android:layout_marginStart="@dimen/margin_large"
+		android:hint="@string/contact_link_hint"
+		android:importantForAutofill="no"
+		android:inputType="textUri"
+		app:layout_constraintBottom_toTopOf="@id/addButton"
+		app:layout_constraintEnd_toStartOf="@id/pasteButton"
+		app:layout_constraintHorizontal_bias="0.8"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/contactNameInput"/>
 
 	<Button
 		android:id="@+id/pasteButton"
 		style="@style/BriarButtonFlat.Positive"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_margin="16dp"
-		android:layout_marginEnd="8dp"
-		android:layout_marginRight="8dp"
-		android:text="Paste"
-		app:layout_constraintBottom_toBottomOf="@+id/linkInput"
+		android:layout_margin="@dimen/margin_large"
+		android:text="@string/paste_button"
+		app:layout_constraintBottom_toBottomOf="@id/linkInput"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.5"
-		app:layout_constraintStart_toEndOf="@+id/linkInput"
-		app:layout_constraintTop_toTopOf="@+id/linkInput"/>
-
-	<EditText
-		android:id="@+id/contactNameInput"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_marginLeft="16dp"
-		android:layout_marginStart="16dp"
-		android:layout_marginTop="16dp"
-		android:hint="Contact Name"
-		android:inputType="textUri"
-		app:layout_constraintEnd_toStartOf="@+id/addButton"
-		app:layout_constraintHorizontal_bias="0.5"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/linkInput"
-		app:layout_constraintVertical_chainStyle="packed"/>
+		app:layout_constraintStart_toEndOf="@id/linkInput"
+		app:layout_constraintTop_toTopOf="@id/linkInput"/>
 
 	<Button
 		android:id="@+id/addButton"
 		style="@style/BriarButton"
-		android:layout_width="wrap_content"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_margin="16dp"
+		android:layout_margin="@dimen/margin_large"
 		android:enabled="false"
-		android:text="Add Contact"
-		app:layout_constraintBottom_toBottomOf="@+id/contactNameInput"
+		android:text="@string/add_contact_button"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toEndOf="@+id/contactNameInput"
-		app:layout_constraintTop_toTopOf="@+id/contactNameInput"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/linkInput"
 		tools:enabled="true"/>
-
 
 </android.support.constraint.ConstraintLayout>
