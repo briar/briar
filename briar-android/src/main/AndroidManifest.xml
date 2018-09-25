@@ -416,11 +416,13 @@
 		<!-- Prototype -->
 		<activity
 			android:name=".android.contact.ContactLinkOutputActivity"
-			android:theme="@style/BriarTheme"/>
+			android:theme="@style/BriarTheme"
+			android:label="@string/send_link_title"/>
 
 		<activity
 			android:name=".android.contact.ContactLinkInputActivity"
 			android:theme="@style/BriarTheme"
+			android:label="@string/open_link_title"
 			android:windowSoftInputMode="stateHidden|adjustResize">
 			<intent-filter>
 				<data android:scheme="briar"/>

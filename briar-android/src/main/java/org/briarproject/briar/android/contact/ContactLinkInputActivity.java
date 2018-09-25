@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
@@ -44,7 +43,6 @@ public class ContactLinkInputActivity extends BriarActivity
 		if (ab != null) {
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
-		setTitle("Enter contact link");
 
 		clipboard = (ClipboardManager) requireNonNull(
 				getSystemService(CLIPBOARD_SERVICE));
@@ -53,20 +51,16 @@ public class ContactLinkInputActivity extends BriarActivity
 		linkInput.addTextChangedListener(this);
 
 		pasteButton = findViewById(R.id.pasteButton);
-		pasteButton.setOnClickListener(v -> {
-			linkInput
-					.setText(clipboard.getPrimaryClip().getItemAt(0).getText());
-		});
+		pasteButton.setOnClickListener(v -> linkInput
+				.setText(clipboard.getPrimaryClip().getItemAt(0).getText()));
 
 		contactNameInput = findViewById(R.id.contactNameInput);
 		contactNameInput.addTextChangedListener(this);
 
 		addButton = findViewById(R.id.addButton);
-		addButton.setOnClickListener(v -> {
-			Toast.makeText(this,
-					"Contact " + contactNameInput.getText() + " requested",
-					LENGTH_SHORT).show();
-		});
+		addButton.setOnClickListener(v -> Toast.makeText(this,
+				"Contact " + contactNameInput.getText() + " requested",
+				LENGTH_SHORT).show());
 	}
 
 	@Override
@@ -110,14 +104,7 @@ public class ContactLinkInputActivity extends BriarActivity
 	}
 
 	private boolean isBriarLink(CharSequence s) {
-		Log.e("TEST", s.toString());
-		// briar://pfmrkyclibynikzg
-		Log.e("TEST", "'" + s.subSequence(0, 8).toString() + "'");
-		Log.e("TEST", "LENGTH?" + (s.length() == 24));
-		Log.e("TEST", "SUB?" + (s.toString().startsWith("briar://")));
-		Log.e("TEST", "IS BRIAR LINK?" +
-				(s.length() == 24 && s.toString().startsWith("briar://")));
-		return s.length() == 24 && s.toString().startsWith("briar://");
+		return s.length() == 72 && s.toString().startsWith("briar://");
 	}
 
 	private void updateAddButtonState() {

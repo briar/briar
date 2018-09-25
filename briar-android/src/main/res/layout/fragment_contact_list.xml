@@ -11,11 +11,17 @@
 		android:layout_height="match_parent"
 		app:scrollToEnd="false"/>
 
+	<com.leinardi.android.speeddial.SpeedDialOverlayLayout
+		android:id="@+id/overlay"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"/>
+
 	<com.leinardi.android.speeddial.SpeedDialView
 		android:id="@+id/speedDial"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="bottom|end"
-		app:sdMainFabClosedSrc="@drawable/ic_add_white"/>
+		app:sdMainFabClosedSrc="@drawable/ic_add_white"
+		app:sdOverlayLayout="@id/overlay"/>
 
 </android.support.design.widget.CoordinatorLayout>

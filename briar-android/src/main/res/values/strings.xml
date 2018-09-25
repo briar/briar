@@ -150,8 +150,18 @@
 	<string name="connection_error_explanation">Please check that you\'re both connected to the same Wi-Fi network.</string>
 	<string name="connection_error_feedback">If this problem persists, please <a href="feedback">send feedback</a> to help us improve the app.</string>
 
-	<string name="add_contact_nearby_title">Add contact nearby</string>
-	<string name="add_contact_via_link_title">Add contact via link</string>
+	<string name="add_contact_nearby_title">Add Contact Nearby</string>
+	<string name="open_link_title">Open Link</string>
+	<string name="send_link_title">Send My Link</string>
+	<string name="contact_name_hint">Contact name</string>
+	<string name="contact_link_hint">Contact link</string>
+	<string name="paste_button">Paste</string>
+	<string name="add_contact_button">Add Contact</string>
+	<string name="share_button">Share</string>
+	<string name="copy_button">Copy</string>
+	<string name="send_link_instructions">Send this link to your contact:</string>
+	<string name="link_clip_label">Briar link</string>
+	<string name="link_copied_toast">Link copied</string>
 
 	<!-- Introductions -->
 	<string name="introduction_onboarding_title">Introduce your contacts</string>
