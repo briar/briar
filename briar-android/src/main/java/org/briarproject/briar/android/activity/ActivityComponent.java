@@ -20,6 +20,7 @@ import org.briarproject.briar.android.contact.ContactLinkOutputActivity;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.contact.ContactModule;
 import org.briarproject.briar.android.contact.ConversationActivity;
+import org.briarproject.briar.android.contact.PendingRequestsActivity;
 import org.briarproject.briar.android.forum.CreateForumActivity;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.forum.ForumListFragment;
@@ -171,6 +172,7 @@ public interface ActivityComponent {
 
 	void inject(ContactLinkOutputActivity activity);
 	void inject(ContactLinkInputActivity activity);
+	void inject(PendingRequestsActivity activity);
 
 	// Fragments
 	void inject(AuthorNameFragment fragment);
