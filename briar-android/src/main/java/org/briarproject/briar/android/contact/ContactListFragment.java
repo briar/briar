@@ -21,6 +21,7 @@ import com.leinardi.android.speeddial.SpeedDialView;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.ContactStatusChangedEvent;
 import org.briarproject.bramble.api.db.DbException;
@@ -42,10 +43,13 @@ import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.messaging.ConversationManager;
+import org.briarproject.briar.api.messaging.MessagingManager;
+import org.briarproject.briar.api.messaging.MessagingManager.PendingContact;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -76,6 +80,10 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 	EventBus eventBus;
 	@Inject
 	AndroidNotificationManager notificationManager;
+
+	// TODO remove
+	@Inject
+	MessagingManager messagingManager;
 
 	private ContactListAdapter adapter;
 	private BriarRecyclerView list;
@@ -216,7 +224,25 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 		loadContacts();
 		list.startPeriodicUpdate();
 
-		snackbar.show();
+		// TODO remove
+		checkForPendingContacts();
+	}
+
+	// TODO remove
+	private void checkForPendingContacts() {
+		listener.runOnDbThread(() -> {
+			try {
+				Collection<PendingContact> contacts =
+						messagingManager.getPendingContacts();
+				if (contacts.isEmpty()) {
+					runOnUiThreadUnlessDestroyed(() -> snackbar.dismiss());
+				} else {
+					runOnUiThreadUnlessDestroyed(() -> snackbar.show());
+				}
+			} catch (DbException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 	@Override
@@ -290,6 +316,11 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
 			PrivateMessageHeader h = p.getMessageHeader();
 			updateItem(p.getContactId(), h);
+		}
+
+		// TODO remove
+		else if (e instanceof ContactAddedEvent) {
+			checkForPendingContacts();
 		}
 	}
 

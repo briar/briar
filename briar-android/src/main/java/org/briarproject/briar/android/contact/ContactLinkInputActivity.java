@@ -1,5 +1,7 @@
 package org.briarproject.briar.android.contact;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,24 +9,40 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog.Builder;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
+import org.briarproject.briar.api.messaging.MessagingManager;
+
+import java.util.Random;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
+import static android.app.AlarmManager.ELAPSED_REALTIME;
 import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
 import static android.content.Intent.ACTION_SEND;
 import static android.content.Intent.EXTRA_TEXT;
+import static android.os.SystemClock.elapsedRealtime;
 import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ContactLinkInputActivity extends BriarActivity
 		implements TextWatcher {
+
+	@Inject
+	MessagingManager messagingManager;
+	@Inject
+	Clock clock;
 
 	private ClipboardManager clipboard;
 	private EditText linkInput;
@@ -67,6 +85,10 @@ public class ContactLinkInputActivity extends BriarActivity
 		if (i != null && ACTION_SEND.equals(i.getAction())) {
 			String text = i.getStringExtra(EXTRA_TEXT);
 			if (text != null) linkInput.setText(text);
+		} else if (i != null && "addContact".equals(i.getAction())) {
+			removeFakeRequest(i.getStringExtra("name"),
+					i.getLongExtra("timestamp", 0));
+			finish();
 		}
 	}
 
@@ -139,7 +161,38 @@ public class ContactLinkInputActivity extends BriarActivity
 	}
 
 	private void addFakeRequest() {
-		// TODO
+		String name = contactNameInput.getText().toString();
+		long timestamp = clock.currentTimeMillis();
+		try {
+			messagingManager.addNewPendingContact(name, timestamp);
+		} catch (DbException e) {
+			e.printStackTrace();
+		}
+
+		AlarmManager alarmManager =
+				(AlarmManager) requireNonNull(getSystemService(ALARM_SERVICE));
+		long m = MINUTES.toMillis(1);
+		long fromNow = (long) (-m * Math.log(new Random().nextDouble()));
+		long triggerAt = elapsedRealtime() + fromNow;
+
+		Intent i = new Intent(this, ContactLinkInputActivity.class);
+		i.setAction("addContact");
+		i.putExtra("name", name);
+		i.putExtra("timestamp", timestamp);
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 42, i, 0);
+		alarmManager.set(ELAPSED_REALTIME, triggerAt, pendingIntent);
+
+		Log.e("TEST", "Setting Alarm in " + MILLISECONDS.toSeconds(fromNow) + " seconds");
+		Log.e("TEST", "with contact: " + name);
+	}
+
+	private void removeFakeRequest(String name, long timestamp) {
+		Log.e("TEST", "Adding Contact " + name);
+		try {
+			messagingManager.removePendingContact(name, timestamp);
+		} catch (DbException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

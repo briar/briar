@@ -168,6 +168,7 @@
 	<string name="add_contact_link_question">Did you send your link already?</string>
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
+	<string name="add_contact_remote_connecting">Connecting…</string>
 
 	<!-- Introductions -->
 	<string name="introduction_onboarding_title">Introduce your contacts</string>
