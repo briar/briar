@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 import static android.content.Intent.ACTION_SEND;
 import static android.content.Intent.EXTRA_TEXT;
 import static android.widget.Toast.LENGTH_SHORT;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.bramble.util.StringUtils.getRandomBase32String;
 
 public class ContactLinkOutputActivity extends BriarActivity {
 
@@ -39,7 +39,7 @@ public class ContactLinkOutputActivity extends BriarActivity {
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
 
-		String link = "briar://" + getRandomString(64);
+		String link = "briar://" + getRandomBase32String(64);
 
 		TextView linkView = findViewById(R.id.linkView);
 		linkView.setText(link);

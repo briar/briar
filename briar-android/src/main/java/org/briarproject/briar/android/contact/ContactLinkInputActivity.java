@@ -113,7 +113,8 @@ public class ContactLinkInputActivity extends BriarActivity
 	}
 
 	private boolean isBriarLink(CharSequence s) {
-		return s.length() == 72 && s.toString().startsWith("briar://");
+		String regex = "^briar://[A-Z2-7]{64}$";
+		return s.toString().trim().matches(regex);
 	}
 
 	private void updateAddButtonState() {
