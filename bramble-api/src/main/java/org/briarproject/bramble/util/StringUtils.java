@@ -153,4 +153,15 @@ public class StringUtils {
 		return new String(c);
 	}
 
+
+	public static String getRandomBase32String(int length) {
+		char[] c = new char[length];
+		for (int i = 0; i < length; i++) {
+			int character = random.nextInt(32);
+			if (character < 26) c[i] = (char) ('A' + character);
+			else c[i] = (char) ('2' + (character - 26));
+		}
+		return new String(c);
+	}
+
 }
