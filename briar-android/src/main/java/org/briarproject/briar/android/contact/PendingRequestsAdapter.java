@@ -6,15 +6,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
+import org.briarproject.briar.api.messaging.MessagingManager.PendingContact;
 
 @NotNullByDefault
 public class PendingRequestsAdapter extends
-		BriarAdapter<PendingRequestsItem, PendingRequestsViewHolder> {
+		BriarAdapter<PendingContact, PendingRequestsViewHolder> {
 
-	public PendingRequestsAdapter(Context ctx, Class<PendingRequestsItem> c) {
+	public PendingRequestsAdapter(Context ctx, Class<PendingContact> c) {
 		super(ctx, c);
 	}
 
@@ -34,22 +36,32 @@ public class PendingRequestsAdapter extends
 	}
 
 	@Override
-	public int compare(PendingRequestsItem item1, PendingRequestsItem item2) {
+	public int compare(PendingContact item1, PendingContact item2) {
 		return (int) (item1.getTimestamp() - item2.getTimestamp());
 	}
 
 	@Override
-	public boolean areContentsTheSame(PendingRequestsItem item1,
-			PendingRequestsItem item2) {
+	public boolean areContentsTheSame(PendingContact item1,
+			PendingContact item2) {
 		return item1.getName().equals(item2.getName()) &&
 				item1.getTimestamp() == item2.getTimestamp();
 	}
 
 	@Override
-	public boolean areItemsTheSame(PendingRequestsItem item1,
-			PendingRequestsItem item2) {
+	public boolean areItemsTheSame(PendingContact item1,
+			PendingContact item2) {
 		return item1.getName().equals(item2.getName()) &&
 				item1.getTimestamp() == item2.getTimestamp();
+	}
+
+	// TODO remove
+	public void remove(Contact contact) {
+		for (int i = 0; i < items.size(); i++) {
+			if (items.get(i).getName().equals(contact.getAuthor().getName())) {
+				items.removeItemAt(i);
+				return;
+			}
+		}
 	}
 
 }

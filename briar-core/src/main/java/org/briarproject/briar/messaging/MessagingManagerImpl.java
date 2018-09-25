@@ -5,13 +5,19 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorFactory;
+import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
@@ -24,6 +30,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -35,6 +42,7 @@ import org.briarproject.briar.client.ConversationClientImpl;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -42,6 +50,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
@@ -52,14 +61,114 @@ class MessagingManagerImpl extends ConversationClientImpl
 	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
 
+	// TODO remove
+	private final ContactManager contactManager;
+	private final IdentityManager identityManager;
+	private final AuthorFactory authorFactory;
+
 	@Inject
 	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageTracker messageTracker,
-			ContactGroupFactory contactGroupFactory) {
+			ContactGroupFactory contactGroupFactory,
+			ContactManager contactManager, IdentityManager identityManager,
+			AuthorFactory authorFactory) {
 		super(db, clientHelper, metadataParser, messageTracker);
 		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
+
+		// TODO remove
+		this.contactManager = contactManager;
+		this.identityManager = identityManager;
+		this.authorFactory = authorFactory;
+	}
+
+	private static final String PENDING_CONTACTS = "PENDING_CONTACTS";
+	@Override
+	public void addNewPendingContact(String name, long timestamp)
+			throws DbException {
+		Transaction txn = db.startTransaction(false);
+		try {
+			BdfList list = getPendingContacts(txn);
+			BdfDictionary contact = new BdfDictionary();
+			contact.put("name", name);
+			contact.put("timestamp", timestamp);
+			list.add(contact);
+
+			Group localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
+					MAJOR_VERSION);
+			BdfDictionary meta =
+					BdfDictionary.of(new BdfEntry(PENDING_CONTACTS, list));
+			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
+
+			db.commitTransaction(txn);
+		} catch (FormatException e) {
+			throw new RuntimeException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+	@Override
+	public void removePendingContact(String name, long timestamp) throws DbException {
+		Transaction txn = db.startTransaction(false);
+		try {
+			BdfList list = getPendingContacts(txn);
+
+			BdfDictionary contactDict = new BdfDictionary();
+			contactDict.put("name", name);
+			contactDict.put("timestamp", timestamp);
+			list.remove(contactDict);
+
+			Group localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
+					MAJOR_VERSION);
+			BdfDictionary meta =
+					BdfDictionary.of(new BdfEntry(PENDING_CONTACTS, list));
+			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
+
+			AuthorId local = identityManager.getLocalAuthor(txn).getId();
+			Author remote = authorFactory
+					.createAuthor(name, new byte[MAX_PUBLIC_KEY_LENGTH]);
+			contactManager.addContact(txn, remote, local, false, true);
+
+			Contact contact =
+					contactManager.getContact(txn, remote.getId(), local);
+			IntroductionSucceededEvent event =
+					new IntroductionSucceededEvent(contact);
+			txn.attach(event);
+
+			db.commitTransaction(txn);
+		} catch (FormatException e) {
+			throw new RuntimeException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+	@Override
+	public Collection<PendingContact> getPendingContacts() throws DbException {
+		Transaction txn = db.startTransaction(true);
+		try {
+			BdfList list = getPendingContacts(txn);
+			List<PendingContact> contacts = new ArrayList<>(list.size());
+			for (Object o : list) {
+				BdfDictionary d = (BdfDictionary) o;
+				contacts.add(new PendingContact(d.getString("name"),
+						d.getLong("timestamp")));
+			}
+			db.commitTransaction(txn);
+			return contacts;
+		} catch (FormatException e) {
+			throw new RuntimeException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+	private BdfList getPendingContacts(Transaction txn)
+			throws DbException, FormatException {
+		Group localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
+				MAJOR_VERSION);
+		BdfDictionary d = clientHelper
+				.getGroupMetadataAsDictionary(txn, localGroup.getId());
+		return d.getList(PENDING_CONTACTS, new BdfList());
 	}
 
 	@Override

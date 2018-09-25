@@ -10,8 +10,30 @@ import org.briarproject.briar.api.conversation.ConversationManager.ConversationC
 
 import java.nio.ByteBuffer;
 
+import java.util.Collection;
+
 @NotNullByDefault
 public interface MessagingManager extends ConversationClient {
+
+	// TODO remove (only for prototype)
+	void addNewPendingContact(String name, long timestamp) throws DbException;
+	void removePendingContact(String name, long timestamp) throws DbException;
+	Collection<PendingContact> getPendingContacts() throws DbException;
+	class PendingContact {
+		private final String name;
+		private final long timestamp;
+		public PendingContact(String name, long timestamp) {
+			this.name = name;
+			this.timestamp = timestamp;
+		}
+		public String getName() {
+			return name;
+		}
+		public long getTimestamp() {
+			return timestamp;
+		}
+	}
+
 
 	/**
 	 * The unique ID of the messaging client.
