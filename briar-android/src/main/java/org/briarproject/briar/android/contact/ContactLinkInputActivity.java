@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.contact;
 
 import android.content.ClipboardManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.text.Editable;
@@ -17,6 +18,8 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import javax.annotation.Nullable;
 
 import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
+import static android.content.Intent.ACTION_SEND;
+import static android.content.Intent.EXTRA_TEXT;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Objects.requireNonNull;
 
@@ -61,6 +64,12 @@ public class ContactLinkInputActivity extends BriarActivity
 		addButton.setOnClickListener(v -> Toast.makeText(this,
 				"Contact " + contactNameInput.getText() + " requested",
 				LENGTH_SHORT).show());
+
+		Intent i = getIntent();
+		if (i != null && ACTION_SEND.equals(i.getAction())) {
+			String text = i.getStringExtra(EXTRA_TEXT);
+			if (text != null) linkInput.setText(text);
+		}
 	}
 
 	@Override
