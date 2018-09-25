@@ -4,23 +4,23 @@ import android.content.ClipboardManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog.Builder;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import javax.annotation.Nullable;
 
 import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
 import static android.content.Intent.ACTION_SEND;
 import static android.content.Intent.EXTRA_TEXT;
-import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Objects.requireNonNull;
 
 public class ContactLinkInputActivity extends BriarActivity
@@ -61,9 +61,7 @@ public class ContactLinkInputActivity extends BriarActivity
 		contactNameInput.addTextChangedListener(this);
 
 		addButton = findViewById(R.id.addButton);
-		addButton.setOnClickListener(v -> Toast.makeText(this,
-				"Contact " + contactNameInput.getText() + " requested",
-				LENGTH_SHORT).show());
+		addButton.setOnClickListener(v -> onAddButtonClicked());
 
 		Intent i = getIntent();
 		if (i != null && ACTION_SEND.equals(i.getAction())) {
@@ -120,6 +118,28 @@ public class ContactLinkInputActivity extends BriarActivity
 	private void updateAddButtonState() {
 		addButton.setEnabled(isBriarLink(linkInput.getText()) &&
 				contactNameInput.getText().length() > 0);
+	}
+
+	private void onAddButtonClicked() {
+		addFakeRequest();
+
+		Builder builder = new Builder(this, R.style.BriarDialogTheme_Neutral);
+		builder.setMessage(getString(R.string.add_contact_link_question));
+		builder.setPositiveButton(R.string.yes, (dialog, which) -> {
+			startActivity(new Intent(ContactLinkInputActivity.this,
+					NavDrawerActivity.class));
+			finish();
+		});
+		builder.setNegativeButton(R.string.no, (dialog, which) -> {
+			startActivity(new Intent(ContactLinkInputActivity.this,
+					ContactLinkOutputActivity.class));
+			finish();
+		});
+		builder.show();
+	}
+
+	private void addFakeRequest() {
+		// TODO
 	}
 
 }

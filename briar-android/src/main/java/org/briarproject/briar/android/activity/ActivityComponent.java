@@ -19,6 +19,7 @@ import org.briarproject.briar.android.contact.ContactLinkInputActivity;
 import org.briarproject.briar.android.contact.ContactLinkOutputActivity;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.contact.ContactModule;
+import org.briarproject.briar.android.contact.PendingRequestsActivity;
 import org.briarproject.briar.android.conversation.AliasDialogFragment;
 import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.conversation.ImageActivity;
@@ -175,6 +176,7 @@ public interface ActivityComponent {
 
 	void inject(ContactLinkOutputActivity activity);
 	void inject(ContactLinkInputActivity activity);
+	void inject(PendingRequestsActivity activity);
 
 	// Fragments
 	void inject(AuthorNameFragment fragment);

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+	android:id="@+id/linearLayout4"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
+
+	<com.vanniktech.emoji.EmojiTextView
+		android:id="@+id/name"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="@dimen/margin_large"
+		android:textColor="?android:attr/textColorPrimary"
+		android:textSize="@dimen/text_size_medium"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/time"
+		app:layout_constraintHorizontal_chainStyle="spread_inside"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="This is a name of a contact"/>
+
+	<TextView
+		android:id="@+id/time"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="@dimen/margin_large"
+		android:textColor="?android:attr/textColorSecondary"
+		android:textSize="@dimen/text_size_small"
+		app:layout_constraintBottom_toBottomOf="@+id/name"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/name"
+		app:layout_constraintTop_toTopOf="@+id/name"
+		tools:text="Dec 24"/>
+
+	<View
+		android:id="@+id/divider"
+		style="@style/Divider.ContactList"
+		android:layout_width="0dp"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"/>
+
+</android.support.constraint.ConstraintLayout>

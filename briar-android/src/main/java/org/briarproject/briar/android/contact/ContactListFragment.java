@@ -156,12 +156,11 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 		list.setEmptyText(getString(R.string.no_contacts));
 		list.setEmptyAction(getString(R.string.no_contacts_action));
 
-		snackbar =
-				Snackbar.make(contentView, "There are pending contact requests",
-						LENGTH_INDEFINITE);
+		snackbar = Snackbar.make(contentView,
+				R.string.pending_contact_requests_snackbar, LENGTH_INDEFINITE);
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
 		snackbar.setAction(R.string.show, v -> startActivity(
-				new Intent(getContext(), ContactLinkInputActivity.class)));
+				new Intent(getContext(), PendingRequestsActivity.class)));
 		snackbar.setActionTextColor(ContextCompat
 				.getColor(getContext(), R.color.briar_button_text_positive));
 
