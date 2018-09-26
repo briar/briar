@@ -425,6 +425,9 @@
 			android:label="@string/open_link_title"
 			android:windowSoftInputMode="stateHidden|adjustResize">
 			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
 				<data android:scheme="briar"/>
 			</intent-filter>
 			<intent-filter>
