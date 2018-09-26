@@ -28,6 +28,6 @@ dependencyVerification {
         'org.objenesis:objenesis:2.1:objenesis-2.1.jar:c74330cc6b806c804fd37e74487b4fe5d7c2750c5e15fbc6efa13bdee1bdef80',
         'org.ow2.asm:asm-all:5.2:asm-all-5.2.jar:7fbffbc1db3422e2101689fd88df8384b15817b52b9b2b267b9f6d2511dc198d',
         'org.ow2.asm:asm:5.0.4:asm-5.0.4.jar:896618ed8ae62702521a78bc7be42b7c491a08e6920a15f89a3ecdec31e9a220',
-        'org.whispersystems:curve25519-java:0.4.1:curve25519-java-0.4.1.jar:7dd659d8822c06c3aea1a47f18fac9e5761e29cab8100030b877db445005f03e',
+        'org.whispersystems:curve25519-java:0.5.0:curve25519-java-0.5.0.jar:0aadd43cf01d11e9b58f867b3c4f25c3194e8b0623d1953d32dfbfbee009e38d',
     ]
 }
