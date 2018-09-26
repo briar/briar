@@ -3,7 +3,7 @@ apply plugin: 'witness'
 apply from: 'witness.gradle'
 
 android {
-	compileSdkVersion 27
+	compileSdkVersion 28
 	buildToolsVersion '28.0.2'
 
 	defaultConfig {
