@@ -30,6 +30,7 @@ import javax.inject.Inject;
 import static android.app.AlarmManager.ELAPSED_REALTIME;
 import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
 import static android.content.Intent.ACTION_SEND;
+import static android.content.Intent.ACTION_VIEW;
 import static android.content.Intent.EXTRA_TEXT;
 import static android.os.SystemClock.elapsedRealtime;
 import static java.util.Objects.requireNonNull;
@@ -82,13 +83,18 @@ public class ContactLinkInputActivity extends BriarActivity
 		addButton.setOnClickListener(v -> onAddButtonClicked());
 
 		Intent i = getIntent();
-		if (i != null && ACTION_SEND.equals(i.getAction())) {
-			String text = i.getStringExtra(EXTRA_TEXT);
-			if (text != null) linkInput.setText(text);
-		} else if (i != null && "addContact".equals(i.getAction())) {
-			removeFakeRequest(i.getStringExtra("name"),
-					i.getLongExtra("timestamp", 0));
-			finish();
+		if (i != null) {
+			String action = i.getAction();
+			if (ACTION_SEND.equals(action) || ACTION_VIEW.equals(action)) {
+				String text = i.getStringExtra(EXTRA_TEXT);
+				if (text != null) linkInput.setText(text);
+				String uri = i.getDataString();
+				if (uri != null) linkInput.setText(uri);
+			} else if ("addContact".equals(action)) {
+				removeFakeRequest(i.getStringExtra("name"),
+						i.getLongExtra("timestamp", 0));
+				finish();
+			}
 		}
 	}
 
@@ -182,7 +188,8 @@ public class ContactLinkInputActivity extends BriarActivity
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 42, i, 0);
 		alarmManager.set(ELAPSED_REALTIME, triggerAt, pendingIntent);
 
-		Log.e("TEST", "Setting Alarm in " + MILLISECONDS.toSeconds(fromNow) + " seconds");
+		Log.e("TEST", "Setting Alarm in " + MILLISECONDS.toSeconds(fromNow) +
+				" seconds");
 		Log.e("TEST", "with contact: " + name);
 	}
 
