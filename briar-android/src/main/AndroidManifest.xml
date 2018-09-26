@@ -426,12 +426,12 @@
 
 		<!-- Prototype -->
 		<activity
-			android:name=".android.contact.ContactLinkOutputActivity"
+			android:name=".android.contact.ContactInviteOutputActivity"
 			android:theme="@style/BriarTheme"
 			android:label="@string/send_link_title"/>
 
 		<activity
-			android:name=".android.contact.ContactLinkInputActivity"
+			android:name=".android.contact.ContactInviteInputActivity"
 			android:theme="@style/BriarTheme"
 			android:label="@string/open_link_title"
 			android:windowSoftInputMode="stateHidden|adjustResize">
