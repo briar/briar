@@ -60,4 +60,34 @@
 		app:layout_constraintTop_toBottomOf="@id/linkInput"
 		tools:enabled="true"/>
 
+	<TextView
+		android:id="@+id/textView3"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="8dp"
+		android:layout_marginLeft="8dp"
+		android:layout_marginRight="8dp"
+		android:layout_marginStart="8dp"
+		android:layout_marginTop="16dp"
+		android:text="or"
+		android:textSize="18sp"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/addButton"/>
+
+	<Button
+		android:id="@+id/scanCodeButton"
+		style="@style/BriarButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="8dp"
+		android:layout_marginStart="8dp"
+		android:layout_marginTop="16dp"
+		android:drawableLeft="@drawable/ic_qr_code"
+		android:drawablePadding="8dp"
+		android:text="Scan QR Code"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/textView3"/>
+
 </android.support.constraint.ConstraintLayout>
