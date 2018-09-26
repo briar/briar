@@ -59,4 +59,31 @@
 		app:layout_constraintStart_toEndOf="@id/copyButton"
 		app:layout_constraintTop_toTopOf="@id/copyButton"/>
 
+	<TextView
+		android:id="@+id/textView2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="8dp"
+		android:layout_marginStart="8dp"
+		android:text="or"
+		android:textSize="18sp"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/copyButton"/>
+
+	<Button
+		android:id="@+id/showCodeButton"
+		style="@style/BriarButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="8dp"
+		android:layout_marginStart="8dp"
+		android:layout_marginTop="16dp"
+		android:drawableLeft="@drawable/ic_qr_code"
+		android:drawablePadding="8dp"
+		android:text="Show QR Code"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/textView2"/>
+
 </android.support.constraint.ConstraintLayout>

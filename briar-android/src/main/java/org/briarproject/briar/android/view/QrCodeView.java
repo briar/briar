@@ -39,6 +39,9 @@ public class QrCodeView extends FrameLayout {
                         listener.setFullscreen(fullscreen);
                 }
         );
+
+        // TODO remove
+        fullscreenButton.setVisibility(INVISIBLE);
     }
 
     @UiThread

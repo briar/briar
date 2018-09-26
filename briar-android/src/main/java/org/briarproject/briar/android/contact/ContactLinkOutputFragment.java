@@ -63,6 +63,10 @@ public class ContactLinkOutputFragment extends BaseFragment {
 			i.setType("text/plain");
 			startActivity(i);
 		});
+
+		Button showCodeButton = v.findViewById(R.id.showCodeButton);
+		showCodeButton.setOnClickListener(
+				view -> ((ContactLinkOutputActivity) getActivity()).showCode());
 		return v;
 	}
 
