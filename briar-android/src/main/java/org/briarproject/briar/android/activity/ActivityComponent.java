@@ -17,8 +17,10 @@ import org.briarproject.briar.android.blog.RssFeedManageActivity;
 import org.briarproject.briar.android.blog.WriteBlogPostActivity;
 import org.briarproject.briar.android.contact.ContactLinkInputActivity;
 import org.briarproject.briar.android.contact.ContactLinkOutputActivity;
+import org.briarproject.briar.android.contact.ContactLinkOutputFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.contact.ContactModule;
+import org.briarproject.briar.android.contact.ContactQrCodeOutputFragment;
 import org.briarproject.briar.android.contact.PendingRequestsActivity;
 import org.briarproject.briar.android.conversation.AliasDialogFragment;
 import org.briarproject.briar.android.conversation.ConversationActivity;
@@ -177,6 +179,8 @@ public interface ActivityComponent {
 	void inject(ContactLinkOutputActivity activity);
 	void inject(ContactLinkInputActivity activity);
 	void inject(PendingRequestsActivity activity);
+	void inject(ContactLinkOutputFragment activity);
+	void inject(ContactQrCodeOutputFragment activity);
 
 	// Fragments
 	void inject(AuthorNameFragment fragment);

@@ -14,11 +14,17 @@
 		android:icon="@drawable/ic_link"
 		android:title="@string/open_link_title"
 		app:showAsAction="never"/>
-
+<!--
 	<item
 		android:id="@+id/action_send_link"
 		android:icon="@drawable/ic_link"
 		android:title="@string/send_link_title"
+		app:showAsAction="never"/>
+-->
+	<item
+		android:id="@+id/action_send_link"
+		android:icon="@drawable/ic_qr_code"
+		android:title="@string/send_code_title"
 		app:showAsAction="never"/>
 
 </menu>
