@@ -6,6 +6,7 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
@@ -44,6 +45,10 @@ public class ContactQrCodeOutputFragment extends BaseFragment
 		QrCodeView qrCodeView = v.findViewById(R.id.qrCodeView);
 		qrCodeView.setQrCode(qrCode);
 		qrCodeView.setFullscreenListener(this);
+
+		Button showLinkButton = v.findViewById(R.id.showLinkButton);
+		showLinkButton.setOnClickListener(
+				view -> ((ContactLinkOutputActivity) getActivity()).showLink());
 
 		return v;
 	}

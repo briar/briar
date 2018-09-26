@@ -166,9 +166,9 @@
 
 	<string name="add_contact_nearby_title">Add Contact Nearby</string>
 	<string name="open_link_title">Open Link</string>
-	<string name="open_code_title">Open QR Code</string>
+	<string name="open_code_title">Open Invite</string>
 	<string name="send_link_title">Send My Link</string>
-	<string name="send_code_title">Send My QR Code</string>
+	<string name="send_code_title">Send My Invite</string>
 	<string name="show_link">Show Link</string>
 	<string name="show_code">Show QR code</string>
 	<string name="contact_name_hint">Contact name</string>
@@ -178,7 +178,7 @@
 	<string name="share_button">Share</string>
 	<string name="copy_button">Copy</string>
 	<string name="send_link_instructions">Send this link to your contact:</string>
-	<string name="send_code_instructions">Let your contact scan this QR code with Briar:</string>
+	<string name="send_code_instructions">Let your contact scan this QR code:</string>
 	<string name="link_clip_label">Briar link</string>
 	<string name="link_copied_toast">Link copied</string>
 	<string name="pending_contact_requests_snackbar">"There are pending contact requests"</string>
