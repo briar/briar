@@ -113,8 +113,8 @@ dependencies {
 	implementation 'info.guardianproject.panic:panic:0.5'
 	implementation 'info.guardianproject.trustedintents:trustedintents:0.2'
 	implementation 'de.hdodenhof:circleimageview:2.2.0'
-	implementation 'com.google.zxing:core:3.3.0'
-	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.8.0'
+	implementation 'com.google.zxing:core:3.3.3'
+	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.12.4'
 	implementation 'com.vanniktech:emoji-google:0.5.1'
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'

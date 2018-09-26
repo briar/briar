@@ -98,7 +98,7 @@ dependencyVerification {
         'com.google.jimfs:jimfs:1.1:jimfs-1.1.jar:c4828e28d7c0a930af9387510b3bada7daa5c04d7c25a75c7b8b081f1c257ddd',
         'com.google.protobuf:protobuf-java:2.6.1:protobuf-java-2.6.1.jar:55aa554843983f431df5616112cf688d38aa17c132357afd1c109435bfdac4e6',
         'com.google.protobuf:protobuf-java:3.4.0:protobuf-java-3.4.0.jar:dce7e66b32456a1b1198da0caff3a8acb71548658391e798c79369241e6490a4',
-        'com.google.zxing:core:3.3.0:core-3.3.0.jar:bba7724e02a997cec38213af77133ee8e24b0d5cf5fa7ecbc16a4fa93f11ee0d',
+        'com.google.zxing:core:3.3.3:core-3.3.3.jar:5820f81e943e4bce0329306621e2d6255d2930b0a6ce934c5c23c0d6d3f20599',
         'com.googlecode.json-simple:json-simple:1.1:json-simple-1.1.jar:2d9484f4c649f708f47f9a479465fc729770ee65617dca3011836602264f6439',
         'com.ibm.icu:icu4j:53.1:icu4j-53.1.jar:e37a4467bac5cdeb02c5c4b8e5063d2f4e67b69e3c7df6d6b610f13185572bab',
         'com.jraska:falcon:1.0.4:falcon-1.0.4.aar:6114a48d8b3814f75fc69b5e84dc087c1254883874eae8a36bd778979800630a',
@@ -192,7 +192,7 @@ dependencyVerification {
         'org.robolectric:shadows-support-v4:3.3.2:shadows-support-v4-3.3.2.jar:6f689264738266e70fe08db7c04b7b5a75155994f4e3f7f311960d90486bf005',
         'org.robolectric:utils:3.8:utils-3.8.jar:e945d04d40e37554e02d4be1bc3abf9bede45375c843aa36d10ccb6b63edbf34',
         'tools.fastlane:screengrab:1.2.0:screengrab-1.2.0.aar:af4ee23bb06f94404d3ab18e2ea69db8265539fc8da29f9ee45b7e472684ba83',
-        'uk.co.samuelwall:material-tap-target-prompt:2.8.0:material-tap-target-prompt-2.8.0.aar:ac70770c05bbc4675a1d5712c0e53d46ee4fa961b74947589fce50d8003065ec',
+        'uk.co.samuelwall:material-tap-target-prompt:2.12.4:material-tap-target-prompt-2.12.4.aar:6c0990ab3aa22de9f7d09dcb0a944e671128c31634ac8429012faa5c508202fb',
         'xmlpull:xmlpull:1.1.3.1:xmlpull-1.1.3.1.jar:34e08ee62116071cbb69c0ed70d15a7a5b208d62798c59f2120bb8929324cb63',
         'xpp3:xpp3_min:1.1.4c:xpp3_min-1.1.4c.jar:bfc90e9e32d0eab1f397fb974b5f150a815188382ac41f372a7149d5bc178008',
     ]
