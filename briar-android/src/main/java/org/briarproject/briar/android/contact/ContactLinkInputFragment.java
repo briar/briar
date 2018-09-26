@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
@@ -70,6 +71,11 @@ public class ContactLinkInputFragment extends BaseFragment
 
 		addButton = v.findViewById(R.id.addButton);
 		addButton.setOnClickListener(view -> onAddButtonClicked());
+
+		Button scanCodeButton = v.findViewById(R.id.scanCodeButton);
+		scanCodeButton.setOnClickListener(view -> Toast
+				.makeText(getContext(), "Not implemented!", Toast.LENGTH_SHORT)
+				.show());
 
 		linkInput.setText(getArguments().getString("link"));
 
