@@ -10,7 +10,7 @@ dependencyVerification {
         'android.arch.lifecycle:viewmodel:1.1.1:viewmodel-1.1.1.aar:7de29cfaba77d6b5d5be234c57f6812d0150d087e63941af22ba1d1f8e2bc96a',
         'backport-util-concurrent:backport-util-concurrent:3.1:backport-util-concurrent-3.1.jar:f5759b7fcdfc83a525a036deedcbd32e5b536b625ebc282426f16ca137eb5902',
         'cglib:cglib:3.2.0:cglib-3.2.0.jar:adb13bab79712ad6bdf1bd59f2a3918018a8016e722e8a357065afb9e6690861',
-        'ch.acra:acra:4.9.1:acra-4.9.1.aar:d2762968c448757a7d6acc9f141881d9632f664988e9723ece33b5f7c79f3bc9',
+        'ch.acra:acra:4.11:acra-4.11.aar:21ca06be074749c9aaf3f7df67fcbe3695e633b92e691f025af55cabde22e551',
         'classworlds:classworlds:1.1-alpha-2:classworlds-1.1-alpha-2.jar:2bf4e59f3acd106fea6145a9a88fe8956509f8b9c0fdd11eb96fee757269e3f3',
         'com.almworks.sqlite4java:sqlite4java:0.282:sqlite4java-0.282.jar:9e1d8dd83ca6003f841e3af878ce2dc7c22497493a7bb6d1b62ec1b0d0a83c05',
         'com.android.support.constraint:constraint-layout-solver:1.1.3:constraint-layout-solver-1.1.3.jar:2cafbe356f71c208013d021f32943904798cd6459e5107f9fe27000eb5bc2aef',
