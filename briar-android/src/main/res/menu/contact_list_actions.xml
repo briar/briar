@@ -5,22 +5,28 @@
 
 	<item
 		android:id="@+id/action_add_contact"
-		android:icon="@drawable/ic_add_white"
+		android:icon="@drawable/ic_add_nearby"
 		android:title="@string/add_contact_nearby_title"
 		app:showAsAction="ifRoom"/>
-
+	<!--
 	<item
 		android:id="@+id/action_open_link"
 		android:icon="@drawable/ic_link"
 		android:title="@string/open_link_title"
 		app:showAsAction="never"/>
-<!--
+
 	<item
 		android:id="@+id/action_send_link"
 		android:icon="@drawable/ic_link"
 		android:title="@string/send_link_title"
 		app:showAsAction="never"/>
--->
+	-->
+	<item
+		android:id="@+id/action_open_link"
+		android:icon="@drawable/ic_qr_code_scan"
+		android:title="@string/open_code_title"
+		app:showAsAction="never"/>
+
 	<item
 		android:id="@+id/action_send_link"
 		android:icon="@drawable/ic_qr_code"
