@@ -32,7 +32,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 
-public class ContactLinkInputActivity extends BriarActivity implements
+public class ContactInviteInputActivity extends BriarActivity implements
 		BaseFragmentListener {
 
 	@Inject
@@ -76,6 +76,7 @@ public class ContactLinkInputActivity extends BriarActivity implements
 			} else if ("addContact".equals(action)) {
 				removeFakeRequest(i.getStringExtra("name"),
 						i.getLongExtra("timestamp", 0));
+				setIntent(null);
 				finish();
 			}
 		}
@@ -95,6 +96,23 @@ public class ContactLinkInputActivity extends BriarActivity implements
 		}
 	}
 
+	boolean isBriarLink(CharSequence s) {
+		String link = s.toString().trim();
+		return link.matches("^(briar://)?[A-Z2-7]{64}$");
+	}
+
+	void showLink() {
+		showInitialFragment(ContactLinkInputFragment.newInstance(null));
+	}
+
+	void showCode() {
+		showInitialFragment(new ContactQrCodeInputFragment());
+	}
+
+	void showAlias() {
+		showNextFragment(new ContactAliasInputFragment());
+	}
+
 	void addFakeRequest(String name) {
 		long timestamp = clock.currentTimeMillis();
 		try {
@@ -109,7 +127,7 @@ public class ContactLinkInputActivity extends BriarActivity implements
 		long fromNow = (long) (-m * Math.log(new Random().nextDouble()));
 		long triggerAt = elapsedRealtime() + fromNow;
 
-		Intent i = new Intent(this, ContactLinkInputActivity.class);
+		Intent i = new Intent(this, ContactInviteInputActivity.class);
 		i.setAction("addContact");
 		i.putExtra("name", name);
 		i.putExtra("timestamp", timestamp);

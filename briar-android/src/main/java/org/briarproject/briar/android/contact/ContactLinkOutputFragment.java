@@ -66,7 +66,7 @@ public class ContactLinkOutputFragment extends BaseFragment {
 
 		Button showCodeButton = v.findViewById(R.id.showCodeButton);
 		showCodeButton.setOnClickListener(
-				view -> ((ContactLinkOutputActivity) getActivity()).showCode());
+				view -> ((ContactInviteOutputActivity) getActivity()).showCode());
 		return v;
 	}
 

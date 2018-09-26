@@ -15,12 +15,14 @@ import org.briarproject.briar.android.blog.ReblogFragment;
 import org.briarproject.briar.android.blog.RssFeedImportActivity;
 import org.briarproject.briar.android.blog.RssFeedManageActivity;
 import org.briarproject.briar.android.blog.WriteBlogPostActivity;
-import org.briarproject.briar.android.contact.ContactLinkInputActivity;
+import org.briarproject.briar.android.contact.ContactAliasInputFragment;
+import org.briarproject.briar.android.contact.ContactInviteInputActivity;
+import org.briarproject.briar.android.contact.ContactInviteOutputActivity;
 import org.briarproject.briar.android.contact.ContactLinkInputFragment;
-import org.briarproject.briar.android.contact.ContactLinkOutputActivity;
 import org.briarproject.briar.android.contact.ContactLinkOutputFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.contact.ContactModule;
+import org.briarproject.briar.android.contact.ContactQrCodeInputFragment;
 import org.briarproject.briar.android.contact.ContactQrCodeOutputFragment;
 import org.briarproject.briar.android.contact.ConversationActivity;
 import org.briarproject.briar.android.contact.PendingRequestsActivity;
@@ -173,12 +175,14 @@ public interface ActivityComponent {
 
 	void inject(UnlockActivity activity);
 
-	void inject(ContactLinkOutputActivity activity);
-	void inject(ContactLinkInputActivity activity);
+	void inject(ContactInviteOutputActivity activity);
+	void inject(ContactInviteInputActivity activity);
 	void inject(PendingRequestsActivity activity);
 	void inject(ContactLinkOutputFragment activity);
 	void inject(ContactQrCodeOutputFragment activity);
 	void inject(ContactLinkInputFragment activity);
+	void inject(ContactQrCodeInputFragment activity);
+	void inject(ContactAliasInputFragment activity);
 
 	// Fragments
 	void inject(AuthorNameFragment fragment);

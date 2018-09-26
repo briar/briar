@@ -161,7 +161,7 @@
 	<string name="contact_name_hint">Contact name</string>
 	<string name="contact_link_hint">Contact link</string>
 	<string name="paste_button">Paste</string>
-	<string name="add_contact_button">Add Contact</string>
+	<string name="add_contact_button">Request Contact</string>
 	<string name="share_button">Share</string>
 	<string name="copy_button">Copy</string>
 	<string name="send_link_instructions">Send this link to your contact:</string>

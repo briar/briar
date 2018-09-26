@@ -7,7 +7,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 @SuppressWarnings("deprecation")
 @NotNullByDefault
-interface PreviewConsumer {
+public interface PreviewConsumer {
 
 	@UiThread
 	void start(Camera camera, int cameraIndex);
