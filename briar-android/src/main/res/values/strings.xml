@@ -152,6 +152,7 @@
 
 	<string name="add_contact_nearby_title">Add Contact Nearby</string>
 	<string name="open_link_title">Open Link</string>
+	<string name="open_code_title">Open QR Code</string>
 	<string name="send_link_title">Send My Link</string>
 	<string name="send_code_title">Send My QR Code</string>
 	<string name="show_link">Show Link</string>

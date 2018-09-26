@@ -21,7 +21,8 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="bottom|end"
-		app:sdMainFabClosedSrc="@drawable/ic_add_white"
+		app:sdMainFabClosedSrc="@drawable/ic_person_add"
+		app:sdMainFabOpenedSrc="@drawable/ic_close"
 		app:sdOverlayLayout="@id/overlay"/>
 
 </android.support.design.widget.CoordinatorLayout>
