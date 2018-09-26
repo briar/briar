@@ -22,6 +22,8 @@ import javax.annotation.Nullable;
 
 import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
 import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static java.util.Objects.requireNonNull;
 
 @NotNullByDefault
@@ -134,7 +136,9 @@ public class ContactLinkInputFragment extends BaseFragment
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.BriarDialogTheme_Neutral);
 		builder.setMessage(getString(R.string.add_contact_link_question));
 		builder.setPositiveButton(R.string.yes, (dialog, which) -> {
-			startActivity(new Intent(getContext(), NavDrawerActivity.class));
+			Intent intent = new Intent(getContext(), NavDrawerActivity.class);
+			intent.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
 			finish();
 		});
 		builder.setNegativeButton(R.string.no, (dialog, which) -> {
