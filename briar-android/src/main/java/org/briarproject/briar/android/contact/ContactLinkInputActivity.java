@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -36,10 +37,13 @@ import static android.os.SystemClock.elapsedRealtime;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 
 public class ContactLinkInputActivity extends BriarActivity
 		implements TextWatcher {
 
+	@Inject
+	LifecycleManager lifecycleManager;
 	@Inject
 	MessagingManager messagingManager;
 	@Inject
@@ -194,6 +198,10 @@ public class ContactLinkInputActivity extends BriarActivity
 	}
 
 	private void removeFakeRequest(String name, long timestamp) {
+		if (lifecycleManager.getLifecycleState() != RUNNING) {
+			Log.e("TEST", "Lifecycle not started, not adding contact " + name);
+			return;
+		}
 		Log.e("TEST", "Adding Contact " + name);
 		try {
 			messagingManager.removePendingContact(name, timestamp);
