@@ -2,7 +2,6 @@ package org.briarproject.briar.android.contact;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.view.Menu;
 import android.view.MenuItem;
 
 import org.briarproject.briar.R;
@@ -14,9 +13,6 @@ import javax.annotation.Nullable;
 
 public class ContactLinkOutputActivity extends BriarActivity implements
 		BaseFragmentListener {
-
-	private Menu menu;
-	private boolean showQrCode = true;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -35,17 +31,8 @@ public class ContactLinkOutputActivity extends BriarActivity implements
 		}
 
 		if (state == null) {
-			showInitialFragment(new ContactQrCodeOutputFragment());
+			showInitialFragment(new ContactLinkOutputFragment());
 		}
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-//		MenuInflater inflater = getMenuInflater();
-//		inflater.inflate(R.menu.contact_output_actions, menu);
-//		menu.findItem(R.id.action_switch)
-//				.setTitle(showQrCode ? R.string.show_link : R.string.show_code);
-		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -54,21 +41,17 @@ public class ContactLinkOutputActivity extends BriarActivity implements
 			case android.R.id.home:
 				onBackPressed();
 				return true;
-			case R.id.action_switch:
-				switchFragment();
-				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
 	}
 
-	private void switchFragment() {
-		if (showQrCode) {
-			showInitialFragment(new ContactLinkOutputFragment());
-		} else {
-			showInitialFragment(new ContactQrCodeOutputFragment());
-		}
-		showQrCode = !showQrCode;
+	void showLink() {
+		showInitialFragment(new ContactLinkOutputFragment());
+	}
+
+	void showCode() {
+		showInitialFragment(new ContactQrCodeOutputFragment());
 	}
 
 }
