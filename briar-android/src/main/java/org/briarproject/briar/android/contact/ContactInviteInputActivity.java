@@ -26,6 +26,7 @@ import static android.app.AlarmManager.ELAPSED_REALTIME;
 import static android.content.Intent.ACTION_SEND;
 import static android.content.Intent.ACTION_VIEW;
 import static android.content.Intent.EXTRA_TEXT;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.SystemClock.elapsedRealtime;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -129,9 +130,11 @@ public class ContactInviteInputActivity extends BriarActivity implements
 
 		Intent i = new Intent(this, ContactInviteInputActivity.class);
 		i.setAction("addContact");
+		i.setFlags(FLAG_ACTIVITY_NEW_TASK);
 		i.putExtra("name", name);
 		i.putExtra("timestamp", timestamp);
-		PendingIntent pendingIntent = PendingIntent.getActivity(this, 42, i, 0);
+		PendingIntent pendingIntent = PendingIntent
+				.getActivity(this, (int) timestamp / 1000, i, 0);
 		alarmManager.set(ELAPSED_REALTIME, triggerAt, pendingIntent);
 
 		Log.e("TEST", "Setting Alarm in " + MILLISECONDS.toSeconds(fromNow) +

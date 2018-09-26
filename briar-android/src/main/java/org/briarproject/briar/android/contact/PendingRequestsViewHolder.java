@@ -28,7 +28,7 @@ public class PendingRequestsViewHolder extends ViewHolder {
 
 	public void bind(PendingContact item) {
 		avatar.setText(item.getName());
-		avatar.setBackgroundBytes(toUtf8(item.getName()));
+		avatar.setBackgroundBytes(toUtf8(item.getName() + item.getTimestamp()));
 		name.setText(item.getName());
 		time.setText(formatDate(time.getContext(), item.getTimestamp()));
 	}
