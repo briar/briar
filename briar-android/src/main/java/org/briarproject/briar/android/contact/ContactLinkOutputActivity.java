@@ -3,7 +3,6 @@ package org.briarproject.briar.android.contact;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import org.briarproject.briar.R;
@@ -42,10 +41,10 @@ public class ContactLinkOutputActivity extends BriarActivity implements
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.contact_output_actions, menu);
-		menu.findItem(R.id.action_switch)
-				.setTitle(showQrCode ? R.string.show_link : R.string.show_code);
+//		MenuInflater inflater = getMenuInflater();
+//		inflater.inflate(R.menu.contact_output_actions, menu);
+//		menu.findItem(R.id.action_switch)
+//				.setTitle(showQrCode ? R.string.show_link : R.string.show_code);
 		return super.onCreateOptionsMenu(menu);
 	}
 
