@@ -11,7 +11,7 @@ import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener
 
 import javax.annotation.Nullable;
 
-public class ContactLinkOutputActivity extends BriarActivity implements
+public class ContactInviteOutputActivity extends BriarActivity implements
 		BaseFragmentListener {
 
 	@Override

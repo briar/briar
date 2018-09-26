@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.contact;
 
-import android.content.ClipboardManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -20,29 +19,15 @@ import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import javax.annotation.Nullable;
 
-import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
-import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static java.util.Objects.requireNonNull;
 
 @NotNullByDefault
-public class ContactLinkInputFragment extends BaseFragment
+public class ContactAliasInputFragment extends BaseFragment
 		implements TextWatcher {
 
-	private ClipboardManager clipboard;
-	private EditText linkInput;
-	private Button pasteButton;
 	private EditText contactNameInput;
 	private Button addButton;
-
-	static BaseFragment newInstance(@Nullable String link) {
-		BaseFragment f = new ContactLinkInputFragment();
-		Bundle bundle = new Bundle();
-		bundle.putString("link", link);
-		f.setArguments(bundle);
-		return f;
-	}
 
 	@Nullable
 	@Override
@@ -50,20 +35,10 @@ public class ContactLinkInputFragment extends BaseFragment
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
-		getActivity().setTitle(R.string.open_link_title);
+		getActivity().setTitle("Enter Contact Name");
 
-		View v = inflater.inflate(R.layout.fragment_contact_link_input,
+		View v = inflater.inflate(R.layout.fragment_contact_alias_input,
 				container, false);
-
-		clipboard = (ClipboardManager) requireNonNull(
-				getContext().getSystemService(CLIPBOARD_SERVICE));
-
-		linkInput = v.findViewById(R.id.linkInput);
-		linkInput.addTextChangedListener(this);
-
-		pasteButton = v.findViewById(R.id.pasteButton);
-		pasteButton.setOnClickListener(view -> linkInput
-				.setText(clipboard.getPrimaryClip().getItemAt(0).getText()));
 
 		contactNameInput = v.findViewById(R.id.contactNameInput);
 		contactNameInput.addTextChangedListener(this);
@@ -71,16 +46,10 @@ public class ContactLinkInputFragment extends BaseFragment
 		addButton = v.findViewById(R.id.addButton);
 		addButton.setOnClickListener(view -> onAddButtonClicked());
 
-		Button scanCodeButton = v.findViewById(R.id.scanCodeButton);
-		scanCodeButton.setOnClickListener(view ->
-				((ContactInviteInputActivity) getActivity()).showCode());
-
-		linkInput.setText(getArguments().getString("link"));
-
 		return v;
 	}
 
-	public static final String TAG = ContactLinkInputFragment.class.getName();
+	public static final String TAG = ContactAliasInputFragment.class.getName();
 
 	@Override
 	public String getUniqueTag() {
@@ -93,20 +62,6 @@ public class ContactLinkInputFragment extends BaseFragment
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		if (hasLinkInClipboard()) pasteButton.setEnabled(true);
-		else pasteButton.setEnabled(false);
-	}
-
-	private boolean hasLinkInClipboard() {
-		return clipboard.hasPrimaryClip() &&
-				clipboard.getPrimaryClip().getDescription()
-						.hasMimeType(MIMETYPE_TEXT_PLAIN) &&
-				clipboard.getPrimaryClip().getItemCount() > 0;
-	}
-
-	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count,
 			int after) {
 	}
@@ -114,10 +69,7 @@ public class ContactLinkInputFragment extends BaseFragment
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before,
 			int count) {
-		if (isBriarLink(linkInput.getText()) && getActivity() != null) {
-			linkInput.setText(null);
-			((ContactInviteInputActivity) getActivity()).showAlias();
-		}
+		updateAddButtonState();
 	}
 
 	@Override
@@ -130,19 +82,17 @@ public class ContactLinkInputFragment extends BaseFragment
 	}
 
 	private void updateAddButtonState() {
-		addButton.setEnabled(isBriarLink(linkInput.getText()) &&
-				contactNameInput.getText().length() > 0);
+		addButton.setEnabled(contactNameInput.getText().length() > 0);
 	}
 
 	private void onAddButtonClicked() {
-		if (getActivity() == null || getContext() == null) return;
-		;
+		if (getActivity() == null || getContext() == null) return;;
 
 		((ContactInviteInputActivity) getActivity())
 				.addFakeRequest(contactNameInput.getText().toString());
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getContext(),
-				R.style.BriarDialogTheme_Neutral);
+		AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.BriarDialogTheme_Neutral);
+		builder.setTitle("Contact requested");
 		builder.setMessage(getString(R.string.add_contact_link_question));
 		builder.setPositiveButton(R.string.yes, (dialog, which) -> {
 			Intent intent = new Intent(getContext(), NavDrawerActivity.class);
@@ -152,8 +102,7 @@ public class ContactLinkInputFragment extends BaseFragment
 		});
 		builder.setNegativeButton(R.string.no, (dialog, which) -> {
 			startActivity(
-					new Intent(getContext(),
-							ContactInviteOutputActivity.class));
+					new Intent(getContext(), ContactInviteOutputActivity.class));
 			finish();
 		});
 		builder.show();

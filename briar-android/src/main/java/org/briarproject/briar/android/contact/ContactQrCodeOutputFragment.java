@@ -48,7 +48,7 @@ public class ContactQrCodeOutputFragment extends BaseFragment
 
 		Button showLinkButton = v.findViewById(R.id.showLinkButton);
 		showLinkButton.setOnClickListener(
-				view -> ((ContactLinkOutputActivity) getActivity()).showLink());
+				view -> ((ContactInviteOutputActivity) getActivity()).showLink());
 
 		return v;
 	}

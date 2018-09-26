@@ -29,7 +29,7 @@ import static java.util.logging.Level.WARNING;
 @SuppressWarnings("deprecation")
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
+public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 
 	private static final Logger LOG =
 			Logger.getLogger(QrCodeDecoder.class.getName());
@@ -40,7 +40,7 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	private Camera camera = null;
 	private int cameraIndex = 0;
 
-	QrCodeDecoder(ResultCallback callback) {
+	public QrCodeDecoder(ResultCallback callback) {
 		this.callback = callback;
 	}
 
@@ -141,7 +141,7 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	}
 
 	@NotNullByDefault
-	interface ResultCallback {
+	public interface ResultCallback {
 
 		void handleResult(Result result);
 	}
