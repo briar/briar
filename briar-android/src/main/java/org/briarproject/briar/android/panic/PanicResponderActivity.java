@@ -11,7 +11,6 @@ import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.iilab.IilabEngineeringRSA2048Pin;
 
 import java.util.logging.Logger;
 
@@ -44,8 +43,8 @@ public class PanicResponderActivity extends BriarActivity {
 		TrustedIntents trustedIntents = TrustedIntents.get(this);
 		// Guardian Project Ripple
 		trustedIntents.addTrustedSigner(GuardianProjectRSA4096.class);
-		// Amnesty International's Panic Button, made by iilab.org
-		trustedIntents.addTrustedSigner(IilabEngineeringRSA2048Pin.class);
+		// F-Droid
+		trustedIntents.addTrustedSigner(FDroidSignaturePin.class);
 
 		Intent intent = trustedIntents.getIntentFromTrustedSender(this);
 		if (intent != null) {
