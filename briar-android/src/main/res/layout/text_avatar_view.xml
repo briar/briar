@@ -17,6 +17,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
+		android:layout_marginEnd="@dimen/listitem_picture_frame_offset_horizontal"
 		android:layout_marginRight="@dimen/listitem_picture_frame_offset_horizontal"
 		android:layout_marginTop="@dimen/listitem_picture_frame_offset_vertical"
 		android:maxLength="1"

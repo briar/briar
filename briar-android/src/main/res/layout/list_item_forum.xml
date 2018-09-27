@@ -22,6 +22,8 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_marginEnd="@dimen/listitem_horizontal_margin"
+		android:layout_marginLeft="@dimen/listitem_horizontal_margin"
+		android:layout_marginRight="@dimen/listitem_horizontal_margin"
 		android:layout_marginStart="@dimen/listitem_horizontal_margin"
 		android:layout_marginTop="@dimen/listitem_horizontal_margin"
 		android:textColor="?android:attr/textColorPrimary"
