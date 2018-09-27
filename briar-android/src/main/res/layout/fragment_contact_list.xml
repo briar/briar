@@ -18,7 +18,7 @@
 		app:fab_fabDrawable="@drawable/ic_action_add"
 		app:fab_fabRippleColor="@android:color/transparent"
 		app:fab_menu="@menu/contact_list_actions"
-		app:fab_miniFabTextBackground="@color/briar_blue"
+		app:fab_miniFabTextBackground="@color/briar_accent"
 		app:fab_miniFabTextColor="@android:color/white"/>
 
 </android.support.design.widget.CoordinatorLayout>
