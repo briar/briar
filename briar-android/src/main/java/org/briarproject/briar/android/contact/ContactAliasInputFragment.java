@@ -1,7 +1,9 @@
 package org.briarproject.briar.android.contact;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -21,6 +23,8 @@ import javax.annotation.Nullable;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.os.Build.VERSION.SDK_INT;
+import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 
 @NotNullByDefault
 public class ContactAliasInputFragment extends BaseFragment
