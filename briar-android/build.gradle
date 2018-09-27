@@ -2,6 +2,11 @@ apply plugin: 'com.android.application'
 apply plugin: 'witness'
 apply from: 'witness.gradle'
 
+// prototype
+repositories {
+	maven { url 'https://jitpack.io' }
+}
+
 dependencies {
 	implementation project(path: ':briar-core', configuration: 'default')
 	implementation project(path: ':bramble-core', configuration: 'default')
@@ -35,7 +40,7 @@ dependencies {
 	implementation 'com.vanniktech:emoji-google:0.5.1'
 
 	// prototype
-	implementation "com.leinardi.android:speed-dial:2.0.0"
+	implementation "com.github.kobakei:MaterialFabSpeedDial:1.2.0"
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
 
