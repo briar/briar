@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.zxing.Result;
@@ -51,7 +50,7 @@ public class ContactQrCodeInputFragment extends BaseFragment
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
-		getActivity().setTitle(R.string.open_link_title);
+		getActivity().setTitle("Scan QR Code");
 
 		View v = inflater.inflate(R.layout.fragment_contact_qr_code_input,
 				container, false);
@@ -59,9 +58,9 @@ public class ContactQrCodeInputFragment extends BaseFragment
 		cameraView = v.findViewById(R.id.camera_view);
 
 
-		Button enterLinkButton = v.findViewById(R.id.enterLinkButton);
-		enterLinkButton.setOnClickListener(view ->
-				((ContactInviteInputActivity) getActivity()).showLink());
+//		Button enterLinkButton = v.findViewById(R.id.enterLinkButton);
+//		enterLinkButton.setOnClickListener(view ->
+//				((ContactInviteInputActivity) getActivity()).showLink());
 
 		return v;
 	}
@@ -148,13 +147,13 @@ public class ContactQrCodeInputFragment extends BaseFragment
 					builder.setPositiveButton(R.string.ok,
 							UiUtils.getGoToSettingsListener(getContext()));
 					builder.setNegativeButton(R.string.cancel,
-							(dialog, which) -> showLink());
+							(dialog, which) -> showLink(null));
 					builder.show();
 				} else {
 					Toast.makeText(getContext(),
 							R.string.permission_camera_denied_toast,
 							LENGTH_LONG).show();
-					showLink();
+					showLink(null);
 				}
 			}
 		}
@@ -164,9 +163,9 @@ public class ContactQrCodeInputFragment extends BaseFragment
 		requestPermissions(new String[] {CAMERA}, REQUEST_PERMISSION_CAMERA);
 	}
 
-	private void showLink() {
+	private void showLink(@Nullable String link) {
 		if (getActivity() != null)
-			((ContactInviteInputActivity) getActivity()).showLink();
+			((ContactInviteInputActivity) getActivity()).showLink(link);
 	}
 
 	@Override
@@ -175,7 +174,7 @@ public class ContactQrCodeInputFragment extends BaseFragment
 		if (getActivity() != null &&
 				((ContactInviteInputActivity) getActivity())
 						.isBriarLink(result.getText())) {
-			((ContactInviteInputActivity) getActivity()).showAlias();
+			showLink(result.getText());
 		}
 	}
 

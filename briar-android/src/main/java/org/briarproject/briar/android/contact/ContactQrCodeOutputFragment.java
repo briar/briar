@@ -33,7 +33,7 @@ public class ContactQrCodeOutputFragment extends BaseFragment
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
-		getActivity().setTitle(R.string.send_code_title);
+		getActivity().setTitle("Show my QR Code");
 
 		View v = inflater.inflate(R.layout.fragment_contact_qr_code_output,
 				container, false);

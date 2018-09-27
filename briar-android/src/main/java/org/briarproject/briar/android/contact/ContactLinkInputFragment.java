@@ -16,14 +16,11 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
-import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import javax.annotation.Nullable;
 
 import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
 import static android.content.Context.CLIPBOARD_SERVICE;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static java.util.Objects.requireNonNull;
 
 @NotNullByDefault
@@ -115,8 +112,9 @@ public class ContactLinkInputFragment extends BaseFragment
 	public void onTextChanged(CharSequence s, int start, int before,
 			int count) {
 		if (isBriarLink(linkInput.getText()) && getActivity() != null) {
-			linkInput.setText(null);
-			((ContactInviteInputActivity) getActivity()).showAlias();
+			updateAddButtonState();
+//			linkInput.setText(null);
+//			((ContactInviteInputActivity) getActivity()).showAlias();
 		}
 	}
 
@@ -136,17 +134,17 @@ public class ContactLinkInputFragment extends BaseFragment
 
 	private void onAddButtonClicked() {
 		if (getActivity() == null || getContext() == null) return;
-		;
 
 		((ContactInviteInputActivity) getActivity())
 				.addFakeRequest(contactNameInput.getText().toString());
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext(),
 				R.style.BriarDialogTheme_Neutral);
+		builder.setTitle("Contact requested");
 		builder.setMessage(getString(R.string.add_contact_link_question));
 		builder.setPositiveButton(R.string.yes, (dialog, which) -> {
-			Intent intent = new Intent(getContext(), NavDrawerActivity.class);
-			intent.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
+			Intent intent = new Intent(getContext(), PendingRequestsActivity.class);
+//			intent.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 			finish();
 		});
@@ -158,6 +156,5 @@ public class ContactLinkInputFragment extends BaseFragment
 		});
 		builder.show();
 	}
-
 
 }
