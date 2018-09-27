@@ -2,6 +2,7 @@ package org.briarproject.briar.android.contact;
 
 import android.content.ClipboardManager;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -21,7 +22,11 @@ import javax.annotation.Nullable;
 
 import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
 import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.os.Build.VERSION.SDK_INT;
+import static android.support.v4.graphics.drawable.DrawableCompat.setTint;
+import static android.support.v4.graphics.drawable.DrawableCompat.wrap;
 import static java.util.Objects.requireNonNull;
+import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 
 @NotNullByDefault
 public class ContactLinkInputFragment extends BaseFragment
@@ -55,8 +60,15 @@ public class ContactLinkInputFragment extends BaseFragment
 		clipboard = (ClipboardManager) requireNonNull(
 				getContext().getSystemService(CLIPBOARD_SERVICE));
 
+		int color = resolveColorAttribute(getContext(), R.attr.colorControlNormal);
+
 		linkInput = v.findViewById(R.id.linkInput);
 		linkInput.addTextChangedListener(this);
+		if (SDK_INT < 23) {
+			Drawable drawable = wrap(linkInput.getCompoundDrawables()[0]);
+			setTint(drawable, color);
+			linkInput.setCompoundDrawables(drawable, null, null, null);
+		}
 
 		pasteButton = v.findViewById(R.id.pasteButton);
 		pasteButton.setOnClickListener(view -> linkInput
@@ -64,6 +76,12 @@ public class ContactLinkInputFragment extends BaseFragment
 
 		contactNameInput = v.findViewById(R.id.contactNameInput);
 		contactNameInput.addTextChangedListener(this);
+		if (SDK_INT < 23) {
+			Drawable drawable =
+					wrap(contactNameInput.getCompoundDrawables()[0]);
+			setTint(drawable, color);
+			contactNameInput.setCompoundDrawables(drawable, null, null, null);
+		}
 
 		addButton = v.findViewById(R.id.addButton);
 		addButton.setOnClickListener(view -> onAddButtonClicked());
