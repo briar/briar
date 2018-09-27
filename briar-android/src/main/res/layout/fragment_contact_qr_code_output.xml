@@ -20,14 +20,15 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_bias="0.0"
+		android:visibility="gone"
 		app:layout_constraintVertical_chainStyle="packed"
 		app:layout_constraintVertical_weight="1"
-		tools:visibility="visible"/>
+		tools:visibility="gone"/>
 
 	<org.briarproject.briar.android.view.QrCodeView
 		android:id="@+id/qrCodeView"
 		android:layout_width="0dp"
-		android:layout_height="wrap_content"
+		android:layout_height="0dp"
 		android:background="@android:color/white"
 		android:textIsSelectable="true"
 		android:textSize="18sp"
@@ -47,6 +48,7 @@
 		android:layout_marginStart="8dp"
 		android:layout_marginTop="8dp"
 		android:text="or"
+		android:visibility="gone"
 		android:textSize="18sp"
 		app:layout_constraintBottom_toTopOf="@+id/showLinkButton"
 		app:layout_constraintEnd_toEndOf="parent"
@@ -64,6 +66,7 @@
 		android:layout_marginTop="8dp"
 		android:drawableLeft="@drawable/ic_link"
 		android:drawablePadding="8dp"
+		android:visibility="gone"
 		android:text="Show Link"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"

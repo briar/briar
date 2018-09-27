@@ -102,12 +102,12 @@ public class ContactInviteInputActivity extends BriarActivity implements
 		return link.matches("^(briar://)?[A-Z2-7]{64}$");
 	}
 
-	void showLink() {
-		showInitialFragment(ContactLinkInputFragment.newInstance(null));
+	void showLink(@Nullable String link) {
+		showInitialFragment(ContactLinkInputFragment.newInstance(link));
 	}
 
 	void showCode() {
-		showInitialFragment(new ContactQrCodeInputFragment());
+		showNextFragment(new ContactQrCodeInputFragment());
 	}
 
 	void showAlias() {
