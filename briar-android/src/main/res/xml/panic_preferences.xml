@@ -10,7 +10,6 @@
 
 	<SwitchPreference
 		android:defaultValue="true"
-		android:enabled="false"
 		android:key="pref_key_lock"
 		android:summary="@string/panic_setting_signout_summary"
 		android:title="@string/panic_setting_signout_title"/>

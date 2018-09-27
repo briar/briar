@@ -71,10 +71,12 @@ public class PanicResponderActivity extends BriarActivity {
 					} else if (sharedPref.getBoolean(KEY_PURGE, false)) {
 						LOG.info("Purging all data...");
 						deleteAllData();
-					} else if (sharedPref.getBoolean(KEY_LOCK, true)) {
-						LOG.info("Signing out...");
-						signOut(true);
 					}
+				}
+				// non-destructive actions are allowed by non-connected trusted apps
+				if (sharedPref.getBoolean(KEY_LOCK, true)) {
+					LOG.info("Signing out...");
+					signOut(true);
 				}
 			}
 		}
