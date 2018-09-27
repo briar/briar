@@ -23,13 +23,13 @@
 	-->
 	<item
 		android:id="@+id/action_open_link"
-		android:icon="@drawable/ic_qr_code_scan"
+		android:icon="@drawable/ic_link_down"
 		android:title="@string/open_code_title"
 		app:showAsAction="never"/>
 
 	<item
 		android:id="@+id/action_send_link"
-		android:icon="@drawable/ic_qr_code"
+		android:icon="@drawable/ic_link_up"
 		android:title="@string/send_code_title"
 		app:showAsAction="never"/>
 
