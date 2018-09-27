@@ -10,9 +10,13 @@ import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.test.BrambleJavaIntegrationTestComponent;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.DaggerBrambleJavaIntegrationTestComponent;
-import org.junit.AfterClass;
+import org.briarproject.bramble.util.OsUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import java.io.File;
 import java.util.List;
@@ -29,13 +33,20 @@ import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.isOptionalTestEnabled;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
+@RunWith(Parameterized.class)
 public class BridgeTest extends BrambleTestCase {
 
-	private final static long TIMEOUT = SECONDS.toMillis(23);
+	@Parameters
+	public static Iterable<String> data() {
+		BrambleJavaIntegrationTestComponent component =
+				DaggerBrambleJavaIntegrationTestComponent.builder().build();
+		return component.getCircumventionProvider().getBridges();
+	}
+
+	private final static long TIMEOUT = SECONDS.toMillis(30);
 
 	private final static Logger LOG =
 			Logger.getLogger(BridgeTest.class.getName());
@@ -53,16 +64,22 @@ public class BridgeTest extends BrambleTestCase {
 	@Inject
 	Clock clock;
 
-	private List<String> bridges;
-	private LinuxTorPluginFactory factory;
-	private final static File torDir = getTestDirectory();
+	private final File torDir = getTestDirectory();
+	private final String bridge;
 
-	private volatile String currentBridge = null;
+	private LinuxTorPluginFactory factory;
+
+	public BridgeTest(String bridge) {
+		this.bridge = bridge;
+	}
 
 	@Before
 	public void setUp() {
 		// Skip this test unless it's explicitly enabled in the environment
 		assumeTrue(isOptionalTestEnabled(BridgeTest.class));
+
+		// TODO: Remove this assumption when the plugin supports other platforms
+		assumeTrue(OsUtils.isLinux());
 
 		BrambleJavaIntegrationTestComponent component =
 				DaggerBrambleJavaIntegrationTestComponent.builder().build();
@@ -72,7 +89,6 @@ public class BridgeTest extends BrambleTestCase {
 		LocationUtils locationUtils = () -> "US";
 		SocketFactory torSocketFactory = SocketFactory.getDefault();
 
-		bridges = circumventionProvider.getBridges();
 		CircumventionProvider bridgeProvider = new CircumventionProvider() {
 			@Override
 			public boolean isTorProbablyBlocked(String countryCode) {
@@ -86,7 +102,7 @@ public class BridgeTest extends BrambleTestCase {
 
 			@Override
 			public List<String> getBridges() {
-				return singletonList(currentBridge);
+				return singletonList(bridge);
 			}
 		};
 		factory = new LinuxTorPluginFactory(ioExecutor, networkManager,
@@ -94,25 +110,18 @@ public class BridgeTest extends BrambleTestCase {
 				resourceProvider, bridgeProvider, clock, torDir);
 	}
 
-	@AfterClass
-	public static void tearDown() {
+	@After
+	public void tearDown() {
 		deleteTestDirectory(torDir);
 	}
 
 	@Test
 	public void testBridges() throws Exception {
-		assertTrue(bridges.size() > 0);
-
-		for (String bridge : bridges) testBridge(bridge);
-	}
-
-	private void testBridge(String bridge) throws Exception {
 		DuplexPlugin duplexPlugin =
 				factory.createPlugin(new TorPluginCallBack());
 		assertNotNull(duplexPlugin);
 		LinuxTorPlugin plugin = (LinuxTorPlugin) duplexPlugin;
 
-		currentBridge = bridge;
 		LOG.warning("Testing " + bridge);
 		try {
 			plugin.start();
