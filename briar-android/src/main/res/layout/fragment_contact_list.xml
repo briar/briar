@@ -11,18 +11,14 @@
 		android:layout_height="match_parent"
 		app:scrollToEnd="false"/>
 
-	<com.leinardi.android.speeddial.SpeedDialOverlayLayout
-		android:id="@+id/overlay"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"/>
-
-	<com.leinardi.android.speeddial.SpeedDialView
+	<io.github.kobakei.materialfabspeeddial.FabSpeedDial
 		android:id="@+id/speedDial"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="bottom|end"
-		app:sdMainFabClosedSrc="@drawable/ic_person_add"
-		app:sdMainFabOpenedSrc="@drawable/ic_close"
-		app:sdOverlayLayout="@id/overlay"/>
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		app:fab_fabDrawable="@drawable/ic_action_add"
+		app:fab_fabRippleColor="@android:color/transparent"
+		app:fab_menu="@menu/contact_list_actions"
+		app:fab_miniFabTextBackground="@color/briar_blue"
+		app:fab_miniFabTextColor="@android:color/white"/>
 
 </android.support.design.widget.CoordinatorLayout>

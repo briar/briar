@@ -2,6 +2,7 @@ package org.briarproject.briar.android.contact;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -14,9 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.leinardi.android.speeddial.SpeedDialActionItem;
-import com.leinardi.android.speeddial.SpeedDialView;
+import android.widget.TextView;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -56,6 +55,9 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import io.github.kobakei.materialfabspeeddial.FabSpeedDial;
+import io.github.kobakei.materialfabspeeddial.FabSpeedDial.OnMenuItemClickListener;
+
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
@@ -69,7 +71,7 @@ import static org.briarproject.briar.android.contact.ConversationActivity.CONTAC
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ContactListFragment extends BaseFragment implements EventListener,
-		SpeedDialView.OnActionSelectedListener {
+		OnMenuItemClickListener {
 
 	public static final String TAG = ContactListFragment.class.getName();
 	private static final Logger LOG = Logger.getLogger(TAG);
@@ -120,11 +122,12 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 
 		getActivity().setTitle(R.string.contact_list_button);
 
-		View contentView = inflater.inflate(R.layout.fragment_contact_list, container, false);
+		View contentView =
+				inflater.inflate(R.layout.fragment_contact_list, container,
+						false);
 
-		SpeedDialView speedDialView = contentView.findViewById(R.id.speedDial);
-		speedDialView.inflate(R.menu.contact_list_actions);
-		speedDialView.setOnActionSelectedListener(this);
+		FabSpeedDial speedDialView = contentView.findViewById(R.id.speedDial);
+		speedDialView.addOnMenuItemClickListener(this);
 
 		OnContactClickListener<ContactListItem> onContactClickListener =
 				(view, item) -> {
@@ -195,23 +198,24 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 	}
 
 	@Override
-	public boolean onActionSelected(SpeedDialActionItem item) {
-		switch (item.getId()) {
+	public void onMenuItemClick(FloatingActionButton fab, TextView v,
+			int itemId) {
+		switch (itemId) {
 			case R.id.action_add_contact:
 				Intent intent =
 						new Intent(getContext(), ContactExchangeActivity.class);
 				startActivity(intent);
-				return false;
+				return;
 			case R.id.action_open_link:
 				startActivity(new Intent(getContext(),
 						ContactInviteInputActivity.class));
-				return false;
+				return;
 			case R.id.action_send_link:
 				startActivity(new Intent(getContext(),
 						ContactInviteOutputActivity.class));
-				return false;
+				return;
 			default:
-				return false;
+				return;
 		}
 	}
 
