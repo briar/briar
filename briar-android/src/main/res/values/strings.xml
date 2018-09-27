@@ -398,6 +398,7 @@
 	<string name="panic_app_setting_none">None</string>
 	<string name="dialog_title_connect_panic_app">Confirm Panic App</string>
 	<string name="dialog_message_connect_panic_app">Are you sure that you want to allow %1$s to trigger destructive panic button actions?</string>
+	<string name="panic_setting_destructive_action">Destructive Actions</string>
 	<string name="panic_setting_signout_title">Sign Out</string>
 	<string name="panic_setting_signout_summary">Sign out of Briar if a panic button is pressed</string>
 	<string name="purge_setting_title">Delete Account</string>

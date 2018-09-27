@@ -31,13 +31,12 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 	public static final String KEY_LOCK = "pref_key_lock";
 	public static final String KEY_PANIC_APP = "pref_key_panic_app";
 	public static final String KEY_PURGE = "pref_key_purge";
-	public static final String KEY_UNINSTALL = "pref_key_uninstall";
 
 	private static final Logger LOG =
 			Logger.getLogger(PanicPreferencesFragment.class.getName());
 
 	private PackageManager pm;
-	private SwitchPreference lockPref, purgePref, uninstallPref;
+	private SwitchPreference lockPref, purgePref;
 	private ListPreference panicAppPref;
 
 	@Override
@@ -49,7 +48,6 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 		lockPref = (SwitchPreference) findPreference(KEY_LOCK);
 		panicAppPref = (ListPreference) findPreference(KEY_PANIC_APP);
 		purgePref = (SwitchPreference) findPreference(KEY_PURGE);
-		uninstallPref = (SwitchPreference) findPreference(KEY_UNINSTALL);
 
 		// check for connect/disconnect intents from panic trigger apps
 		if (PanicResponder.checkForDisconnectIntent(getActivity())) {
@@ -99,12 +97,9 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 			if (packageName.equals(Panic.PACKAGE_NAME_NONE)) {
 				purgePref.setChecked(false);
 				purgePref.setEnabled(false);
-				uninstallPref.setChecked(false);
-				uninstallPref.setEnabled(false);
 				getActivity().setResult(Activity.RESULT_CANCELED);
 			} else {
 				purgePref.setEnabled(true);
-				uninstallPref.setEnabled(true);
 			}
 
 			return true;
@@ -148,22 +143,11 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 			if (sharedPreferences.getBoolean(KEY_PURGE, false)) {
 				lockPref.setChecked(true);
 			}
-			// disable uninstall if purging gets disabled
-			else {
-				uninstallPref.setChecked(false);
-			}
-		}
-		// enable purging and locking if uninstall gets enabled
-		if (key.equals(KEY_UNINSTALL) &&
-				sharedPreferences.getBoolean(KEY_UNINSTALL, false)) {
-			lockPref.setChecked(true);
-			purgePref.setChecked(true);
 		}
 		// disable purging and uninstalling if locking gets disabled
 		if (key.equals(KEY_LOCK) &&
 				!sharedPreferences.getBoolean(KEY_LOCK, true)) {
 			purgePref.setChecked(false);
-			uninstallPref.setChecked(false);
 		}
 	}
 
@@ -179,7 +163,6 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 
 			// disable destructive panic actions
 			purgePref.setEnabled(false);
-			uninstallPref.setEnabled(false);
 		} else {
 			// display connected panic app
 			try {
@@ -191,7 +174,6 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 
 				// enable destructive panic actions
 				purgePref.setEnabled(true);
-				uninstallPref.setEnabled(true);
 			} catch (PackageManager.NameNotFoundException e) {
 				// revert back to no app, just to be safe
 				PanicResponder.setTriggerPackageName(getActivity(),
