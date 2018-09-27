@@ -51,7 +51,7 @@ public class ContactInviteOutputActivity extends BriarActivity implements
 	}
 
 	void showCode() {
-		showInitialFragment(new ContactQrCodeOutputFragment());
+		showNextFragment(new ContactQrCodeOutputFragment());
 	}
 
 }
