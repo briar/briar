@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.panic;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,8 +21,13 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import info.guardianproject.panic.Panic;
 import info.guardianproject.panic.PanicResponder;
+
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
+import static android.content.Intent.ACTION_VIEW;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static info.guardianproject.panic.Panic.PACKAGE_NAME_NONE;
 
 public class PanicPreferencesFragment extends PreferenceFragmentCompat
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -41,8 +45,12 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 
 	@Override
 	public void onCreatePreferences(Bundle bundle, String s) {
+		LOG.info("onCreatePreferences");
 		addPreferencesFromResource(R.xml.panic_preferences);
+	}
 
+	private void updatePreferences() {
+		LOG.info("updatePreferences");
 		pm = getActivity().getPackageManager();
 
 		lockPref = (SwitchPreference) findPreference(KEY_LOCK);
@@ -74,7 +82,7 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 		ArrayList<CharSequence> entries = new ArrayList<>();
 		ArrayList<CharSequence> entryValues = new ArrayList<>();
 		entries.add(0, getString(R.string.panic_app_setting_none));
-		entryValues.add(0, Panic.PACKAGE_NAME_NONE);
+		entryValues.add(0, PACKAGE_NAME_NONE);
 
 		for (ResolveInfo resolveInfo : PanicResponder.resolveTriggerApps(pm)) {
 			if (resolveInfo.activityInfo == null)
@@ -87,17 +95,17 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 				entries.toArray(new CharSequence[entries.size()]));
 		panicAppPref.setEntryValues(
 				entryValues.toArray(new CharSequence[entryValues.size()]));
-		panicAppPref.setDefaultValue(Panic.PACKAGE_NAME_NONE);
+		panicAppPref.setDefaultValue(PACKAGE_NAME_NONE);
 
 		panicAppPref.setOnPreferenceChangeListener((preference, newValue) -> {
 			String packageName = (String) newValue;
 			PanicResponder.setTriggerPackageName(getActivity(), packageName);
 			showPanicApp(packageName);
 
-			if (packageName.equals(Panic.PACKAGE_NAME_NONE)) {
+			if (packageName.equals(PACKAGE_NAME_NONE)) {
 				purgePref.setChecked(false);
 				purgePref.setEnabled(false);
-				getActivity().setResult(Activity.RESULT_CANCELED);
+				getActivity().setResult(RESULT_CANCELED);
 			} else {
 				purgePref.setEnabled(true);
 			}
@@ -107,24 +115,28 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 
 		if (entries.size() <= 1) {
 			panicAppPref.setOnPreferenceClickListener(preference -> {
-				Intent intent = new Intent(Intent.ACTION_VIEW);
+				Intent intent = new Intent(ACTION_VIEW);
 				intent.setData(Uri.parse(
 						"market://details?id=info.guardianproject.ripple"));
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
 				if (intent.resolveActivity(getActivity().getPackageManager())
 						!= null) {
 					startActivity(intent);
 				}
 				return true;
 			});
+		} else {
+			panicAppPref.setOnPreferenceClickListener(null);
 		}
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
+		LOG.info("onStart");
 		getPreferenceScreen().getSharedPreferences()
 				.registerOnSharedPreferenceChangeListener(this);
+		updatePreferences();
 		showPanicApp(PanicResponder.getTriggerPackageName(getActivity()));
 	}
 
@@ -152,9 +164,9 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 
 	private void showPanicApp(String triggerPackageName) {
 		if (TextUtils.isEmpty(triggerPackageName)
-				|| triggerPackageName.equals(Panic.PACKAGE_NAME_NONE)) {
+				|| triggerPackageName.equals(PACKAGE_NAME_NONE)) {
 			// no panic app set
-			panicAppPref.setValue(Panic.PACKAGE_NAME_NONE);
+			panicAppPref.setValue(PACKAGE_NAME_NONE);
 			panicAppPref
 					.setSummary(getString(R.string.panic_app_setting_summary));
 			panicAppPref.setIcon(
@@ -176,8 +188,8 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 			} catch (PackageManager.NameNotFoundException e) {
 				// revert back to no app, just to be safe
 				PanicResponder.setTriggerPackageName(getActivity(),
-						Panic.PACKAGE_NAME_NONE);
-				showPanicApp(Panic.PACKAGE_NAME_NONE);
+						PACKAGE_NAME_NONE);
+				showPanicApp(PACKAGE_NAME_NONE);
 			}
 		}
 	}
@@ -186,10 +198,10 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 		DialogInterface.OnClickListener okListener = (dialog, which) -> {
 			PanicResponder.setTriggerPackageName(getActivity());
 			showPanicApp(PanicResponder.getTriggerPackageName(getActivity()));
-			getActivity().setResult(Activity.RESULT_OK);
+			getActivity().setResult(RESULT_OK);
 		};
 		DialogInterface.OnClickListener cancelListener = (dialog, which) -> {
-			getActivity().setResult(Activity.RESULT_CANCELED);
+			getActivity().setResult(RESULT_CANCELED);
 			getActivity().finish();
 		};
 
