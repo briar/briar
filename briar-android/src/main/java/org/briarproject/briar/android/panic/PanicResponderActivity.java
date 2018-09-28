@@ -2,7 +2,6 @@ package org.briarproject.briar.android.panic;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
@@ -11,7 +10,6 @@ import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.iilab.IilabEngineeringRSA2048Pin;
 
 import java.util.logging.Logger;
 
@@ -22,10 +20,8 @@ import info.guardianproject.panic.Panic;
 import info.guardianproject.panic.PanicResponder;
 import info.guardianproject.trustedintents.TrustedIntents;
 
-import static android.content.Intent.ACTION_DELETE;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_LOCK;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_PURGE;
-import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_UNINSTALL;
 
 public class PanicResponderActivity extends BriarActivity {
 
@@ -44,8 +40,8 @@ public class PanicResponderActivity extends BriarActivity {
 		TrustedIntents trustedIntents = TrustedIntents.get(this);
 		// Guardian Project Ripple
 		trustedIntents.addTrustedSigner(GuardianProjectRSA4096.class);
-		// Amnesty International's Panic Button, made by iilab.org
-		trustedIntents.addTrustedSigner(IilabEngineeringRSA2048Pin.class);
+		// F-Droid
+		trustedIntents.addTrustedSigner(FDroidSignaturePin.class);
 
 		Intent intent = trustedIntents.getIntentFromTrustedSender(this);
 		if (intent != null) {
@@ -60,22 +56,15 @@ public class PanicResponderActivity extends BriarActivity {
 					LOG.info("Panic Trigger came from connected app");
 
 					// Performing panic responses
-					if (sharedPref.getBoolean(KEY_UNINSTALL, false)) {
+					if (sharedPref.getBoolean(KEY_PURGE, false)) {
 						LOG.info("Purging all data...");
 						deleteAllData();
-
-						LOG.info("Uninstalling...");
-						Intent uninstall = new Intent(ACTION_DELETE);
-						uninstall.setData(
-								Uri.parse("package:" + getPackageName()));
-						startActivity(uninstall);
-					} else if (sharedPref.getBoolean(KEY_PURGE, false)) {
-						LOG.info("Purging all data...");
-						deleteAllData();
-					} else if (sharedPref.getBoolean(KEY_LOCK, true)) {
-						LOG.info("Signing out...");
-						signOut(true);
 					}
+				}
+				// non-destructive actions are allowed by non-connected trusted apps
+				if (sharedPref.getBoolean(KEY_LOCK, true)) {
+					LOG.info("Signing out...");
+					signOut(true);
 				}
 			}
 		}
