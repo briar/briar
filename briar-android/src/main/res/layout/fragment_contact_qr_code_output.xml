@@ -1,78 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<TextView
-		android:id="@+id/linkIntro"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_margin="@dimen/margin_large"
-		android:text="@string/send_code_instructions"
-		android:textIsSelectable="true"
-		android:textSize="18sp"
-		app:layout_constraintBottom_toTopOf="@+id/qrCodeView"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.5"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_bias="0.0"
-		android:visibility="gone"
-		app:layout_constraintVertical_chainStyle="packed"
-		app:layout_constraintVertical_weight="1"
-		tools:visibility="gone"/>
-
 	<org.briarproject.briar.android.view.QrCodeView
 		android:id="@+id/qrCodeView"
-		android:layout_width="0dp"
-		android:layout_height="0dp"
-		android:background="@android:color/white"
-		android:textIsSelectable="true"
-		android:textSize="18sp"
-		android:typeface="monospace"
-		app:layout_constraintBottom_toTopOf="@+id/textView2"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.5"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/linkIntro"
-		app:layout_constraintVertical_weight="1"/>
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@android:color/white"/>
 
-	<TextView
-		android:id="@+id/textView2"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginEnd="8dp"
-		android:layout_marginStart="8dp"
-		android:layout_marginTop="8dp"
-		android:text="or"
-		android:visibility="gone"
-		android:textSize="18sp"
-		app:layout_constraintBottom_toTopOf="@+id/showLinkButton"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/qrCodeView"/>
-
-	<Button
-		android:id="@+id/showLinkButton"
-		style="@style/BriarButton"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginBottom="16dp"
-		android:layout_marginEnd="16dp"
-		android:layout_marginStart="16dp"
-		android:layout_marginTop="8dp"
-		android:drawableLeft="@drawable/ic_link"
-		android:drawablePadding="8dp"
-		android:visibility="gone"
-		android:text="Show Link"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.5"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/textView2"
-		app:layout_constraintVertical_bias="1.0"/>
-
-</android.support.constraint.ConstraintLayout>
+</FrameLayout>

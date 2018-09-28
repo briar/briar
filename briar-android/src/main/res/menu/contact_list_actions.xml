@@ -4,24 +4,17 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
-		android:id="@+id/action_add_contact"
+		android:id="@+id/action_add_contact_nearby"
 		android:icon="@drawable/ic_add_nearby"
 		android:orderInCategory="3"
 		android:title="@string/add_contact_nearby_title"
 		app:showAsAction="never"/>
 
 	<item
-		android:id="@+id/action_open_link"
-		android:icon="@drawable/ic_link_down"
+		android:id="@+id/action_add_contact_remotely"
+		android:icon="@drawable/ic_link"
 		android:orderInCategory="2"
-		android:title="@string/open_code_title"
-		app:showAsAction="never"/>
-
-	<item
-		android:id="@+id/action_send_link"
-		android:icon="@drawable/ic_link_up"
-		android:orderInCategory="1"
-		android:title="@string/send_code_title"
+		android:title="@string/add_contact_remotely_title"
 		app:showAsAction="never"/>
 
 </menu>

@@ -2,13 +2,12 @@ package org.briarproject.briar.android.contact;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
@@ -16,44 +15,12 @@ import org.briarproject.briar.android.view.QrCodeView;
 
 import javax.annotation.Nullable;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.util.StringUtils.getRandomBase32String;
 import static org.briarproject.briar.android.keyagreement.QrCodeUtils.createQrCode;
 
-@NotNullByDefault
-public class ContactQrCodeOutputFragment extends BaseFragment
-		implements QrCodeView.FullscreenListener {
+public class ContactQrCodeOutputFragment extends BaseFragment {
 
-	private View linkIntro;
-
-	@Nullable
-	@Override
-	public View onCreateView(LayoutInflater inflater,
-			@Nullable ViewGroup container,
-			@Nullable Bundle savedInstanceState) {
-
-		getActivity().setTitle("Show my QR Code");
-
-		View v = inflater.inflate(R.layout.fragment_contact_qr_code_output,
-				container, false);
-		linkIntro = v.findViewById(R.id.linkIntro);
-
-		String link = "briar://" + getRandomBase32String(64);
-		DisplayMetrics dm = getResources().getDisplayMetrics();
-		Bitmap qrCode = createQrCode(dm, link);
-		QrCodeView qrCodeView = v.findViewById(R.id.qrCodeView);
-		qrCodeView.setQrCode(qrCode);
-		qrCodeView.setFullscreenListener(this);
-
-		Button showLinkButton = v.findViewById(R.id.showLinkButton);
-		showLinkButton.setOnClickListener(
-				view -> ((ContactInviteOutputActivity) getActivity()).showLink());
-
-		return v;
-	}
-
-	public static final String TAG = ContactQrCodeOutputFragment.class.getName();
+	static final String TAG = ContactQrCodeOutputFragment.class.getName();
 
 	@Override
 	public String getUniqueTag() {
@@ -65,9 +32,24 @@ public class ContactQrCodeOutputFragment extends BaseFragment
 		component.inject(this);
 	}
 
+	@Nullable
 	@Override
-	public void setFullscreen(boolean fullscreen) {
-		linkIntro.setVisibility(fullscreen ? GONE : VISIBLE);
-	}
+	public View onCreateView(@NonNull LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
+		if (getActivity() == null) return null;
 
+		getActivity().setTitle(R.string.show_qr_code_title);
+
+		View v = inflater.inflate(R.layout.fragment_contact_qr_code_output,
+				container, false);
+
+		String link = "briar://" + getRandomBase32String(64);
+		DisplayMetrics dm = getResources().getDisplayMetrics();
+		Bitmap qrCode = createQrCode(dm, link);
+		QrCodeView qrCodeView = v.findViewById(R.id.qrCodeView);
+		qrCodeView.setQrCode(qrCode);
+
+		return v;
+	}
 }

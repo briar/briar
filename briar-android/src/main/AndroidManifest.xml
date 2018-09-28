@@ -415,14 +415,9 @@
 
 		<!-- Prototype -->
 		<activity
-			android:name=".android.contact.ContactInviteOutputActivity"
+			android:name=".android.contact.ContactLinkExchangeActivity"
 			android:theme="@style/BriarTheme"
-			android:label="@string/send_link_title"/>
-
-		<activity
-			android:name=".android.contact.ContactInviteInputActivity"
-			android:theme="@style/BriarTheme"
-			android:label="@string/open_link_title"
+			android:label="@string/add_contact_title"
 			android:windowSoftInputMode="stateHidden|adjustResize">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />

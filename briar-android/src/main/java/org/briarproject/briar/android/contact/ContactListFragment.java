@@ -10,9 +10,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -178,41 +175,17 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//		inflater.inflate(R.menu.contact_list_actions, menu);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle presses on the action bar items
-		switch (item.getItemId()) {
-			case R.id.action_add_contact:
-				Intent intent =
-						new Intent(getContext(), ContactExchangeActivity.class);
-				startActivity(intent);
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
-	}
-
-	@Override
-	public void onMenuItemClick(FloatingActionButton fab, TextView v,
+	public void onMenuItemClick(FloatingActionButton fab, @Nullable TextView v,
 			int itemId) {
 		switch (itemId) {
-			case R.id.action_add_contact:
+			case R.id.action_add_contact_nearby:
 				Intent intent =
 						new Intent(getContext(), ContactExchangeActivity.class);
 				startActivity(intent);
 				return;
-			case R.id.action_open_link:
+			case R.id.action_add_contact_remotely:
 				startActivity(new Intent(getContext(),
-						ContactInviteInputActivity.class));
-				return;
-			case R.id.action_send_link:
-				startActivity(new Intent(getContext(),
-						ContactInviteOutputActivity.class));
+						ContactLinkExchangeActivity.class));
 				return;
 			default:
 				return;
