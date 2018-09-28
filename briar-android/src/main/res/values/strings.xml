@@ -152,28 +152,24 @@
 	<string name="connection_error_feedback">If this problem persists, please <a href="feedback">send feedback</a> to help us improve the app.</string>
 
 	<string name="add_contact_nearby_title">Add Contact Nearby</string>
-	<string name="open_link_title">Open Link</string>
-	<string name="open_code_title">Open Invite</string>
-	<string name="send_link_title">Send My Link</string>
-	<string name="send_code_title">Send My Invite</string>
-	<string name="show_link">Show Link</string>
-	<string name="show_code">Show QR code</string>
+	<string name="add_contact_remotely_title">Add Contact with Link</string>
 	<string name="contact_name_hint">Contact name</string>
 	<string name="contact_link_hint">Contact link</string>
 	<string name="paste_button">Paste</string>
-	<string name="add_contact_button">Request Contact</string>
-	<string name="share_button">Share</string>
+	<string name="scan_qr_code_button">QR Code</string>
+	<string name="add_contact_button">Add Contact</string>
 	<string name="copy_button">Copy</string>
-	<string name="send_link_instructions">Send this link to your contact:</string>
-	<string name="send_code_instructions">Let your contact scan this QR code:</string>
+	<string name="share_button">Share</string>
+	<string name="show_qr_code_button">QR Code</string>
+	<string name="send_link_instructions">Give this link to your contact:</string>
 	<string name="link_clip_label">Briar link</string>
 	<string name="link_copied_toast">Link copied</string>
 	<string name="pending_contact_requests_snackbar">"There are pending contact requests"</string>
 	<string name="pending_contact_requests">Pending contact requests</string>
-	<string name="add_contact_link_question">Did you send your link already?</string>
-	<string name="yes">Yes</string>
-	<string name="no">No</string>
 	<string name="add_contact_remote_connecting">Connecting…</string>
+	<string name="scan_qr_code_title">Scan QR Code</string>
+	<string name="show_qr_code_title">Your QR Code</string>
+	<string name="camera_error_toast">Camera Error</string>
 
 	<!-- Introductions -->
 	<string name="introduction_onboarding_title">Introduce your contacts</string>

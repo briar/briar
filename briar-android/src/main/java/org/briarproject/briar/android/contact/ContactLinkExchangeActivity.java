@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.db.DbException;
@@ -17,7 +16,7 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.api.messaging.MessagingManager;
 
-import java.util.Random;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -29,12 +28,16 @@ import static android.content.Intent.EXTRA_TEXT;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.SystemClock.elapsedRealtime;
 import static java.util.Objects.requireNonNull;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
-public class ContactInviteInputActivity extends BriarActivity implements
+public class ContactLinkExchangeActivity extends BriarActivity implements
 		BaseFragmentListener {
+
+	private static final Logger LOG =
+			Logger.getLogger(ContactLinkExchangeActivity.class.getName());
 
 	@Inject
 	LifecycleManager lifecycleManager;
@@ -65,13 +68,13 @@ public class ContactInviteInputActivity extends BriarActivity implements
 				String text = i.getStringExtra(EXTRA_TEXT);
 				if (text != null) {
 					showInitialFragment(
-							ContactLinkInputFragment.newInstance(text));
+							ContactLinkExchangeFragment.newInstance(text));
 					return;
 				}
 				String uri = i.getDataString();
 				if (uri != null) {
 					showInitialFragment(
-							ContactLinkInputFragment.newInstance(uri));
+							ContactLinkExchangeFragment.newInstance(uri));
 					return;
 				}
 			} else if ("addContact".equals(action)) {
@@ -82,7 +85,7 @@ public class ContactInviteInputActivity extends BriarActivity implements
 			}
 		}
 		if (state == null) {
-			showInitialFragment(ContactLinkInputFragment.newInstance(null));
+			showInitialFragment(new ContactLinkExchangeFragment());
 		}
 	}
 
@@ -102,16 +105,16 @@ public class ContactInviteInputActivity extends BriarActivity implements
 		return link.matches("^(briar://)?[a-z2-7]{64}$");
 	}
 
-	void showLink(@Nullable String link) {
-		showInitialFragment(ContactLinkInputFragment.newInstance(link));
-	}
-
-	void showCode() {
+	void scanCode() {
 		showNextFragment(new ContactQrCodeInputFragment());
 	}
 
-	void showAlias() {
-		showNextFragment(new ContactAliasInputFragment());
+	void linkScanned(@Nullable String link) {
+		showNextFragment(ContactLinkExchangeFragment.newInstance(link));
+	}
+
+	void showCode() {
+		showNextFragment(new ContactQrCodeOutputFragment());
 	}
 
 	void addFakeRequest(String name) {
@@ -119,40 +122,35 @@ public class ContactInviteInputActivity extends BriarActivity implements
 		try {
 			messagingManager.addNewPendingContact(name, timestamp);
 		} catch (DbException e) {
-			e.printStackTrace();
+			logException(LOG, WARNING, e);
 		}
 
 		AlarmManager alarmManager =
 				(AlarmManager) requireNonNull(getSystemService(ALARM_SERVICE));
 		long m = MINUTES.toMillis(1);
-		long fromNow = (long) (-m * Math.log(new Random().nextDouble()));
+		long fromNow = (long) (-m * Math.log(Math.random()));
 		long triggerAt = elapsedRealtime() + fromNow;
 
-		Intent i = new Intent(this, ContactInviteInputActivity.class);
+		Intent i = new Intent(this, ContactLinkExchangeActivity.class);
 		i.setAction("addContact");
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK);
 		i.putExtra("name", name);
 		i.putExtra("timestamp", timestamp);
-		PendingIntent pendingIntent = PendingIntent
-				.getActivity(this, (int) timestamp / 1000, i, 0);
+		PendingIntent pendingIntent =
+				PendingIntent.getActivity(this, (int) timestamp / 1000, i, 0);
 		alarmManager.set(ELAPSED_REALTIME, triggerAt, pendingIntent);
-
-		Log.e("TEST", "Setting Alarm in " + MILLISECONDS.toSeconds(fromNow) +
-				" seconds");
-		Log.e("TEST", "with contact: " + name);
 	}
 
 	private void removeFakeRequest(String name, long timestamp) {
 		if (lifecycleManager.getLifecycleState() != RUNNING) {
-			Log.e("TEST", "Lifecycle not started, not adding contact " + name);
+			LOG.info("Lifecycle not started, not adding contact " + name);
 			return;
 		}
-		Log.e("TEST", "Adding Contact " + name);
+		LOG.info("Adding Contact " + name);
 		try {
 			messagingManager.removePendingContact(name, timestamp);
 		} catch (DbException e) {
-			e.printStackTrace();
+			logException(LOG, WARNING, e);
 		}
 	}
-
 }

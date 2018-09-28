@@ -15,11 +15,8 @@ import org.briarproject.briar.android.blog.ReblogFragment;
 import org.briarproject.briar.android.blog.RssFeedImportActivity;
 import org.briarproject.briar.android.blog.RssFeedManageActivity;
 import org.briarproject.briar.android.blog.WriteBlogPostActivity;
-import org.briarproject.briar.android.contact.ContactAliasInputFragment;
-import org.briarproject.briar.android.contact.ContactInviteInputActivity;
-import org.briarproject.briar.android.contact.ContactInviteOutputActivity;
-import org.briarproject.briar.android.contact.ContactLinkInputFragment;
-import org.briarproject.briar.android.contact.ContactLinkOutputFragment;
+import org.briarproject.briar.android.contact.ContactLinkExchangeActivity;
+import org.briarproject.briar.android.contact.ContactLinkExchangeFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.contact.ContactModule;
 import org.briarproject.briar.android.contact.ContactQrCodeInputFragment;
@@ -175,14 +172,9 @@ public interface ActivityComponent {
 
 	void inject(UnlockActivity activity);
 
-	void inject(ContactInviteOutputActivity activity);
-	void inject(ContactInviteInputActivity activity);
+	void inject(ContactLinkExchangeActivity activity);
+
 	void inject(PendingRequestsActivity activity);
-	void inject(ContactLinkOutputFragment activity);
-	void inject(ContactQrCodeOutputFragment activity);
-	void inject(ContactLinkInputFragment activity);
-	void inject(ContactQrCodeInputFragment activity);
-	void inject(ContactAliasInputFragment activity);
 
 	// Fragments
 	void inject(AuthorNameFragment fragment);
@@ -228,4 +220,11 @@ public interface ActivityComponent {
 	void inject(ScreenFilterDialogFragment fragment);
 
 	void inject(ContactExchangeErrorFragment fragment);
+
+	void inject(ContactLinkExchangeFragment fragment);
+
+	void inject(ContactQrCodeOutputFragment fragment);
+
+	void inject(ContactQrCodeInputFragment fragment);
+
 }
