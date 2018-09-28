@@ -99,7 +99,7 @@ public class ContactInviteInputActivity extends BriarActivity implements
 
 	boolean isBriarLink(CharSequence s) {
 		String link = s.toString().trim();
-		return link.matches("^(briar://)?[A-Z2-7]{64}$");
+		return link.matches("^(briar://)?[a-z2-7]{64}$");
 	}
 
 	void showLink(@Nullable String link) {
