@@ -158,7 +158,7 @@ public class StringUtils {
 		char[] c = new char[length];
 		for (int i = 0; i < length; i++) {
 			int character = random.nextInt(32);
-			if (character < 26) c[i] = (char) ('A' + character);
+			if (character < 26) c[i] = (char) ('a' + character);
 			else c[i] = (char) ('2' + (character - 26));
 		}
 		return new String(c);
