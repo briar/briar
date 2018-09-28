@@ -79,6 +79,9 @@ public class ContactLinkExchangeFragment extends BaseFragment
 		int color =
 				resolveColorAttribute(getContext(), R.attr.colorControlNormal);
 
+		addButton = v.findViewById(R.id.addButton);
+		addButton.setOnClickListener(view -> onAddButtonClicked());
+
 		contactNameInput = v.findViewById(R.id.contactNameInput);
 		contactNameInput.addTextChangedListener(this);
 		if (SDK_INT < 23) {
@@ -140,9 +143,6 @@ public class ContactLinkExchangeFragment extends BaseFragment
 					ContactLinkExchangeActivity activity = getCastActivity();
 					if (activity != null) activity.showCode();
 				});
-
-		addButton = v.findViewById(R.id.addButton);
-		addButton.setOnClickListener(view -> onAddButtonClicked());
 
 		return v;
 	}
