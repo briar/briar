@@ -91,10 +91,8 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 			entryValues.add(resolveInfo.activityInfo.packageName);
 		}
 
-		panicAppPref.setEntries(
-				entries.toArray(new CharSequence[entries.size()]));
-		panicAppPref.setEntryValues(
-				entryValues.toArray(new CharSequence[entryValues.size()]));
+		panicAppPref.setEntries(entries.toArray(new CharSequence[0]));
+		panicAppPref.setEntryValues(entryValues.toArray(new CharSequence[0]));
 		panicAppPref.setDefaultValue(PACKAGE_NAME_NONE);
 
 		panicAppPref.setOnPreferenceChangeListener((preference, newValue) -> {
