@@ -45,12 +45,10 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 
 	@Override
 	public void onCreatePreferences(Bundle bundle, String s) {
-		LOG.info("onCreatePreferences");
 		addPreferencesFromResource(R.xml.panic_preferences);
 	}
 
 	private void updatePreferences() {
-		LOG.info("updatePreferences");
 		pm = getActivity().getPackageManager();
 
 		lockPref = (SwitchPreference) findPreference(KEY_LOCK);
@@ -131,7 +129,6 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 	@Override
 	public void onStart() {
 		super.onStart();
-		LOG.info("onStart");
 		getPreferenceScreen().getSharedPreferences()
 				.registerOnSharedPreferenceChangeListener(this);
 		updatePreferences();
