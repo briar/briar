@@ -138,13 +138,12 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {
-		if (key.equals(KEY_PURGE)) {
-			// enable locking if purging gets enabled
-			if (sharedPreferences.getBoolean(KEY_PURGE, false)) {
-				lockPref.setChecked(true);
-			}
+		// enable locking if purging gets enabled
+		if (key.equals(KEY_PURGE) &&
+				sharedPreferences.getBoolean(KEY_PURGE, false)) {
+			lockPref.setChecked(true);
 		}
-		// disable purging and uninstalling if locking gets disabled
+		// disable purging if locking gets disabled
 		if (key.equals(KEY_LOCK) &&
 				!sharedPreferences.getBoolean(KEY_LOCK, true)) {
 			purgePref.setChecked(false);
