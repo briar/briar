@@ -6,8 +6,8 @@ import android.view.Gravity;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarUiTestComponent;
+import org.briarproject.briar.android.UiTest;
 import org.briarproject.briar.android.settings.SettingsActivity;
-import org.briarproject.briar.android.test.ScreenshotTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +23,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 @RunWith(AndroidJUnit4.class)
-public class NavDrawerActivityTest extends ScreenshotTest {
+public class NavDrawerActivityTest extends UiTest {
 
 	@Rule
 	public CleanAccountTestRule<NavDrawerActivity> testRule =

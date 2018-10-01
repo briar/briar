@@ -159,7 +159,8 @@ class AccountManagerImpl implements AccountManager {
 	@Override
 	public boolean createAccount(String name, String password) {
 		synchronized (stateChangeLock) {
-			// TODO don't allow creating another account if one already exists
+			if (hasDatabaseKey())
+				throw new AssertionError("Already have a database key");
 			LocalAuthor localAuthor = identityManager.createLocalAuthor(name);
 			identityManager.registerLocalAuthor(localAuthor);
 			SecretKey key = crypto.generateSecretKey();
@@ -182,6 +183,7 @@ class AccountManagerImpl implements AccountManager {
 			LOG.info("Deleting account");
 			IoUtils.deleteFileOrDir(databaseConfig.getDatabaseKeyDirectory());
 			IoUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
+			databaseKey = null;
 		}
 	}
 

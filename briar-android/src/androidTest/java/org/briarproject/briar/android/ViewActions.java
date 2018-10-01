@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.test;
+package org.briarproject.briar.android;
 
 import android.app.Activity;
 import android.support.test.espresso.PerformException;
