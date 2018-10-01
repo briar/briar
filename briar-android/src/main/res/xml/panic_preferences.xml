@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
-	xmlns:android="http://schemas.android.com/apk/res/android">
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<SwitchPreference
 		android:defaultValue="true"
 		android:key="pref_key_lock"
 		android:summary="@string/panic_setting_signout_summary"
-		android:title="@string/panic_setting_signout_title"/>
+		android:title="@string/panic_setting_signout_title"
+		app:iconSpaceReserved="false"/>
 
 	<PreferenceCategory
 		android:layout="@layout/preferences_category"
@@ -23,7 +25,8 @@
 			android:enabled="false"
 			android:key="pref_key_purge"
 			android:summary="@string/purge_setting_summary"
-			android:title="@string/purge_setting_title"/>
+			android:title="@string/purge_setting_title"
+			app:iconSpaceReserved="false"/>
 
 	</PreferenceCategory>
 
